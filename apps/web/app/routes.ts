@@ -17,6 +17,17 @@ export default [
         '(public)/(frequently-asked-questions)/page.tsx',
       ),
       route('latest-updates', '(public)/(latest-updates)/page.tsx'),
+      ...prefix('wiki', [
+        layout('(public)/(wiki)/layout.tsx', [
+          index('(public)/(wiki)/(index)/page.tsx'),
+          ...prefix('units', [
+            route(':unitId', '(public)/(wiki)/(units)/page.tsx'),
+          ]),
+          ...prefix('buildings', [
+            route(':buildingId', '(public)/(wiki)/(buildings)/page.tsx'),
+          ]),
+        ]),
+      ]),
       ...prefix('game-worlds', [
         index('(public)/(game-worlds)/(index)/page.tsx'),
         route('create', '(public)/(game-worlds)/(create)/page.tsx'),
@@ -28,10 +39,8 @@ export default [
   // Game routes
   ...prefix('game', [
     ...prefix(':serverSlug', [
-      layout('(game)/error-layout.tsx', [
-        route('not-allowed', '(game)/(not-allowed)/page.tsx'),
-        route('not-found', '(game)/(not-found)/page.tsx'),
-      ]),
+      route('not-allowed', '(game)/(not-allowed)/page.tsx'),
+      route('not-found', '(game)/(not-found)/page.tsx'),
       // We need this route for relative navigation to work, it's otherwise completely empty
       route(':villageSlug', '(game)/(village-slug)/page.tsx', [
         layout('(game)/layout.tsx', [

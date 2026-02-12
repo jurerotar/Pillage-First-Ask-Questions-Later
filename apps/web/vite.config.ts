@@ -2,6 +2,7 @@ import { resolve } from 'node:path';
 import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
 import { reactIconsSprite } from 'react-icons-sprite/vite';
+import rehypeSlug from 'rehype-slug';
 import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
@@ -16,7 +17,7 @@ const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
 
 const isInTestMode = process.env.VITEST === 'true';
-const isDeployingToMaster = process.env.BRANCH_ENV === 'master';
+const isDeployingToMaster = process.env.HEAD === 'master';
 
 const manifest: Partial<ManifestOptions> = {
   name: 'Pillage First! (Ask Questions Later)',
@@ -59,7 +60,11 @@ const viteConfig = defineViteConfig({
     //     },
     //   }),
     !isInTestMode &&
-      mdx({ providerImportSource: '@mdx-js/react', development: false }),
+      mdx({
+        providerImportSource: '@mdx-js/react',
+        development: false,
+        rehypePlugins: [rehypeSlug],
+      }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
@@ -116,9 +121,6 @@ const viteConfig = defineViteConfig({
   define: {
     'import.meta.env.VERSION': JSON.stringify(repoPackageJson.version),
     'import.meta.env.GRAPHICS_VERSION': JSON.stringify(graphicsVersion),
-    'import.meta.env.BRANCH_ENV': JSON.stringify(
-      isDeployingToMaster ? 'master' : 'develop',
-    ),
     'import.meta.env.COMMIT_REF': JSON.stringify(process.env.COMMIT_REF),
     'import.meta.env.HEAD': JSON.stringify(process.env.HEAD),
   },

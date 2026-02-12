@@ -462,7 +462,7 @@ export const getEventDuration = (
     const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
-        $effect_id: 'buildingDuration',
+        $effect_id: durationEffectId,
         $village_id: villageId,
       },
       schema: apiEffectSchema,

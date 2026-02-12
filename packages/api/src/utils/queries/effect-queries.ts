@@ -83,7 +83,7 @@ export const updateBuildingEffectQuery = `
         effect = $effect_id
       )
     AND village_id = $village_id
-    AND type = 'base'
+    AND type = $type
     AND scope = 'village'
     AND source = 'building'
     AND source_specifier = $source_specifier;

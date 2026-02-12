@@ -34,13 +34,13 @@ globalThis.addEventListener(
       `,
     });
 
-    migrateAndSeed(dbFacade, server);
+    const migrationDuration = migrateAndSeed(dbFacade, server);
 
     dbFacade.close();
     database.close();
     opfsSahPool.pauseVfs();
 
-    globalThis.postMessage({ resolved: true });
+    globalThis.postMessage({ migrationDuration });
     globalThis.close();
   },
 );

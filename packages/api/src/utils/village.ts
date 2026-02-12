@@ -57,6 +57,11 @@ type CalculateVillageResourcesAtReturn = {
   lastEffectiveClayUpdate: number;
   lastEffectiveIronUpdate: number;
   lastEffectiveWheatUpdate: number;
+  previousWood: number;
+  previousClay: number;
+  previousIron: number;
+  previousWheat: number;
+  previousUpdatedAt: number;
 };
 
 const currentResourcesSchema = z.strictObject({
@@ -185,6 +190,11 @@ export const calculateVillageResourcesAt = (
     lastEffectiveClayUpdate,
     lastEffectiveIronUpdate,
     lastEffectiveWheatUpdate,
+    previousWood: wood,
+    previousClay: clay,
+    previousIron: iron,
+    previousWheat: wheat,
+    previousUpdatedAt: last_updated_at,
   };
 };
 
@@ -202,6 +212,11 @@ export const updateVillageResourcesAt = (
     lastEffectiveClayUpdate,
     lastEffectiveIronUpdate,
     lastEffectiveWheatUpdate,
+    previousWood,
+    previousClay,
+    previousIron,
+    previousWheat,
+    previousUpdatedAt,
   } = calculateVillageResourcesAt(database, villageId, timestamp);
 
   const latestTick = Math.max(
@@ -210,6 +225,17 @@ export const updateVillageResourcesAt = (
     lastEffectiveIronUpdate,
     lastEffectiveWheatUpdate,
   );
+
+  const hasChanges =
+    currentWood !== previousWood ||
+    currentClay !== previousClay ||
+    currentIron !== previousIron ||
+    currentWheat !== previousWheat ||
+    latestTick !== previousUpdatedAt;
+
+  if (!hasChanges) {
+    return;
+  }
 
   database.exec({
     sql: `

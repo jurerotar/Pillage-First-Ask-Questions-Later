@@ -110,6 +110,57 @@ describe('building resolvers', () => {
       expect(populationEffect.value).toBe(-1);
     });
 
+    test('should update non-base building effects (e.g., barracksTrainingDuration)', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = 1;
+      const buildingFieldId = 19;
+      const buildingId: Building['id'] = 'BARRACKS';
+
+      // Construct Barracks at level 0 (initial state)
+      buildingConstructionResolver(database, {
+        id: 10,
+        type: 'buildingConstruction',
+        startsAt: 1000,
+        duration: 500,
+        resolvesAt: 1500,
+        villageId,
+        buildingFieldId,
+        buildingId,
+        level: 0,
+        previousLevel: 0,
+      });
+
+      // Verify level 0 effect value (should be 1)
+      const effectValue0 = database.selectValue({
+        sql: "SELECT value FROM effects WHERE village_id = $villageId AND source_specifier = $fieldId AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration');",
+        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        schema: z.number(),
+      });
+      expect(effectValue0).toBe(1);
+
+      // Level up to level 2 (valuesPerLevel[2] = 0.9091)
+      buildingLevelChangeResolver(database, {
+        id: 11,
+        type: 'buildingLevelChange',
+        startsAt: 2000,
+        duration: 500,
+        resolvesAt: 2500,
+        villageId,
+        buildingFieldId,
+        buildingId,
+        level: 2,
+        previousLevel: 1,
+      });
+
+      // Verify level 2 effect value
+      const effectValue2 = database.selectValue({
+        sql: "SELECT value FROM effects WHERE village_id = $villageId AND source_specifier = $fieldId AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration');",
+        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        schema: z.number(),
+      });
+      expect(effectValue2).toBeCloseTo(0.9091, 4);
+    });
+
     test('should downgrade building level', async () => {
       const database = await prepareTestDatabase();
       const villageId = 1;

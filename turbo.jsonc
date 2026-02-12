@@ -6,8 +6,13 @@
       "persistent": true,
       "cache": false
     },
+    "swagger": {
+      "persistent": true,
+      "cache": false
+    },
     "build": {
-      "outputs": ["build/**"]
+      "outputs": ["build/**"],
+      "env": ["COMMIT_REF", "HEAD"]
     },
     "build:dev": {
       "outputs": ["build/**"]

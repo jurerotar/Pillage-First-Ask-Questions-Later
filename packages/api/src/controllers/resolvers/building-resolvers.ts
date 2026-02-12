@@ -66,12 +66,13 @@ export const buildingLevelChangeResolver: Resolver<
   // Update effects
   const { effects } = getBuildingDefinition(buildingId);
 
-  for (const { effectId, valuesPerLevel } of effects) {
+  for (const { effectId, valuesPerLevel, type } of effects) {
     database.exec({
       sql: updateBuildingEffectQuery,
       bind: {
         $effect_id: effectId,
         $value: valuesPerLevel[level],
+        $type: type,
         $village_id: villageId,
         $source_specifier: buildingFieldId,
       },
@@ -179,12 +180,13 @@ export const buildingDestructionResolver: Resolver<
 
   if (isNonDestroyable) {
     // Building stays at level 0 → keep the effect rows but set their values to level 0
-    for (const { effectId, valuesPerLevel } of effects) {
+    for (const { effectId, valuesPerLevel, type } of effects) {
       database.exec({
         sql: updateBuildingEffectQuery,
         bind: {
           $effect_id: effectId,
           $value: valuesPerLevel[0],
+          $type: type,
           $village_id: villageId,
           $source_specifier: buildingFieldId,
         },

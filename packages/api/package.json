@@ -17,6 +17,9 @@
     },
     "./open-api": {
       "default": "./src/open-api.ts"
+    },
+    "./errors": {
+      "default": "./src/errors/index.ts"
     }
   },
   "scripts": {

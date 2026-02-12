@@ -2,9 +2,7 @@ import { reputationLevels } from '@pillage-first/game-assets/reputation';
 import type { ReputationLevel } from '@pillage-first/types/models/reputation';
 
 // Sort entries by threshold descending
-const entries = Array.from(reputationLevels.entries()).toSorted(
-  (a, b) => b[1] - a[1],
-);
+const entries = [...reputationLevels.entries()].toSorted((a, b) => b[1] - a[1]);
 
 export const getReputationLevel = (value: number | null): ReputationLevel => {
   if (value === null) {
