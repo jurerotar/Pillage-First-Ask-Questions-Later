@@ -1,23 +1,22 @@
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { DbFacade } from '../facades/database-facade';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { getGameEventResolver } from './event-type-mapper';
-import { parseEvent } from './zod/event-schemas';
+import { eventSchema } from './zod/event-schemas';
 
 export const resolveEvent = (
   database: DbFacade,
   eventId: GameEvent['id'],
 ): void => {
-  const deletedRow = database.selectObject(
-    `
+  const event = database.selectObject({
+    sql: `
       DELETE FROM events
       WHERE id = $id
       RETURNING id, type, starts_at, duration, village_id, resolves_at, meta;
     `,
-    { $id: eventId },
-  );
-
-  const event = parseEvent(deletedRow);
+    bind: { $id: eventId },
+    schema: eventSchema,
+  })!;
 
   try {
     const resolver = getGameEventResolver(event.type);

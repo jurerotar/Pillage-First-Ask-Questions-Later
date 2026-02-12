@@ -1,5 +1,5 @@
-import { glob, readFile, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { glob, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { join, resolve, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
@@ -30,7 +30,12 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
 
     // Find function calls
     for (const func of FUNCTIONS) {
-      const funcRegex = new RegExp(`(?:database|db|this)\\.${func}\\(\\s*(\`[\\s\\S]*?\`|'[^']*?'|"[^"]*?"|\\w+)`, 'g');
+      // Matches:
+      // database.func({ sql: 'sql' })
+      // database.func({ sql: `sql` })
+      // database.func({ sql: variable })
+      // database.func({ sql })
+      const funcRegex = new RegExp(`(?:database|db|this)\\.${func}\\(\\s*(?:\\{\\s*sql:\\s*)?(\`[\\s\\S]*?\`|'[^']*?'|"[^"]*?"|\\w+)`, 'g');
       let funcMatch;
       while ((funcMatch = funcRegex.exec(content)) !== null) {
         const arg = funcMatch[1];
@@ -40,6 +45,16 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
           sqlStatements.add(sql);
         } else {
           pendingVariableResolutions.push(arg);
+        }
+      }
+
+      // Handle { sql } shorthand
+      const shorthandRegex = new RegExp(`(?:database|db|this)\\.${func}\\(\\s*\\{\\s*(\\w+)\\s*(?:,[\\s\\S]*?)?\\s*\\}`, 'g');
+      let shorthandMatch;
+      while ((shorthandMatch = shorthandRegex.exec(content)) !== null) {
+        const arg = shorthandMatch[1];
+        if (arg === 'sql') {
+          pendingVariableResolutions.push('sql');
         }
       }
     }
@@ -75,6 +90,7 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
     ]),
   ].join('\n');
 
+  await mkdir(dirname(STATEMENTS_EXPORT_PATH), { recursive: true });
   await writeFile(STATEMENTS_EXPORT_PATH, output, 'utf8');
 
   const statementsUrl = pathToFileURL(resolve(STATEMENTS_EXPORT_PATH)).href;

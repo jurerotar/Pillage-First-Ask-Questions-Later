@@ -28,6 +28,7 @@ import {
   NavLink,
   type NavLinkProps,
   Outlet,
+  type ShouldRevalidateFunction,
   useNavigate,
 } from 'react-router';
 import type { Resource } from '@pillage-first/types/models/resource';
@@ -35,6 +36,10 @@ import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/+types/layout';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
+import {
+  DeveloperToolsButton,
+  DeveloperToolsConsole,
+} from 'app/(game)/(village-slug)/components/developer-tools-console';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
@@ -44,15 +49,19 @@ import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-c
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import {
+  CurrentVillageStateContext,
+  CurrentVillageStateProvider,
+} from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -66,6 +75,7 @@ import {
 } from 'app/components/ui/select';
 import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
+import { useDialog } from 'app/hooks/use-dialog';
 
 const closeGameWorld = (apiWorker: Worker): void => {
   const handler = ({ data }: MessageEvent) => {
@@ -114,8 +124,9 @@ const QuestsCounter = () => {
   return <Counter counter={collectableQuestCount} />;
 };
 
-type NavigationSideItemProps = NavLinkProps & {
+type NavigationSideItemProps = Partial<NavLinkProps> & {
   counter?: ReactNode;
+  onClick?: () => void;
 };
 
 const NavigationSideItem = ({
@@ -123,34 +134,55 @@ const NavigationSideItem = ({
   counter,
   ...rest
 }: PropsWithChildren<NavigationSideItemProps>) => {
+  const content = (
+    <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
+      {children}
+    </span>
+  );
+
+  const { to, ...restWithoutTo } = rest;
+
+  const commonProps = {
+    'data-tooltip-id': 'general-tooltip' as const,
+    'data-tooltip-delay-show': TOOLTIP_DELAY_SHOW,
+    'data-tooltip-class-name': 'hidden lg:flex',
+    tabIndex: 0,
+    className: clsx(
+      'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
+      'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
+      'transition-transform active:scale-95 active:shadow-inner',
+      'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
+      'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
+    ),
+    ...restWithoutTo,
+  };
+
   return (
     <div className="relative">
       {counter}
-      <NavLink
-        data-tooltip-id="general-tooltip"
-        data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
-        data-tooltip-class-name="hidden lg:flex"
-        tabIndex={0}
-        className={clsx(
-          'bg-linear-to-t from-[#f2f2f2] to-[#ffffff]',
-          'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-border relative',
-          'transition-transform active:scale-95 active:shadow-inner',
-          'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
-          'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
-        )}
-        {...rest}
-      >
-        <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
-          {children}
-        </span>
-      </NavLink>
+      {to ? (
+        <NavLink
+          {...(commonProps as NavLinkProps)}
+          to={to}
+        >
+          {content}
+        </NavLink>
+      ) : (
+        <button
+          type="button"
+          {...(commonProps as ComponentProps<'button'>)}
+        >
+          {content}
+        </button>
+      )}
     </div>
   );
 };
 
 const DesktopPopulation = () => {
-  const { population, buildingWheatLimit } =
-    useComputedEffect('wheatProduction');
+  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+
+  const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
   return (
     <div className="flex gap-2">
@@ -202,8 +234,9 @@ const VillageOverviewDesktopItem = () => {
 
 const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
-  const { population, buildingWheatLimit } =
-    useComputedEffect('wheatProduction');
+  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+
+  const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
   return (
     <Link
@@ -532,10 +565,15 @@ const VillageSelect = () => {
   );
 };
 
-const TopNavigation = () => {
+type TopNavigationProps = {
+  onDeveloperToolsToggle: () => void;
+};
+
+const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
   const { t } = useTranslation();
   const { apiWorker } = use(ApiContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { preferences } = usePreferences();
 
   return (
     <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200">
@@ -577,6 +615,18 @@ const TopNavigation = () => {
                 </li>
               </ul>
               <ul className="flex gap-1">
+                {preferences.isDeveloperToolsConsoleEnabled && (
+                  <li>
+                    <DesktopTopRowItem
+                      aria-label={t('Developer tools')}
+                      data-tooltip-content={t('Developer tools')}
+                      onClick={onDeveloperToolsToggle}
+                    >
+                      <DeveloperToolsButton className="text-purple-600 border-purple-500 size-5" />
+                    </DesktopTopRowItem>
+                  </li>
+                )}
+
                 <li>
                   <Link to="statistics">
                     <DesktopTopRowItem
@@ -677,9 +727,16 @@ const TopNavigation = () => {
   );
 };
 
-const MobileBottomNavigation = () => {
+type MobileBottomNavigationProps = {
+  onDeveloperToolsToggle: () => void;
+};
+
+const MobileBottomNavigation = ({
+  onDeveloperToolsToggle,
+}: MobileBottomNavigationProps) => {
   const { t } = useTranslation();
   const { apiWorker } = use(ApiContext);
+  const { preferences } = usePreferences();
 
   const container = useRef<HTMLDivElement>(null);
   const centeredElement = useRef<HTMLLIElement>(null);
@@ -766,6 +823,16 @@ const MobileBottomNavigation = () => {
           <li>
             <Separator orientation="vertical" />
           </li>
+          {preferences.isDeveloperToolsConsoleEnabled && (
+            <li>
+              <NavigationSideItem
+                aria-label={t('Developer tools')}
+                onClick={onDeveloperToolsToggle}
+              >
+                <DeveloperToolsButton className="text-purple-600 border-purple-500 size-6" />
+              </NavigationSideItem>
+            </li>
+          )}
           <li>
             <NavigationSideItem
               to="/game-worlds"
@@ -792,26 +859,51 @@ const PageFallback = () => {
   );
 };
 
+export const clientLoader = async ({ params }: Route.ClientLoaderArgs) => {
+  const { villageSlug } = params;
+
+  return {
+    villageSlug,
+  };
+};
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  currentParams,
+  nextParams,
+}) => {
+  return currentParams.villageSlug !== nextParams.villageSlug;
+};
+
 const GameLayout = memo<Route.ComponentProps>(
-  () => {
+  ({ params }) => {
+    const { villageSlug } = params;
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+    const { isOpen, toggleModal } = useDialog();
 
     return (
       <div className="[-webkit-touch-callout:none]">
-        <CurrentVillageStateProvider>
-          <CurrentVillageBuildingQueueContextProvider>
-            <Tooltip id="general-tooltip" />
-            <TopNavigation />
-            <TroopMovements />
-            <Suspense fallback={<PageFallback />}>
-              <Outlet />
-            </Suspense>
-            <ConstructionQueue />
-            <TroopList />
-            {!isWiderThanLg && <MobileBottomNavigation />}
-            <PreferencesUpdater />
-          </CurrentVillageBuildingQueueContextProvider>
-        </CurrentVillageStateProvider>
+        <VillageSlugProvider villageSlug={villageSlug}>
+          <CurrentVillageStateProvider>
+            <CurrentVillageBuildingQueueContextProvider>
+              <Tooltip id="general-tooltip" />
+              <TopNavigation onDeveloperToolsToggle={toggleModal} />
+              <TroopMovements />
+              <Suspense fallback={<PageFallback />}>
+                <Outlet />
+              </Suspense>
+              <ConstructionQueue />
+              <TroopList />
+              {!isWiderThanLg && (
+                <MobileBottomNavigation onDeveloperToolsToggle={toggleModal} />
+              )}
+              <PreferencesUpdater />
+              <DeveloperToolsConsole
+                isOpen={isOpen}
+                onOpenChange={toggleModal}
+              />
+            </CurrentVillageBuildingQueueContextProvider>
+          </CurrentVillageStateProvider>
+        </VillageSlugProvider>
       </div>
     );
   },

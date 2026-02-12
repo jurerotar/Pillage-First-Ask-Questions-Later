@@ -1,15 +1,19 @@
 import { z } from 'zod';
 import { tribeSchema } from './tribe';
 
-const mapSizeSchema = z.union([z.literal(100), z.literal(200), z.literal(300)]);
+export const mapSizeSchema = z
+  .union([z.literal(100), z.literal(200), z.literal(300)])
+  .meta({ id: 'ServerMapSize' });
 
-const speedSchema = z.union([
-  z.literal(1),
-  z.literal(2),
-  z.literal(3),
-  z.literal(5),
-  z.literal(10),
-]);
+export const speedSchema = z
+  .union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(5),
+    z.literal(10),
+  ])
+  .meta({ id: 'ServerSpeed' });
 
 export const serverDbSchema = z
   .strictObject({
@@ -41,23 +45,26 @@ export const serverDbSchema = z
         tribe: t.player_tribe,
       },
     };
-  });
+  })
+  .meta({ id: 'ServerDb' });
 
-export const serverSchema = z.strictObject({
-  id: z.string(),
-  version: z.string(),
-  name: z.string(),
-  slug: z.string(),
-  createdAt: z.number(),
-  seed: z.string(),
-  configuration: z.strictObject({
-    mapSize: mapSizeSchema,
-    speed: speedSchema,
-  }),
-  playerConfiguration: z.strictObject({
+export const serverSchema = z
+  .strictObject({
+    id: z.string(),
+    version: z.string(),
     name: z.string(),
-    tribe: tribeSchema,
-  }),
-});
+    slug: z.string(),
+    createdAt: z.number(),
+    seed: z.string(),
+    configuration: z.strictObject({
+      mapSize: mapSizeSchema,
+      speed: speedSchema,
+    }),
+    playerConfiguration: z.strictObject({
+      name: z.string(),
+      tribe: tribeSchema,
+    }),
+  })
+  .meta({ id: 'Server' });
 
 export type Server = z.infer<typeof serverSchema>;

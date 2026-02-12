@@ -7,14 +7,14 @@ export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
 ) => {
   const { unitId } = args;
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE unit_improvements
       SET level = level + 1
       WHERE unit_id = $unit_id;
     `,
-    {
+    bind: {
       $unit_id: unitId,
     },
-  );
+  });
 };

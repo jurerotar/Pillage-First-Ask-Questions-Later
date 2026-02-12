@@ -47,6 +47,9 @@
     },
     "./guards/map": {
       "default": "./src/guards/map-guards.ts"
+    },
+    "./facades/database": {
+      "default": "./src/facades/database-facade.ts"
     }
   },
   "scripts": {
@@ -61,13 +64,13 @@
   },
   "dependencies": {
     "@pillage-first/types": "*",
-    "ts-seedrandom": "1.4.0"
+    "ts-seedrandom": "1.4.1"
   },
   "devDependencies": {
     "@biomejs/biome": "*",
     "@typescript/native-preview": "*",
-    "vitest": "4.0.17",
-    "@vitest/coverage-v8": "4.0.17",
-    "typescript": "*"
+    "vitest": "*",
+    "typescript": "*",
+    "zod": "*"
   }
 }

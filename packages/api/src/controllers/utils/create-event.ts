@@ -1,8 +1,9 @@
+import { z } from 'zod';
 import type {
   GameEvent,
   GameEventType,
 } from '@pillage-first/types/models/game-event';
-import type { DbFacade } from '../../facades/database-facade';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { triggerKick } from '../../scheduler/scheduler-signal';
 import {
   checkAndSubtractVillageResources,
@@ -31,13 +32,18 @@ type CreateNewEventsArgs<T extends GameEventType> = Omit<
   amount?: number;
 };
 
+const createEventsSchema = z.strictObject({
+  id: z.number(),
+  resolvesAt: z.number(),
+});
+
 export const createEvents = <T extends GameEventType>(
   database: DbFacade,
   args: CreateNewEventsArgs<T>,
 ) => {
   // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
   const startsAt = getEventStartTime(database, args as GameEvent<T>);
-  const duration = getEventDuration(database, args as GameEvent<T>);
+  const duration = Math.ceil(getEventDuration(database, args as GameEvent<T>));
 
   const amount = args?.amount ?? 1;
   const events: GameEvent<T>[] = Array.from({ length: amount });
@@ -55,16 +61,20 @@ export const createEvents = <T extends GameEventType>(
   const earliestNewResolvesAt = events[0].startsAt + events[0].duration;
 
   // read current next event BEFORE we insert, using the same "now" snapshot
-  const currentNext = database.selectObject(
-    `
-      SELECT id, resolves_at as resolvesAt
-      FROM events
-      WHERE resolves_at > $now
-      ORDER BY resolves_at
+  const currentNext = database.selectObject({
+    sql: `
+      SELECT id, resolves_at AS resolvesAt
+      FROM
+        events
+      WHERE
+        resolves_at > $now
+      ORDER BY
+        resolves_at
       LIMIT 1;
     `,
-    { $now: now },
-  ) as { id: string; resolvesAt: number } | undefined;
+    bind: { $now: now },
+    schema: createEventsSchema,
+  });
 
   validateAndInsertEvents(database, events);
 

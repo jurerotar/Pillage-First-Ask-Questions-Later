@@ -6,8 +6,13 @@
       "persistent": true,
       "cache": false
     },
+    "swagger": {
+      "persistent": true,
+      "cache": false
+    },
     "build": {
-      "outputs": ["build/**"]
+      "outputs": ["build/**"],
+      "env": ["COMMIT_REF", "HEAD"]
     },
     "build:dev": {
       "outputs": ["build/**"]
@@ -20,9 +25,6 @@
     "lint/oxlint": {},
     "test": {},
     "type-check": {},
-    "localize": {},
-    "open-api:generate": {
-      "outputs": ["open-api.json", "open-api.ts"]
-    }
+    "localize": {}
   }
 }

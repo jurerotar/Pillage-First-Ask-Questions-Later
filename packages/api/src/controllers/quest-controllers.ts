@@ -5,42 +5,15 @@ import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import { addVillageResourcesAt } from '../utils/village';
+import { getQuestsSchema } from './schemas/quest-schemas';
 import { addHeroExperience } from './utils/hero';
 
-const getQuestsSchema = z
-  .strictObject({
-    quest_id: z.string().brand<Quest['id']>(),
-    scope: z.enum(['village', 'global']),
-    collected_at: z.number().nullable(),
-    completed_at: z.number().nullable(),
-    village_id: z.number().nullable(),
-  })
-  .transform((t) => {
-    return {
-      id: t.quest_id,
-      scope: t.scope,
-      collectedAt: t.collected_at,
-      completedAt: t.completed_at,
-      ...(t.village_id !== null && {
-        villageId: t.village_id,
-      }),
-    };
-  });
-
-/**
- * GET /villages/:villageId/quests
- * @pathParam {number} villageId
- */
-export const getQuests: Controller<'/villages/:villageId/quests'> = (
-  database,
-  { params },
-) => {
-  const { villageId } = params;
-
-  const rows = database.selectObjects(
-    `
+export const getQuests = createController('/villages/:villageId/quests')(
+  ({ database, path: { villageId } }) => {
+    return database.selectObjects({
+      sql: `
       SELECT *
       FROM
         (
@@ -59,22 +32,19 @@ export const getQuests: Controller<'/villages/:villageId/quests'> = (
             village_id IS NULL
           ) AS q
     `,
-    {
-      $village_id: villageId,
-    },
-  );
+      bind: {
+        $village_id: villageId,
+      },
+      schema: getQuestsSchema,
+    });
+  },
+);
 
-  return z.array(getQuestsSchema).parse(rows);
-};
-
-/**
- * GET /quests/collectable-count
- */
-export const getCollectableQuestCount: Controller<
-  '/quests/collectable-count'
-> = (database) => {
-  const collectableQuestCount = database.selectValue(
-    `
+export const getCollectableQuestCount = createController(
+  '/villages/:villageId/quests/collectables/count',
+)(({ database }) => {
+  const collectableQuestCount = database.selectValue({
+    sql: `
       SELECT COUNT(*) AS count
       FROM
         quests
@@ -82,28 +52,20 @@ export const getCollectableQuestCount: Controller<
         completed_at IS NOT NULL
         AND collected_at IS NULL;
     `,
-  ) as number;
+    schema: z.number(),
+  });
 
   return {
     collectableQuestCount,
   };
-};
+});
 
-/**
- * POST /villages/:villageId/quests/:questId/collect
- * @pathParam {number} villageId
- * @pathParam {string} questId
- */
-export const collectQuest: Controller<
+export const collectQuest = createController(
   '/villages/:villageId/quests/:questId/collect',
-  'post'
-> = (database, args) => {
-  const {
-    params: { questId, villageId },
-  } = args;
-
-  database.exec(
-    `
+  'patch',
+)(({ database, path: { questId, villageId } }) => {
+  database.exec({
+    sql: `
       UPDATE quests
       SET
         collected_at = $collected_at
@@ -119,12 +81,12 @@ export const collectQuest: Controller<
           LIMIT 1
           );
     `,
-    {
+    bind: {
       $collected_at: Date.now(),
       $quest_id: questId,
       $village_id: villageId,
     },
-  );
+  });
 
   const questRewards = getQuestRewards(questId as Quest['id']);
 
@@ -145,4 +107,4 @@ export const collectQuest: Controller<
       addHeroExperience(database, reward.amount);
     }
   }
-};
+});

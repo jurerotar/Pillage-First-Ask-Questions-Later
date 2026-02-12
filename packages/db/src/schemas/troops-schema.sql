@@ -7,5 +7,7 @@ CREATE TABLE troops
   source_tile_id INTEGER NOT NULL,
 
   FOREIGN KEY (tile_id) REFERENCES tiles (id) ON DELETE CASCADE,
-  FOREIGN KEY (source_tile_id) REFERENCES tiles (id) ON DELETE CASCADE
+  FOREIGN KEY (source_tile_id) REFERENCES tiles (id) ON DELETE CASCADE,
+
+  UNIQUE (unit_id, tile_id, source_tile_id)
 ) STRICT;

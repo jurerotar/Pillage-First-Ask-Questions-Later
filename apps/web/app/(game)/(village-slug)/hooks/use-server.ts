@@ -18,12 +18,13 @@ export const useServer = () => {
     gcTime: Number.POSITIVE_INFINITY,
   });
 
-  const serverId = server.id;
+  const { id: serverId, slug: serverSlug } = server;
   const { mapSize, speed: serverSpeed } = server.configuration;
 
   return {
     server,
     serverId,
+    serverSlug,
     mapSize,
     serverSpeed,
   };

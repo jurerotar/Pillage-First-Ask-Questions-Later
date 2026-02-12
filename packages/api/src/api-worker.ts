@@ -8,7 +8,11 @@ import type {
   EventApiNotificationEvent,
   WorkerInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
-import { createDbFacade, type DbFacade } from './facades/database-facade';
+import {
+  createDbFacade,
+  type DbFacade,
+} from '@pillage-first/utils/facades/database';
+import { DatabaseInitializationError } from './errors';
 import {
   cancelScheduling,
   initScheduler,
@@ -44,9 +48,15 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
           directory: `/pillage-first-ask-questions-later/${serverSlug}`,
         });
 
+        // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
+        if (opfsSahPool.getFileCount() === 0) {
+          throw new DatabaseInitializationError();
+        }
+
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-        database.exec(`
+        database.exec({
+          sql: `
           PRAGMA foreign_keys = ON;        -- keep referential integrity
           PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
           PRAGMA journal_mode = OFF;       -- fastest; no rollback journal
@@ -55,7 +65,8 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
           PRAGMA cache_size = -20000;      -- negative = KB, so -20000 => 20 MB cache
           PRAGMA secure_delete = OFF;      -- faster deletes (don't overwrite freed pages)
           PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
-        `);
+        `,
+        });
 
         dbFacade = createDbFacade(database, false);
 
@@ -69,7 +80,6 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         } satisfies ApiNotificationEvent);
         break;
       } catch (error) {
-        console.error(error);
         globalThis.postMessage({
           eventKey: 'event:worker-initialization-error',
           error: error as Error,
@@ -84,15 +94,14 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       const { url, method, body } = data;
 
       try {
-        const { controller, params, query } = matchRoute(url, method);
-        // @ts-expect-error: Not sure about this one, fix when you can
-        const result = controller(dbFacade, { params, query, body });
+        const { controller, path, query } = matchRoute(url, method);
+        const result = controller(dbFacade!, { path, query, body });
 
         if (method !== 'GET') {
           globalThis.postMessage({
             eventKey: 'event:worker-event-creation-success',
             ...body,
-            ...params,
+            ...path,
           } satisfies EventApiNotificationEvent);
         }
 

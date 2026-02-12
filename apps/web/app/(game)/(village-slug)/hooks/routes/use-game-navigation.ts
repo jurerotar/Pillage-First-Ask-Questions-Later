@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { useRouteSegments } from 'app/(game)/(village-slug)/hooks/routes/use-route-segments';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server.ts';
 
 export const useGameNavigation = () => {
-  const { serverSlug } = useRouteSegments();
+  const { serverSlug } = useServer();
 
   const getNewVillageUrl = useCallback(
     (slug: string) => {

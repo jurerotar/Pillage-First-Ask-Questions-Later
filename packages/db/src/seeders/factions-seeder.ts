@@ -1,8 +1,8 @@
 import type { Faction } from '@pillage-first/types/models/faction';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 
-export const factionsSeeder: Seeder = (database): void => {
+export const factionsSeeder = (database: DbFacade): void => {
   const factions: Faction[][] = [
     ['player'],
     ['npc1'],

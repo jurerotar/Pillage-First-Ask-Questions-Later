@@ -1,25 +1,22 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
-import type { PlayableTribe } from '@pillage-first/types/models/tribe';
-import type { Seeder } from '../types/seeder';
+import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import type { Server } from '@pillage-first/types/models/server';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 import { buildingFieldsFactory } from './factories/building-fields-factory';
 
-type QueryResultRow = {
-  village_id: number;
-  x: number;
-  y: number;
-  tribe: PlayableTribe;
-  resource_field_composition: ResourceFieldComposition;
-  player_id: number;
-};
-
-export const buildingFieldsSeeder: Seeder = (database, server): void => {
+export const buildingFieldsSeeder = (
+  database: DbFacade,
+  server: Server,
+): void => {
   // villageId, fieldId, buildingId, level
   const results = [];
 
-  const villages = database.selectObjects(`
+  const villages = database.selectObjects({
+    sql: `
     SELECT
       v.id AS village_id,
       t.x,
@@ -32,7 +29,16 @@ export const buildingFieldsSeeder: Seeder = (database, server): void => {
         JOIN tiles t ON v.tile_id = t.id
         LEFT JOIN resource_field_compositions rfc ON t.resource_field_composition_id = rfc.id
         JOIN players p ON v.player_id = p.id;
-  `) as QueryResultRow[];
+  `,
+    schema: z.strictObject({
+      village_id: z.number(),
+      x: z.number(),
+      y: z.number(),
+      resource_field_composition: resourceFieldCompositionSchema,
+      tribe: tribeSchema,
+      player_id: z.number(),
+    }),
+  });
 
   for (const {
     player_id,

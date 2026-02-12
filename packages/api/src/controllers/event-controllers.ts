@@ -1,104 +1,74 @@
 import { z } from 'zod';
 import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/buildings/utils';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { createEvents } from '../controllers/utils/create-event';
-import { getEventStartTime } from '../controllers/utils/events';
 import { triggerKick } from '../scheduler/scheduler-signal';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
 import {
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
   selectEventByIdQuery,
 } from '../utils/queries/event-queries';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
-import {
-  eventSchema,
-  parseEvent,
-  parseEvents,
-} from '../utils/zod/event-schemas';
+import { eventSchema } from '../utils/zod/event-schemas';
+import { createEvents } from './utils/create-event';
+import { getEventStartTime } from './utils/events';
 
-const eventListSchema = z.array(eventSchema);
+export const getVillageEvents = createController('/villages/:villageId/events')(
+  ({ database, path: { villageId } }) => {
+    return database.selectObjects({
+      sql: selectAllVillageEventsQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: eventSchema,
+    });
+  },
+);
 
-/**
- * GET /villages/:villageId/events
- * @pathParam {number} villageId
- */
-export const getVillageEvents: Controller<'/villages/:villageId/events'> = (
-  database,
-  { params },
-) => {
-  const { villageId } = params;
-
-  const rows = database.selectObjects(selectAllVillageEventsQuery, {
-    $village_id: villageId,
+export const getVillageEventsByType = createController(
+  '/villages/:villageId/events/:eventType',
+)(({ database, path: { villageId, eventType } }) => {
+  return database.selectObjects({
+    sql: selectAllVillageEventsByTypeQuery,
+    bind: {
+      $village_id: villageId,
+      $type: eventType,
+    },
+    schema: eventSchema,
   });
+});
 
-  return eventListSchema.parse(rows);
-};
-
-/**
- * GET /villages/:villageId/events/:eventType
- * @pathParam {number} villageId
- * @pathParam {string} eventType
- */
-export const getVillageEventsByType: Controller<
-  '/villages/:villageId/events/:eventType'
-> = (database, { params }) => {
-  const { villageId, eventType } = params;
-
-  const rows = database.selectObjects(selectAllVillageEventsByTypeQuery, {
-    $village_id: villageId,
-    $type: eventType,
-  });
-
-  return eventListSchema.parse(rows);
-};
-
-type CreateNewEventsBody = Omit<GameEvent, 'id' | 'startsAt' | 'duration'> & {
-  amount: number;
-};
-
-/**
- * POST /events
- * @bodyContent application/json CreateNewEventsBody
- * @bodyRequired
- */
-export const createNewEvents: Controller<
+export const createNewEvents = createController(
   '/events',
   'post',
-  CreateNewEventsBody
-> = (database, { body }) => {
+)(({ database, body }) => {
   createEvents(database, body);
-};
+});
 
-/**
- * POST /events/:eventId/cancel
- * @pathParam {string} eventId
- */
-export const cancelConstructionEvent: Controller<
-  '/events/:eventId/cancel',
-  'post'
-> = (database, args) => {
-  const {
-    params: { eventId },
-  } = args;
-
+export const cancelConstructionEvent = createController(
+  '/events/:eventId',
+  'delete',
+)(({ database, path: { eventId } }) => {
   database.transaction((db) => {
-    const cancelledEventRow = db.selectObject(selectEventByIdQuery, {
-      $event_id: eventId,
-    });
-
-    const cancelledEvent = parseEvent<'buildingLevelChange'>(cancelledEventRow);
+    const cancelledEvent = db.selectObject({
+      sql: selectEventByIdQuery,
+      bind: {
+        $event_id: eventId,
+      },
+      schema: eventSchema,
+    })! as GameEvent<'buildingLevelChange'>;
 
     const { level, buildingId, villageId, buildingFieldId, resolvesAt } =
       cancelledEvent;
 
     // Delete this event and all future events on the same building fields
-    const cancelledScheduledEvents = db.selectObjects(
-      `
+    const cancelledScheduledEvents = db.selectObjects({
+      sql: `
         DELETE
-        FROM events
-        WHERE village_id = $village_id
+        FROM
+          events
+        WHERE
+          village_id = $village_id
           AND JSON_EXTRACT(events.meta, '$.buildingFieldId') = $building_field_id
           AND resolves_at >= $resolves_at
         RETURNING
@@ -106,12 +76,16 @@ export const cancelConstructionEvent: Controller<
           JSON_EXTRACT(events.meta, '$.level') AS level;
         ;
       `,
-      {
+      bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
         $resolves_at: resolvesAt,
       },
-    ) as { buildingFieldId: number; level: number }[];
+      schema: z.strictObject({
+        buildingFieldId: z.number(),
+        level: z.number(),
+      }),
+    });
 
     for (const { buildingFieldId, level } of cancelledScheduledEvents) {
       // If building is currently upgrading to level 1, we need to demolish it
@@ -122,32 +96,31 @@ export const cancelConstructionEvent: Controller<
 
     // Remaining building events now need to have their start times adjusted.
     // Only scheduled construction events need adjusting, since any ongoing events are already ongoing.
-    const scheduledConstructionRows = db.selectObjects(
-      selectAllVillageEventsByTypeQuery,
-      {
+    const scheduledEvents = db.selectObjects({
+      sql: selectAllVillageEventsByTypeQuery,
+      bind: {
         $village_id: villageId,
         $type: 'buildingScheduledConstruction',
       },
-    );
-
-    const scheduledEvents = parseEvents<'buildingScheduledConstruction'>(
-      scheduledConstructionRows,
-    );
+      schema: eventSchema,
+    });
 
     for (const event of scheduledEvents) {
       const startsAt = getEventStartTime(db, event);
 
-      db.exec(
-        `
+      db.exec({
+        sql: `
           UPDATE events
-          SET starts_at = $starts_at
-          WHERE id = $event_id;
+          SET
+            starts_at = $starts_at
+          WHERE
+            id = $event_id;
         `,
-        {
+        bind: {
           $event_id: event.id,
           $starts_at: startsAt,
         },
-      );
+      });
     }
 
     // If event is already ongoing, refund resources
@@ -162,4 +135,4 @@ export const cancelConstructionEvent: Controller<
   });
 
   triggerKick();
-};
+});

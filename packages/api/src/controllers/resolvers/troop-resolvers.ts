@@ -8,41 +8,56 @@ export const troopTrainingEventResolver: Resolver<
 > = (database, args) => {
   const { unitId, villageId, resolvesAt } = args;
 
-  database.exec(
-    `
-      WITH v AS (SELECT tile_id
-                 FROM villages
-                 WHERE id = $village_id)
+  database.exec({
+    sql: `
+      WITH
+        v AS (
+          SELECT tile_id
+          FROM
+            villages
+          WHERE
+            id = $village_id
+          )
       INSERT
-      INTO troops (unit_id, amount, tile_id, source_tile_id)
+      INTO
+        troops (unit_id, amount, tile_id, source_tile_id)
       SELECT $unit_id, $amount, v.tile_id, v.tile_id
-      FROM v
-      WHERE TRUE
+      FROM
+        v
+      WHERE
+        TRUE
       ON CONFLICT(unit_id, tile_id, source_tile_id)
-        DO UPDATE SET amount = amount + excluded.amount;
+        DO UPDATE SET
+        amount = amount + excluded.amount;
     `,
-    {
+    bind: {
       $unit_id: unitId,
       $amount: 1,
       $village_id: villageId,
     },
-  );
+  });
 
   const { unitWheatConsumption } = getUnitDefinition(unitId);
 
-  database.exec(
-    `
+  database.exec({
+    sql: `
       UPDATE effects
-      SET value = value + $increase_amount
-      WHERE effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
+      SET
+        value = value + $increase_amount
+      WHERE
+        effect_id = (
+          SELECT id
+          FROM effect_ids
+          WHERE effect = 'wheatProduction'
+          )
         AND source = 'troops'
         AND village_id = $village_id;
     `,
-    {
+    bind: {
       $increase_amount: unitWheatConsumption,
       $village_id: villageId,
     },
-  );
+  });
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
 };

@@ -12,6 +12,10 @@ type UseLongPressEvent = {
   onContextMenu: (e: ReactMouseEvent | ReactTouchEvent) => void;
 };
 
+const onContextMenu = (e: ReactMouseEvent | ReactTouchEvent) => {
+  e.preventDefault();
+};
+
 export const useLongPress = (
   callback: (e: ReactMouseEvent | ReactTouchEvent) => void,
   ms = 1500,
@@ -43,18 +47,12 @@ export const useLongPress = (
 
   const onMouseDown = (e: ReactMouseEvent | ReactTouchEvent) => {
     if (e.type === 'mousedown' || e.type === 'touchstart') {
-      e.preventDefault();
       start(e);
     }
   };
 
   const onTouchStart = (e: ReactTouchEvent) => {
-    e.preventDefault();
     start(e);
-  };
-
-  const onContextMenu = (e: ReactMouseEvent | ReactTouchEvent) => {
-    e.preventDefault();
   };
 
   return {

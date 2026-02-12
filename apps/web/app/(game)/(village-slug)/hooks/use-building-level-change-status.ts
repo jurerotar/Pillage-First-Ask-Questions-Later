@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { getBuildingDataForLevel } from '@pillage-first/game-assets/buildings/utils';
+import {
+  getBuildingDataForLevel,
+  getBuildingDefinition,
+} from '@pillage-first/game-assets/buildings/utils';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
@@ -7,7 +10,7 @@ import { useHasAvailableBuildingQueueSlot } from 'app/(game)/(village-slug)/hook
 import { useHasEnoughFreeCrop } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-free-crop';
 import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
-import { useDeveloperMode } from 'app/(game)/(village-slug)/hooks/use-developer-mode';
+import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 
 type UseBuildingRequirementsReturn = {
   variant: BorderIndicatorBorderVariant;
@@ -20,16 +23,12 @@ const useBuildingRequirements = (
   buildingFieldId: BuildingField['id'],
 ): UseBuildingRequirementsReturn => {
   const { t } = useTranslation();
-  const { isDeveloperModeEnabled } = useDeveloperMode();
+  const { developerSettings } = useDeveloperSettings();
   const { errorBag: hasEnoughFreeCropErrorBag } = useHasEnoughFreeCrop(
     buildingId,
     level,
   );
-
-  const { nextLevelResourceCost, isMaxLevel } = getBuildingDataForLevel(
-    buildingId,
-    level,
-  );
+  const { nextLevelResourceCost } = getBuildingDataForLevel(buildingId, level);
 
   const { errorBag: hasEnoughResourcesErrorBag } = useHasEnoughResources(
     nextLevelResourceCost,
@@ -41,13 +40,9 @@ const useBuildingRequirements = (
   const { errorBag: hasHasAvailableBuildingQueueSlotErrorBag } =
     useHasAvailableBuildingQueueSlot(buildingFieldId);
 
-  const errorBag = [
-    ...hasEnoughFreeCropErrorBag,
-    ...hasEnoughResourcesErrorBag,
-    ...hasEnoughWarehouseCapacityErrorBag,
-    ...hasEnoughGranaryCapacityErrorBag,
-    ...hasHasAvailableBuildingQueueSlotErrorBag,
-  ];
+  const { isFreeBuildingConstructionEnabled } = developerSettings;
+  const buildingDefinition = getBuildingDefinition(buildingId);
+  const isMaxLevel = buildingDefinition.maxLevel === level;
 
   if (isMaxLevel) {
     return {
@@ -56,16 +51,29 @@ const useBuildingRequirements = (
     };
   }
 
-  if (isDeveloperModeEnabled) {
+  if (isFreeBuildingConstructionEnabled) {
     return {
       errors: [],
       variant: 'red',
     };
   }
 
-  const variant: BorderIndicatorBorderVariant = isMaxLevel
-    ? 'blue'
-    : errorBag.length === 0
+  if (hasEnoughFreeCropErrorBag.length > 0) {
+    return {
+      errors: hasEnoughFreeCropErrorBag,
+      variant: 'gray',
+    };
+  }
+
+  const errorBag = [
+    ...hasEnoughResourcesErrorBag,
+    ...hasEnoughWarehouseCapacityErrorBag,
+    ...hasEnoughGranaryCapacityErrorBag,
+    ...hasHasAvailableBuildingQueueSlotErrorBag,
+  ];
+
+  const variant: BorderIndicatorBorderVariant =
+    errorBag.length === 0
       ? 'green'
       : errorBag.includes(t('Not enough resources available.')) ||
           errorBag.includes(t('Building construction queue is full.'))

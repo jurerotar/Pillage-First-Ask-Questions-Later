@@ -1,17 +1,19 @@
+import { z } from 'zod';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 
-export const bookmarksSeeder: Seeder = (database): void => {
-  const playerStartingVillageId = database.selectValue(
-    `
+export const bookmarksSeeder = (database: DbFacade): void => {
+  const playerStartingVillageId = database.selectValue({
+    sql: `
     SELECT id
     FROM villages
     WHERE player_id = $player_id;
   `,
-    { $player_id: PLAYER_ID },
-  ) as number;
+    bind: { $player_id: PLAYER_ID },
+    schema: z.number(),
+  })!;
 
   const rows = buildings.map(({ id: buildingId }) => [
     playerStartingVillageId,

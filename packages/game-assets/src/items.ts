@@ -1,7 +1,7 @@
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 
 // All artifacts begin with the 100_ prefix
-const artifacts: HeroItem[] = [
+export const artifacts: HeroItem[] = [
   {
     id: 1001,
     name: 'UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED',
@@ -605,7 +605,7 @@ const consumables: HeroItem[] = [
   {
     id: 1021,
     name: 'HEALING_POTION',
-    slot: 'consumable',
+    slot: 'non-equipable',
     rarity: 'common',
     category: 'consumable',
     basePrice: 5,
@@ -613,7 +613,7 @@ const consumables: HeroItem[] = [
   {
     id: 1022,
     name: 'BOOK_OF_WISDOM',
-    slot: 'consumable',
+    slot: 'non-equipable',
     rarity: 'common',
     category: 'consumable',
     basePrice: 100,
@@ -629,7 +629,7 @@ const consumables: HeroItem[] = [
   {
     id: 1024,
     name: 'REVIVAL_POTION',
-    slot: 'consumable',
+    slot: 'non-equipable',
     rarity: 'common',
     category: 'consumable',
     basePrice: 20,
@@ -637,7 +637,7 @@ const consumables: HeroItem[] = [
   {
     id: 1025,
     name: 'SILVER',
-    slot: 'consumable',
+    slot: 'non-equipable',
     rarity: 'common',
     category: 'currency',
     basePrice: null,
@@ -645,7 +645,7 @@ const consumables: HeroItem[] = [
   {
     id: 1026,
     name: 'WOOD',
-    slot: 'consumable',
+    slot: 'non-equipable',
     rarity: 'common',
     category: 'resource',
     basePrice: null,
@@ -653,7 +653,7 @@ const consumables: HeroItem[] = [
   {
     id: 1027,
     name: 'CLAY',
-    slot: 'consumable',
+    slot: 'non-equipable',
     rarity: 'common',
     category: 'resource',
     basePrice: null,
@@ -661,7 +661,7 @@ const consumables: HeroItem[] = [
   {
     id: 1028,
     name: 'IRON',
-    slot: 'consumable',
+    slot: 'non-equipable',
     rarity: 'common',
     category: 'resource',
     basePrice: null,
@@ -669,10 +669,18 @@ const consumables: HeroItem[] = [
   {
     id: 1029,
     name: 'WHEAT',
-    slot: 'consumable',
+    slot: 'non-equipable',
     rarity: 'common',
     category: 'resource',
     basePrice: null,
+  },
+  {
+    id: 1030,
+    name: 'EXPERIENCE_SCROLL',
+    slot: 'non-equipable',
+    rarity: 'common',
+    category: 'consumable',
+    basePrice: 50,
   },
 ];
 

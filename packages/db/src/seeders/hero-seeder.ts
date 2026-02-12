@@ -1,7 +1,7 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type { Seeder } from '../types/seeder';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const heroSeeder: Seeder = (database): void => {
+export const heroSeeder = (database: DbFacade): void => {
   database.exec({
     sql: `
       INSERT INTO heroes (

@@ -11,7 +11,7 @@ type HeroItemCategory =
   | 'wearable'
   | 'artifact';
 
-type HeroItemSlot =
+export type HeroItemSlot =
   | 'head'
   | 'torso'
   | 'legs'
@@ -42,6 +42,7 @@ type HeroConsumableItemId =
   | 'BOOK_OF_WISDOM'
   | 'ANIMAL_CAGE'
   | 'REVIVAL_POTION'
+  | 'EXPERIENCE_SCROLL'
   | Uppercase<keyof Resources>;
 
 type ArtifactRarity = Uppercase<Exclude<HeroItemRarity, 'common'>>;
@@ -81,7 +82,9 @@ export type HeroItem = {
   heroBonus?: HeroBonus[];
 };
 
-export const heroItemSchema = z.strictObject({
-  id: z.number(),
-  amount: z.number().int().positive(),
-});
+export const heroItemSchema = z
+  .strictObject({
+    id: z.number(),
+    amount: z.number().int().positive(),
+  })
+  .meta({ id: 'HeroItem' });

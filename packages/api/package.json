@@ -14,6 +14,12 @@
   "exports": {
     ".": {
       "default": "./src/api-worker.ts"
+    },
+    "./open-api": {
+      "default": "./src/open-api.ts"
+    },
+    "./errors": {
+      "default": "./src/errors/index.ts"
     }
   },
   "scripts": {
@@ -23,26 +29,27 @@
     "lint/oxlint": "oxlint --type-aware --fix .",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
-    "knip:ci": "knip --max-issues 29",
     "type-check": "tsgo",
-    "test": "vitest",
-    "open-api:generate": "node scripts/generate-open-api-definitions.ts"
+    "test": "vitest"
   },
   "dependencies": {
+    "@pillage-first/db": "*",
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
     "@sqlite.org/sqlite-wasm": "*",
     "moderndash": "4.0.0",
     "path-to-regexp": "8.3.0",
-    "zod": "4.3.5"
+    "tsx": "4.21.0",
+    "zod": "*",
+    "zod-openapi": "5.4.6"
   },
   "devDependencies": {
     "@biomejs/biome": "*",
     "@typescript/native-preview": "*",
     "@visulima/jsdoc-open-api": "2.0.95",
-    "openapi-typescript": "7.10.1",
+    "openapi-typescript": "7.12.0",
     "typescript": "*",
-    "vitest": "4.0.17"
+    "vitest": "*"
   }
 }

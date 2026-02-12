@@ -1,36 +1,16 @@
-import { z } from 'zod';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
+import { getResearchedUnitsSchema } from './schemas/unit-research-schemas';
 
-const getResearchedUnitsSchema = z
-  .strictObject({
-    unit_id: unitIdSchema,
-    village_id: z.number(),
-  })
-  .transform((t) => {
-    return {
-      unitId: t.unit_id,
-      villageId: t.village_id,
-    };
-  });
-
-/**
- * GET /villages/:villageId/researched-units
- * @pathParam {number} villageId
- */
-export const getResearchedUnits: Controller<
-  '/villages/:villageId/researched-units'
-> = (database, { params }) => {
-  const { villageId } = params;
-
-  const unitResearchModels = database.selectObjects(
-    `
+export const getResearchedUnits = createController(
+  '/villages/:villageId/researched-units',
+)(({ database, path: { villageId } }) => {
+  return database.selectObjects({
+    sql: `
     SELECT unit_id, village_id
     FROM unit_research
     WHERE village_id = $village_id;
   `,
-    { $village_id: villageId },
-  );
-
-  return z.array(getResearchedUnitsSchema).parse(unitResearchModels);
-};
+    bind: { $village_id: villageId },
+    schema: getResearchedUnitsSchema,
+  });
+});

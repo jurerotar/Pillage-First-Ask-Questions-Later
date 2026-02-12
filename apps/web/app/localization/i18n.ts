@@ -3,7 +3,7 @@ import { initReactI18next } from 'react-i18next';
 
 export type AvailableLocale = 'en-US';
 
-const supportedLngs: AvailableLocale[] = ['en-US'];
+export const locales: AvailableLocale[] = ['en-US'];
 
 export const i18n = i18next;
 
@@ -13,7 +13,8 @@ await use(initReactI18next).init({
   fallbackLng: 'en-US',
   load: 'currentOnly',
   defaultNS: 'app',
-  supportedLngs,
+  supportedLngs: locales,
+  showSupportNotice: false,
   interpolation: {
     escapeValue: false,
   },

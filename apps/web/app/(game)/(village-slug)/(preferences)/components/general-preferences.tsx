@@ -290,25 +290,24 @@ export const GeneralPreferences = () => {
             />
           </div>
         </div>
-        <Separator orientation="horizontal" />
+      </SectionContent>
+      <Separator orientation="horizontal" />
+      <SectionContent>
+        <Text as="h2">{t('Development tooling')}</Text>
         <div className="flex gap-2">
           <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">{t('Developer mode')}</span>
-            <span>
-              {t(
-                'Enables instant building of buildings and troops with no cost.',
-              )}
-            </span>
+            <span className="font-medium">{t('Developer console')}</span>
+            <span>{t('Enables the developer console button.')}</span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
             <Switch
               onCheckedChange={() =>
                 updatePreference({
-                  preferenceName: 'isDeveloperModeEnabled',
-                  value: !preferences.isDeveloperModeEnabled,
+                  preferenceName: 'isDeveloperToolsConsoleEnabled',
+                  value: !preferences.isDeveloperToolsConsoleEnabled,
                 })
               }
-              checked={preferences.isDeveloperModeEnabled}
+              checked={preferences.isDeveloperToolsConsoleEnabled}
             />
           </div>
         </div>

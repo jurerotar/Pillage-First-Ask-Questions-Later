@@ -1,55 +1,21 @@
-import { z } from 'zod';
+import type { Faction } from '@pillage-first/types/models/faction';
+import type { PlayableTribe } from '@pillage-first/types/models/tribe';
+import { createController } from '../utils/controller';
 import {
-  type Faction,
-  factionSchema,
-} from '@pillage-first/types/models/faction';
-import {
-  type PlayableTribe,
-  tribeSchema,
-} from '@pillage-first/types/models/tribe';
-import type { Controller } from '../types/controller';
+  getPlayerRankingsSchema,
+  getServerOverviewStatisticsSchema,
+  getVillageRankingsSchema,
+  playersStatsRowSchema,
+  villagesStatsRowSchema,
+} from './schemas/statistics-schemas';
 
-const getPlayerRankingsSchema = z
-  .strictObject({
-    id: z.number(),
-    name: z.string(),
-    slug: z.string(),
-    tribe: tribeSchema,
-    faction: factionSchema,
-    total_population: z.number(),
-    village_count: z.number(),
-  })
-  .transform((t) => {
-    return {
-      id: t.id,
-      faction: t.faction,
-      name: t.name,
-      slug: t.slug,
-      tribe: t.tribe,
-      totalPopulation: t.total_population,
-      villageCount: t.village_count,
-    };
-  });
+export const getPlayerRankings = createController('/statistics/players')(
+  ({ database, body }) => {
+    const { lastPlayerId = null } = body;
 
-type GetPlayersStatisticsBody = {
-  lastPlayerId: number | null;
-};
-
-/**
- * GET /statistics/players
- * @bodyContent application/json GetPlayersStatisticsBody
- * @bodyRequired
- */
-export const getPlayerRankings: Controller<
-  '/statistics/players',
-  'get',
-  GetPlayersStatisticsBody
-> = (database, { body }) => {
-  const { lastPlayerId = null } = body;
-
-  // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-  const rows = database.selectObjects(
-    `
+    // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
+    return database.selectObjects({
+      sql: `
       WITH player_pop AS (
         SELECT
           p.id,
@@ -105,59 +71,21 @@ export const getPlayerRankings: Controller<
           )
       ORDER BY total_population DESC, id;
     `,
-    {
-      $last_player_id: lastPlayerId,
-    },
-  );
-
-  return z.array(getPlayerRankingsSchema).parse(rows);
-};
-
-const getVillageRankingsSchema = z
-  .strictObject({
-    village_id: z.number(),
-    village_name: z.string(),
-    coordinates_x: z.number(),
-    coordinates_y: z.number(),
-    population: z.number(),
-    player_id: z.number(),
-    player_name: z.string(),
-    player_slug: z.string(),
-  })
-  .transform((t) => {
-    return {
-      id: t.village_id,
-      name: t.village_name,
-      coordinates: {
-        x: t.coordinates_x,
-        y: t.coordinates_y,
+      bind: {
+        $last_player_id: lastPlayerId,
       },
-      population: t.population,
-      playerId: t.player_id,
-      playerName: t.player_name,
-      playerSlug: t.player_slug,
-    };
-  });
+      schema: getPlayerRankingsSchema,
+    });
+  },
+);
 
-type GetStatisticsVillagesBody = {
-  lastVillageId: number | null;
-};
+export const getVillageRankings = createController('/statistics/villages')(
+  ({ database, body }) => {
+    const { lastVillageId = null } = body;
 
-/**
- * GET /statistics/villages
- * @bodyContent application/json GetVillageStatisticsBody
- * @bodyRequired
- */
-export const getVillageRankings: Controller<
-  '/statistics/villages',
-  'get',
-  GetStatisticsVillagesBody
-> = (database, { body }) => {
-  const { lastVillageId = null } = body;
-
-  // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-  const rows = database.selectObjects(
-    `
+    // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
+    return database.selectObjects({
+      sql: `
       WITH
         village_pop AS (
           SELECT
@@ -224,53 +152,18 @@ export const getVillageRankings: Controller<
       ORDER BY
         population DESC, village_id
     `,
-    {
-      $last_village_id: lastVillageId,
-    },
-  );
+      bind: {
+        $last_village_id: lastVillageId,
+      },
+      schema: getVillageRankingsSchema,
+    });
+  },
+);
 
-  return z.array(getVillageRankingsSchema).parse(rows);
-};
-
-const playersStatsRowSchema = z.object({
-  tribe: tribeSchema,
-  faction: factionSchema,
-  player_count: z.number(),
-});
-
-const villagesStatsRowSchema = z.object({
-  tribe: tribeSchema,
-  faction: factionSchema,
-  village_count: z.number(),
-});
-
-const getServerOverviewStatisticsSchema = z
-  .strictObject({
-    player_count: z.number(),
-    village_count: z.number(),
-    players_by_tribe: z.record(tribeSchema, z.number()),
-    players_by_faction: z.record(factionSchema, z.number()),
-    villages_by_tribe: z.record(tribeSchema, z.number()),
-    villages_by_faction: z.record(factionSchema, z.number()),
-  })
-  .transform((t) => {
-    return {
-      playerCount: t.player_count,
-      villageCount: t.village_count,
-      playersByTribe: t.players_by_tribe,
-      playersByFaction: t.players_by_faction,
-      villagesByTribe: t.villages_by_tribe,
-      villagesByFaction: t.villages_by_faction,
-    };
-  });
-
-/**
- * GET /statistics/overview
- */
-export const getGameWorldOverview: Controller<'/statistics/overview'> = (
-  database,
-) => {
-  const rawPlayersStats = database.selectObjects(`
+export const getGameWorldOverview = createController('/statistics/overview')(
+  ({ database }) => {
+    const playersStats = database.selectObjects({
+      sql: `
     SELECT
       p.tribe AS tribe,
       f.faction AS faction,
@@ -278,9 +171,12 @@ export const getGameWorldOverview: Controller<'/statistics/overview'> = (
     FROM players p
     JOIN factions f ON p.faction_id = f.id
     GROUP BY p.tribe, f.faction
-  `);
+  `,
+      schema: playersStatsRowSchema,
+    });
 
-  const rawVillagesStats = database.selectObjects(`
+    const villagesStats = database.selectObjects({
+      sql: `
     SELECT
       p.tribe AS tribe,
       f.faction AS faction,
@@ -289,73 +185,73 @@ export const getGameWorldOverview: Controller<'/statistics/overview'> = (
     JOIN players p ON v.player_id = p.id
     JOIN factions f ON p.faction_id = f.id
     GROUP BY p.tribe, f.faction
-  `);
+  `,
+      schema: villagesStatsRowSchema,
+    });
 
-  const playersStats = z.array(playersStatsRowSchema).parse(rawPlayersStats);
-  const villagesStats = z.array(villagesStatsRowSchema).parse(rawVillagesStats);
+    let totalPlayers = 0;
 
-  let totalPlayers = 0;
+    const playersByTribe: Record<PlayableTribe, number> = {
+      gauls: 0,
+      romans: 0,
+      teutons: 0,
+      egyptians: 0,
+      huns: 0,
+    };
 
-  const playersByTribe: Record<PlayableTribe, number> = {
-    gauls: 0,
-    romans: 0,
-    teutons: 0,
-    egyptians: 0,
-    huns: 0,
-  };
+    const playersByFaction: Record<Faction, number> = {
+      player: 0,
+      npc1: 0,
+      npc2: 0,
+      npc3: 0,
+      npc4: 0,
+      npc5: 0,
+      npc6: 0,
+      npc7: 0,
+      npc8: 0,
+    };
 
-  const playersByFaction: Record<Faction, number> = {
-    player: 0,
-    npc1: 0,
-    npc2: 0,
-    npc3: 0,
-    npc4: 0,
-    npc5: 0,
-    npc6: 0,
-    npc7: 0,
-    npc8: 0,
-  };
+    for (const row of playersStats) {
+      totalPlayers += row.player_count;
+      playersByTribe[row.tribe] += row.player_count;
+      playersByFaction[row.faction] += row.player_count;
+    }
 
-  for (const row of playersStats) {
-    totalPlayers += row.player_count;
-    playersByTribe[row.tribe] += row.player_count;
-    playersByFaction[row.faction] += row.player_count;
-  }
+    let totalVillages = 0;
 
-  let totalVillages = 0;
+    const villagesByTribe: Record<PlayableTribe, number> = {
+      gauls: 0,
+      romans: 0,
+      teutons: 0,
+      egyptians: 0,
+      huns: 0,
+    };
 
-  const villagesByTribe: Record<PlayableTribe, number> = {
-    gauls: 0,
-    romans: 0,
-    teutons: 0,
-    egyptians: 0,
-    huns: 0,
-  };
+    const villagesByFaction: Record<Faction, number> = {
+      player: 0,
+      npc1: 0,
+      npc2: 0,
+      npc3: 0,
+      npc4: 0,
+      npc5: 0,
+      npc6: 0,
+      npc7: 0,
+      npc8: 0,
+    };
 
-  const villagesByFaction: Record<Faction, number> = {
-    player: 0,
-    npc1: 0,
-    npc2: 0,
-    npc3: 0,
-    npc4: 0,
-    npc5: 0,
-    npc6: 0,
-    npc7: 0,
-    npc8: 0,
-  };
+    for (const row of villagesStats) {
+      totalVillages += row.village_count;
+      villagesByTribe[row.tribe] += row.village_count;
+      villagesByFaction[row.faction] += row.village_count;
+    }
 
-  for (const row of villagesStats) {
-    totalVillages += row.village_count;
-    villagesByTribe[row.tribe] += row.village_count;
-    villagesByFaction[row.faction] += row.village_count;
-  }
-
-  return getServerOverviewStatisticsSchema.parse({
-    player_count: totalPlayers,
-    village_count: totalVillages,
-    players_by_tribe: playersByTribe,
-    players_by_faction: playersByFaction,
-    villages_by_tribe: villagesByTribe,
-    villages_by_faction: villagesByFaction,
-  });
-};
+    return getServerOverviewStatisticsSchema.parse({
+      player_count: totalPlayers,
+      village_count: totalVillages,
+      players_by_tribe: playersByTribe,
+      players_by_faction: playersByFaction,
+      villages_by_tribe: villagesByTribe,
+      villages_by_faction: villagesByFaction,
+    });
+  },
+);

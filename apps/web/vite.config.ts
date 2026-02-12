@@ -17,7 +17,7 @@ const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
 
 const isInTestMode = process.env.VITEST === 'true';
-const isDeployingToMaster = process.env.BRANCH_ENV === 'master';
+const isDeployingToMaster = process.env.HEAD === 'master';
 
 const manifest: Partial<ManifestOptions> = {
   name: 'Pillage First! (Ask Questions Later)',
@@ -83,6 +83,7 @@ const viteConfig = defineViteConfig({
   ],
   server: {
     open: false,
+    port: 5173,
   },
   build: {
     target: 'esnext',
@@ -120,9 +121,6 @@ const viteConfig = defineViteConfig({
   define: {
     'import.meta.env.VERSION': JSON.stringify(repoPackageJson.version),
     'import.meta.env.GRAPHICS_VERSION': JSON.stringify(graphicsVersion),
-    'import.meta.env.BRANCH_ENV': JSON.stringify(
-      isDeployingToMaster ? 'master' : 'develop',
-    ),
     'import.meta.env.COMMIT_REF': JSON.stringify(process.env.COMMIT_REF),
     'import.meta.env.HEAD': JSON.stringify(process.env.HEAD),
   },

@@ -1,75 +1,13 @@
-import { z } from 'zod';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
-import type { Resource } from '@pillage-first/types/models/resource';
-import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
-import { decodeGraphicsProperty } from '@pillage-first/utils/map';
-import type { Controller } from '../types/controller';
+import { createController } from '../utils/controller';
+import {
+  getOccupiableOasisInRangeSchema,
+  getVillageBySlugSchema,
+} from './schemas/village-schemas';
 
-const buildingFieldRowSchema = z.strictObject({
-  field_id: z.number(),
-  building_id: buildingIdSchema,
-  level: z.number(),
-});
-
-const getVillageBySlugSchema = z
-  .strictObject({
-    id: z.number(),
-    tile_id: z.number(),
-    player_id: z.number(),
-    coordinates_x: z.number(),
-    coordinates_y: z.number(),
-    name: z.string(),
-    slug: z.string(),
-    resource_field_composition: resourceFieldCompositionSchema,
-    last_updated_at: z.number(),
-    wood: z.number(),
-    clay: z.number(),
-    iron: z.number(),
-    wheat: z.number(),
-    building_fields: z
-      .string()
-      .transform((s) => (s ? JSON.parse(s) : []))
-      .pipe(z.array(buildingFieldRowSchema)),
-  })
-  .transform((t) => {
-    return {
-      id: t.id,
-      tileId: t.tile_id,
-      playerId: t.player_id,
-      name: t.name,
-      slug: t.slug,
-      coordinates: {
-        x: t.coordinates_x,
-        y: t.coordinates_y,
-      },
-      lastUpdatedAt: t.last_updated_at,
-      resources: {
-        wood: t.wood,
-        clay: t.clay,
-        iron: t.iron,
-        wheat: t.wheat,
-      },
-      resourceFieldComposition: t.resource_field_composition,
-      buildingFields: t.building_fields.map((bf) => ({
-        id: bf.field_id,
-        buildingId: bf.building_id,
-        level: bf.level,
-      })),
-    };
-  });
-
-/**
- * GET /villages/:villageSlug
- * @pathParam {string} villageSlug
- */
-export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
-  database,
-  { params },
-) => {
-  const { villageSlug } = params;
-
-  const row = database.selectObject(
-    `
+export const getVillageBySlug = createController('/villages/:villageSlug')(
+  ({ database, path: { villageSlug } }) => {
+    return database.selectObject({
+      sql: `
       SELECT
         v.id,
         v.tile_id,
@@ -110,94 +48,17 @@ export const getVillageBySlug: Controller<'/villages/:villageSlug'> = (
         v.slug = $slug
       LIMIT 1;
     `,
-    { $slug: villageSlug },
-  );
+      bind: { $slug: villageSlug },
+      schema: getVillageBySlugSchema,
+    })!;
+  },
+);
 
-  return getVillageBySlugSchema.parse(row);
-};
-
-const getOccupiableOasisInRangeSchema = z
-  .strictObject({
-    tile_id: z.number(),
-    tile_coordinates_x: z.number(),
-    tile_coordinates_y: z.number(),
-    bonuses_json: z.string(),
-    oasis_graphics: z.number(),
-    occupying_village_id: z.number().nullable(),
-    occupying_village_coordinates_x: z.number().nullable(),
-    occupying_village_coordinates_y: z.number().nullable(),
-    occupying_village_name: z.string().nullable(),
-    occupying_village_slug: z.string().nullable(),
-    occupying_player_id: z.number().nullable(),
-    occupying_player_name: z.string().nullable(),
-    occupying_player_slug: z.string().nullable(),
-  })
-  .transform((t) => {
-    const { oasisResource } = decodeGraphicsProperty(t.oasis_graphics);
-    const parsedBonuses = JSON.parse(t.bonuses_json) as number[];
-
-    const firstBonus = parsedBonuses.at(0)!;
-    const secondBonus = parsedBonuses.at(1);
-
-    // First bonus is always either 50% or 25% and of a specific resource
-    const bonuses: { resource: Resource; bonus: number }[] = [
-      {
-        resource: oasisResource,
-        bonus: firstBonus,
-      },
-    ];
-
-    // If second bonus exists, we know it's a 25% and it must be wheat
-    if (secondBonus) {
-      bonuses.push({
-        resource: 'wheat',
-        bonus: 25,
-      });
-    }
-
-    return {
-      oasis: {
-        id: t.tile_id,
-        coordinates: {
-          x: t.tile_coordinates_x,
-          y: t.tile_coordinates_y,
-        },
-        bonuses,
-      },
-      player:
-        t.occupying_player_id === null
-          ? null
-          : {
-              id: t.occupying_player_id,
-              name: t.occupying_player_name,
-              slug: t.occupying_player_slug,
-            },
-      village:
-        t.occupying_village_id === null
-          ? null
-          : {
-              id: t.occupying_village_id,
-              coordinates: {
-                x: t.occupying_village_coordinates_x,
-                y: t.occupying_village_coordinates_y,
-              },
-              name: t.occupying_village_name,
-              slug: t.occupying_village_slug,
-            },
-    };
-  });
-
-/**
- * GET /villages/:villageId/occupiable-oasis
- * @pathParam {number} villageId
- */
-export const getOccupiableOasisInRange: Controller<
-  '/villages/:villageId/occupiable-oasis'
-> = (database, { params }) => {
-  const { villageId } = params;
-
-  const rows = database.selectObjects(
-    `
+export const getOccupiableOasisInRange = createController(
+  '/villages/:villageId/occupiable-oasis',
+)(({ database, path: { villageId } }) => {
+  return database.selectObjects({
+    sql: `
       WITH src_village AS (
         SELECT t.id AS vtile, t.x AS vx, t.y AS vy
         FROM villages v
@@ -249,11 +110,79 @@ export const getOccupiableOasisInRange: Controller<
         (ABS(oa.x - sv.vx) + ABS(oa.y - sv.vy)),
         oa.tile_id;
     `,
-    {
+    bind: {
       $village_id: villageId,
       $radius: 3,
     },
-  );
+    schema: getOccupiableOasisInRangeSchema,
+  });
+});
 
-  return z.array(getOccupiableOasisInRangeSchema).parse(rows);
-};
+export const rearrangeBuildingFields = createController(
+  '/villages/:villageId/building-fields',
+  'patch',
+)(({ database, path: { villageId }, body: updates }) => {
+  database.transaction(() => {
+    // 1. Update building_fields
+    database.exec({
+      sql: `
+        DELETE FROM building_fields
+        WHERE village_id = $village_id
+          AND field_id IN (SELECT value ->> '$.buildingFieldId' FROM JSON_EACH($updates));
+      `,
+      bind: { $village_id: villageId, $updates: JSON.stringify(updates) },
+    });
+
+    database.exec({
+      sql: `
+        WITH updates(field_id, building_id) AS (
+          SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+          FROM JSON_EACH($updates)
+        ),
+        current_state AS (
+          SELECT building_id, level
+          FROM building_fields
+          WHERE village_id = $village_id
+        ),
+        new_state AS (
+          SELECT
+            u.field_id,
+            u.building_id,
+            COALESCE(cs.level, 0) as level
+          FROM updates u
+          LEFT JOIN current_state cs ON cs.building_id = u.building_id
+          WHERE u.building_id IS NOT NULL
+        )
+        INSERT INTO building_fields (village_id, field_id, building_id, level)
+        SELECT $village_id, field_id, building_id, level
+        FROM new_state;
+      `,
+      bind: {
+        $village_id: villageId,
+        $updates: JSON.stringify(updates),
+      },
+    });
+
+    // 2. Update events
+    // We only update events of types that have buildingFieldId and buildingId in meta
+    database.exec({
+      sql: `
+        WITH updates(field_id, building_id) AS (
+          SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+          FROM JSON_EACH($updates)
+        )
+        UPDATE events
+        SET meta = JSON_SET(meta, '$.buildingFieldId', u.field_id)
+        FROM updates u
+        WHERE events.village_id = $village_id
+          AND events.type IN ('buildingScheduledConstruction', 'buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
+          AND JSON_EXTRACT(meta, '$.buildingId') = u.building_id
+          AND u.building_id IS NOT NULL;
+      `,
+      bind: {
+        $village_id: villageId,
+        $updates: JSON.stringify(updates),
+      },
+    });
+  });
+});

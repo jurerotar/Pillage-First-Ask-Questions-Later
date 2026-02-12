@@ -1,13 +1,54 @@
 import { Alert } from 'app/components/ui/alert.tsx';
 
 <div>
+  ## Version 0.1.2
+  #### Feb 11, 2026
+
+  * Fixed an issue where barracks and stable upgrades wouldn't decrease unit training duration
+</div>
+
+<div>
+  ## Version 0.1.1
+  #### Feb 11, 2026
+
+  * Improved performance of resolving events. Updating resources query now doesn't run, if there's no change to resources
+  * Fixed an issue where upgrading buildings wouldn't increase the building effect values (building duration, troop training, ...)
+  * Fixed an issue where environment variables weren't getting injected
+</div>
+
+<div>
   ## Version 0.1.0
-  #### Jan 17, 2026
+  #### Feb 9, 2026
 
   **Long awaited engine rework is finally here!**
+
+  This update is not compatible with existing game worlds and requires creation of new game worlds. Along with the
+  engine rework, this update also brings the following features:
+
+  * Player pages - you can now see player information, along with the list of villages they occupy
+  * Statistics pages - you can now see the ranking of all players and all villages, based on population
+  * Game world overview page - you can now see the split of tribes, factions and basic game world information
+  * Oasis bonus finder - long gone are the days of manually checking the map for your perfect location of your next
+  village. This tool allows you to find all tiles with specific resource composition and bonuses!
+  * Reworked developer tools - you may now toggle instant completion and free-cost of individual event types, add or
+  remove resources, add adventure points or spawn hero items!
+  * Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as development
+  continues!
+
+  From technical improvement perspective, we haven't been idling. New version fixes the long-standing issue of game
+  world state corruption, it massively improves developer experience and speed, adds over 200 tests and enables us to
+  onboard new contributors easier! These changes were contributed by over 7 new contributors!
+
   <Alert variant="error">
     <span>This version introduces breaking changes</span>
   </Alert>
+</div>
+
+<div>
+  ## Version 0.0.49
+  #### Jan 26, 2026
+
+  * We've improved the performance of the game world creation. You can expect 10-15% faster game world generation!
 </div>
 
 <div>
