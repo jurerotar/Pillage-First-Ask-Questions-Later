@@ -422,12 +422,10 @@ export const paths = {
         content: {
           'application/json': {
             schema: z.strictObject({
-              attribute: z.enum([
-                'attackPower',
-                'resourceProduction',
-                'attackBonus',
-                'defenceBonus',
-              ]),
+              attackPower: z.number().int().min(0).max(100),
+              resourceProduction: z.number().int().min(0).max(100),
+              attackBonus: z.number().int().min(0).max(100),
+              defenceBonus: z.number().int().min(0).max(100),
             }),
           },
         },
@@ -435,6 +433,30 @@ export const paths = {
       responses: {
         '204': {
           description: 'Attributes changed',
+        },
+      },
+    },
+  },
+  '/players/:playerId/hero/resource-to-produce': {
+    patch: {
+      summary: 'Change hero resource to produce',
+      requestParams: {
+        path: z.strictObject({
+          playerId: playerSchema.shape.id,
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              resource: heroResourceToProduceSchema,
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Resource to produce changed',
         },
       },
     },
@@ -515,6 +537,21 @@ export const paths = {
       responses: {
         '204': {
           description: 'Setting updated',
+        },
+      },
+    },
+  },
+  '/developer-settings/:heroId/level-up': {
+    patch: {
+      summary: 'Level up hero',
+      requestParams: {
+        path: z.strictObject({
+          heroId: z.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Hero leveled up',
         },
       },
     },

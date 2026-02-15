@@ -19,6 +19,7 @@ import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
 import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.sql?raw';
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
+import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
@@ -101,8 +102,14 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     db.exec({ sql: createFactionReputationTable });
     factionReputationSeeder(db);
 
+    // Players
+    db.exec({ sql: createPlayersTable });
+    playersSeeder(db, server);
+    db.exec({ sql: createPlayersIndexes });
+
     // Heroes
     db.exec({ sql: createHeroesTable });
+    db.exec({ sql: createHeroSelectableAttributesTable });
     heroSeeder(db);
 
     // Hero adventures
@@ -114,11 +121,6 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
 
     // Hero inventories
     db.exec({ sql: createHeroInventoriesTable });
-
-    // Players
-    db.exec({ sql: createPlayersTable });
-    playersSeeder(db, server);
-    db.exec({ sql: createPlayersIndexes });
 
     // RFC reference table
     db.exec({ sql: createResourceFieldCompositionsTable });

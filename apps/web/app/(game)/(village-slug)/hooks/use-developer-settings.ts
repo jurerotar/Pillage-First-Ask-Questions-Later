@@ -6,6 +6,7 @@ import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   developerSettingsCacheKey,
+  heroCacheKey,
   heroInventoryCacheKey,
   heroLoadoutCacheKey,
   playerVillagesCacheKey,
@@ -131,11 +132,25 @@ export const useDeveloperSettings = () => {
     },
   });
 
+  const { mutate: levelUpHero } = useMutation<void, Error, void>({
+    mutationFn: async () => {
+      await fetcher(`/developer-settings/${hero.id}/level-up`, {
+        method: 'PATCH',
+      });
+    },
+    onSuccess: async (_, _args, _onMutateResult, context) => {
+      await context.client.invalidateQueries({
+        queryKey: [heroCacheKey],
+      });
+    },
+  });
+
   return {
     developerSettings,
     updateDeveloperSetting,
     updateVillageResources,
     spawnHeroItem,
+    levelUpHero,
     incrementHeroAdventurePoints,
   };
 };

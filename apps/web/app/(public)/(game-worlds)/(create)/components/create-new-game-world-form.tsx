@@ -87,7 +87,7 @@ export const CreateNewGameWorldForm = () => {
         server,
       });
 
-      faro.api.pushMeasurement({
+      faro.api?.pushMeasurement({
         type: 'performance',
         values: {
           migration_and_seed_duration: migrationDuration,

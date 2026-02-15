@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "*",
-    "@types/react": "19.2.13",
+    "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/swagger-ui-react": "5.18.0",
     "@typescript/native-preview": "*",

@@ -1,12 +1,18 @@
-import { type ComponentProps, useState } from 'react';
+import { type ComponentProps, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VscTerminal } from 'react-icons/vsc';
 import { items } from '@pillage-first/game-assets/items';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
 import type { Resource } from '@pillage-first/types/models/resource';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { icons } from 'app/components/icons/icons';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button';
@@ -78,16 +84,23 @@ export const DeveloperToolsConsole = ({
 }: DevToolsConsoleProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [amount, setAmount] = useState(1);
-
   const {
     developerSettings,
     updateDeveloperSetting,
     updateVillageResources,
     spawnHeroItem,
+    levelUpHero,
     incrementHeroAdventurePoints,
   } = useDeveloperSettings();
+  const { hero } = useHero();
+
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [amount, setAmount] = useState(1);
+
+  const { level } = useMemo(
+    () => calculateHeroLevel(hero.stats.experience),
+    [hero.stats.experience],
+  );
 
   const handleUpdateResource = (
     resource: Resource,
@@ -170,14 +183,9 @@ export const DeveloperToolsConsole = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
-            >
-              {t('Resources')}
-            </Text>
+        <Section>
+          <SectionContent>
+            <Text as="h3">{t('Resources')}</Text>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {RESOURCES.map((resource) => (
                 <div
@@ -228,17 +236,12 @@ export const DeveloperToolsConsole = ({
                 </div>
               ))}
             </div>
-          </section>
+          </SectionContent>
 
           <Separator orientation="horizontal" />
 
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
-            >
-              {t('Duration')}
-            </Text>
+          <SectionContent>
+            <Text as="h3">{t('Duration')}</Text>
             <div className="grid grid-cols-1 gap-4">
               {INSTANT_SETTINGS.map((setting) => (
                 <div
@@ -266,17 +269,12 @@ export const DeveloperToolsConsole = ({
                 </div>
               ))}
             </div>
-          </section>
+          </SectionContent>
 
           <Separator orientation="horizontal" />
 
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
-            >
-              {t('Cost')}
-            </Text>
+          <SectionContent>
+            <Text as="h3">{t('Cost')}</Text>
             <div className="grid grid-cols-1 gap-4">
               {FREE_SETTINGS.map((setting) => (
                 <div
@@ -304,17 +302,12 @@ export const DeveloperToolsConsole = ({
                 </div>
               ))}
             </div>
-          </section>
+          </SectionContent>
 
           <Separator orientation="horizontal" />
 
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
-            >
-              {t('Hero items')}
-            </Text>
+          <SectionContent>
+            <Text as="h3">{t('Hero items')}</Text>
             <div className="flex flex-col gap-4">
               <div className="flex items-end gap-4">
                 <div className="flex flex-col gap-2 flex-1">
@@ -357,24 +350,31 @@ export const DeveloperToolsConsole = ({
                 {t('Spawn item')}
               </Button>
             </div>
-          </section>
+          </SectionContent>
 
           <Separator orientation="horizontal" />
 
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
+          <SectionContent>
+            <Text as="h3">{t('Hero level')}</Text>
+            <Button
+              size="fit"
+              onClick={() => levelUpHero()}
             >
-              {t('Hero adventures')}
-            </Text>
+              {t('Level up to level {{level}}', { level: level + 1 })}
+            </Button>
+          </SectionContent>
+
+          <Separator orientation="horizontal" />
+
+          <SectionContent>
+            <Text as="h3">{t('Hero adventures')}</Text>
             <div className="flex items-center gap-4">
               <Button onClick={() => incrementHeroAdventurePoints()}>
                 {t('Add 1 adventure point')}
               </Button>
             </div>
-          </section>
-        </div>
+          </SectionContent>
+        </Section>
       </DialogContent>
     </Dialog>
   );

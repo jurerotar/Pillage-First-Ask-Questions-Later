@@ -525,22 +525,91 @@ describe('migrateAndSeed', () => {
   });
 
   describe('heroes', () => {
-    test('heroes seeded (>0)', () => {
+    test('only the player has a hero', () => {
       const c = database.selectValue({
         sql: 'SELECT COUNT(*) FROM heroes;',
         schema: z.number(),
       });
-      expect(c).toBeGreaterThan(0);
-    });
-  });
+      expect(c).toBe(1);
 
-  describe('hero adventures', () => {
-    test('hero_adventures seeded (>=0)', () => {
-      const c = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM hero_adventures;',
+      const playerId = database.selectValue({
+        sql: 'SELECT player_id FROM heroes;',
         schema: z.number(),
       });
-      expect(c).toBeGreaterThanOrEqual(0);
+      expect(playerId).toBe(PLAYER_ID);
+    });
+
+    test('attack_power is 100 for Romans and 80 for others', () => {
+      const rows = database.selectObjects({
+        sql: `
+          SELECT p.tribe, h.base_attack_power
+          FROM heroes h
+          JOIN players p ON h.player_id = p.id
+        `,
+        schema: z.object({
+          tribe: z.string(),
+          base_attack_power: z.number(),
+        }),
+      });
+
+      for (const row of rows) {
+        if (row.tribe.toLowerCase() === 'romans') {
+          expect(row.base_attack_power).toBe(100);
+        } else {
+          expect(row.base_attack_power).toBe(80);
+        }
+      }
+    });
+
+    test('hero stats are correctly seeded', () => {
+      const rows = database.selectObjects({
+        sql: `
+          SELECT
+            health_regeneration,
+            damage_reduction,
+            speed,
+            natarian_attack_bonus,
+            attack_bonus,
+            defence_bonus
+          FROM heroes
+        `,
+        schema: z.object({
+          health_regeneration: z.number(),
+          damage_reduction: z.number(),
+          speed: z.number(),
+          natarian_attack_bonus: z.number(),
+          attack_bonus: z.number(),
+          defence_bonus: z.number(),
+        }),
+      });
+
+      for (const row of rows) {
+        expect(row.health_regeneration).toBe(10);
+        expect(row.damage_reduction).toBe(0);
+        expect(row.speed).toBe(6);
+        expect(row.natarian_attack_bonus).toBe(0);
+        expect(row.attack_bonus).toBe(0);
+        expect(row.defence_bonus).toBe(0);
+      }
+    });
+
+    test('selectable attributes are correctly seeded in the new table', () => {
+      const rows = database.selectObjects({
+        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes',
+        schema: z.object({
+          attack_power: z.number(),
+          resource_production: z.number(),
+          attack_bonus: z.number(),
+          defence_bonus: z.number(),
+        }),
+      });
+
+      for (const row of rows) {
+        expect(row.attack_power).toBe(0);
+        expect(row.resource_production).toBe(4);
+        expect(row.attack_bonus).toBe(0);
+        expect(row.defence_bonus).toBe(0);
+      }
     });
   });
 

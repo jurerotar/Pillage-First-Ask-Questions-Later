@@ -1,4 +1,6 @@
 import { snakeCase } from 'moderndash';
+import { z } from 'zod';
+import { calculateHeroLevel } from '@pillage-first/web/app/(game)/(village-slug)/hooks/utils/hero.ts';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {
@@ -90,6 +92,33 @@ export const updateDeveloperSettings = createController(
       triggerKick();
     }
   }
+});
+
+export const levelUpHero = createController(
+  '/developer-settings/:heroId/level-up',
+  'patch',
+)(({ database, path: { heroId } }) => {
+  const currentExperience = database.selectValue({
+    sql: 'SELECT experience FROM heroes WHERE id = $heroId',
+    bind: { $heroId: heroId },
+    schema: z.number(),
+  })!;
+
+  const { expToNextLevel } = calculateHeroLevel(currentExperience);
+
+  database.exec({
+    sql: `
+      UPDATE heroes
+      SET
+        experience = $nextLevelExp
+      WHERE
+        id = $heroId
+    `,
+    bind: {
+      $heroId: heroId,
+      $nextLevelExp: currentExperience + expToNextLevel,
+    },
+  });
 });
 
 export const spawnHeroItem = createController(

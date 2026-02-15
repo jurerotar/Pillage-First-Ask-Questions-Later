@@ -6,6 +6,7 @@ import {
 import {
   getDeveloperSettings,
   incrementHeroAdventurePoints,
+  levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
   updateVillageResources,
@@ -28,6 +29,7 @@ import {
 } from '../controllers/farm-list-controllers';
 import {
   changeHeroAttributes,
+  changeHeroResourceToProduce,
   equipHeroItem,
   getHero,
   getHeroAdventures,
@@ -93,6 +95,7 @@ const apiRoutes: Route[] = [
   createRoute(updateDeveloperSettings),
   createRoute(updateVillageResources),
   createRoute(spawnHeroItem),
+  createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
 
   // Auctions
@@ -107,6 +110,7 @@ const apiRoutes: Route[] = [
   createRoute(equipHeroItem),
   createRoute(unequipHeroItem),
   createRoute(changeHeroAttributes),
+  createRoute(changeHeroResourceToProduce),
 
   // Unit Improvements
   createRoute(getUnitImprovements),

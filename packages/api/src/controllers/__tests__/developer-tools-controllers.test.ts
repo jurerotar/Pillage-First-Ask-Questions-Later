@@ -5,6 +5,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import * as schedulerSignal from '../../scheduler/scheduler-signal';
 import {
   incrementHeroAdventurePoints,
+  levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
 } from '../developer-tools-controllers';
@@ -298,6 +299,52 @@ describe('developer-tools-controllers', () => {
       })!;
 
       expect(points.available).toBe(initialPoints + 1);
+    });
+  });
+
+  describe(levelUpHero, () => {
+    test('should level up hero by increasing experience to next level', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id, experience FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ id: z.number(), experience: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      levelUpHero(
+        database,
+        createControllerArgs<'/developer-settings/:heroId/level-up', 'patch'>({
+          path: { heroId },
+        }),
+      );
+
+      const updatedHero = database.selectObject({
+        sql: 'SELECT experience FROM heroes WHERE id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({ experience: z.number() }),
+      })!;
+
+      // exp for level 0 is 0. nextLevelExp for level 0 is (0+1)*(0+2)*25 = 50
+      expect(updatedHero.experience).toBe(50);
+
+      // Level up again
+      levelUpHero(
+        database,
+        createControllerArgs<'/developer-settings/:heroId/level-up', 'patch'>({
+          path: { heroId },
+        }),
+      );
+
+      const updatedHeroAgain = database.selectObject({
+        sql: 'SELECT experience FROM heroes WHERE id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({ experience: z.number() }),
+      })!;
+
+      // exp for level 1 is 50. nextLevelExp for level 1 is (1+1)*(1+2)*25 = 150
+      expect(updatedHeroAgain.experience).toBe(150);
     });
   });
 });
