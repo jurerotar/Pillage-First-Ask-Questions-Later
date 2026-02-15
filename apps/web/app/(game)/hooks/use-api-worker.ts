@@ -18,7 +18,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
         return;
       }
 
-      if (event.data.eventKey === 'event:worker-initialization-success') {
+      if (event.data.eventKey === 'event:database-initialization-success') {
         worker.removeEventListener(
           'message',
           handleWorkerInitializationMessage,
@@ -26,7 +26,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
         resolve(worker);
       }
 
-      if (event.data.eventKey === 'event:worker-initialization-error') {
+      if (event.data.eventKey === 'event:database-initialization-error') {
         worker.removeEventListener(
           'message',
           handleWorkerInitializationMessage,

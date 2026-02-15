@@ -76,12 +76,12 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         scheduleNextEvent(dataSource);
 
         globalThis.postMessage({
-          eventKey: 'event:worker-initialization-success',
+          eventKey: 'event:database-initialization-success',
         } satisfies ApiNotificationEvent);
         break;
       } catch (error) {
         globalThis.postMessage({
-          eventKey: 'event:worker-initialization-error',
+          eventKey: 'event:database-initialization-error',
           error: error as Error,
         } satisfies WorkerInitializationErrorEvent);
         break;
@@ -99,7 +99,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         if (method !== 'GET') {
           globalThis.postMessage({
-            eventKey: 'event:worker-event-creation-success',
+            eventKey: 'event:controller-success',
             ...body,
             ...path,
           } satisfies EventApiNotificationEvent);
@@ -113,7 +113,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       } catch (error) {
         console.error(error);
         globalThis.postMessage({
-          eventKey: 'event:worker-event-creation-error',
+          eventKey: 'event:controller-error',
           ...body,
         } satisfies EventApiNotificationEvent);
         break;

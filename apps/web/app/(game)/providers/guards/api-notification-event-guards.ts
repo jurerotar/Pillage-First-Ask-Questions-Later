@@ -15,17 +15,53 @@ export const isEventResolvedNotificationMessageEvent = (
 ): event is MessageEvent<EventApiNotificationEvent> => {
   return (
     isNotificationMessageEvent(event) &&
-    (event.data.eventKey === 'event:worker-event-resolve-success' ||
-      event.data.eventKey === 'event:worker-event-resolve-error')
+    (event.data.eventKey === 'event:event-resolve-success' ||
+      event.data.eventKey === 'event:event-resolve-error')
   );
 };
 
-export const isEventCreatedNotificationMessageEvent = (
+export const isEventResolvedSuccessfullyNotificationMessageEvent = (
   event: MessageEvent,
 ): event is MessageEvent<EventApiNotificationEvent> => {
   return (
     isNotificationMessageEvent(event) &&
-    (event.data.eventKey === 'event:worker-event-creation-success' ||
-      event.data.eventKey === 'event:worker-event-creation-error')
+    event.data.eventKey === 'event:event-resolve-success'
+  );
+};
+
+export const isEventResolvedUnsuccessfullyNotificationMessageEvent = (
+  event: MessageEvent,
+): event is MessageEvent<EventApiNotificationEvent> => {
+  return (
+    isNotificationMessageEvent(event) &&
+    event.data.eventKey === 'event:event-resolve-error'
+  );
+};
+
+export const isControllerMessageNotificationMessageEvent = (
+  event: MessageEvent,
+): event is MessageEvent<EventApiNotificationEvent> => {
+  return (
+    isNotificationMessageEvent(event) &&
+    (event.data.eventKey === 'event:controller-success' ||
+      event.data.eventKey === 'event:controller-error')
+  );
+};
+
+export const isControllerMessageSuccessfulNotificationMessageEvent = (
+  event: MessageEvent,
+): event is MessageEvent<EventApiNotificationEvent> => {
+  return (
+    isNotificationMessageEvent(event) &&
+    event.data.eventKey === 'event:controller-success'
+  );
+};
+
+export const isControllerMessageErrorNotificationMessageEvent = (
+  event: MessageEvent,
+): event is MessageEvent<EventApiNotificationEvent> => {
+  return (
+    isNotificationMessageEvent(event) &&
+    event.data.eventKey === 'event:controller-success'
   );
 };
