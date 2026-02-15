@@ -1058,6 +1058,13 @@
     "negativeChange": "Decrease",
     "merchantSpeed": "Merchant speed",
     "findNewVillage": "Find new village",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "headSlot": "Head",
+    "torsoSlot": "Body",
+    "armSlot": "Arm",
+    "legsSlot": "Legs",
+    "bootsSlot": "Boots",
+    "horseSlot": "Horse",
+    "consumableSlot": "Consumable"
   }
 }

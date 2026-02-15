@@ -1,9 +1,8 @@
-import type { ComponentProps } from 'react';
+import { type ComponentProps, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VscTerminal } from 'react-icons/vsc';
 import { items } from '@pillage-first/game-assets/items';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
-import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
@@ -18,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
+import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
 import {
   Select,
@@ -78,6 +78,9 @@ export const DeveloperToolsConsole = ({
 }: DevToolsConsoleProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [amount, setAmount] = useState(1);
+
   const {
     developerSettings,
     updateDeveloperSetting,
@@ -106,8 +109,12 @@ export const DeveloperToolsConsole = ({
     updateDeveloperSetting({ developerSettingName: name, value });
   };
 
-  const handleSpawnItem = (itemId: HeroItem['name']) => {
-    spawnHeroItem({ itemId });
+  const handleSpawnItem = () => {
+    if (!selectedItemId) {
+      return;
+    }
+
+    spawnHeroItem({ itemId: Number(selectedItemId), amount });
   };
 
   const SETTING_LABELS: Record<keyof DeveloperSettings, string> = {
@@ -308,22 +315,47 @@ export const DeveloperToolsConsole = ({
             >
               {t('Hero items')}
             </Text>
-            <div className="flex items-center gap-4">
-              <Select onValueChange={handleSpawnItem}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('Select an item to spawn')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {items.map((item) => (
-                    <SelectItem
-                      key={item.id}
-                      value={item.name}
-                    >
-                      {t(`ITEMS.${item.name}.NAME`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-end gap-4">
+                <div className="flex flex-col gap-2 flex-1">
+                  <Label>{t('Item')}</Label>
+                  <Select
+                    value={selectedItemId ?? undefined}
+                    onValueChange={(value) => setSelectedItemId(value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('Select an item to spawn')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {items.map((item) => (
+                        <SelectItem
+                          key={item.id}
+                          value={String(item.id)}
+                        >
+                          {t(`ITEMS.${item.name}.NAME`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-2 w-24">
+                  <Label htmlFor="item-amount">{t('Amount')}</Label>
+                  <Input
+                    id="item-amount"
+                    type="number"
+                    min={1}
+                    value={amount}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={handleSpawnItem}
+                disabled={!selectedItemId}
+                size="fit"
+              >
+                {t('Spawn item')}
+              </Button>
             </div>
           </section>
 

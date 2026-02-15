@@ -27,10 +27,13 @@ import {
   renameFarmList,
 } from '../controllers/farm-list-controllers';
 import {
+  changeHeroAttributes,
+  equipHeroItem,
   getHero,
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
+  unequipHeroItem,
   useHeroItem,
 } from '../controllers/hero-controllers';
 import {
@@ -101,6 +104,9 @@ const apiRoutes: Route[] = [
   createRoute(getHeroInventory),
   createRoute(getHeroAdventures),
   createRoute(useHeroItem),
+  createRoute(equipHeroItem),
+  createRoute(unequipHeroItem),
+  createRoute(changeHeroAttributes),
 
   // Unit Improvements
   createRoute(getUnitImprovements),

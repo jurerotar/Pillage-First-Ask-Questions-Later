@@ -226,7 +226,7 @@ describe('developer-tools-controllers', () => {
         createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
           {
             path: { heroId },
-            body: { itemId: 1 },
+            body: { itemId: 1, amount: 1 },
           },
         ),
       );
@@ -245,7 +245,7 @@ describe('developer-tools-controllers', () => {
         createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
           {
             path: { heroId },
-            body: { itemId: 1 },
+            body: { itemId: 1, amount: 1 },
           },
         ),
       );

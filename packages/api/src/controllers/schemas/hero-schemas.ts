@@ -69,16 +69,16 @@ export const getHeroLoadoutSchema = z
 
 export const getHeroInventorySchema = z
   .strictObject({
-    item_id: z.string(),
+    item_id: z.number(),
     amount: z.number().int().positive(),
   })
   .transform((t) => ({
-    itemId: t.item_id,
+    id: t.item_id,
     amount: t.amount,
   }))
   .pipe(
     z.object({
-      itemId: z.string(),
+      id: z.number(),
       amount: z.number(),
     }),
   )

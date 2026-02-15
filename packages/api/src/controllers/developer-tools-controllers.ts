@@ -95,17 +95,20 @@ export const updateDeveloperSettings = createController(
 export const spawnHeroItem = createController(
   '/developer-settings/:heroId/spawn-item',
   'patch',
-)(({ database, body: { itemId }, path: { heroId } }) => {
+)(({ database, body: { itemId, amount = 1 }, path: { heroId } }) => {
   database.exec({
     sql: `
-      INSERT INTO hero_inventory (hero_id, item_id, amount)
-      VALUES ($heroId, $itemId, 1)
+      INSERT INTO
+        hero_inventory (hero_id, item_id, amount)
+      VALUES
+        ($heroId, $itemId, $amount)
       ON CONFLICT (hero_id, item_id) DO UPDATE SET
-        amount = amount + 1
+        amount = amount + $amount
     `,
     bind: {
       $heroId: heroId,
       $itemId: itemId,
+      $amount: amount,
     },
   });
 });

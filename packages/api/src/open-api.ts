@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
+import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
@@ -343,7 +344,7 @@ export const paths = {
           'application/json': {
             schema: z.strictObject({
               itemId: z.number(),
-              slot: z.string(),
+              slot: heroLoadoutSlotSchema,
               amount: z.number(),
             }),
           },
@@ -444,7 +445,7 @@ export const paths = {
       requestParams: {
         path: z.strictObject({
           playerId: playerSchema.shape.id,
-          slot: z.string(),
+          slot: heroLoadoutSlotSchema,
         }),
       },
       responses: {
@@ -531,6 +532,7 @@ export const paths = {
           'application/json': {
             schema: z.strictObject({
               itemId: z.number(),
+              amount: z.number(),
             }),
           },
         },

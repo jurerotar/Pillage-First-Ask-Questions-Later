@@ -6,7 +6,8 @@ import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   developerSettingsCacheKey,
-  heroCacheKey,
+  heroInventoryCacheKey,
+  heroLoadoutCacheKey,
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
@@ -26,7 +27,8 @@ type UpdateVillageResourcesArgs = {
 };
 
 type SpawnHeroItemArgs = {
-  itemId: HeroItem['name'];
+  itemId: HeroItem['id'];
+  amount: number;
 };
 
 export const useDeveloperSettings = () => {
@@ -89,18 +91,22 @@ export const useDeveloperSettings = () => {
 
   const { mutate: spawnHeroItem } = useMutation<void, Error, SpawnHeroItemArgs>(
     {
-      mutationFn: async ({ itemId }) => {
+      mutationFn: async ({ itemId, amount }) => {
         await fetcher(`/developer-settings/${hero.id}/spawn-item`, {
           method: 'PATCH',
           body: {
             itemId,
+            amount,
           },
         });
       },
       onSuccess: async (_, _args, _onMutateResult, context) => {
-        await context.client.invalidateQueries({
-          queryKey: [heroCacheKey],
-        });
+        await Promise.all([
+          context.client.invalidateQueries({ queryKey: [heroLoadoutCacheKey] }),
+          context.client.invalidateQueries({
+            queryKey: [heroInventoryCacheKey],
+          }),
+        ]);
       },
     },
   );

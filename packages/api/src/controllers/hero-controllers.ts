@@ -235,7 +235,7 @@ export const unequipHeroItem = createController(
         `,
         bind: {
           $heroId: heroId,
-          $itemId: String(equipped.item_id),
+          $itemId: equipped.item_id,
           $amount: equipped.amount,
         },
       });
@@ -274,7 +274,7 @@ export const useHeroItem = createController(
     const inventoryAmount =
       database.selectObject({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        bind: { $heroId: heroId, $itemId: itemId },
         schema: z.object({ amount: z.number() }),
       })?.amount ?? 0;
 
