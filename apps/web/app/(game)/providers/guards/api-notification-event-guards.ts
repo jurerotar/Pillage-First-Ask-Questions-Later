@@ -1,5 +1,6 @@
 import type {
   ApiNotificationEvent,
+  ControllerErrorEvent,
   EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
 
@@ -59,9 +60,9 @@ export const isControllerMessageSuccessfulNotificationMessageEvent = (
 
 export const isControllerMessageErrorNotificationMessageEvent = (
   event: MessageEvent,
-): event is MessageEvent<EventApiNotificationEvent> => {
+): event is MessageEvent<ControllerErrorEvent> => {
   return (
     isNotificationMessageEvent(event) &&
-    event.data.eventKey === 'event:controller-success'
+    event.data.eventKey === 'event:controller-error'
   );
 };

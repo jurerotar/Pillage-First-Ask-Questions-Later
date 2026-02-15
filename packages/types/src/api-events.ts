@@ -12,7 +12,12 @@ export type ApiNotificationEvent = {
   eventKey: EventKey;
 };
 
-export type WorkerInitializationErrorEvent = {
+export type DatabaseInitializationErrorEvent = {
+  eventKey: EventKey;
+  error: Error;
+};
+
+export type ControllerErrorEvent = {
   eventKey: EventKey;
   error: Error;
 };
