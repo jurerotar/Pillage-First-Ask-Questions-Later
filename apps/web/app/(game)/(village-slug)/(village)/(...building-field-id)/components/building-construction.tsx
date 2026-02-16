@@ -11,9 +11,11 @@ import {
   BuildingRequirements,
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { BuildingConstructionViewModeToggle } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-construction-view-mode-toggle';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { Text } from 'app/components/text';
 import {
@@ -27,10 +29,12 @@ import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 type BuildingCategoryPanelProps = {
   buildingCategory: Building['category'];
+  isCompact: boolean;
 };
 
 const BuildingCategoryPanel = ({
   buildingCategory,
+  isCompact,
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
   const tribe = useTribe();
@@ -111,9 +115,9 @@ const BuildingCategoryPanel = ({
                 building.id,
               )}
             >
-              <BuildingOverview />
+              <BuildingOverview isCompact={isCompact} />
               <BuildingUnfinishedNotice />
-              <BuildingBenefits />
+              {!isCompact && <BuildingBenefits />}
               <BuildingCost />
               <BuildingActions />
               <BuildingRequirements />
@@ -128,6 +132,9 @@ const BuildingCategoryPanel = ({
 export const BuildingConstruction = () => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
+  const { preferences } = usePreferences();
+
+  const isCompact = preferences.buildingConstructionViewMode === 'compact';
 
   const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
 
@@ -142,7 +149,9 @@ export const BuildingConstruction = () => {
           <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <Text as="h1">{t('Construct new building')}</Text>
+      <div className="flex justify-between items-center">
+        <Text as="h1">{t('Construct new building')}</Text>
+      </div>
       <Tabs defaultValue="infrastructure">
         <TabList>
           <Tab value="infrastructure">{t('Infrastructure')}</Tab>
@@ -151,31 +160,49 @@ export const BuildingConstruction = () => {
         </TabList>
         <TabPanel value="infrastructure">
           <SectionContent>
-            <Text as="h2">{t('Infrastructure buildings')}</Text>
+            <div className="flex justify-between items-center">
+              <Text as="h2">{t('Infrastructure buildings')}</Text>
+              <BuildingConstructionViewModeToggle />
+            </div>
             <Text>
               {t(
                 'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
               )}
             </Text>
-            <BuildingCategoryPanel buildingCategory="infrastructure" />
+            <BuildingCategoryPanel
+              buildingCategory="infrastructure"
+              isCompact={isCompact}
+            />
           </SectionContent>
         </TabPanel>
         <TabPanel value="military">
           <SectionContent>
-            <Text as="h2">{t('Military buildings')}</Text>
+            <div className="flex justify-between items-center">
+              <Text as="h2">{t('Military buildings')}</Text>
+              <BuildingConstructionViewModeToggle />
+            </div>
             <Text>
               {t(
                 'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
               )}
             </Text>
-            <BuildingCategoryPanel buildingCategory="military" />
+            <BuildingCategoryPanel
+              buildingCategory="military"
+              isCompact={isCompact}
+            />
           </SectionContent>
         </TabPanel>
         <TabPanel value="resources">
           <SectionContent>
-            <Text as="h2">{t('Resource buildings')}</Text>
+            <div className="flex justify-between items-center">
+              <Text as="h2">{t('Resource buildings')}</Text>
+              <BuildingConstructionViewModeToggle />
+            </div>
             <Text>{t('Buildings focused on improving village economy.')}</Text>
-            <BuildingCategoryPanel buildingCategory="resource-booster" />
+            <BuildingCategoryPanel
+              buildingCategory="resource-booster"
+              isCompact={isCompact}
+            />
           </SectionContent>
         </TabPanel>
       </Tabs>

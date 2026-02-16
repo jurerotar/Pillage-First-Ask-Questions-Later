@@ -3,6 +3,7 @@ import type {
   SAHPoolUtil,
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
+import { upgradeDb } from '@pillage-first/db';
 import type {
   ApiNotificationEvent,
   ControllerErrorEvent,
@@ -70,6 +71,8 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         });
 
         dbFacade = createDbFacade(database, false);
+
+        upgradeDb(dbFacade);
 
         const dataSource = createSchedulerDataSource(dbFacade);
 
