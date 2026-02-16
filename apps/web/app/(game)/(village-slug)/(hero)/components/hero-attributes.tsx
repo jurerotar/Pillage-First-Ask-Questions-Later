@@ -309,31 +309,36 @@ export const HeroAttributes = () => {
                   <Icon type="iron" />
                   <Icon type="wheat" /> +
                   {selectableAttributes.resourceProduction *
-                    sharedProductionPerPoint}{' '}
+                    sharedProductionPerPoint *
+                    server.configuration.speed}{' '}
                   / h
                 </SelectItem>
                 <SelectItem value="wood">
                   <Icon type="wood" /> +
                   {selectableAttributes.resourceProduction *
-                    focusedProductionPerPoint}{' '}
+                    focusedProductionPerPoint *
+                    server.configuration.speed}{' '}
                   / h
                 </SelectItem>
                 <SelectItem value="clay">
                   <Icon type="clay" /> +
                   {selectableAttributes.resourceProduction *
-                    focusedProductionPerPoint}{' '}
+                    focusedProductionPerPoint *
+                    server.configuration.speed}{' '}
                   / h
                 </SelectItem>
                 <SelectItem value="iron">
                   <Icon type="iron" /> +
                   {selectableAttributes.resourceProduction *
-                    focusedProductionPerPoint}{' '}
+                    focusedProductionPerPoint *
+                    server.configuration.speed}{' '}
                   / h
                 </SelectItem>
                 <SelectItem value="wheat">
                   <Icon type="wheat" /> +
                   {selectableAttributes.resourceProduction *
-                    focusedProductionPerPoint}{' '}
+                    focusedProductionPerPoint *
+                    server.configuration.speed}{' '}
                   / h
                 </SelectItem>
               </SelectContent>
