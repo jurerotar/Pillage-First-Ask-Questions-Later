@@ -133,7 +133,7 @@ type NatureTroopIconType = UpperCaseToCamelCase<NatureUnitId>;
 
 type UnitAttributeType = 'unitSpeed';
 
-export type TroopMovementType =
+type TroopMovementType =
   | 'deploymentOutgoing'
   | 'deploymentIncoming'
   | 'offensiveMovementOutgoing'
@@ -141,7 +141,7 @@ export type TroopMovementType =
   | 'adventure'
   | 'findNewVillage';
 
-export type UnitIconType =
+type UnitIconType =
   | 'hero'
   | RomanTroopIconType
   | GaulTroopIconType
@@ -152,6 +152,8 @@ export type UnitIconType =
   | NatureTroopIconType;
 
 type OtherIconType = 'freeCrop' | 'population' | 'culturePoints';
+
+type HeroIconType = 'heroRevivalDuration';
 
 export type IconType =
   | UncategorizedIconType
@@ -166,6 +168,7 @@ export type IconType =
   | UnitIconType
   | OtherIconType
   | TroopMovementType
+  | HeroIconType
   | Effect['id'];
 
 export const icons: Record<IconType, () => JSX.Element> = {
@@ -379,6 +382,9 @@ export const icons: Record<IconType, () => JSX.Element> = {
   ),
   adventure: () => <PiPath className="size-full text-blue-500" />,
   findNewVillage: () => <GiPointyHat className="size-full text-blue-500" />,
+
+  // Hero
+  heroRevivalDuration: () => <CgTimelapse className="size-full" />,
 };
 
 export const unitIdToUnitIconMapper = (unitId: Unit['id']): UnitIconType => {

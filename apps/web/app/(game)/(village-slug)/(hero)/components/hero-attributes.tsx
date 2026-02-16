@@ -348,10 +348,15 @@ export const HeroAttributes = () => {
         {!isHeroAlive && (
           <SectionContent>
             <Text as="h2">{t('Revive hero')}</Text>
+            <Text>
+              {t(
+                "Your hero is dead. While the hero is dead, it can not produce resources, give bonuses or start adventures. Revival cost and duration increases with your hero's level",
+              )}
+            </Text>
             <div className="flex flex-col gap-2">
               <Resources resources={revivalCost} />
               <div className="flex items-center gap-1">
-                <Icon type="buildingDuration" />
+                <Icon type="heroRevivalDuration" />
                 <Text>
                   {Math.floor(revivalTime / 1000 / 60 / 60)}h{' '}
                   {Math.floor((revivalTime / 1000 / 60) % 60)}m

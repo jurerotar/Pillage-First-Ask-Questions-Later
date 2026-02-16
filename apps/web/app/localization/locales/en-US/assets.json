@@ -1065,6 +1065,7 @@
     "legsSlot": "Legs",
     "bootsSlot": "Boots",
     "horseSlot": "Horse",
-    "consumableSlot": "Consumable"
+    "consumableSlot": "Consumable",
+    "heroRevivalDuration": "Hero revival duration"
   }
 }
