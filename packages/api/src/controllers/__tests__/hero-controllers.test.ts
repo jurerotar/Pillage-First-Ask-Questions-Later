@@ -4,6 +4,7 @@ import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   changeHeroAttributes,
+  changeHeroResourceToProduce,
   equipHeroItem,
   getHero,
   getHeroAdventures,
@@ -70,24 +71,70 @@ describe('hero-controllers', () => {
   });
 
   describe(changeHeroAttributes, () => {
-    test('should increment hero attribute', async () => {
+    test('should update hero attributes and base stats', async () => {
       const database = await prepareTestDatabase();
 
       changeHeroAttributes(
         database,
         createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
           path: { playerId },
-          body: { attribute: 'attackPower' },
+          body: {
+            attackPower: 10,
+            resourceProduction: 20,
+            attackBonus: 30,
+            defenceBonus: 40,
+          },
         }),
       );
 
-      const hero = database.selectObject({
-        sql: 'SELECT attack_power FROM heroes WHERE player_id = $playerId',
+      const heroSelectable = database.selectObject({
+        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $playerId)',
         bind: { $playerId: playerId },
-        schema: z.object({ attack_power: z.number() }),
+        schema: z.object({
+          attack_power: z.number(),
+          resource_production: z.number(),
+          attack_bonus: z.number(),
+          defence_bonus: z.number(),
+        }),
       })!;
 
-      expect(hero.attack_power).toBe(1);
+      expect(heroSelectable.attack_power).toBe(10);
+      expect(heroSelectable.resource_production).toBe(20);
+      expect(heroSelectable.attack_bonus).toBe(30);
+      expect(heroSelectable.defence_bonus).toBe(40);
+
+      const heroStats = database.selectObject({
+        sql: 'SELECT base_attack_power, attack_bonus, defence_bonus FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({
+          base_attack_power: z.number(),
+          attack_bonus: z.number(),
+          defence_bonus: z.number(),
+        }),
+      })!;
+
+      // Gauls (default mock player tribe) get 80 + (80 * 10) = 880 strength
+      expect(heroStats.base_attack_power).toBe(880);
+      // 30 * 2 = 60 (6.0%)
+      expect(heroStats.attack_bonus).toBe(60);
+      // 40 * 2 = 80 (8.0%)
+      expect(heroStats.defence_bonus).toBe(80);
+
+      const effects = database.selectObjects({
+        sql: `
+          SELECT ei.effect, e.value
+          FROM effects e
+          JOIN effect_ids ei ON e.effect_id = ei.id
+          WHERE e.source = 'hero' AND e.source_specifier = 0
+        `,
+        schema: z.object({ effect: z.string(), value: z.number() }),
+      });
+
+      // 9 (Others shared) * 20 points = 180
+      expect(effects).toContainEqual({ effect: 'woodProduction', value: 180 });
+      expect(effects).toContainEqual({ effect: 'clayProduction', value: 180 });
+      expect(effects).toContainEqual({ effect: 'ironProduction', value: 180 });
+      expect(effects).toContainEqual({ effect: 'wheatProduction', value: 180 });
     });
   });
 
@@ -505,13 +552,13 @@ describe('hero-controllers', () => {
       // Set attributes to some values
       database.exec({
         sql: `
-          UPDATE heroes
+          UPDATE hero_selectable_attributes
           SET
             attack_power = 10,
             resource_production = 10,
             attack_bonus = 10,
             defence_bonus = 10
-          WHERE id = $heroId
+          WHERE hero_id = $heroId
         `,
         bind: { $heroId: heroId },
       });
@@ -535,7 +582,7 @@ describe('hero-controllers', () => {
 
       // Verify attributes
       const updatedHero = database.selectObject({
-        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM heroes WHERE id = $heroId',
+        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = $heroId',
         bind: { $heroId: heroId },
         schema: z.object({
           attack_power: z.number(),
@@ -548,6 +595,36 @@ describe('hero-controllers', () => {
       expect(updatedHero.resource_production).toBe(0);
       expect(updatedHero.attack_bonus).toBe(0);
       expect(updatedHero.defence_bonus).toBe(0);
+
+      // Verify hero stats reset
+      const updatedHeroStats = database.selectObject({
+        sql: 'SELECT base_attack_power, attack_bonus, defence_bonus FROM heroes WHERE id = $heroId',
+        bind: { $heroId: heroId },
+        schema: z.object({
+          base_attack_power: z.number(),
+          attack_bonus: z.number(),
+          defence_bonus: z.number(),
+        }),
+      })!;
+      // Gauls get 80 initial strength
+      expect(updatedHeroStats.base_attack_power).toBe(80);
+      expect(updatedHeroStats.attack_bonus).toBe(0);
+      expect(updatedHeroStats.defence_bonus).toBe(0);
+
+      const effects = database.selectObjects({
+        sql: `
+          SELECT ei.effect, e.value
+          FROM effects e
+          JOIN effect_ids ei ON e.effect_id = ei.id
+          WHERE e.source = 'hero' AND e.source_specifier = 0
+        `,
+        schema: z.object({ effect: z.string(), value: z.number() }),
+      });
+
+      expect(effects).toContainEqual({ effect: 'woodProduction', value: 0 });
+      expect(effects).toContainEqual({ effect: 'clayProduction', value: 0 });
+      expect(effects).toContainEqual({ effect: 'ironProduction', value: 0 });
+      expect(effects).toContainEqual({ effect: 'wheatProduction', value: 0 });
 
       // Verify inventory (deleted)
       const inventory = database.selectObject({
@@ -573,6 +650,131 @@ describe('hero-controllers', () => {
           }),
         );
       }).rejects.toThrow('Not enough items in inventory');
+    });
+  });
+
+  describe(changeHeroResourceToProduce, () => {
+    test('should update resource to produce', async () => {
+      const database = await prepareTestDatabase();
+
+      changeHeroResourceToProduce(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/resource-to-produce',
+          'patch'
+        >({
+          path: { playerId },
+          body: { resource: 'wood' },
+        }),
+      );
+
+      const hero = database.selectObject({
+        sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $playerId',
+        bind: { $playerId: playerId },
+        schema: z.object({ resource_to_produce: z.string() }),
+      })!;
+
+      expect(hero.resource_to_produce).toBe('wood');
+
+      const effects = database.selectObjects({
+        sql: `
+          SELECT ei.effect, e.value
+          FROM effects e
+          JOIN effect_ids ei ON e.effect_id = ei.id
+          WHERE e.source = 'hero' AND e.source_specifier = 0
+        `,
+        schema: z.object({ effect: z.string(), value: z.number() }),
+      });
+
+      // Default resourceProduction is 4. Others focused is 30.
+      // 30 * 4 = 120.
+      // woodProduction should be 120. Others should be 0.
+      expect(effects).toContainEqual({ effect: 'woodProduction', value: 120 });
+      expect(effects).toContainEqual({ effect: 'clayProduction', value: 0 });
+      expect(effects).toContainEqual({ effect: 'ironProduction', value: 0 });
+      expect(effects).toContainEqual({ effect: 'wheatProduction', value: 0 });
+    });
+
+    test('should update resource production effects for Egyptians when resource to produce is changed', async () => {
+      const database = await prepareTestDatabase();
+
+      // Change tribe to Egyptians
+      database.exec({
+        sql: "UPDATE players SET tribe = 'egyptians' WHERE id = $playerId",
+        bind: { $playerId: playerId },
+      });
+
+      // Update selectable attributes to have some resource production
+      database.exec({
+        sql: 'UPDATE hero_selectable_attributes SET resource_production = 10 WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $playerId)',
+        bind: { $playerId: playerId },
+      });
+
+      changeHeroResourceToProduce(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/resource-to-produce',
+          'patch'
+        >({
+          path: { playerId },
+          body: { resource: 'clay' },
+        }),
+      );
+
+      const effects = database.selectObjects({
+        sql: `
+          SELECT ei.effect, e.value
+          FROM effects e
+          JOIN effect_ids ei ON e.effect_id = ei.id
+          WHERE e.source = 'hero' AND e.source_specifier = 0
+        `,
+        schema: z.object({ effect: z.string(), value: z.number() }),
+      });
+
+      // Egyptians have focused production per point = 40. Points is 10.
+      // 40 * 10 = 400.
+      expect(effects).toContainEqual({ effect: 'clayProduction', value: 400 });
+      expect(effects).toContainEqual({ effect: 'woodProduction', value: 0 });
+      expect(effects).toContainEqual({ effect: 'ironProduction', value: 0 });
+      expect(effects).toContainEqual({ effect: 'wheatProduction', value: 0 });
+    });
+
+    test('should update resource production effects to shared when resource to produce is changed to shared', async () => {
+      const database = await prepareTestDatabase();
+
+      // First set it to something else
+      database.exec({
+        sql: "UPDATE heroes SET resource_to_produce = 'iron' WHERE player_id = $playerId",
+        bind: { $playerId: playerId },
+      });
+
+      changeHeroResourceToProduce(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/resource-to-produce',
+          'patch'
+        >({
+          path: { playerId },
+          body: { resource: 'shared' },
+        }),
+      );
+
+      const effects = database.selectObjects({
+        sql: `
+          SELECT ei.effect, e.value
+          FROM effects e
+          JOIN effect_ids ei ON e.effect_id = ei.id
+          WHERE e.source = 'hero' AND e.source_specifier = 0
+        `,
+        schema: z.object({ effect: z.string(), value: z.number() }),
+      });
+
+      // Default resourceProduction is 4. Others shared is 9.
+      // 9 * 4 = 36.
+      expect(effects).toContainEqual({ effect: 'woodProduction', value: 36 });
+      expect(effects).toContainEqual({ effect: 'clayProduction', value: 36 });
+      expect(effects).toContainEqual({ effect: 'ironProduction', value: 36 });
+      expect(effects).toContainEqual({ effect: 'wheatProduction', value: 36 });
     });
   });
 });

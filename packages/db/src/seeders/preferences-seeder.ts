@@ -1,7 +1,11 @@
+/// <reference types="vite/client" />
+
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const preferencesSeeder = (database: DbFacade): void => {
+  const isRunningLocally = import.meta.env.DEV;
+
   database.exec({
     sql: `
       INSERT INTO
@@ -11,7 +15,7 @@ export const preferencesSeeder = (database: DbFacade): void => {
                      should_show_notifications_on_unit_upgrade_completion,
                      should_show_notifications_on_academy_research_completion)
       VALUES
-        ($player_id, 0, 0, 1, 1, 0, 0, 0, 0)
+        ($player_id, 0, 0, 1, 1, ${Number(isRunningLocally)}, 0, 0, 0)
     `,
     bind: {
       $player_id: PLAYER_ID,

@@ -5,8 +5,9 @@ import type {
 } from '@sqlite.org/sqlite-wasm';
 import type {
   ApiNotificationEvent,
+  ControllerErrorEvent,
+  DatabaseInitializationErrorEvent,
   EventApiNotificationEvent,
-  WorkerInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
 import {
   createDbFacade,
@@ -76,14 +77,14 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         scheduleNextEvent(dataSource);
 
         globalThis.postMessage({
-          eventKey: 'event:worker-initialization-success',
+          eventKey: 'event:database-initialization-success',
         } satisfies ApiNotificationEvent);
         break;
       } catch (error) {
         globalThis.postMessage({
-          eventKey: 'event:worker-initialization-error',
+          eventKey: 'event:database-initialization-error',
           error: error as Error,
-        } satisfies WorkerInitializationErrorEvent);
+        } satisfies DatabaseInitializationErrorEvent);
         break;
       }
     }
@@ -99,7 +100,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         if (method !== 'GET') {
           globalThis.postMessage({
-            eventKey: 'event:worker-event-creation-success',
+            eventKey: 'event:controller-success',
             ...body,
             ...path,
           } satisfies EventApiNotificationEvent);
@@ -112,10 +113,10 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         break;
       } catch (error) {
         console.error(error);
-        globalThis.postMessage({
-          eventKey: 'event:worker-event-creation-error',
-          ...body,
-        } satisfies EventApiNotificationEvent);
+        port.postMessage({
+          eventKey: 'event:controller-error',
+          error: error as Error,
+        } satisfies ControllerErrorEvent);
         break;
       }
     }

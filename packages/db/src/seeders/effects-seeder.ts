@@ -29,44 +29,29 @@ const heroEffectsFactory = (
   villageId: number,
 ): HeroEffect[] => {
   const { tribe } = server.playerConfiguration;
-  const baseResourceProduction = 9;
-  const tribalModifier = tribe === 'egyptians' ? 2 : 1;
+  const isEgyptian = tribe === 'egyptians';
+  const sharedProductionPerPoint = isEgyptian ? 12 : 9;
   const initialSkillPoints = 4;
 
   const heroEffects: Pick<HeroEffect, 'id' | 'value' | 'type'>[] = [
     {
-      id: 'attack',
-      value: 0,
-      type: 'bonus',
-    },
-    {
-      id: 'infantryDefence',
-      value: 0,
-      type: 'bonus',
-    },
-    {
-      id: 'cavalryDefence',
-      value: 0,
-      type: 'bonus',
-    },
-    {
       id: 'woodProduction',
-      value: baseResourceProduction * tribalModifier * initialSkillPoints,
+      value: sharedProductionPerPoint * initialSkillPoints,
       type: 'base',
     },
     {
       id: 'clayProduction',
-      value: baseResourceProduction * tribalModifier * initialSkillPoints,
+      value: sharedProductionPerPoint * initialSkillPoints,
       type: 'base',
     },
     {
       id: 'ironProduction',
-      value: baseResourceProduction * tribalModifier * initialSkillPoints,
+      value: sharedProductionPerPoint * initialSkillPoints,
       type: 'base',
     },
     {
       id: 'wheatProduction',
-      value: baseResourceProduction * tribalModifier * initialSkillPoints,
+      value: sharedProductionPerPoint * initialSkillPoints,
       type: 'base',
     },
   ];
@@ -76,7 +61,7 @@ const heroEffectsFactory = (
     scope: 'village',
     source: 'hero',
     villageId,
-    sourceSpecifier: null,
+    sourceSpecifier: 0,
   }));
 };
 
@@ -223,7 +208,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       effect.scope,
       effect.source,
       villageId,
-      null,
+      effect.sourceSpecifier,
     ] satisfies EffectToInsert);
   }
 

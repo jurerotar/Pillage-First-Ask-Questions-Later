@@ -1,11 +1,33 @@
 import { Alert } from 'app/components/ui/alert.tsx';
 
 <div>
+  ## Version 0.2.0
+  #### Feb 15, 2026
+
+  * Added hero attributes page. You're now able to see all your hero attributes. There are some additional attributes which are not shown (cranny
+  plunder,...). These options will be added in a later patch. Page also allows you to change hero's ability points, along with the ability to switch hero resource production focus. The dropdown shows you production values to expect on change.
+  * A "hero level up" option has been added to developer tools.
+
+  <Alert variant="error">
+    <span>This version introduces breaking changes</span>
+  </Alert>
+</div>
+
+<div>
+  ## Version 0.1.2
+  #### Feb 11, 2026
+
+  * Fixed an issue where barracks and stable upgrades wouldn't decrease unit training duration
+</div>
+
+<div>
   ## Version 0.1.1
   #### Feb 11, 2026
 
-  * Improved performance of resolving events. Updating resources query now doesn't run, if there's no change to resources
-  * Fixed an issue where upgrading buildings wouldn't increase the building effect values (building duration, troop training, ...)
+  * Improved performance of resolving events. Updating resources query now doesn't run, if there's no change to
+  resources
+  * Fixed an issue where upgrading buildings wouldn't increase the building effect values (building duration, troop
+  training, ...)
   * Fixed an issue where environment variables weren't getting injected
 </div>
 

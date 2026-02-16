@@ -11,6 +11,12 @@ export const getHeroSchema = z
     resource_production: z.number(),
     attack_bonus: z.number(),
     defence_bonus: z.number(),
+    base_attack_power: z.number(),
+    health_regeneration: z.number(),
+    damage_reduction: z.number(),
+    experience_modifier: z.number(),
+    speed: z.number(),
+    natarian_attack_bonus: z.number(),
     resource_to_produce: heroResourceToProduceSchema,
   })
   .transform((t) => {
@@ -19,6 +25,14 @@ export const getHeroSchema = z
       stats: {
         health: t.health,
         experience: t.experience,
+        attackPower: t.base_attack_power,
+        healthRegeneration: t.health_regeneration,
+        damageReduction: t.damage_reduction,
+        experienceModifier: t.experience_modifier,
+        speed: t.speed,
+        natarianAttackBonus: t.natarian_attack_bonus,
+        attackBonus: t.attack_bonus,
+        defenceBonus: t.defence_bonus,
       },
       selectableAttributes: {
         attackPower: t.attack_power,
@@ -35,6 +49,14 @@ export const getHeroSchema = z
       stats: z.object({
         health: z.number(),
         experience: z.number(),
+        attackPower: z.number(),
+        healthRegeneration: z.number(),
+        damageReduction: z.number(),
+        experienceModifier: z.number(),
+        speed: z.number(),
+        natarianAttackBonus: z.number(),
+        attackBonus: z.number(),
+        defenceBonus: z.number(),
       }),
       selectableAttributes: z.object({
         attackPower: z.number(),
@@ -69,16 +91,16 @@ export const getHeroLoadoutSchema = z
 
 export const getHeroInventorySchema = z
   .strictObject({
-    item_id: z.string(),
+    item_id: z.number(),
     amount: z.number().int().positive(),
   })
   .transform((t) => ({
-    itemId: t.item_id,
+    id: t.item_id,
     amount: t.amount,
   }))
   .pipe(
     z.object({
-      itemId: z.string(),
+      id: z.number(),
       amount: z.number(),
     }),
   )

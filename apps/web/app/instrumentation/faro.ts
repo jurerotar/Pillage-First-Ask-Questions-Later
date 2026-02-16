@@ -20,7 +20,6 @@ export const initFaro = async () => {
     app: {
       name: 'pillage-first',
       version: env.VERSION,
-      environment: env.BRANCH_ENV,
       release: env.COMMIT_REF,
     },
     instrumentations: getWebInstrumentations({

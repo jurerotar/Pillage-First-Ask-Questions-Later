@@ -14,7 +14,7 @@
 
   // Faction reputation
   &::after {
-    content: '';
+    content: "";
     border: 3px dashed var(--reputation-color);
     border-radius: 1px;
     inset: 0;

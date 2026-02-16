@@ -12,14 +12,12 @@ introduces new features.
 
 Remember: pillage first, ask questions later! ⚔️🔥
 
-Stable version: [pillagefirst.com](https://pillagefirst.com)
-<br />
-Development version (contains latest features, but may be unstable): [develop--pillagefirst.netlify.app](https://develop--pillagefirst.netlify.app)
+<div style="display:flex; gap: 1rem;">
+
+[![Try it now at pillagefirst.com](https://img.shields.io/badge/Try%20it%20now!-pillagefirst.com-lime?style=flat)](https://pillagefirst.com)
 
 ![Join our Discord server](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Join%20our%20Discord%20server&labelColor=%235865F2)
-
-> [!NOTE]
-> Very much still work in progress.
+</div>
 
 <p align="center">
   <img src="/.github/assets/mobile-map-view.jpg" width="30%">
@@ -57,10 +55,9 @@ Project is pretty heavy in development! It's still missing a lot of major featur
 
 Due to the nature of this project (I get work on it only in my free time), I'm not willing to commit to any specific timeline for any features. That being said, here's the general plan for upcoming development:
 
-- Engine rework (currently in development)
-- Combat mechanics
 - Trading mechanics
 - Hero adventures, inventory,...
+- Combat mechanics
 
 Bug fixing and other minor works will be made between these features.
 

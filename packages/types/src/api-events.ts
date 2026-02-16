@@ -1,18 +1,23 @@
 import type { GameEvent, GameEventType } from './models/game-event';
 
 type EventKey =
-  | 'event:worker-initialization-success'
-  | 'event:worker-initialization-error'
-  | 'event:worker-event-creation-success'
-  | 'event:worker-event-creation-error'
-  | 'event:worker-event-resolve-success'
-  | 'event:worker-event-resolve-error';
+  | 'event:database-initialization-success'
+  | 'event:database-initialization-error'
+  | 'event:controller-success'
+  | 'event:controller-error'
+  | 'event:event-resolve-success'
+  | 'event:event-resolve-error';
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;
 };
 
-export type WorkerInitializationErrorEvent = {
+export type DatabaseInitializationErrorEvent = {
+  eventKey: EventKey;
+  error: Error;
+};
+
+export type ControllerErrorEvent = {
   eventKey: EventKey;
   error: Error;
 };

@@ -1,4 +1,6 @@
 import { snakeCase } from 'moderndash';
+import { z } from 'zod';
+import { calculateHeroLevel } from '@pillage-first/web/app/(game)/(village-slug)/hooks/utils/hero.ts';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {
@@ -92,20 +94,50 @@ export const updateDeveloperSettings = createController(
   }
 });
 
+export const levelUpHero = createController(
+  '/developer-settings/:heroId/level-up',
+  'patch',
+)(({ database, path: { heroId } }) => {
+  const currentExperience = database.selectValue({
+    sql: 'SELECT experience FROM heroes WHERE id = $heroId',
+    bind: { $heroId: heroId },
+    schema: z.number(),
+  })!;
+
+  const { expToNextLevel } = calculateHeroLevel(currentExperience);
+
+  database.exec({
+    sql: `
+      UPDATE heroes
+      SET
+        experience = $nextLevelExp
+      WHERE
+        id = $heroId
+    `,
+    bind: {
+      $heroId: heroId,
+      $nextLevelExp: currentExperience + expToNextLevel,
+    },
+  });
+});
+
 export const spawnHeroItem = createController(
   '/developer-settings/:heroId/spawn-item',
   'patch',
-)(({ database, body: { itemId }, path: { heroId } }) => {
+)(({ database, body: { itemId, amount = 1 }, path: { heroId } }) => {
   database.exec({
     sql: `
-      INSERT INTO hero_inventory (hero_id, item_id, amount)
-      VALUES ($heroId, $itemId, 1)
+      INSERT INTO
+        hero_inventory (hero_id, item_id, amount)
+      VALUES
+        ($heroId, $itemId, $amount)
       ON CONFLICT (hero_id, item_id) DO UPDATE SET
-        amount = amount + 1
+        amount = amount + $amount
     `,
     bind: {
       $heroId: heroId,
       $itemId: itemId,
+      $amount: amount,
     },
   });
 });

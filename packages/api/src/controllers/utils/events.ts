@@ -11,7 +11,7 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from '@pillage-first/game-assets/units/utils';
-import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
+import type { ControllerErrorEvent } from '@pillage-first/types/api-events';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -43,9 +43,10 @@ export const notifyAboutEventCreationFailure = (events: GameEvent[]): void => {
   const [event] = events;
 
   globalThis.postMessage({
-    eventKey: 'event:worker-event-creation-error',
+    eventKey: 'event:controller-error',
+    error: new Error('Following events failed to create'),
     ...event,
-  } satisfies EventApiNotificationEvent);
+  } satisfies ControllerErrorEvent);
 };
 
 export const checkAndSubtractVillageResources = (
@@ -462,7 +463,7 @@ export const getEventDuration = (
     const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
       bind: {
-        $effect_id: 'buildingDuration',
+        $effect_id: durationEffectId,
         $village_id: villageId,
       },
       schema: apiEffectSchema,

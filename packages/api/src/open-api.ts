@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
+import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
+import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
@@ -343,7 +345,7 @@ export const paths = {
           'application/json': {
             schema: z.strictObject({
               itemId: z.number(),
-              slot: z.string(),
+              slot: heroLoadoutSlotSchema,
               amount: z.number(),
             }),
           },
@@ -421,12 +423,10 @@ export const paths = {
         content: {
           'application/json': {
             schema: z.strictObject({
-              attribute: z.enum([
-                'attackPower',
-                'resourceProduction',
-                'attackBonus',
-                'defenceBonus',
-              ]),
+              attackPower: z.number().int().min(0).max(100),
+              resourceProduction: z.number().int().min(0).max(100),
+              attackBonus: z.number().int().min(0).max(100),
+              defenceBonus: z.number().int().min(0).max(100),
             }),
           },
         },
@@ -438,13 +438,37 @@ export const paths = {
       },
     },
   },
+  '/players/:playerId/hero/resource-to-produce': {
+    patch: {
+      summary: 'Change hero resource to produce',
+      requestParams: {
+        path: z.strictObject({
+          playerId: playerSchema.shape.id,
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              resource: heroResourceToProduceSchema,
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Resource to produce changed',
+        },
+      },
+    },
+  },
   '/players/:playerId/hero/equipped-items/:slot': {
     delete: {
       summary: 'Unequip hero item',
       requestParams: {
         path: z.strictObject({
           playerId: playerSchema.shape.id,
-          slot: z.string(),
+          slot: heroLoadoutSlotSchema,
         }),
       },
       responses: {
@@ -518,6 +542,21 @@ export const paths = {
       },
     },
   },
+  '/developer-settings/:heroId/level-up': {
+    patch: {
+      summary: 'Level up hero',
+      requestParams: {
+        path: z.strictObject({
+          heroId: z.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Hero leveled up',
+        },
+      },
+    },
+  },
   '/developer-settings/:heroId/spawn-item': {
     patch: {
       summary: 'Spawn hero item',
@@ -531,6 +570,7 @@ export const paths = {
           'application/json': {
             schema: z.strictObject({
               itemId: z.number(),
+              amount: z.number(),
             }),
           },
         },

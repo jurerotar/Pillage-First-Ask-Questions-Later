@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Effect } from './effect';
 import type { Resources } from './resource';
 
-type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
+export type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
 type HeroItemCategory =
   | 'consumable'
@@ -15,6 +15,7 @@ export type HeroItemSlot =
   | 'head'
   | 'torso'
   | 'legs'
+  | 'boots'
   | 'right-hand'
   | 'left-hand'
   | 'horse'
