@@ -53,8 +53,8 @@ export const getTiles = createController('/tiles')(({ database }) => {
       p.id AS player_id,
       p.slug AS player_slug,
       p.name AS player_name,
-      p.tribe AS player_tribe,
-      f.faction AS player_faction,
+      ti.tribe AS player_tribe,
+      fi.faction AS player_faction,
 
       CASE
         WHEN t.type = 'free' AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0)
@@ -71,8 +71,10 @@ export const getTiles = createController('/tiles')(({ database }) => {
       tiles t
         LEFT JOIN villages v ON v.tile_id = t.id
         LEFT JOIN players p ON p.id = v.player_id
+        LEFT JOIN tribe_ids ti ON p.tribe_id = ti.id
         LEFT JOIN factions f ON f.id = p.faction_id
-        LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+        LEFT JOIN faction_ids fi ON f.faction_id = fi.id
+        LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
         LEFT JOIN effects_wheat ew ON ew.village_id = v.id
         LEFT JOIN world_items_single wi ON wi.tile_id = t.id
 
@@ -102,10 +104,11 @@ export const getTileTroops = createController('/tiles/:tileId/troops')(
   ({ database, path: { tileId } }) => {
     return database.selectObjects({
       sql: `
-    SELECT unit_id, amount, tile_id, source_tile_id
-    FROM troops
-    WHERE tile_id = $tile_id
-    GROUP BY unit_id;
+    SELECT ui.unit AS unit_id, t.amount, t.tile_id, t.source_tile_id
+    FROM troops t
+    JOIN unit_ids ui ON ui.id = t.unit_id
+    WHERE t.tile_id = $tile_id
+    GROUP BY ui.unit;
     `,
       bind: {
         $tile_id: tileId,

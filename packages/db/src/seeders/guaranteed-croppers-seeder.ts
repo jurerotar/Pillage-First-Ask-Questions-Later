@@ -22,7 +22,7 @@ export const guaranteedCroppersSeeder = (
         rfc.resource_field_composition
       FROM
         tiles t
-          LEFT JOIN resource_field_compositions rfc
+          LEFT JOIN resource_field_composition_ids rfc
                     ON rfc.id = t.resource_field_composition_id
           JOIN oasis_occupiable_by ob
                ON ob.occupiable_tile_id = t.id
@@ -110,7 +110,7 @@ export const guaranteedCroppersSeeder = (
         resource_field_composition_id = (
           SELECT r.id
           FROM
-            resource_field_compositions r
+            resource_field_composition_ids r
           WHERE
             r.resource_field_composition = (
               SELECT u.rfc

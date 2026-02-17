@@ -2,45 +2,58 @@ import { z } from 'zod';
 import type { Building } from './building';
 import type { Village } from './village';
 
-export type TroopTrainingDurationEffectId =
+export const effectIdSchema = z
+  .enum([
+    'attack',
+    'defence',
+    'defenceBonus',
+    'infantryDefence',
+    'cavalryDefence',
+    'warehouseCapacity',
+    'granaryCapacity',
+    'unitSpeed',
+    'unitSpeedAfter20Fields',
+    'unitWheatConsumption',
+    'unitCarryCapacity',
+    'buildingDuration',
+    'unitResearchDuration',
+    'unitImprovementDuration',
+    'merchantSpeed',
+    'merchantCapacity',
+    'merchantAmount',
+    'crannyCapacity',
+    'trapperCapacity',
+    'revealedIncomingTroopsAmount',
+    'woodProduction',
+    'clayProduction',
+    'ironProduction',
+    'wheatProduction',
+    'barracksTrainingDuration',
+    'greatBarracksTrainingDuration',
+    'stableTrainingDuration',
+    'greatStableTrainingDuration',
+    'workshopTrainingDuration',
+    'hospitalTrainingDuration',
+  ])
+  .meta({ id: 'EffectId' });
+
+export type EffectId = z.infer<typeof effectIdSchema>;
+
+export type TroopTrainingDurationEffectId = Extract<
+  EffectId,
   | 'barracksTrainingDuration'
   | 'greatBarracksTrainingDuration'
   | 'stableTrainingDuration'
   | 'greatStableTrainingDuration'
   | 'workshopTrainingDuration'
-  | 'hospitalTrainingDuration';
+  | 'hospitalTrainingDuration'
+>;
 
-export type ResourceProductionEffectId =
-  | 'woodProduction'
-  | 'clayProduction'
-  | 'ironProduction'
-  | 'wheatProduction';
+export type ResourceProductionEffectId = Extract<
+  EffectId,
+  'woodProduction' | 'clayProduction' | 'ironProduction' | 'wheatProduction'
+>;
 
-export type EffectId =
-  | 'attack'
-  | 'defence'
-  | 'defenceBonus'
-  | 'infantryDefence'
-  | 'cavalryDefence'
-  | 'warehouseCapacity'
-  | 'granaryCapacity'
-  | 'unitSpeed'
-  | 'unitSpeedAfter20Fields'
-  | 'unitWheatConsumption'
-  | 'unitCarryCapacity'
-  | 'buildingDuration'
-  | 'unitResearchDuration'
-  | 'unitImprovementDuration'
-  | 'merchantSpeed'
-  | 'merchantCapacity'
-  | 'merchantAmount'
-  | 'crannyCapacity'
-  | 'trapperCapacity'
-  | 'revealedIncomingTroopsAmount'
-  | ResourceProductionEffectId
-  | TroopTrainingDurationEffectId;
-
-// 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
 export const effectScopeSchema = z
   .enum(['global', 'village', 'server'])
   .meta({ id: 'EffectScope' });
@@ -51,9 +64,7 @@ export const effectTypeSchema = z
   .enum(['base', 'bonus', 'bonus-booster'])
   .meta({ id: 'EffectType' });
 
-export const effectIdSchema = z
-  .string()
-  .meta({ id: 'EffectId' }) as unknown as z.ZodType<EffectId>;
+// 'server' and 'global' scopes both affect global scope, but the calculation requires differentiation between them
 
 export const effectSchema = z
   .strictObject({

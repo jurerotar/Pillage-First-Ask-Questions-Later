@@ -60,11 +60,11 @@ describe('village-controllers', () => {
 
       // Seed data
       database.exec({
-        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, 'MAIN_BUILDING', 1)",
+        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 1)",
         bind: { $v: villageId, $f: fieldId1 },
       });
       database.exec({
-        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, 'BARRACKS', 2)",
+        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 2)",
         bind: { $v: villageId, $f: fieldId2 },
       });
 
@@ -94,13 +94,13 @@ describe('village-controllers', () => {
       );
 
       const bf1 = database.selectObject({
-        sql: 'SELECT building_id FROM building_fields WHERE village_id = $v AND field_id = $f',
+        sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = $f',
         bind: { $v: villageId, $f: fieldId1 },
         schema: z.object({ building_id: buildingIdSchema }),
       })!;
 
       const bf2 = database.selectObject({
-        sql: 'SELECT building_id FROM building_fields WHERE village_id = $v AND field_id = $f',
+        sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = $f',
         bind: { $v: villageId, $f: fieldId2 },
         schema: z.object({ building_id: buildingIdSchema }),
       })!;
@@ -128,7 +128,7 @@ describe('village-controllers', () => {
       const fieldId2 = 21;
 
       database.exec({
-        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, 'MAIN_BUILDING', 1)",
+        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, $f, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 1)",
         bind: { $v: villageId, $f: fieldId1 },
       });
 
@@ -144,13 +144,13 @@ describe('village-controllers', () => {
       );
 
       const bf1 = database.selectObject({
-        sql: 'SELECT building_id FROM building_fields WHERE village_id = $v AND field_id = $f',
+        sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = $f',
         bind: { $v: villageId, $f: fieldId1 },
         schema: z.object({ building_id: buildingIdSchema }),
       });
 
       const bf2 = database.selectObject({
-        sql: 'SELECT building_id FROM building_fields WHERE village_id = $v AND field_id = $f',
+        sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = $f',
         bind: { $v: villageId, $f: fieldId2 },
         schema: z.object({ building_id: buildingIdSchema }),
       })!;

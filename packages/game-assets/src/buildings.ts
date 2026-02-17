@@ -503,7 +503,7 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1875,
   },
   {
-    id: 'CITY_WALL',
+    id: 'ROMAN_WALL',
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
@@ -543,7 +543,7 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1875,
   },
   {
-    id: 'EARTH_WALL',
+    id: 'TEUTONIC_WALL',
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
@@ -699,7 +699,7 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1875,
   },
   {
-    id: 'MAKESHIFT_WALL',
+    id: 'HUN_WALL',
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
@@ -739,7 +739,7 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1875,
   },
   {
-    id: 'PALISADE',
+    id: 'GAUL_WALL',
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
@@ -863,7 +863,7 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1875,
   },
   {
-    id: 'STONE_WALL',
+    id: 'EGYPTIAN_WALL',
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
@@ -896,6 +896,126 @@ export const buildings: Building[] = [
       },
     ],
     baseBuildingCost: [110, 160, 70, 60],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 3875,
+    buildingDurationReduction: 1875,
+  },
+  {
+    id: 'SPARTAN_WALL',
+    category: 'military',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
+    effects: [
+      ...createInfantryAndCavalryDefenceEffects(
+        'bonus',
+        [
+          1, 1.02, 1.04, 1.06, 1.08, 1.1, 1.13, 1.15, 1.17, 1.2, 1.22, 1.24,
+          1.27, 1.29, 1.32, 1.35, 1.37, 1.4, 1.43, 1.46, 1.49,
+        ],
+      ),
+      ...createInfantryAndCavalryDefenceEffects(
+        'base',
+        [
+          0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150,
+          160, 170, 180, 190, 200,
+        ],
+      ),
+    ],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
+        type: 'tribe',
+        tribe: 'spartans',
+      },
+    ],
+    baseBuildingCost: [160, 100, 80, 60],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 3875,
+    buildingDurationReduction: 1875,
+  },
+  {
+    id: 'NATURE_WALL',
+    category: 'military',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
+    effects: [
+      ...createInfantryAndCavalryDefenceEffects(
+        'bonus',
+        [
+          1, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.1, 1.11,
+          1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, 1.19, 1.2,
+        ],
+      ),
+      ...createInfantryAndCavalryDefenceEffects(
+        'base',
+        [
+          0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102,
+          108, 114, 120,
+        ],
+      ),
+    ],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
+        type: 'tribe',
+        tribe: 'nature',
+      },
+    ],
+    baseBuildingCost: [50, 60, 20, 200],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 3875,
+    buildingDurationReduction: 1875,
+  },
+  {
+    id: 'NATAR_WALL',
+    category: 'military',
+    populationCoefficient: 0,
+    culturePointsCoefficient: 1,
+    effects: [
+      ...createInfantryAndCavalryDefenceEffects(
+        'bonus',
+        [
+          1, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6,
+          1.65, 1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2.0,
+        ],
+      ),
+      ...createInfantryAndCavalryDefenceEffects(
+        'base',
+        [
+          0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150,
+          160, 170, 180, 190, 200,
+        ],
+      ),
+    ],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
+        type: 'tribe',
+        tribe: 'natars',
+      },
+    ],
+    baseBuildingCost: [180, 250, 400, 80],
     buildingCostCoefficient: 1.28,
     maxLevel: 20,
     buildingDurationBase: 1.16,

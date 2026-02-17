@@ -12,6 +12,7 @@ import {
 } from '@pillage-first/game-assets/village';
 import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
+import { env } from '@pillage-first/utils/env';
 import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
 import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
@@ -34,7 +35,6 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { Switch } from 'app/components/ui/switch';
-import { env } from 'app/env';
 import { workerFactory } from 'app/utils/workers';
 
 const createServerFormSchema = z.strictObject({

@@ -6,9 +6,10 @@ export const getReputations = createController(
 )(({ database, path: { playerId } }) => {
   return database.selectObjects({
     sql: `
-    SELECT f.faction, fr.reputation
+    SELECT fi.faction, fr.reputation
     FROM faction_reputation fr
     JOIN factions f ON fr.target_faction_id = f.id
+    JOIN faction_ids fi ON f.faction_id = fi.id
     WHERE fr.source_faction_id = (SELECT faction_id FROM players WHERE id = $player_id);
     `,
     bind: {

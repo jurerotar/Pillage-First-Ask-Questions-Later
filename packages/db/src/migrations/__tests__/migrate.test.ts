@@ -54,7 +54,7 @@ describe('migrateAndSeed', () => {
             t.oasis_graphics
           FROM
             tiles AS t
-              JOIN resource_field_compositions AS rfc
+              JOIN resource_field_composition_ids AS rfc
                    ON t.resource_field_composition_id = rfc.id
           WHERE
             t.type = 'free';
@@ -76,7 +76,7 @@ describe('migrateAndSeed', () => {
             t.oasis_graphics
           FROM
             tiles AS t
-              LEFT JOIN resource_field_compositions AS rfc
+              LEFT JOIN resource_field_composition_ids AS rfc
                         ON t.resource_field_composition_id = rfc.id
           WHERE
             t.type = 'oasis';
@@ -92,11 +92,13 @@ describe('migrateAndSeed', () => {
 
     test('oasis groups tile counts are multiples of expected shape sizes', () => {
       const rows = database.selectObjects({
-        sql: `SELECT id, oasis_graphics
-              FROM
-                tiles
-              WHERE
-                type = 'oasis';`,
+        sql: `
+          SELECT id, oasis_graphics
+          FROM
+            tiles
+          WHERE
+            type = 'oasis';
+        `,
         schema: z.strictObject({
           id: z.number(),
           oasis_graphics: z.number(),
@@ -149,7 +151,7 @@ describe('migrateAndSeed', () => {
             t.oasis_graphics
           FROM
             tiles t
-              LEFT JOIN resource_field_compositions rfc
+              LEFT JOIN resource_field_composition_ids rfc
                         ON t.resource_field_composition_id = rfc.id
           WHERE
             t.x = 0
@@ -199,7 +201,7 @@ describe('migrateAndSeed', () => {
           SELECT DISTINCT rfc.resource_field_composition
           FROM
             tiles t
-              JOIN resource_field_compositions rfc
+              JOIN resource_field_composition_ids rfc
                    ON t.resource_field_composition_id = rfc.id
           WHERE
             t.resource_field_composition_id IS NOT NULL;
@@ -370,7 +372,7 @@ describe('migrateAndSeed', () => {
               SELECT t.id
               FROM
                 tiles t
-                  JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+                  JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
                   JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
                   JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
               WHERE
@@ -398,7 +400,7 @@ describe('migrateAndSeed', () => {
               SELECT t.id
               FROM
                 tiles t
-                  JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+                  JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
                   JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
                   JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
               WHERE
@@ -426,7 +428,7 @@ describe('migrateAndSeed', () => {
               SELECT t.id
               FROM
                 tiles t
-                  JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+                  JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
                   JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
                   JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
               WHERE
@@ -542,9 +544,10 @@ describe('migrateAndSeed', () => {
     test('attack_power is 100 for Romans and 80 for others', () => {
       const rows = database.selectObjects({
         sql: `
-          SELECT p.tribe, h.base_attack_power
+          SELECT ti.tribe, h.base_attack_power
           FROM heroes h
           JOIN players p ON h.player_id = p.id
+          JOIN tribe_ids ti ON p.tribe_id = ti.id
         `,
         schema: z.object({
           tribe: z.string(),
@@ -613,10 +616,10 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('resource field compositions', () => {
-    test('resource_field_compositions seeded (>0)', () => {
+  describe('resource field composition ids', () => {
+    test('resource_field_composition_ids seeded (>0)', () => {
       const c = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM resource_field_compositions;',
+        sql: 'SELECT COUNT(*) FROM resource_field_composition_ids;',
         schema: z.number(),
       });
       expect(c).toBeGreaterThan(0);
@@ -627,10 +630,44 @@ describe('migrateAndSeed', () => {
         sql: `
           SELECT COUNT(*)
           FROM
-            resource_field_compositions
+            resource_field_composition_ids
           WHERE
             resource_field_composition = '4446';
         `,
+        schema: z.number(),
+      });
+      expect(c).toBeGreaterThan(0);
+    });
+  });
+
+  describe('lookup tables', () => {
+    test('building_ids seeded (>0)', () => {
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM building_ids;',
+        schema: z.number(),
+      });
+      expect(c).toBeGreaterThan(0);
+    });
+
+    test('faction_ids seeded (>0)', () => {
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM faction_ids;',
+        schema: z.number(),
+      });
+      expect(c).toBeGreaterThan(0);
+    });
+
+    test('tribe_ids seeded (>0)', () => {
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM tribe_ids;',
+        schema: z.number(),
+      });
+      expect(c).toBeGreaterThan(0);
+    });
+
+    test('unit_ids seeded (>0)', () => {
+      const c = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM unit_ids;',
         schema: z.number(),
       });
       expect(c).toBeGreaterThan(0);
@@ -734,6 +771,7 @@ describe('migrateAndSeed', () => {
           FROM
             troops tr
               JOIN tiles t ON t.id = tr.tile_id
+              JOIN unit_ids ui ON ui.id = tr.unit_id
           WHERE
             t.type = 'oasis'
             AND EXISTS
@@ -745,7 +783,7 @@ describe('migrateAndSeed', () => {
                 o.tile_id = t.id
                 AND o.village_id IS NULL
               )
-            AND tr.unit_id NOT IN (${placeholders});
+            AND ui.unit NOT IN (${placeholders});
         `,
         bind: natureUnitIds,
         schema: z.number(),
@@ -905,11 +943,12 @@ describe('migrateAndSeed', () => {
     test('unitTroopCount quests exist and only for the player tribe units', () => {
       const tribe = database.selectValue({
         sql: `
-          SELECT tribe
+          SELECT ti.tribe
           FROM
-            players
+            players p
+            JOIN tribe_ids ti ON p.tribe_id = ti.id
           WHERE
-            id = $playerId;
+            p.id = $playerId;
         `,
         bind: { $playerId: PLAYER_ID },
         schema: tribeSchema,
@@ -949,22 +988,23 @@ describe('migrateAndSeed', () => {
     test('tribal wall building quests exist for starting village', () => {
       const tribe = database.selectValue({
         sql: `
-          SELECT tribe
+          SELECT ti.tribe
           FROM
-            players
+            players p
+            JOIN tribe_ids ti ON p.tribe_id = ti.id
           WHERE
-            id = $playerId;
+            p.id = $playerId;
         `,
         bind: { $playerId: PLAYER_ID },
         schema: tribeSchema,
       })!;
 
       const wallByTribe: Record<string, string> = {
-        romans: 'CITY_WALL',
-        gauls: 'PALISADE',
-        teutons: 'EARTH_WALL',
-        huns: 'MAKESHIFT_WALL',
-        egyptians: 'STONE_WALL',
+        romans: 'ROMAN_WALL',
+        gauls: 'GAUL_WALL',
+        teutons: 'TEUTONIC_WALL',
+        huns: 'HUN_WALL',
+        egyptians: 'EGYPTIAN_WALL',
       };
 
       const wall = wallByTribe[tribe];
@@ -1009,10 +1049,11 @@ describe('migrateAndSeed', () => {
       // Fetch all building fields and group them by village_id in-memory
       const buildingFields = database.selectObjects({
         sql: `
-          SELECT village_id, building_id, level
+          SELECT bf.village_id, bi.building AS building_id, bf.level
           FROM
-            building_fields
-          ORDER BY village_id;
+            building_fields bf
+            JOIN building_ids bi ON bi.id = bf.building_id
+          ORDER BY bf.village_id;
         `,
         schema: z.strictObject({
           village_id: z.number(),
@@ -1075,9 +1116,10 @@ describe('migrateAndSeed', () => {
       // Note: we need to join with villages to get the village_id
       const troopRows = database.selectObjects({
         sql: `
-          SELECT v.id AS village_id, tr.unit_id, tr.amount
+          SELECT v.id AS village_id, ui.unit AS unit_id, tr.amount
           FROM
             troops AS tr
+              JOIN unit_ids ui ON ui.id = tr.unit_id
               JOIN villages AS v ON tr.tile_id = v.tile_id;
         `,
         schema: z.strictObject({

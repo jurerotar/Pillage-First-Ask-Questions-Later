@@ -1,12 +1,25 @@
 import { Alert } from 'app/components/ui/alert.tsx';
 
 <div>
+  ## Version 0.3.0
+  #### Feb 17, 2026
+
+  * Improved database performance. You can now expect ~ 10-30% smaller SQLite files (depending on world size and seed),
+  faster queries and writes.
+  * Improved database breaking changes detection. App will now more consistently detect outdated game worlds.
+
+  <Alert variant="error">
+    <span>This version introduces breaking changes</span>
+  </Alert>
+</div>
+
+<div>
   ## Version 0.2.1
   #### Feb 16, 2026
 
   * Added an option to view constructable buildings list in compacted form. This change allows players to scroll less,
   especially on mobile devices.
-  * Added the ability to upgrade database without breaking game worlds
+  * Added the ability to commit minor database upgrades without breaking game worlds.
 </div>
 
 <div>

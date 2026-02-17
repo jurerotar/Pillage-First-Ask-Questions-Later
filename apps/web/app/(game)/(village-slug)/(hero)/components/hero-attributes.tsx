@@ -135,7 +135,7 @@ export const HeroAttributes = () => {
               </div>
               <Progress
                 value={percentToNextLevel}
-                className="border border-[#0d648e] [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,_#1271a2)] h-2.5"
+                className="border border-[#0d648e] [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)] h-2.5"
               />
             </div>
             <div className="flex flex-col">

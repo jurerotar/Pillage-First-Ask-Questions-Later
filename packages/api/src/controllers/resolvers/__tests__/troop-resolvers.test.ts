@@ -36,7 +36,7 @@ describe(troopTrainingEventResolver, () => {
 
     // Verify troops table
     const troop = database.selectObject({
-      sql: 'SELECT amount FROM troops WHERE unit_id = $unitId AND tile_id = $tileId;',
+      sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId) AND tile_id = $tileId;',
       bind: { $unitId: unitId, $tileId: village.tile_id },
       schema: z.object({ amount: z.number() }),
     })!;

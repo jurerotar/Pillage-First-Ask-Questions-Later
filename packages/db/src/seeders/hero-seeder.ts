@@ -5,7 +5,12 @@ import { batchInsert } from '../utils/batch-insert';
 
 export const heroSeeder = (database: DbFacade): void => {
   const { id, tribe } = database.selectObject({
-    sql: 'SELECT id, tribe FROM players WHERE id = $playerId',
+    sql: `
+      SELECT p.id, ti.tribe
+      FROM players p
+      JOIN tribe_ids ti ON ti.id = p.tribe_id
+      WHERE p.id = $playerId
+    `,
     bind: { $playerId: PLAYER_ID },
     schema: z.object({
       id: z.number(),

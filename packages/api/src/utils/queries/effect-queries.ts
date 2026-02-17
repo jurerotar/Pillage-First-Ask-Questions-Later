@@ -9,7 +9,7 @@ export const selectAllRelevantEffectsQuery = `
     e.source_specifier AS sourceSpecifier,
     CASE
       WHEN e.source = 'building'
-        THEN bf.building_id
+        THEN bi.building
       END AS buildingId
   FROM
     effects AS e
@@ -19,6 +19,8 @@ export const selectAllRelevantEffectsQuery = `
                 ON e.scope = 'village'
                   AND bf.village_id = e.village_id
                   AND bf.field_id = e.source_specifier
+      LEFT JOIN building_ids AS bi
+                ON bi.id = bf.building_id
   WHERE
     e.scope IN ('global', 'server')
     OR e.village_id = $village_id;
@@ -36,7 +38,7 @@ export const selectAllRelevantEffectsByIdQuery = `
     CASE
       WHEN e.source = 'building'
         AND e.source_specifier BETWEEN 1 AND 40
-        THEN bf.building_id
+        THEN bi.building
       END AS buildingId
   FROM
     effects AS e
@@ -46,6 +48,8 @@ export const selectAllRelevantEffectsByIdQuery = `
                 ON e.scope = 'village'
                   AND bf.village_id = e.village_id
                   AND bf.field_id = e.source_specifier
+      LEFT JOIN building_ids AS bi
+                ON bi.id = bf.building_id
   WHERE
     (ei.effect = $effect_id)
     AND (e.scope IN ('global', 'server') OR e.village_id = $village_id);
