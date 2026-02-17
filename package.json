@@ -25,7 +25,7 @@
     "@sqlite.org/sqlite-wasm": "3.51.2-build6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.1",
+    "@biomejs/biome": "2.4.2",
     "@commitlint/cli": "20.4.1",
     "@commitlint/config-conventional": "20.4.1",
     "@typescript/native-preview": "7.0.0-dev.20260216.1",
