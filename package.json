@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -25,13 +25,13 @@
     "@sqlite.org/sqlite-wasm": "3.51.2-build6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.0",
+    "@biomejs/biome": "2.4.1",
     "@commitlint/cli": "20.4.1",
     "@commitlint/config-conventional": "20.4.1",
-    "@typescript/native-preview": "7.0.0-dev.20260215.1",
+    "@typescript/native-preview": "7.0.0-dev.20260216.1",
     "lefthook": "2.1.1",
-    "oxlint": "1.47.0",
-    "oxlint-tsgolint": "0.13.0",
+    "oxlint": "1.48.0",
+    "oxlint-tsgolint": "0.14.0",
     "turbo": "2.8.9",
     "typescript": "6.0.0-beta",
     "vitest": "4.0.18",
