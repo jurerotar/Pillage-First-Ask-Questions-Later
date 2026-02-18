@@ -280,18 +280,18 @@ export const troopSeeder = (database: DbFacade, server: Server): void => {
 
   const villages = database.selectObjects({
     sql: `
-    SELECT
-      players.id AS player_id,
-      ti.tribe,
-      tiles.id AS tile_id,
-      tiles.x,
-      tiles.y
-    FROM
-      villages
-        INNER JOIN players ON villages.player_id = players.id
-        JOIN tribe_ids ti ON players.tribe_id = ti.id
-        INNER JOIN tiles ON villages.tile_id = tiles.id;
-  `,
+      SELECT
+        players.id AS player_id,
+        ti.tribe,
+        tiles.id AS tile_id,
+        tiles.x,
+        tiles.y
+      FROM
+        villages
+          INNER JOIN players ON villages.player_id = players.id
+          JOIN tribe_ids ti ON players.tribe_id = ti.id
+          INNER JOIN tiles ON villages.tile_id = tiles.id;
+    `,
     schema: z.strictObject({
       player_id: z.number(),
       tribe: tribeSchema,
