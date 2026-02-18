@@ -206,7 +206,11 @@ export const _validateEventCreation = (
                 unit_research
               WHERE
                 village_id = $villageId
-                AND unit_id = $unitId
+                AND unit_id = (
+                  SELECT id
+                  FROM unit_ids
+                  WHERE unit = $unitId
+                  )
               ) AS is_researched;
         `,
         bind: {
@@ -232,7 +236,7 @@ export const _validateEventCreation = (
               unit_research
             WHERE
               village_id = $village_id
-              AND unit_id = $unit_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
             ) AS is_researched;`,
       bind: {
         $village_id: villageId,
@@ -255,7 +259,7 @@ export const _validateEventCreation = (
               building_fields
             WHERE
               village_id = $village_id
-              AND building_id = $building_id
+              AND building_id = (SELECT id FROM building_ids WHERE building = $building_id)
               AND level > 0
             ) AS building_exists;
       `,

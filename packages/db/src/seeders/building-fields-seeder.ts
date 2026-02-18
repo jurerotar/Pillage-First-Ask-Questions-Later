@@ -27,20 +27,20 @@ export const buildingFieldsSeeder = (
 
   const villages = database.selectObjects({
     sql: `
-    SELECT
-      v.id AS village_id,
-      t.x,
-      t.y,
-      rfc.resource_field_composition AS resource_field_composition,
-      ti.tribe,
-      p.id AS player_id
-    FROM
-      villages v
-        JOIN tiles t ON v.tile_id = t.id
-        LEFT JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
-        JOIN players p ON v.player_id = p.id
-        JOIN tribe_ids ti ON p.tribe_id = ti.id;
-  `,
+      SELECT
+        v.id AS village_id,
+        t.x,
+        t.y,
+        rfc.resource_field_composition AS resource_field_composition,
+        ti.tribe,
+        p.id AS player_id
+      FROM
+        villages v
+          JOIN tiles t ON v.tile_id = t.id
+          LEFT JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
+          JOIN players p ON v.player_id = p.id
+          JOIN tribe_ids ti ON p.tribe_id = ti.id;
+    `,
     schema: z.strictObject({
       village_id: z.number(),
       x: z.number(),

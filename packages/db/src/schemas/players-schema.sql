@@ -7,5 +7,5 @@ CREATE TABLE players
   faction_id INTEGER NOT NULL,
 
   FOREIGN KEY (tribe_id) REFERENCES tribe_ids (id),
-  FOREIGN KEY (faction_id) REFERENCES factions (id)
+  FOREIGN KEY (faction_id) REFERENCES faction_ids (id)
 ) STRICT;

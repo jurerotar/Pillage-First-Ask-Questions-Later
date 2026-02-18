@@ -12,7 +12,6 @@ import createDeveloperSettingsTable from '../schemas/developer-settings-schema.s
 import createEffectsTable from '../schemas/effects-schema.sql?raw';
 import createEventsTable from '../schemas/events-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
-import createFactionsTable from '../schemas/factions-schema.sql?raw';
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
@@ -52,7 +51,6 @@ import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
-import { factionsSeeder } from '../seeders/factions-seeder';
 import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
@@ -120,10 +118,6 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     // Server
     db.exec({ sql: createServersTable });
     serverSeeder(db, server);
-
-    // Factions
-    db.exec({ sql: createFactionsTable });
-    factionsSeeder(db);
 
     // Faction reputations
     db.exec({ sql: createFactionReputationTable });

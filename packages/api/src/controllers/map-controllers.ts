@@ -72,8 +72,7 @@ export const getTiles = createController('/tiles')(({ database }) => {
         LEFT JOIN villages v ON v.tile_id = t.id
         LEFT JOIN players p ON p.id = v.player_id
         LEFT JOIN tribe_ids ti ON p.tribe_id = ti.id
-        LEFT JOIN factions f ON f.id = p.faction_id
-        LEFT JOIN faction_ids fi ON f.faction_id = fi.id
+        LEFT JOIN faction_ids fi ON fi.id = p.faction_id
         LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
         LEFT JOIN effects_wheat ew ON ew.village_id = v.id
         LEFT JOIN world_items_single wi ON wi.tile_id = t.id
