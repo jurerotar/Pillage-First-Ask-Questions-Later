@@ -16,8 +16,6 @@
     "erasableSyntaxOnly": true,
     "moduleResolution": "bundler",
     "noEmit": true,
-    "strict": true,
-    "module": "esnext"
   },
   "include": [
     "apps/**/*",
