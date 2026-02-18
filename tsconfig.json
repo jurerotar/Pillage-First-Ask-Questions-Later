@@ -16,7 +16,6 @@
     "erasableSyntaxOnly": true,
     "moduleResolution": "bundler",
     "noEmit": true,
-    "stableTypeOrdering": true,
   },
   "include": [
     "apps/**/*",
