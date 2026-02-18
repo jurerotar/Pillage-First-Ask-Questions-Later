@@ -33,7 +33,7 @@
     "oxlint": "1.48.0",
     "oxlint-tsgolint": "0.14.0",
     "turbo": "2.8.9",
-    "typescript": "5.9.3",
+    "typescript": "6.0.0-beta",
     "vitest": "4.0.18",
     "zod": "4.3.6"
   },
