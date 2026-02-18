@@ -60,7 +60,7 @@ describe('building resolvers', () => {
       const buildingId: Building['id'] = 'WOODCUTTER';
 
       database.exec({
-        sql: 'INSERT OR IGNORE INTO building_fields (village_id, field_id, building_id, level) VALUES ($villageId, $fieldId, $buildingId, 1);',
+        sql: 'INSERT OR IGNORE INTO building_fields (village_id, field_id, building_id, level) VALUES ($villageId, $fieldId, (SELECT id FROM building_ids WHERE building = $buildingId), 1);',
         bind: {
           $villageId: villageId,
           $fieldId: buildingFieldId,
@@ -225,7 +225,7 @@ describe('building resolvers', () => {
 
       // Seed a building to demolish
       database.exec({
-        sql: 'INSERT INTO building_fields (village_id, field_id, building_id, level) VALUES ($villageId, $fieldId, $buildingId, 5);',
+        sql: 'INSERT INTO building_fields (village_id, field_id, building_id, level) VALUES ($villageId, $fieldId, (SELECT id FROM building_ids WHERE building = $buildingId), 5);',
         bind: {
           $villageId: villageId,
           $fieldId: buildingFieldId,

@@ -4,7 +4,8 @@ export const selectHeroOriginVillageIdQuery = `
   FROM
     troops tr
       JOIN villages v ON tr.source_tile_id = v.tile_id
+      JOIN unit_ids ui ON ui.id = tr.unit_id
   WHERE
-    tr.unit_id = 'HERO'
+    ui.unit = 'HERO'
     AND v.player_id = $playerId;
 `;

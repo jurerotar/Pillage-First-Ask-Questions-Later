@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { Link } from 'react-router';
+import { env } from '@pillage-first/utils/env';
 import { Text } from 'app/components/text';
-import { env } from 'app/env';
 
 export const Footer = () => {
   const { t } = useTranslation('public');

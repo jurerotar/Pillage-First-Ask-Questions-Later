@@ -17,8 +17,24 @@ const slugifyPlayerName = (name: string): string => {
 };
 
 export const playersSeeder = (database: DbFacade, server: Server): void => {
+  const tribeIds = database.selectObjects({
+    sql: 'SELECT id, tribe FROM tribe_ids',
+    schema: z.strictObject({
+      id: z.number(),
+      tribe: z.string(),
+    }),
+  });
+
+  const tribeMap = new Map<string, number>(
+    tribeIds.map((t) => [t.tribe, t.id]),
+  );
+
   const factions = database.selectObjects({
-    sql: 'SELECT id, faction FROM factions',
+    sql: `
+      SELECT f.id, fi.faction
+      FROM factions f
+      JOIN faction_ids fi ON f.faction_id = fi.id
+    `,
     schema: z.strictObject({
       id: z.number(),
       faction: factionSchema,
@@ -41,13 +57,13 @@ export const playersSeeder = (database: DbFacade, server: Server): void => {
   const players = [player, ...npcPlayers];
 
   const playersToInsert = players.map(({ id, name, tribe, factionId }) => {
-    return [id, name, slugifyPlayerName(name), tribe, factionId];
+    return [id, name, slugifyPlayerName(name), tribeMap.get(tribe)!, factionId];
   });
 
   batchInsert(
     database,
     'players',
-    ['id', 'name', 'slug', 'tribe', 'faction_id'],
+    ['id', 'name', 'slug', 'tribe_id', 'faction_id'],
     playersToInsert,
   );
 };

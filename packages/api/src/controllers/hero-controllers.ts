@@ -106,10 +106,11 @@ export const changeHeroAttributes = createController(
     database.transaction(() => {
       const hero = database.selectObject({
         sql: `
-          SELECT h.id, p.tribe
+          SELECT h.id, ti.tribe
           FROM
             heroes h
               JOIN players p ON h.player_id = p.id
+              JOIN tribe_ids ti ON p.tribe_id = ti.id
           WHERE
             p.id = $playerId
         `,
@@ -254,11 +255,12 @@ export const changeHeroResourceToProduce = createController(
 
     const hero = database.selectObject({
       sql: `
-        SELECT hsa.resource_production, p.tribe
+        SELECT hsa.resource_production, ti.tribe
         FROM
           hero_selectable_attributes hsa
             JOIN heroes h ON hsa.hero_id = h.id
             JOIN players p ON h.player_id = p.id
+            JOIN tribe_ids ti ON p.tribe_id = ti.id
         WHERE
           p.id = $playerId
       `,
@@ -562,10 +564,11 @@ export const useHeroItem = createController(
 
       const hero = database.selectObject({
         sql: `
-          SELECT p.tribe
+          SELECT ti.tribe
           FROM
             heroes h
               JOIN players p ON h.player_id = p.id
+              JOIN tribe_ids ti ON p.tribe_id = ti.id
           WHERE
             h.id = $heroId
         `,

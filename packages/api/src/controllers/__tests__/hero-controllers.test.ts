@@ -700,7 +700,7 @@ describe('hero-controllers', () => {
 
       // Change tribe to Egyptians
       database.exec({
-        sql: "UPDATE players SET tribe = 'egyptians' WHERE id = $playerId",
+        sql: "UPDATE players SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'egyptians') WHERE id = $playerId",
         bind: { $playerId: playerId },
       });
 

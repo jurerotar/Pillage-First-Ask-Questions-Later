@@ -55,7 +55,7 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
       candidates AS (
         SELECT t.id, t.x, t.y, rfc.resource_field_composition
         FROM tiles t
-               LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+               LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
         WHERE t.type = 'free'
           AND (
             ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN ('3339', '11115', '00018'))

@@ -27,12 +27,13 @@ export const getVillageBySlug = createController('/villages/:villageSlug')(
             JSON_GROUP_ARRAY(
               JSON_OBJECT(
                 'field_id', bf.field_id,
-                'building_id', bf.building_id,
+                'building_id', bi.building,
                 'level', bf.level
               )
             )
           FROM
             building_fields bf
+            LEFT JOIN building_ids bi ON bi.id = bf.building_id
           WHERE
             bf.village_id = v.id
           ) AS building_fields
@@ -42,7 +43,7 @@ export const getVillageBySlug = createController('/villages/:villageSlug')(
                ON t.id = v.tile_id
           LEFT JOIN resource_sites rs
                     ON rs.tile_id = v.tile_id
-          LEFT JOIN resource_field_compositions rfc
+          LEFT JOIN resource_field_composition_ids rfc
                     ON t.resource_field_composition_id = rfc.id
       WHERE
         v.slug = $slug
@@ -135,9 +136,14 @@ export const rearrangeBuildingFields = createController(
 
     database.exec({
       sql: `
-        WITH updates(field_id, building_id) AS (
+        WITH updates_raw(field_id, building_text) AS (
           SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
           FROM JSON_EACH($updates)
+        ),
+        updates AS (
+          SELECT ur.field_id, bi.id AS building_id, ur.building_text
+          FROM updates_raw ur
+          LEFT JOIN building_ids bi ON bi.building = ur.building_text
         ),
         current_state AS (
           SELECT building_id, level
@@ -167,17 +173,17 @@ export const rearrangeBuildingFields = createController(
     // We only update events of types that have buildingFieldId and buildingId in meta
     database.exec({
       sql: `
-        WITH updates(field_id, building_id) AS (
+        WITH updates_raw(field_id, building_text) AS (
           SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
           FROM JSON_EACH($updates)
         )
         UPDATE events
-        SET meta = JSON_SET(meta, '$.buildingFieldId', u.field_id)
-        FROM updates u
+        SET meta = JSON_SET(meta, '$.buildingFieldId', ur.field_id)
+        FROM updates_raw ur
         WHERE events.village_id = $village_id
           AND events.type IN ('buildingScheduledConstruction', 'buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
-          AND JSON_EXTRACT(meta, '$.buildingId') = u.building_id
-          AND u.building_id IS NOT NULL;
+          AND JSON_EXTRACT(meta, '$.buildingId') = ur.building_text
+          AND ur.building_text IS NOT NULL;
       `,
       bind: {
         $village_id: villageId,

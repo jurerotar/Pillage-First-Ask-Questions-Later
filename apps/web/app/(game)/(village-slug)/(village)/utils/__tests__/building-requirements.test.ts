@@ -242,9 +242,9 @@ describe('building-requirements', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
-          { buildingId: 'PALISADE', id: 40, level: 0 },
+          { buildingId: 'GAUL_WALL', id: 40, level: 0 },
         ]),
-        buildingId: 'PALISADE',
+        buildingId: 'GAUL_WALL',
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',

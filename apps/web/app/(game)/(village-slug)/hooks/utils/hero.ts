@@ -1,4 +1,4 @@
-import type { Tribe } from '@pillage-first/types/models/tribe';
+import type { PlayableTribe } from '@pillage-first/types/models/tribe';
 import { roundTo5 } from '@pillage-first/utils/math';
 
 export const calculateHeroLevel = (currentExp: number) => {
@@ -24,19 +24,16 @@ export const calculateHeroLevel = (currentExp: number) => {
 };
 
 export const calculateHeroRevivalCost = (
-  tribe: Tribe,
+  tribe: PlayableTribe,
   level: number,
 ): number[] => {
-  const tribeToHeroRevivalCostMap = new Map<Tribe, number[]>([
+  const tribeToHeroRevivalCostMap = new Map<PlayableTribe, number[]>([
     ['romans', [130, 115, 180, 75]],
     ['teutons', [180, 130, 115, 75]],
     ['gauls', [115, 180, 130, 75]],
     ['egyptians', [115, 180, 130, 75]],
     ['huns', [180, 130, 115, 75]],
-    ['spartans', [150, 150, 150, 75]],
-    // TODO: Fill these in
-    ['natars', [0, 0, 0, 0]],
-    ['nature', [0, 0, 0, 0]],
+    // ['spartans', [150, 150, 150, 75]],
   ]);
 
   const baseRevivalCost = tribeToHeroRevivalCostMap.get(tribe)!;

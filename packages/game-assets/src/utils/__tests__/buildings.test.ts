@@ -12,8 +12,8 @@ import {
 
 describe('Buildings utils', () => {
   describe(calculateBuildingEffectValues, () => {
-    test('CITY_WALL effect values', () => {
-      const building = getBuildingDefinition('CITY_WALL');
+    test('ROMAN_WALL effect values', () => {
+      const building = getBuildingDefinition('ROMAN_WALL');
       const result = calculateBuildingEffectValues(building, 20);
       expect(
         result.some(
@@ -42,8 +42,8 @@ describe('Buildings utils', () => {
       ).toBe(3430);
     });
 
-    test('CITY_WALL values are increasing', () => {
-      const building = getBuildingDefinition('CITY_WALL');
+    test('ROMAN_WALL values are increasing', () => {
+      const building = getBuildingDefinition('ROMAN_WALL');
       const result = calculateBuildingEffectValues(building, 10);
       expect(
         result.find((e) => e.effectId === 'infantryDefence')!

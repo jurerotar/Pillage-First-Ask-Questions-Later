@@ -21,7 +21,7 @@ export const troopTrainingEventResolver: Resolver<
       INSERT
       INTO
         troops (unit_id, amount, tile_id, source_tile_id)
-      SELECT $unit_id, $amount, v.tile_id, v.tile_id
+      SELECT (SELECT id FROM unit_ids WHERE unit = $unit_id), $amount, v.tile_id, v.tile_id
       FROM
         v
       WHERE

@@ -20,6 +20,8 @@ export type ViteTypeOptions = {
 };
 
 export const env = {
+  PROD: import.meta.env.PROD,
+  DEV: import.meta.env.DEV,
   MODE: import.meta.env.MODE,
   VERSION: import.meta.env.VERSION,
   GRAPHICS_VERSION: import.meta.env.GRAPHICS_VERSION,

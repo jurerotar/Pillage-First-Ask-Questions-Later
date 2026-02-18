@@ -9,7 +9,6 @@ import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
 import createBuildingFieldsTable from '../schemas/building-fields-schema.sql?raw';
 import createDeveloperSettingsTable from '../schemas/developer-settings-schema.sql?raw';
-import createEffectIdsTable from '../schemas/effect-ids-schema.sql?raw';
 import createEffectsTable from '../schemas/effects-schema.sql?raw';
 import createEventsTable from '../schemas/events-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
@@ -21,6 +20,12 @@ import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
+import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
+import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
+import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
+import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
+import createTribeIdsTable from '../schemas/lookup-tables/tribe-ids-schema.sql?raw';
+import createUnitIdsTable from '../schemas/lookup-tables/unit-ids-schema.sql?raw';
 import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
 import createOasisOccupiableByTable from '../schemas/oasis-occupiable-by-schema.sql?raw';
@@ -28,7 +33,6 @@ import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
-import createResourceFieldCompositionsTable from '../schemas/resource-field-compositions-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/statistics/building-level-change-history-schema.sql?raw';
@@ -41,10 +45,12 @@ import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
 import { bookmarksSeeder } from '../seeders/bookmarks-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
+import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { developerSettingsSeeder } from '../seeders/developer-settings-seeder';
 import { effectIdsSeeder } from '../seeders/effect-ids-seeder';
 import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
+import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
 import { factionsSeeder } from '../seeders/factions-seeder';
 import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
@@ -57,11 +63,13 @@ import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
-import { resourceFieldCompositionsSeeder } from '../seeders/resource-field-compositions-seeder';
+import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
 import { serverSeeder } from '../seeders/server-seeder';
 import { tilesSeeder } from '../seeders/tiles-seeder';
+import { tribeIdsSeeder } from '../seeders/tribe-ids-seeder';
 import { troopSeeder } from '../seeders/troop-seeder';
+import { unitIdsSeeder } from '../seeders/unit-ids-seeder';
 import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
 import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
@@ -71,6 +79,25 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
   const t0 = performance.now();
 
   database.transaction((db) => {
+    // Lookup tables
+    db.exec({ sql: createBuildingIdsTable });
+    buildingIdsSeeder(db);
+
+    db.exec({ sql: createFactionIdsTable });
+    factionIdsSeeder(db);
+
+    db.exec({ sql: createTribeIdsTable });
+    tribeIdsSeeder(db);
+
+    db.exec({ sql: createUnitIdsTable });
+    unitIdsSeeder(db);
+
+    db.exec({ sql: createEffectIdsTable });
+    effectIdsSeeder(db);
+
+    db.exec({ sql: createResourceFieldCompositionIdsTable });
+    resourceFieldCompositionIdsSeeder(db);
+
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });
     db.exec({ sql: createBuildingLevelChangeHistoryTable });
@@ -122,10 +149,6 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     // Hero inventories
     db.exec({ sql: createHeroInventoriesTable });
 
-    // RFC reference table
-    db.exec({ sql: createResourceFieldCompositionsTable });
-    resourceFieldCompositionsSeeder(db);
-
     // Tiles
     db.exec({ sql: createTilesTable });
     tilesSeeder(db, server);
@@ -165,10 +188,6 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     db.exec({ sql: createTroopsTable });
     troopSeeder(db, server);
     db.exec({ sql: createTroopsIndexes });
-
-    // Effect ids
-    db.exec({ sql: createEffectIdsTable });
-    effectIdsSeeder(db);
 
     // Effects
     db.exec({ sql: createEffectsTable });

@@ -3,24 +3,15 @@ import { FaDownload } from 'react-icons/fa';
 import { FaTrash } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
+import { env } from '@pillage-first/utils/env';
+import { parseAppVersion } from '@pillage-first/utils/version';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Badge } from 'app/components/ui/badge';
 import { Button } from 'app/components/ui/button';
-import { env } from 'app/env';
 import { CookieContext } from 'app/providers/cookie-provider';
 import { daysSince } from 'app/utils/time';
-
-const parseVersion = (version: string) => {
-  const [major, minor, patch] = version.split('.');
-
-  return [
-    Number.parseInt(major, 10),
-    Number.parseInt(minor, 10),
-    Number.parseInt(patch, 10),
-  ];
-};
 
 type ServerCardProps = {
   server: Server;
@@ -36,8 +27,8 @@ export const ServerCard = ({ server }: ServerCardProps) => {
 
   const gameWorldVersion = server.version ?? '0.0.0';
 
-  const [appMajor, appMinor] = parseVersion(appVersion);
-  const [gameWorldMajor, gameWorldMinor] = parseVersion(gameWorldVersion);
+  const [appMajor, appMinor] = parseAppVersion(appVersion);
+  const [gameWorldMajor, gameWorldMinor] = parseAppVersion(gameWorldVersion);
 
   const shouldDisplayGameWorldOutdatedAlert =
     appMajor !== gameWorldMajor || appMinor !== gameWorldMinor;

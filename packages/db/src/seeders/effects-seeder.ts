@@ -216,12 +216,13 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   const buildingFieldsRows = database.selectObjects({
     sql: `
       SELECT
-        village_id,
-        field_id,
-        building_id,
-        level
+        bf.village_id,
+        bf.field_id,
+        bi.building AS building_id,
+        bf.level
       FROM
-        building_fields
+        building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
     `,
     schema: z.strictObject({
       building_id: buildingIdSchema,
@@ -287,11 +288,12 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   const troopsRows = database.selectObjects({
     sql: `
       SELECT
-        tr.unit_id,
+        ui.unit AS unit_id,
         tr.amount,
         v.id AS village_id
       FROM
         troops AS tr
+          JOIN unit_ids ui ON ui.id = tr.unit_id
           JOIN villages AS v ON tr.tile_id = v.tile_id;
     `,
     schema: z.strictObject({

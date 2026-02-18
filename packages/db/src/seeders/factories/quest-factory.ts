@@ -12,11 +12,11 @@ export const newVillageQuestsFactory = (
   tribe: PlayableTribe,
 ): Omit<VillageQuest, 'collectedAt' | 'completedAt'>[] => {
   const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
-    ['romans', 'CITY_WALL'],
-    ['gauls', 'PALISADE'],
-    ['teutons', 'EARTH_WALL'],
-    ['huns', 'MAKESHIFT_WALL'],
-    ['egyptians', 'STONE_WALL'],
+    ['romans', 'ROMAN_WALL'],
+    ['gauls', 'GAUL_WALL'],
+    ['teutons', 'TEUTONIC_WALL'],
+    ['huns', 'HUN_WALL'],
+    ['egyptians', 'EGYPTIAN_WALL'],
   ]);
 
   const tribalWall = tribeToWallBuildingIdMap.get(tribe)!;
