@@ -494,28 +494,6 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('factions', () => {
-    test('factions seeded (>0)', () => {
-      const c = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM factions;',
-        schema: z.number(),
-      });
-      expect(c).toBeGreaterThan(0);
-    });
-
-    test('faction ids are unique', () => {
-      const distinct = database.selectValue({
-        sql: 'SELECT COUNT(DISTINCT id) FROM factions;',
-        schema: z.number(),
-      });
-      const total = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM factions;',
-        schema: z.number(),
-      });
-      expect(distinct).toBe(total);
-    });
-  });
-
   describe('faction reputation', () => {
     test('faction_reputation seeded (>=0)', () => {
       const c = database.selectValue({

@@ -558,10 +558,11 @@ export const getEventStartTime = (
       sql: `
         WITH
           player_tribe AS (
-            SELECT p.tribe AS tribe
+            SELECT ti.tribe AS tribe
             FROM
               villages v
                 JOIN players p ON p.id = v.player_id
+                JOIN tribe_ids ti ON p.tribe_id = ti.id
             WHERE
               v.id = $village_id
             )
