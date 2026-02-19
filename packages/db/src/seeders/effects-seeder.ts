@@ -1,15 +1,9 @@
 import { z } from 'zod';
-import {
-  calculateTotalPopulationForLevel,
-  getBuildingDefinition,
-} from '@pillage-first/game-assets/buildings/utils';
+import { buildings } from '@pillage-first/game-assets/buildings';
+import { calculateTotalPopulationForLevel } from '@pillage-first/game-assets/buildings/utils';
 import { merchants } from '@pillage-first/game-assets/merchants';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { getUnitDefinition } from '@pillage-first/game-assets/units/utils';
-import {
-  type Building,
-  buildingIdSchema,
-} from '@pillage-first/types/models/building';
+import { units } from '@pillage-first/game-assets/units';
 import {
   effectIdSchema,
   type GlobalEffect,
@@ -17,9 +11,7 @@ import {
   type ServerEffect,
   type TribalEffect,
 } from '@pillage-first/types/models/effect';
-import { resourceSchema } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
-import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { isVillageEffect } from '@pillage-first/utils/guards/effect';
 import { batchInsert } from '../utils/batch-insert';
@@ -171,7 +163,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
     }),
   });
 
-  const effectIds = Object.fromEntries(
+  const effectIds = new Map(
     effectIdRows.map((t) => {
       return [t.effect, t.id];
     }),
@@ -202,7 +194,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   for (const effect of staticEffects) {
     const villageId = isVillageEffect(effect) ? effect.villageId : null;
     effectsToInsert.push([
-      effectIds[effect.id],
+      effectIds.get(effect.id)!,
       effect.value,
       effect.type,
       effect.scope,
@@ -212,168 +204,169 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
     ] satisfies EffectToInsert);
   }
 
-  // Building effects
-  const buildingFieldsRows = database.selectObjects({
+  const wheatProductionEffectId = effectIds.get('wheatProduction')!;
+
+  database.exec({
     sql: `
-      SELECT
-        bf.village_id,
-        bf.field_id,
-        bi.building AS building_id,
-        bf.level
-      FROM
-        building_fields bf
-        JOIN building_ids bi ON bi.id = bf.building_id
+      CREATE TEMPORARY TABLE temp_building_data (
+        building_id TEXT,
+        level INTEGER,
+        effect_id INTEGER,
+        value REAL,
+        type TEXT,
+        population INTEGER
+      );
     `,
-    schema: z.strictObject({
-      building_id: buildingIdSchema,
-      field_id: z.number(),
-      village_id: z.number(),
-      level: z.number(),
-    }),
   });
 
-  const groupedBuildingFields = new Map<
-    number,
-    {
-      field_id: number;
-      building_id: Building['id'];
-      level: number;
-    }[]
-  >();
+  const buildingDataToInsert: (string | number | null)[][] = [];
 
-  for (const row of buildingFieldsRows) {
-    let group = groupedBuildingFields.get(row.village_id);
-    if (!group) {
-      group = [];
-      groupedBuildingFields.set(row.village_id, group);
-    }
-    group.push(row);
-  }
+  for (const building of buildings) {
+    for (let level = 0; level <= building.maxLevel; level++) {
+      const population = calculateTotalPopulationForLevel(building.id, level);
 
-  const wheatProductionEffectId = effectIds.wheatProduction;
+      // Add population (negative wheat production)
+      buildingDataToInsert.push([
+        building.id,
+        level,
+        wheatProductionEffectId,
+        -population,
+        'base',
+        population,
+      ]);
 
-  for (const [villageId, villageBuildingFields] of groupedBuildingFields) {
-    let population = 0;
-
-    for (const { building_id, level, field_id } of villageBuildingFields) {
-      const building = getBuildingDefinition(building_id);
-
+      // Add other building effects
       for (const { effectId, type, valuesPerLevel } of building.effects) {
-        effectsToInsert.push([
-          effectIds[effectId],
+        buildingDataToInsert.push([
+          building.id,
+          level,
+          effectIds.get(effectId)!,
           valuesPerLevel[level],
           type,
-          'village',
-          'building',
-          villageId,
-          field_id,
-        ] satisfies EffectToInsert);
+          null,
+        ]);
       }
-
-      population += calculateTotalPopulationForLevel(building_id, level);
     }
-
-    effectsToInsert.push([
-      wheatProductionEffectId,
-      -population,
-      'base',
-      'village',
-      'building',
-      villageId,
-      0,
-    ] satisfies EffectToInsert);
   }
 
-  // Troop effects
-  const troopsRows = database.selectObjects({
+  batchInsert(
+    database,
+    'temp_building_data',
+    ['building_id', 'level', 'effect_id', 'value', 'type', 'population'],
+    buildingDataToInsert,
+  );
+
+  database.exec({
     sql: `
+      INSERT INTO
+        effects (effect_id, value, type, scope, source, village_id, source_specifier)
+      -- Regular building effects
       SELECT
-        ui.unit AS unit_id,
-        tr.amount,
-        v.id AS village_id
+        tbd.effect_id,
+        tbd.value,
+        tbd.type,
+        'village',
+        'building',
+        bf.village_id,
+        bf.field_id
+      FROM
+        building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          JOIN temp_building_data tbd ON tbd.building_id = bi.building AND tbd.level = bf.level
+      WHERE
+        tbd.population IS NULL
+
+      UNION ALL
+
+      -- Aggregated population effect (negative wheat production)
+      SELECT
+        $wheat_production_effect_id,
+        SUM(tbd.value),
+        'base',
+        'village',
+        'building',
+        bf.village_id,
+        0
+      FROM
+        building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          JOIN temp_building_data tbd ON tbd.building_id = bi.building AND tbd.level = bf.level
+      WHERE
+        tbd.population IS NOT NULL
+      GROUP BY
+        bf.village_id;
+    `,
+    bind: {
+      $wheat_production_effect_id: wheatProductionEffectId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      CREATE TEMPORARY TABLE temp_unit_data (
+        unit_id TEXT,
+        wheat_consumption INTEGER
+      );
+    `,
+  });
+
+  const unitDataToInsert: (string | number)[][] = [];
+
+  for (const unit of units) {
+    unitDataToInsert.push([unit.id, unit.unitWheatConsumption]);
+  }
+
+  batchInsert(
+    database,
+    'temp_unit_data',
+    ['unit_id', 'wheat_consumption'],
+    unitDataToInsert,
+  );
+
+  database.exec({
+    sql: `
+      INSERT INTO
+        effects (effect_id, value, type, scope, source, village_id, source_specifier)
+      SELECT
+        $wheat_production_effect_id,
+        SUM(tr.amount * tud.wheat_consumption),
+        'base',
+        'village',
+        'troops',
+        v.id,
+        NULL
       FROM
         troops AS tr
           JOIN unit_ids ui ON ui.id = tr.unit_id
-          JOIN villages AS v ON tr.tile_id = v.tile_id;
+          JOIN villages AS v ON tr.tile_id = v.tile_id
+          JOIN temp_unit_data tud ON tud.unit_id = ui.unit
+      GROUP BY
+        v.id;
     `,
-    schema: z.strictObject({
-      unit_id: unitIdSchema,
-      amount: z.number(),
-      village_id: z.number(),
-    }),
+    bind: {
+      $wheat_production_effect_id: wheatProductionEffectId,
+    },
   });
 
-  const groupedTroops = new Map<
-    number,
-    {
-      unit_id: string;
-      amount: number;
-    }[]
-  >();
-
-  for (const row of troopsRows) {
-    let group = groupedTroops.get(row.village_id);
-    if (!group) {
-      group = [];
-      groupedTroops.set(row.village_id, group);
-    }
-    group.push(row);
-  }
-
-  for (const [villageId, villageTroops] of groupedTroops) {
-    let troopWheatConsumption = 0;
-
-    for (const { unit_id, amount } of villageTroops) {
-      const { unitWheatConsumption } = getUnitDefinition(unit_id as Unit['id']);
-      troopWheatConsumption += unitWheatConsumption * amount;
-    }
-
-    effectsToInsert.push([
-      wheatProductionEffectId,
-      troopWheatConsumption,
-      'base',
-      'village',
-      'troops',
-      villageId,
-      null,
-    ] satisfies EffectToInsert);
-  }
-
-  // Oasis effects
-  const oasisFieldsRows = database.selectObjects({
+  database.exec({
     sql: `
+      INSERT INTO
+        effects (effect_id, value, type, scope, source, village_id, source_specifier)
       SELECT
-        tile_id,
-        village_id,
-        resource,
-        bonus
+        ei.id,
+        CASE WHEN o.bonus = 25 THEN 1.25 ELSE 1.5 END,
+        'bonus',
+        'village',
+        'oasis',
+        o.village_id,
+        o.tile_id
       FROM
-        oasis
+        oasis o
+          JOIN effect_ids ei ON ei.effect = o.resource || 'Production'
       WHERE
-        village_id IS NOT NULL;
+        o.village_id IS NOT NULL;
     `,
-    schema: z.strictObject({
-      tile_id: z.number(),
-      village_id: z.number(),
-      resource: resourceSchema,
-      bonus: z.number(),
-    }),
   });
-
-  for (const oasis of oasisFieldsRows) {
-    const effectId = `${oasis.resource}Production`;
-    const value = oasis.bonus === 25 ? 1.25 : 1.5;
-
-    effectsToInsert.push([
-      effectIds[effectId],
-      value,
-      'bonus',
-      'village',
-      'oasis',
-      oasis.village_id,
-      oasis.tile_id,
-    ] satisfies EffectToInsert);
-  }
 
   batchInsert(
     database,
