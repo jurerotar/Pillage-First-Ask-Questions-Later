@@ -9,6 +9,14 @@ import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 import { buildingFieldsFactory } from './factories/building-fields-factory';
 
+/**
+ * TODO: Consider the following performance optimizations:
+ * **Templating and Caching**: Avoid redundant factory calls by generating unique templates based on
+ * common properties (e.g., size, tribe). This significantly reduces memory usage and CPU cycles.
+ * **Optimized Insertion via Temporary Tables**: Minimize JS-to-DB bridge traffic by inserting
+ * unique templates and mappings into temporary tables, then using a single `INSERT INTO ... SELECT ... JOIN`
+ * query to populate the main table.
+ */
 export const buildingFieldsSeeder = (
   database: DbFacade,
   server: Server,
