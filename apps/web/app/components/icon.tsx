@@ -11,7 +11,6 @@ type IconProps = IconBaseProps &
     shouldShowTooltip?: boolean;
   };
 
-// TODO: Replace library icons by custom icons
 export const Icon = (props: IconProps) => {
   const { type, subIcon, className, shouldShowTooltip = true, ...rest } = props;
 
