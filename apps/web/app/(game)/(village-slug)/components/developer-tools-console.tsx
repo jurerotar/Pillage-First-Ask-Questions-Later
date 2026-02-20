@@ -13,7 +13,7 @@ import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-develo
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
-import { icons } from 'app/components/icons/icons';
+import { Icon } from 'app/components/icon.tsx';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button';
 import {
@@ -193,7 +193,9 @@ export const DeveloperToolsConsole = ({
                   className="space-y-2"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="size-4">{icons[resource]()}</div>
+                    <div className="size-4">
+                      <Icon type={resource} />
+                    </div>
                     <Label className="capitalize">
                       {t(`RESOURCES.${resource.toUpperCase()}`)}
                     </Label>
