@@ -33,8 +33,9 @@ export const Icon = (props: IconProps) => {
             })}
           />
           {hasSubIcon && (
-            <span className="absolute bottom-[-2px] right-[-6px] size-3 rounded-full shadow bg-background">
+            <span className="absolute bottom-[-3px] right-[-3px] size-3 rounded-full shadow bg-background">
               <Icon
+                className="size-3"
                 shouldShowTooltip={false}
                 type={subIcon}
               />
