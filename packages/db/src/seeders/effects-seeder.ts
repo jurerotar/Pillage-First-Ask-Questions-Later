@@ -1,9 +1,6 @@
 import { z } from 'zod';
-import { buildings } from '@pillage-first/game-assets/buildings';
-import { calculateTotalPopulationForLevel } from '@pillage-first/game-assets/buildings/utils';
 import { merchants } from '@pillage-first/game-assets/merchants';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { units } from '@pillage-first/game-assets/units';
 import {
   effectIdSchema,
   type GlobalEffect,
@@ -208,63 +205,13 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
 
   database.exec({
     sql: `
-      CREATE TEMPORARY TABLE temp_building_data (
-        building_id TEXT,
-        level INTEGER,
-        effect_id INTEGER,
-        value REAL,
-        type TEXT,
-        population INTEGER
-      );
-    `,
-  });
-
-  const buildingDataToInsert: (string | number | null)[][] = [];
-
-  for (const building of buildings) {
-    for (let level = 0; level <= building.maxLevel; level++) {
-      const population = calculateTotalPopulationForLevel(building.id, level);
-
-      // Add population (negative wheat production)
-      buildingDataToInsert.push([
-        building.id,
-        level,
-        wheatProductionEffectId,
-        -population,
-        'base',
-        population,
-      ]);
-
-      // Add other building effects
-      for (const { effectId, type, valuesPerLevel } of building.effects) {
-        buildingDataToInsert.push([
-          building.id,
-          level,
-          effectIds.get(effectId)!,
-          valuesPerLevel[level],
-          type,
-          null,
-        ]);
-      }
-    }
-  }
-
-  batchInsert(
-    database,
-    'temp_building_data',
-    ['building_id', 'level', 'effect_id', 'value', 'type', 'population'],
-    buildingDataToInsert,
-  );
-
-  database.exec({
-    sql: `
       INSERT INTO
         effects (effect_id, value, type, scope, source, village_id, source_specifier)
       -- Regular building effects
       SELECT
-        tbd.effect_id,
-        tbd.value,
-        tbd.type,
+        bd.effect_id,
+        bd.value,
+        bd.type,
         'village',
         'building',
         bf.village_id,
@@ -272,16 +219,16 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       FROM
         building_fields bf
           JOIN building_ids bi ON bi.id = bf.building_id
-          JOIN temp_building_data tbd ON tbd.building_id = bi.building AND tbd.level = bf.level
+          JOIN building_data bd ON bd.building_id = bi.building AND bd.level = bf.level
       WHERE
-        tbd.population IS NULL
+        bd.population IS NULL
 
       UNION ALL
 
       -- Aggregated population effect (negative wheat production)
       SELECT
         $wheat_production_effect_id,
-        SUM(tbd.value),
+        SUM(bd.value),
         'base',
         'village',
         'building',
@@ -290,9 +237,9 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       FROM
         building_fields bf
           JOIN building_ids bi ON bi.id = bf.building_id
-          JOIN temp_building_data tbd ON tbd.building_id = bi.building AND tbd.level = bf.level
+          JOIN building_data bd ON bd.building_id = bi.building AND bd.level = bf.level
       WHERE
-        tbd.population IS NOT NULL
+        bd.population IS NOT NULL
       GROUP BY
         bf.village_id;
     `,
@@ -303,33 +250,11 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
 
   database.exec({
     sql: `
-      CREATE TEMPORARY TABLE temp_unit_data (
-        unit_id TEXT,
-        wheat_consumption INTEGER
-      );
-    `,
-  });
-
-  const unitDataToInsert: (string | number)[][] = [];
-
-  for (const unit of units) {
-    unitDataToInsert.push([unit.id, unit.unitWheatConsumption]);
-  }
-
-  batchInsert(
-    database,
-    'temp_unit_data',
-    ['unit_id', 'wheat_consumption'],
-    unitDataToInsert,
-  );
-
-  database.exec({
-    sql: `
       INSERT INTO
         effects (effect_id, value, type, scope, source, village_id, source_specifier)
       SELECT
         $wheat_production_effect_id,
-        SUM(tr.amount * tud.wheat_consumption),
+        SUM(tr.amount * ud.wheat_consumption),
         'base',
         'village',
         'troops',
@@ -339,7 +264,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         troops AS tr
           JOIN unit_ids ui ON ui.id = tr.unit_id
           JOIN villages AS v ON tr.tile_id = v.tile_id
-          JOIN temp_unit_data tud ON tud.unit_id = ui.unit
+          JOIN unit_data ud ON ud.unit_id = ui.unit
       GROUP BY
         v.id;
     `,

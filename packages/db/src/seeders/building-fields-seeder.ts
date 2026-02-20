@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
@@ -15,7 +18,7 @@ import { buildingFieldsFactory } from './factories/building-fields-factory';
  * common properties (e.g., size, tribe). This significantly reduces memory usage and CPU cycles.
  * **Optimized Insertion via Temporary Tables**: Minimize JS-to-DB bridge traffic by inserting
  * unique templates and mappings into temporary tables, then using a single `INSERT INTO ... SELECT ... JOIN`
- * query to populate the main table.
+ * query to populate the main table. In tests, this drops the seeding time on 300x300 size game world from 300ms to ~150ms
  */
 export const buildingFieldsSeeder = (
   database: DbFacade,
@@ -29,7 +32,7 @@ export const buildingFieldsSeeder = (
     schema: z.strictObject({ id: z.number(), building: buildingIdSchema }),
   });
 
-  const buildingIdMap = new Map<string, number>(
+  const buildingIdMap = new Map<Building['id'], number>(
     buildingIdRows.map((b) => [b.building, b.id]),
   );
 
