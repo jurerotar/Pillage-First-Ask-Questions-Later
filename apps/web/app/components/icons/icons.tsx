@@ -1,5 +1,7 @@
+import { clsx } from 'clsx';
 import { camelCase } from 'moderndash';
 import type { JSX } from 'react';
+import type { IconBaseProps } from 'react-icons';
 import { BiShieldQuarter } from 'react-icons/bi';
 import {
   BsFillPeopleFill,
@@ -171,220 +173,549 @@ export type IconType =
   | HeroIconType
   | Effect['id'];
 
-export const icons: Record<IconType, () => JSX.Element> = {
-  missingIcon: () => <GrDocumentMissing className="size-full" />,
-  cancel: () => <RxCross2 className="text-red-500" />,
-  positiveChange: () => (
-    <IoMdArrowRoundUp className="size-full text-green-500" />
+export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
+  missingIcon: (props) => <GrDocumentMissing {...props} />,
+  cancel: (props) => (
+    <RxCross2
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
   ),
-  negativeChange: () => (
-    <IoMdArrowRoundDown className="size-full text-green-500" />
+  positiveChange: (props) => (
+    <IoMdArrowRoundUp
+      {...props}
+      className={clsx('text-green-500', props.className)}
+    />
+  ),
+  negativeChange: (props) => (
+    <IoMdArrowRoundDown
+      {...props}
+      className={clsx('text-green-500', props.className)}
+    />
   ),
 
   // Resources
-  wood: () => <GiWoodPile className="size-full text-[#A1662F]" />,
-  clay: () => <GiStoneBlock className="size-full text-[#cc7357]" />,
-  iron: () => <GiMetalBar className="size-full text-gray-500" />,
-  wheat: () => <LuWheat className="size-full text-yellow-500 scale-90" />,
-  woodWheat: () => icons.wood(),
-  clayWheat: () => icons.clay(),
-  ironWheat: () => icons.iron(),
-  woodWood: () => icons.wood(),
-  clayClay: () => icons.clay(),
-  ironIron: () => icons.iron(),
-  wheatWheat: () => icons.wheat(),
+  wood: (props) => (
+    <GiWoodPile
+      {...props}
+      className={clsx('text-[#A1662F]', props.className)}
+    />
+  ),
+  clay: (props) => (
+    <GiStoneBlock
+      {...props}
+      className={clsx('text-[#cc7357]', props.className)}
+    />
+  ),
+  iron: (props) => (
+    <GiMetalBar
+      {...props}
+      className={clsx('text-gray-500', props.className)}
+    />
+  ),
+  wheat: (props) => (
+    <LuWheat
+      {...props}
+      className={clsx('text-yellow-500 scale-90', props.className)}
+    />
+  ),
+  woodWheat: (props) => icons.wood(props),
+  clayWheat: (props) => icons.clay(props),
+  ironWheat: (props) => icons.iron(props),
+  woodWood: (props) => icons.wood(props),
+  clayClay: (props) => icons.clay(props),
+  ironIron: (props) => icons.iron(props),
+  wheatWheat: (props) => icons.wheat(props),
 
   // Map controls
-  mapMagnificationIncrease: () => <TiPlus className="size-full" />,
-  mapMagnificationDecrease: () => <TiMinus className="size-full" />,
-  mapReputationToggle: () => <TbBorderCorners className="size-full" />,
-  mapOasisIconsToggle: () => <GiWoodPile className="size-full" />,
-  mapTroopMovementsToggle: () => <LuSwords className="size-full" />,
-  mapWheatFieldIconToggle: () => <LuWheat className="size-full" />,
-  mapTileTooltipToggle: () => <TbTooltip className="size-full" />,
-  mapTreasureIconToggle: () => <SiArtifacthub className="size-full" />,
+  mapMagnificationIncrease: (props) => <TiPlus {...props} />,
+  mapMagnificationDecrease: (props) => <TiMinus {...props} />,
+  mapReputationToggle: (props) => <TbBorderCorners {...props} />,
+  mapOasisIconsToggle: (props) => <GiWoodPile {...props} />,
+  mapTroopMovementsToggle: (props) => <LuSwords {...props} />,
+  mapWheatFieldIconToggle: (props) => <LuWheat {...props} />,
+  mapTileTooltipToggle: (props) => <TbTooltip {...props} />,
+  mapTreasureIconToggle: (props) => <SiArtifacthub {...props} />,
 
   // Map treasures
-  treasureTileItem: () => <LuSword className="size-full" />,
-  treasureTileResources: () => (
-    <GiWoodPile className="size-full text-[#A1662F]" />
+  treasureTileItem: (props) => <LuSword {...props} />,
+  treasureTileResources: (props) => (
+    <GiWoodPile
+      {...props}
+      className={clsx('text-[#A1662F]', props.className)}
+    />
   ),
-  treasureTileArtifact: () => <SiArtifacthub className="size-full" />,
-  treasureTileCurrency: () => <LiaCoinsSolid className="size-full" />,
-  treasureTileMiscellaneous: () => <SlChemistry className="size-full" />,
+  treasureTileArtifact: (props) => <SiArtifacthub {...props} />,
+  treasureTileCurrency: (props) => <LiaCoinsSolid {...props} />,
+  treasureTileMiscellaneous: (props) => <SlChemistry {...props} />,
 
   // Reports
-  attackerNoLoss: () => <LuSwords className="size-full text-red-500" />,
-  attackerSomeLoss: () => <LuSwords className="size-full text-yellow-500" />,
-  attackerFullLoss: () => icons.missingIcon(),
-  defenderNoLoss: () => <LuShield className="size-full text-green-500" />,
-  defenderSomeLoss: () => <LuShield className="size-full text-yellow-500" />,
-  defenderFullLoss: () => <LuShield className="size-full text-red-500" />,
+  attackerNoLoss: (props) => (
+    <LuSwords
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
+  attackerSomeLoss: (props) => (
+    <LuSwords
+      {...props}
+      className={clsx('text-yellow-500', props.className)}
+    />
+  ),
+  attackerFullLoss: (props) => icons.missingIcon(props),
+  defenderNoLoss: (props) => (
+    <LuShield
+      {...props}
+      className={clsx('text-green-500', props.className)}
+    />
+  ),
+  defenderSomeLoss: (props) => (
+    <LuShield
+      {...props}
+      className={clsx('text-yellow-500', props.className)}
+    />
+  ),
+  defenderFullLoss: (props) => (
+    <LuShield
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
 
   // Effects
-  freeCrop: () => <LuWheatOff className="size-full text-yellow-500" />,
-  populationCropConsumption: () => (
-    <BsFillPeopleFill className="size-full text-yellow-200" />
+  freeCrop: (props) => (
+    <LuWheatOff
+      {...props}
+      className={clsx('text-yellow-500', props.className)}
+    />
   ),
-  troopsCropConsumption: () => (
-    <GiRallyTheTroops className="size-full text-gray-500" />
+  populationCropConsumption: (props) => (
+    <BsFillPeopleFill
+      {...props}
+      className={clsx('text-yellow-200', props.className)}
+    />
   ),
-  warehouseCapacity: () => <FaWarehouse className="size-full text-stone-500" />,
-  granaryCapacity: () => (
-    <PiWarehouseBold className="size-full text-stone-500" />
+  troopsCropConsumption: (props) => (
+    <GiRallyTheTroops
+      {...props}
+      className={clsx('text-gray-500', props.className)}
+    />
   ),
-  buildingDuration: () => <CgTimelapse className="size-full" />,
-  infantryDefence: () => (
-    <BiShieldQuarter className="size-full text-gray-500" />
+  warehouseCapacity: (props) => (
+    <FaWarehouse
+      {...props}
+      className={clsx('text-stone-500', props.className)}
+    />
   ),
-  cavalryDefence: () => <TbHorseshoe className="size-full text-gray-500" />,
-  population: () => <FaPeopleGroup className="size-full text-gray-400" />,
-  culturePoints: () => <GiGreekTemple className="size-full text-gray-400" />,
-  attack: () => <LuSwords className="size-full text-gray-500" />,
-  defence: () => <BiShieldQuarter className="size-full text-gray-500" />,
-  defenceBonus: () => <BiShieldQuarter className="size-full text-gray-500" />,
-  barracksTrainingDuration: () => <LuClock className="size-full" />,
-  greatBarracksTrainingDuration: () => <LuClock className="size-full" />,
-  stableTrainingDuration: () => <LuClock className="size-full" />,
-  greatStableTrainingDuration: () => <LuClock className="size-full" />,
-  workshopTrainingDuration: () => <LuClock className="size-full" />,
-  hospitalTrainingDuration: () => <LuClock className="size-full" />,
-  unitSpeed: () => <TbBrandSpeedtest className="size-full" />,
-  unitCarryCapacity: () => <GiSwapBag className="size-full text-gray-500" />,
-  unitWheatConsumption: () => <LuWheat className="size-full text-yellow-500" />,
-  trapperCapacity: () => <GiWolfTrap className="size-full" />,
-  merchantCapacity: () => <BsMinecartLoaded className="size-full" />,
-  merchantAmount: () => <FaHandshakeAngle className="size-full" />,
-  woodProduction: () => icons.wood(),
-  clayProduction: () => icons.clay(),
-  ironProduction: () => icons.iron(),
-  wheatProduction: () => icons.wheat(),
-  unitImprovementDuration: () => <LuClock className="size-full" />,
-  unitResearchDuration: () => <LuClock className="size-full" />,
-  crannyCapacity: () => <PiKeyhole className="size-full" />,
-  revealedIncomingTroopsAmount: () => <GiSpyglass className="size-full" />,
-  unitSpeedAfter20Fields: () => (
-    <GiLeatherBoot className="size-full text-[#3c2f2f]" />
+  granaryCapacity: (props) => (
+    <PiWarehouseBold
+      {...props}
+      className={clsx('text-stone-500', props.className)}
+    />
   ),
-  merchantSpeed: () => icons.missingIcon(),
+  buildingDuration: (props) => <CgTimelapse {...props} />,
+  infantryDefence: (props) => (
+    <BiShieldQuarter
+      {...props}
+      className={clsx('text-gray-500', props.className)}
+    />
+  ),
+  cavalryDefence: (props) => (
+    <TbHorseshoe
+      {...props}
+      className={clsx('text-gray-500', props.className)}
+    />
+  ),
+  population: (props) => (
+    <FaPeopleGroup
+      {...props}
+      className={clsx('text-gray-400', props.className)}
+    />
+  ),
+  culturePoints: (props) => (
+    <GiGreekTemple
+      {...props}
+      className={clsx('text-gray-400', props.className)}
+    />
+  ),
+  attack: (props) => (
+    <LuSwords
+      {...props}
+      className={clsx('text-gray-500', props.className)}
+    />
+  ),
+  defence: (props) => (
+    <BiShieldQuarter
+      {...props}
+      className={clsx('text-gray-500', props.className)}
+    />
+  ),
+  defenceBonus: (props) => (
+    <BiShieldQuarter
+      {...props}
+      className={clsx('text-gray-500', props.className)}
+    />
+  ),
+  barracksTrainingDuration: (props) => <LuClock {...props} />,
+  greatBarracksTrainingDuration: (props) => <LuClock {...props} />,
+  stableTrainingDuration: (props) => <LuClock {...props} />,
+  greatStableTrainingDuration: (props) => <LuClock {...props} />,
+  workshopTrainingDuration: (props) => <LuClock {...props} />,
+  hospitalTrainingDuration: (props) => <LuClock {...props} />,
+  unitSpeed: (props) => <TbBrandSpeedtest {...props} />,
+  unitCarryCapacity: (props) => (
+    <GiSwapBag
+      {...props}
+      className={clsx('text-gray-500', props.className)}
+    />
+  ),
+  unitWheatConsumption: (props) => (
+    <LuWheat
+      {...props}
+      className={clsx('text-yellow-500', props.className)}
+    />
+  ),
+  trapperCapacity: (props) => <GiWolfTrap {...props} />,
+  merchantCapacity: (props) => <BsMinecartLoaded {...props} />,
+  merchantAmount: (props) => <FaHandshakeAngle {...props} />,
+  woodProduction: (props) => icons.wood(props),
+  clayProduction: (props) => icons.clay(props),
+  ironProduction: (props) => icons.iron(props),
+  wheatProduction: (props) => icons.wheat(props),
+  unitImprovementDuration: (props) => <LuClock {...props} />,
+  unitResearchDuration: (props) => <LuClock {...props} />,
+  crannyCapacity: (props) => <PiKeyhole {...props} />,
+  revealedIncomingTroopsAmount: (props) => <GiSpyglass {...props} />,
+  unitSpeedAfter20Fields: (props) => (
+    <GiLeatherBoot
+      {...props}
+      className={clsx('text-[#3c2f2f]', props.className)}
+    />
+  ),
+  merchantSpeed: (props) => icons.missingIcon(props),
 
   // Special troops
-  hero: () => <FaStar className="size-full text-yellow-300" />,
+  hero: (props) => (
+    <FaStar
+      {...props}
+      className={clsx('text-yellow-300', props.className)}
+    />
+  ),
 
   // Roman troops
-  legionnaire: () => <LuSword className="size-full" />,
-  praetorian: () => <LuSword className="size-full" />,
-  imperian: () => <LuSword className="size-full" />,
-  romanScout: () => <PillageFirstHorse className={styles['roman-scout']} />,
-  equitesImperatoris: () => (
-    <PillageFirstHorse className={styles['equites-imperatoris']} />
+  legionnaire: (props) => <LuSword {...props} />,
+  praetorian: (props) => <LuSword {...props} />,
+  imperian: (props) => <LuSword {...props} />,
+  romanScout: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['roman-scout'], props.className)}
+    />
   ),
-  equitesCaesaris: () => (
-    <PillageFirstHorse className={styles['equites-caesaris']} />
+  equitesImperatoris: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['equites-imperatoris'], props.className)}
+    />
   ),
-  romanRam: () => <GiIBeam className="size-full" />,
-  romanCatapult: () => <PillageFirstCatapult />,
-  romanChief: () => <TbLaurelWreath className="size-full text-green-700" />,
-  romanSettler: () => <GiPointyHat className="size-full text-red-600" />,
+  equitesCaesaris: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['equites-caesaris'], props.className)}
+    />
+  ),
+  romanRam: (props) => <GiIBeam {...props} />,
+  romanCatapult: (props) => <PillageFirstCatapult {...props} />,
+  romanChief: (props) => (
+    <TbLaurelWreath
+      {...props}
+      className={clsx('text-green-700', props.className)}
+    />
+  ),
+  romanSettler: (props) => (
+    <GiPointyHat
+      {...props}
+      className={clsx('text-red-600', props.className)}
+    />
+  ),
 
   // Gaul troops
-  phalanx: () => icons.missingIcon(),
-  swordsman: () => icons.missingIcon(),
-  gaulScout: () => <PillageFirstHorse className={styles['gaul-scout']} />,
-  theutatesThunder: () => (
-    <PillageFirstHorse className={styles['theutates-thunder']} />
+  phalanx: (props) => icons.missingIcon(props),
+  swordsman: (props) => icons.missingIcon(props),
+  gaulScout: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['gaul-scout'], props.className)}
+    />
   ),
-  druidrider: () => <PillageFirstHorse className={styles.druidrider} />,
-  haeduan: () => <PillageFirstHorse className={styles.haeduan} />,
-  gaulRam: () => icons.missingIcon(),
-  gaulCatapult: () => <PillageFirstCatapult />,
-  gaulChief: () => <TbLaurelWreath className="size-full text-green-700" />,
-  gaulSettler: () => <GiPointyHat className="size-full text-green-700" />,
+  theutatesThunder: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['theutates-thunder'], props.className)}
+    />
+  ),
+  druidrider: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles.druidrider, props.className)}
+    />
+  ),
+  haeduan: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles.haeduan, props.className)}
+    />
+  ),
+  gaulRam: (props) => icons.missingIcon(props),
+  gaulCatapult: (props) => <PillageFirstCatapult {...props} />,
+  gaulChief: (props) => (
+    <TbLaurelWreath
+      {...props}
+      className={clsx('text-green-700', props.className)}
+    />
+  ),
+  gaulSettler: (props) => (
+    <GiPointyHat
+      {...props}
+      className={clsx('text-green-700', props.className)}
+    />
+  ),
 
   // Teuton troops
-  clubswinger: () => icons.missingIcon(),
-  spearman: () => icons.missingIcon(),
-  axeman: () => icons.missingIcon(),
-  teutonicScout: () => icons.missingIcon(),
-  paladin: () => <PillageFirstHorse className={styles.paladin} />,
-  teutonicKnight: () => (
-    <PillageFirstHorse className={styles['teutonic-knight']} />
+  clubswinger: (props) => icons.missingIcon(props),
+  spearman: (props) => icons.missingIcon(props),
+  axeman: (props) => icons.missingIcon(props),
+  teutonicScout: (props) => icons.missingIcon(props),
+  paladin: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles.paladin, props.className)}
+    />
   ),
-  teutonicRam: () => icons.missingIcon(),
-  teutonicCatapult: () => <PillageFirstCatapult />,
-  teutonicChief: () => <TbLaurelWreath className="size-full text-green-700" />,
-  teutonicSettler: () => <GiPointyHat className="size-full text-red-500" />,
+  teutonicKnight: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['teutonic-knight'], props.className)}
+    />
+  ),
+  teutonicRam: (props) => icons.missingIcon(props),
+  teutonicCatapult: (props) => <PillageFirstCatapult {...props} />,
+  teutonicChief: (props) => (
+    <TbLaurelWreath
+      {...props}
+      className={clsx('text-green-700', props.className)}
+    />
+  ),
+  teutonicSettler: (props) => (
+    <GiPointyHat
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
 
   // Egyptian troops
-  slaveMilitia: () => icons.missingIcon(),
-  ashWarden: () => icons.missingIcon(),
-  khopeshWarrior: () => icons.missingIcon(),
-  egyptianScout: () => (
-    <PillageFirstHorse className={styles['egyptian-scout']} />
+  slaveMilitia: (props) => icons.missingIcon(props),
+  ashWarden: (props) => icons.missingIcon(props),
+  khopeshWarrior: (props) => icons.missingIcon(props),
+  egyptianScout: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['egyptian-scout'], props.className)}
+    />
   ),
-  anhurGuard: () => <PillageFirstHorse className={styles['anhur-guard']} />,
-  reshephChariot: () => (
-    <PillageFirstHorse className={styles['resheph-chariot']} />
+  anhurGuard: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['anhur-guard'], props.className)}
+    />
   ),
-  egyptianRam: () => icons.missingIcon(),
-  egyptianCatapult: () => <PillageFirstCatapult />,
-  egyptianChief: () => <TbLaurelWreath className="size-full text-green-700" />,
-  egyptianSettler: () => <GiPointyHat className="size-full text-yellow-600" />,
+  reshephChariot: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['resheph-chariot'], props.className)}
+    />
+  ),
+  egyptianRam: (props) => icons.missingIcon(props),
+  egyptianCatapult: (props) => <PillageFirstCatapult {...props} />,
+  egyptianChief: (props) => (
+    <TbLaurelWreath
+      {...props}
+      className={clsx('text-green-700', props.className)}
+    />
+  ),
+  egyptianSettler: (props) => (
+    <GiPointyHat
+      {...props}
+      className={clsx('text-yellow-600', props.className)}
+    />
+  ),
 
   // Hun troops
-  mercenary: () => icons.missingIcon(),
-  bowman: () => icons.missingIcon(),
-  hunScout: () => icons.missingIcon(),
-  steppeRider: () => <PillageFirstHorse className={styles['steppe-rider']} />,
-  marksman: () => <PillageFirstHorse className={styles.marksman} />,
-  marauder: () => <PillageFirstHorse className={styles.marauder} />,
-  hunRam: () => icons.missingIcon(),
-  hunCatapult: () => <PillageFirstCatapult />,
-  hunChief: () => <TbLaurelWreath className="size-full text-green-700" />,
-  hunSettler: () => <GiPointyHat className="size-full text-yellow-800" />,
+  mercenary: (props) => icons.missingIcon(props),
+  bowman: (props) => icons.missingIcon(props),
+  hunScout: (props) => icons.missingIcon(props),
+  steppeRider: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['steppe-rider'], props.className)}
+    />
+  ),
+  marksman: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles.marksman, props.className)}
+    />
+  ),
+  marauder: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles.marauder, props.className)}
+    />
+  ),
+  hunRam: (props) => icons.missingIcon(props),
+  hunCatapult: (props) => <PillageFirstCatapult {...props} />,
+  hunChief: (props) => (
+    <TbLaurelWreath
+      {...props}
+      className={clsx('text-green-700', props.className)}
+    />
+  ),
+  hunSettler: (props) => (
+    <GiPointyHat
+      {...props}
+      className={clsx('text-yellow-800', props.className)}
+    />
+  ),
 
   // Natarian troops
-  pikeman: () => icons.missingIcon(),
-  thornedWarrior: () => icons.missingIcon(),
-  guardsman: () => icons.missingIcon(),
-  axerider: () => <PillageFirstHorse className={styles['']} />,
-  natarianScout: () => icons.missingIcon(),
-  natarianKnight: () => <PillageFirstHorse className={styles['']} />,
-  natarianRam: () => icons.missingIcon(),
-  natarianCatapult: () => <PillageFirstCatapult />,
-  natarianChief: () => <TbLaurelWreath className="size-full text-green-700" />,
-  natarianSettler: () => <GiPointyHat className="size-full text-stone-950" />,
+  pikeman: (props) => icons.missingIcon(props),
+  thornedWarrior: (props) => icons.missingIcon(props),
+  guardsman: (props) => icons.missingIcon(props),
+  axerider: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles[''], props.className)}
+    />
+  ),
+  natarianScout: (props) => icons.missingIcon(props),
+  natarianKnight: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles[''], props.className)}
+    />
+  ),
+  natarianRam: (props) => icons.missingIcon(props),
+  natarianCatapult: (props) => <PillageFirstCatapult {...props} />,
+  natarianChief: (props) => (
+    <TbLaurelWreath
+      {...props}
+      className={clsx('text-green-700', props.className)}
+    />
+  ),
+  natarianSettler: (props) => (
+    <GiPointyHat
+      {...props}
+      className={clsx('text-stone-950', props.className)}
+    />
+  ),
 
   // Nature
-  rat: () => <GiRat className="size-full text-[#4B3C39]" />,
-  spider: () => <FaSpider className="size-full text-[#D3C2A3]" />,
-  serpent: () => <GiSandSnake className="size-full text-[#B8B62F]" />,
-  bat: () => <TbBat className="size-full text-[#545151]" />,
-  wildBoar: () => <GiBoar className="size-full text-[#5A3929]" />,
-  wolf: () => <GiWolfHead className="size-full text-[#727C83]" />,
-  bear: () => <GiBearHead className="size-full text-[#836852]" />,
-  crocodile: () => <GiCrocJaws className="size-full text-[#4da167]" />,
-  tiger: () => <GiSaberToothedCatHead className="size-full text-[#D49C4A]" />,
-  elephant: () => <GiElephant className="size-full" />,
+  rat: (props) => (
+    <GiRat
+      {...props}
+      className={clsx('text-[#4B3C39]', props.className)}
+    />
+  ),
+  spider: (props) => (
+    <FaSpider
+      {...props}
+      className={clsx('text-[#D3C2A3]', props.className)}
+    />
+  ),
+  serpent: (props) => (
+    <GiSandSnake
+      {...props}
+      className={clsx('text-[#B8B62F]', props.className)}
+    />
+  ),
+  bat: (props) => (
+    <TbBat
+      {...props}
+      className={clsx('text-[#545151]', props.className)}
+    />
+  ),
+  wildBoar: (props) => (
+    <GiBoar
+      {...props}
+      className={clsx('text-[#5A3929]', props.className)}
+    />
+  ),
+  wolf: (props) => (
+    <GiWolfHead
+      {...props}
+      className={clsx('text-[#727C83]', props.className)}
+    />
+  ),
+  bear: (props) => (
+    <GiBearHead
+      {...props}
+      className={clsx('text-[#836852]', props.className)}
+    />
+  ),
+  crocodile: (props) => (
+    <GiCrocJaws
+      {...props}
+      className={clsx('text-[#4da167]', props.className)}
+    />
+  ),
+  tiger: (props) => (
+    <GiSaberToothedCatHead
+      {...props}
+      className={clsx('text-[#D49C4A]', props.className)}
+    />
+  ),
+  elephant: (props) => <GiElephant {...props} />,
 
   // Troop movements
-  deploymentOutgoing: () => (
-    <BsShieldFill className="size-full text-yellow-300" />
+  deploymentOutgoing: (props) => (
+    <BsShieldFill
+      {...props}
+      className={clsx('text-yellow-300', props.className)}
+    />
   ),
-  deploymentIncoming: () => (
-    <BsShieldFill className="size-full text-green-600" />
+  deploymentIncoming: (props) => (
+    <BsShieldFill
+      {...props}
+      className={clsx('text-green-600', props.className)}
+    />
   ),
-  offensiveMovementOutgoing: () => (
-    <LuSwords className="size-full text-yellow-300" />
+  offensiveMovementOutgoing: (props) => (
+    <LuSwords
+      {...props}
+      className={clsx('text-yellow-300', props.className)}
+    />
   ),
-  offensiveMovementIncoming: () => (
-    <LuSwords className="size-full text-red-500" />
+  offensiveMovementIncoming: (props) => (
+    <LuSwords
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
   ),
-  adventure: () => <PiPath className="size-full text-blue-500" />,
-  findNewVillage: () => <GiPointyHat className="size-full text-blue-500" />,
+  adventure: (props) => (
+    <PiPath
+      {...props}
+      className={clsx('text-blue-500', props.className)}
+    />
+  ),
+  findNewVillage: (props) => (
+    <GiPointyHat
+      {...props}
+      className={clsx('text-blue-500', props.className)}
+    />
+  ),
 
   // Hero
-  heroRevivalDuration: () => <CgTimelapse className="size-full" />,
+  heroRevivalDuration: (props) => <CgTimelapse {...props} />,
 };
 
 export const unitIdToUnitIconMapper = (unitId: Unit['id']): UnitIconType => {
