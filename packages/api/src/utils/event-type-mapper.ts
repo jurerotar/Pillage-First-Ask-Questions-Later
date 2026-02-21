@@ -7,6 +7,7 @@ import {
   buildingScheduledConstructionEventResolver,
 } from '../controllers/resolvers/building-resolvers';
 import { internalSeedOasisOccupiableByTableResolver } from '../controllers/resolvers/internal-resolvers';
+import { troopMovementResolver } from '../controllers/resolvers/troop-movement-resolver';
 import { troopTrainingEventResolver } from '../controllers/resolvers/troop-resolvers';
 import { unitImprovementResolver } from '../controllers/resolvers/unit-improvement-resolvers';
 import { unitResearchResolver } from '../controllers/resolvers/unit-research-resolvers';
@@ -28,6 +29,9 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     case 'troopTraining': {
       return troopTrainingEventResolver;
     }
+    case 'troopMovement': {
+      return troopMovementResolver;
+    }
     case 'adventurePointIncrease': {
       return adventurePointIncreaseResolver;
     }
@@ -41,7 +45,7 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
       return internalSeedOasisOccupiableByTableResolver;
     }
     default: {
-      console.error('No resolver function set for event type', gameEventType);
+      console.error(`No resolver function set for event type ${gameEventType}`);
 
       return () => {};
     }

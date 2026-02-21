@@ -73,8 +73,11 @@ export const ApiProvider = ({
         return;
       }
 
-      const { type } = event.data;
-      const cachesToClear = cachesToClearOnResolve.get(type)!;
+      const gameEvent = event.data;
+      const { type } = gameEvent;
+
+      // @ts-expect-error - We can't provide a generic here, so TS doesn't know which event it's dealing with
+      const cachesToClear = cachesToClearOnResolve[type](gameEvent)!;
 
       for (const queryKey of cachesToClear) {
         const keyId = JSON.stringify(queryKey);
