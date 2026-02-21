@@ -96,7 +96,7 @@ export const getVillageRankings = createController('/statistics/villages')(
             v.player_id,
             p.name AS player_name,
             p.slug AS player_slug,
-            CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END AS population
+            SUM(CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END) AS population
           FROM
             villages v
               LEFT JOIN tiles t ON t.id = v.tile_id
@@ -108,7 +108,7 @@ export const getVillageRankings = createController('/statistics/villages')(
                           AND e.source = 'building'
                           AND e.source_specifier = 0
               LEFT JOIN effect_ids ei ON ei.id = e.effect_id
-          GROUP BY v.id, v.name, t.x, t.y, v.player_id, p.name
+          GROUP BY v.id, v.name, t.x, t.y, v.player_id, p.name, p.slug
           ),
 
         cursor_row AS (

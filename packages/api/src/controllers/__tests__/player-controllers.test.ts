@@ -43,21 +43,72 @@ describe('player-controllers', () => {
     expect(result[0]).toHaveProperty('resourceFieldComposition');
   });
 
-  test('getPlayerVillagesWithPopulation should return villages with population', async () => {
+  test('getPlayerVillagesWithPopulation should return correct population (only counting building base effects)', async () => {
     const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, player_id FROM villages WHERE player_id = $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: z.object({ id: z.number(), player_id: z.number() }),
+    })!;
+
+    const wheatEffectId = database.selectValue({
+      sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction'",
+      schema: z.number(),
+    })!;
+
+    // Clear existing effects for this village
+    database.exec({
+      sql: 'DELETE FROM effects WHERE village_id = $village_id',
+      bind: { $village_id: village.id },
+    });
+
+    // Seed various effects
+    const effects = [
+      {
+        value: -400,
+        type: 'base',
+        scope: 'village',
+        source: 'building',
+        source_specifier: 0,
+      },
+      {
+        value: 150,
+        type: 'base',
+        scope: 'village',
+        source: 'troops',
+        source_specifier: null,
+      },
+    ];
+
+    for (const effect of effects) {
+      database.exec({
+        sql: `
+          INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+          VALUES ($effect_id, $value, $type, $scope, $source, $village_id, $source_specifier)
+        `,
+        bind: {
+          $effect_id: wheatEffectId,
+          $value: effect.value,
+          $type: effect.type,
+          $scope: effect.scope,
+          $source: effect.source,
+          $village_id: village.id,
+          $source_specifier: effect.source_specifier,
+        },
+      });
+    }
 
     const result = getPlayerVillagesWithPopulation(
       database,
       createControllerArgs<'/players/:playerId/villages-with-population'>({
-        path: { playerId },
+        path: { playerId: village.player_id },
       }),
     );
 
-    expect(result).toBeDefined();
-    expect(result.length).toBeGreaterThan(0);
-    expect(result[0]).toHaveProperty('id');
-    expect(result[0]).toHaveProperty('population');
-    expect(result[0]).toHaveProperty('coordinates');
+    const testVillage = result.find((v) => v.id === village.id)!;
+
+    expect(testVillage.population).toBe(400);
   });
 
   test('getTroopsByVillage should return troops by village for a player', async () => {
