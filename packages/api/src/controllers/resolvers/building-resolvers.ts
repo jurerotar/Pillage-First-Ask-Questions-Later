@@ -81,9 +81,15 @@ export const buildingLevelChangeResolver: Resolver<
 
   database.exec({
     sql: `
-      INSERT INTO building_level_change_history
+      INSERT INTO
+        building_level_change_history
       (village_id, field_id, building_id, previous_level, new_level, timestamp)
-      VALUES ($village_id, $building_field_id, $building_id, $previous_level, $level, STRFTIME('%s', 'now'))
+      VALUES
+        ($village_id, $building_field_id, (
+          SELECT id
+          FROM building_ids
+          WHERE building = $building_id
+          ), $previous_level, $level, STRFTIME('%s', 'now'))
       RETURNING id;
     `,
     bind: {

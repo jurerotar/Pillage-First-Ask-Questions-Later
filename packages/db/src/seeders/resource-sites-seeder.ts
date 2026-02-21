@@ -37,15 +37,13 @@ export const resourceSitesSeeder = (
 
   const updatedAt = Date.now();
 
-  const playerStartingTileId = database.selectValue({
-    sql: 'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
-    schema: z.number(),
-  })!;
-
-  results.push([playerStartingTileId, 750, 750, 750, 750, updatedAt]);
-
   const villages = database.selectObjects({
-    sql: 'SELECT tiles.id, x, y FROM tiles INNER JOIN villages ON tiles.id = villages.tile_id WHERE tiles.x != 0 AND tiles.y != 0;',
+    sql: `
+      SELECT tiles.id, x, y
+      FROM
+        tiles
+          INNER JOIN villages ON tiles.id = villages.tile_id;
+    `,
     schema: VillageSelectResultRowSchema,
   });
 
@@ -65,6 +63,13 @@ export const resourceSitesSeeder = (
   });
 
   for (const { id, x, y } of villages) {
+    const isStartingVillage = x === 0 && y === 0;
+
+    if (isStartingVillage) {
+      results.push([id, 750, 750, 750, 750, updatedAt]);
+      continue;
+    }
+
     const villageSize = getVillageSize(server.configuration.mapSize, x, y);
 
     const resourceAmount = villageSizeToResourceAmountMap.get(villageSize)!;

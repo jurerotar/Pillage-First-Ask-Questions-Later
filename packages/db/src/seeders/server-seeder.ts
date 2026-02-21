@@ -17,9 +17,11 @@ export const serverSeeder = (database: DbFacade, server: Server): void => {
 
   database.exec({
     sql: `
-      INSERT INTO servers
+      INSERT INTO
+        servers
       (id, version, name, slug, created_at, seed, speed, map_size, player_name, player_tribe)
-      VALUES ($id, $version, $name, $slug, $created_at, $seed, $speed, $map_size, $player_name, $player_tribe);
+      VALUES
+        ($id, $version, $name, $slug, $created_at, $seed, $speed, $map_size, $player_name, $player_tribe);
     `,
     bind: {
       $id: id,

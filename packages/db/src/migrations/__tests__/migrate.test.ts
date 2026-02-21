@@ -285,6 +285,36 @@ describe('migrateAndSeed', () => {
     });
   });
 
+  describe('developer settings', () => {
+    test('developer_settings row exists with default values (all 0)', () => {
+      const settings = database.selectObject({
+        sql: 'SELECT * FROM developer_settings LIMIT 1;',
+        schema: z.object({
+          is_instant_building_construction_enabled: z.number(),
+          is_instant_unit_training_enabled: z.number(),
+          is_instant_unit_improvement_enabled: z.number(),
+          is_instant_unit_research_enabled: z.number(),
+          is_instant_unit_travel_enabled: z.number(),
+          is_free_building_construction_enabled: z.number(),
+          is_free_unit_training_enabled: z.number(),
+          is_free_unit_improvement_enabled: z.number(),
+          is_free_unit_research_enabled: z.number(),
+        }),
+      });
+
+      expect(settings).toBeDefined();
+      expect(settings?.is_instant_building_construction_enabled).toBe(0);
+      expect(settings?.is_instant_unit_training_enabled).toBe(0);
+      expect(settings?.is_instant_unit_improvement_enabled).toBe(0);
+      expect(settings?.is_instant_unit_research_enabled).toBe(0);
+      expect(settings?.is_instant_unit_travel_enabled).toBe(0);
+      expect(settings?.is_free_building_construction_enabled).toBe(0);
+      expect(settings?.is_free_unit_training_enabled).toBe(0);
+      expect(settings?.is_free_unit_improvement_enabled).toBe(0);
+      expect(settings?.is_free_unit_research_enabled).toBe(0);
+    });
+  });
+
   describe('oasis', () => {
     test('oasis rows only exist for tiles with type = "oasis"', () => {
       const countForNonOasis = database.selectValue({
@@ -446,6 +476,15 @@ describe('migrateAndSeed', () => {
 
       expect(count).toBeGreaterThanOrEqual(20);
     });
+
+    test('some oases are occupied by villages', () => {
+      const occupiedCount = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM oasis WHERE village_id IS NOT NULL;',
+        schema: z.number(),
+      });
+
+      expect(occupiedCount).toBeGreaterThan(0);
+    });
   });
 
   describe('map filters', () => {
@@ -491,28 +530,6 @@ describe('migrateAndSeed', () => {
         schema: z.number(),
       });
       expect(c).toBeGreaterThanOrEqual(1);
-    });
-  });
-
-  describe('factions', () => {
-    test('factions seeded (>0)', () => {
-      const c = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM factions;',
-        schema: z.number(),
-      });
-      expect(c).toBeGreaterThan(0);
-    });
-
-    test('faction ids are unique', () => {
-      const distinct = database.selectValue({
-        sql: 'SELECT COUNT(DISTINCT id) FROM factions;',
-        schema: z.number(),
-      });
-      const total = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM factions;',
-        schema: z.number(),
-      });
-      expect(distinct).toBe(total);
     });
   });
 
@@ -613,6 +630,39 @@ describe('migrateAndSeed', () => {
         expect(row.attack_bonus).toBe(0);
         expect(row.defence_bonus).toBe(0);
       }
+    });
+
+    test('every hero has a selectable attributes row', () => {
+      const heroCount = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM heroes;',
+        schema: z.number(),
+      });
+      const attrCount = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM hero_selectable_attributes;',
+        schema: z.number(),
+      });
+      expect(attrCount).toBe(heroCount);
+    });
+  });
+
+  describe('hero adventures', () => {
+    test('hero has 3 available adventures and 0 completed', () => {
+      const row = database.selectObject({
+        sql: `
+          SELECT available, completed
+          FROM hero_adventures
+          WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $playerId)
+        `,
+        bind: { $playerId: PLAYER_ID },
+        schema: z.object({
+          available: z.number(),
+          completed: z.number(),
+        }),
+      });
+
+      expect(row).toBeDefined();
+      expect(row?.available).toBe(3);
+      expect(row?.completed).toBe(0);
     });
   });
 
@@ -823,42 +873,157 @@ describe('migrateAndSeed', () => {
   });
 
   describe('resource sites', () => {
-    test('resource_sites seeded (>=0)', () => {
-      const c = database.selectValue({
+    test('resource_sites seeded for both villages and oases with bonuses', () => {
+      const villageTileCount = database.selectValue({
+        sql: 'SELECT COUNT(DISTINCT tile_id) FROM villages;',
+        schema: z.number(),
+      })!;
+
+      const oasisTileCount = database.selectValue({
+        sql: 'SELECT COUNT(DISTINCT tile_id) FROM oasis;',
+        schema: z.number(),
+      })!;
+
+      const siteCount = database.selectValue({
         sql: 'SELECT COUNT(*) FROM resource_sites;',
         schema: z.number(),
       });
-      expect(c).toBeGreaterThanOrEqual(0);
+
+      expect(siteCount).toBe(villageTileCount + oasisTileCount);
+    });
+
+    test('all villages have resource sites', () => {
+      const missing = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM villages v
+          LEFT JOIN resource_sites rs ON v.tile_id = rs.tile_id
+          WHERE rs.tile_id IS NULL;
+        `,
+        schema: z.number(),
+      });
+      expect(missing).toBe(0);
+    });
+
+    test('all oases with bonuses have resource sites', () => {
+      const missing = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM oasis o
+          LEFT JOIN resource_sites rs ON o.tile_id = rs.tile_id
+          WHERE rs.tile_id IS NULL;
+        `,
+        schema: z.number(),
+      });
+      expect(missing).toBe(0);
+    });
+
+    test('no resource sites for non-village and non-oasis tiles', () => {
+      const invalid = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM resource_sites rs
+          LEFT JOIN villages v ON rs.tile_id = v.tile_id
+          LEFT JOIN oasis o ON rs.tile_id = o.tile_id
+          WHERE v.id IS NULL AND o.id IS NULL;
+        `,
+        schema: z.number(),
+      });
+      expect(invalid).toBe(0);
+    });
+
+    test('starting village (0,0) has 750 resources', () => {
+      const row = database.selectObject({
+        sql: `
+          SELECT wood, clay, iron, wheat
+          FROM resource_sites rs
+          JOIN tiles t ON rs.tile_id = t.id
+          WHERE t.x = 0 AND t.y = 0;
+        `,
+        schema: z.object({
+          wood: z.number(),
+          clay: z.number(),
+          iron: z.number(),
+          wheat: z.number(),
+        }),
+      });
+
+      expect(row?.wood).toBe(750);
+      expect(row?.clay).toBe(750);
+      expect(row?.iron).toBe(750);
+      expect(row?.wheat).toBe(750);
     });
   });
 
   describe('world items', () => {
-    test('world_items seeded (>=0)', () => {
-      const c = database.selectValue({
+    test('world_items seeded only for NPC villages', () => {
+      const invalid = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM world_items wi
+          JOIN villages v ON wi.tile_id = v.tile_id
+          WHERE v.player_id = $playerId;
+        `,
+        bind: { $playerId: PLAYER_ID },
+        schema: z.number(),
+      });
+      expect(invalid).toBe(0);
+
+      const count = database.selectValue({
         sql: 'SELECT COUNT(*) FROM world_items;',
         schema: z.number(),
       });
-      expect(c).toBeGreaterThanOrEqual(0);
+      expect(count).toBeGreaterThan(0);
     });
   });
 
   describe('unit research', () => {
-    test('unit_research seeded (>=0)', () => {
-      const c = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM unit_research;',
+    test('tier 1 unit is researched for player villages', () => {
+      const tribe = database.selectValue({
+        sql: `
+          SELECT ti.tribe
+          FROM players p
+          JOIN tribe_ids ti ON p.tribe_id = ti.id
+          WHERE p.id = $playerId;
+        `,
+        bind: { $playerId: PLAYER_ID },
+        schema: tribeSchema,
+      })!;
+
+      const tier1UnitId = getUnitsByTribe(tribe)[0].id;
+
+      const researchCount = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM unit_research ur
+          JOIN villages v ON ur.village_id = v.id
+          JOIN unit_ids ui ON ur.unit_id = ui.id
+          WHERE v.player_id = $playerId AND ui.unit = $unitId;
+        `,
+        bind: { $playerId: PLAYER_ID, $unitId: tier1UnitId },
         schema: z.number(),
       });
-      expect(c).toBeGreaterThanOrEqual(0);
+
+      const playerVillageCount = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM villages WHERE player_id = $playerId;',
+        bind: { $playerId: PLAYER_ID },
+        schema: z.number(),
+      });
+
+      expect(researchCount).toBe(playerVillageCount);
     });
   });
 
   describe('unit improvement', () => {
-    test('unit_improvements seeded (>=0)', () => {
-      const c = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM unit_improvements;',
-        schema: z.number(),
+    test('upgradable units are seeded with level 0 for player', () => {
+      const improvements = database.selectObjects({
+        sql: 'SELECT level FROM unit_improvements WHERE player_id = $playerId;',
+        bind: { $playerId: PLAYER_ID },
+        schema: z.object({ level: z.number() }),
       });
-      expect(c).toBeGreaterThanOrEqual(0);
+
+      expect(improvements.length).toBeGreaterThan(0);
+      expect(improvements.every((i) => i.level === 0)).toBeTruthy();
     });
   });
 

@@ -29,8 +29,7 @@ export const getPlayerRankings = createController('/statistics/players')(
             FROM
               players p
                 JOIN tribe_ids ti ON p.tribe_id = ti.id
-                JOIN factions f ON f.id = p.faction_id
-                JOIN faction_ids fi ON f.faction_id = fi.id
+                JOIN faction_ids fi ON fi.id = p.faction_id
                 LEFT JOIN villages v ON v.player_id = p.id
                 LEFT JOIN effects e
                           ON e.village_id = v.id
@@ -193,8 +192,7 @@ export const getGameWorldOverview = createController('/statistics/overview')(
         FROM
           players p
             JOIN tribe_ids ti ON p.tribe_id = ti.id
-            JOIN factions f ON p.faction_id = f.id
-            JOIN faction_ids fi ON f.faction_id = fi.id
+            JOIN faction_ids fi ON fi.id = p.faction_id
         GROUP BY
           ti.tribe, fi.faction
       `,
@@ -211,8 +209,7 @@ export const getGameWorldOverview = createController('/statistics/overview')(
           villages v
             JOIN players p ON v.player_id = p.id
             JOIN tribe_ids ti ON p.tribe_id = ti.id
-            JOIN factions f ON p.faction_id = f.id
-            JOIN faction_ids fi ON f.faction_id = fi.id
+            JOIN faction_ids fi ON fi.id = p.faction_id
         GROUP BY
           ti.tribe, fi.faction
       `,

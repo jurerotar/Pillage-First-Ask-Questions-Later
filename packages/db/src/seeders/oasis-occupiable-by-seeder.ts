@@ -4,11 +4,19 @@ export const oasisOccupiableBySeeder = (database: DbFacade): void => {
   // Create oasis_occupiable_by entries for 50% wheat oasis only. We'll create the rest of the entries later
   database.exec({
     sql: `
-      WITH RECURSIVE
+      WITH
+        RECURSIVE
         offsets(d) AS (
-          SELECT -3 UNION ALL SELECT d + 1 FROM offsets WHERE d < 3
-        )
-      INSERT OR IGNORE INTO
+          SELECT -3
+          UNION ALL
+          SELECT d + 1
+          FROM offsets
+          WHERE d < 3
+          )
+      INSERT
+      OR
+      IGNORE
+      INTO
         oasis_occupiable_by (occupiable_tile_id, occupiable_oasis_tile_id)
       SELECT t.id, o.tile_id
       FROM

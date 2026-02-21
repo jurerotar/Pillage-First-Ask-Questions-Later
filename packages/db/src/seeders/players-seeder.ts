@@ -30,11 +30,7 @@ export const playersSeeder = (database: DbFacade, server: Server): void => {
   );
 
   const factions = database.selectObjects({
-    sql: `
-      SELECT f.id, fi.faction
-      FROM factions f
-      JOIN faction_ids fi ON f.faction_id = fi.id
-    `,
+    sql: 'SELECT id, faction FROM faction_ids',
     schema: z.strictObject({
       id: z.number(),
       faction: factionSchema,

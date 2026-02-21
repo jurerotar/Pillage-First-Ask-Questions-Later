@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
@@ -9,6 +12,14 @@ import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
 import { buildingFieldsFactory } from './factories/building-fields-factory';
 
+/**
+ * TODO: Consider the following performance optimizations:
+ * **Templating and Caching**: Avoid redundant factory calls by generating unique templates based on
+ * common properties (e.g., size, tribe). This significantly reduces memory usage and CPU cycles.
+ * **Optimized Insertion via Temporary Tables**: Minimize JS-to-DB bridge traffic by inserting
+ * unique templates and mappings into temporary tables, then using a single `INSERT INTO ... SELECT ... JOIN`
+ * query to populate the main table. In tests, this drops the seeding time on 300x300 size game world from 300ms to ~150ms
+ */
 export const buildingFieldsSeeder = (
   database: DbFacade,
   server: Server,
@@ -21,26 +32,26 @@ export const buildingFieldsSeeder = (
     schema: z.strictObject({ id: z.number(), building: buildingIdSchema }),
   });
 
-  const buildingIdMap = new Map<string, number>(
+  const buildingIdMap = new Map<Building['id'], number>(
     buildingIdRows.map((b) => [b.building, b.id]),
   );
 
   const villages = database.selectObjects({
     sql: `
-    SELECT
-      v.id AS village_id,
-      t.x,
-      t.y,
-      rfc.resource_field_composition AS resource_field_composition,
-      ti.tribe,
-      p.id AS player_id
-    FROM
-      villages v
-        JOIN tiles t ON v.tile_id = t.id
-        LEFT JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
-        JOIN players p ON v.player_id = p.id
-        JOIN tribe_ids ti ON p.tribe_id = ti.id;
-  `,
+      SELECT
+        v.id AS village_id,
+        t.x,
+        t.y,
+        rfc.resource_field_composition AS resource_field_composition,
+        ti.tribe,
+        p.id AS player_id
+      FROM
+        villages v
+          JOIN tiles t ON v.tile_id = t.id
+          LEFT JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
+          JOIN players p ON v.player_id = p.id
+          JOIN tribe_ids ti ON p.tribe_id = ti.id;
+    `,
     schema: z.strictObject({
       village_id: z.number(),
       x: z.number(),

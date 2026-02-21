@@ -19,8 +19,7 @@ export const getMe = createController('/players/me')(({ database }) => {
       FROM
         players p
           JOIN tribe_ids ti ON p.tribe_id = ti.id
-          LEFT JOIN factions f ON f.id = p.faction_id
-          LEFT JOIN faction_ids fi ON f.faction_id = fi.id
+          LEFT JOIN faction_ids fi ON fi.id = p.faction_id
       WHERE
         p.id = $player_id;
     `,
@@ -139,10 +138,8 @@ export const getPlayerBySlug = createController('/players/:playerSlug')(
       JOIN tribe_ids ti ON p.tribe_id = ti.id
       JOIN villages v
         ON v.player_id = p.id
-      LEFT JOIN factions f
-        ON f.id = p.faction_id
       LEFT JOIN faction_ids fi
-        ON f.faction_id = fi.id
+        ON fi.id = p.faction_id
       WHERE
         p.slug = $player_slug
       LIMIT 1;

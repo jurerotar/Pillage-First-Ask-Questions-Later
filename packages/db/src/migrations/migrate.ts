@@ -12,7 +12,6 @@ import createDeveloperSettingsTable from '../schemas/developer-settings-schema.s
 import createEffectsTable from '../schemas/effects-schema.sql?raw';
 import createEventsTable from '../schemas/events-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
-import createFactionsTable from '../schemas/factions-schema.sql?raw';
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
@@ -20,11 +19,13 @@ import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
+import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
 import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
 import createTribeIdsTable from '../schemas/lookup-tables/tribe-ids-schema.sql?raw';
+import createUnitDataTable from '../schemas/lookup-tables/unit-data-schema.sql?raw';
 import createUnitIdsTable from '../schemas/lookup-tables/unit-ids-schema.sql?raw';
 import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
@@ -44,6 +45,7 @@ import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
 import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
 import { bookmarksSeeder } from '../seeders/bookmarks-seeder';
+import { buildingDataSeeder } from '../seeders/building-data-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { developerSettingsSeeder } from '../seeders/developer-settings-seeder';
@@ -52,7 +54,6 @@ import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
-import { factionsSeeder } from '../seeders/factions-seeder';
 import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
@@ -69,6 +70,7 @@ import { serverSeeder } from '../seeders/server-seeder';
 import { tilesSeeder } from '../seeders/tiles-seeder';
 import { tribeIdsSeeder } from '../seeders/tribe-ids-seeder';
 import { troopSeeder } from '../seeders/troop-seeder';
+import { unitDataSeeder } from '../seeders/unit-data-seeder';
 import { unitIdsSeeder } from '../seeders/unit-ids-seeder';
 import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
 import { unitResearchSeeder } from '../seeders/unit-research-seeder';
@@ -95,6 +97,12 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     db.exec({ sql: createEffectIdsTable });
     effectIdsSeeder(db);
 
+    db.exec({ sql: createUnitDataTable });
+    unitDataSeeder(db);
+
+    db.exec({ sql: createBuildingDataTable });
+    buildingDataSeeder(db);
+
     db.exec({ sql: createResourceFieldCompositionIdsTable });
     resourceFieldCompositionIdsSeeder(db);
 
@@ -120,10 +128,6 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     // Server
     db.exec({ sql: createServersTable });
     serverSeeder(db, server);
-
-    // Factions
-    db.exec({ sql: createFactionsTable });
-    factionsSeeder(db);
 
     // Faction reputations
     db.exec({ sql: createFactionReputationTable });
