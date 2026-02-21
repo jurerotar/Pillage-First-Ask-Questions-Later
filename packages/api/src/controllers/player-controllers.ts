@@ -68,17 +68,24 @@ export const getPlayerVillagesWithPopulation = createController(
         v.name,
         v.slug,
         rfc.resource_field_composition AS resource_field_composition,
-        (
-          SELECT COALESCE(SUM(level), 0) FROM building_fields WHERE village_id = v.id
-          ) AS population
+        COALESCE(SUM(CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END), 0) AS population
       FROM
         villages v
           JOIN tiles t
                ON t.id = v.tile_id
           LEFT JOIN resource_field_composition_ids rfc
                     ON t.resource_field_composition_id = rfc.id
+          LEFT JOIN effects e
+                    ON e.village_id = v.id
+                      AND e.type = 'base'
+                      AND e.scope = 'village'
+                      AND e.source = 'building'
+                      AND e.source_specifier = 0
+          LEFT JOIN effect_ids ei ON ei.id = e.effect_id
       WHERE
-        v.player_id = $player_id;
+        v.player_id = $player_id
+      GROUP BY
+        v.id, v.tile_id, t.x, t.y, v.name, v.slug, rfc.resource_field_composition;
     `,
     bind: { $player_id: playerId },
     schema: getPlayerVillagesWithPopulationSchema,
