@@ -25,14 +25,14 @@
     "@sqlite.org/sqlite-wasm": "3.51.2-build6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.2",
-    "@commitlint/cli": "20.4.1",
-    "@commitlint/config-conventional": "20.4.1",
-    "@typescript/native-preview": "7.0.0-dev.20260216.1",
+    "@biomejs/biome": "2.4.4",
+    "@commitlint/cli": "20.4.2",
+    "@commitlint/config-conventional": "20.4.2",
+    "@typescript/native-preview": "7.0.0-dev.20260220.1",
     "lefthook": "2.1.1",
-    "oxlint": "1.48.0",
-    "oxlint-tsgolint": "0.14.0",
-    "turbo": "2.8.9",
+    "oxlint": "1.49.0",
+    "oxlint-tsgolint": "0.14.2",
+    "turbo": "2.8.10",
     "typescript": "6.0.0-beta",
     "vitest": "4.0.18",
     "zod": "4.3.6"

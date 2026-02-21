@@ -23,7 +23,9 @@ export const isBuildingLevelUpEvent = (
 
 export const isBuildingEvent = (
   event: GameEvent,
-): event is GameEvent<'buildingConstruction'> => {
+): event is GameEvent<
+  'buildingScheduledConstruction' | 'buildingLevelChange'
+> => {
   const buildingEventTypes: GameEventType[] = [
     'buildingScheduledConstruction',
     'buildingLevelChange',

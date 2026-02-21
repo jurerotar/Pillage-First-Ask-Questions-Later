@@ -45,21 +45,20 @@ type BaseUnitTrainingEvent = {
   buildingId: Building['id'];
 };
 
-type BaseTroopMovementEvent = {
+export type TroopMovementType =
+  | 'reinforcements'
+  | 'relocation'
+  | 'return'
+  | 'find-new-village'
+  | 'attack'
+  | 'raid'
+  | 'oasis-occupation'
+  | 'adventure';
+
+type TroopMovementEvent = {
   troops: Troop[];
   targetId: Village['id'];
-};
-
-type TroopMovementEvent = BaseTroopMovementEvent & {
-  movementType:
-    | 'reinforcements'
-    | 'relocation'
-    | 'return'
-    | 'find-new-village'
-    | 'attack'
-    | 'raid'
-    | 'oasis-occupation'
-    | 'adventure';
+  movementType: TroopMovementType;
 };
 
 export type GameEventType =
@@ -91,6 +90,7 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
 export type GameEvent<T extends GameEventType | undefined = undefined> =
   T extends undefined
     ? BaseGameEvent
-    : BaseGameEvent &
+    : Omit<BaseGameEvent, 'type'> & {
+        type: T;
         // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
-        GameEventTypeToEventArgsMap<T>;
+      } & GameEventTypeToEventArgsMap<T>;

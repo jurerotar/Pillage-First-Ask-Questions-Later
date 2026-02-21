@@ -1,4 +1,5 @@
 import type { SqlValue } from '@sqlite.org/sqlite-wasm';
+import { prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
 import {
   calculateBuildingCostForLevel,
@@ -22,10 +23,12 @@ import {
   isBuildingDestructionEvent,
   isBuildingLevelUpEvent,
   isScheduledBuildingEvent,
+  isTroopMovementEvent,
   isTroopTrainingEvent,
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
+import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
 import {
@@ -208,8 +211,10 @@ export const _validateEventCreation = (
                 village_id = $villageId
                 AND unit_id = (
                   SELECT id
-                  FROM unit_ids
-                  WHERE unit = $unitId
+                  FROM
+                    unit_ids
+                  WHERE
+                    unit = $unitId
                   )
               ) AS is_researched;
         `,
@@ -236,7 +241,11 @@ export const _validateEventCreation = (
               unit_research
             WHERE
               village_id = $village_id
-              AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+              AND unit_id = (
+                SELECT id
+                FROM unit_ids
+                WHERE unit = $unit_id
+                )
             ) AS is_researched;`,
       bind: {
         $village_id: villageId,
@@ -259,7 +268,11 @@ export const _validateEventCreation = (
               building_fields
             WHERE
               village_id = $village_id
-              AND building_id = (SELECT id FROM building_ids WHERE building = $building_id)
+              AND building_id = (
+                SELECT id
+                FROM building_ids
+                WHERE building = $building_id
+                )
               AND level > 0
             ) AS building_exists;
       `,
@@ -495,6 +508,35 @@ export const getEventDuration = (
     return calculateAdventurePointIncreaseEventDuration(created_at, speed);
   }
 
+  if (isTroopMovementEvent(event)) {
+    const { movementType } = event;
+
+    if (movementType === 'return') {
+      return 1;
+    }
+
+    const { seed } = database.selectObject({
+      sql: 'SELECT seed FROM servers LIMIT 1;',
+      schema: z.strictObject({
+        seed: z.string(),
+      }),
+    })!;
+
+    const { completed } = database.selectObject({
+      sql: 'SELECT completed FROM hero_adventures;',
+      schema: z.strictObject({
+        completed: z.number(),
+      }),
+    })!;
+
+    const adventurePrng = prngMulberry32(`${seed}${completed}`);
+
+    const adventureDuration =
+      seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
+
+    return adventureDuration;
+  }
+
   console.error('Missing duration calculation for event', event);
   return 0;
 };
@@ -588,7 +630,7 @@ export const getEventStartTime = (
                   )
               ),
             $now
-            ) AS resolves_at;
+          ) AS resolves_at;
       `,
       bind: {
         $village_id: villageId,
@@ -609,6 +651,30 @@ export const getEventStartTime = (
 
   if (isBuildingConstructionEvent(event) || isBuildingLevelUpEvent(event)) {
     return Date.now();
+  }
+
+  if (isTroopMovementEvent(event)) {
+    const { movementType, startsAt, duration } = event;
+
+    switch (movementType) {
+      case 'adventure': {
+        return Date.now();
+      }
+      case 'find-new-village': {
+        return Date.now();
+      }
+      case 'oasis-occupation': {
+        return Date.now();
+      }
+      case 'return': {
+        return startsAt + duration;
+      }
+      default: {
+        console.error(
+          `Start time is not defined for troopMovement type ${movementType}`,
+        );
+      }
+    }
   }
 
   return Date.now();

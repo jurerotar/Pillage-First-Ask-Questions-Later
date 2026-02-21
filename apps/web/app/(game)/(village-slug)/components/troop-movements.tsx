@@ -31,11 +31,12 @@ const TroopMovement = ({ type, events }: TroopMovementProps) => {
   const [earliestEvent] = events;
 
   return (
-    <div className="inline-flex gap-1 bg-background border-2 border-l-0 items-center rounded-r-xs border-white/80 py-0.5 px-2 lg:py-2 shadow-sm font-semibold text-xs lg:text-base">
+    <div className="inline-flex gap-1 bg-background border-2 border-l-0 items-center rounded-r-xs border-white/80 py-0.5 px-2 lg:py-1 shadow-sm font-semibold text-xs lg:text-base">
       <span className="inline-flex gap-2 min-w-16">
         <Icon
           type={type}
           className={clsx(
+            'size-4 lg:size-6',
             type === 'offensiveMovementIncoming' && 'animate-scale-pulse',
           )}
         />

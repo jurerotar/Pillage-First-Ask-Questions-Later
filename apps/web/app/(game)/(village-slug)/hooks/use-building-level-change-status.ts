@@ -46,7 +46,7 @@ const useBuildingRequirements = (
 
   if (isMaxLevel) {
     return {
-      errors: [t("Building can't be upgraded any further")],
+      errors: [t("Building can't be upgraded any further.")],
       variant: 'blue',
     };
   }
