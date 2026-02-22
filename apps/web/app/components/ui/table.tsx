@@ -10,10 +10,7 @@ type TableProps = TableHTMLAttributes<HTMLTableElement>;
 
 export const Table = ({ className, ...props }: TableProps) => (
   <table
-    className={clsx(
-      'border border-border table-fixed min-w-full w-max',
-      className,
-    )}
+    className={clsx('border border-border table-fixed min-w-full', className)}
     {...props}
   />
 );
