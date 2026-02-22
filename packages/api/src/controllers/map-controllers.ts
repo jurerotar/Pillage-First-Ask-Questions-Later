@@ -22,14 +22,17 @@ export const getTiles = createController('/tiles')(({ database }) => {
           ),
 
         effects_wheat AS (
-          SELECT e.village_id, -e.value AS wheat_production_sum
+          SELECT e.village_id, SUM(-e.value) AS wheat_production_sum
           FROM
             effects e
               JOIN wheat_id w ON e.effect_id = w.wid
           WHERE
-            e.scope = 'village'
+           e.type = 'base'
+          AND e.scope = 'village'
+          AND e.source = 'building'
             AND e.source_specifier = 0
-          ),
+          GROUP BY e.village_id
+        ),
 
         -- pick a deterministic single item per tile (smallest item_id)
         world_items_single AS (
@@ -104,7 +107,9 @@ export const getTiles = createController('/tiles')(({ database }) => {
 
   const { totalTiles } = calculateGridLayout(mapSize);
 
-  const tiles = Array.from({ length: totalTiles }).fill(null);
+  const tiles = Array.from<z.infer<typeof getTilesSchema> | null>({
+    length: totalTiles,
+  }).fill(null);
 
   for (const tile of parsedTiles) {
     tiles[tile.id - 1] = tile;

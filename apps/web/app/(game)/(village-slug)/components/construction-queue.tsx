@@ -35,7 +35,7 @@ const ConstructionQueueBuilding = ({
   tooltipPosition,
 }: PropsWithChildren<ConstructionQueueBuildingProps>) => {
   const { t } = useTranslation();
-  const isWiderThanMd = useMediaQuery('(min-width: 768px)');
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { fetcher } = use(ApiContext);
 
   const { mutate: cancelConstruction } = useMutation<
@@ -57,9 +57,9 @@ const ConstructionQueueBuilding = ({
   });
 
   const tooltipId = `tooltip-${buildingEvent.id}`;
-  const tooltipKey = isWiderThanMd
-    ? 'is-wider-than-md'
-    : 'is-not-wider-than-md';
+  const tooltipKey = isWiderThanLg
+    ? 'is-wider-than-lg'
+    : 'is-not-wider-than-lg';
 
   const isScheduledEvent = isScheduledBuildingEvent(buildingEvent);
 
@@ -83,10 +83,10 @@ const ConstructionQueueBuilding = ({
         className="z-20! rounded-xs! px-2! py-1! bg-background! w-fit! text-black! border border-border"
         classNameArrow="border-r border-b border-border"
         place={tooltipPosition}
-        {...(isWiderThanMd && {
+        {...(isWiderThanLg && {
           isOpen: true,
         })}
-        {...(!isWiderThanMd && {
+        {...(!isWiderThanLg && {
           openOnClick: true,
           place: 'top-start',
         })}
@@ -152,8 +152,8 @@ const ConstructionQueueContent = () => {
   const { currentVillageBuildingEvents } = use(
     CurrentVillageBuildingQueueContext,
   );
-  const isWiderThanMd = useMediaQuery('(min-width: 768px)');
-  const [isExtended, setIsExtended] = useState(false);
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const [isExtended, setIsExtended] = useState<boolean>(false);
 
   const containerRef = useClickOutside<HTMLUListElement>(() => {
     setIsExtended(false);
@@ -211,7 +211,7 @@ const ConstructionQueueContent = () => {
           )}
         </li>
 
-        {(isWiderThanMd || isExtended) &&
+        {(isWiderThanLg || isExtended) &&
           slots.slice(1).map((slot) => (
             <li key={slot.type === 'building' ? slot.event.id : slot.id}>
               {slot.type === 'building' ? (
@@ -225,7 +225,7 @@ const ConstructionQueueContent = () => {
             </li>
           ))}
 
-        {!isWiderThanMd && (
+        {!isWiderThanLg && (
           <li>
             <button
               aria-label={
