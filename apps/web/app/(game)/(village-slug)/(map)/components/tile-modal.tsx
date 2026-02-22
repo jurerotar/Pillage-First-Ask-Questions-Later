@@ -203,12 +203,12 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
     return false;
   });
 
-  const { createEvent: createFindNewVillageEvent } =
-    useCreateEvent('troopMovement');
+  const { createEvent: createFindNewVillageEvent } = useCreateEvent(
+    'troopMovementFindNewVillage',
+  );
 
   const onFoundNewVillage = () => {
     createFindNewVillageEvent({
-      movementType: 'find-new-village',
       targetId: tile.id,
       troops: [],
       cachesToClearImmediately: [playerTroopsCacheKey],

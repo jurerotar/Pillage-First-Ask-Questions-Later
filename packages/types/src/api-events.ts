@@ -20,7 +20,7 @@ export type DatabaseInitializationErrorEvent = {
 export type ControllerErrorEvent = {
   eventKey: EventKey;
   error: Error;
-  reason: string;
+  reason?: string;
 };
 
 export type EventApiNotificationEvent<

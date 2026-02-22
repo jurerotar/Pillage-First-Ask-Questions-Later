@@ -2,9 +2,9 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { troopMovementResolver } from '../troop-movement-resolver';
+import { adventureMovementResolver } from '../troop-movement-resolver';
 
-describe('troopMovementResolver - adventure', () => {
+describe(adventureMovementResolver, () => {
   test('should handle hero surviving adventure', async () => {
     const database = await prepareTestDatabase();
 
@@ -38,7 +38,7 @@ describe('troopMovementResolver - adventure', () => {
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     };
 
-    troopMovementResolver(database, mockEvent);
+    adventureMovementResolver(database, mockEvent);
 
     const hero = database.selectObject({
       sql: 'SELECT health, experience FROM heroes WHERE id = $heroId;',
@@ -99,7 +99,7 @@ describe('troopMovementResolver - adventure', () => {
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     };
 
-    troopMovementResolver(database, mockEvent);
+    adventureMovementResolver(database, mockEvent);
 
     const hero = database.selectObject({
       sql: 'SELECT health, experience FROM heroes WHERE id = $heroId;',
