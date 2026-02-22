@@ -7,7 +7,16 @@ import {
   buildingScheduledConstructionEventResolver,
 } from '../controllers/resolvers/building-resolvers';
 import { internalSeedOasisOccupiableByTableResolver } from '../controllers/resolvers/internal-resolvers';
-import { troopMovementResolver } from '../controllers/resolvers/troop-movement-resolver';
+import {
+  adventureMovementResolver,
+  attackMovementResolver,
+  findNewVillageMovementResolver,
+  oasisOccupationMovementResolver,
+  raidMovementResolver,
+  reinforcementMovementResolver,
+  relocationMovementResolver,
+  returnMovementResolver,
+} from '../controllers/resolvers/troop-movement-resolver';
 import { troopTrainingEventResolver } from '../controllers/resolvers/troop-resolvers';
 import { unitImprovementResolver } from '../controllers/resolvers/unit-improvement-resolvers';
 import { unitResearchResolver } from '../controllers/resolvers/unit-research-resolvers';
@@ -29,8 +38,29 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     case 'troopTraining': {
       return troopTrainingEventResolver;
     }
-    case 'troopMovement': {
-      return troopMovementResolver;
+    case 'troopMovementReinforcements': {
+      return reinforcementMovementResolver;
+    }
+    case 'troopMovementRelocation': {
+      return relocationMovementResolver;
+    }
+    case 'troopMovementReturn': {
+      return returnMovementResolver;
+    }
+    case 'troopMovementFindNewVillage': {
+      return findNewVillageMovementResolver;
+    }
+    case 'troopMovementAttack': {
+      return attackMovementResolver;
+    }
+    case 'troopMovementRaid': {
+      return raidMovementResolver;
+    }
+    case 'troopMovementOasisOccupation': {
+      return oasisOccupationMovementResolver;
+    }
+    case 'troopMovementAdventure': {
+      return adventureMovementResolver;
     }
     case 'adventurePointIncrease': {
       return adventurePointIncreaseResolver;

@@ -70,7 +70,16 @@ export const updateDeveloperSettings = createController(
         eventTypes = ['unitResearch'];
         break;
       case 'isInstantUnitTravelEnabled':
-        eventTypes = ['troopMovement'];
+        eventTypes = [
+          'troopMovementReinforcements',
+          'troopMovementRelocation',
+          'troopMovementReturn',
+          'troopMovementFindNewVillage',
+          'troopMovementAttack',
+          'troopMovementRaid',
+          'troopMovementOasisOccupation',
+          'troopMovementAdventure',
+        ];
         break;
     }
 

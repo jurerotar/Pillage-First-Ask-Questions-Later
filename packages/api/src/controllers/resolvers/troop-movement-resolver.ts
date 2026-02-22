@@ -4,10 +4,9 @@ import type { Resolver } from '../../types/resolver';
 import { assessAdventureCountQuestCompletion } from '../../utils/quests.ts';
 import { createEvents } from '../utils/create-event';
 
-const adventureMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
-  database,
-  args,
-) => {
+export const adventureMovementResolver: Resolver<
+  GameEvent<'troopMovementAdventure'>
+> = (database, args) => {
   const { villageId, startsAt, duration } = args;
 
   const { heroId, health } = database.selectObject({
@@ -44,9 +43,9 @@ const adventureMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
 
     assessAdventureCountQuestCompletion(database, startsAt + duration);
 
-    createEvents<'troopMovement'>(database, {
-      type: 'troopMovement',
-      movementType: 'return',
+    createEvents<'troopMovementReturn'>(database, {
+      type: 'troopMovementReturn',
+      originalMovementType: 'adventure',
       villageId: args.villageId,
       targetId: args.targetId,
       troops: args.troops,
@@ -54,31 +53,31 @@ const adventureMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
   }
 };
 
-const findNewVillageMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
+export const oasisOccupationMovementResolver: Resolver<
+  GameEvent<'troopMovementOasisOccupation'>
+> = (_database, _args) => {};
+
+export const findNewVillageMovementResolver: Resolver<
+  GameEvent<'troopMovementFindNewVillage'>
+> = (_database, _args) => {};
+
+export const returnMovementResolver: Resolver<
+  GameEvent<'troopMovementReturn'>
+> = (_database, _args) => {};
+
+export const relocationMovementResolver: Resolver<
+  GameEvent<'troopMovementRelocation'>
+> = (_database, _args) => {};
+
+export const reinforcementMovementResolver: Resolver<
+  GameEvent<'troopMovementReinforcements'>
+> = (_database, _args) => {};
+
+export const attackMovementResolver: Resolver<
+  GameEvent<'troopMovementAttack'>
+> = (_database, _args) => {};
+
+export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
   _database,
   _args,
 ) => {};
-
-export const troopMovementResolver: Resolver<GameEvent<'troopMovement'>> = (
-  database,
-  args,
-) => {
-  const { movementType } = args;
-
-  switch (movementType) {
-    case 'adventure': {
-      adventureMovementResolver(database, args);
-      break;
-    }
-    case 'find-new-village': {
-      findNewVillageMovementResolver(database, args);
-      break;
-    }
-
-    default: {
-      console.error(
-        `No resolver function set for troopMovement type ${movementType}`,
-      );
-    }
-  }
-};

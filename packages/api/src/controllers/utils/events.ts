@@ -19,9 +19,13 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import {
   isAdventurePointIncreaseEvent,
+  isAdventureTroopMovementEvent,
   isBuildingConstructionEvent,
   isBuildingDestructionEvent,
   isBuildingLevelUpEvent,
+  isFindNewVillageTroopMovementEvent,
+  isOasisOccupationTroopMovementEvent,
+  isReturnTroopMovementEvent,
   isScheduledBuildingEvent,
   isTroopMovementEvent,
   isTroopTrainingEvent,
@@ -31,55 +35,18 @@ import {
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
-import {
-  calculateVillageResourcesAt,
-  subtractVillageResourcesAt,
-} from '../../utils/village';
+import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
 import { calculateAdventurePointIncreaseEventDuration } from '../resolvers/utils/adventures';
 
 // TODO: Implement this
-export const notifyAboutEventCreationFailure = (events: GameEvent[]): void => {
-  console.error('Following events failed to create', events);
-
-  const [event] = events;
-
+export const notifyAboutEventCreationFailure = (reason: string): void => {
   globalThis.postMessage({
     eventKey: 'event:controller-error',
-    error: new Error('Following events failed to create'),
-    ...event,
+    error: new Error(`Failed to create an event with reason: ${reason}`),
+    reason,
   } satisfies ControllerErrorEvent);
-};
-
-export const checkAndSubtractVillageResources = (
-  database: DbFacade,
-  events: GameEvent[],
-): boolean => {
-  // You can only create multiple events of the same type (e.g. training multiple same units), so to calculate cost, we can always take first event
-  const [event] = events;
-
-  const eventCost = getEventCost(database, event);
-
-  if (eventCost.some((cost) => cost > 0)) {
-    const { villageId, startsAt } = event;
-    const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
-    const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateVillageResourcesAt(database, villageId, startsAt);
-
-    if (
-      woodCost > currentWood ||
-      clayCost > currentClay ||
-      ironCost > currentIron ||
-      wheatCost > currentWheat
-    ) {
-      return false;
-    }
-
-    subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
-  }
-
-  return true;
 };
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
@@ -141,10 +108,11 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
   stmt.bind(params).stepReset();
 };
 
-export const _validateEventCreation = (
+// WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
+export const validateEventCreationPrerequisites = (
   database: DbFacade,
   event: GameEvent,
-): boolean => {
+): [true, null] | [false, string] => {
   if (isUnitImprovementEvent(event)) {
     const { villageId } = event;
 
@@ -168,7 +136,7 @@ export const _validateEventCreation = (
     });
 
     if (hasOngoingUnitImprovementEventsInThisVillage) {
-      return false;
+      return [false, 'Smithy is busy'];
     }
   }
 
@@ -195,7 +163,7 @@ export const _validateEventCreation = (
     });
 
     if (hasOngoingUnitResearchEventsInThisVillage) {
-      return false;
+      return [false, 'Academy is busy'];
     }
 
     const hasAlreadyResearchedUnitsWithSameIdAndVillage =
@@ -225,7 +193,9 @@ export const _validateEventCreation = (
         schema: z.number(),
       });
 
-    return !hasAlreadyResearchedUnitsWithSameIdAndVillage;
+    if (hasAlreadyResearchedUnitsWithSameIdAndVillage) {
+      return [false, 'Unit is already researched'];
+    }
   }
 
   if (isTroopTrainingEvent(event)) {
@@ -243,8 +213,10 @@ export const _validateEventCreation = (
               village_id = $village_id
               AND unit_id = (
                 SELECT id
-                FROM unit_ids
-                WHERE unit = $unit_id
+                FROM
+                  unit_ids
+                WHERE
+                  unit = $unit_id
                 )
             ) AS is_researched;`,
       bind: {
@@ -255,7 +227,7 @@ export const _validateEventCreation = (
     });
 
     if (!isUnitResearched) {
-      return false;
+      return [false, 'Unit is not researched'];
     }
 
     const doesUnitTrainingBuildingExist = !!database.selectValue({
@@ -270,8 +242,10 @@ export const _validateEventCreation = (
               village_id = $village_id
               AND building_id = (
                 SELECT id
-                FROM building_ids
-                WHERE building = $building_id
+                FROM
+                  building_ids
+                WHERE
+                  building = $building_id
                 )
               AND level > 0
             ) AS building_exists;
@@ -283,7 +257,9 @@ export const _validateEventCreation = (
       schema: z.number(),
     });
 
-    return doesUnitTrainingBuildingExist;
+    if (!doesUnitTrainingBuildingExist) {
+      return [false, 'Unit training building does not exist'];
+    }
   }
 
   if (isBuildingLevelUpEvent(event)) {
@@ -292,9 +268,40 @@ export const _validateEventCreation = (
   if (isScheduledBuildingEvent(event)) {
   }
 
-  return true;
+  return [true, null];
 };
 
+// WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
+export const validateEventCreationResources = (
+  database: DbFacade,
+  event: GameEvent,
+  eventCost: number[],
+): boolean => {
+  const { villageId, startsAt } = event;
+  const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
+  const { currentWood, currentClay, currentIron, currentWheat } =
+    calculateVillageResourcesAt(database, villageId, startsAt);
+
+  return !(
+    woodCost > currentWood ||
+    clayCost > currentClay ||
+    ironCost > currentIron ||
+    wheatCost > currentWheat
+  );
+};
+
+export const runEventCreationSideEffects = (
+  _database: DbFacade,
+  events: GameEvent[],
+) => {
+  const [event] = events;
+
+  if (isTroopMovementEvent(event)) {
+    // TODO: Subtract units
+  }
+};
+
+// WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
 export const getEventCost = (
   database: DbFacade,
   event: GameEvent,
@@ -363,6 +370,7 @@ export const getEventCost = (
   return [0, 0, 0, 0];
 };
 
+// WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
 export const getEventDuration = (
   database: DbFacade,
   event: GameEvent,
@@ -508,23 +516,23 @@ export const getEventDuration = (
     return calculateAdventurePointIncreaseEventDuration(created_at, speed);
   }
 
-  if (isTroopMovementEvent(event)) {
-    const { movementType } = event;
-
-    if (movementType === 'return') {
-      return 1;
-    }
-
-    const { seed } = database.selectObject({
-      sql: 'SELECT seed FROM servers LIMIT 1;',
+  if (isAdventureTroopMovementEvent(event)) {
+    const { seed, completed } = database.selectObject({
+      sql: `
+        SELECT
+          (
+            SELECT seed
+            FROM servers
+            LIMIT 1
+            ) AS seed,
+          (
+            SELECT completed - 1
+            FROM hero_adventures
+            LIMIT 1
+            ) AS completed
+      `,
       schema: z.strictObject({
         seed: z.string(),
-      }),
-    })!;
-
-    const { completed } = database.selectObject({
-      sql: 'SELECT completed FROM hero_adventures;',
-      schema: z.strictObject({
         completed: z.number(),
       }),
     })!;
@@ -537,10 +545,46 @@ export const getEventDuration = (
     return adventureDuration;
   }
 
+  if (isReturnTroopMovementEvent(event)) {
+    const { originalMovementType } = event;
+
+    if (originalMovementType === 'adventure') {
+      const { seed, completed } = database.selectObject({
+        sql: `
+          SELECT
+            (
+              SELECT seed
+              FROM
+                servers
+              LIMIT 1
+              ) AS seed,
+            (
+              SELECT completed - 1
+              FROM
+                hero_adventures
+              LIMIT 1
+              ) AS completed
+        `,
+        schema: z.strictObject({
+          seed: z.string(),
+          completed: z.number(),
+        }),
+      })!;
+
+      const adventurePrng = prngMulberry32(`${seed}${completed}`);
+
+      const adventureReturnDuration =
+        seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
+
+      return adventureReturnDuration;
+    }
+  }
+
   console.error('Missing duration calculation for event', event);
   return 0;
 };
 
+// WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
 export const getEventStartTime = (
   database: DbFacade,
   event: GameEvent,
@@ -653,28 +697,18 @@ export const getEventStartTime = (
     return Date.now();
   }
 
-  if (isTroopMovementEvent(event)) {
-    const { movementType, startsAt, duration } = event;
-
-    switch (movementType) {
-      case 'adventure': {
-        return Date.now();
-      }
-      case 'find-new-village': {
-        return Date.now();
-      }
-      case 'oasis-occupation': {
-        return Date.now();
-      }
-      case 'return': {
-        return startsAt + duration;
-      }
-      default: {
-        console.error(
-          `Start time is not defined for troopMovement type ${movementType}`,
-        );
-      }
-    }
+  if (isAdventureTroopMovementEvent(event)) {
+    return Date.now();
+  }
+  if (isFindNewVillageTroopMovementEvent(event)) {
+    return Date.now();
+  }
+  if (isOasisOccupationTroopMovementEvent(event)) {
+    return Date.now();
+  }
+  if (isReturnTroopMovementEvent(event)) {
+    const { startsAt, duration } = event;
+    return startsAt + duration;
   }
 
   return Date.now();

@@ -1,7 +1,17 @@
 import { clsx } from 'clsx';
 import { Suspense } from 'react';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
 import type { Village } from '@pillage-first/types/models/village';
+import {
+  isAdventureTroopMovementEvent,
+  isAttackTroopMovementEvent,
+  isFindNewVillageTroopMovementEvent,
+  isOasisOccupationTroopMovementEvent,
+  isRaidTroopMovementEvent,
+  isReinforcementsTroopMovementEvent,
+  isRelocationTroopMovementEvent,
+  isReturnTroopMovementEvent,
+} from '@pillage-first/utils/guards/event';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
@@ -20,7 +30,7 @@ type TroopMovementProps = {
     | 'adventure'
     | 'findNewVillage'
   >;
-  events: GameEvent<'troopMovement'>[];
+  events: TroopMovementEvent[];
 };
 
 const TroopMovement = ({ type, events }: TroopMovementProps) => {
@@ -51,53 +61,51 @@ const TroopMovement = ({ type, events }: TroopMovementProps) => {
 };
 
 const partitionTroopMovementEvents = (
-  events: GameEvent<'troopMovement'>[],
+  events: TroopMovementEvent[],
   currentVillageId: Village['id'],
 ) => {
   // Raid, attack, oasis-occupation
-  const outgoingOffensiveMovementEvents: GameEvent<'troopMovement'>[] = [];
+  const outgoingOffensiveMovementEvents: TroopMovementEvent[] = [];
   // Relocation, reinforcement
-  const outgoingDeploymentMovementEvents: GameEvent<'troopMovement'>[] = [];
+  const outgoingDeploymentMovementEvents: TroopMovementEvent[] = [];
   // Raid, attack
-  const incomingOffensiveMovementEvents: GameEvent<'troopMovement'>[] = [];
+  const incomingOffensiveMovementEvents: TroopMovementEvent[] = [];
   // Relocation, reinforcement, return
-  const incomingDeploymentMovementEvents: GameEvent<'troopMovement'>[] = [];
-  const adventureMovementEvents: GameEvent<'troopMovement'>[] = [];
-  const findNewVillageMovementEvents: GameEvent<'troopMovement'>[] = [];
+  const incomingDeploymentMovementEvents: TroopMovementEvent[] = [];
+  const adventureMovementEvents: TroopMovementEvent[] = [];
+  const findNewVillageMovementEvents: TroopMovementEvent[] = [];
 
   for (const event of events) {
-    switch (event.movementType) {
-      case 'find-new-village': {
-        findNewVillageMovementEvents.push(event);
-        break;
-      }
-      case 'adventure': {
-        adventureMovementEvents.push(event);
-        break;
-      }
-      case 'reinforcements':
-      case 'relocation':
-      case 'return': {
-        const target =
-          currentVillageId === event.targetId
-            ? incomingDeploymentMovementEvents
-            : outgoingDeploymentMovementEvents;
-        target.push(event);
-        break;
-      }
-      case 'attack':
-      case 'raid': {
-        const target =
-          currentVillageId === event.targetId
-            ? incomingOffensiveMovementEvents
-            : outgoingOffensiveMovementEvents;
-        target.push(event);
-        break;
-      }
-      case 'oasis-occupation': {
-        outgoingOffensiveMovementEvents.push(event);
-        break;
-      }
+    if (isFindNewVillageTroopMovementEvent(event)) {
+      findNewVillageMovementEvents.push(event);
+      continue;
+    }
+    if (isAdventureTroopMovementEvent(event)) {
+      adventureMovementEvents.push(event);
+      continue;
+    }
+    if (
+      isReinforcementsTroopMovementEvent(event) ||
+      isRelocationTroopMovementEvent(event) ||
+      isReturnTroopMovementEvent(event)
+    ) {
+      const target =
+        currentVillageId === event.targetId
+          ? incomingDeploymentMovementEvents
+          : outgoingDeploymentMovementEvents;
+      target.push(event);
+      continue;
+    }
+    if (isAttackTroopMovementEvent(event) || isRaidTroopMovementEvent(event)) {
+      const target =
+        currentVillageId === event.targetId
+          ? incomingOffensiveMovementEvents
+          : outgoingOffensiveMovementEvents;
+      target.push(event);
+      continue;
+    }
+    if (isOasisOccupationTroopMovementEvent(event)) {
+      outgoingOffensiveMovementEvents.push(event);
     }
   }
 
@@ -113,8 +121,9 @@ const partitionTroopMovementEvents = (
 
 const TroopMovementsContent = () => {
   const { currentVillage } = useCurrentVillage();
-  const { eventsByType: troopMovementEvents } =
-    useEventsByType('troopMovement');
+  const { eventsByType: troopMovementEvents } = useEventsByType(
+    'troopMovement',
+  );
 
   const {
     findNewVillageMovementEvents,

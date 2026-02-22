@@ -46,6 +46,7 @@ import {
 } from './controllers/schemas/village-schemas.ts';
 import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas.ts';
 import { apiEffectSchema } from './utils/zod/effect-schemas.ts';
+import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 
 export const paths = {
   '/server': {
@@ -790,7 +791,7 @@ export const paths = {
       requestParams: {
         path: z.strictObject({
           villageId: z.coerce.number(),
-          eventType: z.string(),
+          eventType: z.union([gameEventTypeSchema, z.literal('troopMovement')]),
         }),
       },
       responses: {

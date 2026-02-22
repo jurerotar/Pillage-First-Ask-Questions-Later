@@ -9,6 +9,7 @@ describe('troopMovementResolver - adventure', () => {
     const database = await prepareTestDatabase();
 
     const villageId = 1;
+
     const heroId = database.selectValue({
       sql: 'SELECT id FROM heroes WHERE player_id = (SELECT player_id FROM villages WHERE id = $villageId);',
       bind: { $villageId: villageId },
@@ -26,10 +27,9 @@ describe('troopMovementResolver - adventure', () => {
       bind: { $heroId: heroId },
     });
 
-    const mockEvent: GameEvent<'troopMovement'> = {
+    const mockEvent: GameEvent<'troopMovementAdventure'> = {
       id: 1,
-      type: 'troopMovement',
-      movementType: 'adventure',
+      type: 'troopMovementAdventure',
       startsAt: 1000,
       duration: 500,
       resolvesAt: 1500,
@@ -61,7 +61,7 @@ describe('troopMovementResolver - adventure', () => {
 
     // Check if return event was created
     const returnEvent = database.selectObject({
-      sql: "SELECT * FROM events WHERE type = 'troopMovement';",
+      sql: "SELECT * FROM events WHERE type = 'troopMovementReturn';",
       schema: z.any(),
     });
     expect(returnEvent).toBeDefined();
@@ -88,10 +88,9 @@ describe('troopMovementResolver - adventure', () => {
       bind: { $heroId: heroId },
     });
 
-    const mockEvent: GameEvent<'troopMovement'> = {
+    const mockEvent: GameEvent<'troopMovementAdventure'> = {
       id: 1,
-      type: 'troopMovement',
-      movementType: 'adventure',
+      type: 'troopMovementAdventure',
       startsAt: 1000,
       duration: 500,
       resolvesAt: 1500,
@@ -123,7 +122,7 @@ describe('troopMovementResolver - adventure', () => {
 
     // Check if return event was NOT created
     const returnEvent = database.selectObject({
-      sql: "SELECT * FROM events WHERE type = 'troopMovement';",
+      sql: "SELECT * FROM events WHERE type = 'troopMovementReturn';",
       schema: z.any(),
     });
     expect(returnEvent).toBeUndefined();

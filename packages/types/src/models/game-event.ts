@@ -4,6 +4,7 @@ import type { TroopTrainingDurationEffectId } from './effect';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
 import type { Village } from './village';
+import { z } from 'zod';
 
 type BaseGameEvent = {
   id: number;
@@ -55,23 +56,20 @@ export type TroopMovementType =
   | 'oasis-occupation'
   | 'adventure';
 
-type TroopMovementEvent = {
+type BaseTroopMovementEvent = {
   troops: Troop[];
   targetId: Village['id'];
-  movementType: TroopMovementType;
 };
 
-export type GameEventType =
-  | '__internal__seedOasisOccupiableByTable'
-  | 'buildingScheduledConstruction'
-  | 'buildingConstruction'
-  | 'buildingLevelChange'
-  | 'buildingDestruction'
-  | 'troopTraining'
-  | 'troopMovement'
-  | 'unitResearch'
-  | 'unitImprovement'
-  | 'adventurePointIncrease';
+export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
+  originalMovementType: TroopMovementType;
+};
+
+export const gameEventTypeSchema = z.enum([
+  '__internal__seedOasisOccupiableByTable','buildingScheduledConstruction','buildingConstruction','buildingLevelChange','buildingDestruction','troopTraining','troopMovementReinforcements','troopMovementRelocation','troopMovementReturn','troopMovementFindNewVillage','troopMovementAttack','troopMovementRaid','troopMovementOasisOccupation','troopMovementAdventure','unitResearch','unitImprovement','adventurePointIncrease'
+]);
+
+export type GameEventType = z.infer<typeof gameEventTypeSchema>;
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   // This is an internal-only event that seeds oasis_occupiable_by table, so we don't have to do it on server creation
@@ -83,9 +81,31 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopTraining: BaseUnitTrainingEvent;
   unitResearch: UnitResearchEvent;
   unitImprovement: UnitImprovementEvent;
-  troopMovement: TroopMovementEvent;
+  troopMovementReinforcements: BaseTroopMovementEvent;
+  troopMovementRelocation: BaseTroopMovementEvent;
+  troopMovementReturn: ReturnTroopMovementEvent;
+  troopMovementFindNewVillage: BaseTroopMovementEvent;
+  troopMovementAttack: BaseTroopMovementEvent;
+  troopMovementRaid: BaseTroopMovementEvent;
+  troopMovementOasisOccupation: BaseTroopMovementEvent;
+  troopMovementAdventure: BaseTroopMovementEvent;
   adventurePointIncrease: BaseGameEvent;
 }[T];
+
+export type TroopMovementEvent =
+  | GameEvent<'troopMovementReinforcements'>
+  | GameEvent<'troopMovementRelocation'>
+  | GameEvent<'troopMovementReturn'>
+  | GameEvent<'troopMovementFindNewVillage'>
+  | GameEvent<'troopMovementAttack'>
+  | GameEvent<'troopMovementRaid'>
+  | GameEvent<'troopMovementOasisOccupation'>
+  | GameEvent<'troopMovementAdventure'>;
+
+export type BuildingEvent =
+  | GameEvent<'buildingScheduledConstruction'>
+  | GameEvent<'buildingLevelChange'>
+  | GameEvent<'buildingConstruction'>;
 
 export type GameEvent<T extends GameEventType | undefined = undefined> =
   T extends undefined

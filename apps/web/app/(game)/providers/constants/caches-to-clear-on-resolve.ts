@@ -48,29 +48,30 @@ export const cachesToClearOnResolve: Handlers = {
   troopTraining: () => {
     return [playerTroopsCacheKey, effectsCacheKey];
   },
-  troopMovement: (event) => {
-    const { movementType } = event;
-
-    switch (movementType) {
-      case 'adventure': {
-        return [heroCacheKey, adventurePointsCacheKey, heroInventoryCacheKey];
-      }
-      case 'find-new-village': {
-        return [villageListing];
-      }
-      case 'return': {
-        return [playerVillagesCacheKey, playerTroopsCacheKey];
-      }
-      default: {
-        console.error(
-          `No cache-keys-to-invalidate set for movementType ${movementType}`,
-        );
-
-        return [];
-      }
-    }
+  troopMovementReinforcements: () => {
+    return [playerTroopsCacheKey, effectsCacheKey, playerVillagesCacheKey];
   },
-
+  troopMovementRelocation: () => {
+    return [playerTroopsCacheKey, effectsCacheKey, playerVillagesCacheKey];
+  },
+  troopMovementReturn: () => {
+    return [playerVillagesCacheKey, playerTroopsCacheKey];
+  },
+  troopMovementFindNewVillage: () => {
+    return [villageListing, effectsCacheKey, playerVillagesCacheKey];
+  },
+  troopMovementAttack: () => {
+    return [villageListing, effectsCacheKey, playerVillagesCacheKey];
+  },
+  troopMovementRaid: () => {
+    return [villageListing, effectsCacheKey, playerVillagesCacheKey];
+  },
+  troopMovementOasisOccupation: () => {
+    return [heroCacheKey, villageListing, effectsCacheKey, playerVillagesCacheKey]
+  },
+  troopMovementAdventure: () => {
+    return [heroCacheKey, adventurePointsCacheKey, heroInventoryCacheKey];
+  },
   unitResearch: () => {
     return [unitResearchCacheKey];
   },

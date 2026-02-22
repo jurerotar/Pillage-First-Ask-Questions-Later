@@ -187,7 +187,7 @@ describe('developer-tools-controllers', () => {
       const now = Date.now();
 
       database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('troopMovement', $now + 1000, 5000, 1)",
+        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('troopMovementAdventure', $now + 1000, 5000, 1)",
         bind: { $now: now },
       });
 
@@ -203,7 +203,7 @@ describe('developer-tools-controllers', () => {
       );
 
       const events = database.selectObjects({
-        sql: "SELECT duration FROM events WHERE type = 'troopMovement'",
+        sql: "SELECT duration FROM events WHERE type = 'troopMovementAdventure'",
         schema: z.object({ duration: z.number() }),
       });
 
