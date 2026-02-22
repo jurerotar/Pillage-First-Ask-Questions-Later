@@ -8,7 +8,7 @@ export const inputVariants = cva(
     variants: {
       size: {
         default: 'h-9 w-full px-3 py-1',
-        fit: 'h-9 w-fit px-1',
+        fit: 'h-9 w-full px-1',
       },
       hideSpinner: {
         true: 'no-spinner',
