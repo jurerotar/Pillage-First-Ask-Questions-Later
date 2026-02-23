@@ -8,6 +8,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
+import { VillageBuildingFieldsTable } from 'app/(game)/(village-slug)/components/village-building-fields-table';
 import { VillageConstructionTable } from 'app/(game)/(village-slug)/components/village-construction-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
@@ -164,6 +165,12 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
             </Section>
           </>
         )}
+        <Separator orientation="horizontal" />
+        <SectionContent>
+          <Text as="h2">{t('Buildings')}</Text>
+          <VillageBuildingFieldsTable />
+        </SectionContent>
+        <Separator orientation="horizontal" />
       </Section>
     </>
   );
