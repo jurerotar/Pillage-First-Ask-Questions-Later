@@ -60,15 +60,18 @@ export const getOccupiableOasisInRange = createController(
 )(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: `
-      WITH src_village AS (
-        SELECT t.id AS vtile, t.x AS vx, t.y AS vy
-        FROM villages v
-               JOIN tiles t ON t.id = v.tile_id
-        WHERE v.id = $village_id
-        LIMIT 1
-        ),
+      WITH
+        src_village AS (
+          SELECT t.id AS vtile, t.x AS vx, t.y AS vy
+          FROM
+            villages v
+              JOIN tiles t ON t.id = v.tile_id
+          WHERE
+            v.id = $village_id
+          LIMIT 1
+          ),
 
-        -- aggregate oasis info (bonuses + occupying village) but only those occupiable by this village tile
+        -- aggregate oasis info (bonuses + occupying village)
         oasis_agg AS (
           SELECT
             ot.id AS tile_id,
@@ -77,11 +80,12 @@ export const getOccupiableOasisInRange = createController(
             ot.oasis_graphics AS oasis_graphics,
             JSON_GROUP_ARRAY(o.bonus) AS bonuses_json,
             MAX(o.village_id) AS occupying_village_id
-          FROM tiles ot
-                 JOIN src_village sv ON 1=1
-                 JOIN oasis_occupiable_by ob ON ob.occupiable_oasis_tile_id = ot.id AND ob.occupiable_tile_id = sv.vtile
-                 JOIN oasis o ON o.tile_id = ot.id
-          WHERE ot.type = 'oasis'
+          FROM
+            tiles ot
+              JOIN src_village sv ON 1 = 1
+              JOIN oasis o ON o.tile_id = ot.id
+          WHERE
+            ot.type = 'oasis'
             AND ot.x BETWEEN sv.vx - $radius AND sv.vx + $radius
             AND ot.y BETWEEN sv.vy - $radius AND sv.vy + $radius
           GROUP BY ot.id
@@ -93,20 +97,20 @@ export const getOccupiableOasisInRange = createController(
         oa.y AS tile_coordinates_y,
         oa.oasis_graphics,
         oa.bonuses_json,
-
         oa.occupying_village_id,
         v2.name AS occupying_village_name,
         v2.slug AS occupying_village_slug,
         vt2.x AS occupying_village_coordinates_x,
         vt2.y AS occupying_village_coordinates_y,
-        p.id   AS occupying_player_id,
+        p.id AS occupying_player_id,
         p.name AS occupying_player_name,
         p.slug AS occupying_player_slug
-      FROM oasis_agg oa
-             CROSS JOIN src_village sv
-             LEFT JOIN villages v2 ON v2.id = oa.occupying_village_id
-             LEFT JOIN tiles vt2 ON vt2.id = v2.tile_id
-             LEFT JOIN players p ON p.id = v2.player_id
+      FROM
+        oasis_agg oa
+          CROSS JOIN src_village sv
+          LEFT JOIN villages v2 ON v2.id = oa.occupying_village_id
+          LEFT JOIN tiles vt2 ON vt2.id = v2.tile_id
+          LEFT JOIN players p ON p.id = v2.player_id
       ORDER BY
         (ABS(oa.x - sv.vx) + ABS(oa.y - sv.vy)),
         oa.tile_id;
