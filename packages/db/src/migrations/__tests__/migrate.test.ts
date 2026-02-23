@@ -789,15 +789,11 @@ describe('migrateAndSeed', () => {
                 tiles t
               WHERE
                 t.type = 'oasis'
-                AND EXISTS
-                (
-                  SELECT 1
-                  FROM
-                    oasis o
-                  WHERE
-                    o.tile_id = t.id
-                    AND o.village_id IS NULL
-                  )
+                AND (
+                  SELECT MAX(o.village_id)
+                  FROM oasis o
+                  WHERE o.tile_id = t.id
+                ) IS NULL
                 AND NOT EXISTS
                 (
                   SELECT 1
@@ -824,15 +820,11 @@ describe('migrateAndSeed', () => {
               JOIN unit_ids ui ON ui.id = tr.unit_id
           WHERE
             t.type = 'oasis'
-            AND EXISTS
-            (
-              SELECT 1
-              FROM
-                oasis o
-              WHERE
-                o.tile_id = t.id
-                AND o.village_id IS NULL
-              )
+            AND (
+              SELECT MAX(o.village_id)
+              FROM oasis o
+              WHERE o.tile_id = t.id
+            ) IS NULL
             AND ui.unit NOT IN (${placeholders});
         `,
         bind: natureUnitIds,

@@ -114,13 +114,17 @@ describe('map-controllers', () => {
 
     // Find a tile with nature troops (animals).
     // Nature troops have IDs from WILD_BOAR to CROCODILE etc.
-    // They are seeded into oasis tiles which have no owner village.
+    // They are seeded into oasis tiles where all rows have no village_id.
     const tileWithAnimals = database.selectObject({
       sql: `
-        SELECT t.tile_id
-        FROM troops t
-        JOIN oasis o ON t.tile_id = o.tile_id
-        WHERE o.village_id IS NULL
+        SELECT t.id AS tile_id
+        FROM tiles t
+        WHERE t.type = 'oasis'
+        AND (
+          SELECT MAX(o.village_id)
+          FROM oasis o
+          WHERE o.tile_id = t.id
+        ) IS NULL
         LIMIT 1
       `,
       schema: z.object({ tile_id: z.number() }),

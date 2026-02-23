@@ -56,7 +56,7 @@ export const getTilesSchema = z
       ...(isOasisTile && {
         attributes: {
           oasisGraphics: t.oasis_graphics,
-          isOccupiable: t.oasis_is_occupiable !== null,
+          isOccupiable: t.oasis_is_occupiable === 1,
         },
       }),
       ...(isOccupied && {
