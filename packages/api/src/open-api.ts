@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
+import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
@@ -46,7 +47,6 @@ import {
 } from './controllers/schemas/village-schemas.ts';
 import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas.ts';
 import { apiEffectSchema } from './utils/zod/effect-schemas.ts';
-import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 
 export const paths = {
   '/server': {

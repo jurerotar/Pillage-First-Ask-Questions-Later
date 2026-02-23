@@ -48,7 +48,6 @@ const troopMovementEventTypes = new Set<GameEventType>([
 export const isTroopMovementEvent = (
   event: GameEvent,
 ): event is TroopMovementEvent => {
-
   return troopMovementEventTypes.has(event.type);
 };
 

@@ -1,10 +1,10 @@
+import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
 import type { TroopTrainingDurationEffectId } from './effect';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
 import type { Village } from './village';
-import { z } from 'zod';
 
 type BaseGameEvent = {
   id: number;
@@ -66,7 +66,23 @@ export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
 };
 
 export const gameEventTypeSchema = z.enum([
-  '__internal__seedOasisOccupiableByTable','buildingScheduledConstruction','buildingConstruction','buildingLevelChange','buildingDestruction','troopTraining','troopMovementReinforcements','troopMovementRelocation','troopMovementReturn','troopMovementFindNewVillage','troopMovementAttack','troopMovementRaid','troopMovementOasisOccupation','troopMovementAdventure','unitResearch','unitImprovement','adventurePointIncrease'
+  '__internal__seedOasisOccupiableByTable',
+  'buildingScheduledConstruction',
+  'buildingConstruction',
+  'buildingLevelChange',
+  'buildingDestruction',
+  'troopTraining',
+  'troopMovementReinforcements',
+  'troopMovementRelocation',
+  'troopMovementReturn',
+  'troopMovementFindNewVillage',
+  'troopMovementAttack',
+  'troopMovementRaid',
+  'troopMovementOasisOccupation',
+  'troopMovementAdventure',
+  'unitResearch',
+  'unitImprovement',
+  'adventurePointIncrease',
 ]);
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;

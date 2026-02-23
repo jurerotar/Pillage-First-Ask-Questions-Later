@@ -121,9 +121,8 @@ const partitionTroopMovementEvents = (
 
 const TroopMovementsContent = () => {
   const { currentVillage } = useCurrentVillage();
-  const { eventsByType: troopMovementEvents } = useEventsByType(
-    'troopMovement',
-  );
+  const { eventsByType: troopMovementEvents } =
+    useEventsByType('troopMovement');
 
   const {
     findNewVillageMovementEvents,
