@@ -22,12 +22,6 @@ export const oasisSeeder = (database: DbFacade, server: Server): void => {
   const oasisBonuses: [number, Resource, number, null][] = [];
 
   for (const { id, oasis_graphics } of oasisTiles) {
-    const shouldOasisHaveBonus = seededRandomIntFromInterval(prng, 1, 2) === 1;
-
-    if (!shouldOasisHaveBonus) {
-      continue;
-    }
-
     const { oasisResource } = decodeGraphicsProperty(oasis_graphics);
 
     const shouldHaveDoubleBonus = seededRandomIntFromInterval(prng, 1, 2) === 1;

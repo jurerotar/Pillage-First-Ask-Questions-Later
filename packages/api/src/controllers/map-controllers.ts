@@ -57,9 +57,9 @@ export const getTiles = createController('/tiles')(({ database }) => {
         t.type AS type,
         rfc.resource_field_composition AS rfc,
         t.oasis_graphics AS oasis_graphics,
-        v.id AS village_id,
-        v.name AS village_name,
-        v.slug AS village_slug,
+        COALESCE(v.id, v_owner.id) AS village_id,
+        COALESCE(v.name, v_owner.name) AS village_name,
+        COALESCE(v.slug, v_owner.slug) AS village_slug,
         p.id AS player_id,
         p.slug AS player_slug,
         p.name AS player_name,
@@ -68,31 +68,36 @@ export const getTiles = createController('/tiles')(({ database }) => {
 
         CASE
           WHEN t.type = 'free' AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0)
+          WHEN t.type = 'oasis' AND v_owner.id IS NOT NULL THEN COALESCE(ew_owner.wheat_production_sum, 0)
           END AS population,
 
         CASE
           WHEN t.type = 'free' THEN wi.item_id
           END AS item_id,
 
-        -- boolean (0/1) indicating whether any oasis row exists for this tile
         CASE
-          WHEN EXISTS
-          (
-            SELECT 1
-            FROM oasis o
-            WHERE o.tile_id = t.id
-            ) THEN 1
+          WHEN t.type = 'oasis' THEN 1
           ELSE 0 END AS oasis_is_occupiable
 
       FROM
         tiles t
           LEFT JOIN villages v ON v.tile_id = t.id
-          LEFT JOIN players p ON p.id = v.player_id
+          LEFT JOIN (
+            SELECT tile_id, MAX(village_id) AS village_id
+            FROM oasis
+            GROUP BY tile_id
+          ) o ON o.tile_id = t.id AND t.type = 'oasis'
+          LEFT JOIN villages v_owner ON v_owner.id = o.village_id
+          LEFT JOIN players p ON p.id = COALESCE(v.player_id, v_owner.player_id)
           LEFT JOIN tribe_ids ti ON p.tribe_id = ti.id
           LEFT JOIN faction_ids fi ON fi.id = p.faction_id
           LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
           LEFT JOIN effects_wheat ew ON ew.village_id = v.id
+          LEFT JOIN effects_wheat ew_owner ON ew_owner.village_id = v_owner.id
           LEFT JOIN world_items_single wi ON wi.tile_id = t.id
+
+      GROUP BY
+        t.id
 
       ORDER BY
         t.id;
@@ -122,7 +127,7 @@ export const getTileTroops = createController('/tiles/:tileId/troops')(
   ({ database, path: { tileId } }) => {
     return database.selectObjects({
       sql: `
-        SELECT ui.unit AS unit_id, t.amount, t.tile_id, t.source_tile_id
+        SELECT ui.unit AS unit_id, SUM(t.amount) AS amount, t.tile_id, t.source_tile_id
         FROM
           troops t
             JOIN unit_ids ui ON ui.id = t.unit_id
