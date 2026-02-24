@@ -45,6 +45,7 @@ const TroopMovement = ({ type, events }: TroopMovementProps) => {
       <span className="inline-flex gap-2 min-w-16">
         <Icon
           type={type}
+          shouldShowTooltip={false}
           className={clsx(
             'size-4 lg:size-6',
             type === 'offensiveMovementIncoming' && 'animate-scale-pulse',

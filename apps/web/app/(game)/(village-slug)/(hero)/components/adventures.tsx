@@ -43,7 +43,7 @@ export const Adventures = () => {
 
   const handleStartAdventure = () => {
     sendTroops({
-      movementType: 'adventure',
+      type: 'troopMovementAdventure',
       // This doesn't matter for adventures
       targetId: currentVillage.tileId,
       troops: [

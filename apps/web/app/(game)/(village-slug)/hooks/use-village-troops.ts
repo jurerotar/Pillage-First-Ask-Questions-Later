@@ -7,19 +7,21 @@ import { use } from 'react';
 import { z } from 'zod';
 import type {
   GameEvent,
-  GameEventType,
-  TroopMovementType,
+  TroopMovementEventType,
 } from '@pillage-first/types/models/game-event';
 import { troopSchema } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
-import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  eventsCacheKey,
+  playerTroopsCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 type SendTroopsArgs = {
+  type: TroopMovementEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
   targetId: GameEvent<'troopMovementReinforcements'>['targetId'];
-  movementType: TroopMovementType;
 };
 
 export const useVillageTroops = () => {
@@ -43,26 +45,26 @@ export const useVillageTroops = () => {
   };
 
   const { mutate: sendTroops } = useMutation({
-    mutationFn: async ({ targetId, movementType, troops }: SendTroopsArgs) => {
-      const eventType =
-        `troopMovement${movementType.charAt(0).toUpperCase()}${movementType
-          .slice(1)
-          .replace(/-([a-z])/g, (g) => g[1].toUpperCase())}` as GameEventType;
-
+    mutationFn: async ({ targetId, type, troops }: SendTroopsArgs) => {
       await fetcher('/events', {
         method: 'POST',
         body: {
           villageId: currentVillage.id,
-          type: eventType,
+          type,
           targetId,
           troops,
         },
       });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [playerTroopsCacheKey],
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [playerTroopsCacheKey, currentVillage.tileId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [eventsCacheKey, 'troopMovements', currentVillage.tileId],
+        }),
+      ]);
     },
   });
 

@@ -87,6 +87,18 @@ export const gameEventTypeSchema = z.enum([
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;
 
+export type TroopMovementEventType = Extract<
+  GameEventType,
+  | 'troopMovementReinforcements'
+  | 'troopMovementRelocation'
+  | 'troopMovementReturn'
+  | 'troopMovementFindNewVillage'
+  | 'troopMovementAttack'
+  | 'troopMovementRaid'
+  | 'troopMovementOasisOccupation'
+  | 'troopMovementAdventure'
+>;
+
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   // This is an internal-only event that seeds oasis_occupiable_by table, so we don't have to do it on server creation
   __internal__seedOasisOccupiableByTable: BaseGameEvent;
