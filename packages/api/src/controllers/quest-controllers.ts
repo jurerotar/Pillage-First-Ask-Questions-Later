@@ -42,18 +42,26 @@ export const getQuests = createController('/villages/:villageId/quests')(
 
 export const getCollectableQuestCount = createController(
   '/villages/:villageId/quests/collectables/count',
-)(({ database }) => {
+)(({ database, path: { villageId } }) => {
   const collectableQuestCount = database.selectValue({
     sql: `
-      SELECT COUNT(*) AS count
+      SELECT COUNT(*) AS COUNT
       FROM
         quests
       WHERE
         completed_at IS NOT NULL
-        AND collected_at IS NULL;
+        AND collected_at IS NULL
+        AND (
+        village_id =
+        $village_id
+        OR village_id IS NULL
+        );
     `,
+    bind: {
+      $village_id: villageId,
+    },
     schema: z.number(),
-  });
+  })!;
 
   return {
     collectableQuestCount,

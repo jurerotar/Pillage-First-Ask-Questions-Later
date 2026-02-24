@@ -46,6 +46,7 @@ export const adventureMovementResolver: Resolver<
 
     createEvents<'troopMovementReturn'>(database, {
       ...args,
+      targetId: villageId,
       type: 'troopMovementReturn',
       originalMovementType: 'adventure',
     });

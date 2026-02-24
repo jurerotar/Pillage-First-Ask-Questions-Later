@@ -62,7 +62,7 @@ export const useVillageTroops = () => {
           queryKey: [playerTroopsCacheKey, currentVillage.tileId],
         }),
         queryClient.invalidateQueries({
-          queryKey: [eventsCacheKey, 'troopMovements', currentVillage.tileId],
+          queryKey: [eventsCacheKey, 'troopMovement', currentVillage.id],
         }),
       ]);
     },

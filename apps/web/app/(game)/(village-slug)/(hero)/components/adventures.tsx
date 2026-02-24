@@ -32,8 +32,10 @@ export const Adventures = () => {
 
   const adventurePrng = prngMulberry32(`${seed}${completed}`);
 
-  const adventureDuration =
-    seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
+  const adventureDuration = Math.round(
+    (seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000) /
+      server.configuration.speed,
+  );
 
   const nextAdventurePointIncreaseEvent = eventsByType.at(0)!;
 

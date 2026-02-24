@@ -66,6 +66,13 @@ describe(adventureMovementResolver, () => {
       schema: eventSchema,
     });
     expect(returnEvent).toBeDefined();
+
+    // Verify quest completion
+    const quest = database.selectObject({
+      sql: "SELECT completed_at FROM quests WHERE quest_id = 'adventureCount-1';",
+      schema: z.strictObject({ completed_at: z.number().nullable() }),
+    });
+    expect(quest?.completed_at).toBe(1500);
   });
 
   test('should handle hero death during adventure', async () => {

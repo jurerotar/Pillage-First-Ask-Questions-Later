@@ -75,7 +75,12 @@ export const cachesToClearOnResolve: Handlers = {
     ];
   },
   troopMovementAdventure: () => {
-    return [heroCacheKey, adventurePointsCacheKey, heroInventoryCacheKey];
+    return [
+      heroCacheKey,
+      adventurePointsCacheKey,
+      heroInventoryCacheKey,
+      questsCacheKey,
+    ];
   },
   unitResearch: () => {
     return [unitResearchCacheKey];

@@ -523,15 +523,23 @@ export const getEventDuration = (
   }
 
   if (isAdventureTroopMovementEvent(event)) {
-    const { seed, completed } = database.selectObject({
+    const { seed, speed, completed } = database.selectObject({
       sql: `
         SELECT
           (
-            SELECT seed
+            SELECT
+              seed
             FROM
               servers
             LIMIT 1
             ) AS seed,
+          (
+            SELECT
+              speed
+            FROM
+              servers
+            LIMIT 1
+            ) AS speed,
           (
             SELECT completed - 1
             FROM
@@ -541,14 +549,17 @@ export const getEventDuration = (
       `,
       schema: z.strictObject({
         seed: z.string(),
+        speed: z.number(),
         completed: z.number(),
       }),
     })!;
 
     const adventurePrng = prngMulberry32(`${seed}${completed}`);
 
-    const adventureDuration =
-      seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
+    const adventureDuration = Math.round(
+      (seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000) /
+        speed,
+    );
 
     return adventureDuration;
   }
@@ -557,15 +568,23 @@ export const getEventDuration = (
     const { originalMovementType } = event;
 
     if (originalMovementType === 'adventure') {
-      const { seed, completed } = database.selectObject({
+      const { seed, speed, completed } = database.selectObject({
         sql: `
           SELECT
             (
-              SELECT seed
+              SELECT
+                seed
               FROM
                 servers
               LIMIT 1
               ) AS seed,
+            (
+              SELECT
+                speed
+              FROM
+                servers
+              LIMIT 1
+              ) AS speed,
             (
               SELECT completed - 1
               FROM
@@ -575,14 +594,17 @@ export const getEventDuration = (
         `,
         schema: z.strictObject({
           seed: z.string(),
+          speed: z.number(),
           completed: z.number(),
         }),
       })!;
 
       const adventurePrng = prngMulberry32(`${seed}${completed}`);
 
-      const adventureReturnDuration =
-        seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000;
+      const adventureReturnDuration = Math.round(
+        (seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000) /
+          speed,
+      );
 
       return adventureReturnDuration;
     }
