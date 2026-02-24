@@ -44,11 +44,9 @@ export const adventureMovementResolver: Resolver<
     assessAdventureCountQuestCompletion(database, startsAt + duration);
 
     createEvents<'troopMovementReturn'>(database, {
+      ...args,
       type: 'troopMovementReturn',
       originalMovementType: 'adventure',
-      villageId: args.villageId,
-      targetId: args.targetId,
-      troops: args.troops,
     });
   }
 };

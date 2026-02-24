@@ -33,7 +33,8 @@ export const createEvents = <T extends GameEventType>(
   database: DbFacade,
   args: CreateNewEventsArgs<T>,
 ) => {
-  const sampleEvent = args as GameEvent<T>;
+  const { id, ...rest } = args as GameEvent<T>;
+  const sampleEvent = rest as GameEvent<T>;
   let startsAt: number | null = null;
 
   const [isEventAllowed, reason] = validateEventCreationPrerequisites(

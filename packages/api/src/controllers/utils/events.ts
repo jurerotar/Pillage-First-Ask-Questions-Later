@@ -13,7 +13,10 @@ import {
   getUnitDefinition,
 } from '@pillage-first/game-assets/units/utils';
 import type { ControllerErrorEvent } from '@pillage-first/types/api-events';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type {
+  GameEvent,
+  TroopMovementEvent,
+} from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
@@ -35,6 +38,7 @@ import {
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
+import { removeTroops } from '../../utils/queries/troop-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
@@ -126,7 +130,7 @@ export const validateEventCreationPrerequisites = (
               events
             WHERE
               type = 'unitImprovement'
-              AND village_id = $villageId
+              AND village_id = $village_id
             ) AS event_exists;
       `,
       bind: {
@@ -153,7 +157,7 @@ export const validateEventCreationPrerequisites = (
               events
             WHERE
               type = 'unitResearch'
-              AND village_id = $villageId
+              AND village_id = $village_id
             ) AS event_exists;
       `,
       bind: {
@@ -291,13 +295,17 @@ export const validateEventCreationResources = (
 };
 
 export const runEventCreationSideEffects = (
-  _database: DbFacade,
+  database: DbFacade,
   events: GameEvent[],
 ) => {
   const [event] = events;
 
   if (isTroopMovementEvent(event)) {
-    // TODO: Subtract units
+    const troopMovementEvents = events as TroopMovementEvent[];
+
+    for (const { troops } of troopMovementEvents) {
+      removeTroops(database, troops);
+    }
   }
 };
 
@@ -522,12 +530,14 @@ export const getEventDuration = (
         SELECT
           (
             SELECT seed
-            FROM servers
+            FROM
+              servers
             LIMIT 1
             ) AS seed,
           (
             SELECT completed - 1
-            FROM hero_adventures
+            FROM
+              hero_adventures
             LIMIT 1
             ) AS completed
       `,
@@ -708,6 +718,7 @@ export const getEventStartTime = (
   }
   if (isReturnTroopMovementEvent(event)) {
     const { startsAt, duration } = event;
+
     return startsAt + duration;
   }
 
