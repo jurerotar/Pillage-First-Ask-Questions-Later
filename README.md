@@ -14,10 +14,13 @@ Remember: pillage first, ask questions later! ⚔️🔥
 
 <div style="display:flex; gap: 1rem;">
 
-[![Try it now at pillagefirst.com](https://img.shields.io/badge/Try%20it%20now!-pillagefirst.com-lime?style=flat)](https://pillagefirst.com)
+[![Try the stable build now at pillagefirst.com](https://img.shields.io/badge/Try%20the%20stable%20build%20now%20at-pillagefirst.com-lime?style=flat)](https://pillagefirst.com)
+
+[![Try the development build now at pillagefirst.netlify.app](https://img.shields.io/badge/Check%20out%20the%20development%20branch%20at-develop--pillagefirst.netlify.app-lime?style=flat)](https://develop--pillagefirst.netlify.app)
 
 ![Join our Discord server](https://img.shields.io/discord/1282804642807283842?style=flat&logo=discord&logoColor=white&label=Join%20our%20Discord%20server&labelColor=%235865F2)
 </div>
+
 
 <p align="center">
   <img src="/.github/assets/mobile-map-view.jpg" width="30%">
@@ -49,35 +52,18 @@ reimagined for solo play.
 
 ### What's the state of the project?
 
-Project is pretty heavy in development! It's still missing a lot of major features. What's currently available is building construction, unit training, a couple of building interfaces, as well as secondary pages like production-overview, village-overview, preferences,...
+Project is pretty heavy in development! It's still missing some major features. What's currently available is building construction, unit training, map & map-related features, some hero pages, production-overview page, village-overview page, statistics pages, players pages & preferences page.
 
 ### Is there a roadmap?
 
-Due to the nature of this project (I get work on it only in my free time), I'm not willing to commit to any specific timeline for any features. That being said, here's the general plan for upcoming development:
+Due to the fact, that most contributors only get to work on this project in their free time, we try not to commit to any specific timeline for any features. That being said, here's the general plan for upcoming development:
 
-- Trading mechanics
-- Hero adventures, inventory,...
+- Hero adventures & inventory (in development)
+- Hero items auction system (in planning phase)
+- Marketplace & trading mechanics
 - Combat mechanics
 
-Bug fixing and other minor works will be made between these features.
-
-### Can this project be converted to multiplayer?
-
-**Yes!** This project was actually rebuilt from the ground up to make it as compatible as possible with a potential
-backend integration.
-You can find more technical details on how the app works and how a backend integration might look like
-in [ARCHITECTURE.md](/docs/ARCHITECTURE.md).
-
-That being said, the current goal is to keep this repository as a standalone, offline-first app focused on single-player
-gameplay.
-
-One of the hopes for the future of this project is that someone might eventually fork the project, restructure it, and
-connect it to a
-backend, enabling a multiplayer experience. Most of the frontend can be completely reused, making the transition easier
-than starting from
-scratch.
-
-If you're passionate about backend development and want to help bring multiplayer to life, feel free to reach out!
+Bug fixing and minor works quality of life features take priority and are typically done on the day of the issue being raised.
 
 ### Are there game design differences between Travian and Pillage First!?
 
@@ -94,28 +80,21 @@ whenever life gets in the way, and for the game to respect that.
 
 I want this game to be a more accessible, customizable and time-friendly version of Travian.
 
+### More information
+
+You can find additional commonly-asked questions answered here: [pillagefirst.com/frequently-asked-questions](https://pillagefirst.com/frequently-asked-questions)
+
 # Contributing
 
 All contributions to **Pillage First! (Ask Questions Later)** are welcome! We're always on the lookout for contributors
 in development, game design and UI/UX design.
 
-> [!WARNING]
-> We currently only accept localization changes for the English language.
-
-Please refer to the [contribution guide](./CONTRIBUTING.md) for more information.
+You can find a list of roles you can help with, along with their description, here: [pillagefirst.com/get-involved](https://pillagefirst.com/get-involved)
 
 If this project interests you, we welcome you to join our [Discord server](https://discord.gg/Ep7NKVXUZA) and say hi!
 
-Other ways to help the project are:
-
-- Starring and forking the project on GitHub.
-- Sharing ideas, feedback, or suggestions either on GitHub issue tracker, or in Discord.
-- Asking questions. Your interest helps us shape the game faster and better.
-
-We want to thank our ever-increasing list of contributors.
-**Thank you to everybody who has already done their part in making this project better!**
-
-[Contributors](./CONTRIBUTORS.md)
+We want to thank our [ever-increasing list of contributors](./CONTRIBUTORS.md).
+**Thank you to everybody who has already done their part in making this project come to life!**
 
 # License
 
