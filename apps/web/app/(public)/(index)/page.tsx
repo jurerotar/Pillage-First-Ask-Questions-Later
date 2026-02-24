@@ -2,6 +2,8 @@ import { FaCodeMerge, FaGithub } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import Landing from './mdx/landing.mdx';
+import OpenSource from './mdx/open-source.mdx';
 
 const OpenSourceSection = () => {
   return (
@@ -18,17 +20,7 @@ const OpenSourceSection = () => {
             Pillage First! is an open-source technology!
           </Text>
 
-          <Text className="text-[#391600]">
-            Pillage First! is proudly open-source and released under the
-            AGPL-3.0 licence. We believe that openness, collaboration, and
-            transparency produce better software and richer player experiences.
-            The entire codebase is therefore available for study, contributions,
-            or to serve as the foundation for your own project.
-          </Text>
-
-          <Text className="font-medium text-[#391600]">
-            Check the project out on GitHub and get involved in its development!
-          </Text>
+          <OpenSource />
 
           <div className="flex gap-2">
             <a
@@ -73,20 +65,8 @@ const HomePage = () => {
             >
               <b>Pillage First! (Ask Questions Later)</b>
             </Text>
-            <Text>
-              <b>Pillage First!</b> is an <b>open-source</b>,{' '}
-              <b>single-player</b> strategy game <b>inspired by Travian</b>.
-            </Text>
-            <Text>
-              <b>Build villages</b>, <b>manage resources</b>,{' '}
-              <b>train troops</b>, and wage war in persistent, massive,{' '}
-              <b>offline-first</b> game worlds.
-            </Text>
-            <Text>
-              Game mechanics are inspired by both Travian Legends and Travian
-              Kingdoms. It's designed to be as light-weight as possible, giving
-              you a great experience even on older devices.
-            </Text>
+
+            <Landing />
 
             <div className="flex gap-2">
               <Link to="/game-worlds/create">
