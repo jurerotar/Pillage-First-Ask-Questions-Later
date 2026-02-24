@@ -280,7 +280,7 @@ const OccupiedOccupiableTileModal = ({
   const onSendHero = () => {
     sendTroops({
       targetId: tile.id,
-      movementType: 'relocation',
+      type: 'troopMovementRelocation',
       troops: [
         {
           unitId: 'HERO',
