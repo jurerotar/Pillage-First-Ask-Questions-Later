@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../../types/resolver';
+import { addTroops } from '../../utils/queries/troop-queries';
 import { assessAdventureCountQuestCompletion } from '../../utils/quests.ts';
 import { createEvents } from '../utils/create-event';
 
@@ -27,7 +28,7 @@ export const adventureMovementResolver: Resolver<
     bind: {
       $villageId: villageId,
     },
-    schema: z.object({
+    schema: z.strictObject({
       heroId: z.number(),
       health: z.number(),
     }),
@@ -61,21 +62,84 @@ export const findNewVillageMovementResolver: Resolver<
 
 export const returnMovementResolver: Resolver<
   GameEvent<'troopMovementReturn'>
-> = (_database, _args) => {};
+> = (database, args) => {
+  const { targetId, troops } = args;
+
+  const { tileId: targetTileId } = database.selectObject({
+    sql: 'SELECT tile_id AS tileId FROM villages WHERE id = $targetId;',
+    bind: { $targetId: targetId },
+    schema: z.strictObject({ tileId: z.number() }),
+  })!;
+
+  addTroops(
+    database,
+    troops.map((troop) => ({
+      ...troop,
+      tileId: targetTileId,
+    })),
+  );
+};
 
 export const relocationMovementResolver: Resolver<
   GameEvent<'troopMovementRelocation'>
-> = (_database, _args) => {};
+> = (database, args) => {
+  const { targetId, troops } = args;
+
+  const { tileId: targetTileId } = database.selectObject({
+    sql: 'SELECT tile_id AS tileId FROM villages WHERE id = $targetId;',
+    bind: { $targetId: targetId },
+    schema: z.strictObject({ tileId: z.number() }),
+  })!;
+
+  addTroops(
+    database,
+    troops.map((troop) => ({
+      ...troop,
+      tileId: targetTileId,
+      source: targetTileId,
+    })),
+  );
+};
 
 export const reinforcementMovementResolver: Resolver<
   GameEvent<'troopMovementReinforcements'>
-> = (_database, _args) => {};
+> = (database, args) => {
+  const { targetId, troops } = args;
+
+  const { tileId: targetTileId } = database.selectObject({
+    sql: 'SELECT tile_id AS tileId FROM villages WHERE id = $targetId;',
+    bind: { $targetId: targetId },
+    schema: z.strictObject({ tileId: z.number() }),
+  })!;
+
+  addTroops(
+    database,
+    troops.map((troop) => ({
+      ...troop,
+      tileId: targetTileId,
+    })),
+  );
+};
 
 export const attackMovementResolver: Resolver<
   GameEvent<'troopMovementAttack'>
-> = (_database, _args) => {};
+> = (database, args) => {
+  // TODO: Combat
+  createEvents<'troopMovementReturn'>(database, {
+    ...args,
+    type: 'troopMovementReturn',
+    originalMovementType: 'attack',
+  });
+};
 
 export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
-  _database,
-  _args,
-) => {};
+  database,
+  args,
+) => {
+  // TODO: Combat
+  createEvents<'troopMovementReturn'>(database, {
+    ...args,
+    type: 'troopMovementReturn',
+    originalMovementType: 'raid',
+  });
+};
