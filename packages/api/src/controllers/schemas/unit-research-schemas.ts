@@ -12,7 +12,7 @@ export const getResearchedUnitsSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       unitId: z.string(),
       villageId: z.number(),
     }),

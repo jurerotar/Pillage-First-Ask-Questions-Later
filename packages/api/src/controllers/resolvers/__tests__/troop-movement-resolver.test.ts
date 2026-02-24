@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { eventSchema } from '../../../utils/zod/event-schemas';
 import { adventureMovementResolver } from '../troop-movement-resolver';
 
 describe(adventureMovementResolver, () => {
@@ -43,13 +44,13 @@ describe(adventureMovementResolver, () => {
     const hero = database.selectObject({
       sql: 'SELECT health, experience FROM heroes WHERE id = $heroId;',
       bind: { $heroId: heroId },
-      schema: z.object({ health: z.number(), experience: z.number() }),
+      schema: z.strictObject({ health: z.number(), experience: z.number() }),
     })!;
 
     const adventures = database.selectObject({
       sql: 'SELECT completed FROM hero_adventures WHERE hero_id = $heroId;',
       bind: { $heroId: heroId },
-      schema: z.object({ completed: z.number() }),
+      schema: z.strictObject({ completed: z.number() }),
     })!;
 
     // Damage = 5 - 2 = 3. Health 100 -> 97.
@@ -61,8 +62,8 @@ describe(adventureMovementResolver, () => {
 
     // Check if return event was created
     const returnEvent = database.selectObject({
-      sql: "SELECT * FROM events WHERE type = 'troopMovementReturn';",
-      schema: z.any(),
+      sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
+      schema: eventSchema,
     });
     expect(returnEvent).toBeDefined();
   });
@@ -104,13 +105,13 @@ describe(adventureMovementResolver, () => {
     const hero = database.selectObject({
       sql: 'SELECT health, experience FROM heroes WHERE id = $heroId;',
       bind: { $heroId: heroId },
-      schema: z.object({ health: z.number(), experience: z.number() }),
+      schema: z.strictObject({ health: z.number(), experience: z.number() }),
     })!;
 
     const adventures = database.selectObject({
       sql: 'SELECT completed FROM hero_adventures WHERE hero_id = $heroId;',
       bind: { $heroId: heroId },
-      schema: z.object({ completed: z.number() }),
+      schema: z.strictObject({ completed: z.number() }),
     })!;
 
     // Damage = 5. Health 3 -> 0.
@@ -122,8 +123,8 @@ describe(adventureMovementResolver, () => {
 
     // Check if return event was NOT created
     const returnEvent = database.selectObject({
-      sql: "SELECT * FROM events WHERE type = 'troopMovementReturn';",
-      schema: z.any(),
+      sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
+      schema: eventSchema,
     });
     expect(returnEvent).toBeUndefined();
   });

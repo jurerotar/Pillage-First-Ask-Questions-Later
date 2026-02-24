@@ -20,9 +20,9 @@ export const getTilesWithBonusesSchema = z
     distance: roundToNDecimalPoints(Math.sqrt(t.distance_squared), 2),
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       tileId: z.number(),
-      coordinates: z.object({
+      coordinates: z.strictObject({
         x: z.number(),
         y: z.number(),
       }),

@@ -115,7 +115,7 @@ export const changeHeroAttributes = createController(
             p.id = $playerId
         `,
         bind: { $playerId: playerId },
-        schema: z.object({ id: z.number(), tribe: z.string() }),
+        schema: z.strictObject({ id: z.number(), tribe: z.string() }),
       })!;
 
       database.exec({
@@ -265,7 +265,10 @@ export const changeHeroResourceToProduce = createController(
           p.id = $playerId
       `,
       bind: { $playerId: playerId },
-      schema: z.object({ resource_production: z.number(), tribe: z.string() }),
+      schema: z.strictObject({
+        resource_production: z.number(),
+        tribe: z.string(),
+      }),
     })!;
 
     const isEgyptian = hero.tribe.toLowerCase() === 'egyptians';
@@ -350,7 +353,7 @@ export const equipHeroItem = createController(
     const currentlyEquipped = database.selectObject({
       sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
       bind: { $heroId: heroId, $slot: slot },
-      schema: z.object({ item_id: z.number(), amount: z.number() }),
+      schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
     });
 
     if (currentlyEquipped && currentlyEquipped.item_id !== itemId) {
@@ -475,7 +478,7 @@ export const unequipHeroItem = createController(
     const equipped = database.selectObject({
       sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
       bind: { $heroId: heroId, $slot: slot },
-      schema: z.object({ item_id: z.number(), amount: z.number() }),
+      schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
     });
 
     if (equipped) {
@@ -519,7 +522,7 @@ export const useHeroItem = createController(
     const heroId = database.selectObject({
       sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
       bind: { $playerId: playerId },
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })?.id;
 
     if (heroId === undefined) {
@@ -531,7 +534,7 @@ export const useHeroItem = createController(
       database.selectObject({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
         bind: { $heroId: heroId, $itemId: itemId },
-        schema: z.object({ amount: z.number() }),
+        schema: z.strictObject({ amount: z.number() }),
       })?.amount ?? 0;
 
     if (inventoryAmount < amount) {
@@ -545,7 +548,7 @@ export const useHeroItem = createController(
       const currentHealth = database.selectObject({
         sql: 'SELECT health FROM heroes WHERE id = $heroId',
         bind: { $heroId: heroId },
-        schema: z.object({ health: z.number() }),
+        schema: z.strictObject({ health: z.number() }),
       })!.health;
 
       const healthNeeded = 100 - currentHealth;
@@ -573,7 +576,7 @@ export const useHeroItem = createController(
             h.id = $heroId
         `,
         bind: { $heroId: heroId },
-        schema: z.object({ tribe: z.string() }),
+        schema: z.strictObject({ tribe: z.string() }),
       })!;
 
       const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;

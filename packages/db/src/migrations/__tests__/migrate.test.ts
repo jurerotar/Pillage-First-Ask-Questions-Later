@@ -288,8 +288,22 @@ describe('migrateAndSeed', () => {
   describe('developer settings', () => {
     test('developer_settings row exists with default values (all 0)', () => {
       const settings = database.selectObject({
-        sql: 'SELECT * FROM developer_settings LIMIT 1;',
-        schema: z.object({
+        sql: `
+          SELECT
+            is_instant_building_construction_enabled,
+            is_instant_unit_training_enabled,
+            is_instant_unit_improvement_enabled,
+            is_instant_unit_research_enabled,
+            is_instant_unit_travel_enabled,
+            is_free_building_construction_enabled,
+            is_free_unit_training_enabled,
+            is_free_unit_improvement_enabled,
+            is_free_unit_research_enabled
+          FROM
+            developer_settings
+          LIMIT 1;
+        `,
+        schema: z.strictObject({
           is_instant_building_construction_enabled: z.number(),
           is_instant_unit_training_enabled: z.number(),
           is_instant_unit_improvement_enabled: z.number(),
@@ -566,7 +580,7 @@ describe('migrateAndSeed', () => {
           JOIN players p ON h.player_id = p.id
           JOIN tribe_ids ti ON p.tribe_id = ti.id
         `,
-        schema: z.object({
+        schema: z.strictObject({
           tribe: z.string(),
           base_attack_power: z.number(),
         }),
@@ -593,7 +607,7 @@ describe('migrateAndSeed', () => {
             defence_bonus
           FROM heroes
         `,
-        schema: z.object({
+        schema: z.strictObject({
           health_regeneration: z.number(),
           damage_reduction: z.number(),
           speed: z.number(),
@@ -616,7 +630,7 @@ describe('migrateAndSeed', () => {
     test('selectable attributes are correctly seeded in the new table', () => {
       const rows = database.selectObjects({
         sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes',
-        schema: z.object({
+        schema: z.strictObject({
           attack_power: z.number(),
           resource_production: z.number(),
           attack_bonus: z.number(),
@@ -654,7 +668,7 @@ describe('migrateAndSeed', () => {
           WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $playerId)
         `,
         bind: { $playerId: PLAYER_ID },
-        schema: z.object({
+        schema: z.strictObject({
           available: z.number(),
           completed: z.number(),
         }),
@@ -932,7 +946,7 @@ describe('migrateAndSeed', () => {
           JOIN tiles t ON rs.tile_id = t.id
           WHERE t.x = 0 AND t.y = 0;
         `,
-        schema: z.object({
+        schema: z.strictObject({
           wood: z.number(),
           clay: z.number(),
           iron: z.number(),
@@ -1011,7 +1025,7 @@ describe('migrateAndSeed', () => {
       const improvements = database.selectObjects({
         sql: 'SELECT level FROM unit_improvements WHERE player_id = $playerId;',
         bind: { $playerId: PLAYER_ID },
-        schema: z.object({ level: z.number() }),
+        schema: z.strictObject({ level: z.number() }),
       });
 
       expect(improvements.length).toBeGreaterThan(0);

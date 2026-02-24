@@ -30,7 +30,7 @@ describe('troop-queries', () => {
           $sourceTileId: sourceTileId,
           $unitId: 'LEGIONNAIRE',
         },
-        schema: z.object({ amount: z.number() }),
+        schema: z.strictObject({ amount: z.number() }),
       });
 
       expect(result?.amount).toBe(10);
@@ -56,7 +56,7 @@ describe('troop-queries', () => {
       const result = database.selectObject({
         sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
         bind: { $tileId: tileId, $sourceTileId: sourceTileId, $unitId: unitId },
-        schema: z.object({ amount: z.number() }),
+        schema: z.strictObject({ amount: z.number() }),
       });
 
       expect(result?.amount).toBe(15);
@@ -99,7 +99,7 @@ describe('troop-queries', () => {
             $sourceTileId: sourceTileId,
             $unitId: unitId,
           },
-          schema: z.object({ amount: z.number() }),
+          schema: z.strictObject({ amount: z.number() }),
         });
         expect(result?.amount).toBe(expectedAmount);
       };
@@ -129,7 +129,7 @@ describe('troop-queries', () => {
         const result = database.selectObject({
           sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
           bind: { $tileId: tileId, $sourceTileId: source, $unitId: unitId },
-          schema: z.object({ amount: z.number() }),
+          schema: z.strictObject({ amount: z.number() }),
         });
         expect(result?.amount).toBe(expectedAmount);
       };
@@ -161,7 +161,7 @@ describe('troop-queries', () => {
       const result = database.selectObject({
         sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
         bind: { $tileId: tileId, $sourceTileId: sourceTileId, $unitId: unitId },
-        schema: z.object({ amount: z.number() }),
+        schema: z.strictObject({ amount: z.number() }),
       });
 
       expect(result?.amount).toBe(6);
@@ -187,7 +187,7 @@ describe('troop-queries', () => {
       const result = database.selectObject({
         sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
         bind: { $tileId: tileId, $sourceTileId: sourceTileId, $unitId: unitId },
-        schema: z.object({ amount: z.number() }),
+        schema: z.strictObject({ amount: z.number() }),
       });
 
       expect(result).toBeUndefined();
@@ -213,7 +213,7 @@ describe('troop-queries', () => {
       const result = database.selectObject({
         sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
         bind: { $tileId: tileId, $sourceTileId: sourceTileId, $unitId: unitId },
-        schema: z.object({ amount: z.number() }),
+        schema: z.strictObject({ amount: z.number() }),
       });
 
       expect(result).toBeUndefined();
@@ -249,7 +249,7 @@ describe('troop-queries', () => {
             $sourceTileId: sourceTileId,
             $unitId: unitId,
           },
-          schema: z.object({ amount: z.number() }),
+          schema: z.strictObject({ amount: z.number() }),
         });
       };
 
@@ -299,7 +299,7 @@ describe('troop-queries', () => {
           $sourceTileId: sourceTileId,
           $unitId: 'LEGIONNAIRE',
         },
-        schema: z.object({ amount: z.number() }),
+        schema: z.strictObject({ amount: z.number() }),
       });
 
       expect(result).toBeUndefined();

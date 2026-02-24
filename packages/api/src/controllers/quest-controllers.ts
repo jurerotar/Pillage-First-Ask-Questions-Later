@@ -14,24 +14,24 @@ export const getQuests = createController('/villages/:villageId/quests')(
   ({ database, path: { villageId } }) => {
     return database.selectObjects({
       sql: `
-      SELECT *
-      FROM
-        (
-          SELECT quest_id, scope, collected_at, completed_at, village_id
-          FROM
-            quests
-          WHERE
-            village_id = $village_id
+        SELECT quest_id, scope, collected_at, completed_at, village_id
+        FROM
+          (
+            SELECT quest_id, scope, collected_at, completed_at, village_id
+            FROM
+              quests
+            WHERE
+              village_id = $village_id
 
-          UNION ALL
+            UNION ALL
 
-          SELECT quest_id, scope, collected_at, completed_at, village_id
-          FROM
-            quests
-          WHERE
-            village_id IS NULL
-          ) AS q
-    `,
+            SELECT quest_id, scope, collected_at, completed_at, village_id
+            FROM
+              quests
+            WHERE
+              village_id IS NULL
+            ) AS q
+      `,
       bind: {
         $village_id: villageId,
       },

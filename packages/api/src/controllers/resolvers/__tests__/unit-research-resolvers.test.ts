@@ -24,9 +24,9 @@ describe(unitResearchResolver, () => {
     unitResearchResolver(database, mockEvent);
 
     const research = database.selectObject({
-      sql: 'SELECT * FROM unit_research WHERE village_id = $villageId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId);',
+      sql: 'SELECT village_id, unit_id FROM unit_research WHERE village_id = $villageId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId);',
       bind: { $villageId: villageId, $unitId: unitId },
-      schema: z.object({ village_id: z.number(), unit_id: z.number() }),
+      schema: z.strictObject({ village_id: z.number(), unit_id: z.number() }),
     })!;
 
     expect(research).toBeDefined();

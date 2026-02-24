@@ -14,7 +14,7 @@ describe('quest-controllers', () => {
 
     const village = database.selectObject({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     getQuests(
@@ -45,13 +45,13 @@ describe('quest-controllers', () => {
 
     const village = database.selectObject({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Find a quest that is completed but not collected
     const quest = database.selectObject({
       sql: 'SELECT quest_id FROM quests WHERE completed_at IS NOT NULL AND collected_at IS NULL LIMIT 1',
-      schema: z.object({ quest_id: z.string() }),
+      schema: z.strictObject({ quest_id: z.string() }),
     })!;
 
     collectQuest(

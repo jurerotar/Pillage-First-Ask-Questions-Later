@@ -22,7 +22,7 @@ export const occupyOasis = createController(
       bind: {
         $tile_id: oasisId,
       },
-      schema: z.object({
+      schema: z.strictObject({
         resource: resourceSchema,
         bonus: z.number(),
       }),

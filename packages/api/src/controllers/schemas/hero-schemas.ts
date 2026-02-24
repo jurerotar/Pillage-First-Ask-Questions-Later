@@ -44,9 +44,9 @@ export const getHeroSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
-      stats: z.object({
+      stats: z.strictObject({
         health: z.number(),
         experience: z.number(),
         attackPower: z.number(),
@@ -58,7 +58,7 @@ export const getHeroSchema = z
         attackBonus: z.number(),
         defenceBonus: z.number(),
       }),
-      selectableAttributes: z.object({
+      selectableAttributes: z.strictObject({
         attackPower: z.number(),
         resourceProduction: z.number(),
         attackBonus: z.number(),
@@ -81,7 +81,7 @@ export const getHeroLoadoutSchema = z
     amount: t.amount,
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       itemId: z.number(),
       slot: heroLoadoutSlotSchema,
       amount: z.number(),
@@ -99,7 +99,7 @@ export const getHeroInventorySchema = z
     amount: t.amount,
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
       amount: z.number(),
     }),

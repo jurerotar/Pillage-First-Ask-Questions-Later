@@ -33,7 +33,7 @@ export const getDeveloperSettingsSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       isInstantBuildingConstructionEnabled: z.boolean(),
       isInstantUnitTrainingEnabled: z.boolean(),
       isInstantUnitImprovementEnabled: z.boolean(),
