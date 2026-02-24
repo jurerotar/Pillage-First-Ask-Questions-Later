@@ -55,7 +55,6 @@ export const notifyAboutEventCreationFailure = (reason: string): void => {
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
   const requiredEventProperties = new Set([
-    'id',
     'type',
     'startsAt',
     'duration',
@@ -66,14 +65,14 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
 
   const sqlTemplate = `
     INSERT INTO
-      events (id, type, starts_at, duration, village_id, meta)
+      events (type, starts_at, duration, village_id, meta)
     VALUES
-      (?, ?, ?, ?, ?, ?)
+      (?, ?, ?, ?, ?)
   `;
 
   const amountOfEvents = events.length;
 
-  const sql = `${sqlTemplate}${',(?, ?, ?, ?, ?, ?)'.repeat(amountOfEvents - 1)};`;
+  const sql = `${sqlTemplate}${',(?, ?, ?, ?, ?)'.repeat(amountOfEvents - 1)};`;
 
   const params: SqlValue[] = Array.from({
     length: events.length * amountOfColumnsToInsert,
@@ -85,11 +84,10 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
     const event = events[i];
     const base = i * amountOfColumnsToInsert;
 
-    params[base] = event.id;
-    params[base + 1] = event.type;
-    params[base + 2] = event.startsAt;
-    params[base + 3] = event.duration;
-    params[base + 4] = event.villageId ?? null;
+    params[base] = event.type;
+    params[base + 1] = event.startsAt;
+    params[base + 2] = event.duration;
+    params[base + 3] = event.villageId ?? null;
 
     let metaObj: Record<string, SqlValue> | undefined;
     for (const property in event) {
@@ -105,7 +103,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
       metaObj[property] = event[property as keyof GameEvent];
     }
 
-    params[base + 5] = metaObj ? JSON.stringify(metaObj) : null;
+    params[base + 4] = metaObj ? JSON.stringify(metaObj) : null;
   }
 
   const stmt = database.prepare({ sql });
