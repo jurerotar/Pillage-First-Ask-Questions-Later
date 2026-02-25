@@ -12,15 +12,25 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
 ) => {
   const { resolvesAt } = args;
 
-  const villageIdToSpawnHeroIn = database.selectValue({
-    sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id;',
+  const { villageId, tileId } = database.selectObject({
+    sql: `
+      SELECT
+        villages.id AS villageId,
+        villages.tile_id AS tileId
+      FROM heroes
+      JOIN villages ON heroes.village_id = villages.id
+      WHERE heroes.player_id = $playerId;
+    `,
     bind: {
-      $player_id: PLAYER_ID,
+      $playerId: PLAYER_ID,
     },
-    schema: z.number(),
+    schema: z.object({
+      villageId: z.number(),
+      tileId: z.number(),
+    }),
   })!;
 
-  updateVillageResourcesAt(database, villageIdToSpawnHeroIn, resolvesAt);
+  updateVillageResourcesAt(database, villageId, resolvesAt);
 
   database.exec({
     sql: 'UPDATE heroes SET health = 100 WHERE player_id = $playerId;',
@@ -36,8 +46,8 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
     {
       unitId: 'HERO',
       amount: 1,
-      tileId: villageIdToSpawnHeroIn,
-      source: villageIdToSpawnHeroIn,
+      tileId: tileId,
+      source: tileId,
     },
   ]);
 };

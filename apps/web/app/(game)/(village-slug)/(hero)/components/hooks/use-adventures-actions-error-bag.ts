@@ -28,7 +28,7 @@ export const useAdventuresActionsErrorBag = () => {
     );
   }
 
-  if (!isHeroInVillage) {
+  if (!isHeroInVillage && isHeroAlive) {
     errorBag.push(t('Your hero is currently travelling.'));
   }
 
