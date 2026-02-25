@@ -394,6 +394,15 @@ export const getEventCost = (
   }
 
   if (isHeroRevivalEvent(event)) {
+    const isFreeHeroReviveEnabled = database.selectValue({
+      sql: 'SELECT is_free_hero_revive_enabled FROM developer_settings',
+      schema: z.number(),
+    });
+
+    if (isFreeHeroReviveEnabled) {
+      return [0, 0, 0, 0];
+    }
+
     const { experience, tribe } = database.selectObject({
       sql: `
         SELECT h.experience, ti.tribe
@@ -584,7 +593,7 @@ export const getEventDuration = (
             LIMIT 1
             ) AS speed,
           (
-            SELECT ha.completed - 1
+            SELECT ha.completed
             FROM
               hero_adventures ha
                 JOIN heroes h ON ha.hero_id = h.id
@@ -658,6 +667,15 @@ export const getEventDuration = (
   }
 
   if (isHeroRevivalEvent(event)) {
+    const isInstantHeroReviveEnabled = database.selectValue({
+      sql: 'SELECT is_instant_hero_revive_enabled FROM developer_settings',
+      schema: z.number(),
+    });
+
+    if (isInstantHeroReviveEnabled) {
+      return 0;
+    }
+
     const { experience, speed } = database.selectObject({
       sql: `
         SELECT h.experience, s.speed

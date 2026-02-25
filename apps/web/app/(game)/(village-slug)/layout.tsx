@@ -272,14 +272,12 @@ const VillageOverviewMobileItem = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, health, experience } = useHero();
+  const { hero, isHeroAlive, health, experience } = useHero();
   const { villageTroops } = useVillageTroops();
 
   const isHeroHome = useMemo(() => {
     return villageTroops.some(({ unitId }) => unitId === 'HERO');
   }, [villageTroops]);
-
-  const isHeroAlive = health > 0;
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 

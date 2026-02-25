@@ -396,6 +396,19 @@ describe('events utils', () => {
 
       expect(result).toEqual(expectedCost);
     });
+
+    test('heroRevival - should return zero cost if free hero revival enabled', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      setDevFlag(database, 'is_free_hero_revive_enabled', 1);
+
+      const result = getEventCost(database, {
+        type: 'heroRevival',
+        villageId,
+      } as GameEvent<'heroRevival'>);
+
+      expect(result).toEqual([0, 0, 0, 0]);
+    });
   });
 
   describe(getEventDuration, () => {
@@ -512,6 +525,19 @@ describe('events utils', () => {
       } as GameEvent<'heroRevival'>);
 
       expect(result).toBe(expectedDuration);
+    });
+
+    test('heroRevival - should return zero duration if instant hero revival enabled', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      setDevFlag(database, 'is_instant_hero_revive_enabled', 1);
+
+      const result = getEventDuration(database, {
+        type: 'heroRevival',
+        villageId,
+      } as GameEvent<'heroRevival'>);
+
+      expect(result).toBe(0);
     });
   });
 

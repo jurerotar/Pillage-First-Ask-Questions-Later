@@ -1,21 +1,14 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuMinus, LuPlus } from 'react-icons/lu';
-import {
-  calculateHeroLevel,
-  calculateHeroRevivalCost,
-  calculateHeroRevivalTime,
-} from '@pillage-first/game-assets/hero/utils';
+import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import type { HeroResourceToProduce } from '@pillage-first/types/models/hero';
+import { HeroRevival } from 'app/(game)/(village-slug)/(hero)/components/hero-revival';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown.tsx';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type.ts';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { useReviveHero } from 'app/(game)/(village-slug)/hooks/use-revive-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
 import { Icon } from 'app/components/icon';
@@ -39,12 +32,9 @@ export const HeroAttributes = () => {
     updateHeroAttributes,
     updateHeroResourceToProduce,
   } = useHero();
-  const { reviveHero } = useReviveHero();
   const { server } = useServer();
   const tribe = useTribe();
-  const { eventsByType: heroRevivalEvents } = useEventsByType('heroRevival');
 
-  const isReviving = heroRevivalEvents.length > 0;
   const isEgyptian = tribe === 'egyptians';
   const sharedProductionPerPoint = isEgyptian ? 12 : 9;
   const focusedProductionPerPoint = isEgyptian ? 40 : 30;
@@ -91,13 +81,6 @@ export const HeroAttributes = () => {
       return { ...prev, [key]: newValue };
     });
   };
-
-  const revivalCost = calculateHeroRevivalCost(
-    server.playerConfiguration.tribe,
-    level,
-  );
-  const revivalTime =
-    calculateHeroRevivalTime(level) / server.configuration.speed;
 
   const attributeLabels = {
     attackPower: t('Attack power'),
@@ -205,41 +188,7 @@ export const HeroAttributes = () => {
             </div>
           </div>
         </SectionContent>
-        {!isHeroAlive && (
-          <SectionContent>
-            <Text as="h2">{t('Revive hero')}</Text>
-            <Text>
-              {t(
-                "Your hero is dead. While the hero is dead, it can not produce resources, give bonuses or start adventures. Revival cost and duration increases with your hero's level.",
-              )}
-            </Text>
-            {isReviving && (
-              <Text className="font-medium">
-                {t('Your hero is currently being healed and will be ready in ')}
-                <Countdown endsAt={heroRevivalEvents[0].resolvesAt} />
-              </Text>
-            )}
-            {!isReviving && (
-              <div className="flex flex-col gap-2">
-                <Resources resources={revivalCost} />
-                <div className="flex items-center gap-1">
-                  <Icon type="heroRevivalDuration" />
-                  <Text>
-                    {Math.floor(revivalTime / 1000 / 60 / 60)}h{' '}
-                    {Math.floor((revivalTime / 1000 / 60) % 60)}m
-                  </Text>
-                </div>
-                <Button
-                  size="fit"
-                  onClick={() => reviveHero()}
-                  disabled={isReviving}
-                >
-                  {t('Revive')}
-                </Button>
-              </div>
-            )}
-          </SectionContent>
-        )}
+        {!isHeroAlive && <HeroRevival />}
         {isHeroAlive && (
           <>
             <SectionContent>

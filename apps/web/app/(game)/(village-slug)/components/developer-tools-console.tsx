@@ -69,6 +69,7 @@ const INSTANT_SETTINGS: (keyof DeveloperSettings)[] = [
   'isInstantUnitImprovementEnabled',
   'isInstantUnitResearchEnabled',
   'isInstantUnitTravelEnabled',
+  'isInstantHeroReviveEnabled',
 ];
 
 const FREE_SETTINGS: (keyof DeveloperSettings)[] = [
@@ -76,6 +77,7 @@ const FREE_SETTINGS: (keyof DeveloperSettings)[] = [
   'isFreeUnitTrainingEnabled',
   'isFreeUnitImprovementEnabled',
   'isFreeUnitResearchEnabled',
+  'isFreeHeroReviveEnabled',
 ];
 
 export const DeveloperToolsConsole = ({
@@ -139,6 +141,8 @@ export const DeveloperToolsConsole = ({
     isFreeUnitTrainingEnabled: t('Free unit training'),
     isFreeUnitImprovementEnabled: t('Free unit improvement'),
     isFreeUnitResearchEnabled: t('Free unit research'),
+    isInstantHeroReviveEnabled: t('Instant hero revives'),
+    isFreeHeroReviveEnabled: t('Free hero revives'),
   };
 
   const SETTING_DESCRIPTIONS: Record<keyof DeveloperSettings, string> = {
@@ -165,6 +169,8 @@ export const DeveloperToolsConsole = ({
     isFreeUnitResearchEnabled: t(
       'Units do not cost any resources to research.',
     ),
+    isInstantHeroReviveEnabled: t('Heroes are revived instantly.'),
+    isFreeHeroReviveEnabled: t('Heroes do not cost any resources to revive.'),
   };
 
   return (

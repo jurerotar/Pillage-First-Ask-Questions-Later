@@ -22,7 +22,9 @@ export const getDeveloperSettings = createController('/developer-settings')(
         is_free_building_construction_enabled,
         is_free_unit_training_enabled,
         is_free_unit_improvement_enabled,
-        is_free_unit_research_enabled
+        is_free_unit_research_enabled,
+        is_instant_hero_revive_enabled,
+        is_free_hero_revive_enabled
       FROM
         developer_settings
     `,
@@ -80,6 +82,9 @@ export const updateDeveloperSettings = createController(
           'troopMovementOasisOccupation',
           'troopMovementAdventure',
         ];
+        break;
+      case 'isInstantHeroReviveEnabled':
+        eventTypes = ['heroRevival'];
         break;
     }
 
