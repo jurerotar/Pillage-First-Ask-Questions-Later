@@ -45,9 +45,6 @@ describe(useTabParam, () => {
       result.current.navigateToTab('home');
     });
 
-    expect(setSearchParams).toHaveBeenCalledWith(
-      { tab: 'home' },
-      { preventScrollReset: true },
-    );
+    expect(setSearchParams).toHaveBeenCalledWith({ tab: 'home' });
   });
 });
