@@ -646,16 +646,18 @@ describe('migrateAndSeed', () => {
       }
     });
 
-    test('every hero has a selectable attributes row', () => {
-      const heroCount = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM heroes;',
+    test('hero has a village_id', () => {
+      const villageId = database.selectValue({
+        sql: 'SELECT village_id FROM heroes;',
         schema: z.number(),
       });
-      const attrCount = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM hero_selectable_attributes;',
+      expect(villageId).toBeDefined();
+
+      const villageExists = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM villages WHERE id = (SELECT village_id FROM heroes);',
         schema: z.number(),
       });
-      expect(attrCount).toBe(heroCount);
+      expect(villageExists).toBe(1);
     });
   });
 

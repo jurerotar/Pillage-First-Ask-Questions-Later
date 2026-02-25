@@ -1,6 +1,6 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import { calculateHeroLevel } from '@pillage-first/web/app/(game)/(village-slug)/hooks/utils/hero.ts';
+import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {

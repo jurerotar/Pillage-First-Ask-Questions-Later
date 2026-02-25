@@ -110,6 +110,11 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     db.exec({ sql: createUnitTrainingHistoryTable });
     db.exec({ sql: createBuildingLevelChangeHistoryTable });
 
+    // Tiles
+    db.exec({ sql: createTilesTable });
+    tilesSeeder(db, server);
+    db.exec({ sql: createTilesIndexes });
+
     // Preferences
     db.exec({ sql: createPreferencesTable });
     preferencesSeeder(db);
@@ -138,10 +143,24 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     playersSeeder(db, server);
     db.exec({ sql: createPlayersIndexes });
 
+    // Oasis bonuses
+    db.exec({ sql: createOasisBonusesTable });
+    oasisSeeder(db, server);
+    db.exec({ sql: createOasisBonusesIndexes });
+
+    // Villages
+    db.exec({ sql: createVillagesTable });
+    villageSeeder(db, server);
+    occupiedOasisSeeder(db, server);
+
     // Heroes
     db.exec({ sql: createHeroesTable });
     db.exec({ sql: createHeroSelectableAttributesTable });
     heroSeeder(db);
+
+    // Bookmarks
+    db.exec({ sql: createBookmarksTable });
+    bookmarksSeeder(db);
 
     // Hero adventures
     db.exec({ sql: createHeroAdventuresTable });
@@ -153,16 +172,6 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     // Hero inventories
     db.exec({ sql: createHeroInventoriesTable });
 
-    // Tiles
-    db.exec({ sql: createTilesTable });
-    tilesSeeder(db, server);
-    db.exec({ sql: createTilesIndexes });
-
-    // Oasis bonuses
-    db.exec({ sql: createOasisBonusesTable });
-    oasisSeeder(db, server);
-    db.exec({ sql: createOasisBonusesIndexes });
-
     // Oasis-occupiable-by
     db.exec({ sql: createOasisOccupiableByTable });
     oasisOccupiableBySeeder(db);
@@ -170,15 +179,6 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
 
     // Guaranteed croppers
     guaranteedCroppersSeeder(db, server);
-
-    // Villages
-    db.exec({ sql: createVillagesTable });
-    villageSeeder(db, server);
-    occupiedOasisSeeder(db, server);
-
-    // Bookmarks
-    db.exec({ sql: createBookmarksTable });
-    bookmarksSeeder(db);
 
     // Farm lists
     db.exec({ sql: createFarmListsTable });

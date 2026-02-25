@@ -6,6 +6,7 @@ import {
   buildingLevelChangeResolver,
   buildingScheduledConstructionEventResolver,
 } from '../controllers/resolvers/building-resolvers';
+import { heroRevivalResolver } from '../controllers/resolvers/hero-resolvers';
 import { internalSeedOasisOccupiableByTableResolver } from '../controllers/resolvers/internal-resolvers';
 import {
   adventureMovementResolver,
@@ -64,6 +65,9 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'adventurePointIncrease': {
       return adventurePointIncreaseResolver;
+    }
+    case 'heroRevival': {
+      return heroRevivalResolver;
     }
     case 'unitResearch': {
       return unitResearchResolver;

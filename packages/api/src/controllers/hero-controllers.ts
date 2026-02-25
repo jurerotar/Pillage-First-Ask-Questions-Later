@@ -5,7 +5,6 @@ import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { createController } from '../utils/controller';
-import { selectHeroOriginVillageIdQuery } from '../utils/queries/troop-queries';
 import { updateVillageResourcesAt } from '../utils/village';
 import {
   getHeroInventorySchema,
@@ -26,6 +25,7 @@ export const getHero = createController('/players/:playerId/hero')(
           h.damage_reduction,
           h.experience_modifier,
           h.speed,
+          h.village_id,
           h.natarian_attack_bonus,
           h.attack_bonus,
           h.defence_bonus,
@@ -142,15 +142,10 @@ export const changeHeroAttributes = createController(
       const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
 
       const villageId = database.selectValue({
-        sql: selectHeroOriginVillageIdQuery,
-        bind: { $playerId: playerId },
+        sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.number(),
-      });
-
-      if (villageId === undefined) {
-        // TODO: Hero is either dead or on the way
-        return;
-      }
+      })!;
 
       updateVillageResourcesAt(database, villageId, Date.now());
 
@@ -276,15 +271,10 @@ export const changeHeroResourceToProduce = createController(
     const focusedProductionPerPoint = isEgyptian ? 40 : 30;
 
     const villageId = database.selectValue({
-      sql: selectHeroOriginVillageIdQuery,
-      bind: { $playerId: playerId },
+      sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
       schema: z.number(),
-    });
-
-    if (villageId === undefined) {
-      // TODO: Hero is either dead or on the way
-      return;
-    }
+    })!;
 
     updateVillageResourcesAt(database, villageId, Date.now());
 
@@ -582,15 +572,10 @@ export const useHeroItem = createController(
       const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
 
       const villageId = database.selectValue({
-        sql: selectHeroOriginVillageIdQuery,
-        bind: { $playerId: playerId },
+        sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.number(),
-      });
-
-      if (villageId === undefined) {
-        // TODO: Hero is either dead or on the way
-        return;
-      }
+      })!;
 
       updateVillageResourcesAt(database, villageId, Date.now());
 

@@ -6,6 +6,12 @@ import {
   calculateBuildingDurationForLevel,
 } from '@pillage-first/game-assets/buildings/utils';
 import {
+  calculateHeroLevel,
+  calculateHeroRevivalCost,
+  calculateHeroRevivalTime,
+} from '@pillage-first/game-assets/hero/utils';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import {
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
@@ -18,6 +24,7 @@ import type {
   TroopMovementEvent,
 } from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
+import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import {
@@ -27,6 +34,7 @@ import {
   isBuildingDestructionEvent,
   isBuildingLevelUpEvent,
   isFindNewVillageTroopMovementEvent,
+  isHeroRevivalEvent,
   isOasisOccupationTroopMovementEvent,
   isReturnTroopMovementEvent,
   isScheduledBuildingEvent,
@@ -270,6 +278,18 @@ export const validateEventCreationPrerequisites = (
   if (isScheduledBuildingEvent(event)) {
   }
 
+  if (isHeroRevivalEvent(event)) {
+    const isHeroAlive = !!database.selectValue({
+      sql: 'SELECT health > 0 FROM heroes WHERE player_id = $playerId;',
+      bind: { $playerId: PLAYER_ID },
+      schema: z.number(),
+    });
+
+    if (isHeroAlive) {
+      return [false, 'Hero is already alive'];
+    }
+  }
+
   return [true, null];
 };
 
@@ -371,6 +391,29 @@ export const getEventCost = (
       buildingId === 'GREAT_BARRACKS' || buildingId === 'GREAT_STABLE' ? 3 : 1;
 
     return baseRecruitmentCost.map((cost) => cost * costModifier * amount);
+  }
+
+  if (isHeroRevivalEvent(event)) {
+    const { experience, tribe } = database.selectObject({
+      sql: `
+        SELECT h.experience, ti.tribe
+        FROM
+          heroes h
+            JOIN players p ON h.player_id = p.id
+            JOIN tribe_ids ti ON p.tribe_id = ti.id
+        WHERE
+          h.player_id = $playerId;
+      `,
+      bind: { $playerId: PLAYER_ID },
+      schema: z.strictObject({
+        experience: z.number(),
+        tribe: playableTribeSchema,
+      }),
+    })!;
+
+    const { level } = calculateHeroLevel(experience);
+
+    return calculateHeroRevivalCost(tribe, level);
   }
 
   return [0, 0, 0, 0];
@@ -541,12 +584,15 @@ export const getEventDuration = (
             LIMIT 1
             ) AS speed,
           (
-            SELECT completed - 1
+            SELECT ha.completed - 1
             FROM
-              hero_adventures
-            LIMIT 1
+              hero_adventures ha
+                JOIN heroes h ON ha.hero_id = h.id
+            WHERE
+              h.player_id = $playerId
             ) AS completed
       `,
+      bind: { $playerId: PLAYER_ID },
       schema: z.strictObject({
         seed: z.string(),
         speed: z.number(),
@@ -556,10 +602,9 @@ export const getEventDuration = (
 
     const adventurePrng = prngMulberry32(`${seed}${completed}`);
 
-    const adventureDuration = Math.round(
+    const adventureDuration =
       (seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000) /
-        speed,
-    );
+      speed;
 
     return adventureDuration;
   }
@@ -586,12 +631,15 @@ export const getEventDuration = (
               LIMIT 1
               ) AS speed,
             (
-              SELECT completed - 1
+              SELECT ha.completed - 1
               FROM
-                hero_adventures
-              LIMIT 1
+                hero_adventures ha
+                  JOIN heroes h ON ha.hero_id = h.id
+              WHERE
+                h.player_id = $playerId
               ) AS completed
         `,
+        bind: { $playerId: PLAYER_ID },
         schema: z.strictObject({
           seed: z.string(),
           speed: z.number(),
@@ -601,13 +649,33 @@ export const getEventDuration = (
 
       const adventurePrng = prngMulberry32(`${seed}${completed}`);
 
-      const adventureReturnDuration = Math.round(
+      const adventureReturnDuration =
         (seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000) /
-          speed,
-      );
+        speed;
 
       return adventureReturnDuration;
     }
+  }
+
+  if (isHeroRevivalEvent(event)) {
+    const { experience, speed } = database.selectObject({
+      sql: `
+        SELECT h.experience, s.speed
+        FROM
+          heroes h
+            JOIN servers s ON 1 = 1
+        WHERE
+          h.player_id = $playerId;
+      `,
+      bind: { $playerId: PLAYER_ID },
+      schema: z.strictObject({
+        experience: z.number(),
+        speed: speedSchema,
+      }),
+    })!;
+    const { level } = calculateHeroLevel(experience);
+
+    return calculateHeroRevivalTime(level) / speed;
   }
 
   console.error('Missing duration calculation for event', event);

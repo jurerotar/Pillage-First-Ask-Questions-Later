@@ -1,6 +1,7 @@
 import { type ComponentProps, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VscTerminal } from 'react-icons/vsc';
+import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import { items } from '@pillage-first/game-assets/items';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
 import type { Resource } from '@pillage-first/types/models/resource';
@@ -12,7 +13,6 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { Icon } from 'app/components/icon.tsx';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button';
@@ -97,10 +97,9 @@ export const DeveloperToolsConsole = ({
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [amount, setAmount] = useState(1);
 
-  const { level } = useMemo(
-    () => calculateHeroLevel(hero.stats.experience),
-    [hero.stats.experience],
-  );
+  const { level } = useMemo(() => {
+    return calculateHeroLevel(hero.stats.experience);
+  }, [hero.stats.experience]);
 
   const handleUpdateResource = (
     resource: Resource,

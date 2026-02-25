@@ -16,7 +16,8 @@ export const heroSeeder = (database: DbFacade): void => {
         natarian_attack_bonus,
         attack_bonus,
         defence_bonus,
-        resource_to_produce
+        resource_to_produce,
+        village_id
       )
       SELECT
         p.id,
@@ -30,7 +31,8 @@ export const heroSeeder = (database: DbFacade): void => {
         0,
         0,
         0,
-        'shared'
+        'shared',
+        (SELECT id FROM villages WHERE player_id = p.id LIMIT 1)
       FROM players p
       JOIN tribe_ids ti ON ti.id = p.tribe_id
       WHERE p.id = $playerId;

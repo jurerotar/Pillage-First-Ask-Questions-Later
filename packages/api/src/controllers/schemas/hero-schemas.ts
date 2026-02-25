@@ -16,6 +16,7 @@ export const getHeroSchema = z
     damage_reduction: z.number(),
     experience_modifier: z.number(),
     speed: z.number(),
+    village_id: z.number(),
     natarian_attack_bonus: z.number(),
     resource_to_produce: heroResourceToProduceSchema,
   })
@@ -40,6 +41,7 @@ export const getHeroSchema = z
         attackBonus: t.attack_bonus,
         defenceBonus: t.defence_bonus,
       },
+      villageId: t.village_id,
       resourceToProduce: t.resource_to_produce,
     };
   })
@@ -64,6 +66,7 @@ export const getHeroSchema = z
         attackBonus: z.number(),
         defenceBonus: z.number(),
       }),
+      villageId: z.number(),
       resourceToProduce: heroResourceToProduceSchema,
     }),
   )

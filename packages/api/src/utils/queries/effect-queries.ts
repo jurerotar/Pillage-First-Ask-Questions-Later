@@ -92,3 +92,60 @@ export const updateBuildingEffectQuery = `
     AND source = 'building'
     AND source_specifier = $source_specifier;
 `;
+
+export const deleteHeroEffectsQuery = `
+  DELETE
+  FROM
+    effects
+  WHERE
+    source = 'hero'
+    AND village_id = (
+      SELECT village_id
+      FROM heroes
+      WHERE player_id = $playerId
+      );
+`;
+
+export const insertHeroEffectsQuery = `
+  INSERT INTO effects (village_id, effect_id, value, type, scope, source, source_specifier)
+  SELECT
+    h.village_id,
+    ei.id,
+    CASE
+      WHEN LOWER(ti.tribe) = 'egyptians' THEN 12 * hsa.resource_production
+      ELSE 9 * hsa.resource_production
+    END,
+    'base',
+    'village',
+    'hero',
+    0
+  FROM
+    heroes AS h
+      JOIN hero_selectable_attributes AS hsa ON h.id = hsa.hero_id
+      JOIN players AS p ON h.player_id = p.id
+      JOIN tribe_ids AS ti ON p.tribe_id = ti.id
+      CROSS JOIN effect_ids AS ei
+  WHERE
+    h.player_id = $playerId
+    AND ei.effect IN (
+      'woodProduction',
+      'clayProduction',
+      'ironProduction',
+      'wheatProduction'
+    );
+`;
+
+export const updateHeroEffectsVillageIdQuery = `
+  UPDATE effects
+  SET
+    village_id = $targetId
+  WHERE
+    source = 'hero'
+    AND village_id = (
+      SELECT village_id
+      FROM
+        heroes
+      WHERE
+        player_id = $playerId
+      );
+`;

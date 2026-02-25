@@ -2,6 +2,12 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
+  calculateHeroLevel,
+  calculateHeroRevivalCost,
+  calculateHeroRevivalTime,
+} from '@pillage-first/game-assets/hero/utils';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import {
   createBuildingLevelChangeEventMock,
   createGameEventMock,
   createTroopTrainingEventMock,
@@ -9,6 +15,7 @@ import {
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -160,6 +167,40 @@ describe('events utils', () => {
         database,
         createGameEventMock('buildingLevelChange'),
       );
+      expect(result).toEqual([true, null]);
+    });
+
+    test('heroRevival - should return false if hero is already alive', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: 'UPDATE heroes SET health = 100 WHERE player_id = $playerId',
+        bind: { $playerId: PLAYER_ID },
+      });
+
+      const result = validateEventCreationPrerequisites(database, {
+        type: 'heroRevival',
+        villageId,
+      } as GameEvent<'heroRevival'>);
+
+      expect(result).toEqual([false, 'Hero is already alive']);
+    });
+
+    test('heroRevival - should return true if hero is dead', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: 'UPDATE heroes SET health = 0 WHERE player_id = $playerId',
+        bind: { $playerId: PLAYER_ID },
+      });
+
+      const result = validateEventCreationPrerequisites(database, {
+        type: 'heroRevival',
+        villageId,
+      } as GameEvent<'heroRevival'>);
+
       expect(result).toEqual([true, null]);
     });
   });
@@ -323,6 +364,38 @@ describe('events utils', () => {
 
       expect(greatCost).toEqual(baseCost.map((v) => v * 3));
     });
+
+    test('heroRevival - should return correct cost', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      const { experience, tribe } = database.selectObject({
+        sql: `
+          SELECT h.experience, ti.tribe
+          FROM
+            heroes h
+              JOIN players p ON h.player_id = p.id
+              JOIN tribe_ids ti ON p.tribe_id = ti.id
+          WHERE
+            h.player_id = $playerId;
+        `,
+        bind: { $playerId: PLAYER_ID },
+        schema: z.strictObject({
+          experience: z.number(),
+          tribe: playableTribeSchema,
+        }),
+      })!;
+
+      const { level } = calculateHeroLevel(experience);
+      const expectedCost = calculateHeroRevivalCost(tribe, level);
+
+      const result = getEventCost(database, {
+        type: 'heroRevival',
+        villageId,
+      } as GameEvent<'heroRevival'>);
+
+      expect(result).toEqual(expectedCost);
+    });
   });
 
   describe(getEventDuration, () => {
@@ -408,6 +481,37 @@ describe('events utils', () => {
       });
       const result = getEventDuration(database, event);
       expect(result).toBeGreaterThan(0);
+    });
+
+    test('heroRevival - should apply server speed and return correct duration', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      const { experience, speed } = database.selectObject({
+        sql: `
+          SELECT h.experience, s.speed
+          FROM
+            heroes h
+              JOIN servers s ON 1 = 1
+          WHERE
+            h.player_id = $playerId;
+        `,
+        bind: { $playerId: PLAYER_ID },
+        schema: z.strictObject({
+          experience: z.number(),
+          speed: z.number(),
+        }),
+      })!;
+
+      const { level } = calculateHeroLevel(experience);
+      const expectedDuration = calculateHeroRevivalTime(level) / speed;
+
+      const result = getEventDuration(database, {
+        type: 'heroRevival',
+        villageId,
+      } as GameEvent<'heroRevival'>);
+
+      expect(result).toBe(expectedDuration);
     });
   });
 

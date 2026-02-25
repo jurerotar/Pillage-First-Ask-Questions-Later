@@ -14,7 +14,6 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "erasableSyntaxOnly": true,
-    "moduleResolution": "bundler",
     "noEmit": true,
   },
   "include": [

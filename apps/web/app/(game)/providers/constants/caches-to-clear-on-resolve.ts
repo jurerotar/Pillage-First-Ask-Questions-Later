@@ -6,6 +6,7 @@ import {
   adventurePointsCacheKey,
   collectableQuestCountCacheKey,
   effectsCacheKey,
+  eventsCacheKey,
   heroCacheKey,
   heroInventoryCacheKey,
   playerTroopsCacheKey,
@@ -80,6 +81,7 @@ export const cachesToClearOnResolve: Handlers = {
       adventurePointsCacheKey,
       heroInventoryCacheKey,
       questsCacheKey,
+      effectsCacheKey,
     ];
   },
   unitResearch: () => {
@@ -90,5 +92,8 @@ export const cachesToClearOnResolve: Handlers = {
   },
   adventurePointIncrease: () => {
     return [adventurePointsCacheKey];
+  },
+  heroRevival: () => {
+    return [heroCacheKey, effectsCacheKey, eventsCacheKey];
   },
 };

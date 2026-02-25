@@ -1,18 +1,6 @@
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export const selectHeroOriginVillageIdQuery = `
-  SELECT
-    v.id
-  FROM
-    troops tr
-      JOIN villages v ON tr.source_tile_id = v.tile_id
-      JOIN unit_ids ui ON ui.id = tr.unit_id
-  WHERE
-    ui.unit = 'HERO'
-    AND v.player_id = $playerId;
-`;
-
 export const addTroops = (database: DbFacade, troops: Troop[]) => {
   const stmt = database.prepare({
     sql: `

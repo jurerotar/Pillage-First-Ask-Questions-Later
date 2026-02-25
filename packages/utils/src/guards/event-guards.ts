@@ -128,3 +128,9 @@ export const isAdventurePointIncreaseEvent = (
 ): event is GameEvent<'adventurePointIncrease'> => {
   return event.type === 'adventurePointIncrease';
 };
+
+export const isHeroRevivalEvent = (
+  event: GameEvent,
+): event is GameEvent<'heroRevival'> => {
+  return event.type === 'heroRevival';
+};

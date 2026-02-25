@@ -50,6 +50,9 @@
     },
     "./merchants": {
       "default": "./src/merchants.ts"
+    },
+    "./hero/utils": {
+      "default": "./src/utils/hero.ts"
     }
   },
   "scripts": {
