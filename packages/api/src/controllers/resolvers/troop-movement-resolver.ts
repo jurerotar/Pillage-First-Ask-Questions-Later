@@ -22,15 +22,15 @@ export const adventureMovementResolver: Resolver<
       SET
         health = MAX(0, health - MAX(0, 5 - damage_reduction)),
         experience = experience + CASE
-        WHEN MAX(0, health - MAX(0, 5 - damage_reduction)) > 0
-          THEN (
-             SELECT completed + 1
-             FROM
-               hero_adventures
-             WHERE
-               hero_id = heroes.id
-             ) * 10
-        ELSE 0
+            WHEN MAX(0, health - MAX(0, 5 - damage_reduction)) > 0
+              THEN (
+                     SELECT completed + 1
+                     FROM
+                       hero_adventures
+                     WHERE
+                       hero_id = heroes.id
+                     ) * 10
+            ELSE 0
           END
       WHERE
         player_id = (
@@ -112,7 +112,7 @@ export const returnMovementResolver: Resolver<
 export const relocationMovementResolver: Resolver<
   GameEvent<'troopMovementRelocation'>
 > = (database, args) => {
-  const { targetId, troops } = args;
+  const { targetId, troops, resolvesAt, villageId } = args;
 
   const { tileId: targetTileId } = database.selectObject({
     sql: 'SELECT tile_id AS tileId FROM villages WHERE id = $targetId;',
@@ -131,6 +131,10 @@ export const relocationMovementResolver: Resolver<
 
   // If hero is relocated, update effects as well
   if (troops.some(({ unitId }) => unitId === 'HERO')) {
+    // Update resources in both villages, due to effects changing
+    updateVillageResourcesAt(database, villageId, resolvesAt);
+    updateVillageResourcesAt(database, targetId, resolvesAt);
+
     database.exec({
       sql: updateHeroEffectsVillageIdQuery,
       bind: {

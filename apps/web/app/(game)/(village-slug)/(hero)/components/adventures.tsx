@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { prngMulberry32 } from 'ts-seedrandom';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
-import { AdventuresActionsErrorBag } from 'app/(game)/(village-slug)/(hero)/components/components/adventures-actions-error-bag.tsx';
 import { useAdventuresActionsErrorBag } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-adventures-actions-error-bag.ts';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
@@ -90,7 +90,7 @@ export const Adventures = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <AdventuresActionsErrorBag errorBag={errorBag} />
+        <ErrorBag errorBag={errorBag} />
         <Button
           disabled={!canStartAdventure}
           onClick={handleStartAdventure}

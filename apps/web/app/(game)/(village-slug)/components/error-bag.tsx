@@ -1,10 +1,8 @@
-type AdventuresActionsErrorBagProps = {
+type ErrorBagProps = {
   errorBag: string[];
 };
 
-export const AdventuresActionsErrorBag = ({
-  errorBag,
-}: AdventuresActionsErrorBagProps) => {
+export const ErrorBag = ({ errorBag }: ErrorBagProps) => {
   if (errorBag.length === 0) {
     return null;
   }
