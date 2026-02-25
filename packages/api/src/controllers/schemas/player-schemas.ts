@@ -25,10 +25,10 @@ export const getVillagesByPlayerSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
       tileId: z.number(),
-      coordinates: z.object({
+      coordinates: z.strictObject({
         x: z.number(),
         y: z.number(),
       }),
@@ -65,10 +65,10 @@ export const getPlayerVillagesWithPopulationSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
       tileId: z.number(),
-      coordinates: z.object({
+      coordinates: z.strictObject({
         x: z.number(),
         y: z.number(),
       }),
@@ -96,7 +96,7 @@ export const getTroopsByVillageSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       unitId: z.string(),
       amount: z.number(),
       tileId: z.number(),

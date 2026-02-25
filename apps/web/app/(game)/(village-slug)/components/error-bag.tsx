@@ -1,10 +1,8 @@
-type BuildingActionsErrorBagProps = {
+type ErrorBagProps = {
   errorBag: string[];
 };
 
-export const BuildingActionsErrorBag = ({
-  errorBag,
-}: BuildingActionsErrorBagProps) => {
+export const ErrorBag = ({ errorBag }: ErrorBagProps) => {
   if (errorBag.length === 0) {
     return null;
   }

@@ -14,24 +14,24 @@ export const getQuests = createController('/villages/:villageId/quests')(
   ({ database, path: { villageId } }) => {
     return database.selectObjects({
       sql: `
-      SELECT *
-      FROM
-        (
-          SELECT quest_id, scope, collected_at, completed_at, village_id
-          FROM
-            quests
-          WHERE
-            village_id = $village_id
+        SELECT quest_id, scope, collected_at, completed_at, village_id
+        FROM
+          (
+            SELECT quest_id, scope, collected_at, completed_at, village_id
+            FROM
+              quests
+            WHERE
+              village_id = $village_id
 
-          UNION ALL
+            UNION ALL
 
-          SELECT quest_id, scope, collected_at, completed_at, village_id
-          FROM
-            quests
-          WHERE
-            village_id IS NULL
-          ) AS q
-    `,
+            SELECT quest_id, scope, collected_at, completed_at, village_id
+            FROM
+              quests
+            WHERE
+              village_id IS NULL
+            ) AS q
+      `,
       bind: {
         $village_id: villageId,
       },
@@ -42,18 +42,26 @@ export const getQuests = createController('/villages/:villageId/quests')(
 
 export const getCollectableQuestCount = createController(
   '/villages/:villageId/quests/collectables/count',
-)(({ database }) => {
+)(({ database, path: { villageId } }) => {
   const collectableQuestCount = database.selectValue({
     sql: `
-      SELECT COUNT(*) AS count
+      SELECT COUNT(*) AS COUNT
       FROM
         quests
       WHERE
         completed_at IS NOT NULL
-        AND collected_at IS NULL;
+        AND collected_at IS NULL
+        AND (
+        village_id =
+        $village_id
+        OR village_id IS NULL
+        );
     `,
+    bind: {
+      $village_id: villageId,
+    },
     schema: z.number(),
-  });
+  })!;
 
   return {
     collectableQuestCount,

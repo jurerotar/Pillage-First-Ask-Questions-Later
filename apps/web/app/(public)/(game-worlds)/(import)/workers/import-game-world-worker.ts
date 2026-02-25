@@ -50,7 +50,9 @@ globalThis.addEventListener(
         },
       });
 
-      const serverRow = opfsDb.selectObject('SELECT * FROM servers;');
+      const serverRow = opfsDb.selectObject(
+        'SELECT id, version, name, slug, created_at, seed, map_size, speed, player_name, player_tribe FROM servers;',
+      );
 
       const server = serverDbSchema.parse(serverRow);
 

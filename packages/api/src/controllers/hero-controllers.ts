@@ -5,7 +5,6 @@ import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { createController } from '../utils/controller';
-import { selectHeroOriginVillageIdQuery } from '../utils/queries/troop-queries';
 import { updateVillageResourcesAt } from '../utils/village';
 import {
   getHeroInventorySchema,
@@ -26,6 +25,7 @@ export const getHero = createController('/players/:playerId/hero')(
           h.damage_reduction,
           h.experience_modifier,
           h.speed,
+          h.village_id,
           h.natarian_attack_bonus,
           h.attack_bonus,
           h.defence_bonus,
@@ -115,7 +115,7 @@ export const changeHeroAttributes = createController(
             p.id = $playerId
         `,
         bind: { $playerId: playerId },
-        schema: z.object({ id: z.number(), tribe: z.string() }),
+        schema: z.strictObject({ id: z.number(), tribe: z.string() }),
       })!;
 
       database.exec({
@@ -142,15 +142,10 @@ export const changeHeroAttributes = createController(
       const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
 
       const villageId = database.selectValue({
-        sql: selectHeroOriginVillageIdQuery,
-        bind: { $playerId: playerId },
+        sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.number(),
-      });
-
-      if (villageId === undefined) {
-        // TODO: Hero is either dead or on the way
-        return;
-      }
+      })!;
 
       updateVillageResourcesAt(database, villageId, Date.now());
 
@@ -265,7 +260,10 @@ export const changeHeroResourceToProduce = createController(
           p.id = $playerId
       `,
       bind: { $playerId: playerId },
-      schema: z.object({ resource_production: z.number(), tribe: z.string() }),
+      schema: z.strictObject({
+        resource_production: z.number(),
+        tribe: z.string(),
+      }),
     })!;
 
     const isEgyptian = hero.tribe.toLowerCase() === 'egyptians';
@@ -273,15 +271,10 @@ export const changeHeroResourceToProduce = createController(
     const focusedProductionPerPoint = isEgyptian ? 40 : 30;
 
     const villageId = database.selectValue({
-      sql: selectHeroOriginVillageIdQuery,
-      bind: { $playerId: playerId },
+      sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
       schema: z.number(),
-    });
-
-    if (villageId === undefined) {
-      // TODO: Hero is either dead or on the way
-      return;
-    }
+    })!;
 
     updateVillageResourcesAt(database, villageId, Date.now());
 
@@ -350,7 +343,7 @@ export const equipHeroItem = createController(
     const currentlyEquipped = database.selectObject({
       sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
       bind: { $heroId: heroId, $slot: slot },
-      schema: z.object({ item_id: z.number(), amount: z.number() }),
+      schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
     });
 
     if (currentlyEquipped && currentlyEquipped.item_id !== itemId) {
@@ -475,7 +468,7 @@ export const unequipHeroItem = createController(
     const equipped = database.selectObject({
       sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
       bind: { $heroId: heroId, $slot: slot },
-      schema: z.object({ item_id: z.number(), amount: z.number() }),
+      schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
     });
 
     if (equipped) {
@@ -519,7 +512,7 @@ export const useHeroItem = createController(
     const heroId = database.selectObject({
       sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
       bind: { $playerId: playerId },
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })?.id;
 
     if (heroId === undefined) {
@@ -531,7 +524,7 @@ export const useHeroItem = createController(
       database.selectObject({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
         bind: { $heroId: heroId, $itemId: itemId },
-        schema: z.object({ amount: z.number() }),
+        schema: z.strictObject({ amount: z.number() }),
       })?.amount ?? 0;
 
     if (inventoryAmount < amount) {
@@ -545,7 +538,7 @@ export const useHeroItem = createController(
       const currentHealth = database.selectObject({
         sql: 'SELECT health FROM heroes WHERE id = $heroId',
         bind: { $heroId: heroId },
-        schema: z.object({ health: z.number() }),
+        schema: z.strictObject({ health: z.number() }),
       })!.health;
 
       const healthNeeded = 100 - currentHealth;
@@ -573,21 +566,16 @@ export const useHeroItem = createController(
             h.id = $heroId
         `,
         bind: { $heroId: heroId },
-        schema: z.object({ tribe: z.string() }),
+        schema: z.strictObject({ tribe: z.string() }),
       })!;
 
       const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
 
       const villageId = database.selectValue({
-        sql: selectHeroOriginVillageIdQuery,
-        bind: { $playerId: playerId },
+        sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.number(),
-      });
-
-      if (villageId === undefined) {
-        // TODO: Hero is either dead or on the way
-        return;
-      }
+      })!;
 
       updateVillageResourcesAt(database, villageId, Date.now());
 

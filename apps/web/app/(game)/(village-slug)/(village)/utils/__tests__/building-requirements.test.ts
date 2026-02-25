@@ -10,7 +10,7 @@ import type {
   BuildingRequirement,
 } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Village } from '@pillage-first/types/models/village';
 import {
@@ -28,7 +28,7 @@ const buildingConstructionEventMock = createBuildingConstructionEventMock({
 
 const currentVillage: Village = villageMock;
 const tribe: Tribe = 'gauls';
-const currentVillageBuildingEvents: GameEvent<'buildingConstruction'>[] = [];
+const currentVillageBuildingEvents: BuildingEvent[] = [];
 
 const toMaxLevelMap = (buildingFields: BuildingField[]) => {
   const map = new Map<Building['id'], number>();
@@ -43,7 +43,7 @@ const toMaxLevelMap = (buildingFields: BuildingField[]) => {
   return map;
 };
 
-const toIdsInQueue = (events: GameEvent<'buildingConstruction'>[]) => {
+const toIdsInQueue = (events: BuildingEvent[]) => {
   const set = new Set<Building['id']>();
 
   for (const ev of events) {

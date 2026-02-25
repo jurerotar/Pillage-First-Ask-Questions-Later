@@ -1,6 +1,6 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import { calculateHeroLevel } from '@pillage-first/web/app/(game)/(village-slug)/hooks/utils/hero.ts';
+import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {
@@ -22,7 +22,9 @@ export const getDeveloperSettings = createController('/developer-settings')(
         is_free_building_construction_enabled,
         is_free_unit_training_enabled,
         is_free_unit_improvement_enabled,
-        is_free_unit_research_enabled
+        is_free_unit_research_enabled,
+        is_instant_hero_revive_enabled,
+        is_free_hero_revive_enabled
       FROM
         developer_settings
     `,
@@ -70,7 +72,19 @@ export const updateDeveloperSettings = createController(
         eventTypes = ['unitResearch'];
         break;
       case 'isInstantUnitTravelEnabled':
-        eventTypes = ['troopMovement'];
+        eventTypes = [
+          'troopMovementReinforcements',
+          'troopMovementRelocation',
+          'troopMovementReturn',
+          'troopMovementFindNewVillage',
+          'troopMovementAttack',
+          'troopMovementRaid',
+          'troopMovementOasisOccupation',
+          'troopMovementAdventure',
+        ];
+        break;
+      case 'isInstantHeroReviveEnabled':
+        eventTypes = ['heroRevival'];
         break;
     }
 

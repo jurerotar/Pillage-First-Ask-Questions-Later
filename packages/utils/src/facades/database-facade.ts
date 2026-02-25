@@ -31,7 +31,7 @@ export type DbFacade = {
   /** returns an array of values validated against `schema` (empty array if nothing found) */
   selectValues: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
 
-  /** single row object validated against schema (use a z.object(...) schema) */
+  /** single row object validated against schema (use a z.strictObject(...) schema) */
   selectObject: <T extends z.ZodType>(
     args: SelectArgs<T>,
   ) => z.infer<T> | undefined;

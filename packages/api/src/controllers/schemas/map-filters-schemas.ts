@@ -20,7 +20,7 @@ export const getMapFiltersSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       shouldShowFactionReputation: z.boolean(),
       shouldShowOasisIcons: z.boolean(),
       shouldShowTileTooltips: z.boolean(),

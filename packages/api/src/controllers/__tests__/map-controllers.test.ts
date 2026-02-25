@@ -16,7 +16,7 @@ describe('map-controllers', () => {
     // 1. Create a test village
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages LIMIT 1',
-      schema: z.object({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -127,7 +127,7 @@ describe('map-controllers', () => {
         ) IS NULL
         LIMIT 1
       `,
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileTroops(
@@ -146,7 +146,7 @@ describe('map-controllers', () => {
     // Find a tile with bonuses
     const tileWithBonuses = database.selectObject({
       sql: 'SELECT tile_id FROM oasis LIMIT 1',
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileOasisBonuses(
@@ -165,7 +165,7 @@ describe('map-controllers', () => {
     // Find a tile with world items
     const tileWithItem = database.selectObject({
       sql: 'SELECT tile_id FROM world_items LIMIT 1',
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileWorldItem(

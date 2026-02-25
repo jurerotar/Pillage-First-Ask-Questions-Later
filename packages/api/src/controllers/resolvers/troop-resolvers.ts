@@ -1,12 +1,13 @@
 import { getUnitDefinition } from '@pillage-first/game-assets/units/utils';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../../types/resolver';
+import { assessTroopCountQuestCompletion } from '../../utils/quests';
 import { updateVillageResourcesAt } from '../../utils/village';
 
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>
 > = (database, args) => {
-  const { unitId, villageId, resolvesAt } = args;
+  const { unitId, villageId, resolvesAt, amount } = args;
 
   database.exec({
     sql: `
@@ -21,18 +22,22 @@ export const troopTrainingEventResolver: Resolver<
       INSERT
       INTO
         troops (unit_id, amount, tile_id, source_tile_id)
-      SELECT (SELECT id FROM unit_ids WHERE unit = $unit_id), $amount, v.tile_id, v.tile_id
+      SELECT (
+        SELECT id
+        FROM unit_ids
+        WHERE unit = $unit_id
+        ), $amount, v.tile_id, v.tile_id
       FROM
         v
       WHERE
-        TRUE
-      ON CONFLICT(unit_id, tile_id, source_tile_id)
-        DO UPDATE SET
+        TRUE ON CONFLICT(unit_id, tile_id, source_tile_id)
+        DO
+      UPDATE SET
         amount = amount + excluded.amount;
     `,
     bind: {
       $unit_id: unitId,
-      $amount: 1,
+      $amount: amount,
       $village_id: villageId,
     },
   });
@@ -47,8 +52,10 @@ export const troopTrainingEventResolver: Resolver<
       WHERE
         effect_id = (
           SELECT id
-          FROM effect_ids
-          WHERE effect = 'wheatProduction'
+          FROM
+            effect_ids
+          WHERE
+            effect = 'wheatProduction'
           )
         AND source = 'troops'
         AND village_id = $village_id;
@@ -60,4 +67,5 @@ export const troopTrainingEventResolver: Resolver<
   });
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
+  assessTroopCountQuestCompletion(database, resolvesAt);
 };

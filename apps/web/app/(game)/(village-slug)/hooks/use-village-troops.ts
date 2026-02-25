@@ -1,24 +1,33 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type {
+  GameEvent,
+  TroopMovementEventType,
+} from '@pillage-first/types/models/game-event';
 import { troopSchema } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
-import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import {
+  eventsCacheKey,
+  playerTroopsCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-type SendTroopsArgs = Pick<
-  GameEvent<'troopMovement'>,
-  'troops' | 'targetId' | 'movementType'
->;
+type SendTroopsArgs = {
+  type: TroopMovementEventType;
+  troops: GameEvent<'troopMovementReinforcements'>['troops'];
+  targetId: GameEvent<'troopMovementReinforcements'>['targetId'];
+};
 
 export const useVillageTroops = () => {
   const { fetcher } = use(ApiContext);
-  const { createEvent: createTroopMovementEvent } =
-    useCreateEvent('troopMovement');
   const { currentVillage } = useCurrentVillage();
+  const queryClient = useQueryClient();
 
   const { data: villageTroops } = useSuspenseQuery({
     queryKey: [playerTroopsCacheKey, currentVillage.tileId],
@@ -35,14 +44,29 @@ export const useVillageTroops = () => {
     );
   };
 
-  const sendTroops = ({ targetId, movementType, troops }: SendTroopsArgs) => {
-    createTroopMovementEvent({
-      movementType,
-      targetId,
-      troops,
-      cachesToClearImmediately: [playerTroopsCacheKey],
-    });
-  };
+  const { mutate: sendTroops } = useMutation({
+    mutationFn: async ({ targetId, type, troops }: SendTroopsArgs) => {
+      await fetcher('/events', {
+        method: 'POST',
+        body: {
+          villageId: currentVillage.id,
+          type,
+          targetId,
+          troops,
+        },
+      });
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: [playerTroopsCacheKey, currentVillage.tileId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: [eventsCacheKey, 'troopMovement', currentVillage.id],
+        }),
+      ]);
+    },
+  });
 
   return {
     villageTroops,
