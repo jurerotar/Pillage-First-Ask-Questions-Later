@@ -312,7 +312,7 @@ const HeroNavigationItem = () => {
             {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
           </>
         )}
-        {isHeroAlive && <TbGrave2 className="text-gray-500 text-xs" />}
+        {!isHeroAlive && <TbGrave2 className="text-gray-500 text-xs" />}
       </span>
       <span className="inline-flex items-center justify-center absolute top-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
         <span className="relative inline-flex size-full bg-gray-100 rounded-full overflow-hidden">

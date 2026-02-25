@@ -417,13 +417,13 @@ describe('migrateAndSeed', () => {
               FROM
                 tiles t
                   JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-                  JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
-                  JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
+                  JOIN oasis o ON o.resource = 'wheat' AND o.bonus = 50
+                  JOIN tiles ot ON ot.id = o.tile_id
               WHERE
                 rfc.resource_field_composition = '00018'
-                AND o.bonus = 50
-                AND o.resource = 'wheat'
                 AND t.type = 'free'
+                AND ot.x BETWEEN t.x - 3 AND t.x + 3
+                AND ot.y BETWEEN t.y - 3 AND t.y + 3
               GROUP BY t.id
               HAVING
                 COUNT(DISTINCT o.tile_id) >= 3
@@ -445,13 +445,13 @@ describe('migrateAndSeed', () => {
               FROM
                 tiles t
                   JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-                  JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
-                  JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
+                  JOIN oasis o ON o.resource = 'wheat' AND o.bonus = 50
+                  JOIN tiles ot ON ot.id = o.tile_id
               WHERE
                 rfc.resource_field_composition = '11115'
-                AND o.bonus = 50
-                AND o.resource = 'wheat'
                 AND t.type = 'free'
+                AND ot.x BETWEEN t.x - 3 AND t.x + 3
+                AND ot.y BETWEEN t.y - 3 AND t.y + 3
               GROUP BY t.id
               HAVING
                 COUNT(DISTINCT o.tile_id) >= 3
@@ -473,13 +473,13 @@ describe('migrateAndSeed', () => {
               FROM
                 tiles t
                   JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-                  JOIN oasis_occupiable_by ob ON ob.occupiable_tile_id = t.id
-                  JOIN oasis o ON o.tile_id = ob.occupiable_oasis_tile_id
+                  JOIN oasis o ON o.resource = 'wheat' AND o.bonus = 50
+                  JOIN tiles ot ON ot.id = o.tile_id
               WHERE
                 rfc.resource_field_composition = '3339'
-                AND o.bonus = 50
-                AND o.resource = 'wheat'
                 AND t.type = 'free'
+                AND ot.x BETWEEN t.x - 3 AND t.x + 3
+                AND ot.y BETWEEN t.y - 3 AND t.y + 3
               GROUP BY t.id
               HAVING
                 COUNT(DISTINCT o.tile_id) >= 3
@@ -740,27 +740,23 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('guaranteed croppers (oasis_occupiable_by)', () => {
-    test('oasis_occupiable_by seeded (>0)', () => {
-      const c = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM oasis_occupiable_by;',
-        schema: z.number(),
-      });
-      expect(c).toBeGreaterThan(0);
-    });
-
+  describe('guaranteed croppers', () => {
     test('links reference free tiles and oasis tiles', () => {
       const invalid = database.selectValue({
         sql: `SELECT COUNT(*)
               FROM
-                oasis_occupiable_by ob
-                  LEFT JOIN tiles t ON t.id = ob.occupiable_tile_id
-                  LEFT JOIN tiles o ON o.id = ob.occupiable_oasis_tile_id
+                tiles t
+                  JOIN oasis o ON 1=1
+                  JOIN tiles ot ON ot.id = o.tile_id
               WHERE
-                t.id IS NULL
-                OR o.id IS NULL
-                OR t.type != 'free'
-                OR o.type != 'oasis';`,
+                ot.x BETWEEN t.x - 3 AND t.x + 3
+                AND ot.y BETWEEN t.y - 3 AND t.y + 3
+                AND t.type = 'free'
+                AND ot.type = 'oasis'
+                AND (
+                  t.id IS NULL
+                  OR ot.id IS NULL
+                );`,
         schema: z.number(),
       });
       expect(invalid).toBe(0);

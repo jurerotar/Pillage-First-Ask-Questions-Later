@@ -7,7 +7,6 @@ import {
   buildingScheduledConstructionEventResolver,
 } from '../controllers/resolvers/building-resolvers';
 import { heroRevivalResolver } from '../controllers/resolvers/hero-resolvers';
-import { internalSeedOasisOccupiableByTableResolver } from '../controllers/resolvers/internal-resolvers';
 import {
   adventureMovementResolver,
   attackMovementResolver,
@@ -74,9 +73,6 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'unitImprovement': {
       return unitImprovementResolver;
-    }
-    case '__internal__seedOasisOccupiableByTable': {
-      return internalSeedOasisOccupiableByTableResolver;
     }
     default: {
       console.error(`No resolver function set for event type ${gameEventType}`);
