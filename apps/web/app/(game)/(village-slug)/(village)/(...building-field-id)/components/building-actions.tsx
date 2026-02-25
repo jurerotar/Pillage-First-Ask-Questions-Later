@@ -6,12 +6,12 @@ import {
   getBuildingFieldByBuildingFieldId,
 } from '@pillage-first/game-assets/buildings/utils';
 import type { Building } from '@pillage-first/types/models/building';
-import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
 import { BuildingCardContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   useBuildingConstructionStatus,
@@ -37,7 +37,7 @@ const BuildingCardActionsConstruction = ({
 
   return (
     <>
-      <BuildingActionsErrorBag errorBag={errors} />
+      <ErrorBag errorBag={errors} />
       <Button
         data-testid="building-actions-construct-building-button"
         variant="default"
@@ -73,7 +73,7 @@ const BuildingCardActionsUpgrade = ({
 
   return (
     <>
-      <BuildingActionsErrorBag errorBag={errors} />
+      <ErrorBag errorBag={errors} />
       <Button
         data-testid="building-actions-upgrade-building-button"
         variant="default"

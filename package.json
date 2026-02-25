@@ -32,7 +32,7 @@
     "lefthook": "2.1.1",
     "oxlint": "1.50.0",
     "oxlint-tsgolint": "0.15.0",
-    "turbo": "2.8.10",
+    "turbo": "2.8.11",
     "typescript": "6.0.0-beta",
     "vitest": "4.0.18",
     "zod": "4.3.6"
