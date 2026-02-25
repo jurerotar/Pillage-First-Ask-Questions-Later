@@ -66,7 +66,6 @@ export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
 };
 
 export const gameEventTypeSchema = z.enum([
-  '__internal__seedOasisOccupiableByTable',
   'buildingScheduledConstruction',
   'buildingConstruction',
   'buildingLevelChange',
@@ -101,8 +100,6 @@ export type TroopMovementEventType = Extract<
 >;
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
-  // This is an internal-only event that seeds oasis_occupiable_by table, so we don't have to do it on server creation
-  __internal__seedOasisOccupiableByTable: BaseGameEvent;
   buildingScheduledConstruction: BuildingScheduledConstructionEvent;
   buildingConstruction: BaseBuildingEvent;
   buildingLevelChange: BuildingLevelChangeEvent;

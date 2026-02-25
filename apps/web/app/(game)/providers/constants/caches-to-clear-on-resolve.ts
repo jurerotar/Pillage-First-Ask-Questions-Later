@@ -24,7 +24,6 @@ type Handlers = {
 };
 
 export const cachesToClearOnResolve: Handlers = {
-  __internal__seedOasisOccupiableByTable: () => [],
   buildingScheduledConstruction: () => [],
   buildingConstruction: () => {
     return [

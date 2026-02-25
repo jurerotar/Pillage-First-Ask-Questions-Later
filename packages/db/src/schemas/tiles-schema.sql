@@ -11,3 +11,5 @@ CREATE TABLE tiles
 
   FOREIGN KEY (resource_field_composition_id) REFERENCES resource_field_composition_ids (id)
 ) STRICT;
+
+CREATE INDEX idx_tiles_xy ON tiles (x, y);
