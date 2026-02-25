@@ -68,7 +68,6 @@ const BuildingCardActionsUpgrade = ({
     currentVillage,
     buildingFieldId,
   );
-  
 
   const { errors } = useBuildingUpgradeStatus(buildingField!);
 
