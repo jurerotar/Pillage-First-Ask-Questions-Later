@@ -321,7 +321,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                                   prev.set('x', event.target.value);
                                   return prev;
                                 },
-                                { replace: true },
+                                { replace: true, preventScrollReset: true },
                               );
                             }}
                           />
@@ -346,7 +346,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                                   prev.set('y', event.target.value);
                                   return prev;
                                 },
-                                { replace: true },
+                                { replace: true, preventScrollReset: true },
                               );
                             }}
                             className="max-w-20"
@@ -373,7 +373,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               prev.set('rfc', v);
                               return prev;
                             },
-                            { replace: true },
+                            { replace: true, preventScrollReset: true },
                           );
                         }}
                         defaultValue={field.value}
@@ -424,7 +424,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                 />
               </div>
 
-              <div className="flex gap-2 flex-wrap md:w-full *:flex *:flex-1 *:flex-col">
+              <div className="grid grid-cols-2 md:flex gap-4 md:w-full *:flex *:flex-1 *:flex-col">
                 <FormField
                   control={form.control}
                   name="firstOasisBonus"
@@ -439,13 +439,13 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               prev.set('first-bonus', v);
                               return prev;
                             },
-                            { replace: true },
+                            { replace: true, preventScrollReset: true },
                           );
                         }}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="md:w-full">
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
@@ -469,13 +469,13 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               prev.set('second-bonus', v);
                               return prev;
                             },
-                            { replace: true },
+                            { replace: true, preventScrollReset: true },
                           );
                         }}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="md:w-full">
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
@@ -499,13 +499,13 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               prev.set('third-bonus', v);
                               return prev;
                             },
-                            { replace: true },
+                            { replace: true, preventScrollReset: true },
                           );
                         }}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="md:w-full">
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
