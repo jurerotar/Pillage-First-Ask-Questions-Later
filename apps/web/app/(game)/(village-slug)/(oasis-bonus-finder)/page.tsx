@@ -321,7 +321,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                                   prev.set('x', event.target.value);
                                   return prev;
                                 },
-                                { replace: true, preventScrollReset: true },
+                                { replace: true },
                               );
                             }}
                           />
@@ -346,7 +346,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                                   prev.set('y', event.target.value);
                                   return prev;
                                 },
-                                { replace: true, preventScrollReset: true },
+                                { replace: true },
                               );
                             }}
                             className="max-w-20"
@@ -373,7 +373,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               prev.set('rfc', v);
                               return prev;
                             },
-                            { replace: true, preventScrollReset: true },
+                            { replace: true },
                           );
                         }}
                         defaultValue={field.value}
@@ -439,7 +439,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               prev.set('first-bonus', v);
                               return prev;
                             },
-                            { replace: true, preventScrollReset: true },
+                            { replace: true },
                           );
                         }}
                         defaultValue={field.value}
@@ -469,7 +469,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               prev.set('second-bonus', v);
                               return prev;
                             },
-                            { replace: true, preventScrollReset: true },
+                            { replace: true },
                           );
                         }}
                         defaultValue={field.value}
@@ -499,7 +499,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               prev.set('third-bonus', v);
                               return prev;
                             },
-                            { replace: true, preventScrollReset: true },
+                            { replace: true },
                           );
                         }}
                         defaultValue={field.value}

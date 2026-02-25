@@ -12,7 +12,7 @@ export const useTabParam = (tabs: string[]) => {
   const tabIndex = tabNameToIndex[searchParams.get('tab') ?? 'default'];
 
   const navigateToTab = (tab: string) => {
-    setSearchParams({ tab }, { preventScrollReset: true });
+    setSearchParams({ tab });
   };
 
   return {
