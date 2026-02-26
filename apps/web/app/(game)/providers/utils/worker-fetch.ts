@@ -16,7 +16,6 @@ export const createWorkerFetcher = (worker: Worker) => {
         port1.close();
 
         if (isControllerMessageErrorNotificationMessageEvent(event)) {
-          const { data } = event;
           const { error } = data;
 
           if (error.message.includes('sqlite3 result code 1')) {

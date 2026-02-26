@@ -36,39 +36,39 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
   ] = useMemo(() => {
     const fields = currentVillage.buildingFields;
 
-    let doesAcademyExist = false;
-    let doesSmithyExist = false;
-    let doesMarketplaceExist = false;
-    let doesBreweryExist = false;
+    let hasAcademyBuilding = false;
+    let hasSmithyBuilding = false;
+    let hasMarketplaceBuilding = false;
+    let hasBreweryBuilding = false;
 
     for (const field of fields) {
       const id = field.buildingId;
 
       switch (id) {
         case 'ACADEMY': {
-          doesAcademyExist = true;
+          hasAcademyBuilding = true;
           break;
         }
         case 'SMITHY': {
-          doesSmithyExist = true;
+          hasSmithyBuilding = true;
           break;
         }
         case 'MARKETPLACE': {
-          doesMarketplaceExist = true;
+          hasMarketplaceBuilding = true;
           break;
         }
         case 'BREWERY': {
-          doesBreweryExist = true;
+          hasBreweryBuilding = true;
           break;
         }
       }
     }
 
     return [
-      doesAcademyExist,
-      doesSmithyExist,
-      doesMarketplaceExist,
-      doesBreweryExist,
+      hasAcademyBuilding,
+      hasSmithyBuilding,
+      hasMarketplaceBuilding,
+      hasBreweryBuilding,
     ];
   }, [currentVillage.buildingFields]);
 

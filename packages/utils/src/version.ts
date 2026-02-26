@@ -13,8 +13,8 @@ export const parseDatabaseUserVersion = (
   version: number,
 ): [number, number, number] => {
   const major = Math.floor(version / 1_000_000);
-  const minor = Math.floor((version % 1_000_000) / 1_000);
-  const patch = version % 1_000;
+  const minor = Math.floor((version % 1_000_000) / 1000);
+  const patch = version % 1000;
 
   return [major, minor, patch];
 };
@@ -24,5 +24,5 @@ export const encodeAppVersionToDatabaseUserVersion = (
 ): number => {
   const [major, minor, patch] = parseAppVersion(version);
 
-  return major * 1_000_000 + minor * 1_000 + patch;
+  return major * 1_000_000 + minor * 1000 + patch;
 };

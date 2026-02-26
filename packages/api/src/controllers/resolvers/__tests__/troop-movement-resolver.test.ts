@@ -141,7 +141,7 @@ describe(adventureMovementResolver, () => {
       bind: { $heroId: heroId },
       schema: z.any(),
     });
-    expect(effects.length).toBe(0);
+    expect(effects).toHaveLength(0);
   });
 });
 

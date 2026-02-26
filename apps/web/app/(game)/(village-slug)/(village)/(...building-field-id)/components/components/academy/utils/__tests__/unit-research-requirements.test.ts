@@ -5,7 +5,7 @@ import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)
 
 // TODO: Add more tests here
 describe('unit-research-requirements', () => {
-  test('You should not be able to research swordsman without lvl. 3 academy', () => {
+  test('should not be able to research swordsman without lvl. 3 academy', () => {
     const { canResearch } = assessUnitResearchReadiness(
       'SWORDSMAN',
       villageMock,
@@ -13,7 +13,7 @@ describe('unit-research-requirements', () => {
     expect(canResearch).toBeFalsy();
   });
 
-  test('You should be able to research swordsman with lvl. 3 academy', () => {
+  test('should be able to research swordsman with lvl. 3 academy', () => {
     const village: Village = {
       ...villageMock,
       buildingFields: [{ buildingId: 'ACADEMY', id: 1, level: 3 }],

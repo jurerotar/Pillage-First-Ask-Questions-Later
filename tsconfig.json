@@ -13,8 +13,9 @@
     "verbatimModuleSyntax": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
+    "strictNullChecks": true,
     "erasableSyntaxOnly": true,
-    "noEmit": true,
+    "noEmit": true
   },
   "include": [
     "apps/**/*",

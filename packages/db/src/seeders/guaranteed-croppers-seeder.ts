@@ -99,9 +99,7 @@ export const guaranteedCroppersSeeder = (
       return;
     }
 
-    const values = Array.from(ids)
-      .map((id) => `(${id}, '${rfc}')`)
-      .join(',\n      ');
+    const values = [...ids].map((id) => `(${id}, '${rfc}')`).join(',\n      ');
 
     const sql = `
       WITH

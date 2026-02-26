@@ -63,7 +63,7 @@ describe('quest utils', () => {
       });
     });
 
-    test('WOODCUTTER oneOf level 1 (effectiveLevel=0) returns base/2', () => {
+    test('woodcutter oneOf level 1 (effectiveLevel=0) returns base/2', () => {
       const base = 100;
       const level = 1;
       const effectiveLevel = level - 1;
@@ -76,7 +76,7 @@ describe('quest utils', () => {
       });
     });
 
-    test('WOODCUTTER oneOf level 3 calculation', () => {
+    test('woodcutter oneOf level 3 calculation', () => {
       const base = 100;
       const level = 3;
       const effectiveLevel = level - 1; // 2
@@ -89,7 +89,7 @@ describe('quest utils', () => {
       });
     });
 
-    test('CLAY_PIT every matcher uses power 1.3 formula', () => {
+    test('clay pit every matcher uses power 1.3 formula', () => {
       const base = 150;
       const level = 5;
       const effectiveLevel = level - 1;

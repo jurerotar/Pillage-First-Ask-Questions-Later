@@ -47,7 +47,7 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      const startsAt = 1_000;
+      const startsAt = 1000;
       const duration = 500;
       insertEvents(database, [
         createUnitImprovementEventMock({
@@ -65,7 +65,7 @@ describe('events utils', () => {
         }),
       );
 
-      expect(result).toEqual([false, 'Smithy is busy']);
+      expect(result).toStrictEqual([false, 'Smithy is busy']);
     });
 
     test('unitImprovement - should return true if smithy is idle', async () => {
@@ -77,14 +77,14 @@ describe('events utils', () => {
         villageId,
       } as GameEvent<'unitImprovement'>);
 
-      expect(result).toEqual([true, null]);
+      expect(result).toStrictEqual([true, null]);
     });
 
     test('unitResearch - should return false if academy is busy', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      const startsAt = 2_000;
+      const startsAt = 2000;
       const duration = 500;
       insertEvents(database, [
         createUnitResearchEventMock({
@@ -102,7 +102,7 @@ describe('events utils', () => {
         }),
       );
 
-      expect(result).toEqual([false, 'Academy is busy']);
+      expect(result).toStrictEqual([false, 'Academy is busy']);
     });
 
     test('unitResearch - should return false if unit is already researched', async () => {
@@ -122,7 +122,7 @@ describe('events utils', () => {
         }),
       );
 
-      expect(result).toEqual([false, 'Unit is already researched']);
+      expect(result).toStrictEqual([false, 'Unit is already researched']);
     });
 
     test('unitResearch - should return true if academy idle and unit not researched', async () => {
@@ -141,7 +141,7 @@ describe('events utils', () => {
         }),
       );
 
-      expect(result).toEqual([true, null]);
+      expect(result).toStrictEqual([true, null]);
     });
 
     test('troopTraining - should return false if unit is not researched', async () => {
@@ -158,7 +158,7 @@ describe('events utils', () => {
       });
 
       const result = validateEventCreationPrerequisites(database, event);
-      expect(result).toEqual([false, 'Unit is not researched']);
+      expect(result).toStrictEqual([false, 'Unit is not researched']);
     });
 
     test('other events - should return true by default', async () => {
@@ -167,7 +167,7 @@ describe('events utils', () => {
         database,
         createGameEventMock('buildingLevelChange'),
       );
-      expect(result).toEqual([true, null]);
+      expect(result).toStrictEqual([true, null]);
     });
 
     test('heroRevival - should return false if hero is already alive', async () => {
@@ -184,7 +184,7 @@ describe('events utils', () => {
         villageId,
       } as GameEvent<'heroRevival'>);
 
-      expect(result).toEqual([false, 'Hero is already alive']);
+      expect(result).toStrictEqual([false, 'Hero is already alive']);
     });
 
     test('heroRevival - should return true if hero is dead', async () => {
@@ -201,7 +201,7 @@ describe('events utils', () => {
         villageId,
       } as GameEvent<'heroRevival'>);
 
-      expect(result).toEqual([true, null]);
+      expect(result).toStrictEqual([true, null]);
     });
   });
 
@@ -312,7 +312,7 @@ describe('events utils', () => {
       const event = createBuildingLevelChangeEventMock();
 
       const result = getEventCost(database, event);
-      expect(result).toEqual([0, 0, 0, 0]);
+      expect(result).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('buildingLevelUp - should return non-zero cost if free building construction disabled', async () => {
@@ -321,7 +321,7 @@ describe('events utils', () => {
       const event = createBuildingLevelChangeEventMock();
 
       const result = getEventCost(database, event);
-      expect(result.length).toBe(4);
+      expect(result).toHaveLength(4);
       expect(result.some((v) => v > 0)).toBeTruthy();
     });
 
@@ -329,14 +329,14 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_free_unit_research_enabled', 1);
       const event = createUnitResearchEventMock();
-      expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('unitImprovement - should return zero cost if free unit improvement enabled', async () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_free_unit_improvement_enabled', 1);
       const event = createUnitImprovementEventMock();
-      expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('troopTraining - should return zero cost if free unit training enabled', async () => {
@@ -345,7 +345,7 @@ describe('events utils', () => {
       const event = createTroopTrainingEventMock({
         amount: 10,
       });
-      expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('troopTraining - should return tripled cost for Great Barracks vs Barracks', async () => {
@@ -362,7 +362,7 @@ describe('events utils', () => {
       const baseCost = getEventCost(database, baseEvent);
       const greatCost = getEventCost(database, greatEvent);
 
-      expect(greatCost).toEqual(baseCost.map((v) => v * 3));
+      expect(greatCost).toStrictEqual(baseCost.map((v) => v * 3));
     });
 
     test('heroRevival - should return correct cost', async () => {
@@ -394,7 +394,7 @@ describe('events utils', () => {
         villageId,
       } as GameEvent<'heroRevival'>);
 
-      expect(result).toEqual(expectedCost);
+      expect(result).toStrictEqual(expectedCost);
     });
 
     test('heroRevival - should return zero cost if free hero revival enabled', async () => {
@@ -407,7 +407,7 @@ describe('events utils', () => {
         villageId,
       } as GameEvent<'heroRevival'>);
 
-      expect(result).toEqual([0, 0, 0, 0]);
+      expect(result).toStrictEqual([0, 0, 0, 0]);
     });
   });
 
@@ -562,7 +562,7 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      const startsAt = 1_000;
+      const startsAt = 1000;
       const duration = 500;
       insertEvents(database, [
         createTroopTrainingEventMock({
@@ -578,14 +578,14 @@ describe('events utils', () => {
         batchId: 'b2',
       });
 
-      expect(getEventStartTime(database, newEvent)).toBe(1_500);
+      expect(getEventStartTime(database, newEvent)).toBe(1500);
     });
 
     test('unitImprovement - should return last resolves_at or now', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      const startsAt = 2_000;
+      const startsAt = 2000;
       const duration = 500;
       insertEvents(database, [
         createUnitImprovementEventMock({
@@ -601,14 +601,14 @@ describe('events utils', () => {
         createUnitImprovementEventMock(),
       );
 
-      expect(startTime).toBe(2_500);
+      expect(startTime).toBe(2500);
     });
 
     test('scheduledBuildingEvent - should return resolvesAt from database', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      const startsAt = 3_000;
+      const startsAt = 3000;
       const duration = 400;
       insertEvents(database, [
         createBuildingLevelChangeEventMock({
@@ -628,7 +628,7 @@ describe('events utils', () => {
         }),
       );
 
-      expect(startTime).toBe(3_400);
+      expect(startTime).toBe(3400);
     });
 
     test('adventurePointIncrease - should return startsAt + duration', async () => {

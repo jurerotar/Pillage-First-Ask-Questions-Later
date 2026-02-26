@@ -104,7 +104,7 @@ export const createDbFacade = (
       const data = row.at(0);
 
       if (data === undefined) {
-        return undefined;
+        return;
       }
 
       return schema.parse(data);
@@ -171,7 +171,7 @@ export const createDbFacade = (
         );
       }
 
-      return undefined;
+      return;
     },
 
     selectObjects: ({ sql, bind, schema }) => {
