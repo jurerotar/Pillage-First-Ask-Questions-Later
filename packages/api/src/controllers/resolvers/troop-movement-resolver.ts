@@ -20,9 +20,9 @@ export const adventureMovementResolver: Resolver<
     sql: `
       UPDATE heroes
       SET
-        health = MAX(0, health - MAX(0, 5 - damage_reduction)),
+        health = MAX(0, health - MAX(0, 50 - damage_reduction)),
         experience = experience + CASE
-            WHEN MAX(0, health - MAX(0, 5 - damage_reduction)) > 0
+            WHEN MAX(0, health - MAX(0, 50 - damage_reduction)) > 0
               THEN (
                      SELECT completed + 1
                      FROM
