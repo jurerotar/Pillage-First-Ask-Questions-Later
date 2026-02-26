@@ -47,7 +47,7 @@ const createServerFormSchema = z.strictObject({
       // fom completely breaks
       .overwrite((val) => Number.parseInt(val, 10)),
     mapSize: z
-      .enum(['100', '200', '300'])
+      .enum(['100', '200'])
       // @ts-expect-error
       .overwrite((val) => Number.parseInt(val, 10)),
   }),
@@ -226,7 +226,6 @@ export const CreateNewGameWorldForm = () => {
                       <SelectContent>
                         <SelectItem value="100">100x100</SelectItem>
                         <SelectItem value="200">200x200</SelectItem>
-                        <SelectItem value="300">300x300</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
