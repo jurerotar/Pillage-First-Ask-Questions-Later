@@ -46,7 +46,7 @@ describe('village-controllers', () => {
     expect(true).toBeTruthy();
   });
 
-  describe('rearrangeBuildingFields', () => {
+  describe(rearrangeBuildingFields, () => {
     test('should swap two occupied building fields and update events', async () => {
       const database = await prepareTestDatabase();
 

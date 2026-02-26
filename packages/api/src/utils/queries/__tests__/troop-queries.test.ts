@@ -6,7 +6,7 @@ import type { Unit } from '@pillage-first/types/models/unit';
 import { addTroops, removeTroops } from '../troop-queries';
 
 describe('troop-queries', () => {
-  describe('addTroops', () => {
+  describe(addTroops, () => {
     test('should insert new troops', async () => {
       const database = await prepareTestDatabase();
 
@@ -140,7 +140,7 @@ describe('troop-queries', () => {
     });
   });
 
-  describe('removeTroops', () => {
+  describe(removeTroops, () => {
     test('should subtract troops', async () => {
       const database = await prepareTestDatabase();
 

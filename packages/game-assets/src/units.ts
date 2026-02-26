@@ -1205,7 +1205,7 @@ export const natarianUnits: Unit[] = [
   {
     id: 'THORNED_WARRIOR',
     baseRecruitmentCost: [100, 100, 100, 50],
-    baseRecruitmentDuration: 120000,
+    baseRecruitmentDuration: 120_000,
     unitWheatConsumption: 1,
     attack: 65,
     infantryDefence: 30,
@@ -1220,7 +1220,7 @@ export const natarianUnits: Unit[] = [
   {
     id: 'GUARDSMAN',
     baseRecruitmentCost: [150, 150, 150, 150],
-    baseRecruitmentDuration: 180000,
+    baseRecruitmentDuration: 180_000,
     unitWheatConsumption: 1,
     attack: 100,
     infantryDefence: 90,

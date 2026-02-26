@@ -79,9 +79,9 @@ const getAssessedRequirementsByType = (
 };
 
 describe('building-requirements', () => {
-  describe('Tribe requirement', () => {
-    describe('Non-playable tribe can not build any of the playable tribe specific buildings', () => {
-      test('Natars can not build trapper', () => {
+  describe('tribe requirement', () => {
+    describe('non-playable tribe can not build any of the playable tribe specific buildings', () => {
+      test('natars can not build trapper', () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           tribe: 'natars',
@@ -94,7 +94,7 @@ describe('building-requirements', () => {
         expect(fulfilled).toBeFalsy();
       });
 
-      test('Natars can not build brewery', () => {
+      test('natars can not build brewery', () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           tribe: 'natars',
@@ -107,7 +107,7 @@ describe('building-requirements', () => {
         expect(fulfilled).toBeFalsy();
       });
 
-      test('Natars can not build horse drinking trough', () => {
+      test('natars can not build horse drinking trough', () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           tribe: 'natars',
@@ -120,7 +120,7 @@ describe('building-requirements', () => {
         expect(fulfilled).toBeFalsy();
       });
 
-      test('Natars can not build command center', () => {
+      test('natars can not build command center', () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           tribe: 'natars',
@@ -133,7 +133,7 @@ describe('building-requirements', () => {
         expect(fulfilled).toBeFalsy();
       });
 
-      test('Natars can not build waterworks', () => {
+      test('natars can not build waterworks', () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           tribe: 'natars',
@@ -147,7 +147,7 @@ describe('building-requirements', () => {
       });
     });
 
-    test('Gauls may build trapper', () => {
+    test('gauls may build trapper', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         tribe: 'gauls',
@@ -160,7 +160,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test('Teutons may build brewery', () => {
+    test('teutons may build brewery', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         tribe: 'teutons',
@@ -173,7 +173,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test('Romans may build horse drinking trough', () => {
+    test('romans may build horse drinking trough', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         tribe: 'romans',
@@ -186,7 +186,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test('Huns may build command center', () => {
+    test('huns may build command center', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         tribe: 'huns',
@@ -199,7 +199,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test('Egyptians may build waterworks', () => {
+    test('egyptians may build waterworks', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         tribe: 'egyptians',
@@ -213,8 +213,8 @@ describe('building-requirements', () => {
     });
   });
 
-  describe('Amount requirement', () => {
-    test('Can build a granary', () => {
+  describe('amount requirement', () => {
+    test('can build a granary', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'GRANARY',
@@ -226,7 +226,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test("Can't build a second main building", () => {
+    test("can't build a second main building", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'MAIN_BUILDING',
@@ -238,7 +238,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeFalsy();
     });
 
-    test("Can't build a palisade", () => {
+    test("can't build a palisade", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
@@ -253,7 +253,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeFalsy();
     });
 
-    test("Can't build a second main building even if first is max level", () => {
+    test("can't build a second main building even if first is max level", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
@@ -268,7 +268,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeFalsy();
     });
 
-    test('Can build a second cranny if first one is max level', () => {
+    test('can build a second cranny if first one is max level', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
@@ -283,7 +283,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test('Can build a third cranny if one is max level, even if other is not max level', () => {
+    test('can build a third cranny if one is max level, even if other is not max level', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
@@ -299,7 +299,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test("Can't build a cranny if one is already in building queue", () => {
+    test("can't build a cranny if one is already in building queue", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingIdsInQueue: toIdsInQueue([buildingConstructionEventMock]),
@@ -313,7 +313,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeFalsy();
     });
 
-    test('Can build a third cranny even if one is already in building queue, if you have a max level one', () => {
+    test('can build a third cranny even if one is already in building queue, if you have a max level one', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
@@ -331,8 +331,8 @@ describe('building-requirements', () => {
     });
   });
 
-  describe('Building level requirement', () => {
-    test('Can not build barracks immediately as a new village', () => {
+  describe('building level requirement', () => {
+    test('can not build barracks immediately as a new village', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         buildingId: 'BARRACKS',
@@ -344,7 +344,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeFalsy();
     });
 
-    test('Can build barracks once main building is upgraded', () => {
+    test('can build barracks once main building is upgraded', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap(
@@ -359,7 +359,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test('Can build workshop with academy and main building at lvl 10', () => {
+    test('can build workshop with academy and main building at lvl 10', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap(
@@ -375,7 +375,7 @@ describe('building-requirements', () => {
     });
 
     // Testing this to make sure your buildings can be higher level than required
-    test('Can build stable with academy and main building at lvl 10', () => {
+    test('can build stable with academy and main building at lvl 10', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap(
@@ -390,7 +390,7 @@ describe('building-requirements', () => {
       expect(fulfilled).toBeTruthy();
     });
 
-    test("Can not build brickyard with clay pit lvl 10 if it's missing main building", () => {
+    test("can not build brickyard with clay pit lvl 10 if it's missing main building", () => {
       const args: AssessBuildingConstructionReadinessArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([

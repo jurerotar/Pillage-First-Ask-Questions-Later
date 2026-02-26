@@ -11,15 +11,18 @@ import {
 } from '../developer-tools-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
-vi.mock('../../scheduler/scheduler-signal', async () => {
-  const actual = await vi.importActual<typeof schedulerSignal>(
-    '../../scheduler/scheduler-signal',
-  );
-  return {
-    ...actual,
-    triggerKick: vi.fn(),
-  };
-});
+vi.mock<typeof import('../../scheduler/scheduler-signal')>(
+  import('../../scheduler/scheduler-signal'),
+  async () => {
+    const actual = await vi.importActual<typeof schedulerSignal>(
+      '../../scheduler/scheduler-signal',
+    );
+    return {
+      ...actual,
+      triggerKick: vi.fn(),
+    };
+  },
+);
 
 describe('developer-tools-controllers', () => {
   const playerId = PLAYER_ID;

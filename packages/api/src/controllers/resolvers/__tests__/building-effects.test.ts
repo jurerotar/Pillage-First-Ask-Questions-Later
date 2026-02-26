@@ -24,7 +24,7 @@ describe('building effects', () => {
 
       // Construct building at level 0
       buildingConstructionResolver(database, {
-        id: Math.floor(Math.random() * 1000000),
+        id: Math.floor(Math.random() * 1_000_000),
         type: 'buildingConstruction',
         startsAt: 1000,
         duration: 500,
@@ -50,7 +50,7 @@ describe('building effects', () => {
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
       buildingLevelChangeResolver(database, {
-        id: Math.floor(Math.random() * 1000000),
+        id: Math.floor(Math.random() * 1_000_000),
         type: 'buildingLevelChange',
         startsAt: 2000,
         duration: 500,

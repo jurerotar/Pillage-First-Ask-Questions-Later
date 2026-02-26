@@ -55,10 +55,10 @@ export const DeveloperToolsButton = ({
   );
 };
 
-interface DevToolsConsoleProps {
+type DevToolsConsoleProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-}
+};
 
 const RESOURCES: Resource[] = ['wood', 'clay', 'iron', 'wheat'];
 const AMOUNTS: (100 | 1000 | 10000)[] = [100, 1000, 10000];
@@ -207,34 +207,44 @@ export const DeveloperToolsConsole = ({
                   </div>
                   <div className="space-y-2">
                     <div className="flex gap-2">
-                      {AMOUNTS.map((amount) => (
+                      {AMOUNTS.map((amountToSpawn) => (
                         <Button
-                          key={`${resource}-add-${amount}`}
+                          key={`${resource}-add-${amountToSpawn}`}
                           size="sm"
                           className="h-8 px-2 min-w-[3.5rem] flex-1"
                           onClick={() =>
-                            handleUpdateResource(resource, amount, 'add')
+                            handleUpdateResource(resource, amountToSpawn, 'add')
                           }
                         >
                           <span>
-                            +{amount >= 1000 ? `${amount / 1000}k` : amount}
+                            +
+                            {amountToSpawn >= 1000
+                              ? `${amountToSpawn / 1000}k`
+                              : amountToSpawn}
                           </span>
                         </Button>
                       ))}
                     </div>
                     <div className="flex gap-2">
-                      {AMOUNTS.map((amount) => (
+                      {AMOUNTS.map((amountToRemove) => (
                         <Button
-                          key={`${resource}-subtract-${amount}`}
+                          key={`${resource}-subtract-${amountToRemove}`}
                           size="sm"
                           variant="destructive"
                           className="h-8 px-2 min-w-[3.5rem] flex-1"
                           onClick={() =>
-                            handleUpdateResource(resource, amount, 'subtract')
+                            handleUpdateResource(
+                              resource,
+                              amountToRemove,
+                              'subtract',
+                            )
                           }
                         >
                           <span>
-                            -{amount >= 1000 ? `${amount / 1000}k` : amount}
+                            -
+                            {amountToRemove >= 1000
+                              ? `${amountToRemove / 1000}k`
+                              : amountToRemove}
                           </span>
                         </Button>
                       ))}

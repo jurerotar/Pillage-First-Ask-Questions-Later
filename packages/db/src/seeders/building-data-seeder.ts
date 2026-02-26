@@ -28,7 +28,7 @@ export const buildingDataSeeder = (database: DbFacade): void => {
   const buildingDataToInsert: (string | number | null)[][] = [];
 
   for (const building of buildings) {
-    for (let level = 0; level <= building.maxLevel; level++) {
+    for (let level = 0; level <= building.maxLevel; level += 1) {
       const population = calculateTotalPopulationForLevel(building.id, level);
 
       // Add population (negative wheat production)

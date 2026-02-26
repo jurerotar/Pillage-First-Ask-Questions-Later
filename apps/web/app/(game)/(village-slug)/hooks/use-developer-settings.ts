@@ -112,11 +112,7 @@ export const useDeveloperSettings = () => {
     },
   );
 
-  const { mutate: incrementHeroAdventurePoints } = useMutation<
-    void,
-    Error,
-    void
-  >({
+  const { mutate: incrementHeroAdventurePoints } = useMutation<void>({
     mutationFn: async () => {
       await fetcher(
         `/developer-settings/${hero.id}/increment-adventure-points`,
@@ -132,7 +128,7 @@ export const useDeveloperSettings = () => {
     },
   });
 
-  const { mutate: levelUpHero } = useMutation<void, Error, void>({
+  const { mutate: levelUpHero } = useMutation<void>({
     mutationFn: async () => {
       await fetcher(`/developer-settings/${hero.id}/level-up`, {
         method: 'PATCH',

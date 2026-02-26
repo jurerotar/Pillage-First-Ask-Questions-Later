@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, expectTypeOf, test } from 'vitest';
 import { z } from 'zod';
 import {
   calculateTotalPopulationForLevel,
@@ -355,7 +355,7 @@ describe('migrateAndSeed', () => {
       });
 
       for (const r of rows) {
-        expect(typeof r.resource).toBe('string');
+        expectTypeOf(typeof r.resource).toBeString();
         expect(r.resource).toBe(r.resource?.toLowerCase());
         const bonusNum = Number(r.bonus);
         expect([25, 50].includes(bonusNum)).toBeTruthy();
@@ -1203,7 +1203,7 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('Effects per village', () => {
+  describe('effects per village', () => {
     test('has building-based wheatProduction matching population (source_specifier = 0)', () => {
       // Preload effect id for wheatProduction
       const wheatEffectId = database.selectValue({

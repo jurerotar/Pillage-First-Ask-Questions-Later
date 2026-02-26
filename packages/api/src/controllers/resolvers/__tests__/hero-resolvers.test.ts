@@ -35,7 +35,7 @@ describe('hero-resolvers', () => {
       schema: z.strictObject({ effect: z.string() }),
     });
 
-    expect(effects.length).toBe(4);
+    expect(effects).toHaveLength(4);
     const effectNames = effects.map((e) => e.effect);
     expect(effectNames).toContain('woodProduction');
     expect(effectNames).toContain('clayProduction');

@@ -46,8 +46,7 @@ export const matchRoute = (url: string, method: string) => {
     }
 
     // Only clone params if we actually need to cast any numeric values
-    let params: Record<string, string | number> | Record<string, string> =
-      result.params;
+    let { params } = result;
 
     for (const [key, rawValue] of Object.entries(result.params)) {
       if (!numericParams.has(key)) {
@@ -62,7 +61,7 @@ export const matchRoute = (url: string, method: string) => {
             ...result.params,
           };
         }
-        params[key] = n;
+        params[key] = `${n}`;
       }
     }
 

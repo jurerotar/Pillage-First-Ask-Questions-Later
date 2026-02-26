@@ -54,7 +54,7 @@ export const updateDeveloperSettings = createController(
     let eventTypes: string[] = [];
 
     switch (developerSettingName) {
-      case 'isInstantBuildingConstructionEnabled':
+      case 'isInstantBuildingConstructionEnabled': {
         eventTypes = [
           'buildingLevelChange',
           'buildingScheduledConstruction',
@@ -62,16 +62,20 @@ export const updateDeveloperSettings = createController(
           'buildingDestruction',
         ];
         break;
-      case 'isInstantUnitTrainingEnabled':
+      }
+      case 'isInstantUnitTrainingEnabled': {
         eventTypes = ['troopTraining'];
         break;
-      case 'isInstantUnitImprovementEnabled':
+      }
+      case 'isInstantUnitImprovementEnabled': {
         eventTypes = ['unitImprovement'];
         break;
-      case 'isInstantUnitResearchEnabled':
+      }
+      case 'isInstantUnitResearchEnabled': {
         eventTypes = ['unitResearch'];
         break;
-      case 'isInstantUnitTravelEnabled':
+      }
+      case 'isInstantUnitTravelEnabled': {
         eventTypes = [
           'troopMovementReinforcements',
           'troopMovementRelocation',
@@ -83,9 +87,11 @@ export const updateDeveloperSettings = createController(
           'troopMovementAdventure',
         ];
         break;
-      case 'isInstantHeroReviveEnabled':
+      }
+      case 'isInstantHeroReviveEnabled': {
         eventTypes = ['heroRevival'];
         break;
+      }
     }
 
     if (eventTypes.length > 0) {

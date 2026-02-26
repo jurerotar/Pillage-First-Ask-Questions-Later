@@ -434,7 +434,7 @@ describe('hero-controllers', () => {
         bind: { $itemId: itemId },
         schema: z.strictObject({ effect_id: z.number() }),
       });
-      expect(effects.length).toBe(0);
+      expect(effects).toHaveLength(0);
     });
   });
 
