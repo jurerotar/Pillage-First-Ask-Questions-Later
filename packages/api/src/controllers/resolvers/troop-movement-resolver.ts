@@ -61,6 +61,13 @@ export const adventureMovementResolver: Resolver<
       bind: { $playerId: PLAYER_ID },
     });
 
+    database.exec({
+      sql: 'UPDATE hero_adventures SET available = available - 1 WHERE hero_id = $heroId;',
+      bind: {
+        $heroId: heroId,
+      },
+    });
+
     return;
   }
 

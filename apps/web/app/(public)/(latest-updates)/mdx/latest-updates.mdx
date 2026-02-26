@@ -1,194 +1,267 @@
 import { Alert } from 'app/components/ui/alert.tsx';
+import { PerformanceBlock } from './components/performance-block.tsx';
+import { FeaturesBlock } from './components/features-block.tsx';
+import { BugFixesBlock } from './components/bug-fixes-block.tsx';
+import { TechnicalImprovementBlock } from './components/technical-improvement-block.tsx';
 
-<div>
-  ## Version 0.3.1
-  #### Feb 20, 2026
-
-  * Further improvements to database. This update resolves in game world creation time dropping by over 50%!
-</div>
-
-<div>
+<section>
   ## Version 0.3.0
-  #### Feb 17, 2026
-
-  * Improved database performance. You can now expect ~ 10-30% smaller SQLite files (depending on world size and seed),
-  faster queries and writes.
-  * Improved database breaking changes detection. App will now more consistently detect outdated game worlds.
-  * Fixed an issue where some occupiable oasis did not have proper resource bonuses and animals generated
-  * Fixed an issue where not all occupiable oasis were shown in Hero's Mansion
+  #### Feb 26, 2026
 
   <Alert variant="error">
     <span>This version introduces breaking changes</span>
   </Alert>
-</div>
 
-<div>
+  <FeaturesBlock>
+    * Added hero adventures! Too long have our heroes sat idly by. No longer! You’ll now have an option to send hero on
+    adventures to gather loot and experience! <br />
+    Adventures will take anywhere from 8 to 12 minutes, and are scaled with game world speed.<br />
+    Each adventure will cost your hero some health points; 5 to be exact. This can be reduced by wearing damage-reducing
+    gear!<br />
+    Your hero earns experience each time it completes an adventure. It currently receives `10 *
+    (number_of_completed_adventures + 1)` experience per successful adventure!<br />
+    Your hero will receive loot on successfully finishing an adventure. We’re currently still missing loot tables, so
+    this is coming in a later patch, along with hero inventory interface.<br />
+
+  </FeaturesBlock>
+
+  <BugFixesBlock>
+    * Fixed an issue where some occupiable oasis did not have proper resource bonuses and animals generated.
+
+    * Fixed an issue where not all occupiable oasis were shown in Hero's Mansion.
+  </BugFixesBlock>
+
+  <PerformanceBlock>
+    * Improved database seeding performance and reduced overall size of the database file. We implemented 2 separate
+    changes in regards to database. First one reduced overall database size by around 10-30% percent, depending on game
+    world size. Second one cut the time to seed the database by over 50% on game worlds of all sizes. This results in
+    faster game world creation, as well as better performance while in game!
+  </PerformanceBlock>
+
+  <TechnicalImprovementBlock>
+    * Improved database breaking changes detection. App will now more consistently detect outdated game worlds.
+  </TechnicalImprovementBlock>
+</section>
+
+<section>
   ## Version 0.2.3
   #### Feb 21, 2026
 
-  * Fixed discrepancy between population count shown on the map and in statistics
-</div>
+  <BugFixesBlock>
+    * Fixed discrepancy between population count shown on the map and in statistics.
+  </BugFixesBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.2.2
   #### Feb 21, 2026
 
-  * Fixed building construction queue tooltips overlapping on tables
-</div>
+  <BugFixesBlock>
+    * Fixed building construction queue tooltips overlapping on tables.
+  </BugFixesBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.2.1
   #### Feb 16, 2026
 
-  * Added an option to view constructable buildings list in compacted form. This change allows players to scroll less,
-  especially on mobile devices.
-  * Added the ability to commit minor database upgrades without breaking game worlds.
-</div>
+  <FeaturesBlock>
+    * Added an option to view constructable buildings list in compacted form. This change allows players to scroll less,
+    especially on mobile devices.
 
-<div>
+    * Added the ability to commit minor database upgrades without breaking game worlds.
+  </FeaturesBlock>
+</section>
+
+<section>
   ## Version 0.2.0
   #### Feb 15, 2026
 
-  * Added hero attributes page. You're now able to see all your hero attributes. There are some additional attributes
-  which are not shown (cranny plunder,...). These options will be added in a later patch. Page also allows you to change
-  hero's ability points, along with the ability to switch hero resource production focus. The dropdown shows you
-  production values to expect on change.
-  * A "hero level up" option has been added to developer tools.
-
   <Alert variant="error">
     <span>This version introduces breaking changes</span>
   </Alert>
-</div>
 
-<div>
+  <FeaturesBlock>
+    * Added hero attributes page. You're now able to see all your hero attributes. There are some additional attributes
+    which are not shown (cranny plunder,...). These options will be added in a later patch. Page also allows you to
+    change
+    hero's ability points, along with the ability to switch hero resource production focus. The dropdown shows you
+    production values to expect on change.
+
+    * A "hero level up" option has been added to developer tools.
+  </FeaturesBlock>
+</section>
+
+<section>
   ## Version 0.1.2
   #### Feb 11, 2026
 
-  * Fixed an issue where barracks and stable upgrades wouldn't decrease unit training duration
-</div>
+  <BugFixesBlock>
+    * Fixed an issue where barracks and stable upgrades wouldn't decrease unit training duration.
+  </BugFixesBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.1.1
   #### Feb 11, 2026
 
-  * Improved performance of resolving events. Updating resources query now doesn't run, if there's no change to
-  resources
-  * Fixed an issue where upgrading buildings wouldn't increase the building effect values (building duration, troop
-  training, ...)
-  * Fixed an issue where environment variables weren't getting injected
-</div>
+  <BugFixesBlock>
+    * Fixed an issue where upgrading buildings wouldn't increase the building effect values (building duration, troop
+    training,...).
 
-<div>
+    * Fixed an issue where environment variables weren't getting injected.
+  </BugFixesBlock>
+
+  <PerformanceBlock>
+    * Improved performance of resolving events. Updating resources query now doesn't run, if there's no change to
+    resources.
+  </PerformanceBlock>
+</section>
+
+<section>
   ## Version 0.1.0
   #### Feb 9, 2026
-
-  **Long awaited engine rework is finally here!**
-
-  This update is not compatible with existing game worlds and requires creation of new game worlds. Along with the
-  engine rework, this update also brings the following features:
-
-  * Player pages - you can now see player information, along with the list of villages they occupy
-  * Statistics pages - you can now see the ranking of all players and all villages, based on population
-  * Game world overview page - you can now see the split of tribes, factions and basic game world information
-  * Oasis bonus finder - long gone are the days of manually checking the map for your perfect location of your next
-  village. This tool allows you to find all tiles with specific resource composition and bonuses!
-  * Reworked developer tools - you may now toggle instant completion and free-cost of individual event types, add or
-  remove resources, add adventure points or spawn hero items!
-  * Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as development
-  continues!
-
-  From technical improvement perspective, we haven't been idling. New version fixes the long-standing issue of game
-  world state corruption, it massively improves developer experience and speed, adds over 200 tests and enables us to
-  onboard new contributors easier! These changes were contributed by over 7 new contributors!
 
   <Alert variant="error">
     <span>This version introduces breaking changes</span>
   </Alert>
-</div>
 
-<div>
+  <FeaturesBlock>
+    **Long awaited engine rework is finally here!**
+
+    This update is not compatible with existing game worlds and requires creation of new game worlds. Along with the
+    engine rework, this update also brings the following features:
+
+    * Player pages - you can now see player information, along with the list of villages they occupy.
+    * Statistics pages - you can now see the ranking of all players and all villages, based on population.
+    * Game world overview page - you can now see the split of tribes, factions and basic game world information.
+    * Oasis bonus finder - long gone are the days of manually checking the map for your perfect location of your next
+    village. This tool allows you to find all tiles with specific resource composition and bonuses!
+    * Reworked developer tools - you may now toggle instant completion and free-cost of insectionidual event types, add or
+    remove resources, add adventure points or spawn hero items!
+    * Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as
+    development
+    continues!
+  </FeaturesBlock>
+
+  <TechnicalImprovementBlock>
+    From technical improvement perspective, we haven't been idling. New version fixes the long-standing issue of game
+    world state corruption, it massively improves developer experience and speed, adds over 200 tests and enables us to
+    onboard new contributors easier! These changes were contributed by over 7 new contributors!
+  </TechnicalImprovementBlock>
+</section>
+
+<section>
   ## Version 0.0.49
   #### Jan 26, 2026
 
-  * We've improved the performance of the game world creation. You can expect 10-15% faster game world generation!
-</div>
+  <PerformanceBlock>
+    * We've improved the performance of the game world creation. You can expect 10-15% faster game world generation!
+  </PerformanceBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.0.48
   #### Jan 19, 2026
 
-  * You’ll now be able to start building upgrades faster on mobile! Simply press the building upgrade indicator for a
-  second and the building will start upgrading, without you having to open the building interface and clicking the build
-  button.
-</div>
+  <FeaturesBlock>
+    * You’ll now be able to start building upgrades faster on mobile! Simply press the building upgrade indicator for a
+    second and the building will start upgrading, without you having to open the building interface and clicking the
+    build
+    button.
+  </FeaturesBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.0.47
   #### Jan 7, 2026
 
-  * We transitioned repository to a monorepo. This came with some technical challenges, but also a ton of clarity.
-  Project
-  is now much simpler to navigate and reason about!
+  <PerformanceBlock>
+    * We've reworked some of the scripts used in game-world generation and as a result, generation is now about 10-15%
+    faster. This is especially important on larger worlds or when using a lower-end device, where generation may take a
+    couple of seconds.
+  </PerformanceBlock>
 
-  * I've added oxlint to the project. This a new linting tool and its very promising. Plan is to use it side-by-side
-  with Biome (our current linter), with the goal of eventually transitioning fully off of Biome.
+  <TechnicalImprovementBlock>
+    * We transitioned repository to a monorepo. This came with some technical challenges, but also a ton of clarity.
+    Project is now much simpler to navigate and reason about!
 
-  * I've reworked some of the scripts used in game-world generation and as a result, generation is now about 10-15%
-  faster. This is especially important on larger worlds or when using a lower-end device, where generation may take a
-  couple of seconds.
-</div>
+    * We've added oxlint to the project. This a new linting tool and its very promising. Plan is to use it side-by-side
+    with Biome (our current linter), with the goal of eventually transitioning fully off of Biome.
+  </TechnicalImprovementBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.0.46
   #### Jan 4, 2026
 
-  * An external contributor added game-world-overview page. Thank you very much for your contribution!
-</div>
+  <FeaturesBlock>
+    * We added game-world-overview page. Thank you very much for your contribution!
+  </FeaturesBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.0.45
   #### Dec 30, 2025
 
-  * @Uzumaki added player pages! You'll now be able to see general information about each player, along with a list of
-  their villages. Thank you very much for your contribution!
-</div>
+  <FeaturesBlock>
+    * We added player pages! You'll now be able to see general information about each player, along with a list of
+    their villages. Thank you very much for your contribution!
+  </FeaturesBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.0.44
   #### Dec 24, 2025
 
-  * UI color scheme (dark/light mode), graphic skin variant (default, snow,...), locale & graphics day-night setting are
-  now persistent between game worlds. This doesn't mean much yet, because we don't have graphics, only support a single
-  locale and don't have a dark mode yet, but once those things arrive, you'll be able to set them once and have the
-  setting persist through all game worlds.
+  <FeaturesBlock>
+    * UI color scheme (dark/light mode), graphic skin variant (default, snow,...), locale & graphics day-night setting
+    are
+    now persistent between game worlds. This doesn't mean much yet, because we don't have graphics, only support a
+    single
+    locale and don't have a dark mode yet, but once those things arrive, you'll be able to set them once and have the
+    setting persist through all game worlds.
+  </FeaturesBlock>
 
-  * I've done a minor clean up. In this case, we managed to remove a minor dependency, which reduced the final bundle by
-  about ~60kb.
-</div>
+  <PerformanceBlock>
+    * We've done a minor clean up. In this case, we managed to remove a minor dependency, which reduced the final bundle
+    by
+    about ~60kb.
+  </PerformanceBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.0.43
   #### Dec 19, 2025
 
-  * We now have a global not-found page. I've been seeing a small rise of routing errors lately. I'm not sure if these
-  are just bots trying different subpages, but in case some real users are getting lost, this should help them out a
-  bit.
+  <FeaturesBlock>
+    * We now have a global not-found page. We've been seeing a small rise of routing errors lately. We're not sure if
+    these
+    are just bots trying different subpages, but in case some real users are getting lost, this should help them out a
+    bit.
 
-  * I've reworked the in-game error pages for game world not found and game world is already opened errors. Instead of
-  being redirected to /404 or /403, you'll now remain inside the relevant game world url. This reduces the amount of
-  clicks needed to solve a particular error.
-</div>
+    * We've reworked the in-game error pages for game world not found and game world is already opened errors. Instead
+    of
+    being redirected to /404 or /403, you'll now remain inside the relevant game world url. This reduces the amount of
+    clicks needed to solve a particular error.
+  </FeaturesBlock>
+</section>
 
-<div>
+<section>
   ## Version 0.0.42
   #### Dec 12, 2025
 
-  * I've merged the proposed fix for the layout shift by @Freeman! Thank you for your contribution, I really appreciate
-  it!
+  <BugFixesBlock>
+    * We've fixed an annoying layout shift, which appeared when changing between village and non-village pages!
+  </BugFixesBlock>
 
-  * I've substantially improved performance of the construct new building page. This page was actually flagged as one of
-  the slowest pages we have. The reason for this is because in order to determine which buildings you're allowed to
-  construct, we have to run a bunch of checks. While these checks are not that slow individually, we had to run these
-  checks multiple times for each building, which added up quickly. I've now reworked this to make it more efficient. You
-  should be seeing faster page renders, especially on mid/lower-end devices.
-</div>
+  <PerformanceBlock>
+    * We've substantially improved performance of the construct new building page. This page was actually flagged as one
+    of
+    the slowest pages we have. The reason for this is because in order to determine which buildings you're allowed to
+    construct, we have to run a bunch of checks. While these checks are not that slow insectionidually, we had to run these
+    checks multiple times for each building, which added up quickly. We've now reworked this to make it more efficient.
+    You
+    should be seeing faster page renders, especially on mid/lower-end devices.
+  </PerformanceBlock>
+</section>

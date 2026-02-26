@@ -43,6 +43,6 @@ export const calculateHeroRevivalCost = (
 };
 
 export const calculateHeroRevivalTime = (level: number): number => {
-  const minutes = Math.min(level * 15, 6 * 60); // cap at 6 hours
+  const minutes = Math.min((level + 1) * 15, 6 * 60); // cap at 6 hours
   return minutes * 60 * 1000;
 };

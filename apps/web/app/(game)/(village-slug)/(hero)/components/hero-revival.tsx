@@ -6,7 +6,10 @@ import {
 } from '@pillage-first/game-assets/hero/utils';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown.tsx';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources.ts';
+import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity.ts';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings.ts';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type.ts';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
@@ -15,6 +18,7 @@ import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import { formatTime } from 'app/utils/time.ts';
 
 export const HeroRevival = () => {
   const { t } = useTranslation();
@@ -34,9 +38,25 @@ export const HeroRevival = () => {
   const revivalCost = isFreeHeroReviveEnabled
     ? [0, 0, 0, 0]
     : calculateHeroRevivalCost(server.playerConfiguration.tribe, level);
+
   const revivalTime = isInstantHeroReviveEnabled
     ? 0
     : calculateHeroRevivalTime(level) / server.configuration.speed;
+
+  const { errorBag: hasEnoughResourcesErrorBag } =
+    useHasEnoughResources(revivalCost);
+  const { errorBag: hasEnoughWarehouseCapacityErrorBag } =
+    useHasEnoughStorageCapacity('warehouseCapacity', revivalCost);
+  const { errorBag: hasEnoughGranaryCapacityErrorBag } =
+    useHasEnoughStorageCapacity('granaryCapacity', revivalCost);
+
+  const errorBag = [
+    ...hasEnoughResourcesErrorBag,
+    ...hasEnoughWarehouseCapacityErrorBag,
+    ...hasEnoughGranaryCapacityErrorBag,
+  ];
+
+  const canRevive = errorBag.length === 0 && !isReviving;
 
   return (
     <SectionContent>
@@ -57,15 +77,13 @@ export const HeroRevival = () => {
           <Resources resources={revivalCost} />
           <div className="flex items-center gap-1">
             <Icon type="heroRevivalDuration" />
-            <Text>
-              {Math.floor(revivalTime / 1000 / 60 / 60)}h{' '}
-              {Math.floor((revivalTime / 1000 / 60) % 60)}m
-            </Text>
+            <Text>{formatTime(revivalTime)}</Text>
           </div>
+          <ErrorBag errorBag={errorBag} />
           <Button
             size="fit"
             onClick={() => reviveHero()}
-            disabled={isReviving}
+            disabled={!canRevive}
           >
             {t('Revive')}
           </Button>

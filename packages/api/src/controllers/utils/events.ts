@@ -1,5 +1,4 @@
 import type { SqlValue } from '@sqlite.org/sqlite-wasm';
-import { prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
 import {
   calculateBuildingCostForLevel,
@@ -43,7 +42,6 @@ import {
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
-import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
 import { removeTroops } from '../../utils/queries/troop-queries';
@@ -51,6 +49,7 @@ import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
 import { calculateAdventurePointIncreaseEventDuration } from '../resolvers/utils/adventures';
+import { calculateAdventureDuration } from './adventures.ts';
 
 // TODO: Implement this
 export const notifyAboutEventCreationFailure = (reason: string): void => {
@@ -575,95 +574,35 @@ export const getEventDuration = (
   }
 
   if (isAdventureTroopMovementEvent(event)) {
-    const { seed, speed, completed } = database.selectObject({
-      sql: `
-        SELECT
-          (
-            SELECT
-              seed
-            FROM
-              servers
-            LIMIT 1
-            ) AS seed,
-          (
-            SELECT
-              speed
-            FROM
-              servers
-            LIMIT 1
-            ) AS speed,
-          (
-            SELECT ha.completed
-            FROM
-              hero_adventures ha
-                JOIN heroes h ON ha.hero_id = h.id
-            WHERE
-              h.player_id = $playerId
-            ) AS completed
-      `,
-      bind: { $playerId: PLAYER_ID },
-      schema: z.strictObject({
-        seed: z.string(),
-        speed: z.number(),
-        completed: z.number(),
-      }),
+    const isInstantUnitTravelEnabled = database.selectValue({
+      sql: 'SELECT is_instant_unit_travel_enabled FROM developer_settings',
+      schema: z.number(),
     })!;
 
-    const adventurePrng = prngMulberry32(`${seed}${completed}`);
+    if (isInstantUnitTravelEnabled) {
+      return 0;
+    }
 
-    const adventureDuration =
-      (seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000) /
-      speed;
-
-    return adventureDuration;
+    return calculateAdventureDuration(database, false);
   }
 
   if (isReturnTroopMovementEvent(event)) {
+    const isInstantUnitTravelEnabled = database.selectValue({
+      sql: 'SELECT is_instant_unit_travel_enabled FROM developer_settings',
+      schema: z.number(),
+    })!;
+
+    if (isInstantUnitTravelEnabled) {
+      return 0;
+    }
+
     const { originalMovementType } = event;
 
     if (originalMovementType === 'adventure') {
-      const { seed, speed, completed } = database.selectObject({
-        sql: `
-          SELECT
-            (
-              SELECT
-                seed
-              FROM
-                servers
-              LIMIT 1
-              ) AS seed,
-            (
-              SELECT
-                speed
-              FROM
-                servers
-              LIMIT 1
-              ) AS speed,
-            (
-              SELECT ha.completed - 1
-              FROM
-                hero_adventures ha
-                  JOIN heroes h ON ha.hero_id = h.id
-              WHERE
-                h.player_id = $playerId
-              ) AS completed
-        `,
-        bind: { $playerId: PLAYER_ID },
-        schema: z.strictObject({
-          seed: z.string(),
-          speed: z.number(),
-          completed: z.number(),
-        }),
-      })!;
-
-      const adventurePrng = prngMulberry32(`${seed}${completed}`);
-
-      const adventureReturnDuration =
-        (seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000) /
-        speed;
-
-      return adventureReturnDuration;
+      return calculateAdventureDuration(database, true);
     }
+
+    // TODO: Add calculation for troop return
   }
 
   if (isHeroRevivalEvent(event)) {

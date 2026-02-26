@@ -81,12 +81,12 @@ describe(calculateHeroRevivalCost, () => {
 });
 
 describe(calculateHeroRevivalTime, () => {
-  test('should calculate 15 minutes at level 1', () => {
-    expect(calculateHeroRevivalTime(1)).toBe(15 * 60 * 1000);
+  test('should calculate 30 minutes at level 1', () => {
+    expect(calculateHeroRevivalTime(1)).toBe(30 * 60 * 1000);
   });
 
-  test('should calculate 150 minutes at level 10', () => {
-    expect(calculateHeroRevivalTime(10)).toBe(150 * 60 * 1000);
+  test('should calculate 165 minutes at level 10', () => {
+    expect(calculateHeroRevivalTime(10)).toBe(165 * 60 * 1000);
   });
 
   test('should cap at 6 hours (360 minutes)', () => {
