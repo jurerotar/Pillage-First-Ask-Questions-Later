@@ -13,7 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { CiCircleList } from 'react-icons/ci';
 import { FaHome } from 'react-icons/fa';
-import { FaDiscord, FaGithub } from 'react-icons/fa6';
+import { FaDiscord, FaGithub, FaSkull } from 'react-icons/fa6';
 import { GiWheat } from 'react-icons/gi';
 import { GoGraph } from 'react-icons/go';
 import { HiStar } from 'react-icons/hi2';
@@ -22,7 +22,7 @@ import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
-import { TbMap2, TbShoe } from 'react-icons/tb';
+import { TbGrave2, TbMap2, TbShoe } from 'react-icons/tb';
 import {
   Link,
   NavLink,
@@ -31,6 +31,7 @@ import {
   type ShouldRevalidateFunction,
   useNavigate,
 } from 'react-router';
+import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
@@ -55,7 +56,6 @@ import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-pla
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
-import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import {
   CurrentVillageStateContext,
@@ -272,7 +272,7 @@ const VillageOverviewMobileItem = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, health, experience } = useHero();
+  const { hero, isHeroAlive, health, experience } = useHero();
   const { villageTroops } = useVillageTroops();
 
   const isHeroHome = useMemo(() => {
@@ -297,7 +297,8 @@ const HeroNavigationItem = () => {
       aria-label={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
-        <MdFace className="text-2xl" />
+        {isHeroAlive && <MdFace className="text-2xl" />}
+        {!isHeroAlive && <FaSkull className="text-2xl" />}
       </span>
       {isLevelUpAvailable && (
         <span className="absolute text-center size-4 bg-background top-0 -right-1.5 rounded-full border border-border shadow-md">
@@ -305,8 +306,13 @@ const HeroNavigationItem = () => {
         </span>
       )}
       <span className="absolute size-4 bg-background bottom-0 -right-1.5 rounded-full border border-border shadow-md inline-flex justify-center items-center">
-        {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
-        {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
+        {isHeroAlive && (
+          <>
+            {isHeroHome && <FaHome className="text-gray-500 text-xs" />}
+            {!isHeroHome && <TbShoe className="text-gray-500 text-xs" />}
+          </>
+        )}
+        {!isHeroAlive && <TbGrave2 className="text-gray-500 text-xs" />}
       </span>
       <span className="inline-flex items-center justify-center absolute top-0 right-8 h-4 w-9 rounded-full border border-border shadow-md">
         <span className="relative inline-flex size-full bg-gray-100 rounded-full overflow-hidden">
@@ -535,7 +541,7 @@ const VillageSelect = () => {
 
   return (
     <Select
-      onValueChange={(value) => navigate(getNewVillageUrl(value as string))}
+      onValueChange={(value) => navigate(getNewVillageUrl(value))}
       value={currentVillage.slug}
     >
       <SelectTrigger

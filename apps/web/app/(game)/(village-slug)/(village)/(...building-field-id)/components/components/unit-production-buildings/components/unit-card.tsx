@@ -13,8 +13,8 @@ import {
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -300,7 +300,7 @@ export const UnitResearch = () => {
       {canResearch && (
         <section className="flex flex-col gap-2 pt-2 border-t border-border">
           <Text as="h3">{t('Available actions')}</Text>
-          <BuildingActionsErrorBag errorBag={errorBag} />
+          <ErrorBag errorBag={errorBag} />
 
           <Button
             onClick={researchUnit}
@@ -427,7 +427,7 @@ export const UnitImprovement = () => {
       </section>
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Available actions')}</Text>
-        <BuildingActionsErrorBag errorBag={errorBag} />
+        <ErrorBag errorBag={errorBag} />
         <Button
           size="fit"
           variant="default"
@@ -625,9 +625,7 @@ export const UnitRecruitment = () => {
               max={maxUnits}
               value={[amount]}
               disabled={maxUnits === 0}
-              onValueChange={(val: any) =>
-                setValue('amount', Array.isArray(val) ? val[0] : val)
-              }
+              onValueChange={([val]) => setValue('amount', val)}
             />
             <div className="flex w-30">
               <Input

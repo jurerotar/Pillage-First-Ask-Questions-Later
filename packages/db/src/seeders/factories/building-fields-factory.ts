@@ -1,6 +1,6 @@
 import type { Building } from '@pillage-first/types/models/building';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
-import type { PlayableTribe } from '@pillage-first/types/models/tribe';
+import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { VillageSize } from '@pillage-first/types/models/village';
 
 type BuildingField = {
@@ -120,15 +120,18 @@ const getResourceFieldComposition = (
   return resourceFieldsLayouts[resourceFieldComposition];
 };
 
-const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
-  ['romans', 'CITY_WALL'],
-  ['gauls', 'PALISADE'],
-  ['teutons', 'EARTH_WALL'],
-  ['huns', 'MAKESHIFT_WALL'],
-  ['egyptians', 'STONE_WALL'],
+const tribeToWallBuildingIdMap = new Map<Tribe, Building['id']>([
+  ['romans', 'ROMAN_WALL'],
+  ['gauls', 'GAUL_WALL'],
+  ['teutons', 'TEUTONIC_WALL'],
+  ['huns', 'HUN_WALL'],
+  ['egyptians', 'EGYPTIAN_WALL'],
+  ['spartans', 'SPARTAN_WALL'],
+  ['nature', 'NATURE_WALL'],
+  ['natars', 'NATAR_WALL'],
 ]);
 
-const getWallBuildingId = (tribe: PlayableTribe): Building['id'] => {
+const getWallBuildingId = (tribe: Tribe): Building['id'] => {
   return tribeToWallBuildingIdMap.get(tribe)!;
 };
 
@@ -255,7 +258,7 @@ const getVillageBuildingFields = (
 
 export const buildingFieldsFactory = (
   villageSize: VillageSize | 'player',
-  tribe: PlayableTribe,
+  tribe: Tribe,
   resourceFieldComposition: ResourceFieldComposition,
 ): BuildingField[] => {
   const wallBuildingLevel = getWallBuildingLevel(villageSize);

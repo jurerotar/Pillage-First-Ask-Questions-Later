@@ -9,8 +9,16 @@ export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = (
 
   database.exec({
     sql: `
-      INSERT INTO unit_research (village_id, unit_id)
-      VALUES ($village_id, $unit_id);
+      INSERT INTO
+        unit_research (village_id, unit_id)
+      VALUES
+        ($village_id, (
+          SELECT id
+          FROM
+            unit_ids
+          WHERE
+            unit = $unit_id
+          ));
     `,
     bind: {
       $village_id: villageId,

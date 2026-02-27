@@ -22,12 +22,9 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
   const { wood, clay, iron, wheat } = use(CurrentVillageStateContext);
   const { locale } = use(CookieContext);
 
-  const resources = { wood, clay, iron, wheat };
-
   const errorBag: string[] = [];
 
-  if (!getHasEnoughResources(requiredResources, resources)) {
-    const { wood, clay, iron, wheat } = resources;
+  if (!getHasEnoughResources(requiredResources, { wood, clay, iron, wheat })) {
     const [nextLevelWood, nextLevelClay, nextLevelIron, nextLevelWheat] =
       requiredResources;
 

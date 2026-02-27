@@ -49,7 +49,7 @@ describe('player-controllers', () => {
     const village = database.selectObject({
       sql: 'SELECT id, player_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.object({ id: z.number(), player_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), player_id: z.number() }),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -117,7 +117,7 @@ describe('player-controllers', () => {
     const village = database.selectObject({
       sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     getTroopsByVillage(
@@ -136,7 +136,7 @@ describe('player-controllers', () => {
     const village = database.selectObject({
       sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     renameVillage(
@@ -156,7 +156,7 @@ describe('player-controllers', () => {
     const player = database.selectObject({
       sql: 'SELECT slug FROM players WHERE id = $player_id',
       bind: { $player_id: playerId },
-      schema: z.object({ slug: z.string() }),
+      schema: z.strictObject({ slug: z.string() }),
     })!;
 
     const result = getPlayerBySlug(

@@ -1,17 +1,19 @@
 import { Checkbox as CheckboxPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import type { ComponentProps } from 'react';
 import { LuCheck } from 'react-icons/lu';
 
 export const Checkbox = ({
   className,
+  checked,
+  onCheckedChange,
   ...props
-}: ComponentProps<typeof CheckboxPrimitive.Root>) => {
+}: CheckboxPrimitive.Root.Props) => {
   return (
     <CheckboxPrimitive.Root
       data-slot="checkbox"
+      checked={checked}
       className={clsx(
-        'peer border-input dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
+        'peer border-input dark:bg-input/30 data-[checked]:bg-primary data-[checked]:text-primary-foreground dark:data-[checked]:bg-primary data-[checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}

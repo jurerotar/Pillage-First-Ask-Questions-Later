@@ -31,26 +31,26 @@ export const BuildingFieldProvider = ({
   const { buildingFields } = currentVillage;
 
   const maxLevelByBuildingId = useMemo(() => {
-    const maxLevelByBuildingId = new Map<Building['id'], number>();
+    const maxLevelByBuildingIdMap = new Map<Building['id'], number>();
 
     for (const bf of buildingFields) {
-      const prevMax = maxLevelByBuildingId.get(bf.buildingId);
+      const prevMax = maxLevelByBuildingIdMap.get(bf.buildingId);
       if (prevMax === undefined || bf.level > prevMax) {
-        maxLevelByBuildingId.set(bf.buildingId, bf.level);
+        maxLevelByBuildingIdMap.set(bf.buildingId, bf.level);
       }
     }
 
-    return maxLevelByBuildingId;
+    return maxLevelByBuildingIdMap;
   }, [buildingFields]);
 
   const buildingIdsInQueue = useMemo(() => {
-    const buildingIdsInQueue = new Set<Building['id']>();
+    const buildingIdsInQueueSet = new Set<Building['id']>();
 
     for (const ev of currentVillageBuildingEvents) {
-      buildingIdsInQueue.add(ev.buildingId);
+      buildingIdsInQueueSet.add(ev.buildingId);
     }
 
-    return buildingIdsInQueue;
+    return buildingIdsInQueueSet;
   }, [currentVillageBuildingEvents]);
 
   const value = useMemo(

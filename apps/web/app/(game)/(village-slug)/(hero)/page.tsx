@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
 import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
@@ -7,7 +8,6 @@ import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -55,8 +55,8 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
       </Text>
       <Tabs
         value={tabs[tabIndex] ?? 'default'}
-        onValueChange={(value: string) => {
-          navigateToTab(value);
+        onValueChange={(value) => {
+          if (value) navigateToTab(value);
         }}
       >
         <TabList>

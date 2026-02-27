@@ -1,25 +1,28 @@
 import { Tabs as TabsPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import type { ComponentProps } from 'react';
 
-type TabsProps = ComponentProps<typeof TabsPrimitive.Root>;
-
-export const Tabs = ({
-  children,
+export const Tabs = <Value extends string>({
   value,
   onValueChange,
   defaultValue,
   ...props
-}: TabsProps) => {
+}: Omit<
+  TabsPrimitive.Root.Props,
+  'value' | 'onValueChange' | 'defaultValue'
+> & {
+  value?: Value;
+  onValueChange?: (value: Value) => void;
+  defaultValue?: Value;
+}) => {
   return (
     <TabsPrimitive.Root
-      value={value}
-      onValueChange={onValueChange}
-      defaultValue={defaultValue}
       {...props}
-    >
-      {children}
-    </TabsPrimitive.Root>
+      value={value}
+      defaultValue={defaultValue}
+      onValueChange={(val) => {
+        onValueChange?.(val);
+      }}
+    />
   );
 };
 
@@ -27,7 +30,7 @@ export const TabList = ({
   children,
   className,
   ...props
-}: ComponentProps<typeof TabsPrimitive.List>) => {
+}: TabsPrimitive.List.Props) => {
   return (
     <TabsPrimitive.List
       className={clsx(
@@ -45,7 +48,7 @@ export const Tab = ({
   children,
   className,
   ...props
-}: ComponentProps<typeof TabsPrimitive.Tab>) => {
+}: TabsPrimitive.Tab.Props) => {
   return (
     <TabsPrimitive.Tab
       className={clsx(
@@ -53,7 +56,7 @@ export const Tab = ({
         flex whitespace-nowrap text-center justify-center p-2 px-4 cursor-pointer
         border-t border-b border-r border-border
         first:rounded-tl-xs last:rounded-tr-xs first:border-l border-l-0
-        data-[state=active]:border-b-0 data-[state=active]:bg-input
+        data-[active]:border-b-0 data-[active]:bg-input
         `,
         className,
       )}
@@ -67,14 +70,12 @@ export const Tab = ({
 export const TabPanel = ({
   children,
   className,
-  value,
   ...props
-}: ComponentProps<typeof TabsPrimitive.Panel>) => {
+}: TabsPrimitive.Panel.Props) => {
   return (
     <TabsPrimitive.Panel
-      value={value}
       className={clsx(
-        'p-4 bg-input border border-border border-t-0 rounded-b-xs',
+        'border border-border p-2 rounded-bl-xs rounded-br-xs',
         className,
       )}
       {...props}

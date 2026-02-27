@@ -7,22 +7,23 @@ export const occupyOasis = createController(
   '/villages/:villageId/oasis/:oasisId',
   'post',
 )(({ database, path: { oasisId, villageId } }) => {
-  // TODO: Add Hero's mansion level & empty oasis slot check
-
   database.transaction((db) => {
     updateVillageResourcesAt(db, villageId, Date.now());
 
     const oasisFieldsRows = db.selectObjects({
       sql: `
-        SELECT resource,
-               bonus
-        FROM oasis
-        WHERE tile_id = $tile_id;
+        SELECT
+          resource,
+          bonus
+        FROM
+          oasis
+        WHERE
+          tile_id = $tile_id;
       `,
       bind: {
         $tile_id: oasisId,
       },
-      schema: z.object({
+      schema: z.strictObject({
         resource: resourceSchema,
         bonus: z.number(),
       }),

@@ -6,7 +6,7 @@ import { batchInsert } from '../utils/batch-insert';
 
 export const factionReputationSeeder = (database: DbFacade): void => {
   const rows = database.selectObjects({
-    sql: 'SELECT faction, id FROM factions;',
+    sql: 'SELECT faction, id FROM faction_ids;',
     schema: z.strictObject({
       faction: factionSchema,
       id: z.number(),

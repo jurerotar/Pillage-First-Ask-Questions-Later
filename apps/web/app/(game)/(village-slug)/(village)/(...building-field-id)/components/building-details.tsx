@@ -283,8 +283,8 @@ export const BuildingDetails = () => {
       <div className="flex flex-col gap-2">
         <Tabs
           value={tabs[tabIndex] ?? 'default'}
-          onValueChange={(value: string) => {
-            navigateToTab(value);
+          onValueChange={(value) => {
+            if (value) navigateToTab(value);
           }}
         >
           <TabList>

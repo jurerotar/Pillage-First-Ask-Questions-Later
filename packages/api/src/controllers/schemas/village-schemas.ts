@@ -59,18 +59,18 @@ export const getVillageBySlugSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
       tileId: z.number(),
       playerId: z.number(),
       name: z.string(),
       slug: z.string(),
-      coordinates: z.object({
+      coordinates: z.strictObject({
         x: z.number(),
         y: z.number(),
       }),
       lastUpdatedAt: z.number(),
-      resources: z.object({
+      resources: z.strictObject({
         wood: z.number(),
         clay: z.number(),
         iron: z.number(),
@@ -78,7 +78,7 @@ export const getVillageBySlugSchema = z
       }),
       resourceFieldComposition: resourceFieldCompositionSchema,
       buildingFields: z.array(
-        z.object({
+        z.strictObject({
           id: z.number(),
           buildingId: z.string(),
           level: z.number(),
@@ -159,15 +159,15 @@ export const getOccupiableOasisInRangeSchema = z
     };
   })
   .pipe(
-    z.object({
-      oasis: z.object({
+    z.strictObject({
+      oasis: z.strictObject({
         id: z.number(),
-        coordinates: z.object({
+        coordinates: z.strictObject({
           x: z.number(),
           y: z.number(),
         }),
         bonuses: z.array(
-          z.object({
+          z.strictObject({
             resource: resourceSchema,
             bonus: z.number(),
           }),
@@ -183,7 +183,7 @@ export const getOccupiableOasisInRangeSchema = z
       village: z
         .object({
           id: z.number(),
-          coordinates: z.object({
+          coordinates: z.strictObject({
             x: z.number().nullable(),
             y: z.number().nullable(),
           }),

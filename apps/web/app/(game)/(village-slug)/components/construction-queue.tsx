@@ -1,5 +1,6 @@
 import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
+import { useMutation } from '@tanstack/react-query';
 import { type PropsWithChildren, Suspense, use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaLock } from 'react-icons/fa6';
@@ -8,20 +9,27 @@ import { IoIosArrowRoundForward } from 'react-icons/io';
 import { LuChevronLeft, LuChevronRight, LuConstruction } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
 import { type PlacesType, Tooltip } from 'react-tooltip';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type {
+  BuildingEvent,
+  GameEvent,
+} from '@pillage-first/types/models/game-event';
 import { isScheduledBuildingEvent } from '@pillage-first/utils/guards/event';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import {
+  eventsCacheKey,
+  playerVillagesCacheKey,
+} from 'app/(game)/(village-slug)/constants/query-keys';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-gray-400 px-2 py-2.5 box-content border border-border rounded-xs';
 
 type ConstructionQueueBuildingProps = {
-  buildingEvent: GameEvent<'buildingConstruction'>;
+  buildingEvent: BuildingEvent;
   tooltipPosition: PlacesType;
 };
 
@@ -31,8 +39,25 @@ const ConstructionQueueBuilding = ({
 }: PropsWithChildren<ConstructionQueueBuildingProps>) => {
   const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { fetcher } = use(ApiContext);
 
-  const { mutate: cancelConstruction } = useCancelConstruction();
+  const { mutate: cancelConstruction } = useMutation<
+    void,
+    Error,
+    { eventId: GameEvent['id'] }
+  >({
+    mutationFn: async ({ eventId }) => {
+      await fetcher(`/events/${eventId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await context.client.invalidateQueries({ queryKey: [eventsCacheKey] });
+      await context.client.invalidateQueries({
+        queryKey: [playerVillagesCacheKey],
+      });
+    },
+  });
 
   const tooltipId = `tooltip-${buildingEvent.id}`;
   const tooltipKey = isWiderThanLg

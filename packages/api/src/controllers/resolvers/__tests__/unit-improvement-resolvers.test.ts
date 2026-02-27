@@ -15,12 +15,12 @@ describe(unitImprovementResolver, () => {
     const { playerId } = database.selectObject({
       sql: 'SELECT player_id AS playerId FROM villages WHERE id = $villageId;',
       bind: { $villageId: villageId },
-      schema: z.object({ playerId: z.number() }),
+      schema: z.strictObject({ playerId: z.number() }),
     })!;
 
     // Ensure a row exists for unitId
     database.exec({
-      sql: 'INSERT INTO unit_improvements (unit_id, level, player_id) VALUES ($unitId, 0, $playerId) ON CONFLICT DO NOTHING;',
+      sql: 'INSERT INTO unit_improvements (unit_id, level, player_id) VALUES ((SELECT id FROM unit_ids WHERE unit = $unitId), 0, $playerId) ON CONFLICT DO NOTHING;',
       bind: { $unitId: unitId, $playerId: playerId },
     });
 
@@ -38,9 +38,9 @@ describe(unitImprovementResolver, () => {
     unitImprovementResolver(database, { ...mockEvent, id: 999 });
 
     const improvement = database.selectObject({
-      sql: 'SELECT level FROM unit_improvements WHERE unit_id = $unitId;',
+      sql: 'SELECT level FROM unit_improvements WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId);',
       bind: { $unitId: unitId },
-      schema: z.object({ level: z.number() }),
+      schema: z.strictObject({ level: z.number() }),
     })!;
 
     expect(improvement.level).toBeGreaterThanOrEqual(1);

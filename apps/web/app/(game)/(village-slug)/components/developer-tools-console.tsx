@@ -1,6 +1,7 @@
 import { type ComponentProps, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VscTerminal } from 'react-icons/vsc';
+import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import { items } from '@pillage-first/game-assets/items';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
 import type { Resource } from '@pillage-first/types/models/resource';
@@ -12,8 +13,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { calculateHeroLevel } from 'app/(game)/(village-slug)/hooks/utils/hero';
-import { icons } from 'app/components/icons/icons';
+import { Icon } from 'app/components/icon.tsx';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button';
 import {
@@ -55,10 +55,10 @@ export const DeveloperToolsButton = ({
   );
 };
 
-interface DevToolsConsoleProps {
+type DevToolsConsoleProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-}
+};
 
 const RESOURCES: Resource[] = ['wood', 'clay', 'iron', 'wheat'];
 const AMOUNTS: (100 | 1000 | 10000)[] = [100, 1000, 10000];
@@ -69,6 +69,7 @@ const INSTANT_SETTINGS: (keyof DeveloperSettings)[] = [
   'isInstantUnitImprovementEnabled',
   'isInstantUnitResearchEnabled',
   'isInstantUnitTravelEnabled',
+  'isInstantHeroReviveEnabled',
 ];
 
 const FREE_SETTINGS: (keyof DeveloperSettings)[] = [
@@ -76,6 +77,7 @@ const FREE_SETTINGS: (keyof DeveloperSettings)[] = [
   'isFreeUnitTrainingEnabled',
   'isFreeUnitImprovementEnabled',
   'isFreeUnitResearchEnabled',
+  'isFreeHeroReviveEnabled',
 ];
 
 export const DeveloperToolsConsole = ({
@@ -97,10 +99,9 @@ export const DeveloperToolsConsole = ({
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [amount, setAmount] = useState(1);
 
-  const { level } = useMemo(
-    () => calculateHeroLevel(hero.stats.experience),
-    [hero.stats.experience],
-  );
+  const { level } = useMemo(() => {
+    return calculateHeroLevel(hero.stats.experience);
+  }, [hero.stats.experience]);
 
   const handleUpdateResource = (
     resource: Resource,
@@ -140,6 +141,8 @@ export const DeveloperToolsConsole = ({
     isFreeUnitTrainingEnabled: t('Free unit training'),
     isFreeUnitImprovementEnabled: t('Free unit improvement'),
     isFreeUnitResearchEnabled: t('Free unit research'),
+    isInstantHeroReviveEnabled: t('Instant hero revives'),
+    isFreeHeroReviveEnabled: t('Free hero revives'),
   };
 
   const SETTING_DESCRIPTIONS: Record<keyof DeveloperSettings, string> = {
@@ -166,6 +169,8 @@ export const DeveloperToolsConsole = ({
     isFreeUnitResearchEnabled: t(
       'Units do not cost any resources to research.',
     ),
+    isInstantHeroReviveEnabled: t('Heroes are revived instantly.'),
+    isFreeHeroReviveEnabled: t('Heroes do not cost any resources to revive.'),
   };
 
   return (
@@ -193,41 +198,53 @@ export const DeveloperToolsConsole = ({
                   className="space-y-2"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="size-4">{icons[resource]()}</div>
+                    <div className="size-4">
+                      <Icon type={resource} />
+                    </div>
                     <Label className="capitalize">
                       {t(`RESOURCES.${resource.toUpperCase()}`)}
                     </Label>
                   </div>
                   <div className="space-y-2">
                     <div className="flex gap-2">
-                      {AMOUNTS.map((amount) => (
+                      {AMOUNTS.map((amountToSpawn) => (
                         <Button
-                          key={`${resource}-add-${amount}`}
+                          key={`${resource}-add-${amountToSpawn}`}
                           size="sm"
                           className="h-8 px-2 min-w-[3.5rem] flex-1"
                           onClick={() =>
-                            handleUpdateResource(resource, amount, 'add')
+                            handleUpdateResource(resource, amountToSpawn, 'add')
                           }
                         >
                           <span>
-                            +{amount >= 1000 ? `${amount / 1000}k` : amount}
+                            +
+                            {amountToSpawn >= 1000
+                              ? `${amountToSpawn / 1000}k`
+                              : amountToSpawn}
                           </span>
                         </Button>
                       ))}
                     </div>
                     <div className="flex gap-2">
-                      {AMOUNTS.map((amount) => (
+                      {AMOUNTS.map((amountToRemove) => (
                         <Button
-                          key={`${resource}-subtract-${amount}`}
+                          key={`${resource}-subtract-${amountToRemove}`}
                           size="sm"
                           variant="destructive"
                           className="h-8 px-2 min-w-[3.5rem] flex-1"
                           onClick={() =>
-                            handleUpdateResource(resource, amount, 'subtract')
+                            handleUpdateResource(
+                              resource,
+                              amountToRemove,
+                              'subtract',
+                            )
                           }
                         >
                           <span>
-                            -{amount >= 1000 ? `${amount / 1000}k` : amount}
+                            -
+                            {amountToRemove >= 1000
+                              ? `${amountToRemove / 1000}k`
+                              : amountToRemove}
                           </span>
                         </Button>
                       ))}
@@ -262,7 +279,7 @@ export const DeveloperToolsConsole = ({
                   <Switch
                     id={setting}
                     checked={developerSettings[setting]}
-                    onCheckedChange={(checked) =>
+                    onCheckedChange={(checked: boolean) =>
                       handleUpdateSetting(setting, checked)
                     }
                   />
@@ -295,7 +312,7 @@ export const DeveloperToolsConsole = ({
                   <Switch
                     id={setting}
                     checked={developerSettings[setting]}
-                    onCheckedChange={(checked) =>
+                    onCheckedChange={(checked: boolean) =>
                       handleUpdateSetting(setting, checked)
                     }
                   />

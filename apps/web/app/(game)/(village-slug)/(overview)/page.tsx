@@ -8,7 +8,6 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
-import { VillageConstructionTable } from 'app/(game)/(village-slug)/components/village-construction-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { Text } from 'app/components/text';
@@ -37,39 +36,39 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
   ] = useMemo(() => {
     const fields = currentVillage.buildingFields;
 
-    let doesAcademyExist = false;
-    let doesSmithyExist = false;
-    let doesMarketplaceExist = false;
-    let doesBreweryExist = false;
+    let hasAcademyBuilding = false;
+    let hasSmithyBuilding = false;
+    let hasMarketplaceBuilding = false;
+    let hasBreweryBuilding = false;
 
     for (const field of fields) {
       const id = field.buildingId;
 
       switch (id) {
         case 'ACADEMY': {
-          doesAcademyExist = true;
+          hasAcademyBuilding = true;
           break;
         }
         case 'SMITHY': {
-          doesSmithyExist = true;
+          hasSmithyBuilding = true;
           break;
         }
         case 'MARKETPLACE': {
-          doesMarketplaceExist = true;
+          hasMarketplaceBuilding = true;
           break;
         }
         case 'BREWERY': {
-          doesBreweryExist = true;
+          hasBreweryBuilding = true;
           break;
         }
       }
     }
 
     return [
-      doesAcademyExist,
-      doesSmithyExist,
-      doesMarketplaceExist,
-      doesBreweryExist,
+      hasAcademyBuilding,
+      hasSmithyBuilding,
+      hasMarketplaceBuilding,
+      hasBreweryBuilding,
     ];
   }, [currentVillage.buildingFields]);
 
@@ -96,14 +95,9 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
         <Text as="h1">{t('Village overview')}</Text>
         <Text>
           {t(
-            'Village overview allows you to track construction queue, active troop training, smithy and academy queues, monitor merchant availability and movements and track ongoing celebrations.',
+            'Village overview allows you to track active troop training, smithy and academy queues, monitor merchant availability and movements and track ongoing celebrations.',
           )}
         </Text>
-        <SectionContent>
-          <Text as="h2">{t('Construction')}</Text>
-          <VillageConstructionTable />
-        </SectionContent>
-        <Separator orientation="horizontal" />
         <SectionContent>
           <Text as="h2">{t('Troop training')}</Text>
           <TroopTrainingQueue buildingId="BARRACKS" />

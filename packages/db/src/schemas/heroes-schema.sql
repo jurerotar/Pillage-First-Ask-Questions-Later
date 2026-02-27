@@ -15,8 +15,10 @@ CREATE TABLE heroes
   defence_bonus INTEGER NOT NULL CHECK (defence_bonus >= 0),
 
   resource_to_produce TEXT CHECK ( resource_to_produce IN ('shared', 'wood', 'clay', 'iron', 'wheat') ) NOT NULL,
+  village_id INTEGER NOT NULL,
 
-  FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
+  FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE,
+  FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE
 ) STRICT;
 
 CREATE INDEX idx_heroes_player_id ON heroes(player_id);

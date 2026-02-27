@@ -51,9 +51,9 @@ export const batchInsert = (
     let idx = 0;
     params.length = 0;
 
-    for (let r = i; r < batchEnd; r++) {
+    for (let r = i; r < batchEnd; r += 1) {
       const row = rows[r];
-      for (let c = 0; c < row.length; c++) {
+      for (let c = 0; c < row.length; c += 1) {
         params[idx++] = row[c];
       }
     }

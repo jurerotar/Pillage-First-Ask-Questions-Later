@@ -36,7 +36,7 @@ export const buildingLevelChangeResolver: Resolver<
       SET level = $level
       WHERE village_id = $village_id
         AND field_id = $building_field_id
-        AND building_id = $building_id;
+        AND building_id = (SELECT id FROM building_ids WHERE building = $building_id);
     `,
     bind: {
       $village_id: villageId,
@@ -81,9 +81,15 @@ export const buildingLevelChangeResolver: Resolver<
 
   database.exec({
     sql: `
-      INSERT INTO building_level_change_history
+      INSERT INTO
+        building_level_change_history
       (village_id, field_id, building_id, previous_level, new_level, timestamp)
-      VALUES ($village_id, $building_field_id, $building_id, $previous_level, $level, STRFTIME('%s', 'now'))
+      VALUES
+        ($village_id, $building_field_id, (
+          SELECT id
+          FROM building_ids
+          WHERE building = $building_id
+          ), $previous_level, $level, STRFTIME('%s', 'now'))
       RETURNING id;
     `,
     bind: {
@@ -119,7 +125,7 @@ export const buildingConstructionResolver: Resolver<
   database.exec({
     sql: `
       INSERT INTO building_fields (village_id, field_id, building_id, level)
-      VALUES ($village_id, $field_id, $building_id, 0)
+      VALUES ($village_id, $field_id, (SELECT id FROM building_ids WHERE building = $building_id), 0)
     `,
     bind: {
       $village_id: villageId,

@@ -1,20 +1,16 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuMinus, LuPlus } from 'react-icons/lu';
+import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import type { HeroResourceToProduce } from '@pillage-first/types/models/hero';
+import { HeroRevival } from 'app/(game)/(village-slug)/(hero)/components/hero-revival';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
-import {
-  calculateHeroLevel,
-  calculateHeroRevivalCost,
-  calculateHeroRevivalTime,
-} from 'app/(game)/(village-slug)/hooks/utils/hero';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -86,12 +82,6 @@ export const HeroAttributes = () => {
     });
   };
 
-  const revivalCost = calculateHeroRevivalCost(
-    server.playerConfiguration.tribe,
-    level,
-  );
-  const revivalTime = calculateHeroRevivalTime(level);
-
   const attributeLabels = {
     attackPower: t('Attack power'),
     resourceProduction: t('Resource production'),
@@ -135,7 +125,7 @@ export const HeroAttributes = () => {
               </div>
               <Progress
                 value={percentToNextLevel}
-                className="border border-[#0d648e] [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,_#1271a2)] h-2.5"
+                className="border border-[#0d648e] [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)] h-2.5"
               />
             </div>
             <div className="flex flex-col">
@@ -198,173 +188,158 @@ export const HeroAttributes = () => {
             </div>
           </div>
         </SectionContent>
-        <SectionContent>
-          <div className="flex justify-between items-center">
-            <Text as="h2">{t('Ability points')}</Text>
-            {isLevelUpAvailable && (
-              <Text className="text-primary font-bold">
-                {t('Free ability points')}: {freePoints}
+        {!isHeroAlive && <HeroRevival />}
+        {isHeroAlive && (
+          <>
+            <SectionContent>
+              <div className="flex justify-between items-center">
+                <Text as="h2">{t('Ability points')}</Text>
+                {isLevelUpAvailable && (
+                  <Text className="text-primary font-bold">
+                    {t('Free ability points')}: {freePoints}
+                  </Text>
+                )}
+              </div>
+              <Text>
+                {t(
+                  'Ability points can be used to improve your hero. Hero starts their journey with 4 ability points. Each time a hero gains a level they earn 4 additional ability points that can be used to increase any of the four abilities. Each ability can only be increased a hundred times.',
+                )}
               </Text>
-            )}
-          </div>
-          <Text>
-            {t(
-              'Ability points can be used to improve your hero. Hero starts their journey with 4 ability points. Each time a hero gains a level they earn 4 additional ability points that can be used to increase any of the four abilities. Each ability can only be increased a hundred times.',
-            )}
-          </Text>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-2">
-            {(
-              Object.keys(selectableAttributes) as Array<
-                keyof typeof selectableAttributes
-              >
-            ).map((key) => (
-              <div
-                key={key}
-                className="flex flex-col gap-2"
-              >
-                <div className="flex justify-between items-center">
-                  <Text className="text-xs font-medium text-muted-foreground uppercase">
-                    {attributeLabels[key]}
-                  </Text>
-                  <Text className="font-bold text-sm">
-                    {attributes[key]} / 100
-                  </Text>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-8 shrink-0"
-                    onClick={() => handleAttributeChange(key, -1)}
-                    disabled={attributes[key] <= selectableAttributes[key]}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-2">
+                {(
+                  Object.keys(selectableAttributes) as Array<
+                    keyof typeof selectableAttributes
                   >
-                    <LuMinus />
-                  </Button>
-                  <Slider
-                    value={[attributes[key]]}
-                    max={100}
-                    disabled={
-                      !isLevelUpAvailable &&
-                      attributes[key] === selectableAttributes[key]
-                    }
-                    onValueChange={([val]) => {
-                      const delta = val - attributes[key];
-                      if (delta > 0 && freePoints < delta) {
-                        handleAttributeChange(key, freePoints);
-                      } else {
-                        handleAttributeChange(key, delta);
-                      }
-                    }}
-                  />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="size-8 shrink-0"
-                    onClick={() => handleAttributeChange(key, 1)}
-                    disabled={!isLevelUpAvailable || attributes[key] >= 100}
+                ).map((key) => (
+                  <div
+                    key={key}
+                    className="flex flex-col gap-2"
                   >
-                    <LuPlus />
-                  </Button>
-                </div>
+                    <div className="flex justify-between items-center">
+                      <Text className="text-xs font-medium text-muted-foreground uppercase">
+                        {attributeLabels[key]}
+                      </Text>
+                      <Text className="font-bold text-sm">
+                        {attributes[key]} / 100
+                      </Text>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-8 shrink-0"
+                        onClick={() => handleAttributeChange(key, -1)}
+                        disabled={attributes[key] <= selectableAttributes[key]}
+                      >
+                        <LuMinus />
+                      </Button>
+                      <Slider
+                        value={[attributes[key]]}
+                        max={100}
+                        disabled={
+                          !isLevelUpAvailable &&
+                          attributes[key] === selectableAttributes[key]
+                        }
+                        onValueChange={(values: number[]) => {
+                          const val = values[0];
+                          const delta = val - attributes[key];
+                          if (delta > 0 && freePoints < delta) {
+                            handleAttributeChange(key, freePoints);
+                          } else {
+                            handleAttributeChange(key, delta);
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="size-8 shrink-0"
+                        onClick={() => handleAttributeChange(key, 1)}
+                        disabled={!isLevelUpAvailable || attributes[key] >= 100}
+                      >
+                        <LuPlus />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <Button
-            size="fit"
-            className="mt-4"
-            disabled={
-              totalSpentPoints ===
-              Object.values(selectableAttributes).reduce((a, b) => a + b, 0)
-            }
-            onClick={() => updateHeroAttributes(attributes)}
-          >
-            {t('Save changes')}
-          </Button>
-        </SectionContent>
-        <SectionContent>
-          <Text as="h2">{t('Resource production')}</Text>
-          <Text>
-            {t(
-              'Your hero can produce a specific resource or a shared amount of all resources. Shared production means your hero will produce an equal amount of wood, clay, iron, and wheat.',
-            )}
-          </Text>
-          <div className="flex flex-col gap-2 mt-2">
-            <Text className="text-xs font-medium text-muted-foreground uppercase">
-              {t('Select resource to produce')}
-            </Text>
-            <Select
-              value={resourceToProduce}
-              onValueChange={(value: HeroResourceToProduce) =>
-                updateHeroResourceToProduce(value)
-              }
-            >
-              <SelectTrigger className="w-full md:w-64">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="shared">
-                  <Icon type="wood" />
-                  <Icon type="clay" />
-                  <Icon type="iron" />
-                  <Icon type="wheat" /> +
-                  {selectableAttributes.resourceProduction *
-                    sharedProductionPerPoint *
-                    server.configuration.speed}{' '}
-                  / h
-                </SelectItem>
-                <SelectItem value="wood">
-                  <Icon type="wood" /> +
-                  {selectableAttributes.resourceProduction *
-                    focusedProductionPerPoint *
-                    server.configuration.speed}{' '}
-                  / h
-                </SelectItem>
-                <SelectItem value="clay">
-                  <Icon type="clay" /> +
-                  {selectableAttributes.resourceProduction *
-                    focusedProductionPerPoint *
-                    server.configuration.speed}{' '}
-                  / h
-                </SelectItem>
-                <SelectItem value="iron">
-                  <Icon type="iron" /> +
-                  {selectableAttributes.resourceProduction *
-                    focusedProductionPerPoint *
-                    server.configuration.speed}{' '}
-                  / h
-                </SelectItem>
-                <SelectItem value="wheat">
-                  <Icon type="wheat" /> +
-                  {selectableAttributes.resourceProduction *
-                    focusedProductionPerPoint *
-                    server.configuration.speed}{' '}
-                  / h
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </SectionContent>
-        {!isHeroAlive && (
-          <SectionContent>
-            <Text as="h2">{t('Revive hero')}</Text>
-            <Text>
-              {t(
-                "Your hero is dead. While the hero is dead, it can not produce resources, give bonuses or start adventures. Revival cost and duration increases with your hero's level",
-              )}
-            </Text>
-            <div className="flex flex-col gap-2">
-              <Resources resources={revivalCost} />
-              <div className="flex items-center gap-1">
-                <Icon type="heroRevivalDuration" />
-                <Text>
-                  {Math.floor(revivalTime / 1000 / 60 / 60)}h{' '}
-                  {Math.floor((revivalTime / 1000 / 60) % 60)}m
+              <Button
+                size="fit"
+                className="mt-4"
+                disabled={
+                  totalSpentPoints ===
+                  Object.values(selectableAttributes).reduce((a, b) => a + b, 0)
+                }
+                onClick={() => updateHeroAttributes(attributes)}
+              >
+                {t('Save changes')}
+              </Button>
+            </SectionContent>
+            <SectionContent>
+              <Text as="h2">{t('Resource production')}</Text>
+              <Text>
+                {t(
+                  'Your hero can produce a specific resource or a shared amount of all resources. Shared production means your hero will produce an equal amount of wood, clay, iron, and wheat.',
+                )}
+              </Text>
+              <div className="flex flex-col gap-2 mt-2">
+                <Text className="text-xs font-medium text-muted-foreground uppercase">
+                  {t('Select resource to produce')}
                 </Text>
+                <Select
+                  value={resourceToProduce}
+                  onValueChange={(value: HeroResourceToProduce) =>
+                    updateHeroResourceToProduce(value)
+                  }
+                >
+                  <SelectTrigger className="w-full md:w-64">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="shared">
+                      <Icon type="wood" />
+                      <Icon type="clay" />
+                      <Icon type="iron" />
+                      <Icon type="wheat" /> +
+                      {selectableAttributes.resourceProduction *
+                        sharedProductionPerPoint *
+                        server.configuration.speed}{' '}
+                      / h
+                    </SelectItem>
+                    <SelectItem value="wood">
+                      <Icon type="wood" /> +
+                      {selectableAttributes.resourceProduction *
+                        focusedProductionPerPoint *
+                        server.configuration.speed}{' '}
+                      / h
+                    </SelectItem>
+                    <SelectItem value="clay">
+                      <Icon type="clay" /> +
+                      {selectableAttributes.resourceProduction *
+                        focusedProductionPerPoint *
+                        server.configuration.speed}{' '}
+                      / h
+                    </SelectItem>
+                    <SelectItem value="iron">
+                      <Icon type="iron" /> +
+                      {selectableAttributes.resourceProduction *
+                        focusedProductionPerPoint *
+                        server.configuration.speed}{' '}
+                      / h
+                    </SelectItem>
+                    <SelectItem value="wheat">
+                      <Icon type="wheat" /> +
+                      {selectableAttributes.resourceProduction *
+                        focusedProductionPerPoint *
+                        server.configuration.speed}{' '}
+                      / h
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Button size="fit">{t('Revive')}</Button>
-            </div>
-          </SectionContent>
+            </SectionContent>
+          </>
         )}
       </Section>
     </div>

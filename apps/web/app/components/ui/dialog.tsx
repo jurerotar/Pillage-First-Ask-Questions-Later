@@ -3,20 +3,11 @@ import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 import { LuX } from 'react-icons/lu';
 
-export const Dialog = ({
-  ...props
-}: ComponentProps<typeof DialogPrimitive.Root>) => {
-  return (
-    <DialogPrimitive.Root
-      data-slot="dialog"
-      {...props}
-    />
-  );
+export const Dialog = (props: DialogPrimitive.Root.Props) => {
+  return <DialogPrimitive.Root {...props} />;
 };
 
-export const DialogTrigger = ({
-  ...props
-}: ComponentProps<typeof DialogPrimitive.Trigger>) => {
+export const DialogTrigger = (props: DialogPrimitive.Trigger.Props) => {
   return (
     <DialogPrimitive.Trigger
       data-slot="dialog-trigger"
@@ -25,20 +16,11 @@ export const DialogTrigger = ({
   );
 };
 
-export const DialogPortal = ({
-  ...props
-}: ComponentProps<typeof DialogPrimitive.Portal>) => {
-  return (
-    <DialogPrimitive.Portal
-      data-slot="dialog-portal"
-      {...props}
-    />
-  );
+export const DialogPortal = (props: DialogPrimitive.Portal.Props) => {
+  return <DialogPrimitive.Portal {...props} />;
 };
 
-export const DialogClose = ({
-  ...props
-}: ComponentProps<typeof DialogPrimitive.Close>) => {
+export const DialogClose = (props: DialogPrimitive.Close.Props) => {
   return (
     <DialogPrimitive.Close
       data-slot="dialog-close"
@@ -49,10 +31,10 @@ export const DialogClose = ({
   );
 };
 
-export const DialogOverlay = ({
+export const DialogBackdrop = ({
   className,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Backdrop>) => {
+}: DialogPrimitive.Backdrop.Props) => {
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
@@ -69,10 +51,10 @@ export const DialogContent = ({
   className,
   children,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Popup>) => {
+}: DialogPrimitive.Popup.Props) => {
   return (
-    <DialogPortal data-slot="dialog-portal">
-      <DialogOverlay />
+    <DialogPrimitive.Portal>
+      <DialogBackdrop />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={clsx(
@@ -87,7 +69,7 @@ export const DialogContent = ({
           <LuX className="size-4" />
         </DialogPrimitive.Close>
       </DialogPrimitive.Popup>
-    </DialogPortal>
+    </DialogPrimitive.Portal>
   );
 };
 
@@ -123,7 +105,7 @@ export const DialogFooter = ({
 export const DialogTitle = ({
   className,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Title>) => {
+}: DialogPrimitive.Title.Props) => {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
@@ -136,7 +118,7 @@ export const DialogTitle = ({
 export const DialogDescription = ({
   className,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Description>) => {
+}: DialogPrimitive.Description.Props) => {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"

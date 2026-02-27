@@ -9,5 +9,7 @@ CREATE TABLE tiles
   -- Bit-packed number that describes oasis resource, oasis group, group position and variant
   oasis_graphics INTEGER,
 
-  FOREIGN KEY (resource_field_composition_id) REFERENCES resource_field_compositions (id)
+  FOREIGN KEY (resource_field_composition_id) REFERENCES resource_field_composition_ids (id)
 ) STRICT;
+
+CREATE INDEX idx_tiles_xy ON tiles (x, y);

@@ -39,8 +39,8 @@ const PreferencesPage = ({ params }: Route.ComponentProps) => {
       <Text as="h1">{t('Preferences')}</Text>
       <Tabs
         value={tabs[tabIndex] ?? 'default'}
-        onValueChange={(value: string) => {
-          navigateToTab(value);
+        onValueChange={(value) => {
+          if (value) navigateToTab(value);
         }}
       >
         <TabList>

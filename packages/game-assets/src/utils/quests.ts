@@ -26,11 +26,14 @@ const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['IRON_FOUNDRY', 200],
   ['GRAIN_MILL', 200],
   ['BAKERY', 200],
-  ['CITY_WALL', 150],
-  ['EARTH_WALL', 150],
-  ['MAKESHIFT_WALL', 150],
-  ['STONE_WALL', 150],
-  ['PALISADE', 150],
+  ['ROMAN_WALL', 150],
+  ['TEUTONIC_WALL', 150],
+  ['HUN_WALL', 150],
+  ['EGYPTIAN_WALL', 150],
+  ['GAUL_WALL', 150],
+  ['SPARTAN_WALL', 150],
+  ['NATAR_WALL', 150],
+  ['NATURE_WALL', 150],
 ]);
 
 export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {

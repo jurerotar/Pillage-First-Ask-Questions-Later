@@ -3,6 +3,7 @@ import type {
   SAHPoolUtil,
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
+import { z } from 'zod';
 import { upgradeDb } from '@pillage-first/db';
 import type {
   ApiNotificationEvent,
@@ -10,10 +11,15 @@ import type {
   DatabaseInitializationErrorEvent,
   EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
+import { env } from '@pillage-first/utils/env';
 import {
   createDbFacade,
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
+import {
+  parseAppVersion,
+  parseDatabaseUserVersion,
+} from '@pillage-first/utils/version';
 import { DatabaseInitializationError } from './errors';
 import {
   cancelScheduling,
@@ -57,7 +63,9 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-        database.exec({
+        dbFacade = createDbFacade(database, false);
+
+        dbFacade.exec({
           sql: `
           PRAGMA foreign_keys = ON;        -- keep referential integrity
           PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
@@ -70,7 +78,22 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         `,
         });
 
-        dbFacade = createDbFacade(database, false);
+        const version = dbFacade.selectValue({
+          sql: 'PRAGMA user_version',
+          schema: z.number().nullable(),
+        });
+
+        // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
+        if (!version) {
+          throw new DatabaseInitializationError();
+        }
+
+        const [, dbMinor] = parseDatabaseUserVersion(version);
+        const [, appMinor] = parseAppVersion(env.VERSION);
+
+        if (dbMinor !== appMinor) {
+          throw new DatabaseInitializationError();
+        }
 
         upgradeDb(dbFacade);
 
