@@ -74,145 +74,170 @@ import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 
-export const migrateAndSeed = (database: DbFacade, server: Server): number => {
+export const migrateAndSeed = (
+  database: DbFacade,
+  server: Server,
+  onProgress?: (progress: number, message: string) => void,
+): number => {
   const t0 = performance.now();
 
+  const steps = [
+    {
+      message: 'Creating lookup tables...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createBuildingIdsTable });
+        buildingIdsSeeder(db);
+
+        db.exec({ sql: createFactionIdsTable });
+        factionIdsSeeder(db);
+
+        db.exec({ sql: createTribeIdsTable });
+        tribeIdsSeeder(db);
+
+        db.exec({ sql: createUnitIdsTable });
+        unitIdsSeeder(db);
+
+        db.exec({ sql: createEffectIdsTable });
+        effectIdsSeeder(db);
+
+        db.exec({ sql: createUnitDataTable });
+        unitDataSeeder(db);
+
+        db.exec({ sql: createBuildingDataTable });
+        buildingDataSeeder(db);
+
+        db.exec({ sql: createResourceFieldCompositionIdsTable });
+        resourceFieldCompositionIdsSeeder(db);
+      },
+    },
+    {
+      message: 'Creating statistics tables...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createUnitTrainingHistoryTable });
+        db.exec({ sql: createBuildingLevelChangeHistoryTable });
+      },
+    },
+    {
+      message: 'Generating map tiles...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createTilesTable });
+        tilesSeeder(db, server);
+        db.exec({ sql: createTilesIndexes });
+      },
+    },
+    {
+      message: 'Setting up preferences...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createPreferencesTable });
+        preferencesSeeder(db);
+
+        db.exec({ sql: createDeveloperSettingsTable });
+        developerSettingsSeeder(db);
+
+        db.exec({ sql: createMapFiltersTable });
+        mapFiltersSeeder(db);
+
+        db.exec({ sql: createMapMarkersTable });
+      },
+    },
+    {
+      message: 'Initializing server and factions...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createServersTable });
+        serverSeeder(db, server);
+
+        db.exec({ sql: createFactionReputationTable });
+        factionReputationSeeder(db);
+      },
+    },
+    {
+      message: 'Generating players...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createPlayersTable });
+        playersSeeder(db, server);
+        db.exec({ sql: createPlayersIndexes });
+      },
+    },
+    {
+      message: 'Seeding oasis...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createOasisBonusesTable });
+        oasisSeeder(db, server);
+        db.exec({ sql: createOasisBonusesIndexes });
+      },
+    },
+    {
+      message: 'Building villages...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createVillagesTable });
+        villageSeeder(db, server);
+        occupiedOasisSeeder(db, server);
+      },
+    },
+    {
+      message: 'Initializing heroes...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createHeroesTable });
+        db.exec({ sql: createHeroSelectableAttributesTable });
+        heroSeeder(db);
+
+        db.exec({ sql: createHeroAdventuresTable });
+        heroAdventuresSeeder(db);
+
+        db.exec({ sql: createHeroEquippedItemsTable });
+        db.exec({ sql: createHeroInventoriesTable });
+      },
+    },
+    {
+      message: 'Finalizing world generation...',
+      action: (db: DbFacade) => {
+        db.exec({ sql: createBookmarksTable });
+        bookmarksSeeder(db);
+
+        guaranteedCroppersSeeder(db, server);
+
+        db.exec({ sql: createFarmListsTable });
+        db.exec({ sql: createFarmListTilesTable });
+
+        db.exec({ sql: createBuildingFieldsTable });
+        buildingFieldsSeeder(db, server);
+
+        db.exec({ sql: createTroopsTable });
+        troopSeeder(db, server);
+        db.exec({ sql: createTroopsIndexes });
+
+        db.exec({ sql: createEffectsTable });
+        effectsSeeder(db, server);
+        db.exec({ sql: createEffectsIndexes });
+
+        db.exec({ sql: createResourceSitesTable });
+        resourceSitesSeeder(db, server);
+
+        db.exec({ sql: createWorldItemsTable });
+        worldItemsSeeder(db, server);
+
+        db.exec({ sql: createUnitResearchTable });
+        unitResearchSeeder(db, server);
+
+        db.exec({ sql: createUnitImprovementTable });
+        unitImprovementSeeder(db, server);
+
+        db.exec({ sql: createQuestsTable });
+        questsSeeder(db);
+
+        db.exec({ sql: createEventsTable });
+        eventsSeeder(db, server);
+      },
+    },
+  ];
+
   database.transaction((db) => {
-    // Lookup tables
-    db.exec({ sql: createBuildingIdsTable });
-    buildingIdsSeeder(db);
-
-    db.exec({ sql: createFactionIdsTable });
-    factionIdsSeeder(db);
-
-    db.exec({ sql: createTribeIdsTable });
-    tribeIdsSeeder(db);
-
-    db.exec({ sql: createUnitIdsTable });
-    unitIdsSeeder(db);
-
-    db.exec({ sql: createEffectIdsTable });
-    effectIdsSeeder(db);
-
-    db.exec({ sql: createUnitDataTable });
-    unitDataSeeder(db);
-
-    db.exec({ sql: createBuildingDataTable });
-    buildingDataSeeder(db);
-
-    db.exec({ sql: createResourceFieldCompositionIdsTable });
-    resourceFieldCompositionIdsSeeder(db);
-
-    // Statistics
-    db.exec({ sql: createUnitTrainingHistoryTable });
-    db.exec({ sql: createBuildingLevelChangeHistoryTable });
-
-    // Tiles
-    db.exec({ sql: createTilesTable });
-    tilesSeeder(db, server);
-    db.exec({ sql: createTilesIndexes });
-
-    // Preferences
-    db.exec({ sql: createPreferencesTable });
-    preferencesSeeder(db);
-
-    // Developer settings
-    db.exec({ sql: createDeveloperSettingsTable });
-    developerSettingsSeeder(db);
-
-    // Map filters
-    db.exec({ sql: createMapFiltersTable });
-    mapFiltersSeeder(db);
-
-    // Map markers
-    db.exec({ sql: createMapMarkersTable });
-
-    // Server
-    db.exec({ sql: createServersTable });
-    serverSeeder(db, server);
-
-    // Faction reputations
-    db.exec({ sql: createFactionReputationTable });
-    factionReputationSeeder(db);
-
-    // Players
-    db.exec({ sql: createPlayersTable });
-    playersSeeder(db, server);
-    db.exec({ sql: createPlayersIndexes });
-
-    // Oasis bonuses
-    db.exec({ sql: createOasisBonusesTable });
-    oasisSeeder(db, server);
-    db.exec({ sql: createOasisBonusesIndexes });
-
-    // Villages
-    db.exec({ sql: createVillagesTable });
-    villageSeeder(db, server);
-    occupiedOasisSeeder(db, server);
-
-    // Heroes
-    db.exec({ sql: createHeroesTable });
-    db.exec({ sql: createHeroSelectableAttributesTable });
-    heroSeeder(db);
-
-    // Bookmarks
-    db.exec({ sql: createBookmarksTable });
-    bookmarksSeeder(db);
-
-    // Hero adventures
-    db.exec({ sql: createHeroAdventuresTable });
-    heroAdventuresSeeder(db);
-
-    // Hero equipped items
-    db.exec({ sql: createHeroEquippedItemsTable });
-
-    // Hero inventories
-    db.exec({ sql: createHeroInventoriesTable });
-
-    // Guaranteed croppers
-    guaranteedCroppersSeeder(db, server);
-
-    // Farm lists
-    db.exec({ sql: createFarmListsTable });
-    db.exec({ sql: createFarmListTilesTable });
-
-    // Building fields
-    db.exec({ sql: createBuildingFieldsTable });
-    buildingFieldsSeeder(db, server);
-
-    // Troops
-    db.exec({ sql: createTroopsTable });
-    troopSeeder(db, server);
-    db.exec({ sql: createTroopsIndexes });
-
-    // Effects
-    db.exec({ sql: createEffectsTable });
-    effectsSeeder(db, server);
-    db.exec({ sql: createEffectsIndexes });
-
-    // Resource sites
-    db.exec({ sql: createResourceSitesTable });
-    resourceSitesSeeder(db, server);
-
-    // World items
-    db.exec({ sql: createWorldItemsTable });
-    worldItemsSeeder(db, server);
-
-    // Unit research
-    db.exec({ sql: createUnitResearchTable });
-    unitResearchSeeder(db, server);
-
-    // Unit improvement
-    db.exec({ sql: createUnitImprovementTable });
-    unitImprovementSeeder(db, server);
-
-    // Quests
-    db.exec({ sql: createQuestsTable });
-    questsSeeder(db);
-
-    // Events
-    db.exec({ sql: createEventsTable });
-    eventsSeeder(db, server);
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      onProgress?.((i / steps.length) * 100, step.message);
+      step.action(db);
+    }
+    onProgress?.(100, 'World generation completed!');
   });
 
   const t1 = performance.now();

@@ -2,7 +2,7 @@ import { faro } from '@grafana/faro-web-sdk';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { randomInt } from 'moderndash';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
@@ -13,7 +13,10 @@ import {
 import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { env } from '@pillage-first/utils/env';
-import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
+import type {
+  CreateNewGameWorldWorkerPayload,
+  CreateNewGameWorldWorkerResponse,
+} from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
 import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { Text } from 'app/components/text';
@@ -27,15 +30,16 @@ import {
   FormMessage,
 } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
+import { Progress } from 'app/components/ui/progress.tsx';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from 'app/components/ui/select';
-import { Switch } from 'app/components/ui/switch';
-import { workerFactory } from 'app/utils/workers';
+} from 'app/components/ui/select.tsx';
+import { Switch } from 'app/components/ui/switch.tsx';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -71,6 +75,9 @@ type MutateArgs = {
 export const CreateNewGameWorldForm = () => {
   const navigate = useNavigate();
   const { createGameWorld, deleteGameWorld } = useGameWorldActions();
+  const [activeTab, setActiveTab] = useState('form');
+  const [progress, setProgress] = useState(0);
+  const [progressMessage, setProgressMessage] = useState('');
 
   const {
     mutate: createServer,
@@ -78,23 +85,53 @@ export const CreateNewGameWorldForm = () => {
     error,
     isPending,
     isSuccess,
-  } = useMutation<void, Error, MutateArgs>({
+  } = useMutation<number, Error, MutateArgs>({
     mutationFn: async ({ server }) => {
-      const { migrationDuration } = await workerFactory<
-        CreateNewGameWorldWorkerPayload,
-        { migrationDuration: number }
-      >(CreateNewGameWorldWorker, {
-        server,
-      });
+      return new Promise<number>((resolve, reject) => {
+        const worker = new Worker(CreateNewGameWorldWorker, { type: 'module' });
+        const channel = new MessageChannel();
 
+        worker.postMessage(
+          {
+            server,
+            port: channel.port2,
+          } satisfies CreateNewGameWorldWorkerPayload,
+          [channel.port2],
+        );
+
+        channel.port1.onmessage = (
+          event: MessageEvent<CreateNewGameWorldWorkerResponse>,
+        ) => {
+          const data = event.data;
+
+          if (data.type === 'progress') {
+            setProgress(data.progress);
+            setProgressMessage(data.message);
+          } else if (data.type === 'result') {
+            worker.terminate();
+            channel.port1.close();
+            resolve(data.migrationDuration);
+          }
+        };
+
+        worker.onerror = (err) => {
+          worker.terminate();
+          channel.port1.close();
+          reject(err);
+        };
+      });
+    },
+    onMutate: () => {
+      setActiveTab('progress');
+    },
+    onSuccess: async (migrationDuration, { server }) => {
       faro.api?.pushMeasurement({
         type: 'performance',
         values: {
           migration_and_seed_duration: migrationDuration,
         },
       });
-    },
-    onSuccess: async (_, { server }) => {
+
       createGameWorld({ server });
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
@@ -155,221 +192,259 @@ export const CreateNewGameWorldForm = () => {
         <div className="bg-destructive/15 text-destructive p-4 rounded-lg">
           {error.message}
         </div>
+        <Button onClick={() => setActiveTab('form')}>Back to form</Button>
       </div>
     );
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 p-2 shadow-xl rounded-md border border-border"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-6">
-            <div className="space-y-4">
-              <div className="flex flex-col">
-                <Text as="h2">Game world configuration</Text>
-              </div>
-              <FormField
-                control={form.control}
-                name="seed"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Seed</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={isPending || isSuccess}
-                        placeholder="abc123"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="name"
-                disabled={isPending || isSuccess}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="New World"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="configuration.mapSize"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Size</FormLabel>
-                    <Select
-                      disabled={isPending || isSuccess}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="100">100x100</SelectItem>
-                        <SelectItem value="200">200x200</SelectItem>
-                        <SelectItem value="300">300x300</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="configuration.speed"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Speed</FormLabel>
-                    <Select
-                      disabled={isPending || isSuccess}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="1">1x</SelectItem>
-                        <SelectItem value="2">2x</SelectItem>
-                        <SelectItem value="3">3x</SelectItem>
-                        <SelectItem value="5">5x</SelectItem>
-                        <SelectItem value="10">10x</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-6">
-            <div className="space-y-4">
-              <div className="flex flex-col">
-                <Text as="h2">Player configuration</Text>
-              </div>
-              <FormField
-                control={form.control}
-                name="playerConfiguration.name"
-                disabled={isPending || isSuccess}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="playerConfiguration.tribe"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tribe</FormLabel>
-                    <Select
-                      disabled={isPending || isSuccess}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a tribe" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="romans">Romans</SelectItem>
-                        <SelectItem value="gauls">Gauls</SelectItem>
-                        <SelectItem value="teutons">Teutons</SelectItem>
-                        <SelectItem value="huns">Huns</SelectItem>
-                        <SelectItem value="egyptians">Egyptians</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-        </div>
-        <details>
-          <summary className="py-2 underline hover:cursor-pointer">
-            Advanced options
-          </summary>
-          <div className="space-y-4 px-2">
-            <div className="flex flex-col">
-              <Text
-                className="text-lg"
-                as="h3"
-              >
-                Advanced gameplay options
-              </Text>
-              <Text>These options can be updated in-game at any time.</Text>
-            </div>
-            <FormField
-              control={form.control}
-              name="gameplay.areOfflineNpcAttacksEnabled"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex">
-                    <div className="flex flex-4 gap-1 flex-col">
-                      <FormLabel className="text-base">
-                        Offline attacks (in development)
-                      </FormLabel>
-                      <Text>
-                        By keeping this option enabled, enemies may send attacks
-                        while you're offline.
-                      </Text>
-                    </div>
-                    <div className="flex flex-1 justify-end items-center">
-                      <FormControl>
-                        <Switch
-                          disabled
-                          checked={field.value}
-                          onCheckedChange={(v: boolean) => field.onChange(v)}
-                        />
-                      </FormControl>
-                    </div>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </div>
-        </details>
-        <div className="flex justify-end">
-          <Button
-            size="fit"
-            disabled={isPending || isSuccess}
-            type="submit"
+    <Tabs value={activeTab}>
+      <TabList>
+        <Tab
+          value="form"
+          disabled
+        >
+          World creation
+        </Tab>
+        <Tab
+          value="progress"
+          disabled
+        >
+          Progress
+        </Tab>
+      </TabList>
+      <TabPanel value="form">
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 p-2 shadow-xl rounded-md border border-border"
           >
-            Create Server
-          </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-6">
+                <div className="space-y-4">
+                  <div className="flex flex-col">
+                    <Text as="h2">Game world configuration</Text>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="seed"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Seed</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={isPending || isSuccess}
+                            placeholder="abc123"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    disabled={isPending || isSuccess}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="New World"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="configuration.mapSize"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Size</FormLabel>
+                        <Select
+                          disabled={isPending || isSuccess}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="100">100x100</SelectItem>
+                            <SelectItem value="200">200x200</SelectItem>
+                            <SelectItem value="300">300x300</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="configuration.speed"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Speed</FormLabel>
+                        <Select
+                          disabled={isPending || isSuccess}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="1">1x</SelectItem>
+                            <SelectItem value="2">2x</SelectItem>
+                            <SelectItem value="3">3x</SelectItem>
+                            <SelectItem value="5">5x</SelectItem>
+                            <SelectItem value="10">10x</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-6">
+                <div className="space-y-4">
+                  <div className="flex flex-col">
+                    <Text as="h2">Player configuration</Text>
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="playerConfiguration.name"
+                    disabled={isPending || isSuccess}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="playerConfiguration.tribe"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tribe</FormLabel>
+                        <Select
+                          disabled={isPending || isSuccess}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a tribe" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="romans">Romans</SelectItem>
+                            <SelectItem value="gauls">Gauls</SelectItem>
+                            <SelectItem value="teutons">Teutons</SelectItem>
+                            <SelectItem value="huns">Huns</SelectItem>
+                            <SelectItem value="egyptians">Egyptians</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+            <details>
+              <summary className="py-2 underline hover:cursor-pointer">
+                Advanced options
+              </summary>
+              <div className="space-y-4 px-2">
+                <div className="flex flex-col">
+                  <Text
+                    className="text-lg"
+                    as="h3"
+                  >
+                    Advanced gameplay options
+                  </Text>
+                  <Text>These options can be updated in-game at any time.</Text>
+                </div>
+                <FormField
+                  control={form.control}
+                  name="gameplay.areOfflineNpcAttacksEnabled"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex">
+                        <div className="flex flex-4 gap-1 flex-col">
+                          <FormLabel className="text-base">
+                            Offline attacks (in development)
+                          </FormLabel>
+                          <Text>
+                            By keeping this option enabled, enemies may send
+                            attacks while you're offline.
+                          </Text>
+                        </div>
+                        <div className="flex flex-1 justify-end items-center">
+                          <FormControl>
+                            <Switch
+                              disabled
+                              checked={field.value}
+                              onCheckedChange={(v: boolean) =>
+                                field.onChange(v)
+                              }
+                            />
+                          </FormControl>
+                        </div>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </details>
+            <div className="flex justify-end">
+              <Button
+                size="fit"
+                disabled={isPending || isSuccess}
+                type="submit"
+              >
+                Create Server
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </TabPanel>
+      <TabPanel
+        value="progress"
+        className="flex flex-col gap-4 p-6 shadow-xl rounded-md border border-border"
+      >
+        <div className="flex flex-col gap-2 max-w-sm mx-auto w-full">
+          <div className="flex justify-between items-center">
+            <Text className="text-lg font-medium">{progressMessage}</Text>
+            <Text className="text-lg text-muted-foreground">
+              {Math.round(progress)}%
+            </Text>
+          </div>
+          <Progress
+            value={progress}
+            className="h-4"
+          />
         </div>
-      </form>
-    </Form>
+      </TabPanel>
+    </Tabs>
   );
 };

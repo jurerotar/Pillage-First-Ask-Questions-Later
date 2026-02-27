@@ -6,7 +6,19 @@ import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/vers
 
 export type CreateNewGameWorldWorkerPayload = {
   server: Server;
+  port: MessagePort;
 };
+
+export type CreateNewGameWorldWorkerResponse =
+  | {
+      type: 'progress';
+      progress: number;
+      message: string;
+    }
+  | {
+      type: 'result';
+      migrationDuration: number;
+    };
 
 globalThis.addEventListener(
   'message',
@@ -14,7 +26,7 @@ globalThis.addEventListener(
     const { default: sqlite3InitModule } = await import(
       '@sqlite.org/sqlite-wasm'
     );
-    const { server } = event.data;
+    const { server, port } = event.data;
 
     const sqlite3 = await sqlite3InitModule();
     const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
@@ -37,13 +49,27 @@ globalThis.addEventListener(
       `,
     });
 
-    const migrationDuration = migrateAndSeed(dbFacade, server);
+    const migrationDuration = migrateAndSeed(
+      dbFacade,
+      server,
+      (progress, message) => {
+        port.postMessage({
+          type: 'progress',
+          progress,
+          message,
+        } satisfies CreateNewGameWorldWorkerResponse);
+      },
+    );
 
     dbFacade.close();
     database.close();
     opfsSahPool.pauseVfs();
 
-    globalThis.postMessage({ migrationDuration });
+    port.postMessage({
+      type: 'result',
+      migrationDuration,
+    } satisfies CreateNewGameWorldWorkerResponse);
+    port.close();
     globalThis.close();
   },
 );
