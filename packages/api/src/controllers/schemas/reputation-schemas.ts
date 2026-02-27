@@ -14,7 +14,7 @@ export const getReputationsSchema = z
     reputationLevel: getReputationLevel(t.reputation),
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       faction: factionSchema,
       reputation: z.number(),
       reputationLevel: reputationLevelSchema,

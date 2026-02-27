@@ -46,12 +46,14 @@ export const DemolishBuilding = () => {
   );
   const buildingDowngradeErrorBag = getBuildingDowngradeErrorBag();
 
-  const onValueChange = (value: string) => {
-    const buildingField = getBuildingFieldByBuildingFieldId(
-      currentVillage,
-      Number.parseInt(value, 10),
-    )!;
-    setBuildingFieldToDemolish(buildingField);
+  const onValueChange = (value: unknown) => {
+    if (typeof value === 'string') {
+      const buildingField = getBuildingFieldByBuildingFieldId(
+        currentVillage,
+        Number.parseInt(value, 10),
+      )!;
+      setBuildingFieldToDemolish(buildingField);
+    }
   };
 
   const onDowngrade = async () => {

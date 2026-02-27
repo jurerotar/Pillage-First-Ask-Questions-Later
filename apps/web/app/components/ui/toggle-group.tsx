@@ -1,7 +1,10 @@
+import {
+  ToggleGroup as ToggleGroupPrimitive,
+  Toggle as TogglePrimitive,
+} from '@base-ui/react';
 import type { VariantProps } from 'class-variance-authority';
 import { clsx } from 'clsx';
-import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
-import { type ComponentProps, createContext, use } from 'react';
+import { createContext, use, useMemo } from 'react';
 import { toggleVariants } from 'app/components/ui/toggle';
 
 const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
@@ -9,18 +12,52 @@ const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
   variant: 'default',
 });
 
-type ToggleGroupProps = ComponentProps<typeof ToggleGroupPrimitive.Root> &
-  VariantProps<typeof toggleVariants>;
-
-export const ToggleGroup = ({
+export const ToggleGroup = <Value extends string>({
   className,
   variant,
   size,
   children,
+  type = 'single',
+  value,
+  onValueChange,
+  multiple,
   ...props
-}: ToggleGroupProps) => {
+}: (Omit<
+  ToggleGroupPrimitive.Props<Value>,
+  'value' | 'onValueChange' | 'multiple'
+> & {
+  type?: 'single' | 'multiple';
+  value?: Value | Value[];
+  onValueChange?: (value: any) => void;
+  multiple?: boolean;
+}) &
+  VariantProps<typeof toggleVariants>) => {
+  const contextValue = useMemo(() => {
+    return {
+      variant,
+      size,
+    };
+  }, [variant, size]);
+
+  const isMultiple = multiple ?? type === 'multiple';
+
+  const adjustedValue = useMemo(() => {
+    if (!isMultiple && typeof value === 'string') {
+      return [value] as Value[];
+    }
+    return value as Value[];
+  }, [value, isMultiple]);
+
+  const handleValueChange = (val: Value[]) => {
+    if (!isMultiple) {
+      onValueChange?.(val[0]);
+    } else {
+      onValueChange?.(val);
+    }
+  };
+
   return (
-    <ToggleGroupPrimitive.Root
+    <ToggleGroupPrimitive<Value>
       data-slot="toggle-group"
       data-variant={variant}
       data-size={size}
@@ -29,28 +66,28 @@ export const ToggleGroup = ({
         className,
       )}
       {...props}
+      multiple={isMultiple}
+      value={adjustedValue}
+      onValueChange={handleValueChange}
     >
-      <ToggleGroupContext value={{ variant, size }}>
-        {children}
-      </ToggleGroupContext>
-    </ToggleGroupPrimitive.Root>
+      <ToggleGroupContext value={contextValue}>{children}</ToggleGroupContext>
+    </ToggleGroupPrimitive>
   );
 };
 
-type ToggleGroupItemProps = ComponentProps<typeof ToggleGroupPrimitive.Item> &
-  VariantProps<typeof toggleVariants>;
-
-export const ToggleGroupItem = ({
+export const ToggleGroupItem = <Value extends string>({
   className,
   children,
   variant,
   size,
   ...props
-}: ToggleGroupItemProps) => {
+}: TogglePrimitive.Props & { value: Value } & VariantProps<
+    typeof toggleVariants
+  >) => {
   const context = use(ToggleGroupContext);
 
   return (
-    <ToggleGroupPrimitive.Item
+    <TogglePrimitive
       data-slot="toggle-group-item"
       data-variant={context.variant || variant}
       data-size={context.size || size}
@@ -65,6 +102,6 @@ export const ToggleGroupItem = ({
       {...props}
     >
       {children}
-    </ToggleGroupPrimitive.Item>
+    </TogglePrimitive>
   );
 };

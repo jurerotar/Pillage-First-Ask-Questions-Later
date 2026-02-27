@@ -30,6 +30,12 @@
     "./array": {
       "default": "./src/array.ts"
     },
+    "./version": {
+      "default": "./src/version.ts"
+    },
+    "./env": {
+      "default": "./src/env.ts"
+    },
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },

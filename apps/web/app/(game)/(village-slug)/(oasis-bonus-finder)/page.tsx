@@ -367,14 +367,16 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                       <FormLabel>{t('Resource field composition')}</FormLabel>
                       <Select
                         onValueChange={(v) => {
-                          field.onChange(v);
-                          setSearchParams(
-                            (prev) => {
-                              prev.set('rfc', v);
-                              return prev;
-                            },
-                            { replace: true },
-                          );
+                          if (v) {
+                            field.onChange(v);
+                            setSearchParams(
+                              (prev) => {
+                                prev.set('rfc', v as string);
+                                return prev;
+                              },
+                              { replace: true },
+                            );
+                          }
                         }}
                         defaultValue={field.value}
                       >
@@ -424,7 +426,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                 />
               </div>
 
-              <div className="flex gap-2 flex-wrap md:w-full *:flex *:flex-1 *:flex-col">
+              <div className="grid grid-cols-2 md:flex gap-4 md:w-full *:flex *:flex-1 *:flex-col">
                 <FormField
                   control={form.control}
                   name="firstOasisBonus"
@@ -433,19 +435,21 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                       <FormLabel>{t('First oasis bonus')}</FormLabel>
                       <Select
                         onValueChange={(v) => {
-                          field.onChange(v);
-                          setSearchParams(
-                            (prev) => {
-                              prev.set('first-bonus', v);
-                              return prev;
-                            },
-                            { replace: true },
-                          );
+                          if (v) {
+                            field.onChange(v);
+                            setSearchParams(
+                              (prev) => {
+                                prev.set('first-bonus', v as string);
+                                return prev;
+                              },
+                              { replace: true },
+                            );
+                          }
                         }}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="md:w-full">
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
@@ -463,19 +467,21 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                       <FormLabel>{t('Second oasis bonus')}</FormLabel>
                       <Select
                         onValueChange={(v) => {
-                          field.onChange(v);
-                          setSearchParams(
-                            (prev) => {
-                              prev.set('second-bonus', v);
-                              return prev;
-                            },
-                            { replace: true },
-                          );
+                          if (v) {
+                            field.onChange(v);
+                            setSearchParams(
+                              (prev) => {
+                                prev.set('second-bonus', v as string);
+                                return prev;
+                              },
+                              { replace: true },
+                            );
+                          }
                         }}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="md:w-full">
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>
@@ -493,19 +499,21 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                       <FormLabel>{t('Third oasis bonus')}</FormLabel>
                       <Select
                         onValueChange={(v) => {
-                          field.onChange(v);
-                          setSearchParams(
-                            (prev) => {
-                              prev.set('third-bonus', v);
-                              return prev;
-                            },
-                            { replace: true },
-                          );
+                          if (v) {
+                            field.onChange(v);
+                            setSearchParams(
+                              (prev) => {
+                                prev.set('third-bonus', v as string);
+                                return prev;
+                              },
+                              { replace: true },
+                            );
+                          }
                         }}
                         defaultValue={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger className="md:w-full">
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
                         </FormControl>

@@ -1,12 +1,12 @@
+import { Slider as SliderPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import { Slider as SliderPrimitive } from 'radix-ui';
-import { type ComponentProps, useMemo } from 'react';
+import { useMemo } from 'react';
 
-type SliderProps = ComponentProps<typeof SliderPrimitive.Root> & {
-  marks?: (string | number)[];
-};
-
-export const Slider = (props: SliderProps) => {
+export const Slider = <Value extends number | readonly number[] = number[]>(
+  props: SliderPrimitive.Root.Props<Value> & {
+    marks?: (string | number)[];
+  },
+) => {
   const {
     className,
     defaultValue,
@@ -29,7 +29,7 @@ export const Slider = (props: SliderProps) => {
       {marks.length > 0 && (
         <span className="text-muted-foreground text-xs">{marks[0]}</span>
       )}
-      <SliderPrimitive.Root
+      <SliderPrimitive.Root<Value>
         data-slot="slider"
         defaultValue={defaultValue}
         value={value}
@@ -47,7 +47,7 @@ export const Slider = (props: SliderProps) => {
             'bg-muted relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-1.5 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5',
           )}
         >
-          <SliderPrimitive.Range
+          <SliderPrimitive.Indicator
             data-slot="slider-range"
             className={clsx(
               'bg-primary absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full',

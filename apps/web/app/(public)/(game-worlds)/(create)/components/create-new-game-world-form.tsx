@@ -12,6 +12,7 @@ import {
 } from '@pillage-first/game-assets/village';
 import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
+import { env } from '@pillage-first/utils/env';
 import type { CreateNewGameWorldWorkerPayload } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
 import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
@@ -34,7 +35,6 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { Switch } from 'app/components/ui/switch';
-import { env } from 'app/env';
 import { workerFactory } from 'app/utils/workers';
 
 const createServerFormSchema = z.strictObject({
@@ -47,7 +47,7 @@ const createServerFormSchema = z.strictObject({
       // fom completely breaks
       .overwrite((val) => Number.parseInt(val, 10)),
     mapSize: z
-      .enum(['100', '200'])
+      .enum(['100', '200', '300'])
       // @ts-expect-error
       .overwrite((val) => Number.parseInt(val, 10)),
   }),
@@ -226,6 +226,7 @@ export const CreateNewGameWorldForm = () => {
                       <SelectContent>
                         <SelectItem value="100">100x100</SelectItem>
                         <SelectItem value="200">200x200</SelectItem>
+                        <SelectItem value="300">300x300</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

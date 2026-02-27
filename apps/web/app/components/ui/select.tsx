@@ -1,22 +1,27 @@
+import { Select as SelectPrimitive } from '@base-ui/react';
 import { clsx } from 'clsx';
-import { Select as SelectPrimitive } from 'radix-ui';
-import type { ComponentProps } from 'react';
-import { LuCheck, LuChevronDown, LuChevronUp } from 'react-icons/lu';
+import { LuCheck, LuChevronDown } from 'react-icons/lu';
 
-export const Select = ({
+export const Select = <Value,>({
+  value,
+  onValueChange,
   ...props
-}: ComponentProps<typeof SelectPrimitive.Root>) => {
+}: Omit<SelectPrimitive.Root.Props<Value>, 'value' | 'onValueChange'> & {
+  value?: Value;
+  onValueChange?: (value: Value) => void;
+}) => {
   return (
-    <SelectPrimitive.Root
-      data-slot="select"
+    <SelectPrimitive.Root<Value>
       {...props}
+      value={value}
+      onValueChange={(val) => {
+        if (val !== null) onValueChange?.(val as Value);
+      }}
     />
   );
 };
 
-export const SelectGroup = ({
-  ...props
-}: ComponentProps<typeof SelectPrimitive.Group>) => {
+export const SelectGroup = (props: SelectPrimitive.Group.Props) => {
   return (
     <SelectPrimitive.Group
       data-slot="select-group"
@@ -25,9 +30,7 @@ export const SelectGroup = ({
   );
 };
 
-export const SelectValue = ({
-  ...props
-}: ComponentProps<typeof SelectPrimitive.Value>) => {
+export const SelectValue = (props: SelectPrimitive.Value.Props) => {
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
@@ -36,7 +39,7 @@ export const SelectValue = ({
   );
 };
 
-type SelectTriggerProps = ComponentProps<typeof SelectPrimitive.Trigger> & {
+type SelectTriggerProps = SelectPrimitive.Trigger.Props & {
   size?: 'sm' | 'default';
 };
 
@@ -55,12 +58,9 @@ export const SelectTrigger = ({
         className,
       )}
       {...props}
-      aria-controls={undefined}
     >
       {children}
-      <SelectPrimitive.Icon asChild>
-        <LuChevronDown className="size-4 opacity-50" />
-      </SelectPrimitive.Icon>
+      <LuChevronDown className="size-4 opacity-50" />
     </SelectPrimitive.Trigger>
   );
 };
@@ -68,34 +68,27 @@ export const SelectTrigger = ({
 export const SelectContent = ({
   className,
   children,
-  position = 'popper',
+  align = 'center',
+  sideOffset = 4,
   ...props
-}: ComponentProps<typeof SelectPrimitive.Content>) => {
+}: SelectPrimitive.Popup.Props & { align?: any; sideOffset?: number }) => {
   return (
     <SelectPrimitive.Portal>
-      <SelectPrimitive.Content
-        data-slot="select-content"
-        className={clsx(
-          'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md',
-          position === 'popper' &&
-            'data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1',
-          className,
-        )}
-        position={position}
-        {...props}
+      <SelectPrimitive.Positioner
+        align={align}
+        sideOffset={sideOffset}
       >
-        <SelectScrollUpButton />
-        <SelectPrimitive.Viewport
+        <SelectPrimitive.Popup
+          data-slot="select-content"
           className={clsx(
-            'p-1',
-            position === 'popper' &&
-              'h-(--radix-select-trigger-height) w-full min-w-(--radix-select-trigger-width) scroll-my-1',
+            'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border shadow-md',
+            className,
           )}
+          {...props}
         >
           {children}
-        </SelectPrimitive.Viewport>
-        <SelectScrollDownButton />
-      </SelectPrimitive.Content>
+        </SelectPrimitive.Popup>
+      </SelectPrimitive.Positioner>
     </SelectPrimitive.Portal>
   );
 };
@@ -103,9 +96,9 @@ export const SelectContent = ({
 export const SelectLabel = ({
   className,
   ...props
-}: ComponentProps<typeof SelectPrimitive.Label>) => {
+}: SelectPrimitive.GroupLabel.Props) => {
   return (
-    <SelectPrimitive.Label
+    <SelectPrimitive.GroupLabel
       data-slot="select-label"
       className={clsx(
         'flex items-center py-1.5 gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
@@ -120,7 +113,7 @@ export const SelectItem = ({
   className,
   children,
   ...props
-}: ComponentProps<typeof SelectPrimitive.Item>) => {
+}: SelectPrimitive.Item.Props) => {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -140,54 +133,15 @@ export const SelectItem = ({
   );
 };
 
-export const SelectSeparator = ({
-  className,
-  ...props
-}: ComponentProps<typeof SelectPrimitive.Separator>) => {
+export const SelectSeparator = (props: SelectPrimitive.Separator.Props) => {
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
       className={clsx(
         'bg-border pointer-events-none -mx-1 my-1 h-px',
-        className,
+        props.className,
       )}
       {...props}
     />
-  );
-};
-
-export const SelectScrollUpButton = ({
-  className,
-  ...props
-}: ComponentProps<typeof SelectPrimitive.ScrollUpButton>) => {
-  return (
-    <SelectPrimitive.ScrollUpButton
-      data-slot="select-scroll-up-button"
-      className={clsx(
-        'flex cursor-default items-center justify-center py-1',
-        className,
-      )}
-      {...props}
-    >
-      <LuChevronUp className="size-4" />
-    </SelectPrimitive.ScrollUpButton>
-  );
-};
-
-export const SelectScrollDownButton = ({
-  className,
-  ...props
-}: ComponentProps<typeof SelectPrimitive.ScrollDownButton>) => {
-  return (
-    <SelectPrimitive.ScrollDownButton
-      data-slot="select-scroll-down-button"
-      className={clsx(
-        'flex cursor-default items-center justify-center py-1',
-        className,
-      )}
-      {...props}
-    >
-      <LuChevronDown className="size-4" />
-    </SelectPrimitive.ScrollDownButton>
   );
 };

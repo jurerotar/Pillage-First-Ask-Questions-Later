@@ -284,7 +284,7 @@ export const BuildingDetails = () => {
         <Tabs
           value={tabs[tabIndex] ?? 'default'}
           onValueChange={(value) => {
-            navigateToTab(value);
+            if (value) navigateToTab(value);
           }}
         >
           <TabList>

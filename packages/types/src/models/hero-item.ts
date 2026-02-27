@@ -25,16 +25,6 @@ export type HeroItemSlot =
 type UppercaseHeroItemRarity<Item extends string> =
   `${Uppercase<HeroItemRarity>}_${Item}`;
 
-type HeroHeadItemId = '';
-
-type HeroTorsoItemId = '';
-
-type HeroLegsItemId = '';
-
-type HeroRightHandItemId = '';
-
-type HeroLeftHandItemId = '';
-
 type HeroHorseItemId = UppercaseHeroItemRarity<'HORSE'>;
 
 type HeroConsumableItemId =
@@ -60,15 +50,7 @@ type HeroBonus = {
   value: number;
 };
 
-type HeroItemId =
-  | HeroHeadItemId
-  | HeroTorsoItemId
-  | HeroLegsItemId
-  | HeroLeftHandItemId
-  | HeroRightHandItemId
-  | HeroHorseItemId
-  | HeroConsumableItemId
-  | ArtifactId;
+type HeroItemId = HeroHorseItemId | HeroConsumableItemId | ArtifactId;
 
 export type HeroItem = {
   id: number;

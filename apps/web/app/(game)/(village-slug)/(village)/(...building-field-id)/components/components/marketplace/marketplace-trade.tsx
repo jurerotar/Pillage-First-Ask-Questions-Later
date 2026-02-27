@@ -160,7 +160,9 @@ export const MarketplaceTrade = () => {
             <Text className="font-medium">{t('Sort by')}</Text>
             <div className="flex sm:max-w-62.5">
               <Select
-                onValueChange={(value) => setSortBy(value)}
+                onValueChange={(value) => {
+                  if (value) setSortBy(value);
+                }}
                 value={sortBy}
               >
                 <SelectTrigger

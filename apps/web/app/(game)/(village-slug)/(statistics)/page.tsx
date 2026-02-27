@@ -41,7 +41,7 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
       <Tabs
         value={tabs[tabIndex] ?? 'population'}
         onValueChange={(value) => {
-          navigateToTab(value);
+          if (value) navigateToTab(value);
         }}
       >
         <TabList>

@@ -1,5 +1,6 @@
+import { Field as FieldPrimitive } from '@base-ui/react';
+import { Slot } from '@radix-ui/react-slot';
 import { clsx } from 'clsx';
-import { type Label as LabelPrimitive, Slot } from 'radix-ui';
 import { type ComponentProps, createContext, use } from 'react';
 import {
   Controller,
@@ -74,11 +75,13 @@ export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
 
   return (
     <FormItemContext value={{ id: name }}>
-      <div
-        data-slot="form-item"
-        className={clsx('grid gap-2', className)}
-        {...props}
-      />
+      <FieldPrimitive.Root>
+        <div
+          data-slot="form-item"
+          className={clsx('grid gap-2', className)}
+          {...props}
+        />
+      </FieldPrimitive.Root>
     </FormItemContext>
   );
 };
@@ -86,7 +89,7 @@ export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
 export const FormLabel = ({
   className,
   ...props
-}: ComponentProps<typeof LabelPrimitive.Root>) => {
+}: FieldPrimitive.Label.Props) => {
   const { error, formItemId } = useFormField();
 
   return (
@@ -100,12 +103,12 @@ export const FormLabel = ({
   );
 };
 
-export const FormControl = (props: ComponentProps<typeof Slot.Root>) => {
+export const FormControl = (props: ComponentProps<typeof Slot>) => {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
 
   return (
-    <Slot.Root
+    <Slot
       data-slot="form-control"
       id={formItemId}
       aria-describedby={

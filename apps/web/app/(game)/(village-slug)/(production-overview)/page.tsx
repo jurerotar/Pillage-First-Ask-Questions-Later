@@ -39,7 +39,7 @@ const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}
         onValueChange={(value) => {
-          navigateToTab(value);
+          if (value) navigateToTab(value);
         }}
       >
         <TabList>

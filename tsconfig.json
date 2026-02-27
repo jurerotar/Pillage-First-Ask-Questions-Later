@@ -13,11 +13,9 @@
     "verbatimModuleSyntax": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
+    "strictNullChecks": true,
     "erasableSyntaxOnly": true,
-    "moduleResolution": "bundler",
-    "noEmit": true,
-    "strict": true,
-    "module": "esnext"
+    "noEmit": true
   },
   "include": [
     "apps/**/*",

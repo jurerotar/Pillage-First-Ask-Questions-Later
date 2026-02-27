@@ -28,6 +28,7 @@ export const heroSchema = z
       defenceBonus: z.number(),
     }),
     resourceToProduce: heroResourceToProduceSchema,
+    villageId: z.number(),
   })
   .meta({ id: 'Hero' });
 

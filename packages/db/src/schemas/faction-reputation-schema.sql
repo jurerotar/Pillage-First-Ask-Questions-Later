@@ -6,8 +6,8 @@ CREATE TABLE faction_reputation
 
   PRIMARY KEY (source_faction_id, target_faction_id),
 
-  FOREIGN KEY (source_faction_id) REFERENCES factions (id),
-  FOREIGN KEY (target_faction_id) REFERENCES factions (id)
+  FOREIGN KEY (source_faction_id) REFERENCES faction_ids (id),
+  FOREIGN KEY (target_faction_id) REFERENCES faction_ids (id)
 ) STRICT, WITHOUT ROWID;
 
 CREATE INDEX idx_faction_reputation_target_faction_id ON faction_reputation (target_faction_id);

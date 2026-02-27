@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { tribeSchema } from './tribe';
+import { playableTribeSchema } from './tribe';
 
 export const mapSizeSchema = z
   .union([z.literal(100), z.literal(200), z.literal(300)])
@@ -26,7 +26,7 @@ export const serverDbSchema = z
     map_size: mapSizeSchema,
     speed: speedSchema,
     player_name: z.string(),
-    player_tribe: tribeSchema,
+    player_tribe: playableTribeSchema,
   })
   .transform((t) => {
     return {
@@ -62,7 +62,7 @@ export const serverSchema = z
     }),
     playerConfiguration: z.strictObject({
       name: z.string(),
-      tribe: tribeSchema,
+      tribe: playableTribeSchema,
     }),
   })
   .meta({ id: 'Server' });

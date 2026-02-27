@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
+import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
@@ -790,7 +791,7 @@ export const paths = {
       requestParams: {
         path: z.strictObject({
           villageId: z.coerce.number(),
-          eventType: z.string(),
+          eventType: z.union([gameEventTypeSchema, z.literal('troopMovement')]),
         }),
       },
       responses: {

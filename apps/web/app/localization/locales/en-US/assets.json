@@ -578,12 +578,12 @@
       "NAME_other": "Barracks",
       "DESCRIPTION": "Infantry can be trained in the Barracks. The higher its level, the faster the troops are trained."
     },
-    "CITY_WALL": {
+    "ROMAN_WALL": {
       "NAME": "City Wall",
       "NAME_other": "City Walls",
       "DESCRIPTION": "By building a City Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The City Wall can only be built by Romans. The City Wall offers the biggest defence bonus, but it is easier to destroy than the Gaulish Palisade or the Teutonic Earth Wall."
     },
-    "EARTH_WALL": {
+    "TEUTONIC_WALL": {
       "NAME": "Earth wall",
       "NAME_other": "Earth Walls",
       "DESCRIPTION": "By building an Earth Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The Earth Wall can only be built by Teutons. The Earth Wall offers the lowest defence bonus but it is almost impossible to destroy it."
@@ -608,12 +608,12 @@
       "NAME_other": "Hospitals",
       "DESCRIPTION": "The Hospital allows you to treat wounded troops after combat. These can be healed and made ready for war again. Together with regular training in Barracks and Stable your army can recover faster than ever."
     },
-    "MAKESHIFT_WALL": {
+    "HUN_WALL": {
       "NAME": "Makeshift Wall",
       "NAME_other": "Makeshift Walls",
       "DESCRIPTION": "By building a Makeshift Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The Makeshift Wall can only be built by Huns, its defense bonus is lower than the Teutonic Earth Wall and its durability is comparable with the Roman City Wall."
     },
-    "PALISADE": {
+    "GAUL_WALL": {
       "NAME": "Palisade",
       "NAME_other": "Palisades",
       "DESCRIPTION": "By building a Palisade, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The Palisade can only be built by Gauls, its defence bonus and its durability is between that of the Teutonic Earth Wall and the Roman city wall."
@@ -628,7 +628,7 @@
       "NAME_other": "Stables",
       "DESCRIPTION": "Cavalry can be trained in the Stable. The higher its level, the faster the troops are trained."
     },
-    "STONE_WALL": {
+    "EGYPTIAN_WALL": {
       "NAME": "Stone Wall",
       "NAME_other": "Stone Walls",
       "DESCRIPTION": "By building a Stone Wall, you can protect your village against the barbarian hordes of your enemies. The higher its level, the higher is the bonus given to your forces' defense. The Stone Wall can only be built by Egyptians; its defense bonus is like the Gaulish Palisade, and its durability is almost as great as the Teutonic Earth Wall."

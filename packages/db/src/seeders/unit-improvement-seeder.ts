@@ -3,7 +3,6 @@ import { getUnitsByTribe } from '@pillage-first/game-assets/units/utils';
 import type { Server } from '@pillage-first/types/models/server';
 import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { batchInsert } from '../utils/batch-insert';
 
 const upgradableTiers = new Set<Unit['tier']>([
   'tier-1',
@@ -22,16 +21,28 @@ export const unitImprovementSeeder = (
 ): void => {
   const unitsByTribe = getUnitsByTribe(server.playerConfiguration.tribe);
 
-  const upgradableUnits = unitsByTribe.filter(({ tier }) => {
-    return upgradableTiers.has(tier);
+  const upgradableUnitIds = unitsByTribe
+    .filter(({ tier }) => upgradableTiers.has(tier))
+    .map((u) => u.id);
+
+  database.exec({
+    sql: `
+      INSERT INTO
+        unit_improvements (player_id, unit_id, level)
+      SELECT
+        $player_id,
+        id,
+        0
+      FROM
+        unit_ids
+      WHERE
+        unit IN (${upgradableUnitIds.map((_, i) => `$unit${i}`).join(',')});
+    `,
+    bind: {
+      $player_id: PLAYER_ID,
+      ...Object.fromEntries(
+        upgradableUnitIds.map((id, i) => [`$unit${i}`, id]),
+      ),
+    },
   });
-
-  const rows = upgradableUnits.map(({ id: unitId }) => [PLAYER_ID, unitId, 0]);
-
-  batchInsert(
-    database,
-    'unit_improvements',
-    ['player_id', 'unit_id', 'level'],
-    rows,
-  );
 };

@@ -1,5 +1,5 @@
+import { env } from '@pillage-first/utils/env';
 import { SqlitePrefetchLink } from 'app/components/sqlite-prefetch-link.tsx';
-import { env } from 'app/env.ts';
 
 export const HeadLinks = () => {
   return (

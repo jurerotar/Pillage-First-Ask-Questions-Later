@@ -1,6 +1,8 @@
 import { migrateAndSeed } from '@pillage-first/db';
 import type { Server } from '@pillage-first/types/models/server';
+import { env } from '@pillage-first/utils/env';
 import { createDbFacade } from '@pillage-first/utils/facades/database';
+import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 
 export type CreateNewGameWorldWorkerPayload = {
   server: Server;
@@ -25,6 +27,7 @@ globalThis.addEventListener(
 
     dbFacade.exec({
       sql: `
+        PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};
         PRAGMA locking_mode=EXCLUSIVE;
         PRAGMA foreign_keys=OFF;
         PRAGMA journal_mode=OFF;

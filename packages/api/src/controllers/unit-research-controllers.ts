@@ -6,10 +6,13 @@ export const getResearchedUnits = createController(
 )(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: `
-    SELECT unit_id, village_id
-    FROM unit_research
-    WHERE village_id = $village_id;
-  `,
+      SELECT ui.unit AS unit_id, ur.village_id
+      FROM
+        unit_research ur
+          JOIN unit_ids ui ON ui.id = ur.unit_id
+      WHERE
+        ur.village_id = $village_id;
+    `,
     bind: { $village_id: villageId },
     schema: getResearchedUnitsSchema,
   });
