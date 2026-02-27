@@ -2,11 +2,68 @@ import { z } from 'zod';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import { createController } from '../utils/controller';
 import {
+  getMapMarkersSchema,
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
   getTileWorldItemSchema,
 } from './schemas/map-schemas';
+
+export const getMapMarkers = createController('/players/:playerId/map-markers')(
+  ({ database, path: { playerId } }) => {
+    return database.selectObjects({
+      sql: `
+        SELECT tile_id
+        FROM
+          map_markers
+        WHERE
+          player_id = $player_id;
+      `,
+      bind: {
+        $player_id: playerId,
+      },
+      schema: getMapMarkersSchema,
+    });
+  },
+);
+
+export const addMapMarker = createController(
+  '/players/:playerId/map-markers',
+  'post',
+)(({ database, path: { playerId }, body: { tileId } }) => {
+  database.exec({
+    sql: `
+      INSERT INTO
+        map_markers (player_id, tile_id)
+      VALUES
+        ($player_id, $tile_id);
+    `,
+    bind: {
+      $player_id: playerId,
+      $tile_id: tileId,
+    },
+  });
+});
+
+export const removeMapMarker = createController(
+  '/players/:playerId/map-markers/:tileId',
+  'delete',
+)(({ database, path: { playerId, tileId } }) => {
+  database.exec({
+    sql: `
+      DELETE
+      FROM
+        map_markers
+      WHERE
+        player_id = $player_id
+        AND tile_id = $tile_id;
+    `,
+    bind: {
+      $player_id: playerId,
+      $tile_id: tileId,
+    },
+  });
+});
 
 export const getTiles = createController('/tiles')(({ database }) => {
   const parsedTiles = database.selectObjects({
@@ -27,12 +84,12 @@ export const getTiles = createController('/tiles')(({ database }) => {
             effects e
               JOIN wheat_id w ON e.effect_id = w.wid
           WHERE
-           e.type = 'base'
-          AND e.scope = 'village'
-          AND e.source = 'building'
+            e.type = 'base'
+            AND e.scope = 'village'
+            AND e.source = 'building'
             AND e.source_specifier = 0
           GROUP BY e.village_id
-        ),
+          ),
 
         -- pick a deterministic single item per tile (smallest item_id)
         world_items_single AS (
@@ -83,9 +140,10 @@ export const getTiles = createController('/tiles')(({ database }) => {
         tiles t
           LEFT JOIN villages v ON v.tile_id = t.id
           LEFT JOIN (
-            SELECT tile_id, MAX(village_id) AS village_id
-            FROM oasis
-            GROUP BY tile_id
+          SELECT tile_id, MAX(village_id) AS village_id
+          FROM
+            oasis
+          GROUP BY tile_id
           ) o ON o.tile_id = t.id AND t.type = 'oasis'
           LEFT JOIN villages v_owner ON v_owner.id = o.village_id
           LEFT JOIN players p ON p.id = COALESCE(v.player_id, v_owner.player_id)

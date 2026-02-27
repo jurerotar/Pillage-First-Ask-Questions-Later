@@ -74,7 +74,11 @@ import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 
-export const migrateAndSeed = (database: DbFacade, server: Server): number => {
+export const migrateAndSeed = (
+  database: DbFacade,
+  server: Server,
+  onProgress?: () => void,
+): number => {
   const t0 = performance.now();
 
   database.transaction((db) => {
@@ -107,48 +111,56 @@ export const migrateAndSeed = (database: DbFacade, server: Server): number => {
     db.exec({ sql: createUnitTrainingHistoryTable });
     db.exec({ sql: createBuildingLevelChangeHistoryTable });
 
-    // Tiles
-    db.exec({ sql: createTilesTable });
-    tilesSeeder(db, server);
-    db.exec({ sql: createTilesIndexes });
-
-    // Preferences
-    db.exec({ sql: createPreferencesTable });
-    preferencesSeeder(db);
-
     // Developer settings
     db.exec({ sql: createDeveloperSettingsTable });
     developerSettingsSeeder(db);
-
-    // Map filters
-    db.exec({ sql: createMapFiltersTable });
-    mapFiltersSeeder(db);
-
-    // Map markers
-    db.exec({ sql: createMapMarkersTable });
 
     // Server
     db.exec({ sql: createServersTable });
     serverSeeder(db, server);
 
+    // Map filters
+    db.exec({ sql: createMapFiltersTable });
+    mapFiltersSeeder(db);
+
+    // Preferences
+    db.exec({ sql: createPreferencesTable });
+    preferencesSeeder(db);
+
     // Faction reputations
     db.exec({ sql: createFactionReputationTable });
     factionReputationSeeder(db);
 
-    // Players
-    db.exec({ sql: createPlayersTable });
-    playersSeeder(db, server);
-    db.exec({ sql: createPlayersIndexes });
+    // Tiles
+    db.exec({ sql: createTilesTable });
+    tilesSeeder(db, server);
+    db.exec({ sql: createTilesIndexes });
+
+    // Map markers
+    db.exec({ sql: createMapMarkersTable });
+
+    onProgress?.();
 
     // Oasis bonuses
     db.exec({ sql: createOasisBonusesTable });
     oasisSeeder(db, server);
     db.exec({ sql: createOasisBonusesIndexes });
 
+    onProgress?.();
+
+    // Players
+    db.exec({ sql: createPlayersTable });
+    playersSeeder(db, server);
+    db.exec({ sql: createPlayersIndexes });
+
+    onProgress?.();
+
     // Villages
     db.exec({ sql: createVillagesTable });
     villageSeeder(db, server);
     occupiedOasisSeeder(db, server);
+
+    onProgress?.();
 
     // Heroes
     db.exec({ sql: createHeroesTable });

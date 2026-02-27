@@ -37,6 +37,7 @@ import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
 import { LiaCoinsSolid } from 'react-icons/lia';
 import {
   LuClock,
+  LuMapPin,
   LuShield,
   LuSword,
   LuSwords,
@@ -95,7 +96,8 @@ type MapControlsIconType =
   | 'mapTroopMovementsToggle'
   | 'mapWheatFieldIconToggle'
   | 'mapTileTooltipToggle'
-  | 'mapTreasureIconToggle';
+  | 'mapTreasureIconToggle'
+  | 'mapMarker';
 
 type CommonIconType = 'cancel';
 
@@ -236,6 +238,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   mapWheatFieldIconToggle: (props) => <LuWheat {...props} />,
   mapTileTooltipToggle: (props) => <TbTooltip {...props} />,
   mapTreasureIconToggle: (props) => <SiArtifacthub {...props} />,
+  mapMarker: (props) => <LuMapPin {...props} />,
 
   // Map treasures
   treasureTileItem: (props) => <LuSword {...props} />,

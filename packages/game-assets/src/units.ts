@@ -150,8 +150,8 @@ export const romanUnits: Unit[] = [
     tribe: 'romans',
     tier: 'special',
     researchRequirements: [
-      { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
+      { buildingId: 'RALLY_POINT', level: 10 },
     ],
   },
   {
@@ -324,8 +324,8 @@ export const gaulUnits: Unit[] = [
     tribe: 'gauls',
     tier: 'special',
     researchRequirements: [
-      { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
+      { buildingId: 'RALLY_POINT', level: 10 },
     ],
   },
   {
@@ -579,8 +579,8 @@ export const egyptianUnits: Unit[] = [
     tribe: 'egyptians',
     tier: 'scout',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 1 },
       { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 1 },
     ],
   },
   {
@@ -597,8 +597,8 @@ export const egyptianUnits: Unit[] = [
     tribe: 'egyptians',
     tier: 'tier-4',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 5 },
       { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 5 },
     ],
   },
   {
@@ -615,8 +615,8 @@ export const egyptianUnits: Unit[] = [
     tribe: 'egyptians',
     tier: 'tier-5',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'STABLE', level: 10 },
     ],
   },
   {
@@ -633,8 +633,8 @@ export const egyptianUnits: Unit[] = [
     tribe: 'egyptians',
     tier: 'siege-ram',
     researchRequirements: [
-      { buildingId: 'WORKSHOP', level: 1 },
       { buildingId: 'ACADEMY', level: 10 },
+      { buildingId: 'WORKSHOP', level: 1 },
     ],
   },
   {
@@ -651,8 +651,8 @@ export const egyptianUnits: Unit[] = [
     tribe: 'egyptians',
     tier: 'siege-catapult',
     researchRequirements: [
-      { buildingId: 'WORKSHOP', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'WORKSHOP', level: 10 },
     ],
   },
   {
@@ -669,8 +669,8 @@ export const egyptianUnits: Unit[] = [
     tribe: 'egyptians',
     tier: 'special',
     researchRequirements: [
-      { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
+      { buildingId: 'RALLY_POINT', level: 10 },
     ],
   },
   {
@@ -735,8 +735,8 @@ export const hunUnits: Unit[] = [
     tribe: 'huns',
     tier: 'scout',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 1 },
       { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 1 },
     ],
   },
   {
@@ -753,8 +753,8 @@ export const hunUnits: Unit[] = [
     tribe: 'huns',
     tier: 'tier-3',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 3 },
       { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 3 },
     ],
   },
   {
@@ -771,8 +771,8 @@ export const hunUnits: Unit[] = [
     tribe: 'huns',
     tier: 'tier-4',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 5 },
       { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 5 },
     ],
   },
   {
@@ -789,8 +789,8 @@ export const hunUnits: Unit[] = [
     tribe: 'huns',
     tier: 'tier-5',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'STABLE', level: 10 },
     ],
   },
   {
@@ -807,8 +807,8 @@ export const hunUnits: Unit[] = [
     tribe: 'huns',
     tier: 'siege-ram',
     researchRequirements: [
-      { buildingId: 'WORKSHOP', level: 1 },
       { buildingId: 'ACADEMY', level: 10 },
+      { buildingId: 'WORKSHOP', level: 1 },
     ],
   },
   {
@@ -825,8 +825,8 @@ export const hunUnits: Unit[] = [
     tribe: 'huns',
     tier: 'siege-catapult',
     researchRequirements: [
-      { buildingId: 'WORKSHOP', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'WORKSHOP', level: 10 },
     ],
   },
   {
@@ -843,8 +843,8 @@ export const hunUnits: Unit[] = [
     tribe: 'huns',
     tier: 'special',
     researchRequirements: [
-      { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
+      { buildingId: 'RALLY_POINT', level: 10 },
     ],
   },
   {
@@ -939,8 +939,8 @@ export const spartanUnits: Unit[] = [
     tribe: 'spartans',
     tier: 'tier-4',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 1 },
       { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 1 },
     ],
   },
   {
@@ -957,8 +957,8 @@ export const spartanUnits: Unit[] = [
     tribe: 'spartans',
     tier: 'tier-5',
     researchRequirements: [
-      { buildingId: 'STABLE', level: 10 },
       { buildingId: 'ACADEMY', level: 5 },
+      { buildingId: 'STABLE', level: 10 },
     ],
   },
   {
@@ -975,8 +975,8 @@ export const spartanUnits: Unit[] = [
     tribe: 'spartans',
     tier: 'siege-ram',
     researchRequirements: [
-      { buildingId: 'WORKSHOP', level: 1 },
       { buildingId: 'ACADEMY', level: 10 },
+      { buildingId: 'WORKSHOP', level: 1 },
     ],
   },
   {
@@ -993,8 +993,8 @@ export const spartanUnits: Unit[] = [
     tribe: 'spartans',
     tier: 'siege-catapult',
     researchRequirements: [
-      { buildingId: 'WORKSHOP', level: 10 },
       { buildingId: 'ACADEMY', level: 15 },
+      { buildingId: 'WORKSHOP', level: 10 },
     ],
   },
   {
@@ -1011,8 +1011,8 @@ export const spartanUnits: Unit[] = [
     tribe: 'spartans',
     tier: 'special',
     researchRequirements: [
-      { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
+      { buildingId: 'RALLY_POINT', level: 10 },
     ],
   },
   {
@@ -1336,8 +1336,8 @@ export const natarianUnits: Unit[] = [
     tribe: 'natars',
     tier: 'special',
     researchRequirements: [
-      { buildingId: 'RALLY_POINT', level: 10 },
       { buildingId: 'ACADEMY', level: 20 },
+      { buildingId: 'RALLY_POINT', level: 10 },
     ],
   },
   {
