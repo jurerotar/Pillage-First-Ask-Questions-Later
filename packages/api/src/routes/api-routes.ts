@@ -39,10 +39,13 @@ import {
   useHeroItem,
 } from '../controllers/hero-controllers';
 import {
+  addMapMarker,
+  getMapMarkers,
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
   getTileWorldItem,
+  removeMapMarker,
 } from '../controllers/map-controllers';
 import {
   getMapFilters,
@@ -125,6 +128,9 @@ const apiRoutes: Route[] = [
   createRoute(getTileTroops),
   createRoute(getTileOasisBonuses),
   createRoute(getTileWorldItem),
+  createRoute(getMapMarkers),
+  createRoute(addMapMarker),
+  createRoute(removeMapMarker),
 
   // Farm List
   createRoute(getFarmLists),

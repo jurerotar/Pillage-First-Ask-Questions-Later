@@ -23,6 +23,7 @@ import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
+import { useMapMarkers } from 'app/(game)/(village-slug)/(map)/hooks/use-map-markers';
 import {
   MapContext,
   MapProvider,
@@ -59,6 +60,7 @@ const MapPageContents = () => {
   const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { mapFilters } = useMapFilters();
+  const { mapMarkers, createMapMarker, deleteMapMarker } = useMapMarkers();
   const { gridSize, tileSize, magnification } = use(MapContext);
   const { currentVillage } = useCurrentVillage();
   const location = useLocation();
@@ -110,6 +112,9 @@ const MapPageContents = () => {
       magnification,
       preferences,
       getReputation,
+      mapMarkers,
+      createMapMarker,
+      deleteMapMarker,
       onClick: (tileId: number) => {
         const tile = map[tileId - 1];
 
@@ -124,6 +129,9 @@ const MapPageContents = () => {
     openModal,
     preferences,
     getReputation,
+    mapMarkers,
+    createMapMarker,
+    deleteMapMarker,
   ]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
