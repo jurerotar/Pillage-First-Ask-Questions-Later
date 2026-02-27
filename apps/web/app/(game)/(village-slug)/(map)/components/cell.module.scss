@@ -1,0 +1,216 @@
+@use "sass:map";
+@use "sass:list";
+
+.tile {
+  background-repeat: no-repeat;
+  border-radius: 1px;
+  border: 1px solid rgba(107, 114, 128, 0.5); /* border-gray-500/50 */
+  background-size: contain;
+}
+
+// Occupied occupiable tiles
+.occupied-tile {
+  --reputation-color: transparent;
+
+  // Faction reputation
+  &::after {
+    content: "";
+    border: 3px dashed var(--reputation-color);
+    border-radius: 1px;
+    inset: 0;
+    position: absolute;
+  }
+
+  &-magnification {
+    &-2 {
+      &::after {
+        border: 2px dashed var(--reputation-color);
+      }
+    }
+  }
+
+  @each $reputationLevel, $color in $factionReputationColors {
+    &-reputation-#{$reputationLevel} {
+      --reputation-color: #{$color};
+    }
+  }
+}
+
+// Unoccupied occupiable tiles
+@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
+    $base: '#{$imagesPath}/map/unoccupied-tiles';
+
+    .unoccupied-tile {
+      @each $resourceComposition in $resourceCompositions {
+        &-#{$resourceComposition} {
+          background-image: url('#{$base}/#{$resourceComposition}.avif?v=#{$graphics-version}');
+        }
+      }
+    }
+  }
+}
+
+// IMPORTANT: If this gets changed, make sure to implement the same change in tiles-seeder as well!
+$shapes-by-group: (
+  0: (1),
+  1: (2), // rows: [2]      -> positions: 0-0, 0-1
+  2: (2, 2), // rows: [2,2]    -> 0-0, 0-1, 1-0, 1-1
+  3: (1, 1, 1), // rows: [1,1,1]  -> 0-0, 1-0, 2-0
+  4: (3), // rows: [3]      -> 0-0, 0-1, 0-2
+);
+
+// IMPORTANT: If this gets changed, make sure to implement the same change in tiles-seeder as well!
+$variants-by-resource-and-group: (
+  "wood": (
+    0: (0, 1, 2, 3, 4),
+    1: (0),
+    2: (0),
+    3: (0),
+    4: (0),
+  ),
+  "clay": (
+    0: (0),
+    1: (0),
+    2: (0),
+    3: (0),
+    4: (0),
+  ),
+  "iron": (
+    0: (0),
+    1: (0),
+    2: (0),
+    3: (0),
+    4: (0),
+  ),
+  "wheat": (
+    0: (0),
+    1: (0),
+    2: (0),
+    3: (0),
+    4: (0),
+  ),
+);
+
+
+// Build a list of "y-x" position strings for a shape rows list.
+// Example: (2,2) -> ("0-0","0-1","1-0","1-1")
+@function positions-for-group($rows) {
+  $out: ();
+  @for $rowIndex from 1 through list.length($rows) {
+    $cols: list.nth($rows, $rowIndex);
+    $y: $rowIndex - 1; // zero-based
+    @for $colIndex from 1 through $cols {
+      $x: $colIndex - 1; // zero-based
+      $out: list.append($out, "#{$y}-#{$x}", comma);
+    }
+  }
+  @return $out;
+}
+
+@mixin oasisBackgroundImage($base, $resourceBase, $group, $position, $variant) {
+  &-#{$position}-#{$variant} {
+    background-image: url('#{$resourceBase}/#{$group}-#{$position}-#{$variant}.avif');
+  }
+}
+
+@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
+    $base: '#{$imagesPath}/map/oasis';
+
+    .oasis-tile {
+      @each $resource, $groupVariants in $variants-by-resource-and-group {
+        &-#{$resource} {
+          $resourceBase: "#{$base}/#{$resource}";
+
+          @each $group, $rows in $shapes-by-group {
+            &-#{$group} {
+              $positions: positions-for-group($rows);
+              $variants: map.get($groupVariants, $group);
+              @each $pos in $positions {
+                @each $variant in $variants {
+                  @include oasisBackgroundImage($base, $resourceBase, $group, $pos, $variant);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .border-tile {
+      &-1 {
+        background-image: url("#{$base}/wood/0-0-0-1.avif");
+      }
+      &-2 {
+        background-image: url("#{$base}/wood/0-0-0-2.avif");
+      }
+      &-3 {
+        background-image: url("#{$base}/wood/0-0-0-3.avif");
+      }
+      &-4 {
+        background-image: url("#{$base}/wood/0-0-0-4.avif");
+      }
+    }
+  }
+}
+
+.tile-icon {
+  --top: 0;
+  --right: 0;
+  --scale: 1;
+
+  position: absolute;
+  user-select: none;
+  z-index: 20;
+  top: var(--top);
+  right: var(--right);
+  transform: scale(var(--scale));
+
+  &-magnification {
+    &-2 {
+      --top: -0.40rem;
+      --right: -0.40rem;
+      --scale: 0.50;
+    }
+
+    &-3 {
+      --top: -0.20rem;
+      --right: -0.20rem;
+      --scale: 0.75;
+    }
+
+    &-5 {
+      --top: 0.25rem;
+      --right: 0.25rem;
+      --scale: 1.25;
+    }
+  }
+}
+
+.troop-movements {
+  --top: 0;
+  --left: 0;
+  --scale: 1;
+
+  position: absolute;
+  user-select: none;
+  z-index: 20;
+  top: var(--top);
+  left: var(--left);
+  transform: scale(var(--scale));
+
+  &-magnification {
+    &-3 {
+      --top: -0.25rem;
+      --left: -0.25rem;
+      --scale: 0.75;
+    }
+
+    &-5 {
+      --top: 0.25rem;
+      --left: 0.25rem;
+      --scale: 1.25;
+    }
+  }
+}

@@ -1,10 +1,19 @@
 runs:
   using: "composite"
   steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    - name: Cache Turbo build setup
+      uses: actions/cache@v4
       with:
-        fetch-depth: 0
+        path: .turbo
+        key: ${{ runner.os }}-turbo-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-turbo-
+
+    - name: Cache Node Modules
+      uses: actions/cache@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
 
     - name: Setup Node.js LTS
       uses: actions/setup-node@v6

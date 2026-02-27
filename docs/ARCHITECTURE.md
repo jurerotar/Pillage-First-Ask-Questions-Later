@@ -2,43 +2,70 @@
 
 ## 1. Introduction
 
-This document provides an overview of the architecture used in **Pillage First, Ask Questions Later** game. It covers some implementation details, notes important files and caveats.
+This document provides an overview of the architecture used in **Pillage First, Ask Questions Later** game. It covers
+some implementation details, notes important files and caveats.
 Please refer to [contribution guide](../CONTRIBUTING.md) for the list of technologies and project structure used.
+
+### 1.1 Important caveats
+
+For all of its history, Travian has always been an online-exclusive game. Since most of our users know it only as such,
+one of the most common requests we receive from the users is for this project to eventually add a multiplayer component.
+Turning this into an online app isn't our goal right now, but we've tried to structure things so a future contributor
+could do it with as little extra work as possible.
+
+Because of this, this application was constructed to behave as a typical client-server app, even though everything here
+takes place only on client's device.
 
 ## 2. App architecture
 
 The app consists of 3 separate logic layers:
 
-- Frontend
+- SQLite WASM persisted database
 - API worker
-- In-memory database
+- Frontend
 
-### Frontend
+### SQLite WASM persisted database
 
-Frontend is built with React and TypeScript. Components are built with ShadCN. State management and data fetching is handled with `tanstack/query`. It's built with async in mind.
-It's completely headless and requires a RESTful-like API to work.
+This project uses [SQLite WASM](https://github.com/sqlite/sqlite-wasm) as data storage provider. Each game world has its
+own database. Database is created and seeded on game world creation and fully deleted on game world deletion.
+
+All table schemas are defined with `STRICT` mode. Most indexes are defined right by the corresponding schema, but some
+indexes are defined separately and are executed after seeding to improve seeding performance. We use handwritten (no
+ORM) SQL queries. Reason for this is that due to us having no control over which device this app is being run on, we
+have to limit any unnecessary wrappers.
 
 ### API worker
 
-API worker is a worker that implements a RESTful-like API. Its purpose is to act as a typical RESTful API; receiving requests and sending responses.
-It only exists in the offline version of the application, and it's meant to bridge the architecture gap between an offline-first and online app.
-Api worker defines a set of "endpoints", which look like this:
+API worker is a worker that implements a RESTful-like API. Its purpose is to act as a typical RESTful API; receiving
+requests and sending responses.
+It only exists in the offline version of the application, and it's meant to lessen the architectural differences gap an
+offline-first and online app.
+During runtime, API worker listens to worker messages sent by the frontend, parses out the `pathname` and `method`,
+invokes a `controller` and then returns a response using `worker.postMessage`.
+API worker defines a set of "endpoints", which look like this:
 
 ```ts
 const serverRoutes = [
   {
     method: 'GET',
     path: '/server',
-    handler: getServer,
+    controller: getServer,
   },
 ];
 ```
 
-These endpoints mimic traditional RESTful API endpoints. We then implement a custom fetcher function.
-This fetcher function follows the specification of the native `fetch` function (and just is the native `fetch` function in an online version of the app).
-Thus, by changing the fetcher, we're able to connect to different data providers (api-worker in offline version and an actual backend in online version).
+These endpoints mimic traditional RESTful API endpoints. Each of these endpoints invokes a `controller` function.
+Controllers may receive arguments through pathname, search params or body.
 
-Example of the fetcher function used by the offline app:
+### Frontend
+
+Frontend is built with React and TypeScript. UI components were generated with ShadCN. State management and data
+fetching is
+handled with `@tanstack/react-query`. It's built with async in mind, loading states are handled out of the box.
+
+Frontend hooks, responsible for fetching data, require a special `fetcher` function. A fetcher is a function that allows
+the frontend to connect to a specified data source. In a typical client-server app,
+this fetcher function would simply be browser's native `fetch`. In an offline version, fetcher looks somewhat like this:
 
 ```ts
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
@@ -70,68 +97,54 @@ export const createWorkerFetcher = (worker: Worker) => {
 };
 ```
 
-In an online version of the app, this would be the native `fetch` function.
+This fetcher function follows the specification of the native `fetch` function. By making sure we're following the
+specification as close as possible, we're able to connect to different data providers (api-worker in offline version and
+an actual backend in potential online version), without having to do a large rewrite.
 
 **Relevant files**:
+
 - https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/blob/master/app/(game)/providers/api-provider.tsx
 - https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/blob/master/app/(game)/utils/worker-fetch.ts
 
 #### How it all works together
 
 In the offline version of the app, there is no server. Everything happens exclusively on your device.
-But, to allow the same codebase to work with an online version with minimal required changes, we can't just simply manipulate data on the frontend.
+But, to allow the same codebase to work with an online version with minimal required changes, we can't just simply
+manipulate data on the frontend.
+
 For this reason, we implemented the API worker.
 
 When a user opens a game world, the app spawns a new worker and runs the API worker script on it. The purpose of this
-worker is to act as an RESTful API. It exposes required REST API endpoints, queries and writes to the database, posts responses through
-message
-ports, acts as a WebSocket server,.... It essentially provides a service you'd typically expect from a fully-fledged backend. This allows
-the frontend to be truly headless, making it integratable by both offline and online versions of the app. Frontend manipulates data only through this worker and no other data is persisted otherwise.
+worker is to act as an RESTful API. It exposes required REST API endpoints, queries and writes to the database, posts
+responses through message ports, acts as a WebSocket server,.... It essentially provides a service you'd typically
+expect from a fully-fledged
+backend. This allows the frontend to be truly headless, making it integratable by both offline and online versions of
+the app. Frontend
+manipulates data only through this worker and no other data is persisted otherwise.
 
-This design does complicate the codebase for the offline-version of the application, but it's the only way to allow the headless nature of
-the frontend. By simply changing the fetcher function, you are able to connect the frontend to a different data
+This design does complicate the codebase for the offline-version of the application, but it's the only way to allow the
+headless nature of the frontend. By simply changing the fetcher function, you are able to connect the frontend to a
+different data
 source (e.g. actual backend for an online app), without having to touch rest of the frontend.
-
-### Database
-
-Offline version of the application does not use a traditional database.
-Instead, game state is kept in `@tanstack/react-query`'s `QueryClient` object. There's a couple of reason for it, most important one being that initially, `react-query` with a persister plugin was the state-management and persistence solution used.
-This means that all the state was already in this single object. When we began considering a rewrite of the application to allow for a future online version, a large part of the app state already existed in `QueryClient` and it would have been too cumbersome to rewrite all the state as well.
-For this reason, as well as ease of use reasons, `react-query` was kept as a state management solution on both the frontend and the API worker.
-
-We have tried a `SQLite` implementation was tried as a proof-of-concept and while it does work, it also requires a massive rewrite of the app.
-
-While `react-query` may seem as an odd choice for a database (and it certainly is!), I argue it's good enough for now. It's widely used in
-frontend development as such, it allows new
-developers to pick it up quickly. If there's performance issues with its usage in the future, it can be partially/fully swapped with an
-actual database (ex. SQLite).
-
-### Architecture graph
-
-```mermaid
-graph TD
-  A[App Frontend] -->|Adapter| B[API Worker]
-  B -->|Fetches game data & events| C[In-Memory Database]
-  B -->|Sends game state updates| D[OPFS]
-  C -->|Persisted on state change| D
-  D -->|Retrieves saved state| B
-  B -->|Event Processing & State Updates| C
-  A -->|User Interacts| B
-```
 
 ### Important files
 
-- [`api-worker.ts`](/app/(game)/api/workers/api-worker.ts)
-- [`api-routes.ts`](/app/(game)/api/api-routes.ts)
-- [`api-provider.tsx`](/app/(game)/providers/api-provider.tsx)
+- [`api-worker.ts`](/packages/api/src/api-worker.ts)
+- [`api-routes.ts`](/packages/api/src/routes/api-routes.ts)
+- [`api-provider.tsx`](/apps/web/app/(game)/providers/api-provider.tsx)
 
 ### How would a multiplayer integration look like?
 
-Frontend expects a REST API and a WebSocket server. The list of expected routes is found in `api-routes.ts`. Request parameters and responses
-are found in `app/(game)/api` folder. To integrate your own backend, you need to implement the API routes (e.g., fetching game state,
-interacting with events) and WebSocket support. Once these routes are live, provide a `fetcher` function in the `api-provider.tsx`. This
-function is typically a `fetch` function that connects the frontend to the backend. After this, the app will be fully connected to the
+Frontend expects a RESTful API and a WebSocket server. The list of expected routes is found in `api-routes.ts`. Request
+parameters and responses
+are found in `/packages/api` package. To integrate your own backend, you need to implement the API routes (e.g.,
+fetching game state,
+interacting with events) and WebSocket support. Once these routes are live, provide a `fetcher` function in the
+`api-provider.tsx`. This
+function is typically a `fetch` function that connects the frontend to the backend. After this, the app will be fully
+connected to the
 backend
 for multiplayer functionality.
 
-Optionally, you can remove the `app/(game)/api` folder from your fork, as it will no longer be needed when connecting to a real backend.
+Optionally, you can remove the `/packages/api` package from your fork, as it will no longer be needed when connecting to
+a real backend.

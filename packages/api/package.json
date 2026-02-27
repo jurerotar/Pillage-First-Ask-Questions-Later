@@ -1,0 +1,55 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@pillage-first/api",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jure Rotar <hello@jurerotar.com>",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later",
+    "directory": "packages/api"
+  },
+  "exports": {
+    ".": {
+      "default": "./src/api-worker.ts"
+    },
+    "./open-api": {
+      "default": "./src/open-api.ts"
+    },
+    "./errors": {
+      "default": "./src/errors/index.ts"
+    }
+  },
+  "scripts": {
+    "lint:check": "biome lint --no-errors-on-unmatched",
+    "lint": "biome lint --fix --no-errors-on-unmatched",
+    "lint:check/oxlint": "oxlint --type-aware .",
+    "lint/oxlint": "oxlint --type-aware --fix .",
+    "format:check": "biome ci --linter-enabled=false",
+    "format": "biome check --write --no-errors-on-unmatched",
+    "type-check": "tsgo",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@pillage-first/db": "*",
+    "@pillage-first/game-assets": "*",
+    "@pillage-first/types": "*",
+    "@pillage-first/utils": "*",
+    "@sqlite.org/sqlite-wasm": "*",
+    "moderndash": "4.0.0",
+    "path-to-regexp": "8.3.0",
+    "tsx": "4.21.0",
+    "zod": "*",
+    "zod-openapi": "5.4.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "*",
+    "@typescript/native-preview": "*",
+    "@visulima/jsdoc-open-api": "2.0.95",
+    "openapi-typescript": "7.13.0",
+    "typescript": "*",
+    "vitest": "*"
+  }
+}

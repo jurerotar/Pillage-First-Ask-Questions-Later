@@ -1,0 +1,10 @@
+{
+  "$schema": "https://www.schemastore.org/tsconfig.json",
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
+    "types": [],
+    "jsx": "react-jsx"
+  },
+  "include": ["src/**/*"]
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "extends": ["../../.oxlintrc.json"],
+  "ignorePatterns": [
+    ".turbo",
+    "node_modules",
+    "build",
+    "public",
+    ".react-router"
+  ],
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "import",
+    "vitest",
+    "jest",
+    "react",
+    "react-perf",
+    "jsx-a11y",
+    "oxc",
+    "promise"
+  ],
+  "categories": {
+    "correctness": "off",
+    "pedantic": "off",
+    "perf": "error",
+    "style": "off",
+    "restriction": "off",
+    "suspicious": "error"
+  },
+  "rules": {
+    "react/*": "error",
+    "react/react-in-jsx-scope": "off",
+    "react/no-array-index-key": "warn",
+    "react/exhaustive-deps": "warn",
+    "react/jsx-filename-extension": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/only-export-components": "off",
+    "react-perf/*": "error",
+    "react-perf/jsx-no-new-function-as-prop": "off",
+    "react-perf/jsx-no-new-object-as-prop": "off",
+    "react-perf/jsx-no-jsx-as-prop": "off",
+    "react-perf/jsx-no-new-array-as-prop": "off",
+    "jsx-a11y/*": "error"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/page.tsx",
+        "**/*layout.tsx",
+        "app/root.tsx",
+        "vite.config.ts",
+        "react-router.config.ts",
+        "i18next.config.ts",
+        "app/routes.ts"
+      ],
+      "rules": {
+        "import/no-default-export": "off"
+      }
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+import { use, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { buildings } from '@pillage-first/game-assets/buildings';
+import type { Building } from '@pillage-first/types/models/building';
+import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
+import {
+  BuildingBenefits,
+  BuildingCard,
+  BuildingCost,
+  BuildingOverview,
+  BuildingRequirements,
+  BuildingUnfinishedNotice,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
+import { BuildingConstructionViewModeToggle } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-construction-view-mode-toggle';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
+import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { Text } from 'app/components/text';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from 'app/components/ui/breadcrumb';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+
+type BuildingCategoryPanelProps = {
+  buildingCategory: Building['category'];
+  isCompact: boolean;
+};
+
+const BuildingCategoryPanel = ({
+  buildingCategory,
+  isCompact,
+}: BuildingCategoryPanelProps) => {
+  const { t } = useTranslation();
+  const tribe = useTribe();
+  const { maxLevelByBuildingId, buildingIdsInQueue } =
+    use(BuildingFieldContext);
+
+  const buildingsByCategory = useMemo(() => {
+    return buildings.filter(({ category }) => category === buildingCategory);
+  }, [buildingCategory]);
+
+  const assessments = useMemo(() => {
+    return new Map<
+      Building['id'],
+      ReturnType<typeof assessBuildingConstructionReadiness>
+    >(
+      buildingsByCategory.map((building) => [
+        building.id,
+        assessBuildingConstructionReadiness({
+          buildingId: building.id,
+          tribe,
+          maxLevelByBuildingId,
+          buildingIdsInQueue,
+        }),
+      ]),
+    );
+  }, [buildingsByCategory, tribe, maxLevelByBuildingId, buildingIdsInQueue]);
+
+  const availableBuildings = useMemo(() => {
+    return buildingsByCategory.filter((building) => {
+      const buildingConstructionReadinessAssessment = assessments.get(
+        building.id,
+      )!;
+
+      if (buildingConstructionReadinessAssessment.canBuild) {
+        return true;
+      }
+
+      for (const assessment of buildingConstructionReadinessAssessment.assessedRequirements) {
+        if (
+          (assessment.type === 'tribe' && assessment.tribe !== tribe) ||
+          (assessment.type === 'amount' &&
+            assessment.amount === 1 &&
+            !assessment.fulfilled)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [buildingsByCategory, assessments, tribe]);
+
+  const sortedAvailableBuildings = useMemo(
+    () =>
+      availableBuildings.toSorted((prev, next) => {
+        const prevAssessment = assessments.get(prev.id)!;
+        const nextAssessment = assessments.get(next.id)!;
+
+        return (
+          Number(nextAssessment.canBuild) - Number(prevAssessment.canBuild)
+        );
+      }),
+    [availableBuildings, assessments],
+  );
+
+  const hasNoAvailableBuildings = availableBuildings.length === 0;
+
+  return (
+    <SectionContent>
+      {hasNoAvailableBuildings && <p>{t('No buildings available')}</p>}
+      {!hasNoAvailableBuildings && (
+        <section className="flex flex-col gap-2 *:border *:border-border *:p-2">
+          {sortedAvailableBuildings.map((building: Building) => (
+            <BuildingCard
+              key={building.id}
+              buildingId={building.id}
+              buildingConstructionReadinessAssessment={assessments.get(
+                building.id,
+              )}
+            >
+              <BuildingOverview isCompact={isCompact} />
+              <BuildingUnfinishedNotice />
+              {!isCompact && <BuildingBenefits />}
+              <BuildingCost />
+              <BuildingActions />
+              <BuildingRequirements />
+            </BuildingCard>
+          ))}
+        </section>
+      )}
+    </SectionContent>
+  );
+};
+
+export const BuildingConstruction = () => {
+  const { t } = useTranslation();
+  const { buildingFieldId } = use(BuildingFieldContext);
+  const { preferences } = usePreferences();
+
+  const isCompact = preferences.buildingConstructionViewMode === 'compact';
+
+  const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
+
+  return (
+    <>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink to={backlinkTarget}>{t('Village')}</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="flex justify-between items-center">
+        <Text as="h1">{t('Construct new building')}</Text>
+      </div>
+      <Tabs defaultValue="infrastructure">
+        <TabList>
+          <Tab value="infrastructure">{t('Infrastructure')}</Tab>
+          <Tab value="military">{t('Military')}</Tab>
+          <Tab value="resources">{t('Resources')}</Tab>
+        </TabList>
+        <TabPanel value="infrastructure">
+          <SectionContent>
+            <div className="flex justify-between items-center">
+              <Text as="h2">{t('Infrastructure buildings')}</Text>
+              <BuildingConstructionViewModeToggle />
+            </div>
+            <Text>
+              {t(
+                'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
+              )}
+            </Text>
+            <BuildingCategoryPanel
+              buildingCategory="infrastructure"
+              isCompact={isCompact}
+            />
+          </SectionContent>
+        </TabPanel>
+        <TabPanel value="military">
+          <SectionContent>
+            <div className="flex justify-between items-center">
+              <Text as="h2">{t('Military buildings')}</Text>
+              <BuildingConstructionViewModeToggle />
+            </div>
+            <Text>
+              {t(
+                'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
+              )}
+            </Text>
+            <BuildingCategoryPanel
+              buildingCategory="military"
+              isCompact={isCompact}
+            />
+          </SectionContent>
+        </TabPanel>
+        <TabPanel value="resources">
+          <SectionContent>
+            <div className="flex justify-between items-center">
+              <Text as="h2">{t('Resource buildings')}</Text>
+              <BuildingConstructionViewModeToggle />
+            </div>
+            <Text>{t('Buildings focused on improving village economy.')}</Text>
+            <BuildingCategoryPanel
+              buildingCategory="resource-booster"
+              isCompact={isCompact}
+            />
+          </SectionContent>
+        </TabPanel>
+      </Tabs>
+    </>
+  );
+};
