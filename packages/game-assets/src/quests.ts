@@ -5,6 +5,7 @@ import type {
 } from '@pillage-first/types/models/quest';
 import type { PlayableTribe } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
+import type { Village } from '@pillage-first/types/models/village';
 import { units } from './units';
 import { getUnitsByTribe } from './utils/units';
 
@@ -278,3 +279,32 @@ export const villageQuests: VillageQuestDefinition[] = [
   createBuildingQuest('BAKERY', 3),
   createBuildingQuest('BAKERY', 5),
 ];
+
+export const newVillageQuestsFactory = (
+  villageId: Village['id'],
+  tribe: PlayableTribe,
+): Omit<VillageQuest, 'collectedAt' | 'completedAt'>[] => {
+  const tribeToWallBuildingIdMap = new Map<PlayableTribe, Building['id']>([
+    ['romans', 'ROMAN_WALL'],
+    ['gauls', 'GAUL_WALL'],
+    ['teutons', 'TEUTONIC_WALL'],
+    ['huns', 'HUN_WALL'],
+    ['egyptians', 'EGYPTIAN_WALL'],
+  ]);
+
+  const tribalWall = tribeToWallBuildingIdMap.get(tribe)!;
+
+  const questsToCreate = [
+    ...villageQuests,
+    createBuildingQuest(tribalWall, 1),
+    createBuildingQuest(tribalWall, 5),
+    createBuildingQuest(tribalWall, 10),
+    createBuildingQuest(tribalWall, 15),
+    createBuildingQuest(tribalWall, 20),
+  ];
+
+  return questsToCreate.map((quest) => ({
+    ...quest,
+    villageId,
+  }));
+};

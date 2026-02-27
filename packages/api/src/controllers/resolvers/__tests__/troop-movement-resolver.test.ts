@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { eventSchema } from '../../../utils/zod/event-schemas';
-import { adventureMovementResolver } from '../troop-movement-resolver';
+import {
+  adventureMovementResolver,
+  findNewVillageMovementResolver,
+} from '../troop-movement-resolver';
 
 describe(adventureMovementResolver, () => {
   test('should handle hero surviving adventure', async () => {
@@ -199,5 +202,89 @@ describe('relocationMovementResolver', () => {
       schema: z.strictObject({ tile_id: z.number() }),
     })!;
     expect(heroTroop.tile_id).toBe(targetTileId);
+  });
+});
+
+describe('findNewVillageMovementResolver', () => {
+  test('should create a new village with building fields, resource site, and quests', async () => {
+    const database = await prepareTestDatabase();
+
+    // Pick a free tile that is not (0,0)
+    const targetTile = database.selectObject({
+      sql: "SELECT id, resource_field_composition_id FROM tiles WHERE type = 'free' AND NOT (x = 0 AND y = 0) LIMIT 1;",
+      schema: z.strictObject({
+        id: z.number(),
+        resource_field_composition_id: z.number(),
+      }),
+    })!;
+
+    const resolvesAt = 2000;
+    const mockEvent: GameEvent<'troopMovementFindNewVillage'> = {
+      id: 1,
+      type: 'troopMovementFindNewVillage',
+      startsAt: 1000,
+      duration: 1000,
+      resolvesAt,
+      villageId: 1, // existing village
+      targetId: targetTile.id,
+      troops: [],
+    };
+
+    findNewVillageMovementResolver(database, mockEvent);
+
+    // Verify village creation
+    const newVillage = database.selectObject({
+      sql: 'SELECT id, name, slug, tile_id FROM villages WHERE tile_id = $tileId;',
+      bind: { $tileId: targetTile.id },
+      schema: z.strictObject({
+        id: z.number(),
+        name: z.string(),
+        slug: z.string(),
+        tile_id: z.number(),
+      }),
+    })!;
+    expect(newVillage.name).toBe('New village');
+    expect(newVillage.slug).toBe('v-2'); // 2nd village for player
+
+    // Verify building fields
+    const buildingFields = database.selectObjects({
+      sql: 'SELECT field_id, building_id, level FROM building_fields WHERE village_id = $villageId;',
+      bind: { $villageId: newVillage.id },
+      schema: z.strictObject({
+        field_id: z.number(),
+        building_id: z.number(),
+        level: z.number(),
+      }),
+    });
+    // buildingFieldsFactory 'player' size creates 18 resource fields + Rally Point (39) + Main Building (38) + Wall (40) = 21 fields
+    expect(buildingFields.length).toBe(21);
+
+    // Check Main Building level 1
+    const mainBuilding = buildingFields.find((f) => f.field_id === 38);
+    expect(mainBuilding?.level).toBe(1);
+
+    // Verify resource site
+    const resourceSite = database.selectObject({
+      sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tileId;',
+      bind: { $tileId: targetTile.id },
+      schema: z.strictObject({
+        wood: z.number(),
+        clay: z.number(),
+        iron: z.number(),
+        wheat: z.number(),
+        updated_at: z.number(),
+      }),
+    })!;
+    expect(resourceSite.wood).toBe(750);
+    expect(resourceSite.updated_at).toBe(resolvesAt);
+
+    // Verify quests
+    const quests = database.selectObjects({
+      sql: 'SELECT quest_id FROM quests WHERE village_id = $villageId;',
+      bind: { $villageId: newVillage.id },
+      schema: z.strictObject({ quest_id: z.string() }),
+    });
+    // newVillageQuestsFactory creates many quests (villageQuests + some wall quests)
+    expect(quests.length).toBeGreaterThan(0);
   });
 });
