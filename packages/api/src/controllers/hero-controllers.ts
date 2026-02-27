@@ -112,9 +112,9 @@ export const changeHeroAttributes = createController(
               JOIN players p ON h.player_id = p.id
               JOIN tribe_ids ti ON p.tribe_id = ti.id
           WHERE
-            p.id = $playerId
+            p.id = $player_id
         `,
-        bind: { $playerId: playerId },
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number(), tribe: z.string() }),
       })!;
 
@@ -127,10 +127,10 @@ export const changeHeroAttributes = createController(
             attack_bonus = $attackBonus,
             defence_bonus = $defenceBonus
           WHERE
-            hero_id = $heroId
+            hero_id = $hero_id
         `,
         bind: {
-          $heroId: hero.id,
+          $hero_id: hero.id,
           $attackPower: attackPower,
           $resourceProduction: resourceProduction,
           $attackBonus: attackBonus,
@@ -157,10 +157,10 @@ export const changeHeroAttributes = createController(
             attack_bonus = $attackBonus * 2, -- 0.2% * 10 (stored as integer)
             defence_bonus = $defenceBonus * 2
           WHERE
-            id = $heroId
+            id = $hero_id
         `,
         bind: {
-          $heroId: hero.id,
+          $hero_id: hero.id,
           $initialStrength: initialStrength,
           $strengthPerPoint: strengthPerPoint,
           $attackPower: attackPower,
@@ -173,8 +173,8 @@ export const changeHeroAttributes = createController(
       const sharedProductionPerPoint = isEgyptian ? 12 : 9;
       const focusedProductionPerPoint = isEgyptian ? 40 : 30;
       const resourceToProduce = database.selectValue({
-        sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: heroResourceToProduceSchema,
       })!;
 
@@ -216,12 +216,12 @@ export const changeHeroAttributes = createController(
                 FROM effect_ids
                 WHERE effect = $effectId
                 )
-              AND village_id = $villageId
+              AND village_id = $village_id
           `,
           bind: {
             $value: value,
             $effectId: effectId,
-            $villageId: villageId,
+            $village_id: villageId,
           },
         });
       }
@@ -240,10 +240,10 @@ export const changeHeroResourceToProduce = createController(
         SET
           resource_to_produce = $resource
         WHERE
-          player_id = $playerId
+          player_id = $player_id
       `,
       bind: {
-        $playerId: playerId,
+        $player_id: playerId,
         $resource: resource,
       },
     });
@@ -257,9 +257,9 @@ export const changeHeroResourceToProduce = createController(
             JOIN players p ON h.player_id = p.id
             JOIN tribe_ids ti ON p.tribe_id = ti.id
         WHERE
-          p.id = $playerId
+          p.id = $player_id
       `,
-      bind: { $playerId: playerId },
+      bind: { $player_id: playerId },
       schema: z.strictObject({
         resource_production: z.number(),
         tribe: z.string(),
@@ -316,12 +316,12 @@ export const changeHeroResourceToProduce = createController(
               FROM effect_ids
               WHERE effect = $effectId
               )
-            AND village_id = $villageId
+            AND village_id = $village_id
         `,
         bind: {
           $value: value,
           $effectId: effectId,
-          $villageId: villageId,
+          $village_id: villageId,
         },
       });
     }
@@ -334,15 +334,15 @@ export const equipHeroItem = createController(
 )(({ database, path: { playerId }, body: { itemId, slot, amount } }) => {
   database.transaction(() => {
     const heroId = database.selectValue({
-      sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-      bind: { $playerId: playerId },
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
       schema: z.number(),
     })!;
 
     // 1. Get currently equipped item in this slot (if any)
     const currentlyEquipped = database.selectObject({
-      sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-      bind: { $heroId: heroId, $slot: slot },
+      sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+      bind: { $hero_id: heroId, $slot: slot },
       schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
     });
 
@@ -353,12 +353,12 @@ export const equipHeroItem = createController(
           INSERT INTO
             hero_inventory (hero_id, item_id, amount)
           VALUES
-            ($heroId, $equippedItemId, $equippedAmount)
+            ($hero_id, $equippedItemId, $equippedAmount)
           ON CONFLICT(hero_id, item_id) DO UPDATE SET
             amount = amount + EXCLUDED.amount
         `,
         bind: {
-          $heroId: heroId,
+          $hero_id: heroId,
           $equippedItemId: String(currentlyEquipped.item_id),
           $equippedAmount: currentlyEquipped.amount,
         },
@@ -372,8 +372,8 @@ export const equipHeroItem = createController(
 
       // Remove from equipped
       database.exec({
-        sql: 'DELETE FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-        bind: { $heroId: heroId, $slot: slot },
+        sql: 'DELETE FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
       });
     }
 
@@ -384,11 +384,11 @@ export const equipHeroItem = createController(
         FROM
           hero_inventory
         WHERE
-          hero_id = $heroId
+          hero_id = $hero_id
           AND item_id = $itemId
           AND amount = $amount
       `,
-      bind: { $heroId: heroId, $itemId: itemId, $amount: amount },
+      bind: { $hero_id: heroId, $itemId: itemId, $amount: amount },
     });
 
     database.exec({
@@ -397,11 +397,11 @@ export const equipHeroItem = createController(
         SET
           amount = amount - $amount
         WHERE
-          hero_id = $heroId
+          hero_id = $hero_id
           AND item_id = $itemId
           AND amount > $amount
       `,
-      bind: { $heroId: heroId, $itemId: itemId, $amount: amount },
+      bind: { $hero_id: heroId, $itemId: itemId, $amount: amount },
     });
 
     // 3. Equip the new item
@@ -410,19 +410,19 @@ export const equipHeroItem = createController(
         INSERT INTO
           hero_equipped_items (hero_id, slot, item_id, amount)
         VALUES
-          ($heroId, $slot, $itemId, $amount)
+          ($hero_id, $slot, $itemId, $amount)
         ON CONFLICT(hero_id, slot) DO UPDATE SET
           amount = amount + EXCLUDED.amount
       `,
-      bind: { $heroId: heroId, $slot: slot, $itemId: itemId, $amount: amount },
+      bind: { $hero_id: heroId, $slot: slot, $itemId: itemId, $amount: amount },
     });
 
     // 4. Handle effects of newly equipped item
     const itemDef = getItemDefinition(itemId);
     if (itemDef.effects) {
       const villageId = database.selectValue({
-        sql: 'SELECT id FROM villages WHERE player_id = $playerId LIMIT 1',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
+        bind: { $player_id: playerId },
         schema: z.number(),
       });
 
@@ -438,14 +438,15 @@ export const equipHeroItem = createController(
                    effect_ids
                  WHERE
                    effect = $effectId
-                 ), $value, $type, $scope, 'hero', $villageId, $itemId)
+                 ), $value, $type, $scope, 'hero', $village_id, $itemId)
           `,
           bind: {
             $effectId: effect.id,
             $value: effect.value,
             $type: effect.type,
             $scope: effect.scope,
-            $villageId: effect.scope === 'village' ? villageId : null,
+            $village_id:
+              effect.scope === 'village' ? (villageId ?? null) : null,
             $itemId: itemId,
           },
         });
@@ -460,14 +461,14 @@ export const unequipHeroItem = createController(
 )(({ database, path: { playerId, slot } }) => {
   database.transaction(() => {
     const heroId = database.selectValue({
-      sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-      bind: { $playerId: playerId },
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
       schema: z.number(),
     })!;
 
     const equipped = database.selectObject({
-      sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-      bind: { $heroId: heroId, $slot: slot },
+      sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+      bind: { $hero_id: heroId, $slot: slot },
       schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
     });
 
@@ -478,12 +479,12 @@ export const unequipHeroItem = createController(
           INSERT INTO
             hero_inventory (hero_id, item_id, amount)
           VALUES
-            ($heroId, $itemId, $amount)
+            ($hero_id, $itemId, $amount)
           ON CONFLICT(hero_id, item_id) DO UPDATE SET
             amount = amount + EXCLUDED.amount
         `,
         bind: {
-          $heroId: heroId,
+          $hero_id: heroId,
           $itemId: equipped.item_id,
           $amount: equipped.amount,
         },
@@ -497,8 +498,8 @@ export const unequipHeroItem = createController(
 
       // Remove from equipped
       database.exec({
-        sql: 'DELETE FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-        bind: { $heroId: heroId, $slot: slot },
+        sql: 'DELETE FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
       });
     }
   })!;
@@ -510,8 +511,8 @@ export const useHeroItem = createController(
 )(({ database, path: { playerId }, body: { itemId, amount } }) => {
   database.transaction(() => {
     const heroId = database.selectObject({
-      sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-      bind: { $playerId: playerId },
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
       schema: z.strictObject({ id: z.number() }),
     })?.id;
 
@@ -522,8 +523,8 @@ export const useHeroItem = createController(
     // Check inventory
     const inventoryAmount =
       database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: itemId },
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: itemId },
         schema: z.strictObject({ amount: z.number() }),
       })?.amount ?? 0;
 
@@ -536,8 +537,8 @@ export const useHeroItem = createController(
     if (itemId === 1021) {
       // HEALING_POTION
       const currentHealth = database.selectObject({
-        sql: 'SELECT health FROM heroes WHERE id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT health FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ health: z.number() }),
       })!.health;
 
@@ -548,8 +549,8 @@ export const useHeroItem = createController(
       itemsToUse = Math.min(amount, healthNeeded);
 
       database.exec({
-        sql: 'UPDATE heroes SET health = health + $healthToAdd WHERE id = $heroId',
-        bind: { $heroId: heroId, $healthToAdd: itemsToUse },
+        sql: 'UPDATE heroes SET health = health + $healthToAdd WHERE id = $hero_id',
+        bind: { $hero_id: heroId, $healthToAdd: itemsToUse },
       });
     } else if (itemId === 1022) {
       // BOOK_OF_WISDOM
@@ -563,9 +564,9 @@ export const useHeroItem = createController(
               JOIN players p ON h.player_id = p.id
               JOIN tribe_ids ti ON p.tribe_id = ti.id
           WHERE
-            h.id = $heroId
+            h.id = $hero_id
         `,
-        bind: { $heroId: heroId },
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ tribe: z.string() }),
       })!;
 
@@ -588,9 +589,9 @@ export const useHeroItem = createController(
             attack_bonus = 0,
             defence_bonus = 0
           WHERE
-            hero_id = $heroId
+            hero_id = $hero_id
         `,
-        bind: { $heroId: heroId },
+        bind: { $hero_id: heroId },
       });
 
       database.exec({
@@ -601,9 +602,9 @@ export const useHeroItem = createController(
             attack_bonus = 0,
             defence_bonus = 0
           WHERE
-            id = $heroId
+            id = $hero_id
         `,
-        bind: { $heroId: heroId, $initialStrength: initialStrength },
+        bind: { $hero_id: heroId, $initialStrength: initialStrength },
       });
 
       const resourceProductionEffectIds = [
@@ -622,11 +623,11 @@ export const useHeroItem = createController(
               source = 'hero'
               AND source_specifier = 0
               AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId)
-              AND village_id = $villageId
+              AND village_id = $village_id
           `,
           bind: {
             $effectId: effectId,
-            $villageId: villageId,
+            $village_id: villageId,
           },
         });
       }
@@ -641,9 +642,9 @@ export const useHeroItem = createController(
           SET
             experience = experience + $experienceToAdd
           WHERE
-            id = $heroId
+            id = $hero_id
         `,
-        bind: { $heroId: heroId, $experienceToAdd: experienceToAdd },
+        bind: { $hero_id: heroId, $experienceToAdd: experienceToAdd },
       });
     } else {
       throw new Error('Item effect not implemented');
@@ -652,14 +653,14 @@ export const useHeroItem = createController(
     // Remove used items from inventory
     if (inventoryAmount === itemsToUse) {
       database.exec({
-        sql: 'DELETE FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'DELETE FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
       });
     } else {
       database.exec({
-        sql: 'UPDATE hero_inventory SET amount = amount - $itemsUsed WHERE hero_id = $heroId AND item_id = $itemId',
+        sql: 'UPDATE hero_inventory SET amount = amount - $itemsUsed WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: {
-          $heroId: heroId,
+          $hero_id: heroId,
           $itemId: String(itemId),
           $itemsUsed: itemsToUse,
         },

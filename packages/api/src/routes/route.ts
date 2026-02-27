@@ -1,5 +1,5 @@
 import type { paths } from '../open-api.ts';
-import type { Controller, Method } from './controller';
+import type { Controller, Method } from '../utils/controller.ts';
 
 export type Route = {
   path: string;

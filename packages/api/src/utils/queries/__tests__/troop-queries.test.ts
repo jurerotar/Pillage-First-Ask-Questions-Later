@@ -24,11 +24,11 @@ describe('troop-queries', () => {
       addTroops(database, troops);
 
       const result = database.selectObject({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
+        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
         bind: {
-          $tileId: tileId,
-          $sourceTileId: sourceTileId,
-          $unitId: 'LEGIONNAIRE',
+          $tile_id: tileId,
+          $source_tile_id: sourceTileId,
+          $unit_id: 'LEGIONNAIRE',
         },
         schema: z.strictObject({ amount: z.number() }),
       });
@@ -54,8 +54,12 @@ describe('troop-queries', () => {
       ]);
 
       const result = database.selectObject({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
-        bind: { $tileId: tileId, $sourceTileId: sourceTileId, $unitId: unitId },
+        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        bind: {
+          $tile_id: tileId,
+          $source_tile_id: sourceTileId,
+          $unit_id: unitId,
+        },
         schema: z.strictObject({ amount: z.number() }),
       });
 
@@ -93,11 +97,11 @@ describe('troop-queries', () => {
 
       const checkTroops = (unitId: Unit['id'], expectedAmount: number) => {
         const result = database.selectObject({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
+          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
           bind: {
-            $tileId: tileId,
-            $sourceTileId: sourceTileId,
-            $unitId: unitId,
+            $tile_id: tileId,
+            $source_tile_id: sourceTileId,
+            $unit_id: unitId,
           },
           schema: z.strictObject({ amount: z.number() }),
         });
@@ -127,8 +131,8 @@ describe('troop-queries', () => {
         expectedAmount: number,
       ) => {
         const result = database.selectObject({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
-          bind: { $tileId: tileId, $sourceTileId: source, $unitId: unitId },
+          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+          bind: { $tile_id: tileId, $source_tile_id: source, $unit_id: unitId },
           schema: z.strictObject({ amount: z.number() }),
         });
         expect(result?.amount).toBe(expectedAmount);
@@ -159,8 +163,12 @@ describe('troop-queries', () => {
       ]);
 
       const result = database.selectObject({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
-        bind: { $tileId: tileId, $sourceTileId: sourceTileId, $unitId: unitId },
+        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        bind: {
+          $tile_id: tileId,
+          $source_tile_id: sourceTileId,
+          $unit_id: unitId,
+        },
         schema: z.strictObject({ amount: z.number() }),
       });
 
@@ -185,8 +193,12 @@ describe('troop-queries', () => {
       ]);
 
       const result = database.selectObject({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
-        bind: { $tileId: tileId, $sourceTileId: sourceTileId, $unitId: unitId },
+        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        bind: {
+          $tile_id: tileId,
+          $source_tile_id: sourceTileId,
+          $unit_id: unitId,
+        },
         schema: z.strictObject({ amount: z.number() }),
       });
 
@@ -211,8 +223,12 @@ describe('troop-queries', () => {
       ]);
 
       const result = database.selectObject({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
-        bind: { $tileId: tileId, $sourceTileId: sourceTileId, $unitId: unitId },
+        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
+        bind: {
+          $tile_id: tileId,
+          $source_tile_id: sourceTileId,
+          $unit_id: unitId,
+        },
         schema: z.strictObject({ amount: z.number() }),
       });
 
@@ -243,11 +259,11 @@ describe('troop-queries', () => {
 
       const check = (unitId: Unit['id']) => {
         return database.selectObject({
-          sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
+          sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
           bind: {
-            $tileId: tileId,
-            $sourceTileId: sourceTileId,
-            $unitId: unitId,
+            $tile_id: tileId,
+            $source_tile_id: sourceTileId,
+            $unit_id: unitId,
           },
           schema: z.strictObject({ amount: z.number() }),
         });
@@ -293,11 +309,11 @@ describe('troop-queries', () => {
       ]);
 
       const result = database.selectObject({
-        sql: 'SELECT amount FROM troops WHERE tile_id = $tileId AND source_tile_id = $sourceTileId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)',
+        sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
         bind: {
-          $tileId: tileId,
-          $sourceTileId: sourceTileId,
-          $unitId: 'LEGIONNAIRE',
+          $tile_id: tileId,
+          $source_tile_id: sourceTileId,
+          $unit_id: 'LEGIONNAIRE',
         },
         schema: z.strictObject({ amount: z.number() }),
       });

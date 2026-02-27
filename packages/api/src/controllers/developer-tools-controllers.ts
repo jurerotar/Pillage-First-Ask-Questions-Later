@@ -119,8 +119,8 @@ export const levelUpHero = createController(
   'patch',
 )(({ database, path: { heroId } }) => {
   const currentExperience = database.selectValue({
-    sql: 'SELECT experience FROM heroes WHERE id = $heroId',
-    bind: { $heroId: heroId },
+    sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
+    bind: { $hero_id: heroId },
     schema: z.number(),
   })!;
 
@@ -132,10 +132,10 @@ export const levelUpHero = createController(
       SET
         experience = $nextLevelExp
       WHERE
-        id = $heroId
+        id = $hero_id
     `,
     bind: {
-      $heroId: heroId,
+      $hero_id: heroId,
       $nextLevelExp: currentExperience + expToNextLevel,
     },
   });
@@ -150,12 +150,12 @@ export const spawnHeroItem = createController(
       INSERT INTO
         hero_inventory (hero_id, item_id, amount)
       VALUES
-        ($heroId, $itemId, $amount)
+        ($hero_id, $itemId, $amount)
       ON CONFLICT (hero_id, item_id) DO UPDATE SET
         amount = amount + $amount
     `,
     bind: {
-      $heroId: heroId,
+      $hero_id: heroId,
       $itemId: itemId,
       $amount: amount,
     },
@@ -196,10 +196,10 @@ export const incrementHeroAdventurePoints = createController(
       SET
         available = available + 1
       WHERE
-        hero_id = $heroId
+        hero_id = $hero_id
     `,
     bind: {
-      $heroId: heroId,
+      $hero_id: heroId,
     },
   });
 });

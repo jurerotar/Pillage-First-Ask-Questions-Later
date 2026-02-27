@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
 import {
   type Building,
   buildingIdSchema,
@@ -10,7 +11,6 @@ import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
-import { buildingFieldsFactory } from './factories/building-fields-factory';
 
 /**
  * TODO: Consider the following performance optimizations:

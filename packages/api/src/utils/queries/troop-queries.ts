@@ -10,8 +10,8 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         ((
            SELECT id
            FROM unit_ids
-           WHERE unit = $unitId
-           ), $amount, $tileId, $sourceTileId)
+           WHERE unit = $unit_id
+           ), $amount, $tile_id, $source_tile_id)
       ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
         amount = troops.amount + EXCLUDED.amount;
     `,
@@ -20,10 +20,10 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
   for (const troop of troops) {
     stmt
       .bind({
-        $unitId: troop.unitId,
+        $unit_id: troop.unitId,
         $amount: troop.amount,
-        $tileId: troop.tileId,
-        $sourceTileId: troop.source,
+        $tile_id: troop.tileId,
+        $source_tile_id: troop.source,
       })
       .stepReset();
   }
@@ -34,16 +34,16 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
     database.exec({
       sql: `
         DELETE FROM troops
-        WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)
-          AND tile_id = $tileId
-          AND source_tile_id = $sourceTileId
+        WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          AND tile_id = $tile_id
+          AND source_tile_id = $source_tile_id
           AND amount <= $amount;
       `,
       bind: {
-        $unitId: troop.unitId,
+        $unit_id: troop.unitId,
         $amount: troop.amount,
-        $tileId: troop.tileId,
-        $sourceTileId: troop.source,
+        $tile_id: troop.tileId,
+        $source_tile_id: troop.source,
       },
     });
 
@@ -51,16 +51,16 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
       sql: `
         UPDATE troops
         SET amount = amount - $amount
-        WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unitId)
-          AND tile_id = $tileId
-          AND source_tile_id = $sourceTileId
+        WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          AND tile_id = $tile_id
+          AND source_tile_id = $source_tile_id
           AND amount > $amount;
       `,
       bind: {
-        $unitId: troop.unitId,
+        $unit_id: troop.unitId,
         $amount: troop.amount,
-        $tileId: troop.tileId,
-        $sourceTileId: troop.source,
+        $tile_id: troop.tileId,
+        $source_tile_id: troop.source,
       },
     });
   }

@@ -111,8 +111,8 @@ describe('events utils', () => {
 
       database.exec({
         sql: `INSERT INTO unit_research (village_id, unit_id)
-              VALUES ($villageId, (SELECT id FROM unit_ids WHERE unit = $unit))`,
-        bind: { $villageId: villageId, $unit: 'LEGIONNAIRE' },
+              VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))`,
+        bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
       });
 
       const result = validateEventCreationPrerequisites(
@@ -130,8 +130,8 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
       database.exec({
         sql: `DELETE FROM unit_research
-              WHERE village_id = $villageId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
-        bind: { $villageId: villageId, $unit: 'LEGIONNAIRE' },
+              WHERE village_id = $village_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
+        bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
       });
 
       const result = validateEventCreationPrerequisites(
@@ -149,8 +149,8 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
       database.exec({
         sql: `DELETE FROM unit_research
-              WHERE village_id = $villageId AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
-        bind: { $villageId: villageId, $unit: 'LEGIONNAIRE' },
+              WHERE village_id = $village_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
+        bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
       });
 
       const event = createTroopTrainingEventMock({
@@ -175,8 +175,8 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       database.exec({
-        sql: 'UPDATE heroes SET health = 100 WHERE player_id = $playerId',
-        bind: { $playerId: PLAYER_ID },
+        sql: 'UPDATE heroes SET health = 100 WHERE player_id = $player_id',
+        bind: { $player_id: PLAYER_ID },
       });
 
       const result = validateEventCreationPrerequisites(database, {
@@ -192,8 +192,8 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       database.exec({
-        sql: 'UPDATE heroes SET health = 0 WHERE player_id = $playerId',
-        bind: { $playerId: PLAYER_ID },
+        sql: 'UPDATE heroes SET health = 0 WHERE player_id = $player_id',
+        bind: { $player_id: PLAYER_ID },
       });
 
       const result = validateEventCreationPrerequisites(database, {
@@ -211,16 +211,16 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       const villageTileId = database.selectValue({
-        sql: 'SELECT tile_id FROM villages WHERE id = $villageId',
-        bind: { $villageId: villageId },
+        sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
+        bind: { $village_id: villageId },
         schema: z.number(),
       })!;
 
       // Seed some troops
       database.exec({
         sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tileId, $tileId)`,
-        bind: { $tileId: villageTileId },
+              VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
+        bind: { $tile_id: villageTileId },
       });
 
       const event = createGameEventMock('troopMovementAttack', {
@@ -249,21 +249,21 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const villageTileId = database.selectValue({
-        sql: 'SELECT tile_id FROM villages WHERE id = $villageId',
-        bind: { $villageId: villageId },
+        sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
+        bind: { $village_id: villageId },
         schema: z.number(),
       })!;
 
       // Seed some troops
       database.exec({
         sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tileId, $tileId)`,
-        bind: { $tileId: villageTileId },
+              VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
+        bind: { $tile_id: villageTileId },
       });
       database.exec({
         sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
-              VALUES ((SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, $tileId, $tileId)`,
-        bind: { $tileId: villageTileId },
+              VALUES ((SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'), 100, $tile_id, $tile_id)`,
+        bind: { $tile_id: villageTileId },
       });
 
       const events = [
@@ -377,9 +377,9 @@ describe('events utils', () => {
               JOIN players p ON h.player_id = p.id
               JOIN tribe_ids ti ON p.tribe_id = ti.id
           WHERE
-            h.player_id = $playerId;
+            h.player_id = $player_id;
         `,
-        bind: { $playerId: PLAYER_ID },
+        bind: { $player_id: PLAYER_ID },
         schema: z.strictObject({
           experience: z.number(),
           tribe: playableTribeSchema,
@@ -507,9 +507,9 @@ describe('events utils', () => {
             heroes h
               JOIN servers s ON 1 = 1
           WHERE
-            h.player_id = $playerId;
+            h.player_id = $player_id;
         `,
-        bind: { $playerId: PLAYER_ID },
+        bind: { $player_id: PLAYER_ID },
         schema: z.strictObject({
           experience: z.number(),
           speed: z.number(),
