@@ -12,8 +12,6 @@ export type CreateNewGameWorldWorkerPayload = {
 export type CreateNewGameWorldWorkerResponse =
   | {
       type: 'progress';
-      progress: number;
-      message: string;
     }
   | {
       type: 'result';
@@ -49,17 +47,11 @@ globalThis.addEventListener(
       `,
     });
 
-    const migrationDuration = migrateAndSeed(
-      dbFacade,
-      server,
-      (progress, message) => {
-        port.postMessage({
-          type: 'progress',
-          progress,
-          message,
-        } satisfies CreateNewGameWorldWorkerResponse);
-      },
-    );
+    const migrationDuration = migrateAndSeed(dbFacade, server, () => {
+      port.postMessage({
+        type: 'progress',
+      } satisfies CreateNewGameWorldWorkerResponse);
+    });
 
     dbFacade.close();
     database.close();

@@ -1,9 +1,11 @@
 import { faro } from '@grafana/faro-web-sdk';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
+import { clsx } from 'clsx';
 import { randomInt } from 'moderndash';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import {
@@ -30,7 +32,6 @@ import {
   FormMessage,
 } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
-import { Progress } from 'app/components/ui/progress.tsx';
 import {
   Select,
   SelectContent,
@@ -39,7 +40,6 @@ import {
   SelectValue,
 } from 'app/components/ui/select.tsx';
 import { Switch } from 'app/components/ui/switch.tsx';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -73,11 +73,18 @@ type MutateArgs = {
 };
 
 export const CreateNewGameWorldForm = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { createGameWorld, deleteGameWorld } = useGameWorldActions();
-  const [activeTab, setActiveTab] = useState('form');
-  const [progress, setProgress] = useState(0);
-  const [progressMessage, setProgressMessage] = useState('');
+  const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
+
+  const steps = [
+    t('Generating map tiles...'),
+    t('Generating oasis...'),
+    t('Generating players...'),
+    t('Generating villages...'),
+    t('Finalizing world generation...'),
+  ];
 
   const {
     mutate: createServer,
@@ -105,9 +112,11 @@ export const CreateNewGameWorldForm = () => {
           const data = event.data;
 
           if (data.type === 'progress') {
-            setProgress(data.progress);
-            setProgressMessage(data.message);
+            setCurrentStepIndex((currentIndex) => {
+              return currentIndex + 1;
+            });
           } else if (data.type === 'result') {
+            setCurrentStepIndex(steps.length);
             worker.terminate();
             channel.port1.close();
             resolve(data.migrationDuration);
@@ -122,7 +131,7 @@ export const CreateNewGameWorldForm = () => {
       });
     },
     onMutate: () => {
-      setActiveTab('progress');
+      setCurrentStepIndex(0);
     },
     onSuccess: async (migrationDuration, { server }) => {
       faro.api?.pushMeasurement({
@@ -192,28 +201,14 @@ export const CreateNewGameWorldForm = () => {
         <div className="bg-destructive/15 text-destructive p-4 rounded-lg">
           {error.message}
         </div>
-        <Button onClick={() => setActiveTab('form')}>Back to form</Button>
+        <Button onClick={() => window.location.reload()}>Back to form</Button>
       </div>
     );
   }
 
   return (
-    <Tabs value={activeTab}>
-      <TabList>
-        <Tab
-          value="form"
-          disabled
-        >
-          World creation
-        </Tab>
-        <Tab
-          value="progress"
-          disabled
-        >
-          Progress
-        </Tab>
-      </TabList>
-      <TabPanel value="form">
+    <div className="relative">
+      <div className={clsx(isPending && 'blur-sm pointer-events-none')}>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -427,24 +422,54 @@ export const CreateNewGameWorldForm = () => {
             </div>
           </form>
         </Form>
-      </TabPanel>
-      <TabPanel
-        value="progress"
-        className="flex flex-col gap-4 p-6 shadow-xl rounded-md border border-border"
-      >
-        <div className="flex flex-col gap-2 max-w-sm mx-auto w-full">
-          <div className="flex justify-between items-center">
-            <Text className="text-lg font-medium">{progressMessage}</Text>
-            <Text className="text-lg text-muted-foreground">
-              {Math.round(progress)}%
-            </Text>
+      </div>
+      {isPending && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-xs z-10 rounded-md">
+          <div className="flex flex-col gap-4 p-6 shadow-2xl rounded-lg border border-border bg-background max-w-sm w-full mx-4">
+            <div className="flex flex-col relative">
+              <div
+                className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-muted-foreground/20"
+                aria-hidden="true"
+              />
+              {steps.map((step, index) => {
+                const isCompleted = index < currentStepIndex;
+                const isCurrent = index === currentStepIndex;
+
+                return (
+                  <div
+                    key={step}
+                    className="flex items-center gap-4 relative py-1.5"
+                  >
+                    <div
+                      className={clsx(
+                        'relative z-10 flex items-center justify-center size-6 rounded-full bg-background border-4 border-background box-content -ml-2.25',
+                      )}
+                    >
+                      <div
+                        className={clsx(
+                          'size-3 rounded-full transition-colors duration-300',
+                          isCompleted ? 'bg-success' : 'bg-muted-foreground/30',
+                          isCurrent && 'bg-muted-foreground/60 animate-pulse',
+                        )}
+                      />
+                    </div>
+                    <Text
+                      className={clsx(
+                        'text-sm transition-all duration-300',
+                        isCompleted && 'text-foreground font-medium',
+                        isCurrent && 'text-primary font-bold',
+                        !isCompleted && !isCurrent && 'text-muted-foreground',
+                      )}
+                    >
+                      {step}
+                    </Text>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <Progress
-            value={progress}
-            className="h-4"
-          />
         </div>
-      </TabPanel>
-    </Tabs>
+      )}
+    </div>
   );
 };
