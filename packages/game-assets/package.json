@@ -15,26 +15,29 @@
     "./buildings": {
       "default": "./src/buildings.ts"
     },
-    "./buildings/utils": {
+    "./utils/buildings": {
       "default": "./src/utils/buildings.ts"
     },
     "./units": {
       "default": "./src/units.ts"
     },
-    "./units/utils": {
+    "./utils/units": {
       "default": "./src/utils/units.ts"
     },
     "./items": {
       "default": "./src/items.ts"
     },
-    "./items/utils": {
+    "./utils/items": {
       "default": "./src/utils/items.ts"
     },
     "./quests": {
       "default": "./src/quests.ts"
     },
-    "./quests/utils": {
+    "./utils/quests": {
       "default": "./src/utils/quests.ts"
+    },
+    "./utils/hero": {
+      "default": "./src/utils/hero.ts"
     },
     "./player": {
       "default": "./src/player.ts"
@@ -50,9 +53,6 @@
     },
     "./merchants": {
       "default": "./src/merchants.ts"
-    },
-    "./hero/utils": {
-      "default": "./src/utils/hero.ts"
     }
   },
   "scripts": {

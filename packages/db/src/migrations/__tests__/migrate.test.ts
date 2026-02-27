@@ -1,15 +1,15 @@
 import { describe, expect, expectTypeOf, test } from 'vitest';
 import { z } from 'zod';
-import {
-  calculateTotalPopulationForLevel,
-  getBuildingDefinition,
-} from '@pillage-first/game-assets/buildings/utils';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { natureUnits } from '@pillage-first/game-assets/units';
 import {
+  calculateTotalPopulationForLevel,
+  getBuildingDefinition,
+} from '@pillage-first/game-assets/utils/buildings';
+import {
   getUnitDefinition,
   getUnitsByTribe,
-} from '@pillage-first/game-assets/units/utils';
+} from '@pillage-first/game-assets/utils/units';
 import { serverMock } from '@pillage-first/mocks/server';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';

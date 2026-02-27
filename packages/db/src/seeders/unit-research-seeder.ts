@@ -1,5 +1,5 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { getUnitsByTribe } from '@pillage-first/game-assets/units/utils';
+import { getUnitsByTribe } from '@pillage-first/game-assets/utils/units';
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 

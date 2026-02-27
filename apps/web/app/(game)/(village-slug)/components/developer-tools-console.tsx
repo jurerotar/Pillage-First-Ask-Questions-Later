@@ -1,8 +1,8 @@
 import { type ComponentProps, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VscTerminal } from 'react-icons/vsc';
-import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
 import { items } from '@pillage-first/game-assets/items';
+import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {

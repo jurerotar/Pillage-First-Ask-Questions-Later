@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   getBuildingDataForLevel,
   getBuildingFieldByBuildingFieldId,
-} from '@pillage-first/game-assets/buildings/utils';
+} from '@pillage-first/game-assets/utils/buildings';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';

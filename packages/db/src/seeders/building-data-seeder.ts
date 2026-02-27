@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { buildings } from '@pillage-first/game-assets/buildings';
-import { calculateTotalPopulationForLevel } from '@pillage-first/game-assets/buildings/utils';
+import { calculateTotalPopulationForLevel } from '@pillage-first/game-assets/utils/buildings';
 import {
   type Effect,
   effectIdSchema,

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
+import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
 import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';

@@ -1,7 +1,7 @@
 import { prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { getUnitByTribeAndTier } from '@pillage-first/game-assets/units/utils';
+import { getUnitByTribeAndTier } from '@pillage-first/game-assets/utils/units';
 import type { Resource } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
 import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';

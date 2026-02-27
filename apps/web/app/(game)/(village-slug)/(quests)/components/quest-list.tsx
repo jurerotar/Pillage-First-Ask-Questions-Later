@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getQuestRewards } from '@pillage-first/game-assets/quests/utils';
+import { getQuestRewards } from '@pillage-first/game-assets/utils/quests';
 import type {
   Quest,
   QuestReward as QuestRewardType,

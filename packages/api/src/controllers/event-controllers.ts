@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/buildings/utils';
+import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/utils/buildings';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { isTroopMovementEvent } from '@pillage-first/utils/guards/event';
 import { triggerKick } from '../scheduler/scheduler-signal';

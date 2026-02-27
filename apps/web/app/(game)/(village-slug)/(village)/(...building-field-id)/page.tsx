@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/buildings/utils';
+import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/utils/buildings';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/(...building-field-id)/+types/page';
 import { BuildingConstruction } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-construction';
 import { BuildingDetails } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-details';

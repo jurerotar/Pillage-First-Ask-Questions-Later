@@ -1,12 +1,12 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   calculateHeroLevel,
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
-} from '@pillage-first/game-assets/hero/utils';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
+} from '@pillage-first/game-assets/utils/hero';
 import {
   createBuildingLevelChangeEventMock,
   createGameEventMock,

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import type { ResourceProductionEffectId } from '@pillage-first/types/models/effect';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';

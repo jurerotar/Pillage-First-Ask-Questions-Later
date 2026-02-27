@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import {
   getBuildingDataForLevel,
   getBuildingDefinition,
-} from '@pillage-first/game-assets/buildings/utils';
+} from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';

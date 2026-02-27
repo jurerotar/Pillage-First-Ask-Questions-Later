@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getQuestRewards } from '@pillage-first/game-assets/quests/utils';
+import { getQuestRewards } from '@pillage-first/game-assets/utils/quests';
 import type { Quest } from '@pillage-first/types/models/quest';
 import {
   isHeroExperienceQuestReward,

@@ -9,7 +9,7 @@ import {
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
-} from '@pillage-first/game-assets/units/utils';
+} from '@pillage-first/game-assets/utils/units';
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
 import type { Unit } from '@pillage-first/types/models/unit';

@@ -4,7 +4,7 @@ import { z } from 'zod';
 import {
   getUnitDefinition,
   getUnitsByTribe,
-} from '@pillage-first/game-assets/units/utils';
+} from '@pillage-first/game-assets/utils/units';
 import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';

@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import type {
   OasisTile,
   OccupiableTile,

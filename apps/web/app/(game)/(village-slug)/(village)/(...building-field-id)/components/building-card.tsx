@@ -12,7 +12,7 @@ import {
   calculateBuildingEffectValues,
   getBuildingDataForLevel,
   getBuildingDefinition,
-} from '@pillage-first/game-assets/buildings/utils';
+} from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';

@@ -1,4 +1,4 @@
-import { calculateBuildingDurationForLevel } from '@pillage-first/game-assets/buildings/utils';
+import { calculateBuildingDurationForLevel } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type {
