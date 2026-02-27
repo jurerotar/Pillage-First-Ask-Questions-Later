@@ -19,10 +19,10 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
         villages.tile_id AS tileId
       FROM heroes
       JOIN villages ON heroes.village_id = villages.id
-      WHERE heroes.player_id = $playerId;
+      WHERE heroes.player_id = $player_id;
     `,
     bind: {
-      $playerId: PLAYER_ID,
+      $player_id: PLAYER_ID,
     },
     schema: z.object({
       villageId: z.number(),
@@ -33,13 +33,13 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
   updateVillageResourcesAt(database, villageId, resolvesAt);
 
   database.exec({
-    sql: 'UPDATE heroes SET health = 100 WHERE player_id = $playerId;',
-    bind: { $playerId: PLAYER_ID },
+    sql: 'UPDATE heroes SET health = 100 WHERE player_id = $player_id;',
+    bind: { $player_id: PLAYER_ID },
   });
 
   database.exec({
     sql: insertHeroEffectsQuery,
-    bind: { $playerId: PLAYER_ID },
+    bind: { $player_id: PLAYER_ID },
   });
 
   addTroops(database, [

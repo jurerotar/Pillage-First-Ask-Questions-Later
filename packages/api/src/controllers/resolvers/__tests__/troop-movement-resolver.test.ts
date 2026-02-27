@@ -15,20 +15,20 @@ describe(adventureMovementResolver, () => {
     const villageId = 1;
 
     const heroId = database.selectValue({
-      sql: 'SELECT id FROM heroes WHERE player_id = (SELECT player_id FROM villages WHERE id = $villageId);',
-      bind: { $villageId: villageId },
+      sql: 'SELECT id FROM heroes WHERE player_id = (SELECT player_id FROM villages WHERE id = $village_id);',
+      bind: { $village_id: villageId },
       schema: z.number(),
     })!;
 
     // Setup hero state
     database.exec({
-      sql: 'UPDATE heroes SET health = 100, damage_reduction = 2, experience = 0 WHERE id = $heroId;',
-      bind: { $heroId: heroId },
+      sql: 'UPDATE heroes SET health = 100, damage_reduction = 2, experience = 0 WHERE id = $hero_id;',
+      bind: { $hero_id: heroId },
     });
 
     database.exec({
-      sql: 'UPDATE hero_adventures SET completed = 5 WHERE hero_id = $heroId;',
-      bind: { $heroId: heroId },
+      sql: 'UPDATE hero_adventures SET completed = 5 WHERE hero_id = $hero_id;',
+      bind: { $hero_id: heroId },
     });
 
     const mockEvent: GameEvent<'troopMovementAdventure'> = {
@@ -45,14 +45,14 @@ describe(adventureMovementResolver, () => {
     adventureMovementResolver(database, mockEvent);
 
     const hero = database.selectObject({
-      sql: 'SELECT health, experience FROM heroes WHERE id = $heroId;',
-      bind: { $heroId: heroId },
+      sql: 'SELECT health, experience FROM heroes WHERE id = $hero_id;',
+      bind: { $hero_id: heroId },
       schema: z.strictObject({ health: z.number(), experience: z.number() }),
     })!;
 
     const adventures = database.selectObject({
-      sql: 'SELECT completed FROM hero_adventures WHERE hero_id = $heroId;',
-      bind: { $heroId: heroId },
+      sql: 'SELECT completed FROM hero_adventures WHERE hero_id = $hero_id;',
+      bind: { $hero_id: heroId },
       schema: z.strictObject({ completed: z.number() }),
     })!;
 
@@ -83,20 +83,20 @@ describe(adventureMovementResolver, () => {
 
     const villageId = 1;
     const heroId = database.selectValue({
-      sql: 'SELECT id FROM heroes WHERE player_id = (SELECT player_id FROM villages WHERE id = $villageId);',
-      bind: { $villageId: villageId },
+      sql: 'SELECT id FROM heroes WHERE player_id = (SELECT player_id FROM villages WHERE id = $village_id);',
+      bind: { $village_id: villageId },
       schema: z.number(),
     })!;
 
     // Setup hero state - very low health, no damage reduction
     database.exec({
-      sql: 'UPDATE heroes SET health = 3, damage_reduction = 0, experience = 100 WHERE id = $heroId;',
-      bind: { $heroId: heroId },
+      sql: 'UPDATE heroes SET health = 3, damage_reduction = 0, experience = 100 WHERE id = $hero_id;',
+      bind: { $hero_id: heroId },
     });
 
     database.exec({
-      sql: 'UPDATE hero_adventures SET completed = 5 WHERE hero_id = $heroId;',
-      bind: { $heroId: heroId },
+      sql: 'UPDATE hero_adventures SET completed = 5 WHERE hero_id = $hero_id;',
+      bind: { $hero_id: heroId },
     });
 
     const mockEvent: GameEvent<'troopMovementAdventure'> = {
@@ -113,14 +113,14 @@ describe(adventureMovementResolver, () => {
     adventureMovementResolver(database, mockEvent);
 
     const hero = database.selectObject({
-      sql: 'SELECT health, experience FROM heroes WHERE id = $heroId;',
-      bind: { $heroId: heroId },
+      sql: 'SELECT health, experience FROM heroes WHERE id = $hero_id;',
+      bind: { $hero_id: heroId },
       schema: z.strictObject({ health: z.number(), experience: z.number() }),
     })!;
 
     const adventures = database.selectObject({
-      sql: 'SELECT completed FROM hero_adventures WHERE hero_id = $heroId;',
-      bind: { $heroId: heroId },
+      sql: 'SELECT completed FROM hero_adventures WHERE hero_id = $hero_id;',
+      bind: { $hero_id: heroId },
       schema: z.strictObject({ completed: z.number() }),
     })!;
 
@@ -140,8 +140,8 @@ describe(adventureMovementResolver, () => {
 
     // Check if hero effects were removed
     const effects = database.selectObjects({
-      sql: "SELECT * FROM effects WHERE village_id = (SELECT village_id FROM heroes WHERE id = $heroId) AND source = 'hero';",
-      bind: { $heroId: heroId },
+      sql: "SELECT * FROM effects WHERE village_id = (SELECT village_id FROM heroes WHERE id = $hero_id) AND source = 'hero';",
+      bind: { $hero_id: heroId },
       schema: z.any(),
     });
     expect(effects).toHaveLength(0);
@@ -179,8 +179,8 @@ describe('relocationMovementResolver', () => {
 
     // Verify hero village_id update
     const heroVillageId = database.selectValue({
-      sql: 'SELECT village_id FROM heroes WHERE player_id = $playerId;',
-      bind: { $playerId: 1 }, // Assuming PLAYER_ID is 1
+      sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id;',
+      bind: { $player_id: 1 }, // Assuming PLAYER_ID is 1
       schema: z.number(),
     });
     expect(heroVillageId).toBe(targetVillageId);
@@ -234,8 +234,8 @@ describe('findNewVillageMovementResolver', () => {
 
     // Verify village creation
     const newVillage = database.selectObject({
-      sql: 'SELECT id, name, slug, tile_id FROM villages WHERE tile_id = $tileId;',
-      bind: { $tileId: targetTile.id },
+      sql: 'SELECT id, name, slug, tile_id FROM villages WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetTile.id },
       schema: z.strictObject({
         id: z.number(),
         name: z.string(),
@@ -248,8 +248,8 @@ describe('findNewVillageMovementResolver', () => {
 
     // Verify building fields
     const buildingFields = database.selectObjects({
-      sql: 'SELECT field_id, building_id, level FROM building_fields WHERE village_id = $villageId;',
-      bind: { $villageId: newVillage.id },
+      sql: 'SELECT field_id, building_id, level FROM building_fields WHERE village_id = $village_id;',
+      bind: { $village_id: newVillage.id },
       schema: z.strictObject({
         field_id: z.number(),
         building_id: z.number(),
@@ -265,8 +265,8 @@ describe('findNewVillageMovementResolver', () => {
 
     // Verify resource site
     const resourceSite = database.selectObject({
-      sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tileId;',
-      bind: { $tileId: targetTile.id },
+      sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetTile.id },
       schema: z.strictObject({
         wood: z.number(),
         clay: z.number(),
@@ -280,8 +280,8 @@ describe('findNewVillageMovementResolver', () => {
 
     // Verify quests
     const quests = database.selectObjects({
-      sql: 'SELECT quest_id FROM quests WHERE village_id = $villageId;',
-      bind: { $villageId: newVillage.id },
+      sql: 'SELECT quest_id FROM quests WHERE village_id = $village_id;',
+      bind: { $village_id: newVillage.id },
       schema: z.strictObject({ quest_id: z.string() }),
     });
     // newVillageQuestsFactory creates many quests (villageQuests + some wall quests)

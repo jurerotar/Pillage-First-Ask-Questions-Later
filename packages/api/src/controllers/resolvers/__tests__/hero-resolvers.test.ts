@@ -30,8 +30,8 @@ describe('hero-resolvers', () => {
     expect(health).toBe(100);
 
     const effects = database.selectObjects({
-      sql: "SELECT ei.effect FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $villageId AND e.source = 'hero';",
-      bind: { $villageId: villageId },
+      sql: "SELECT ei.effect FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $village_id AND e.source = 'hero';",
+      bind: { $village_id: villageId },
       schema: z.strictObject({ effect: z.string() }),
     });
 

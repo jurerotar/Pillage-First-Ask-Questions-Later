@@ -76,6 +76,7 @@
     "@biomejs/biome": "*",
     "@typescript/native-preview": "*",
     "vitest": "*",
+    "type-fest": "5.4.4",
     "typescript": "*",
     "zod": "*"
   }

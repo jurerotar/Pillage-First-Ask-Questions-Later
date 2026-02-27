@@ -18,7 +18,7 @@ export const onHeroDeath = (database: DbFacade, timestamp: number) => {
 
   database.exec({
     sql: deleteHeroEffectsQuery,
-    bind: { $playerId: PLAYER_ID },
+    bind: { $player_id: PLAYER_ID },
   });
 };
 
@@ -33,6 +33,6 @@ export const onHeroRevive = (database: DbFacade, timestamp: number) => {
 
   database.exec({
     sql: insertHeroEffectsQuery,
-    bind: { $playerId: PLAYER_ID },
+    bind: { $player_id: PLAYER_ID },
   });
 };

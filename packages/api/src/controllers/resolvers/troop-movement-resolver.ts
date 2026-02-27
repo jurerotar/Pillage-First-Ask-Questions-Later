@@ -40,14 +40,14 @@ export const adventureMovementResolver: Resolver<
           FROM
             villages
           WHERE
-            id = $villageId
+            id = $village_id
           )
       RETURNING
         id AS heroId,
         health
     `,
     bind: {
-      $villageId: villageId,
+      $village_id: villageId,
     },
     schema: z.strictObject({
       heroId: z.number(),
@@ -59,9 +59,9 @@ export const adventureMovementResolver: Resolver<
     onHeroDeath(database, resolvesAt);
 
     database.exec({
-      sql: 'UPDATE hero_adventures SET available = available - 1 WHERE hero_id = $heroId;',
+      sql: 'UPDATE hero_adventures SET available = available - 1 WHERE hero_id = $hero_id;',
       bind: {
-        $heroId: heroId,
+        $hero_id: heroId,
       },
     });
 
@@ -69,9 +69,9 @@ export const adventureMovementResolver: Resolver<
   }
 
   database.exec({
-    sql: 'UPDATE hero_adventures SET completed = completed + 1, available = available - 1 WHERE hero_id = $heroId;',
+    sql: 'UPDATE hero_adventures SET completed = completed + 1, available = available - 1 WHERE hero_id = $hero_id;',
     bind: {
-      $heroId: heroId,
+      $hero_id: heroId,
     },
   });
 
@@ -106,12 +106,12 @@ export const findNewVillageMovementResolver: Resolver<
           CROSS JOIN players p
           JOIN tribe_ids ti ON p.tribe_id = ti.id
       WHERE
-        t.id = $tileId
-        AND p.id = $playerId;
+        t.id = $tile_id
+        AND p.id = $player_id;
     `,
     bind: {
-      $tileId: targetId,
-      $playerId: PLAYER_ID,
+      $tile_id: targetId,
+      $player_id: PLAYER_ID,
     },
     schema: z.strictObject({
       resourceFieldComposition: resourceFieldCompositionSchema,
@@ -128,7 +128,7 @@ export const findNewVillageMovementResolver: Resolver<
           FROM
             villages
           WHERE
-            player_id = $playerId
+            player_id = $player_id
           )
       INSERT
       INTO
@@ -140,14 +140,14 @@ export const findNewVillageMovementResolver: Resolver<
           FROM
             next_slug
           ),
-        $tileId,
-        $playerId
+        $tile_id,
+        $player_id
           RETURNING id AS newVillageId;
     `,
     bind: {
       $name: 'New village',
-      $tileId: targetId,
-      $playerId: PLAYER_ID,
+      $tile_id: targetId,
+      $player_id: PLAYER_ID,
     },
     schema: z.strictObject({ newVillageId: z.number() }),
   })!;
@@ -173,11 +173,11 @@ export const findNewVillageMovementResolver: Resolver<
         INSERT INTO
           building_fields (village_id, field_id, building_id, level)
         VALUES
-          ($villageId, $fieldId, $buildingId, $level);
+          ($village_id, $field_id, $buildingId, $level);
       `,
       bind: {
-        $villageId: newVillageId,
-        $fieldId: field_id,
+        $village_id: newVillageId,
+        $field_id: field_id,
         $buildingId: buildingIdMap.get(building_id)!,
         $level: level,
       },
@@ -188,10 +188,10 @@ export const findNewVillageMovementResolver: Resolver<
   database.exec({
     sql: `
       INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
-      VALUES ($tileId, 750, 750, 750, 750, $updatedAt)
+      VALUES ($tile_id, 750, 750, 750, 750, $updatedAt)
       ON CONFLICT(tile_id) DO NOTHING;
     `,
-    bind: { $tileId: targetId, $updatedAt: resolvesAt },
+    bind: { $tile_id: targetId, $updatedAt: resolvesAt },
   });
 
   const quests = newVillageQuestsFactory(newVillageId, tribe);
@@ -200,11 +200,11 @@ export const findNewVillageMovementResolver: Resolver<
     database.exec({
       sql: `
         INSERT INTO quests (quest_id, completed_at, collected_at, village_id)
-        VALUES ($questId, NULL, NULL, $villageId);
+        VALUES ($questId, NULL, NULL, $village_id);
       `,
       bind: {
         $questId: quest.id,
-        $villageId: newVillageId,
+        $village_id: newVillageId,
       },
     });
   }
@@ -259,15 +259,15 @@ export const relocationMovementResolver: Resolver<
     database.exec({
       sql: updateHeroEffectsVillageIdQuery,
       bind: {
-        $playerId: PLAYER_ID,
+        $player_id: PLAYER_ID,
         $targetId: targetId,
       },
     });
 
     database.exec({
-      sql: 'UPDATE heroes SET village_id = $targetId WHERE player_id = $playerId;',
+      sql: 'UPDATE heroes SET village_id = $targetId WHERE player_id = $player_id;',
       bind: {
-        $playerId: PLAYER_ID,
+        $player_id: PLAYER_ID,
         $targetId: targetId,
       },
     });
