@@ -162,6 +162,8 @@
   "Enable vacation mode": "Enable vacation mode",
   "Enables accessibility enhancements for better usability.": "Enables accessibility enhancements for better usability.",
   "Enables the developer console button.": "Enables the developer console button.",
+  "Enough resources will be available at {{formattedDate}}.": "Enough resources will be available at {{formattedDate}}.",
+  "Enough resources will be available on {{formattedDate}}.": "Enough resources will be available on {{formattedDate}}.",
   "Every village begins with 100% loyalty. Loyalty determines how firmly a village belongs to your realm. When loyalty drops to 0%, the village will switch allegiance and become part of the attacker's realm.": "Every village begins with 100% loyalty. Loyalty determines how firmly a village belongs to your realm. When loyalty drops to 0%, the village will switch allegiance and become part of the attacker's realm.",
   "Expand construction queue": "Expand construction queue",
   "expansion": "Expansion",
