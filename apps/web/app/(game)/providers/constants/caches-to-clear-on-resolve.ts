@@ -44,7 +44,6 @@ export const cachesToClearOnResolve: Handlers = {
   buildingDestruction: () => {
     return [playerVillagesCacheKey, effectsCacheKey];
   },
-
   troopTraining: () => {
     return [playerTroopsCacheKey, effectsCacheKey];
   },

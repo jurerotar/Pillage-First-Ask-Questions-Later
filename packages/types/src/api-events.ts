@@ -3,6 +3,7 @@ import type { GameEvent, GameEventType } from './models/game-event';
 type EventKey =
   | 'event:database-initialization-success'
   | 'event:database-initialization-error'
+  | 'event:database-initialization-denied'
   | 'event:controller-success'
   | 'event:controller-error'
   | 'event:event-resolve-success'

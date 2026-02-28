@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { memo, Suspense, useEffect, useState } from 'react';
+import { memo, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Links,
@@ -9,10 +9,10 @@ import {
   type ShouldRevalidateFunction,
 } from 'react-router';
 import { Toaster, type ToasterProps } from 'sonner';
+import { broadcastQueryClient } from '@pillage-first/broadcast';
 import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Notifier } from 'app/(game)/components/notifier';
-import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
 import { HeadLinks } from 'app/components/head-links.tsx';
 import { Skeleton } from 'app/components/ui/skeleton';
@@ -20,24 +20,14 @@ import { loadAppTranslations } from 'app/localization/loaders/app';
 
 export { ErrorBoundary } from 'app/(game)/error-boundary.tsx';
 
-export const clientLoader = async ({
-  context,
-  params,
-}: Route.ClientLoaderArgs) => {
+export const clientLoader = async ({ params }: Route.ClientLoaderArgs) => {
   const { serverSlug } = params;
 
   const locale = 'en-US';
 
-  const [sessionModule] = await Promise.all([
-    import('app/context/session'),
-    loadAppTranslations(locale),
-  ]);
-
-  const { sessionContext } = sessionModule;
-  const { sessionId } = context.get(sessionContext);
+  await loadAppTranslations(locale);
 
   return {
-    sessionId,
     serverSlug,
   };
 };
@@ -45,10 +35,6 @@ export const clientLoader = async ({
 export const shouldRevalidate: ShouldRevalidateFunction = () => {
   return false;
 };
-
-export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
-  serverExistAndLockMiddleware,
-];
 
 const LayoutFallback = () => {
   return (
@@ -73,15 +59,14 @@ const LayoutFallback = () => {
 };
 
 const Layout = memo<Route.ComponentProps>(
-  ({ params, loaderData }) => {
+  ({ params }) => {
     const { serverSlug } = params;
-    const { sessionId } = loaderData;
 
     const { i18n } = useTranslation();
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-    const [queryClient] = useState<QueryClient>(
-      new QueryClient({
+    const [queryClient] = useState<QueryClient>(() => {
+      const qc = new QueryClient({
         defaultOptions: {
           queries: {
             networkMode: 'always',
@@ -92,22 +77,19 @@ const Layout = memo<Route.ComponentProps>(
             retry: false,
           },
         },
-      }),
-    );
+      });
+
+      broadcastQueryClient({
+        queryClient: qc,
+        exclude: ['api-worker'],
+      });
+
+      return qc;
+    });
 
     const toasterPosition: ToasterProps['position'] = isWiderThanLg
       ? 'bottom-right'
       : 'top-right';
-
-    useEffect(() => {
-      const { promise, resolve } = Promise.withResolvers();
-
-      navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
-
-      return () => {
-        resolve(null);
-      };
-    }, [serverSlug, sessionId]);
 
     return (
       <html lang={i18n.language}>

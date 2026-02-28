@@ -39,6 +39,7 @@
     "@pillage-first/mocks": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
+    "@pillage-first/broadcast": "*",
     "@react-router/node": "7.13.1",
     "@react-router/serve": "7.13.1",
     "@tailwindcss/vite": "4.2.1",
