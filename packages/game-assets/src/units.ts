@@ -14,6 +14,7 @@ export const romanUnits: Unit[] = [
     category: 'infantry',
     tribe: 'romans',
     tier: 'tier-1',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -29,6 +30,7 @@ export const romanUnits: Unit[] = [
     category: 'infantry',
     tribe: 'romans',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 1 }],
   },
   {
@@ -44,6 +46,7 @@ export const romanUnits: Unit[] = [
     category: 'infantry',
     tribe: 'romans',
     tier: 'tier-3',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
@@ -59,6 +62,7 @@ export const romanUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'romans',
     tier: 'scout',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
@@ -77,6 +81,7 @@ export const romanUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'romans',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 5 },
@@ -95,6 +100,7 @@ export const romanUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'romans',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
@@ -113,6 +119,7 @@ export const romanUnits: Unit[] = [
     category: 'siege',
     tribe: 'romans',
     tier: 'siege-ram',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
@@ -131,6 +138,7 @@ export const romanUnits: Unit[] = [
     category: 'siege',
     tribe: 'romans',
     tier: 'siege-catapult',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
@@ -146,9 +154,10 @@ export const romanUnits: Unit[] = [
     cavalryDefence: 30,
     unitSpeed: 4,
     unitCarryCapacity: 0,
-    category: 'special',
+    category: 'administration',
     tribe: 'romans',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 20 },
       { buildingId: 'RALLY_POINT', level: 10 },
@@ -164,9 +173,10 @@ export const romanUnits: Unit[] = [
     cavalryDefence: 80,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'special',
+    category: 'administration',
     tribe: 'romans',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [],
   },
 ];
@@ -185,6 +195,7 @@ export const gaulUnits: Unit[] = [
     category: 'infantry',
     tribe: 'gauls',
     tier: 'tier-1',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -200,6 +211,7 @@ export const gaulUnits: Unit[] = [
     category: 'infantry',
     tribe: 'gauls',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
@@ -215,6 +227,7 @@ export const gaulUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'gauls',
     tier: 'scout',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
@@ -233,6 +246,7 @@ export const gaulUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'gauls',
     tier: 'tier-3',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 3 },
@@ -251,6 +265,7 @@ export const gaulUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'gauls',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 5 },
@@ -269,6 +284,7 @@ export const gaulUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'gauls',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
@@ -287,6 +303,7 @@ export const gaulUnits: Unit[] = [
     category: 'siege',
     tribe: 'gauls',
     tier: 'siege-ram',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
@@ -305,6 +322,7 @@ export const gaulUnits: Unit[] = [
     category: 'siege',
     tribe: 'gauls',
     tier: 'siege-catapult',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
@@ -320,9 +338,10 @@ export const gaulUnits: Unit[] = [
     cavalryDefence: 50,
     unitSpeed: 5,
     unitCarryCapacity: 0,
-    category: 'special',
+    category: 'administration',
     tribe: 'gauls',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 20 },
       { buildingId: 'RALLY_POINT', level: 10 },
@@ -338,9 +357,10 @@ export const gaulUnits: Unit[] = [
     cavalryDefence: 80,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'special',
+    category: 'administration',
     tribe: 'gauls',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [],
   },
 ];
@@ -359,6 +379,7 @@ export const teutonUnits: Unit[] = [
     category: 'infantry',
     tribe: 'teutons',
     tier: 'tier-1',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -374,6 +395,7 @@ export const teutonUnits: Unit[] = [
     category: 'infantry',
     tribe: 'teutons',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 1 },
       { buildingId: 'BARRACKS', level: 3 },
@@ -392,6 +414,7 @@ export const teutonUnits: Unit[] = [
     category: 'infantry',
     tribe: 'teutons',
     tier: 'tier-3',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
@@ -407,6 +430,7 @@ export const teutonUnits: Unit[] = [
     category: 'infantry',
     tribe: 'teutons',
     tier: 'scout',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 1 },
       { buildingId: 'MAIN_BUILDING', level: 5 },
@@ -425,6 +449,7 @@ export const teutonUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'teutons',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 5 },
@@ -443,6 +468,7 @@ export const teutonUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'teutons',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
@@ -461,6 +487,7 @@ export const teutonUnits: Unit[] = [
     category: 'siege',
     tribe: 'teutons',
     tier: 'siege-ram',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 1 },
@@ -479,6 +506,7 @@ export const teutonUnits: Unit[] = [
     category: 'siege',
     tribe: 'teutons',
     tier: 'siege-catapult',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
@@ -494,9 +522,10 @@ export const teutonUnits: Unit[] = [
     cavalryDefence: 40,
     unitSpeed: 4,
     unitCarryCapacity: 0,
-    category: 'special',
+    category: 'administration',
     tribe: 'teutons',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 20 },
       { buildingId: 'RALLY_POINT', level: 5 },
@@ -512,9 +541,10 @@ export const teutonUnits: Unit[] = [
     cavalryDefence: 80,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'special',
+    category: 'administration',
     tribe: 'teutons',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [],
   },
 ];
@@ -533,6 +563,7 @@ export const egyptianUnits: Unit[] = [
     category: 'infantry',
     tribe: 'egyptians',
     tier: 'tier-1',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -548,6 +579,7 @@ export const egyptianUnits: Unit[] = [
     category: 'infantry',
     tribe: 'egyptians',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 1 }],
   },
   {
@@ -563,6 +595,7 @@ export const egyptianUnits: Unit[] = [
     category: 'infantry',
     tribe: 'egyptians',
     tier: 'tier-3',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
@@ -578,6 +611,7 @@ export const egyptianUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'egyptians',
     tier: 'scout',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
@@ -596,6 +630,7 @@ export const egyptianUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'egyptians',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 5 },
@@ -614,6 +649,7 @@ export const egyptianUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'egyptians',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
@@ -632,6 +668,7 @@ export const egyptianUnits: Unit[] = [
     category: 'siege',
     tribe: 'egyptians',
     tier: 'siege-ram',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
@@ -650,6 +687,7 @@ export const egyptianUnits: Unit[] = [
     category: 'siege',
     tribe: 'egyptians',
     tier: 'siege-catapult',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
@@ -665,9 +703,10 @@ export const egyptianUnits: Unit[] = [
     cavalryDefence: 50,
     unitSpeed: 4,
     unitCarryCapacity: 0,
-    category: 'special',
+    category: 'administration',
     tribe: 'egyptians',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 20 },
       { buildingId: 'RALLY_POINT', level: 10 },
@@ -683,9 +722,10 @@ export const egyptianUnits: Unit[] = [
     cavalryDefence: 80,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'special',
+    category: 'administration',
     tribe: 'egyptians',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [],
   },
 ];
@@ -704,6 +744,7 @@ export const hunUnits: Unit[] = [
     category: 'infantry',
     tribe: 'huns',
     tier: 'tier-1',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -719,6 +760,7 @@ export const hunUnits: Unit[] = [
     category: 'infantry',
     tribe: 'huns',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
@@ -734,6 +776,7 @@ export const hunUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'huns',
     tier: 'scout',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
@@ -752,6 +795,7 @@ export const hunUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-3',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 3 },
@@ -770,6 +814,7 @@ export const hunUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 5 },
@@ -788,6 +833,7 @@ export const hunUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'huns',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
@@ -806,6 +852,7 @@ export const hunUnits: Unit[] = [
     category: 'siege',
     tribe: 'huns',
     tier: 'siege-ram',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
@@ -824,6 +871,7 @@ export const hunUnits: Unit[] = [
     category: 'siege',
     tribe: 'huns',
     tier: 'siege-catapult',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
@@ -839,9 +887,10 @@ export const hunUnits: Unit[] = [
     cavalryDefence: 30,
     unitSpeed: 5,
     unitCarryCapacity: 0,
-    category: 'special',
+    category: 'administration',
     tribe: 'huns',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 20 },
       { buildingId: 'RALLY_POINT', level: 10 },
@@ -857,9 +906,10 @@ export const hunUnits: Unit[] = [
     cavalryDefence: 80,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'special',
+    category: 'administration',
     tribe: 'huns',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [],
   },
 ];
@@ -878,6 +928,7 @@ export const spartanUnits: Unit[] = [
     category: 'infantry',
     tribe: 'spartans',
     tier: 'tier-1',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -893,6 +944,7 @@ export const spartanUnits: Unit[] = [
     category: 'infantry',
     tribe: 'spartans',
     tier: 'scout',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 1 }],
   },
   {
@@ -908,6 +960,7 @@ export const spartanUnits: Unit[] = [
     category: 'infantry',
     tribe: 'spartans',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
@@ -923,6 +976,7 @@ export const spartanUnits: Unit[] = [
     category: 'infantry',
     tribe: 'spartans',
     tier: 'tier-3',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 10 }],
   },
   {
@@ -938,6 +992,7 @@ export const spartanUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'spartans',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
@@ -956,6 +1011,7 @@ export const spartanUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'spartans',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 10 },
@@ -974,6 +1030,7 @@ export const spartanUnits: Unit[] = [
     category: 'siege',
     tribe: 'spartans',
     tier: 'siege-ram',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
@@ -992,6 +1049,7 @@ export const spartanUnits: Unit[] = [
     category: 'siege',
     tribe: 'spartans',
     tier: 'siege-catapult',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
@@ -1007,9 +1065,10 @@ export const spartanUnits: Unit[] = [
     cavalryDefence: 40,
     unitSpeed: 4,
     unitCarryCapacity: 0,
-    category: 'special',
+    category: 'administration',
     tribe: 'spartans',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 20 },
       { buildingId: 'RALLY_POINT', level: 10 },
@@ -1025,9 +1084,10 @@ export const spartanUnits: Unit[] = [
     cavalryDefence: 80,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'special',
+    category: 'administration',
     tribe: 'spartans',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [],
   },
 ];
@@ -1047,6 +1107,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-1',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1062,6 +1123,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1077,6 +1139,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1092,6 +1155,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'scout',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1107,6 +1171,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-3',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1122,6 +1187,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1137,6 +1203,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1152,6 +1219,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1167,6 +1235,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1182,6 +1251,7 @@ export const natureUnits: Unit[] = [
     category: 'infantry',
     tribe: 'nature',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
 ];
@@ -1200,6 +1270,7 @@ export const natarianUnits: Unit[] = [
     category: 'infantry',
     tribe: 'natars',
     tier: 'tier-1',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
   {
@@ -1215,6 +1286,7 @@ export const natarianUnits: Unit[] = [
     category: 'infantry',
     tribe: 'natars',
     tier: 'tier-2',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 3 }],
   },
   {
@@ -1230,6 +1302,7 @@ export const natarianUnits: Unit[] = [
     category: 'infantry',
     tribe: 'natars',
     tier: 'tier-3',
+    recruitmentRequirements: [],
     researchRequirements: [{ buildingId: 'ACADEMY', level: 5 }],
   },
   {
@@ -1245,6 +1318,7 @@ export const natarianUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'natars',
     tier: 'scout',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
@@ -1263,6 +1337,7 @@ export const natarianUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'natars',
     tier: 'tier-4',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 5 },
       { buildingId: 'STABLE', level: 1 },
@@ -1281,6 +1356,7 @@ export const natarianUnits: Unit[] = [
     category: 'cavalry',
     tribe: 'natars',
     tier: 'tier-5',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'STABLE', level: 10 },
@@ -1299,6 +1375,7 @@ export const natarianUnits: Unit[] = [
     category: 'siege',
     tribe: 'natars',
     tier: 'siege-ram',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 10 },
       { buildingId: 'WORKSHOP', level: 1 },
@@ -1317,6 +1394,7 @@ export const natarianUnits: Unit[] = [
     category: 'siege',
     tribe: 'natars',
     tier: 'siege-catapult',
+    recruitmentRequirements: [],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 15 },
       { buildingId: 'WORKSHOP', level: 10 },
@@ -1332,9 +1410,10 @@ export const natarianUnits: Unit[] = [
     cavalryDefence: 50,
     unitSpeed: 5,
     unitCarryCapacity: 0,
-    category: 'special',
+    category: 'administration',
     tribe: 'natars',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [
       { buildingId: 'ACADEMY', level: 20 },
       { buildingId: 'RALLY_POINT', level: 10 },
@@ -1350,9 +1429,10 @@ export const natarianUnits: Unit[] = [
     cavalryDefence: 40,
     unitSpeed: 5,
     unitCarryCapacity: 3000,
-    category: 'special',
+    category: 'administration',
     tribe: 'natars',
-    tier: 'special',
+    tier: 'administration',
+    recruitmentRequirements: [{ buildingId: 'RESIDENCE', level: 10 }],
     researchRequirements: [],
   },
 ];
@@ -1371,6 +1451,7 @@ const specialUnits: Unit[] = [
     category: 'hero',
     tribe: 'all',
     tier: 'hero',
+    recruitmentRequirements: [],
     researchRequirements: [],
   },
 ];

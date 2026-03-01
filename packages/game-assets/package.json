@@ -53,6 +53,9 @@
     },
     "./merchants": {
       "default": "./src/merchants.ts"
+    },
+    "./factories/unit-research": {
+      "default": "./src/factories/unit-research.ts"
     }
   },
   "scripts": {

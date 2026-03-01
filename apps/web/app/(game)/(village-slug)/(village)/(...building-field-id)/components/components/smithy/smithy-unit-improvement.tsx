@@ -23,7 +23,9 @@ export const SmithyUnitImprovement = () => {
 
   const upgradableUnits = units.filter(({ category, tribe: unitTribe, id }) => {
     return (
-      category !== 'special' && unitTribe === tribe && isUnitResearched(id)
+      category !== 'administration' &&
+      unitTribe === tribe &&
+      isUnitResearched(id)
     );
   });
 

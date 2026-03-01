@@ -958,6 +958,7 @@
     "attack": "Attack",
     "defence": "Defence",
     "defenceBonus": "Defence bonus",
+    "residenceTrainingDuration": "Residence training duration",
     "barracksTrainingDuration": "Barracks training duration",
     "greatBarracksTrainingDuration": "Great barracks training duration",
     "stableTrainingDuration": "Stable training duration",
