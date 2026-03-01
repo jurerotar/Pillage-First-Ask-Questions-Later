@@ -126,27 +126,16 @@ export const resolveAttackValue = ({
 
 type ResolveDefenceValueArgs = {
   defendingArmy: Army;
+  reinforcingArmies: Army[];
   infAttackProportion: number;
   cavAttackProportion: number;
   wallFlatDefenceBonus: number;
   wallPercentDefenceBonus: number;
 };
 
-export function resolveDefenceValue(args: ResolveDefenceValueArgs) {
-  const {
-    defendingArmy,
-    infAttackProportion,
-    cavAttackProportion,
-    wallFlatDefenceBonus,
-    wallPercentDefenceBonus,
-  } = args;
-
-  var defendingTroopCount = 0;
-
-  const { infDef, cavDef } = defendingArmy.troops.reduce(
-    ({ infDef, cavDef }, troop) => {
-      defendingTroopCount += troop.amount;
-
+const resolveArmyDefenceValues = (army: Army) => {
+  return army.troops.reduce(
+    ({ troopCount, infDef, cavDef }, troop) => {
       var unitDef = getUnitDefinition(troop.unitId);
       const improvedInfantryDefence = calculateImprovedCombatStrength(
         unitDef.infantryDefence,
@@ -159,15 +148,45 @@ export function resolveDefenceValue(args: ResolveDefenceValueArgs) {
         troop.improvementLevel,
       );
       return {
+        troopCount: troopCount + troop.amount,
         infDef: infDef + improvedInfantryDefence * troop.amount,
         cavDef: cavDef + improvedCavalryDefence * troop.amount,
       };
     },
-    { infDef: 0, cavDef: 0 },
+    { troopCount: 0, infDef: 0, cavDef: 0 },
   );
+};
 
-  const totalInfantryDefenceProportional = infDef * infAttackProportion;
-  const totalCavalryDefenceProportional = cavDef * cavAttackProportion;
+export const resolveDefenceValue = (args: ResolveDefenceValueArgs) => {
+  const {
+    defendingArmy,
+    reinforcingArmies,
+    infAttackProportion,
+    cavAttackProportion,
+    wallFlatDefenceBonus,
+    wallPercentDefenceBonus,
+  } = args;
+  const allDefendingArmies = reinforcingArmies.concat(defendingArmy);
+
+  const { defendingTroopCount, totalInfDef, totalCavDef } =
+    allDefendingArmies.reduce(
+      ({ defendingTroopCount, totalInfDef, totalCavDef }, army) => {
+        const { troopCount, infDef, cavDef } = resolveArmyDefenceValues(army);
+        return {
+          defendingTroopCount: defendingTroopCount + troopCount,
+          totalInfDef: totalInfDef + infDef,
+          totalCavDef: totalCavDef + cavDef,
+        };
+      },
+      {
+        defendingTroopCount: 0,
+        totalInfDef: 0,
+        totalCavDef: 0,
+      },
+    );
+
+  const totalInfantryDefenceProportional = totalInfDef * infAttackProportion;
+  const totalCavalryDefenceProportional = totalCavDef * cavAttackProportion;
 
   var totalDefencePoints =
     totalInfantryDefenceProportional + totalCavalryDefenceProportional;
@@ -185,7 +204,7 @@ export function resolveDefenceValue(args: ResolveDefenceValueArgs) {
     totalDefencePoints,
     defendingTroopCount,
   };
-}
+};
 
 export type BattleCasualties = {
   winner: 'attacker' | 'defender';
@@ -272,6 +291,7 @@ const battleContextSchema = z.strictObject({
   battleType: battleTypeSchema,
   attackingArmy: armySchema,
   defendingArmy: armySchema,
+  reinforcingArmies: z.array(armySchema),
   wallLevel: z.number().default(0),
 });
 
@@ -281,6 +301,7 @@ export const resolveBattle = ({
   battleType,
   attackingArmy,
   defendingArmy,
+  reinforcingArmies,
   wallLevel,
 }: BattleContext): BattleResult => {
   const {
@@ -298,8 +319,9 @@ export const resolveBattle = ({
   );
 
   const { defendingTroopCount, totalDefencePoints } = resolveDefenceValue({
-    cavAttackProportion,
     defendingArmy,
+    reinforcingArmies,
+    cavAttackProportion,
     infAttackProportion,
     wallFlatDefenceBonus,
     wallPercentDefenceBonus,

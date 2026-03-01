@@ -20,7 +20,6 @@ import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import {
-  type Army,
   type BattleCasualties,
   type BattleContext,
   type BattleTroop,
@@ -149,15 +148,17 @@ export const RallyPointSimulator = () => {
       };
     };
 
-    var attackingSimulatorArmy = values.armies.find(
-      (a) => a.role === 'attacker',
-    )!;
-    var attackingTroops: BattleTroop[] =
-      attackingSimulatorArmy.units.map(unitToTroop);
-    var attackingArmy: Army = {
-      tribe: attackingSimulatorArmy.tribe,
-      troops: attackingTroops,
+    const simulatorArmyToArmy = (simulatorArmy: SimulatorArmy) => {
+      var troops: BattleTroop[] = simulatorArmy.units.map(unitToTroop);
+      return {
+        tribe: simulatorArmy.tribe,
+        troops: troops,
+      };
     };
+
+    const attackingArmy = simulatorArmyToArmy(
+      values.armies.find((a) => a.role === 'attacker')!,
+    );
 
     const sumAttackingUnits = attackingArmy.troops.reduce(
       (sum, unit) => sum + unit.amount,
@@ -171,21 +172,20 @@ export const RallyPointSimulator = () => {
       setEmptyArmyError(false);
     }
 
-    var defendingSimulatorArmy = values.armies.find(
-      (a) => a.role === 'defender',
-    )!;
-    var defendingTroops: BattleTroop[] =
-      defendingSimulatorArmy.units.map(unitToTroop);
-    var defendingArmy: Army = {
-      tribe: defendingSimulatorArmy.tribe,
-      troops: defendingTroops,
-    };
+    const defendingArmy = simulatorArmyToArmy(
+      values.armies.find((a) => a.role === 'defender')!,
+    );
+
+    const reinforcingArmies = values.armies
+      .filter((a) => a.role === 'reinforcements')
+      .map(simulatorArmyToArmy);
 
     const wallLevel = defendingArmy.tribe === 'nature' ? 0 : values.wallLevel;
 
     var battleContext: BattleContext = {
       attackingArmy,
       defendingArmy,
+      reinforcingArmies,
       battleType: values.battleType,
       wallLevel,
     };
@@ -445,16 +445,16 @@ const BattleResultArmyTable = ({
   );
 };
 
+const attackTribes = PLAYABLE_TRIBES.concat('natars');
+const defendTribes = PLAYABLE_TRIBES.concat('natars', 'nature');
+const reinforcementTribes = PLAYABLE_TRIBES.concat('nature');
+
 type ArmyConstructorProps = {
   changeTribe: (armyIndex: number, newTribe: Tribe) => void;
   form: UseFormReturn<SimulatorBattle>;
   army: SimulatorArmy;
   armyIndex: number;
 };
-
-const attackTribes = PLAYABLE_TRIBES.concat('natars');
-const defendTribes = PLAYABLE_TRIBES.concat('natars', 'nature');
-const reinforcementTribes = PLAYABLE_TRIBES.concat('nature');
 
 const ArmyConstructor = ({
   changeTribe,
