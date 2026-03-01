@@ -8,6 +8,7 @@ CREATE TABLE preferences
 
   -- Display
   should_show_building_names INTEGER NOT NULL CHECK (should_show_building_names IN (0, 1)),
+  building_construction_view_mode TEXT NOT NULL CHECK (building_construction_view_mode IN ('detailed', 'compact')),
 
   -- Functionality
   is_automatic_navigation_after_building_level_change_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_building_level_change_enabled IN (0,1)),

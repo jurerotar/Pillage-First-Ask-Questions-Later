@@ -1,1 +1,0 @@
-CREATE INDEX idx_occupiable_by_oasis_tile ON oasis_occupiable_by (occupiable_oasis_tile_id, occupiable_tile_id);

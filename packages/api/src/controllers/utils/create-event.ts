@@ -5,25 +5,17 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { triggerKick } from '../../scheduler/scheduler-signal';
+import { subtractVillageResourcesAt } from '../../utils/village.ts';
 import {
-  checkAndSubtractVillageResources,
+  getEventCost,
   getEventDuration,
   getEventStartTime,
   insertEvents,
   notifyAboutEventCreationFailure,
+  runEventCreationSideEffects,
+  validateEventCreationPrerequisites,
+  validateEventCreationResources,
 } from './events';
-
-const validateAndInsertEvents = (database: DbFacade, events: GameEvent[]) => {
-  const hasSuccessfullyValidatedAndSubtractedResources =
-    checkAndSubtractVillageResources(database, events);
-
-  if (!hasSuccessfullyValidatedAndSubtractedResources) {
-    notifyAboutEventCreationFailure(events);
-    return;
-  }
-
-  insertEvents(database, events);
-};
 
 type CreateNewEventsArgs<T extends GameEventType> = Omit<
   GameEvent<T>,
@@ -41,9 +33,44 @@ export const createEvents = <T extends GameEventType>(
   database: DbFacade,
   args: CreateNewEventsArgs<T>,
 ) => {
-  // These type coercions are super hacky. Essentially, args is GameEvent<T> but without 'startsAt' and 'duration'.
-  const startsAt = getEventStartTime(database, args as GameEvent<T>);
-  const duration = Math.ceil(getEventDuration(database, args as GameEvent<T>));
+  const sampleEvent = args as GameEvent<T>;
+  let startsAt: number | null = null;
+
+  const [isEventAllowed, reason] = validateEventCreationPrerequisites(
+    database,
+    sampleEvent,
+  );
+
+  if (!isEventAllowed) {
+    notifyAboutEventCreationFailure(reason);
+    return;
+  }
+
+  const eventCost = getEventCost(database, sampleEvent);
+
+  if (eventCost.some((cost) => cost > 0)) {
+    const hasEnoughResources = validateEventCreationResources(
+      database,
+      sampleEvent,
+      eventCost,
+    );
+
+    if (!hasEnoughResources) {
+      notifyAboutEventCreationFailure('Not enough resources');
+      return;
+    }
+
+    startsAt = getEventStartTime(database, sampleEvent);
+    const { villageId } = sampleEvent;
+
+    subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
+  }
+
+  if (!startsAt) {
+    startsAt = getEventStartTime(database, sampleEvent);
+  }
+
+  const duration = Math.ceil(getEventDuration(database, sampleEvent));
 
   const amount = args?.amount ?? 1;
   const events: GameEvent<T>[] = Array.from({ length: amount });
@@ -56,9 +83,11 @@ export const createEvents = <T extends GameEventType>(
     } as GameEvent<T>;
   }
 
+  const earliestEvent = events.at(0)!;
+
   const now = Date.now();
   const newResolvesAt = events.map((e) => e.startsAt + e.duration);
-  const earliestNewResolvesAt = events[0].startsAt + events[0].duration;
+  const earliestNewResolvesAt = earliestEvent.startsAt + earliestEvent.duration;
 
   // read current next event BEFORE we insert, using the same "now" snapshot
   const currentNext = database.selectObject({
@@ -76,7 +105,8 @@ export const createEvents = <T extends GameEventType>(
     schema: createEventsSchema,
   });
 
-  validateAndInsertEvents(database, events);
+  insertEvents(database, events);
+  runEventCreationSideEffects(database, events);
 
   // Determine if any created events should already be resolved
   const createdImmediate = newResolvesAt.some((r) => r <= now);

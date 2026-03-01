@@ -85,9 +85,11 @@ const Layout = memo<Route.ComponentProps>(
         defaultOptions: {
           queries: {
             networkMode: 'always',
+            retry: false,
           },
           mutations: {
             networkMode: 'always',
+            retry: false,
           },
         },
       }),

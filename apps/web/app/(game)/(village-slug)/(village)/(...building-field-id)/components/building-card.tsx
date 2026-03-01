@@ -12,7 +12,7 @@ import {
   calculateBuildingEffectValues,
   getBuildingDataForLevel,
   getBuildingDefinition,
-} from '@pillage-first/game-assets/buildings/utils';
+} from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
@@ -76,10 +76,12 @@ export const BuildingCard = ({
 
 type BuildingOverviewProps = {
   shouldShowTitle?: boolean;
+  isCompact?: boolean;
 };
 
 export const BuildingOverview = ({
   shouldShowTitle = true,
+  isCompact = false,
 }: BuildingOverviewProps) => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
@@ -104,15 +106,11 @@ export const BuildingOverview = ({
           {t(`BUILDINGS.${building.id}.NAME`)}
         </Text>
       )}
-      <div
-        data-testid="building-overview-building-image"
-        className="flex border border-red justify-center items-center mr-2 float-left size-12 md:size-14"
-      >
-        image
-      </div>
-      <Text data-testid="building-overview-building-description">
-        {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
-      </Text>
+      {!isCompact && (
+        <Text data-testid="building-overview-building-description">
+          {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
+        </Text>
+      )}
       {actualLevel !== virtualLevel && (
         <span
           data-testid="building-overview-currently-upgrading-span"

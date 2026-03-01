@@ -10,10 +10,7 @@ export const eventsSeeder = (database: DbFacade, server: Server): void => {
     GameEvent['duration'],
     GameEvent['villageId'] | null,
     string | null,
-  ][] = [
-    // Seed internal table immediately. We're _pretty_ sure backend won't be occupied at that time
-    ['__internal__seedOasisOccupiableByTable', server.createdAt, 0, null, null],
-  ];
+  ][] = [];
 
   // Adventure points increase event. Initially, a point is added every 8h, divided by server speed
   const adventurePointsIncreaseEventDuration = Math.trunc(

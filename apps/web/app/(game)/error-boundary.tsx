@@ -57,34 +57,30 @@ export const ErrorBoundary = () => {
 
           <p className="text-foreground font-medium">Try these steps:</p>
           <ul className="list-disc pl-6 space-y-1">
-            {isErrorWithCustomSteps && (
+            {isErrorWithCustomSteps && isDatabaseInitializationError && (
               <>
-                {isDatabaseInitializationError && (
-                  <>
-                    <li>
-                      If you've opened this game world through a link on{' '}
-                      <Link
-                        className="underline"
-                        to="/game-worlds"
-                      >
-                        game worlds
-                      </Link>{' '}
-                      page, please navigate back to that page, delete the game
-                      world and create a new one.
-                    </li>
-                    <li>
-                      If you've opened this game world directly with the URL,
-                      please navigate to{' '}
-                      <Link
-                        className="underline"
-                        to="/game-worlds/create"
-                      >
-                        create new game world
-                      </Link>{' '}
-                      page and create a new game world.
-                    </li>
-                  </>
-                )}
+                <li>
+                  If you've opened this game world through a link on{' '}
+                  <Link
+                    className="underline"
+                    to="/game-worlds"
+                  >
+                    game worlds
+                  </Link>{' '}
+                  page, please navigate back to that page, delete the game world
+                  and create a new one.
+                </li>
+                <li>
+                  If you've opened this game world directly with the URL, please
+                  navigate to{' '}
+                  <Link
+                    className="underline"
+                    to="/game-worlds/create"
+                  >
+                    create new game world
+                  </Link>{' '}
+                  page and create a new game world.
+                </li>
               </>
             )}
             {!isErrorWithCustomSteps && (

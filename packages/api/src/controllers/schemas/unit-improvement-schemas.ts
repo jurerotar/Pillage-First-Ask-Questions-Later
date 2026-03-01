@@ -12,7 +12,7 @@ export const getUnitImprovementsSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       unitId: z.string(),
       level: z.number(),
     }),

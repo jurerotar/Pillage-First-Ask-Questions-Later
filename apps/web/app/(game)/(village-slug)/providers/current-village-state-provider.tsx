@@ -8,6 +8,10 @@ import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calcu
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 
 type CurrentVillageStateContextReturn = Resources & {
+  hourlyWoodProduction: number;
+  hourlyClayProduction: number;
+  hourlyIronProduction: number;
+  hourlyWheatProduction: number;
   computedWheatProductionEffect: WheatProductionEffectReturn;
   computedWarehouseCapacityEffect: ComputedEffectReturn;
   computedGranaryCapacityEffect: ComputedEffectReturn;
@@ -23,22 +27,22 @@ export const CurrentVillageStateProvider = ({
   const computedWarehouseCapacityEffect =
     useComputedEffect('warehouseCapacity');
   const computedGranaryCapacityEffect = useComputedEffect('granaryCapacity');
-  const { calculatedResourceAmount: wood } = useCalculatedResource(
-    'wood',
-    computedWarehouseCapacityEffect.total,
-  );
-  const { calculatedResourceAmount: clay } = useCalculatedResource(
-    'clay',
-    computedWarehouseCapacityEffect.total,
-  );
-  const { calculatedResourceAmount: iron } = useCalculatedResource(
-    'iron',
-    computedWarehouseCapacityEffect.total,
-  );
-  const { calculatedResourceAmount: wheat } = useCalculatedResource(
-    'wheat',
-    computedGranaryCapacityEffect.total,
-  );
+  const {
+    calculatedResourceAmount: wood,
+    hourlyProduction: hourlyWoodProduction,
+  } = useCalculatedResource('wood', computedWarehouseCapacityEffect.total);
+  const {
+    calculatedResourceAmount: clay,
+    hourlyProduction: hourlyClayProduction,
+  } = useCalculatedResource('clay', computedWarehouseCapacityEffect.total);
+  const {
+    calculatedResourceAmount: iron,
+    hourlyProduction: hourlyIronProduction,
+  } = useCalculatedResource('iron', computedWarehouseCapacityEffect.total);
+  const {
+    calculatedResourceAmount: wheat,
+    hourlyProduction: hourlyWheatProduction,
+  } = useCalculatedResource('wheat', computedGranaryCapacityEffect.total);
 
   const value = useMemo(
     () => ({
@@ -46,6 +50,10 @@ export const CurrentVillageStateProvider = ({
       clay,
       iron,
       wheat,
+      hourlyWoodProduction,
+      hourlyClayProduction,
+      hourlyIronProduction,
+      hourlyWheatProduction,
       computedWheatProductionEffect,
       computedWarehouseCapacityEffect,
       computedGranaryCapacityEffect,
@@ -55,6 +63,10 @@ export const CurrentVillageStateProvider = ({
       clay,
       iron,
       wheat,
+      hourlyWoodProduction,
+      hourlyClayProduction,
+      hourlyIronProduction,
+      hourlyWheatProduction,
       computedWheatProductionEffect,
       computedWarehouseCapacityEffect,
       computedGranaryCapacityEffect,

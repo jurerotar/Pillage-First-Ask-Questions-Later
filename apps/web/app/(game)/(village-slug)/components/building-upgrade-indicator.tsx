@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { MdUpgrade } from 'react-icons/md';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import {
   BorderIndicator,
@@ -97,7 +97,7 @@ const UpgradeButton = ({
 type BuildingUpgradeIndicatorProps = {
   isHovered: boolean;
   buildingField: BuildingField;
-  buildingEvent: GameEvent<'buildingConstruction'> | undefined;
+  buildingEvent: BuildingEvent | undefined;
 };
 
 export const BuildingUpgradeIndicator = ({

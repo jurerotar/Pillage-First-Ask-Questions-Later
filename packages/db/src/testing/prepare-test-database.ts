@@ -14,9 +14,7 @@ declare module 'vitest' {
 let sqlite3: Sqlite3Static | null = null;
 
 export const prepareTestDatabase = async (): Promise<DbFacade> => {
-  if (!sqlite3) {
-    sqlite3 = await sqlite3InitModule();
-  }
+  sqlite3 ??= await sqlite3InitModule();
 
   const injectedBuffer = inject('seededDbBuffer');
 

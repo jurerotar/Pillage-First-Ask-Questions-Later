@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import type {
   Effect,
   ResourceProductionEffectId,

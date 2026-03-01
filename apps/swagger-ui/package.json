@@ -25,11 +25,11 @@
     "@pillage-first/api": "*",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "swagger-ui-react": "5.31.0"
+    "swagger-ui-react": "5.32.0"
   },
   "devDependencies": {
     "@biomejs/biome": "*",
-    "@types/react": "19.2.13",
+    "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/swagger-ui-react": "5.18.0",
     "@typescript/native-preview": "*",

@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/suspicious/noConsole: We're using debug statements to test query performance in development */
 import type { OpfsSAHPoolDatabase, SqlValue } from '@sqlite.org/sqlite-wasm';
+import type { SnakeCase } from 'type-fest';
 import { z } from 'zod';
 
 const createPreparedStatementCache = (): Map<
@@ -11,12 +12,12 @@ const createPreparedStatementCache = (): Map<
 
 type ExecArgs = {
   sql: string;
-  bind?: Parameters<OpfsSAHPoolDatabase['selectValue']>[1];
+  bind?: Record<SnakeCase<string>, SqlValue>;
 };
 
 type SelectArgs<T extends z.ZodType> = {
   sql: string;
-  bind?: Parameters<OpfsSAHPoolDatabase['selectValue']>[1];
+  bind?: Record<SnakeCase<string>, SqlValue>;
   schema: T;
 };
 
@@ -31,7 +32,7 @@ export type DbFacade = {
   /** returns an array of values validated against `schema` (empty array if nothing found) */
   selectValues: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
 
-  /** single row object validated against schema (use a z.object(...) schema) */
+  /** single row object validated against schema (use a z.strictObject(...) schema) */
   selectObject: <T extends z.ZodType>(
     args: SelectArgs<T>,
   ) => z.infer<T> | undefined;
@@ -104,7 +105,7 @@ export const createDbFacade = (
       const data = row.at(0);
 
       if (data === undefined) {
-        return undefined;
+        return;
       }
 
       return schema.parse(data);
@@ -171,7 +172,7 @@ export const createDbFacade = (
         );
       }
 
-      return undefined;
+      return;
     },
 
     selectObjects: ({ sql, bind, schema }) => {

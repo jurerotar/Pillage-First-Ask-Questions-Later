@@ -30,6 +30,12 @@
     "./array": {
       "default": "./src/array.ts"
     },
+    "./version": {
+      "default": "./src/version.ts"
+    },
+    "./env": {
+      "default": "./src/env.ts"
+    },
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },
@@ -70,6 +76,7 @@
     "@biomejs/biome": "*",
     "@typescript/native-preview": "*",
     "vitest": "*",
+    "type-fest": "5.4.4",
     "typescript": "*",
     "zod": "*"
   }

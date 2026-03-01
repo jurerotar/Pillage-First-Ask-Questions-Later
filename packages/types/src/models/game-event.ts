@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
 import type { TroopTrainingDurationEffectId } from './effect';
@@ -45,38 +46,60 @@ type BaseUnitTrainingEvent = {
   buildingId: Building['id'];
 };
 
+export type TroopMovementType =
+  | 'reinforcements'
+  | 'relocation'
+  | 'return'
+  | 'find-new-village'
+  | 'attack'
+  | 'raid'
+  | 'oasis-occupation'
+  | 'adventure';
+
 type BaseTroopMovementEvent = {
   troops: Troop[];
   targetId: Village['id'];
 };
 
-type TroopMovementEvent = BaseTroopMovementEvent & {
-  movementType:
-    | 'reinforcements'
-    | 'relocation'
-    | 'return'
-    | 'find-new-village'
-    | 'attack'
-    | 'raid'
-    | 'oasis-occupation'
-    | 'adventure';
+export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
+  originalMovementType: TroopMovementType;
 };
 
-export type GameEventType =
-  | '__internal__seedOasisOccupiableByTable'
-  | 'buildingScheduledConstruction'
-  | 'buildingConstruction'
-  | 'buildingLevelChange'
-  | 'buildingDestruction'
-  | 'troopTraining'
-  | 'troopMovement'
-  | 'unitResearch'
-  | 'unitImprovement'
-  | 'adventurePointIncrease';
+export const gameEventTypeSchema = z.enum([
+  'buildingScheduledConstruction',
+  'buildingConstruction',
+  'buildingLevelChange',
+  'buildingDestruction',
+  'troopTraining',
+  'troopMovementReinforcements',
+  'troopMovementRelocation',
+  'troopMovementReturn',
+  'troopMovementFindNewVillage',
+  'troopMovementAttack',
+  'troopMovementRaid',
+  'troopMovementOasisOccupation',
+  'troopMovementAdventure',
+  'unitResearch',
+  'unitImprovement',
+  'adventurePointIncrease',
+  'heroRevival',
+]);
+
+export type GameEventType = z.infer<typeof gameEventTypeSchema>;
+
+export type TroopMovementEventType = Extract<
+  GameEventType,
+  | 'troopMovementReinforcements'
+  | 'troopMovementRelocation'
+  | 'troopMovementReturn'
+  | 'troopMovementFindNewVillage'
+  | 'troopMovementAttack'
+  | 'troopMovementRaid'
+  | 'troopMovementOasisOccupation'
+  | 'troopMovementAdventure'
+>;
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
-  // This is an internal-only event that seeds oasis_occupiable_by table, so we don't have to do it on server creation
-  __internal__seedOasisOccupiableByTable: BaseGameEvent;
   buildingScheduledConstruction: BuildingScheduledConstructionEvent;
   buildingConstruction: BaseBuildingEvent;
   buildingLevelChange: BuildingLevelChangeEvent;
@@ -84,13 +107,37 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopTraining: BaseUnitTrainingEvent;
   unitResearch: UnitResearchEvent;
   unitImprovement: UnitImprovementEvent;
-  troopMovement: TroopMovementEvent;
+  troopMovementReinforcements: BaseTroopMovementEvent;
+  troopMovementRelocation: BaseTroopMovementEvent;
+  troopMovementReturn: ReturnTroopMovementEvent;
+  troopMovementFindNewVillage: BaseTroopMovementEvent;
+  troopMovementAttack: BaseTroopMovementEvent;
+  troopMovementRaid: BaseTroopMovementEvent;
+  troopMovementOasisOccupation: BaseTroopMovementEvent;
+  troopMovementAdventure: BaseTroopMovementEvent;
   adventurePointIncrease: BaseGameEvent;
+  heroRevival: BaseGameEvent;
 }[T];
+
+export type TroopMovementEvent =
+  | GameEvent<'troopMovementReinforcements'>
+  | GameEvent<'troopMovementRelocation'>
+  | GameEvent<'troopMovementReturn'>
+  | GameEvent<'troopMovementFindNewVillage'>
+  | GameEvent<'troopMovementAttack'>
+  | GameEvent<'troopMovementRaid'>
+  | GameEvent<'troopMovementOasisOccupation'>
+  | GameEvent<'troopMovementAdventure'>;
+
+export type BuildingEvent =
+  | GameEvent<'buildingScheduledConstruction'>
+  | GameEvent<'buildingLevelChange'>
+  | GameEvent<'buildingConstruction'>;
 
 export type GameEvent<T extends GameEventType | undefined = undefined> =
   T extends undefined
     ? BaseGameEvent
-    : BaseGameEvent &
+    : Omit<BaseGameEvent, 'type'> & {
+        type: T;
         // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
-        GameEventTypeToEventArgsMap<T>;
+      } & GameEventTypeToEventArgsMap<T>;

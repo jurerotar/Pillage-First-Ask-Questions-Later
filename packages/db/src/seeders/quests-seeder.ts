@@ -3,11 +3,11 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   createUnitTroopCountQuests,
   globalQuests,
+  newVillageQuestsFactory,
 } from '@pillage-first/game-assets/quests';
-import { tribeSchema } from '@pillage-first/types/models/tribe';
+import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
-import { newVillageQuestsFactory } from './factories/quest-factory';
 
 export const questsSeeder = (database: DbFacade): void => {
   const playerStartingVillageId = database.selectValue({
@@ -24,14 +24,15 @@ export const questsSeeder = (database: DbFacade): void => {
 
   const playerTribe = database.selectValue({
     sql: `
-      SELECT tribe
+      SELECT ti.tribe
       FROM
-        players
+        players p
+        JOIN tribe_ids ti ON ti.id = p.tribe_id
       WHERE
-        id = $player_id;
+        p.id = $player_id;
     `,
     bind: { $player_id: PLAYER_ID },
-    schema: tribeSchema,
+    schema: playableTribeSchema,
   })!;
 
   const questsToSeed = [];

@@ -9,12 +9,13 @@ import {
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
-} from '@pillage-first/game-assets/units/utils';
+} from '@pillage-first/game-assets/utils/units';
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { BuildingActionsErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions-error-bag';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
+import { useUnitRecruitmentErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/hooks/use-unit-recruitment-error-bag.tsx';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
@@ -83,13 +84,11 @@ export const UnitOverview = () => {
   return (
     <section>
       <div className="inline-flex gap-2 items-center font-semibold">
-        <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
-      </div>
-      <div className="flex justify-center items-center mr-1 mb-1 float-left size-10">
         <Icon
-          className="size-full"
+          className="size-6"
           type={unitIdToUnitIconMapper(unitId)}
         />
+        <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
       </div>
       <Text>{t(`UNITS.${unitId}.DESCRIPTION`)}</Text>
     </section>
@@ -300,7 +299,7 @@ export const UnitResearch = () => {
       {canResearch && (
         <section className="flex flex-col gap-2 pt-2 border-t border-border">
           <Text as="h3">{t('Available actions')}</Text>
-          <BuildingActionsErrorBag errorBag={errorBag} />
+          <ErrorBag errorBag={errorBag} />
 
           <Button
             onClick={researchUnit}
@@ -427,7 +426,7 @@ export const UnitImprovement = () => {
       </section>
       <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Available actions')}</Text>
-        <BuildingActionsErrorBag errorBag={errorBag} />
+        <ErrorBag errorBag={errorBag} />
         <Button
           size="fit"
           variant="default"
@@ -445,10 +444,15 @@ export const UnitRequirements = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
+
   const { assessedRequirements } = assessUnitResearchReadiness(
     unitId,
     currentVillage,
   );
+
+  if (assessedRequirements.every(({ fulfilled }) => fulfilled)) {
+    return null;
+  }
 
   return (
     <section className="pt-2 flex flex-col gap-2 border-t border-border">
@@ -498,7 +502,7 @@ export const UnitCost = () => {
         <div className="flex gap-1 items-center">
           <Icon
             className="size-5"
-            type="barracksTrainingDuration"
+            type={durationEffect!}
           />
           {formatTime(
             baseRecruitmentDuration *
@@ -506,24 +510,6 @@ export const UnitCost = () => {
           )}
         </div>
       </div>
-    </section>
-  );
-};
-
-export const UnitRecruitmentNoResearch = () => {
-  const { unitId } = use(UnitCardContext);
-  const { t } = useTranslation();
-
-  return (
-    <section className="pt-2 flex flex-col gap-2 border-t border-border">
-      <Text as="h3">{t('Train units')}</Text>
-      <Text variant="orange">
-        <Trans>
-          You need to research {{ unitName: t(`UNITS.${unitId}.NAME`) }} at the{' '}
-          <VillageBuildingLink buildingId="ACADEMY" /> before you can begin
-          training
-        </Trans>
-      </Text>
     </section>
   );
 };
@@ -538,6 +524,7 @@ export const UnitRecruitment = () => {
   const { total } = useComputedEffect(durationEffect!);
   const { createEvent: createTroopTrainingEvent } =
     useCreateEvent('troopTraining');
+  const { errorBag } = useUnitRecruitmentErrorBag(unitId);
 
   const { isFreeUnitTrainingEnabled, isInstantUnitTrainingEnabled } =
     developerSettings;
@@ -593,81 +580,93 @@ export const UnitRecruitment = () => {
     });
   };
 
+  const buttonLabel = (() => {
+    if (errorBag.length > 0) {
+      return t('Missing requirements');
+    }
+    if (maxUnits === 0) {
+      return t('Not enough resources');
+    }
+    if (amount === 0) {
+      return t('Select the amount of units to train');
+    }
+
+    return t('Train {{count}} {{unit}}', {
+      count: amount,
+      unit: t(`UNITS.${unitId}.NAME`, { count: amount }),
+    });
+  })();
+
   return (
     <section className="pt-2 flex flex-col gap-2 border-t border-border">
       <Text as="h3">{t('Train units')}</Text>
-      <div className="flex items-start gap-2 justify-start flex-wrap">
-        <Resources resources={totalCost} />
-        <div className="flex gap-1 items-center">
-          <Icon
-            className="size-5"
-            type="barracksTrainingDuration"
-          />
-          {formattedDuration}
-        </div>
-        <div className="flex gap-1 items-center">
-          <Icon
-            className="size-5"
-            subIcon="negativeChange"
-            type="unitWheatConsumption"
-          />
-          {unitWheatConsumption * amount}
-        </div>
-      </div>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-2"
-      >
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <Slider
-              min={0}
-              max={maxUnits}
-              value={[amount]}
-              disabled={maxUnits === 0}
-              onValueChange={([val]) => setValue('amount', val)}
-            />
-            <div className="flex w-30">
-              <Input
-                type="number"
-                min={0}
-                max={maxUnits}
-                {...register('amount', { valueAsNumber: true })}
-                value={amount}
-                disabled={maxUnits === 0}
-                onChange={(e) => setValue('amount', Number(e.target.value))}
+      {errorBag.length === 0 && (
+        <>
+          <div className="flex items-start gap-2 justify-start flex-wrap">
+            <Resources resources={totalCost} />
+            <div className="flex gap-1 items-center">
+              <Icon
+                className="size-5"
+                type={durationEffect!}
               />
+              {formattedDuration}
+            </div>
+            <div className="flex gap-1 items-center">
+              <Icon
+                className="size-5"
+                subIcon="negativeChange"
+                type="unitWheatConsumption"
+              />
+              {unitWheatConsumption * amount}
+            </div>
+          </div>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-2"
+          >
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <Slider
+                  min={0}
+                  max={maxUnits}
+                  value={[amount]}
+                  disabled={maxUnits === 0 || errorBag.length > 0}
+                  onValueChange={([val]) => setValue('amount', val)}
+                />
+                <div className="flex w-30">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={maxUnits}
+                    {...register('amount', { valueAsNumber: true })}
+                    value={amount}
+                    disabled={maxUnits === 0 || errorBag.length > 0}
+                    onChange={(e) => setValue('amount', Number(e.target.value))}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="fit"
+                  className="px-1.5 py-1 h-full"
+                  disabled={maxUnits === 0 || errorBag.length > 0}
+                  onClick={() => setValue('amount', maxUnits)}
+                >
+                  ({maxUnits})
+                </Button>
+              </div>
             </div>
             <Button
-              type="button"
-              variant="outline"
               size="fit"
-              className="px-1.5 py-1 h-full"
-              disabled={maxUnits === 0}
-              onClick={() => setValue('amount', maxUnits)}
+              type="submit"
+              disabled={maxUnits === 0 || amount === 0 || errorBag.length > 0}
             >
-              ({maxUnits})
+              {buttonLabel}
             </Button>
-          </div>
-        </div>
-        <Button
-          size="fit"
-          type="submit"
-          disabled={maxUnits === 0 || amount === 0}
-        >
-          {maxUnits === 0 && t('Not enough resources')}
-          {maxUnits > 0 && (
-            <>
-              {amount === 0 && t('Select the amount of units to train')}
-              {amount > 0 &&
-                t('Train {{count}} {{unit}}', {
-                  count: amount,
-                  unit: t(`UNITS.${unitId}.NAME`, { count: amount }),
-                })}
-            </>
-          )}
-        </Button>
-      </form>
+          </form>
+        </>
+      )}
+      <ErrorBag errorBag={errorBag} />
     </section>
   );
 };

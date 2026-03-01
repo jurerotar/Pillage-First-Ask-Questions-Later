@@ -10,12 +10,12 @@ describe('oasis-controllers', () => {
 
     const village = database.selectObject({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     const oasis = database.selectObject({
       sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     occupyOasis(
@@ -33,13 +33,13 @@ describe('oasis-controllers', () => {
 
     const village = database.selectObject({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Find an oasis already occupied or occupy one first
     const oasis = database.selectObject({
       sql: 'SELECT tile_id FROM oasis LIMIT 1',
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     abandonOasis(

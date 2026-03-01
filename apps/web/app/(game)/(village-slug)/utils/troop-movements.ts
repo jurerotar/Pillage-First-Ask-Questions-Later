@@ -1,4 +1,4 @@
-import { getUnitDefinition } from '@pillage-first/game-assets/units/utils';
+import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { Effect } from '@pillage-first/types/models/effect';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';

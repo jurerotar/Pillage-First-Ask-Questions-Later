@@ -3,8 +3,12 @@
 .changelog {
   @apply relative ml-2 pl-4 border-l-2 border-success flex flex-col gap-4;
 
-  & > div {
+  & > section {
     @apply relative flex flex-col gap-2;
+
+    & div[role="alert"] {
+      @apply my-2;
+    }
 
     &::before {
       content: "";

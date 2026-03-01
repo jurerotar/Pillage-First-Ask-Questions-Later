@@ -5,20 +5,24 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import * as schedulerSignal from '../../scheduler/scheduler-signal';
 import {
   incrementHeroAdventurePoints,
+  levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
 } from '../developer-tools-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
-vi.mock('../../scheduler/scheduler-signal', async () => {
-  const actual = await vi.importActual<typeof schedulerSignal>(
-    '../../scheduler/scheduler-signal',
-  );
-  return {
-    ...actual,
-    triggerKick: vi.fn(),
-  };
-});
+vi.mock<typeof import('../../scheduler/scheduler-signal')>(
+  import('../../scheduler/scheduler-signal'),
+  async () => {
+    const actual = await vi.importActual<typeof schedulerSignal>(
+      '../../scheduler/scheduler-signal',
+    );
+    return {
+      ...actual,
+      triggerKick: vi.fn(),
+    };
+  },
+);
 
 describe('developer-tools-controllers', () => {
   const playerId = PLAYER_ID;
@@ -42,7 +46,7 @@ describe('developer-tools-controllers', () => {
 
       const settings = database.selectObject({
         sql: 'SELECT is_instant_building_construction_enabled FROM developer_settings',
-        schema: z.object({
+        schema: z.strictObject({
           is_instant_building_construction_enabled: z.number(),
         }),
       })!;
@@ -75,7 +79,7 @@ describe('developer-tools-controllers', () => {
 
       const events = database.selectObjects({
         sql: 'SELECT type, duration FROM events ORDER BY type',
-        schema: z.object({ type: z.string(), duration: z.number() }),
+        schema: z.strictObject({ type: z.string(), duration: z.number() }),
       });
 
       expect(
@@ -119,7 +123,7 @@ describe('developer-tools-controllers', () => {
 
       const events = database.selectObjects({
         sql: "SELECT duration FROM events WHERE type = 'troopTraining'",
-        schema: z.object({ duration: z.number() }),
+        schema: z.strictObject({ duration: z.number() }),
       });
 
       expect(events[0].duration).toBe(0);
@@ -147,7 +151,7 @@ describe('developer-tools-controllers', () => {
 
       const events = database.selectObjects({
         sql: "SELECT duration FROM events WHERE type = 'unitImprovement'",
-        schema: z.object({ duration: z.number() }),
+        schema: z.strictObject({ duration: z.number() }),
       });
 
       expect(events[0].duration).toBe(0);
@@ -175,7 +179,7 @@ describe('developer-tools-controllers', () => {
 
       const events = database.selectObjects({
         sql: "SELECT duration FROM events WHERE type = 'unitResearch'",
-        schema: z.object({ duration: z.number() }),
+        schema: z.strictObject({ duration: z.number() }),
       });
 
       expect(events[0].duration).toBe(0);
@@ -186,7 +190,7 @@ describe('developer-tools-controllers', () => {
       const now = Date.now();
 
       database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('troopMovement', $now + 1000, 5000, 1)",
+        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('troopMovementAdventure', $now + 1000, 5000, 1)",
         bind: { $now: now },
       });
 
@@ -202,8 +206,8 @@ describe('developer-tools-controllers', () => {
       );
 
       const events = database.selectObjects({
-        sql: "SELECT duration FROM events WHERE type = 'troopMovement'",
-        schema: z.object({ duration: z.number() }),
+        sql: "SELECT duration FROM events WHERE type = 'troopMovementAdventure'",
+        schema: z.strictObject({ duration: z.number() }),
       });
 
       expect(events[0].duration).toBe(0);
@@ -215,9 +219,9 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
-        schema: z.object({ id: z.number() }),
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
 
@@ -226,15 +230,15 @@ describe('developer-tools-controllers', () => {
         createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
           {
             path: { heroId },
-            body: { itemId: 1 },
+            body: { itemId: 1, amount: 1 },
           },
         ),
       );
 
       const inventory = database.selectObjects({
-        sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
-        schema: z.object({ item_id: z.number(), amount: z.number() }),
+        sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
       });
 
       expect(inventory).toContainEqual({ item_id: 1, amount: 1 });
@@ -245,15 +249,15 @@ describe('developer-tools-controllers', () => {
         createControllerArgs<'/developer-settings/:heroId/spawn-item', 'patch'>(
           {
             path: { heroId },
-            body: { itemId: 1 },
+            body: { itemId: 1, amount: 1 },
           },
         ),
       );
 
       const inventoryUpdated = database.selectObjects({
-        sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
-        schema: z.object({ item_id: z.number(), amount: z.number() }),
+        sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
       });
 
       expect(inventoryUpdated).toContainEqual({
@@ -268,17 +272,17 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
-        schema: z.object({ id: z.number() }),
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
 
       // Initial points (should be 0 or some seeded value)
       const initialPoints = database.selectObject({
-        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
-        schema: z.object({ available: z.number() }),
+        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({ available: z.number() }),
       })!.available;
 
       incrementHeroAdventurePoints(
@@ -292,12 +296,58 @@ describe('developer-tools-controllers', () => {
       );
 
       const points = database.selectObject({
-        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
-        schema: z.object({ available: z.number() }),
+        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({ available: z.number() }),
       })!;
 
       expect(points.available).toBe(initialPoints + 1);
+    });
+  });
+
+  describe(levelUpHero, () => {
+    test('should level up hero by increasing experience to next level', async () => {
+      const database = await prepareTestDatabase();
+
+      const hero = database.selectObject({
+        sql: 'SELECT id, experience FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.strictObject({ id: z.number(), experience: z.number() }),
+      })!;
+      const heroId = hero.id;
+
+      levelUpHero(
+        database,
+        createControllerArgs<'/developer-settings/:heroId/level-up', 'patch'>({
+          path: { heroId },
+        }),
+      );
+
+      const updatedHero = database.selectObject({
+        sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({ experience: z.number() }),
+      })!;
+
+      // exp for level 0 is 0. nextLevelExp for level 0 is (0+1)*(0+2)*25 = 50
+      expect(updatedHero.experience).toBe(50);
+
+      // Level up again
+      levelUpHero(
+        database,
+        createControllerArgs<'/developer-settings/:heroId/level-up', 'patch'>({
+          path: { heroId },
+        }),
+      );
+
+      const updatedHeroAgain = database.selectObject({
+        sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({ experience: z.number() }),
+      })!;
+
+      // exp for level 1 is 50. nextLevelExp for level 1 is (1+1)*(1+2)*25 = 150
+      expect(updatedHeroAgain.experience).toBe(150);
     });
   });
 });

@@ -2,20 +2,114 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
+  addMapMarker,
+  getMapMarkers,
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
   getTileWorldItem,
+  removeMapMarker,
 } from '../map-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('map-controllers', () => {
-  test('getTiles should return all tiles with correct structure', async () => {
+  test('getTiles should return correct population (only counting building base effects)', async () => {
     const database = await prepareTestDatabase();
 
-    getTiles(database, createControllerArgs<'/tiles'>({}));
+    // 1. Create a test village
+    const village = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages LIMIT 1',
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
 
-    expect(true).toBeTruthy();
+    const wheatEffectId = database.selectValue({
+      sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction'",
+      schema: z.number(),
+    })!;
+
+    // 2. Clear existing effects for this village to have a clean state
+    database.exec({
+      sql: 'DELETE FROM effects WHERE village_id = $village_id',
+      bind: { $village_id: village.id },
+    });
+
+    // 3. Seed various effects
+    const effects = [
+      // Correct population effect: type='base', scope='village', source='building', source_specifier=0
+      {
+        value: -100,
+        type: 'base',
+        scope: 'village',
+        source: 'building',
+        source_specifier: 0,
+      },
+      // Another correct population effect (should be summed)
+      {
+        value: -50,
+        type: 'base',
+        scope: 'village',
+        source: 'building',
+        source_specifier: 0,
+      },
+      // Troop consumption (should NOT be counted)
+      {
+        value: 20,
+        type: 'base',
+        scope: 'village',
+        source: 'troops',
+        source_specifier: null,
+      },
+      // Oasis bonus (should NOT be counted)
+      {
+        value: 1.25,
+        type: 'bonus',
+        scope: 'village',
+        source: 'oasis',
+        source_specifier: 123,
+      },
+      // Building production (not wheatProduction effect_id, but we'll use wheatProduction id for all to test filters)
+      {
+        value: 10,
+        type: 'base',
+        scope: 'village',
+        source: 'building',
+        source_specifier: 1,
+      }, // field_id 1
+      // Non-base type (should NOT be counted)
+      {
+        value: -10,
+        type: 'bonus',
+        scope: 'village',
+        source: 'building',
+        source_specifier: 0,
+      },
+    ];
+
+    for (const effect of effects) {
+      database.exec({
+        sql: `
+          INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+          VALUES ($effect_id, $value, $type, $scope, $source, $village_id, $source_specifier)
+        `,
+        bind: {
+          $effect_id: wheatEffectId,
+          $value: effect.value,
+          $type: effect.type,
+          $scope: effect.scope,
+          $source: effect.source,
+          $village_id: village.id,
+          $source_specifier: effect.source_specifier,
+        },
+      });
+    }
+
+    const result = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    const testTile = result.find((t) => t?.ownerVillage?.id === village.id)!;
+
+    // Population is SUM(-value) for matches. Matches are -100 and -50.
+    // -(-100) + -(-50) = 100 + 50 = 150.
+    expect(testTile.ownerVillage!.population).toBe(150);
   });
 
   test('getTileTroops should return troops for a tile with animals', async () => {
@@ -23,16 +117,20 @@ describe('map-controllers', () => {
 
     // Find a tile with nature troops (animals).
     // Nature troops have IDs from WILD_BOAR to CROCODILE etc.
-    // They are seeded into oasis tiles which have no owner village.
+    // They are seeded into oasis tiles where all rows have no village_id.
     const tileWithAnimals = database.selectObject({
       sql: `
-        SELECT t.tile_id
-        FROM troops t
-        JOIN oasis o ON t.tile_id = o.tile_id
-        WHERE o.village_id IS NULL
+        SELECT t.id AS tile_id
+        FROM tiles t
+        WHERE t.type = 'oasis'
+        AND (
+          SELECT MAX(o.village_id)
+          FROM oasis o
+          WHERE o.tile_id = t.id
+        ) IS NULL
         LIMIT 1
       `,
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileTroops(
@@ -51,7 +149,7 @@ describe('map-controllers', () => {
     // Find a tile with bonuses
     const tileWithBonuses = database.selectObject({
       sql: 'SELECT tile_id FROM oasis LIMIT 1',
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileOasisBonuses(
@@ -70,7 +168,7 @@ describe('map-controllers', () => {
     // Find a tile with world items
     const tileWithItem = database.selectObject({
       sql: 'SELECT tile_id FROM world_items LIMIT 1',
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileWorldItem(
@@ -81,5 +179,50 @@ describe('map-controllers', () => {
     );
 
     expect(true).toBeTruthy();
+  });
+
+  test('MapMarker controllers should add, get and remove markers', async () => {
+    const database = await prepareTestDatabase();
+
+    const playerId = 1;
+    const tileId = 123;
+
+    // 1. Add marker
+    addMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
+        path: { playerId },
+        body: { tileId },
+      }),
+    );
+
+    // 2. Get markers
+    const markers = getMapMarkers(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(markers).toHaveLength(1);
+    expect(markers[0]).toEqual({ tileId });
+
+    // 3. Remove marker
+    removeMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers/:tileId', 'delete'>({
+        path: { playerId, tileId },
+      }),
+    );
+
+    // 4. Get markers again
+    const markersAfterRemoval = getMapMarkers(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(markersAfterRemoval).toHaveLength(0);
   });
 });

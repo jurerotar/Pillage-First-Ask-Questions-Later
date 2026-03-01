@@ -1,14 +1,19 @@
-import type { ComponentProps } from 'react';
+import { type ComponentProps, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { VscTerminal } from 'react-icons/vsc';
 import { items } from '@pillage-first/game-assets/items';
+import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
-import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { icons } from 'app/components/icons/icons';
+import { Icon } from 'app/components/icon.tsx';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button';
 import {
@@ -18,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
+import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
 import {
   Select,
@@ -49,10 +55,10 @@ export const DeveloperToolsButton = ({
   );
 };
 
-interface DevToolsConsoleProps {
+type DevToolsConsoleProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-}
+};
 
 const RESOURCES: Resource[] = ['wood', 'clay', 'iron', 'wheat'];
 const AMOUNTS: (100 | 1000 | 10000)[] = [100, 1000, 10000];
@@ -63,6 +69,7 @@ const INSTANT_SETTINGS: (keyof DeveloperSettings)[] = [
   'isInstantUnitImprovementEnabled',
   'isInstantUnitResearchEnabled',
   'isInstantUnitTravelEnabled',
+  'isInstantHeroReviveEnabled',
 ];
 
 const FREE_SETTINGS: (keyof DeveloperSettings)[] = [
@@ -70,6 +77,7 @@ const FREE_SETTINGS: (keyof DeveloperSettings)[] = [
   'isFreeUnitTrainingEnabled',
   'isFreeUnitImprovementEnabled',
   'isFreeUnitResearchEnabled',
+  'isFreeHeroReviveEnabled',
 ];
 
 export const DeveloperToolsConsole = ({
@@ -83,8 +91,17 @@ export const DeveloperToolsConsole = ({
     updateDeveloperSetting,
     updateVillageResources,
     spawnHeroItem,
+    levelUpHero,
     incrementHeroAdventurePoints,
   } = useDeveloperSettings();
+  const { hero } = useHero();
+
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [amount, setAmount] = useState(1);
+
+  const { level } = useMemo(() => {
+    return calculateHeroLevel(hero.stats.experience);
+  }, [hero.stats.experience]);
 
   const handleUpdateResource = (
     resource: Resource,
@@ -106,8 +123,12 @@ export const DeveloperToolsConsole = ({
     updateDeveloperSetting({ developerSettingName: name, value });
   };
 
-  const handleSpawnItem = (itemId: HeroItem['name']) => {
-    spawnHeroItem({ itemId });
+  const handleSpawnItem = () => {
+    if (!selectedItemId) {
+      return;
+    }
+
+    spawnHeroItem({ itemId: Number(selectedItemId), amount });
   };
 
   const SETTING_LABELS: Record<keyof DeveloperSettings, string> = {
@@ -120,6 +141,8 @@ export const DeveloperToolsConsole = ({
     isFreeUnitTrainingEnabled: t('Free unit training'),
     isFreeUnitImprovementEnabled: t('Free unit improvement'),
     isFreeUnitResearchEnabled: t('Free unit research'),
+    isInstantHeroReviveEnabled: t('Instant hero revives'),
+    isFreeHeroReviveEnabled: t('Free hero revives'),
   };
 
   const SETTING_DESCRIPTIONS: Record<keyof DeveloperSettings, string> = {
@@ -146,6 +169,8 @@ export const DeveloperToolsConsole = ({
     isFreeUnitResearchEnabled: t(
       'Units do not cost any resources to research.',
     ),
+    isInstantHeroReviveEnabled: t('Heroes are revived instantly.'),
+    isFreeHeroReviveEnabled: t('Heroes do not cost any resources to revive.'),
   };
 
   return (
@@ -163,14 +188,9 @@ export const DeveloperToolsConsole = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
-            >
-              {t('Resources')}
-            </Text>
+        <Section>
+          <SectionContent>
+            <Text as="h3">{t('Resources')}</Text>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {RESOURCES.map((resource) => (
                 <div
@@ -178,41 +198,53 @@ export const DeveloperToolsConsole = ({
                   className="space-y-2"
                 >
                   <div className="flex items-center gap-2">
-                    <div className="size-4">{icons[resource]()}</div>
+                    <div className="size-4">
+                      <Icon type={resource} />
+                    </div>
                     <Label className="capitalize">
                       {t(`RESOURCES.${resource.toUpperCase()}`)}
                     </Label>
                   </div>
                   <div className="space-y-2">
                     <div className="flex gap-2">
-                      {AMOUNTS.map((amount) => (
+                      {AMOUNTS.map((amountToSpawn) => (
                         <Button
-                          key={`${resource}-add-${amount}`}
+                          key={`${resource}-add-${amountToSpawn}`}
                           size="sm"
                           className="h-8 px-2 min-w-[3.5rem] flex-1"
                           onClick={() =>
-                            handleUpdateResource(resource, amount, 'add')
+                            handleUpdateResource(resource, amountToSpawn, 'add')
                           }
                         >
                           <span>
-                            +{amount >= 1000 ? `${amount / 1000}k` : amount}
+                            +
+                            {amountToSpawn >= 1000
+                              ? `${amountToSpawn / 1000}k`
+                              : amountToSpawn}
                           </span>
                         </Button>
                       ))}
                     </div>
                     <div className="flex gap-2">
-                      {AMOUNTS.map((amount) => (
+                      {AMOUNTS.map((amountToRemove) => (
                         <Button
-                          key={`${resource}-subtract-${amount}`}
+                          key={`${resource}-subtract-${amountToRemove}`}
                           size="sm"
                           variant="destructive"
                           className="h-8 px-2 min-w-[3.5rem] flex-1"
                           onClick={() =>
-                            handleUpdateResource(resource, amount, 'subtract')
+                            handleUpdateResource(
+                              resource,
+                              amountToRemove,
+                              'subtract',
+                            )
                           }
                         >
                           <span>
-                            -{amount >= 1000 ? `${amount / 1000}k` : amount}
+                            -
+                            {amountToRemove >= 1000
+                              ? `${amountToRemove / 1000}k`
+                              : amountToRemove}
                           </span>
                         </Button>
                       ))}
@@ -221,17 +253,12 @@ export const DeveloperToolsConsole = ({
                 </div>
               ))}
             </div>
-          </section>
+          </SectionContent>
 
           <Separator orientation="horizontal" />
 
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
-            >
-              {t('Duration')}
-            </Text>
+          <SectionContent>
+            <Text as="h3">{t('Duration')}</Text>
             <div className="grid grid-cols-1 gap-4">
               {INSTANT_SETTINGS.map((setting) => (
                 <div
@@ -259,17 +286,12 @@ export const DeveloperToolsConsole = ({
                 </div>
               ))}
             </div>
-          </section>
+          </SectionContent>
 
           <Separator orientation="horizontal" />
 
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
-            >
-              {t('Cost')}
-            </Text>
+          <SectionContent>
+            <Text as="h3">{t('Cost')}</Text>
             <div className="grid grid-cols-1 gap-4">
               {FREE_SETTINGS.map((setting) => (
                 <div
@@ -297,52 +319,79 @@ export const DeveloperToolsConsole = ({
                 </div>
               ))}
             </div>
-          </section>
+          </SectionContent>
 
           <Separator orientation="horizontal" />
 
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
-            >
-              {t('Hero items')}
-            </Text>
-            <div className="flex items-center gap-4">
-              <Select onValueChange={handleSpawnItem}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('Select an item to spawn')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {items.map((item) => (
-                    <SelectItem
-                      key={item.id}
-                      value={item.name}
-                    >
-                      {t(`ITEMS.${item.name}.NAME`)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <SectionContent>
+            <Text as="h3">{t('Hero items')}</Text>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-end gap-4">
+                <div className="flex flex-col gap-2 flex-1">
+                  <Label>{t('Item')}</Label>
+                  <Select
+                    value={selectedItemId ?? undefined}
+                    onValueChange={(value) => setSelectedItemId(value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('Select an item to spawn')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {items.map((item) => (
+                        <SelectItem
+                          key={item.id}
+                          value={String(item.id)}
+                        >
+                          {t(`ITEMS.${item.name}.NAME`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex flex-col gap-2 w-24">
+                  <Label htmlFor="item-amount">{t('Amount')}</Label>
+                  <Input
+                    id="item-amount"
+                    type="number"
+                    min={1}
+                    value={amount}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={handleSpawnItem}
+                disabled={!selectedItemId}
+                size="fit"
+              >
+                {t('Spawn item')}
+              </Button>
             </div>
-          </section>
+          </SectionContent>
 
           <Separator orientation="horizontal" />
 
-          <section>
-            <Text
-              as="h3"
-              className="mb-2"
+          <SectionContent>
+            <Text as="h3">{t('Hero level')}</Text>
+            <Button
+              size="fit"
+              onClick={() => levelUpHero()}
             >
-              {t('Hero adventures')}
-            </Text>
+              {t('Level up to level {{level}}', { level: level + 1 })}
+            </Button>
+          </SectionContent>
+
+          <Separator orientation="horizontal" />
+
+          <SectionContent>
+            <Text as="h3">{t('Hero adventures')}</Text>
             <div className="flex items-center gap-4">
               <Button onClick={() => incrementHeroAdventurePoints()}>
                 {t('Add 1 adventure point')}
               </Button>
             </div>
-          </section>
-        </div>
+          </SectionContent>
+        </Section>
       </DialogContent>
     </Dialog>
   );

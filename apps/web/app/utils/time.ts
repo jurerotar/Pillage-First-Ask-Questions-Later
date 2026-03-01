@@ -18,7 +18,10 @@ export const formatTime = (milliseconds: number): string => {
   return time;
 };
 
-export const formatFutureTimestamp = (futureTimestamp: number): string => {
+export const formatFutureTimestamp = (
+  futureTimestamp: number,
+  locale: string,
+) => {
   const now = new Date();
   const future = new Date(futureTimestamp);
 
@@ -27,17 +30,24 @@ export const formatFutureTimestamp = (futureTimestamp: number): string => {
     now.getMonth() === future.getMonth() &&
     now.getDate() === future.getDate();
 
-  const hour = future.getHours(); // H (0-23) — no leading zero
-  const minute = String(future.getMinutes()).padStart(2, '0'); // mm
+  const options: Intl.DateTimeFormatOptions = isToday
+    ? {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+      }
+    : {
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+      };
 
-  if (isToday) {
-    return `${hour}:${minute}`;
-  }
-
-  const month = future.getMonth() + 1; // M (1-12)
-  const day = future.getDate(); // d (1-31)
-
-  return `${month}.${day}, ${hour}:${minute}`;
+  return {
+    isToday,
+    formattedDate: new Intl.DateTimeFormat(locale, options).format(future),
+  };
 };
 
 const MS_IN_HOUR = 60 * 60 * 1000;

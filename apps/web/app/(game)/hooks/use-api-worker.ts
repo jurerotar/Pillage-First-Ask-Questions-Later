@@ -1,7 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { DatabaseInitializationError } from '@pillage-first/api/errors';
 import ApiWorker from '@pillage-first/api?worker&url';
-import type { WorkerInitializationErrorEvent } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
 import { isNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 
@@ -11,14 +10,12 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
     url.searchParams.set('server-slug', serverSlug);
     const worker = new Worker(url.toString(), { type: 'module' });
 
-    const handleWorkerInitializationMessage = (
-      event: MessageEvent<WorkerInitializationErrorEvent>,
-    ) => {
+    const handleWorkerInitializationMessage = (event: MessageEvent) => {
       if (!isNotificationMessageEvent(event)) {
         return;
       }
 
-      if (event.data.eventKey === 'event:worker-initialization-success') {
+      if (event.data.eventKey === 'event:database-initialization-success') {
         worker.removeEventListener(
           'message',
           handleWorkerInitializationMessage,
@@ -26,7 +23,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
         resolve(worker);
       }
 
-      if (event.data.eventKey === 'event:worker-initialization-error') {
+      if (event.data.eventKey === 'event:database-initialization-error') {
         worker.removeEventListener(
           'message',
           handleWorkerInitializationMessage,
@@ -49,7 +46,6 @@ export const useApiWorker = (serverSlug: Server['slug']) => {
     queryFn: () => createWorkerWithReadySignal(serverSlug),
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
-    retry: false,
   });
 
   return {

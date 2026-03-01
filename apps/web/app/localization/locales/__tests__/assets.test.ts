@@ -7,9 +7,9 @@ const locales = [{ locale: 'en-US', data: enUSAssets }];
 // map to array-of-tuples [locale, data] so describe.each can use %s for the locale string
 const localesArr = locales.map(({ locale, data }) => [locale, data] as const);
 
-describe('Localization completeness check for assets.json', () => {
-  describe.each(localesArr)('Locale: %s', (_locale, data) => {
-    test('UNITS should have NAME, NAME_other and DESCRIPTION set', () => {
+describe('localization completeness check for assets.json', () => {
+  describe.each(localesArr)('locale: %s', (_locale, data) => {
+    test('units should have NAME, NAME_other and DESCRIPTION set', () => {
       for (const [unitKey, unitData] of Object.entries(data.UNITS)) {
         expect(
           Object.hasOwn(unitData, 'NAME'),
@@ -36,7 +36,7 @@ describe('Localization completeness check for assets.json', () => {
       }
     });
 
-    test('BUILDINGS should have NAME, NAME_other and DESCRIPTION set', () => {
+    test('buildings should have NAME, NAME_other and DESCRIPTION set', () => {
       for (const [buildingKey, buildingData] of Object.entries(
         data.BUILDINGS,
       )) {
@@ -68,7 +68,7 @@ describe('Localization completeness check for assets.json', () => {
       }
     });
 
-    test('ITEMS should have NAME, NAME_other and DESCRIPTION set', () => {
+    test('items should have NAME, NAME_other and DESCRIPTION set', () => {
       for (const [itemKey, itemData] of Object.entries(data.ITEMS)) {
         expect(
           Object.hasOwn(itemData, 'NAME'),
@@ -92,7 +92,7 @@ describe('Localization completeness check for assets.json', () => {
       }
     });
 
-    test('ICONS should have a localization for all icons in typeToIconMap', () => {
+    test('icons should have a localization for all icons in typeToIconMap', () => {
       const effectLocalizations = data.ICONS;
 
       for (const iconKey of Object.keys(icons)) {

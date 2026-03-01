@@ -11,7 +11,7 @@ export type SchedulerDataSource = {
   resolveEvent(id: GameEvent['id']): void;
 };
 
-let scheduledTimeout: number | null = null;
+let scheduledTimeout: ReturnType<typeof globalThis.setTimeout> | null = null;
 let schedulingInProgress = false;
 let shutdownController = new AbortController();
 
@@ -44,7 +44,7 @@ export const kickSchedulerNow = (dataSource: SchedulerDataSource): void => {
   // Always mark so scheduleNextEvent loop knows something changed.
   markNeedsRescan();
 
-  // If we've been cancelled already, nothing to do.
+  // If we've been canceled already, nothing to do.
   if (shutdownController.signal.aborted) {
     return;
   }

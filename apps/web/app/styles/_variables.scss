@@ -11,13 +11,13 @@ $skinVariantPaths: (
   'default': '/graphic-packs/default',
 );
 
-$resourceCompositions: '4446', '5436', '5346', '4536', '3546', '4356', '3456', '4437', '4347', '3447', '3339', '11115', '00018';
+$resourceCompositions: "4446", "5436", "5346", "4536", "3546", "4356", "3456", "4437", "4347", "3447", "3339", "11115", "00018";
 
-$resources: 'wood', 'clay', 'iron', 'wheat';
+$resources: "wood", "clay", "iron", "wheat";
 
-$tribes: 'romans', 'gauls', 'teutons', 'huns', 'egyptians', 'nature', 'natars', 'spartans';
+$tribes: "romans", "gauls", "teutons", "huns", "egyptians", "nature", "natars", "spartans";
 
-$villageSizes: 'xs', 'sm', 'md', 'lg';
+$villageSizes: "xs", "sm", "md", "lg";
 
 $factionReputationColors: (
   player:     #4338CA,
@@ -31,36 +31,37 @@ $factionReputationColors: (
   hated:      #DC2626,
 );
 
-$buildings: "bakery",
-"brickyard",
-"grain-mill",
-"granary",
-"iron-foundry",
-"sawmill",
-"warehouse",
-"waterworks",
-"academy",
-"barracks",
-"city-wall",
-"earth-wall",
-"great-barracks",
-"great-stable",
-"heros-mansion",
-"hospital",
-"makeshift-wall",
-"palisade",
-"rally-point",
-"stable",
-"stone-wall",
-"trapper",
-"workshop",
-"brewery",
-"command-center",
-"cranny",
-"horse-drinking-trough",
-"main-building",
-"marketplace",
-"palace",
-"residence",
-"tournament-square",
-"treasury";
+$buildings:
+  "bakery",
+  "brickyard",
+  "grain-mill",
+  "granary",
+  "iron-foundry",
+  "sawmill",
+  "warehouse",
+  "waterworks",
+  "academy",
+  "barracks",
+  "city-wall",
+  "earth-wall",
+  "great-barracks",
+  "great-stable",
+  "heros-mansion",
+  "hospital",
+  "makeshift-wall",
+  "palisade",
+  "rally-point",
+  "stable",
+  "stone-wall",
+  "trapper",
+  "workshop",
+  "brewery",
+  "command-center",
+  "cranny",
+  "horse-drinking-trough",
+  "main-building",
+  "marketplace",
+  "palace",
+  "residence",
+  "tournament-square",
+  "treasury";

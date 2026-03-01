@@ -1,7 +1,7 @@
 import type { VariantProps } from 'class-variance-authority';
 import { clsx } from 'clsx';
 import { ToggleGroup as ToggleGroupPrimitive } from 'radix-ui';
-import { type ComponentProps, createContext, use } from 'react';
+import { type ComponentProps, createContext, use, useMemo } from 'react';
 import { toggleVariants } from 'app/components/ui/toggle';
 
 const ToggleGroupContext = createContext<VariantProps<typeof toggleVariants>>({
@@ -19,6 +19,13 @@ export const ToggleGroup = ({
   children,
   ...props
 }: ToggleGroupProps) => {
+  const value = useMemo(() => {
+    return {
+      variant,
+      size,
+    };
+  }, [variant, size]);
+
   return (
     <ToggleGroupPrimitive.Root
       data-slot="toggle-group"
@@ -30,9 +37,7 @@ export const ToggleGroup = ({
       )}
       {...props}
     >
-      <ToggleGroupContext value={{ variant, size }}>
-        {children}
-      </ToggleGroupContext>
+      <ToggleGroupContext value={value}>{children}</ToggleGroupContext>
     </ToggleGroupPrimitive.Root>
   );
 };
@@ -59,7 +64,7 @@ export const ToggleGroupItem = ({
           variant: context.variant || variant,
           size: context.size || size,
         }),
-        'bg-muted text-muted-foreground hover:bg-accent data-[state=on]:bg-gray-200 data-[state=on]:text-black min-w-0 flex-1 shrink-0 rounded-sm shadow-none focus:z-10 focus-visible:z-10',
+        'min-w-0 flex-1 shrink-0 rounded-sm shadow-none focus:z-10 focus-visible:z-10',
         className,
       )}
       {...props}

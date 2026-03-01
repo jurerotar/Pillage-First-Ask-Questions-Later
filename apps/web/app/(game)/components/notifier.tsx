@@ -15,7 +15,7 @@ import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { useNotificationPermission } from 'app/(game)/hooks/use-notification-permission';
 import { useTabFocus } from 'app/(game)/hooks/use-tab-focus';
 import {
-  isEventCreatedNotificationMessageEvent,
+  isControllerMessageNotificationMessageEvent,
   isEventResolvedNotificationMessageEvent,
 } from 'app/(game)/providers/guards/api-notification-event-guards';
 
@@ -160,7 +160,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
         }
       }
 
-      if (isEventCreatedNotificationMessageEvent(event)) {
+      if (isControllerMessageNotificationMessageEvent(event)) {
         const toastArgs = eventCreatedNotificationFactory(event, {
           t,
           serverName: server.name,

@@ -1,4 +1,4 @@
-import { getUnitDefinition } from '@pillage-first/game-assets/units/utils';
+import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type {
   Unit,
   UnitResearchRequirement,

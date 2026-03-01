@@ -13,15 +13,15 @@ describe(unitImprovementResolver, () => {
 
     // Get player_id from village
     const { playerId } = database.selectObject({
-      sql: 'SELECT player_id AS playerId FROM villages WHERE id = $villageId;',
-      bind: { $villageId: villageId },
-      schema: z.object({ playerId: z.number() }),
+      sql: 'SELECT player_id AS playerId FROM villages WHERE id = $village_id;',
+      bind: { $village_id: villageId },
+      schema: z.strictObject({ playerId: z.number() }),
     })!;
 
     // Ensure a row exists for unitId
     database.exec({
-      sql: 'INSERT INTO unit_improvements (unit_id, level, player_id) VALUES ($unitId, 0, $playerId) ON CONFLICT DO NOTHING;',
-      bind: { $unitId: unitId, $playerId: playerId },
+      sql: 'INSERT INTO unit_improvements (unit_id, level, player_id) VALUES ((SELECT id FROM unit_ids WHERE unit = $unit_id), 0, $player_id) ON CONFLICT DO NOTHING;',
+      bind: { $unit_id: unitId, $player_id: playerId },
     });
 
     const mockEvent: GameEvent<'unitImprovement'> = {
@@ -38,9 +38,9 @@ describe(unitImprovementResolver, () => {
     unitImprovementResolver(database, { ...mockEvent, id: 999 });
 
     const improvement = database.selectObject({
-      sql: 'SELECT level FROM unit_improvements WHERE unit_id = $unitId;',
-      bind: { $unitId: unitId },
-      schema: z.object({ level: z.number() }),
+      sql: 'SELECT level FROM unit_improvements WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);',
+      bind: { $unit_id: unitId },
+      schema: z.strictObject({ level: z.number() }),
     })!;
 
     expect(improvement.level).toBeGreaterThanOrEqual(1);

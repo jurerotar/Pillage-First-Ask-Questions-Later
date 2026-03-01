@@ -5,7 +5,7 @@ import type { ResourceFieldComposition } from '@pillage-first/types/models/resou
 export const parseResourcesFromRFC = (
   resourceFieldComposition: ResourceFieldComposition,
 ): number[] => {
-  const [wood, clay, iron, ...wheat] = resourceFieldComposition.split('');
+  const [wood, clay, iron, ...wheat] = [...resourceFieldComposition];
   const values = [wood, clay, iron, wheat.join('')];
 
   return values.map((value) => Number.parseInt(value, 10));
@@ -20,7 +20,7 @@ const resourceToId = new Map<Resource, number>([
 ]);
 
 const idToResource = new Map(
-  Array.from(resourceToId.entries()).map(([key, value]) => [value, key]),
+  [...resourceToId.entries()].map(([key, value]) => [value, key]),
 );
 
 export const encodeGraphicsProperty = (

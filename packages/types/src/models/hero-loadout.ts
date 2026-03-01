@@ -6,6 +6,7 @@ export const heroLoadoutSlotSchema = z
     'horse',
     'torso',
     'legs',
+    'boots',
     'right-hand',
     'left-hand',
     'consumable',

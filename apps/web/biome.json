@@ -3,7 +3,13 @@
   "root": false,
   "extends": "//",
   "files": {
-    "includes": ["**", "!**/.react-router", "!**/public", "!**/*.css"]
+    "includes": [
+      "**",
+      "!**/.react-router",
+      "!**/public",
+      "!**/*.css",
+      "!**/*.scss"
+    ]
   },
   "css": {
     "parser": {

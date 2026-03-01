@@ -4,7 +4,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Legend,
   Pie,
   PieChart,
@@ -42,6 +41,7 @@ export const GameWorldOverview = () => {
     return factionSchema.options.map((name) => ({
       name,
       value: gameWorldOverviewStatistics.playersByFaction[name],
+      fill: FACTION_COLORS[name] ?? '#94a3b8',
     }));
   }, [gameWorldOverviewStatistics.playersByFaction]);
 
@@ -49,6 +49,7 @@ export const GameWorldOverview = () => {
     return factionSchema.options.map((name) => ({
       name,
       value: gameWorldOverviewStatistics.villagesByFaction[name],
+      fill: FACTION_COLORS[name] ?? '#94a3b8',
     }));
   }, [gameWorldOverviewStatistics.villagesByFaction]);
 
@@ -56,6 +57,7 @@ export const GameWorldOverview = () => {
     return tribeSchema.options.map((name) => ({
       name,
       value: gameWorldOverviewStatistics.playersByTribe[name],
+      fill: TRIBE_COLORS[name] ?? '#94a3b8',
     }));
   }, [gameWorldOverviewStatistics.playersByTribe]);
 
@@ -63,6 +65,7 @@ export const GameWorldOverview = () => {
     return tribeSchema.options.map((name) => ({
       name,
       value: gameWorldOverviewStatistics.villagesByTribe[name],
+      fill: TRIBE_COLORS[name] ?? '#94a3b8',
     }));
   }, [gameWorldOverviewStatistics.villagesByTribe]);
 
@@ -153,14 +156,7 @@ export const GameWorldOverview = () => {
               cy="50%"
               outerRadius={80}
               label
-            >
-              {playersByFactionData.map((entry) => (
-                <Cell
-                  key={entry.name}
-                  fill={FACTION_COLORS[entry.name] ?? '#94a3b8'}
-                />
-              ))}
-            </Pie>
+            />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
@@ -179,14 +175,7 @@ export const GameWorldOverview = () => {
               cy="50%"
               outerRadius={80}
               label
-            >
-              {villagesByFactionData.map((entry) => (
-                <Cell
-                  key={entry.name}
-                  fill={FACTION_COLORS[entry.name] ?? '#94a3b8'}
-                />
-              ))}
-            </Pie>
+            />
             <Legend />
           </PieChart>
         </ResponsiveContainer>
@@ -204,14 +193,7 @@ export const GameWorldOverview = () => {
             <Bar
               dataKey="value"
               name={t('Players')}
-            >
-              {playersByTribeData.map((entry) => (
-                <Cell
-                  key={entry.name}
-                  fill={TRIBE_COLORS[entry.name] ?? '#94a3b8'}
-                />
-              ))}
-            </Bar>
+            />
           </BarChart>
         </ResponsiveContainer>
 
@@ -228,14 +210,7 @@ export const GameWorldOverview = () => {
             <Bar
               dataKey="value"
               name={t('Villages')}
-            >
-              {villagesByTribeData.map((entry) => (
-                <Cell
-                  key={entry.name}
-                  fill={TRIBE_COLORS[entry.name] ?? '#94a3b8'}
-                />
-              ))}
-            </Bar>
+            />
           </BarChart>
         </ResponsiveContainer>
       </SectionContent>

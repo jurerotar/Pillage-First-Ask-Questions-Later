@@ -10,3 +10,6 @@ I am grateful to our contributors for dedicating their time and effort in to mak
 * [Wejdenemk](https://github.com/wejdenemk)
 * [Derek-94](https://github.com/Derek-94)
 * [x08u](https://github.com/x08u)
+* [tibisabau](https://github.com/tibisabau)
+* [UzumakiODZ](https://github.com/UzumakiODZ)
+* [ttpro1995](https://github.com/ttpro1995)

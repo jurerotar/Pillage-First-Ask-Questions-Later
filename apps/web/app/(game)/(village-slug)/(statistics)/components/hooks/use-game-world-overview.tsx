@@ -6,7 +6,7 @@ import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { gameWorldOverviewStatisticsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-const gameWorldOverviewStatisticsSchema = z.object({
+const gameWorldOverviewStatisticsSchema = z.strictObject({
   playerCount: z.number(),
   villageCount: z.number(),
   playersByTribe: z.record(tribeSchema, z.number()),

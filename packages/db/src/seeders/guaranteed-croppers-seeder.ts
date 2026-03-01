@@ -21,17 +21,20 @@ export const guaranteedCroppersSeeder = (
         t.id,
         rfc.resource_field_composition
       FROM
-        tiles t
-          LEFT JOIN resource_field_compositions rfc
+        oasis o
+          JOIN tiles ot ON ot.id = o.tile_id
+          JOIN tiles t ON t.x BETWEEN ot.x - 3 AND ot.x + 3
+                    AND t.y BETWEEN ot.y - 3 AND ot.y + 3
+          LEFT JOIN resource_field_composition_ids rfc
                     ON rfc.id = t.resource_field_composition_id
-          JOIN oasis_occupiable_by ob
-               ON ob.occupiable_tile_id = t.id
       WHERE
-        t.type = 'free'
+        o.resource = 'wheat'
+        AND o.bonus = 50
+        AND t.type = 'free'
       GROUP BY
         t.id, rfc.resource_field_composition
       HAVING
-        COUNT(DISTINCT ob.occupiable_oasis_tile_id) >= 3;
+        COUNT(DISTINCT o.tile_id) >= 3;
     `,
     schema: z.strictObject({
       id: z.number(),
@@ -96,9 +99,7 @@ export const guaranteedCroppersSeeder = (
       return;
     }
 
-    const values = Array.from(ids)
-      .map((id) => `(${id}, '${rfc}')`)
-      .join(',\n      ');
+    const values = [...ids].map((id) => `(${id}, '${rfc}')`).join(',\n      ');
 
     const sql = `
       WITH
@@ -110,7 +111,7 @@ export const guaranteedCroppersSeeder = (
         resource_field_composition_id = (
           SELECT r.id
           FROM
-            resource_field_compositions r
+            resource_field_composition_ids r
           WHERE
             r.resource_field_composition = (
               SELECT u.rfc

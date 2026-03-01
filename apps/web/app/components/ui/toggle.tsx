@@ -8,7 +8,8 @@ export const toggleVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-transparent',
+        default:
+          'bg-transparent data-[slot=toggle-group-item]:bg-muted data-[slot=toggle-group-item]:text-muted-foreground data-[slot=toggle-group-item]:hover:bg-accent data-[slot=toggle-group-item]:data-[state=on]:bg-gray-200 data-[slot=toggle-group-item]:data-[state=on]:text-black',
         outline:
           'border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground',
       },

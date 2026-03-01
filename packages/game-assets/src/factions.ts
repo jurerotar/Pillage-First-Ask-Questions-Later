@@ -1,5 +1,5 @@
 import type { Faction } from '@pillage-first/types/models/faction';
-import type { PlayableTribe } from '@pillage-first/types/models/tribe';
+import type { Tribe } from '@pillage-first/types/models/tribe';
 
 export const FACTION_COLORS: Record<Faction, string> = {
   player: '#ef4444',
@@ -13,10 +13,13 @@ export const FACTION_COLORS: Record<Faction, string> = {
   npc8: '#6366f1',
 };
 
-export const TRIBE_COLORS: Record<PlayableTribe, string> = {
-  romans: '#ef4444',
-  gauls: '#3b82f6',
-  teutons: '#22c55e',
-  huns: '#f59e0b',
-  egyptians: '#8b5cf6',
+export const TRIBE_COLORS: Record<Tribe, string> = {
+  romans: '#b22222',
+  gauls: '#0b6fab',
+  teutons: '#2d3748',
+  huns: '#b9732f',
+  egyptians: '#c68600',
+  spartans: '#8b0000',
+  nature: '#10b981',
+  natars: '#1f2937',
 };

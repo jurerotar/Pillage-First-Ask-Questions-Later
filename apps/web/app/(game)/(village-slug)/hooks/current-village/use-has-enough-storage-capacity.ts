@@ -49,18 +49,18 @@ export const useHasEnoughStorageCapacity = (
 
       hasEnoughStorageCapacity = false;
     }
-  }
+  } else if (type === 'granaryCapacity') {
+    if (!getHasEnoughGranaryCapacity(granaryCapacity, requiredResources[3])) {
+      const difference = requiredResources[3] - granaryCapacity;
 
-  if (!getHasEnoughGranaryCapacity(granaryCapacity, requiredResources[3])) {
-    const difference = requiredResources[3] - warehouseCapacity;
+      errorBag.push(
+        t('Your granaries are too small. You need {{amount}} more capacity.', {
+          amount: formatNumber(difference),
+        }),
+      );
 
-    errorBag.push(
-      t('Your granaries are too small. You need {{amount}} more capacity.', {
-        amount: formatNumber(difference),
-      }),
-    );
-
-    hasEnoughStorageCapacity = false;
+      hasEnoughStorageCapacity = false;
+    }
   }
 
   return {

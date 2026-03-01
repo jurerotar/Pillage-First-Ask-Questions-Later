@@ -6,7 +6,7 @@ import {
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
   getBuildingFieldByBuildingFieldId,
-} from '@pillage-first/game-assets/buildings/utils';
+} from '@pillage-first/game-assets/utils/buildings';
 import { formatNumber } from '@pillage-first/utils/format';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';

@@ -3,23 +3,31 @@ import type {
   SAHPoolUtil,
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
+import { z } from 'zod';
+import { upgradeDb } from '@pillage-first/db';
 import type {
   ApiNotificationEvent,
+  ControllerErrorEvent,
+  DatabaseInitializationErrorEvent,
   EventApiNotificationEvent,
-  WorkerInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
+import { env } from '@pillage-first/utils/env';
 import {
   createDbFacade,
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
+import {
+  parseAppVersion,
+  parseDatabaseUserVersion,
+} from '@pillage-first/utils/version';
 import { DatabaseInitializationError } from './errors';
+import { matchRoute } from './routes/route-matcher.ts';
 import {
   cancelScheduling,
   initScheduler,
   scheduleNextEvent,
 } from './scheduler/scheduler';
 import { createSchedulerDataSource } from './scheduler/scheduler-data-source';
-import { matchRoute } from './utils/route-matcher';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
@@ -55,7 +63,9 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-        database.exec({
+        dbFacade = createDbFacade(database, false);
+
+        dbFacade.exec({
           sql: `
           PRAGMA foreign_keys = ON;        -- keep referential integrity
           PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
@@ -68,7 +78,24 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         `,
         });
 
-        dbFacade = createDbFacade(database, false);
+        const version = dbFacade.selectValue({
+          sql: 'PRAGMA user_version',
+          schema: z.number().nullable(),
+        });
+
+        // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
+        if (!version) {
+          throw new DatabaseInitializationError();
+        }
+
+        const [, dbMinor] = parseDatabaseUserVersion(version);
+        const [, appMinor] = parseAppVersion(env.VERSION);
+
+        if (dbMinor !== appMinor) {
+          throw new DatabaseInitializationError();
+        }
+
+        upgradeDb(dbFacade);
 
         const dataSource = createSchedulerDataSource(dbFacade);
 
@@ -76,14 +103,14 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         scheduleNextEvent(dataSource);
 
         globalThis.postMessage({
-          eventKey: 'event:worker-initialization-success',
+          eventKey: 'event:database-initialization-success',
         } satisfies ApiNotificationEvent);
         break;
       } catch (error) {
         globalThis.postMessage({
-          eventKey: 'event:worker-initialization-error',
+          eventKey: 'event:database-initialization-error',
           error: error as Error,
-        } satisfies WorkerInitializationErrorEvent);
+        } satisfies DatabaseInitializationErrorEvent);
         break;
       }
     }
@@ -99,7 +126,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         if (method !== 'GET') {
           globalThis.postMessage({
-            eventKey: 'event:worker-event-creation-success',
+            eventKey: 'event:controller-success',
             ...body,
             ...path,
           } satisfies EventApiNotificationEvent);
@@ -112,10 +139,10 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         break;
       } catch (error) {
         console.error(error);
-        globalThis.postMessage({
-          eventKey: 'event:worker-event-creation-error',
-          ...body,
-        } satisfies EventApiNotificationEvent);
+        port.postMessage({
+          eventKey: 'event:controller-error',
+          error: error as Error,
+        } satisfies ControllerErrorEvent);
         break;
       }
     }

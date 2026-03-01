@@ -10,7 +10,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 
 type CreateEventArgs<T extends GameEventType> = Omit<
   GameEventTypeToEventArgsMap<T>,
-  'villageId' | 'type'
+  'villageId' | 'type' | 'id' | 'startsAt' | 'duration' | 'resolvesAt'
 >;
 
 type SendEventArgs<T extends GameEventType> = CreateEventArgs<T> & {

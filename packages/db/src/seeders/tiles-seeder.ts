@@ -310,7 +310,7 @@ export const tilesSeeder = (database: DbFacade, server: Server): void => {
     assignOasisAndFreeTileComposition(server, tilesWithShapedOasisFields);
 
   const rfcRows = database.selectObjects({
-    sql: 'SELECT resource_field_composition, id FROM resource_field_compositions;',
+    sql: 'SELECT resource_field_composition, id FROM resource_field_composition_ids;',
     schema: z.strictObject({
       resource_field_composition: resourceFieldCompositionSchema,
       id: z.number(),
