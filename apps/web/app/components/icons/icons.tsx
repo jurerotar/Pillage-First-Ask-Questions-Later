@@ -21,7 +21,6 @@ import {
   GiGreekTemple,
   GiIBeam,
   GiLeatherBoot,
-  GiMetalBar,
   GiPointyHat,
   GiRallyTheTroops,
   GiRat,
@@ -29,25 +28,15 @@ import {
   GiSandSnake,
   GiSpikedMace,
   GiSpyglass,
-  GiStoneBlock,
   GiSwapBag,
   GiTiedScroll,
   GiWolfHead,
   GiWolfTrap,
-  GiWoodPile,
 } from 'react-icons/gi';
 import { GrDocumentMissing } from 'react-icons/gr';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
 import { LiaCoinsSolid } from 'react-icons/lia';
-import {
-  LuClock,
-  LuMapPin,
-  LuShield,
-  LuSword,
-  LuSwords,
-  LuWheat,
-  LuWheatOff,
-} from 'react-icons/lu';
+import { LuClock, LuMapPin, LuShield, LuSword, LuSwords } from 'react-icons/lu';
 import { PiKeyhole, PiPath, PiWarehouseBold } from 'react-icons/pi';
 import { RxCross2 } from 'react-icons/rx';
 import { SiArtifacthub } from 'react-icons/si';
@@ -63,7 +52,12 @@ import {
 import { TiMinus, TiPlus } from 'react-icons/ti';
 import {
   PillageFirstCatapult,
+  PillageFirstClay,
   PillageFirstHorse,
+  PillageFirstIron,
+  PillageFirstWheat,
+  PillageFirstWheatOff,
+  PillageFirstWood,
 } from '@pillage-first/graphics';
 import type { Effect } from '@pillage-first/types/models/effect';
 import type {
@@ -201,30 +195,10 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   ),
 
   // Resources
-  wood: (props) => (
-    <GiWoodPile
-      {...props}
-      className={clsx('text-[#A1662F]', props.className)}
-    />
-  ),
-  clay: (props) => (
-    <GiStoneBlock
-      {...props}
-      className={clsx('text-[#cc7357]', props.className)}
-    />
-  ),
-  iron: (props) => (
-    <GiMetalBar
-      {...props}
-      className={clsx('text-gray-500', props.className)}
-    />
-  ),
-  wheat: (props) => (
-    <LuWheat
-      {...props}
-      className={clsx('text-yellow-500 scale-90', props.className)}
-    />
-  ),
+  wood: (props) => <PillageFirstWood {...props} />,
+  clay: (props) => <PillageFirstClay {...props} />,
+  iron: (props) => <PillageFirstIron {...props} />,
+  wheat: (props) => <PillageFirstWheat {...props} />,
   woodWheat: (props) => icons.wood(props),
   clayWheat: (props) => icons.clay(props),
   ironWheat: (props) => icons.iron(props),
@@ -237,21 +211,16 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   mapMagnificationIncrease: (props) => <TiPlus {...props} />,
   mapMagnificationDecrease: (props) => <TiMinus {...props} />,
   mapReputationToggle: (props) => <TbBorderCorners {...props} />,
-  mapOasisIconsToggle: (props) => <GiWoodPile {...props} />,
+  mapOasisIconsToggle: (props) => icons.wood(props),
   mapTroopMovementsToggle: (props) => <LuSwords {...props} />,
-  mapWheatFieldIconToggle: (props) => <LuWheat {...props} />,
+  mapWheatFieldIconToggle: (props) => icons.wheat(props),
   mapTileTooltipToggle: (props) => <TbTooltip {...props} />,
   mapTreasureIconToggle: (props) => <SiArtifacthub {...props} />,
   mapMarker: (props) => <LuMapPin {...props} />,
 
   // Map treasures
   treasureTileItem: (props) => <LuSword {...props} />,
-  treasureTileResources: (props) => (
-    <GiWoodPile
-      {...props}
-      className={clsx('text-[#A1662F]', props.className)}
-    />
-  ),
+  treasureTileResources: (props) => <PillageFirstWood {...props} />,
   treasureTileArtifact: (props) => <SiArtifacthub {...props} />,
   treasureTileCurrency: (props) => <LiaCoinsSolid {...props} />,
   treasureTileMiscellaneous: (props) => <SlChemistry {...props} />,
@@ -290,12 +259,8 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   ),
 
   // Effects
-  freeCrop: (props) => (
-    <LuWheatOff
-      {...props}
-      className={clsx('text-yellow-500', props.className)}
-    />
-  ),
+
+  freeCrop: (props) => <PillageFirstWheatOff {...props} />,
   populationCropConsumption: (props) => (
     <BsFillPeopleFill
       {...props}
@@ -377,12 +342,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
       className={clsx('text-gray-500', props.className)}
     />
   ),
-  unitWheatConsumption: (props) => (
-    <LuWheat
-      {...props}
-      className={clsx('text-yellow-500', props.className)}
-    />
-  ),
+  unitWheatConsumption: (props) => icons.wheat(props),
   trapperCapacity: (props) => <GiWolfTrap {...props} />,
   merchantCapacity: (props) => <BsMinecartLoaded {...props} />,
   merchantAmount: (props) => <FaHandshakeAngle {...props} />,
