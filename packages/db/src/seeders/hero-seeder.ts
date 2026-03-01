@@ -35,9 +35,9 @@ export const heroSeeder = (database: DbFacade): void => {
         (SELECT id FROM villages WHERE player_id = p.id LIMIT 1)
       FROM players p
       JOIN tribe_ids ti ON ti.id = p.tribe_id
-      WHERE p.id = $playerId;
+      WHERE p.id = $player_id;
     `,
-    bind: { $playerId: PLAYER_ID },
+    bind: { $player_id: PLAYER_ID },
   });
 
   database.exec({

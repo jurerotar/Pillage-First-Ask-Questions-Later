@@ -7,7 +7,7 @@ import {
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 
-export const PalaceLoyalty = () => {
+export const ResidenceLoyalty = () => {
   const { t } = useTranslation();
 
   return (

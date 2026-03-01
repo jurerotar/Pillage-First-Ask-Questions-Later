@@ -219,8 +219,8 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
@@ -236,8 +236,8 @@ describe('developer-tools-controllers', () => {
       );
 
       const inventory = database.selectObjects({
-        sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
       });
 
@@ -255,8 +255,8 @@ describe('developer-tools-controllers', () => {
       );
 
       const inventoryUpdated = database.selectObjects({
-        sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT item_id, amount FROM hero_inventory WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
       });
 
@@ -272,16 +272,16 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
 
       // Initial points (should be 0 or some seeded value)
       const initialPoints = database.selectObject({
-        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ available: z.number() }),
       })!.available;
 
@@ -296,8 +296,8 @@ describe('developer-tools-controllers', () => {
       );
 
       const points = database.selectObject({
-        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ available: z.number() }),
       })!;
 
@@ -310,8 +310,8 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id, experience FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id, experience FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number(), experience: z.number() }),
       })!;
       const heroId = hero.id;
@@ -324,8 +324,8 @@ describe('developer-tools-controllers', () => {
       );
 
       const updatedHero = database.selectObject({
-        sql: 'SELECT experience FROM heroes WHERE id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ experience: z.number() }),
       })!;
 
@@ -341,8 +341,8 @@ describe('developer-tools-controllers', () => {
       );
 
       const updatedHeroAgain = database.selectObject({
-        sql: 'SELECT experience FROM heroes WHERE id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ experience: z.number() }),
       })!;
 

@@ -7,7 +7,7 @@ import {
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 
-export const PalaceExpansion = () => {
+export const ResidenceExpansion = () => {
   const { t } = useTranslation();
 
   return (

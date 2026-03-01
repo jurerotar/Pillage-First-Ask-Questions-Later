@@ -1,5 +1,5 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { compiledApiRoutes } from '../routes/api-routes';
+import { compiledApiRoutes } from './api-routes.ts';
 
 // These params are automatically cast as numbers
 const numericParams = new Set([

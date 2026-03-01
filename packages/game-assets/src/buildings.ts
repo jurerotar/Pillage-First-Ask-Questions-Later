@@ -1306,7 +1306,17 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 2,
-    effects: [...createGovernmentBuildingDefenceEffects()],
+    effects: [
+      ...createGovernmentBuildingDefenceEffects(),
+      {
+        effectId: 'residenceTrainingDuration',
+        valuesPerLevel: [
+          1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0.9, 0.82, 0.74, 0.67, 0.61, 0.55,
+          0.5, 0.45, 0.41,
+        ],
+        type: 'bonus',
+      },
+    ],
     buildingRequirements: [
       {
         id: 1,

@@ -21,13 +21,13 @@ import {
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
 import { DatabaseInitializationError } from './errors';
+import { matchRoute } from './routes/route-matcher.ts';
 import {
   cancelScheduling,
   initScheduler,
   scheduleNextEvent,
 } from './scheduler/scheduler';
 import { createSchedulerDataSource } from './scheduler/scheduler-data-source';
-import { matchRoute } from './utils/route-matcher';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;

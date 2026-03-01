@@ -3,11 +3,11 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   createUnitTroopCountQuests,
   globalQuests,
+  newVillageQuestsFactory,
 } from '@pillage-first/game-assets/quests';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
-import { newVillageQuestsFactory } from './factories/quest-factory';
 
 export const questsSeeder = (database: DbFacade): void => {
   const playerStartingVillageId = database.selectValue({

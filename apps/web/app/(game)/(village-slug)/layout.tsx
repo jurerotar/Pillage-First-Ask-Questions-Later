@@ -31,7 +31,7 @@ import {
   type ShouldRevalidateFunction,
   useNavigate,
 } from 'react-router';
-import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
+import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';

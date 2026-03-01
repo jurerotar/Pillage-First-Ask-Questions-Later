@@ -3,7 +3,7 @@ import {
   calculateHeroLevel,
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
-} from '@pillage-first/game-assets/hero/utils';
+} from '@pillage-first/game-assets/utils/hero';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';

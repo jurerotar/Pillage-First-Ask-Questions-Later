@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/buildings/utils';
+import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/utils/buildings';
 import type { BuildingField as BuildingFieldType } from '@pillage-first/types/models/building-field';
 import { EmptyBuildingField } from 'app/(game)/(village-slug)/(village)/components/empty-building-field';
 import { OccupiedBuildingField } from 'app/(game)/(village-slug)/(village)/components/occupied-building-field';

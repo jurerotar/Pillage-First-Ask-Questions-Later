@@ -2,7 +2,7 @@ import { clsx } from 'clsx';
 import { type AnchorHTMLAttributes, use, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import { getBuildingDefinition } from '@pillage-first/game-assets/buildings/utils';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField as BuildingFieldType } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';

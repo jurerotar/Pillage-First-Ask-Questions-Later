@@ -35,11 +35,11 @@ export const calculateAdventureDuration = (
             hero_adventures ha
               JOIN heroes h ON ha.hero_id = h.id
           WHERE
-            h.player_id = $playerId
+            h.player_id = $player_id
           ) AS completed
     `,
     bind: {
-      $playerId: PLAYER_ID,
+      $player_id: PLAYER_ID,
       $completed_adventure_count_modifier: completedAdventureCountModifier,
     },
     schema: z.strictObject({

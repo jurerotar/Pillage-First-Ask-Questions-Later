@@ -39,10 +39,13 @@ import {
   useHeroItem,
 } from '../controllers/hero-controllers';
 import {
+  addMapMarker,
+  getMapMarkers,
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
   getTileWorldItem,
+  removeMapMarker,
 } from '../controllers/map-controllers';
 import {
   getMapFilters,
@@ -81,8 +84,8 @@ import {
   getVillageBySlug,
 } from '../controllers/village-controllers';
 import { getArtifactsAroundVillage } from '../controllers/world-items-controllers';
-import type { Route } from '../utils/route';
-import { createRoute } from '../utils/route';
+import type { Route } from './route.ts';
+import { createRoute } from './route.ts';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -125,6 +128,9 @@ const apiRoutes: Route[] = [
   createRoute(getTileTroops),
   createRoute(getTileOasisBonuses),
   createRoute(getTileWorldItem),
+  createRoute(getMapMarkers),
+  createRoute(addMapMarker),
+  createRoute(removeMapMarker),
 
   // Farm List
   createRoute(getFarmLists),

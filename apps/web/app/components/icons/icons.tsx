@@ -12,6 +12,8 @@ import { CgTimelapse } from 'react-icons/cg';
 import { FaSpider, FaWarehouse } from 'react-icons/fa';
 import { FaHandshakeAngle, FaPeopleGroup, FaStar } from 'react-icons/fa6';
 import {
+  GiBarbedSpear,
+  GiBattleAxe,
   GiBearHead,
   GiBoar,
   GiCrocJaws,
@@ -24,15 +26,17 @@ import {
   GiRat,
   GiSaberToothedCatHead,
   GiSandSnake,
+  GiSpikedMace,
   GiSpyglass,
   GiSwapBag,
+  GiTiedScroll,
   GiWolfHead,
   GiWolfTrap,
 } from 'react-icons/gi';
 import { GrDocumentMissing } from 'react-icons/gr';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
 import { LiaCoinsSolid } from 'react-icons/lia';
-import { LuClock, LuShield, LuSword, LuSwords } from 'react-icons/lu';
+import { LuClock, LuMapPin, LuShield, LuSword, LuSwords } from 'react-icons/lu';
 import { PiKeyhole, PiPath, PiWarehouseBold } from 'react-icons/pi';
 import { RxCross2 } from 'react-icons/rx';
 import { SiArtifacthub } from 'react-icons/si';
@@ -90,7 +94,8 @@ type MapControlsIconType =
   | 'mapTroopMovementsToggle'
   | 'mapWheatFieldIconToggle'
   | 'mapTileTooltipToggle'
-  | 'mapTreasureIconToggle';
+  | 'mapTreasureIconToggle'
+  | 'mapMarker';
 
 type CommonIconType = 'cancel';
 
@@ -211,6 +216,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   mapWheatFieldIconToggle: (props) => icons.wheat(props),
   mapTileTooltipToggle: (props) => <TbTooltip {...props} />,
   mapTreasureIconToggle: (props) => <SiArtifacthub {...props} />,
+  mapMarker: (props) => <LuMapPin {...props} />,
 
   // Map treasures
   treasureTileItem: (props) => <LuSword {...props} />,
@@ -322,6 +328,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
       className={clsx('text-gray-500', props.className)}
     />
   ),
+  residenceTrainingDuration: (props) => <LuClock {...props} />,
   barracksTrainingDuration: (props) => <LuClock {...props} />,
   greatBarracksTrainingDuration: (props) => <LuClock {...props} />,
   stableTrainingDuration: (props) => <LuClock {...props} />,
@@ -367,12 +374,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   legionnaire: (props) => <LuSword {...props} />,
   praetorian: (props) => <LuSword {...props} />,
   imperian: (props) => <LuSword {...props} />,
-  romanScout: (props) => (
-    <PillageFirstHorse
-      {...props}
-      className={clsx(styles['roman-scout'], props.className)}
-    />
-  ),
+  romanScout: (props) => <GiTiedScroll {...props} />,
   equitesImperatoris: (props) => (
     <PillageFirstHorse
       {...props}
@@ -401,14 +403,9 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   ),
 
   // Gaul troops
-  phalanx: (props) => icons.missingIcon(props),
+  phalanx: (props) => <GiBarbedSpear {...props} />,
   swordsman: (props) => icons.missingIcon(props),
-  gaulScout: (props) => (
-    <PillageFirstHorse
-      {...props}
-      className={clsx(styles['gaul-scout'], props.className)}
-    />
-  ),
+  gaulScout: (props) => <GiTiedScroll {...props} />,
   theutatesThunder: (props) => (
     <PillageFirstHorse
       {...props}
@@ -443,10 +440,10 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   ),
 
   // Teuton troops
-  clubswinger: (props) => icons.missingIcon(props),
-  spearman: (props) => icons.missingIcon(props),
-  axeman: (props) => icons.missingIcon(props),
-  teutonicScout: (props) => icons.missingIcon(props),
+  clubswinger: (props) => <GiSpikedMace {...props} />,
+  spearman: (props) => <GiBarbedSpear {...props} />,
+  axeman: (props) => <GiBattleAxe {...props} />,
+  teutonicScout: (props) => <GiTiedScroll {...props} />,
   paladin: (props) => (
     <PillageFirstHorse
       {...props}
@@ -478,12 +475,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   slaveMilitia: (props) => icons.missingIcon(props),
   ashWarden: (props) => icons.missingIcon(props),
   khopeshWarrior: (props) => icons.missingIcon(props),
-  egyptianScout: (props) => (
-    <PillageFirstHorse
-      {...props}
-      className={clsx(styles['egyptian-scout'], props.className)}
-    />
-  ),
+  egyptianScout: (props) => <GiTiedScroll {...props} />,
   anhurGuard: (props) => (
     <PillageFirstHorse
       {...props}
@@ -514,7 +506,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   // Hun troops
   mercenary: (props) => icons.missingIcon(props),
   bowman: (props) => icons.missingIcon(props),
-  hunScout: (props) => icons.missingIcon(props),
+  hunScout: (props) => <GiTiedScroll {...props} />,
   steppeRider: (props) => (
     <PillageFirstHorse
       {...props}
@@ -558,7 +550,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
       className={clsx(styles[''], props.className)}
     />
   ),
-  natarianScout: (props) => icons.missingIcon(props),
+  natarianScout: (props) => <GiTiedScroll {...props} />,
   natarianKnight: (props) => (
     <PillageFirstHorse
       {...props}

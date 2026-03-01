@@ -2,7 +2,7 @@ import {
   calculatePopulationDifference,
   getBuildingDataForLevel,
   getBuildingDefinition,
-} from '@pillage-first/game-assets/buildings/utils';
+} from '@pillage-first/game-assets/utils/buildings';
 import { specialFieldIds } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../../types/resolver';
@@ -10,12 +10,12 @@ import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../utils/queries/effect-queries';
-import { assessBuildingQuestCompletion } from '../../utils/quests';
 import {
   demolishBuilding,
   updateVillageResourcesAt,
 } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
+import { assessBuildingQuestCompletion } from './utils/quests.ts';
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>

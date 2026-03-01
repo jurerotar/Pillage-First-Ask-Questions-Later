@@ -20,6 +20,7 @@ import {
 } from './controllers/schemas/hero-schemas.ts';
 import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas.ts';
 import {
+  getMapMarkersSchema,
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
@@ -909,6 +910,64 @@ export const paths = {
               schema: getTileWorldItemSchema.nullable(),
             },
           },
+        },
+      },
+    },
+  },
+  '/players/:playerId/map-markers': {
+    get: {
+      summary: 'Get map markers',
+      requestParams: {
+        path: z.strictObject({
+          playerId: playerSchema.shape.id,
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Map markers',
+          content: {
+            'application/json': {
+              schema: z.array(getMapMarkersSchema),
+            },
+          },
+        },
+      },
+    },
+    post: {
+      summary: 'Add map marker',
+      requestParams: {
+        path: z.strictObject({
+          playerId: playerSchema.shape.id,
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              tileId: z.number(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Marker added',
+        },
+      },
+    },
+  },
+  '/players/:playerId/map-markers/:tileId': {
+    delete: {
+      summary: 'Remove map marker',
+      requestParams: {
+        path: z.strictObject({
+          playerId: playerSchema.shape.id,
+          tileId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Marker removed',
         },
       },
     },

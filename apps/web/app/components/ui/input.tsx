@@ -10,9 +10,13 @@ export const inputVariants = cva(
         default: 'h-9 w-full px-3 py-1',
         fit: 'h-9 w-fit px-1',
       },
+      hideSpinner: {
+        true: 'no-spinner',
+      },
     },
     defaultVariants: {
       size: 'default',
+      hideSpinner: false,
     },
   },
 );
@@ -20,12 +24,18 @@ export const inputVariants = cva(
 export type InputProps = ComponentProps<'input'> &
   VariantProps<typeof inputVariants>;
 
-export const Input = ({ className, type, size, ...props }: InputProps) => {
+export const Input = ({
+  className,
+  type,
+  size,
+  hideSpinner,
+  ...props
+}: InputProps) => {
   return (
     <input
       type={type}
       data-slot="input"
-      className={clsx(inputVariants({ size, className }))}
+      className={clsx(inputVariants({ size, hideSpinner, className }))}
       {...props}
     />
   );

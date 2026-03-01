@@ -2,6 +2,7 @@ import { clsx } from 'clsx';
 import { memo } from 'react';
 import { areEqual, type GridChildComponentProps } from 'react-window';
 import type { MapFilters } from '@pillage-first/types/models/map-filters';
+import type { MapMarker } from '@pillage-first/types/models/map-marker';
 import type { Preferences } from '@pillage-first/types/models/preferences';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
 import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
@@ -22,6 +23,9 @@ type CellBaseProps = {
   mapFilters: MapFilters;
   magnification: number;
   preferences: Preferences;
+  mapMarkers: MapMarker[];
+  createMapMarker: (args: { tileId: number }) => void;
+  deleteMapMarker: (args: { tileId: number }) => void;
   onClick: (tileId: number) => void;
   getReputation: ReturnType<typeof useReputations>['getReputation'];
 };
@@ -33,17 +37,28 @@ type CellIconsProps = CellBaseProps & {
 };
 
 const CellIcons = (props: CellIconsProps) => {
-  const { tile, mapFilters, magnification } = props;
+  const { tile, mapFilters, magnification, mapMarkers } = props;
   const {
     shouldShowTreasureIcons,
     shouldShowOasisIcons,
     shouldShowWheatFields,
   } = mapFilters;
 
+  const hasMarker = mapMarkers.some((marker) => marker.tileId === tile.id);
+
   const classes = clsx(
     cellStyles['tile-icon'],
     cellStyles[`tile-icon-magnification-${magnification}`],
   );
+
+  if (hasMarker) {
+    return (
+      <Icon
+        type="mapMarker"
+        shouldShowTooltip={false}
+      />
+    );
+  }
 
   if (
     shouldShowWheatFields &&
@@ -156,6 +171,18 @@ export const Cell = memo<CellProps>(
       !tile.attributes.isOccupiable &&
       BORDER_TILES_OASIS_VARIANTS.has(tile.attributes.oasisGraphics);
 
+    // const onContextMenu = (event: ReactMouseEvent) => {
+    //   event.preventDefault();
+    //
+    //   const hasMarker = mapMarkers.some((marker) => marker.tileId === tileId);
+    //
+    //   if (hasMarker) {
+    //     deleteMapMarker({ tileId });
+    //   } else {
+    //     createMapMarker({ tileId });
+    //   }
+    // };
+
     const className = isBorderTile
       ? clsx(
           cellStyles.tile,
@@ -171,6 +198,7 @@ export const Cell = memo<CellProps>(
     return (
       <button
         onClick={() => onClick(tileId)}
+        // onContextMenu={onContextMenu}
         type="button"
         style={style}
         data-tile-id={tileId}

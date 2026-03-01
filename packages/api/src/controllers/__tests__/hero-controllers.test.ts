@@ -88,8 +88,8 @@ describe('hero-controllers', () => {
       );
 
       const heroSelectable = database.selectObject({
-        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $playerId)',
-        bind: { $playerId: playerId },
+        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $player_id)',
+        bind: { $player_id: playerId },
         schema: z.strictObject({
           attack_power: z.number(),
           resource_production: z.number(),
@@ -104,8 +104,8 @@ describe('hero-controllers', () => {
       expect(heroSelectable.defence_bonus).toBe(40);
 
       const heroStats = database.selectObject({
-        sql: 'SELECT base_attack_power, attack_bonus, defence_bonus FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT base_attack_power, attack_bonus, defence_bonus FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({
           base_attack_power: z.number(),
           attack_bonus: z.number(),
@@ -143,8 +143,8 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
@@ -154,8 +154,8 @@ describe('hero-controllers', () => {
 
       // Seed inventory
       database.exec({
-        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 1)',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
       });
 
       equipHeroItem(
@@ -170,8 +170,8 @@ describe('hero-controllers', () => {
 
       // Verify equipped
       const equipped = database.selectObject({
-        sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-        bind: { $heroId: heroId, $slot: slot },
+        sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
         schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
       });
       expect(equipped?.item_id).toBe(itemId);
@@ -179,8 +179,8 @@ describe('hero-controllers', () => {
 
       // Verify removed from inventory
       const inventory = database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.strictObject({ amount: z.number() }),
       });
       expect(inventory).toBeUndefined();
@@ -190,8 +190,8 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
@@ -202,14 +202,14 @@ describe('hero-controllers', () => {
 
       // Seed equipped
       database.exec({
-        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($heroId, $slot, $itemId, 1)',
-        bind: { $heroId: heroId, $slot: slot, $itemId: oldItemId },
+        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($hero_id, $slot, $itemId, 1)',
+        bind: { $hero_id: heroId, $slot: slot, $itemId: oldItemId },
       });
 
       // Seed inventory with new item
       database.exec({
-        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 1)',
-        bind: { $heroId: heroId, $itemId: String(newItemId) },
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(newItemId) },
       });
 
       equipHeroItem(
@@ -224,16 +224,16 @@ describe('hero-controllers', () => {
 
       // Verify new item equipped
       const equipped = database.selectObject({
-        sql: 'SELECT item_id FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-        bind: { $heroId: heroId, $slot: slot },
+        sql: 'SELECT item_id FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
         schema: z.strictObject({ item_id: z.number() }),
       });
       expect(equipped?.item_id).toBe(newItemId);
 
       // Verify old item moved to inventory
       const inventoryOld = database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(oldItemId) },
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(oldItemId) },
         schema: z.strictObject({ amount: z.number() }),
       });
       expect(inventoryOld?.amount).toBe(1);
@@ -243,8 +243,8 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
@@ -254,8 +254,8 @@ describe('hero-controllers', () => {
 
       // Seed inventory
       database.exec({
-        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 1)',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
       });
 
       equipHeroItem(
@@ -281,8 +281,8 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
@@ -292,8 +292,8 @@ describe('hero-controllers', () => {
 
       // Seed inventory
       database.exec({
-        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 10)',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 10)',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
       });
 
       // Equip 5
@@ -309,8 +309,8 @@ describe('hero-controllers', () => {
 
       // Verify equipped
       let equipped = database.selectObject({
-        sql: 'SELECT amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-        bind: { $heroId: heroId, $slot: slot },
+        sql: 'SELECT amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
         schema: z.strictObject({ amount: z.number() }),
       });
       expect(equipped?.amount).toBe(5);
@@ -327,16 +327,16 @@ describe('hero-controllers', () => {
       );
 
       equipped = database.selectObject({
-        sql: 'SELECT amount FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-        bind: { $heroId: heroId, $slot: slot },
+        sql: 'SELECT amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
         schema: z.strictObject({ amount: z.number() }),
       });
       expect(equipped?.amount).toBe(8);
 
       // Verify inventory
       const inventory = database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.strictObject({ amount: z.number() }),
       });
       expect(inventory?.amount).toBe(2);
@@ -348,8 +348,8 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
@@ -359,8 +359,8 @@ describe('hero-controllers', () => {
 
       // Seed equipped
       database.exec({
-        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($heroId, $slot, $itemId, 1)',
-        bind: { $heroId: heroId, $slot: slot, $itemId: itemId },
+        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($hero_id, $slot, $itemId, 1)',
+        bind: { $hero_id: heroId, $slot: slot, $itemId: itemId },
       });
 
       unequipHeroItem(
@@ -375,16 +375,16 @@ describe('hero-controllers', () => {
 
       // Verify unequipped
       const equipped = database.selectObject({
-        sql: 'SELECT item_id FROM hero_equipped_items WHERE hero_id = $heroId AND slot = $slot',
-        bind: { $heroId: heroId, $slot: slot },
+        sql: 'SELECT item_id FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
         schema: z.strictObject({ item_id: z.number() }),
       });
       expect(equipped).toBeUndefined();
 
       // Verify moved to inventory
       const inventory = database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.strictObject({ amount: z.number() }),
       });
       expect(inventory?.amount).toBe(1);
@@ -394,8 +394,8 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
@@ -405,8 +405,8 @@ describe('hero-controllers', () => {
 
       // Seed equipped
       database.exec({
-        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($heroId, $slot, $itemId, 1)',
-        bind: { $heroId: heroId, $slot: slot, $itemId: itemId },
+        sql: 'INSERT INTO hero_equipped_items (hero_id, slot, item_id, amount) VALUES ($hero_id, $slot, $itemId, 1)',
+        bind: { $hero_id: heroId, $slot: slot, $itemId: itemId },
       });
 
       // Seed effects
@@ -443,16 +443,16 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
 
       // Set health to 50
       database.exec({
-        sql: 'UPDATE heroes SET health = 50 WHERE id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'UPDATE heroes SET health = 50 WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
       });
 
       const itemId = 1021; // HEALING_POTION
@@ -460,8 +460,8 @@ describe('hero-controllers', () => {
 
       // Seed inventory
       database.exec({
-        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 30)',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 30)',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
       });
 
       useHeroItem(
@@ -474,16 +474,16 @@ describe('hero-controllers', () => {
 
       // Verify health
       const updatedHero = database.selectObject({
-        sql: 'SELECT health FROM heroes WHERE id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT health FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ health: z.number() }),
       })!;
       expect(updatedHero.health).toBe(70);
 
       // Verify inventory
       const inventory = database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.strictObject({ amount: z.number() }),
       })!;
       expect(inventory.amount).toBe(10);
@@ -493,16 +493,16 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
 
       // Set health to 90
       database.exec({
-        sql: 'UPDATE heroes SET health = 90 WHERE id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'UPDATE heroes SET health = 90 WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
       });
 
       const itemId = 1021; // HEALING_POTION
@@ -510,8 +510,8 @@ describe('hero-controllers', () => {
 
       // Seed inventory
       database.exec({
-        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 30)',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 30)',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
       });
 
       useHeroItem(
@@ -524,16 +524,16 @@ describe('hero-controllers', () => {
 
       // Verify health
       const updatedHero = database.selectObject({
-        sql: 'SELECT health FROM heroes WHERE id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT health FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({ health: z.number() }),
       })!;
       expect(updatedHero.health).toBe(100);
 
       // Verify inventory (only 10 should be used)
       const inventory = database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.strictObject({ amount: z.number() }),
       })!;
       expect(inventory.amount).toBe(20);
@@ -543,8 +543,8 @@ describe('hero-controllers', () => {
       const database = await prepareTestDatabase();
 
       const hero = database.selectObject({
-        sql: 'SELECT id FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ id: z.number() }),
       })!;
       const heroId = hero.id;
@@ -558,9 +558,9 @@ describe('hero-controllers', () => {
             resource_production = 10,
             attack_bonus = 10,
             defence_bonus = 10
-          WHERE hero_id = $heroId
+          WHERE hero_id = $hero_id
         `,
-        bind: { $heroId: heroId },
+        bind: { $hero_id: heroId },
       });
 
       const itemId = 1022; // BOOK_OF_WISDOM
@@ -568,8 +568,8 @@ describe('hero-controllers', () => {
 
       // Seed inventory
       database.exec({
-        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($heroId, $itemId, 1)',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
       });
 
       useHeroItem(
@@ -582,8 +582,8 @@ describe('hero-controllers', () => {
 
       // Verify attributes
       const updatedHero = database.selectObject({
-        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({
           attack_power: z.number(),
           resource_production: z.number(),
@@ -598,8 +598,8 @@ describe('hero-controllers', () => {
 
       // Verify hero stats reset
       const updatedHeroStats = database.selectObject({
-        sql: 'SELECT base_attack_power, attack_bonus, defence_bonus FROM heroes WHERE id = $heroId',
-        bind: { $heroId: heroId },
+        sql: 'SELECT base_attack_power, attack_bonus, defence_bonus FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
         schema: z.strictObject({
           base_attack_power: z.number(),
           attack_bonus: z.number(),
@@ -628,8 +628,8 @@ describe('hero-controllers', () => {
 
       // Verify inventory (deleted)
       const inventory = database.selectObject({
-        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $heroId AND item_id = $itemId',
-        bind: { $heroId: heroId, $itemId: String(itemId) },
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.strictObject({ amount: z.number() }),
       });
       expect(inventory).toBeUndefined();
@@ -669,8 +669,8 @@ describe('hero-controllers', () => {
       );
 
       const hero = database.selectObject({
-        sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $playerId',
-        bind: { $playerId: playerId },
+        sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
         schema: z.strictObject({ resource_to_produce: z.string() }),
       })!;
 
@@ -700,14 +700,14 @@ describe('hero-controllers', () => {
 
       // Change tribe to Egyptians
       database.exec({
-        sql: "UPDATE players SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'egyptians') WHERE id = $playerId",
-        bind: { $playerId: playerId },
+        sql: "UPDATE players SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'egyptians') WHERE id = $player_id",
+        bind: { $player_id: playerId },
       });
 
       // Update selectable attributes to have some resource production
       database.exec({
-        sql: 'UPDATE hero_selectable_attributes SET resource_production = 10 WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $playerId)',
-        bind: { $playerId: playerId },
+        sql: 'UPDATE hero_selectable_attributes SET resource_production = 10 WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $player_id)',
+        bind: { $player_id: playerId },
       });
 
       changeHeroResourceToProduce(
@@ -744,8 +744,8 @@ describe('hero-controllers', () => {
 
       // First set it to something else
       database.exec({
-        sql: "UPDATE heroes SET resource_to_produce = 'iron' WHERE player_id = $playerId",
-        bind: { $playerId: playerId },
+        sql: "UPDATE heroes SET resource_to_produce = 'iron' WHERE player_id = $player_id",
+        bind: { $player_id: playerId },
       });
 
       changeHeroResourceToProduce(

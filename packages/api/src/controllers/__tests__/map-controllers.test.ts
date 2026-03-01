@@ -2,10 +2,13 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
+  addMapMarker,
+  getMapMarkers,
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
   getTileWorldItem,
+  removeMapMarker,
 } from '../map-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -176,5 +179,50 @@ describe('map-controllers', () => {
     );
 
     expect(true).toBeTruthy();
+  });
+
+  test('MapMarker controllers should add, get and remove markers', async () => {
+    const database = await prepareTestDatabase();
+
+    const playerId = 1;
+    const tileId = 123;
+
+    // 1. Add marker
+    addMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
+        path: { playerId },
+        body: { tileId },
+      }),
+    );
+
+    // 2. Get markers
+    const markers = getMapMarkers(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(markers).toHaveLength(1);
+    expect(markers[0]).toEqual({ tileId });
+
+    // 3. Remove marker
+    removeMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers/:tileId', 'delete'>({
+        path: { playerId, tileId },
+      }),
+    );
+
+    // 4. Get markers again
+    const markersAfterRemoval = getMapMarkers(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(markersAfterRemoval).toHaveLength(0);
   });
 });

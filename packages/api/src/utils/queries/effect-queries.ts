@@ -101,8 +101,10 @@ export const deleteHeroEffectsQuery = `
     source = 'hero'
     AND village_id = (
       SELECT village_id
-      FROM heroes
-      WHERE player_id = $playerId
+      FROM
+        heroes
+      WHERE
+        player_id = $player_id
       );
 `;
 
@@ -126,7 +128,7 @@ export const insertHeroEffectsQuery = `
       JOIN tribe_ids AS ti ON p.tribe_id = ti.id
       CROSS JOIN effect_ids AS ei
   WHERE
-    h.player_id = $playerId
+    h.player_id = $player_id
     AND ei.effect IN (
       'woodProduction',
       'clayProduction',
@@ -146,6 +148,6 @@ export const updateHeroEffectsVillageIdQuery = `
       FROM
         heroes
       WHERE
-        player_id = $playerId
+        player_id = $player_id
       );
 `;

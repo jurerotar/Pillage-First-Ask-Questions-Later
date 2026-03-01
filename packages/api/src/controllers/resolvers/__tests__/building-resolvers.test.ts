@@ -33,8 +33,8 @@ describe('building resolvers', () => {
       buildingConstructionResolver(database, { ...mockEvent, id: 999 });
 
       const field = database.selectObject({
-        sql: 'SELECT village_id, field_id, building_id, level FROM building_fields WHERE village_id = $villageId AND field_id = $fieldId;',
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        sql: 'SELECT village_id, field_id, building_id, level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.strictObject({
           village_id: z.number(),
           field_id: z.number(),
@@ -52,7 +52,7 @@ describe('building resolvers', () => {
           FROM
             effects
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -63,7 +63,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
         schema: z.strictObject({ value: z.number() }),
       })!;
 
@@ -84,7 +84,7 @@ describe('building resolvers', () => {
           INSERT OR IGNORE INTO
             building_fields (village_id, field_id, building_id, level)
           VALUES
-            ($villageId, $fieldId, (
+            ($village_id, $field_id, (
               SELECT id
               FROM
                 building_ids
@@ -93,8 +93,8 @@ describe('building resolvers', () => {
               ), 1);
         `,
         bind: {
-          $villageId: villageId,
-          $fieldId: buildingFieldId,
+          $village_id: villageId,
+          $field_id: buildingFieldId,
           $buildingId: buildingId,
         },
       });
@@ -106,7 +106,7 @@ describe('building resolvers', () => {
           SET
             value = 0
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -117,7 +117,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
       });
 
       const mockEvent: GameEvent<'buildingLevelChange'> = {
@@ -136,8 +136,8 @@ describe('building resolvers', () => {
       buildingLevelChangeResolver(database, { ...mockEvent, id: 888 });
 
       const field = database.selectObject({
-        sql: 'SELECT level FROM building_fields WHERE village_id = $villageId AND field_id = $fieldId;',
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.strictObject({ level: z.number() }),
       })!;
 
@@ -153,7 +153,7 @@ describe('building resolvers', () => {
           FROM
             effects
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -164,7 +164,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
         schema: z.strictObject({ value: z.number() }),
       })!;
 
@@ -198,8 +198,8 @@ describe('building resolvers', () => {
           FROM
             effects
           WHERE
-            village_id = $villageId
-            AND source_specifier = $fieldId
+            village_id = $village_id
+            AND source_specifier = $field_id
             AND effect_id = (
               SELECT id
               FROM
@@ -208,7 +208,7 @@ describe('building resolvers', () => {
                 effect = 'barracksTrainingDuration'
               );
         `,
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.number(),
       });
       expect(effectValue0).toBe(1);
@@ -234,8 +234,8 @@ describe('building resolvers', () => {
           FROM
             effects
           WHERE
-            village_id = $villageId
-            AND source_specifier = $fieldId
+            village_id = $village_id
+            AND source_specifier = $field_id
             AND effect_id = (
               SELECT id
               FROM
@@ -244,7 +244,7 @@ describe('building resolvers', () => {
                 effect = 'barracksTrainingDuration'
               );
         `,
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.number(),
       });
       expect(effectValue2).toBeCloseTo(0.9091, 4);
@@ -257,8 +257,8 @@ describe('building resolvers', () => {
       const buildingId: Building['id'] = 'WOODCUTTER';
 
       database.exec({
-        sql: 'UPDATE building_fields SET level = 3 WHERE village_id = $villageId AND field_id = $fieldId;',
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        sql: 'UPDATE building_fields SET level = 3 WHERE village_id = $village_id AND field_id = $field_id;',
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
       });
 
       // Set initial population effect to 0
@@ -268,7 +268,7 @@ describe('building resolvers', () => {
           SET
             value = 0
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -279,7 +279,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
       });
 
       const mockEvent: GameEvent<'buildingLevelChange'> = {
@@ -298,8 +298,8 @@ describe('building resolvers', () => {
       buildingLevelChangeResolver(database, mockEvent);
 
       const field = database.selectObject({
-        sql: 'SELECT level FROM building_fields WHERE village_id = $villageId AND field_id = $fieldId;',
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.strictObject({ level: z.number() }),
       })!;
 
@@ -316,7 +316,7 @@ describe('building resolvers', () => {
           FROM
             effects
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -327,7 +327,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
         schema: z.strictObject({ value: z.number() }),
       })!;
 
@@ -348,7 +348,7 @@ describe('building resolvers', () => {
           INSERT INTO
             building_fields (village_id, field_id, building_id, level)
           VALUES
-            ($villageId, $fieldId, (
+            ($village_id, $field_id, (
               SELECT id
               FROM
                 building_ids
@@ -357,8 +357,8 @@ describe('building resolvers', () => {
               ), 5);
         `,
         bind: {
-          $villageId: villageId,
-          $fieldId: buildingFieldId,
+          $village_id: villageId,
+          $field_id: buildingFieldId,
           $buildingId: buildingId,
         },
       });
@@ -370,7 +370,7 @@ describe('building resolvers', () => {
           SET
             value = 0
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -381,7 +381,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
       });
 
       const mockEvent: GameEvent<'buildingDestruction'> = {
@@ -399,8 +399,8 @@ describe('building resolvers', () => {
       buildingDestructionResolver(database, mockEvent);
 
       const field = database.selectObject({
-        sql: 'SELECT village_id, field_id, building_id, level FROM building_fields WHERE village_id = $villageId AND field_id = $fieldId;',
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        sql: 'SELECT village_id, field_id, building_id, level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.strictObject({
           village_id: z.number(),
           field_id: z.number(),
@@ -421,7 +421,7 @@ describe('building resolvers', () => {
           FROM
             effects
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -432,7 +432,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
         schema: z.strictObject({ value: z.number() }),
       })!;
 
@@ -446,8 +446,8 @@ describe('building resolvers', () => {
       const buildingId: Building['id'] = 'WOODCUTTER';
 
       database.exec({
-        sql: 'UPDATE building_fields SET level = 10 WHERE village_id = $villageId AND field_id = $fieldId;',
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        sql: 'UPDATE building_fields SET level = 10 WHERE village_id = $village_id AND field_id = $field_id;',
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
       });
 
       // Set initial population effect to 0
@@ -457,7 +457,7 @@ describe('building resolvers', () => {
           SET
             value = 0
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -468,7 +468,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
       });
 
       const mockEvent: GameEvent<'buildingDestruction'> = {
@@ -486,8 +486,8 @@ describe('building resolvers', () => {
       buildingDestructionResolver(database, mockEvent);
 
       const field = database.selectObject({
-        sql: 'SELECT level FROM building_fields WHERE village_id = $villageId AND field_id = $fieldId;',
-        bind: { $villageId: villageId, $fieldId: buildingFieldId },
+        sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.strictObject({ level: z.number() }),
       })!;
 
@@ -503,7 +503,7 @@ describe('building resolvers', () => {
           FROM
             effects
           WHERE
-            village_id = $villageId
+            village_id = $village_id
             AND source = 'building'
             AND source_specifier = 0
             AND effect_id = (
@@ -514,7 +514,7 @@ describe('building resolvers', () => {
                 effect = 'wheatProduction'
               );
         `,
-        bind: { $villageId: villageId },
+        bind: { $village_id: villageId },
         schema: z.strictObject({ value: z.number() }),
       })!;
 

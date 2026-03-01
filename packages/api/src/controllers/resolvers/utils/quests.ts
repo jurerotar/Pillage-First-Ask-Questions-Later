@@ -85,7 +85,7 @@ export const assessBuildingQuestCompletion = (
         completed_at = $completed_at
       WHERE
         completed_at IS NULL
-        AND quest_id = $oneOfQuestId
+        AND quest_id = $quest_id
         AND village_id = $village_id
         AND EXISTS
         (
@@ -100,7 +100,7 @@ export const assessBuildingQuestCompletion = (
     `,
     bind: {
       $completed_at: timestamp,
-      $oneOfQuestId: oneOfQuestId,
+      $quest_id: oneOfQuestId,
       $village_id: villageId,
       $building_id: buildingId,
       $level: level,

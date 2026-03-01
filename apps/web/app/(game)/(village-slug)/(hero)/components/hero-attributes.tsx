@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuMinus, LuPlus } from 'react-icons/lu';
-import { calculateHeroLevel } from '@pillage-first/game-assets/hero/utils';
+import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { HeroResourceToProduce } from '@pillage-first/types/models/hero';
 import { HeroRevival } from 'app/(game)/(village-slug)/(hero)/components/hero-revival';
 import {

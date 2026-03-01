@@ -138,3 +138,17 @@ export const getTileWorldItemSchema = z
     }),
   )
   .meta({ id: 'GetTileWorldItem' });
+
+export const getMapMarkersSchema = z
+  .strictObject({
+    tile_id: z.number(),
+  })
+  .transform((t) => ({
+    tileId: t.tile_id,
+  }))
+  .pipe(
+    z.strictObject({
+      tileId: z.number(),
+    }),
+  )
+  .meta({ id: 'GetMapMarkers' });

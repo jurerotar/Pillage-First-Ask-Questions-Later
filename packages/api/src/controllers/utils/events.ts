@@ -1,22 +1,22 @@
 import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
-} from '@pillage-first/game-assets/buildings/utils';
+} from '@pillage-first/game-assets/utils/buildings';
 import {
   calculateHeroLevel,
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
-} from '@pillage-first/game-assets/hero/utils';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
+} from '@pillage-first/game-assets/utils/hero';
 import {
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
-} from '@pillage-first/game-assets/units/utils';
+} from '@pillage-first/game-assets/utils/units';
 import type { ControllerErrorEvent } from '@pillage-first/types/api-events';
 import type {
   GameEvent,
@@ -185,19 +185,19 @@ export const validateEventCreationPrerequisites = (
               FROM
                 unit_research
               WHERE
-                village_id = $villageId
+                village_id = $village_id
                 AND unit_id = (
                   SELECT id
                   FROM
                     unit_ids
                   WHERE
-                    unit = $unitId
+                    unit = $unit_id
                   )
               ) AS is_researched;
         `,
         bind: {
-          $villageId: villageId,
-          $unitId: unitId,
+          $village_id: villageId,
+          $unit_id: unitId,
         },
         schema: z.number(),
       });
@@ -279,8 +279,8 @@ export const validateEventCreationPrerequisites = (
 
   if (isHeroRevivalEvent(event)) {
     const isHeroAlive = !!database.selectValue({
-      sql: 'SELECT health > 0 FROM heroes WHERE player_id = $playerId;',
-      bind: { $playerId: PLAYER_ID },
+      sql: 'SELECT health > 0 FROM heroes WHERE player_id = $player_id;',
+      bind: { $player_id: PLAYER_ID },
       schema: z.number(),
     });
 
@@ -410,9 +410,9 @@ export const getEventCost = (
             JOIN players p ON h.player_id = p.id
             JOIN tribe_ids ti ON p.tribe_id = ti.id
         WHERE
-          h.player_id = $playerId;
+          h.player_id = $player_id;
       `,
-      bind: { $playerId: PLAYER_ID },
+      bind: { $player_id: PLAYER_ID },
       schema: z.strictObject({
         experience: z.number(),
         tribe: playableTribeSchema,
@@ -622,9 +622,9 @@ export const getEventDuration = (
           heroes h
             JOIN servers s ON 1 = 1
         WHERE
-          h.player_id = $playerId;
+          h.player_id = $player_id;
       `,
-      bind: { $playerId: PLAYER_ID },
+      bind: { $player_id: PLAYER_ID },
       schema: z.strictObject({
         experience: z.number(),
         speed: speedSchema,
