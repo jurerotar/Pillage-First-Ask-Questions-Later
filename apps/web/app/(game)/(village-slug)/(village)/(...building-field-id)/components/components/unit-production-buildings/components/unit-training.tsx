@@ -10,7 +10,6 @@ import {
   UnitCost,
   UnitOverview,
   UnitRecruitment,
-  UnitRecruitmentNoResearch,
   UnitRequirements,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
 import {
@@ -18,7 +17,6 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
-import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
@@ -33,6 +31,7 @@ const buildingIdToTroopTrainingEffectAndCategoryMap = new Map<
   ['WORKSHOP', ['workshopTrainingDuration', 'siege']],
   ['GREAT_BARRACKS', ['greatBarracksTrainingDuration', 'infantry']],
   ['GREAT_STABLE', ['greatStableTrainingDuration', 'cavalry']],
+  ['RESIDENCE', ['residenceTrainingDuration', 'administration']],
 ]);
 
 type UnitTrainingProps = {
@@ -43,7 +42,6 @@ type UnitTrainingProps = {
 export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
   const { t } = useTranslation();
   const { getTribeUnitsByCategory } = useUnits();
-  const { isUnitResearched } = useUnitResearch();
 
   const [durationEffect, category] =
     buildingIdToTroopTrainingEffectAndCategoryMap.get(buildingId)!;
@@ -79,38 +77,25 @@ export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
             </Tab>
           ))}
         </TabList>
-        {units.map(({ id }) => {
-          const hasResearchedUnit = isUnitResearched(id);
-
-          return (
-            <TabPanel
-              key={id}
-              value={id}
+        {units.map(({ id }) => (
+          <TabPanel
+            key={id}
+            value={id}
+          >
+            <UnitCard
+              unitId={id}
+              buildingId={buildingId}
+              showOuterBorder={false}
+              durationEffect={durationEffect}
             >
-              <UnitCard
-                unitId={id}
-                buildingId={buildingId}
-                showOuterBorder={false}
-                durationEffect={durationEffect}
-              >
-                <UnitOverview />
-                <UnitAttributes />
-                {hasResearchedUnit && (
-                  <>
-                    <UnitCost />
-                    <UnitRecruitment />
-                  </>
-                )}
-                {!hasResearchedUnit && (
-                  <>
-                    <UnitRequirements />
-                    <UnitRecruitmentNoResearch />
-                  </>
-                )}
-              </UnitCard>
-            </TabPanel>
-          );
-        })}
+              <UnitOverview />
+              <UnitAttributes />
+              <UnitCost />
+              <UnitRequirements />
+              <UnitRecruitment />
+            </UnitCard>
+          </TabPanel>
+        ))}
       </Tabs>
     </Section>
   );

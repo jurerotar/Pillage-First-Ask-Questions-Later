@@ -107,17 +107,9 @@ export const BuildingOverview = ({
         </Text>
       )}
       {!isCompact && (
-        <>
-          <div
-            data-testid="building-overview-building-image"
-            className="flex border border-red justify-center items-center mr-2 float-left size-12 md:size-14"
-          >
-            image
-          </div>
-          <Text data-testid="building-overview-building-description">
-            {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
-          </Text>
-        </>
+        <Text data-testid="building-overview-building-description">
+          {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
+        </Text>
       )}
       {actualLevel !== virtualLevel && (
         <span
