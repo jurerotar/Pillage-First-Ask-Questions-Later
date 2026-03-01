@@ -98,6 +98,7 @@ export type TroopTrainingBuildingId = Extract<
   | 'GREAT_STABLE'
   | 'WORKSHOP'
   | 'HOSPITAL'
+  | 'RESIDENCE'
 >;
 
 export type Building = {

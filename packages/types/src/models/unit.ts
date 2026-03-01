@@ -173,6 +173,11 @@ export type UnitResearchRequirement = {
   level: number;
 };
 
+export type UnitRecruitmentRequirement = {
+  buildingId: Building['id'];
+  level: number;
+};
+
 type UnitTier =
   | 'tier-1'
   | 'tier-2'
@@ -182,7 +187,7 @@ type UnitTier =
   | 'tier-5'
   | 'siege-ram'
   | 'siege-catapult'
-  | 'special'
+  | 'administration'
   | 'hero';
 
 type SettlerUnitId =
@@ -232,9 +237,10 @@ type BaseUnit = {
   unitSpeed: number;
   unitCarryCapacity: number;
   unitWheatConsumption: number;
-  category: 'infantry' | 'cavalry' | 'siege' | 'special' | 'hero';
+  category: 'infantry' | 'cavalry' | 'siege' | 'administration' | 'hero';
   tribe: Tribe | 'all';
   tier: UnitTier;
+  recruitmentRequirements: UnitRecruitmentRequirement[];
   researchRequirements: UnitResearchRequirement[];
 };
 
@@ -245,15 +251,16 @@ type Tier1Unit = BaseUnit & {
 
 type SettlerUnit = BaseUnit & {
   id: SettlerUnitId;
-  category: 'special';
-  tier: 'special';
+  category: 'administration';
+  tier: 'administration';
   researchRequirements: [];
+  recruitmentRequirements: [{ buildingId: 'RESIDENCE'; level: number }];
 };
 
 type ChiefUnit = BaseUnit & {
   id: ChiefUnitId;
-  category: 'special';
-  tier: 'special';
+  category: 'administration';
+  tier: 'administration';
 };
 
 type ScoutUnit = BaseUnit & {

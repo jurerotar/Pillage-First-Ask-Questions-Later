@@ -28,6 +28,7 @@ export const effectIdSchema = z
     'clayProduction',
     'ironProduction',
     'wheatProduction',
+    'residenceTrainingDuration',
     'barracksTrainingDuration',
     'greatBarracksTrainingDuration',
     'stableTrainingDuration',
@@ -41,6 +42,7 @@ export type EffectId = z.infer<typeof effectIdSchema>;
 
 export type TroopTrainingDurationEffectId = Extract<
   EffectId,
+  | 'residenceTrainingDuration'
   | 'barracksTrainingDuration'
   | 'greatBarracksTrainingDuration'
   | 'stableTrainingDuration'

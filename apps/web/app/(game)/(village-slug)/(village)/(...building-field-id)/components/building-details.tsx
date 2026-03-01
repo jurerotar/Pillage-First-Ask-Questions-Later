@@ -70,18 +70,28 @@ const RallyPointSimulator = lazyWithRetry(async () => ({
     .RallyPointSimulator,
 }));
 
-const PalaceTrainSettler = lazyWithRetry(async () => ({
-  default: (await import('./components/palace/palace-settler-training'))
-    .PalaceSettlerTraining,
+const ResidenceTroopTraining = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      './components/unit-production-buildings/residence-troop-training.tsx'
+    )
+  ).ResidenceTroopTraining,
 }));
 
-const PalaceLoyalty = lazyWithRetry(async () => ({
-  default: (await import('./components/palace/palace-loyalty')).PalaceLoyalty,
+const ResidenceLoyalty = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/residence/residence-loyalty.tsx'
+    )
+  ).ResidenceLoyalty,
 }));
 
-const PalaceExpansion = lazyWithRetry(async () => ({
-  default: (await import('./components/palace/palace-expansion'))
-    .PalaceExpansion,
+const ResidenceExpansion = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/residence/residence-expansion.tsx'
+    )
+  ).ResidenceExpansion,
 }));
 
 const TreasuryArtifacts = lazyWithRetry(async () => ({
@@ -175,10 +185,10 @@ const HospitalTroopTraining = lazyWithRetry(async () => ({
   ).HospitalTroopTraining,
 }));
 
-const palaceTabs = new Map<string, LazyExoticComponent<() => JSX.Element>>([
-  ['train-settlers', PalaceTrainSettler],
-  ['loyalty', PalaceLoyalty],
-  ['expansion', PalaceExpansion],
+const residenceTabs = new Map<string, LazyExoticComponent<() => JSX.Element>>([
+  ['train', ResidenceTroopTraining],
+  ['loyalty', ResidenceLoyalty],
+  ['expansion', ResidenceExpansion],
 ]);
 
 const buildingDetailsTabMap = new Map<
@@ -209,8 +219,8 @@ const buildingDetailsTabMap = new Map<
   ],
   ['ACADEMY', new Map([['unit-research', AcademyUnitResearch]])],
   ['SMITHY', new Map([['unit-improvement', SmithyUnitImprovement]])],
-  ['RESIDENCE', palaceTabs],
-  ['COMMAND_CENTER', palaceTabs],
+  ['RESIDENCE', residenceTabs],
+  ['COMMAND_CENTER', residenceTabs],
   ['HEROS_MANSION', new Map([['oasis', HerosMansionOasis]])],
   ['BREWERY', new Map([['celebration', BreweryCelebration]])],
   ['BARRACKS', new Map([['train', BarracksTroopTraining]])],
@@ -221,7 +231,6 @@ const buildingDetailsTabMap = new Map<
   ['HOSPITAL', new Map([['train', HospitalTroopTraining]])],
 ]);
 
-// t('train-settlers')
 // t('loyalty')
 // t('expansion')
 // t('village-management')
