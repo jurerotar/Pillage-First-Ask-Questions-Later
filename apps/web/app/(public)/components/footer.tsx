@@ -80,10 +80,10 @@ export const Footer = () => {
                 </Text>
               </Link>
             </li>
-            <li className="opacity-50">
-              <Text className="font-medium text-gray-800">
-                {t('Wiki (coming soon)')}
-              </Text>
+            <li>
+              <Link to="/wiki">
+                <Text className="font-medium text-gray-800">{t('Wiki')}</Text>
+              </Link>
             </li>
             <li>
               <Link to="/latest-updates">

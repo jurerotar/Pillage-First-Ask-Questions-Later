@@ -28,6 +28,7 @@
     "@biomejs/biome": "2.4.4",
     "@commitlint/cli": "20.4.2",
     "@commitlint/config-conventional": "20.4.2",
+    "@types/mdx": "^2.0.13",
     "@typescript/native-preview": "7.0.0-dev.20260224.1",
     "lefthook": "2.1.1",
     "oxlint": "1.50.0",
