@@ -1,3 +1,4 @@
+import { cva, type VariantProps } from 'class-variance-authority';
 import { clsx } from 'clsx';
 import type {
   HTMLAttributes,
@@ -43,23 +44,54 @@ export const TableBody = ({ className, ...props }: TableBodyProps) => (
   />
 );
 
-type TableRowProps = HTMLAttributes<HTMLTableRowElement>;
+export const tableRowVariants = cva('transition-colors hover:bg-muted/50 ', {
+  variants: {
+    border: {
+      true: 'border-b border-border last:border-0',
+    },
+  },
+  defaultVariants: {
+    border: true,
+  },
+});
 
-export const TableRow = ({ className, ...props }: TableRowProps) => (
+type TableRowProps = HTMLAttributes<HTMLTableRowElement> &
+  VariantProps<typeof tableRowVariants>;
+
+export const TableRow = ({ className, border, ...props }: TableRowProps) => (
   <tr
-    className={clsx(
-      'border-b border-border last:border-0 transition-colors hover:bg-muted/50',
-      className,
-    )}
+    className={clsx(tableRowVariants({ className, border }))}
     {...props}
   />
 );
 
-type TableCellProps = TdHTMLAttributes<HTMLTableCellElement>;
+export const tableCellVariants = cva('text-center', {
+  variants: {
+    variant: {
+      default: 'p-2 ',
+      wide: 'py-2 px-1',
+    },
+    border: {
+      true: 'border-r last:border-r-0',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+    border: true,
+  },
+});
 
-export const TableCell = ({ className, ...props }: TableCellProps) => (
+type TableCellProps = TdHTMLAttributes<HTMLTableCellElement> &
+  VariantProps<typeof tableCellVariants>;
+
+export const TableCell = ({
+  className,
+  variant,
+  border,
+  ...props
+}: TableCellProps) => (
   <td
-    className={clsx('p-2 text-center border-r last:border-r-0', className)}
+    className={clsx(tableCellVariants({ className, variant, border }))}
     {...props}
   />
 );
