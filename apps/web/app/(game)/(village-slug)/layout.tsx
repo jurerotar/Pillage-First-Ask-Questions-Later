@@ -251,7 +251,7 @@ const VillageOverviewMobileItem = () => {
       <span className="inline-flex items-center justify-between bg-background px-0.5 absolute top-0 left-8 h-4 w-9 rounded-full border border-border shadow-md">
         <Icon
           type="population"
-          className="text-xs"
+          className="size-3"
         />
         <span className="text-foreground text-2xs">
           {formatNumber(population)}
@@ -260,7 +260,7 @@ const VillageOverviewMobileItem = () => {
       <span className="inline-flex items-center justify-between bg-background px-0.5 absolute bottom-0 left-8 h-4 w-9 rounded-full border border-border shadow-md">
         <Icon
           type="freeCrop"
-          className="text-2xs"
+          className="size-2.5"
         />
         <span className="text-foreground text-2xs">
           {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
