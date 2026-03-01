@@ -194,6 +194,7 @@ describe(resolveDefenceValue, () => {
 
     const { defendingTroopCount } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 1,
       cavAttackProportion: 0,
       wallFlatDefenceBonus: 0,
@@ -211,6 +212,7 @@ describe(resolveDefenceValue, () => {
 
     const { defendingTroopCount } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 1,
       cavAttackProportion: 0,
       wallFlatDefenceBonus: 0,
@@ -226,15 +228,16 @@ describe(resolveDefenceValue, () => {
       troops: [],
     };
 
-    const { totalDefencePoints: totalDefence } = resolveDefenceValue({
+    const { totalDefencePoints } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 1,
       cavAttackProportion: 0,
       wallFlatDefenceBonus: 0,
       wallPercentDefenceBonus: 1,
     });
 
-    expect(totalDefence).toBe(10);
+    expect(totalDefencePoints).toBe(10);
   });
 
   test('an attack with only infantry should return correct proportional defence points', () => {
@@ -250,8 +253,9 @@ describe(resolveDefenceValue, () => {
       ],
     };
 
-    const { totalDefencePoints: totalDefence } = resolveDefenceValue({
+    const { totalDefencePoints } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 1,
       cavAttackProportion: 0,
       wallFlatDefenceBonus: 0,
@@ -259,7 +263,7 @@ describe(resolveDefenceValue, () => {
     });
 
     // def: 10 + 35 * 10 = 360
-    expect(totalDefence).toBe(360);
+    expect(totalDefencePoints).toBe(360);
   });
 
   test('an attack with only cavalry should return correct proportional defence points', () => {
@@ -275,8 +279,9 @@ describe(resolveDefenceValue, () => {
       ],
     };
 
-    const { totalDefencePoints: totalDefence } = resolveDefenceValue({
+    const { totalDefencePoints } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 0,
       cavAttackProportion: 1,
       wallFlatDefenceBonus: 0,
@@ -284,7 +289,7 @@ describe(resolveDefenceValue, () => {
     });
 
     // def: 10 + 60 * 10 = 610
-    expect(totalDefence).toBe(610);
+    expect(totalDefencePoints).toBe(610);
   });
 
   test('an attack with mixed units should return correct proportional defence points', () => {
@@ -301,8 +306,9 @@ describe(resolveDefenceValue, () => {
       ],
     };
 
-    const { totalDefencePoints: totalDefence } = resolveDefenceValue({
+    const { totalDefencePoints } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 0.4,
       cavAttackProportion: 0.6,
       wallFlatDefenceBonus: 0,
@@ -315,7 +321,7 @@ describe(resolveDefenceValue, () => {
     // cav def proportional: 600 * 0.6 = 360
     // total def: 10 + 140 + 360 = 510
 
-    expect(totalDefence).toBe(510);
+    expect(totalDefencePoints).toBe(510);
   });
 
   test('a city with a level 1 wall should return correct defence points', () => {
@@ -334,8 +340,9 @@ describe(resolveDefenceValue, () => {
     // teuton walls
     const wallFlatDefenceBonus = 6;
     const wallPercentDefenceBonus = 1.02;
-    const { totalDefencePoints: totalDefence } = resolveDefenceValue({
+    const { totalDefencePoints } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 1,
       cavAttackProportion: 0,
       wallFlatDefenceBonus,
@@ -347,7 +354,7 @@ describe(resolveDefenceValue, () => {
     // def with flat wall bonus: 357 + 6 = 363
     // def with base bonus : 363 + 10 = 373
 
-    expect(totalDefence).toBe(373);
+    expect(totalDefencePoints).toBe(373);
   });
 
   test('a city with a level 20 wall should return correct defence points', () => {
@@ -366,8 +373,9 @@ describe(resolveDefenceValue, () => {
     // teuton walls
     const wallFlatDefenceBonus = 6 * 20;
     const wallPercentDefenceBonus = 1.02 ** 20;
-    const { totalDefencePoints: totalDefence } = resolveDefenceValue({
+    const { totalDefencePoints } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 1,
       cavAttackProportion: 0,
       wallFlatDefenceBonus,
@@ -379,7 +387,7 @@ describe(resolveDefenceValue, () => {
     // def with flat wall bonus: 520,8 + 120 = 640,08
     // def with base bonus : 640,8 + 10 = 650,08
 
-    expect(totalDefence).toBeCloseTo(650.08);
+    expect(totalDefencePoints).toBeCloseTo(650.08);
   });
 
   test('should reflect the improvement level', () => {
@@ -395,8 +403,9 @@ describe(resolveDefenceValue, () => {
     };
 
     // teuton walls
-    const { totalDefencePoints: totalDefence } = resolveDefenceValue({
+    const { totalDefencePoints } = resolveDefenceValue({
       defendingArmy,
+      reinforcingArmies: [],
       infAttackProportion: 0.5,
       cavAttackProportion: 0.5,
       wallFlatDefenceBonus: 0,
@@ -412,7 +421,60 @@ describe(resolveDefenceValue, () => {
     // proportional cav def: 105,48 * 10 * 0.5 = 527,38
     // total defence: 383,67 + 498,64 + 10 = 911,06
 
-    expect(totalDefence).toBeCloseTo(921.06);
+    expect(totalDefencePoints).toBeCloseTo(921.06);
+  });
+
+  test('should include reinforcements', () => {
+    const defendingArmy: Army = {
+      tribe: 'teutons',
+      troops: [],
+    };
+
+    const reinforcingArmies: Army[] = [
+      {
+        tribe: 'nature',
+        troops: [
+          {
+            unitId: 'SPIDER',
+            amount: 10,
+            improvementLevel: 0,
+          },
+        ],
+      },
+      {
+        tribe: 'gauls',
+        troops: [
+          {
+            unitId: 'PHALANX',
+            amount: 100,
+            improvementLevel: 0,
+          },
+        ],
+      },
+    ];
+
+    // teuton walls
+    const { totalDefencePoints } = resolveDefenceValue({
+      defendingArmy,
+      reinforcingArmies,
+      infAttackProportion: 0.5,
+      cavAttackProportion: 0.5,
+      wallFlatDefenceBonus: 0,
+      wallPercentDefenceBonus: 1,
+    });
+
+    // nature inf def: 35 * 10 = 350
+    // nature inf def: 40 * 10 = 400
+
+    // gauls inf def: 40 * 100 = 4000
+    // gauls cav def: 40 * 100 = 5000
+
+    // total inf def: (350 + 4000) * 0,5 = 2175
+    // total cav def: (400 + 5000) * 0,5 = 2700
+
+    // total def: 2175 + 2700 + 10 = 4885
+
+    expect(totalDefencePoints).toBe(4885);
   });
 });
 
