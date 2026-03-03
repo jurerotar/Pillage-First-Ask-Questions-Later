@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -26,13 +26,13 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.5",
-    "@commitlint/cli": "20.4.2",
-    "@commitlint/config-conventional": "20.4.2",
+    "@commitlint/cli": "20.4.3",
+    "@commitlint/config-conventional": "20.4.3",
     "@typescript/native-preview": "7.0.0-dev.20260303.1",
     "lefthook": "2.1.2",
     "oxlint": "1.51.0",
     "oxlint-tsgolint": "0.16.0",
-    "turbo": "2.8.12",
+    "turbo": "2.8.13",
     "typescript": "6.0.0-beta",
     "vitest": "4.0.18",
     "zod": "4.3.6"

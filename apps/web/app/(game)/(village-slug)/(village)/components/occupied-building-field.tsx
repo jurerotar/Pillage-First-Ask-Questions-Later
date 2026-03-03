@@ -204,7 +204,7 @@ const OccupiedBuildingFieldContent = ({
             buildingField,
             resourceFieldComposition: currentVillage.resourceFieldComposition,
           }),
-        'relative size-10 lg:size-16 rounded-full select-none focus:outline-hidden focus:ring-2 focus:ring-black/80 border border-black/10',
+        'relative size-10 lg:size-16 rounded-full select-none focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border',
       )}
       {...props}
     >

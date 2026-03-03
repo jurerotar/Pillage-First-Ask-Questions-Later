@@ -59,25 +59,25 @@ const MotivationSection = () => {
   ];
 
   return (
-    <section className="bg-linear-to-b from-white to-[#F5A911] pt-4 lg:pt-0">
+    <section className="bg-linear-to-b from-background to-[#F5A911] dark:to-[#8B5E00] pt-4 lg:pt-0">
       <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="w-full mb-8 md:mb-0 order-2 md:order-1 flex justify-center items-center">
           <div className="grid grid-cols-2 gap-4 w-full">
             {goals.map((goal) => (
               <div
                 key={goal.title}
-                className="bg-white/50 backdrop-blur-sm p-2 rounded-md shadow-sm border border-white/20 flex flex-col gap-3 transition-transform hover:scale-105"
+                className="bg-card/50 backdrop-blur-sm p-2 rounded-md shadow-sm border border-border flex flex-col gap-3 transition-transform hover:scale-105"
               >
-                <div className="p-2 md:p-3 bg-white rounded-md w-fit shadow-xs">
-                  <goal.icon className="text-[#391600] size-4 md:size-6" />
+                <div className="p-2 md:p-3 bg-card rounded-md w-fit shadow-xs">
+                  <goal.icon className="text-[#391600] dark:text-foreground size-4 md:size-6" />
                 </div>
                 <Text
                   as="h3"
-                  className="text-[#391600] font-bold"
+                  className="text-[#391600] dark:text-foreground font-bold"
                 >
                   {goal.title}
                 </Text>
-                <Text className="text-[#391600]/80 text-sm leading-snug">
+                <Text className="text-[#391600]/80 dark:text-foreground/80 text-sm leading-snug">
                   {goal.description}
                 </Text>
               </div>
@@ -88,12 +88,12 @@ const MotivationSection = () => {
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10 order-1 md:order-2">
           <Text
             as="h2"
-            className="text-[#391600]"
+            className="text-[#391600] dark:text-foreground"
           >
             Motivation behind Pillage First!
           </Text>
 
-          <div className="prose text-[#391600]">
+          <div className="prose text-[#391600] dark:text-foreground">
             <Motivation />
           </div>
           <Link
@@ -111,20 +111,22 @@ const MotivationSection = () => {
 
 const OpenSourceSection = () => {
   return (
-    <section className="bg-linear-to-t from-[#FFE345] via-[#FFD24A] to-[#F5A911] overflow-hidden pt-4 lg:pt-0 -mb-4">
+    <section className="bg-linear-to-t from-[#FFE345] via-[#FFD24A] to-[#F5A911] dark:from-[#9A8400] dark:via-[#8B7400] dark:to-[#8B5E00] overflow-hidden pt-4 lg:pt-0 -mb-4">
       <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10">
-          <div className="inline-flex justify-center items-center w-fit p-4 bg-white rounded-full">
-            <FaCodeMerge className="text-[#391600] size-6" />
+          <div className="inline-flex justify-center items-center w-fit p-4 bg-card rounded-full">
+            <FaCodeMerge className="text-[#391600] dark:text-foreground size-6" />
           </div>
           <Text
             as="h2"
-            className="text-[#391600]"
+            className="text-[#391600] dark:text-foreground"
           >
             Pillage First! is an open-source technology!
           </Text>
 
-          <OpenSource />
+          <div className="text-[#391600] dark:text-foreground">
+            <OpenSource />
+          </div>
 
           <div className="flex gap-2">
             <a
@@ -144,7 +146,7 @@ const OpenSourceSection = () => {
           <FaGithub
             className="
               absolute -right-20 -top-60 md:-right-4 md:-top-8
-              text-[#391600]
+              text-[#391600] dark:text-foreground
               opacity-40 md:opacity-80
               size-80 md:size-100 lg:size-120
             "

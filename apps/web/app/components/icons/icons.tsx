@@ -235,20 +235,20 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   attackerSomeLoss: (props) => (
     <LuSwords
       {...props}
-      className={clsx('text-yellow-500', props.className)}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
     />
   ),
   attackerFullLoss: (props) => icons.missingIcon(props),
   defenderNoLoss: (props) => (
     <LuShield
       {...props}
-      className={clsx('text-green-500', props.className)}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
     />
   ),
   defenderSomeLoss: (props) => (
     <LuShield
       {...props}
-      className={clsx('text-yellow-500', props.className)}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
     />
   ),
   defenderFullLoss: (props) => (
@@ -264,68 +264,68 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   populationCropConsumption: (props) => (
     <BsFillPeopleFill
       {...props}
-      className={clsx('text-yellow-200', props.className)}
+      className={clsx('text-yellow-200 dark:text-yellow-400', props.className)}
     />
   ),
   troopsCropConsumption: (props) => (
     <GiRallyTheTroops
       {...props}
-      className={clsx('text-gray-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   warehouseCapacity: (props) => (
     <FaWarehouse
       {...props}
-      className={clsx('text-stone-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   granaryCapacity: (props) => (
     <PiWarehouseBold
       {...props}
-      className={clsx('text-stone-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   buildingDuration: (props) => <CgTimelapse {...props} />,
   infantryDefence: (props) => (
     <BiShieldQuarter
       {...props}
-      className={clsx('text-gray-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   cavalryDefence: (props) => (
     <TbHorseshoe
       {...props}
-      className={clsx('text-gray-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   population: (props) => (
     <FaPeopleGroup
       {...props}
-      className={clsx('text-gray-400', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   culturePoints: (props) => (
     <GiGreekTemple
       {...props}
-      className={clsx('text-gray-400', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   attack: (props) => (
     <LuSwords
       {...props}
-      className={clsx('text-gray-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   defence: (props) => (
     <BiShieldQuarter
       {...props}
-      className={clsx('text-gray-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   defenceBonus: (props) => (
     <BiShieldQuarter
       {...props}
-      className={clsx('text-gray-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   residenceTrainingDuration: (props) => <LuClock {...props} />,
@@ -339,7 +339,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   unitCarryCapacity: (props) => (
     <GiSwapBag
       {...props}
-      className={clsx('text-gray-500', props.className)}
+      className={clsx('text-muted-foreground', props.className)}
     />
   ),
   unitWheatConsumption: (props) => icons.wheat(props),
@@ -357,7 +357,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   unitSpeedAfter20Fields: (props) => (
     <GiLeatherBoot
       {...props}
-      className={clsx('text-[#3c2f2f]', props.className)}
+      className={clsx('text-stone-800 dark:text-stone-300', props.className)}
     />
   ),
   merchantSpeed: (props) => icons.missingIcon(props),
@@ -366,7 +366,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   hero: (props) => (
     <FaStar
       {...props}
-      className={clsx('text-yellow-300', props.className)}
+      className={clsx('text-yellow-400 dark:text-yellow-500', props.className)}
     />
   ),
 
@@ -392,13 +392,13 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   romanChief: (props) => (
     <TbLaurelWreath
       {...props}
-      className={clsx('text-green-700', props.className)}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
     />
   ),
   romanSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx('text-red-600', props.className)}
+      className={clsx('text-red-600 dark:text-red-500', props.className)}
     />
   ),
 
@@ -429,13 +429,13 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   gaulChief: (props) => (
     <TbLaurelWreath
       {...props}
-      className={clsx('text-green-700', props.className)}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
     />
   ),
   gaulSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx('text-green-700', props.className)}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
     />
   ),
 
@@ -461,13 +461,13 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   teutonicChief: (props) => (
     <TbLaurelWreath
       {...props}
-      className={clsx('text-green-700', props.className)}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
     />
   ),
   teutonicSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx('text-red-500', props.className)}
+      className={clsx('text-red-600 dark:text-red-500', props.className)}
     />
   ),
 
@@ -493,13 +493,13 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   egyptianChief: (props) => (
     <TbLaurelWreath
       {...props}
-      className={clsx('text-green-700', props.className)}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
     />
   ),
   egyptianSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx('text-yellow-600', props.className)}
+      className={clsx('text-yellow-600 dark:text-yellow-500', props.className)}
     />
   ),
 
@@ -530,13 +530,13 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   hunChief: (props) => (
     <TbLaurelWreath
       {...props}
-      className={clsx('text-green-700', props.className)}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
     />
   ),
   hunSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx('text-yellow-800', props.className)}
+      className={clsx('text-yellow-800 dark:text-yellow-600', props.className)}
     />
   ),
 
@@ -562,13 +562,13 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   natarianChief: (props) => (
     <TbLaurelWreath
       {...props}
-      className={clsx('text-green-700', props.className)}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
     />
   ),
   natarianSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx('text-stone-950', props.className)}
+      className={clsx('text-foreground', props.className)}
     />
   ),
 
@@ -576,55 +576,55 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   rat: (props) => (
     <GiRat
       {...props}
-      className={clsx('text-[#4B3C39]', props.className)}
+      className={clsx('text-stone-800 dark:text-stone-300', props.className)}
     />
   ),
   spider: (props) => (
     <FaSpider
       {...props}
-      className={clsx('text-[#D3C2A3]', props.className)}
+      className={clsx('text-stone-400 dark:text-stone-300', props.className)}
     />
   ),
   serpent: (props) => (
     <GiSandSnake
       {...props}
-      className={clsx('text-[#B8B62F]', props.className)}
+      className={clsx('text-yellow-600 dark:text-yellow-500', props.className)}
     />
   ),
   bat: (props) => (
     <TbBat
       {...props}
-      className={clsx('text-[#545151]', props.className)}
+      className={clsx('text-stone-600 dark:text-stone-400', props.className)}
     />
   ),
   wildBoar: (props) => (
     <GiBoar
       {...props}
-      className={clsx('text-[#5A3929]', props.className)}
+      className={clsx('text-stone-700 dark:text-stone-400', props.className)}
     />
   ),
   wolf: (props) => (
     <GiWolfHead
       {...props}
-      className={clsx('text-[#727C83]', props.className)}
+      className={clsx('text-stone-500 dark:text-stone-400', props.className)}
     />
   ),
   bear: (props) => (
     <GiBearHead
       {...props}
-      className={clsx('text-[#836852]', props.className)}
+      className={clsx('text-stone-700 dark:text-stone-400', props.className)}
     />
   ),
   crocodile: (props) => (
     <GiCrocJaws
       {...props}
-      className={clsx('text-[#4da167]', props.className)}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
     />
   ),
   tiger: (props) => (
     <GiSaberToothedCatHead
       {...props}
-      className={clsx('text-[#D49C4A]', props.className)}
+      className={clsx('text-orange-600 dark:text-orange-500', props.className)}
     />
   ),
   elephant: (props) => <GiElephant {...props} />,
@@ -633,19 +633,19 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   deploymentOutgoing: (props) => (
     <BsShieldFill
       {...props}
-      className={clsx('text-yellow-300', props.className)}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
     />
   ),
   deploymentIncoming: (props) => (
     <BsShieldFill
       {...props}
-      className={clsx('text-green-600', props.className)}
+      className={clsx('text-green-600 dark:text-green-500', props.className)}
     />
   ),
   offensiveMovementOutgoing: (props) => (
     <LuSwords
       {...props}
-      className={clsx('text-yellow-300', props.className)}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
     />
   ),
   offensiveMovementIncoming: (props) => (

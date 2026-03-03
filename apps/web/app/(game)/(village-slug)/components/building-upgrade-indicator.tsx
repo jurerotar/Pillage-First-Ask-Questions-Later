@@ -73,7 +73,7 @@ const UpgradeButton = ({
 
   return (
     <button
-      className="hover:scale-125 rounded-full select-none cursor-pointer transition-transform duration-300 relative focus:outline-hidden focus:ring-2 focus:ring-black/80"
+      className="hover:scale-125 rounded-full select-none cursor-pointer transition-transform duration-300 relative focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring"
       type="button"
       tabIndex={0}
       onClick={onUpgradeButtonClick}
@@ -86,7 +86,7 @@ const UpgradeButton = ({
         variant={variant}
       >
         {shouldShowUpgradeButton && (
-          <MdUpgrade className="size-3/4 rounded-full text-gray-400" />
+          <MdUpgrade className="size-3/4 rounded-full text-muted-foreground" />
         )}
         {!shouldShowUpgradeButton && level}
       </BorderIndicator>

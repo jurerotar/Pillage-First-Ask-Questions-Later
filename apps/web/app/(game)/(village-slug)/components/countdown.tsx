@@ -17,7 +17,7 @@ export const Countdown = ({ endsAt, ...rest }: CountdownProps) => {
 
   return (
     <span
-      className={clsx('tabular-nums', className)}
+      className={clsx('tabular-nums transition-colors', className)}
       {...rest}
     >
       {formattedTime}

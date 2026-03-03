@@ -58,7 +58,7 @@ export const ResourceCounter = ({ resource }: ResourceCounterProps) => {
           <span className="text-xs lg:text-md font-medium leading-none">
             {formattedCurrentAmount}
           </span>
-          <span className="hidden lg:inline-flex text-xs text-gray-400 font-normal leading-none">
+          <span className="hidden lg:inline-flex text-xs text-muted-foreground font-normal leading-none transition-colors">
             /{formattedStorageCapacity}
           </span>
         </span>
