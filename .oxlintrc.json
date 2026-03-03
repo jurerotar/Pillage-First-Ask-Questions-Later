@@ -38,6 +38,7 @@
     "eslint/max-lines-per-function": "off",
     "eslint/max-lines": "off",
     "eslint/complexity": "off",
+    "eslint/max-depth": "off",
     "eslint/max-dependencies": "off",
     "eslint/no-magic-numbers": "off",
     "eslint/arrow-body-style": "off",
@@ -87,6 +88,7 @@
     "unicorn/require-post-message-target-origin": "off",
     "import/*": "error",
     "import/default": "off",
+    "import/no-relative-parent-imports": "off",
     "import/prefer-default-export": "off",
     "import/no-named-export": "off",
     "import/group-exports": "off",
@@ -97,6 +99,7 @@
     "import/no-unassigned-import": "off",
     "vitest/*": "error",
     "vitest/prefer-called-once": "off",
+    "vitest/no-importing-vitest-globals": "off",
     "jest/*": "error",
     "jest/valid-expect": "off",
     "jest/valid-title": "off",
@@ -118,6 +121,7 @@
     "oxc/no-map-spread": "off",
     "promise/*": "error",
     "promise/avoid-new": "off",
+    "promise/no-multiple-resolved": "off",
     "promise/prefer-await-to-callbacks": "off"
   }
 }

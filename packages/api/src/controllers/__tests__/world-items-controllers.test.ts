@@ -11,7 +11,7 @@ describe('world-items-controllers', () => {
     // Find a village to test with
     const village = database.selectObject({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     getArtifactsAroundVillage(

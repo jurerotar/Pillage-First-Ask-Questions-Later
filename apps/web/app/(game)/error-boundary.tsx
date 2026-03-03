@@ -5,14 +5,14 @@ import {
   ScrollRestoration,
   useRouteError,
 } from 'react-router';
-import { DatabaseInitializationError } from '@pillage-first/api/errors';
+import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
 import { HeadLinks } from 'app/components/head-links.tsx';
 
 export const ErrorBoundary = () => {
   const error = useRouteError() as Error;
 
   const isDatabaseInitializationError =
-    error instanceof DatabaseInitializationError;
+    error instanceof OutdatedDatabaseSchemaError;
 
   const isErrorWithCustomSteps = isDatabaseInitializationError;
 
@@ -50,41 +50,37 @@ export const ErrorBoundary = () => {
             <p className="text-foreground">
               We've recently released a new version of the app that introduced
               breaking changes in existing game worlds. If you're seeing this
-              error message, it's likely your game world is not compatible with
-              latest version of the app.
+              error message, your game world is not compatible with latest
+              version of the app.
             </p>
           )}
 
           <p className="text-foreground font-medium">Try these steps:</p>
           <ul className="list-disc pl-6 space-y-1">
-            {isErrorWithCustomSteps && (
+            {isErrorWithCustomSteps && isDatabaseInitializationError && (
               <>
-                {isDatabaseInitializationError && (
-                  <>
-                    <li>
-                      If you've opened this game world through a link on{' '}
-                      <Link
-                        className="underline"
-                        to="/game-worlds"
-                      >
-                        game worlds
-                      </Link>{' '}
-                      page, please navigate back to that page, delete the game
-                      world and create a new one.
-                    </li>
-                    <li>
-                      If you've opened this game world directly with the URL,
-                      please navigate to{' '}
-                      <Link
-                        className="underline"
-                        to="/game-worlds/create"
-                      >
-                        create new game world
-                      </Link>{' '}
-                      page and create a new game world.
-                    </li>
-                  </>
-                )}
+                <li>
+                  If you've opened this game world through a link on{' '}
+                  <Link
+                    className="underline"
+                    to="/game-worlds"
+                  >
+                    game worlds
+                  </Link>{' '}
+                  page, please navigate back to that page, delete the game world
+                  and create a new one.
+                </li>
+                <li>
+                  If you've opened this game world directly with the URL, please
+                  navigate to{' '}
+                  <Link
+                    className="underline"
+                    to="/game-worlds/create"
+                  >
+                    create new game world
+                  </Link>{' '}
+                  page and create a new game world.
+                </li>
               </>
             )}
             {!isErrorWithCustomSteps && (

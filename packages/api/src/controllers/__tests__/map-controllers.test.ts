@@ -2,10 +2,13 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
+  addMapMarker,
+  getMapMarkers,
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
   getTileWorldItem,
+  removeMapMarker,
 } from '../map-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -16,7 +19,7 @@ describe('map-controllers', () => {
     // 1. Create a test village
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages LIMIT 1',
-      schema: z.object({ id: z.number(), tile_id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -114,16 +117,20 @@ describe('map-controllers', () => {
 
     // Find a tile with nature troops (animals).
     // Nature troops have IDs from WILD_BOAR to CROCODILE etc.
-    // They are seeded into oasis tiles which have no owner village.
+    // They are seeded into oasis tiles where all rows have no village_id.
     const tileWithAnimals = database.selectObject({
       sql: `
-        SELECT t.tile_id
-        FROM troops t
-        JOIN oasis o ON t.tile_id = o.tile_id
-        WHERE o.village_id IS NULL
+        SELECT t.id AS tile_id
+        FROM tiles t
+        WHERE t.type = 'oasis'
+        AND (
+          SELECT MAX(o.village_id)
+          FROM oasis o
+          WHERE o.tile_id = t.id
+        ) IS NULL
         LIMIT 1
       `,
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileTroops(
@@ -142,7 +149,7 @@ describe('map-controllers', () => {
     // Find a tile with bonuses
     const tileWithBonuses = database.selectObject({
       sql: 'SELECT tile_id FROM oasis LIMIT 1',
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileOasisBonuses(
@@ -161,7 +168,7 @@ describe('map-controllers', () => {
     // Find a tile with world items
     const tileWithItem = database.selectObject({
       sql: 'SELECT tile_id FROM world_items LIMIT 1',
-      schema: z.object({ tile_id: z.number() }),
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     getTileWorldItem(
@@ -172,5 +179,50 @@ describe('map-controllers', () => {
     );
 
     expect(true).toBeTruthy();
+  });
+
+  test('MapMarker controllers should add, get and remove markers', async () => {
+    const database = await prepareTestDatabase();
+
+    const playerId = 1;
+    const tileId = 123;
+
+    // 1. Add marker
+    addMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
+        path: { playerId },
+        body: { tileId },
+      }),
+    );
+
+    // 2. Get markers
+    const markers = getMapMarkers(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(markers).toHaveLength(1);
+    expect(markers[0]).toEqual({ tileId });
+
+    // 3. Remove marker
+    removeMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers/:tileId', 'delete'>({
+        path: { playerId, tileId },
+      }),
+    );
+
+    // 4. Get markers again
+    const markersAfterRemoval = getMapMarkers(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(markersAfterRemoval).toHaveLength(0);
   });
 });

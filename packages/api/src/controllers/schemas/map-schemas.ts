@@ -56,7 +56,7 @@ export const getTilesSchema = z
       ...(isOasisTile && {
         attributes: {
           oasisGraphics: t.oasis_graphics,
-          isOccupiable: t.oasis_is_occupiable !== null,
+          isOccupiable: t.oasis_is_occupiable === 1,
         },
       }),
       ...(isOccupied && {
@@ -96,7 +96,7 @@ export const getTileTroopsSchema = z
     source: t.source_tile_id,
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       unitId: z.string(),
       amount: z.number(),
       tileId: z.number(),
@@ -115,7 +115,7 @@ export const getTileOasisBonusesSchema = z
     bonus: t.bonus,
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       resource: resourceSchema,
       bonus: z.number(),
     }),
@@ -132,9 +132,23 @@ export const getTileWorldItemSchema = z
     amount: t.amount,
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
       amount: z.number(),
     }),
   )
   .meta({ id: 'GetTileWorldItem' });
+
+export const getMapMarkersSchema = z
+  .strictObject({
+    tile_id: z.number(),
+  })
+  .transform((t) => ({
+    tileId: t.tile_id,
+  }))
+  .pipe(
+    z.strictObject({
+      tileId: z.number(),
+    }),
+  )
+  .meta({ id: 'GetMapMarkers' });

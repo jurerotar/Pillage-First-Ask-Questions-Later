@@ -36,7 +36,7 @@ export const occupiedOasisSeeder = (
   });
 
   const occupiableOasis = database.selectObjects({
-    sql: 'SELECT oasis.id, x, y FROM tiles INNER JOIN oasis ON tiles.id = oasis.tile_id;',
+    sql: "SELECT tiles.id, x, y FROM tiles WHERE type = 'oasis';",
     schema,
   });
 
@@ -87,12 +87,12 @@ export const occupiedOasisSeeder = (
   }
 
   const stmt = database.prepare({
-    sql: 'UPDATE oasis SET village_id = $village_id WHERE id = $oasis_id;',
+    sql: 'UPDATE oasis SET village_id = $village_id WHERE tile_id = $tile_id;',
   });
 
   for (const resultSet of oasisByVillages) {
-    const [villageId, oasisId] = resultSet;
-    stmt.bind({ $village_id: villageId, $oasis_id: oasisId }).stepReset();
+    const [villageId, tileId] = resultSet;
+    stmt.bind({ $village_id: villageId, $tile_id: tileId }).stepReset();
   }
 
   stmt.finalize();

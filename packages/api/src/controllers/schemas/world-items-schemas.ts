@@ -29,9 +29,9 @@ export const getArtifactsAroundVillageSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
-      coordinates: z.object({
+      coordinates: z.strictObject({
         x: z.number(),
         y: z.number(),
       }),

@@ -38,15 +38,12 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
   } = use(CurrentVillageStateContext);
   const { locale } = use(CookieContext);
 
-  const resources = { wood, clay, iron, wheat };
-
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
 
   const errorBag: string[] = [];
 
-  if (!getHasEnoughResources(requiredResources, resources)) {
-    const { wood, clay, iron, wheat } = resources;
+  if (!getHasEnoughResources(requiredResources, { wood, clay, iron, wheat })) {
     const [nextLevelWood, nextLevelClay, nextLevelIron, nextLevelWheat] =
       requiredResources;
 

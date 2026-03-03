@@ -3,6 +3,7 @@ import type {
   SAHPoolUtil,
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
+import { z } from 'zod';
 import { upgradeDb } from '@pillage-first/db';
 import type {
   ApiNotificationEvent,
@@ -10,18 +11,23 @@ import type {
   DatabaseInitializationErrorEvent,
   EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
+import { env } from '@pillage-first/utils/env';
 import {
   createDbFacade,
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
-import { DatabaseInitializationError } from './errors';
+import {
+  parseAppVersion,
+  parseDatabaseUserVersion,
+} from '@pillage-first/utils/version';
+import { OutdatedDatabaseSchemaError } from './errors';
+import { matchRoute } from './routes/route-matcher.ts';
 import {
   cancelScheduling,
   initScheduler,
   scheduleNextEvent,
 } from './scheduler/scheduler';
 import { createSchedulerDataSource } from './scheduler/scheduler-data-source';
-import { matchRoute } from './utils/route-matcher';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
@@ -52,12 +58,14 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
         if (opfsSahPool.getFileCount() === 0) {
-          throw new DatabaseInitializationError();
+          throw new OutdatedDatabaseSchemaError();
         }
 
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-        database.exec({
+        dbFacade = createDbFacade(database, false);
+
+        dbFacade.exec({
           sql: `
           PRAGMA foreign_keys = ON;        -- keep referential integrity
           PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
@@ -70,7 +78,22 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         `,
         });
 
-        dbFacade = createDbFacade(database, false);
+        const version = dbFacade.selectValue({
+          sql: 'PRAGMA user_version',
+          schema: z.number().nullable(),
+        });
+
+        // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
+        if (!version) {
+          throw new OutdatedDatabaseSchemaError();
+        }
+
+        const [, dbMinor] = parseDatabaseUserVersion(version);
+        const [, appMinor] = parseAppVersion(env.VERSION);
+
+        if (dbMinor !== appMinor) {
+          throw new OutdatedDatabaseSchemaError();
+        }
 
         upgradeDb(dbFacade);
 

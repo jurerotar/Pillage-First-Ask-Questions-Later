@@ -24,7 +24,7 @@ describe('building effects', () => {
 
       // Construct building at level 0
       buildingConstructionResolver(database, {
-        id: Math.floor(Math.random() * 1000000),
+        id: Math.floor(Math.random() * 1_000_000),
         type: 'buildingConstruction',
         startsAt: 1000,
         duration: 500,
@@ -38,10 +38,10 @@ describe('building effects', () => {
 
       // Verify level 0 effect value (should be 1)
       const effectValue0 = database.selectValue({
-        sql: 'SELECT value FROM effects WHERE village_id = $villageId AND source_specifier = $fieldId AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId);',
+        sql: 'SELECT value FROM effects WHERE village_id = $village_id AND source_specifier = $field_id AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId);',
         bind: {
-          $villageId: villageId,
-          $fieldId: buildingFieldId,
+          $village_id: villageId,
+          $field_id: buildingFieldId,
           $effectId: effectId,
         },
         schema: z.number(),
@@ -50,7 +50,7 @@ describe('building effects', () => {
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
       buildingLevelChangeResolver(database, {
-        id: Math.floor(Math.random() * 1000000),
+        id: Math.floor(Math.random() * 1_000_000),
         type: 'buildingLevelChange',
         startsAt: 2000,
         duration: 500,
@@ -64,10 +64,10 @@ describe('building effects', () => {
 
       // Verify level 2 effect value
       const effectValue2 = database.selectValue({
-        sql: 'SELECT value FROM effects WHERE village_id = $villageId AND source_specifier = $fieldId AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId);',
+        sql: 'SELECT value FROM effects WHERE village_id = $village_id AND source_specifier = $field_id AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId);',
         bind: {
-          $villageId: villageId,
-          $fieldId: buildingFieldId,
+          $village_id: villageId,
+          $field_id: buildingFieldId,
           $effectId: effectId,
         },
         schema: z.number(),

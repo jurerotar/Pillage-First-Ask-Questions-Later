@@ -195,7 +195,16 @@
 @utility content-visibility-auto {
   content-visibility: auto;
 }
-
+@utility no-spinner {
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  &[type="number"] {
+    -moz-appearance: textfield;
+  }
+}
 .scrollbar-hidden {
   scrollbar-width: none; /* Firefox */
 }

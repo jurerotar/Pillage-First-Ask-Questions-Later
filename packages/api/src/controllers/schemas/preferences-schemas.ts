@@ -36,7 +36,7 @@ export const getPreferencesSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       isAccessibilityModeEnabled: z.boolean(),
       isReducedMotionModeEnabled: z.boolean(),
       shouldShowBuildingNames: z.boolean(),

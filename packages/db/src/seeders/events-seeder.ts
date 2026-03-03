@@ -1,3 +1,7 @@
+import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { calculateAdventurePointIncreaseEventDuration } from '@pillage-first/game-assets/utils/adventures';
+import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -10,20 +14,32 @@ export const eventsSeeder = (database: DbFacade, server: Server): void => {
     GameEvent['duration'],
     GameEvent['villageId'] | null,
     string | null,
-  ][] = [
-    // Seed internal table immediately. We're _pretty_ sure backend won't be occupied at that time
-    ['__internal__seedOasisOccupiableByTable', server.createdAt, 0, null, null],
-  ];
-
-  // Adventure points increase event. Initially, a point is added every 8h, divided by server speed
-  const adventurePointsIncreaseEventDuration = Math.trunc(
-    (8 / server.configuration.speed) * 60 * 60 * 1000,
-  );
+  ][] = [];
 
   eventsToInsert.push([
     'adventurePointIncrease',
     server.createdAt,
-    adventurePointsIncreaseEventDuration,
+    calculateAdventurePointIncreaseEventDuration(
+      server.createdAt,
+      server.configuration.speed,
+    ),
+    null,
+    null,
+  ]);
+
+  const heroHealthRegeneration = database.selectValue({
+    sql: 'SELECT health_regeneration FROM heroes WHERE player_id = $player_id;',
+    bind: { $player_id: PLAYER_ID },
+    schema: z.number(),
+  })!;
+
+  eventsToInsert.push([
+    'heroHealthRegeneration',
+    server.createdAt,
+    calculateHealthRegenerationEventDuration(
+      heroHealthRegeneration,
+      server.configuration.speed,
+    ),
     null,
     null,
   ]);

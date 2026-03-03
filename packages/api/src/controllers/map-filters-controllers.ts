@@ -31,7 +31,7 @@ export const updateMapFilter = createController(
       SET ${column} = $value
     `,
     bind: {
-      $value: value,
+      $value: value ? 1 : 0,
     },
   });
 });

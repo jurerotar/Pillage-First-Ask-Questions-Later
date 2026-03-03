@@ -372,7 +372,7 @@ describe('calculateComputedEffect – woodProduction', () => {
     });
   });
 
-  describe('Other sources and edge cases', () => {
+  describe('other sources and edge cases', () => {
     test('artifact base and bonus', () => {
       const artifactBase: ArtifactEffect = {
         id: 'woodProduction',
@@ -448,7 +448,7 @@ describe('calculateComputedEffect – woodProduction', () => {
       expect(result.total).toBeGreaterThanOrEqual(134);
     });
 
-    test('WATERWORKS special case (applies to oasis)', () => {
+    test('waterworks special case (applies to oasis)', () => {
       const waterworksEffect: VillageBuildingEffect = {
         id: 'woodProduction',
         value: 1.25,

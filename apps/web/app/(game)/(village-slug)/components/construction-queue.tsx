@@ -8,7 +8,7 @@ import { IoIosArrowRoundForward } from 'react-icons/io';
 import { LuChevronLeft, LuChevronRight, LuConstruction } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
 import { type PlacesType, Tooltip } from 'react-tooltip';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { isScheduledBuildingEvent } from '@pillage-first/utils/guards/event';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
@@ -21,7 +21,7 @@ const iconClassName =
   'text-2xl lg:text-3xl bg-background text-gray-400 px-2 py-2.5 box-content border border-border rounded-xs';
 
 type ConstructionQueueBuildingProps = {
-  buildingEvent: GameEvent<'buildingConstruction'>;
+  buildingEvent: BuildingEvent;
   tooltipPosition: PlacesType;
 };
 

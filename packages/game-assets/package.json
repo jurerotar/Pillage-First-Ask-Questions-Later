@@ -15,26 +15,14 @@
     "./buildings": {
       "default": "./src/buildings.ts"
     },
-    "./buildings/utils": {
-      "default": "./src/utils/buildings.ts"
-    },
     "./units": {
       "default": "./src/units.ts"
-    },
-    "./units/utils": {
-      "default": "./src/utils/units.ts"
     },
     "./items": {
       "default": "./src/items.ts"
     },
-    "./items/utils": {
-      "default": "./src/utils/items.ts"
-    },
     "./quests": {
       "default": "./src/quests.ts"
-    },
-    "./quests/utils": {
-      "default": "./src/utils/quests.ts"
     },
     "./player": {
       "default": "./src/player.ts"
@@ -50,6 +38,27 @@
     },
     "./merchants": {
       "default": "./src/merchants.ts"
+    },
+    "./utils/quests": {
+      "default": "./src/utils/quests.ts"
+    },
+    "./utils/hero": {
+      "default": "./src/utils/hero.ts"
+    },
+    "./utils/buildings": {
+      "default": "./src/utils/buildings.ts"
+    },
+    "./utils/items": {
+      "default": "./src/utils/items.ts"
+    },
+    "./utils/adventures": {
+      "default": "./src/utils/adventures.ts"
+    },
+    "./utils/units": {
+      "default": "./src/utils/units.ts"
+    },
+    "./factories/unit-research": {
+      "default": "./src/factories/unit-research.ts"
     }
   },
   "scripts": {

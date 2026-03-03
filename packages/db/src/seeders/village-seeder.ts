@@ -182,7 +182,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
 
   // keep arrays static for indexing
   const n = occupiableFields.length;
-  const fields = occupiableFields.slice();
+  const fields = [...occupiableFields];
 
   // precompute weights (static per tile)
   const weights = new Float64Array(n);
@@ -195,7 +195,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
   }
 
   // Fenwick for weighted sampling
-  const fenwick = new Fenwick(Array.from(weights));
+  const fenwick = new Fenwick([...weights]);
 
   // active indices array (for uniform picks) and index->pos map for O(1) removal
   const activeIndices: number[] = Array.from({ length: n }, (_, i) => i);
@@ -423,7 +423,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
       if (candidateIdx === -1) {
         // fallback to uniform random
         const idx = pickRandomActiveIndexAndRemove();
-        if (!idx) {
+        if (idx === undefined) {
           break;
         }
         playerToOccupiedFields.push([playerId, fields[idx]]);

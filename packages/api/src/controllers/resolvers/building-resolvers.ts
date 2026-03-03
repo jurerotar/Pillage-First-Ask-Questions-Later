@@ -2,7 +2,7 @@ import {
   calculatePopulationDifference,
   getBuildingDataForLevel,
   getBuildingDefinition,
-} from '@pillage-first/game-assets/buildings/utils';
+} from '@pillage-first/game-assets/utils/buildings';
 import { specialFieldIds } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../../types/resolver';
@@ -10,12 +10,12 @@ import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../utils/queries/effect-queries';
-import { assessBuildingQuestCompletion } from '../../utils/quests';
 import {
   demolishBuilding,
   updateVillageResourcesAt,
 } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
+import { assessBuildingQuestCompletion } from './utils/quests.ts';
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>
@@ -36,7 +36,7 @@ export const buildingLevelChangeResolver: Resolver<
       SET level = $level
       WHERE village_id = $village_id
         AND field_id = $building_field_id
-        AND building_id = $building_id;
+        AND building_id = (SELECT id FROM building_ids WHERE building = $building_id);
     `,
     bind: {
       $village_id: villageId,
@@ -81,9 +81,15 @@ export const buildingLevelChangeResolver: Resolver<
 
   database.exec({
     sql: `
-      INSERT INTO building_level_change_history
+      INSERT INTO
+        building_level_change_history
       (village_id, field_id, building_id, previous_level, new_level, timestamp)
-      VALUES ($village_id, $building_field_id, $building_id, $previous_level, $level, STRFTIME('%s', 'now'))
+      VALUES
+        ($village_id, $building_field_id, (
+          SELECT id
+          FROM building_ids
+          WHERE building = $building_id
+          ), $previous_level, $level, STRFTIME('%s', 'now'))
       RETURNING id;
     `,
     bind: {
@@ -119,7 +125,7 @@ export const buildingConstructionResolver: Resolver<
   database.exec({
     sql: `
       INSERT INTO building_fields (village_id, field_id, building_id, level)
-      VALUES ($village_id, $field_id, $building_id, 0)
+      VALUES ($village_id, $field_id, (SELECT id FROM building_ids WHERE building = $building_id), 0)
     `,
     bind: {
       $village_id: villageId,

@@ -7,10 +7,12 @@ export const addHeroExperience = (
 ): void => {
   database.exec({
     sql: `
-    UPDATE heroes
-    SET experience = experience + $experience
-    WHERE player_id = $player_id;
-  `,
+      UPDATE heroes
+      SET
+        experience = experience + $experience
+      WHERE
+        player_id = $player_id;
+    `,
     bind: {
       $experience: experience,
       $player_id: PLAYER_ID,

@@ -2,28 +2,13 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const mapFiltersSeeder = (database: DbFacade): void => {
-  const stmt = database.prepare({
+  database.exec({
     sql: `
       INSERT INTO
         map_filters (player_id, should_show_faction_reputation, should_show_oasis_icons, should_show_troop_movements,
                      should_show_wheat_fields, should_show_tile_tooltips, should_show_treasure_icons)
       VALUES
-        ($player_id, $should_show_faction_reputation, $should_show_oasis_icons, $should_show_troop_movements,
-         $should_show_wheat_fields, $should_show_tile_tooltips, $should_show_treasure_icons)
+        (${PLAYER_ID}, 1, 1, 1, 1, 1, 1)
     `,
   });
-
-  stmt
-    .bind({
-      $player_id: PLAYER_ID,
-      $should_show_faction_reputation: 1,
-      $should_show_oasis_icons: 1,
-      $should_show_troop_movements: 1,
-      $should_show_wheat_fields: 1,
-      $should_show_tile_tooltips: 1,
-      $should_show_treasure_icons: 1,
-    })
-    .stepReset();
-
-  stmt.finalize();
 };

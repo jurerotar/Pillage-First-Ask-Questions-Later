@@ -27,12 +27,13 @@ export const getVillageBySlug = createController('/villages/:villageSlug')(
             JSON_GROUP_ARRAY(
               JSON_OBJECT(
                 'field_id', bf.field_id,
-                'building_id', bf.building_id,
+                'building_id', bi.building,
                 'level', bf.level
               )
             )
           FROM
             building_fields bf
+            LEFT JOIN building_ids bi ON bi.id = bf.building_id
           WHERE
             bf.village_id = v.id
           ) AS building_fields
@@ -42,7 +43,7 @@ export const getVillageBySlug = createController('/villages/:villageSlug')(
                ON t.id = v.tile_id
           LEFT JOIN resource_sites rs
                     ON rs.tile_id = v.tile_id
-          LEFT JOIN resource_field_compositions rfc
+          LEFT JOIN resource_field_composition_ids rfc
                     ON t.resource_field_composition_id = rfc.id
       WHERE
         v.slug = $slug
@@ -59,15 +60,18 @@ export const getOccupiableOasisInRange = createController(
 )(({ database, path: { villageId } }) => {
   return database.selectObjects({
     sql: `
-      WITH src_village AS (
-        SELECT t.id AS vtile, t.x AS vx, t.y AS vy
-        FROM villages v
-               JOIN tiles t ON t.id = v.tile_id
-        WHERE v.id = $village_id
-        LIMIT 1
-        ),
+      WITH
+        src_village AS (
+          SELECT t.id AS vtile, t.x AS vx, t.y AS vy
+          FROM
+            villages v
+              JOIN tiles t ON t.id = v.tile_id
+          WHERE
+            v.id = $village_id
+          LIMIT 1
+          ),
 
-        -- aggregate oasis info (bonuses + occupying village) but only those occupiable by this village tile
+        -- aggregate oasis info (bonuses + occupying village)
         oasis_agg AS (
           SELECT
             ot.id AS tile_id,
@@ -76,11 +80,12 @@ export const getOccupiableOasisInRange = createController(
             ot.oasis_graphics AS oasis_graphics,
             JSON_GROUP_ARRAY(o.bonus) AS bonuses_json,
             MAX(o.village_id) AS occupying_village_id
-          FROM tiles ot
-                 JOIN src_village sv ON 1=1
-                 JOIN oasis_occupiable_by ob ON ob.occupiable_oasis_tile_id = ot.id AND ob.occupiable_tile_id = sv.vtile
-                 JOIN oasis o ON o.tile_id = ot.id
-          WHERE ot.type = 'oasis'
+          FROM
+            tiles ot
+              JOIN src_village sv ON 1 = 1
+              JOIN oasis o ON o.tile_id = ot.id
+          WHERE
+            ot.type = 'oasis'
             AND ot.x BETWEEN sv.vx - $radius AND sv.vx + $radius
             AND ot.y BETWEEN sv.vy - $radius AND sv.vy + $radius
           GROUP BY ot.id
@@ -92,20 +97,20 @@ export const getOccupiableOasisInRange = createController(
         oa.y AS tile_coordinates_y,
         oa.oasis_graphics,
         oa.bonuses_json,
-
         oa.occupying_village_id,
         v2.name AS occupying_village_name,
         v2.slug AS occupying_village_slug,
         vt2.x AS occupying_village_coordinates_x,
         vt2.y AS occupying_village_coordinates_y,
-        p.id   AS occupying_player_id,
+        p.id AS occupying_player_id,
         p.name AS occupying_player_name,
         p.slug AS occupying_player_slug
-      FROM oasis_agg oa
-             CROSS JOIN src_village sv
-             LEFT JOIN villages v2 ON v2.id = oa.occupying_village_id
-             LEFT JOIN tiles vt2 ON vt2.id = v2.tile_id
-             LEFT JOIN players p ON p.id = v2.player_id
+      FROM
+        oasis_agg oa
+          CROSS JOIN src_village sv
+          LEFT JOIN villages v2 ON v2.id = oa.occupying_village_id
+          LEFT JOIN tiles vt2 ON vt2.id = v2.tile_id
+          LEFT JOIN players p ON p.id = v2.player_id
       ORDER BY
         (ABS(oa.x - sv.vx) + ABS(oa.y - sv.vy)),
         oa.tile_id;
@@ -135,9 +140,14 @@ export const rearrangeBuildingFields = createController(
 
     database.exec({
       sql: `
-        WITH updates(field_id, building_id) AS (
+        WITH updates_raw(field_id, building_text) AS (
           SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
           FROM JSON_EACH($updates)
+        ),
+        updates AS (
+          SELECT ur.field_id, bi.id AS building_id, ur.building_text
+          FROM updates_raw ur
+          LEFT JOIN building_ids bi ON bi.building = ur.building_text
         ),
         current_state AS (
           SELECT building_id, level
@@ -167,17 +177,17 @@ export const rearrangeBuildingFields = createController(
     // We only update events of types that have buildingFieldId and buildingId in meta
     database.exec({
       sql: `
-        WITH updates(field_id, building_id) AS (
+        WITH updates_raw(field_id, building_text) AS (
           SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
           FROM JSON_EACH($updates)
         )
         UPDATE events
-        SET meta = JSON_SET(meta, '$.buildingFieldId', u.field_id)
-        FROM updates u
+        SET meta = JSON_SET(meta, '$.buildingFieldId', ur.field_id)
+        FROM updates_raw ur
         WHERE events.village_id = $village_id
           AND events.type IN ('buildingScheduledConstruction', 'buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
-          AND JSON_EXTRACT(meta, '$.buildingId') = u.building_id
-          AND u.building_id IS NOT NULL;
+          AND JSON_EXTRACT(meta, '$.buildingId') = ur.building_text
+          AND ur.building_text IS NOT NULL;
       `,
       bind: {
         $village_id: villageId,

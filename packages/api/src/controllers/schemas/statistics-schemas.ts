@@ -24,7 +24,7 @@ export const getPlayerRankingsSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
       faction: factionSchema,
       name: z.string(),
@@ -62,10 +62,10 @@ export const getVillageRankingsSchema = z
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
       name: z.string(),
-      coordinates: z.object({
+      coordinates: z.strictObject({
         x: z.number(),
         y: z.number(),
       }),
@@ -77,13 +77,13 @@ export const getVillageRankingsSchema = z
   )
   .meta({ id: 'GetVillageRankings' });
 
-export const playersStatsRowSchema = z.object({
+export const playersStatsRowSchema = z.strictObject({
   tribe: tribeSchema,
   faction: factionSchema,
   player_count: z.number(),
 });
 
-export const villagesStatsRowSchema = z.object({
+export const villagesStatsRowSchema = z.strictObject({
   tribe: tribeSchema,
   faction: factionSchema,
   village_count: z.number(),

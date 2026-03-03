@@ -14,13 +14,13 @@ describe('statistics-controllers', () => {
 
     const player = database.selectObject({
       sql: 'SELECT id FROM players LIMIT 1',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     const village = database.selectObject({
       sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: player.id },
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -95,7 +95,7 @@ describe('statistics-controllers', () => {
 
     const village = database.selectObject({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     const wheatEffectId = database.selectValue({

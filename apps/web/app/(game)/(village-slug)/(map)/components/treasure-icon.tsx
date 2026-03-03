@@ -1,5 +1,6 @@
+import clsx from 'clsx';
 import type { ComponentProps } from 'react';
-import { getItemDefinition } from '@pillage-first/game-assets/items/utils';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import { Icon } from 'app/components/icon';
@@ -31,6 +32,7 @@ export const TreasureIcon = ({ itemId, className }: TreasureIconProps) => {
     >
       <Icon
         type={iconType}
+        className={clsx(iconType === 'treasureTileResources' && 'scale-80')}
         shouldShowTooltip={false}
       />
     </BorderIndicator>

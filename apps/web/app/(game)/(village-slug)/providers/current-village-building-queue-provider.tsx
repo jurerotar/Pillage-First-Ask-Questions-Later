@@ -5,16 +5,16 @@ import {
   useMemo,
 } from 'react';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { partition } from '@pillage-first/utils/array';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 type CurrentVillageBuildingQueueContextReturn = {
-  currentVillageBuildingEvents: GameEvent<'buildingLevelChange'>[];
+  currentVillageBuildingEvents: BuildingEvent[];
   getBuildingEventQueue: (
     buildingFieldId: BuildingField['id'],
-  ) => GameEvent<'buildingConstruction'>[];
+  ) => BuildingEvent[];
 };
 
 export const CurrentVillageBuildingQueueContext =
@@ -29,9 +29,10 @@ export const CurrentVillageBuildingQueueContextProvider = ({
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
 
   const buildingEventQueues = useMemo(() => {
-    const [resourceQueue, villageQueue] = partition<
-      GameEvent<'buildingConstruction'>
-    >(currentVillageBuildingEvents, (event) => event.buildingFieldId <= 18);
+    const [resourceQueue, villageQueue] = partition<BuildingEvent>(
+      currentVillageBuildingEvents,
+      (event) => event.buildingFieldId <= 18,
+    );
 
     return {
       resourceQueue,
@@ -40,9 +41,7 @@ export const CurrentVillageBuildingQueueContextProvider = ({
   }, [currentVillageBuildingEvents]);
 
   const getBuildingEventQueue = useCallback(
-    (
-      buildingFieldId: BuildingField['id'],
-    ): GameEvent<'buildingConstruction'>[] => {
+    (buildingFieldId: BuildingField['id']): BuildingEvent[] => {
       if (tribe !== 'romans') {
         return currentVillageBuildingEvents;
       }

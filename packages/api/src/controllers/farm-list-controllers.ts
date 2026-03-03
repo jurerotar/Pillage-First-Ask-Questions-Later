@@ -8,8 +8,8 @@ import {
 export const getFarmLists = createController('/players/:playerId/farm-lists')(
   ({ database, path: { playerId } }) => {
     return database.selectObjects({
-      sql: 'SELECT id, name FROM farm_lists WHERE player_id = $playerId',
-      bind: { $playerId: playerId },
+      sql: 'SELECT id, name FROM farm_lists WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
       schema: farmListSchema,
     });
   },
@@ -20,8 +20,8 @@ export const createFarmList = createController(
   'post',
 )(({ database, path: { playerId }, body: { name } }) => {
   database.exec({
-    sql: 'INSERT INTO farm_lists (player_id, name) VALUES ($playerId, $name)',
-    bind: { $playerId: playerId, $name: name },
+    sql: 'INSERT INTO farm_lists (player_id, name) VALUES ($player_id, $name)',
+    bind: { $player_id: playerId, $name: name },
   });
 });
 
@@ -72,8 +72,8 @@ export const addTileToFarmList = createController(
     }
 
     database.exec({
-      sql: 'INSERT OR IGNORE INTO farm_list_tiles (farm_list_id, tile_id) VALUES ($farmListId, $tileId)',
-      bind: { $farmListId: farmListId, $tileId: tileId },
+      sql: 'INSERT OR IGNORE INTO farm_list_tiles (farm_list_id, tile_id) VALUES ($farmListId, $tile_id)',
+      bind: { $farmListId: farmListId, $tile_id: tileId },
     });
   });
 });
@@ -83,8 +83,8 @@ export const removeTileFromFarmList = createController(
   'delete',
 )(({ database, path: { farmListId, tileId } }) => {
   database.exec({
-    sql: 'DELETE FROM farm_list_tiles WHERE farm_list_id = $farmListId AND tile_id = $tileId',
-    bind: { $farmListId: farmListId, $tileId: tileId },
+    sql: 'DELETE FROM farm_list_tiles WHERE farm_list_id = $farmListId AND tile_id = $tile_id',
+    bind: { $farmListId: farmListId, $tile_id: tileId },
   });
 });
 

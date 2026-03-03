@@ -1,10 +1,9 @@
-/// <reference types="vite/client" />
-
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const preferencesSeeder = (database: DbFacade): void => {
-  const isRunningLocally = import.meta.env.DEV;
+  const isRunningLocally = env.DEV;
 
   database.exec({
     sql: `

@@ -45,23 +45,69 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
       $rfc_param: resourceFieldComposition,
     };
 
+    const allRequiredBonuses: { resource: string; bonus: number }[] = [];
+    [firstOasis, secondOasis, thirdOasis].forEach((slot) => {
+      slot.forEach((b) => {
+        if (
+          !allRequiredBonuses.some(
+            (existing) =>
+              existing.resource === b.resource && existing.bonus === b.bonus,
+          )
+        ) {
+          allRequiredBonuses.push(b);
+        }
+      });
+    });
+
+    const hasRequiredOases = allRequiredBonuses.length > 0;
+
     const sqlParts: string[] = [];
 
     sqlParts.push(`
     WITH
       src_village AS (
         VALUES ($tile_x, $tile_y)
-        ),
+        ),`);
+
+    if (hasRequiredOases) {
+      const bonusConditions = allRequiredBonuses
+        .map((_, i) => `(o.resource = $ro_r${i} AND o.bonus = $ro_b${i})`)
+        .join(' OR ');
+
+      allRequiredBonuses.forEach((b, i) => {
+        sqlBindings[`$ro_r${i}`] = b.resource;
+        sqlBindings[`$ro_b${i}`] = b.bonus;
+      });
+
+      sqlParts.push(`
+      candidates AS (
+        SELECT DISTINCT t.id, t.x, t.y, rfc.resource_field_composition
+        FROM oasis o
+               JOIN tiles ot ON ot.id = o.tile_id
+               JOIN tiles t ON t.x BETWEEN ot.x - 3 AND ot.x + 3 AND t.y BETWEEN ot.y - 3 AND ot.y + 3
+               LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
+        WHERE (${bonusConditions})
+          AND t.type = 'free'
+          AND (
+            ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN ('3339', '11115', '00018'))
+              OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)
+            )
+        )`);
+    } else {
+      sqlParts.push(`
       candidates AS (
         SELECT t.id, t.x, t.y, rfc.resource_field_composition
         FROM tiles t
-               LEFT JOIN resource_field_compositions rfc ON rfc.id = t.resource_field_composition_id
+               LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
         WHERE t.type = 'free'
           AND (
             ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN ('3339', '11115', '00018'))
               OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)
             )
-        )
+        )`);
+    }
+
+    sqlParts.push(`
     SELECT
       c.id AS tile_id,
       c.x AS coordinates_x,
@@ -98,8 +144,9 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
         (
           SELECT o.tile_id AS oasis_tile
           FROM oasis o
-          JOIN oasis_occupiable_by ob ON ob.occupiable_oasis_tile_id = o.tile_id
-          WHERE ob.occupiable_tile_id = c.id
+          JOIN tiles ot ON ot.id = o.tile_id
+          WHERE ot.x BETWEEN c.x - 3 AND c.x + 3
+            AND ot.y BETWEEN c.y - 3 AND c.y + 3
             AND o.resource = $r${idx}
             AND o.bonus = $b${idx}
           GROUP BY o.tile_id
@@ -117,8 +164,9 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
       (
         SELECT o.tile_id AS oasis_tile
         FROM oasis o
-        JOIN oasis_occupiable_by ob ON ob.occupiable_oasis_tile_id = o.tile_id
-        WHERE ob.occupiable_tile_id = c.id
+        JOIN tiles ot ON ot.id = o.tile_id
+        WHERE ot.x BETWEEN c.x - 3 AND c.x + 3
+          AND ot.y BETWEEN c.y - 3 AND c.y + 3
           AND (
             (o.resource = $r${idx}   AND o.bonus = $b${idx})
             OR (o.resource = $r${idx}_2 AND o.bonus = $b${idx}_2)

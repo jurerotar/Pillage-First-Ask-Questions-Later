@@ -1,6 +1,6 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import { calculateHeroLevel } from '@pillage-first/web/app/(game)/(village-slug)/hooks/utils/hero.ts';
+import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {
@@ -22,7 +22,9 @@ export const getDeveloperSettings = createController('/developer-settings')(
         is_free_building_construction_enabled,
         is_free_unit_training_enabled,
         is_free_unit_improvement_enabled,
-        is_free_unit_research_enabled
+        is_free_unit_research_enabled,
+        is_instant_hero_revive_enabled,
+        is_free_hero_revive_enabled
       FROM
         developer_settings
     `,
@@ -52,7 +54,7 @@ export const updateDeveloperSettings = createController(
     let eventTypes: string[] = [];
 
     switch (developerSettingName) {
-      case 'isInstantBuildingConstructionEnabled':
+      case 'isInstantBuildingConstructionEnabled': {
         eventTypes = [
           'buildingLevelChange',
           'buildingScheduledConstruction',
@@ -60,18 +62,36 @@ export const updateDeveloperSettings = createController(
           'buildingDestruction',
         ];
         break;
-      case 'isInstantUnitTrainingEnabled':
+      }
+      case 'isInstantUnitTrainingEnabled': {
         eventTypes = ['troopTraining'];
         break;
-      case 'isInstantUnitImprovementEnabled':
+      }
+      case 'isInstantUnitImprovementEnabled': {
         eventTypes = ['unitImprovement'];
         break;
-      case 'isInstantUnitResearchEnabled':
+      }
+      case 'isInstantUnitResearchEnabled': {
         eventTypes = ['unitResearch'];
         break;
-      case 'isInstantUnitTravelEnabled':
-        eventTypes = ['troopMovement'];
+      }
+      case 'isInstantUnitTravelEnabled': {
+        eventTypes = [
+          'troopMovementReinforcements',
+          'troopMovementRelocation',
+          'troopMovementReturn',
+          'troopMovementFindNewVillage',
+          'troopMovementAttack',
+          'troopMovementRaid',
+          'troopMovementOasisOccupation',
+          'troopMovementAdventure',
+        ];
         break;
+      }
+      case 'isInstantHeroReviveEnabled': {
+        eventTypes = ['heroRevival'];
+        break;
+      }
     }
 
     if (eventTypes.length > 0) {
@@ -99,8 +119,8 @@ export const levelUpHero = createController(
   'patch',
 )(({ database, path: { heroId } }) => {
   const currentExperience = database.selectValue({
-    sql: 'SELECT experience FROM heroes WHERE id = $heroId',
-    bind: { $heroId: heroId },
+    sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
+    bind: { $hero_id: heroId },
     schema: z.number(),
   })!;
 
@@ -112,10 +132,10 @@ export const levelUpHero = createController(
       SET
         experience = $nextLevelExp
       WHERE
-        id = $heroId
+        id = $hero_id
     `,
     bind: {
-      $heroId: heroId,
+      $hero_id: heroId,
       $nextLevelExp: currentExperience + expToNextLevel,
     },
   });
@@ -130,12 +150,12 @@ export const spawnHeroItem = createController(
       INSERT INTO
         hero_inventory (hero_id, item_id, amount)
       VALUES
-        ($heroId, $itemId, $amount)
+        ($hero_id, $itemId, $amount)
       ON CONFLICT (hero_id, item_id) DO UPDATE SET
         amount = amount + $amount
     `,
     bind: {
-      $heroId: heroId,
+      $hero_id: heroId,
       $itemId: itemId,
       $amount: amount,
     },
@@ -176,10 +196,10 @@ export const incrementHeroAdventurePoints = createController(
       SET
         available = available + 1
       WHERE
-        hero_id = $heroId
+        hero_id = $hero_id
     `,
     bind: {
-      $heroId: heroId,
+      $hero_id: heroId,
     },
   });
 });

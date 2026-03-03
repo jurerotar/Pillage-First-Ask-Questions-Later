@@ -4,7 +4,14 @@ import { getBookmarksSchema } from './schemas/bookmark-schemas';
 export const getBookmarks = createController('/villages/:villageId/bookmarks')(
   ({ database, path: { villageId } }) => {
     const bookmarks = database.selectObjects({
-      sql: 'SELECT building_id, tab_name FROM bookmarks WHERE village_id = $village_id;',
+      sql: `
+        SELECT bi.building AS building_id, b.tab_name
+        FROM
+          bookmarks b
+            JOIN building_ids bi ON bi.id = b.building_id
+        WHERE
+          b.village_id = $village_id;
+      `,
       bind: {
         $village_id: villageId,
       },
@@ -23,7 +30,7 @@ export const updateBookmark = createController(
     sql: `
     UPDATE bookmarks
       SET tab_name = $tab_name
-      WHERE building_id = $building_id
+      WHERE building_id = (SELECT id FROM building_ids WHERE building = $building_id)
         AND village_id = $village_id;
   `,
     bind: {

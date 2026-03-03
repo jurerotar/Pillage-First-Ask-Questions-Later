@@ -13,9 +13,9 @@ describe(troopTrainingEventResolver, () => {
 
     // We need to know tile_id of the village to verify troop insertion
     const village = database.selectObject({
-      sql: 'SELECT tile_id FROM villages WHERE id = $villageId;',
-      bind: { $villageId: villageId },
-      schema: z.object({ tile_id: z.number() }),
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+      bind: { $village_id: villageId },
+      schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
     const mockEvent: GameEvent<'troopTraining'> = {
@@ -36,9 +36,9 @@ describe(troopTrainingEventResolver, () => {
 
     // Verify troops table
     const troop = database.selectObject({
-      sql: 'SELECT amount FROM troops WHERE unit_id = $unitId AND tile_id = $tileId;',
-      bind: { $unitId: unitId, $tileId: village.tile_id },
-      schema: z.object({ amount: z.number() }),
+      sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id) AND tile_id = $tile_id;',
+      bind: { $unit_id: unitId, $tile_id: village.tile_id },
+      schema: z.strictObject({ amount: z.number() }),
     })!;
 
     expect(troop.amount).toBeGreaterThanOrEqual(1);
@@ -48,14 +48,36 @@ describe(troopTrainingEventResolver, () => {
       sql: `
         SELECT value
         FROM effects
-        WHERE village_id = $villageId
+        WHERE village_id = $village_id
           AND source = 'troops'
           AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction');
       `,
-      bind: { $villageId: villageId },
-      schema: z.object({ value: z.number() }),
+      bind: { $village_id: villageId },
+      schema: z.strictObject({ value: z.number() }),
     })!;
 
     expect(effect).toBeDefined();
+
+    // Verify quest completion
+    const quest = database.selectObject({
+      sql: "SELECT completed_at FROM quests WHERE quest_id = 'troopCount-10';",
+      schema: z.strictObject({ completed_at: z.number().nullable() }),
+    });
+    // It should NOT be completed yet as we only trained 1 troop (and total is < 10)
+    expect(quest?.completed_at).toBeNull();
+
+    // Now train enough to complete the quest
+    troopTrainingEventResolver(database, {
+      ...mockEvent,
+      id: 1000,
+      amount: 9,
+      resolvesAt: 1200,
+    });
+
+    const completedQuest = database.selectObject({
+      sql: "SELECT completed_at FROM quests WHERE quest_id = 'troopCount-10';",
+      schema: z.strictObject({ completed_at: z.number().nullable() }),
+    });
+    expect(completedQuest?.completed_at).toBe(1200);
   });
 });

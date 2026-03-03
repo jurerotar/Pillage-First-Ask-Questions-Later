@@ -100,6 +100,7 @@ export const MapControls = () => {
           data-testid="map-controls-toggle-faction-reputation-button"
         >
           <Icon
+            className="grayscale"
             type="mapReputationToggle"
             shouldShowTooltip={false}
           />
@@ -119,6 +120,7 @@ export const MapControls = () => {
           data-testid="map-controls-toggle-oasis-button"
         >
           <Icon
+            className="grayscale"
             type="mapOasisIconsToggle"
             shouldShowTooltip={false}
           />
@@ -138,6 +140,7 @@ export const MapControls = () => {
           data-testid="map-controls-toggle-treasures-button"
         >
           <Icon
+            className="grayscale"
             type="mapTreasureIconToggle"
             shouldShowTooltip={false}
           />
@@ -157,6 +160,7 @@ export const MapControls = () => {
           data-testid="map-controls-toggle-troop-movements-button"
         >
           <Icon
+            className="grayscale"
             type="mapTroopMovementsToggle"
             shouldShowTooltip={false}
           />
@@ -176,6 +180,7 @@ export const MapControls = () => {
           data-testid="map-controls-toggle-wheat-fields-button"
         >
           <Icon
+            className="grayscale"
             type="mapWheatFieldIconToggle"
             shouldShowTooltip={false}
           />
@@ -196,6 +201,7 @@ export const MapControls = () => {
             data-testid="map-controls-toggle-tile-tooltips-button"
           >
             <Icon
+              className="grayscale"
               type="mapTileTooltipToggle"
               shouldShowTooltip={false}
             />

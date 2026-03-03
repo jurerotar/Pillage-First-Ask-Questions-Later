@@ -1,10 +1,22 @@
 import { migrateAndSeed } from '@pillage-first/db';
 import type { Server } from '@pillage-first/types/models/server';
+import { env } from '@pillage-first/utils/env';
 import { createDbFacade } from '@pillage-first/utils/facades/database';
+import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 
 export type CreateNewGameWorldWorkerPayload = {
   server: Server;
+  port: MessagePort;
 };
+
+export type CreateNewGameWorldWorkerResponse =
+  | {
+      type: 'progress';
+    }
+  | {
+      type: 'result';
+      migrationDuration: number;
+    };
 
 globalThis.addEventListener(
   'message',
@@ -12,7 +24,7 @@ globalThis.addEventListener(
     const { default: sqlite3InitModule } = await import(
       '@sqlite.org/sqlite-wasm'
     );
-    const { server } = event.data;
+    const { server, port } = event.data;
 
     const sqlite3 = await sqlite3InitModule();
     const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
@@ -25,6 +37,7 @@ globalThis.addEventListener(
 
     dbFacade.exec({
       sql: `
+        PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};
         PRAGMA locking_mode=EXCLUSIVE;
         PRAGMA foreign_keys=OFF;
         PRAGMA journal_mode=OFF;
@@ -34,13 +47,21 @@ globalThis.addEventListener(
       `,
     });
 
-    const migrationDuration = migrateAndSeed(dbFacade, server);
+    const migrationDuration = migrateAndSeed(dbFacade, server, () => {
+      port.postMessage({
+        type: 'progress',
+      } satisfies CreateNewGameWorldWorkerResponse);
+    });
 
     dbFacade.close();
     database.close();
     opfsSahPool.pauseVfs();
 
-    globalThis.postMessage({ migrationDuration });
+    port.postMessage({
+      type: 'result',
+      migrationDuration,
+    } satisfies CreateNewGameWorldWorkerResponse);
+    port.close();
     globalThis.close();
   },
 );

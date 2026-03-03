@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
+import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
@@ -19,6 +20,7 @@ import {
 } from './controllers/schemas/hero-schemas.ts';
 import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas.ts';
 import {
+  getMapMarkersSchema,
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
@@ -790,7 +792,7 @@ export const paths = {
       requestParams: {
         path: z.strictObject({
           villageId: z.coerce.number(),
-          eventType: z.string(),
+          eventType: z.union([gameEventTypeSchema, z.literal('troopMovement')]),
         }),
       },
       responses: {
@@ -908,6 +910,64 @@ export const paths = {
               schema: getTileWorldItemSchema.nullable(),
             },
           },
+        },
+      },
+    },
+  },
+  '/players/:playerId/map-markers': {
+    get: {
+      summary: 'Get map markers',
+      requestParams: {
+        path: z.strictObject({
+          playerId: playerSchema.shape.id,
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Map markers',
+          content: {
+            'application/json': {
+              schema: z.array(getMapMarkersSchema),
+            },
+          },
+        },
+      },
+    },
+    post: {
+      summary: 'Add map marker',
+      requestParams: {
+        path: z.strictObject({
+          playerId: playerSchema.shape.id,
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              tileId: z.number(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Marker added',
+        },
+      },
+    },
+  },
+  '/players/:playerId/map-markers/:tileId': {
+    delete: {
+      summary: 'Remove map marker',
+      requestParams: {
+        path: z.strictObject({
+          playerId: playerSchema.shape.id,
+          tileId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Marker removed',
         },
       },
     },

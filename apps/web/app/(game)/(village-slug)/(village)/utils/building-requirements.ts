@@ -1,4 +1,4 @@
-import { getBuildingDefinition } from '@pillage-first/game-assets/buildings/utils';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import type {
   AmountBuildingRequirement,
   Building,

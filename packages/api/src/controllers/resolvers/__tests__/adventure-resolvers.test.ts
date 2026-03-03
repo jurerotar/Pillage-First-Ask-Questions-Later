@@ -15,7 +15,7 @@ describe(adventurePointIncreaseResolver, () => {
 
     const { available } = database.selectObject({
       sql: 'SELECT available FROM hero_adventures LIMIT 1;',
-      schema: z.object({ available: z.number() }),
+      schema: z.strictObject({ available: z.number() }),
     })!;
 
     const mockEvent: GameEvent<'adventurePointIncrease'> = {
@@ -31,7 +31,7 @@ describe(adventurePointIncreaseResolver, () => {
 
     const heroAdventureAfter = database.selectObject({
       sql: 'SELECT available FROM hero_adventures LIMIT 1;',
-      schema: z.object({ available: z.number() }),
+      schema: z.strictObject({ available: z.number() }),
     })!;
 
     expect(heroAdventureAfter.available).toBe(available + 1);

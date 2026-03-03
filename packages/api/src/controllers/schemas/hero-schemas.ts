@@ -16,6 +16,7 @@ export const getHeroSchema = z
     damage_reduction: z.number(),
     experience_modifier: z.number(),
     speed: z.number(),
+    village_id: z.number(),
     natarian_attack_bonus: z.number(),
     resource_to_produce: heroResourceToProduceSchema,
   })
@@ -40,13 +41,14 @@ export const getHeroSchema = z
         attackBonus: t.attack_bonus,
         defenceBonus: t.defence_bonus,
       },
+      villageId: t.village_id,
       resourceToProduce: t.resource_to_produce,
     };
   })
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
-      stats: z.object({
+      stats: z.strictObject({
         health: z.number(),
         experience: z.number(),
         attackPower: z.number(),
@@ -58,12 +60,13 @@ export const getHeroSchema = z
         attackBonus: z.number(),
         defenceBonus: z.number(),
       }),
-      selectableAttributes: z.object({
+      selectableAttributes: z.strictObject({
         attackPower: z.number(),
         resourceProduction: z.number(),
         attackBonus: z.number(),
         defenceBonus: z.number(),
       }),
+      villageId: z.number(),
       resourceToProduce: heroResourceToProduceSchema,
     }),
   )
@@ -81,7 +84,7 @@ export const getHeroLoadoutSchema = z
     amount: t.amount,
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       itemId: z.number(),
       slot: heroLoadoutSlotSchema,
       amount: z.number(),
@@ -99,7 +102,7 @@ export const getHeroInventorySchema = z
     amount: t.amount,
   }))
   .pipe(
-    z.object({
+    z.strictObject({
       id: z.number(),
       amount: z.number(),
     }),

@@ -1,4 +1,4 @@
-import { env } from 'app/env';
+import { env } from '@pillage-first/utils/env';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 
 const allowedBranches = new Set(['master', 'develop']);
