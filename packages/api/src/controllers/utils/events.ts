@@ -758,15 +758,15 @@ export const getEventStartTime = (
   }
 
   if (isAdventurePointIncreaseEvent(event)) {
-    const { resolvesAt } = event;
+    const { startsAt, duration } = event;
 
-    return resolvesAt;
+    return startsAt + duration;
   }
 
   if (isHeroHealthRegenerationEvent(event)) {
-    const { resolvesAt } = event;
+    const { startsAt, duration } = event;
 
-    return resolvesAt;
+    return startsAt + duration;
   }
 
   if (isBuildingConstructionEvent(event) || isBuildingLevelUpEvent(event)) {
@@ -783,9 +783,9 @@ export const getEventStartTime = (
     return Date.now();
   }
   if (isReturnTroopMovementEvent(event)) {
-    const { resolvesAt } = event;
+    const { startsAt, duration } = event;
 
-    return resolvesAt;
+    return startsAt + duration;
   }
 
   return Date.now();

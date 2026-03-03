@@ -63,12 +63,11 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
     healthRegeneration,
     speed,
   );
-  const heroHealthRegenerationResolvesAt = resolvesAt + duration;
 
   createEvents<'heroHealthRegeneration'>(database, {
-    // We need to pass in resolvesAt, because getEventStartTime expects it
-    resolvesAt: heroHealthRegenerationResolvesAt,
     type: 'heroHealthRegeneration',
+    startsAt: resolvesAt,
+    duration,
   });
 };
 
@@ -82,8 +81,32 @@ export const heroHealthRegenerationResolver: Resolver<
     bind: { $player_id: PLAYER_ID },
   });
 
+  const { healthRegeneration, speed } = database.selectObject({
+    sql: `
+      SELECT
+        heroes.health_regeneration AS healthRegeneration,
+        servers.speed AS speed
+      FROM heroes
+      JOIN servers ON 1 = 1
+      WHERE heroes.player_id = $player_id;
+    `,
+    bind: {
+      $player_id: PLAYER_ID,
+    },
+    schema: z.object({
+      healthRegeneration: z.number(),
+      speed: z.number(),
+    }),
+  })!;
+
+  const duration = calculateHealthRegenerationEventDuration(
+    healthRegeneration,
+    speed,
+  );
+
   createEvents<'heroHealthRegeneration'>(database, {
-    resolvesAt,
     type: 'heroHealthRegeneration',
+    startsAt: resolvesAt,
+    duration,
   });
 };
