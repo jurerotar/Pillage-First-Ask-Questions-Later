@@ -1,14 +1,118 @@
-import { FaCodeMerge, FaGithub } from 'react-icons/fa6';
+import { useTranslation } from 'react-i18next';
+import {
+  FaCodeMerge,
+  FaCoins,
+  FaComputer,
+  FaGithub,
+  FaGlobe,
+  FaRegLightbulb,
+  FaSliders,
+  FaUser,
+} from 'react-icons/fa6';
 import { Link } from 'react-router';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import Landing from './mdx/landing.mdx';
+import Motivation from './mdx/motivation.mdx';
 import OpenSource from './mdx/open-source.mdx';
+
+const MotivationSection = () => {
+  const { t } = useTranslation('public');
+
+  const goals = [
+    {
+      title: t('Offline'),
+      icon: FaGlobe,
+      description: t('Play anywhere, anytime, without an internet connection.'),
+    },
+    {
+      title: t('Single player'),
+      icon: FaUser,
+      description: t('No pressure from other players. Play at your own pace.'),
+    },
+    {
+      title: t('Accessible'),
+      icon: FaComputer,
+      description: t(
+        'Modern web technologies ensuring the game runs on any device.',
+      ),
+    },
+    {
+      title: t('Nicer UX'),
+      icon: FaRegLightbulb,
+      description: t('Quality-of-life features and a clean, modern interface.'),
+    },
+    {
+      title: t('No pay to win'),
+      icon: FaCoins,
+      description: t(
+        'No game mechanics to incentivize spending real-world money.',
+      ),
+    },
+    {
+      title: t('Customizable'),
+      icon: FaSliders,
+      description: t(
+        'Fine-tune your experience with a variety of settings and options.',
+      ),
+    },
+  ];
+
+  return (
+    <section className="bg-linear-to-b from-white to-[#F5A911] pt-4 lg:pt-0">
+      <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="w-full mb-8 md:mb-0 order-2 md:order-1 flex justify-center items-center">
+          <div className="grid grid-cols-2 gap-4 w-full">
+            {goals.map((goal) => (
+              <div
+                key={goal.title}
+                className="bg-white/50 backdrop-blur-sm p-2 rounded-md shadow-sm border border-white/20 flex flex-col gap-3 transition-transform hover:scale-105"
+              >
+                <div className="p-2 md:p-3 bg-white rounded-md w-fit shadow-xs">
+                  <goal.icon className="text-[#391600] size-4 md:size-6" />
+                </div>
+                <Text
+                  as="h3"
+                  className="text-[#391600] font-bold"
+                >
+                  {goal.title}
+                </Text>
+                <Text className="text-[#391600]/80 text-sm leading-snug">
+                  {goal.description}
+                </Text>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col w-full lg:my-20 gap-4 z-10 order-1 md:order-2">
+          <Text
+            as="h2"
+            className="text-[#391600]"
+          >
+            Motivation behind Pillage First!
+          </Text>
+
+          <div className="prose text-[#391600]">
+            <Motivation />
+          </div>
+          <Link
+            rel="noopener noreferrer"
+            target="_blank"
+            to="https://discord.gg/Ep7NKVXUZA"
+          >
+            <Button>Join our community on Discord</Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const OpenSourceSection = () => {
   return (
-    <section className="bg-linear-to-t from-[#F5A911] via-[#FFD24A] to-[#FFE345] overflow-hidden pt-4 lg:pt-0 -mb-4">
-      <div className="max-w-7xl min-h-75 p-4 mx-auto grid grid-cols-1 md:grid-cols-2">
+    <section className="bg-linear-to-t from-[#FFE345] via-[#FFD24A] to-[#F5A911] overflow-hidden pt-4 lg:pt-0 -mb-4">
+      <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10">
           <div className="inline-flex justify-center items-center w-fit p-4 bg-white rounded-full">
             <FaCodeMerge className="text-[#391600] size-6" />
@@ -79,6 +183,7 @@ const HomePage = () => {
           </section>
           <section className="flex flex-1" />
         </div>
+        <MotivationSection />
         <OpenSourceSection />
       </main>
     </>
