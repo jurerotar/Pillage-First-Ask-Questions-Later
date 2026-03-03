@@ -85,7 +85,46 @@ describe('hero-resolvers', () => {
     expect(nextEvent?.type).toBe('heroHealthRegeneration');
   });
 
-  test('heroHealthRegenerationResolver should NOT increase health if hero is dead', async () => {
+  test('heroHealthRegenerationResolver should NOT increase health but SHOULD schedule next event if hero health is 100', async () => {
+    const database = await prepareTestDatabase();
+
+    // 1. Setup: hero at 100 health, with health_regeneration = 10
+    database.exec({
+      sql: 'UPDATE heroes SET health = 100, health_regeneration = 10;',
+    });
+
+    // 2. Clear events to be sure
+    database.exec({ sql: 'DELETE FROM events;' });
+
+    const eventArgs = {
+      id: 1,
+      type: 'heroHealthRegeneration' as const,
+      startsAt: Date.now(),
+      duration: 8640000,
+      resolvesAt: Date.now() + 8640000,
+      villageId: 1,
+    };
+
+    // 3. Resolve
+    heroHealthRegenerationResolver(database, eventArgs);
+
+    // 4. Verify health stays 100
+    const health = database.selectValue({
+      sql: 'SELECT health FROM heroes LIMIT 1;',
+      schema: z.number(),
+    });
+    expect(health).toBe(100);
+
+    // 5. Verify next event scheduled
+    const nextEvent = database.selectObject({
+      sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
+      schema: z.object({ type: z.string() }),
+    });
+    expect(nextEvent).toBeDefined();
+    expect(nextEvent?.type).toBe('heroHealthRegeneration');
+  });
+
+  test('heroHealthRegenerationResolver should NOT increase health if hero is dead (original check)', async () => {
     const database = await prepareTestDatabase();
 
     database.exec({
