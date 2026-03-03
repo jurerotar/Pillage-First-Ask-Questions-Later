@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../../types/resolver';
 import { insertHeroEffectsQuery } from '../../utils/queries/effect-queries';
 import { addTroops } from '../../utils/queries/troop-queries.ts';
 import { updateVillageResourcesAt } from '../../utils/village.ts';
+import { createEvents } from '../utils/create-event';
 
 export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
   database,
@@ -12,23 +14,29 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
 ) => {
   const { resolvesAt } = args;
 
-  const { villageId, tileId } = database.selectObject({
-    sql: `
+  const { villageId, tileId, healthRegeneration, speed } =
+    database.selectObject({
+      sql: `
       SELECT
         villages.id AS villageId,
-        villages.tile_id AS tileId
+        villages.tile_id AS tileId,
+        heroes.health_regeneration AS healthRegeneration,
+        servers.speed AS speed
       FROM heroes
       JOIN villages ON heroes.village_id = villages.id
+      JOIN servers ON 1 = 1
       WHERE heroes.player_id = $player_id;
     `,
-    bind: {
-      $player_id: PLAYER_ID,
-    },
-    schema: z.object({
-      villageId: z.number(),
-      tileId: z.number(),
-    }),
-  })!;
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+      schema: z.object({
+        villageId: z.number(),
+        tileId: z.number(),
+        healthRegeneration: z.number(),
+        speed: z.number(),
+      }),
+    })!;
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
 
@@ -50,4 +58,32 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
       source: tileId,
     },
   ]);
+
+  const duration = calculateHealthRegenerationEventDuration(
+    healthRegeneration,
+    speed,
+  );
+  const heroHealthRegenerationResolvesAt = resolvesAt + duration;
+
+  createEvents<'heroHealthRegeneration'>(database, {
+    // We need to pass in resolvesAt, because getEventStartTime expects it
+    resolvesAt: heroHealthRegenerationResolvesAt,
+    type: 'heroHealthRegeneration',
+  });
+};
+
+export const heroHealthRegenerationResolver: Resolver<
+  GameEvent<'heroHealthRegeneration'>
+> = (database, args) => {
+  const { resolvesAt } = args;
+
+  database.exec({
+    sql: 'UPDATE heroes SET health = MIN(health + 1, 100) WHERE player_id = $player_id AND health > 0;',
+    bind: { $player_id: PLAYER_ID },
+  });
+
+  createEvents<'heroHealthRegeneration'>(database, {
+    resolvesAt,
+    type: 'heroHealthRegeneration',
+  });
 };

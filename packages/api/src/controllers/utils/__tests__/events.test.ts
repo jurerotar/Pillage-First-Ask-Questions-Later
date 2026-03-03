@@ -539,6 +539,22 @@ describe('events utils', () => {
 
       expect(result).toBe(0);
     });
+
+    test('heroHealthRegeneration - should return correct duration', async () => {
+      const database = await prepareTestDatabase();
+
+      database.exec({
+        sql: 'UPDATE heroes SET health_regeneration = 25 WHERE player_id = $player_id',
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      const result = getEventDuration(database, {
+        type: 'heroHealthRegeneration',
+      } as GameEvent<'heroHealthRegeneration'>);
+
+      const dayInMs = 24 * 60 * 60 * 1000;
+      expect(result).toBe(dayInMs / 25);
+    });
   });
 
   describe(getEventStartTime, () => {

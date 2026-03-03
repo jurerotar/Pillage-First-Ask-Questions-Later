@@ -95,4 +95,7 @@ export const cachesToClearOnResolve: Handlers = {
   heroRevival: () => {
     return [heroCacheKey, effectsCacheKey, eventsCacheKey];
   },
+  heroHealthRegeneration: () => {
+    return [heroCacheKey];
+  },
 };

@@ -1,4 +1,4 @@
-import { DatabaseInitializationError } from '@pillage-first/api/errors';
+import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
 import { isControllerMessageErrorNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards.ts';
 
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
@@ -19,7 +19,7 @@ export const createWorkerFetcher = (worker: Worker) => {
           const { error } = data;
 
           if (error.message.includes('sqlite3 result code 1')) {
-            reject(new DatabaseInitializationError());
+            reject(new OutdatedDatabaseSchemaError());
           }
 
           reject(data);

@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { heroRevivalResolver } from '../hero-resolvers';
+import {
+  heroHealthRegenerationResolver,
+  heroRevivalResolver,
+} from '../hero-resolvers';
 
 describe('hero-resolvers', () => {
   test('heroRevivalResolver should set hero health to 100', async () => {
@@ -41,5 +44,67 @@ describe('hero-resolvers', () => {
     expect(effectNames).toContain('clayProduction');
     expect(effectNames).toContain('ironProduction');
     expect(effectNames).toContain('wheatProduction');
+  });
+
+  test('heroHealthRegenerationResolver should increase health and schedule next event', async () => {
+    const database = await prepareTestDatabase();
+
+    // 1. Setup: hero at 50 health, with health_regeneration = 10
+    database.exec({
+      sql: 'UPDATE heroes SET health = 50, health_regeneration = 10;',
+    });
+
+    const eventArgs = {
+      id: 1,
+      type: 'heroHealthRegeneration' as const,
+      startsAt: Date.now(),
+      duration: 8640000, // 24h / 10
+      resolvesAt: Date.now() + 8640000,
+      villageId: 1,
+    };
+
+    // 2. Clear events to be sure
+    database.exec({ sql: 'DELETE FROM events;' });
+
+    // 3. Resolve
+    heroHealthRegenerationResolver(database, eventArgs);
+
+    // 4. Verify health increased
+    const health = database.selectValue({
+      sql: 'SELECT health FROM heroes LIMIT 1;',
+      schema: z.number(),
+    });
+    expect(health).toBe(51);
+
+    // 5. Verify next event scheduled
+    const nextEvent = database.selectObject({
+      sql: "SELECT type, starts_at AS startsAt FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
+      schema: z.object({ type: z.string(), startsAt: z.number() }),
+    });
+    expect(nextEvent).toBeDefined();
+    expect(nextEvent?.type).toBe('heroHealthRegeneration');
+  });
+
+  test('heroHealthRegenerationResolver should NOT increase health if hero is dead', async () => {
+    const database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'UPDATE heroes SET health = 0, health_regeneration = 10;',
+    });
+
+    heroHealthRegenerationResolver(database, {
+      id: 1,
+      type: 'heroHealthRegeneration',
+      startsAt: Date.now(),
+      duration: 8640000,
+      resolvesAt: Date.now() + 8640000,
+      villageId: 1,
+    });
+
+    const health = database.selectValue({
+      sql: 'SELECT health FROM heroes LIMIT 1;',
+      schema: z.number(),
+    });
+    expect(health).toBe(0);
   });
 });
