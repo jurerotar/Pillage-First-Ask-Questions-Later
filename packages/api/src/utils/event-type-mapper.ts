@@ -6,7 +6,10 @@ import {
   buildingLevelChangeResolver,
   buildingScheduledConstructionEventResolver,
 } from '../controllers/resolvers/building-resolvers';
-import { heroRevivalResolver } from '../controllers/resolvers/hero-resolvers';
+import {
+  heroHealthRegenerationResolver,
+  heroRevivalResolver,
+} from '../controllers/resolvers/hero-resolvers';
 import {
   adventureMovementResolver,
   attackMovementResolver,
@@ -67,6 +70,9 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'heroRevival': {
       return heroRevivalResolver;
+    }
+    case 'heroHealthRegeneration': {
+      return heroHealthRegenerationResolver;
     }
     case 'unitResearch': {
       return unitResearchResolver;

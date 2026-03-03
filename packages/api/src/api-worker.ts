@@ -20,7 +20,7 @@ import {
   parseAppVersion,
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
-import { DatabaseInitializationError } from './errors';
+import { OutdatedDatabaseSchemaError } from './errors';
 import { matchRoute } from './routes/route-matcher.ts';
 import {
   cancelScheduling,
@@ -58,7 +58,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
         if (opfsSahPool.getFileCount() === 0) {
-          throw new DatabaseInitializationError();
+          throw new OutdatedDatabaseSchemaError();
         }
 
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
@@ -85,14 +85,14 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
         if (!version) {
-          throw new DatabaseInitializationError();
+          throw new OutdatedDatabaseSchemaError();
         }
 
         const [, dbMinor] = parseDatabaseUserVersion(version);
         const [, appMinor] = parseAppVersion(env.VERSION);
 
         if (dbMinor !== appMinor) {
-          throw new DatabaseInitializationError();
+          throw new OutdatedDatabaseSchemaError();
         }
 
         upgradeDb(dbFacade);

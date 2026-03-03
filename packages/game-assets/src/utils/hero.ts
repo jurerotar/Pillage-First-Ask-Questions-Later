@@ -46,3 +46,13 @@ export const calculateHeroRevivalTime = (level: number): number => {
   const minutes = Math.min((level + 1) * 15, 6 * 60); // cap at 6 hours
   return minutes * 60 * 1000;
 };
+
+export const calculateHealthRegenerationEventDuration = (
+  dailyHealthRegeneration: number,
+  gameWorldSpeed: number,
+): number => {
+  const dayInMs = 24 * 60 * 60 * 1000;
+  return dailyHealthRegeneration > 0
+    ? dayInMs / dailyHealthRegeneration / gameWorldSpeed
+    : 0;
+};

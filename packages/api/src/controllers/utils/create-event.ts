@@ -17,10 +17,7 @@ import {
   validateEventCreationResources,
 } from './events';
 
-type CreateNewEventsArgs<T extends GameEventType> = Omit<
-  GameEvent<T>,
-  'id' | 'startsAt' | 'duration' | 'resolvesAt'
-> & {
+type CreateNewEventsArgs<T extends GameEventType> = Partial<GameEvent<T>> & {
   amount?: number;
 };
 
@@ -34,7 +31,7 @@ export const createEvents = <T extends GameEventType>(
   args: CreateNewEventsArgs<T>,
 ) => {
   const sampleEvent = args as GameEvent<T>;
-  let startsAt: number | null = null;
+  let startsAt: number | null = args.startsAt ?? null;
 
   const [isEventAllowed, reason] = validateEventCreationPrerequisites(
     database,

@@ -1,11 +1,13 @@
 import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { calculateAdventurePointIncreaseEventDuration } from '@pillage-first/game-assets/utils/adventures';
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
 } from '@pillage-first/game-assets/utils/buildings';
 import {
+  calculateHealthRegenerationEventDuration,
   calculateHeroLevel,
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
@@ -33,6 +35,7 @@ import {
   isBuildingDestructionEvent,
   isBuildingLevelUpEvent,
   isFindNewVillageTroopMovementEvent,
+  isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
   isOasisOccupationTroopMovementEvent,
   isReturnTroopMovementEvent,
@@ -48,7 +51,6 @@ import { removeTroops } from '../../utils/queries/troop-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
-import { calculateAdventurePointIncreaseEventDuration } from '../resolvers/utils/adventures';
 import { calculateAdventureDuration } from './adventures.ts';
 
 // TODO: Implement this
@@ -635,6 +637,19 @@ export const getEventDuration = (
     return calculateHeroRevivalTime(level) / speed;
   }
 
+  if (isHeroHealthRegenerationEvent(event)) {
+    const { healthRegeneration, speed } = database.selectObject({
+      sql: 'SELECT health_regeneration AS healthRegeneration, servers.speed FROM heroes JOIN servers ON 1 = 1 WHERE player_id = $player_id;',
+      bind: { $player_id: PLAYER_ID },
+      schema: z.object({
+        healthRegeneration: z.number(),
+        speed: speedSchema,
+      }),
+    })!;
+
+    return calculateHealthRegenerationEventDuration(healthRegeneration, speed);
+  }
+
   console.error('Missing duration calculation for event', event);
   return 0;
 };
@@ -743,6 +758,12 @@ export const getEventStartTime = (
   }
 
   if (isAdventurePointIncreaseEvent(event)) {
+    const { startsAt, duration } = event;
+
+    return startsAt + duration;
+  }
+
+  if (isHeroHealthRegenerationEvent(event)) {
     const { startsAt, duration } = event;
 
     return startsAt + duration;

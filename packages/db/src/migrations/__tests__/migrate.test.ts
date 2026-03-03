@@ -1239,6 +1239,15 @@ describe('migrateAndSeed', () => {
       });
       expect(c).toBeGreaterThanOrEqual(0);
     });
+
+    test('heroHealthRegeneration event exists on seed', () => {
+      const event = database.selectObject({
+        sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
+        schema: z.object({ type: z.string() }),
+      });
+      expect(event).toBeDefined();
+      expect(event?.type).toBe('heroHealthRegeneration');
+    });
   });
 
   describe('effects per village', () => {
