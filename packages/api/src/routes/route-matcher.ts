@@ -1,16 +1,8 @@
+import type { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { paths } from '../open-api.ts';
+import type { Method } from '../utils/controller.ts';
 import { compiledApiRoutes } from './api-routes.ts';
-
-// These params are automatically cast as numbers
-const numericParams = new Set([
-  'playerId',
-  'villageId',
-  'tileId',
-  'oasisId',
-  'itemId',
-  'x',
-  'y',
-]);
 
 const routesByMethodCache = new Map<string, typeof compiledApiRoutes>();
 
@@ -27,9 +19,7 @@ const getRoutesForMethod = (method: string) => {
 
 export const matchRoute = (url: string, method: string) => {
   const [urlPath, queryString] = url.split('?');
-  const query: Record<string, string | number> = Object.fromEntries(
-    new URLSearchParams(queryString),
-  );
+  const rawQuery = Object.fromEntries(new URLSearchParams(queryString));
 
   // Replace only leading `/me` (either end or followed by slash), preserves trailing slash if present.
   const path = urlPath.replace(/^\/me(?=\/|$)/, `/players/${PLAYER_ID}`);
@@ -45,43 +35,35 @@ export const matchRoute = (url: string, method: string) => {
       continue;
     }
 
-    // Only clone params if we actually need to cast any numeric values
-    let { params } = result;
+    const { params: rawPathParams } = result;
 
-    for (const [key, rawValue] of Object.entries(result.params)) {
-      if (!numericParams.has(key)) {
-        continue;
-      }
+    const pathKey = route.path as keyof typeof paths;
+    const methodKey = method.toLowerCase() as Method;
 
-      const n = Number.parseInt(rawValue, 10);
-      if (!Number.isNaN(n)) {
-        // Clone lazily on first numeric conversion
-        if (params === result.params) {
-          params = {
-            ...result.params,
+    // TODO: Refactor this
+    const routeConfig = (paths[pathKey] as Record<string, any>)[methodKey] as
+      | {
+          requestParams?: {
+            path?: z.ZodTypeAny;
+            query?: z.ZodTypeAny;
           };
         }
-        params[key] = `${n}`;
-      }
-    }
+      | undefined;
 
-    // Also cast numeric query params
-    for (const [key, rawValue] of Object.entries(query)) {
-      if (!numericParams.has(key)) {
-        continue;
-      }
+    const requestParams = routeConfig?.requestParams;
 
-      const n =
-        typeof rawValue === 'string' ? Number.parseInt(rawValue, 10) : rawValue;
-      if (!Number.isNaN(n)) {
-        query[key] = n;
-      }
-    }
+    const pathParams = requestParams?.path
+      ? requestParams.path.parse(rawPathParams)
+      : rawPathParams;
+
+    const queryParams = requestParams?.query
+      ? requestParams.query.parse(rawQuery)
+      : rawQuery;
 
     return {
       controller: route.controller,
-      path: params,
-      query,
+      path: pathParams as Record<string, string | number>,
+      query: queryParams as Record<string, string | number>,
     };
   }
 

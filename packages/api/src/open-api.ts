@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
@@ -85,7 +86,7 @@ export const paths = {
       summary: 'Get player village listing',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -105,7 +106,7 @@ export const paths = {
       summary: 'Get player villages with population',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -238,7 +239,7 @@ export const paths = {
             schema: z.array(
               z.strictObject({
                 buildingFieldId: z.number(),
-                buildingId: z.string().nullable(),
+                buildingId: buildingIdSchema.nullable(),
               }),
             ),
           },
@@ -277,7 +278,7 @@ export const paths = {
       requestParams: {
         path: z.strictObject({
           villageId: z.coerce.number(),
-          buildingId: z.string(),
+          buildingId: buildingIdSchema,
         }),
       },
       requestBody: {
@@ -301,7 +302,7 @@ export const paths = {
       summary: 'Get hero details',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -321,7 +322,7 @@ export const paths = {
       summary: 'Get hero loadout',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -339,7 +340,7 @@ export const paths = {
       summary: 'Equip hero item',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       requestBody: {
@@ -365,7 +366,7 @@ export const paths = {
       summary: 'Get hero inventory',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -385,7 +386,7 @@ export const paths = {
       summary: 'Get hero adventures',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -403,7 +404,7 @@ export const paths = {
       summary: 'Start hero adventure',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -418,7 +419,7 @@ export const paths = {
       summary: 'Change hero attributes',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       requestBody: {
@@ -445,7 +446,7 @@ export const paths = {
       summary: 'Change hero resource to produce',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       requestBody: {
@@ -469,7 +470,7 @@ export const paths = {
       summary: 'Unequip hero item',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
           slot: heroLoadoutSlotSchema,
         }),
       },
@@ -485,7 +486,7 @@ export const paths = {
       summary: 'Use hero item',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       requestBody: {
@@ -549,7 +550,7 @@ export const paths = {
       summary: 'Level up hero',
       requestParams: {
         path: z.strictObject({
-          heroId: z.number(),
+          heroId: z.coerce.number(),
         }),
       },
       responses: {
@@ -630,7 +631,7 @@ export const paths = {
       summary: 'Get farm lists',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -648,7 +649,7 @@ export const paths = {
       summary: 'Create farm list',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       requestBody: {
@@ -919,7 +920,7 @@ export const paths = {
       summary: 'Get map markers',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -937,7 +938,7 @@ export const paths = {
       summary: 'Add map marker',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       requestBody: {
@@ -961,7 +962,7 @@ export const paths = {
       summary: 'Remove map marker',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
           tileId: z.coerce.number(),
         }),
       },
@@ -977,7 +978,7 @@ export const paths = {
       summary: 'Get map filters',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -997,7 +998,7 @@ export const paths = {
       summary: 'Update map filter',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
           filterName: z.string(),
         }),
       },
@@ -1080,7 +1081,7 @@ export const paths = {
       summary: 'Get player faction reputations',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -1163,7 +1164,7 @@ export const paths = {
       summary: 'Get unit improvements',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -1325,7 +1326,7 @@ export const paths = {
       summary: 'Get player preferences',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
         }),
       },
       responses: {
@@ -1345,7 +1346,7 @@ export const paths = {
       summary: 'Update player preference',
       requestParams: {
         path: z.strictObject({
-          playerId: playerSchema.shape.id,
+          playerId: z.coerce.number(),
           preferenceName: z.string(),
         }),
       },
