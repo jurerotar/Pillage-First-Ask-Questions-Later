@@ -4,7 +4,7 @@ import type { Resource } from '@pillage-first/types/models/resource';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { getCurrentTime, subscribeToTimer } from 'app/(game)/utils/timer.ts';
+import { getCurrentTime, subscribeToTimer } from 'app/(game)/utils/timer';
 
 const resourceToResourceEffectMap = new Map<
   Resource,

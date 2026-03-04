@@ -15,7 +15,7 @@ import {
   updateVillageResourcesAt,
 } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
-import { assessBuildingQuestCompletion } from './utils/quests.ts';
+import { assessBuildingQuestCompletion } from './utils/quests';
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>

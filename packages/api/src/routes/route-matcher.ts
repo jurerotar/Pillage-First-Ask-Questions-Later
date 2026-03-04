@@ -1,8 +1,8 @@
 import type { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { paths } from '../open-api.ts';
-import type { Method } from '../utils/controller.ts';
-import { compiledApiRoutes } from './api-routes.ts';
+import { paths } from '../open-api';
+import type { Method } from '../utils/controller';
+import { compiledApiRoutes } from './api-routes';
 
 const routesByMethodCache = new Map<string, typeof compiledApiRoutes>();
 

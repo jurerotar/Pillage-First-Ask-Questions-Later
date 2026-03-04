@@ -21,7 +21,7 @@ import {
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
 import { OutdatedDatabaseSchemaError } from './errors';
-import { matchRoute } from './routes/route-matcher.ts';
+import { matchRoute } from './routes/route-matcher';
 import {
   cancelScheduling,
   initScheduler,

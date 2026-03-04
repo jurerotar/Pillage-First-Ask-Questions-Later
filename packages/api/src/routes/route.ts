@@ -1,5 +1,5 @@
-import type { paths } from '../open-api.ts';
-import type { Controller, Method } from '../utils/controller.ts';
+import type { paths } from '../open-api';
+import type { Controller, Method } from '../utils/controller';
 
 export type Route<TPath extends keyof typeof paths = keyof typeof paths> = {
   path: TPath;

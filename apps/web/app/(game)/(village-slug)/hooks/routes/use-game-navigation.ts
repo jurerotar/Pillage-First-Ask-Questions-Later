@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server.ts';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 
 export const useGameNavigation = () => {
   const { serverSlug } = useServer();

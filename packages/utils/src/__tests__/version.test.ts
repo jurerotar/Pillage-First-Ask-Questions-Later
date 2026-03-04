@@ -3,7 +3,7 @@ import {
   encodeAppVersionToDatabaseUserVersion,
   parseAppVersion,
   parseDatabaseUserVersion,
-} from '../version.js';
+} from '../version';
 
 describe('version utils', () => {
   describe(parseAppVersion, () => {

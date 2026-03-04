@@ -11,7 +11,7 @@ import {
   heroLoadoutCacheKey,
   playerVillagesCacheKey,
 } from 'app/(game)/(village-slug)/constants/query-keys';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider.tsx';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
