@@ -47,10 +47,10 @@ import {
 } from '@pillage-first/utils/guards/event';
 import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
-import { removeTroops } from '../../utils/queries/troop-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
+import { removeTroops } from '../resolvers/utils/troops.ts';
 import { calculateAdventureDuration } from './adventures.ts';
 
 // TODO: Implement this

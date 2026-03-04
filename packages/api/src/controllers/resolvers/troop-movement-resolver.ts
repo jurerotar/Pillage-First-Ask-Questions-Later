@@ -8,11 +8,11 @@ import { resourceFieldCompositionSchema } from '@pillage-first/types/models/reso
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Resolver } from '../../types/resolver';
 import { updateHeroEffectsVillageIdQuery } from '../../utils/queries/effect-queries';
-import { addTroops } from '../../utils/queries/troop-queries';
 import { updateVillageResourcesAt } from '../../utils/village.ts';
 import { createEvents } from '../utils/create-event';
 import { onHeroDeath } from './utils/hero.ts';
 import { assessAdventureCountQuestCompletion } from './utils/quests.ts';
+import { addTroops } from './utils/troops.ts';
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>

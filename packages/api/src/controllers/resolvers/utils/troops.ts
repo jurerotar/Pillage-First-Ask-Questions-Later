@@ -1,43 +1,82 @@
 import type { Troop } from '@pillage-first/types/models/troop';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-type UnitMapKey = `${Troop['unitId']}-${Troop['tileId']}-${Troop['source']}`;
+export const addTroops = (database: DbFacade, troops: Troop[]) => {
+  const stmt = database.prepare({
+    sql: `
+      INSERT INTO
+        troops (unit_id, amount, tile_id, source_tile_id)
+      VALUES
+        ((
+           SELECT id
+           FROM
+             unit_ids
+           WHERE
+             unit = $unit_id
+           ), $amount, $tile_id, $source_tile_id)
+      ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
+        amount = troops.amount + EXCLUDED.amount;
+    `,
+  });
 
-const createTroopMap = (troops: Troop[]): Map<UnitMapKey, Troop> => {
-  return new Map<UnitMapKey, Troop>(
-    troops.map((troop) => [
-      `${troop.unitId}-${troop.tileId}-${troop.source}`,
-      troop,
-    ]),
-  );
+  for (const troop of troops) {
+    stmt
+      .bind({
+        $unit_id: troop.unitId,
+        $amount: troop.amount,
+        $tile_id: troop.tileId,
+        $source_tile_id: troop.source,
+      })
+      .stepReset();
+  }
 };
 
-export const modifyTroops = (
-  troops: Troop[],
-  change: Troop[],
-  mode: 'add' | 'subtract',
-): Troop[] => {
-  const troopMap = createTroopMap(troops);
+export const removeTroops = (database: DbFacade, troops: Troop[]) => {
+  for (const troop of troops) {
+    database.exec({
+      sql: `
+        DELETE
+        FROM
+          troops
+        WHERE
+          unit_id = (
+            SELECT id
+            FROM unit_ids
+            WHERE unit = $unit_id
+            )
+          AND tile_id = $tile_id
+          AND source_tile_id = $source_tile_id
+          AND amount <= $amount;
+      `,
+      bind: {
+        $unit_id: troop.unitId,
+        $amount: troop.amount,
+        $tile_id: troop.tileId,
+        $source_tile_id: troop.source,
+      },
+    });
 
-  for (const troopChange of change) {
-    const key =
-      `${troopChange.unitId}-${troopChange.tileId}-${troopChange.source}` satisfies UnitMapKey;
-
-    if (!troopMap.has(key)) {
-      troopMap.set(key, { ...troopChange, amount: 0 });
-    }
-
-    const troop = troopMap.get(key)!;
-
-    if (mode === 'add') {
-      troop.amount += troopChange.amount;
-    } else {
-      troop.amount -= troopChange.amount;
-
-      if (troop.amount === 0) {
-        troopMap.delete(key);
-      }
-    }
+    database.exec({
+      sql: `
+        UPDATE troops
+        SET
+          amount = amount - $amount
+        WHERE
+          unit_id = (
+            SELECT id
+            FROM unit_ids
+            WHERE unit = $unit_id
+            )
+          AND tile_id = $tile_id
+          AND source_tile_id = $source_tile_id
+          AND amount > $amount;
+      `,
+      bind: {
+        $unit_id: troop.unitId,
+        $amount: troop.amount,
+        $tile_id: troop.tileId,
+        $source_tile_id: troop.source,
+      },
+    });
   }
-
-  return [...troopMap.values()];
 };
