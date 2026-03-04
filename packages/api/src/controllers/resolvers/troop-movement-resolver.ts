@@ -17,7 +17,7 @@ import { assessAdventureCountQuestCompletion } from './utils/quests.ts';
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
 > = (database, args) => {
-  const { villageId, startsAt, duration, resolvesAt } = args;
+  const { villageId, resolvesAt } = args;
 
   const { heroId, health } = database.selectObject({
     sql: `
@@ -76,10 +76,11 @@ export const adventureMovementResolver: Resolver<
     },
   });
 
-  assessAdventureCountQuestCompletion(database, startsAt + duration);
+  assessAdventureCountQuestCompletion(database, resolvesAt);
 
   createEvents<'troopMovementReturn'>(database, {
     ...args,
+    startsAt: resolvesAt,
     targetId: villageId,
     type: 'troopMovementReturn',
     originalMovementType: 'adventure',
@@ -319,9 +320,12 @@ export const reinforcementMovementResolver: Resolver<
 export const attackMovementResolver: Resolver<
   GameEvent<'troopMovementAttack'>
 > = (database, args) => {
+  const { resolvesAt } = args;
+
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
     ...args,
+    startsAt: resolvesAt,
     type: 'troopMovementReturn',
     originalMovementType: 'attack',
   });
@@ -331,9 +335,12 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
   database,
   args,
 ) => {
+  const { resolvesAt } = args;
+
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
     ...args,
+    startsAt: resolvesAt,
     type: 'troopMovementReturn',
     originalMovementType: 'raid',
   });

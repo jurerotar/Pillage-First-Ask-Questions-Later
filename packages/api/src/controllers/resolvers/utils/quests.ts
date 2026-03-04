@@ -94,7 +94,7 @@ export const assessBuildingQuestCompletion = (
             building_fields bf
           WHERE
             bf.village_id = $village_id
-            AND bf.building_id = $building_id
+            AND bf.building_id = (SELECT id FROM building_ids WHERE building = $building_id)
             AND bf.level >= $level
           );
     `,
@@ -124,7 +124,7 @@ export const assessBuildingQuestCompletion = (
                 building_fields
               WHERE
                 village_id = $village_id
-                AND building_id = $building_id
+                AND building_id = (SELECT id FROM building_ids WHERE building = $building_id)
                 AND level >= $level
               ) = (
               SELECT COUNT(*)
@@ -132,7 +132,7 @@ export const assessBuildingQuestCompletion = (
                 building_fields
               WHERE
                 village_id = $village_id
-                AND building_id = $building_id
+                AND building_id = (SELECT id FROM building_ids WHERE building = $building_id)
               )
         AND (
               SELECT COUNT(*)
@@ -140,7 +140,7 @@ export const assessBuildingQuestCompletion = (
                 building_fields
               WHERE
                 village_id = $village_id
-                AND building_id = $building_id
+                AND building_id = (SELECT id FROM building_ids WHERE building = $building_id)
               ) > 0;
     `,
     bind: {

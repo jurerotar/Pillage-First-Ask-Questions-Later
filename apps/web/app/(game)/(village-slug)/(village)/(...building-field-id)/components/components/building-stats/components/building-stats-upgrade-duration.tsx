@@ -103,7 +103,7 @@ export const BuildingStatsUpgradeDuration = () => {
               return (
                 <TableRow
                   key={levelNum}
-                  {...(levelNum === level && { className: 'bg-gray-100' })}
+                  {...(levelNum === level && { className: 'bg-muted' })}
                 >
                   <TableCell>{levelNum}</TableCell>
                   <TableCell>

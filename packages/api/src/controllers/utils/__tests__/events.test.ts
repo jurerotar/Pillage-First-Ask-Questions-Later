@@ -8,8 +8,11 @@ import {
   calculateHeroRevivalTime,
 } from '@pillage-first/game-assets/utils/hero';
 import {
+  createBuildingConstructionEventMock,
   createBuildingLevelChangeEventMock,
   createGameEventMock,
+  createHeroHealthRegenerationEventMock,
+  createHeroRevivalEventMock,
   createTroopTrainingEventMock,
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
@@ -72,10 +75,12 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      const result = validateEventCreationPrerequisites(database, {
-        type: 'unitImprovement',
-        villageId,
-      } as GameEvent<'unitImprovement'>);
+      const result = validateEventCreationPrerequisites(
+        database,
+        createUnitImprovementEventMock({
+          villageId,
+        }),
+      );
 
       expect(result).toStrictEqual([true, null]);
     });
@@ -179,10 +184,12 @@ describe('events utils', () => {
         bind: { $player_id: PLAYER_ID },
       });
 
-      const result = validateEventCreationPrerequisites(database, {
-        type: 'heroRevival',
-        villageId,
-      } as GameEvent<'heroRevival'>);
+      const result = validateEventCreationPrerequisites(
+        database,
+        createHeroRevivalEventMock({
+          villageId,
+        }),
+      );
 
       expect(result).toStrictEqual([false, 'Hero is already alive']);
     });
@@ -196,10 +203,12 @@ describe('events utils', () => {
         bind: { $player_id: PLAYER_ID },
       });
 
-      const result = validateEventCreationPrerequisites(database, {
-        type: 'heroRevival',
-        villageId,
-      } as GameEvent<'heroRevival'>);
+      const result = validateEventCreationPrerequisites(
+        database,
+        createHeroRevivalEventMock({
+          villageId,
+        }),
+      );
 
       expect(result).toStrictEqual([true, null]);
     });
@@ -389,10 +398,12 @@ describe('events utils', () => {
       const { level } = calculateHeroLevel(experience);
       const expectedCost = calculateHeroRevivalCost(tribe, level);
 
-      const result = getEventCost(database, {
-        type: 'heroRevival',
-        villageId,
-      } as GameEvent<'heroRevival'>);
+      const result = getEventCost(
+        database,
+        createHeroRevivalEventMock({
+          villageId,
+        }),
+      );
 
       expect(result).toStrictEqual(expectedCost);
     });
@@ -402,10 +413,12 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
       setDevFlag(database, 'is_free_hero_revive_enabled', 1);
 
-      const result = getEventCost(database, {
-        type: 'heroRevival',
-        villageId,
-      } as GameEvent<'heroRevival'>);
+      const result = getEventCost(
+        database,
+        createHeroRevivalEventMock({
+          villageId,
+        }),
+      );
 
       expect(result).toStrictEqual([0, 0, 0, 0]);
     });
@@ -519,10 +532,12 @@ describe('events utils', () => {
       const { level } = calculateHeroLevel(experience);
       const expectedDuration = calculateHeroRevivalTime(level) / speed;
 
-      const result = getEventDuration(database, {
-        type: 'heroRevival',
-        villageId,
-      } as GameEvent<'heroRevival'>);
+      const result = getEventDuration(
+        database,
+        createHeroRevivalEventMock({
+          villageId,
+        }),
+      );
 
       expect(result).toBe(expectedDuration);
     });
@@ -532,10 +547,12 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
       setDevFlag(database, 'is_instant_hero_revive_enabled', 1);
 
-      const result = getEventDuration(database, {
-        type: 'heroRevival',
-        villageId,
-      } as GameEvent<'heroRevival'>);
+      const result = getEventDuration(
+        database,
+        createHeroRevivalEventMock({
+          villageId,
+        }),
+      );
 
       expect(result).toBe(0);
     });
@@ -548,9 +565,10 @@ describe('events utils', () => {
         bind: { $player_id: PLAYER_ID },
       });
 
-      const result = getEventDuration(database, {
-        type: 'heroHealthRegeneration',
-      } as GameEvent<'heroHealthRegeneration'>);
+      const result = getEventDuration(
+        database,
+        createHeroHealthRegenerationEventMock(),
+      );
 
       const dayInMs = 24 * 60 * 60 * 1000;
       expect(result).toBe(dayInMs / 25);
@@ -670,10 +688,11 @@ describe('events utils', () => {
       vi.useFakeTimers();
       const now = 9_999_999;
       vi.setSystemTime(new Date(now));
-      const event = {
-        type: 'buildingConstruction',
-      } as GameEvent<'buildingConstruction'>;
-      expect(getEventStartTime(database, event)).toBe(now);
+      const result = getEventStartTime(
+        database,
+        createBuildingConstructionEventMock(),
+      );
+      expect(result).toBe(now);
       vi.useRealTimers();
     });
   });

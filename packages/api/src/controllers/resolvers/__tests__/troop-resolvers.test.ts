@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { troopTrainingEventResolver } from '../troop-resolvers';
 
@@ -18,19 +18,17 @@ describe(troopTrainingEventResolver, () => {
       schema: z.strictObject({ tile_id: z.number() }),
     })!;
 
-    const mockEvent: GameEvent<'troopTraining'> = {
+    const mockEvent = createTroopTrainingEventMock({
       id: 1,
-      type: 'troopTraining',
       startsAt: 1000,
       duration: 100,
-      resolvesAt: 1100,
       villageId,
       unitId,
       amount: 1,
       batchId: 'batch-1',
       durationEffectId: 'barracksTrainingDuration',
       buildingId: 'BARRACKS',
-    };
+    });
 
     troopTrainingEventResolver(database, { ...mockEvent, id: 999 });
 
@@ -67,12 +65,14 @@ describe(troopTrainingEventResolver, () => {
     expect(quest?.completed_at).toBeNull();
 
     // Now train enough to complete the quest
-    troopTrainingEventResolver(database, {
-      ...mockEvent,
-      id: 1000,
-      amount: 9,
-      resolvesAt: 1200,
-    });
+    for (let i = 0; i < 9; i++) {
+      troopTrainingEventResolver(database, {
+        ...mockEvent,
+        id: 1000 + i,
+        amount: 1, // This is now ignored but good for documentation in test
+        resolvesAt: 1200,
+      });
+    }
 
     const completedQuest = database.selectObject({
       sql: "SELECT completed_at FROM quests WHERE quest_id = 'troopCount-10';",

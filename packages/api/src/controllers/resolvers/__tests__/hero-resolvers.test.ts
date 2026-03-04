@@ -2,6 +2,10 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
+  createHeroHealthRegenerationEventMock,
+  createHeroRevivalEventMock,
+} from '@pillage-first/mocks/event';
+import {
   heroHealthRegenerationResolver,
   heroRevivalResolver,
 } from '../hero-resolvers';
@@ -16,14 +20,15 @@ describe('hero-resolvers', () => {
       sql: "DELETE FROM effects WHERE source = 'hero' AND village_id = (SELECT village_id FROM heroes LIMIT 1);",
     });
 
-    heroRevivalResolver(database, {
-      id: 1,
-      type: 'heroRevival',
-      startsAt: Date.now(),
-      duration: 1000,
-      resolvesAt: Date.now() + 1000,
-      villageId: 1,
-    });
+    heroRevivalResolver(
+      database,
+      createHeroRevivalEventMock({
+        id: 1,
+        startsAt: 1000,
+        duration: 1000,
+        villageId: 1,
+      }),
+    );
 
     const { health, villageId } = database.selectObject({
       sql: 'SELECT health, village_id AS villageId FROM heroes LIMIT 1;',
@@ -54,14 +59,12 @@ describe('hero-resolvers', () => {
       sql: 'UPDATE heroes SET health = 50, health_regeneration = 10;',
     });
 
-    const eventArgs = {
+    const eventArgs = createHeroHealthRegenerationEventMock({
       id: 1,
-      type: 'heroHealthRegeneration' as const,
-      startsAt: Date.now(),
+      startsAt: 1000,
       duration: 8640000, // 24h / 10
-      resolvesAt: Date.now() + 8640000,
       villageId: 1,
-    };
+    });
 
     // 2. Clear events to be sure
     database.exec({ sql: 'DELETE FROM events;' });
@@ -96,14 +99,12 @@ describe('hero-resolvers', () => {
     // 2. Clear events to be sure
     database.exec({ sql: 'DELETE FROM events;' });
 
-    const eventArgs = {
+    const eventArgs = createHeroHealthRegenerationEventMock({
       id: 1,
-      type: 'heroHealthRegeneration' as const,
-      startsAt: Date.now(),
+      startsAt: 1000,
       duration: 8640000,
-      resolvesAt: Date.now() + 8640000,
       villageId: 1,
-    };
+    });
 
     // 3. Resolve
     heroHealthRegenerationResolver(database, eventArgs);
@@ -131,14 +132,15 @@ describe('hero-resolvers', () => {
       sql: 'UPDATE heroes SET health = 0, health_regeneration = 10;',
     });
 
-    heroHealthRegenerationResolver(database, {
-      id: 1,
-      type: 'heroHealthRegeneration',
-      startsAt: Date.now(),
-      duration: 8640000,
-      resolvesAt: Date.now() + 8640000,
-      villageId: 1,
-    });
+    heroHealthRegenerationResolver(
+      database,
+      createHeroHealthRegenerationEventMock({
+        id: 1,
+        startsAt: 1000,
+        duration: 8640000,
+        villageId: 1,
+      }),
+    );
 
     const health = database.selectValue({
       sql: 'SELECT health FROM heroes LIMIT 1;',

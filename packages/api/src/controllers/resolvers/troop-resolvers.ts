@@ -7,7 +7,8 @@ import { assessTroopCountQuestCompletion } from './utils/quests.ts';
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>
 > = (database, args) => {
-  const { unitId, villageId, resolvesAt, amount } = args;
+  const { unitId, villageId, resolvesAt } = args;
+  const amount = 1;
 
   database.exec({
     sql: `
