@@ -18,6 +18,8 @@ import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
+import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
+import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
@@ -28,14 +30,13 @@ import createUnitDataTable from '../schemas/lookup-tables/unit-data-schema.sql?r
 import createUnitIdsTable from '../schemas/lookup-tables/unit-ids-schema.sql?raw';
 import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
+import createMetaTable from '../schemas/meta-schema.sql?raw';
 import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
-import createBuildingLevelChangeHistoryTable from '../schemas/statistics/building-level-change-history-schema.sql?raw';
-import createUnitTrainingHistoryTable from '../schemas/statistics/unit-training-history-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
@@ -56,6 +57,7 @@ import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder'
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
 import { mapFiltersSeeder } from '../seeders/map-filters-seeder';
+import { metaSeeder } from '../seeders/meta-seeder';
 import { oasisSeeder } from '../seeders/oasis-seeder';
 import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
@@ -73,6 +75,8 @@ import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
 import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
+import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
+import { setupHistoryTriggers } from '../triggers/history-triggers';
 
 export const migrateAndSeed = (
   database: DbFacade,
@@ -225,6 +229,12 @@ export const migrateAndSeed = (
     // Events
     db.exec({ sql: createEventsTable });
     eventsSeeder(db, server);
+
+    // Meta table and write triggers
+    db.exec({ sql: createMetaTable });
+    metaSeeder(db);
+    setupGlobalWriteTriggers(db);
+    setupHistoryTriggers(db);
   });
 
   const t1 = performance.now();
