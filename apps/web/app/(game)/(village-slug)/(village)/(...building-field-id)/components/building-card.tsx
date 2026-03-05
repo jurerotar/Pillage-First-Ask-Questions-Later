@@ -221,7 +221,6 @@ type BuildingBenefitProps = {
 };
 
 const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
-  // TODO: Resource production, warehouse & granary values need to be increased by server effect value
   const { hasEffect, serverEffectValue } = useEffectServerValue(
     effect.effectId,
   );

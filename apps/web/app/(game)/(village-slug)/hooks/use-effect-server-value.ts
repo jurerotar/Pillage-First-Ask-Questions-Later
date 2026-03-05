@@ -11,7 +11,9 @@ const effectsThatNeedServerValueModificationInDisplay = new Set<Effect['id']>([
 export const useEffectServerValue = (effectId: Effect['id']) => {
   const { effects } = useEffects();
 
-  const serverEffect = effects.find(({ id }) => id === effectId);
+  const serverEffect = effects.find(
+    ({ id, scope }) => id === effectId && scope === 'server',
+  );
 
   return {
     hasEffect:

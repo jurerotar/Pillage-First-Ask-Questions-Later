@@ -30,9 +30,9 @@ export const createEvents = <T extends GameEventType>(
   database: DbFacade,
   args: CreateNewEventsArgs<T>,
 ) => {
-  const { amount = 1, ...rest } = args;
-  const sampleEvent = rest as GameEvent<T>;
+  const sampleEvent = args as GameEvent<T>;
   let { startsAt = null } = sampleEvent;
+  const amount = args?.amount ?? 1;
 
   const [isEventAllowed, reason] = validateEventCreationPrerequisites(
     database,
@@ -58,18 +58,14 @@ export const createEvents = <T extends GameEventType>(
       return;
     }
 
-    if (startsAt === null) {
-      startsAt = getEventStartTime(database, sampleEvent);
-    }
+    startsAt ??= getEventStartTime(database, sampleEvent);
 
     const { villageId } = sampleEvent;
 
     subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
   }
 
-  if (startsAt === null) {
-    startsAt = getEventStartTime(database, sampleEvent);
-  }
+  startsAt ??= getEventStartTime(database, sampleEvent);
 
   const duration = Math.ceil(getEventDuration(database, sampleEvent));
 
