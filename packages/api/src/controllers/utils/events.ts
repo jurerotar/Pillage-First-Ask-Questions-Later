@@ -182,6 +182,47 @@ export const validateEventCreationPrerequisites = (
     if (hasOngoingUnitImprovementEventsInThisVillage) {
       return [false, 'Smithy is busy'];
     }
+
+    const currentUnitUpgradeLevel = database.selectValue({
+      sql: `
+        SELECT
+          COALESCE(
+            (
+              SELECT
+                level
+              FROM
+                unit_improvements
+              WHERE
+                player_id = (
+                  SELECT
+                    player_id
+                  FROM
+                    villages
+                  WHERE
+                    id = $village_id
+                )
+                AND unit_id = (
+                  SELECT
+                    id
+                  FROM
+                    unit_ids
+                  WHERE
+                    unit = $unit_id
+                )
+            ),
+            0
+          ) AS current_level;
+      `,
+      bind: {
+        $village_id: villageId,
+        $unit_id: event.unitId,
+      },
+      schema: z.number(),
+    })!;
+
+    if (currentUnitUpgradeLevel >= level) {
+      return [false, 'Unit upgrade level already exists'];
+    }
   }
 
   if (isUnitResearchEvent(event)) {
