@@ -34,11 +34,12 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
       WHEN OLD.type = 'troopTraining'
       BEGIN
         INSERT INTO unit_training_history
-          (village_id, batch_id, unit_id, amount, timestamp)
+          (village_id, batch_id, unit_id, building_id, amount, timestamp)
         SELECT
           OLD.village_id,
           JSON_EXTRACT(OLD.meta, '$.batchId'),
           (SELECT id FROM unit_ids WHERE unit = JSON_EXTRACT(OLD.meta, '$.unitId')),
+          (SELECT id FROM building_ids WHERE building = JSON_EXTRACT(OLD.meta, '$.buildingId')),
           1,
           unixepoch()
         ON CONFLICT(batch_id, unit_id) DO UPDATE SET

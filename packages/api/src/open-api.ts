@@ -19,6 +19,10 @@ import {
   getHeroLoadoutSchema,
   getHeroSchema,
 } from './controllers/schemas/hero-schemas';
+import {
+  getBuildingLevelChangeHistorySchema,
+  getUnitTrainingHistorySchema,
+} from './controllers/schemas/history-schemas';
 import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas';
 import {
   getMapMarkersSchema,
@@ -802,6 +806,55 @@ export const paths = {
           content: {
             'application/json': {
               schema: z.array(z.any()),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/buildings': {
+    get: {
+      summary: 'Get village building level change history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Village building level change history',
+          content: {
+            'application/json': {
+              schema: z.array(getBuildingLevelChangeHistorySchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/units': {
+    get: {
+      summary: 'Get village unit training history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              buildingId: buildingIdSchema.nullable().optional(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Village unit training history',
+          content: {
+            'application/json': {
+              schema: z.array(getUnitTrainingHistorySchema),
             },
           },
         },

@@ -4,6 +4,7 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import {
   adventurePointsCacheKey,
+  buildingHistoryCacheKey,
   collectableQuestCountCacheKey,
   effectsCacheKey,
   eventsCacheKey,
@@ -31,6 +32,7 @@ export const cachesToClearOnResolve: Handlers = {
       effectsCacheKey,
       questsCacheKey,
       collectableQuestCountCacheKey,
+      buildingHistoryCacheKey,
     ];
   },
   buildingLevelChange: () => {
@@ -39,12 +41,12 @@ export const cachesToClearOnResolve: Handlers = {
       effectsCacheKey,
       questsCacheKey,
       collectableQuestCountCacheKey,
+      buildingHistoryCacheKey,
     ];
   },
   buildingDestruction: () => {
-    return [playerVillagesCacheKey, effectsCacheKey];
+    return [playerVillagesCacheKey, effectsCacheKey, buildingHistoryCacheKey];
   },
-
   troopTraining: () => {
     return [playerTroopsCacheKey, effectsCacheKey];
   },

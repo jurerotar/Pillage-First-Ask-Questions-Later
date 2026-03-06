@@ -54,6 +54,12 @@ const MainBuildingVillageManagement = lazyWithRetry(async () => ({
   ).MainBuildingVillageManagement,
 }));
 
+const MainBuildingConstructionLog = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/main-building/main-building-construction-log')
+  ).MainBuildingConstructionLog,
+}));
+
 const RallyPointTroopMovements = lazyWithRetry(async () => ({
   default: (
     await import('./components/rally-point/rally-point-troop-movements')
@@ -68,14 +74,6 @@ const RallyPointSendTroops = lazyWithRetry(async () => ({
 const RallyPointSimulator = lazyWithRetry(async () => ({
   default: (await import('./components/rally-point/rally-point-simulator'))
     .RallyPointSimulator,
-}));
-
-const ResidenceTroopTraining = lazyWithRetry(async () => ({
-  default: (
-    await import(
-      './components/unit-production-buildings/residence-troop-training.tsx'
-    )
-  ).ResidenceTroopTraining,
 }));
 
 const ResidenceLoyalty = lazyWithRetry(async () => ({
@@ -139,42 +137,15 @@ const BreweryCelebration = lazyWithRetry(async () => ({
     .BreweryCelebration,
 }));
 
-const BarracksTroopTraining = lazyWithRetry(async () => ({
+const UnitTraining = lazyWithRetry(async () => ({
   default: (
-    await import(
-      './components/unit-production-buildings/barracks-troop-training'
-    )
-  ).BarracksTroopTraining,
+    await import('./components/unit-production-buildings/unit-training')
+  ).UnitTraining,
 }));
 
-const GreatBarracksTroopTraining = lazyWithRetry(async () => ({
-  default: (
-    await import(
-      './components/unit-production-buildings/great-barracks-troop-training'
-    )
-  ).GreatBarracksTroopTraining,
-}));
-
-const StableTroopTraining = lazyWithRetry(async () => ({
-  default: (
-    await import('./components/unit-production-buildings/stable-troop-training')
-  ).StableTroopTraining,
-}));
-
-const GreatStableTroopTraining = lazyWithRetry(async () => ({
-  default: (
-    await import(
-      './components/unit-production-buildings/great-stable-troop-training'
-    )
-  ).GreatStableTroopTraining,
-}));
-
-const WorkshopTroopTraining = lazyWithRetry(async () => ({
-  default: (
-    await import(
-      './components/unit-production-buildings/workshop-troop-training'
-    )
-  ).WorkshopTroopTraining,
+const TrainingLog = lazyWithRetry(async () => ({
+  default: (await import('./components/unit-production-buildings/training-log'))
+    .TrainingLog,
 }));
 
 const HospitalTroopTraining = lazyWithRetry(async () => ({
@@ -186,9 +157,17 @@ const HospitalTroopTraining = lazyWithRetry(async () => ({
 }));
 
 const residenceTabs = new Map<string, LazyExoticComponent<() => JSX.Element>>([
-  ['train', ResidenceTroopTraining],
+  ['train', UnitTraining],
   ['loyalty', ResidenceLoyalty],
   ['expansion', ResidenceExpansion],
+]);
+
+const unitTrainingTabs = new Map<
+  string,
+  LazyExoticComponent<() => JSX.Element>
+>([
+  ['train', UnitTraining],
+  ['training-log', TrainingLog],
 ]);
 
 const buildingDetailsTabMap = new Map<
@@ -197,7 +176,10 @@ const buildingDetailsTabMap = new Map<
 >([
   [
     'MAIN_BUILDING',
-    new Map([['village-management', MainBuildingVillageManagement]]),
+    new Map([
+      ['village-management', MainBuildingVillageManagement],
+      ['construction-log', MainBuildingConstructionLog],
+    ]),
   ],
   [
     'RALLY_POINT',
@@ -223,17 +205,18 @@ const buildingDetailsTabMap = new Map<
   ['COMMAND_CENTER', residenceTabs],
   ['HEROS_MANSION', new Map([['oasis', HerosMansionOasis]])],
   ['BREWERY', new Map([['celebration', BreweryCelebration]])],
-  ['BARRACKS', new Map([['train', BarracksTroopTraining]])],
-  ['GREAT_BARRACKS', new Map([['train', GreatBarracksTroopTraining]])],
-  ['STABLE', new Map([['train', StableTroopTraining]])],
-  ['GREAT_STABLE', new Map([['train', GreatStableTroopTraining]])],
-  ['WORKSHOP', new Map([['train', WorkshopTroopTraining]])],
+  ['BARRACKS', unitTrainingTabs],
+  ['GREAT_BARRACKS', unitTrainingTabs],
+  ['STABLE', unitTrainingTabs],
+  ['GREAT_STABLE', unitTrainingTabs],
+  ['WORKSHOP', unitTrainingTabs],
   ['HOSPITAL', new Map([['train', HospitalTroopTraining]])],
 ]);
 
 // t('loyalty')
 // t('expansion')
 // t('village-management')
+// t('construction-log')
 // t('troop-movements')
 // t('send-troops')
 // t('simulator')
@@ -247,6 +230,7 @@ const buildingDetailsTabMap = new Map<
 // t('celebrations')
 // t('relations')
 // t('train')
+// t('training-log')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
