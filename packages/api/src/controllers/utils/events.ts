@@ -5,6 +5,7 @@ import { calculateAdventurePointIncreaseEventDuration } from '@pillage-first/gam
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
+  getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
 import {
   calculateHealthRegenerationEventDuration,
@@ -125,7 +126,39 @@ export const validateEventCreationPrerequisites = (
   event: GameEvent,
 ): [true, null] | [false, string] => {
   if (isUnitImprovementEvent(event)) {
-    const { villageId } = event;
+    const { villageId, level } = event;
+
+    if (level > 20) {
+      return [false, 'Unit upgrade level cannot exceed 20'];
+    }
+
+    const smithyLevel = database.selectValue({
+      sql: `
+        SELECT
+          COALESCE(
+            (
+              SELECT
+                bf.level
+              FROM
+                building_fields bf
+                  JOIN building_ids bi ON bi.id = bf.building_id
+              WHERE
+                bf.village_id = $village_id
+                AND bi.building = 'SMITHY'
+              LIMIT 1
+            ),
+            0
+          ) AS smithy_level;
+      `,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    })!;
+
+    if (smithyLevel < level) {
+      return [false, 'Smithy level is too low for this unit upgrade'];
+    }
 
     const hasOngoingUnitImprovementEventsInThisVillage = database.selectValue({
       sql: `
@@ -274,6 +307,41 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isBuildingLevelUpEvent(event)) {
+    const { buildingId, level } = event;
+    const { maxLevel } = getBuildingDefinition(buildingId);
+
+    if (level > maxLevel) {
+      return [false, 'Building level cannot exceed max level'];
+    }
+  }
+
+  if (isBuildingConstructionEvent(event)) {
+    const { villageId, buildingFieldId } = event;
+
+    const isBuildingFieldOccupied = !!database.selectValue({
+      sql: `
+        SELECT
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              building_fields
+            WHERE
+              village_id = $village_id
+              AND field_id = $building_field_id
+              AND level > 0
+          ) AS is_occupied;
+      `,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: buildingFieldId,
+      },
+      schema: z.number(),
+    });
+
+    if (isBuildingFieldOccupied) {
+      return [false, 'Building field is already occupied'];
+    }
   }
 
   if (isScheduledBuildingEvent(event)) {
@@ -288,6 +356,70 @@ export const validateEventCreationPrerequisites = (
 
     if (isHeroAlive) {
       return [false, 'Hero is already alive'];
+    }
+  }
+
+  if (isAdventureTroopMovementEvent(event)) {
+    const hasAvailableAdventurePoints = !!database.selectValue({
+      sql: `
+        SELECT
+          COALESCE(ha.available, 0) > 0 AS has_available_adventure_points
+        FROM
+          heroes h
+            LEFT JOIN hero_adventures ha ON ha.hero_id = h.id
+        WHERE
+          h.player_id = $player_id;
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.number(),
+    });
+
+    if (!hasAvailableAdventurePoints) {
+      return [false, 'No adventure points available'];
+    }
+  }
+
+  if (isOasisOccupationTroopMovementEvent(event)) {
+    const { villageId } = event;
+
+    const { occupiedOases, occupiedOasisSlots } = database.selectObject({
+      sql: `
+        SELECT
+          (
+            SELECT COUNT(*)
+            FROM
+              oasis
+            WHERE
+              village_id = $village_id
+          ) AS occupiedOases,
+          (
+            SELECT
+              CASE
+                WHEN bf.level >= 20 THEN 3
+                WHEN bf.level >= 15 THEN 2
+                WHEN bf.level >= 10 THEN 1
+                ELSE 0
+              END
+            FROM
+              building_fields bf
+                JOIN building_ids bi ON bi.id = bf.building_id
+            WHERE
+              bf.village_id = $village_id
+              AND bi.building = 'HEROS_MANSION'
+            LIMIT 1
+          ) AS occupiedOasisSlots;
+      `,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.strictObject({
+        occupiedOases: z.number(),
+        occupiedOasisSlots: z.number().nullable(),
+      }),
+    })!;
+
+    if (occupiedOases >= (occupiedOasisSlots ?? 0)) {
+      return [false, 'No free oasis occupation slots available'];
     }
   }
 
