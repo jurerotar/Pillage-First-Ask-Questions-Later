@@ -48,10 +48,12 @@ describe('format utils', () => {
       expect(formatPercentage(1, false)).toBe('100%');
     });
 
-    test('should format percentage based on fractional part', () => {
-      expect(formatPercentage(1.25)).toBe('25%');
-      expect(formatPercentage(0.75)).toBe('75%');
-      expect(formatPercentage(2.1)).toBe('10%');
+    test('should format percentage based on multiplier', () => {
+      expect(formatPercentage(1.25, true)).toBe('25%');
+      expect(formatPercentage(0.75, false)).toBe('75%');
+      expect(formatPercentage(2.1, true)).toBe('110%');
+      expect(formatPercentage(2.0, true)).toBe('100%');
+      expect(formatPercentage(1.8, true)).toBe('80%');
     });
   });
 

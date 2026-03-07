@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import {
   calculateHeroLevel,
   calculateHeroRevivalCost,
@@ -13,6 +14,7 @@ import {
   createGameEventMock,
   createHeroHealthRegenerationEventMock,
   createHeroRevivalEventMock,
+  createTroopMovementAdventureEventMock,
   createTroopTrainingEventMock,
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
@@ -50,6 +52,24 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET
+            building_id = (SELECT id FROM building_ids WHERE building = 'SMITHY'),
+            level = 1
+          WHERE
+            village_id = $village_id
+            AND field_id = (
+              SELECT field_id
+              FROM building_fields
+              WHERE village_id = $village_id
+              LIMIT 1
+            );
+        `,
+        bind: { $village_id: villageId },
+      });
+
       const startsAt = 1000;
       const duration = 500;
       insertEvents(database, [
@@ -75,6 +95,24 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET
+            building_id = (SELECT id FROM building_ids WHERE building = 'SMITHY'),
+            level = 1
+          WHERE
+            village_id = $village_id
+            AND field_id = (
+              SELECT field_id
+              FROM building_fields
+              WHERE village_id = $village_id
+              LIMIT 1
+            );
+        `,
+        bind: { $village_id: villageId },
+      });
+
       const result = validateEventCreationPrerequisites(
         database,
         createUnitImprovementEventMock({
@@ -83,6 +121,60 @@ describe('events utils', () => {
       );
 
       expect(result).toStrictEqual([true, null]);
+    });
+
+    test('unitImprovement - should return false if target level exceeds 20', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createUnitImprovementEventMock({
+          villageId,
+          level: 21,
+        }),
+      );
+
+      expect(result).toStrictEqual([
+        false,
+        'Unit upgrade level cannot exceed 20',
+      ]);
+    });
+
+    test('unitImprovement - should return false if smithy level is lower than requested upgrade level', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET
+            building_id = (SELECT id FROM building_ids WHERE building = 'SMITHY'),
+            level = 1
+          WHERE
+            village_id = $village_id
+            AND field_id = (
+              SELECT field_id
+              FROM building_fields
+              WHERE village_id = $village_id
+              LIMIT 1
+            );
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createUnitImprovementEventMock({
+          villageId,
+          level: 2,
+        }),
+      );
+
+      expect(result).toStrictEqual([
+        false,
+        'Smithy level is too low for this unit upgrade',
+      ]);
     });
 
     test('unitResearch - should return false if academy is busy', async () => {
@@ -166,11 +258,265 @@ describe('events utils', () => {
       expect(result).toStrictEqual([false, 'Unit is not researched']);
     });
 
+    test('buildingLevelChange - should return false if target level exceeds max level', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const { maxLevel } = getBuildingDefinition('MAIN_BUILDING');
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createBuildingLevelChangeEventMock({
+          villageId,
+          buildingId: 'MAIN_BUILDING',
+          level: maxLevel + 1,
+        }),
+      );
+
+      expect(result).toStrictEqual([
+        false,
+        'Building level cannot exceed max level',
+      ]);
+    });
+
+    test('buildingConstruction - should return false if building field is already occupied', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const occupiedBuildingFieldId = database.selectValue({
+        sql: `
+          SELECT field_id
+          FROM
+            building_fields
+          WHERE
+            village_id = $village_id
+            AND level > 0
+          LIMIT 1;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      })!;
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createBuildingConstructionEventMock({
+          villageId,
+          buildingFieldId: occupiedBuildingFieldId,
+        }),
+      );
+
+      expect(result).toStrictEqual([
+        false,
+        'Building field is already occupied',
+      ]);
+    });
+
+    test('buildingConstruction - should return true if building field is not occupied', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const buildingFieldId = database.selectValue({
+        sql: `
+          SELECT field_id
+          FROM
+            building_fields
+          WHERE
+            village_id = $village_id
+          LIMIT 1;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      })!;
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 0
+          WHERE village_id = $village_id
+            AND field_id = $field_id;
+        `,
+        bind: {
+          $village_id: villageId,
+          $field_id: buildingFieldId,
+        },
+      });
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createBuildingConstructionEventMock({
+          villageId,
+          buildingFieldId,
+        }),
+      );
+
+      expect(result).toStrictEqual([true, null]);
+    });
+
+    test('troopMovementAdventure - should return false if no adventure points are available', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE hero_adventures
+          SET available = 0
+          WHERE hero_id = (
+            SELECT id
+            FROM heroes
+            WHERE player_id = $player_id
+          )
+        `,
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createTroopMovementAdventureEventMock({ villageId }),
+      );
+
+      expect(result).toStrictEqual([false, 'No adventure points available']);
+    });
+
+    test('troopMovementAdventure - should return true if adventure points are available', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE hero_adventures
+          SET available = 1
+          WHERE hero_id = (
+            SELECT id
+            FROM heroes
+            WHERE player_id = $player_id
+          )
+        `,
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createTroopMovementAdventureEventMock({ villageId }),
+      );
+
+      expect(result).toStrictEqual([true, null]);
+    });
+
+    test('troopMovementOasisOccupation - should return false if no free oasis occupation slots', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: 'UPDATE oasis SET village_id = null WHERE village_id = $village_id;',
+        bind: { $village_id: villageId },
+      });
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createGameEventMock('troopMovementOasisOccupation', {
+          villageId,
+          targetId: 1,
+          troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+        }),
+      );
+
+      expect(result).toStrictEqual([
+        false,
+        'No free oasis occupation slots available',
+      ]);
+    });
+
+    test('troopMovementOasisOccupation - should return true if free oasis occupation slot exists', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET
+            building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION'),
+            level = 10
+          WHERE field_id = (
+            SELECT field_id
+            FROM building_fields
+            WHERE village_id = $village_id
+            LIMIT 1
+          );
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      database.exec({
+        sql: 'UPDATE oasis SET village_id = null WHERE village_id = $village_id;',
+        bind: { $village_id: villageId },
+      });
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createGameEventMock('troopMovementOasisOccupation', {
+          villageId,
+          targetId: 1,
+          troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+        }),
+      );
+
+      expect(result).toStrictEqual([true, null]);
+    });
+
+    test('troopMovementOasisOccupation - should return false if all slots are already used', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET
+            building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION'),
+            level = 10
+          WHERE field_id = (
+            SELECT field_id
+            FROM building_fields
+            WHERE village_id = $village_id
+            LIMIT 1
+          );
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      database.exec({
+        sql: 'UPDATE oasis SET village_id = null WHERE village_id = $village_id;',
+        bind: { $village_id: villageId },
+      });
+
+      database.exec({
+        sql: `
+          UPDATE oasis
+          SET village_id = $village_id
+          WHERE tile_id = (SELECT tile_id FROM oasis LIMIT 1);
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      const result = validateEventCreationPrerequisites(
+        database,
+        createGameEventMock('troopMovementOasisOccupation', {
+          villageId,
+          targetId: 1,
+          troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+        }),
+      );
+
+      expect(result).toStrictEqual([
+        false,
+        'No free oasis occupation slots available',
+      ]);
+    });
+
     test('other events - should return true by default', async () => {
       const database = await prepareTestDatabase();
       const result = validateEventCreationPrerequisites(
         database,
-        createGameEventMock('buildingLevelChange'),
+        createGameEventMock('troopMovementAttack', {
+          targetId: 2,
+          troops: [{ unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 }],
+        }),
       );
       expect(result).toStrictEqual([true, null]);
     });

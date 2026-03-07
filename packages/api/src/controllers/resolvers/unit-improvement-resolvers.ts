@@ -5,13 +5,13 @@ export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
   database,
   args,
 ) => {
-  const { unitId } = args;
+  const { unitId, level } = args;
 
   database.exec({
     sql: `
       UPDATE unit_improvements
       SET
-        level = level + 1
+        level = $level
       WHERE
         unit_id = (
           SELECT id
@@ -21,6 +21,7 @@ export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
     `,
     bind: {
       $unit_id: unitId,
+      $level: level,
     },
   });
 };

@@ -5,6 +5,35 @@ import { BugFixesBlock } from './components/bug-fixes-block.tsx';
 import { TechnicalImprovementBlock } from './components/technical-improvement-block.tsx';
 
 <section>
+  ## Version 0.3.7
+  #### Mar 6, 2026
+
+  <BugFixesBlock>
+    * Added additional validations to prevent app from getting in to incorrect state.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.6
+  #### Mar 6, 2026
+
+  <BugFixesBlock>
+    * Fixed formatting issues with increasing percentage values in building cards.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.5
+  #### Mar 6, 2026
+
+  <BugFixesBlock>
+    * Added additional validations to prevent the app from getting to incorrect state. These fixes should prevent users
+    from being able to upgrade units beyond level 20, upgrade buildings beyond their max level and surpass other similar
+    limitations.
+  </BugFixesBlock>
+</section>
+
+<section>
   ## Version 0.3.4
   #### Mar 5, 2026
 
@@ -97,7 +126,8 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
   #### Feb 28, 2026
 
   <FeaturesBlock>
-    * Error messages for resource-dependent actions now display the exact time at which the required resources will be available.
+    * Error messages for resource-dependent actions now display the exact time at which the required resources will be
+    available.
   </FeaturesBlock>
 </section>
 
@@ -205,7 +235,8 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
     * Game world overview page - you can now see the split of tribes, factions and basic game world information.
     * Oasis bonus finder - long gone are the days of manually checking the map for your perfect location of your next
     village. This tool allows you to find all tiles with specific resource composition and bonuses!
-    * Reworked developer tools - you may now toggle instant completion and free-cost of insectionidual event types, add or
+    * Reworked developer tools - you may now toggle instant completion and free-cost of insectionidual event types, add
+    or
     remove resources, add adventure points or spawn hero items!
     * Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as
     development
@@ -327,7 +358,8 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
     * We've substantially improved performance of the construct new building page. This page was actually flagged as one
     of
     the slowest pages we have. The reason for this is because in order to determine which buildings you're allowed to
-    construct, we have to run a bunch of checks. While these checks are not that slow insectionidually, we had to run these
+    construct, we have to run a bunch of checks. While these checks are not that slow insectionidually, we had to run
+    these
     checks multiple times for each building, which added up quickly. We've now reworked this to make it more efficient.
     You
     should be seeing faster page renders, especially on mid/lower-end devices.
