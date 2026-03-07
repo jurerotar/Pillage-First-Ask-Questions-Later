@@ -39,6 +39,11 @@ import {
   useHeroItem,
 } from '../controllers/hero-controllers';
 import {
+  getBuildingLevelChangeHistory,
+  getEventsHistory,
+  getUnitTrainingHistory,
+} from '../controllers/history-controllers';
+import {
   addMapMarker,
   getMapMarkers,
   getTileOasisBonuses,
@@ -188,6 +193,11 @@ const apiRoutes: Route[] = [
 
   // Reputations
   createRoute(getReputations),
+
+  // History
+  createRoute(getBuildingLevelChangeHistory),
+  createRoute(getEventsHistory),
+  createRoute(getUnitTrainingHistory),
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

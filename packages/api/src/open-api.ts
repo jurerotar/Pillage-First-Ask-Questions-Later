@@ -19,6 +19,11 @@ import {
   getHeroLoadoutSchema,
   getHeroSchema,
 } from './controllers/schemas/hero-schemas';
+import {
+  getBuildingLevelChangeHistorySchema,
+  getEventsHistorySchema,
+  getUnitTrainingHistorySchema,
+} from './controllers/schemas/history-schemas';
 import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas';
 import {
   getMapMarkersSchema,
@@ -802,6 +807,85 @@ export const paths = {
           content: {
             'application/json': {
               schema: z.array(z.any()),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/events': {
+    get: {
+      summary: 'Get village events history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+        query: z.strictObject({
+          page: z.coerce.number().optional().default(1),
+          scope: z.enum(['village', 'global']).optional().default('village'),
+          types: z
+            .array(
+              z.enum(['construction', 'training', 'improvement', 'research']),
+            )
+            .or(z.enum(['construction', 'training', 'improvement', 'research']))
+            .optional(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Village events history',
+          content: {
+            'application/json': {
+              schema: z.array(getEventsHistorySchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/buildings': {
+    get: {
+      summary: 'Get village building level change history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Village building level change history',
+          content: {
+            'application/json': {
+              schema: z.array(getBuildingLevelChangeHistorySchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/units': {
+    get: {
+      summary: 'Get village unit training history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              buildingId: buildingIdSchema.nullable().optional(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Village unit training history',
+          content: {
+            'application/json': {
+              schema: z.array(getUnitTrainingHistorySchema),
             },
           },
         },

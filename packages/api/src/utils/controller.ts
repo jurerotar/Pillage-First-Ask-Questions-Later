@@ -27,6 +27,7 @@ export type ControllerArgs<
         : Record<string, string | number>
       : Record<string, string | number>
     : Record<string, string | number>;
+  url: string;
   body: TBody extends undefined
     ? TPath extends keyof typeof paths
       ? TMethod extends keyof (typeof paths)[TPath]

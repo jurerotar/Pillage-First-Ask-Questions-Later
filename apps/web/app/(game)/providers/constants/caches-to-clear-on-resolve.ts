@@ -7,6 +7,7 @@ import {
   collectableQuestCountCacheKey,
   effectsCacheKey,
   eventsCacheKey,
+  eventsHistoryCacheKey,
   heroCacheKey,
   heroInventoryCacheKey,
   playerTroopsCacheKey,
@@ -39,14 +40,14 @@ export const cachesToClearOnResolve: Handlers = {
       effectsCacheKey,
       questsCacheKey,
       collectableQuestCountCacheKey,
+      eventsHistoryCacheKey,
     ];
   },
   buildingDestruction: () => {
-    return [playerVillagesCacheKey, effectsCacheKey];
+    return [playerVillagesCacheKey, effectsCacheKey, eventsHistoryCacheKey];
   },
-
   troopTraining: () => {
-    return [playerTroopsCacheKey, effectsCacheKey];
+    return [playerTroopsCacheKey, effectsCacheKey, eventsHistoryCacheKey];
   },
   troopMovementReinforcements: () => {
     return [playerTroopsCacheKey, effectsCacheKey, playerVillagesCacheKey];
@@ -84,10 +85,10 @@ export const cachesToClearOnResolve: Handlers = {
     ];
   },
   unitResearch: () => {
-    return [unitResearchCacheKey];
+    return [unitResearchCacheKey, eventsHistoryCacheKey];
   },
   unitImprovement: () => {
-    return [unitImprovementCacheKey];
+    return [unitImprovementCacheKey, eventsHistoryCacheKey];
   },
   adventurePointIncrease: () => {
     return [adventurePointsCacheKey];

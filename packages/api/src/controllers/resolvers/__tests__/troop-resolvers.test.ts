@@ -88,7 +88,8 @@ describe(troopTrainingEventResolver, () => {
     const batchId = 'batch-history-test';
     const startsAt = 2000;
     const duration = 100;
-    const meta = JSON.stringify({ unitId, batchId });
+    const buildingId = 'BARRACKS';
+    const meta = JSON.stringify({ unitId, batchId, buildingId });
 
     database.exec({
       sql: `
@@ -129,7 +130,7 @@ describe(troopTrainingEventResolver, () => {
         VALUES ('troopTraining', $starts_at + 100, $duration, $village_id, $meta);
       `,
       bind: {
-        $starts_at: startsAt,
+        $starts_at: startsAt + 100,
         $duration: duration,
         $village_id: villageId,
         $meta: meta,
