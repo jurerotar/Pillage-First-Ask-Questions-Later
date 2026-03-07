@@ -21,6 +21,7 @@ import {
 } from './controllers/schemas/hero-schemas';
 import {
   getBuildingLevelChangeHistorySchema,
+  getEventsHistorySchema,
   getUnitTrainingHistorySchema,
 } from './controllers/schemas/history-schemas';
 import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas';
@@ -806,6 +807,36 @@ export const paths = {
           content: {
             'application/json': {
               schema: z.array(z.any()),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/events': {
+    get: {
+      summary: 'Get village events history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+        query: z.strictObject({
+          page: z.coerce.number().optional().default(1),
+          scope: z.enum(['village', 'global']).optional().default('village'),
+          types: z
+            .array(
+              z.enum(['construction', 'training', 'improvement', 'research']),
+            )
+            .or(z.enum(['construction', 'training', 'improvement', 'research']))
+            .optional(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Village events history',
+          content: {
+            'application/json': {
+              schema: z.array(getEventsHistorySchema),
             },
           },
         },

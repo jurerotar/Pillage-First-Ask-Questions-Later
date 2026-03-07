@@ -14,5 +14,6 @@ export const createControllerArgs = <
     path: (args.path ?? {}) as ControllerArgs<TPath, TMethod, TBody>['path'],
     query: (args.query ?? {}) as ControllerArgs<TPath, TMethod, TBody>['query'],
     body: (args.body ?? {}) as ControllerArgs<TPath, TMethod, TBody>['body'],
+    url: args.url ?? '',
   };
 };

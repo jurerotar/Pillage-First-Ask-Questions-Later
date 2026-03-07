@@ -19,6 +19,8 @@ import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?r
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
+import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-improvement-history-schema.sql?raw';
+import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
@@ -114,6 +116,8 @@ export const migrateAndSeed = (
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });
     db.exec({ sql: createBuildingLevelChangeHistoryTable });
+    db.exec({ sql: createUnitImprovementHistoryTable });
+    db.exec({ sql: createUnitResearchHistoryTable });
 
     // Developer settings
     db.exec({ sql: createDeveloperSettingsTable });

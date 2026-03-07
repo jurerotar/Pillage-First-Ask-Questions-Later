@@ -35,11 +35,10 @@ describe('matchRoute', () => {
     expect(() => matchRoute('/villages/not-a-number/troops', 'GET')).toThrow();
   });
 
-  test('casts path params using real schema (/players/:playerId/villages)', () => {
-    // We updated this to use z.coerce.number() instead of playerSchema.shape.id
-    const result = matchRoute('/players/456/villages', 'GET');
+  test('includes raw url in result', () => {
+    const url = '/villages/123/troops?foo=bar';
+    const result = matchRoute(url, 'GET');
 
-    expect(typeof result.path.playerId).toBe('number');
-    expect(result.path.playerId).toBe(456);
+    expect(result.url).toBe(url);
   });
 });

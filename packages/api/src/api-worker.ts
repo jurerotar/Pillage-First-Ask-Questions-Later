@@ -121,8 +121,18 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       const { url, method, body } = data;
 
       try {
-        const { controller, path, query } = matchRoute(url, method);
-        const result = controller(dbFacade!, { path, query, body });
+        const {
+          controller,
+          path,
+          query,
+          url: rawUrl,
+        } = matchRoute(url, method);
+        const result = controller(dbFacade!, {
+          path,
+          query,
+          body,
+          url: rawUrl,
+        });
 
         if (method !== 'GET') {
           globalThis.postMessage({

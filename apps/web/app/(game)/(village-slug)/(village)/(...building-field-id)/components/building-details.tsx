@@ -54,12 +54,6 @@ const MainBuildingVillageManagement = lazyWithRetry(async () => ({
   ).MainBuildingVillageManagement,
 }));
 
-const MainBuildingConstructionLog = lazyWithRetry(async () => ({
-  default: (
-    await import('./components/main-building/main-building-construction-log')
-  ).MainBuildingConstructionLog,
-}));
-
 const RallyPointTroopMovements = lazyWithRetry(async () => ({
   default: (
     await import('./components/rally-point/rally-point-troop-movements')
@@ -143,11 +137,6 @@ const UnitTraining = lazyWithRetry(async () => ({
   ).UnitTraining,
 }));
 
-const TrainingLog = lazyWithRetry(async () => ({
-  default: (await import('./components/unit-production-buildings/training-log'))
-    .TrainingLog,
-}));
-
 const HospitalTroopTraining = lazyWithRetry(async () => ({
   default: (
     await import(
@@ -165,10 +154,7 @@ const residenceTabs = new Map<string, LazyExoticComponent<() => JSX.Element>>([
 const unitTrainingTabs = new Map<
   string,
   LazyExoticComponent<() => JSX.Element>
->([
-  ['train', UnitTraining],
-  ['training-log', TrainingLog],
-]);
+>([['train', UnitTraining]]);
 
 const buildingDetailsTabMap = new Map<
   Building['id'],
@@ -176,10 +162,7 @@ const buildingDetailsTabMap = new Map<
 >([
   [
     'MAIN_BUILDING',
-    new Map([
-      ['village-management', MainBuildingVillageManagement],
-      ['construction-log', MainBuildingConstructionLog],
-    ]),
+    new Map([['village-management', MainBuildingVillageManagement]]),
   ],
   [
     'RALLY_POINT',
@@ -230,7 +213,6 @@ const buildingDetailsTabMap = new Map<
 // t('celebrations')
 // t('relations')
 // t('train')
-// t('training-log')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();

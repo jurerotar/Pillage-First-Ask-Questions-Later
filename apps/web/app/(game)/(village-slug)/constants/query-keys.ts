@@ -19,8 +19,7 @@ export const artifactsInVicinityCacheKey = 'artifacts-in-vicinity';
 export const adventurePointsCacheKey = 'adventure-points';
 export const bookmarksCacheKey = 'bookmarks';
 export const developerSettingsCacheKey = 'developer-settings';
-export const buildingHistoryCacheKey = 'building-history';
-export const unitTrainingHistoryCacheKey = 'unit-training-history';
+export const eventsHistoryCacheKey = 'events-history';
 
 export const playerVillagesCacheKey = 'player-villages';
 export const playerTroopsCacheKey = 'player-units';

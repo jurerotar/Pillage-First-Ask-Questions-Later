@@ -40,6 +40,7 @@ import {
 } from '../controllers/hero-controllers';
 import {
   getBuildingLevelChangeHistory,
+  getEventsHistory,
   getUnitTrainingHistory,
 } from '../controllers/history-controllers';
 import {
@@ -195,6 +196,7 @@ const apiRoutes: Route[] = [
 
   // History
   createRoute(getBuildingLevelChangeHistory),
+  createRoute(getEventsHistory),
   createRoute(getUnitTrainingHistory),
 ];
 

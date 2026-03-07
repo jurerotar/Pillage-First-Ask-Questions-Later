@@ -5,6 +5,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_building_level_change_history_update
       AFTER UPDATE OF level ON building_fields
+      WHEN OLD.level <> NEW.level
       BEGIN
         INSERT INTO building_level_change_history
           (village_id, field_id, building_id, previous_level, new_level, timestamp)
@@ -18,6 +19,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_building_level_change_history_delete
       AFTER DELETE ON building_fields
+      WHEN OLD.level > 0
       BEGIN
         INSERT INTO building_level_change_history
           (village_id, field_id, building_id, previous_level, new_level, timestamp)
@@ -45,6 +47,46 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
         ON CONFLICT(batch_id, unit_id) DO UPDATE SET
           amount = amount + 1,
           timestamp = unixepoch();
+      END;
+    `,
+  });
+
+  db.exec({
+    sql: `
+      CREATE TRIGGER IF NOT EXISTS trg_unit_improvement_history_update
+      AFTER UPDATE OF level ON unit_improvements
+      WHEN OLD.level <> NEW.level
+      BEGIN
+        INSERT INTO unit_improvement_history
+          (player_id, unit_id, previous_level, new_level, timestamp)
+        VALUES
+          (OLD.player_id, OLD.unit_id, OLD.level, NEW.level, unixepoch());
+      END;
+    `,
+  });
+
+  db.exec({
+    sql: `
+      CREATE TRIGGER IF NOT EXISTS trg_unit_improvement_history_insert
+      AFTER INSERT ON unit_improvements
+      BEGIN
+        INSERT INTO unit_improvement_history
+          (player_id, unit_id, previous_level, new_level, timestamp)
+        VALUES
+          (NEW.player_id, NEW.unit_id, 0, NEW.level, unixepoch());
+      END;
+    `,
+  });
+
+  db.exec({
+    sql: `
+      CREATE TRIGGER IF NOT EXISTS trg_unit_research_history_insert
+      AFTER INSERT ON unit_research
+      BEGIN
+        INSERT INTO unit_research_history
+          (village_id, unit_id, timestamp)
+        VALUES
+          (NEW.village_id, NEW.unit_id, unixepoch());
       END;
     `,
   });
