@@ -45,6 +45,10 @@ describe(useTabParam, () => {
       result.current.navigateToTab('home');
     });
 
-    expect(setSearchParams).toHaveBeenCalledWith({ tab: 'home' });
+    const updateFn = setSearchParams.mock.calls[0][0];
+    const prevParams = new URLSearchParams();
+    updateFn(prevParams);
+
+    expect(prevParams.get('tab')).toBe('home');
   });
 });
