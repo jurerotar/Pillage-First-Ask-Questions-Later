@@ -10,8 +10,11 @@ export const resolveEvent = (
 ): void => {
   const event = database.selectObject({
     sql: `
-      DELETE FROM events
-      WHERE id = $id
+      DELETE
+      FROM
+        events
+      WHERE
+        id = $id
       RETURNING id, type, starts_at, duration, village_id, resolves_at, meta;
     `,
     bind: { $id: eventId },

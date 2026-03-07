@@ -387,7 +387,7 @@ export const UnitImprovement = () => {
   const upgradeUnit = () => {
     createUnitImprovementEvent({
       unitId,
-      level: unitVirtualLevel,
+      level: unitVirtualLevel + 1,
       cachesToClearImmediately: [playerVillagesCacheKey],
     });
   };
