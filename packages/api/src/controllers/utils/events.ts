@@ -20,7 +20,6 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
-import type { ControllerErrorEvent } from '@pillage-first/types/api-events';
 import type {
   GameEvent,
   TroopMovementEvent,
@@ -53,15 +52,6 @@ import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
 import { removeTroops } from '../resolvers/utils/troops.ts';
 import { calculateAdventureDuration } from './adventures.ts';
-
-// TODO: Implement this
-export const notifyAboutEventCreationFailure = (reason: string): void => {
-  globalThis.postMessage({
-    eventKey: 'event:controller-error',
-    error: new Error(`Failed to create an event with reason: ${reason}`),
-    reason,
-  } satisfies ControllerErrorEvent);
-};
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
   const requiredEventProperties = new Set([
@@ -124,12 +114,12 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
 export const validateEventCreationPrerequisites = (
   database: DbFacade,
   event: GameEvent,
-): [true, null] | [false, string] => {
+): void => {
   if (isUnitImprovementEvent(event)) {
     const { villageId, level } = event;
 
     if (level > 20) {
-      return [false, 'Unit upgrade level cannot exceed 20'];
+      throw new Error('Unit upgrade level cannot exceed 20');
     }
 
     const smithyLevel = database.selectValue({
@@ -157,7 +147,7 @@ export const validateEventCreationPrerequisites = (
     })!;
 
     if (smithyLevel < level) {
-      return [false, 'Smithy level is too low for this unit upgrade'];
+      throw new Error('Smithy level is too low for this unit upgrade');
     }
 
     const hasOngoingUnitImprovementEventsInThisVillage = database.selectValue({
@@ -180,7 +170,7 @@ export const validateEventCreationPrerequisites = (
     });
 
     if (hasOngoingUnitImprovementEventsInThisVillage) {
-      return [false, 'Smithy is busy'];
+      throw new Error('Smithy is busy');
     }
 
     const currentUnitUpgradeLevel = database.selectValue({
@@ -221,7 +211,7 @@ export const validateEventCreationPrerequisites = (
     })!;
 
     if (currentUnitUpgradeLevel >= level) {
-      return [false, 'Unit upgrade level already exists'];
+      throw new Error('Unit upgrade level already exists');
     }
   }
 
@@ -248,7 +238,7 @@ export const validateEventCreationPrerequisites = (
     });
 
     if (hasOngoingUnitResearchEventsInThisVillage) {
-      return [false, 'Academy is busy'];
+      throw new Error('Academy is busy');
     }
 
     const hasAlreadyResearchedUnitsWithSameIdAndVillage =
@@ -279,7 +269,7 @@ export const validateEventCreationPrerequisites = (
       });
 
     if (hasAlreadyResearchedUnitsWithSameIdAndVillage) {
-      return [false, 'Unit is already researched'];
+      throw new Error('Unit is already researched');
     }
   }
 
@@ -312,7 +302,7 @@ export const validateEventCreationPrerequisites = (
     });
 
     if (!isUnitResearched) {
-      return [false, 'Unit is not researched'];
+      throw new Error('Unit is not researched');
     }
 
     const doesUnitTrainingBuildingExist = !!database.selectValue({
@@ -343,7 +333,7 @@ export const validateEventCreationPrerequisites = (
     });
 
     if (!doesUnitTrainingBuildingExist) {
-      return [false, 'Unit training building does not exist'];
+      throw new Error('Unit training building does not exist');
     }
   }
 
@@ -352,7 +342,7 @@ export const validateEventCreationPrerequisites = (
     const { maxLevel } = getBuildingDefinition(buildingId);
 
     if (level > maxLevel) {
-      return [false, 'Building level cannot exceed max level'];
+      throw new Error('Building level cannot exceed max level');
     }
   }
 
@@ -381,7 +371,7 @@ export const validateEventCreationPrerequisites = (
     });
 
     if (isBuildingFieldOccupied) {
-      return [false, 'Building field is already occupied'];
+      throw new Error('Building field is already occupied');
     }
   }
 
@@ -396,7 +386,7 @@ export const validateEventCreationPrerequisites = (
     });
 
     if (isHeroAlive) {
-      return [false, 'Hero is already alive'];
+      throw new Error('Hero is already alive');
     }
   }
 
@@ -416,7 +406,7 @@ export const validateEventCreationPrerequisites = (
     });
 
     if (!hasAvailableAdventurePoints) {
-      return [false, 'No adventure points available'];
+      throw new Error('No adventure points available');
     }
   }
 
@@ -460,11 +450,9 @@ export const validateEventCreationPrerequisites = (
     })!;
 
     if (occupiedOases >= (occupiedOasisSlots ?? 0)) {
-      return [false, 'No free oasis occupation slots available'];
+      throw new Error('No free oasis occupation slots available');
     }
   }
-
-  return [true, null];
 };
 
 // WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!

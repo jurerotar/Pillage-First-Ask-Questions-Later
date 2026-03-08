@@ -16,8 +16,8 @@ export const isEventResolvedNotificationMessageEvent = (
 ): event is MessageEvent<EventApiNotificationEvent> => {
   return (
     isNotificationMessageEvent(event) &&
-    (event.data.eventKey === 'event:event-resolve-success' ||
-      event.data.eventKey === 'event:event-resolve-error')
+    (event.data.eventKey === 'event:success' ||
+      event.data.eventKey === 'event:error')
   );
 };
 
@@ -25,8 +25,7 @@ export const isEventResolvedSuccessfullyNotificationMessageEvent = (
   event: MessageEvent,
 ): event is MessageEvent<EventApiNotificationEvent> => {
   return (
-    isNotificationMessageEvent(event) &&
-    event.data.eventKey === 'event:event-resolve-success'
+    isNotificationMessageEvent(event) && event.data.eventKey === 'event:success'
   );
 };
 
@@ -34,8 +33,7 @@ export const isEventResolvedUnsuccessfullyNotificationMessageEvent = (
   event: MessageEvent,
 ): event is MessageEvent<EventApiNotificationEvent> => {
   return (
-    isNotificationMessageEvent(event) &&
-    event.data.eventKey === 'event:event-resolve-error'
+    isNotificationMessageEvent(event) && event.data.eventKey === 'event:error'
   );
 };
 
@@ -44,8 +42,8 @@ export const isControllerMessageNotificationMessageEvent = (
 ): event is MessageEvent<EventApiNotificationEvent> => {
   return (
     isNotificationMessageEvent(event) &&
-    (event.data.eventKey === 'event:controller-success' ||
-      event.data.eventKey === 'event:controller-error')
+    (event.data.eventKey === 'event:success' ||
+      event.data.eventKey === 'event:error')
   );
 };
 
@@ -53,8 +51,7 @@ export const isControllerMessageSuccessfulNotificationMessageEvent = (
   event: MessageEvent,
 ): event is MessageEvent<EventApiNotificationEvent> => {
   return (
-    isNotificationMessageEvent(event) &&
-    event.data.eventKey === 'event:controller-success'
+    isNotificationMessageEvent(event) && event.data.eventKey === 'event:success'
   );
 };
 
@@ -62,7 +59,6 @@ export const isControllerMessageErrorNotificationMessageEvent = (
   event: MessageEvent,
 ): event is MessageEvent<ControllerErrorEvent> => {
   return (
-    isNotificationMessageEvent(event) &&
-    event.data.eventKey === 'event:controller-error'
+    isNotificationMessageEvent(event) && event.data.eventKey === 'event:error'
   );
 };

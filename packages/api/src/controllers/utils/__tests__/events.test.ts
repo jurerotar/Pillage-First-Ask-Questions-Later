@@ -48,7 +48,7 @@ const setDevFlag = (database: DbFacade, column: string, value: number) => {
 
 describe('events utils', () => {
   describe(validateEventCreationPrerequisites, () => {
-    test('unitImprovement - should return false if smithy is busy', async () => {
+    test('unitImprovement - should throw if smithy is busy', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -81,14 +81,14 @@ describe('events utils', () => {
         }),
       ]);
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createUnitImprovementEventMock({
-          villageId,
-        }),
-      );
-
-      expect(result).toStrictEqual([false, 'Smithy is busy']);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitImprovementEventMock({
+            villageId,
+          }),
+        ),
+      ).toThrow('Smithy is busy');
     });
 
     test('unitImprovement - should return true if smithy is idle', async () => {
@@ -113,35 +113,32 @@ describe('events utils', () => {
         bind: { $village_id: villageId },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createUnitImprovementEventMock({
-          villageId,
-        }),
-      );
-
-      expect(result).toStrictEqual([true, null]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitImprovementEventMock({
+            villageId,
+          }),
+        ),
+      ).not.toThrow();
     });
 
-    test('unitImprovement - should return false if target level exceeds 20', async () => {
+    test('unitImprovement - should throw if target level exceeds 20', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createUnitImprovementEventMock({
-          villageId,
-          level: 21,
-        }),
-      );
-
-      expect(result).toStrictEqual([
-        false,
-        'Unit upgrade level cannot exceed 20',
-      ]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitImprovementEventMock({
+            villageId,
+            level: 21,
+          }),
+        ),
+      ).toThrow('Unit upgrade level cannot exceed 20');
     });
 
-    test('unitImprovement - should return false if smithy level is lower than requested upgrade level', async () => {
+    test('unitImprovement - should throw if smithy level is lower than requested upgrade level', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -163,21 +160,18 @@ describe('events utils', () => {
         bind: { $village_id: villageId },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createUnitImprovementEventMock({
-          villageId,
-          level: 2,
-        }),
-      );
-
-      expect(result).toStrictEqual([
-        false,
-        'Smithy level is too low for this unit upgrade',
-      ]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitImprovementEventMock({
+            villageId,
+            level: 2,
+          }),
+        ),
+      ).toThrow('Smithy level is too low for this unit upgrade');
     });
 
-    test('unitResearch - should return false if academy is busy', async () => {
+    test('unitResearch - should throw if academy is busy', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -192,17 +186,17 @@ describe('events utils', () => {
         }),
       ]);
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createUnitResearchEventMock({
-          villageId,
-        }),
-      );
-
-      expect(result).toStrictEqual([false, 'Academy is busy']);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitResearchEventMock({
+            villageId,
+          }),
+        ),
+      ).toThrow('Academy is busy');
     });
 
-    test('unitResearch - should return false if unit is already researched', async () => {
+    test('unitResearch - should throw if unit is already researched', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -212,17 +206,17 @@ describe('events utils', () => {
         bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createUnitResearchEventMock({
-          villageId,
-        }),
-      );
-
-      expect(result).toStrictEqual([false, 'Unit is already researched']);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitResearchEventMock({
+            villageId,
+          }),
+        ),
+      ).toThrow('Unit is already researched');
     });
 
-    test('unitResearch - should return true if academy idle and unit not researched', async () => {
+    test('unitResearch - should not throw if academy idle and unit not researched', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       database.exec({
@@ -231,17 +225,17 @@ describe('events utils', () => {
         bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createUnitResearchEventMock({
-          villageId,
-        }),
-      );
-
-      expect(result).toStrictEqual([true, null]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitResearchEventMock({
+            villageId,
+          }),
+        ),
+      ).not.toThrow();
     });
 
-    test('troopTraining - should return false if unit is not researched', async () => {
+    test('troopTraining - should throw if unit is not researched', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       database.exec({
@@ -254,31 +248,29 @@ describe('events utils', () => {
         villageId,
       });
 
-      const result = validateEventCreationPrerequisites(database, event);
-      expect(result).toStrictEqual([false, 'Unit is not researched']);
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Unit is not researched',
+      );
     });
 
-    test('buildingLevelChange - should return false if target level exceeds max level', async () => {
+    test('buildingLevelChange - should throw if target level exceeds max level', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const { maxLevel } = getBuildingDefinition('MAIN_BUILDING');
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createBuildingLevelChangeEventMock({
-          villageId,
-          buildingId: 'MAIN_BUILDING',
-          level: maxLevel + 1,
-        }),
-      );
-
-      expect(result).toStrictEqual([
-        false,
-        'Building level cannot exceed max level',
-      ]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingId: 'MAIN_BUILDING',
+            level: maxLevel + 1,
+          }),
+        ),
+      ).toThrow('Building level cannot exceed max level');
     });
 
-    test('buildingConstruction - should return false if building field is already occupied', async () => {
+    test('buildingConstruction - should throw if building field is already occupied', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const occupiedBuildingFieldId = database.selectValue({
@@ -295,21 +287,18 @@ describe('events utils', () => {
         schema: z.number(),
       })!;
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createBuildingConstructionEventMock({
-          villageId,
-          buildingFieldId: occupiedBuildingFieldId,
-        }),
-      );
-
-      expect(result).toStrictEqual([
-        false,
-        'Building field is already occupied',
-      ]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingConstructionEventMock({
+            villageId,
+            buildingFieldId: occupiedBuildingFieldId,
+          }),
+        ),
+      ).toThrow('Building field is already occupied');
     });
 
-    test('buildingConstruction - should return true if building field is not occupied', async () => {
+    test('buildingConstruction - should not throw if building field is not occupied', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const buildingFieldId = database.selectValue({
@@ -338,18 +327,18 @@ describe('events utils', () => {
         },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createBuildingConstructionEventMock({
-          villageId,
-          buildingFieldId,
-        }),
-      );
-
-      expect(result).toStrictEqual([true, null]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingConstructionEventMock({
+            villageId,
+            buildingFieldId,
+          }),
+        ),
+      ).not.toThrow();
     });
 
-    test('troopMovementAdventure - should return false if no adventure points are available', async () => {
+    test('troopMovementAdventure - should throw if no adventure points are available', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -366,15 +355,15 @@ describe('events utils', () => {
         bind: { $player_id: PLAYER_ID },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createTroopMovementAdventureEventMock({ villageId }),
-      );
-
-      expect(result).toStrictEqual([false, 'No adventure points available']);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementAdventureEventMock({ villageId }),
+        ),
+      ).toThrow('No adventure points available');
     });
 
-    test('troopMovementAdventure - should return true if adventure points are available', async () => {
+    test('troopMovementAdventure - should not throw if adventure points are available', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -391,15 +380,15 @@ describe('events utils', () => {
         bind: { $player_id: PLAYER_ID },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createTroopMovementAdventureEventMock({ villageId }),
-      );
-
-      expect(result).toStrictEqual([true, null]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementAdventureEventMock({ villageId }),
+        ),
+      ).not.toThrow();
     });
 
-    test('troopMovementOasisOccupation - should return false if no free oasis occupation slots', async () => {
+    test('troopMovementOasisOccupation - should throw if no free oasis occupation slots', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -408,22 +397,19 @@ describe('events utils', () => {
         bind: { $village_id: villageId },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createGameEventMock('troopMovementOasisOccupation', {
-          villageId,
-          targetId: 1,
-          troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
-        }),
-      );
-
-      expect(result).toStrictEqual([
-        false,
-        'No free oasis occupation slots available',
-      ]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('troopMovementOasisOccupation', {
+            villageId,
+            targetId: 1,
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+          }),
+        ),
+      ).toThrow('No free oasis occupation slots available');
     });
 
-    test('troopMovementOasisOccupation - should return true if free oasis occupation slot exists', async () => {
+    test('troopMovementOasisOccupation - should not throw if free oasis occupation slot exists', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -448,19 +434,19 @@ describe('events utils', () => {
         bind: { $village_id: villageId },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createGameEventMock('troopMovementOasisOccupation', {
-          villageId,
-          targetId: 1,
-          troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
-        }),
-      );
-
-      expect(result).toStrictEqual([true, null]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('troopMovementOasisOccupation', {
+            villageId,
+            targetId: 1,
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+          }),
+        ),
+      ).not.toThrow();
     });
 
-    test('troopMovementOasisOccupation - should return false if all slots are already used', async () => {
+    test('troopMovementOasisOccupation - should throw if all slots are already used', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -494,34 +480,34 @@ describe('events utils', () => {
         bind: { $village_id: villageId },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createGameEventMock('troopMovementOasisOccupation', {
-          villageId,
-          targetId: 1,
-          troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
-        }),
-      );
-
-      expect(result).toStrictEqual([
-        false,
-        'No free oasis occupation slots available',
-      ]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('troopMovementOasisOccupation', {
+            villageId,
+            targetId: 1,
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+          }),
+        ),
+      ).toThrow('No free oasis occupation slots available');
     });
 
-    test('other events - should return true by default', async () => {
+    test('other events - should not throw by default', async () => {
       const database = await prepareTestDatabase();
-      const result = validateEventCreationPrerequisites(
-        database,
-        createGameEventMock('troopMovementAttack', {
-          targetId: 2,
-          troops: [{ unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 }],
-        }),
-      );
-      expect(result).toStrictEqual([true, null]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('troopMovementAttack', {
+            targetId: 2,
+            troops: [
+              { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 },
+            ],
+          }),
+        ),
+      ).not.toThrow();
     });
 
-    test('heroRevival - should return false if hero is already alive', async () => {
+    test('heroRevival - should throw if hero is already alive', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -530,17 +516,17 @@ describe('events utils', () => {
         bind: { $player_id: PLAYER_ID },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createHeroRevivalEventMock({
-          villageId,
-        }),
-      );
-
-      expect(result).toStrictEqual([false, 'Hero is already alive']);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createHeroRevivalEventMock({
+            villageId,
+          }),
+        ),
+      ).toThrow('Hero is already alive');
     });
 
-    test('heroRevival - should return true if hero is dead', async () => {
+    test('heroRevival - should not throw if hero is dead', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -549,14 +535,14 @@ describe('events utils', () => {
         bind: { $player_id: PLAYER_ID },
       });
 
-      const result = validateEventCreationPrerequisites(
-        database,
-        createHeroRevivalEventMock({
-          villageId,
-        }),
-      );
-
-      expect(result).toStrictEqual([true, null]);
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createHeroRevivalEventMock({
+            villageId,
+          }),
+        ),
+      ).not.toThrow();
     });
   });
 

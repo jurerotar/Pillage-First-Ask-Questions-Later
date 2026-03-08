@@ -11,7 +11,7 @@ import type { Server } from '@pillage-first/types/models/server';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
-import { isEventResolvedNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
+import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import {
   createWorkerFetcher,
   type Fetcher,
@@ -69,7 +69,7 @@ export const ApiProvider = ({
     };
 
     const handleMessage = (event: MessageEvent<EventApiNotificationEvent>) => {
-      if (!isEventResolvedNotificationMessageEvent(event)) {
+      if (!isEventResolvedSuccessfullyNotificationMessageEvent(event)) {
         return;
       }
 

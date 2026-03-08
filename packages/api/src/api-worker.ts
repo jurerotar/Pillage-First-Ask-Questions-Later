@@ -9,7 +9,6 @@ import type {
   ApiNotificationEvent,
   ControllerErrorEvent,
   DatabaseInitializationErrorEvent,
-  EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
 import { env } from '@pillage-first/utils/env';
 import {
@@ -124,14 +123,6 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         const { controller, path, query } = matchRoute(url, method);
         const result = controller(dbFacade!, { path, query, body });
 
-        if (method !== 'GET') {
-          globalThis.postMessage({
-            eventKey: 'event:controller-success',
-            ...body,
-            ...path,
-          } satisfies EventApiNotificationEvent);
-        }
-
         port.postMessage({
           data: result,
         });
@@ -139,8 +130,8 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         break;
       } catch (error) {
         console.error(error);
-        port.postMessage({
-          eventKey: 'event:controller-error',
+        globalThis.postMessage({
+          eventKey: 'event:error',
           error: error as Error,
         } satisfies ControllerErrorEvent);
         break;
