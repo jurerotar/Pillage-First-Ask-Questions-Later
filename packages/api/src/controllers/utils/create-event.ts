@@ -11,7 +11,6 @@ import {
   getEventDuration,
   getEventStartTime,
   insertEvents,
-  notifyAboutEventCreationFailure,
   runEventCreationSideEffects,
   validateEventCreationPrerequisites,
   validateEventCreationResources,
@@ -34,15 +33,7 @@ export const createEvents = <T extends GameEventType>(
   let { startsAt = null } = sampleEvent;
   const amount = args?.amount ?? 1;
 
-  const [isEventAllowed, reason] = validateEventCreationPrerequisites(
-    database,
-    sampleEvent,
-  );
-
-  if (!isEventAllowed) {
-    notifyAboutEventCreationFailure(reason);
-    return;
-  }
+  validateEventCreationPrerequisites(database, sampleEvent);
 
   const eventCost = getEventCost(database, sampleEvent);
 
@@ -54,8 +45,7 @@ export const createEvents = <T extends GameEventType>(
     );
 
     if (!hasEnoughResources) {
-      notifyAboutEventCreationFailure('Not enough resources');
-      return;
+      throw new Error('Not enough resources');
     }
 
     startsAt ??= getEventStartTime(database, sampleEvent);

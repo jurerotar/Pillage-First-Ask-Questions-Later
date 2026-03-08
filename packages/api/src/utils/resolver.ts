@@ -28,13 +28,13 @@ export const resolveEvent = (
     resolver(database, event);
 
     globalThis.postMessage({
-      eventKey: 'event:event-resolve-success',
+      eventKey: 'event:success',
       ...event,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
     console.error(error);
     globalThis.postMessage({
-      eventKey: 'event:event-resolve-error',
+      eventKey: 'event:error',
       ...event,
     } satisfies EventApiNotificationEvent);
   }

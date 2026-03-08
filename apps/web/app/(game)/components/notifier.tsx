@@ -15,7 +15,7 @@ import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { useNotificationPermission } from 'app/(game)/hooks/use-notification-permission';
 import { useTabFocus } from 'app/(game)/hooks/use-tab-focus';
 import {
-  isControllerMessageNotificationMessageEvent,
+  isControllerMessageErrorNotificationMessageEvent,
   isEventResolvedNotificationMessageEvent,
 } from 'app/(game)/providers/guards/api-notification-event-guards';
 
@@ -39,10 +39,8 @@ type NotificationFactory = (
 
 const eventResolvedNotificationFactory: NotificationFactory = (
   { data },
-  args,
+  { t, serverName },
 ) => {
-  const { t, serverName } = args;
-
   if (isBuildingLevelUpEvent(data)) {
     const buildingName = t(`BUILDINGS.${data.buildingId}.NAME`);
     const { level } = data;
@@ -101,21 +99,14 @@ const eventResolvedNotificationFactory: NotificationFactory = (
   return;
 };
 
-const eventCreatedNotificationFactory: NotificationFactory = (
-  { data: _data },
-  _args,
-) => {
-  return undefined;
-};
-
 type NotifierProps = {
   serverSlug: Server['slug'];
 };
 
 export const Notifier = ({ serverSlug }: NotifierProps) => {
+  const { t } = useTranslation();
   const { apiWorker } = useApiWorker(serverSlug);
   const { preferences } = usePreferences();
-  const { t } = useTranslation();
   const notificationPermission = useNotificationPermission();
   const isTabFocused = useTabFocus();
   const { server } = useServer();
@@ -126,52 +117,52 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
     }
 
     const handleMessage = (event: MessageEvent<EventApiNotificationEvent>) => {
-      if (isEventResolvedNotificationMessageEvent(event)) {
-        const toastArgs = eventResolvedNotificationFactory(event, {
-          t,
-          serverName: server.name,
-        });
-
-        if (toastArgs) {
-          const { toastTitle, notificationTitle, body } = toastArgs;
-
-          toast(toastTitle, { description: body });
-
-          if (notificationPermission === 'granted' && !isTabFocused) {
-            if (
-              isBuildingLevelUpEvent(event.data) &&
-              preferences.shouldShowNotificationsOnBuildingUpgradeCompletion
-            ) {
-              new Notification(notificationTitle, { body });
-            }
-            if (
-              isUnitImprovementEvent(event.data) &&
-              preferences.shouldShowNotificationsOnUnitUpgradeCompletion
-            ) {
-              new Notification(notificationTitle, { body });
-            }
-            if (
-              isUnitResearchEvent(event.data) &&
-              preferences.shouldShowNotificationsOnAcademyResearchCompletion
-            ) {
-              new Notification(notificationTitle, { body });
-            }
-          }
-        }
+      if (!isEventResolvedNotificationMessageEvent(event)) {
+        return;
       }
 
-      if (isControllerMessageNotificationMessageEvent(event)) {
-        const toastArgs = eventCreatedNotificationFactory(event, {
-          t,
-          serverName: server.name,
+      if (isControllerMessageErrorNotificationMessageEvent(event)) {
+        const { data } = event;
+        const {
+          error: { message },
+        } = data;
+
+        toast.error(t('An error has occurred'), {
+          description: message,
+          richColors: true,
         });
-
-        if (toastArgs) {
-          const { toastTitle, body } = toastArgs;
-
-          toast(toastTitle, { description: body });
-        }
       }
+
+      const toastArgs = eventResolvedNotificationFactory(event, {
+        t,
+        serverName: server.name,
+      });
+
+      if (!toastArgs) {
+        return;
+      }
+
+      const { toastTitle, notificationTitle, body } = toastArgs;
+
+      toast(toastTitle, { description: body });
+
+      if (notificationPermission !== 'granted' || isTabFocused) {
+        return;
+      }
+
+      const shouldShowNotification =
+        (isBuildingLevelUpEvent(event.data) &&
+          preferences.shouldShowNotificationsOnBuildingUpgradeCompletion) ||
+        (isUnitImprovementEvent(event.data) &&
+          preferences.shouldShowNotificationsOnUnitUpgradeCompletion) ||
+        (isUnitResearchEvent(event.data) &&
+          preferences.shouldShowNotificationsOnAcademyResearchCompletion);
+
+      if (!shouldShowNotification) {
+        return;
+      }
+
+      new Notification(notificationTitle, { body });
     };
 
     apiWorker.addEventListener('message', handleMessage);

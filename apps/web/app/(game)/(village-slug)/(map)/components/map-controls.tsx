@@ -34,8 +34,8 @@ const MagnificationButton = ({
       onClick={onClick}
       disabled={isDisabled}
       className={clsx(
-        'rounded-md p-2 disabled:text-black text-muted-foreground hover:bg-accent transition-colors duration-300 border border-border',
-        isDisabled && 'bg-gray-200',
+        'rounded-md p-2 disabled:text-muted-foreground/50 text-muted-foreground hover:bg-accent transition-colors duration-300 border border-border',
+        isDisabled && 'bg-muted',
       )}
       data-testid={`map-controls-magnification-${direction}-button`}
       aria-label={direction === 'increase' ? t('Zoom in') : t('Zoom out')}
