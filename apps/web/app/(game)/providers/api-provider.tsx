@@ -16,6 +16,7 @@ import {
   createWorkerFetcher,
   type Fetcher,
 } from 'app/(game)/providers/utils/worker-fetch';
+import { syncCurrentTime } from 'app/(game)/utils/timer';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];
@@ -36,6 +37,31 @@ export const ApiProvider = ({
 }: PropsWithChildren<ApiProviderProps>) => {
   const queryClient = useQueryClient();
   const { apiWorker } = useApiWorker(serverSlug);
+
+  const fetcher = useMemo(() => createWorkerFetcher(apiWorker), [apiWorker]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const syncGameTime = async () => {
+      const response = await fetcher<{ currentTime: number }>(
+        '/events/current-time',
+        {
+          method: 'GET',
+        },
+      );
+
+      if (isMounted) {
+        syncCurrentTime(response.data.currentTime);
+      }
+    };
+
+    syncGameTime();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [fetcher]);
 
   useEffect(() => {
     if (!apiWorker) {
@@ -117,9 +143,9 @@ export const ApiProvider = ({
   const value: ApiContextReturn = useMemo(() => {
     return {
       apiWorker,
-      fetcher: createWorkerFetcher(apiWorker),
+      fetcher,
     };
-  }, [apiWorker]);
+  }, [apiWorker, fetcher]);
 
   return <ApiContext value={value}>{children}</ApiContext>;
 };

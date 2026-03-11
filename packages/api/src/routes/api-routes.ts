@@ -15,8 +15,12 @@ import { getVillageEffects } from '../controllers/effect-controllers';
 import {
   cancelConstructionEvent,
   createNewEvents,
+  disableVacationMode,
+  enableVacationMode,
+  getCurrentGameTime,
   getVillageEvents,
   getVillageEventsByType,
+  skipTime,
 } from '../controllers/event-controllers';
 import {
   addTileToFarmList,
@@ -152,6 +156,10 @@ const apiRoutes: Route[] = [
 
   // Events
   createRoute(createNewEvents),
+  createRoute(getCurrentGameTime),
+  createRoute(enableVacationMode),
+  createRoute(disableVacationMode),
+  createRoute(skipTime),
   createRoute(cancelConstructionEvent),
 
   // Players

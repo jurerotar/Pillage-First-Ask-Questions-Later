@@ -4,11 +4,13 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { isTroopMovementEvent } from '@pillage-first/utils/guards/event';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
+import { getEffectiveNow } from '../utils/game-time';
 import {
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
   selectEventByIdQuery,
 } from '../utils/queries/event-queries';
+import { resolveEvent } from '../utils/resolver';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
 import { eventSchema } from '../utils/zod/event-schemas';
 import { createEvents } from './utils/create-event';
@@ -56,6 +58,135 @@ export const createNewEvents = createController(
   'post',
 )(({ database, body }) => {
   createEvents(database, body);
+});
+
+export const getCurrentGameTime = createController('/events/current-time')(
+  ({ database }) => {
+    return {
+      currentTime: getEffectiveNow(database),
+    };
+  },
+);
+
+const metaStateSchema = z.strictObject({
+  lastWrite: z.number(),
+  vacationStartedAt: z.number().nullable(),
+  totalTimeSkipped: z.number(),
+});
+
+export const enableVacationMode = createController(
+  '/events/vacation',
+  'post',
+)(({ database }) => {
+  database.exec({
+    sql: `
+        UPDATE meta
+        SET
+          vacation_started_at = CAST(unixepoch('subsec') * 1000 AS INTEGER),
+          last_write = CAST(unixepoch('subsec') * 1000 AS INTEGER);
+      `,
+  });
+});
+
+export const disableVacationMode = createController(
+  '/events/vacation',
+  'delete',
+)(({ database }) => {
+  database.transaction((db) => {
+    const meta = db.selectObject({
+      sql: `
+        SELECT
+          last_write AS lastWrite,
+          vacation_started_at AS vacationStartedAt,
+          total_time_skipped AS totalTimeSkipped
+        FROM
+          meta
+        LIMIT 1;
+      `,
+      schema: metaStateSchema,
+    })!;
+
+    if (meta.vacationStartedAt === null) {
+      return;
+    }
+
+    const vacationDuration = Date.now() - meta.vacationStartedAt;
+
+    db.exec({
+      sql: `
+        UPDATE events
+        SET
+          starts_at = starts_at + $vacation_duration
+        WHERE
+          resolves_at > $game_now;
+      `,
+      bind: {
+        $vacation_duration: vacationDuration,
+        $game_now: meta.lastWrite + meta.totalTimeSkipped,
+      },
+    });
+
+    db.exec({
+      sql: `
+        UPDATE meta
+        SET
+          vacation_started_at = NULL,
+          last_write = CAST(unixepoch('subsec') * 1000 AS INTEGER);
+      `,
+    });
+  });
+
+  triggerKick();
+});
+
+export const skipTime = createController(
+  '/events/skip-time',
+  'post',
+)(({ database, body }) => {
+  const duration = z
+    .strictObject({
+      duration: z.number().int().min(1),
+    })
+    .parse(body).duration;
+
+  database.transaction((db) => {
+    db.exec({
+      sql: `
+          UPDATE meta
+          SET
+            total_time_skipped = total_time_skipped + $duration;
+        `,
+      bind: {
+        $duration: duration,
+      },
+    });
+  });
+
+  const effectiveNow = getEffectiveNow(database);
+
+  const dueEventIds = database.selectValues({
+    sql: `
+        SELECT id
+        FROM
+          events
+        WHERE
+          resolves_at <= $effective_now
+        ORDER BY
+          resolves_at;
+      `,
+    bind: {
+      $effective_now: effectiveNow,
+    },
+    schema: z.number(),
+  });
+
+  for (const id of dueEventIds) {
+    database.transaction((db) => {
+      resolveEvent(db, id);
+    });
+  }
+
+  triggerKick();
 });
 
 export const cancelConstructionEvent = createController(

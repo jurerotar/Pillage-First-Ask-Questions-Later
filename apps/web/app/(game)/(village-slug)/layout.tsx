@@ -1,3 +1,4 @@
+import { useMutation } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import {
   type ComponentProps,
@@ -9,6 +10,7 @@ import {
   use,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CiCircleList } from 'react-icons/ci';
@@ -68,9 +70,12 @@ import {
 } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { closeGameWorld } from 'app/(game)/utils/close-game-world';
+import { advanceCurrentTime } from 'app/(game)/utils/timer';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
+import { Button } from 'app/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -79,22 +84,9 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { Separator } from 'app/components/ui/separator';
+import { Slider } from 'app/components/ui/slider';
 import { Spinner } from 'app/components/ui/spinner';
 import { useDialog } from 'app/hooks/use-dialog';
-
-const closeGameWorld = (apiWorker: Worker): void => {
-  const handler = ({ data }: MessageEvent) => {
-    const { type } = data;
-
-    if (type === 'WORKER_CLOSE_SUCCESS') {
-      apiWorker.removeEventListener('message', handler);
-      apiWorker.terminate();
-    }
-  };
-
-  apiWorker.addEventListener('message', handler);
-  apiWorker.postMessage({ type: 'WORKER_CLOSE' });
-};
 
 const TOOLTIP_DELAY_SHOW = 500;
 
@@ -605,6 +597,52 @@ type TopNavigationProps = {
   onDeveloperToolsToggle: () => void;
 };
 
+const TimeSkipControl = () => {
+  const { fetcher } = use(ApiContext);
+  const [hours, setHours] = useState(1);
+
+  const { mutate: skipTime, isPending } = useMutation({
+    mutationFn: async (hoursToSkip: number) => {
+      await fetcher('/events/skip-time', {
+        method: 'POST',
+        body: {
+          duration: hoursToSkip * 60 * 60 * 1000,
+        },
+      });
+    },
+    onSuccess: (_, hoursToSkip) => {
+      advanceCurrentTime(hoursToSkip * 60 * 60 * 1000);
+    },
+  });
+
+  return (
+    <div className="hidden lg:flex items-center gap-2 min-w-64 pl-4">
+      <Text className="text-xs text-muted-foreground whitespace-nowrap">
+        Time skip: {hours}h
+      </Text>
+      <Slider
+        value={[hours]}
+        min={1}
+        max={10}
+        step={1}
+        disabled={isPending}
+        onValueChange={([value]) => {
+          setHours(value ?? 1);
+        }}
+      />
+      <Button
+        size="sm"
+        disabled={isPending}
+        onClick={() => {
+          skipTime(hours);
+        }}
+      >
+        Skip
+      </Button>
+    </div>
+  );
+};
+
 const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
   const { t } = useTranslation();
   const { apiWorker } = use(ApiContext);
@@ -708,6 +746,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
               </Suspense>
               <VillageOverviewDesktopItem />
               <EventLogDesktopItem />
+              <TimeSkipControl />
             </div>
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-3 justify-center items-center">

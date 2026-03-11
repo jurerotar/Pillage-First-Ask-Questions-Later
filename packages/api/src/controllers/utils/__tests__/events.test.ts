@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
@@ -908,20 +908,34 @@ describe('events utils', () => {
   });
 
   describe(getEventStartTime, () => {
-    test('troopTraining - should return now if no previous events', async () => {
+    test('troopTraining - should return effective game time if no previous events', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-
-      vi.useFakeTimers();
       const now = 1_234_567_890;
-      vi.setSystemTime(new Date(now));
+      const totalTimeSkipped = 3_600_000;
+
+      database.exec({
+        sql: `
+          UPDATE meta
+          SET
+            last_write = $last_write,
+            total_time_skipped = $total_time_skipped,
+            vacation_started_at = NULL;
+        `,
+        bind: {
+          $last_write: now,
+          $total_time_skipped: totalTimeSkipped,
+        },
+      });
 
       const event = createTroopTrainingEventMock({
         villageId,
       });
 
-      expect(getEventStartTime(database, event)).toBe(now);
-      vi.useRealTimers();
+      const offlineCapMs = 24 * 60 * 60 * 1000;
+      expect(getEventStartTime(database, event)).toBe(
+        now + offlineCapMs + totalTimeSkipped,
+      );
     });
 
     test('troopTraining - should return end of last event in queue', async () => {
@@ -1015,17 +1029,31 @@ describe('events utils', () => {
       expect(getEventStartTime(database, event)).toBe(3000);
     });
 
-    test('buildingConstruction - should return now', async () => {
+    test('buildingConstruction - should return effective game time', async () => {
       const database = await prepareTestDatabase();
-      vi.useFakeTimers();
       const now = 9_999_999;
-      vi.setSystemTime(new Date(now));
+      const totalTimeSkipped = 300_000;
+
+      database.exec({
+        sql: `
+          UPDATE meta
+          SET
+            last_write = $last_write,
+            total_time_skipped = $total_time_skipped,
+            vacation_started_at = NULL;
+        `,
+        bind: {
+          $last_write: now,
+          $total_time_skipped: totalTimeSkipped,
+        },
+      });
+
       const result = getEventStartTime(
         database,
         createBuildingConstructionEventMock(),
       );
-      expect(result).toBe(now);
-      vi.useRealTimers();
+      const offlineCapMs = 24 * 60 * 60 * 1000;
+      expect(result).toBe(now + offlineCapMs + totalTimeSkipped);
     });
   });
 });

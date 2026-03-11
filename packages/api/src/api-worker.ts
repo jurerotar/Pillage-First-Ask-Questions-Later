@@ -19,7 +19,10 @@ import {
   parseAppVersion,
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
-import { OutdatedDatabaseSchemaError } from './errors';
+import {
+  OutdatedDatabaseSchemaError,
+  VacationModeEnabledError,
+} from './errors';
 import { matchRoute } from './routes/route-matcher';
 import {
   cancelScheduling,
@@ -95,6 +98,21 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         }
 
         upgradeDb(dbFacade);
+
+        const isVacationModeEnabled =
+          dbFacade.selectValue({
+            sql: `
+              SELECT vacation_started_at
+              FROM
+                meta
+              LIMIT 1;
+            `,
+            schema: z.number().nullable(),
+          }) !== null;
+
+        if (isVacationModeEnabled) {
+          throw new VacationModeEnabledError();
+        }
 
         const dataSource = createSchedulerDataSource(dbFacade);
 

@@ -1,6 +1,7 @@
 import type {
   ApiNotificationEvent,
   ControllerErrorEvent,
+  DatabaseInitializationErrorEvent,
   EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
 
@@ -9,6 +10,18 @@ export const isNotificationMessageEvent = (
 ): event is MessageEvent<ApiNotificationEvent> => {
   const { data } = event;
   return Object.hasOwn(data, 'eventKey');
+};
+
+export const isDatabaseInitializationSuccessNotificationMessageEvent = (
+  event: MessageEvent<ApiNotificationEvent>,
+): event is MessageEvent<ApiNotificationEvent> => {
+  return event.data.eventKey === 'event:database-initialization-success';
+};
+
+export const isDatabaseInitializationErrorNotificationMessageEvent = (
+  event: MessageEvent<ApiNotificationEvent>,
+): event is MessageEvent<DatabaseInitializationErrorEvent> => {
+  return event.data.eventKey === 'event:database-initialization-error';
 };
 
 export const isEventResolvedNotificationMessageEvent = (
