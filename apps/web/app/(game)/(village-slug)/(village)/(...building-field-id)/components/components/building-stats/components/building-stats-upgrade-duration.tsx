@@ -8,6 +8,7 @@ import {
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects.ts';
 import { Text } from 'app/components/text';
 import {
   Select,
@@ -30,6 +31,7 @@ export const BuildingStatsUpgradeDuration = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { buildingFieldId } = use(BuildingFieldContext);
+  const { effects } = useEffects();
 
   const [mainBuildingLevel, setMainBuildingLevel] = useState<number>(1);
 
@@ -39,9 +41,14 @@ export const BuildingStatsUpgradeDuration = () => {
   )!;
   const building = getBuildingDefinition(buildingId);
 
+  const buildingDurationServerEffect = effects.find(
+    ({ id, scope }) => id === 'buildingDuration' && scope === 'server',
+  )!;
+
   const mainBuildingDefinition = getBuildingDefinition('MAIN_BUILDING');
   const buildingDurationModifier =
-    mainBuildingDefinition.effects[0].valuesPerLevel[mainBuildingLevel];
+    mainBuildingDefinition.effects[0].valuesPerLevel[mainBuildingLevel] *
+    buildingDurationServerEffect.value;
 
   return (
     <SectionContent>
