@@ -1,4 +1,8 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import {
+  type QueryClient,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import ApiWorker from '@pillage-first/api?worker&url';
 import type { Server } from '@pillage-first/types/models/server';
 import {
@@ -7,7 +11,10 @@ import {
   isNotificationMessageEvent,
 } from 'app/(game)/providers/guards/api-notification-event-guards';
 
-const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
+const createWorkerWithReadySignal = (
+  serverSlug: string,
+  queryClient: QueryClient,
+): Promise<Worker> => {
   return new Promise((resolve, reject) => {
     const url = new URL(ApiWorker, import.meta.url);
     url.searchParams.set('server-slug', serverSlug);
@@ -23,6 +30,15 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
       }
 
       if (isDatabaseInitializationSuccessNotificationMessageEvent(event)) {
+        const { isVacationModeEnabled, appTime } = event.data;
+
+        // TODO: Move these keys to query-keys
+        queryClient.setQueryData(
+          ['vacation-mode-status'],
+          isVacationModeEnabled,
+        );
+        queryClient.setQueryData(['app-time'], appTime);
+
         removeWorkerEventListener();
         resolve(worker);
       }
@@ -45,9 +61,11 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
 };
 
 export const useApiWorker = (serverSlug: Server['slug']) => {
+  const queryClient = useQueryClient();
+
   const { data } = useSuspenseQuery({
     queryKey: ['api-worker', serverSlug],
-    queryFn: () => createWorkerWithReadySignal(serverSlug),
+    queryFn: () => createWorkerWithReadySignal(serverSlug, queryClient),
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
   });

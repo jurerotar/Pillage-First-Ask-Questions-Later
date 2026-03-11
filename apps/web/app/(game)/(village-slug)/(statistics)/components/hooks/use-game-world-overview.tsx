@@ -21,9 +21,7 @@ export const useGameWorldOverview = () => {
   const { data: gameWorldOverviewStatistics } = useSuspenseQuery({
     queryKey: [gameWorldOverviewStatisticsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/statistics/overview', {
-        method: 'GET',
-      });
+      const { data } = await fetcher('/statistics/overview');
 
       return gameWorldOverviewStatisticsSchema.parse(data);
     },

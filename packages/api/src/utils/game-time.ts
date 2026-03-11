@@ -17,8 +17,7 @@ const getMeta = (database: DbFacade) => {
         total_time_skipped AS totalTimeSkipped,
         vacation_started_at AS vacationStartedAt
       FROM
-        meta
-      LIMIT 1;
+        meta;
     `,
     schema: metaSchema,
   })!;

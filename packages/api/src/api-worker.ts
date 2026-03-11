@@ -6,9 +6,9 @@ import type {
 import { z } from 'zod';
 import { upgradeDb } from '@pillage-first/db';
 import type {
-  ApiNotificationEvent,
   ControllerErrorEvent,
   DatabaseInitializationErrorEvent,
+  DatabaseInitializationSuccessEvent,
 } from '@pillage-first/types/api-events';
 import { env } from '@pillage-first/utils/env';
 import {
@@ -20,8 +20,8 @@ import {
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
 import {
+  GameWorldDoesNotExistError,
   OutdatedDatabaseSchemaError,
-  VacationModeEnabledError,
 } from './errors';
 import { matchRoute } from './routes/route-matcher';
 import {
@@ -30,6 +30,7 @@ import {
   scheduleNextEvent,
 } from './scheduler/scheduler';
 import { createSchedulerDataSource } from './scheduler/scheduler-data-source';
+import { getEffectiveNow } from './utils/game-time.ts';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
@@ -60,7 +61,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
         if (opfsSahPool.getFileCount() === 0) {
-          throw new OutdatedDatabaseSchemaError();
+          throw new GameWorldDoesNotExistError();
         }
 
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
@@ -99,29 +100,33 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         upgradeDb(dbFacade);
 
-        const isVacationModeEnabled =
-          dbFacade.selectValue({
-            sql: `
-              SELECT vacation_started_at
-              FROM
-                meta
-              LIMIT 1;
-            `,
-            schema: z.number().nullable(),
-          }) !== null;
+        const { vacationStartedAt } = dbFacade.selectObject({
+          sql: `
+            SELECT
+              vacation_started_at AS vacationStartedAt
+            FROM
+              meta;
+          `,
+          schema: z.strictObject({
+            vacationStartedAt: z.number().nullable(),
+          }),
+        })!;
 
-        if (isVacationModeEnabled) {
-          throw new VacationModeEnabledError();
+        const isVacationModeEnabled = vacationStartedAt !== null;
+        const appTime = getEffectiveNow(dbFacade);
+
+        if (!isVacationModeEnabled) {
+          const dataSource = createSchedulerDataSource(dbFacade!);
+
+          initScheduler(dataSource);
+          scheduleNextEvent(dataSource);
         }
-
-        const dataSource = createSchedulerDataSource(dbFacade);
-
-        initScheduler(dataSource);
-        scheduleNextEvent(dataSource);
 
         globalThis.postMessage({
           eventKey: 'event:database-initialization-success',
-        } satisfies ApiNotificationEvent);
+          isVacationModeEnabled,
+          appTime,
+        } satisfies DatabaseInitializationSuccessEvent);
         break;
       } catch (error) {
         globalThis.postMessage({

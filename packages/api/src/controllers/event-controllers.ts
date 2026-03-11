@@ -68,6 +68,25 @@ export const getCurrentGameTime = createController('/events/current-time')(
   },
 );
 
+export const getVacationModeStatus = createController('/events/vacation')(
+  ({ database }) => {
+    const isVacationModeEnabled =
+      database.selectValue({
+        sql: `
+          SELECT vacation_started_at
+          FROM
+            meta
+          LIMIT 1;
+        `,
+        schema: z.number().nullable(),
+      }) !== null;
+
+    return {
+      isVacationModeEnabled,
+    };
+  },
+);
+
 const metaStateSchema = z.strictObject({
   lastWrite: z.number(),
   vacationStartedAt: z.number().nullable(),

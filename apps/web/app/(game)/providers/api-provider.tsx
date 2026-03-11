@@ -1,22 +1,10 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { debounce } from 'moderndash';
-import {
-  createContext,
-  type PropsWithChildren,
-  useEffect,
-  useMemo,
-} from 'react';
-import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
+import { createContext, type PropsWithChildren, useMemo } from 'react';
 import type { Server } from '@pillage-first/types/models/server';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
-import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
-import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import {
   createWorkerFetcher,
   type Fetcher,
 } from 'app/(game)/providers/utils/worker-fetch';
-import { syncCurrentTime } from 'app/(game)/utils/timer';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];
@@ -35,110 +23,9 @@ export const ApiProvider = ({
   children,
   serverSlug,
 }: PropsWithChildren<ApiProviderProps>) => {
-  const queryClient = useQueryClient();
   const { apiWorker } = useApiWorker(serverSlug);
 
   const fetcher = useMemo(() => createWorkerFetcher(apiWorker), [apiWorker]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const syncGameTime = async () => {
-      const response = await fetcher<{ currentTime: number }>(
-        '/events/current-time',
-        {
-          method: 'GET',
-        },
-      );
-
-      if (isMounted) {
-        syncCurrentTime(response.data.currentTime);
-      }
-    };
-
-    syncGameTime();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fetcher]);
-
-  useEffect(() => {
-    if (!apiWorker) {
-      return;
-    }
-
-    const DEBOUNCE_MS = 150;
-    const debouncedInvalidators = new Map<
-      string,
-      ReturnType<typeof debounce>
-    >();
-
-    const makeDebouncedInvalidator = (
-      keyId: string,
-      resolvedKey: readonly unknown[],
-    ) => {
-      const fn = async () => {
-        try {
-          await queryClient.invalidateQueries({
-            queryKey: Array.from(resolvedKey),
-          });
-        } catch (error) {
-          console.error('Failed to invalidate query', resolvedKey, error);
-        }
-      };
-
-      // create debounced wrapper and store it
-      const debounced = debounce(fn, DEBOUNCE_MS);
-      debouncedInvalidators.set(keyId, debounced);
-      return debounced;
-    };
-
-    const handleMessage = (event: MessageEvent<EventApiNotificationEvent>) => {
-      if (!isEventResolvedSuccessfullyNotificationMessageEvent(event)) {
-        return;
-      }
-
-      const gameEvent = event.data;
-      const { type } = gameEvent;
-
-      // @ts-expect-error - We can't provide a generic here, so TS doesn't know which event it's dealing with
-      const cachesToClear = cachesToClearOnResolve[type](gameEvent)!;
-
-      for (const queryKey of cachesToClear) {
-        const keyId = JSON.stringify(queryKey);
-
-        const resolvedKey = Array.isArray(queryKey) ? queryKey : [queryKey];
-        const debounced =
-          debouncedInvalidators.get(keyId) ??
-          makeDebouncedInvalidator(keyId, resolvedKey);
-        debounced();
-      }
-
-      // also debounce invalidation of the global events cache key
-      const eventsKeyId = JSON.stringify(eventsCacheKey);
-
-      const evResolvedKey = [eventsCacheKey];
-      const evDebounced =
-        debouncedInvalidators.get(eventsKeyId) ??
-        makeDebouncedInvalidator(eventsKeyId, evResolvedKey);
-      evDebounced();
-    };
-
-    apiWorker.addEventListener('message', handleMessage);
-
-    return () => {
-      apiWorker.removeEventListener('message', handleMessage);
-
-      // Attempt to cancel pending debounced calls
-      for (const debounced of debouncedInvalidators.values()) {
-        if (typeof debounced.cancel === 'function') {
-          debounced.cancel();
-        }
-      }
-      debouncedInvalidators.clear();
-    };
-  }, [apiWorker, queryClient]);
 
   const value: ApiContextReturn = useMemo(() => {
     return {

@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { clsx } from 'clsx';
 import { memo, Suspense, use, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,6 +12,9 @@ import {
 import type { ToasterProps } from 'sonner';
 import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { ApiInvalidationSync } from 'app/(game)/components/api-invalidation-sync.tsx';
+import { ApiTimeSync } from 'app/(game)/components/api-time-sync.tsx';
+import { ApiWorkerBootstrap } from 'app/(game)/components/api-worker-bootstrap.tsx';
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
@@ -101,7 +105,7 @@ const LayoutContent = memo<Route.ComponentProps>(
     return (
       <html
         lang={i18n.language}
-        className={uiColorScheme === 'dark' ? 'dark' : ''}
+        className={clsx(uiColorScheme)}
       >
         <head>
           <HeadLinks />
@@ -111,8 +115,12 @@ const LayoutContent = memo<Route.ComponentProps>(
           <QueryClientProvider client={queryClient}>
             <Suspense fallback={<LayoutFallback />}>
               <ApiProvider serverSlug={serverSlug}>
-                <Outlet />
-                <Notifier serverSlug={serverSlug} />
+                <ApiWorkerBootstrap>
+                  <Outlet />
+                  <ApiInvalidationSync />
+                  <ApiTimeSync />
+                  <Notifier serverSlug={serverSlug} />
+                </ApiWorkerBootstrap>
               </ApiProvider>
             </Suspense>
             <Toaster

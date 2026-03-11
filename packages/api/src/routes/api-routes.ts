@@ -18,6 +18,7 @@ import {
   disableVacationMode,
   enableVacationMode,
   getCurrentGameTime,
+  getVacationModeStatus,
   getVillageEvents,
   getVillageEventsByType,
   skipTime,
@@ -157,6 +158,7 @@ const apiRoutes: Route[] = [
   // Events
   createRoute(createNewEvents),
   createRoute(getCurrentGameTime),
+  createRoute(getVacationModeStatus),
   createRoute(enableVacationMode),
   createRoute(disableVacationMode),
   createRoute(skipTime),
