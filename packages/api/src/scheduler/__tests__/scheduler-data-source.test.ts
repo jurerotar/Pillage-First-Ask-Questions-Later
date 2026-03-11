@@ -28,7 +28,7 @@ describe('createSchedulerDataSource', () => {
     vi.useRealTimers();
   });
 
-  test('getNextEvent skips events already past in effective game time', async () => {
+  test('getNextEvent skips past effective-time events and returns wall-clock resolve time', async () => {
     const database = await prepareTestDatabase();
     const dataSource = createSchedulerDataSource(database);
 
@@ -51,7 +51,7 @@ describe('createSchedulerDataSource', () => {
 
     expect(dataSource.getNextEvent(Date.now())).toStrictEqual({
       id: 991012,
-      resolvesAt: 2_300,
+      resolvesAt: 1_300,
     });
     vi.useRealTimers();
   });
