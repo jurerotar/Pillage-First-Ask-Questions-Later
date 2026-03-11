@@ -29,8 +29,9 @@ export const createSchedulerDataSource = (
     getNextEvent: (_now: number) => {
       applyOfflineCap(database);
       const effectiveNow = getEffectiveNow(database);
+      const wallNow = Date.now();
 
-      return database.selectObject({
+      const nextEvent = database.selectObject({
         sql: `
           WITH current_meta AS (
             SELECT vacation_started_at AS vacationStartedAt
@@ -47,7 +48,16 @@ export const createSchedulerDataSource = (
         `,
         bind: { $now: effectiveNow },
         schema: getNextEventSchema,
-      })!;
+      });
+
+      if (!nextEvent) {
+        return null;
+      }
+
+      return {
+        id: nextEvent.id,
+        resolvesAt: wallNow + Math.max(0, nextEvent.resolvesAt - effectiveNow),
+      };
     },
     resolveEvent: (id: GameEvent['id']) => {
       database.transaction((tx) => {
