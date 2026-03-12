@@ -351,6 +351,24 @@ export const GeneralPreferences = () => {
             />
           </div>
         </div>
+        <Separator orientation="horizontal" />
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col">
+            <span className="font-medium">{t('Time skip')}</span>
+            <span>{t('Enable the time skip functionality.')}</span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <Switch
+              onCheckedChange={() =>
+                updatePreference({
+                  preferenceName: 'shouldShowTimeSkipButton',
+                  value: !preferences.shouldShowTimeSkipButton,
+                })
+              }
+              checked={preferences.shouldShowTimeSkipButton}
+            />
+          </div>
+        </div>
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>

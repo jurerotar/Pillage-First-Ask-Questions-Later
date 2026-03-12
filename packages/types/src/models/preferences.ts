@@ -24,6 +24,7 @@ export const preferencesSchema = z
     buildingConstructionViewMode: buildingConstructionViewModeSchema,
     isAutomaticNavigationAfterBuildingLevelChangeEnabled: z.boolean(),
     isDeveloperToolsConsoleEnabled: z.boolean(),
+    shouldShowTimeSkipButton: z.boolean(),
     shouldShowNotificationsOnBuildingUpgradeCompletion: z.boolean(),
     shouldShowNotificationsOnUnitUpgradeCompletion: z.boolean(),
     shouldShowNotificationsOnAcademyResearchCompletion: z.boolean(),

@@ -2,8 +2,10 @@ import { useMutation } from '@tanstack/react-query';
 import { use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PiClockClockwise } from 'react-icons/pi';
+import { toast } from 'sonner';
 import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state.ts';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { advanceCurrentTime } from 'app/(game)/utils/timer';
 import { Text } from 'app/components/text';
@@ -37,7 +39,8 @@ const formatDuration = (minutes: number) => {
 export const TimeSkipControlContent = () => {
   const { t } = useTranslation();
   const { fetcher } = use(ApiContext);
-  const [minutesToSkip, setMinutesToSkip] = useState(0);
+  const [minutesToSkip, setMinutesToSkip] = useState(15);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const { mutate: skipTime, isPending } = useMutation({
     mutationFn: async (minutes: number) => {
@@ -52,12 +55,23 @@ export const TimeSkipControlContent = () => {
       advanceCurrentTime(minutes * 60 * 1000);
 
       await context.client.invalidateQueries({ queryKey: [eventsCacheKey] });
+
+      toast(t('Time advanced'), {
+        description: t('Advanced by {{duration}}', {
+          duration: formatDuration(minutes),
+        }),
+      });
+
+      setIsOpen(false);
     },
   });
 
   return (
     <aside className="fixed left-1 bottom-40 lg:bottom-86 transition-all">
-      <Popover>
+      <Popover
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
         <PopoverTrigger asChild>
           <button
             aria-label="Time skip"
@@ -137,8 +151,9 @@ export const TimeSkipControlContent = () => {
 
 export const TimeSkipControl = () => {
   const { shouldShowSidebars } = useGameLayoutState();
+  const { preferences } = usePreferences();
 
-  if (!shouldShowSidebars) {
+  if (!shouldShowSidebars || !preferences.shouldShowTimeSkipButton) {
     return null;
   }
 
