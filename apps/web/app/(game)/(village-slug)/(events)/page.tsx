@@ -132,11 +132,11 @@ const EventsList = ({
         <Text>
           {scope === 'village'
             ? t(
-                'This is a categorized view of latest events in village "{{villageName}}". You may toggle different types through filters above.',
+                'This is a categorized view of latest building construction, unit research and unit improvement events in village "{{villageName}}". You may toggle different types through filters above.',
                 { villageName: currentVillage.name },
               )
             : t(
-                'This is a categorized view of all latest events. You may toggle different types through filters above.',
+                'This is a categorized view of all latest building construction, unit research and unit improvement events. You may toggle different types through filters above.',
               )}
         </Text>
       </SectionContent>
