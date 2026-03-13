@@ -3,8 +3,8 @@ import { use } from 'react';
 import { z } from 'zod';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
-import { eventsHistoryCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { eventsHistoryCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const getEventsHistorySchema = z.discriminatedUnion('type', [
