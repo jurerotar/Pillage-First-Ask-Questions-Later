@@ -105,9 +105,9 @@ export const BuildingUpgradeIndicator = ({
   isHovered,
   buildingEvent,
 }: BuildingUpgradeIndicatorProps) => {
-  const { variant, errors } = use(BuildingUpgradeStatusContext);
+  const { variant, errorBag } = use(BuildingUpgradeStatusContext);
 
-  const canUpgrade: boolean = errors.length === 0;
+  const canUpgrade: boolean = errorBag.length === 0;
 
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
     if (buildingEvent) {
