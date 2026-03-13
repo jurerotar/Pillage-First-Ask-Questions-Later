@@ -138,7 +138,7 @@ export const TimeSkipControlContent = () => {
             <div className="flex w-full justify-end">
               <Button
                 size="fit"
-                disabled={isPending}
+                disabled={minutesToSkip === 0 || isPending}
                 onClick={() => {
                   skipTime(minutesToSkip);
                 }}
