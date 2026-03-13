@@ -33,6 +33,7 @@ import {
   isAdventureTroopMovementEvent,
   isBuildingConstructionEvent,
   isBuildingDestructionEvent,
+  isBuildingEvent,
   isBuildingLevelUpEvent,
   isFindNewVillageTroopMovementEvent,
   isHeroHealthRegenerationEvent,
@@ -137,7 +138,7 @@ export const validateEventCreationPrerequisites = (
                 bf.village_id = $village_id
                 AND bi.building = 'SMITHY'
               LIMIT 1
-            ),
+              ),
             0
           ) AS smithy_level;
       `,
@@ -191,7 +192,7 @@ export const validateEventCreationPrerequisites = (
                     villages
                   WHERE
                     id = $village_id
-                )
+                  )
                 AND unit_id = (
                   SELECT
                     id
@@ -199,8 +200,8 @@ export const validateEventCreationPrerequisites = (
                     unit_ids
                   WHERE
                     unit = $unit_id
-                )
-            ),
+                  )
+              ),
             0
           ) AS current_level;
       `,
@@ -347,6 +348,87 @@ export const validateEventCreationPrerequisites = (
     }
   }
 
+  if (isBuildingEvent(event)) {
+    const { villageId, buildingFieldId } = event;
+
+    const { buildingEventsCount } = database.selectObject({
+      sql: `
+        WITH
+          player_tribe AS (
+            SELECT ti.tribe AS tribe
+            FROM
+              villages v
+                JOIN players p ON p.id = v.player_id
+                JOIN tribe_ids ti ON p.tribe_id = ti.id
+            WHERE
+              v.id = $village_id
+            )
+        SELECT
+          pt.tribe,
+          (
+            SELECT COUNT(*)
+            FROM
+              events e
+            WHERE
+              e.type IN ('buildingConstruction', 'buildingLevelChange')
+              AND e.village_id = $village_id
+              AND (
+                -- If player is not Romans, include all building events
+                pt.tribe <> 'romans'
+                  -- If Romans, only include events from the same "half" (<=18 or >18)
+                  OR (
+                  (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) <= 18 AND CAST($building_field_id AS INTEGER) <= 18)
+                    OR
+                  (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) > 18 AND CAST($building_field_id AS INTEGER) > 18)
+                  )
+                )
+            ) AS buildingEventsCount
+        FROM
+          player_tribe pt;
+      `,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: buildingFieldId,
+      },
+      schema: z.strictObject({
+        tribe: playableTribeSchema,
+        buildingEventsCount: z.number(),
+      }),
+    })!;
+
+    if (buildingEventsCount >= 1) {
+      throw new Error('Building construction queue is full');
+    }
+  }
+
+  if (isBuildingDestructionEvent(event)) {
+    const { villageId } = event;
+
+    const hasOngoingBuildingDestructionEventInThisVillage =
+      !!database.selectValue({
+        sql: `
+        SELECT
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              events
+            WHERE
+              type = 'buildingDestruction'
+              AND village_id = $village_id
+            ) AS event_exists;
+      `,
+        bind: {
+          $village_id: villageId,
+        },
+        schema: z.number(),
+      });
+
+    if (hasOngoingBuildingDestructionEventInThisVillage) {
+      throw new Error('Main building is busy');
+    }
+  }
+
   if (isBuildingConstructionEvent(event)) {
     const { villageId, buildingFieldId } = event;
 
@@ -362,7 +444,7 @@ export const validateEventCreationPrerequisites = (
               village_id = $village_id
               AND field_id = $building_field_id
               AND level > 0
-          ) AS is_occupied;
+            ) AS is_occupied;
       `,
       bind: {
         $village_id: villageId,
@@ -423,7 +505,7 @@ export const validateEventCreationPrerequisites = (
               oasis
             WHERE
               village_id = $village_id
-          ) AS occupiedOases,
+            ) AS occupiedOases,
           (
             SELECT
               CASE
@@ -431,7 +513,7 @@ export const validateEventCreationPrerequisites = (
                 WHEN bf.level >= 15 THEN 2
                 WHEN bf.level >= 10 THEN 1
                 ELSE 0
-              END
+                END
             FROM
               building_fields bf
                 JOIN building_ids bi ON bi.id = bf.building_id
@@ -439,7 +521,7 @@ export const validateEventCreationPrerequisites = (
               bf.village_id = $village_id
               AND bi.building = 'HEROS_MANSION'
             LIMIT 1
-          ) AS occupiedOasisSlots;
+            ) AS occupiedOasisSlots;
       `,
       bind: {
         $village_id: villageId,

@@ -22,16 +22,15 @@ export const isBuildingLevelUpEvent = (
   return event.type === 'buildingLevelChange';
 };
 
+const buildingEventTypes = new Set<GameEventType>([
+  'buildingConstruction',
+  'buildingLevelChange',
+]);
+
 export const isBuildingEvent = (
   event: GameEvent,
-): event is GameEvent<
-  'buildingScheduledConstruction' | 'buildingLevelChange'
-> => {
-  const buildingEventTypes: GameEventType[] = [
-    'buildingScheduledConstruction',
-    'buildingLevelChange',
-  ];
-  return buildingEventTypes.includes(event.type);
+): event is GameEvent<'buildingConstruction' | 'buildingLevelChange'> => {
+  return buildingEventTypes.has(event.type);
 };
 
 const troopMovementEventTypes = new Set<GameEventType>([

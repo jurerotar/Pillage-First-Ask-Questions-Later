@@ -13,10 +13,7 @@ import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hoo
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  useBuildingConstructionStatus,
-  useBuildingUpgradeStatus,
-} from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { Text } from 'app/components/text';
@@ -33,17 +30,21 @@ const BuildingCardActionsConstruction = ({
 }: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
-  const { errors } = useBuildingConstructionStatus(buildingId, buildingFieldId);
+  const { errorBag } = useBuildingConstructionErrorBag(
+    buildingId,
+    0,
+    buildingFieldId,
+  );
 
   return (
     <>
-      <ErrorBag errorBag={errors} />
+      <ErrorBag errorBag={errorBag} />
       <Button
         data-testid="building-actions-construct-building-button"
         variant="default"
         size="fit"
         onClick={onBuildingConstruction}
-        disabled={errors.length > 0}
+        disabled={errorBag.length > 0}
       >
         {t('Construct')}
       </Button>
@@ -64,22 +65,26 @@ const BuildingCardActionsUpgrade = ({
   const { buildingFieldId } = use(BuildingFieldContext);
   const { currentVillage } = useCurrentVillage();
 
-  const buildingField = getBuildingFieldByBuildingFieldId(
+  const { buildingId, level } = getBuildingFieldByBuildingFieldId(
     currentVillage,
+    buildingFieldId,
+  )!;
+
+  const { errorBag } = useBuildingConstructionErrorBag(
+    buildingId,
+    level,
     buildingFieldId,
   );
 
-  const { errors } = useBuildingUpgradeStatus(buildingField!);
-
   return (
     <>
-      <ErrorBag errorBag={errors} />
+      <ErrorBag errorBag={errorBag} />
       <Button
         data-testid="building-actions-upgrade-building-button"
         variant="default"
         size="fit"
         onClick={onBuildingUpgrade}
-        disabled={errors.length > 0}
+        disabled={errorBag.length > 0}
       >
         {t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
       </Button>
