@@ -10,6 +10,7 @@ import {
 } from '@pillage-first/game-assets/utils/hero';
 import {
   createBuildingConstructionEventMock,
+  createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
   createGameEventMock,
   createHeroHealthRegenerationEventMock,
@@ -361,6 +362,154 @@ describe('events utils', () => {
           createTroopMovementAdventureEventMock({ villageId }),
         ),
       ).toThrow('No adventure points available');
+    });
+
+    test('isBuildingEvent - non-Romans should throw if building queue is full', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      // Set tribe to Teutons (not Romans)
+      database.exec({
+        sql: `
+          UPDATE players
+          SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'teutons')
+          WHERE id = (SELECT player_id FROM villages WHERE id = $village_id)
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingConstructionEventMock({
+          villageId,
+          buildingFieldId: 1, // resource field
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingConstructionEventMock({
+            villageId,
+            buildingFieldId: 19, // village building
+          }),
+        ),
+      ).toThrow('Building construction queue is full');
+    });
+
+    test('isBuildingEvent - Romans should not throw if one resource and one village building are in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      // Set tribe to Romans
+      database.exec({
+        sql: `
+          UPDATE players
+          SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
+          WHERE id = (SELECT player_id FROM villages WHERE id = $village_id)
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingConstructionEventMock({
+          villageId,
+          buildingFieldId: 1, // resource field
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingConstructionEventMock({
+            villageId,
+            buildingFieldId: 19, // village building
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('isBuildingEvent - Romans should throw if two resource field events are in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      // Set tribe to Romans
+      database.exec({
+        sql: `
+          UPDATE players
+          SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
+          WHERE id = (SELECT player_id FROM villages WHERE id = $village_id)
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingConstructionEventMock({
+          villageId,
+          buildingFieldId: 1, // resource field
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingConstructionEventMock({
+            villageId,
+            buildingFieldId: 2, // another resource field
+          }),
+        ),
+      ).toThrow('Building construction queue is full');
+    });
+
+    test('isBuildingEvent - Romans should throw if two village building events are in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      // Set tribe to Romans
+      database.exec({
+        sql: `
+          UPDATE players
+          SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
+          WHERE id = (SELECT player_id FROM villages WHERE id = $village_id)
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingConstructionEventMock({
+          villageId,
+          buildingFieldId: 19, // village building
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId: 20, // another village building
+          }),
+        ),
+      ).toThrow('Building construction queue is full');
+    });
+
+    test('isBuildingDestructionEvent - should throw if building destruction is already in progress', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      insertEvents(database, [
+        createBuildingDestructionEventMock({
+          villageId,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingDestructionEventMock({
+            villageId,
+          }),
+        ),
+      ).toThrow('Main building is busy');
     });
 
     test('troopMovementAdventure - should not throw if adventure points are available', async () => {
