@@ -253,7 +253,6 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
     ],
     queryFn: async () => {
       const { data } = await fetcher(`/oasis-bonus-finder?x=${x}&y=${y}`, {
-        method: 'GET',
         body: {
           resourceFieldComposition,
           bonuses: {

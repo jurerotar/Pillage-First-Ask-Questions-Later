@@ -46,6 +46,7 @@ import {
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
+import { getEffectiveNow } from '../../utils/game-time';
 import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
@@ -902,6 +903,8 @@ export const getEventStartTime = (
   database: DbFacade,
   event: GameEvent,
 ): number => {
+  const now = getEffectiveNow(database);
+
   if (isTroopTrainingEvent(event)) {
     const { villageId, buildingId } = event;
 
@@ -923,13 +926,11 @@ export const getEventStartTime = (
       return lastEvent.startsAt + lastEvent.duration;
     }
 
-    return Date.now();
+    return now;
   }
 
   if (isUnitImprovementEvent(event)) {
     const { unitId } = event;
-
-    const now = Date.now();
 
     const lastResolvesAtForThisUnitId = database.selectValue({
       sql: `
@@ -992,7 +993,7 @@ export const getEventStartTime = (
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
-        $now: Date.now(),
+        $now: now,
       },
       schema: z.number(),
     })!;
@@ -1013,17 +1014,17 @@ export const getEventStartTime = (
   }
 
   if (isBuildingConstructionEvent(event) || isBuildingLevelUpEvent(event)) {
-    return Date.now();
+    return now;
   }
 
   if (isAdventureTroopMovementEvent(event)) {
-    return Date.now();
+    return now;
   }
   if (isFindNewVillageTroopMovementEvent(event)) {
-    return Date.now();
+    return now;
   }
   if (isOasisOccupationTroopMovementEvent(event)) {
-    return Date.now();
+    return now;
   }
   if (isReturnTroopMovementEvent(event)) {
     const { startsAt, duration } = event;
@@ -1031,5 +1032,5 @@ export const getEventStartTime = (
     return startsAt + duration;
   }
 
-  return Date.now();
+  return now;
 };
