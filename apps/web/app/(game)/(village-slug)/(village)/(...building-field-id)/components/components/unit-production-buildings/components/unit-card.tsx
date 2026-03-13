@@ -18,7 +18,6 @@ import { useUnitRecruitmentErrorBag } from 'app/(game)/(village-slug)/(village)/
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
-import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
@@ -29,6 +28,7 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
@@ -274,7 +274,7 @@ export const UnitResearch = () => {
   const researchUnit = () => {
     createUnitResearchEvent({
       unitId,
-      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearImmediately: [currentVillageCacheKey],
     });
   };
 
@@ -388,7 +388,7 @@ export const UnitImprovement = () => {
     createUnitImprovementEvent({
       unitId,
       level: unitVirtualLevel + 1,
-      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearImmediately: [currentVillageCacheKey],
     });
   };
 
@@ -576,7 +576,7 @@ export const UnitRecruitment = () => {
       amount,
       unitId,
       durationEffectId: durationEffect!,
-      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearImmediately: [currentVillageCacheKey],
     });
   };
 

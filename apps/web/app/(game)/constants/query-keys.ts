@@ -20,10 +20,12 @@ export const adventurePointsCacheKey = 'adventure-points';
 export const bookmarksCacheKey = 'bookmarks';
 export const developerSettingsCacheKey = 'developer-settings';
 export const eventsHistoryCacheKey = 'events-history';
-
+export const tileTroopsCacheKey = 'tile-troops';
+export const currentVillageCacheKey = 'current-village';
+export const villageTroopsCacheKey = 'village-units';
+export const playerCacheKey = 'player-info';
 export const playerVillagesCacheKey = 'player-villages';
-export const playerTroopsCacheKey = 'player-units';
-
+export const oasisBonusFinder = 'oasis-bonus-finder';
 export const playerRankingsCacheKey = 'player-rankings';
 export const villageRankingsCacheKey = 'village-rankings';
 export const gameWorldOverviewStatisticsCacheKey =

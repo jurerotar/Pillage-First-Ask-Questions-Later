@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
 import { playerSchema } from '@pillage-first/types/models/player';
-import { playerRankingsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { playerRankingsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getPlayerRankingsSchema = playerSchema.extend({
