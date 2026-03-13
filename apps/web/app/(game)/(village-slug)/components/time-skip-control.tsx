@@ -3,9 +3,12 @@ import { use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PiClockClockwise } from 'react-icons/pi';
 import { toast } from 'sonner';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import {
+  appTimeCacheKey,
+  eventsCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { advanceCurrentTime } from 'app/(game)/utils/timer';
 import { Text } from 'app/components/text';
@@ -16,6 +19,7 @@ import {
   PopoverTrigger,
 } from 'app/components/ui/popover';
 import { Slider } from 'app/components/ui/slider';
+import { invalidateQueries } from 'app/utils/react-query.ts';
 
 const minMinutes = 0;
 const maxMinutes = 600;
@@ -54,7 +58,7 @@ export const TimeSkipControlContent = () => {
     onSuccess: async (_, minutes, _onMutateResult, context) => {
       advanceCurrentTime(minutes * 60 * 1000);
 
-      await context.client.invalidateQueries({ queryKey: [eventsCacheKey] });
+      await invalidateQueries(context, [[appTimeCacheKey], [eventsCacheKey]]);
 
       toast(t('Time advanced'), {
         description: t('Advanced by {{duration}}', {

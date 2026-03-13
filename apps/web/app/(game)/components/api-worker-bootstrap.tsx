@@ -2,9 +2,14 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { type PropsWithChildren, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import {
+  appTimeCacheKey,
+  isVacationModeEnabledCacheKey,
+} from 'app/(game)/constants/query-keys.ts';
 import { ApiContext } from 'app/(game)/providers/api-provider.tsx';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
+import { invalidateQueries } from 'app/utils/react-query.ts';
 
 const vacationModeSchema = z.strictObject({
   isVacationModeEnabled: z.boolean(),
@@ -15,7 +20,7 @@ export const ApiWorkerBootstrap = ({ children }: PropsWithChildren) => {
   const { fetcher } = use(ApiContext);
 
   const { data: isVacationModeEnabled, refetch } = useSuspenseQuery({
-    queryKey: ['vacation-mode-status'],
+    queryKey: [isVacationModeEnabledCacheKey],
     queryFn: async () => {
       const { data } = await fetcher('/events/vacation');
 
@@ -33,8 +38,9 @@ export const ApiWorkerBootstrap = ({ children }: PropsWithChildren) => {
           method: 'DELETE',
         });
       },
-      onSuccess: async () => {
+      onSuccess: async (_data, _vars_, _onMutateResult, context) => {
         await refetch();
+        await invalidateQueries(context, [[appTimeCacheKey]]);
       },
     });
 

@@ -2,7 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { debounce } from 'moderndash';
 import { use, useEffect } from 'react';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys.ts';
+import { eventsCacheKey } from 'app/(game)/constants/query-keys.ts';
 import { ApiContext } from 'app/(game)/providers/api-provider.tsx';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve.ts';
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards.ts';

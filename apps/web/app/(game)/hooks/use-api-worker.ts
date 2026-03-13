@@ -6,6 +6,10 @@ import {
 import ApiWorker from '@pillage-first/api?worker&url';
 import type { Server } from '@pillage-first/types/models/server';
 import {
+  appTimeCacheKey,
+  isVacationModeEnabledCacheKey,
+} from 'app/(game)/constants/query-keys.ts';
+import {
   isDatabaseInitializationErrorNotificationMessageEvent,
   isDatabaseInitializationSuccessNotificationMessageEvent,
   isNotificationMessageEvent,
@@ -32,12 +36,11 @@ const createWorkerWithReadySignal = (
       if (isDatabaseInitializationSuccessNotificationMessageEvent(event)) {
         const { isVacationModeEnabled, appTime } = event.data;
 
-        // TODO: Move these keys to query-keys
         queryClient.setQueryData(
-          ['vacation-mode-status'],
+          [isVacationModeEnabledCacheKey],
           isVacationModeEnabled,
         );
-        queryClient.setQueryData(['app-time'], appTime);
+        queryClient.setQueryData([appTimeCacheKey], appTime);
 
         removeWorkerEventListener();
         resolve(worker);
