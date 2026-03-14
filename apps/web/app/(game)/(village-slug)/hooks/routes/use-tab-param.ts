@@ -12,7 +12,10 @@ export const useTabParam = (tabs: string[]) => {
   const tabIndex = tabNameToIndex[searchParams.get('tab') ?? 'default'];
 
   const navigateToTab = (tab: string) => {
-    setSearchParams({ tab });
+    setSearchParams((prev) => {
+      prev.set('tab', tab);
+      return prev;
+    });
   };
 
   return {

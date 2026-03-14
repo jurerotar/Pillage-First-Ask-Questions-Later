@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
-import { unitImprovementCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { unitImprovementCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getUnitImprovementsSchema = z.strictObject({

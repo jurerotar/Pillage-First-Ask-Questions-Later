@@ -22,13 +22,13 @@ import {
 } from '@pillage-first/utils/math';
 import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { villageTroopsCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -211,7 +211,7 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
     createFindNewVillageEvent({
       targetId: tile.id,
       troops: [],
-      cachesToClearImmediately: [playerTroopsCacheKey],
+      cachesToClearImmediately: [villageTroopsCacheKey],
     });
   };
 

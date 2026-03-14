@@ -9,46 +9,51 @@ import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { serverDbSchema } from '@pillage-first/types/models/server';
-import { getDeveloperSettingsSchema } from './controllers/schemas/developer-tools-schemas.ts';
+import { getDeveloperSettingsSchema } from './controllers/schemas/developer-tools-schemas';
 import {
   farmListSchema,
   farmListTileSchema,
-} from './controllers/schemas/farm-list-schemas.ts';
+} from './controllers/schemas/farm-list-schemas';
 import {
   getHeroInventorySchema,
   getHeroLoadoutSchema,
   getHeroSchema,
-} from './controllers/schemas/hero-schemas.ts';
-import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas.ts';
+} from './controllers/schemas/hero-schemas';
+import {
+  getBuildingLevelChangeHistorySchema,
+  getEventsHistorySchema,
+  getUnitTrainingHistorySchema,
+} from './controllers/schemas/history-schemas';
+import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas';
 import {
   getMapMarkersSchema,
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
   getTileWorldItemSchema,
-} from './controllers/schemas/map-schemas.ts';
-import { getTilesWithBonusesSchema } from './controllers/schemas/oasis-bonus-finder-schemas.ts';
+} from './controllers/schemas/map-schemas';
+import { getTilesWithBonusesSchema } from './controllers/schemas/oasis-bonus-finder-schemas';
 import {
   getPlayerVillagesWithPopulationSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
-} from './controllers/schemas/player-schemas.ts';
-import { getPreferencesSchema } from './controllers/schemas/preferences-schemas.ts';
-import { getQuestsSchema } from './controllers/schemas/quest-schemas.ts';
-import { getReputationsSchema } from './controllers/schemas/reputation-schemas.ts';
+} from './controllers/schemas/player-schemas';
+import { getPreferencesSchema } from './controllers/schemas/preferences-schemas';
+import { getQuestsSchema } from './controllers/schemas/quest-schemas';
+import { getReputationsSchema } from './controllers/schemas/reputation-schemas';
 import {
   getPlayerRankingsSchema,
   getServerOverviewStatisticsSchema,
   getVillageRankingsSchema,
-} from './controllers/schemas/statistics-schemas.ts';
-import { getUnitImprovementsSchema } from './controllers/schemas/unit-improvement-schemas.ts';
-import { getResearchedUnitsSchema } from './controllers/schemas/unit-research-schemas.ts';
+} from './controllers/schemas/statistics-schemas';
+import { getUnitImprovementsSchema } from './controllers/schemas/unit-improvement-schemas';
+import { getResearchedUnitsSchema } from './controllers/schemas/unit-research-schemas';
 import {
   getOccupiableOasisInRangeSchema,
   getVillageBySlugSchema,
-} from './controllers/schemas/village-schemas.ts';
-import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas.ts';
-import { apiEffectSchema } from './utils/zod/effect-schemas.ts';
+} from './controllers/schemas/village-schemas';
+import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas';
+import { apiEffectSchema } from './utils/zod/effect-schemas';
 
 export const paths = {
   '/server': {
@@ -802,6 +807,85 @@ export const paths = {
           content: {
             'application/json': {
               schema: z.array(z.any()),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/events': {
+    get: {
+      summary: 'Get village events history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+        query: z.strictObject({
+          page: z.coerce.number().optional().default(1),
+          scope: z.enum(['village', 'global']).optional().default('village'),
+          types: z
+            .array(
+              z.enum(['construction', 'training', 'improvement', 'research']),
+            )
+            .or(z.enum(['construction', 'training', 'improvement', 'research']))
+            .optional(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Village events history',
+          content: {
+            'application/json': {
+              schema: z.array(getEventsHistorySchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/buildings': {
+    get: {
+      summary: 'Get village building level change history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Village building level change history',
+          content: {
+            'application/json': {
+              schema: z.array(getBuildingLevelChangeHistorySchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/history/units': {
+    get: {
+      summary: 'Get village unit training history',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              buildingId: buildingIdSchema.nullable().optional(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Village unit training history',
+          content: {
+            'application/json': {
+              schema: z.array(getUnitTrainingHistorySchema),
             },
           },
         },

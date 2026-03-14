@@ -10,7 +10,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';

@@ -4,6 +4,7 @@ import type { Server } from '@pillage-first/types/models/server';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
+import { invalidateQueries } from 'app/utils/react-query.ts';
 import { workerFactory } from 'app/utils/workers';
 
 const getRootHandle = async (): Promise<FileSystemDirectoryHandle> => {
@@ -76,9 +77,7 @@ export const useGameWorldActions = () => {
       );
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await context.client.invalidateQueries({
-        queryKey: [availableServerCacheKey],
-      });
+      await invalidateQueries(context, [[availableServerCacheKey]]);
     },
   });
 
@@ -119,9 +118,7 @@ export const useGameWorldActions = () => {
   >({
     mutationFn: ({ server }) => deleteServerData(server),
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await context.client.invalidateQueries({
-        queryKey: [availableServerCacheKey],
-      });
+      await invalidateQueries(context, [[availableServerCacheKey]]);
     },
   });
 

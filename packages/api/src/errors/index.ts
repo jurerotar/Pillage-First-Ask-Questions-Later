@@ -1,1 +1,1 @@
-export { OutdatedDatabaseSchemaError } from './outdated-database-schema-error.ts';
+export { OutdatedDatabaseSchemaError } from './outdated-database-schema-error';

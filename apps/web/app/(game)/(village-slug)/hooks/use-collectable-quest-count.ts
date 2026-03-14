@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
-import { collectableQuestCountCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { collectableQuestCountCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getCollectableQuestCountSchema = z.strictObject({

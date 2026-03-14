@@ -18,7 +18,12 @@ import { GiWheat } from 'react-icons/gi';
 import { GoGraph } from 'react-icons/go';
 import { HiStar } from 'react-icons/hi2';
 import { LuBookMarked, LuScrollText } from 'react-icons/lu';
-import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
+import {
+  MdEventNote,
+  MdFace,
+  MdOutlineHolidayVillage,
+  MdSettings,
+} from 'react-icons/md';
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
@@ -228,6 +233,30 @@ const VillageOverviewDesktopItem = () => {
     >
       <span className="lg:bg-background rounded-md flex items-center justify-center">
         <CiCircleList className="text-xl" />
+      </span>
+    </NavLink>
+  );
+};
+
+const EventLogDesktopItem = () => {
+  const { t } = useTranslation();
+
+  return (
+    <NavLink
+      to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research"
+      aria-label={t('Event log')}
+      data-tooltip-content={t('Event log')}
+      data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      tabIndex={0}
+      className={clsx(
+        'flex items-center justify-center shadow-md rounded-md p-1.5 border border-[#f1f1f1] dark:border-border relative',
+        'transition-transform active:scale-95 active:shadow-inner',
+        'lg:transition-colors',
+      )}
+    >
+      <span className="lg:bg-background rounded-md flex items-center justify-center">
+        <MdEventNote className="text-xl" />
       </span>
     </NavLink>
   );
@@ -678,6 +707,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
                 <VillageSelect />
               </Suspense>
               <VillageOverviewDesktopItem />
+              <EventLogDesktopItem />
             </div>
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-3 justify-center items-center">
@@ -783,6 +813,15 @@ const MobileBottomNavigation = ({
           </li>
           <li>
             <Separator orientation="vertical" />
+          </li>
+          <li>
+            <NavigationSideItem
+              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research"
+              aria-label={t('Event log')}
+              title={t('Event log')}
+            >
+              <MdEventNote className="text-2xl" />
+            </NavigationSideItem>
           </li>
           <li>
             <AdventuresNavigationItem />

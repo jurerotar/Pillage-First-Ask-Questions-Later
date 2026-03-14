@@ -3,7 +3,7 @@ import { use } from 'react';
 import { z } from 'zod';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
-import { villageListing } from 'app/(game)/(village-slug)/constants/query-keys';
+import { villageListing } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getPlayerVillageListingSchema = z.strictObject({

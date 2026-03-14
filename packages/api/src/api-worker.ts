@@ -20,7 +20,7 @@ import {
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
 import { OutdatedDatabaseSchemaError } from './errors';
-import { matchRoute } from './routes/route-matcher.ts';
+import { matchRoute } from './routes/route-matcher';
 import {
   cancelScheduling,
   initScheduler,
@@ -120,8 +120,18 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       const { url, method, body } = data;
 
       try {
-        const { controller, path, query } = matchRoute(url, method);
-        const result = controller(dbFacade!, { path, query, body });
+        const {
+          controller,
+          path,
+          query,
+          url: rawUrl,
+        } = matchRoute(url, method);
+        const result = controller(dbFacade!, {
+          path,
+          query,
+          body,
+          url: rawUrl,
+        });
 
         port.postMessage({
           data: result,

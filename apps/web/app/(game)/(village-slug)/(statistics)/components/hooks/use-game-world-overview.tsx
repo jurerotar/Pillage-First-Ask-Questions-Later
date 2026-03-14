@@ -3,7 +3,7 @@ import { use } from 'react';
 import { z } from 'zod';
 import { factionSchema } from '@pillage-first/types/models/faction';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
-import { gameWorldOverviewStatisticsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { gameWorldOverviewStatisticsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const gameWorldOverviewStatisticsSchema = z.strictObject({

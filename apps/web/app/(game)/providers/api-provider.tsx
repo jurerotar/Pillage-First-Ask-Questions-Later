@@ -8,7 +8,7 @@ import {
 } from 'react';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
-import { eventsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';

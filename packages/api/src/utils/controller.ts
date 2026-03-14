@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import type { paths } from '../open-api.ts';
+import type { paths } from '../open-api';
 
 export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
@@ -27,6 +27,7 @@ export type ControllerArgs<
         : Record<string, string | number>
       : Record<string, string | number>
     : Record<string, string | number>;
+  url: string;
   body: TBody extends undefined
     ? TPath extends keyof typeof paths
       ? TMethod extends keyof (typeof paths)[TPath]

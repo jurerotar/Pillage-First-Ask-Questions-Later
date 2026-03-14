@@ -51,8 +51,8 @@ import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-que
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
-import { removeTroops } from '../resolvers/utils/troops.ts';
-import { calculateAdventureDuration } from './adventures.ts';
+import { removeTroops } from '../resolvers/utils/troops';
+import { calculateAdventureDuration } from './adventures';
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
   const requiredEventProperties = new Set([

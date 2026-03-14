@@ -5,17 +5,18 @@ import type {
 import {
   adventurePointsCacheKey,
   collectableQuestCountCacheKey,
+  currentVillageCacheKey,
   effectsCacheKey,
   eventsCacheKey,
+  eventsHistoryCacheKey,
   heroCacheKey,
   heroInventoryCacheKey,
-  playerTroopsCacheKey,
-  playerVillagesCacheKey,
   questsCacheKey,
   unitImprovementCacheKey,
   unitResearchCacheKey,
   villageListing,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+  villageTroopsCacheKey,
+} from 'app/(game)/constants/query-keys';
 
 type HandlerFor<K extends GameEventType> = (event: GameEvent<K>) => string[];
 
@@ -27,7 +28,7 @@ export const cachesToClearOnResolve: Handlers = {
   buildingScheduledConstruction: () => [],
   buildingConstruction: () => {
     return [
-      playerVillagesCacheKey,
+      currentVillageCacheKey,
       effectsCacheKey,
       questsCacheKey,
       collectableQuestCountCacheKey,
@@ -35,43 +36,43 @@ export const cachesToClearOnResolve: Handlers = {
   },
   buildingLevelChange: () => {
     return [
-      playerVillagesCacheKey,
+      currentVillageCacheKey,
       effectsCacheKey,
       questsCacheKey,
       collectableQuestCountCacheKey,
+      eventsHistoryCacheKey,
     ];
   },
   buildingDestruction: () => {
-    return [playerVillagesCacheKey, effectsCacheKey];
+    return [currentVillageCacheKey, effectsCacheKey, eventsHistoryCacheKey];
   },
-
   troopTraining: () => {
-    return [playerTroopsCacheKey, effectsCacheKey];
+    return [villageTroopsCacheKey, effectsCacheKey, eventsHistoryCacheKey];
   },
   troopMovementReinforcements: () => {
-    return [playerTroopsCacheKey, effectsCacheKey, playerVillagesCacheKey];
+    return [villageTroopsCacheKey, effectsCacheKey, currentVillageCacheKey];
   },
   troopMovementRelocation: () => {
-    return [playerTroopsCacheKey, effectsCacheKey, playerVillagesCacheKey];
+    return [villageTroopsCacheKey, effectsCacheKey, currentVillageCacheKey];
   },
   troopMovementReturn: () => {
-    return [playerVillagesCacheKey, playerTroopsCacheKey];
+    return [currentVillageCacheKey, villageTroopsCacheKey];
   },
   troopMovementFindNewVillage: () => {
-    return [villageListing, effectsCacheKey, playerVillagesCacheKey];
+    return [villageListing, effectsCacheKey, currentVillageCacheKey];
   },
   troopMovementAttack: () => {
-    return [villageListing, effectsCacheKey, playerVillagesCacheKey];
+    return [villageListing, effectsCacheKey, currentVillageCacheKey];
   },
   troopMovementRaid: () => {
-    return [villageListing, effectsCacheKey, playerVillagesCacheKey];
+    return [villageListing, effectsCacheKey, currentVillageCacheKey];
   },
   troopMovementOasisOccupation: () => {
     return [
       heroCacheKey,
       villageListing,
       effectsCacheKey,
-      playerVillagesCacheKey,
+      currentVillageCacheKey,
     ];
   },
   troopMovementAdventure: () => {
@@ -84,10 +85,10 @@ export const cachesToClearOnResolve: Handlers = {
     ];
   },
   unitResearch: () => {
-    return [unitResearchCacheKey];
+    return [unitResearchCacheKey, eventsHistoryCacheKey];
   },
   unitImprovement: () => {
-    return [unitImprovementCacheKey];
+    return [unitImprovementCacheKey, eventsHistoryCacheKey];
   },
   adventurePointIncrease: () => {
     return [adventurePointsCacheKey];

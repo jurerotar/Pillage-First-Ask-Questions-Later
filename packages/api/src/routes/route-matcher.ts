@@ -1,8 +1,8 @@
 import type { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { paths } from '../open-api.ts';
-import type { Method } from '../utils/controller.ts';
-import { compiledApiRoutes } from './api-routes.ts';
+import { paths } from '../open-api';
+import type { Method } from '../utils/controller';
+import { compiledApiRoutes } from './api-routes';
 
 const routesByMethodCache = new Map<string, typeof compiledApiRoutes>();
 
@@ -40,8 +40,7 @@ export const matchRoute = (url: string, method: string) => {
     const pathKey = route.path as keyof typeof paths;
     const methodKey = method.toLowerCase() as Method;
 
-    // TODO: Refactor this
-    const routeConfig = (paths[pathKey] as Record<string, any>)[methodKey] as
+    const routeConfig = (paths[pathKey] as any)[methodKey] as
       | {
           requestParams?: {
             path?: z.ZodTypeAny;
@@ -64,6 +63,7 @@ export const matchRoute = (url: string, method: string) => {
       controller: route.controller,
       path: pathParams as Record<string, string | number>,
       query: queryParams as Record<string, string | number>,
+      url,
     };
   }
 
