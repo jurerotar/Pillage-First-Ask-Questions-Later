@@ -35,7 +35,7 @@
     "@pillage-first/api": "*",
     "@pillage-first/db": "*",
     "@pillage-first/game-assets": "*",
-    "@pillage-first/graphics": "0.0.10",
+    "@pillage-first/graphics": "0.1.0",
     "@pillage-first/mocks": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",

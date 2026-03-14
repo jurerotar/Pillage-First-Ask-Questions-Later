@@ -72,7 +72,6 @@ const CellIcons = (props: CellIconsProps) => {
       >
         <Icon
           type="wheat"
-          className="scale-80"
           shouldShowTooltip={false}
         />
       </BorderIndicator>
@@ -90,12 +89,11 @@ const CellIcons = (props: CellIconsProps) => {
 
     return (
       <BorderIndicator
-        className={clsx(classes, 'scale-80')}
+        className={classes}
         variant={tile.owner !== null ? 'red' : 'green'}
       >
         <Icon
           type={oasisResource}
-          className="scale-80"
           shouldShowTooltip={false}
         />
       </BorderIndicator>
