@@ -8,6 +8,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { useOccupiableOasisInRange } from 'app/(game)/(village-slug)/hooks/use-occupiable-oasis-in-range';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
@@ -22,6 +23,8 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+
+const tabs = ['occupied-oasis', 'oasis-within-reach'];
 
 type UnoccupiedOasisSlotProps = {
   heroMansionLevel: number;
@@ -267,6 +270,11 @@ export const HerosMansionOasis = () => {
 
   const freeSlots = availableSlots - occupiedSlots;
 
+  const { tabIndex, navigateToTab } = useTabParam(
+    tabs,
+    'heros-mansion-oasis-tab',
+  );
+
   return (
     <Section>
       <SectionContent>
@@ -278,7 +286,12 @@ export const HerosMansionOasis = () => {
           )}
         </Text>
       </SectionContent>
-      <Tabs defaultValue="occupied-oasis">
+      <Tabs
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
+        }}
+      >
         <TabList>
           <Tab value="occupied-oasis">
             <Text>{t('Occupied oasis')}</Text>

@@ -3,6 +3,7 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(repor
 import { ArchivedReports } from 'app/(game)/(village-slug)/(reports)/components/archived-reports';
 import { CurrentVillageReports } from 'app/(game)/(village-slug)/(reports)/components/current-village-reports';
 import { Reports } from 'app/(game)/(village-slug)/(reports)/components/reports';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -13,10 +14,14 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['all', 'archived', 'village'];
+
 const ReportsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
+
+  const { tabIndex, navigateToTab } = useTabParam(tabs, 'reports-tab');
 
   const title = `${t('Reports')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -33,7 +38,12 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
         </BreadcrumbList>
       </Breadcrumb>
       <Text as="h1">{t('Reports')}</Text>
-      <Tabs defaultValue="all">
+      <Tabs
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
+        }}
+      >
         <TabList>
           <Tab value="all">{t('All')}</Tab>
           <Tab value="archived">{t('Archived')}</Tab>

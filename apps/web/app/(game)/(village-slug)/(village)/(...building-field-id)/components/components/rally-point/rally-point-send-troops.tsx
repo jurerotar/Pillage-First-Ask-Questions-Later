@@ -4,11 +4,15 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 
+const tabs = ['default'];
+
 export const RallyPointSendTroops = () => {
   const { t } = useTranslation();
+  const _rallyPointTabs = useTabParam(tabs, 'rally-point-send-troops-tab');
 
   return (
     <Section>

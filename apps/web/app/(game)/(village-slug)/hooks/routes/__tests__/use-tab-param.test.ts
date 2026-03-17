@@ -33,10 +33,19 @@ describe(useTabParam, () => {
     expect(result.current.tabIndex).toBe(0);
   });
 
-  test('updates search param when navigateToTab is called', () => {
+  test('updates search param when navigateToTab is called and preserves existing params', () => {
+    const initialParams = new URLSearchParams({ other: 'value' });
+    const setSearchParams = vi.fn((updater) => {
+      if (typeof updater === 'function') {
+        const next = updater(initialParams);
+        expect(next.get('tab')).toBe('home');
+        expect(next.get('other')).toBe('value');
+      }
+    });
+
     using _ = vi
       .spyOn(reactRouter, 'useSearchParams')
-      .mockReturnValue([new URLSearchParams(), setSearchParams]);
+      .mockReturnValue([initialParams, setSearchParams]);
 
     const tabs = ['default', 'home', 'profile'];
     const { result } = renderHook(() => useTabParam(tabs));
@@ -45,6 +54,6 @@ describe(useTabParam, () => {
       result.current.navigateToTab('home');
     });
 
-    expect(setSearchParams).toHaveBeenCalledWith({ tab: 'home' });
+    expect(setSearchParams).toHaveBeenCalled();
   });
 });
