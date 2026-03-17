@@ -41,7 +41,7 @@ export const getUnitTrainingHistorySchema = baseGetUnitTrainingHistorySchema
 
 export const baseGetEventsHistorySchema = z.discriminatedUnion('type', [
   z.strictObject({
-    id: z.number(),
+    id: z.string(),
     type: z.literal('construction'),
     timestamp: z.number(),
     data: z.strictObject({
@@ -52,7 +52,7 @@ export const baseGetEventsHistorySchema = z.discriminatedUnion('type', [
     }),
   }),
   z.strictObject({
-    id: z.number(),
+    id: z.string(),
     type: z.literal('training'),
     timestamp: z.number(),
     data: z.strictObject({
@@ -63,7 +63,7 @@ export const baseGetEventsHistorySchema = z.discriminatedUnion('type', [
     }),
   }),
   z.strictObject({
-    id: z.number(),
+    id: z.string(),
     type: z.literal('improvement'),
     timestamp: z.number(),
     data: z.strictObject({
@@ -73,7 +73,7 @@ export const baseGetEventsHistorySchema = z.discriminatedUnion('type', [
     }),
   }),
   z.strictObject({
-    id: z.number(),
+    id: z.string(),
     type: z.literal('research'),
     timestamp: z.number(),
     data: z.strictObject({
@@ -85,7 +85,7 @@ export const baseGetEventsHistorySchema = z.discriminatedUnion('type', [
 export const getEventsHistorySchema = z
   .discriminatedUnion('type', [
     z.strictObject({
-      id: z.number(),
+      id: z.string(),
       type: z.literal('construction'),
       timestamp: z.number(),
       data: z.preprocess(
@@ -99,7 +99,7 @@ export const getEventsHistorySchema = z
       ),
     }),
     z.strictObject({
-      id: z.number(),
+      id: z.string(),
       type: z.literal('training'),
       timestamp: z.number(),
       data: z.preprocess(
@@ -113,7 +113,7 @@ export const getEventsHistorySchema = z
       ),
     }),
     z.strictObject({
-      id: z.number(),
+      id: z.string(),
       type: z.literal('improvement'),
       timestamp: z.number(),
       data: z.preprocess(
@@ -126,7 +126,7 @@ export const getEventsHistorySchema = z
       ),
     }),
     z.strictObject({
-      id: z.number(),
+      id: z.string(),
       type: z.literal('research'),
       timestamp: z.number(),
       data: z.preprocess(
