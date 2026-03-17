@@ -14,6 +14,10 @@
       "outputs": ["build/**"],
       "env": ["COMMIT_REF", "HEAD"]
     },
+    "preview": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
     "build:dev": {
       "outputs": ["build/**"]
     },

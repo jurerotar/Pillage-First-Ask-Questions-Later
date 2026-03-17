@@ -14,7 +14,7 @@
     "dev": "react-router dev",
     "build": "react-router build",
     "build:dev": "react-router build --mode development",
-    "start": "react-router-serve ./build/server/index.js",
+    "preview": "vite preview",
     "lint:check": "biome lint --no-errors-on-unmatched",
     "lint": "biome lint --fix --no-errors-on-unmatched",
     "lint:check/oxlint": "oxlint --type-aware",
