@@ -6,11 +6,15 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['upgrade-cost-benefits', 'upgrade-duration'];
+
 export const BuildingStats = () => {
   const { t } = useTranslation();
+  const { tabIndex, navigateToTab } = useTabParam(tabs, 'building-stats-tab');
 
   return (
     <Section>
@@ -23,7 +27,12 @@ export const BuildingStats = () => {
           )}
         </Text>
       </SectionContent>
-      <Tabs defaultValue="upgrade-cost-benefits">
+      <Tabs
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
+        }}
+      >
         <TabList>
           <Tab value="upgrade-cost-benefits">
             {t('Upgrade cost & benefits')}

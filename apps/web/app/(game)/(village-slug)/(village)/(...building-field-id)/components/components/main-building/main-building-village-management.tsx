@@ -6,11 +6,18 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['rename-village', 'demolish-buildings'];
+
 export const MainBuildingVillageManagement = () => {
   const { t } = useTranslation();
+  const { tabIndex, navigateToTab } = useTabParam(
+    tabs,
+    'main-building-village-management-tab',
+  );
 
   return (
     <Section>
@@ -23,7 +30,12 @@ export const MainBuildingVillageManagement = () => {
           )}
         </Text>
       </SectionContent>
-      <Tabs defaultValue="rename-village">
+      <Tabs
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
+        }}
+      >
         <TabList>
           <Tab value="rename-village">{t('Rename village')}</Tab>
           <Tab value="demolish-buildings">{t('Demolish buildings')}</Tab>
