@@ -37,14 +37,14 @@ export const matchRoute = (url: string, method: string) => {
 
     const { params: rawPathParams } = result;
 
-    const pathKey = route.path as keyof typeof paths;
+    const pathKey = route.path;
     const methodKey = method.toLowerCase() as Method;
 
     const routeConfig = (paths[pathKey] as any)[methodKey] as
       | {
           requestParams?: {
-            path?: z.ZodTypeAny;
-            query?: z.ZodTypeAny;
+            path?: z.ZodType;
+            query?: z.ZodType;
           };
         }
       | undefined;

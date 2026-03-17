@@ -15,5 +15,5 @@ export const createRoute = <
 ): Route<TPath> => ({
   path: controller.path,
   method: controller.method.toUpperCase(),
-  controller: controller as unknown as Controller<keyof typeof paths>,
+  controller: controller as unknown as Controller,
 });

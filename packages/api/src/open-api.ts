@@ -20,9 +20,9 @@ import {
   getHeroSchema,
 } from './controllers/schemas/hero-schemas';
 import {
-  getBuildingLevelChangeHistorySchema,
-  getEventsHistorySchema,
-  getUnitTrainingHistorySchema,
+  baseGetBuildingLevelChangeHistorySchema,
+  baseGetEventsHistorySchema,
+  baseGetUnitTrainingHistorySchema,
 } from './controllers/schemas/history-schemas';
 import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas';
 import {
@@ -54,6 +54,7 @@ import {
 } from './controllers/schemas/village-schemas';
 import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas';
 import { apiEffectSchema } from './utils/zod/effect-schemas';
+import { baseEventSchema } from './utils/zod/event-schemas';
 
 export const paths = {
   '/server': {
@@ -538,7 +539,7 @@ export const paths = {
         content: {
           'application/json': {
             schema: z.strictObject({
-              value: z.any(),
+              value: z.boolean(),
             }),
           },
         },
@@ -785,7 +786,7 @@ export const paths = {
           description: 'Village events',
           content: {
             'application/json': {
-              schema: z.array(z.any()),
+              schema: z.array(baseEventSchema),
             },
           },
         },
@@ -806,7 +807,7 @@ export const paths = {
           description: 'Village events by type',
           content: {
             'application/json': {
-              schema: z.array(z.any()),
+              schema: z.array(baseEventSchema),
             },
           },
         },
@@ -836,7 +837,7 @@ export const paths = {
           description: 'Village events history',
           content: {
             'application/json': {
-              schema: z.array(getEventsHistorySchema),
+              schema: z.array(baseGetEventsHistorySchema),
             },
           },
         },
@@ -856,7 +857,7 @@ export const paths = {
           description: 'Village building level change history',
           content: {
             'application/json': {
-              schema: z.array(getBuildingLevelChangeHistorySchema),
+              schema: z.array(baseGetBuildingLevelChangeHistorySchema),
             },
           },
         },
@@ -885,7 +886,7 @@ export const paths = {
           description: 'Village unit training history',
           content: {
             'application/json': {
-              schema: z.array(getUnitTrainingHistorySchema),
+              schema: z.array(baseGetUnitTrainingHistorySchema),
             },
           },
         },
@@ -898,7 +899,7 @@ export const paths = {
       requestBody: {
         content: {
           'application/json': {
-            schema: z.any(),
+            schema: z.record(z.string(), z.any()),
           },
         },
       },
@@ -1438,7 +1439,7 @@ export const paths = {
         content: {
           'application/json': {
             schema: z.strictObject({
-              value: z.any(),
+              value: z.union([z.boolean(), z.enum(['detailed', 'compact'])]),
             }),
           },
         },

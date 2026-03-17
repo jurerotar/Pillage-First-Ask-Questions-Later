@@ -69,7 +69,7 @@ export const getEventsHistory = createController(
   '/villages/:villageId/history/events',
 )(({ database, path, url }) => {
   const { villageId } = path;
-  const searchParams = new URL(url, 'http://localhost').searchParams;
+  const { searchParams } = new URL(url, 'http://localhost');
   const scope = searchParams.get('scope') ?? 'village';
   const types = searchParams.getAll('types');
 

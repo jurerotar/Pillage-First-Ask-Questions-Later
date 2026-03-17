@@ -12,7 +12,7 @@ export type ControllerArgs<
   path: TPath extends keyof typeof paths
     ? TMethod extends keyof (typeof paths)[TPath]
       ? (typeof paths)[TPath][TMethod] extends {
-          requestParams: { path: infer P extends z.ZodTypeAny };
+          requestParams: { path: infer P extends z.ZodType };
         }
         ? z.infer<P>
         : Record<string, string | number>
@@ -21,7 +21,7 @@ export type ControllerArgs<
   query: TPath extends keyof typeof paths
     ? TMethod extends keyof (typeof paths)[TPath]
       ? (typeof paths)[TPath][TMethod] extends {
-          requestParams: { query: infer Q extends z.ZodTypeAny };
+          requestParams: { query: infer Q extends z.ZodType };
         }
         ? z.infer<Q>
         : Record<string, string | number>
@@ -34,7 +34,7 @@ export type ControllerArgs<
         ? (typeof paths)[TPath][TMethod] extends {
             requestBody: {
               content: {
-                'application/json': { schema: infer B extends z.ZodTypeAny };
+                'application/json': { schema: infer B extends z.ZodType };
               };
             };
           }

@@ -65,7 +65,7 @@ describe(troopTrainingEventResolver, () => {
     expect(quest?.completed_at).toBeNull();
 
     // Now train enough to complete the quest
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i < 9; i += 1) {
       troopTrainingEventResolver(database, {
         ...mockEvent,
         id: 1000 + i,

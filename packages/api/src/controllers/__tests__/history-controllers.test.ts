@@ -9,7 +9,7 @@ import {
 import { createControllerArgs } from './utils/controller-args';
 
 describe('history-controllers', () => {
-  describe('getBuildingLevelChangeHistory', () => {
+  describe(getBuildingLevelChangeHistory, () => {
     test('should return building level change history for a village', async () => {
       const database = await prepareTestDatabase();
 
@@ -46,7 +46,7 @@ describe('history-controllers', () => {
     });
   });
 
-  describe('getUnitTrainingHistory', () => {
+  describe(getUnitTrainingHistory, () => {
     test('should return unit training history for a village', async () => {
       const database = await prepareTestDatabase();
 
@@ -83,7 +83,7 @@ describe('history-controllers', () => {
     });
   });
 
-  describe('getEventsHistory', () => {
+  describe(getEventsHistory, () => {
     test('should return combined events history with pagination and filtering', async () => {
       const database = await prepareTestDatabase();
 

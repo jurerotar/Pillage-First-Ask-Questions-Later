@@ -89,8 +89,7 @@ import {
   getVillageBySlug,
 } from '../controllers/village-controllers';
 import { getArtifactsAroundVillage } from '../controllers/world-items-controllers';
-import type { Route } from './route';
-import { createRoute } from './route';
+import { createRoute, type Route } from './route';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 

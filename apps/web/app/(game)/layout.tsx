@@ -91,7 +91,10 @@ const LayoutContent = memo<Route.ComponentProps>(
     useEffect(() => {
       const { promise, resolve } = Promise.withResolvers();
 
-      navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
+      navigator.locks.request(
+        `${serverSlug}:${sessionId}`,
+        async () => promise,
+      );
 
       return () => {
         resolve(null);
