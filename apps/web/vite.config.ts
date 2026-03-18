@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import faroRollupPlugin from '@grafana/faro-rollup-plugin';
 import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
 import { reactIconsSprite } from 'react-icons-sprite/vite';
@@ -9,8 +10,6 @@ import { defineConfig as defineVitestConfig } from 'vitest/config';
 import { reactRouter } from '@react-router/dev/vite';
 import repoPackageJson from '../../package.json' with { type: 'json' };
 import packageJson from './package.json' with { type: 'json' };
-
-// import { visualizer } from "rollup-plugin-visualizer";
 
 const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
@@ -74,7 +73,19 @@ const viteConfig = defineViteConfig({
           globIgnores: ['**/*.html'],
         },
       }),
-    // visualizer({ open: true }) as PluginOption,
+    isDeployingToMaster &&
+      faroRollupPlugin({
+        appName: 'pillage-first',
+        endpoint: process.env.FARO_SOURCEMAP_API_URL!,
+        apiKey: process.env.FARO_API_KEY!,
+        appId: process.env.FARO_APP_ID!,
+        stackId: process.env.FARO_STACK_ID!,
+        gzipContents: true,
+        keepSourcemaps: false,
+        verbose: false,
+        recursive: true,
+        outputPath: resolve(__dirname, 'build/client'),
+      }),
   ],
   server: {
     open: false,
@@ -82,6 +93,7 @@ const viteConfig = defineViteConfig({
   },
   build: {
     target: 'esnext',
+    sourcemap: true,
     rolldownOptions: {
       // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
       external: [/^\/graphic-packs/],

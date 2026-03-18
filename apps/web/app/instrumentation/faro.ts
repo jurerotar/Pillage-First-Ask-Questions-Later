@@ -11,9 +11,11 @@ export const initFaro = async () => {
     return;
   }
 
-  const { initializeFaro, getWebInstrumentations } = await import(
-    '@grafana/faro-web-sdk'
-  );
+  const [{ initializeFaro, getWebInstrumentations }, { ReactIntegration }] =
+    await Promise.all([
+      import('@grafana/faro-web-sdk'),
+      import('@grafana/faro-react'),
+    ]);
 
   initializeFaro({
     url: env.VITE_FARO_INGEST_ENDPOINT,
@@ -21,11 +23,15 @@ export const initFaro = async () => {
       name: 'pillage-first',
       version: env.VERSION,
       release: env.COMMIT_REF,
+      environment: env.MODE,
     },
-    instrumentations: getWebInstrumentations({
-      captureConsole: true,
-      enablePerformanceInstrumentation: true,
-    }),
+    instrumentations: [
+      ...getWebInstrumentations({
+        captureConsole: true,
+        enablePerformanceInstrumentation: true,
+      }),
+      new ReactIntegration(),
+    ],
     sessionTracking: {
       session: {
         attributes: {
