@@ -27,6 +27,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@grafana/faro-react": "2.3.0",
     "@grafana/faro-web-sdk": "2.3.0",
     "@hookform/resolvers": "5.2.2",
     "@mantine/hooks": "8.3.18",
@@ -64,6 +65,8 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "*",
+    "@grafana/faro-rollup-plugin": "0.9.0",
     "@react-router/dev": "7.13.1",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
