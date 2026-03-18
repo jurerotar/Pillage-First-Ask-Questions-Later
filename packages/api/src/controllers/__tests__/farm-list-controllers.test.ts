@@ -101,7 +101,7 @@ describe('farm-list-controllers', () => {
     expect(farmList.tileIds).toHaveLength(1);
 
     // 7. Max 100 tiles limit
-    for (let i = 0; i < 99; i++) {
+    for (let i = 0; i < 99; i += 1) {
       // We already have 1 tile (102). Adding 99 more makes it 100.
       addTileToFarmList(
         database,

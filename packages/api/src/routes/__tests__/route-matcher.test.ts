@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { matchRoute } from '../route-matcher';
 
-describe('matchRoute', () => {
+describe(matchRoute, () => {
   test('casts path params using real schema (/villages/:villageId/troops)', () => {
     // This route exists in api-routes.ts and has a schema in open-api.ts
     const result = matchRoute('/villages/123/troops', 'GET');

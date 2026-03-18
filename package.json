@@ -21,21 +21,16 @@
     "extract-sql-usage": "node scripts/extract-sql-usage.ts",
     "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts"
   },
-  "dependencies": {
-    "@sqlite.org/sqlite-wasm": "3.51.2-build7"
-  },
   "devDependencies": {
-    "@biomejs/biome": "2.4.6",
-    "@commitlint/cli": "20.4.4",
-    "@commitlint/config-conventional": "20.4.4",
-    "@typescript/native-preview": "7.0.0-dev.20260312.1",
+    "@biomejs/biome": "2.4.7",
+    "@commitlint/cli": "20.5.0",
+    "@commitlint/config-conventional": "20.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260317.1",
     "lefthook": "2.1.4",
-    "oxlint": "1.55.0",
-    "oxlint-tsgolint": "0.16.0",
-    "turbo": "2.8.16",
-    "typescript": "6.0.0-beta",
-    "vitest": "4.1.0",
-    "zod": "4.3.6"
+    "oxlint": "1.56.0",
+    "oxlint-tsgolint": "0.17.0",
+    "turbo": "2.8.17",
+    "typescript": "6.0.0-beta"
   },
   "engines": {
     "node": ">=24.12.0"

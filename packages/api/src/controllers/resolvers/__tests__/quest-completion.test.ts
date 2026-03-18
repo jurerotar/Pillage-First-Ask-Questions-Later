@@ -5,7 +5,7 @@ import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
 import { buildingLevelChangeResolver } from '../building-resolvers';
 
-describe('Quest completion on building level up', () => {
+describe('quest completion on building level up', () => {
   test('should complete building quest when level increases to required level', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;

@@ -1,4 +1,6 @@
-import { use } from 'react';
+import { FaroErrorBoundary } from '@grafana/faro-react';
+import { faro } from '@grafana/faro-web-sdk';
+import { use, useEffect } from 'react';
 import {
   Link,
   Links,
@@ -13,6 +15,10 @@ import { CookieContext } from 'app/providers/cookie-provider.tsx';
 export const ErrorBoundary = () => {
   const error = useRouteError() as Error;
   const { uiColorScheme, locale } = use(CookieContext);
+
+  useEffect(() => {
+    faro.api?.pushError(error);
+  }, [error]);
 
   const isDatabaseInitializationError =
     error instanceof OutdatedDatabaseSchemaError;
@@ -37,134 +43,137 @@ export const ErrorBoundary = () => {
   };
 
   return (
-    <html
-      lang={locale}
-      className={uiColorScheme}
-    >
-      <head>
-        <HeadLinks />
-        <Links />
-      </head>
-      <body>
-        <main className="container mx-auto max-w-2xl p-4 flex flex-col gap-4 text-foreground">
-          <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-destructive">
-            <h1 className="text-lg font-semibold">{name}</h1>
-            <p className="mt-1">{message}</p>
-          </div>
+    <FaroErrorBoundary>
+      <html
+        lang={locale}
+        className={uiColorScheme}
+      >
+        <head>
+          <HeadLinks />
+          <Links />
+        </head>
+        <body>
+          <main className="container mx-auto max-w-2xl p-4 flex flex-col gap-4 text-foreground">
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-destructive">
+              <h1 className="text-lg font-semibold">{name}</h1>
+              <p className="mt-1">{message}</p>
+            </div>
 
-          {isDatabaseInitializationError && (
-            <p className="text-foreground">
-              We've recently released a new version of the app that introduced
-              breaking changes in existing game worlds. If you're seeing this
-              error message, your game world is not compatible with latest
-              version of the app.
-            </p>
-          )}
-
-          <p className="text-foreground font-medium">Try these steps:</p>
-          <ul className="list-disc pl-6 space-y-1">
-            {isErrorWithCustomSteps && isDatabaseInitializationError && (
-              <>
-                <li>
-                  If you've opened this game world through a link on{' '}
-                  <Link
-                    className="underline"
-                    to="/game-worlds"
-                  >
-                    game worlds
-                  </Link>{' '}
-                  page, please navigate back to that page, delete the game world
-                  and create a new one.
-                </li>
-                <li>
-                  If you've opened this game world directly with the URL, please
-                  navigate to{' '}
-                  <Link
-                    className="underline"
-                    to="/game-worlds/create"
-                  >
-                    create new game world
-                  </Link>{' '}
-                  page and create a new game world.
-                </li>
-              </>
+            {isDatabaseInitializationError && (
+              <p className="text-foreground">
+                We've recently released a new version of the app that introduced
+                breaking changes in existing game worlds. If you're seeing this
+                error message, your game world is not compatible with latest
+                version of the app.
+              </p>
             )}
-            {!isErrorWithCustomSteps && (
-              <>
-                <li>
-                  Refresh this page — transient issues often resolve on reload.
-                </li>
-                <li>
-                  If the error persists, export your game state from the{' '}
-                  <Link
-                    className="underline"
-                    to="/"
-                  >
-                    home page
-                  </Link>{' '}
-                  and report the issue via:{' '}
-                  <a
-                    className="underline"
-                    href="https://discord.gg/Ep7NKVXUZA"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    #bugs on Discord
-                  </a>{' '}
-                  or{' '}
-                  <a
-                    className="underline"
-                    href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues/new/choose"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GitHub Issues
-                  </a>
-                  .
-                </li>
-              </>
-            )}
-          </ul>
 
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-            >
-              Refresh page
-            </button>
-            <Link
-              to="/"
-              className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-            >
-              Return to homepage
-            </Link>
-            <button
-              type="button"
-              onClick={copyDetails}
-              className="ml-auto inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-              title="Copy technical details to clipboard"
-            >
-              Copy details
-            </button>
-          </div>
+            <p className="text-foreground font-medium">Try these steps:</p>
+            <ul className="list-disc pl-6 space-y-1">
+              {isErrorWithCustomSteps && isDatabaseInitializationError && (
+                <>
+                  <li>
+                    If you've opened this game world through a link on{' '}
+                    <Link
+                      className="underline"
+                      to="/game-worlds"
+                    >
+                      game worlds
+                    </Link>{' '}
+                    page, please navigate back to that page, delete the game
+                    world and create a new one.
+                  </li>
+                  <li>
+                    If you've opened this game world directly with the URL,
+                    please navigate to{' '}
+                    <Link
+                      className="underline"
+                      to="/game-worlds/create"
+                    >
+                      create new game world
+                    </Link>{' '}
+                    page and create a new game world.
+                  </li>
+                </>
+              )}
+              {!isErrorWithCustomSteps && (
+                <>
+                  <li>
+                    Refresh this page — transient issues often resolve on
+                    reload.
+                  </li>
+                  <li>
+                    If the error persists, export your game state from the{' '}
+                    <Link
+                      className="underline"
+                      to="/"
+                    >
+                      home page
+                    </Link>{' '}
+                    and report the issue via:{' '}
+                    <a
+                      className="underline"
+                      href="https://discord.gg/Ep7NKVXUZA"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      #bugs on Discord
+                    </a>{' '}
+                    or{' '}
+                    <a
+                      className="underline"
+                      href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues/new/choose"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      GitHub Issues
+                    </a>
+                    .
+                  </li>
+                </>
+              )}
+            </ul>
 
-          <details
-            open
-            className="rounded-md border border-border bg-card p-3"
-          >
-            <summary className="cursor-pointer select-none font-medium">
-              Technical details
-            </summary>
-            <pre className="mt-2 overflow-auto rounded bg-muted p-2 text-xs text-muted-foreground">
-              {details}
-            </pre>
-          </details>
-        </main>
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+              >
+                Refresh page
+              </button>
+              <Link
+                to="/"
+                className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+              >
+                Return to homepage
+              </Link>
+              <button
+                type="button"
+                onClick={copyDetails}
+                className="ml-auto inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                title="Copy technical details to clipboard"
+              >
+                Copy details
+              </button>
+            </div>
+
+            <details
+              open
+              className="rounded-md border border-border bg-card p-3"
+            >
+              <summary className="cursor-pointer select-none font-medium">
+                Technical details
+              </summary>
+              <pre className="mt-2 overflow-auto rounded bg-muted p-2 text-xs text-muted-foreground">
+                {details}
+              </pre>
+            </details>
+          </main>
+          <ScrollRestoration />
+          <Scripts />
+        </body>
+      </html>
+    </FaroErrorBoundary>
   );
 };

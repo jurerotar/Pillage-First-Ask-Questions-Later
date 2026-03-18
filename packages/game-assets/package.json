@@ -72,9 +72,8 @@
     "type-check": "tsgo"
   },
   "devDependencies": {
-    "@biomejs/biome": "*",
-    "@typescript/native-preview": "*",
-    "typescript": "*",
-    "vitest": "*"
+    "@typescript/native-preview": "7.0.0-dev.20260317.1",
+    "typescript": "6.0.0-beta",
+    "vitest": "4.1.0"
   }
 }

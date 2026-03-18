@@ -4,12 +4,20 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['small-celebration', 'large-celebration'];
+
 export const TownHallCelebrations = () => {
   const { t } = useTranslation();
+  const { tabIndex, navigateToTab } = useTabParam(
+    tabs,
+    'town-hall-celebrations-tab',
+  );
+
   return (
     <Section>
       <SectionContent>
@@ -64,7 +72,12 @@ export const TownHallCelebrations = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <Tabs defaultValue="small-celebration">
+        <Tabs
+          value={tabs[tabIndex] ?? tabs[0]}
+          onValueChange={(value) => {
+            navigateToTab(value);
+          }}
+        >
           <TabList>
             <Tab value="small-celebration">{t('Small Celebration')}</Tab>
             <Tab value="large-celebration">{t('Large Celebration')}</Tab>

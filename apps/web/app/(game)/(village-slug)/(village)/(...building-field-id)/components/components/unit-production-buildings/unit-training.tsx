@@ -1,4 +1,4 @@
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
@@ -19,6 +19,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table.tsx';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { Icon } from 'app/components/icon.tsx';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons.tsx';
 import { Text } from 'app/components/text.tsx';
@@ -47,7 +48,12 @@ export const UnitTraining = () => {
     buildingIdToTroopTrainingEffectAndCategoryMap.get(buildingId)!;
 
   const units = getTribeUnitsByCategory(category);
-  const defaultUnitId = units[0]?.id;
+  const tabs = useMemo(() => units.map((unit) => unit.id), [units]);
+  const { tabIndex, navigateToTab } = useTabParam(
+    tabs,
+    `${buildingId.toLowerCase()}-unit-training-tab`,
+  );
+
   return (
     <Section>
       <SectionContent>
@@ -60,7 +66,12 @@ export const UnitTraining = () => {
         </Text>
       </SectionContent>
       <TroopTrainingTable buildingId={buildingId} />
-      <Tabs defaultValue={defaultUnitId}>
+      <Tabs
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
+        }}
+      >
         <TabList>
           {units.map(({ id }) => (
             <Tab

@@ -1,6 +1,10 @@
 import { useSearchParams } from 'react-router';
 
-export const useTabParam = (tabs: string[]) => {
+export const useTabParam = (
+  tabs: string[],
+  queryParam = 'tab',
+  defaultValue = 'default',
+) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const tabNameToIndex: Record<string, number> = {};
@@ -9,12 +13,13 @@ export const useTabParam = (tabs: string[]) => {
     tabNameToIndex[name] = index;
   }
 
-  const tabIndex = tabNameToIndex[searchParams.get('tab') ?? 'default'];
+  const tabIndex = tabNameToIndex[searchParams.get(queryParam) ?? defaultValue];
 
   const navigateToTab = (tab: string) => {
     setSearchParams((prev) => {
-      prev.set('tab', tab);
-      return prev;
+      const next = new URLSearchParams(prev);
+      next.set(queryParam, tab);
+      return next;
     });
   };
 

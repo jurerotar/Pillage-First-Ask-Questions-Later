@@ -69,7 +69,7 @@ export const getEventsHistory = createController(
   '/villages/:villageId/history/events',
 )(({ database, path, url }) => {
   const { villageId } = path;
-  const searchParams = new URL(url, 'http://localhost').searchParams;
+  const { searchParams } = new URL(url, 'http://localhost');
   const scope = searchParams.get('scope') ?? 'village';
   const types = searchParams.getAll('types');
 
@@ -83,7 +83,7 @@ export const getEventsHistory = createController(
   if (types.length === 0 || types.includes('construction')) {
     queries.push(`
       SELECT
-        id,
+        'construction-' || id as id,
         'construction' as type,
         timestamp,
         json_object(
@@ -100,7 +100,7 @@ export const getEventsHistory = createController(
   if (types.length === 0 || types.includes('training')) {
     queries.push(`
       SELECT
-        id,
+        'training-' || id as id,
         'training' as type,
         timestamp,
         json_object(
@@ -117,7 +117,7 @@ export const getEventsHistory = createController(
   if (types.length === 0 || types.includes('improvement')) {
     queries.push(`
       SELECT
-        id,
+        'improvement-' || id as id,
         'improvement' as type,
         timestamp,
         json_object(
@@ -133,7 +133,7 @@ export const getEventsHistory = createController(
   if (types.length === 0 || types.includes('research')) {
     queries.push(`
       SELECT
-        id,
+        'research-' || id as id,
         'research' as type,
         timestamp,
         json_object(

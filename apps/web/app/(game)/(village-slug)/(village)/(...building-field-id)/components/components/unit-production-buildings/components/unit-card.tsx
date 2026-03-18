@@ -1,5 +1,11 @@
 import { clsx } from 'clsx';
-import { createContext, Fragment, type PropsWithChildren, use } from 'react';
+import {
+  createContext,
+  Fragment,
+  type PropsWithChildren,
+  use,
+  useMemo,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -63,8 +69,16 @@ export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
     showOuterBorder = true,
   } = props;
 
+  const value = useMemo(() => {
+    return {
+      unitId,
+      durationEffect,
+      buildingId,
+    };
+  }, [unitId, durationEffect, buildingId]);
+
   return (
-    <UnitCardContext value={{ unitId, durationEffect, buildingId }}>
+    <UnitCardContext value={value}>
       <article
         className={clsx(
           'flex flex-col gap-2 p-2',
