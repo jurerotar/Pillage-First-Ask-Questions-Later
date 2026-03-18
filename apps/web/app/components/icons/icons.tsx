@@ -2,7 +2,6 @@ import { clsx } from 'clsx';
 import { camelCase } from 'moderndash';
 import type { JSX } from 'react';
 import type { IconBaseProps } from 'react-icons';
-import { BiShieldQuarter } from 'react-icons/bi';
 import {
   BsFillPeopleFill,
   BsMinecartLoaded,
@@ -45,15 +44,17 @@ import {
   TbBat,
   TbBorderCorners,
   TbBrandSpeedtest,
-  TbHorseshoe,
   TbLaurelWreath,
   TbTooltip,
 } from 'react-icons/tb';
 import { TiMinus, TiPlus } from 'react-icons/ti';
 import {
   PillageFirstCatapult,
+  PillageFirstCavalryDefence,
   PillageFirstClay,
+  PillageFirstDefence,
   PillageFirstHorse,
+  PillageFirstInfantryDefence,
   PillageFirstIron,
   PillageFirstWheat,
   PillageFirstWheatOff,
@@ -286,18 +287,8 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     />
   ),
   buildingDuration: (props) => <CgTimelapse {...props} />,
-  infantryDefence: (props) => (
-    <BiShieldQuarter
-      {...props}
-      className={clsx('text-muted-foreground', props.className)}
-    />
-  ),
-  cavalryDefence: (props) => (
-    <TbHorseshoe
-      {...props}
-      className={clsx('text-muted-foreground', props.className)}
-    />
-  ),
+  infantryDefence: (props) => <PillageFirstInfantryDefence {...props} />,
+  cavalryDefence: (props) => <PillageFirstCavalryDefence {...props} />,
   population: (props) => (
     <FaPeopleGroup
       {...props}
@@ -316,18 +307,8 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
       className={clsx('text-muted-foreground', props.className)}
     />
   ),
-  defence: (props) => (
-    <BiShieldQuarter
-      {...props}
-      className={clsx('text-muted-foreground', props.className)}
-    />
-  ),
-  defenceBonus: (props) => (
-    <BiShieldQuarter
-      {...props}
-      className={clsx('text-muted-foreground', props.className)}
-    />
-  ),
+  defence: (props) => <PillageFirstDefence {...props} />,
+  defenceBonus: (props) => <PillageFirstDefence {...props} />,
   residenceTrainingDuration: (props) => <LuClock {...props} />,
   barracksTrainingDuration: (props) => <LuClock {...props} />,
   greatBarracksTrainingDuration: (props) => <LuClock {...props} />,
