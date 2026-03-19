@@ -302,7 +302,7 @@ const ImportGameWorld = () => {
                 value={peerId}
                 onChange={(e) => setPeerId(e.target.value.toUpperCase())}
                 disabled={isImporting || isConnecting}
-                className="max-w-40"
+                className="max-w-52"
               />
               <Button
                 size="fit"
