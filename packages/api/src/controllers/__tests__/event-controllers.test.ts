@@ -1,10 +1,27 @@
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { getVillageEvents, getVillageEventsByType } from '../event-controllers';
+import * as schedulerSignal from '../../scheduler/scheduler-signal';
+import * as resolver from '../../utils/resolver';
+import {
+  disableVacationMode,
+  enableVacationMode,
+  getCurrentGameTime,
+  getVillageEvents,
+  getVillageEventsByType,
+  skipTime,
+} from '../event-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
+vi.mock('../../scheduler/scheduler-signal');
+vi.mock('../../utils/resolver');
+
 describe('event-controllers', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+    vi.useRealTimers();
+  });
+
   test('getVillageEvents should return events for a village', async () => {
     const database = await prepareTestDatabase();
 
@@ -39,5 +56,174 @@ describe('event-controllers', () => {
     );
 
     expect(true).toBeTruthy();
+  });
+
+  test('enableVacationMode sets vacation_started_at and updates last_write', async () => {
+    const database = await prepareTestDatabase();
+
+    const before = database.selectObject({
+      sql: `
+        SELECT
+          last_write AS lastWrite,
+          vacation_started_at AS vacationStartedAt
+        FROM
+          meta
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        lastWrite: z.number(),
+        vacationStartedAt: z.number().nullable(),
+      }),
+    })!;
+
+    enableVacationMode(
+      database,
+      createControllerArgs<'/events/vacation', 'post'>({}),
+    );
+
+    const after = database.selectObject({
+      sql: `
+        SELECT
+          last_write AS lastWrite,
+          vacation_started_at AS vacationStartedAt
+        FROM
+          meta
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        lastWrite: z.number(),
+        vacationStartedAt: z.number().nullable(),
+      }),
+    })!;
+
+    expect(after.vacationStartedAt).not.toBeNull();
+    expect(after.lastWrite).toBeGreaterThanOrEqual(before.lastWrite);
+  });
+
+  test('getCurrentGameTime returns effective now including skipped time', async () => {
+    const database = await prepareTestDatabase();
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+
+    database.exec({
+      sql: `
+        UPDATE meta
+        SET
+          last_write = 1000,
+          total_time_skipped = 500,
+          vacation_started_at = NULL;
+      `,
+    });
+
+    const response = getCurrentGameTime(
+      database,
+      createControllerArgs<'/events/current-time'>({}),
+    );
+
+    expect(response.currentTime).toBe(1_500);
+  });
+
+  test('disableVacationMode shifts unresolved events by vacation duration and clears vacation', async () => {
+    const database = await prepareTestDatabase();
+    vi.useFakeTimers();
+    vi.setSystemTime(10_000);
+
+    database.exec({
+      sql: "INSERT INTO events (id, type, starts_at, duration, village_id) VALUES (999101, 'unitResearch', 5000, 200, 1), (999102, 'unitResearch', 5600, 200, 1);",
+    });
+
+    database.exec({
+      sql: `
+        UPDATE meta
+        SET
+          last_write = 4000,
+          total_time_skipped = 500,
+          vacation_started_at = 6000;
+      `,
+    });
+
+    disableVacationMode(
+      database,
+      createControllerArgs<'/events/vacation', 'delete'>({}),
+    );
+
+    const events = database.selectObjects({
+      sql: 'SELECT id, starts_at AS startsAt FROM events WHERE id IN (999101, 999102) ORDER BY id;',
+      schema: z.strictObject({ id: z.number(), startsAt: z.number() }),
+    });
+
+    const meta = database.selectObject({
+      sql: `
+        SELECT
+          vacation_started_at AS vacationStartedAt
+        FROM
+          meta
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        vacationStartedAt: z.number().nullable(),
+      }),
+    })!;
+
+    expect(events).toStrictEqual([
+      { id: 999101, startsAt: 9_000 },
+      { id: 999102, startsAt: 9_600 },
+    ]);
+    expect(meta.vacationStartedAt).toBeNull();
+    expect(schedulerSignal.triggerKick).toHaveBeenCalledTimes(1);
+  });
+
+  test('skipTime increases total_time_skipped and resolves due events', async () => {
+    const database = await prepareTestDatabase();
+    vi.useFakeTimers();
+    vi.setSystemTime(1_000);
+    vi.clearAllMocks();
+
+    database.exec({
+      sql: `
+        UPDATE meta
+        SET
+          last_write = 1000,
+          total_time_skipped = 0,
+          vacation_started_at = NULL;
+      `,
+    });
+
+    database.exec({
+      sql: "INSERT INTO events (id, type, starts_at, duration, village_id) VALUES (999001, 'unitResearch', 1200, 100, 1), (999002, 'unitResearch', 2000, 100, 1);",
+    });
+
+    skipTime(
+      database,
+      createControllerArgs<'/events/skip-time', 'post'>({
+        body: {
+          duration: 500,
+        },
+      }),
+    );
+
+    const meta = database.selectObject({
+      sql: `
+        SELECT
+          total_time_skipped AS totalTimeSkipped
+        FROM
+          meta
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        totalTimeSkipped: z.number(),
+      }),
+    })!;
+
+    expect(meta.totalTimeSkipped).toBe(500);
+    expect(resolver.resolveEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      999001,
+    );
+    expect(resolver.resolveEvent).not.toHaveBeenCalledWith(
+      expect.anything(),
+      999002,
+    );
+    expect(schedulerSignal.triggerKick).toHaveBeenCalledTimes(1);
   });
 });

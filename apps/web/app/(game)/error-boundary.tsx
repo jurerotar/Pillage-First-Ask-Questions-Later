@@ -1,6 +1,6 @@
 import { FaroErrorBoundary } from '@grafana/faro-react';
 import { faro } from '@grafana/faro-web-sdk';
-import { useEffect } from 'react';
+import { use, useEffect } from 'react';
 import {
   Link,
   Links,
@@ -10,9 +10,11 @@ import {
 } from 'react-router';
 import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
 import { HeadLinks } from 'app/components/head-links.tsx';
+import { CookieContext } from 'app/providers/cookie-provider.tsx';
 
 export const ErrorBoundary = () => {
   const error = useRouteError() as Error;
+  const { uiColorScheme, locale } = use(CookieContext);
 
   useEffect(() => {
     faro.api?.pushError(error);
@@ -42,14 +44,17 @@ export const ErrorBoundary = () => {
 
   return (
     <FaroErrorBoundary>
-      <html lang="en">
+      <html
+        lang={locale}
+        className={uiColorScheme}
+      >
         <head>
           <HeadLinks />
           <Links />
         </head>
         <body>
-          <main className="container mx-auto max-w-2xl p-4 flex flex-col gap-4">
-            <div className="rounded-md border border-red-300 bg-red-50 p-3 text-red-900">
+          <main className="container mx-auto max-w-2xl p-4 flex flex-col gap-4 text-foreground">
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-destructive">
               <h1 className="text-lg font-semibold">{name}</h1>
               <p className="mt-1">{message}</p>
             </div>
@@ -133,20 +138,20 @@ export const ErrorBoundary = () => {
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
               >
                 Refresh page
               </button>
               <Link
                 to="/"
-                className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
               >
                 Return to homepage
               </Link>
               <button
                 type="button"
                 onClick={copyDetails}
-                className="ml-auto inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                className="ml-auto inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
                 title="Copy technical details to clipboard"
               >
                 Copy details
@@ -155,12 +160,12 @@ export const ErrorBoundary = () => {
 
             <details
               open
-              className="rounded-md border bg-white p-3"
+              className="rounded-md border border-border bg-card p-3"
             >
               <summary className="cursor-pointer select-none font-medium">
                 Technical details
               </summary>
-              <pre className="mt-2 overflow-auto rounded bg-gray-50 p-2 text-xs">
+              <pre className="mt-2 overflow-auto rounded bg-muted p-2 text-xs text-muted-foreground">
                 {details}
               </pre>
             </details>
