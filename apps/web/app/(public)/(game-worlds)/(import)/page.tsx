@@ -1,7 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import { useRef } from 'react';
+import Peer from 'peerjs';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router';
+import { toast } from 'sonner';
 import type {
   ImportGameWorldWorkerPayload,
   ImportGameWorldWorkerResponse,
@@ -18,6 +20,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
+import { Input } from 'app/components/ui/input';
 import { workerFactory } from 'app/utils/workers';
 
 type ImportGameWorldSuccess = Extract<
@@ -30,16 +33,32 @@ const ImportGameWorld = () => {
   const navigate = useNavigate();
   const { createGameWorld } = useGameWorldActions();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [peerId, setPeerId] = useState<string>('');
+  const peerRef = useRef<Peer | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (peerRef.current) {
+        peerRef.current.destroy();
+        peerRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const {
     mutateAsync: importGameWorld,
     isPending: isImporting,
     error,
-  } = useMutation<ImportGameWorldSuccess, Error, File>({
-    mutationFn: async (file) => {
-      const buffer = await file.arrayBuffer();
+  } = useMutation<ImportGameWorldSuccess, Error, ArrayBuffer | Blob>({
+    mutationFn: async (data) => {
+      const buffer = data instanceof Blob ? await data.arrayBuffer() : data;
       const payload: ImportGameWorldWorkerPayload = {
-        databaseBuffer: buffer,
+        databaseBuffer: buffer as ArrayBuffer,
       };
 
       const result = await workerFactory<
@@ -57,6 +76,121 @@ const ImportGameWorld = () => {
       createGameWorld({ server });
 
       await navigate(`/game/${server.slug}/v-1/resources`);
+    },
+  });
+
+  const { mutateAsync: connectToPeer, isPending: isConnecting } = useMutation({
+    mutationFn: async (targetPeerId: string) => {
+      let toastId: string | number | undefined;
+
+      return new Promise<void>((resolve, reject) => {
+        if (peerRef.current) {
+          peerRef.current.destroy();
+        }
+        const peer = new Peer();
+        peerRef.current = peer;
+
+        peer.on('open', () => {
+          toastId = toast.loading('Connecting to device...');
+          const conn = peer.connect(targetPeerId);
+
+          conn.on('open', () => {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
+          });
+
+          conn.on('data', async (data) => {
+            if (
+              !(
+                data instanceof Blob ||
+                data instanceof ArrayBuffer ||
+                ArrayBuffer.isView(data)
+              )
+            ) {
+              if (toastId) {
+                toast.dismiss(toastId);
+              }
+              console.error('Received invalid data format:', data);
+              toast.error('Received invalid data format.', {
+                description: `Received: ${typeof data}`,
+              });
+              peer.destroy();
+              reject(new Error('Received invalid data format.'));
+              return;
+            }
+
+            const buffer =
+              data instanceof Blob ? await data.arrayBuffer() : data;
+
+            if (toastId) {
+              toast.dismiss(toastId);
+            }
+            toast.success('Game world received!');
+            peer.destroy();
+            peerRef.current = null;
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
+            try {
+              await importGameWorld(buffer as ArrayBuffer);
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
+          });
+
+          conn.on('error', (err) => {
+            if (toastId) {
+              toast.dismiss(toastId);
+            }
+            toast.error('Failed to connect', {
+              description: err.message,
+            });
+            peer.destroy();
+            peerRef.current = null;
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
+            reject(err);
+          });
+
+          // Timeout for connection
+          timeoutRef.current = setTimeout(() => {
+            timeoutRef.current = null;
+            if (!conn.open) {
+              if (toastId) {
+                toast.dismiss(toastId);
+              }
+              toast.error(
+                'Connection timed out. Ensure the sharing device is still active.',
+              );
+              peer.destroy();
+              peerRef.current = null;
+              reject(new Error('Connection timed out.'));
+            }
+          }, 30000);
+        });
+
+        peer.on('error', (err) => {
+          if (toastId) {
+            toast.dismiss(toastId);
+          }
+          toast.error('Failed to connect', {
+            description: err.message,
+          });
+          peer.destroy();
+          peerRef.current = null;
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
+          reject(err);
+        });
+      });
     },
   });
 
@@ -100,7 +234,7 @@ const ImportGameWorld = () => {
               onClick={() => {
                 fileInputRef.current?.click();
               }}
-              disabled={isImporting}
+              disabled={isImporting || isConnecting}
             >
               {isImporting
                 ? t('Importing...')
@@ -134,11 +268,39 @@ const ImportGameWorld = () => {
               }}
             />
           </div>
+
+          <div className="flex flex-col gap-2 mt-4">
+            <Text
+              as="h2"
+              className="text-xl font-semibold"
+            >
+              {t('Import from other device')}
+            </Text>
+            <Text>
+              {t(
+                'Enter the Peer ID shown on your other device to transfer the game world directly.',
+              )}
+            </Text>
+            <div className="flex items-center gap-3">
+              <Input
+                placeholder="Enter Peer ID"
+                value={peerId}
+                onChange={(e) => setPeerId(e.target.value)}
+                disabled={isImporting || isConnecting}
+              />
+              <Button
+                onClick={() => connectToPeer(peerId)}
+                disabled={!peerId || isImporting || isConnecting}
+              >
+                {isConnecting ? t('Connecting...') : t('Connect')}
+              </Button>
+            </div>
+          </div>
           <div className="flex flex-col gap-2">
-            <Text>Want to create a new game world instead?</Text>
+            <Text>{t('Want to create a new game world instead?')}</Text>
 
             <Link to="/game-worlds/create">
-              <Button variant="outline">Create a new game world</Button>
+              <Button variant="outline">{t('Create a new game world')}</Button>
             </Link>
           </div>
         </main>

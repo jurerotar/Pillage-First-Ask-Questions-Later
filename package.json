@@ -22,14 +22,14 @@
     "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.7",
+    "@biomejs/biome": "2.4.8",
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
     "@typescript/native-preview": "7.0.0-dev.20260317.1",
     "lefthook": "2.1.4",
     "oxlint": "1.56.0",
     "oxlint-tsgolint": "0.17.0",
-    "turbo": "2.8.17",
+    "turbo": "2.8.19",
     "typescript": "6.0.0-beta"
   },
   "engines": {
