@@ -87,12 +87,16 @@ const ImportGameWorld = () => {
         if (peerRef.current) {
           peerRef.current.destroy();
         }
-        const peer = new Peer();
+        const peer = new Peer({
+          debug: 2,
+        });
         peerRef.current = peer;
 
         peer.on('open', () => {
           toastId = toast.loading('Connecting to device...');
-          const conn = peer.connect(targetPeerId);
+          const conn = peer.connect(targetPeerId, {
+            reliable: true,
+          });
 
           conn.on('open', () => {
             if (timeoutRef.current) {
@@ -285,8 +289,9 @@ const ImportGameWorld = () => {
               <Input
                 placeholder="Enter Peer ID"
                 value={peerId}
-                onChange={(e) => setPeerId(e.target.value)}
+                onChange={(e) => setPeerId(e.target.value.toUpperCase())}
                 disabled={isImporting || isConnecting}
+                className="uppercase"
               />
               <Button
                 onClick={() => connectToPeer(peerId)}

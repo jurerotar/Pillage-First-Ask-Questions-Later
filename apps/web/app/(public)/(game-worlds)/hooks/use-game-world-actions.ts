@@ -174,7 +174,9 @@ export const useGameWorldActions = () => {
           .toString(36)
           .substring(2, 8)
           .toUpperCase();
-        const peer = new Peer(shortId);
+        const peer = new Peer(shortId, {
+          debug: 2,
+        });
         peerRef.current = peer;
 
         let secondsRemaining = 60;
@@ -240,6 +242,21 @@ export const useGameWorldActions = () => {
         });
 
         peer.on('connection', (conn) => {
+          conn.on('error', (err) => {
+            console.error('Peer connection error:', err);
+            if (toastId) {
+              toast.dismiss(toastId);
+            }
+            toast.error('Connection error', {
+              description: err.message,
+            });
+            peer.destroy();
+            peerRef.current = null;
+            worker.terminate();
+            workerRef.current = null;
+            reject(err);
+          });
+
           if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
