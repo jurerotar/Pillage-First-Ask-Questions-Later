@@ -87,9 +87,7 @@ const ImportGameWorld = () => {
         if (peerRef.current) {
           peerRef.current.destroy();
         }
-        const peer = new Peer({
-          debug: 2,
-        });
+        const peer = new Peer();
         peerRef.current = peer;
 
         peer.on('open', () => {
@@ -228,49 +226,58 @@ const ImportGameWorld = () => {
             it here. If import is successful, you'll be automatically redirected
             to the game world.
           </Text>
-          <Alert variant="warning">
-            Game world importing functionality is experimental. If you encounter
-            issues, please report them in the Discord!
-          </Alert>
           {error && <Alert variant="error">{error.toString()}</Alert>}
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => {
-                fileInputRef.current?.click();
-              }}
-              disabled={isImporting || isConnecting}
+          <div className="flex flex-col gap-2">
+            <Text
+              as="h2"
+              className="text-xl font-semibold"
             >
-              {isImporting
-                ? t('Importing...')
-                : t('Select .sqlite3 file to import')}
-            </Button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".sqlite3"
-              className="hidden"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) {
-                  return;
-                }
-
-                if (!file.name.endsWith('.sqlite3')) {
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
+              {t('Local file import')}
+            </Text>
+            <Text>
+              {t(
+                'This method allows you to import game world files directly from your computer.',
+              )}
+            </Text>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => {
+                  fileInputRef.current?.click();
+                }}
+                disabled={isImporting || isConnecting}
+              >
+                {isImporting
+                  ? t('Importing...')
+                  : t('Select .sqlite3 file to import')}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".sqlite3"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) {
+                    return;
                   }
-                  return;
-                }
 
-                try {
-                  await importGameWorld(file);
-                } finally {
-                  if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
+                  if (!file.name.endsWith('.sqlite3')) {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                    }
+                    return;
                   }
-                }
-              }}
-            />
+
+                  try {
+                    await importGameWorld(file);
+                  } finally {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = '';
+                    }
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 mt-4">
@@ -278,26 +285,31 @@ const ImportGameWorld = () => {
               as="h2"
               className="text-xl font-semibold"
             >
-              {t('Import from other device')}
+              {t('Import from local device')}
             </Text>
+            <Alert variant="warning">
+              Import from local device functionality is experimental. If you
+              encounter issues, please report them in the Discord!
+            </Alert>
             <Text>
               {t(
-                'Enter the Peer ID shown on your other device to transfer the game world directly.',
+                'This method uses WebRTC to transfer the game world directly from other devices. Devices must be a part of the same network. Once you click on the "Share world" button, a Peer ID will be displayed. Enter the Peer ID shown on your other device to transfer the game world to this device.',
               )}
             </Text>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-3">
               <Input
-                placeholder="Enter Peer ID"
+                placeholder="Peer ID (ex. EJS8DK)"
                 value={peerId}
                 onChange={(e) => setPeerId(e.target.value.toUpperCase())}
                 disabled={isImporting || isConnecting}
-                className="uppercase"
+                className="max-w-40"
               />
               <Button
+                size="fit"
                 onClick={() => connectToPeer(peerId)}
                 disabled={!peerId || isImporting || isConnecting}
               >
-                {isConnecting ? t('Connecting...') : t('Connect')}
+                {isConnecting ? t('Connecting...') : t('Import')}
               </Button>
             </div>
           </div>

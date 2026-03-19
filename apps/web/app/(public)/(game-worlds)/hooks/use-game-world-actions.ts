@@ -174,9 +174,7 @@ export const useGameWorldActions = () => {
           .toString(36)
           .substring(2, 8)
           .toUpperCase();
-        const peer = new Peer(shortId, {
-          debug: 2,
-        });
+        const peer = new Peer(shortId);
         peerRef.current = peer;
 
         let secondsRemaining = 60;
