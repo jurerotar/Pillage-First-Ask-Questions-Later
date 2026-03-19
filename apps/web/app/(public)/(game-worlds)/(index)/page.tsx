@@ -59,7 +59,7 @@ const MyGameWorldsPage = () => {
 
           <div className="flex flex-col gap-2">
             <Text>Want to create or import an existing game state?</Text>
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-scroll scrollbar-hidden">
               <Link to="/game-worlds/create">
                 <Button>Create a new game world</Button>
               </Link>

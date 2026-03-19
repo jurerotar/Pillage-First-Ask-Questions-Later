@@ -61,7 +61,7 @@ const CreateNewGameWorldPage = () => {
               Want to continue playing on your current game worlds, or want to
               import an existing game state?
             </Text>
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-scroll scrollbar-hidden">
               <Link to="/game-worlds">
                 <Button>My game worlds</Button>
               </Link>
