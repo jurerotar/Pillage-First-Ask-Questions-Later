@@ -53,6 +53,7 @@ export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
   const { tabIndex, navigateToTab } = useTabParam(
     tabs,
     `${buildingId.toLowerCase()}-unit-training-tab`,
+    tabs[0],
   );
 
   return (

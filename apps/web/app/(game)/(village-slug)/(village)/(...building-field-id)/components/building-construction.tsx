@@ -140,6 +140,7 @@ export const BuildingConstruction = () => {
   const { tabIndex, navigateToTab } = useTabParam(
     tabs,
     'building-construction-tab',
+    tabs[0],
   );
 
   const isCompact = preferences.buildingConstructionViewMode === 'compact';
