@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Peer from 'peerjs';
 import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +41,7 @@ export const ImportModal = ({
 }: ImportModalProps) => {
   const { t } = useTranslation('public');
   const { gameWorldListing } = useGameWorldListing();
+  const queryClient = useQueryClient();
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const peerRef = useRef<Peer | null>(null);
 
@@ -53,12 +54,16 @@ export const ImportModal = ({
       const peer = new Peer();
       peerRef.current = peer;
 
-      signal.addEventListener('abort', () => {
-        peer.destroy();
-        peerRef.current = null;
-      });
-
       return new Promise((resolve, reject) => {
+        const cleanup = () => {
+          peer.destroy();
+          peerRef.current = null;
+        };
+
+        signal.addEventListener('abort', cleanup);
+
+        let isResolved = false;
+
         peer.on('open', (id) => {
           const conn = peer.connect(BROADCAST_CHANNEL);
 
@@ -69,26 +74,40 @@ export const ImportModal = ({
           conn.on('data', (data) => {
             const message = data as Message;
             if (message.type === 'AVAILABLE_WORLDS_LIST') {
-              resolve({ list: message.list, localPeerId: id });
+              if (!isResolved) {
+                isResolved = true;
+                resolve({ list: message.list, localPeerId: id });
+              } else {
+                queryClient.setQueryData<{
+                  list: AvailableWorld[];
+                  localPeerId: string;
+                }>(['available-worlds-discovery'], (old) => {
+                  if (!old) {
+                    return {
+                      list: message.list,
+                      localPeerId: id,
+                    };
+                  }
+                  return { ...old, list: message.list };
+                });
+              }
             }
           });
 
           conn.on('error', (err) => {
-            console.error('Peer connection error:', err);
             toast.error('Failed to discover devices.');
             reject(err);
           });
         });
 
         peer.on('error', (err) => {
-          console.error('Peer error:', err);
           reject(err);
         });
       });
     },
     enabled: open,
     gcTime: 0,
-    staleTime: 0,
+    staleTime: Number.POSITIVE_INFINITY, // Don't refetch automatically
   });
 
   const availableWorlds = data?.list ?? [];
@@ -97,13 +116,13 @@ export const ImportModal = ({
   const filteredAvailableWorlds = useMemo(() => {
     return availableWorlds
       .filter((w) => w.peerId !== localPeerId)
-      .map((w) => ({
-        ...w,
-        worlds: w.worlds.filter(
-          (world) => !gameWorldListing.some((local) => local.id === world.id),
-        ),
-      }))
-      .filter((w) => w.worlds.length > 0);
+      .flatMap((w) =>
+        w.worlds
+          .filter(
+            (world) => !gameWorldListing.some((local) => local.id === world.id),
+          )
+          .map((world) => ({ ...world, peerId: w.peerId })),
+      );
   }, [availableWorlds, localPeerId, gameWorldListing]);
 
   const handleImport = async (peerId: string, serverSlug: string) => {
@@ -175,42 +194,27 @@ export const ImportModal = ({
           )}
 
           {!isLoading &&
-            filteredAvailableWorlds.map(({ peerId, worlds }) => (
+            filteredAvailableWorlds.map((world) => (
               <div
-                key={peerId}
-                className="flex flex-col gap-2 border rounded-md p-3"
+                key={`${world.peerId}-${world.slug}`}
+                className="flex items-center justify-between gap-4 border rounded-md p-3"
               >
-                <Text
-                  variant="muted"
-                  className="text-xs"
-                >
-                  Device: {peerId}
-                </Text>
-                <div className="flex flex-col gap-2">
-                  {worlds.map((world) => (
-                    <div
-                      key={world.slug}
-                      className="flex items-center justify-between gap-4"
-                    >
-                      <div className="flex flex-col">
-                        <Text className="font-medium">{world.name}</Text>
-                        <Text
-                          variant="muted"
-                          className="text-xs"
-                        >
-                          {world.slug}
-                        </Text>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => handleImport(peerId, world.slug)}
-                        disabled={isImporting}
-                      >
-                        {t('Import')}
-                      </Button>
-                    </div>
-                  ))}
+                <div className="flex flex-col">
+                  <Text className="font-medium">{world.name}</Text>
+                  <Text
+                    variant="muted"
+                    className="text-xs"
+                  >
+                    {world.slug} • {t('Device: {{id}}', { id: world.peerId })}
+                  </Text>
                 </div>
+                <Button
+                  size="sm"
+                  onClick={() => handleImport(world.peerId, world.slug)}
+                  disabled={isImporting}
+                >
+                  {t('Import')}
+                </Button>
               </div>
             ))}
         </div>

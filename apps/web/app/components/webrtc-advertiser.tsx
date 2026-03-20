@@ -40,13 +40,18 @@ export const WebRTCAdvertiser = () => {
             worlds: gameWorldListing,
             peerId: id,
           } satisfies Message);
-          // We can close this after announcing if we want to save connections,
-          // but better to keep it to detect disconnects if possible.
+        });
+
+        conn.on('error', (_err) => {
+          setTimeout(announce, 5000);
+        });
+
+        conn.on('close', () => {
+          setTimeout(announce, 5000);
         });
       };
 
-      // Delay announcement slightly to ensure registry peer (if any) is ready
-      setTimeout(announce, 1000);
+      announce();
     });
 
     peer.on('connection', (conn) => {
@@ -71,8 +76,7 @@ export const WebRTCAdvertiser = () => {
             } else {
               toast.error(result.message);
             }
-          } catch (error) {
-            console.error('Failed to share world:', error);
+          } catch (_error) {
             toast.error('Failed to share world.');
           }
         }
@@ -83,11 +87,63 @@ export const WebRTCAdvertiser = () => {
     const registryPeer = new Peer(BROADCAST_CHANNEL);
     registryPeerRef.current = registryPeer;
 
+    registryPeer.on('error', (err) => {
+      if (err.type !== 'unavailable-id') {
+        // ID already taken is fine, another tab is the registry
+      }
+    });
+
+    const connections = new Map<string, string>(); // conn.peer -> peerId
+
+    const broadcast = (list: AvailableWorld[]) => {
+      const connectionsMap = (
+        registryPeerRef.current as unknown as {
+          connections:
+            | Map<string, Peer.DataConnection[]>
+            | Record<string, Peer.DataConnection[]>;
+        }
+      )?.connections;
+      if (connectionsMap instanceof Map) {
+        for (const connArray of connectionsMap.values()) {
+          for (const c of connArray) {
+            if (c.open) {
+              c.send({
+                type: 'AVAILABLE_WORLDS_LIST',
+                list,
+              } satisfies Message);
+            }
+          }
+        }
+      } else if (connectionsMap) {
+        Object.values(connectionsMap).forEach((connArray) => {
+          connArray.forEach((c) => {
+            if (c.open) {
+              c.send({
+                type: 'AVAILABLE_WORLDS_LIST',
+                list,
+              } satisfies Message);
+            }
+          });
+        });
+      }
+    };
+
     registryPeer.on('connection', (conn) => {
       conn.on('data', (data) => {
         const message = data as Message;
         if (message.type === 'ANNOUNCE_WORLDS') {
           activePeersRef.current.set(message.peerId, message.worlds);
+          connections.set(conn.peer, message.peerId);
+
+          // Notify all active connections about the updated list
+          const list = Array.from(activePeersRef.current.entries())
+            .filter(([peerId]) => peerId !== registryPeer.id)
+            .map(([peerId, worlds]) => ({
+              peerId,
+              worlds,
+            }));
+
+          broadcast(list);
         } else if (message.type === 'QUERY_WORLDS') {
           const list = Array.from(activePeersRef.current.entries())
             .filter(([peerId]) => peerId !== registryPeer.id)
@@ -100,9 +156,21 @@ export const WebRTCAdvertiser = () => {
       });
 
       conn.on('close', () => {
-        // We don't easily know which peerId this connection belonged to
-        // without mapping conn to peerId on ANNOUNCE_WORLDS.
-        // For now, let's just let them overwrite.
+        const peerId = connections.get(conn.peer);
+        if (peerId) {
+          activePeersRef.current.delete(peerId);
+          connections.delete(conn.peer);
+
+          // Broadcast update
+          const list = Array.from(activePeersRef.current.entries())
+            .filter(([id]) => id !== registryPeer.id)
+            .map(([id, worlds]) => ({
+              peerId: id,
+              worlds,
+            }));
+
+          broadcast(list);
+        }
       });
     });
 
