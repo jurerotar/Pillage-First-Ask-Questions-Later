@@ -1,6 +1,5 @@
 import Peer from 'peerjs';
 import { useEffect, useRef } from 'react';
-import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import ShareServerWorker from 'app/(public)/workers/share-server-worker?worker&url';
@@ -17,7 +16,8 @@ type Message =
   | { type: 'QUERY_WORLDS' }
   | { type: 'ANNOUNCE_WORLDS'; worlds: Server[]; peerId: string }
   | { type: 'AVAILABLE_WORLDS_LIST'; list: AvailableWorld[] }
-  | { type: 'REQUEST_WORLD'; serverSlug: string };
+  | { type: 'REQUEST_WORLD'; serverSlug: string }
+  | { type: 'error'; message: string };
 
 export const WebRTCAdvertiser = () => {
   const { gameWorldListing } = useGameWorldListing();
@@ -74,10 +74,10 @@ export const WebRTCAdvertiser = () => {
             if (result.type === 'database') {
               conn.send(result.databaseBuffer);
             } else {
-              toast.error(result.message);
+              conn.send({ type: 'error', message: result.message });
             }
           } catch (_error) {
-            toast.error('Failed to share world.');
+            conn.send({ type: 'error', message: 'Failed to share world.' });
           }
         }
       });

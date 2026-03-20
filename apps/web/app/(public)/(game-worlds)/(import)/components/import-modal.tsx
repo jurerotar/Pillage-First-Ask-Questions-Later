@@ -26,7 +26,8 @@ type AvailableWorld = {
 type Message =
   | { type: 'QUERY_WORLDS' }
   | { type: 'AVAILABLE_WORLDS_LIST'; list: AvailableWorld[] }
-  | { type: 'REQUEST_WORLD'; serverSlug: string };
+  | { type: 'REQUEST_WORLD'; serverSlug: string }
+  | { type: 'error'; message: string };
 
 type ImportModalProps = {
   open: boolean;
@@ -136,22 +137,36 @@ export const ImportModal = ({
     const conn = peerRef.current.connect(peerId);
 
     conn.on('open', () => {
+      const timeoutId = setTimeout(() => {
+        if (isImporting) {
+          toast.error('Request timed out.', { id: toastId });
+          setIsImporting(false);
+          conn.close();
+        }
+      }, 30000); // 30s timeout
+
       toast.loading('Requesting game world...', { id: toastId });
       conn.send({ type: 'REQUEST_WORLD', serverSlug } satisfies Message);
-    });
 
-    conn.on('data', async (data) => {
-      if (data instanceof ArrayBuffer) {
-        toast.success('Game world received!', { id: toastId });
-        try {
-          await onImport(data);
-          onOpenChange(false);
-        } catch {
-          toast.error('Failed to import game world.');
-        } finally {
+      conn.on('data', async (data) => {
+        clearTimeout(timeoutId);
+        if (data instanceof ArrayBuffer) {
+          toast.success('Game world received!', { id: toastId });
+          try {
+            await onImport(data);
+            onOpenChange(false);
+          } catch {
+            toast.error('Failed to import game world.');
+          } finally {
+            setIsImporting(false);
+            conn.close();
+          }
+        } else if ((data as { type?: string })?.type === 'error') {
+          toast.error((data as { message: string }).message, { id: toastId });
           setIsImporting(false);
+          conn.close();
         }
-      }
+      });
     });
 
     conn.on('error', (err) => {
