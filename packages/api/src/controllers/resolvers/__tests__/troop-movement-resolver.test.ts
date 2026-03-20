@@ -208,7 +208,7 @@ describe('relocationMovementResolver', () => {
   });
 });
 
-describe('findNewVillageMovementResolver', () => {
+describe(findNewVillageMovementResolver, () => {
   test('should create a new village with building fields, resource site, and quests', async () => {
     const database = await prepareTestDatabase();
 
@@ -258,7 +258,7 @@ describe('findNewVillageMovementResolver', () => {
       }),
     });
     // buildingFieldsFactory 'player' size creates 18 resource fields + Rally Point (39) + Main Building (38) + Wall (40) = 21 fields
-    expect(buildingFields.length).toBe(21);
+    expect(buildingFields).toHaveLength(21);
 
     // Check Main Building level 1
     const mainBuilding = buildingFields.find((f) => f.field_id === 38);
@@ -290,7 +290,7 @@ describe('findNewVillageMovementResolver', () => {
   });
 });
 
-describe('attackMovementResolver', () => {
+describe(attackMovementResolver, () => {
   test.skip('should create a return event starting at the attack resolution time', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
@@ -319,14 +319,14 @@ describe('attackMovementResolver', () => {
   });
 });
 
-describe('raidMovementResolver', () => {
+describe(raidMovementResolver, () => {
   test.skip('should create a return event starting at the raid resolution time', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
 
     const mockEvent = createTroopMovementRaidEventMock({
       id: 3,
-      startsAt: 10000,
+      startsAt: 10_000,
       duration: 200,
       villageId,
       troops: [{ unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, source: 1 }],

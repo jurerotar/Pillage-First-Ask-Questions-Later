@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 
 export const useUnitRecruitmentErrorBag = (unitId: Unit['id']) => {
   const { t } = useTranslation();

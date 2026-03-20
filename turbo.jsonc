@@ -14,6 +14,10 @@
       "outputs": ["build/**"],
       "env": ["COMMIT_REF", "HEAD", "FARO_APP_ID", "FARO_API_KEY", "FARO_STACK_ID", "FARO_SOURCEMAP_API_URL", "VITE_FARO_INGEST_ENDPOINT"]
     },
+    "preview": {
+      "dependsOn": ["build"],
+      "cache": false
+    },
     "build:dev": {
       "outputs": ["build/**"],
       "env": ["COMMIT_REF", "HEAD", "FARO_APP_ID", "FARO_API_KEY", "FARO_STACK_ID", "FARO_SOURCEMAP_API_URL", "VITE_FARO_INGEST_ENDPOINT"]

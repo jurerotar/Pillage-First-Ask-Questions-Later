@@ -110,12 +110,11 @@
     "type-check": "tsgo"
   },
   "dependencies": {
-    "@sqlite.org/sqlite-wasm": "*",
-    "zod": "*"
+    "@sqlite.org/sqlite-wasm": "3.51.2-build8",
+    "zod": "4.3.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "*",
-    "@typescript/native-preview": "*",
-    "typescript": "*"
+    "@typescript/native-preview": "7.0.0-dev.20260317.1",
+    "typescript": "6.0.0-beta"
   }
 }

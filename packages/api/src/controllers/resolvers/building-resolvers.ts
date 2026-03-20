@@ -15,7 +15,7 @@ import {
   updateVillageResourcesAt,
 } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
-import { assessBuildingQuestCompletion } from './utils/quests.ts';
+import { assessBuildingQuestCompletion } from './utils/quests';
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>
@@ -78,28 +78,6 @@ export const buildingLevelChangeResolver: Resolver<
       },
     });
   }
-
-  database.exec({
-    sql: `
-      INSERT INTO
-        building_level_change_history
-      (village_id, field_id, building_id, previous_level, new_level, timestamp)
-      VALUES
-        ($village_id, $building_field_id, (
-          SELECT id
-          FROM building_ids
-          WHERE building = $building_id
-          ), $previous_level, $level, STRFTIME('%s', 'now'))
-      RETURNING id;
-    `,
-    bind: {
-      $village_id: villageId,
-      $building_field_id: buildingFieldId,
-      $building_id: buildingId,
-      $level: level,
-      $previous_level: previousLevel,
-    },
-  });
 
   const isLevelIncreasing = previousLevel < level;
 

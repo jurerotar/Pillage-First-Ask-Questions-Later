@@ -1,5 +1,5 @@
-import type { paths } from '../open-api.ts';
-import type { Controller, Method } from '../utils/controller.ts';
+import type { paths } from '../open-api';
+import type { Controller, Method } from '../utils/controller';
 
 export type Route<TPath extends keyof typeof paths = keyof typeof paths> = {
   path: TPath;
@@ -15,5 +15,5 @@ export const createRoute = <
 ): Route<TPath> => ({
   path: controller.path,
   method: controller.method.toUpperCase(),
-  controller: controller as unknown as Controller<keyof typeof paths>,
+  controller: controller as unknown as Controller,
 });

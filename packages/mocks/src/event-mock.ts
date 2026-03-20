@@ -4,6 +4,28 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import { villageMock } from './village-mock';
 
+export const createGameEventMock = <T extends GameEventType>(
+  type: T,
+  overrides: Partial<GameEvent<T>> = {},
+): GameEvent<T> => {
+  const startsAt = overrides.startsAt ?? Date.now();
+  const duration = overrides.duration ?? 0;
+
+  const base: GameEvent = {
+    id: Math.floor(Math.random() * 100_000),
+    type,
+    startsAt,
+    duration,
+    resolvesAt: startsAt + duration,
+    villageId: villageMock.id,
+  };
+
+  return {
+    ...base,
+    ...overrides,
+  } as GameEvent<T>;
+};
+
 export const createBuildingConstructionEventMock = (
   overrides: Partial<GameEvent<'buildingConstruction'>> = {},
 ): GameEvent<'buildingConstruction'> => {
@@ -99,28 +121,6 @@ export const createHeroHealthRegenerationEventMock = (
   return createGameEventMock('heroHealthRegeneration', {
     ...overrides,
   });
-};
-
-export const createGameEventMock = <T extends GameEventType>(
-  type: T,
-  overrides: Partial<GameEvent<T>> = {},
-): GameEvent<T> => {
-  const startsAt = overrides.startsAt ?? Date.now();
-  const duration = overrides.duration ?? 0;
-
-  const base: GameEvent = {
-    id: Math.floor(Math.random() * 100_000),
-    type,
-    startsAt,
-    duration,
-    resolvesAt: startsAt + duration,
-    villageId: villageMock.id,
-  };
-
-  return {
-    ...base,
-    ...overrides,
-  } as GameEvent<T>;
 };
 
 export const createUnitImprovementEventMock = (

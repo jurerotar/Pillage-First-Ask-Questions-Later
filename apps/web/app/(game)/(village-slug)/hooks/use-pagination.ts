@@ -49,6 +49,10 @@ export const usePagination = <T>(
   }, [actualPage, pageCount]);
 
   useEffect(() => {
+    setPage(defaultPage);
+  }, [defaultPage]);
+
+  useEffect(() => {
     if (page > pageCount) {
       setPage(pageCount);
     }

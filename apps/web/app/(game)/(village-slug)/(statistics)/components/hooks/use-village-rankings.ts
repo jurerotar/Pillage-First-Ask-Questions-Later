@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
-import { villageRankingsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { villageRankingsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getVillageRankingsSchema = z.strictObject({

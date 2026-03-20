@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.3.15",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -21,21 +21,16 @@
     "extract-sql-usage": "node scripts/extract-sql-usage.ts",
     "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts"
   },
-  "dependencies": {
-    "@sqlite.org/sqlite-wasm": "3.51.2-build6"
-  },
   "devDependencies": {
-    "@biomejs/biome": "2.4.6",
-    "@commitlint/cli": "20.4.3",
-    "@commitlint/config-conventional": "20.4.3",
-    "@typescript/native-preview": "7.0.0-dev.20260306.1",
-    "lefthook": "2.1.2",
-    "oxlint": "1.51.0",
-    "oxlint-tsgolint": "0.16.0",
-    "turbo": "2.8.13",
-    "typescript": "6.0.0-beta",
-    "vitest": "4.0.18",
-    "zod": "4.3.6"
+    "@biomejs/biome": "2.4.8",
+    "@commitlint/cli": "20.5.0",
+    "@commitlint/config-conventional": "20.5.0",
+    "@typescript/native-preview": "7.0.0-dev.20260317.1",
+    "lefthook": "2.1.4",
+    "oxlint": "1.56.0",
+    "oxlint-tsgolint": "0.17.0",
+    "turbo": "2.8.19",
+    "typescript": "6.0.0-beta"
   },
   "engines": {
     "node": ">=24.12.0"

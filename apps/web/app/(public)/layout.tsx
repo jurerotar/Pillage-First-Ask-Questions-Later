@@ -2,7 +2,7 @@ import { MDXProvider } from '@mdx-js/react';
 import { type ComponentProps, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
-import type { Route } from '@react-router/types/app/(public)/+types/layout.ts';
+import type { Route } from '@react-router/types/app/(public)/+types/layout';
 import { DesktopNavigation } from 'app/(public)/components/desktop-navigation';
 import { Footer } from 'app/(public)/components/footer';
 import { MobileNavigation } from 'app/(public)/components/mobile-navigation';
@@ -10,7 +10,7 @@ import { HeadLinks } from 'app/components/head-links.tsx';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import { Toaster } from 'app/components/ui/toaster';
-import { type AvailableLocale, i18n, locales } from 'app/localization/i18n.ts';
+import { type AvailableLocale, i18n, locales } from 'app/localization/i18n';
 import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
 
 export const loader = async ({ params }: Route.LoaderArgs) => {

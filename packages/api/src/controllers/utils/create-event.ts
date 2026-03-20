@@ -5,7 +5,7 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { triggerKick } from '../../scheduler/scheduler-signal';
-import { subtractVillageResourcesAt } from '../../utils/village.ts';
+import { subtractVillageResourcesAt } from '../../utils/village';
 import {
   getEventCost,
   getEventDuration,

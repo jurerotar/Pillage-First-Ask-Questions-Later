@@ -205,7 +205,7 @@ describe('map-controllers', () => {
     );
 
     expect(markers).toHaveLength(1);
-    expect(markers[0]).toEqual({ tileId });
+    expect(markers[0]).toStrictEqual({ tileId });
 
     // 3. Remove marker
     removeMapMarker(
