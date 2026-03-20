@@ -89,12 +89,18 @@ const LayoutContent = memo<Route.ComponentProps>(
       : 'top-right';
 
     useEffect(() => {
-      const { promise, resolve } = Promise.withResolvers();
+      let release: (() => void) | undefined;
 
-      navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
+      navigator.locks.request(
+        `${serverSlug}:${sessionId}`,
+        () =>
+          new Promise<void>((resolve) => {
+            release = resolve;
+          }),
+      );
 
       return () => {
-        resolve(null);
+        release?.();
       };
     }, [serverSlug, sessionId]);
 
