@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from 'react';
 import { FaDiscord, FaUsers } from 'react-icons/fa6';
 import { Button } from 'app/components/ui/button';
 import { useDiscordMembers } from 'app/hooks/use-discord-members';
@@ -8,7 +9,8 @@ type DiscordButtonProps = {
 
 export const DiscordButton = ({
   showMemberCount = true,
-}: DiscordButtonProps) => {
+  children,
+}: PropsWithChildren<DiscordButtonProps>) => {
   const { data: discordData } = useDiscordMembers();
 
   return (
@@ -24,7 +26,7 @@ export const DiscordButton = ({
       >
         <FaDiscord className="size-6" />
         <span className="inline-flex items-center gap-2">
-          <span>Join the community</span>
+          <span>{children ?? 'Join the community'}</span>
           {showMemberCount && discordData?.memberCount !== undefined && (
             <span className="inline-flex items-center gap-1 ml-1 text-xs">
               <FaUsers className="size-4" />

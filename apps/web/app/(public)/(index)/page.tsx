@@ -165,7 +165,7 @@ const MotivationSection = () => {
           <div className="prose text-[#391600] dark:text-foreground">
             <Motivation />
           </div>
-          <DiscordButton />
+          <DiscordButton>Help shape the game</DiscordButton>
         </div>
       </div>
     </section>

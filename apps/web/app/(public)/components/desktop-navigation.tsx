@@ -199,7 +199,7 @@ export const DesktopNavigation = () => {
           <Link to="/game-worlds/create">
             <Button>{t('Create new world')}</Button>
           </Link>
-          <DiscordButton />
+          <DiscordButton>Discord</DiscordButton>
         </div>
       </div>
     </nav>
