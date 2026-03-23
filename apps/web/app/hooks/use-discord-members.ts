@@ -20,6 +20,12 @@ export const useDiscordMembers = (inviteCode = 'Ep7NKVXUZA') => {
         presenceCount: data.approximate_presence_count,
       };
     },
+    initialData: () => {
+      return {
+        memberCount: 196,
+        presenceCount: 40,
+      };
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };

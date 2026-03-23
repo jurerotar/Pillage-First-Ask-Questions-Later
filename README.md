@@ -1,11 +1,26 @@
 # Pillage First! (Ask Questions Later)
 
 <p align="center">
-  <img src="/.github/assets/mobile-map-view.jpg" width="30%">
+  <picture>
+    <source srcset="/.github/assets/mobile-map-view-dark.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+    <source srcset="/.github/assets/mobile-map-view-dark.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
+    <source srcset="/.github/assets/mobile-map-view.avif" type="image/avif">
+    <img src="/.github/assets/mobile-map-view.jpg" width="30%">
+  </picture>
   &nbsp;
-  <img src="/.github/assets/mobile-main-building-view.jpg" width="30%">
+  <picture>
+    <source srcset="/.github/assets/mobile-main-building-view-dark.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+    <source srcset="/.github/assets/mobile-main-building-view-dark.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
+    <source srcset="/.github/assets/mobile-main-building-view.avif" type="image/avif">
+    <img src="/.github/assets/mobile-main-building-view.jpg" width="30%">
+  </picture>
   &nbsp;
-  <img src="/.github/assets/mobile-resources-view.jpg" width="30%">
+  <picture>
+    <source srcset="/.github/assets/mobile-resources-view-dark.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+    <source srcset="/.github/assets/mobile-resources-view-dark.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
+    <source srcset="/.github/assets/mobile-resources-view.avif" type="image/avif">
+    <img src="/.github/assets/mobile-resources-view.jpg" width="30%">
+  </picture>
 </p>
 
 **Pillage First! (Ask Questions Later)** is an **open-source**, **single-player**, **strategy game** inspired by
