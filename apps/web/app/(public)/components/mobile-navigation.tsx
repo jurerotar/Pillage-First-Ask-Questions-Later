@@ -176,7 +176,7 @@ export const MobileNavigation = () => {
                 <div className="border border-dashed border-border w-full" />
                 <div className="flex justify-center gap-2">
                   <Link to="/game-worlds/create">
-                    <Button>{t('Try now')}</Button>
+                    <Button>{t('Create new world')}</Button>
                   </Link>
                   <Link to="/game-worlds">
                     <Button variant="outline">{t('Your game worlds')}</Button>

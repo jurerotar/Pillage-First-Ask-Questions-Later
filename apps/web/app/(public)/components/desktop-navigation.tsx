@@ -197,7 +197,7 @@ export const DesktopNavigation = () => {
 
         <div className="flex items-center gap-2">
           <Link to="/game-worlds/create">
-            <Button>{t('Try now')}</Button>
+            <Button>{t('Create new world')}</Button>
           </Link>
           <DiscordButton />
         </div>

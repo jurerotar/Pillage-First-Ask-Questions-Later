@@ -13,9 +13,77 @@ import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubButton } from 'app/(public)/components/github-button';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import screenshotsData from './assets/screenshots.json' with { type: 'json' };
 import Landing from './mdx/landing.mdx';
 import Motivation from './mdx/motivation.mdx';
 import OpenSource from './mdx/open-source.mdx';
+
+const LandingScreenshotsSection = () => {
+  const screenshots = [
+    {
+      base: 'image-1',
+      alt: 'Resources view',
+    },
+    {
+      base: 'image-2',
+      alt: 'Village view',
+    },
+    {
+      base: 'image-3',
+      alt: 'Map view',
+    },
+    {
+      base: 'image-4',
+      alt: 'Building view',
+    },
+    {
+      base: 'image-5',
+      alt: 'Resources details',
+    },
+  ];
+
+  const { timestamp } = screenshotsData;
+
+  return (
+    <section className="bg-background pt-4 lg:pt-8">
+      <div className="max-w-7xl px-2 mx-auto">
+        <div className="flex flex-row overflow-x-auto lg:grid lg:grid-cols-5 gap-4 pb-4 lg:pb-0 scrollbar-hide snap-x snap-mandatory">
+          {screenshots.map((screenshot) => (
+            <div
+              key={screenshot.base}
+              className="min-w-60 lg:min-w-0 snap-center"
+            >
+              <picture className="dark:hidden">
+                <source
+                  srcSet={`/landing/${screenshot.base}-${timestamp}.avif`}
+                  type="image/avif"
+                />
+                <img
+                  src={`/landing/${screenshot.base}-${timestamp}.jpg`}
+                  alt={screenshot.alt}
+                  className="rounded-lg shadow-lg border border-border w-full h-auto"
+                  loading="lazy"
+                />
+              </picture>
+              <picture className="hidden dark:block">
+                <source
+                  srcSet={`/landing/${screenshot.base}-dark-${timestamp}.avif`}
+                  type="image/avif"
+                />
+                <img
+                  src={`/landing/${screenshot.base}-dark-${timestamp}.jpg`}
+                  alt={screenshot.alt}
+                  className="rounded-lg shadow-lg border border-border w-full h-auto"
+                  loading="lazy"
+                />
+              </picture>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const MotivationSection = () => {
   const { t } = useTranslation('public');
@@ -149,7 +217,7 @@ const HomePage = () => {
     <>
       <title>Pillage First! (Ask Questions Later)</title>
       <main>
-        <div className="max-w-7xl mx-auto flex min-h-112.5 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
+        <div className="max-w-7xl mx-auto flex min-h-112 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
           <section className="flex flex-col flex-1 gap-4 justify-center">
             <Text
               as="h1"
@@ -170,8 +238,8 @@ const HomePage = () => {
               <DiscordButton />
             </div>
           </section>
-          <section className="flex flex-1" />
         </div>
+        <LandingScreenshotsSection />
         <MotivationSection />
         <OpenSourceSection />
       </main>
