@@ -123,6 +123,8 @@ const generateScreenshots = async () => {
     // Wait for the game to load
     await page.waitForLoadState('networkidle');
 
+    await page.waitForTimeout(1000); // Wait for potential transitions
+
     // 1. Generate Light Mode Screenshots
     await generateScreenshotsForTheme(page);
 
