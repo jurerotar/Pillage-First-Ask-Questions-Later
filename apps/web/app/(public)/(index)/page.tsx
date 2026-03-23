@@ -160,15 +160,13 @@ const HomePage = () => {
 
             <Landing />
 
-            <div className="flex flex-col lg:flex-row gap-2">
-              <div className="flex gap-2">
-                <Link to="/game-worlds/create">
-                  <Button>Try now</Button>
-                </Link>
-                <Link to="/game-worlds">
-                  <Button variant="outline">Existing game worlds</Button>
-                </Link>
-              </div>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/game-worlds/create">
+                <Button>Create new world</Button>
+              </Link>
+              <Link to="/game-worlds">
+                <Button variant="outline">Your game worlds</Button>
+              </Link>
               <DiscordButton />
             </div>
           </section>

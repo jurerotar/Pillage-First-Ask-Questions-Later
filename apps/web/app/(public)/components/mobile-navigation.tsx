@@ -179,9 +179,7 @@ export const MobileNavigation = () => {
                     <Button>{t('Try now')}</Button>
                   </Link>
                   <Link to="/game-worlds">
-                    <Button variant="outline">
-                      {t('Existing game worlds')}
-                    </Button>
+                    <Button variant="outline">{t('Your game worlds')}</Button>
                   </Link>
                 </div>
               </div>
