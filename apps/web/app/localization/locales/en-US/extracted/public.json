@@ -29,9 +29,9 @@
   "Learn about the game": "Learn about the game",
   "Light": "Light",
   "Manage your existing game worlds": "Manage your existing game worlds",
+  "Mobile first": "Mobile first",
   "Modern web technologies ensuring the game runs on any device.": "Modern web technologies ensuring the game runs on any device.",
   "My game worlds": "My game worlds",
-  "Nicer UX": "Nicer UX",
   "No game mechanics to incentivize spending real-world money.": "No game mechanics to incentivize spending real-world money.",
   "No pay to win": "No pay to win",
   "No pressure from other players. Play at your own pace.": "No pressure from other players. Play at your own pace.",
@@ -43,7 +43,6 @@
   "Pillage First! logo": "Pillage First! logo",
   "Play anywhere, anytime, without an internet connection.": "Play anywhere, anytime, without an internet connection.",
   "Preferences": "Preferences",
-  "Quality-of-life features and a clean, modern interface.": "Quality-of-life features and a clean, modern interface.",
   "Resources": "Resources",
   "Return to homepage": "Return to homepage",
   "Select .sqlite3 file to import": "Select .sqlite3 file to import",
@@ -51,6 +50,7 @@
   "Sorry — we couldn't find the page you're looking for.": "Sorry — we couldn't find the page you're looking for.",
   "This may be due to a mistyped address, a removed page, or an outdated link. If you believe this is an error on our side, please do not hesitate to raise this in our Discord server.": "This may be due to a mistyped address, a removed page, or an outdated link. If you believe this is an error on our side, please do not hesitate to raise this in our Discord server.",
   "Try now": "Try now",
+  "We strive for a great experience on any device.": "We strive for a great experience on any device.",
   "Wiki (coming soon)": "Wiki (coming soon)",
   "Your game worlds": "Your game worlds"
 }

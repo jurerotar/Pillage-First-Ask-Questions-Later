@@ -4,10 +4,10 @@ import {
   FaComputer,
   FaGithub,
   FaGlobe,
-  FaRegLightbulb,
   FaSliders,
   FaUser,
 } from 'react-icons/fa6';
+import { MdOutlineMobileFriendly } from 'react-icons/md';
 import { Link } from 'react-router';
 import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubButton } from 'app/(public)/components/github-button';
@@ -39,9 +39,9 @@ const MotivationSection = () => {
       ),
     },
     {
-      title: t('Nicer UX'),
-      icon: FaRegLightbulb,
-      description: t('Quality-of-life features and a clean, modern interface.'),
+      title: t('Mobile first'),
+      icon: MdOutlineMobileFriendly,
+      description: t('We strive for a great experience on any device.'),
     },
     {
       title: t('No pay to win'),

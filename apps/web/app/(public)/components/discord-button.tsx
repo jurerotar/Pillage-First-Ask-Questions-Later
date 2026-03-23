@@ -26,7 +26,7 @@ export const DiscordButton = ({
         <span className="inline-flex items-center gap-2">
           <span>Join the community</span>
           {showMemberCount && discordData?.memberCount !== undefined && (
-            <span className="inline-flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 ml-1 text-xs">
               <FaUsers className="size-4" />
               {discordData.memberCount}
             </span>

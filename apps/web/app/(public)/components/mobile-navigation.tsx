@@ -2,13 +2,15 @@ import { Activity, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BiWorld } from 'react-icons/bi';
 import { CiImport } from 'react-icons/ci';
-import { FaDiscord, FaGithub, FaRegNewspaper } from 'react-icons/fa6';
+import { FaRegNewspaper } from 'react-icons/fa6';
 import { GrHelpBook } from 'react-icons/gr';
 import { HiOutlineMenu } from 'react-icons/hi';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { IoCloseOutline, IoCreate } from 'react-icons/io5';
 import { PiHandshakeBold } from 'react-icons/pi';
 import { Link, useLocation } from 'react-router';
+import { DiscordButton } from 'app/(public)/components/discord-button.tsx';
+import { GithubButton } from 'app/(public)/components/github-button.tsx';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -163,23 +165,10 @@ export const MobileNavigation = () => {
                   </Text>
                   <ul className="flex flex-col gap-2">
                     <li>
-                      <a
-                        href="https://discord.gg/Ep7NKVXUZA"
-                        rel="noopener"
-                        className="inline-flex gap-2 items-center"
-                      >
-                        <FaDiscord className="text-muted-foreground text-lg" />
-                        <Text className="font-medium">Discord</Text>
-                      </a>
+                      <DiscordButton />
                     </li>
                     <li>
-                      <a
-                        href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-                        className="inline-flex gap-2 items-center"
-                      >
-                        <FaGithub className="text-muted-foreground text-lg" />
-                        <Text className="font-medium">GitHub</Text>
-                      </a>
+                      <GithubButton />
                     </li>
                   </ul>
                 </div>

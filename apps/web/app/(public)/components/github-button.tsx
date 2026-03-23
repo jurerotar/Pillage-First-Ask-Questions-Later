@@ -24,8 +24,8 @@ export const GithubButton = ({
         <FaGithub className="size-4" />
         GitHub
         {showStarCount && githubData?.starCount !== undefined && (
-          <span className="flex items-center gap-1 bg-[#391600]/10 dark:bg-foreground/10 px-1.5 py-0.5 rounded-md text-xs font-medium">
-            <FaStar className="size-3" />
+          <span className="flex items-center gap-1 ml-1 text-xs">
+            <FaStar className="size-4" />
             {githubData.starCount}
           </span>
         )}
