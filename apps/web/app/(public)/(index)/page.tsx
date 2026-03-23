@@ -85,6 +85,33 @@ const LandingScreenshotsSection = () => {
   );
 };
 
+const CTASection = () => {
+  return (
+    <section className="bg-background py-8 lg:py-12">
+      <div className="max-w-7xl px-2 mx-auto flex flex-col items-center gap-2">
+        <Text
+          as="h2"
+          className="text-center"
+        >
+          Ready to pillage?
+        </Text>
+        <Text className="text-center mb-2">
+          Create your first game world bellow, or continue playing on your
+          existing worlds.
+        </Text>
+        <div className="flex flex-wrap gap-2 justify-center">
+          <Link to="/game-worlds/create">
+            <Button>Create new world</Button>
+          </Link>
+          <Link to="/game-worlds">
+            <Button variant="outline">Your game worlds</Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const MotivationSection = () => {
   const { t } = useTranslation('public');
 
@@ -240,6 +267,7 @@ const HomePage = () => {
           </section>
         </div>
         <LandingScreenshotsSection />
+        <CTASection />
         <MotivationSection />
         <OpenSourceSection />
       </main>
