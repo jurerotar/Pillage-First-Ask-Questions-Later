@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import {
-  FaCodeMerge,
   FaCoins,
   FaComputer,
   FaGithub,
@@ -10,6 +9,8 @@ import {
   FaUser,
 } from 'react-icons/fa6';
 import { Link } from 'react-router';
+import { DiscordButton } from 'app/(public)/components/discord-button';
+import { GithubButton } from 'app/(public)/components/github-button';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import Landing from './mdx/landing.mdx';
@@ -96,13 +97,7 @@ const MotivationSection = () => {
           <div className="prose text-[#391600] dark:text-foreground">
             <Motivation />
           </div>
-          <Link
-            rel="noopener noreferrer"
-            target="_blank"
-            to="https://discord.gg/Ep7NKVXUZA"
-          >
-            <Button>Join our community on Discord</Button>
-          </Link>
+          <DiscordButton />
         </div>
       </div>
     </section>
@@ -114,9 +109,6 @@ const OpenSourceSection = () => {
     <section className="bg-linear-to-t from-[#FFE345] via-[#FFD24A] to-[#F5A911] dark:from-[#9A8400] dark:via-[#8B7400] dark:to-[#8B5E00] overflow-hidden pt-4 lg:pt-0 -mb-4">
       <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10">
-          <div className="inline-flex justify-center items-center w-fit p-4 bg-card rounded-full">
-            <FaCodeMerge className="text-[#391600] dark:text-foreground size-6" />
-          </div>
           <Text
             as="h2"
             className="text-[#391600] dark:text-foreground"
@@ -128,14 +120,8 @@ const OpenSourceSection = () => {
             <OpenSource />
           </div>
 
-          <div className="flex gap-2">
-            <a
-              rel="noopener noreferrer"
-              href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-              target="_blank"
-            >
-              <Button>GitHub</Button>
-            </a>
+          <div className="flex flex-wrap gap-2 items-center">
+            <GithubButton />
             <Link to="/get-involved">
               <Button variant="secondary">Get involved</Button>
             </Link>
@@ -174,13 +160,16 @@ const HomePage = () => {
 
             <Landing />
 
-            <div className="flex gap-2">
-              <Link to="/game-worlds/create">
-                <Button>Try now</Button>
-              </Link>
-              <Link to="/game-worlds">
-                <Button variant="outline">Existing game worlds</Button>
-              </Link>
+            <div className="flex flex-col lg:flex-row gap-2">
+              <div className="flex gap-2">
+                <Link to="/game-worlds/create">
+                  <Button>Try now</Button>
+                </Link>
+                <Link to="/game-worlds">
+                  <Button variant="outline">Existing game worlds</Button>
+                </Link>
+              </div>
+              <DiscordButton />
             </div>
           </section>
           <section className="flex flex-1" />
