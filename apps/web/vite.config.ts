@@ -29,13 +29,13 @@ const manifest: Partial<ManifestOptions> = {
   orientation: 'portrait',
   icons: [
     {
-      src: `/web-app-manifest-192x192.png?v=${graphicsVersion}`,
+      src: `/favicon/web-app-manifest-192x192.png?v=${graphicsVersion}`,
       sizes: '192x192',
       type: 'image/png',
       purpose: 'maskable',
     },
     {
-      src: `/web-app-manifest-512x512.png?v=${graphicsVersion}`,
+      src: `/favicon/web-app-manifest-512x512.png?v=${graphicsVersion}`,
       sizes: '512x512',
       type: 'image/png',
       purpose: 'maskable',

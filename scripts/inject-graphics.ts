@@ -10,6 +10,32 @@ const installWebAppGraphicPacks = async () => {
   await copyFolderSync(sourceDir, destDir);
 };
 
+const installFaviconAndLogos = async () => {
+  const sourceBaseDir = 'node_modules/@pillage-first/graphics/dist';
+  const faviconDestDir = 'apps/web/public/favicon';
+  const rootDestDir = 'apps/web/public';
+
+  if (!existsSync(faviconDestDir)) {
+    mkdirSync(faviconDestDir, { recursive: true });
+  }
+
+  // Copy favicon folder
+  const faviconSourceDir = join(sourceBaseDir, 'favicon');
+  if (existsSync(faviconSourceDir)) {
+    await copyFolderSync(faviconSourceDir, faviconDestDir);
+  }
+
+  // Copy pillage-first-logo.* files to rootDestDir
+  const files = readdirSync(sourceBaseDir);
+  for (const file of files) {
+    if (file.startsWith('pillage-first-logo.')) {
+      const src = join(sourceBaseDir, file);
+      const dest = join(rootDestDir, file);
+      copyFileSync(src, dest);
+    }
+  }
+};
+
 const copyLandingScreenshots = async () => {
   const sourceDir = '.github/assets';
   const destDir = 'apps/web/public/landing';
@@ -39,4 +65,5 @@ const copyLandingScreenshots = async () => {
 };
 
 await installWebAppGraphicPacks();
+await installFaviconAndLogos();
 await copyLandingScreenshots();
