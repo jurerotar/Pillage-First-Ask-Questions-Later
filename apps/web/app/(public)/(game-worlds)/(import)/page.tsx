@@ -135,11 +135,19 @@ const ImportGameWorld = () => {
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Text>Want to create a new game world instead?</Text>
+            <Text>
+              Want to create a new game world, or continue with your existing
+              ones instead?
+            </Text>
 
-            <Link to="/game-worlds/create">
-              <Button variant="outline">Create a new game world</Button>
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/game-worlds/create">
+                <Button>Create new world</Button>
+              </Link>
+              <Link to="/game-worlds">
+                <Button variant="outline">Your game worlds</Button>
+              </Link>
+            </div>
           </div>
         </main>
       </div>

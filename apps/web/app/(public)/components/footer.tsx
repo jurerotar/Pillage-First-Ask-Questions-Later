@@ -53,7 +53,7 @@ export const Footer = () => {
           <ul className="flex flex-col gap-2">
             <li>
               <Link to="/game-worlds">
-                <Text className="font-medium">{t('My game worlds')}</Text>
+                <Text className="font-medium">{t('Your game worlds')}</Text>
               </Link>
             </li>
             <li>
@@ -115,7 +115,7 @@ export const Footer = () => {
                 <a
                   href="https://discord.gg/Ep7NKVXUZA"
                   rel="noopener nofollow"
-                  className="flex items-center justify-center gap-2 rounded-full bg-[#7289da] shadow-md p-2 hover:opacity-80 transition-opacity"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#5865F2] shadow-md p-2 hover:opacity-80 transition-opacity"
                   aria-label="Discord"
                 >
                   <FaDiscord className="text-2xl md:text-3xl text-white" />

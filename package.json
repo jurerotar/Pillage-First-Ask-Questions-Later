@@ -19,7 +19,8 @@
     "remove-deprecated-directories": "node scripts/remove-deprecated-directories.ts",
     "extract-sql-schema": "node scripts/extract-sql-schema.ts",
     "extract-sql-usage": "node scripts/extract-sql-usage.ts",
-    "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts"
+    "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts",
+    "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "dependencies": {
     "@sqlite.org/sqlite-wasm": "3.51.2-build6"
@@ -28,10 +29,13 @@
     "@biomejs/biome": "2.4.6",
     "@commitlint/cli": "20.4.3",
     "@commitlint/config-conventional": "20.4.3",
+    "@playwright/test": "1.58.2",
     "@typescript/native-preview": "7.0.0-dev.20260306.1",
     "lefthook": "2.1.2",
     "oxlint": "1.51.0",
     "oxlint-tsgolint": "0.16.0",
+    "playwright": "1.58.2",
+    "sharp": "0.34.5",
     "turbo": "2.8.13",
     "typescript": "6.0.0-beta",
     "vitest": "4.0.18",

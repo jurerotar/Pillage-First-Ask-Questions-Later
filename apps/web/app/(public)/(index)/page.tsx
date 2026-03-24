@@ -1,20 +1,108 @@
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  FaCodeMerge,
   FaCoins,
   FaComputer,
   FaGithub,
   FaGlobe,
-  FaRegLightbulb,
   FaSliders,
   FaUser,
 } from 'react-icons/fa6';
+import { MdOutlineMobileFriendly } from 'react-icons/md';
 import { Link } from 'react-router';
+import { DiscordButton } from 'app/(public)/components/discord-button';
+import { GithubButton } from 'app/(public)/components/github-button';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import { CookieContext } from 'app/providers/cookie-provider.tsx';
+import screenshotsData from './assets/screenshots.json' with { type: 'json' };
 import Landing from './mdx/landing.mdx';
 import Motivation from './mdx/motivation.mdx';
 import OpenSource from './mdx/open-source.mdx';
+
+const LandingScreenshotsSection = () => {
+  const { uiColorScheme } = use(CookieContext);
+
+  const screenshots = [
+    {
+      base: 'image-1',
+      alt: 'Resources view',
+    },
+    {
+      base: 'image-2',
+      alt: 'Village view',
+    },
+    {
+      base: 'image-3',
+      alt: 'Map view',
+    },
+    {
+      base: 'image-4',
+      alt: 'Building view',
+    },
+    {
+      base: 'image-5',
+      alt: 'Resources details',
+    },
+  ];
+
+  const { timestamp } = screenshotsData;
+
+  return (
+    <section className="bg-background pt-4 lg:pt-8">
+      <div className="max-w-7xl px-2 mx-auto">
+        <div className="flex flex-row overflow-x-auto lg:grid lg:grid-cols-5 gap-4 pb-4 lg:pb-0 scrollbar-hide snap-x snap-mandatory">
+          {screenshots.map((screenshot) => (
+            <div
+              key={screenshot.base}
+              className="min-w-60 lg:min-w-0 snap-center"
+            >
+              <picture>
+                <source
+                  srcSet={`/landing/${screenshot.base}-${uiColorScheme}-${timestamp}.avif`}
+                  type="image/avif"
+                />
+                <img
+                  src={`/landing/${screenshot.base}-${uiColorScheme}-${timestamp}.jpg`}
+                  alt={screenshot.alt}
+                  className="rounded-lg border border-border w-full h-auto"
+                  loading="lazy"
+                />
+              </picture>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const CTASection = () => {
+  return (
+    <section className="bg-background py-8 lg:py-12">
+      <div className="max-w-7xl px-2 mx-auto flex flex-col items-center gap-2">
+        <Text
+          as="h2"
+          className="text-center"
+        >
+          Ready to pillage?
+        </Text>
+        <Text className="text-center mb-2">
+          Create your first game world bellow, or continue playing on your
+          existing worlds.
+        </Text>
+        <div className="flex flex-wrap gap-2 justify-center">
+          <Link to="/game-worlds/create">
+            <Button>Create new world</Button>
+          </Link>
+          <Link to="/game-worlds">
+            <Button variant="outline">Your game worlds</Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const MotivationSection = () => {
   const { t } = useTranslation('public');
@@ -38,9 +126,9 @@ const MotivationSection = () => {
       ),
     },
     {
-      title: t('Nicer UX'),
-      icon: FaRegLightbulb,
-      description: t('Quality-of-life features and a clean, modern interface.'),
+      title: t('Mobile first'),
+      icon: MdOutlineMobileFriendly,
+      description: t('We strive for a great experience on any device.'),
     },
     {
       title: t('No pay to win'),
@@ -96,13 +184,7 @@ const MotivationSection = () => {
           <div className="prose text-[#391600] dark:text-foreground">
             <Motivation />
           </div>
-          <Link
-            rel="noopener noreferrer"
-            target="_blank"
-            to="https://discord.gg/Ep7NKVXUZA"
-          >
-            <Button>Join our community on Discord</Button>
-          </Link>
+          <DiscordButton>Help shape the game</DiscordButton>
         </div>
       </div>
     </section>
@@ -114,9 +196,6 @@ const OpenSourceSection = () => {
     <section className="bg-linear-to-t from-[#FFE345] via-[#FFD24A] to-[#F5A911] dark:from-[#9A8400] dark:via-[#8B7400] dark:to-[#8B5E00] overflow-hidden pt-4 lg:pt-0 -mb-4">
       <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10">
-          <div className="inline-flex justify-center items-center w-fit p-4 bg-card rounded-full">
-            <FaCodeMerge className="text-[#391600] dark:text-foreground size-6" />
-          </div>
           <Text
             as="h2"
             className="text-[#391600] dark:text-foreground"
@@ -128,14 +207,8 @@ const OpenSourceSection = () => {
             <OpenSource />
           </div>
 
-          <div className="flex gap-2">
-            <a
-              rel="noopener noreferrer"
-              href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-              target="_blank"
-            >
-              <Button>GitHub</Button>
-            </a>
+          <div className="flex flex-wrap gap-2 items-center">
+            <GithubButton />
             <Link to="/get-involved">
               <Button variant="secondary">Get involved</Button>
             </Link>
@@ -163,7 +236,7 @@ const HomePage = () => {
     <>
       <title>Pillage First! (Ask Questions Later)</title>
       <main>
-        <div className="max-w-7xl mx-auto flex min-h-112.5 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
+        <div className="max-w-7xl mx-auto flex py-8 lg:py-12 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
           <section className="flex flex-col flex-1 gap-4 justify-center">
             <Text
               as="h1"
@@ -174,17 +247,19 @@ const HomePage = () => {
 
             <Landing />
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Link to="/game-worlds/create">
-                <Button>Try now</Button>
+                <Button>Create new world</Button>
               </Link>
               <Link to="/game-worlds">
-                <Button variant="outline">Existing game worlds</Button>
+                <Button variant="outline">Your game worlds</Button>
               </Link>
+              <DiscordButton />
             </div>
           </section>
-          <section className="flex flex-1" />
         </div>
+        <LandingScreenshotsSection />
+        <CTASection />
         <MotivationSection />
         <OpenSourceSection />
       </main>
