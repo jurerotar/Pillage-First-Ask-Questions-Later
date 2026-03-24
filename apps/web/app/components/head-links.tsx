@@ -1,10 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { env } from '@pillage-first/utils/env';
 import { SqlitePrefetchLink } from 'app/components/sqlite-prefetch-link.tsx';
-import { i18n } from 'app/localization/i18n.ts';
 
 export const HeadLinks = () => {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
 
   return (
     <>
@@ -23,9 +22,7 @@ export const HeadLinks = () => {
       )}
       <meta
         name="description"
-        content={t(
-          'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
-        )}
+        content="Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds."
       />
       <meta
         name="twitter:card"
@@ -45,9 +42,7 @@ export const HeadLinks = () => {
       />
       <meta
         name="twitter:description"
-        content={t(
-          'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
-        )}
+        content="Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds."
       />
       <meta
         name="twitter:image"
@@ -71,9 +66,7 @@ export const HeadLinks = () => {
       />
       <meta
         property="og:description"
-        content={t(
-          'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
-        )}
+        content="Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds."
       />
       <meta
         property="og:image"

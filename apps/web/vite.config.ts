@@ -21,7 +21,7 @@ const manifest: Partial<ManifestOptions> = {
   name: 'Pillage First! (Ask Questions Later)',
   short_name: 'Pillage First!',
   description:
-    'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
+    'Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds.',
   start_url: '/',
   display: 'standalone',
   background_color: '#111111',
