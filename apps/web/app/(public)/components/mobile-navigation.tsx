@@ -74,22 +74,22 @@ export const MobileNavigation = () => {
                     <li>
                       <Link
                         className="inline-flex gap-2 items-center"
-                        to="/game-worlds"
+                        to="/game-worlds/create"
                       >
-                        <BiWorld className="text-muted-foreground text-lg" />
+                        <IoCreate className="text-muted-foreground text-lg" />
                         <Text className="font-medium">
-                          {t('My game worlds')}
+                          {t('Create a new game world')}
                         </Text>
                       </Link>
                     </li>
                     <li>
                       <Link
                         className="inline-flex gap-2 items-center"
-                        to="/game-worlds/create"
+                        to="/game-worlds"
                       >
-                        <IoCreate className="text-muted-foreground text-lg" />
+                        <BiWorld className="text-muted-foreground text-lg" />
                         <Text className="font-medium">
-                          {t('Create a new game world')}
+                          {t('Your game worlds')}
                         </Text>
                       </Link>
                     </li>

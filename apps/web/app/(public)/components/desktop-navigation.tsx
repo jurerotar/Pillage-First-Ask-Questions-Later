@@ -125,16 +125,6 @@ export const DesktopNavigation = () => {
               onMouseLeave={() => setActiveDropdown(null)}
             >
               <Link
-                to="/game-worlds"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
-              >
-                <DropdownLinkContent
-                  label={t('My game worlds')}
-                  description={t('Manage your existing game worlds')}
-                  icon={<BiWorld />}
-                />
-              </Link>
-              <Link
                 to="/game-worlds/create"
                 className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
               >
@@ -142,6 +132,16 @@ export const DesktopNavigation = () => {
                   label={t('Create a new game world')}
                   description={t('Create and configure a new world')}
                   icon={<IoCreate />}
+                />
+              </Link>
+              <Link
+                to="/game-worlds"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+              >
+                <DropdownLinkContent
+                  label={t('Your game worlds')}
+                  description={t('Manage your existing game worlds')}
+                  icon={<BiWorld />}
                 />
               </Link>
               <Link

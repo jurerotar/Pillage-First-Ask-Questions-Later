@@ -53,7 +53,7 @@ export const Footer = () => {
           <ul className="flex flex-col gap-2">
             <li>
               <Link to="/game-worlds">
-                <Text className="font-medium">{t('My game worlds')}</Text>
+                <Text className="font-medium">{t('Your game worlds')}</Text>
               </Link>
             </li>
             <li>

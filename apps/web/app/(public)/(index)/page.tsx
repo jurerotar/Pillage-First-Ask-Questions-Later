@@ -244,7 +244,7 @@ const HomePage = () => {
     <>
       <title>Pillage First! (Ask Questions Later)</title>
       <main>
-        <div className="max-w-7xl mx-auto flex min-h-112 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
+        <div className="max-w-7xl mx-auto flex py-8 lg:py-12 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
           <section className="flex flex-col flex-1 gap-4 justify-center">
             <Text
               as="h1"
