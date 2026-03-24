@@ -51,15 +51,15 @@ export const HeadLinks = () => {
       />
       <meta
         name="twitter:image"
-        content={`/pillage-first-logo.png?v=${env.GRAPHICS_VERSION}`}
+        content={`${env.DEPLOY_PRIME_URL}/pillage-first-logo.png?v=${env.GRAPHICS_VERSION}`}
       />
       <meta
         name="twitter:url"
-        content="https://pillagefirst.com"
+        content={env.DEPLOY_PRIME_URL}
       />
       <meta
         property="og:url"
-        content="https://pillagefirst.com"
+        content={env.DEPLOY_PRIME_URL}
       />
       <meta
         property="og:type"
@@ -77,7 +77,7 @@ export const HeadLinks = () => {
       />
       <meta
         property="og:image"
-        content={`/pillage-first-logo.png?v=${env.GRAPHICS_VERSION}`}
+        content={`${env.DEPLOY_PRIME_URL}/pillage-first-logo.png?v=${env.GRAPHICS_VERSION}`}
       />
       <meta
         property="og:image:width"
