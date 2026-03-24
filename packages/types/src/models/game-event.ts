@@ -84,6 +84,7 @@ export const gameEventTypeSchema = z.enum([
   'adventurePointIncrease',
   'heroRevival',
   'heroHealthRegeneration',
+  'loyaltyIncrease',
 ]);
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;
@@ -119,6 +120,7 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   adventurePointIncrease: BaseGameEvent;
   heroRevival: BaseGameEvent;
   heroHealthRegeneration: BaseGameEvent;
+  loyaltyIncrease: BaseGameEvent;
 }[T];
 
 export type TroopMovementEvent =
