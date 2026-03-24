@@ -416,7 +416,7 @@ export const CreateNewGameWorldForm = () => {
                 disabled={isPending || isSuccess}
                 type="submit"
               >
-                Create Server
+                Create world
               </Button>
             </div>
           </form>

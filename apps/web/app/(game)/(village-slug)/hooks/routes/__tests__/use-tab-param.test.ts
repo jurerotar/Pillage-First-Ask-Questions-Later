@@ -22,12 +22,12 @@ describe(useTabParam, () => {
     expect(result.current.tabIndex).toBe(2);
   });
 
-  test('defaults to index of "default" if tab is missing', () => {
+  test('defaults to index of first tab if tab is missing', () => {
     using _ = vi
       .spyOn(reactRouter, 'useSearchParams')
       .mockReturnValue([new URLSearchParams(), setSearchParams]);
 
-    const tabs = ['default', 'home', 'profile'];
+    const tabs = ['home', 'profile'];
     const { result } = renderHook(() => useTabParam(tabs));
 
     expect(result.current.tabIndex).toBe(0);
