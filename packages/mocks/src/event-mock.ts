@@ -123,6 +123,14 @@ export const createHeroHealthRegenerationEventMock = (
   });
 };
 
+export const createLoyaltyIncreaseEventMock = (
+  overrides: Partial<GameEvent<'loyaltyIncrease'>> = {},
+): GameEvent<'loyaltyIncrease'> => {
+  return createGameEventMock('loyaltyIncrease', {
+    ...overrides,
+  });
+};
+
 export const createUnitImprovementEventMock = (
   overrides: Partial<GameEvent<'unitImprovement'>> = {},
 ): GameEvent<'unitImprovement'> => {

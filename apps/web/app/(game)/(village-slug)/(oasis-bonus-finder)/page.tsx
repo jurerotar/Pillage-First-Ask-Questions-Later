@@ -24,7 +24,7 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { oasisBonusFinder } from 'app/(game)/constants/query-keys.ts';
+import { oasisBonusFinderCacheKey } from 'app/(game)/constants/query-keys.ts';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -245,7 +245,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
     isFetched,
   } = useQuery({
     queryKey: [
-      oasisBonusFinder,
+      oasisBonusFinderCacheKey,
       resourceFieldComposition,
       firstOasisBonus,
       secondOasisBonus,

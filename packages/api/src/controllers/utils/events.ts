@@ -13,6 +13,7 @@ import {
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
 } from '@pillage-first/game-assets/utils/hero';
+import { calculateLoyaltyIncreaseEventDuration } from '@pillage-first/game-assets/utils/loyalty';
 import {
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
@@ -38,6 +39,7 @@ import {
   isFindNewVillageTroopMovementEvent,
   isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
+  isLoyaltyIncreaseEvent,
   isOasisOccupationTroopMovementEvent,
   isReturnTroopMovementEvent,
   isScheduledBuildingEvent,
@@ -888,6 +890,14 @@ export const getEventDuration = (
     })!;
 
     return calculateHealthRegenerationEventDuration(healthRegeneration, speed);
+  }
+  if (isLoyaltyIncreaseEvent(event)) {
+    const speed = database.selectValue({
+      sql: 'SELECT speed FROM servers',
+      schema: speedSchema,
+    })!;
+
+    return calculateLoyaltyIncreaseEventDuration(speed);
   }
 
   console.error('Missing duration calculation for event', event);
