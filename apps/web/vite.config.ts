@@ -130,6 +130,11 @@ const viteConfig = defineViteConfig({
     'import.meta.env.GRAPHICS_VERSION': JSON.stringify(graphicsVersion),
     'import.meta.env.COMMIT_REF': JSON.stringify(process.env.COMMIT_REF),
     'import.meta.env.HEAD': JSON.stringify(process.env.HEAD),
+    'import.meta.env.URL': JSON.stringify(process.env.URL),
+    'import.meta.env.DEPLOY_URL': JSON.stringify(process.env.DEPLOY_URL),
+    'import.meta.env.DEPLOY_PRIME_URL': JSON.stringify(
+      process.env.DEPLOY_PRIME_URL,
+    ),
   },
 });
 
