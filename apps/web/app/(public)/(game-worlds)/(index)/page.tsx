@@ -18,7 +18,7 @@ const MyGameWorldsPage = () => {
   const { t } = useTranslation('public');
   const { gameWorldListing } = useGameWorldListing();
 
-  const title = t('{{title}} | Pillage First!', { title: 'My game worlds' });
+  const title = t('{{title}} | Pillage First!', { title: 'Game worlds' });
 
   return (
     <>
@@ -34,7 +34,7 @@ const MyGameWorldsPage = () => {
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
-          <Text as="h1">{t('My game worlds')}</Text>
+          <Text as="h1">{t('Your game worlds')}</Text>
           <Text>
             Your current game worlds are listed below. To prevent data
             corruptions, each game world may only be opened in a single browser

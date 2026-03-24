@@ -21,3 +21,4 @@ stats.html
 tsconfig.tsbuildinfo
 .turbo
 open-api.json
+apps/web/public/landing
