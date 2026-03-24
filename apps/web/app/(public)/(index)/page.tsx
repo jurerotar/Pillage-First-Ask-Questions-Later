@@ -1,3 +1,4 @@
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FaCoins,
@@ -13,12 +14,15 @@ import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubButton } from 'app/(public)/components/github-button';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import { CookieContext } from 'app/providers/cookie-provider.tsx';
 import screenshotsData from './assets/screenshots.json' with { type: 'json' };
 import Landing from './mdx/landing.mdx';
 import Motivation from './mdx/motivation.mdx';
 import OpenSource from './mdx/open-source.mdx';
 
 const LandingScreenshotsSection = () => {
+  const { uiColorScheme } = use(CookieContext);
+
   const screenshots = [
     {
       base: 'image-1',
@@ -53,27 +57,15 @@ const LandingScreenshotsSection = () => {
               key={screenshot.base}
               className="min-w-60 lg:min-w-0 snap-center"
             >
-              <picture className="dark:hidden">
+              <picture>
                 <source
-                  srcSet={`/landing/${screenshot.base}-${timestamp}.avif`}
+                  srcSet={`/landing/${screenshot.base}-${uiColorScheme}-${timestamp}.avif`}
                   type="image/avif"
                 />
                 <img
-                  src={`/landing/${screenshot.base}-${timestamp}.jpg`}
+                  src={`/landing/${screenshot.base}-${uiColorScheme}-${timestamp}.jpg`}
                   alt={screenshot.alt}
-                  className="rounded-lg shadow-lg border border-border w-full h-auto"
-                  loading="lazy"
-                />
-              </picture>
-              <picture className="hidden dark:block">
-                <source
-                  srcSet={`/landing/${screenshot.base}-dark-${timestamp}.avif`}
-                  type="image/avif"
-                />
-                <img
-                  src={`/landing/${screenshot.base}-dark-${timestamp}.jpg`}
-                  alt={screenshot.alt}
-                  className="rounded-lg shadow-lg border border-border w-full h-auto"
+                  className="rounded-lg border border-border w-full h-auto"
                   loading="lazy"
                 />
               </picture>

@@ -126,7 +126,7 @@ const generateScreenshots = async () => {
     await page.waitForTimeout(1000); // Wait for potential transitions
 
     // 1. Generate Light Mode Screenshots
-    await generateScreenshotsForTheme(page);
+    await generateScreenshotsForTheme(page, 'light');
 
     // 2. Switch to Dark Mode
     console.log('Switching to Dark Mode...');
@@ -184,7 +184,7 @@ const generateScreenshots = async () => {
 
   const filesToProcess: string[] = [];
   for (const baseName of baseNames) {
-    filesToProcess.push(join(ASSETS_DIR, `${baseName}-${timestamp}.jpg`));
+    filesToProcess.push(join(ASSETS_DIR, `${baseName}-light-${timestamp}.jpg`));
     filesToProcess.push(join(ASSETS_DIR, `${baseName}-dark-${timestamp}.jpg`));
   }
 
@@ -203,9 +203,9 @@ const generateScreenshots = async () => {
     let readmeContent = readFileSync(readmePath, 'utf8');
     // Map old names or timestamped names to new sequential names with timestamp
     // image-1: resources, image-2: village, image-3: map
-    readmeContent = readmeContent.replace(/\/image-3(-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-3$1-${timestamp}.$4`);
-    readmeContent = readmeContent.replace(/\/image-2(-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-2$1-${timestamp}.$4`);
-    readmeContent = readmeContent.replace(/\/image-1(-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-1$1-${timestamp}.$4`);
+    readmeContent = readmeContent.replace(/\/image-3(-light|-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-3$1-${timestamp}.$4`);
+    readmeContent = readmeContent.replace(/\/image-2(-light|-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-2$1-${timestamp}.$4`);
+    readmeContent = readmeContent.replace(/\/image-1(-light|-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-1$1-${timestamp}.$4`);
 
     writeFileSync(readmePath, readmeContent);
   }
