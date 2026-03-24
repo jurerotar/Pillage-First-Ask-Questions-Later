@@ -30,6 +30,7 @@ import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/res
 import createTribeIdsTable from '../schemas/lookup-tables/tribe-ids-schema.sql?raw';
 import createUnitDataTable from '../schemas/lookup-tables/unit-data-schema.sql?raw';
 import createUnitIdsTable from '../schemas/lookup-tables/unit-ids-schema.sql?raw';
+import createLoyaltiesTable from '../schemas/loyalties-schema.sql?raw';
 import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
 import createMetaTable from '../schemas/meta-schema.sql?raw';
@@ -143,6 +144,9 @@ export const migrateAndSeed = (
     db.exec({ sql: createTilesTable });
     tilesSeeder(db, server);
     db.exec({ sql: createTilesIndexes });
+
+    // Loyalties
+    db.exec({ sql: createLoyaltiesTable });
 
     // Map markers
     db.exec({ sql: createMapMarkersTable });

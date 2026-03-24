@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { villageListing } from 'app/(game)/constants/query-keys';
+import { villageListingCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -54,7 +54,7 @@ export const RenameVillage = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[villageListing]]);
+      await invalidateQueries(context, [[villageListingCacheKey]]);
     },
   });
 

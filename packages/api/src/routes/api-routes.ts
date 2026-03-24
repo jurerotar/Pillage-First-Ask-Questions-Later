@@ -43,6 +43,7 @@ import {
   getEventsHistory,
   getUnitTrainingHistory,
 } from '../controllers/history-controllers';
+import { getTileLoyalty } from '../controllers/loyalty-controllers.ts';
 import {
   addMapMarker,
   getMapMarkers,
@@ -192,6 +193,9 @@ const apiRoutes: Route[] = [
 
   // Reputations
   createRoute(getReputations),
+
+  // Loyalty
+  createRoute(getTileLoyalty),
 
   // History
   createRoute(getBuildingLevelChangeHistory),

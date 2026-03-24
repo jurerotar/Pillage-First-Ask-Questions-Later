@@ -51,6 +51,7 @@ import { getResearchedUnitsSchema } from './controllers/schemas/unit-research-sc
 import {
   getOccupiableOasisInRangeSchema,
   getVillageBySlugSchema,
+  getVillageLoyaltySchema,
 } from './controllers/schemas/village-schemas';
 import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas';
 import { apiEffectSchema } from './utils/zod/effect-schemas';
@@ -994,6 +995,26 @@ export const paths = {
           content: {
             'application/json': {
               schema: getTileWorldItemSchema.nullable(),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/tiles/:tileId/loyalty': {
+    get: {
+      summary: 'Get current loyalty of a tile',
+      requestParams: {
+        path: z.strictObject({
+          tileId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Tile loyalty',
+          content: {
+            'application/json': {
+              schema: getVillageLoyaltySchema,
             },
           },
         },
