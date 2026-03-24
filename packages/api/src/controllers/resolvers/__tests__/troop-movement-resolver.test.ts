@@ -44,7 +44,7 @@ describe(adventureMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: villageId,
-      targetId: 2,
+      coordinates: { x: 1, y: 1 },
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -76,6 +76,14 @@ describe(adventureMovementResolver, () => {
     })!;
     expect(returnEvent).toBeDefined();
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
+
+    // Verify coordinates of the return event match the origin village
+    const { x, y } = database.selectObject({
+      sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
+      bind: { $village_id: villageId },
+      schema: z.strictObject({ x: z.number(), y: z.number() }),
+    })!;
+    expect(returnEvent.coordinates).toEqual({ x, y });
 
     // Verify quest completion
     const quest = database.selectObject({
@@ -111,7 +119,7 @@ describe(adventureMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: villageId,
-      targetId: 2,
+      coordinates: { x: 1, y: 1 },
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -166,12 +174,18 @@ describe('relocationMovementResolver', () => {
       schema: z.strictObject({ tileId: z.number() }),
     })!;
 
+    const { x, y } = database.selectObject({
+      sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $targetVillageId);',
+      bind: { $targetVillageId: targetVillageId },
+      schema: z.strictObject({ x: z.number(), y: z.number() }),
+    })!;
+
     const mockEvent = createTroopMovementRelocationEventMock({
       id: 1,
       startsAt: 1000,
       duration: 500,
       villageId: initialVillageId,
-      targetId: targetVillageId,
+      coordinates: { x, y },
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -214,9 +228,11 @@ describe(findNewVillageMovementResolver, () => {
 
     // Pick a free tile that is not (0,0)
     const targetTile = database.selectObject({
-      sql: "SELECT id, resource_field_composition_id FROM tiles WHERE type = 'free' AND NOT (x = 0 AND y = 0) LIMIT 1;",
+      sql: "SELECT id, x, y, resource_field_composition_id FROM tiles WHERE type = 'free' AND NOT (x = 0 AND y = 0) LIMIT 1;",
       schema: z.strictObject({
         id: z.number(),
+        x: z.number(),
+        y: z.number(),
         resource_field_composition_id: z.number(),
       }),
     })!;
@@ -227,7 +243,7 @@ describe(findNewVillageMovementResolver, () => {
       startsAt: 1000,
       duration: 1000,
       villageId: 1, // existing village
-      targetId: targetTile.id,
+      coordinates: { x: targetTile.x, y: targetTile.y },
       troops: [],
     });
 
@@ -291,7 +307,7 @@ describe(findNewVillageMovementResolver, () => {
 });
 
 describe(attackMovementResolver, () => {
-  test.skip('should create a return event starting at the attack resolution time', async () => {
+  test('should create a return event starting at the attack resolution time', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
 
@@ -301,26 +317,30 @@ describe(attackMovementResolver, () => {
       duration: 500,
       villageId,
       troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
-      targetId: 3,
+      coordinates: { x: 0, y: 1 },
     });
 
     attackMovementResolver(database, mockEvent);
 
     const returnEvent = database.selectObject({
-      sql: "SELECT starts_at, duration, (starts_at + duration) AS resolves_at FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
-      schema: z.strictObject({
-        starts_at: z.number(),
-        duration: z.number(),
-        resolves_at: z.number(),
-      }),
+      sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: eventSchema,
     })!;
 
-    expect(returnEvent.starts_at).toBe(mockEvent.resolvesAt);
+    expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
+
+    // Verify coordinates of the return event match the origin village
+    const { x, y } = database.selectObject({
+      sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
+      bind: { $village_id: villageId },
+      schema: z.strictObject({ x: z.number(), y: z.number() }),
+    })!;
+    expect(returnEvent.coordinates).toEqual({ x, y });
   });
 });
 
 describe(raidMovementResolver, () => {
-  test.skip('should create a return event starting at the raid resolution time', async () => {
+  test('should create a return event starting at the raid resolution time', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
 
@@ -330,20 +350,24 @@ describe(raidMovementResolver, () => {
       duration: 200,
       villageId,
       troops: [{ unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, source: 1 }],
-      targetId: 4,
+      coordinates: { x: 0, y: 1 },
     });
 
     raidMovementResolver(database, mockEvent);
 
     const returnEvent = database.selectObject({
-      sql: "SELECT starts_at, duration, (starts_at + duration) AS resolves_at FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
-      schema: z.strictObject({
-        starts_at: z.number(),
-        duration: z.number(),
-        resolves_at: z.number(),
-      }),
+      sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: eventSchema,
     })!;
 
-    expect(returnEvent.starts_at).toBe(mockEvent.resolvesAt);
+    expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
+
+    // Verify coordinates of the return event match the origin village
+    const { x, y } = database.selectObject({
+      sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
+      bind: { $village_id: villageId },
+      schema: z.strictObject({ x: z.number(), y: z.number() }),
+    })!;
+    expect(returnEvent.coordinates).toEqual({ x, y });
   });
 });

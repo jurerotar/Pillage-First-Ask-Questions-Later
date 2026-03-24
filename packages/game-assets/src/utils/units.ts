@@ -46,6 +46,11 @@ export const getUnitsByTribe = (tribe: Tribe): Unit[] => {
   }
 };
 
+export const getSettlerUnitIdByTribe = (tribe: Tribe): Unit['id'] => {
+  const unitsByTribe = getUnitsByTribe(tribe);
+  return unitsByTribe.find(({ tier }) => tier === 'settler')!.id;
+};
+
 export const getUnitByTribeAndTier = (
   tribe: Tribe,
   tier: Unit['tier'],

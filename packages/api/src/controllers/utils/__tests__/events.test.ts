@@ -16,6 +16,10 @@ import {
   createHeroHealthRegenerationEventMock,
   createHeroRevivalEventMock,
   createTroopMovementAdventureEventMock,
+  createTroopMovementAttackEventMock,
+  createTroopMovementFindNewVillageEventMock,
+  createTroopMovementRaidEventMock,
+  createTroopMovementRelocationEventMock,
   createTroopTrainingEventMock,
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
@@ -551,7 +555,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            targetId: 1,
+            coordinates: { x: 1, y: 1 },
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -588,7 +592,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            targetId: 1,
+            coordinates: { x: 1, y: 1 },
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -634,11 +638,127 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            targetId: 1,
+            coordinates: { x: 1, y: 1 },
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
       ).toThrow('No free oasis occupation slots available');
+    });
+
+    test('troopMovementAttack - should throw if target is not village or oasis', async () => {
+      const database = await prepareTestDatabase();
+
+      // (0, 0) in default mock database is normally an empty tile or village, let's use some far coordinates
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementAttackEventMock({
+            coordinates: { x: 100, y: 100 },
+          }),
+        ),
+      ).toThrow('Target must be a village or an oasis');
+    });
+
+    test('troopMovementAttack - should not throw if target is village', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const { x, y } = database.selectObject({
+        sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $id)',
+        bind: { $id: villageId },
+        schema: z.object({ x: z.number(), y: z.number() }),
+      })!;
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementAttackEventMock({ coordinates: { x, y } }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('troopMovementRaid - should throw if target is not village or oasis', async () => {
+      const database = await prepareTestDatabase();
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementRaidEventMock({ coordinates: { x: 100, y: 100 } }),
+        ),
+      ).toThrow('Target must be a village or an oasis');
+    });
+
+    test('troopMovementFindNewVillage - should throw if target is occupied', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const { x, y } = database.selectObject({
+        sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $id)',
+        bind: { $id: villageId },
+        schema: z.object({ x: z.number(), y: z.number() }),
+      })!;
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementFindNewVillageEventMock({ coordinates: { x, y } }),
+        ),
+      ).toThrow('Target tile must be unoccupied');
+    });
+
+    test('troopMovementOasisOccupation - should throw if target is not oasis', async () => {
+      const database = await prepareTestDatabase();
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('troopMovementOasisOccupation', {
+            coordinates: { x: 100, y: 100 },
+          }),
+        ),
+      ).toThrow('Target must be an oasis');
+    });
+
+    test('troopMovementOasisOccupation - should throw if already occupied by you', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const { x, y } = database.selectObject({
+        sql: `
+          SELECT t.x, t.y
+          FROM tiles t
+          JOIN oasis o ON o.tile_id = t.id
+          LIMIT 1
+        `,
+        schema: z.object({ x: z.number(), y: z.number() }),
+      })!;
+
+      database.exec({
+        sql: 'UPDATE oasis SET village_id = $villageId WHERE tile_id = (SELECT id FROM tiles WHERE x = $x AND y = $y)',
+        bind: { $villageId: villageId, $x: x, $y: y },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('troopMovementOasisOccupation', {
+            villageId,
+            coordinates: { x, y },
+          }),
+        ),
+      ).toThrow('Oasis is already occupied by you');
+    });
+
+    test('troopMovementRelocation - should throw if target is not your own village', async () => {
+      const database = await prepareTestDatabase();
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementRelocationEventMock({
+            coordinates: { x: 100, y: 100 },
+          }),
+        ),
+      ).toThrow(
+        'Reinforcements and relocations can only be sent to your own villages',
+      );
     });
 
     test('other events - should not throw by default', async () => {
@@ -647,7 +767,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createGameEventMock('troopMovementAttack', {
-            targetId: 2,
+            coordinates: { x: 1, y: 1 },
             troops: [
               { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 },
             ],

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { getSettlerUnitIdByTribe } from '@pillage-first/game-assets/utils/units';
 import type {
   OasisTile,
   OccupiableTile,
@@ -27,6 +28,7 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { villageTroopsCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
@@ -194,6 +196,21 @@ type OccupiableTileModalProps = {
 const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
   const { t } = useTranslation();
   const { events } = useEvents();
+  const tribe = useTribe();
+  const { villageTroops } = useVillageTroops();
+  const { currentVillage } = useCurrentVillage();
+
+  const settlerUnitId = getSettlerUnitIdByTribe(tribe);
+
+  const hasAtLeast3Settlers = villageTroops.some(
+    ({ unitId, amount, source }) => {
+      return (
+        unitId === settlerUnitId &&
+        source === currentVillage.tileId &&
+        amount >= 3
+      );
+    },
+  );
 
   const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
     if (isFindNewVillageTroopMovementEvent(event)) {
@@ -229,20 +246,28 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
       </DialogHeader>
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        <Text>{t('No actions available')}</Text>
         {hasOngoingVillageFindEventOnThisTile && (
-          <span className="text-gray-500">
+          <Text className="text-gray-500">
             {t('Settlers are already on route to this location')}
-          </span>
+          </Text>
         )}
-        {false && (
-          <Button
-            size="fit"
-            variant="link"
-            onClick={onFoundNewVillage}
-          >
-            Found new village
-          </Button>
+        {!hasOngoingVillageFindEventOnThisTile && (
+          <>
+            {!hasAtLeast3Settlers && (
+              <Text className="text-gray-500">
+                {t('Train at least 3 settlers to establish a new village')}
+              </Text>
+            )}
+            {hasAtLeast3Settlers && (
+              <Button
+                size="fit"
+                variant="link"
+                onClick={onFoundNewVillage}
+              >
+                {t('Found new village')}
+              </Button>
+            )}
+          </>
         )}
       </div>
     </>

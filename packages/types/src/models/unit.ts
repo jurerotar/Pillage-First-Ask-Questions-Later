@@ -188,6 +188,7 @@ type UnitTier =
   | 'siege-ram'
   | 'siege-catapult'
   | 'administration'
+  | 'settler'
   | 'hero';
 
 type SettlerUnitId =
@@ -252,7 +253,7 @@ type Tier1Unit = BaseUnit & {
 type SettlerUnit = BaseUnit & {
   id: SettlerUnitId;
   category: 'administration';
-  tier: 'administration';
+  tier: 'settler';
   researchRequirements: [];
   recruitmentRequirements: [{ buildingId: 'RESIDENCE'; level: number }];
 };

@@ -9,6 +9,7 @@ import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { serverDbSchema } from '@pillage-first/types/models/server';
+import packageJson from '../../../package.json' with { type: 'json' };
 import { getDeveloperSettingsSchema } from './controllers/schemas/developer-tools-schemas';
 import {
   farmListSchema,
@@ -1478,8 +1479,8 @@ export const document = createDocument({
   openapi: '3.1.0',
   info: {
     title: 'Pillage First! worker-based API',
-    version: '1.0.0',
-    description: 'Proof of Concept for zod-openapi',
+    version: packageJson.version,
+    description: 'Pillage First! worker-based API',
   },
   paths,
 });
