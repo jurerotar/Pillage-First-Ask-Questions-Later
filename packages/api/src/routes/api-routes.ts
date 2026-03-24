@@ -24,8 +24,10 @@ import {
   deleteFarmList,
   getFarmList,
   getFarmLists,
+  getMeFarmLists,
   removeTileFromFarmList,
   renameFarmList,
+  updateFarmList,
 } from '../controllers/farm-list-controllers';
 import {
   changeHeroAttributes,
@@ -139,8 +141,10 @@ const apiRoutes: Route[] = [
 
   // Farm List
   createRoute(getFarmLists),
+  createRoute(getMeFarmLists),
   createRoute(createFarmList),
   createRoute(getFarmList),
+  createRoute(updateFarmList),
   createRoute(deleteFarmList),
   createRoute(addTileToFarmList),
   createRoute(removeTileFromFarmList),

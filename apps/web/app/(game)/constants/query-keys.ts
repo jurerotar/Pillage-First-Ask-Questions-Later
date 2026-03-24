@@ -31,3 +31,4 @@ export const playerRankingsCacheKey = 'player-rankings';
 export const villageRankingsCacheKey = 'village-rankings';
 export const gameWorldOverviewStatisticsCacheKey =
   'game-world-overview-statistics';
+export const farmListsCacheKey = 'farm-lists';

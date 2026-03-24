@@ -13,6 +13,7 @@ import { getDeveloperSettingsSchema } from './controllers/schemas/developer-tool
 import {
   farmListSchema,
   farmListTileSchema,
+  updateFarmListSchema,
 } from './controllers/schemas/farm-list-schemas';
 import {
   getHeroInventorySchema,
@@ -633,12 +634,12 @@ export const paths = {
       },
     },
   },
-  '/players/:playerId/farm-lists': {
+  '/villages/:villageId/farm-lists': {
     get: {
       summary: 'Get farm lists',
       requestParams: {
         path: z.strictObject({
-          playerId: z.coerce.number(),
+          villageId: z.coerce.number(),
         }),
       },
       responses: {
@@ -656,7 +657,7 @@ export const paths = {
       summary: 'Create farm list',
       requestParams: {
         path: z.strictObject({
-          playerId: z.coerce.number(),
+          villageId: z.coerce.number(),
         }),
       },
       requestBody: {
@@ -671,6 +672,26 @@ export const paths = {
       responses: {
         '204': {
           description: 'Farm list created',
+        },
+      },
+    },
+  },
+  '/players/:playerId/farm-lists': {
+    get: {
+      summary: 'Get player farm lists',
+      requestParams: {
+        path: z.strictObject({
+          playerId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Farm lists',
+          content: {
+            'application/json': {
+              schema: z.array(farmListSchema),
+            },
+          },
         },
       },
     },
@@ -693,6 +714,26 @@ export const paths = {
               }),
             },
           },
+        },
+      },
+    },
+    patch: {
+      summary: 'Update farm list',
+      requestParams: {
+        path: z.strictObject({
+          farmListId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: updateFarmListSchema,
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Farm list updated',
         },
       },
     },
