@@ -41,11 +41,10 @@ export const AttackRaidForm = () => {
   const onFormSubmit = (data: z.infer<typeof attackRaidFormSchema>) => {
     const eventArgs = getBaseEventArgs(data);
 
-    if (data.action === 'attack_normal') {
-      createAttackEvent(eventArgs);
-    } else {
-      createRaidEvent(eventArgs);
-    }
+    const createEventFn =
+      data.action === 'attack_normal' ? createAttackEvent : createRaidEvent;
+
+    createEventFn(eventArgs);
   };
 
   return (

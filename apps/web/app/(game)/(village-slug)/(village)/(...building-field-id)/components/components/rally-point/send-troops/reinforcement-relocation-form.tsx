@@ -65,11 +65,12 @@ export const ReinforcementRelocationForm = () => {
 
     const eventArgs = getBaseEventArgs(data);
 
-    if (data.action === 'reinforcement') {
-      createReinforcementEvent(eventArgs);
-    } else {
-      createRelocationEvent(eventArgs);
-    }
+    const createEventFn =
+      data.action === 'reinforcement'
+        ? createReinforcementEvent
+        : createRelocationEvent;
+
+    createEventFn(eventArgs);
   };
 
   return (
