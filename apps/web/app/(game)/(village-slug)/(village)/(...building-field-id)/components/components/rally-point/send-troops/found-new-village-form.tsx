@@ -1,142 +1,32 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
-import {
-  getUnitDefinition,
-  getUnitsByTribe,
-} from '@pillage-first/game-assets/utils/units';
-import {
-  unitCategorySchema,
-  unitIdSchema,
-  unitTierSchema,
-} from '@pillage-first/types/models/unit';
+import type { z } from 'zod';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event.ts';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
-import { villageTroopsCacheKey } from 'app/(game)/constants/query-keys.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import { Form } from 'app/components/ui/form.tsx';
 import { getFormErrorBag } from 'app/utils/forms.ts';
 import { CoordinateSelector } from './components/target-selectors.tsx';
 import { UnitSelector } from './components/unit-selector.tsx';
-
-const unitSelectionSchema = z.object({
-  unitId: unitIdSchema,
-  selected: z.coerce.number().int().nonnegative().default(0),
-  available: z.number().int().nonnegative(),
-  tier: unitTierSchema,
-  category: unitCategorySchema,
-});
-
-const targetSchema = z.strictObject({
-  x: z.coerce.number().int(),
-  y: z.coerce.number().int(),
-});
-
-const foundNewVillageFormSchema = z
-  .strictObject({
-    units: z.array(unitSelectionSchema),
-    target: targetSchema,
-  })
-  .refine(
-    (data) => {
-      const selectedUnits = data.units.filter((u) => u.selected > 0);
-      return (
-        selectedUnits.length > 0 &&
-        selectedUnits.every((u) => u.tier === 'settler')
-      );
-    },
-    {
-      message: 'Only settlers can be sent to found a new village',
-      path: ['units'],
-    },
-  )
-  .refine(
-    (data) => {
-      const totalSettlers = data.units
-        .filter((u) => u.tier === 'settler')
-        .reduce((sum, u) => sum + u.selected, 0);
-      return totalSettlers === 3;
-    },
-    {
-      message: 'Exactly 3 settlers are required to found a new village',
-      path: ['units'],
-    },
-  )
-  .refine((data) => data.units.every((u) => u.selected <= u.available), {
-    message: 'Selected units cannot exceed available count',
-    path: ['units'],
-  });
+import { useTroopForm } from './hooks/use-troop-form.ts';
+import { foundNewVillageFormSchema } from './utils/schema.ts';
 
 export const FoundNewVillageForm = () => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const tribe = useTribe();
-  const { getDeployableTroops } = useVillageTroops();
   const { createEvent: createFindNewVillageEvent } = useCreateEvent(
     'troopMovementFindNewVillage',
   );
 
-  const deployableTroops = useMemo(() => {
-    return getDeployableTroops();
-  }, [getDeployableTroops]);
-
-  const initialUnits = useMemo(() => {
-    const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
-
-    return tribeUnits.map((unitDef) => {
-      const troop = deployableTroops.find((t) => t.unitId === unitDef.id);
-
-      return {
-        unitId: unitDef.id,
-        available: troop?.amount ?? 0,
-        selected: 0,
-        tier: unitDef.tier,
-        category: unitDef.category,
-      };
-    });
-  }, [deployableTroops, tribe]);
-
-  const form = useForm({
-    resolver: zodResolver(foundNewVillageFormSchema),
-    defaultValues: {
-      units: initialUnits,
-      target: { x: 0, y: 0 },
-    },
+  const { form, getBaseEventArgs } = useTroopForm(foundNewVillageFormSchema, {
+    target: { x: 0, y: 0 },
   });
 
-  useEffect(() => {
-    form.reset({
-      ...form.getValues(),
-      units: initialUnits,
-    });
-  }, [form, initialUnits]);
-
   const onFormSubmit = (data: z.infer<typeof foundNewVillageFormSchema>) => {
-    const { units, target } = data;
-    const troops = units
-      .filter((u) => u.selected > 0)
-      .map((u) => ({
-        unitId: u.unitId,
-        amount: u.selected,
-        tileId: currentVillage.tileId,
-        source: currentVillage.id,
-      }));
-
-    const eventArgs = {
-      troops,
-      coordinates: { x: target.x, y: target.y },
-      cachesToClearImmediately: [villageTroopsCacheKey],
-    };
+    const eventArgs = getBaseEventArgs(data);
 
     createFindNewVillageEvent(eventArgs);
   };
