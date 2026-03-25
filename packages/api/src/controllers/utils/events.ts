@@ -974,7 +974,7 @@ export const getEventDuration = (
 
     // For now, return the duration from the event itself to avoid the error,
     // until a proper distance-based calculation is implemented.
-    return 0;
+    return 10_000;
   }
 
   if (isHeroRevivalEvent(event)) {

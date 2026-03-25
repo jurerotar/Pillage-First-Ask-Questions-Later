@@ -328,15 +328,13 @@ const OccupiedOccupiableTileModal = ({
         <Text as="h3">{t('Actions')}</Text>
         {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
         {isOwnedByPlayer && tile.id !== currentVillage.id && (
-          <>
-            <Button
-              size="fit"
-              variant="link"
-              onClick={() => navigate(getNewVillageUrl(villageSlug!))}
-            >
-              {t('Enter village')}
-            </Button>
-          </>
+          <Button
+            size="fit"
+            variant="link"
+            onClick={() => navigate(getNewVillageUrl(villageSlug!))}
+          >
+            {t('Enter village')}
+          </Button>
         )}
       </div>
     </>

@@ -7,7 +7,11 @@ import {
   getUnitDefinition,
   getUnitsByTribe,
 } from '@pillage-first/game-assets/utils/units';
-import { unitIdSchema, unitTierSchema } from '@pillage-first/types/models/unit';
+import {
+  unitCategorySchema,
+  unitIdSchema,
+  unitTierSchema,
+} from '@pillage-first/types/models/unit';
 import {
   Section,
   SectionContent,
@@ -21,15 +25,16 @@ import { villageTroopsCacheKey } from 'app/(game)/constants/query-keys.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import { Form } from 'app/components/ui/form.tsx';
+import { getFormErrorBag } from 'app/utils/forms.ts';
 import { CoordinateSelector } from './components/target-selectors.tsx';
 import { UnitSelector } from './components/unit-selector.tsx';
 
-const unitSelectionSchema = z.strictObject({
+const unitSelectionSchema = z.object({
   unitId: unitIdSchema,
   selected: z.coerce.number().int().nonnegative().default(0),
   available: z.number().int().nonnegative(),
   tier: unitTierSchema,
-  category: z.string(),
+  category: unitCategorySchema,
 });
 
 const targetSchema = z.strictObject({
@@ -50,8 +55,6 @@ const oasisOccupationFormSchema = z
     message: 'Selected units cannot exceed available count',
     path: ['units'],
   });
-
-type OasisOccupationFormData = z.infer<typeof oasisOccupationFormSchema>;
 
 export const OasisOccupationForm = () => {
   const { t } = useTranslation();
@@ -82,8 +85,8 @@ export const OasisOccupationForm = () => {
     });
   }, [deployableTroops, tribe]);
 
-  const form = useForm<OasisOccupationFormData>({
-    resolver: zodResolver(oasisOccupationFormSchema) as any,
+  const form = useForm({
+    resolver: zodResolver(oasisOccupationFormSchema),
     defaultValues: {
       units: initialUnits,
       target: { x: 0, y: 0 },
@@ -97,7 +100,7 @@ export const OasisOccupationForm = () => {
     });
   }, [form, initialUnits]);
 
-  const onFormSubmit = (data: OasisOccupationFormData) => {
+  const onFormSubmit = (data: z.infer<typeof oasisOccupationFormSchema>) => {
     const troops = data.units
       .filter((u) => u.selected > 0)
       .map((u) => ({
@@ -133,25 +136,7 @@ export const OasisOccupationForm = () => {
               <CoordinateSelector />
             </div>
 
-            <ErrorBag
-              errorBag={Object.entries(form.formState.errors).flatMap(
-                ([_, error]) => {
-                  if (!error) {
-                    return [];
-                  }
-                  if ('message' in error && error.message) {
-                    return [error.message.toString()];
-                  }
-                  return Object.values(error)
-                    .map((nested) =>
-                      nested && 'message' in nested
-                        ? nested.message?.toString()
-                        : undefined,
-                    )
-                    .filter((m): m is string => !!m);
-                },
-              )}
-            />
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

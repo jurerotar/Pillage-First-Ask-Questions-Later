@@ -5,7 +5,11 @@ import { getUnitByTribeAndTier } from '@pillage-first/game-assets/utils/units';
 import type { Resource } from '@pillage-first/types/models/resource';
 import type { Server } from '@pillage-first/types/models/server';
 import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';
-import type { NatureUnitId, UnitId } from '@pillage-first/types/models/unit';
+import {
+  type NatureUnitId,
+  type UnitId,
+  unitIdSchema,
+} from '@pillage-first/types/models/unit';
 import type { VillageSize } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
@@ -269,8 +273,9 @@ export const troopSeeder = (database: DbFacade, server: Server): void => {
 
   const unitIdRows = database.selectObjects({
     sql: 'SELECT id, unit FROM unit_ids',
-    schema: z.strictObject({ id: z.number(), unit: z.string() }),
+    schema: z.strictObject({ id: z.number(), unit: unitIdSchema }),
   });
+
   const unitIdMap = new Map<string, number>(
     unitIdRows.map((u) => [u.unit, u.id]),
   );

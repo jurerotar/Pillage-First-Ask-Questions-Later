@@ -46,8 +46,6 @@ export const Adventures = () => {
   const handleStartAdventure = () => {
     sendTroops({
       type: 'troopMovementAdventure',
-      // This doesn't matter for adventures
-      targetId: currentVillage.tileId,
       coordinates: { x: 0, y: 0 },
       troops: [
         {

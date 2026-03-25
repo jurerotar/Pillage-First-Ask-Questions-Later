@@ -8,6 +8,7 @@ import {
   createTroopMovementRaidEventMock,
   createTroopMovementRelocationEventMock,
 } from '@pillage-first/mocks/event';
+import { effectSchema } from '@pillage-first/types/models/effect';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { eventSchema } from '../../../utils/zod/event-schemas';
 import {
@@ -15,6 +16,7 @@ import {
   attackMovementResolver,
   findNewVillageMovementResolver,
   raidMovementResolver,
+  relocationMovementResolver,
 } from '../troop-movement-resolver';
 
 describe(adventureMovementResolver, () => {
@@ -156,13 +158,13 @@ describe(adventureMovementResolver, () => {
     const effects = database.selectObjects({
       sql: "SELECT * FROM effects WHERE village_id = (SELECT village_id FROM heroes WHERE id = $hero_id) AND source = 'hero';",
       bind: { $hero_id: heroId },
-      schema: z.any(),
+      schema: effectSchema,
     });
     expect(effects).toHaveLength(0);
   });
 });
 
-describe('relocationMovementResolver', () => {
+describe(relocationMovementResolver, () => {
   test('should update village_id of hero and its effects upon relocation', async () => {
     const database = await prepareTestDatabase();
 
@@ -298,12 +300,49 @@ describe(findNewVillageMovementResolver, () => {
 
     // Verify quests
     const quests = database.selectObjects({
-      sql: 'SELECT quest_id FROM quests WHERE village_id = $village_id;',
+      sql: 'SELECT quest_id, completed_at FROM quests WHERE village_id = $village_id;',
       bind: { $village_id: newVillage.id },
-      schema: z.strictObject({ quest_id: z.string() }),
+      schema: z.strictObject({
+        quest_id: z.string(),
+        completed_at: z.number().nullable(),
+      }),
     });
-    // newVillageQuestsFactory creates many quests (villageQuests + some wall quests)
-    expect(quests.length).toBeGreaterThan(0);
+
+    // Check if some key quests are present
+    const questIds = quests.map((q) => q.quest_id);
+    expect(questIds).toContain('oneOf-MAIN_BUILDING-1');
+    expect(questIds).toContain('oneOf-WHEAT_FIELD-1');
+
+    // Main Building level 1 quest should be completed
+    const mainBuildingQuest = quests.find(
+      (q) => q.quest_id === 'oneOf-MAIN_BUILDING-1',
+    );
+    expect(mainBuildingQuest?.completed_at).toBe(resolvesAt);
+
+    // Check building wheat consumption (population)
+    const buildingWheatEffects = database.selectObjects({
+      sql: "SELECT ei.effect AS id, e.value, e.type, e.scope, e.source, e.village_id AS villageId, e.source_specifier AS sourceSpecifier FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $villageId AND e.source = 'building' AND ei.effect = 'wheatProduction';",
+      bind: { $villageId: newVillage.id },
+      schema: effectSchema,
+    });
+    // Main Building level 1 (2) + Rally Point level 1 (1) = 3
+    expect(buildingWheatEffects.length).toBeGreaterThan(0);
+    // Find the one with source_specifier 0 (base effect)
+    const baseBuildingEffect = buildingWheatEffects.find(
+      (e) => e.sourceSpecifier === 0,
+    );
+    expect(baseBuildingEffect).toBeDefined();
+    expect(baseBuildingEffect!.value).toBe(3);
+
+    // Verify troop consumption (should be 0 since no troops were at the tile)
+    const troopWheatEffects = database.selectObjects({
+      sql: "SELECT ei.effect AS id, e.value, e.type, e.scope, e.source, e.village_id AS villageId, e.source_specifier AS sourceSpecifier FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $villageId AND e.source = 'troops' AND ei.effect = 'wheatProduction';",
+      bind: { $villageId: newVillage.id },
+      schema: effectSchema,
+    });
+    expect(troopWheatEffects).toHaveLength(1);
+    expect(troopWheatEffects[0].sourceSpecifier).toBe(0);
+    expect(troopWheatEffects[0].value).toBe(0);
   });
 });
 

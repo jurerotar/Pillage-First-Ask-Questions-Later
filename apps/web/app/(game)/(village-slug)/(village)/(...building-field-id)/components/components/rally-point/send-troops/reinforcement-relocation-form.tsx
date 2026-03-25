@@ -7,7 +7,11 @@ import {
   getUnitDefinition,
   getUnitsByTribe,
 } from '@pillage-first/game-assets/utils/units';
-import { unitIdSchema, unitTierSchema } from '@pillage-first/types/models/unit';
+import {
+  unitCategorySchema,
+  unitIdSchema,
+  unitTierSchema,
+} from '@pillage-first/types/models/unit';
 import {
   Section,
   SectionContent,
@@ -29,15 +33,16 @@ import {
   FormLabel,
 } from 'app/components/ui/form.tsx';
 import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group.tsx';
+import { getFormErrorBag } from 'app/utils/forms.ts';
 import { PlayerVillageSelector } from './components/target-selectors.tsx';
 import { UnitSelector } from './components/unit-selector.tsx';
 
-const unitSelectionSchema = z.strictObject({
+const unitSelectionSchema = z.object({
   unitId: unitIdSchema,
   selected: z.coerce.number().int().nonnegative().default(0),
   available: z.number().int().nonnegative(),
   tier: unitTierSchema,
-  category: z.string(),
+  category: unitCategorySchema,
 });
 
 const targetSchema = z.strictObject({
@@ -59,10 +64,6 @@ const reinforcementRelocationFormSchema = z
     message: 'Selected units cannot exceed available count',
     path: ['units'],
   });
-
-type ReinforcementRelocationFormData = z.infer<
-  typeof reinforcementRelocationFormSchema
->;
 
 export const ReinforcementRelocationForm = () => {
   const { t } = useTranslation();
@@ -97,8 +98,8 @@ export const ReinforcementRelocationForm = () => {
     });
   }, [deployableTroops, tribe]);
 
-  const form = useForm<ReinforcementRelocationFormData>({
-    resolver: zodResolver(reinforcementRelocationFormSchema) as any,
+  const form = useForm({
+    resolver: zodResolver(reinforcementRelocationFormSchema),
     defaultValues: {
       units: initialUnits,
       action: 'reinforcement',
@@ -113,7 +114,9 @@ export const ReinforcementRelocationForm = () => {
     });
   }, [form, initialUnits]);
 
-  const onFormSubmit = (data: ReinforcementRelocationFormData) => {
+  const onFormSubmit = (
+    data: z.infer<typeof reinforcementRelocationFormSchema>,
+  ) => {
     const isTargetingOwnVillage = playerVillages.some(
       (v) =>
         v.coordinates.x === data.target.x && v.coordinates.y === data.target.y,
@@ -201,25 +204,7 @@ export const ReinforcementRelocationForm = () => {
               />
             </div>
 
-            <ErrorBag
-              errorBag={Object.entries(form.formState.errors).flatMap(
-                ([_, error]) => {
-                  if (!error) {
-                    return [];
-                  }
-                  if ('message' in error && error.message) {
-                    return [error.message.toString()];
-                  }
-                  return Object.values(error)
-                    .map((nested) =>
-                      nested && 'message' in nested
-                        ? nested.message?.toString()
-                        : undefined,
-                    )
-                    .filter((m): m is string => !!m);
-                },
-              )}
-            />
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

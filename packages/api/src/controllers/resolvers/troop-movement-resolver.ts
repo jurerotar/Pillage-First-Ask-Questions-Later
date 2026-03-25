@@ -1,8 +1,14 @@
 import { z } from 'zod';
+import { buildingMap } from '@pillage-first/game-assets/buildings';
 import { newVillageUnitResearchFactory } from '@pillage-first/game-assets/factories/unit-research';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
+import { calculateTotalPopulationForLevel } from '@pillage-first/game-assets/utils/buildings';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
@@ -24,7 +30,9 @@ export const adventureMovementResolver: Resolver<
       UPDATE heroes
       SET
         health = MAX(0, health - MAX(0, 5 - damage_reduction)),
-        experience = experience + CASE
+        experience =
+          experience +
+          CASE
             WHEN MAX(0, health - MAX(0, 5 - damage_reduction)) > 0
               THEN (
                      SELECT completed + 1
@@ -34,7 +42,7 @@ export const adventureMovementResolver: Resolver<
                        hero_id = heroes.id
                      ) * 10
             ELSE 0
-          END
+            END
       WHERE
         player_id = (
           SELECT player_id
@@ -137,7 +145,7 @@ export const findNewVillageMovementResolver: Resolver<
   })!;
 
   // Create village with incremental slug v-{n}
-  const { newVillageId } = database.selectObject({
+  const newVillageId = database.selectValue({
     sql: `
       WITH
         next_slug AS (
@@ -159,22 +167,22 @@ export const findNewVillageMovementResolver: Resolver<
           ),
         $tile_id,
         $player_id
-          RETURNING id AS newVillageId;
+          RETURNING id;
     `,
     bind: {
       $name: 'New village',
       $tile_id: tileId,
       $player_id: PLAYER_ID,
     },
-    schema: z.strictObject({ newVillageId: z.number() }),
+    schema: z.number(),
   })!;
 
   const buildingIdRows = database.selectObjects({
     sql: 'SELECT id, building FROM building_ids',
-    schema: z.strictObject({ id: z.number(), building: z.string() }),
+    schema: z.strictObject({ id: z.number(), building: buildingIdSchema }),
   });
 
-  const buildingIdMap = new Map<string, number>(
+  const buildingIdMap = new Map<Building['id'], number>(
     buildingIdRows.map((b) => [b.building, b.id]),
   );
 
@@ -183,6 +191,11 @@ export const findNewVillageMovementResolver: Resolver<
     tribe,
     resourceFieldComposition,
   );
+
+  const wheatProductionEffectId = database.selectValue({
+    sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction';",
+    schema: z.number(),
+  })!;
 
   for (const { field_id, building_id, level } of buildingFields) {
     database.exec({
@@ -199,13 +212,55 @@ export const findNewVillageMovementResolver: Resolver<
         $level: level,
       },
     });
+
+    const building = buildingMap.get(building_id)!;
+    const population = calculateTotalPopulationForLevel(building_id, level);
+
+    database.exec({
+      sql: `
+        INSERT INTO
+          effects (effect_id, value, type, scope, source, village_id, source_specifier)
+        VALUES
+          ($effectId, $value, 'base', 'village', 'building', $villageId, $field_id);
+      `,
+      bind: {
+        $effectId: wheatProductionEffectId,
+        $value: population,
+        $villageId: newVillageId,
+        $field_id: field_id,
+      },
+    });
+
+    for (const effect of building.effects) {
+      database.exec({
+        sql: `
+          INSERT INTO
+            effects (effect_id, value, type, scope, source, village_id, source_specifier)
+          VALUES
+            ((
+               SELECT id
+               FROM effect_ids
+               WHERE effect = $effectName
+               ), $value, $type, 'village', 'building', $villageId, $field_id);
+        `,
+        bind: {
+          $effectName: effect.effectId,
+          $value: effect.valuesPerLevel[level],
+          $type: effect.type,
+          $villageId: newVillageId,
+          $field_id: field_id,
+        },
+      });
+    }
   }
 
   // Initialize resource site for the new village (fresh-settlement baseline similar to starting village)
   database.exec({
     sql: `
-      INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
-      VALUES ($tile_id, 750, 750, 750, 750, $updatedAt)
+      INSERT INTO
+        resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
+      VALUES
+        ($tile_id, 750, 750, 750, 750, $updatedAt)
       ON CONFLICT(tile_id) DO NOTHING;
     `,
     bind: { $tile_id: tileId, $updatedAt: resolvesAt },
@@ -214,13 +269,18 @@ export const findNewVillageMovementResolver: Resolver<
   const quests = newVillageQuestsFactory(newVillageId, tribe);
 
   for (const quest of quests) {
+    const isCompleted = quest.id === 'oneOf-MAIN_BUILDING-1';
+
     database.exec({
       sql: `
-        INSERT INTO quests (quest_id, completed_at, collected_at, village_id)
-        VALUES ($questId, NULL, NULL, $village_id);
+        INSERT INTO
+          quests (quest_id, completed_at, collected_at, village_id)
+        VALUES
+          ($questId, $completedAt, NULL, $village_id);
       `,
       bind: {
         $questId: quest.id,
+        $completedAt: isCompleted ? resolvesAt : null,
         $village_id: newVillageId,
       },
     });
@@ -244,6 +304,34 @@ export const findNewVillageMovementResolver: Resolver<
       $village_id: newVillageId,
       $tier1Unit: tier1UnitId,
       $settlerUnit: settlerUnitId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO
+        effects (effect_id, value, type, scope, source, village_id, source_specifier)
+      VALUES
+        ($effectId, $value, 'base', 'village', 'building', $villageId, 0);
+    `,
+    bind: {
+      $effectId: wheatProductionEffectId,
+      $value: 3,
+      $villageId: newVillageId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO
+        effects (effect_id, value, type, scope, source, village_id, source_specifier)
+      VALUES
+        ($effectId, $value, 'base', 'village', 'troops', $villageId, 0);
+    `,
+    bind: {
+      $effectId: wheatProductionEffectId,
+      $value: 0,
+      $villageId: newVillageId,
     },
   });
 };
@@ -287,9 +375,12 @@ export const relocationMovementResolver: Resolver<
         SELECT
           t.id AS tileId,
           v.id AS villageId
-        FROM tiles t
-        JOIN villages v ON v.tile_id = t.id
-        WHERE t.x = $x AND t.y = $y;
+        FROM
+          tiles t
+            JOIN villages v ON v.tile_id = t.id
+        WHERE
+          t.x = $x
+          AND t.y = $y;
       `,
       bind: { $x: x, $y: y },
       schema: z.strictObject({ tileId: z.number(), villageId: z.number() }),

@@ -18,7 +18,6 @@ type SendTroopsArgs = {
   type: TroopMovementEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
   coordinates: GameEvent<'troopMovementReinforcements'>['coordinates'];
-  targetId: GameEvent<'troopMovementReinforcements'>['targetId'];
 };
 
 export const useVillageTroops = () => {
@@ -42,12 +41,7 @@ export const useVillageTroops = () => {
   }, [villageTroops, currentVillage.tileId]);
 
   const { mutate: sendTroops } = useMutation({
-    mutationFn: async ({
-      coordinates,
-      type,
-      troops,
-      targetId,
-    }: SendTroopsArgs) => {
+    mutationFn: async ({ coordinates, type, troops }: SendTroopsArgs) => {
       await fetcher('/events', {
         method: 'POST',
         body: {
@@ -55,7 +49,6 @@ export const useVillageTroops = () => {
           type,
           coordinates,
           troops,
-          targetId,
         },
       });
     },

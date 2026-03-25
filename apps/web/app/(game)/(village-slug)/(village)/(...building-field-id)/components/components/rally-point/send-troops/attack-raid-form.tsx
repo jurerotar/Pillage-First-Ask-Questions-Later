@@ -7,7 +7,11 @@ import {
   getUnitDefinition,
   getUnitsByTribe,
 } from '@pillage-first/game-assets/utils/units';
-import { unitIdSchema, unitTierSchema } from '@pillage-first/types/models/unit';
+import {
+  unitCategorySchema,
+  unitIdSchema,
+  unitTierSchema,
+} from '@pillage-first/types/models/unit';
 import {
   Section,
   SectionContent,
@@ -28,15 +32,16 @@ import {
   FormLabel,
 } from 'app/components/ui/form.tsx';
 import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group.tsx';
+import { getFormErrorBag } from 'app/utils/forms.ts';
 import { CoordinateSelector } from './components/target-selectors.tsx';
 import { UnitSelector } from './components/unit-selector.tsx';
 
-const unitSelectionSchema = z.strictObject({
+const unitSelectionSchema = z.object({
   unitId: unitIdSchema,
   selected: z.coerce.number().int().nonnegative().default(0),
   available: z.number().int().nonnegative(),
   tier: unitTierSchema,
-  category: z.string(),
+  category: unitCategorySchema,
 });
 
 const targetSchema = z.strictObject({
@@ -58,8 +63,6 @@ const attackRaidFormSchema = z
     message: 'Selected units cannot exceed available count',
     path: ['units'],
   });
-
-type AttackRaidFormData = z.infer<typeof attackRaidFormSchema>;
 
 export const AttackRaidForm = () => {
   const { t } = useTranslation();
@@ -91,8 +94,8 @@ export const AttackRaidForm = () => {
     });
   }, [deployableTroops, tribe]);
 
-  const form = useForm<AttackRaidFormData>({
-    resolver: zodResolver(attackRaidFormSchema) as any,
+  const form = useForm({
+    resolver: zodResolver(attackRaidFormSchema),
     defaultValues: {
       units: initialUnits,
       action: 'attack_normal',
@@ -107,7 +110,7 @@ export const AttackRaidForm = () => {
     });
   }, [form, initialUnits]);
 
-  const onFormSubmit = (data: AttackRaidFormData) => {
+  const onFormSubmit = (data: z.infer<typeof attackRaidFormSchema>) => {
     const troops = data.units
       .filter((u) => u.selected > 0)
       .map((u) => ({
@@ -180,25 +183,7 @@ export const AttackRaidForm = () => {
               />
             </div>
 
-            <ErrorBag
-              errorBag={Object.entries(form.formState.errors).flatMap(
-                ([_, error]) => {
-                  if (!error) {
-                    return [];
-                  }
-                  if ('message' in error && error.message) {
-                    return [error.message.toString()];
-                  }
-                  return Object.values(error)
-                    .map((nested) =>
-                      nested && 'message' in nested
-                        ? nested.message?.toString()
-                        : undefined,
-                    )
-                    .filter((m): m is string => !!m);
-                },
-              )}
-            />
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>
