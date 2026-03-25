@@ -27,7 +27,7 @@
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
     "@playwright/test": "1.58.2",
-    "@typescript/native-preview": "7.0.0-dev.20260324.1",
+    "@typescript/native-preview": "7.0.0-dev.20260325.1",
     "lefthook": "2.1.4",
     "oxlint": "1.57.0",
     "oxlint-tsgolint": "0.17.4",

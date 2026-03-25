@@ -50,7 +50,7 @@
     "@pillage-first/types": "*"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260324.1",
+    "@typescript/native-preview": "7.0.0-dev.20260325.1",
     "typescript": "6.0.2"
   }
 }
