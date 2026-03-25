@@ -48,6 +48,7 @@ export const Adventures = () => {
       type: 'troopMovementAdventure',
       // This doesn't matter for adventures
       targetId: currentVillage.tileId,
+      coordinates: { x: 0, y: 0 },
       troops: [
         {
           unitId: 'HERO',

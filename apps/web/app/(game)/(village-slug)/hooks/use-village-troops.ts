@@ -1,12 +1,11 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { use } from 'react';
+import { use, useCallback } from 'react';
 import { z } from 'zod';
 import type {
   GameEvent,
   TroopMovementEventType,
 } from '@pillage-first/types/models/game-event';
 import { troopSchema } from '@pillage-first/types/models/troop';
-import type { Village } from '@pillage-first/types/models/village';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   eventsCacheKey,
@@ -18,6 +17,7 @@ import { invalidateQueries } from 'app/utils/react-query.ts';
 type SendTroopsArgs = {
   type: TroopMovementEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
+  coordinates: GameEvent<'troopMovementReinforcements'>['coordinates'];
   targetId: GameEvent<'troopMovementReinforcements'>['targetId'];
 };
 
@@ -34,21 +34,28 @@ export const useVillageTroops = () => {
     },
   });
 
-  const getDeployableTroops = (villageId: Village['id']) => {
+  const getDeployableTroops = useCallback(() => {
     return villageTroops.filter(
-      ({ tileId, source }) => tileId === villageId && source === villageId,
+      ({ tileId, source }) =>
+        tileId === currentVillage.tileId && source === currentVillage.tileId,
     );
-  };
+  }, [villageTroops, currentVillage.tileId]);
 
   const { mutate: sendTroops } = useMutation({
-    mutationFn: async ({ targetId, type, troops }: SendTroopsArgs) => {
+    mutationFn: async ({
+      coordinates,
+      type,
+      troops,
+      targetId,
+    }: SendTroopsArgs) => {
       await fetcher('/events', {
         method: 'POST',
         body: {
           villageId: currentVillage.id,
           type,
-          targetId,
+          coordinates,
           troops,
+          targetId,
         },
       });
     },

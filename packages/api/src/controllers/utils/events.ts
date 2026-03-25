@@ -972,16 +972,9 @@ export const getEventDuration = (
       return calculateAdventureDuration(database, true);
     }
 
-    const {
-      villageId,
-      coordinates: { x, y },
-    } = event;
-
-    // For now, return the duration from the event itself to avoid console.error,
+    // For now, return the duration from the event itself to avoid the error,
     // until a proper distance-based calculation is implemented.
-    if (isReturnTroopMovementEvent(event)) {
-      return (event as any).duration ?? 0;
-    }
+    return 0;
   }
 
   if (isHeroRevivalEvent(event)) {
@@ -1035,8 +1028,9 @@ export const getEventDuration = (
     return calculateLoyaltyIncreaseEventDuration(speed);
   }
 
-  console.error('Missing duration calculation for event', event);
-  return 0;
+  throw new Error(
+    `Missing duration calculation for event type "${event.type}"`,
+  );
 };
 
 // WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!

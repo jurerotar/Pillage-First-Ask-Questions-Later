@@ -8,6 +8,7 @@ import {
   createTroopMovementRaidEventMock,
   createTroopMovementRelocationEventMock,
 } from '@pillage-first/mocks/event';
+import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { eventSchema } from '../../../utils/zod/event-schemas';
 import {
   adventureMovementResolver,
@@ -73,7 +74,7 @@ describe(adventureMovementResolver, () => {
     const returnEvent = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
       schema: eventSchema,
-    })!;
+    })! as GameEvent<'troopMovementReturn'>;
     expect(returnEvent).toBeDefined();
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 
@@ -325,7 +326,7 @@ describe(attackMovementResolver, () => {
     const returnEvent = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: eventSchema,
-    })!;
+    })! as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 
@@ -358,7 +359,7 @@ describe(raidMovementResolver, () => {
     const returnEvent = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
       schema: eventSchema,
-    })!;
+    })! as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 

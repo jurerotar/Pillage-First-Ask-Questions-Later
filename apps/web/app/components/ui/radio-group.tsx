@@ -10,7 +10,7 @@ export const RadioGroup = ({
   return (
     <RadioGroupPrimitive.Root
       data-slot="radio-group"
-      className={clsx('grid gap-3', className)}
+      className={className}
       {...props}
     />
   );
