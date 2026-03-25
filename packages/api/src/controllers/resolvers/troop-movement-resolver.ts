@@ -225,7 +225,7 @@ export const findNewVillageMovementResolver: Resolver<
       `,
       bind: {
         $effectId: wheatProductionEffectId,
-        $value: population,
+        $value: -population,
         $villageId: newVillageId,
         $field_id: field_id,
       },
