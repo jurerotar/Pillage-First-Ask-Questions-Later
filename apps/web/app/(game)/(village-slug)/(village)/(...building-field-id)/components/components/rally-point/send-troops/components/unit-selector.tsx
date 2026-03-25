@@ -53,7 +53,7 @@ export const UnitSelector = ({ disabledUnitTiers = [] }: UnitSelectorProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-row gap-4 justify-start">
+      <div className="grid grid-cols-3 md:flex md:flex-row gap-4 justify-start">
         {displayGroups.map((group) => {
           const categoryUnits = groupedUnits[group];
 
@@ -62,7 +62,7 @@ export const UnitSelector = ({ disabledUnitTiers = [] }: UnitSelectorProps) => {
               key={group}
               className="flex flex-1 flex-col gap-2"
             >
-              <div className="grid grid-cols-1 gap-4 w-full">
+              <div className="flex flex-col gap-4 w-full">
                 {categoryUnits.map((unit) => {
                   const isTierDisabled = disabledUnitTiers.includes(unit.tier);
                   const isAvailable = unit.available > 0;
