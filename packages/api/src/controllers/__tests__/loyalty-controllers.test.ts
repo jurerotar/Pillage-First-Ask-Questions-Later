@@ -81,20 +81,10 @@ describe('loyalty-controllers', () => {
       bind: { $id1: tileId1, $id2: tileId2 },
     });
 
-    // Resolve for village 1 (level 1 residence -> +2 loyalty)
+    // Resolve (Global increase for all villages and oases)
     loyaltyIncreaseResolver(database, {
       id: 1,
-      villageId: villageId1,
-      duration: 1000,
-      resolvesAt: Date.now(),
-      startsAt: Date.now() - 1000,
-      type: 'loyaltyIncrease',
-    });
-
-    // Resolve for village 2 (level 5 residence -> +6 loyalty)
-    loyaltyIncreaseResolver(database, {
-      id: 2,
-      villageId: villageId2,
+      villageId: null, // Global event
       duration: 1000,
       resolvesAt: Date.now(),
       startsAt: Date.now() - 1000,

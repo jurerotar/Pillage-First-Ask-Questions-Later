@@ -545,7 +545,7 @@ export const validateEventCreationResources = (
   const { villageId, startsAt } = event;
   const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
   const { currentWood, currentClay, currentIron, currentWheat } =
-    calculateVillageResourcesAt(database, villageId, startsAt);
+    calculateVillageResourcesAt(database, villageId!, startsAt);
 
   return !(
     woodCost > currentWood ||

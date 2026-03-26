@@ -22,7 +22,6 @@ describe(adventurePointIncreaseResolver, () => {
       id: 1,
       startsAt: 1000,
       duration: 500,
-      villageId: 1,
     });
 
     adventurePointIncreaseResolver(database, { ...mockEvent, id: 999 });
