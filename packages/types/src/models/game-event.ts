@@ -13,8 +13,14 @@ type BaseGameEvent = {
   startsAt: number;
   duration: number;
   resolvesAt: number;
-  // This type is essentially a lie. `villageId` can be either a number or null, but we have a ton of type issues if we type it as such.
-  // We just need to careful in global event resolvers to not use village id!
+  villageId: Village['id'] | null;
+};
+
+type GlobalGameEvent = Omit<BaseGameEvent, 'villageId'> & {
+  villageId: null;
+};
+
+type VillageGameEvent = Omit<BaseGameEvent, 'villageId'> & {
   villageId: Village['id'];
 };
 
@@ -103,25 +109,26 @@ export type TroopMovementEventType = Extract<
 >;
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
-  buildingScheduledConstruction: BuildingScheduledConstructionEvent;
-  buildingConstruction: BaseBuildingEvent;
-  buildingLevelChange: BuildingLevelChangeEvent;
-  buildingDestruction: BuildingDestructionEvent;
-  troopTraining: BaseUnitTrainingEvent;
-  unitResearch: UnitResearchEvent;
-  unitImprovement: UnitImprovementEvent;
-  troopMovementReinforcements: BaseTroopMovementEvent;
-  troopMovementRelocation: BaseTroopMovementEvent;
-  troopMovementReturn: ReturnTroopMovementEvent;
-  troopMovementFindNewVillage: BaseTroopMovementEvent;
-  troopMovementAttack: BaseTroopMovementEvent;
-  troopMovementRaid: BaseTroopMovementEvent;
-  troopMovementOasisOccupation: BaseTroopMovementEvent;
-  troopMovementAdventure: BaseTroopMovementEvent;
-  adventurePointIncrease: BaseGameEvent;
-  heroRevival: BaseGameEvent;
-  heroHealthRegeneration: BaseGameEvent;
-  loyaltyIncrease: BaseGameEvent;
+  buildingScheduledConstruction: BuildingScheduledConstructionEvent &
+    VillageGameEvent;
+  buildingConstruction: BaseBuildingEvent & VillageGameEvent;
+  buildingLevelChange: BuildingLevelChangeEvent & VillageGameEvent;
+  buildingDestruction: BuildingDestructionEvent & VillageGameEvent;
+  troopTraining: BaseUnitTrainingEvent & VillageGameEvent;
+  unitResearch: UnitResearchEvent & VillageGameEvent;
+  unitImprovement: UnitImprovementEvent & VillageGameEvent;
+  troopMovementReinforcements: BaseTroopMovementEvent & VillageGameEvent;
+  troopMovementRelocation: BaseTroopMovementEvent & VillageGameEvent;
+  troopMovementReturn: ReturnTroopMovementEvent & VillageGameEvent;
+  troopMovementFindNewVillage: BaseTroopMovementEvent & VillageGameEvent;
+  troopMovementAttack: BaseTroopMovementEvent & VillageGameEvent;
+  troopMovementRaid: BaseTroopMovementEvent & VillageGameEvent;
+  troopMovementOasisOccupation: BaseTroopMovementEvent & VillageGameEvent;
+  troopMovementAdventure: BaseTroopMovementEvent & VillageGameEvent;
+  adventurePointIncrease: GlobalGameEvent;
+  heroRevival: VillageGameEvent;
+  heroHealthRegeneration: GlobalGameEvent;
+  loyaltyIncrease: GlobalGameEvent;
 }[T];
 
 export type TroopMovementEvent =
@@ -142,7 +149,7 @@ export type BuildingEvent =
 export type GameEvent<T extends GameEventType | undefined = undefined> =
   T extends undefined
     ? BaseGameEvent
-    : Omit<BaseGameEvent, 'type'> & {
+    : Omit<BaseGameEvent, 'type' | 'villageId'> & {
         type: T;
         // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
       } & GameEventTypeToEventArgsMap<T>;

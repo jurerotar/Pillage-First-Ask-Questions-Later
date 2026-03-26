@@ -103,6 +103,7 @@ export const createAdventurePointIncreaseEventMock = (
   overrides: Partial<GameEvent<'adventurePointIncrease'>> = {},
 ): GameEvent<'adventurePointIncrease'> => {
   return createGameEventMock('adventurePointIncrease', {
+    villageId: null,
     ...overrides,
   });
 };
@@ -119,6 +120,7 @@ export const createHeroHealthRegenerationEventMock = (
   overrides: Partial<GameEvent<'heroHealthRegeneration'>> = {},
 ): GameEvent<'heroHealthRegeneration'> => {
   return createGameEventMock('heroHealthRegeneration', {
+    villageId: null,
     ...overrides,
   });
 };
@@ -127,6 +129,7 @@ export const createLoyaltyIncreaseEventMock = (
   overrides: Partial<GameEvent<'loyaltyIncrease'>> = {},
 ): GameEvent<'loyaltyIncrease'> => {
   return createGameEventMock('loyaltyIncrease', {
+    villageId: null,
     ...overrides,
   });
 };

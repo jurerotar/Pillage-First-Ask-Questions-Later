@@ -5,27 +5,46 @@ import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
 import { loyaltyIncreaseResolver } from '../loyalty-resolvers';
 
 describe('loyaltyIncreaseResolver', () => {
-  test('should increase loyalty by 1% + 1% per Residence level', async () => {
+  test('should increase loyalty for all villages and oases', async () => {
     const database = await prepareTestDatabase();
-    const villageId = 1;
-    const tileId = database.selectValue({
+
+    // Village 1: Level 3 Residence (50 -> 54)
+    const v1 = 1;
+    const v1Tile = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
-      bind: { $village_id: villageId },
+      bind: { $village_id: v1 },
       schema: z.number(),
     })!;
-
-    // Level 3 Residence
     database.exec({
-      sql: `
-        INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
-        VALUES ($village_id, 19, (SELECT id FROM building_ids WHERE building = 'RESIDENCE'), $level);
-      `,
-      bind: { $level: 3, $village_id: villageId },
+      sql: `INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
+            VALUES ($village_id, 19, (SELECT id FROM building_ids WHERE building = 'RESIDENCE'), $level);`,
+      bind: { $level: 3, $village_id: v1 },
     });
-
     database.exec({
       sql: 'INSERT INTO loyalties (tile_id, loyalty) VALUES ($tile_id, 50)',
-      bind: { $tile_id: tileId },
+      bind: { $tile_id: v1Tile },
+    });
+
+    // Village 2: No Residence (60 -> 61)
+    const v2 = 2;
+    const v2Tile = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
+      bind: { $village_id: v2 },
+      schema: z.number(),
+    })!;
+    database.exec({
+      sql: 'INSERT INTO loyalties (tile_id, loyalty) VALUES ($tile_id, 60)',
+      bind: { $tile_id: v2Tile },
+    });
+
+    // Oasis: Static increase (70 -> 71)
+    const oasisTile = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis LIMIT 1',
+      schema: z.number(),
+    })!;
+    database.exec({
+      sql: 'INSERT INTO loyalties (tile_id, loyalty) VALUES ($tile_id, 70)',
+      bind: { $tile_id: oasisTile },
     });
 
     const duration = 3600000;
@@ -34,21 +53,31 @@ describe('loyaltyIncreaseResolver', () => {
     loyaltyIncreaseResolver(
       database,
       createLoyaltyIncreaseEventMock({
-        villageId,
         duration,
         resolvesAt: now,
         startsAt: now - duration,
       }),
     );
 
-    const loyalty = database.selectValue({
+    const v1Loyalty = database.selectValue({
       sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
-      bind: { $tile_id: tileId },
+      bind: { $tile_id: v1Tile },
+      schema: z.number(),
+    });
+    const v2Loyalty = database.selectValue({
+      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      bind: { $tile_id: v2Tile },
+      schema: z.number(),
+    });
+    const oasisLoyalty = database.selectValue({
+      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      bind: { $tile_id: oasisTile },
       schema: z.number(),
     });
 
-    // 50 + (1 + 3) = 54
-    expect(loyalty).toBe(54);
+    expect(v1Loyalty).toBe(54);
+    expect(v2Loyalty).toBe(61);
+    expect(oasisLoyalty).toBe(71);
   });
 
   test('should increase loyalty by 1% (base) if no Residence exists', async () => {
@@ -81,7 +110,6 @@ describe('loyaltyIncreaseResolver', () => {
     loyaltyIncreaseResolver(
       database,
       createLoyaltyIncreaseEventMock({
-        villageId,
         duration,
         resolvesAt: now,
         startsAt: now - duration,
@@ -127,7 +155,6 @@ describe('loyaltyIncreaseResolver', () => {
     loyaltyIncreaseResolver(
       database,
       createLoyaltyIncreaseEventMock({
-        villageId,
         duration,
         resolvesAt: now,
         startsAt: now - duration,
@@ -143,23 +170,19 @@ describe('loyaltyIncreaseResolver', () => {
     expect(loyalties).toHaveLength(0);
   });
 
-  test('should schedule next loyaltyIncrease event', async () => {
+  test('should schedule next loyaltyIncrease event even if villageId is null', async () => {
     const database = await prepareTestDatabase();
-    const villageId = 1;
     const resolvesAt = Date.now();
 
-    // Clear existing events for this village to be sure
-    database.exec({
-      sql: 'DELETE FROM events WHERE village_id = $village_id',
-      bind: { $village_id: villageId },
-    });
+    // Clear existing events
+    database.exec({ sql: "DELETE FROM events WHERE type = 'loyaltyIncrease'" });
 
     const duration = 3600000;
 
     loyaltyIncreaseResolver(
       database,
       createLoyaltyIncreaseEventMock({
-        villageId,
+        villageId: null,
         duration,
         resolvesAt,
         startsAt: resolvesAt - duration,
@@ -167,17 +190,10 @@ describe('loyaltyIncreaseResolver', () => {
     );
 
     const nextEvent = database.selectObject({
-      sql: "SELECT * FROM events WHERE village_id = $village_id AND type = 'loyaltyIncrease'",
-      bind: { $village_id: villageId },
+      sql: "SELECT * FROM events WHERE type = 'loyaltyIncrease'",
       schema: z.object({
-        id: z.number(),
-        village_id: z.number(),
         starts_at: z.number(),
         type: z.string(),
-        duration: z.number(),
-        data: z.string().nullable().optional(),
-        resolves_at: z.number().optional(),
-        meta: z.string().nullable().optional(),
       }),
     });
 

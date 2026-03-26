@@ -63,7 +63,6 @@ describe('hero-resolvers', () => {
       id: 1,
       startsAt: 1000,
       duration: 8_640_000, // 24h / 10
-      villageId: 1,
     });
 
     // 2. Clear events to be sure
@@ -103,7 +102,6 @@ describe('hero-resolvers', () => {
       id: 1,
       startsAt: 1000,
       duration: 8_640_000,
-      villageId: 1,
     });
 
     // 3. Resolve
@@ -138,7 +136,6 @@ describe('hero-resolvers', () => {
         id: 1,
         startsAt: 1000,
         duration: 8_640_000,
-        villageId: 1,
       }),
     );
 
