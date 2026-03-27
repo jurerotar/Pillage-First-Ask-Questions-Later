@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import {
   Table,
@@ -12,10 +13,15 @@ import {
 
 export const SmithyImprovementTable = () => {
   const { t } = useTranslation();
-  const {
-    eventsByType: currentVillageUnitImprovementEvents,
-    hasEvents: hasImprovementEventsOngoing,
-  } = useEventsByType('unitImprovement');
+  const { currentVillage } = useCurrentVillage();
+  const { eventsByType: unitImprovementEvents } =
+    useEventsByType('unitImprovement');
+
+  const currentVillageUnitImprovementEvents = unitImprovementEvents.filter(
+    ({ villageId }) => currentVillage.id === villageId,
+  );
+  const hasOngoingCurrentVillageImprovementEvents =
+    currentVillageUnitImprovementEvents.length > 0;
 
   return (
     <Table>
@@ -27,7 +33,7 @@ export const SmithyImprovementTable = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {hasImprovementEventsOngoing && (
+        {hasOngoingCurrentVillageImprovementEvents && (
           <TableRow>
             <TableCell>
               {t(
@@ -50,10 +56,10 @@ export const SmithyImprovementTable = () => {
             </TableCell>
           </TableRow>
         )}
-        {!hasImprovementEventsOngoing && (
+        {!hasOngoingCurrentVillageImprovementEvents && (
           <TableRow>
             <TableCell colSpan={3}>
-              {t('No improvements are currently taking place')}
+              {t('No improvements are currently taking place in this village')}
             </TableCell>
           </TableRow>
         )}
