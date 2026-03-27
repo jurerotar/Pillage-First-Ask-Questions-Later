@@ -11,7 +11,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Icon } from 'app/components/icon.tsx';
 import { Text } from 'app/components/text.tsx';
@@ -178,7 +178,7 @@ export const DeveloperToolsConsole = ({
       open={isOpen}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t('Developer tools')}</DialogTitle>
           <DialogDescription>

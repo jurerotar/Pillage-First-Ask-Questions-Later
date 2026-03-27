@@ -1,11 +1,11 @@
-import { createContext, type PropsWithChildren } from 'react';
+import { createContext, type PropsWithChildren, useMemo } from 'react';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
-import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag.ts';
 
 type BuildingUpgradeStatusContextReturn = {
   variant: BorderIndicatorBorderVariant;
-  errors: string[];
+  errorBag: string[];
 };
 
 export const BuildingUpgradeStatusContext =
@@ -21,10 +21,23 @@ export const BuildingUpgradeStatusContextProvider = ({
   buildingField,
   children,
 }: BuildingUpgradeStatusContextProviderProps) => {
-  const status = useBuildingUpgradeStatus(buildingField);
+  const { buildingId, level, id } = buildingField;
+
+  const { errorBag, variant } = useBuildingConstructionErrorBag(
+    buildingId,
+    level,
+    id,
+  );
+
+  const value = useMemo(() => {
+    return {
+      errorBag,
+      variant,
+    };
+  }, [errorBag, variant]);
 
   return (
-    <BuildingUpgradeStatusContext value={status}>
+    <BuildingUpgradeStatusContext value={value}>
       {children}
     </BuildingUpgradeStatusContext>
   );

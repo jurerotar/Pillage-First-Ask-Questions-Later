@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
-import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures.ts';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
+import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 
 export const useAdventuresActionsErrorBag = () => {
   const { t } = useTranslation();

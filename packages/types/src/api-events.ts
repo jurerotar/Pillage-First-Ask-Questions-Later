@@ -3,10 +3,8 @@ import type { GameEvent, GameEventType } from './models/game-event';
 type EventKey =
   | 'event:database-initialization-success'
   | 'event:database-initialization-error'
-  | 'event:controller-success'
-  | 'event:controller-error'
-  | 'event:event-resolve-success'
-  | 'event:event-resolve-error';
+  | 'event:success'
+  | 'event:error';
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;

@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
 import type {
@@ -11,12 +7,13 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import { troopSchema } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   eventsCacheKey,
-  playerTroopsCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+  villageTroopsCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { invalidateQueries } from 'app/utils/react-query.ts';
 
 type SendTroopsArgs = {
   type: TroopMovementEventType;
@@ -27,10 +24,9 @@ type SendTroopsArgs = {
 export const useVillageTroops = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
-  const queryClient = useQueryClient();
 
   const { data: villageTroops } = useSuspenseQuery({
-    queryKey: [playerTroopsCacheKey, currentVillage.tileId],
+    queryKey: [villageTroopsCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await fetcher(`/villages/${currentVillage.id}/troops`);
 
@@ -56,14 +52,10 @@ export const useVillageTroops = () => {
         },
       });
     },
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: [playerTroopsCacheKey, currentVillage.tileId],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [eventsCacheKey, 'troopMovement', currentVillage.id],
-        }),
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [villageTroopsCacheKey, currentVillage.tileId],
+        [eventsCacheKey, 'troopMovement', currentVillage.id],
       ]);
     },
   });

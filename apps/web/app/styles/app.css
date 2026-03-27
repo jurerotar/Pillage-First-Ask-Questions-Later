@@ -4,6 +4,8 @@
 @variant standalone (@media (display-mode: standalone));
 @variant browser (@media (display-mode: browser));
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --breakpoint-xs: 425px;
   --breakpoint-sm: 640px;

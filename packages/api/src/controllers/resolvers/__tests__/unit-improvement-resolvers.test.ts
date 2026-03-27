@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { createUnitImprovementEventMock } from '@pillage-first/mocks/event';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { unitImprovementResolver } from '../unit-improvement-resolvers';
 
@@ -24,16 +24,14 @@ describe(unitImprovementResolver, () => {
       bind: { $unit_id: unitId, $player_id: playerId },
     });
 
-    const mockEvent: GameEvent<'unitImprovement'> = {
+    const mockEvent = createUnitImprovementEventMock({
       id: 2,
-      type: 'unitImprovement',
       startsAt: 1000,
       duration: 500,
-      resolvesAt: 1500,
       villageId,
       unitId,
       level: 1,
-    };
+    });
 
     unitImprovementResolver(database, { ...mockEvent, id: 999 });
 

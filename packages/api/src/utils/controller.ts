@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import type { paths } from '../open-api.ts';
+import type { paths } from '../open-api';
 
 export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 
@@ -12,7 +12,7 @@ export type ControllerArgs<
   path: TPath extends keyof typeof paths
     ? TMethod extends keyof (typeof paths)[TPath]
       ? (typeof paths)[TPath][TMethod] extends {
-          requestParams: { path: infer P extends z.ZodTypeAny };
+          requestParams: { path: infer P extends z.ZodType };
         }
         ? z.infer<P>
         : Record<string, string | number>
@@ -21,19 +21,20 @@ export type ControllerArgs<
   query: TPath extends keyof typeof paths
     ? TMethod extends keyof (typeof paths)[TPath]
       ? (typeof paths)[TPath][TMethod] extends {
-          requestParams: { query: infer Q extends z.ZodTypeAny };
+          requestParams: { query: infer Q extends z.ZodType };
         }
         ? z.infer<Q>
         : Record<string, string | number>
       : Record<string, string | number>
     : Record<string, string | number>;
+  url: string;
   body: TBody extends undefined
     ? TPath extends keyof typeof paths
       ? TMethod extends keyof (typeof paths)[TPath]
         ? (typeof paths)[TPath][TMethod] extends {
             requestBody: {
               content: {
-                'application/json': { schema: infer B extends z.ZodTypeAny };
+                'application/json': { schema: infer B extends z.ZodType };
               };
             };
           }

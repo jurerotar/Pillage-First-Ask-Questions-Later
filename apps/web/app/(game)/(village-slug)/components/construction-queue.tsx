@@ -18,7 +18,7 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 const iconClassName =
-  'text-2xl lg:text-3xl bg-background text-gray-400 px-2 py-2.5 box-content border border-border rounded-xs';
+  'text-2xl lg:text-3xl bg-background text-muted-foreground px-2 py-2.5 box-content border border-border rounded-xs transition-colors';
 
 type ConstructionQueueBuildingProps = {
   buildingEvent: BuildingEvent;
@@ -47,9 +47,9 @@ const ConstructionQueueBuilding = ({
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer"
       >
-        <LuConstruction className="text-2xl lg:text-3xl text-gray-400 bg-background px-2.5 pb-4 pt-1 box-content border border-border rounded-xs" />
+        <LuConstruction className="text-2xl lg:text-3xl text-muted-foreground bg-background px-2.5 pb-4 pt-1 box-content border border-border rounded-xs transition-colors" />
         <Countdown
-          className="absolute bottom-0 left-0 text-2xs w-full leading-none bg-background border border-border text-center"
+          className="absolute bottom-0 left-0 text-2xs w-full leading-none bg-background border border-border text-center transition-colors"
           endsAt={buildingEvent.startsAt + buildingEvent.duration}
         />
       </div>
@@ -58,7 +58,7 @@ const ConstructionQueueBuilding = ({
         key={tooltipKey}
         id={tooltipId}
         clickable
-        className="z-20! rounded-xs! px-2! py-1! bg-background! w-fit! text-black! border border-border"
+        className="z-20! rounded-xs! px-2! py-1! bg-background! w-fit! text-foreground! border border-border transition-colors"
         classNameArrow="border-r border-b border-border"
         place={tooltipPosition}
         {...(isWiderThanLg && {
@@ -75,7 +75,7 @@ const ConstructionQueueBuilding = ({
           </div>
           <div className="flex gap-2">
             <div className="flex items-center">
-              <LuConstruction className="text-xl lg:text-2xl text-gray-400 box-content" />
+              <LuConstruction className="text-xl lg:text-2xl text-muted-foreground box-content transition-colors" />
             </div>
             <div className="flex flex-col px-2 border-x border-border">
               <span className="inline-flex gap-1 whitespace-nowrap">
@@ -173,10 +173,10 @@ const ConstructionQueueContent = () => {
   ];
 
   return (
-    <aside className="fixed left-0 bottom-26 lg:bottom-14">
+    <aside className="fixed left-0 bottom-26 lg:bottom-14 transition-all">
       <ul
         ref={containerRef}
-        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center"
+        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center transition-all"
       >
         <li>
           {slots[0].type === 'building' ? (
@@ -211,7 +211,7 @@ const ConstructionQueueContent = () => {
                   ? t('Close construction queue')
                   : t('Expand construction queue')
               }
-              className="text-2xl bg-muted text-gray-400 py-2.5 box-content border border-border rounded-xs"
+              className="text-2xl bg-muted text-muted-foreground py-2.5 box-content border border-border rounded-xs transition-colors"
               onClick={() => setIsExtended(!isExtended)}
               type="button"
             >

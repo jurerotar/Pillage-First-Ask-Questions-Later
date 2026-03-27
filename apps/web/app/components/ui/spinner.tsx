@@ -3,22 +3,19 @@ import { clsx } from 'clsx';
 import type { PropsWithChildren } from 'react';
 import { LuLoaderCircle } from 'react-icons/lu';
 
-const spinnerVariants = cva(
-  'flex-col items-center justify-center text-gray-200',
-  {
-    variants: {
-      show: {
-        true: 'flex',
-        false: 'hidden',
-      },
-    },
-    defaultVariants: {
-      show: true,
+const spinnerVariants = cva('flex-col items-center justify-center text-muted', {
+  variants: {
+    show: {
+      true: 'flex',
+      false: 'hidden',
     },
   },
-);
+  defaultVariants: {
+    show: true,
+  },
+});
 
-const loaderVariants = cva('animate-spin text-gray-200', {
+const loaderVariants = cva('animate-spin text-muted', {
   variants: {
     size: {
       small: 'size-6',

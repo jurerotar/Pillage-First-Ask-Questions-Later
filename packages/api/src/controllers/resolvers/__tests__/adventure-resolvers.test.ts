@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { createAdventurePointIncreaseEventMock } from '@pillage-first/mocks/event';
 import { adventurePointIncreaseResolver } from '../adventure-resolvers';
 
 describe(adventurePointIncreaseResolver, () => {
@@ -18,14 +18,11 @@ describe(adventurePointIncreaseResolver, () => {
       schema: z.strictObject({ available: z.number() }),
     })!;
 
-    const mockEvent: GameEvent<'adventurePointIncrease'> = {
+    const mockEvent = createAdventurePointIncreaseEventMock({
       id: 1,
-      type: 'adventurePointIncrease',
       startsAt: 1000,
       duration: 500,
-      resolvesAt: 1500,
-      villageId: 1,
-    };
+    });
 
     adventurePointIncreaseResolver(database, { ...mockEvent, id: 999 });
 

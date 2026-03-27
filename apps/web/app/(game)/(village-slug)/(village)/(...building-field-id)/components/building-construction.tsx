@@ -15,6 +15,7 @@ import { BuildingConstructionViewModeToggle } from 'app/(game)/(village-slug)/(v
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { Text } from 'app/components/text';
@@ -26,6 +27,8 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+
+const tabs = ['infrastructure', 'military', 'resources'];
 
 type BuildingCategoryPanelProps = {
   buildingCategory: Building['category'];
@@ -134,6 +137,12 @@ export const BuildingConstruction = () => {
   const { buildingFieldId } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
 
+  const { tabIndex, navigateToTab } = useTabParam(
+    tabs,
+    'building-construction-tab',
+    tabs[0],
+  );
+
   const isCompact = preferences.buildingConstructionViewMode === 'compact';
 
   const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
@@ -152,7 +161,12 @@ export const BuildingConstruction = () => {
       <div className="flex justify-between items-center">
         <Text as="h1">{t('Construct new building')}</Text>
       </div>
-      <Tabs defaultValue="infrastructure">
+      <Tabs
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
+        }}
+      >
         <TabList>
           <Tab value="infrastructure">{t('Infrastructure')}</Tab>
           <Tab value="military">{t('Military')}</Tab>

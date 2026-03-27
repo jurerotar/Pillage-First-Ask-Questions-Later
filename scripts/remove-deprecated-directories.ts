@@ -1,4 +1,4 @@
-import { clearDirectory } from './utils/fs.ts';
+import { clearDirectory } from './utils/fs';
 
 const removeDeprecatedRootLevelDirectories = async () => {
   await clearDirectory('./public');

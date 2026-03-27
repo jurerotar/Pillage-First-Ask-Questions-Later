@@ -5,22 +5,18 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { triggerKick } from '../../scheduler/scheduler-signal';
-import { subtractVillageResourcesAt } from '../../utils/village.ts';
+import { subtractVillageResourcesAt } from '../../utils/village';
 import {
   getEventCost,
   getEventDuration,
   getEventStartTime,
   insertEvents,
-  notifyAboutEventCreationFailure,
   runEventCreationSideEffects,
   validateEventCreationPrerequisites,
   validateEventCreationResources,
 } from './events';
 
-type CreateNewEventsArgs<T extends GameEventType> = Omit<
-  GameEvent<T>,
-  'id' | 'startsAt' | 'duration' | 'resolvesAt'
-> & {
+type CreateNewEventsArgs<T extends GameEventType> = Partial<GameEvent<T>> & {
   amount?: number;
 };
 
@@ -34,17 +30,10 @@ export const createEvents = <T extends GameEventType>(
   args: CreateNewEventsArgs<T>,
 ) => {
   const sampleEvent = args as GameEvent<T>;
-  let startsAt: number | null = null;
+  let { startsAt = null } = sampleEvent;
+  const amount = args?.amount ?? 1;
 
-  const [isEventAllowed, reason] = validateEventCreationPrerequisites(
-    database,
-    sampleEvent,
-  );
-
-  if (!isEventAllowed) {
-    notifyAboutEventCreationFailure(reason);
-    return;
-  }
+  validateEventCreationPrerequisites(database, sampleEvent);
 
   const eventCost = getEventCost(database, sampleEvent);
 
@@ -56,23 +45,20 @@ export const createEvents = <T extends GameEventType>(
     );
 
     if (!hasEnoughResources) {
-      notifyAboutEventCreationFailure('Not enough resources');
-      return;
+      throw new Error('Not enough resources');
     }
 
-    startsAt = getEventStartTime(database, sampleEvent);
+    startsAt ??= getEventStartTime(database, sampleEvent);
+
     const { villageId } = sampleEvent;
 
-    subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
+    subtractVillageResourcesAt(database, villageId!, startsAt, eventCost);
   }
 
-  if (!startsAt) {
-    startsAt = getEventStartTime(database, sampleEvent);
-  }
+  startsAt ??= getEventStartTime(database, sampleEvent);
 
   const duration = Math.ceil(getEventDuration(database, sampleEvent));
 
-  const amount = args?.amount ?? 1;
   const events: GameEvent<T>[] = Array.from({ length: amount });
 
   for (let i = 0; i < amount; i += 1) {
@@ -80,6 +66,7 @@ export const createEvents = <T extends GameEventType>(
       ...args,
       startsAt: startsAt + i * duration,
       duration,
+      resolvesAt: startsAt + i * duration + duration,
     } as GameEvent<T>;
   }
 

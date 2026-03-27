@@ -99,6 +99,7 @@ export const GeneralPreferences = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="light">{t('Light')}</SelectItem>
+                <SelectItem value="dark">{t('Dark')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -128,6 +129,7 @@ export const GeneralPreferences = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="day">{t('Day')}</SelectItem>
+                <SelectItem value="night">{t('Night')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

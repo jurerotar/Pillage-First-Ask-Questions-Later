@@ -115,6 +115,8 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           <TroopTrainingQueue buildingId="GREAT_BARRACKS" />
           <Separator orientation="horizontal" />
           <TroopTrainingQueue buildingId="GREAT_STABLE" />
+          <Separator orientation="horizontal" />
+          <TroopTrainingQueue buildingId="RESIDENCE" />
         </SectionContent>
         <Separator orientation="horizontal" />
         <SectionContent>

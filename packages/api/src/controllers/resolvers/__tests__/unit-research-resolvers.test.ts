@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { createUnitResearchEventMock } from '@pillage-first/mocks/event';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { unitResearchResolver } from '../unit-research-resolvers';
 
@@ -11,15 +11,13 @@ describe(unitResearchResolver, () => {
     const villageId = 1;
     const unitId: Unit['id'] = 'LEGIONNAIRE';
 
-    const mockEvent: GameEvent<'unitResearch'> = {
+    const mockEvent = createUnitResearchEventMock({
       id: 1,
-      type: 'unitResearch',
       startsAt: 1000,
       duration: 500,
-      resolvesAt: 1500,
       villageId,
       unitId,
-    };
+    });
 
     unitResearchResolver(database, mockEvent);
 

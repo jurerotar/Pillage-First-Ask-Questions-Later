@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   addTileToFarmList,
   createFarmList,
@@ -13,7 +12,7 @@ import {
 import { createControllerArgs } from './utils/controller-args';
 
 describe('farm-list-controllers', () => {
-  const playerId = PLAYER_ID;
+  const villageId = 1;
 
   test('should manage farm lists', async () => {
     const database = await prepareTestDatabase();
@@ -21,8 +20,8 @@ describe('farm-list-controllers', () => {
     // 1. Create a farm list
     createFarmList(
       database,
-      createControllerArgs<'/players/:playerId/farm-lists', 'post'>({
-        path: { playerId },
+      createControllerArgs<'/villages/:villageId/farm-lists', 'post'>({
+        path: { villageId },
         body: { name: 'My Farm List' },
       }),
     );
@@ -30,8 +29,8 @@ describe('farm-list-controllers', () => {
     // 2. Get farm lists
     const farmLists = getFarmLists(
       database,
-      createControllerArgs<'/players/:playerId/farm-lists'>({
-        path: { playerId },
+      createControllerArgs<'/villages/:villageId/farm-lists'>({
+        path: { villageId },
       }),
     );
 
@@ -101,7 +100,7 @@ describe('farm-list-controllers', () => {
     expect(farmList.tileIds).toHaveLength(1);
 
     // 7. Max 100 tiles limit
-    for (let i = 0; i < 99; i++) {
+    for (let i = 0; i < 99; i += 1) {
       // We already have 1 tile (102). Adding 99 more makes it 100.
       addTileToFarmList(
         database,
@@ -148,8 +147,8 @@ describe('farm-list-controllers', () => {
 
     const farmListsAfterDelete = getFarmLists(
       database,
-      createControllerArgs<'/players/:playerId/farm-lists'>({
-        path: { playerId },
+      createControllerArgs<'/villages/:villageId/farm-lists'>({
+        path: { villageId },
       }),
     );
     expect(farmListsAfterDelete).toHaveLength(0);

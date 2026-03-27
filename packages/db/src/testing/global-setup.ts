@@ -2,7 +2,7 @@ import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import type { TestProject } from 'vitest/node';
 import { serverMock } from '@pillage-first/mocks/server';
 import { createDbFacade } from '@pillage-first/utils/facades/database';
-import { migrateAndSeed } from '../index.ts';
+import { migrateAndSeed } from '../index';
 
 const setup = async ({ provide }: TestProject): Promise<void> => {
   const sqlite3 = await sqlite3InitModule();

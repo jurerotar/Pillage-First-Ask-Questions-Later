@@ -2,17 +2,20 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 
-const skeletonVariants = cva('animate-pulse rounded-md', {
-  variants: {
-    variant: {
-      default: 'bg-gray-300',
-      dark: 'bg-gray-700',
+const skeletonVariants = cva(
+  'animate-pulse rounded-md bg-gray-300 dark:bg-gray-700',
+  {
+    variants: {
+      variant: {
+        default: '',
+        dark: 'bg-gray-700',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
     },
   },
-  defaultVariants: {
-    variant: 'default',
-  },
-});
+);
 
 type SkeletonProps = ComponentProps<'div'> &
   VariantProps<typeof skeletonVariants>;

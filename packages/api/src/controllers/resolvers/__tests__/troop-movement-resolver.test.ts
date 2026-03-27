@@ -1,11 +1,19 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import {
+  createTroopMovementAdventureEventMock,
+  createTroopMovementAttackEventMock,
+  createTroopMovementFindNewVillageEventMock,
+  createTroopMovementRaidEventMock,
+  createTroopMovementRelocationEventMock,
+} from '@pillage-first/mocks/event';
 import { eventSchema } from '../../../utils/zod/event-schemas';
 import {
   adventureMovementResolver,
+  attackMovementResolver,
   findNewVillageMovementResolver,
+  raidMovementResolver,
 } from '../troop-movement-resolver';
 
 describe(adventureMovementResolver, () => {
@@ -31,16 +39,14 @@ describe(adventureMovementResolver, () => {
       bind: { $hero_id: heroId },
     });
 
-    const mockEvent: GameEvent<'troopMovementAdventure'> = {
+    const mockEvent = createTroopMovementAdventureEventMock({
       id: 1,
-      type: 'troopMovementAdventure',
       startsAt: 1000,
       duration: 500,
-      resolvesAt: 1500,
       villageId: villageId,
       targetId: 2,
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
-    };
+    });
 
     adventureMovementResolver(database, mockEvent);
 
@@ -67,8 +73,9 @@ describe(adventureMovementResolver, () => {
     const returnEvent = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
       schema: eventSchema,
-    });
+    })!;
     expect(returnEvent).toBeDefined();
+    expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 
     // Verify quest completion
     const quest = database.selectObject({
@@ -99,16 +106,14 @@ describe(adventureMovementResolver, () => {
       bind: { $hero_id: heroId },
     });
 
-    const mockEvent: GameEvent<'troopMovementAdventure'> = {
+    const mockEvent = createTroopMovementAdventureEventMock({
       id: 1,
-      type: 'troopMovementAdventure',
       startsAt: 1000,
       duration: 500,
-      resolvesAt: 1500,
       villageId: villageId,
       targetId: 2,
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
-    };
+    });
 
     adventureMovementResolver(database, mockEvent);
 
@@ -161,16 +166,14 @@ describe('relocationMovementResolver', () => {
       schema: z.strictObject({ tileId: z.number() }),
     })!;
 
-    const mockEvent: GameEvent<'troopMovementRelocation'> = {
+    const mockEvent = createTroopMovementRelocationEventMock({
       id: 1,
-      type: 'troopMovementRelocation',
       startsAt: 1000,
       duration: 500,
-      resolvesAt: 1500,
       villageId: initialVillageId,
       targetId: targetVillageId,
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
-    };
+    });
 
     const { relocationMovementResolver } = await import(
       '../troop-movement-resolver'
@@ -205,7 +208,7 @@ describe('relocationMovementResolver', () => {
   });
 });
 
-describe('findNewVillageMovementResolver', () => {
+describe(findNewVillageMovementResolver, () => {
   test('should create a new village with building fields, resource site, and quests', async () => {
     const database = await prepareTestDatabase();
 
@@ -219,16 +222,14 @@ describe('findNewVillageMovementResolver', () => {
     })!;
 
     const resolvesAt = 2000;
-    const mockEvent: GameEvent<'troopMovementFindNewVillage'> = {
+    const mockEvent = createTroopMovementFindNewVillageEventMock({
       id: 1,
-      type: 'troopMovementFindNewVillage',
       startsAt: 1000,
       duration: 1000,
-      resolvesAt,
       villageId: 1, // existing village
       targetId: targetTile.id,
       troops: [],
-    };
+    });
 
     findNewVillageMovementResolver(database, mockEvent);
 
@@ -257,7 +258,7 @@ describe('findNewVillageMovementResolver', () => {
       }),
     });
     // buildingFieldsFactory 'player' size creates 18 resource fields + Rally Point (39) + Main Building (38) + Wall (40) = 21 fields
-    expect(buildingFields.length).toBe(21);
+    expect(buildingFields).toHaveLength(21);
 
     // Check Main Building level 1
     const mainBuilding = buildingFields.find((f) => f.field_id === 38);
@@ -286,5 +287,63 @@ describe('findNewVillageMovementResolver', () => {
     });
     // newVillageQuestsFactory creates many quests (villageQuests + some wall quests)
     expect(quests.length).toBeGreaterThan(0);
+  });
+});
+
+describe(attackMovementResolver, () => {
+  test.skip('should create a return event starting at the attack resolution time', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+
+    const mockEvent = createTroopMovementAttackEventMock({
+      id: 2,
+      startsAt: 5000,
+      duration: 500,
+      villageId,
+      troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
+      targetId: 3,
+    });
+
+    attackMovementResolver(database, mockEvent);
+
+    const returnEvent = database.selectObject({
+      sql: "SELECT starts_at, duration, (starts_at + duration) AS resolves_at FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: z.strictObject({
+        starts_at: z.number(),
+        duration: z.number(),
+        resolves_at: z.number(),
+      }),
+    })!;
+
+    expect(returnEvent.starts_at).toBe(mockEvent.resolvesAt);
+  });
+});
+
+describe(raidMovementResolver, () => {
+  test.skip('should create a return event starting at the raid resolution time', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+
+    const mockEvent = createTroopMovementRaidEventMock({
+      id: 3,
+      startsAt: 10_000,
+      duration: 200,
+      villageId,
+      troops: [{ unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, source: 1 }],
+      targetId: 4,
+    });
+
+    raidMovementResolver(database, mockEvent);
+
+    const returnEvent = database.selectObject({
+      sql: "SELECT starts_at, duration, (starts_at + duration) AS resolves_at FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: z.strictObject({
+        starts_at: z.number(),
+        duration: z.number(),
+        resolves_at: z.number(),
+      }),
+    })!;
+
+    expect(returnEvent.starts_at).toBe(mockEvent.resolvesAt);
   });
 });

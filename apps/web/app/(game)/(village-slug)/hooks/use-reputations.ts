@@ -6,7 +6,7 @@ import {
   type Reputation,
   reputationSchema,
 } from '@pillage-first/types/models/reputation';
-import { reputationsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { reputationsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useReputations = () => {

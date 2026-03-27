@@ -1,5 +1,5 @@
 import type { Config } from '@react-router/dev/config';
-import { locales } from 'app/localization/i18n.ts';
+import { locales } from 'app/localization/i18n';
 import {
   createSPAPagesWithPreloads,
   deleteSPAPreloadPage,

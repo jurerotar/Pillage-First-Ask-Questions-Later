@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { newVillageUnitResearchFactory } from '@pillage-first/game-assets/factories/unit-research';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
@@ -7,16 +8,16 @@ import { resourceFieldCompositionSchema } from '@pillage-first/types/models/reso
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Resolver } from '../../types/resolver';
 import { updateHeroEffectsVillageIdQuery } from '../../utils/queries/effect-queries';
-import { addTroops } from '../../utils/queries/troop-queries';
-import { updateVillageResourcesAt } from '../../utils/village.ts';
+import { updateVillageResourcesAt } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
-import { onHeroDeath } from './utils/hero.ts';
-import { assessAdventureCountQuestCompletion } from './utils/quests.ts';
+import { onHeroDeath } from './utils/hero';
+import { assessAdventureCountQuestCompletion } from './utils/quests';
+import { addTroops } from './utils/troops';
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
 > = (database, args) => {
-  const { villageId, startsAt, duration, resolvesAt } = args;
+  const { villageId, resolvesAt } = args;
 
   const { heroId, health } = database.selectObject({
     sql: `
@@ -75,10 +76,11 @@ export const adventureMovementResolver: Resolver<
     },
   });
 
-  assessAdventureCountQuestCompletion(database, startsAt + duration);
+  assessAdventureCountQuestCompletion(database, resolvesAt);
 
   createEvents<'troopMovementReturn'>(database, {
     ...args,
+    startsAt: resolvesAt,
     targetId: villageId,
     type: 'troopMovementReturn',
     originalMovementType: 'adventure',
@@ -208,6 +210,27 @@ export const findNewVillageMovementResolver: Resolver<
       },
     });
   }
+
+  const [tier1UnitId, settlerUnitId] = newVillageUnitResearchFactory(tribe);
+
+  database.exec({
+    sql: `
+      INSERT INTO
+        unit_research (village_id, unit_id)
+      SELECT
+        $village_id,
+        u.id
+      FROM
+        unit_ids u
+      WHERE
+        u.unit IN ($tier1Unit, $settlerUnit);
+    `,
+    bind: {
+      $village_id: newVillageId,
+      $tier1Unit: tier1UnitId,
+      $settlerUnit: settlerUnitId,
+    },
+  });
 };
 
 export const returnMovementResolver: Resolver<
@@ -297,9 +320,12 @@ export const reinforcementMovementResolver: Resolver<
 export const attackMovementResolver: Resolver<
   GameEvent<'troopMovementAttack'>
 > = (database, args) => {
+  const { resolvesAt } = args;
+
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
     ...args,
+    startsAt: resolvesAt,
     type: 'troopMovementReturn',
     originalMovementType: 'attack',
   });
@@ -309,9 +335,12 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
   database,
   args,
 ) => {
+  const { resolvesAt } = args;
+
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
     ...args,
+    startsAt: resolvesAt,
     type: 'troopMovementReturn',
     originalMovementType: 'raid',
   });

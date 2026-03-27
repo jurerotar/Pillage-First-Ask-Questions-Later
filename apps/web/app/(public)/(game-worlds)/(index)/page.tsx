@@ -18,7 +18,7 @@ const MyGameWorldsPage = () => {
   const { t } = useTranslation('public');
   const { gameWorldListing } = useGameWorldListing();
 
-  const title = t('{{title}} | Pillage First!', { title: 'My game worlds' });
+  const title = t('{{title}} | Pillage First!', { title: 'Game worlds' });
 
   return (
     <>
@@ -34,7 +34,7 @@ const MyGameWorldsPage = () => {
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
-          <Text as="h1">{t('My game worlds')}</Text>
+          <Text as="h1">{t('Your game worlds')}</Text>
           <Text>
             Your current game worlds are listed below. To prevent data
             corruptions, each game world may only be opened in a single browser
@@ -58,10 +58,15 @@ const MyGameWorldsPage = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Text>Want to create a new game world instead?</Text>
-            <Link to="/game-worlds/create">
-              <Button variant="outline">Create a new game world</Button>
-            </Link>
+            <Text>Want to create or import an existing game state?</Text>
+            <div className="flex gap-2 overflow-x-scroll scrollbar-hidden">
+              <Link to="/game-worlds/create">
+                <Button>Create a new game world</Button>
+              </Link>
+              <Link to="/game-worlds/import">
+                <Button variant="outline">Import existing game state</Button>
+              </Link>
+            </div>
           </div>
         </main>
       </div>

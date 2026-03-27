@@ -3,6 +3,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "lib": ["ESNext", "WebWorker", "DOM"],
+    "types": ["mdx"],
     "rootDirs": [".", "./.react-router/types"],
     "jsx": "react-jsx",
     "paths": {

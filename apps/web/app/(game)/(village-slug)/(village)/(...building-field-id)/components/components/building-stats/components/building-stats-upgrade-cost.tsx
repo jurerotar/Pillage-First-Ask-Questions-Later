@@ -106,7 +106,7 @@ export const BuildingStatsUpgradeCost = () => {
                   // biome-ignore lint/suspicious/noArrayIndexKey: It's a static list, it's fine
                   key={index}
                   {...(buildingLevel === level && {
-                    className: 'bg-gray-100',
+                    className: 'bg-muted',
                   })}
                 >
                   <TableHeaderCell>{buildingLevel}</TableHeaderCell>

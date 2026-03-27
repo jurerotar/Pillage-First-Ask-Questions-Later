@@ -14,7 +14,7 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
-import { useBuildingUpgradeStatus } from 'app/(game)/(village-slug)/hooks/use-building-level-change-status';
+import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import {
   BuildingUpgradeStatusContext,
@@ -96,7 +96,7 @@ export const OccupiedBuildingField = ({
   if (isMaxLevel) {
     const status = {
       variant: 'blue' as const,
-      errors: [t("Building can't be upgraded any further")],
+      errorBag: [t("Building can't be upgraded any further")],
     };
 
     return (
@@ -128,13 +128,17 @@ const OccupiedBuildingFieldActive = ({
 }: OccupiedBuildingFieldActiveProps) => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const { id: buildingFieldId, buildingId } = buildingField;
+  const { id: buildingFieldId, buildingId, level } = buildingField;
 
-  const { errors } = useBuildingUpgradeStatus(buildingField);
+  const { errorBag } = useBuildingConstructionErrorBag(
+    buildingId,
+    level,
+    buildingFieldId,
+  );
   const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
 
   const onLongPress = () => {
-    if (errors.length === 0) {
+    if (errorBag.length === 0) {
       upgradeBuilding();
     }
   };
@@ -204,7 +208,7 @@ const OccupiedBuildingFieldContent = ({
             buildingField,
             resourceFieldComposition: currentVillage.resourceFieldComposition,
           }),
-        'relative size-10 lg:size-16 rounded-full select-none focus:outline-hidden focus:ring-2 focus:ring-black/80 border border-black/10',
+        'relative size-10 lg:size-16 rounded-full select-none focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border',
       )}
       {...props}
     >

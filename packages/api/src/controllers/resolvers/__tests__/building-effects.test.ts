@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import {
+  createBuildingConstructionEventMock,
+  createBuildingLevelChangeEventMock,
+} from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
 import {
   buildingConstructionResolver,
@@ -23,18 +27,19 @@ describe('building effects', () => {
       const buildingFieldId = 20;
 
       // Construct building at level 0
-      buildingConstructionResolver(database, {
-        id: Math.floor(Math.random() * 1_000_000),
-        type: 'buildingConstruction',
-        startsAt: 1000,
-        duration: 500,
-        resolvesAt: 1500,
-        villageId,
-        buildingFieldId,
-        buildingId: id,
-        level: 0,
-        previousLevel: 0,
-      });
+      buildingConstructionResolver(
+        database,
+        createBuildingConstructionEventMock({
+          id: Math.floor(Math.random() * 1_000_000),
+          startsAt: 1000,
+          duration: 500,
+          villageId,
+          buildingFieldId,
+          buildingId: id,
+          level: 0,
+          previousLevel: 0,
+        }),
+      );
 
       // Verify level 0 effect value (should be 1)
       const effectValue0 = database.selectValue({
@@ -49,18 +54,19 @@ describe('building effects', () => {
       expect(effectValue0).toBe(1);
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
-      buildingLevelChangeResolver(database, {
-        id: Math.floor(Math.random() * 1_000_000),
-        type: 'buildingLevelChange',
-        startsAt: 2000,
-        duration: 500,
-        resolvesAt: 2500,
-        villageId,
-        buildingFieldId,
-        buildingId: id,
-        level: 2,
-        previousLevel: 1,
-      });
+      buildingLevelChangeResolver(
+        database,
+        createBuildingLevelChangeEventMock({
+          id: Math.floor(Math.random() * 1_000_000),
+          startsAt: 2000,
+          duration: 500,
+          villageId,
+          buildingFieldId,
+          buildingId: id,
+          level: 2,
+          previousLevel: 1,
+        }),
+      );
 
       // Verify level 2 effect value
       const effectValue2 = database.selectValue({

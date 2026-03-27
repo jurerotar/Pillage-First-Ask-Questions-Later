@@ -15,6 +15,7 @@ import {
 } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
+import type { Effect } from '@pillage-first/types/models/effect';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
@@ -214,6 +215,15 @@ export const BuildingUnfinishedNotice = () => {
   );
 };
 
+const increasingPercentageBuildingEffects = new Set<Effect['id']>([
+  'merchantCapacity',
+  'unitSpeedAfter20Fields',
+  'woodProduction',
+  'clayProduction',
+  'ironProduction',
+  'wheatProduction',
+]);
+
 type BuildingBenefitProps = {
   effect: CalculatedCumulativeEffect;
   isMaxLevel: boolean;
@@ -221,12 +231,13 @@ type BuildingBenefitProps = {
 };
 
 const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
-  // TODO: Resource production, warehouse & granary values need to be increased by server effect value
   const { hasEffect, serverEffectValue } = useEffectServerValue(
     effect.effectId,
   );
 
   const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
+
+  const isIncreasing = increasingPercentageBuildingEffects.has(effect.effectId);
 
   const effectModifier =
     effect.type === 'base' && hasEffect ? serverEffectValue : 1;
@@ -250,7 +261,7 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
           <>
             {formattingFn(
               Math.abs(effect.currentLevelValue * effectModifier),
-              effect.areEffectValuesRising,
+              isIncreasing,
             )}
             <span className="mx-0.5">&rarr;</span>
           </>
@@ -261,7 +272,7 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
               ? effect.currentLevelValue * effectModifier
               : effect.nextLevelValue * effectModifier,
           ),
-          effect.areEffectValuesRising,
+          isIncreasing,
         )}
       </span>
     </span>
