@@ -952,6 +952,60 @@ export const paths = {
       },
     },
   },
+  '/events/current-time': {
+    get: {
+      summary: 'Get current game time',
+      responses: {
+        '200': {
+          description: 'Current game time in milliseconds',
+          content: {
+            'application/json': {
+              schema: z.strictObject({
+                currentTime: z.number(),
+              }),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/events/vacation': {
+    post: {
+      summary: 'Enable vacation mode',
+      responses: {
+        '204': {
+          description: 'Vacation mode enabled',
+        },
+      },
+    },
+    delete: {
+      summary: 'Disable vacation mode',
+      responses: {
+        '204': {
+          description: 'Vacation mode disabled',
+        },
+      },
+    },
+  },
+  '/events/skip-time': {
+    post: {
+      summary: 'Skip forward in time',
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              duration: z.number().int().min(1),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Time skipped',
+        },
+      },
+    },
+  },
   '/events/:eventId': {
     delete: {
       summary: 'Cancel event',

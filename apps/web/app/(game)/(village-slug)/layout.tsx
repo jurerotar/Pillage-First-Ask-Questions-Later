@@ -48,6 +48,7 @@ import {
 } from 'app/(game)/(village-slug)/components/developer-tools-console';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
+import { TimeSkipControl } from 'app/(game)/(village-slug)/components/time-skip-control';
 import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -68,6 +69,7 @@ import {
 } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { closeGameWorld } from 'app/(game)/utils/close-game-world';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
@@ -81,20 +83,6 @@ import {
 import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
 import { useDialog } from 'app/hooks/use-dialog';
-
-const closeGameWorld = (apiWorker: Worker): void => {
-  const handler = ({ data }: MessageEvent) => {
-    const { type } = data;
-
-    if (type === 'WORKER_CLOSE_SUCCESS') {
-      apiWorker.removeEventListener('message', handler);
-      apiWorker.terminate();
-    }
-  };
-
-  apiWorker.addEventListener('message', handler);
-  apiWorker.postMessage({ type: 'WORKER_CLOSE' });
-};
 
 const TOOLTIP_DELAY_SHOW = 500;
 
@@ -937,6 +925,7 @@ const GameLayout = memo<Route.ComponentProps>(
               <Suspense fallback={<PageFallback />}>
                 <Outlet />
               </Suspense>
+              <TimeSkipControl />
               <ConstructionQueue />
               <TroopList />
               {!isWiderThanLg && (
