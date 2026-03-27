@@ -565,10 +565,6 @@ const VillageSelect = () => {
   const { playerVillages } = usePlayerVillageListing();
   const { currentVillage } = useCurrentVillage();
 
-  const resourceFieldComposition = parseResourcesFromRFC(
-    currentVillage.resourceFieldComposition,
-  ).join('-');
-
   return (
     <Select
       onValueChange={(value) => navigate(getNewVillageUrl(value))}
@@ -582,20 +578,26 @@ const VillageSelect = () => {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {playerVillages.map(({ slug, name, id, coordinates }) => {
-          const { x, y } = coordinates;
-          const formattedId = `${x}|${y}`;
-          return (
-            <SelectItem
-              key={id}
-              value={slug}
-            >
-              <Text className="text-xs sm:text-sm">
-                {name} ({formattedId}) | {resourceFieldComposition}
-              </Text>
-            </SelectItem>
-          );
-        })}
+        {playerVillages.map(
+          ({ slug, name, id, coordinates, resourceFieldComposition }) => {
+            const { x, y } = coordinates;
+            const formattedId = `${x}|${y}`;
+            const parsedRFC = parseResourcesFromRFC(
+              resourceFieldComposition,
+            ).join('-');
+
+            return (
+              <SelectItem
+                key={id}
+                value={slug}
+              >
+                <Text className="text-xs sm:text-sm">
+                  {name} ({formattedId}) | {parsedRFC}
+                </Text>
+              </SelectItem>
+            );
+          },
+        )}
       </SelectContent>
     </Select>
   );
