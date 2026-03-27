@@ -7,7 +7,6 @@ import {
   type ReactNode,
   Suspense,
   use,
-  useMemo,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -60,7 +59,6 @@ import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adve
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import {
   CurrentVillageStateContext,
@@ -302,12 +300,7 @@ const VillageOverviewMobileItem = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, isHeroAlive, health, experience } = useHero();
-  const { villageTroops } = useVillageTroops();
-
-  const isHeroHome = useMemo(() => {
-    return villageTroops.some(({ unitId }) => unitId === 'HERO');
-  }, [villageTroops]);
+  const { hero, isHeroAlive, health, experience, isHeroHome } = useHero();
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 

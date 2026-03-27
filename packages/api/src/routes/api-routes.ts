@@ -37,6 +37,7 @@ import {
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
+  startHeroAdventure,
   unequipHeroItem,
   useHeroItem,
 } from '../controllers/hero-controllers';
@@ -116,6 +117,7 @@ const apiRoutes: Route[] = [
   createRoute(getHeroLoadout),
   createRoute(getHeroInventory),
   createRoute(getHeroAdventures),
+  createRoute(startHeroAdventure),
   createRoute(useHeroItem),
   createRoute(equipHeroItem),
   createRoute(unequipHeroItem),
