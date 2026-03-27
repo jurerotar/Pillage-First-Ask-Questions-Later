@@ -24,3 +24,13 @@ export const selectAllVillageEventsByTypeQuery = `
     )
   ORDER BY resolves_at;
 `;
+
+export const selectEventsByTypeQuery = `
+  SELECT id, type, starts_at, duration, resolves_at, meta, village_id
+  FROM
+    events
+  WHERE
+    type = $type
+  ORDER BY
+    resolves_at;
+`;
