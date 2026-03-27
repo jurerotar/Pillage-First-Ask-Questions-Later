@@ -3,7 +3,6 @@ import { buildingMap } from '@pillage-first/game-assets/buildings';
 import { newVillageUnitResearchFactory } from '@pillage-first/game-assets/factories/unit-research';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
-import { calculateTotalPopulationForLevel } from '@pillage-first/game-assets/utils/buildings';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
 import {
   type Building,
@@ -214,22 +213,6 @@ export const findNewVillageMovementResolver: Resolver<
     });
 
     const building = buildingMap.get(building_id)!;
-    const population = calculateTotalPopulationForLevel(building_id, level);
-
-    database.exec({
-      sql: `
-        INSERT INTO
-          effects (effect_id, value, type, scope, source, village_id, source_specifier)
-        VALUES
-          ($effectId, $value, 'base', 'village', 'building', $villageId, $field_id);
-      `,
-      bind: {
-        $effectId: wheatProductionEffectId,
-        $value: -population,
-        $villageId: newVillageId,
-        $field_id: field_id,
-      },
-    });
 
     for (const effect of building.effects) {
       database.exec({
@@ -311,6 +294,7 @@ export const findNewVillageMovementResolver: Resolver<
     },
   });
 
+  // Population effect
   database.exec({
     sql: `
       INSERT INTO
@@ -320,11 +304,12 @@ export const findNewVillageMovementResolver: Resolver<
     `,
     bind: {
       $effectId: wheatProductionEffectId,
-      $value: 3,
+      $value: -3,
       $villageId: newVillageId,
     },
   });
 
+  // Troop wheat consumption effect
   database.exec({
     sql: `
       INSERT INTO
