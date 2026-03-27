@@ -1,6 +1,5 @@
 import { MDXProvider } from '@mdx-js/react';
 import { type ComponentProps, use } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import type { Route } from '@react-router/types/app/(public)/+types/layout';
 import { DesktopNavigation } from 'app/(public)/components/desktop-navigation';
@@ -94,32 +93,12 @@ const LayoutContent = ({
   const { locale } = loaderData;
   const { uiColorScheme } = use(CookieContext);
 
-  const { t } = useTranslation();
-
   return (
     <html
       lang={locale}
       className={uiColorScheme === 'dark' ? 'dark' : ''}
     >
       <head>
-        <meta
-          name="description"
-          content={t(
-            'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
-          )}
-        />
-        <meta
-          name="twitter:card"
-          content="summary"
-        />
-        <meta
-          property="og:url"
-          content="https://pillagefirst.com"
-        />
-        <meta
-          property="og:type"
-          content="website"
-        />
         <HeadLinks />
         <Links />
       </head>

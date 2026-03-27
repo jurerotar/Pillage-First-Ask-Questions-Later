@@ -10,6 +10,7 @@ import {
   heroHealthRegenerationResolver,
   heroRevivalResolver,
 } from '../controllers/resolvers/hero-resolvers';
+import { loyaltyIncreaseResolver } from '../controllers/resolvers/loyalty-resolvers';
 import {
   adventureMovementResolver,
   attackMovementResolver,
@@ -73,6 +74,9 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'heroHealthRegeneration': {
       return heroHealthRegenerationResolver;
+    }
+    case 'loyaltyIncrease': {
+      return loyaltyIncreaseResolver;
     }
     case 'unitResearch': {
       return unitResearchResolver;

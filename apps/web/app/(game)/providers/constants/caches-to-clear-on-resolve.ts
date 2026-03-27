@@ -11,10 +11,11 @@ import {
   eventsHistoryCacheKey,
   heroCacheKey,
   heroInventoryCacheKey,
+  loyaltyCacheKey,
   questsCacheKey,
   unitImprovementCacheKey,
   unitResearchCacheKey,
-  villageListing,
+  villageListingCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 
@@ -59,18 +60,18 @@ export const cachesToClearOnResolve: Handlers = {
     return [currentVillageCacheKey, villageTroopsCacheKey];
   },
   troopMovementFindNewVillage: () => {
-    return [villageListing, effectsCacheKey, currentVillageCacheKey];
+    return [villageListingCacheKey, effectsCacheKey, currentVillageCacheKey];
   },
   troopMovementAttack: () => {
-    return [villageListing, effectsCacheKey, currentVillageCacheKey];
+    return [villageListingCacheKey, effectsCacheKey, currentVillageCacheKey];
   },
   troopMovementRaid: () => {
-    return [villageListing, effectsCacheKey, currentVillageCacheKey];
+    return [villageListingCacheKey, effectsCacheKey, currentVillageCacheKey];
   },
   troopMovementOasisOccupation: () => {
     return [
       heroCacheKey,
-      villageListing,
+      villageListingCacheKey,
       effectsCacheKey,
       currentVillageCacheKey,
     ];
@@ -98,5 +99,8 @@ export const cachesToClearOnResolve: Handlers = {
   },
   heroHealthRegeneration: () => {
     return [heroCacheKey];
+  },
+  loyaltyIncrease: () => {
+    return [loyaltyCacheKey];
   },
 };

@@ -29,8 +29,10 @@ import {
   deleteFarmList,
   getFarmList,
   getFarmLists,
+  getMeFarmLists,
   removeTileFromFarmList,
   renameFarmList,
+  updateFarmList,
 } from '../controllers/farm-list-controllers';
 import {
   changeHeroAttributes,
@@ -48,6 +50,7 @@ import {
   getEventsHistory,
   getUnitTrainingHistory,
 } from '../controllers/history-controllers';
+import { getTileLoyalty } from '../controllers/loyalty-controllers.ts';
 import {
   addMapMarker,
   getMapMarkers,
@@ -143,8 +146,10 @@ const apiRoutes: Route[] = [
 
   // Farm List
   createRoute(getFarmLists),
+  createRoute(getMeFarmLists),
   createRoute(createFarmList),
   createRoute(getFarmList),
+  createRoute(updateFarmList),
   createRoute(deleteFarmList),
   createRoute(addTileToFarmList),
   createRoute(removeTileFromFarmList),
@@ -202,6 +207,9 @@ const apiRoutes: Route[] = [
 
   // Reputations
   createRoute(getReputations),
+
+  // Loyalty
+  createRoute(getTileLoyalty),
 
   // History
   createRoute(getBuildingLevelChangeHistory),

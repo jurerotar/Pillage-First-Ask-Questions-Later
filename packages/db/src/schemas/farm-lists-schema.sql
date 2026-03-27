@@ -1,10 +1,10 @@
 CREATE TABLE farm_lists
 (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  player_id INTEGER NOT NULL,
+  village_id INTEGER NOT NULL,
   name TEXT NOT NULL,
 
-  FOREIGN KEY (player_id) REFERENCES players (id)
+  FOREIGN KEY (village_id) REFERENCES villages (id)
 ) STRICT;
 
-CREATE INDEX idx_farm_lists_player_id ON farm_lists(player_id);
+CREATE INDEX idx_farm_lists_village_id ON farm_lists(village_id);

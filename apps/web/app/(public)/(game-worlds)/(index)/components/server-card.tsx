@@ -1,6 +1,5 @@
 import { use } from 'react';
-import { FaDownload } from 'react-icons/fa';
-import { FaTrash } from 'react-icons/fa6';
+import { FaDownload, FaShareNodes, FaTrash } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
@@ -19,7 +18,8 @@ type ServerCardProps = {
 
 export const ServerCard = ({ server }: ServerCardProps) => {
   const { locale } = use(CookieContext);
-  const { exportGameWorld, deleteGameWorld } = useGameWorldActions();
+  const { exportGameWorld, shareGameWorld, deleteGameWorld } =
+    useGameWorldActions();
 
   const appVersion = env.VERSION;
 
@@ -39,6 +39,14 @@ export const ServerCard = ({ server }: ServerCardProps) => {
       className="relative flex flex-col w-full md:w-auto md:min-w-100 gap-2 rounded-xs border border-border bg-transparent p-2 px-4 shadow-lg"
     >
       <div className="absolute right-2 top-2 inline-flex gap-2 items-center">
+        <Button
+          data-tooltip-id="public-tooltip"
+          data-tooltip-content="Share server"
+          variant="outline"
+          onClick={() => shareGameWorld({ server })}
+        >
+          <FaShareNodes className="text-gray-400" />
+        </Button>
         <Button
           data-tooltip-id="public-tooltip"
           data-tooltip-content="Export server"

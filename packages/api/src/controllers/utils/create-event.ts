@@ -53,7 +53,7 @@ export const createEvents = <T extends GameEventType>(
 
     const { villageId } = sampleEvent;
 
-    subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
+    subtractVillageResourcesAt(database, villageId!, startsAt, eventCost);
   }
 
   startsAt ??= getEventStartTime(database, sampleEvent);
