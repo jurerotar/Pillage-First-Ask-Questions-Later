@@ -5,27 +5,205 @@ import { BugFixesBlock } from './components/bug-fixes-block.tsx';
 import { TechnicalImprovementBlock } from './components/technical-improvement-block.tsx';
 
 <section>
+  ## Version 0.4.0
+  #### Mar 6, 2026
+
+  <FeaturesBlock>
+    * We're getting a new page! **Event log page** will show a list of latest events happening in your kingdom! It will
+    show completed **construction/destruction/downgrade events**, **training events**, as well as **unit improvement
+    events** and **unit research events**. You'll be able to toggle between village-specific events or all events. This
+    will allow you to see what was done since you were last online, at a glance!
+
+    * We added new custom-made icons! This time for **cavalry defence** and **infantry defence**.
+
+    * We added experimental support for transferring game world between devices on the same network.
+
+    * We added an initial implementation for village loyalty mechanic. This will be expanded in the future with the
+    introduction of combat mechanics.
+
+    * We added an initial implementation for farm lists. This will be expanded in the future with the introduction
+    of combat mechanics.
+  </FeaturesBlock>
+</section>
+
+<section>
+  ## Version 0.3.16
+  #### Mar 27, 2026
+
+  <BugFixesBlock>
+    * Fixed an issue where Smithy unit improvement events were not properly accounted for in other villages.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.15
+  #### Mar 19, 2026
+
+  <BugFixesBlock>
+    * Replaced `withResolvers` with a manual implementation to support older devices.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.14
+  #### Mar 19, 2026
+
+  <BugFixesBlock>
+    * Fixed an issue where navigating to certain pages did not work correctly.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.13
+  #### Mar 17, 2026
+
+  <TechnicalImprovementBlock>
+    * App will now remember your position when navigating between nested tabs.
+  </TechnicalImprovementBlock>
+</section>
+
+<section>
+  ## Version 0.3.12
+  #### Mar 14, 2026
+
+  <TechnicalImprovementBlock>
+    * Upgraded our internal graphics library version, which now provides smaller and more efficient icons.
+  </TechnicalImprovementBlock>
+</section>
+
+<section>
+  ## Version 0.3.11
+  #### Mar 13, 2026
+
+  <BugFixesBlock>
+    * Fixed a bug where multiple building construction events could have been queued up at once.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.10
+  #### Mar 12, 2026
+
+  <BugFixesBlock>
+    * Added missing residence training queue to Village Overview page.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.9
+  #### Mar 11, 2026
+
+  <BugFixesBlock>
+    * Fixed incorrect building duration value shown on Upgrade Details' Upgrade Duration tab.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.8
+  #### Mar 8, 2026
+
+  <TechnicalImprovementBlock>
+    * Improved api-worker error detection flow. Users will now be properly notified when an error occurs.
+  </TechnicalImprovementBlock>
+</section>
+
+<section>
+  ## Version 0.3.7
+  #### Mar 6, 2026
+
+  <BugFixesBlock>
+    * Added additional validations to prevent app from getting in to incorrect state.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.6
+  #### Mar 6, 2026
+
+  <BugFixesBlock>
+    * Fixed formatting issues with increasing percentage values in building cards.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.5
+  #### Mar 6, 2026
+
+  <BugFixesBlock>
+    * Added additional validations to prevent the app from getting to incorrect state. These fixes should prevent users
+    from being able to upgrade units beyond level 20, upgrade buildings beyond their max level and surpass other similar
+    limitations.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.4
+  #### Mar 5, 2026
+
+  <BugFixesBlock>
+    * Fixed an issue where resource fields showed an incorrect hourly production.
+
+    * Fixed an issue where unit training didn't correctly subtract resources.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.3
+  #### Mar 4, 2026
+
+  <BugFixesBlock>
+    * Fixed an issue where controller parameter type-casting was not working correctly.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.2
+  #### Mar 4, 2026
+
+  <BugFixesBlock>
+    * Fixed an issue upgrading buildings wouldn't complete "upgrade building to level x" quests.
+
+    * Fixed an issue where training multiple units at once actually trained X * X amount of units, instead of X.
+
+    * Fixed an issue where a Hero would return immediately after completing an adventure.
+
+    * Added missing dark mode support on various elements.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.3.1
+  #### Mar 3, 2026
+
+  <FeaturesBlock>
+    * Added dark mode support for both public and in-game pages.
+  </FeaturesBlock>
+</section>
+
+<section>
   ## Version 0.3.0
-  #### Feb 26, 2026
+  #### Mar 3, 2026
 
   <Alert variant="error">
     <span>This version introduces breaking changes</span>
   </Alert>
 
   <FeaturesBlock>
-    * Added hero adventures! Too long have our heroes sat idly by. No longer! You’ll now have an option to send hero on
+    * Added hero adventures! Too long have our heroes sat idly by. No longer! You'll now have an option to send hero on
     adventures to gather loot and experience! <br />
     Adventures will take anywhere from 8 to 12 minutes, and are scaled with game world speed.<br />
     Each adventure will cost your hero some health points; 5 to be exact. This can be reduced by wearing damage-reducing
     gear!<br />
     Your hero earns experience each time it completes an adventure. It currently receives `10 *
     (number_of_completed_adventures + 1)` experience per successful adventure!<br />
-    Your hero will receive loot on successfully finishing an adventure. We’re currently still missing loot tables, so
+    Your hero will receive loot on successfully finishing an adventure. We're currently still missing loot tables, so
     this is coming in a later patch, along with hero inventory interface.<br />
 
-    * Added the ability to train Chiefs and Settlers.<br />
+    * Added the ability to train Chiefs and Settlers.
 
-    * Added more missing unit icons.<br />
+    * Added more missing unit icons.
+
+    * Added custom-made icons for resources.
   </FeaturesBlock>
 
   <BugFixesBlock>
@@ -51,7 +229,8 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
   #### Feb 28, 2026
 
   <FeaturesBlock>
-    * Error messages for resource-dependent actions now display the exact time at which the required resources will be available.
+    * Error messages for resource-dependent actions now display the exact time at which the required resources will be
+    available.
   </FeaturesBlock>
 </section>
 
@@ -159,7 +338,8 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
     * Game world overview page - you can now see the split of tribes, factions and basic game world information.
     * Oasis bonus finder - long gone are the days of manually checking the map for your perfect location of your next
     village. This tool allows you to find all tiles with specific resource composition and bonuses!
-    * Reworked developer tools - you may now toggle instant completion and free-cost of insectionidual event types, add or
+    * Reworked developer tools - you may now toggle instant completion and free-cost of insectionidual event types, add
+    or
     remove resources, add adventure points or spawn hero items!
     * Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as
     development
@@ -187,7 +367,7 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
   #### Jan 19, 2026
 
   <FeaturesBlock>
-    * You’ll now be able to start building upgrades faster on mobile! Simply press the building upgrade indicator for a
+    * You'll now be able to start building upgrades faster on mobile! Simply press the building upgrade indicator for a
     second and the building will start upgrading, without you having to open the building interface and clicking the
     build
     button.
@@ -281,7 +461,8 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
     * We've substantially improved performance of the construct new building page. This page was actually flagged as one
     of
     the slowest pages we have. The reason for this is because in order to determine which buildings you're allowed to
-    construct, we have to run a bunch of checks. While these checks are not that slow insectionidually, we had to run these
+    construct, we have to run a bunch of checks. While these checks are not that slow insectionidually, we had to run
+    these
     checks multiple times for each building, which added up quickly. We've now reworked this to make it more efficient.
     You
     should be seeing faster page renders, especially on mid/lower-end devices.

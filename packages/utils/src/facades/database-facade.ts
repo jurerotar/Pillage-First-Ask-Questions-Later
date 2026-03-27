@@ -1,5 +1,9 @@
 /** biome-ignore-all lint/suspicious/noConsole: We're using debug statements to test query performance in development */
-import type { OpfsSAHPoolDatabase, SqlValue } from '@sqlite.org/sqlite-wasm';
+import type {
+  BindableValue,
+  OpfsSAHPoolDatabase,
+  SqlValue,
+} from '@sqlite.org/sqlite-wasm';
 import type { SnakeCase } from 'type-fest';
 import { z } from 'zod';
 
@@ -12,12 +16,12 @@ const createPreparedStatementCache = (): Map<
 
 type ExecArgs = {
   sql: string;
-  bind?: Record<SnakeCase<string>, SqlValue>;
+  bind?: Record<SnakeCase<string>, BindableValue>;
 };
 
 type SelectArgs<T extends z.ZodType> = {
   sql: string;
-  bind?: Record<SnakeCase<string>, SqlValue>;
+  bind?: Record<SnakeCase<string>, BindableValue>;
   schema: T;
 };
 

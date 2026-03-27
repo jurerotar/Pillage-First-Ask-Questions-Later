@@ -4,12 +4,19 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['brew-of-war', 'brew-of-siege', 'brew-of-conquer'];
+
 export const BreweryCelebration = () => {
   const { t } = useTranslation();
+  const { tabIndex, navigateToTab } = useTabParam(
+    tabs,
+    'brewery-celebration-tab',
+  );
 
   return (
     <Section>
@@ -23,7 +30,12 @@ export const BreweryCelebration = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <Tabs defaultValue="brew-of-war">
+        <Tabs
+          value={tabs[tabIndex] ?? tabs[0]}
+          onValueChange={(value) => {
+            navigateToTab(value);
+          }}
+        >
           <TabList>
             <Tab value="brew-of-war">{t('Brew of war')}</Tab>
             <Tab value="brew-of-siege">{t('Brew of siege')}</Tab>

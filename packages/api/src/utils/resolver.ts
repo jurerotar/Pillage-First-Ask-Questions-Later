@@ -10,8 +10,11 @@ export const resolveEvent = (
 ): void => {
   const event = database.selectObject({
     sql: `
-      DELETE FROM events
-      WHERE id = $id
+      DELETE
+      FROM
+        events
+      WHERE
+        id = $id
       RETURNING id, type, starts_at, duration, village_id, resolves_at, meta;
     `,
     bind: { $id: eventId },
@@ -25,13 +28,13 @@ export const resolveEvent = (
     resolver(database, event);
 
     globalThis.postMessage({
-      eventKey: 'event:event-resolve-success',
+      eventKey: 'event:success',
       ...event,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
     console.error(error);
     globalThis.postMessage({
-      eventKey: 'event:event-resolve-error',
+      eventKey: 'event:error',
       ...event,
     } satisfies EventApiNotificationEvent);
   }

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { memo, Suspense, useEffect, useState } from 'react';
+import { memo, Suspense, use, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Links,
@@ -8,15 +8,17 @@ import {
   ScrollRestoration,
   type ShouldRevalidateFunction,
 } from 'react-router';
-import { Toaster, type ToasterProps } from 'sonner';
+import type { ToasterProps } from 'sonner';
 import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
 import { HeadLinks } from 'app/components/head-links.tsx';
-import { Skeleton } from 'app/components/ui/skeleton';
+import { Spinner } from 'app/components/ui/spinner';
+import { Toaster } from 'app/components/ui/toaster';
 import { loadAppTranslations } from 'app/localization/loaders/app';
+import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
 
 export { ErrorBoundary } from 'app/(game)/error-boundary.tsx';
 
@@ -52,32 +54,19 @@ export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
 
 const LayoutFallback = () => {
   return (
-    <>
-      <div className="h-dvh w-full flex flex-col justify-between gap-2 lg:hidden ">
-        <div className="flex flex-col p-2 pt-0 bg-linear-to-r from-gray-200 via-white to-gray-200">
-          <div className="flex gap-6 w-full h-14 items-center">
-            <Skeleton className="size-11.5 rounded-full!" />
-            <Skeleton className="h-10 flex-1" />
-            <Skeleton className="size-11.5 rounded-full!" />
-          </div>
-          <Skeleton className="h-13" />
-        </div>
-        <Skeleton className="h-24 rounded-none!" />
-      </div>
-      <div className="hidden lg:flex flex-col justify-center relative">
-        <Skeleton className="h-19 w-full rounded-none!" />
-        <Skeleton className="h-16 w-xl mx-auto rounded-none! absolute top-27 absolute-centering" />
-      </div>
-    </>
+    <div className="h-dvh w-full flex items-center justify-center bg-background!">
+      <Spinner size="large" />
+    </div>
   );
 };
 
-const Layout = memo<Route.ComponentProps>(
+const LayoutContent = memo<Route.ComponentProps>(
   ({ params, loaderData }) => {
     const { serverSlug } = params;
     const { sessionId } = loaderData;
 
     const { i18n } = useTranslation();
+    const { uiColorScheme } = use(CookieContext);
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
     const [queryClient] = useState<QueryClient>(
@@ -100,22 +89,31 @@ const Layout = memo<Route.ComponentProps>(
       : 'top-right';
 
     useEffect(() => {
-      const { promise, resolve } = Promise.withResolvers();
+      let release: (() => void) | undefined;
 
-      navigator.locks.request(`${serverSlug}:${sessionId}`, () => promise);
+      navigator.locks.request(
+        `${serverSlug}:${sessionId}`,
+        () =>
+          new Promise<void>((resolve) => {
+            release = resolve;
+          }),
+      );
 
       return () => {
-        resolve(null);
+        release?.();
       };
     }, [serverSlug, sessionId]);
 
     return (
-      <html lang={i18n.language}>
+      <html
+        lang={i18n.language}
+        className={uiColorScheme === 'dark' ? 'dark' : ''}
+      >
         <head>
           <HeadLinks />
           <Links />
         </head>
-        <body>
+        <body className="bg-background text-foreground transition-colors duration-300">
           <QueryClientProvider client={queryClient}>
             <Suspense fallback={<LayoutFallback />}>
               <ApiProvider serverSlug={serverSlug}>
@@ -138,5 +136,13 @@ const Layout = memo<Route.ComponentProps>(
     return prev.params.serverSlug === next.params.serverSlug;
   },
 );
+
+const Layout = (props: Route.ComponentProps) => {
+  return (
+    <CookieProvider>
+      <LayoutContent {...props} />
+    </CookieProvider>
+  );
+};
 
 export default Layout;

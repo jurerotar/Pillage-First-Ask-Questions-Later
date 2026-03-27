@@ -59,7 +59,7 @@ const QuestListItem = ({ quest, onComplete }: QuestListItemProps) => {
       className={clsx(
         'border rounded-xs p-2 shadow-xs',
         isCollected && 'opacity-50',
-        isCollectable && 'bg-yellow-100',
+        isCollectable && 'bg-yellow-100 dark:bg-yellow-900/30',
       )}
     >
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">

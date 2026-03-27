@@ -9,7 +9,6 @@ import type {
   ApiNotificationEvent,
   ControllerErrorEvent,
   DatabaseInitializationErrorEvent,
-  EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
 import { env } from '@pillage-first/utils/env';
 import {
@@ -20,8 +19,8 @@ import {
   parseAppVersion,
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
-import { DatabaseInitializationError } from './errors';
-import { matchRoute } from './routes/route-matcher.ts';
+import { OutdatedDatabaseSchemaError } from './errors';
+import { matchRoute } from './routes/route-matcher';
 import {
   cancelScheduling,
   initScheduler,
@@ -58,7 +57,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
         if (opfsSahPool.getFileCount() === 0) {
-          throw new DatabaseInitializationError();
+          throw new OutdatedDatabaseSchemaError();
         }
 
         database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
@@ -85,14 +84,14 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
         if (!version) {
-          throw new DatabaseInitializationError();
+          throw new OutdatedDatabaseSchemaError();
         }
 
         const [, dbMinor] = parseDatabaseUserVersion(version);
         const [, appMinor] = parseAppVersion(env.VERSION);
 
         if (dbMinor !== appMinor) {
-          throw new DatabaseInitializationError();
+          throw new OutdatedDatabaseSchemaError();
         }
 
         upgradeDb(dbFacade);
@@ -121,16 +120,18 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       const { url, method, body } = data;
 
       try {
-        const { controller, path, query } = matchRoute(url, method);
-        const result = controller(dbFacade!, { path, query, body });
-
-        if (method !== 'GET') {
-          globalThis.postMessage({
-            eventKey: 'event:controller-success',
-            ...body,
-            ...path,
-          } satisfies EventApiNotificationEvent);
-        }
+        const {
+          controller,
+          path,
+          query,
+          url: rawUrl,
+        } = matchRoute(url, method);
+        const result = controller(dbFacade!, {
+          path,
+          query,
+          body,
+          url: rawUrl,
+        });
 
         port.postMessage({
           data: result,
@@ -139,8 +140,8 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         break;
       } catch (error) {
         console.error(error);
-        port.postMessage({
-          eventKey: 'event:controller-error',
+        globalThis.postMessage({
+          eventKey: 'event:error',
           error: error as Error,
         } satisfies ControllerErrorEvent);
         break;

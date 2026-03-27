@@ -34,7 +34,7 @@ const backgroundVariantToClassNameMap: Record<
   BorderIndicatorBackgroundVariant,
   string
 > = {
-  orange: 'bg-yellow-400',
+  orange: 'bg-yellow-400 dark:bg-yellow-600',
   white: 'bg-background',
 };
 
@@ -54,7 +54,7 @@ export const BorderIndicator = (
       className={clsx(
         className,
         borderVariantToClassNameMap[variant],
-        'inline-flex items-center justify-center rounded-full bg-linear-to-t p-1 scale-75 md:scale-100',
+        'inline-flex items-center justify-center rounded-full bg-linear-to-t p-1 scale-75 md:scale-100 shadow-sm',
       )}
       {...rest}
     >
@@ -63,7 +63,7 @@ export const BorderIndicator = (
           !backgroundVariant
             ? 'bg-background'
             : backgroundVariantToClassNameMap[backgroundVariant],
-          'relative inline-flex size-5 items-center justify-center rounded-full text-xs outline outline-white/50',
+          'relative inline-flex size-5 items-center justify-center rounded-full text-xs outline outline-white/50 dark:outline-transparent',
         )}
       >
         {children}

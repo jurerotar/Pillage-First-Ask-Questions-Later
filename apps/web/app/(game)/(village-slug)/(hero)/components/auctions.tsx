@@ -6,11 +6,15 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
+const tabs = ['buy', 'sell', 'history'];
+
 export const Auctions = () => {
   const { t } = useTranslation();
+  const { tabIndex, navigateToTab } = useTabParam(tabs, 'auctions-tab');
 
   return (
     <Section>
@@ -22,7 +26,12 @@ export const Auctions = () => {
           )}
         </Text>
       </SectionContent>
-      <Tabs defaultValue="buy">
+      <Tabs
+        value={tabs[tabIndex] ?? tabs[0]}
+        onValueChange={(value) => {
+          navigateToTab(value);
+        }}
+      >
         <TabList>
           <Tab value="buy">{t('Buy')}</Tab>
           <Tab value="sell">{t('Sell')}</Tab>

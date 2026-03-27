@@ -6,9 +6,9 @@ import {
   getUnitsByTribe,
 } from '@pillage-first/game-assets/utils/units';
 import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
-import { unitResearchCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { unitResearchCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getResearchedUnitsSchema = z.strictObject({

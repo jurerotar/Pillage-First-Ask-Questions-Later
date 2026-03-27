@@ -31,19 +31,19 @@ const TroopListContent = () => {
   );
 
   return (
-    <aside className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs">
+    <aside className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs transition-all">
       <div
         data-tooltip-id={tooltipId}
-        className="flex flex-col relative cursor-pointer"
+        className="flex flex-col relative cursor-pointer transition-colors"
       >
-        <GiRallyTheTroops className="text-2xl lg:text-3xl text-gray-400 bg-background p-2 box-content border border-border rounded-xs" />
+        <GiRallyTheTroops className="text-2xl lg:text-3xl text-muted-foreground bg-background p-2 box-content border border-border rounded-xs transition-colors" />
       </div>
 
       <Tooltip
         key={tooltipKey}
         id={tooltipId}
-        className="z-20! rounded-xs! px-2! py-1! bg-background! text-black! border border-border"
-        classNameArrow="border-r border-b border-border"
+        className="z-20! rounded-xs! px-2! py-1! bg-background! text-foreground! border border-border transition-colors"
+        classNameArrow="border-r border-b border-border transition-colors"
         place="top-start"
         {...(isWiderThanLg && {
           isOpen: true,

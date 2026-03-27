@@ -1,8 +1,12 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import {
+  createBuildingConstructionEventMock,
+  createBuildingDestructionEventMock,
+  createBuildingLevelChangeEventMock,
+} from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
@@ -17,18 +21,16 @@ describe('building resolvers', () => {
       const buildingFieldId = 20;
       const buildingId: Building['id'] = 'MAIN_BUILDING';
 
-      const mockEvent: GameEvent<'buildingConstruction'> = {
+      const mockEvent = createBuildingConstructionEventMock({
         id: 1,
-        type: 'buildingConstruction',
         startsAt: 1000,
         duration: 500,
-        resolvesAt: 1500,
         villageId,
         buildingFieldId,
         buildingId,
         level: 0,
         previousLevel: 0,
-      };
+      });
 
       buildingConstructionResolver(database, { ...mockEvent, id: 999 });
 
@@ -120,18 +122,16 @@ describe('building resolvers', () => {
         bind: { $village_id: villageId },
       });
 
-      const mockEvent: GameEvent<'buildingLevelChange'> = {
+      const mockEvent = createBuildingLevelChangeEventMock({
         id: 2,
-        type: 'buildingLevelChange',
         startsAt: 2000,
         duration: 500,
-        resolvesAt: 2500,
         villageId,
         buildingFieldId,
         buildingId,
         level: 2,
         previousLevel: 1,
-      };
+      });
 
       buildingLevelChangeResolver(database, { ...mockEvent, id: 888 });
 
@@ -178,18 +178,19 @@ describe('building resolvers', () => {
       const buildingId: Building['id'] = 'BARRACKS';
 
       // Construct Barracks at level 0 (initial state)
-      buildingConstructionResolver(database, {
-        id: 10,
-        type: 'buildingConstruction',
-        startsAt: 1000,
-        duration: 500,
-        resolvesAt: 1500,
-        villageId,
-        buildingFieldId,
-        buildingId,
-        level: 0,
-        previousLevel: 0,
-      });
+      buildingConstructionResolver(
+        database,
+        createBuildingConstructionEventMock({
+          id: 10,
+          startsAt: 1000,
+          duration: 500,
+          villageId,
+          buildingFieldId,
+          buildingId,
+          level: 0,
+          previousLevel: 0,
+        }),
+      );
 
       // Verify level 0 effect value (should be 1)
       const effectValue0 = database.selectValue({
@@ -214,18 +215,19 @@ describe('building resolvers', () => {
       expect(effectValue0).toBe(1);
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
-      buildingLevelChangeResolver(database, {
-        id: 11,
-        type: 'buildingLevelChange',
-        startsAt: 2000,
-        duration: 500,
-        resolvesAt: 2500,
-        villageId,
-        buildingFieldId,
-        buildingId,
-        level: 2,
-        previousLevel: 1,
-      });
+      buildingLevelChangeResolver(
+        database,
+        createBuildingLevelChangeEventMock({
+          id: 11,
+          startsAt: 2000,
+          duration: 500,
+          villageId,
+          buildingFieldId,
+          buildingId,
+          level: 2,
+          previousLevel: 1,
+        }),
+      );
 
       // Verify level 2 effect value
       const effectValue2 = database.selectValue({
@@ -282,18 +284,16 @@ describe('building resolvers', () => {
         bind: { $village_id: villageId },
       });
 
-      const mockEvent: GameEvent<'buildingLevelChange'> = {
+      const mockEvent = createBuildingLevelChangeEventMock({
         id: 3,
-        type: 'buildingLevelChange',
         startsAt: 3000,
         duration: 500,
-        resolvesAt: 3500,
         villageId,
         buildingFieldId,
         buildingId,
         level: 2,
         previousLevel: 3,
-      };
+      });
 
       buildingLevelChangeResolver(database, mockEvent);
 
@@ -384,17 +384,15 @@ describe('building resolvers', () => {
         bind: { $village_id: villageId },
       });
 
-      const mockEvent: GameEvent<'buildingDestruction'> = {
+      const mockEvent = createBuildingDestructionEventMock({
         id: 4,
-        type: 'buildingDestruction',
         startsAt: 4000,
         duration: 500,
-        resolvesAt: 4500,
         villageId,
         buildingFieldId,
         buildingId,
         previousLevel: 5,
-      };
+      });
 
       buildingDestructionResolver(database, mockEvent);
 
@@ -471,17 +469,15 @@ describe('building resolvers', () => {
         bind: { $village_id: villageId },
       });
 
-      const mockEvent: GameEvent<'buildingDestruction'> = {
+      const mockEvent = createBuildingDestructionEventMock({
         id: 5,
-        type: 'buildingDestruction',
         startsAt: 5000,
         duration: 500,
-        resolvesAt: 5500,
         villageId,
         buildingFieldId,
         buildingId,
         previousLevel: 10,
-      };
+      });
 
       buildingDestructionResolver(database, mockEvent);
 

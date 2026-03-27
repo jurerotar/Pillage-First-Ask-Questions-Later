@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+  calculateHealthRegenerationEventDuration,
   calculateHeroLevel,
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
@@ -92,5 +93,35 @@ describe(calculateHeroRevivalTime, () => {
   test('should cap at 6 hours (360 minutes)', () => {
     expect(calculateHeroRevivalTime(30)).toBe(360 * 60 * 1000);
     expect(calculateHeroRevivalTime(100)).toBe(360 * 60 * 1000);
+  });
+});
+
+describe(calculateHealthRegenerationEventDuration, () => {
+  const dayInMs = 24 * 60 * 60 * 1000;
+
+  test('should return 0 when regeneration is 0', () => {
+    expect(calculateHealthRegenerationEventDuration(0, 1)).toBe(0);
+  });
+
+  test('should return one day when regeneration is 100 and speed is 1', () => {
+    expect(calculateHealthRegenerationEventDuration(100, 1)).toBe(
+      dayInMs / 100,
+    );
+  });
+
+  test('should calculate duration correctly for 10 regeneration and speed 1', () => {
+    expect(calculateHealthRegenerationEventDuration(10, 1)).toBe(dayInMs / 10);
+  });
+
+  test('should calculate duration correctly for 250 regeneration and speed 2', () => {
+    expect(calculateHealthRegenerationEventDuration(250, 2)).toBe(
+      dayInMs / 250 / 2,
+    );
+  });
+
+  test('should calculate duration correctly for 100 regeneration and speed 5', () => {
+    expect(calculateHealthRegenerationEventDuration(100, 5)).toBe(
+      dayInMs / 100 / 5,
+    );
   });
 });

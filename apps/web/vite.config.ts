@@ -1,4 +1,5 @@
 import { resolve } from 'node:path';
+import faroRollupPlugin from '@grafana/faro-rollup-plugin';
 import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
 import { reactIconsSprite } from 'react-icons-sprite/vite';
@@ -11,8 +12,6 @@ import { reactRouter } from '@react-router/dev/vite';
 import repoPackageJson from '../../package.json' with { type: 'json' };
 import packageJson from './package.json' with { type: 'json' };
 
-// import { visualizer } from "rollup-plugin-visualizer";
-
 const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
 
@@ -23,7 +22,7 @@ const manifest: Partial<ManifestOptions> = {
   name: 'Pillage First! (Ask Questions Later)',
   short_name: 'Pillage First!',
   description:
-    'Pillage First! (Ask Questions Later) is a single-player, real-time, browser-based strategy game inspired by Travian. Manage resources to construct buildings, train units, and wage war against your enemies. Remember: pillage first, ask questions later!',
+    'Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds.',
   start_url: '/',
   display: 'standalone',
   background_color: '#111111',
@@ -31,13 +30,13 @@ const manifest: Partial<ManifestOptions> = {
   orientation: 'portrait',
   icons: [
     {
-      src: `/web-app-manifest-192x192.png?v=${graphicsVersion}`,
+      src: `/favicon/web-app-manifest-192x192.png?v=${graphicsVersion}`,
       sizes: '192x192',
       type: 'image/png',
       purpose: 'maskable',
     },
     {
-      src: `/web-app-manifest-512x512.png?v=${graphicsVersion}`,
+      src: `/favicon/web-app-manifest-512x512.png?v=${graphicsVersion}`,
       sizes: '512x512',
       type: 'image/png',
       purpose: 'maskable',
@@ -79,7 +78,19 @@ const viteConfig = defineViteConfig({
           globIgnores: ['**/*.html'],
         },
       }),
-    // visualizer({ open: true }) as PluginOption,
+    isDeployingToMaster &&
+      faroRollupPlugin({
+        appName: 'pillage-first',
+        endpoint: process.env.FARO_SOURCEMAP_API_URL!,
+        apiKey: process.env.FARO_API_KEY!,
+        appId: process.env.FARO_APP_ID!,
+        stackId: process.env.FARO_STACK_ID!,
+        gzipContents: true,
+        keepSourcemaps: false,
+        verbose: false,
+        recursive: true,
+        outputPath: resolve(__dirname, 'build/client'),
+      }),
   ],
   server: {
     open: false,
@@ -87,6 +98,7 @@ const viteConfig = defineViteConfig({
   },
   build: {
     target: 'esnext',
+    sourcemap: true,
     rolldownOptions: {
       // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
       external: [/^\/graphic-packs/],
@@ -123,6 +135,11 @@ const viteConfig = defineViteConfig({
     'import.meta.env.GRAPHICS_VERSION': JSON.stringify(graphicsVersion),
     'import.meta.env.COMMIT_REF': JSON.stringify(process.env.COMMIT_REF),
     'import.meta.env.HEAD': JSON.stringify(process.env.HEAD),
+    'import.meta.env.URL': JSON.stringify(process.env.URL),
+    'import.meta.env.DEPLOY_URL': JSON.stringify(process.env.DEPLOY_URL),
+    'import.meta.env.DEPLOY_PRIME_URL': JSON.stringify(
+      process.env.DEPLOY_PRIME_URL,
+    ),
   },
 });
 

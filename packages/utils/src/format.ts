@@ -28,13 +28,12 @@ export const truncateToShortForm = (value: number): string => {
 };
 
 export const formatPercentage = (num: number, isIncreasing = true): string => {
-  if (num === 1) {
-    return isIncreasing ? '0%' : '100%';
+  if (isIncreasing) {
+    const percentage = (num - 1) * 100;
+    return `${Math.round(percentage)}%`;
   }
 
-  // Normal case: strip off the integer part (so 1.25 -> 0.25)
-  const fractionalPart = num - Math.floor(num);
-  const percentage = fractionalPart * 100;
+  const percentage = num * 100;
   return `${Math.round(percentage)}%`;
 };
 

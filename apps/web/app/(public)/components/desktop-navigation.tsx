@@ -8,18 +8,18 @@ import { useTranslation } from 'react-i18next';
 import { BiWorld } from 'react-icons/bi';
 import { CiImport } from 'react-icons/ci';
 import { FaChevronDown } from 'react-icons/fa';
-import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { GrHelpBook } from 'react-icons/gr';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { IoCreate } from 'react-icons/io5';
 import { PiHandshakeBold } from 'react-icons/pi';
 import { Link, type LinkProps, useLocation } from 'react-router';
+import { DiscordButton } from 'app/(public)/components/discord-button.tsx';
 import { Button } from 'app/components/ui/button';
 
 const DropdownContent = ({ children }: PropsWithChildren) => {
   return (
-    <div className="absolute top-full left-0 mt-0 w-64 bg-white rounded-lg shadow-xl border border-border py-2 pt-4 z-20">
-      <div className="absolute -top-2 left-12 w-4 h-4 bg-white border-t border-l border-border rotate-45" />
+    <div className="absolute top-full left-0 mt-0 w-64 bg-card rounded-lg shadow-xl border border-border py-2 pt-4 z-20">
+      <div className="absolute -top-2 left-12 w-4 h-4 bg-card border-t border-l border-border rotate-45" />
       {children}
     </div>
   );
@@ -38,10 +38,12 @@ const DropdownLinkContent = ({
 }: DropdownLinkContentProps) => {
   return (
     <>
-      <span className="mt-0.5 text-lg text-gray-400">{icon}</span>
+      <span className="mt-0.5 text-lg text-muted-foreground">{icon}</span>
       <span className="flex flex-col">
         <span className="font-medium">{label}</span>
-        <span className="text-xs text-slate-500 mt-0.5">{description}</span>
+        <span className="text-xs text-muted-foreground mt-0.5">
+          {description}
+        </span>
       </span>
     </>
   );
@@ -70,7 +72,7 @@ const NavMenu = ({
     >
       <button
         type="button"
-        className="flex items-center gap-1 text-sm font-medium text-slate-700 hover:text-slate-900 py-4 px-1"
+        className="flex items-center gap-1 text-sm font-medium text-foreground/80 hover:text-foreground py-4 px-1 transition-colors"
       >
         {label}
         <FaChevronDown className="size-3 mt-1" />
@@ -83,7 +85,7 @@ const NavMenu = ({
 const NavLink = (props: PropsWithChildren<LinkProps>) => {
   return (
     <Link
-      className="text-sm font-medium text-slate-700 hover:text-slate-900 py-4 px-1"
+      className="text-sm font-medium text-foreground/80 hover:text-foreground py-4 px-1 transition-colors"
       {...props}
     />
   );
@@ -103,7 +105,7 @@ export const DesktopNavigation = () => {
   }, [key]);
 
   return (
-    <nav className="hidden lg:flex max-w-7xl mx-auto px-4 w-[calc(100%-1rem)] bg-white justify-between my-4 mb-6 border border-border rounded-md shadow-xl z-20">
+    <nav className="hidden lg:flex max-w-7xl mx-auto px-4 w-[calc(100%-1rem)] bg-card justify-between my-4 mb-6 border border-border rounded-md shadow-xl z-20 transition-colors">
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-8">
           <Link to="/">
@@ -123,18 +125,8 @@ export const DesktopNavigation = () => {
               onMouseLeave={() => setActiveDropdown(null)}
             >
               <Link
-                to="/game-worlds"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-              >
-                <DropdownLinkContent
-                  label={t('My game worlds')}
-                  description={t('Manage your existing game worlds')}
-                  icon={<BiWorld />}
-                />
-              </Link>
-              <Link
                 to="/game-worlds/create"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
               >
                 <DropdownLinkContent
                   label={t('Create a new game world')}
@@ -143,8 +135,18 @@ export const DesktopNavigation = () => {
                 />
               </Link>
               <Link
+                to="/game-worlds"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+              >
+                <DropdownLinkContent
+                  label={t('Your game worlds')}
+                  description={t('Manage your existing game worlds')}
+                  icon={<BiWorld />}
+                />
+              </Link>
+              <Link
                 to="/game-worlds/import"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
               >
                 <DropdownLinkContent
                   label={t('Import game world')}
@@ -162,7 +164,7 @@ export const DesktopNavigation = () => {
             >
               <Link
                 to="/frequently-asked-questions"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
               >
                 <DropdownLinkContent
                   label={t('Frequently asked questions')}
@@ -172,7 +174,7 @@ export const DesktopNavigation = () => {
               </Link>
               <Link
                 to="/get-involved"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
               >
                 <DropdownLinkContent
                   label={t('Get involved')}
@@ -182,7 +184,7 @@ export const DesktopNavigation = () => {
               </Link>
               <Link
                 to="/wiki"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
               >
                 <DropdownLinkContent
                   label={t('Wiki')}
@@ -192,48 +194,15 @@ export const DesktopNavigation = () => {
               </Link>
             </NavMenu>
 
-            <NavMenu
-              label={t('Community')}
-              isOpen={activeDropdown === 'social'}
-              onMouseEnter={() => setActiveDropdown('social')}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              <a
-                href="https://discord.gg/Ep7NKVXUZA"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <DropdownLinkContent
-                  label="Discord"
-                  description={t('Join the discussion')}
-                  icon={<FaDiscord />}
-                />
-              </a>
-              <a
-                href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-                className="flex items-start gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <DropdownLinkContent
-                  label="GitHub"
-                  description={t('Contribute or raise issues')}
-                  icon={<FaGithub />}
-                />
-              </a>
-            </NavMenu>
             <NavLink to="/latest-updates">{t('Latest updates')}</NavLink>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <Link to="/game-worlds/create">
-            <Button>{t('Try now')}</Button>
+            <Button>{t('Create new world')}</Button>
           </Link>
-          <Link to="/game-worlds">
-            <Button variant="outline">{t('Existing game worlds')}</Button>
-          </Link>
+          <DiscordButton>Discord</DiscordButton>
         </div>
       </div>
     </nav>

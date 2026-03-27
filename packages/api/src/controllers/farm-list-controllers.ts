@@ -1,34 +1,50 @@
 import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { createController } from '../utils/controller';
 import {
   farmListSchema,
   farmListTileSchema,
 } from './schemas/farm-list-schemas';
 
-export const getFarmLists = createController('/players/:playerId/farm-lists')(
-  ({ database, path: { playerId } }) => {
+export const getMeFarmLists = createController('/players/:playerId/farm-lists')(
+  ({ database }) => {
     return database.selectObjects({
-      sql: 'SELECT id, name FROM farm_lists WHERE player_id = $player_id',
-      bind: { $player_id: playerId },
+      sql: `
+        SELECT fl.id, fl.name, fl.village_id AS villageId, (SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = fl.id) AS targetCount
+        FROM farm_lists fl
+        JOIN villages v ON v.id = fl.village_id
+        WHERE v.player_id = $player_id
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: farmListSchema,
+    });
+  },
+);
+
+export const getFarmLists = createController('/villages/:villageId/farm-lists')(
+  ({ database, path: { villageId } }) => {
+    return database.selectObjects({
+      sql: 'SELECT id, name, village_id AS villageId, (SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = id) AS targetCount FROM farm_lists WHERE village_id = $village_id',
+      bind: { $village_id: villageId },
       schema: farmListSchema,
     });
   },
 );
 
 export const createFarmList = createController(
-  '/players/:playerId/farm-lists',
+  '/villages/:villageId/farm-lists',
   'post',
-)(({ database, path: { playerId }, body: { name } }) => {
+)(({ database, path: { villageId }, body: { name } }) => {
   database.exec({
-    sql: 'INSERT INTO farm_lists (player_id, name) VALUES ($player_id, $name)',
-    bind: { $player_id: playerId, $name: name },
+    sql: 'INSERT INTO farm_lists (village_id, name) VALUES ($village_id, $name)',
+    bind: { $village_id: villageId, $name: name },
   });
 });
 
 export const getFarmList = createController('/farm-lists/:farmListId')(
   ({ database, path: { farmListId } }) => {
     const farmList = database.selectObject({
-      sql: 'SELECT id, name FROM farm_lists WHERE id = $farmListId',
+      sql: 'SELECT id, name, village_id AS villageId, (SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = $farmListId) AS targetCount FROM farm_lists WHERE id = $farmListId',
       bind: { $farmListId: farmListId },
       schema: farmListSchema,
     })!;
@@ -85,6 +101,26 @@ export const removeTileFromFarmList = createController(
   database.exec({
     sql: 'DELETE FROM farm_list_tiles WHERE farm_list_id = $farmListId AND tile_id = $tile_id',
     bind: { $farmListId: farmListId, $tile_id: tileId },
+  });
+});
+
+export const updateFarmList = createController(
+  '/farm-lists/:farmListId',
+  'patch',
+)(({ database, path: { farmListId }, body: { name, villageId } }) => {
+  database.transaction(() => {
+    if (name !== undefined) {
+      database.exec({
+        sql: 'UPDATE farm_lists SET name = $name WHERE id = $farmListId',
+        bind: { $name: name, $farmListId: farmListId },
+      });
+    }
+    if (villageId !== undefined) {
+      database.exec({
+        sql: 'UPDATE farm_lists SET village_id = $villageId WHERE id = $farmListId',
+        bind: { $villageId: villageId, $farmListId: farmListId },
+      });
+    }
   });
 });
 

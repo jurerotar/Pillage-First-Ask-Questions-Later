@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { DatabaseInitializationError } from '@pillage-first/api/errors';
+import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
 import ApiWorker from '@pillage-first/api?worker&url';
 import type { Server } from '@pillage-first/types/models/server';
 import { isNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
@@ -28,7 +28,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
           'message',
           handleWorkerInitializationMessage,
         );
-        reject(new DatabaseInitializationError());
+        reject(new OutdatedDatabaseSchemaError());
       }
     };
 
@@ -43,7 +43,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
 export const useApiWorker = (serverSlug: Server['slug']) => {
   const { data: apiWorker } = useSuspenseQuery({
     queryKey: ['api-worker', serverSlug],
-    queryFn: () => createWorkerWithReadySignal(serverSlug),
+    queryFn: async () => createWorkerWithReadySignal(serverSlug),
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
   });

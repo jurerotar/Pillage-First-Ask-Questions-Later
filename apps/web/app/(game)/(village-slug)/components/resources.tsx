@@ -18,7 +18,7 @@ export const Resources = ({
 
   return (
     <span
-      className={clsx('flex gap-2', className)}
+      className={clsx('flex gap-2 transition-colors', className)}
       {...rest}
     >
       <span className="flex gap-1 items-center">

@@ -12,6 +12,7 @@ export const adventurePointIncreaseResolver: Resolver<
   createEvents<'adventurePointIncrease'>(database, {
     // Args need to be present, because next event depends on end of last
     ...args,
+    startsAt: args.resolvesAt,
     type: 'adventurePointIncrease',
   });
 };

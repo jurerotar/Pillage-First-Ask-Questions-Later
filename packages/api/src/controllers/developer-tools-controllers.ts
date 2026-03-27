@@ -46,7 +46,7 @@ export const updateDeveloperSettings = createController(
         ${column} = $value
     `,
     bind: {
-      $value: value,
+      $value: value ? 1 : 0,
     },
   });
 

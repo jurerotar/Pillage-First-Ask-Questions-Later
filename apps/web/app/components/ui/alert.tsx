@@ -4,10 +4,22 @@ import type { ReactNode } from 'react';
 type AlertVariant = 'warning' | 'error' | 'info' | 'success';
 
 const variantStyles: Record<AlertVariant, { bg: string; text: string }> = {
-  warning: { bg: 'bg-yellow-100', text: 'text-yellow-700' },
-  error: { bg: 'bg-red-100', text: 'text-red-700' },
-  info: { bg: 'bg-blue-100', text: 'text-blue-700' },
-  success: { bg: 'bg-green-100', text: 'text-green-700' },
+  warning: {
+    bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+    text: 'text-yellow-700 dark:text-yellow-400',
+  },
+  error: {
+    bg: 'bg-red-100 dark:bg-red-900/30',
+    text: 'text-red-700 dark:text-red-400',
+  },
+  info: {
+    bg: 'bg-blue-100 dark:bg-blue-900/30',
+    text: 'text-blue-700 dark:text-blue-400',
+  },
+  success: {
+    bg: 'bg-green-100 dark:bg-green-900/30',
+    text: 'text-green-700 dark:text-green-400',
+  },
 };
 
 const AlertIcon = () => (
