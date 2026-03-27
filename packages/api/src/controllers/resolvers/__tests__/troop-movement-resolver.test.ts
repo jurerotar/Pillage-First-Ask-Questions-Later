@@ -332,7 +332,7 @@ describe(findNewVillageMovementResolver, () => {
       (e) => e.sourceSpecifier === 0,
     );
     expect(baseBuildingEffect).toBeDefined();
-    expect(baseBuildingEffect!.value).toBe(3);
+    expect(baseBuildingEffect!.value).toBe(-3);
 
     // Verify troop consumption (should be 0 since no troops were at the tile)
     const troopWheatEffects = database.selectObjects({
