@@ -8,6 +8,7 @@ import {
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
   selectEventByIdQuery,
+  selectEventsByTypeQuery,
 } from '../utils/queries/event-queries';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
 import { eventSchema } from '../utils/zod/event-schemas';
@@ -39,6 +40,16 @@ export const getVillageEventsByType = createController(
     });
 
     return allEvents.filter((event) => isTroopMovementEvent(event));
+  }
+
+  if (eventType === 'unitImprovement') {
+    return database.selectObjects({
+      sql: selectEventsByTypeQuery,
+      bind: {
+        $type: eventType,
+      },
+      schema: eventSchema,
+    });
   }
 
   return database.selectObjects({

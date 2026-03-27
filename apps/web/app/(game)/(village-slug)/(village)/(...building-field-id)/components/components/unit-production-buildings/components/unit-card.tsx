@@ -328,8 +328,14 @@ export const UnitImprovement = () => {
   const { createEvent: createUnitImprovementEvent } =
     useCreateEvent('unitImprovement');
   const { unitVirtualLevel, isMaxLevel } = useUnitImprovementLevel(unitId);
-  const { hasEvents: hasImprovementEventsOngoing } =
+  const { eventsByType: unitImprovementEvents } =
     useEventsByType('unitImprovement');
+
+  const currentVillageUnitImprovementEvents = unitImprovementEvents.filter(
+    ({ villageId }) => currentVillage.id === villageId,
+  );
+  const hasOngoingCurrentVillageImprovementEvents =
+    currentVillageUnitImprovementEvents.length > 0;
 
   const { isFreeUnitImprovementEnabled, isInstantUnitImprovementEnabled } =
     developerSettings;
@@ -378,7 +384,7 @@ export const UnitImprovement = () => {
     errorBag.push(t('Your Smithy level is too low to start next upgrade.'));
   }
 
-  if (hasImprovementEventsOngoing) {
+  if (hasOngoingCurrentVillageImprovementEvents) {
     errorBag.push(t('Smithy is currently busy.'));
   }
 
