@@ -13,6 +13,7 @@ import {
   heroInventoryCacheKey,
   loyaltyCacheKey,
   questsCacheKey,
+  tilesCacheKey,
   unitImprovementCacheKey,
   unitResearchCacheKey,
   villageListingCacheKey,
@@ -60,7 +61,12 @@ export const cachesToClearOnResolve: Handlers = {
     return [currentVillageCacheKey, villageTroopsCacheKey];
   },
   troopMovementFindNewVillage: () => {
-    return [villageListingCacheKey, effectsCacheKey, currentVillageCacheKey];
+    return [
+      villageListingCacheKey,
+      effectsCacheKey,
+      currentVillageCacheKey,
+      tilesCacheKey,
+    ];
   },
   troopMovementAttack: () => {
     return [villageListingCacheKey, effectsCacheKey, currentVillageCacheKey];
@@ -74,6 +80,7 @@ export const cachesToClearOnResolve: Handlers = {
       villageListingCacheKey,
       effectsCacheKey,
       currentVillageCacheKey,
+      tilesCacheKey,
     ];
   },
   troopMovementAdventure: () => {

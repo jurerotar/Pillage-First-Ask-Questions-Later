@@ -17,9 +17,13 @@ const displayGroups: (Unit['category'] | 'scout')[] = [
 
 type UnitSelectorProps = {
   disabledUnitTiers?: Unit['tier'][];
+  maxUnits?: { unitId: Unit['id']; amount: number }[];
 };
 
-export const UnitSelector = ({ disabledUnitTiers = [] }: UnitSelectorProps) => {
+export const UnitSelector = ({
+  disabledUnitTiers = [],
+  maxUnits = [],
+}: UnitSelectorProps) => {
   const { control, setValue, watch } = useFormContext<{
     units: {
       unitId: Unit['id'];
@@ -47,8 +51,14 @@ export const UnitSelector = ({ disabledUnitTiers = [] }: UnitSelectorProps) => {
     >,
   );
 
-  const handleMaxClick = (index: number, available: number) => {
-    setValue(`units.${index}.selected`, available);
+  const handleMaxClick = (
+    index: number,
+    available: number,
+    unitId: Unit['id'],
+  ) => {
+    const maxAmount =
+      maxUnits.find((u) => u.unitId === unitId)?.amount ?? available;
+    setValue(`units.${index}.selected`, Math.min(available, maxAmount));
   };
 
   return (
@@ -68,12 +78,16 @@ export const UnitSelector = ({ disabledUnitTiers = [] }: UnitSelectorProps) => {
                   const isAvailable = unit.available > 0;
                   const isDisabled = isTierDisabled || !isAvailable;
 
+                  const maxAmount =
+                    maxUnits.find((u) => u.unitId === unit.unitId)?.amount ??
+                    unit.available;
+
                   return (
                     <div
                       key={unit.unitId}
                       className={clsx(
                         'flex flex-col items-center gap-2',
-                        !isAvailable && 'opacity-50',
+                        isDisabled && 'opacity-50',
                       )}
                     >
                       <div className="flex justify-between w-full gap-2">
@@ -97,7 +111,11 @@ export const UnitSelector = ({ disabledUnitTiers = [] }: UnitSelectorProps) => {
                               : 'text-gray-400 dark:text-gray-500',
                           )}
                           onClick={() => {
-                            handleMaxClick(unit.index, unit.available);
+                            handleMaxClick(
+                              unit.index,
+                              unit.available,
+                              unit.unitId,
+                            );
                           }}
                         >
                           ({unit.available})
@@ -115,14 +133,18 @@ export const UnitSelector = ({ disabledUnitTiers = [] }: UnitSelectorProps) => {
                                 id={`unit-${unit.unitId}`}
                                 type="number"
                                 min={0}
-                                max={unit.available}
+                                max={Math.min(unit.available, maxAmount)}
                                 disabled={isDisabled}
                                 className="px-1 text-left w-full bg-emerald-50/50 dark:bg-emerald-950/20"
                                 onChange={(e) =>
                                   field.onChange(
                                     e.target.value === ''
                                       ? 0
-                                      : Number.parseInt(e.target.value, 10),
+                                      : Math.min(
+                                          Number.parseInt(e.target.value, 10),
+                                          unit.available,
+                                          maxAmount,
+                                        ),
                                   )
                                 }
                               />

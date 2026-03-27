@@ -23,14 +23,21 @@ export const OasisOccupationForm = () => {
     'troopMovementOasisOccupation',
   );
 
-  const { form, getBaseEventArgs } = useTroopForm(oasisOccupationFormSchema, {
-    target: { x: 0, y: 0 },
-  });
+  const { form, getBaseEventArgs, resetForm } = useTroopForm(
+    oasisOccupationFormSchema,
+    {
+      defaultValues: {},
+    },
+  );
 
   const onFormSubmit = (data: z.infer<typeof oasisOccupationFormSchema>) => {
     const eventArgs = getBaseEventArgs(data);
 
-    createOasisOccupationEvent(eventArgs);
+    createOasisOccupationEvent(eventArgs, {
+      onSuccess: () => {
+        resetForm();
+      },
+    });
   };
 
   return (

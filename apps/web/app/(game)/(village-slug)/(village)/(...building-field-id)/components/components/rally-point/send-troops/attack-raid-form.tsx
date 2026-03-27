@@ -33,10 +33,14 @@ export const AttackRaidForm = () => {
   );
   const { createEvent: createRaidEvent } = useCreateEvent('troopMovementRaid');
 
-  const { form, getBaseEventArgs } = useTroopForm(attackRaidFormSchema, {
-    action: 'attack_normal',
-    target: { x: 0, y: 0 },
-  });
+  const { form, getBaseEventArgs, resetForm } = useTroopForm(
+    attackRaidFormSchema,
+    {
+      defaultValues: {
+        action: 'attack_normal',
+      },
+    },
+  );
 
   const onFormSubmit = (data: z.infer<typeof attackRaidFormSchema>) => {
     const eventArgs = getBaseEventArgs(data);
@@ -44,7 +48,11 @@ export const AttackRaidForm = () => {
     const createEventFn =
       data.action === 'attack_normal' ? createAttackEvent : createRaidEvent;
 
-    createEventFn(eventArgs);
+    createEventFn(eventArgs, {
+      onSuccess: () => {
+        resetForm();
+      },
+    });
   };
 
   return (

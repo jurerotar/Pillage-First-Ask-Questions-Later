@@ -6,7 +6,6 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event.ts';
-import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import {
@@ -29,7 +28,6 @@ const reinforcementRelocationFormSchema = baseTroopFormSchema.extend({
 
 export const ReinforcementRelocationForm = () => {
   const { t } = useTranslation();
-  const { playerVillages } = usePlayerVillageListing();
   const { createEvent: createReinforcementEvent } = useCreateEvent(
     'troopMovementReinforcements',
   );
@@ -37,11 +35,12 @@ export const ReinforcementRelocationForm = () => {
     'troopMovementRelocation',
   );
 
-  const { form, getBaseEventArgs } = useTroopForm(
+  const { form, getBaseEventArgs, playerVillages, resetForm } = useTroopForm(
     reinforcementRelocationFormSchema,
     {
-      action: 'reinforcement',
-      target: { x: 0, y: 0 },
+      defaultValues: {
+        action: 'reinforcement',
+      },
     },
   );
 
@@ -70,7 +69,11 @@ export const ReinforcementRelocationForm = () => {
         ? createReinforcementEvent
         : createRelocationEvent;
 
-    createEventFn(eventArgs);
+    createEventFn(eventArgs, {
+      onSuccess: () => {
+        resetForm();
+      },
+    });
   };
 
   return (

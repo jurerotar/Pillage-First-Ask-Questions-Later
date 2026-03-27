@@ -14,8 +14,12 @@ export const unitSelectionSchema = z.object({
 });
 
 export const targetSchema = z.strictObject({
-  x: z.coerce.number().int(),
-  y: z.coerce.number().int(),
+  x: z.coerce
+    .number({ error: 'X coordinate is required' })
+    .int({ error: 'X must be an integer' }),
+  y: z.coerce
+    .number({ error: 'Y coordinate is required' })
+    .int({ error: 'Y must be an integer' }),
 });
 
 export const troopFormRefinementOptions = [
@@ -69,5 +73,4 @@ export const foundNewVillageFormSchema = baseTroopFormSchema
   );
 
 export type UnitSelection = z.infer<typeof unitSelectionSchema>;
-export type Target = z.infer<typeof targetSchema>;
 export type BaseTroopFormValues = z.infer<typeof baseTroopFormSchema>;
