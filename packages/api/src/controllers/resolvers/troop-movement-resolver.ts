@@ -266,7 +266,11 @@ export const findNewVillageMovementResolver: Resolver<
     bind: { $tile_id: tileId, $updatedAt: resolvesAt },
   });
 
-  const quests = newVillageQuestsFactory(newVillageId, tribe);
+  const quests = newVillageQuestsFactory(
+    newVillageId,
+    tribe,
+    resourceFieldComposition,
+  );
 
   for (const quest of quests) {
     const isCompleted = quest.id === 'oneOf-MAIN_BUILDING-1';
