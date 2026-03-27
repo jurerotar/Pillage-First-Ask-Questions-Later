@@ -235,6 +235,17 @@ describe('migrateAndSeed', () => {
     });
   });
 
+  describe('loyalties', () => {
+    test('loyalties table should be empty by default', () => {
+      const rowCount = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM loyalties;',
+        schema: z.number(),
+      });
+
+      expect(rowCount).toBe(0);
+    });
+  });
+
   describe('players', () => {
     test('slugs are unique and contain only lowercase alphanumeric and dashes', () => {
       const slugs = database.selectValues({

@@ -19,6 +19,8 @@ export const buttonVariants = cva(
           'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
         ghost:
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+        discord:
+          'bg-[#5865F2] text-white shadow-xs hover:bg-[#4752C4] focus-visible:ring-[#5865F2]/20 border-none',
         link: 'text-green-700 underline-offset-4 hover:underline p-0 w-fit',
       },
       size: {

@@ -59,6 +59,9 @@
     },
     "./factories/unit-research": {
       "default": "./src/factories/unit-research.ts"
+    },
+    "./utils/loyalty": {
+      "default": "./src/utils/loyalty.ts"
     }
   },
   "scripts": {
