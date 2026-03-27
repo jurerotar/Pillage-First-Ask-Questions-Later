@@ -1,8 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { MapMarker } from '@pillage-first/types/models/map-marker';
-import { mapMarkersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { mapMarkersCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { invalidateQueries } from 'app/utils/react-query.ts';
 
 export const useMapMarkers = () => {
   const { fetcher } = use(ApiContext);
@@ -27,9 +28,7 @@ export const useMapMarkers = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await context.client.invalidateQueries({
-        queryKey: [mapMarkersCacheKey],
-      });
+      await invalidateQueries(context, [[mapMarkersCacheKey]]);
     },
   });
 
@@ -44,9 +43,7 @@ export const useMapMarkers = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await context.client.invalidateQueries({
-        queryKey: [mapMarkersCacheKey],
-      });
+      await invalidateQueries(context, [[mapMarkersCacheKey]]);
     },
   });
 

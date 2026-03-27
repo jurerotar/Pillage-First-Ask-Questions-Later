@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { deleteHeroEffectsQuery } from '../../../utils/queries/effect-queries.ts';
-import { updateVillageResourcesAt } from '../../../utils/village.ts';
+import { deleteHeroEffectsQuery } from '../../../utils/queries/effect-queries';
+import { updateVillageResourcesAt } from '../../../utils/village';
 
 export const onHeroDeath = (database: DbFacade, timestamp: number) => {
   const villageId = database.selectValue({

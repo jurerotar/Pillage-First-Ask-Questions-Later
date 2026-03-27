@@ -17,6 +17,17 @@ export default [
         '(public)/(frequently-asked-questions)/page.tsx',
       ),
       route('latest-updates', '(public)/(latest-updates)/page.tsx'),
+      ...prefix('wiki', [
+        layout('(public)/(wiki)/layout.tsx', [
+          index('(public)/(wiki)/(index)/page.tsx'),
+          ...prefix('units', [
+            route(':unitId', '(public)/(wiki)/(units)/page.tsx'),
+          ]),
+          ...prefix('buildings', [
+            route(':buildingId', '(public)/(wiki)/(buildings)/page.tsx'),
+          ]),
+        ]),
+      ]),
       ...prefix('game-worlds', [
         index('(public)/(game-worlds)/(index)/page.tsx'),
         route('create', '(public)/(game-worlds)/(create)/page.tsx'),
@@ -82,6 +93,7 @@ export default [
                 'oasis-bonus-finder',
                 '(game)/(village-slug)/(oasis-bonus-finder)/page.tsx',
               ),
+              route('events', '(game)/(village-slug)/(events)/page.tsx'),
               ...prefix('players', [
                 index('(game)/(village-slug)/(players)/page.tsx'),
                 route(

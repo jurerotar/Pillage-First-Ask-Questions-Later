@@ -148,12 +148,13 @@ export const MobileNavigation = () => {
                       </Link>
                     </li>
                     <li>
-                      <span className="inline-flex gap-2 items-center opacity-50">
+                      <Link
+                        className="inline-flex gap-2 items-center"
+                        to="/wiki"
+                      >
                         <GrHelpBook className="text-muted-foreground text-lg" />
-                        <Text className="font-medium">
-                          {t('Wiki (coming soon)')}
-                        </Text>
-                      </span>
+                        <Text className="font-medium">{t('Wiki')}</Text>
+                      </Link>
                     </li>
                   </ul>
                 </div>

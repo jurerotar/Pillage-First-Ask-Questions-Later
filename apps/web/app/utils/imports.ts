@@ -18,5 +18,5 @@ export const lazyWithRetry = <T extends { default: () => JSX.Element }>(
   retries = 3,
   delay = 250,
 ) => {
-  return lazy(() => retry(importFn, retries, delay));
+  return lazy(async () => retry(importFn, retries, delay));
 };

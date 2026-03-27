@@ -8,17 +8,17 @@ import { SectionContent } from 'app/(game)/(village-slug)/components/building-la
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources.ts';
-import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity.ts';
-import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings.ts';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type.ts';
+import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
+import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useReviveHero } from 'app/(game)/(village-slug)/hooks/use-revive-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { formatTime } from 'app/utils/time.ts';
+import { formatTime } from 'app/utils/time';
 
 export const HeroRevival = () => {
   const { t } = useTranslation();

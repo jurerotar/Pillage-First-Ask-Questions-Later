@@ -4,6 +4,28 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import { villageMock } from './village-mock';
 
+export const createGameEventMock = <T extends GameEventType>(
+  type: T,
+  overrides: Partial<GameEvent<T>> = {},
+): GameEvent<T> => {
+  const startsAt = overrides.startsAt ?? Date.now();
+  const duration = overrides.duration ?? 0;
+
+  const base: GameEvent = {
+    id: Math.floor(Math.random() * 100_000),
+    type,
+    startsAt,
+    duration,
+    resolvesAt: startsAt + duration,
+    villageId: villageMock.id,
+  };
+
+  return {
+    ...base,
+    ...overrides,
+  } as GameEvent<T>;
+};
+
 export const createBuildingConstructionEventMock = (
   overrides: Partial<GameEvent<'buildingConstruction'>> = {},
 ): GameEvent<'buildingConstruction'> => {
@@ -81,6 +103,7 @@ export const createAdventurePointIncreaseEventMock = (
   overrides: Partial<GameEvent<'adventurePointIncrease'>> = {},
 ): GameEvent<'adventurePointIncrease'> => {
   return createGameEventMock('adventurePointIncrease', {
+    villageId: null,
     ...overrides,
   });
 };
@@ -97,30 +120,18 @@ export const createHeroHealthRegenerationEventMock = (
   overrides: Partial<GameEvent<'heroHealthRegeneration'>> = {},
 ): GameEvent<'heroHealthRegeneration'> => {
   return createGameEventMock('heroHealthRegeneration', {
+    villageId: null,
     ...overrides,
   });
 };
 
-export const createGameEventMock = <T extends GameEventType>(
-  type: T,
-  overrides: Partial<GameEvent<T>> = {},
-): GameEvent<T> => {
-  const startsAt = overrides.startsAt ?? Date.now();
-  const duration = overrides.duration ?? 0;
-
-  const base: GameEvent = {
-    id: Math.floor(Math.random() * 100_000),
-    type,
-    startsAt,
-    duration,
-    resolvesAt: startsAt + duration,
-    villageId: villageMock.id,
-  };
-
-  return {
-    ...base,
+export const createLoyaltyIncreaseEventMock = (
+  overrides: Partial<GameEvent<'loyaltyIncrease'>> = {},
+): GameEvent<'loyaltyIncrease'> => {
+  return createGameEventMock('loyaltyIncrease', {
+    villageId: null,
     ...overrides,
-  } as GameEvent<T>;
+  });
 };
 
 export const createUnitImprovementEventMock = (

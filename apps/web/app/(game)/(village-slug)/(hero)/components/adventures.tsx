@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { prngMulberry32 } from 'ts-seedrandom';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
-import { useAdventuresActionsErrorBag } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-adventures-actions-error-bag.ts';
+import { useAdventuresActionsErrorBag } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-adventures-actions-error-bag';
 import {
   Section,
   SectionContent,

@@ -3,7 +3,7 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
 import { selectAllRelevantEffectsQuery } from './queries/effect-queries';
-import { apiEffectSchema } from './zod/effect-schemas.ts';
+import { apiEffectSchema } from './zod/effect-schemas';
 
 export const demolishBuilding = (
   database: DbFacade,
