@@ -6,6 +6,7 @@ import {
 import {
   getDeveloperSettings,
   incrementHeroAdventurePoints,
+  killHero,
   levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
@@ -108,6 +109,7 @@ const apiRoutes: Route[] = [
   createRoute(spawnHeroItem),
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
+  createRoute(killHero),
 
   // Auctions
   // createRoute(getAuctions),

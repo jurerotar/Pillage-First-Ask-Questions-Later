@@ -102,7 +102,12 @@ export const cachesToClearOnResolve: Handlers = {
     return [adventurePointsCacheKey];
   },
   heroRevival: () => {
-    return [heroCacheKey, effectsCacheKey, eventsCacheKey];
+    return [
+      heroCacheKey,
+      effectsCacheKey,
+      eventsCacheKey,
+      villageTroopsCacheKey,
+    ];
   },
   heroHealthRegeneration: () => {
     return [heroCacheKey];
