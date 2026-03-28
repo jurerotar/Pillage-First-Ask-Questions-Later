@@ -86,12 +86,57 @@ describe('buildings utils', () => {
   });
 
   describe(calculateBuildingCancellationRefundForLevel, () => {
-    test('should calculate correct refund amount', () => {
-      const refund = calculateBuildingCancellationRefundForLevel(
+    test('should calculate 95% refund for <= 5% completion', () => {
+      const refundAt0 = calculateBuildingCancellationRefundForLevel(
         'MAIN_BUILDING',
         1,
+        0,
       );
-      expect(refund).toStrictEqual([56, 32, 48, 16]);
+      // Cost is [70, 40, 60, 20]. 95% is [66.5, 38, 57, 19]. trunc -> [66, 38, 57, 19]
+      expect(refundAt0).toStrictEqual([66, 38, 57, 19]);
+
+      const refundAt5 = calculateBuildingCancellationRefundForLevel(
+        'MAIN_BUILDING',
+        1,
+        0.05,
+      );
+      expect(refundAt5).toStrictEqual([66, 38, 57, 19]);
+    });
+
+    test('should calculate proportional refund for > 5% completion', () => {
+      // At 50% completion:
+      // refundPercentage = 0.95 - (0.5 - 0.05) / (1 - 0.05)
+      // refundPercentage = 0.95 - 0.45 / 0.95 = 0.95 - 0.47368 = 0.47632
+      const refundAt50 = calculateBuildingCancellationRefundForLevel(
+        'MAIN_BUILDING',
+        1,
+        0.5,
+      );
+      // 70 * 0.47632 = 33.34 -> 33
+      // 40 * 0.47632 = 19.05 -> 19
+      // 60 * 0.47632 = 28.57 -> 28
+      // 20 * 0.47632 = 9.52 -> 9
+      expect(refundAt50).toStrictEqual([33, 19, 28, 9]);
+    });
+
+    test('should cap refund at 40%', () => {
+      const refundAt99 = calculateBuildingCancellationRefundForLevel(
+        'MAIN_BUILDING',
+        1,
+        0.99,
+      );
+      // 70 * 0.4 = 28
+      // 40 * 0.4 = 16
+      // 60 * 0.4 = 24
+      // 20 * 0.4 = 8
+      expect(refundAt99).toStrictEqual([28, 16, 24, 8]);
+
+      const refundAt100 = calculateBuildingCancellationRefundForLevel(
+        'MAIN_BUILDING',
+        1,
+        1,
+      );
+      expect(refundAt100).toStrictEqual([28, 16, 24, 8]);
     });
   });
 
