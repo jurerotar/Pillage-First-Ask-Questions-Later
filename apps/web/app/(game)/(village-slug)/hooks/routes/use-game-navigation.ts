@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { useLocation } from 'react-router';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 
 export const useGameNavigation = () => {
-  const { serverSlug } = useServer();
+  const { currentVillage } = useCurrentVillage();
+  const { pathname, search } = useLocation();
 
   const getNewVillageUrl = useCallback(
     (slug: string) => {
-      return `/game/${serverSlug}/${slug}/resources`;
+      return `${pathname.replace(currentVillage.slug, slug)}${search}`;
     },
-    [serverSlug],
+    [pathname, search, currentVillage],
   );
 
   return {

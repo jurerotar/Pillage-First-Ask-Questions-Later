@@ -63,7 +63,7 @@ const TroopMovement = ({ type, events }: TroopMovementProps) => {
 
 const partitionTroopMovementEvents = (
   events: TroopMovementEvent[],
-  currentVillageId: Village['id'],
+  currentVillageCoordinates: Village['coordinates'],
 ) => {
   // Raid, attack, oasis-occupation
   const outgoingOffensiveMovementEvents: TroopMovementEvent[] = [];
@@ -90,18 +90,24 @@ const partitionTroopMovementEvents = (
       isRelocationTroopMovementEvent(event) ||
       isReturnTroopMovementEvent(event)
     ) {
-      const target =
-        currentVillageId === event.targetId
-          ? incomingDeploymentMovementEvents
-          : outgoingDeploymentMovementEvents;
+      const isIncoming =
+        currentVillageCoordinates.x === event.coordinates.x &&
+        currentVillageCoordinates.y === event.coordinates.y;
+
+      const target = isIncoming
+        ? incomingDeploymentMovementEvents
+        : outgoingDeploymentMovementEvents;
       target.push(event);
       continue;
     }
     if (isAttackTroopMovementEvent(event) || isRaidTroopMovementEvent(event)) {
-      const target =
-        currentVillageId === event.targetId
-          ? incomingOffensiveMovementEvents
-          : outgoingOffensiveMovementEvents;
+      const isIncoming =
+        currentVillageCoordinates.x === event.coordinates.x &&
+        currentVillageCoordinates.y === event.coordinates.y;
+
+      const target = isIncoming
+        ? incomingOffensiveMovementEvents
+        : outgoingOffensiveMovementEvents;
       target.push(event);
       continue;
     }
@@ -132,7 +138,10 @@ const TroopMovementsContent = () => {
     outgoingDeploymentMovementEvents,
     incomingDeploymentMovementEvents,
     adventureMovementEvents,
-  } = partitionTroopMovementEvents(troopMovementEvents, currentVillage.id);
+  } = partitionTroopMovementEvents(
+    troopMovementEvents,
+    currentVillage.coordinates,
+  );
 
   return (
     <aside className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-30 lg:top-40 z-20">

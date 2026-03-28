@@ -75,8 +75,8 @@
     "type-check": "tsgo"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260317.1",
-    "typescript": "6.0.0-beta",
-    "vitest": "4.1.0"
+    "@typescript/native-preview": "7.0.0-dev.20260325.1",
+    "typescript": "6.0.2",
+    "vitest": "4.1.1"
   }
 }

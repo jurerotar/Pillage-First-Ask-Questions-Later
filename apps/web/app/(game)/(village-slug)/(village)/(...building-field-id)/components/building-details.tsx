@@ -231,9 +231,9 @@ export const BuildingDetails = () => {
 
   const tabs = [
     'default',
-    ...(buildingDetailsTabMap.get(buildingId)?.keys() ?? []).filter(
-      (tabName) => tabName !== 'default',
-    ),
+    ...(actualLevel === 0
+      ? []
+      : (buildingDetailsTabMap.get(buildingId)?.keys() ?? [])),
     'upgrade-cost',
   ];
 

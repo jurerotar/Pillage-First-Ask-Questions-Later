@@ -6,6 +6,7 @@ import {
 import {
   getDeveloperSettings,
   incrementHeroAdventurePoints,
+  killHero,
   levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
@@ -37,6 +38,7 @@ import {
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
+  startHeroAdventure,
   unequipHeroItem,
   useHeroItem,
 } from '../controllers/hero-controllers';
@@ -107,6 +109,7 @@ const apiRoutes: Route[] = [
   createRoute(spawnHeroItem),
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
+  createRoute(killHero),
 
   // Auctions
   // createRoute(getAuctions),
@@ -116,6 +119,7 @@ const apiRoutes: Route[] = [
   createRoute(getHeroLoadout),
   createRoute(getHeroInventory),
   createRoute(getHeroAdventures),
+  createRoute(startHeroAdventure),
   createRoute(useHeroItem),
   createRoute(equipHeroItem),
   createRoute(unequipHeroItem),

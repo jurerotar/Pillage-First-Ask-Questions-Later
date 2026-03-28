@@ -8,22 +8,18 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { formatTime } from 'app/utils/time';
 
-export const Adventures = () => {
+export const HeroAdventures = () => {
   const { t } = useTranslation();
   const { server } = useServer();
-  const { available, completed } = useHeroAdventures();
+  const { available, completed, startAdventure } = useHeroAdventures();
   const { eventsByType } = useEventsByType('adventurePointIncrease');
-  const { sendTroops } = useVillageTroops();
-  const { currentVillage } = useCurrentVillage();
   const { errorBag } = useAdventuresActionsErrorBag();
 
   const canStartAdventure = errorBag.length === 0;
@@ -42,22 +38,6 @@ export const Adventures = () => {
   const nextAdventurePointIncreaseTimestamp =
     nextAdventurePointIncreaseEvent.startsAt +
     nextAdventurePointIncreaseEvent.duration;
-
-  const handleStartAdventure = () => {
-    sendTroops({
-      type: 'troopMovementAdventure',
-      // This doesn't matter for adventures
-      targetId: currentVillage.tileId,
-      troops: [
-        {
-          unitId: 'HERO',
-          amount: 1,
-          tileId: currentVillage.tileId,
-          source: currentVillage.tileId,
-        },
-      ],
-    });
-  };
 
   return (
     <Section>
@@ -93,7 +73,7 @@ export const Adventures = () => {
         <ErrorBag errorBag={errorBag} />
         <Button
           disabled={!canStartAdventure}
-          onClick={handleStartAdventure}
+          onClick={() => startAdventure()}
           size="fit"
         >
           {t('Start adventure')}

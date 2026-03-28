@@ -73,10 +73,10 @@
     "ts-seedrandom": "1.4.1"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260317.1",
-    "vitest": "4.1.0",
+    "@typescript/native-preview": "7.0.0-dev.20260325.1",
+    "vitest": "4.1.1",
     "type-fest": "5.5.0",
-    "typescript": "6.0.0-beta",
+    "typescript": "6.0.2",
     "zod": "4.3.6"
   }
 }

@@ -45,10 +45,10 @@
     "zod-openapi": "5.4.6"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260317.1",
+    "@typescript/native-preview": "7.0.0-dev.20260325.1",
     "@visulima/jsdoc-open-api": "2.0.95",
     "openapi-typescript": "7.13.0",
-    "typescript": "6.0.0-beta",
-    "vitest": "4.1.0"
+    "typescript": "6.0.2",
+    "vitest": "4.1.1"
   }
 }
