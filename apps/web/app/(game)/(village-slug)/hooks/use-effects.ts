@@ -3,8 +3,8 @@ import { use } from 'react';
 import { z } from 'zod';
 import type { Building } from '@pillage-first/types/models/building';
 import { effectSchema } from '@pillage-first/types/models/effect';
-import { effectsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { effectsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getEffectsSchema = effectSchema.extend({

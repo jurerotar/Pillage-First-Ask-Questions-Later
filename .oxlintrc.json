@@ -73,7 +73,8 @@
     "typescript/promise-function-async": "warn",
     "typescript/explicit-function-return-type": "off",
     "typescript/explicit-module-boundary-types": "off",
-    "typescript/no-non-null-assertion": "warn",
+    "typescript/no-non-null-assertion": "off",
+    "typescript/strict-boolean-expressions": "off",
     "typescript/consistent-type-definitions": ["error", "type"],
     "typescript/no-confusing-void-expression": [
       "off",

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { addTroops, removeTroops } from '../troops.ts';
+import { addTroops, removeTroops } from '../troops';
 
 describe('troop-queries', () => {
   describe(addTroops, () => {

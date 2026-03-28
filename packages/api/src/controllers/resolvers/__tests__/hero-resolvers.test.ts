@@ -62,8 +62,7 @@ describe('hero-resolvers', () => {
     const eventArgs = createHeroHealthRegenerationEventMock({
       id: 1,
       startsAt: 1000,
-      duration: 8640000, // 24h / 10
-      villageId: 1,
+      duration: 8_640_000, // 24h / 10
     });
 
     // 2. Clear events to be sure
@@ -102,8 +101,7 @@ describe('hero-resolvers', () => {
     const eventArgs = createHeroHealthRegenerationEventMock({
       id: 1,
       startsAt: 1000,
-      duration: 8640000,
-      villageId: 1,
+      duration: 8_640_000,
     });
 
     // 3. Resolve
@@ -137,8 +135,7 @@ describe('hero-resolvers', () => {
       createHeroHealthRegenerationEventMock({
         id: 1,
         startsAt: 1000,
-        duration: 8640000,
-        villageId: 1,
+        duration: 8_640_000,
       }),
     );
 

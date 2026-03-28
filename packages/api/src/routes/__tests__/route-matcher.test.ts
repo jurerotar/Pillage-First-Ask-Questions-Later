@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { matchRoute } from '../route-matcher';
 
-describe('matchRoute', () => {
+describe(matchRoute, () => {
   test('casts path params using real schema (/villages/:villageId/troops)', () => {
     // This route exists in api-routes.ts and has a schema in open-api.ts
     const result = matchRoute('/villages/123/troops', 'GET');
@@ -35,11 +35,10 @@ describe('matchRoute', () => {
     expect(() => matchRoute('/villages/not-a-number/troops', 'GET')).toThrow();
   });
 
-  test('casts path params using real schema (/players/:playerId/villages)', () => {
-    // We updated this to use z.coerce.number() instead of playerSchema.shape.id
-    const result = matchRoute('/players/456/villages', 'GET');
+  test('includes raw url in result', () => {
+    const url = '/villages/123/troops?foo=bar';
+    const result = matchRoute(url, 'GET');
 
-    expect(typeof result.path.playerId).toBe('number');
-    expect(result.path.playerId).toBe(456);
+    expect(result.url).toBe(url);
   });
 });

@@ -11,7 +11,7 @@ export const reportsCacheKey = 'reports';
 export const reputationsCacheKey = 'reputations';
 export const unitImprovementCacheKey = 'unit-improvement';
 export const unitResearchCacheKey = 'unit-research';
-export const villageListing = 'village-listing';
+export const villageListingCacheKey = 'village-listing';
 export const mapFiltersCacheKey = 'map-filters';
 export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';
@@ -19,11 +19,16 @@ export const artifactsInVicinityCacheKey = 'artifacts-in-vicinity';
 export const adventurePointsCacheKey = 'adventure-points';
 export const bookmarksCacheKey = 'bookmarks';
 export const developerSettingsCacheKey = 'developer-settings';
-
+export const eventsHistoryCacheKey = 'events-history';
+export const tileTroopsCacheKey = 'tile-troops';
+export const currentVillageCacheKey = 'current-village';
+export const villageTroopsCacheKey = 'village-units';
+export const playerCacheKey = 'player-info';
 export const playerVillagesCacheKey = 'player-villages';
-export const playerTroopsCacheKey = 'player-units';
-
+export const oasisBonusFinderCacheKey = 'oasis-bonus-finder';
+export const loyaltyCacheKey = 'loyalty';
 export const playerRankingsCacheKey = 'player-rankings';
 export const villageRankingsCacheKey = 'village-rankings';
 export const gameWorldOverviewStatisticsCacheKey =
   'game-world-overview-statistics';
+export const farmListsCacheKey = 'farm-lists';

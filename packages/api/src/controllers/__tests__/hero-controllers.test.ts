@@ -641,7 +641,7 @@ describe('hero-controllers', () => {
       const itemId = 1021; // HEALING_POTION
       const amount = 10;
 
-      await expect(async () => {
+      expect(() => {
         useHeroItem(
           database,
           createControllerArgs<'/players/:playerId/hero/item', 'post'>({
@@ -649,7 +649,7 @@ describe('hero-controllers', () => {
             body: { itemId, amount },
           }),
         );
-      }).rejects.toThrow('Not enough items in inventory');
+      }).toThrow('Not enough items in inventory');
     });
   });
 

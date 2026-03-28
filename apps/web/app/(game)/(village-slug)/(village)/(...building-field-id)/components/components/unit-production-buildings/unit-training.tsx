@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark.tsx';
+import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units.ts';
 import {
   UnitAttributes,
   UnitCard,
@@ -12,17 +12,18 @@ import {
   UnitOverview,
   UnitRecruitment,
   UnitRequirements,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card.tsx';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider.tsx';
 import {
   Section,
   SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout';
-import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
+} from 'app/(game)/(village-slug)/components/building-layout.tsx';
+import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table.tsx';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
-import { Icon } from 'app/components/icon';
-import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
-import { Text } from 'app/components/text';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { Icon } from 'app/components/icon.tsx';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons.tsx';
+import { Text } from 'app/components/text.tsx';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs.tsx';
 
 const buildingIdToTroopTrainingEffectAndCategoryMap = new Map<
   TroopTrainingBuildingId,
@@ -36,14 +37,12 @@ const buildingIdToTroopTrainingEffectAndCategoryMap = new Map<
   ['RESIDENCE', ['residenceTrainingDuration', 'administration']],
 ]);
 
-type UnitTrainingProps = {
-  // This can be extracted from BuildingContext, but we'd need some type narrowing
-  buildingId: TroopTrainingBuildingId;
-};
-
-export const UnitTraining = ({ buildingId }: UnitTrainingProps) => {
+export const UnitTraining = () => {
   const { t } = useTranslation();
   const { getTribeUnitsByCategory } = useUnits();
+  const { buildingField } = use(BuildingFieldContext);
+
+  const buildingId = buildingField!.buildingId as TroopTrainingBuildingId;
 
   const [durationEffect, category] =
     buildingIdToTroopTrainingEffectAndCategoryMap.get(buildingId)!;

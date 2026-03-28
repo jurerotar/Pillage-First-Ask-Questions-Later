@@ -194,3 +194,7 @@ export const getOccupiableOasisInRangeSchema = z
     }),
   )
   .meta({ id: 'GetOccupiableOasisInRange' });
+
+export const getVillageLoyaltySchema = z.strictObject({
+  loyalty: z.number(),
+});

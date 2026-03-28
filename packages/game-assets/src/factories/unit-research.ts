@@ -1,6 +1,6 @@
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { getUnitsByTribe } from '../utils/units.ts';
+import { getUnitsByTribe } from '../utils/units';
 
 export const newVillageUnitResearchFactory = (tribe: Tribe): Unit['id'][] => {
   const unitsByTribe = getUnitsByTribe(tribe);

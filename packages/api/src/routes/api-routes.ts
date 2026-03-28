@@ -24,8 +24,10 @@ import {
   deleteFarmList,
   getFarmList,
   getFarmLists,
+  getMeFarmLists,
   removeTileFromFarmList,
   renameFarmList,
+  updateFarmList,
 } from '../controllers/farm-list-controllers';
 import {
   changeHeroAttributes,
@@ -38,6 +40,12 @@ import {
   unequipHeroItem,
   useHeroItem,
 } from '../controllers/hero-controllers';
+import {
+  getBuildingLevelChangeHistory,
+  getEventsHistory,
+  getUnitTrainingHistory,
+} from '../controllers/history-controllers';
+import { getTileLoyalty } from '../controllers/loyalty-controllers.ts';
 import {
   addMapMarker,
   getMapMarkers,
@@ -84,8 +92,7 @@ import {
   getVillageBySlug,
 } from '../controllers/village-controllers';
 import { getArtifactsAroundVillage } from '../controllers/world-items-controllers';
-import type { Route } from './route.ts';
-import { createRoute } from './route.ts';
+import { createRoute, type Route } from './route';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -134,8 +141,10 @@ const apiRoutes: Route[] = [
 
   // Farm List
   createRoute(getFarmLists),
+  createRoute(getMeFarmLists),
   createRoute(createFarmList),
   createRoute(getFarmList),
+  createRoute(updateFarmList),
   createRoute(deleteFarmList),
   createRoute(addTileToFarmList),
   createRoute(removeTileFromFarmList),
@@ -188,6 +197,14 @@ const apiRoutes: Route[] = [
 
   // Reputations
   createRoute(getReputations),
+
+  // Loyalty
+  createRoute(getTileLoyalty),
+
+  // History
+  createRoute(getBuildingLevelChangeHistory),
+  createRoute(getEventsHistory),
+  createRoute(getUnitTrainingHistory),
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({
