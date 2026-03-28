@@ -15,7 +15,7 @@ import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { formatTime } from 'app/utils/time';
 
-export const Adventures = () => {
+export const HeroAdventures = () => {
   const { t } = useTranslation();
   const { server } = useServer();
   const { available, completed, startAdventure } = useHeroAdventures();

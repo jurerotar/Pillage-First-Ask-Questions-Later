@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
-import { Adventures } from 'app/(game)/(village-slug)/(hero)/components/adventures';
 import { Auctions } from 'app/(game)/(village-slug)/(hero)/components/auctions';
+import { HeroAdventures } from 'app/(game)/(village-slug)/(hero)/components/hero-adventures.tsx';
 import { HeroAttributes } from 'app/(game)/(village-slug)/(hero)/components/hero-attributes';
 import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-inventory';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
@@ -72,7 +72,7 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
           <HeroInventory />
         </TabPanel>
         <TabPanel value="adventures">
-          <Adventures />
+          <HeroAdventures />
         </TabPanel>
         <TabPanel value="auctions">
           <Auctions />
