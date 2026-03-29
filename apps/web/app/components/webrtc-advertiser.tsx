@@ -1,4 +1,4 @@
-import Peer from 'peerjs';
+import Peer, { type DataConnection } from 'peerjs';
 import { useEffect, useRef } from 'react';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
@@ -99,8 +99,8 @@ export const WebRTCAdvertiser = () => {
       const connectionsMap = (
         registryPeerRef.current as unknown as {
           connections:
-            | Map<string, Peer.DataConnection[]>
-            | Record<string, Peer.DataConnection[]>;
+            | Map<string, DataConnection[]>
+            | Record<string, DataConnection[]>;
         }
       )?.connections;
       if (connectionsMap instanceof Map) {
