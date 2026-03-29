@@ -158,16 +158,25 @@ export const ImportModal = ({
           '[ImportModal] Received data from peer:',
           peerId,
           typeof data,
+          data,
         );
         clearTimeout(timeoutId);
+
+        let buffer: ArrayBuffer | null = null;
         if (data instanceof ArrayBuffer) {
+          buffer = data;
+        } else if (ArrayBuffer.isView(data)) {
+          buffer = data.buffer;
+        }
+
+        if (buffer) {
           console.log(
             '[ImportModal] Received database buffer, size:',
-            data.byteLength,
+            buffer.byteLength,
           );
           toast.success('Game world received!', { id: toastId });
           try {
-            await onImport(data);
+            await onImport(buffer);
             onOpenChange(false);
           } catch (err) {
             console.error(
