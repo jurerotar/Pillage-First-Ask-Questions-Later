@@ -7,6 +7,7 @@ import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert.tsx';
+import { Badge } from 'app/components/ui/badge';
 import { Button } from 'app/components/ui/button';
 import {
   Dialog,
@@ -131,14 +132,10 @@ export const ImportModal = ({
   }, [availableWorlds, localPeerId]);
 
   const filteredAvailableWorlds = useMemo(() => {
-    return otherDevices.flatMap((w) =>
-      w.worlds
-        .filter(
-          (world) => !gameWorldListing.some((local) => local.id === world.id),
-        )
-        .map((world) => ({ ...world, peerId: w.peerId })),
-    );
-  }, [otherDevices, gameWorldListing]);
+    return otherDevices.flatMap((w) => {
+      return w.worlds.map((world) => ({ ...world, peerId: w.peerId }));
+    });
+  }, [otherDevices]);
 
   const handleImport = async (peerId: string, serverSlug: string) => {
     if (!peerRef.current) {
@@ -245,29 +242,37 @@ export const ImportModal = ({
             )}
 
           {!isLoading &&
-            filteredAvailableWorlds.map((world) => (
-              <div
-                key={`${world.peerId}-${world.slug}`}
-                className="flex items-center justify-between gap-2 border rounded-md p-2"
-              >
-                <div className="flex flex-col">
-                  <Text className="font-medium">{world.name}</Text>
-                  <Text
-                    variant="muted"
-                    className="text-xs"
-                  >
-                    {world.slug}
-                  </Text>
-                </div>
-                <Button
-                  size="sm"
-                  onClick={() => handleImport(world.peerId, world.slug)}
-                  disabled={isImporting}
+            filteredAvailableWorlds.map((world) => {
+              const isAlreadyImported = gameWorldListing.some(
+                (local) => local.id === world.id,
+              );
+
+              return (
+                <div
+                  key={`${world.peerId}-${world.slug}`}
+                  className="flex items-center justify-between gap-2 border rounded-md p-2"
                 >
-                  {t('Import')}
-                </Button>
-              </div>
-            ))}
+                  <div className="flex flex-col gap-1">
+                    <Text className="font-medium">{world.name}</Text>
+                    <div className="flex gap-1 flex-wrap">
+                      <Badge variant="successive">
+                        {world.configuration.speed}x
+                      </Badge>
+                      <Badge variant="successive">
+                        {world.playerConfiguration.tribe}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => handleImport(world.peerId, world.slug)}
+                    disabled={isImporting || isAlreadyImported}
+                  >
+                    {isAlreadyImported ? t('Imported') : t('Import')}
+                  </Button>
+                </div>
+              );
+            })}
         </div>
       </DialogContent>
     </Dialog>
