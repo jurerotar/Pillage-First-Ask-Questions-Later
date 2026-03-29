@@ -21,9 +21,14 @@ type Message =
 
 export const WebRTCAdvertiser = () => {
   const { gameWorldListing } = useGameWorldListing();
+  const gameWorldListingRef = useRef(gameWorldListing);
   const peerRef = useRef<Peer | null>(null);
   const registryPeerRef = useRef<Peer | null>(null);
   const activePeersRef = useRef<Map<string, Server[]>>(new Map());
+
+  useEffect(() => {
+    gameWorldListingRef.current = gameWorldListing;
+  }, [gameWorldListing]);
 
   useEffect(() => {
     // 1. My unique peer for actual transfers
@@ -41,7 +46,7 @@ export const WebRTCAdvertiser = () => {
         conn.on('open', () => {
           conn.send({
             type: 'ANNOUNCE_WORLDS',
-            worlds: gameWorldListing,
+            worlds: gameWorldListingRef.current,
             peerId: id,
           } satisfies Message);
         });
@@ -68,7 +73,7 @@ export const WebRTCAdvertiser = () => {
         if (message.type === 'QUERY_WORLDS') {
           conn.send({
             type: 'ANNOUNCE_WORLDS',
-            worlds: gameWorldListing,
+            worlds: gameWorldListingRef.current,
             peerId: peer.id,
           } satisfies Message);
         } else if (message.type === 'REQUEST_WORLD') {
@@ -186,7 +191,7 @@ export const WebRTCAdvertiser = () => {
       peer.destroy();
       registryPeer.destroy();
     };
-  }, [gameWorldListing]);
+  }, []);
 
   useEffect(() => {
     if (peerRef.current?.open) {
