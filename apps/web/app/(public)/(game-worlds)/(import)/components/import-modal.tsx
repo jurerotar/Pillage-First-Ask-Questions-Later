@@ -1,6 +1,5 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Peer from 'peerjs';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
@@ -52,9 +51,12 @@ export const ImportModal = ({
 }: ImportModalProps) => {
   const { t } = useTranslation('public');
   const { gameWorldListing } = useGameWorldListing();
-  const queryClient = useQueryClient();
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [isDiscoveryLoading, setIsDiscoveryLoading] = useState<boolean>(false);
+  const [discoveryData, setDiscoveryData] = useState<{
+    list: AvailableWorld[];
+    localPeerId: string;
+  } | null>(null);
   const peerRef = useRef<Peer | null>(null);
 
   useEffect(() => {
@@ -78,10 +80,7 @@ export const ImportModal = ({
         const message = data as Message;
         if (message.type === 'AVAILABLE_WORLDS_LIST') {
           setIsDiscoveryLoading(false);
-          queryClient.setQueryData<{
-            list: AvailableWorld[];
-            localPeerId: string;
-          }>(['available-worlds-discovery'], {
+          setDiscoveryData({
             list: message.list,
             localPeerId: id,
           });
@@ -103,27 +102,15 @@ export const ImportModal = ({
     return () => {
       peer.destroy();
       peerRef.current = null;
-      queryClient.setQueryData(['available-worlds-discovery'], null);
+      setDiscoveryData(null);
       setIsDiscoveryLoading(false);
     };
-  }, [open, queryClient]);
+  }, [open]);
 
-  const { data } = useQuery<{
-    list: AvailableWorld[];
-    localPeerId: string;
-  }>({
-    queryKey: ['available-worlds-discovery'],
-    queryFn: async () => {
-      return null as any;
-    },
-    enabled: open,
-    staleTime: Number.POSITIVE_INFINITY,
-  });
+  const isLoading = isDiscoveryLoading && !discoveryData;
 
-  const isLoading = isDiscoveryLoading && !data;
-
-  const availableWorlds = data?.list ?? [];
-  const localPeerId = data?.localPeerId ?? null;
+  const availableWorlds = discoveryData?.list ?? [];
+  const localPeerId = discoveryData?.localPeerId ?? null;
 
   const otherDevices = useMemo(() => {
     const localDeviceId = getDeviceId();
