@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import ShareServerWorker from 'app/(public)/workers/share-server-worker?worker&url';
+import { getDeviceId } from 'app/utils/device';
 import { workerFactory } from 'app/utils/workers';
 
 const BROADCAST_CHANNEL = 'pillage-first-ask-questions-later';
@@ -10,11 +11,17 @@ const BROADCAST_CHANNEL = 'pillage-first-ask-questions-later';
 type AvailableWorld = {
   peerId: string;
   worlds: Server[];
+  deviceId?: string;
 };
 
 type Message =
   | { type: 'QUERY_WORLDS' }
-  | { type: 'ANNOUNCE_WORLDS'; worlds: Server[]; peerId: string }
+  | {
+      type: 'ANNOUNCE_WORLDS';
+      worlds: Server[];
+      peerId: string;
+      deviceId?: string;
+    }
   | { type: 'AVAILABLE_WORLDS_LIST'; list: AvailableWorld[] }
   | { type: 'REQUEST_WORLD'; serverSlug: string }
   | { type: 'error'; message: string };
@@ -24,7 +31,9 @@ export const WebRTCAdvertiser = () => {
   const gameWorldListingRef = useRef(gameWorldListing);
   const peerRef = useRef<Peer | null>(null);
   const registryPeerRef = useRef<Peer | null>(null);
-  const activePeersRef = useRef<Map<string, Server[]>>(new Map());
+  const activePeersRef = useRef<
+    Map<string, { worlds: Server[]; deviceId?: string }>
+  >(new Map());
 
   useEffect(() => {
     gameWorldListingRef.current = gameWorldListing;
@@ -48,6 +57,7 @@ export const WebRTCAdvertiser = () => {
             type: 'ANNOUNCE_WORLDS',
             worlds: gameWorldListingRef.current,
             peerId: id,
+            deviceId: getDeviceId(),
           } satisfies Message);
         });
 
@@ -68,68 +78,33 @@ export const WebRTCAdvertiser = () => {
     });
 
     peer.on('connection', (conn) => {
-      console.log(
-        '[WebRTCAdvertiser] Received connection from peer:',
-        conn.peer,
-      );
       conn.on('data', async (data) => {
         const message = data as Message;
-        console.log(
-          '[WebRTCAdvertiser] Received message type:',
-          message.type,
-          'from:',
-          conn.peer,
-        );
         if (message.type === 'QUERY_WORLDS') {
           conn.send({
             type: 'ANNOUNCE_WORLDS',
             worlds: gameWorldListingRef.current,
             peerId: peer.id,
+            deviceId: getDeviceId(),
           } satisfies Message);
         } else if (message.type === 'REQUEST_WORLD') {
           try {
-            console.log(
-              '[WebRTCAdvertiser] Preparing to share world:',
-              message.serverSlug,
-            );
             const result = await workerFactory<
               { serverSlug: string },
               | { type: 'database'; databaseBuffer: ArrayBuffer }
               | { type: 'error'; message: string }
             >(ShareServerWorker, { serverSlug: message.serverSlug });
 
-            console.log('[WebRTCAdvertiser] Worker result type:', result.type);
             if (result.type === 'database') {
-              console.log(
-                '[WebRTCAdvertiser] Sending database buffer, size:',
-                result.databaseBuffer.byteLength,
-              );
               conn.send(result.databaseBuffer);
             } else {
-              console.error('[WebRTCAdvertiser] Worker error:', result.message);
               conn.send({ type: 'error', message: result.message });
             }
           } catch (error) {
-            console.error(
-              '[WebRTCAdvertiser] Failed to share world worker exception:',
-              error,
-            );
+            console.error('[WebRTCAdvertiser] Failed to share world:', error);
             conn.send({ type: 'error', message: 'Failed to share world.' });
           }
         }
-      });
-      conn.on('close', () => {
-        console.log(
-          '[WebRTCAdvertiser] Connection closed from peer:',
-          conn.peer,
-        );
-      });
-      conn.on('error', (err) => {
-        console.error(
-          '[WebRTCAdvertiser] Connection error with peer:',
-          conn.peer,
-          err,
-        );
       });
     });
 
@@ -182,24 +157,29 @@ export const WebRTCAdvertiser = () => {
       conn.on('data', (data) => {
         const message = data as Message;
         if (message.type === 'ANNOUNCE_WORLDS') {
-          activePeersRef.current.set(message.peerId, message.worlds);
+          activePeersRef.current.set(message.peerId, {
+            worlds: message.worlds,
+            deviceId: message.deviceId,
+          });
           connections.set(conn.peer, message.peerId);
 
           // Notify all active connections about the updated list
           const list = Array.from(activePeersRef.current.entries())
             .filter(([peerId]) => peerId !== registryPeer.id)
-            .map(([peerId, worlds]) => ({
+            .map(([peerId, data]) => ({
               peerId,
-              worlds,
+              worlds: data.worlds,
+              deviceId: data.deviceId,
             }));
 
           broadcast(list);
         } else if (message.type === 'QUERY_WORLDS') {
           const list = Array.from(activePeersRef.current.entries())
             .filter(([peerId]) => peerId !== registryPeer.id)
-            .map(([peerId, worlds]) => ({
+            .map(([peerId, data]) => ({
               peerId,
-              worlds,
+              worlds: data.worlds,
+              deviceId: data.deviceId,
             }));
           conn.send({ type: 'AVAILABLE_WORLDS_LIST', list } satisfies Message);
         }
@@ -214,9 +194,10 @@ export const WebRTCAdvertiser = () => {
           // Broadcast update
           const list = Array.from(activePeersRef.current.entries())
             .filter(([id]) => id !== registryPeer.id)
-            .map(([id, worlds]) => ({
+            .map(([id, data]) => ({
               peerId: id,
-              worlds,
+              worlds: data.worlds,
+              deviceId: data.deviceId,
             }));
 
           broadcast(list);
@@ -238,6 +219,7 @@ export const WebRTCAdvertiser = () => {
           type: 'ANNOUNCE_WORLDS',
           worlds: gameWorldListing,
           peerId: peerRef.current!.id,
+          deviceId: getDeviceId(),
         } satisfies Message);
 
         // Disconnect after announcing as we only need to update registry

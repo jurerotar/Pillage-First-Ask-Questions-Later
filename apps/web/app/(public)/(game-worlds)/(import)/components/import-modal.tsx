@@ -16,16 +16,24 @@ import {
   DialogTitle,
 } from 'app/components/ui/dialog';
 import { Spinner } from 'app/components/ui/spinner';
+import { getDeviceId } from 'app/utils/device';
 
 const BROADCAST_CHANNEL = 'pillage-first-ask-questions-later';
 
 type AvailableWorld = {
   peerId: string;
   worlds: Server[];
+  deviceId?: string;
 };
 
 type Message =
   | { type: 'QUERY_WORLDS' }
+  | {
+      type: 'ANNOUNCE_WORLDS';
+      worlds: Server[];
+      peerId: string;
+      deviceId?: string;
+    }
   | { type: 'AVAILABLE_WORLDS_LIST'; list: AvailableWorld[] }
   | { type: 'REQUEST_WORLD'; serverSlug: string }
   | { type: 'error'; message: string };
@@ -116,8 +124,10 @@ export const ImportModal = ({
   const localPeerId = data?.localPeerId ?? null;
 
   const filteredAvailableWorlds = useMemo(() => {
+    const localDeviceId = getDeviceId();
+
     return availableWorlds
-      .filter((w) => w.peerId !== localPeerId)
+      .filter((w) => w.peerId !== localPeerId && w.deviceId !== localDeviceId)
       .flatMap((w) =>
         w.worlds
           .filter(
@@ -133,16 +143,13 @@ export const ImportModal = ({
     }
 
     setIsImporting(true);
-    console.log('[ImportModal] Connecting to peer:', peerId);
     const toastId = toast.loading('Connecting to device...');
 
     const conn = peerRef.current.connect(peerId);
 
     conn.on('open', () => {
-      console.log('[ImportModal] Connection opened to peer:', peerId);
       const timeoutId = setTimeout(() => {
         if (isImporting) {
-          console.error('[ImportModal] Connection timed out for peer:', peerId);
           toast.error('Request timed out.', { id: toastId });
           setIsImporting(false);
           conn.close();
@@ -150,16 +157,9 @@ export const ImportModal = ({
       }, 30000); // 30s timeout
 
       toast.loading('Requesting game world...', { id: toastId });
-      console.log('[ImportModal] Requesting world:', serverSlug);
       conn.send({ type: 'REQUEST_WORLD', serverSlug } satisfies Message);
 
       conn.on('data', async (data) => {
-        console.log(
-          '[ImportModal] Received data from peer:',
-          peerId,
-          typeof data,
-          data,
-        );
         clearTimeout(timeoutId);
 
         let buffer: ArrayBuffer | null = null;
@@ -170,10 +170,6 @@ export const ImportModal = ({
         }
 
         if (buffer) {
-          console.log(
-            '[ImportModal] Received database buffer, size:',
-            buffer.byteLength,
-          );
           toast.success('Game world received!', { id: toastId });
           try {
             await onImport(buffer);
@@ -189,25 +185,15 @@ export const ImportModal = ({
             conn.close();
           }
         } else if ((data as { type?: string })?.type === 'error') {
-          console.error(
-            '[ImportModal] Received error from peer:',
-            (data as { message: string }).message,
-          );
           toast.error((data as { message: string }).message, { id: toastId });
           setIsImporting(false);
           conn.close();
-        } else {
-          console.warn(
-            '[ImportModal] Received unexpected data type:',
-            typeof data,
-            data,
-          );
         }
       });
     });
 
     conn.on('error', (err) => {
-      console.error('[ImportModal] Connection error with peer:', peerId, err);
+      console.error('[ImportModal] Connection error:', err);
       toast.error('Failed to connect to device', {
         id: toastId,
         description: err.message,
