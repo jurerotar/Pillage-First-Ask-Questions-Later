@@ -33,6 +33,10 @@ export const WebRTCAdvertiser = () => {
     peer.on('open', (id) => {
       // Try to connect to BROADCAST_CHANNEL to announce ourselves
       const announce = () => {
+        if (peer.destroyed) {
+          return;
+        }
+
         const conn = peer.connect(BROADCAST_CHANNEL);
         conn.on('open', () => {
           conn.send({
@@ -43,11 +47,15 @@ export const WebRTCAdvertiser = () => {
         });
 
         conn.on('error', (_err) => {
-          setTimeout(announce, 5000);
+          if (!peer.destroyed) {
+            setTimeout(announce, 5000);
+          }
         });
 
         conn.on('close', () => {
-          setTimeout(announce, 5000);
+          if (!peer.destroyed) {
+            setTimeout(announce, 5000);
+          }
         });
       };
 
@@ -178,6 +186,27 @@ export const WebRTCAdvertiser = () => {
       peer.destroy();
       registryPeer.destroy();
     };
+  }, [gameWorldListing]);
+
+  useEffect(() => {
+    if (peerRef.current?.open) {
+      const conn = peerRef.current.connect(BROADCAST_CHANNEL);
+      conn.on('open', () => {
+        conn.send({
+          type: 'ANNOUNCE_WORLDS',
+          worlds: gameWorldListing,
+          peerId: peerRef.current!.id,
+        } satisfies Message);
+
+        // Disconnect after announcing as we only need to update registry
+        setTimeout(() => conn.close(), 1000);
+      });
+    }
+
+    if (registryPeerRef.current?.open) {
+      // If we are the registry, we should update our own state if needed
+      // (though registryPeer doesn't usually announce itself, but good for completeness)
+    }
   }, [gameWorldListing]);
 
   return null;

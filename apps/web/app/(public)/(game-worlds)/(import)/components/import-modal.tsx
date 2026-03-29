@@ -194,7 +194,7 @@ export const ImportModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           {isLoading && (
             <div className="flex justify-center">
               <Spinner size="large" />
@@ -213,7 +213,7 @@ export const ImportModal = ({
             filteredAvailableWorlds.map((world) => (
               <div
                 key={`${world.peerId}-${world.slug}`}
-                className="flex items-center justify-between gap-4 border rounded-md p-3"
+                className="flex items-center justify-between gap-2 border rounded-md p-2"
               >
                 <div className="flex flex-col">
                   <Text className="font-medium">{world.name}</Text>
