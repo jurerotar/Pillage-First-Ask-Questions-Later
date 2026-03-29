@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert.tsx';
 import { Button } from 'app/components/ui/button';
 import {
   Dialog,
@@ -193,19 +194,19 @@ export const ImportModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4 mt-4">
+        <div className="flex flex-col gap-4">
           {isLoading && (
-            <div className="flex justify-center p-8">
+            <div className="flex justify-center">
               <Spinner size="large" />
             </div>
           )}
 
           {!isLoading && filteredAvailableWorlds.length === 0 && (
-            <Text className="text-center py-8 text-muted-foreground">
+            <Alert variant="error">
               {t(
-                'No devices found. Make sure other devices have the game open.',
+                'No devices found. Make sure the app is open on other device.',
               )}
-            </Text>
+            </Alert>
           )}
 
           {!isLoading &&
@@ -220,7 +221,7 @@ export const ImportModal = ({
                     variant="muted"
                     className="text-xs"
                   >
-                    {world.slug} • {t('Device: {{id}}', { id: world.peerId })}
+                    {world.slug}
                   </Text>
                 </div>
                 <Button
