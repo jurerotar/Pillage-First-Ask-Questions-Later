@@ -54,72 +54,73 @@ export const ImportModal = ({
   const { gameWorldListing } = useGameWorldListing();
   const queryClient = useQueryClient();
   const [isImporting, setIsImporting] = useState<boolean>(false);
+  const [isDiscoveryLoading, setIsDiscoveryLoading] = useState<boolean>(false);
   const peerRef = useRef<Peer | null>(null);
 
-  const { data, isLoading } = useQuery<{
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const peer = new Peer();
+    peerRef.current = peer;
+
+    setIsDiscoveryLoading(true);
+
+    peer.on('open', (id) => {
+      const conn = peer.connect(BROADCAST_CHANNEL);
+
+      conn.on('open', () => {
+        conn.send({ type: 'QUERY_WORLDS' } satisfies Message);
+      });
+
+      conn.on('data', (data) => {
+        const message = data as Message;
+        if (message.type === 'AVAILABLE_WORLDS_LIST') {
+          setIsDiscoveryLoading(false);
+          queryClient.setQueryData<{
+            list: AvailableWorld[];
+            localPeerId: string;
+          }>(['available-worlds-discovery'], {
+            list: message.list,
+            localPeerId: id,
+          });
+        }
+      });
+
+      conn.on('error', (err) => {
+        console.error('[ImportModal] Discovery connection error:', err);
+        toast.error('Failed to discover devices.');
+        setIsDiscoveryLoading(false);
+      });
+    });
+
+    peer.on('error', (err) => {
+      console.error('[ImportModal] Peer error:', err);
+      setIsDiscoveryLoading(false);
+    });
+
+    return () => {
+      peer.destroy();
+      peerRef.current = null;
+      queryClient.setQueryData(['available-worlds-discovery'], null);
+      setIsDiscoveryLoading(false);
+    };
+  }, [open, queryClient]);
+
+  const { data } = useQuery<{
     list: AvailableWorld[];
     localPeerId: string;
   }>({
     queryKey: ['available-worlds-discovery'],
-    queryFn: async ({ signal }) => {
-      const peer = new Peer();
-      peerRef.current = peer;
-
-      return new Promise((resolve, reject) => {
-        const cleanup = () => {
-          peer.destroy();
-          peerRef.current = null;
-        };
-
-        signal.addEventListener('abort', cleanup);
-
-        let isResolved = false;
-
-        peer.on('open', (id) => {
-          const conn = peer.connect(BROADCAST_CHANNEL);
-
-          conn.on('open', () => {
-            conn.send({ type: 'QUERY_WORLDS' } satisfies Message);
-          });
-
-          conn.on('data', (data) => {
-            const message = data as Message;
-            if (message.type === 'AVAILABLE_WORLDS_LIST') {
-              if (!isResolved) {
-                isResolved = true;
-                resolve({ list: message.list, localPeerId: id });
-              } else {
-                queryClient.setQueryData<{
-                  list: AvailableWorld[];
-                  localPeerId: string;
-                }>(['available-worlds-discovery'], (old) => {
-                  if (!old) {
-                    return {
-                      list: message.list,
-                      localPeerId: id,
-                    };
-                  }
-                  return { ...old, list: message.list };
-                });
-              }
-            }
-          });
-
-          conn.on('error', (err) => {
-            toast.error('Failed to discover devices.');
-            reject(err);
-          });
-        });
-
-        peer.on('error', (err) => {
-          reject(err);
-        });
-      });
+    queryFn: async () => {
+      return null as any;
     },
     enabled: open,
-    gcTime: 0,
-    staleTime: Number.POSITIVE_INFINITY, // Don't refetch automatically
+    staleTime: Number.POSITIVE_INFINITY,
   });
+
+  const isLoading = isDiscoveryLoading && !data;
 
   const availableWorlds = data?.list ?? [];
   const localPeerId = data?.localPeerId ?? null;
