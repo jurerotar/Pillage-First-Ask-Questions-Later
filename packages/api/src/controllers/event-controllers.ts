@@ -149,12 +149,19 @@ export const cancelConstructionEvent = createController(
 
     // If event is already ongoing, refund resources
     if (cancelledEvent.type === 'buildingLevelChange') {
+      const now = Date.now();
+      const duration = cancelledEvent.resolvesAt - cancelledEvent.startsAt;
+      const elapsed = Math.max(0, now - cancelledEvent.startsAt);
+      const completionPercentage =
+        duration > 0 ? Math.min(1, elapsed / duration) : 1;
+
       const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
         buildingId,
         level,
+        completionPercentage,
       );
 
-      addVillageResourcesAt(db, villageId, Date.now(), resourcesToRefund);
+      addVillageResourcesAt(db, villageId, now, resourcesToRefund);
     }
   });
 

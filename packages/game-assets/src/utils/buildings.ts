@@ -144,10 +144,16 @@ export const calculateBuildingCostForLevel = (
 export const calculateBuildingCancellationRefundForLevel = (
   buildingId: Building['id'],
   level: number,
+  completionPercentage = 0,
 ): number[] => {
   const buildingCost = calculateBuildingCostForLevel(buildingId, level);
 
-  return buildingCost.map((cost) => Math.trunc(cost * 0.8));
+  const refundPercentage =
+    completionPercentage <= 0.05
+      ? 0.95
+      : Math.max(0.4, 0.95 - (completionPercentage - 0.05) / (1 - 0.05));
+
+  return buildingCost.map((cost) => Math.trunc(cost * refundPercentage));
 };
 
 export const calculateTotalCulturePointsForLevel = (
