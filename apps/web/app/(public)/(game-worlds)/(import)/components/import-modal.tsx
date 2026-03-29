@@ -123,19 +123,22 @@ export const ImportModal = ({
   const availableWorlds = data?.list ?? [];
   const localPeerId = data?.localPeerId ?? null;
 
-  const filteredAvailableWorlds = useMemo(() => {
+  const otherDevices = useMemo(() => {
     const localDeviceId = getDeviceId();
+    return availableWorlds.filter(
+      (w) => w.peerId !== localPeerId && w.deviceId !== localDeviceId,
+    );
+  }, [availableWorlds, localPeerId]);
 
-    return availableWorlds
-      .filter((w) => w.peerId !== localPeerId && w.deviceId !== localDeviceId)
-      .flatMap((w) =>
-        w.worlds
-          .filter(
-            (world) => !gameWorldListing.some((local) => local.id === world.id),
-          )
-          .map((world) => ({ ...world, peerId: w.peerId })),
-      );
-  }, [availableWorlds, localPeerId, gameWorldListing]);
+  const filteredAvailableWorlds = useMemo(() => {
+    return otherDevices.flatMap((w) =>
+      w.worlds
+        .filter(
+          (world) => !gameWorldListing.some((local) => local.id === world.id),
+        )
+        .map((world) => ({ ...world, peerId: w.peerId })),
+    );
+  }, [otherDevices, gameWorldListing]);
 
   const handleImport = async (peerId: string, serverSlug: string) => {
     if (!peerRef.current) {
@@ -166,7 +169,7 @@ export const ImportModal = ({
         if (data instanceof ArrayBuffer) {
           buffer = data;
         } else if (ArrayBuffer.isView(data)) {
-          buffer = data.buffer;
+          buffer = data.buffer as ArrayBuffer;
         }
 
         if (buffer) {
@@ -224,13 +227,22 @@ export const ImportModal = ({
             </div>
           )}
 
-          {!isLoading && filteredAvailableWorlds.length === 0 && (
+          {!isLoading && otherDevices.length === 0 && (
             <Alert variant="error">
               {t(
                 'No devices found. Make sure the app is open on other device.',
               )}
             </Alert>
           )}
+          {!isLoading &&
+            otherDevices.length > 0 &&
+            filteredAvailableWorlds.length === 0 && (
+              <Alert variant="info">
+                {t(
+                  'Other devices found, but no new game worlds are advertised.',
+                )}
+              </Alert>
+            )}
 
           {!isLoading &&
             filteredAvailableWorlds.map((world) => (
