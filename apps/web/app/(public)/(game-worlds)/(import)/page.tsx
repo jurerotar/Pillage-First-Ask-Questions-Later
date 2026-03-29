@@ -158,6 +158,11 @@ const ImportGameWorld = () => {
                 'Click the button below to see available game worlds from your other devices.',
               )}
             </Text>
+            <Alert variant="warning">
+              {t(
+                "This feature is experimental. In case you can't see your game worlds, refresh the app on both devices.",
+              )}
+            </Alert>
             <div className="flex flex-col gap-3">
               <Button
                 size="fit"
