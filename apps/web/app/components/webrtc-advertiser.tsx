@@ -68,8 +68,18 @@ export const WebRTCAdvertiser = () => {
     });
 
     peer.on('connection', (conn) => {
+      console.log(
+        '[WebRTCAdvertiser] Received connection from peer:',
+        conn.peer,
+      );
       conn.on('data', async (data) => {
         const message = data as Message;
+        console.log(
+          '[WebRTCAdvertiser] Received message type:',
+          message.type,
+          'from:',
+          conn.peer,
+        );
         if (message.type === 'QUERY_WORLDS') {
           conn.send({
             type: 'ANNOUNCE_WORLDS',
@@ -78,21 +88,48 @@ export const WebRTCAdvertiser = () => {
           } satisfies Message);
         } else if (message.type === 'REQUEST_WORLD') {
           try {
+            console.log(
+              '[WebRTCAdvertiser] Preparing to share world:',
+              message.serverSlug,
+            );
             const result = await workerFactory<
               { serverSlug: string },
               | { type: 'database'; databaseBuffer: ArrayBuffer }
               | { type: 'error'; message: string }
             >(ShareServerWorker, { serverSlug: message.serverSlug });
 
+            console.log('[WebRTCAdvertiser] Worker result type:', result.type);
             if (result.type === 'database') {
+              console.log(
+                '[WebRTCAdvertiser] Sending database buffer, size:',
+                result.databaseBuffer.byteLength,
+              );
               conn.send(result.databaseBuffer);
             } else {
+              console.error('[WebRTCAdvertiser] Worker error:', result.message);
               conn.send({ type: 'error', message: result.message });
             }
-          } catch (_error) {
+          } catch (error) {
+            console.error(
+              '[WebRTCAdvertiser] Failed to share world worker exception:',
+              error,
+            );
             conn.send({ type: 'error', message: 'Failed to share world.' });
           }
         }
+      });
+      conn.on('close', () => {
+        console.log(
+          '[WebRTCAdvertiser] Connection closed from peer:',
+          conn.peer,
+        );
+      });
+      conn.on('error', (err) => {
+        console.error(
+          '[WebRTCAdvertiser] Connection error with peer:',
+          conn.peer,
+          err,
+        );
       });
     });
 
