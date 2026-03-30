@@ -23,6 +23,13 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
 
     * We added an initial implementation for farm lists. This will be expanded in the future with the introduction
     of combat mechanics.
+
+    * We reworked how construction cancellation works. Previously, cancelling an ongoing construction refunded a flat
+    80% of the construction cost, regardless of when the construction was cancelled. This penalized players who
+    initialized construction by mistake. New refund system is based on proportionality of already-completed
+    construction. Cancelling immediately or in the first 5% of construction duration will refund 95% of the construction
+    cost. From 5% of construction duration forwards, the system will refund resources proportionally, with the minimum
+    amount return of 40%.
   </FeaturesBlock>
 </section>
 
