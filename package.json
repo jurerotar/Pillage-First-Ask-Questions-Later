@@ -27,13 +27,13 @@
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
     "@playwright/test": "1.58.2",
-    "@typescript/native-preview": "7.0.0-dev.20260325.1",
+    "@typescript/native-preview": "7.0.0-dev.20260330.1",
     "lefthook": "2.1.4",
     "oxlint": "1.57.0",
-    "oxlint-tsgolint": "0.17.4",
+    "oxlint-tsgolint": "0.18.1",
     "playwright": "1.58.2",
     "sharp": "0.34.5",
-    "turbo": "2.8.20",
+    "turbo": "2.8.21",
     "typescript": "6.0.2"
   },
   "engines": {
