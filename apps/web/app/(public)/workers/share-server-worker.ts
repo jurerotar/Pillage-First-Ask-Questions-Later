@@ -39,9 +39,20 @@ globalThis.addEventListener(
       globalThis.close();
     } catch (error) {
       console.error('[ShareServerWorker] Export failed:', error);
+      let message = 'Failed to prepare game world for sharing.';
+
+      if (
+        error instanceof Error &&
+        (error.name === 'NoModificationAllowedError' ||
+          error.message.includes('NoModificationAllowedError'))
+      ) {
+        message =
+          'The game world is already open on this device. Please close it before reattempting.';
+      }
+
       globalThis.postMessage({
         type: 'error',
-        message: 'Failed to prepare game world for sharing.',
+        message,
       } satisfies ShareServerWorkerResponse);
       globalThis.close();
     }

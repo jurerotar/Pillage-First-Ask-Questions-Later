@@ -161,7 +161,18 @@ export const ImportModal = ({
           conn.close();
         }
       } else if ((data as { type?: string })?.type === 'error') {
-        toast.error((data as { message: string }).message, { id: toastId });
+        const errorData = data as { message: string };
+        let message = errorData.message;
+
+        if (
+          message ===
+          'The game world is already open on this device. Please close it before reattempting.'
+        ) {
+          message =
+            'The game world is already open on the other device. Please close it there before reattempting.';
+        }
+
+        toast.error(message, { id: toastId });
         setIsImporting(false);
         conn.close();
       }
