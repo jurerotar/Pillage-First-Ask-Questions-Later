@@ -135,59 +135,60 @@ export const ImportModal = ({
 
     const conn = peerRef.current.connect(peerId);
 
-    conn.on('open', () => {
-      const timeoutId = setTimeout(() => {
-        if (isImporting) {
-          toast.error('Request timed out.', { id: toastId });
-          setIsImporting(false);
-          conn.close();
-        }
-      }, 30000); // 30s timeout
-
+    const handleOpen = () => {
       toast.loading('Requesting game world...', { id: toastId });
       conn.send({ type: 'REQUEST_WORLD', serverSlug } satisfies Message);
+    };
 
-      conn.on('data', async (data) => {
-        clearTimeout(timeoutId);
+    const handleData = async (data: unknown) => {
+      const buffer =
+        data instanceof ArrayBuffer
+          ? data
+          : ArrayBuffer.isView(data)
+            ? data.buffer
+            : null;
 
-        let buffer: ArrayBuffer | null = null;
-        if (data instanceof ArrayBuffer) {
-          buffer = data;
-        } else if (ArrayBuffer.isView(data)) {
-          buffer = data.buffer as ArrayBuffer;
-        }
-
-        if (buffer) {
-          toast.success('Game world received!', { id: toastId });
-          try {
-            await onImport(buffer);
-            onOpenChange(false);
-          } catch (err) {
-            console.error(
-              '[ImportModal] Failed to import database buffer:',
-              err,
-            );
-            toast.error('Failed to import game world.');
-          } finally {
-            setIsImporting(false);
-            conn.close();
-          }
-        } else if ((data as { type?: string })?.type === 'error') {
-          toast.error((data as { message: string }).message, { id: toastId });
+      if (buffer) {
+        toast.success('Game world received!', { id: toastId });
+        try {
+          await onImport(buffer as ArrayBuffer);
+          onOpenChange(false);
+        } catch (err) {
+          console.error('[ImportModal] Failed to import database buffer:', err);
+          toast.error('Failed to import game world.');
+        } finally {
           setIsImporting(false);
           conn.close();
         }
-      });
-    });
+      } else if ((data as { type?: string })?.type === 'error') {
+        toast.error((data as { message: string }).message, { id: toastId });
+        setIsImporting(false);
+        conn.close();
+      }
+    };
 
-    conn.on('error', (err) => {
+    const handleError = (err: { message: string }) => {
       console.error('[ImportModal] Connection error:', err);
       toast.error('Failed to connect to device', {
         id: toastId,
         description: err.message,
       });
       setIsImporting(false);
-    });
+    };
+
+    conn.on('open', handleOpen);
+    conn.on('data', handleData);
+    conn.on('error', handleError);
+
+    const timeoutId = setTimeout(() => {
+      if (isImporting) {
+        toast.error('Request timed out.', { id: toastId });
+        setIsImporting(false);
+        conn.close();
+      }
+    }, 30000); // 30s timeout
+
+    conn.on('close', () => clearTimeout(timeoutId));
   };
 
   return (

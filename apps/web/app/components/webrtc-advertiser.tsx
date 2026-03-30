@@ -1,5 +1,5 @@
 import Peer, { type DataConnection } from 'peerjs';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import ShareServerWorker from 'app/(public)/workers/share-server-worker?worker&url';
@@ -26,14 +26,62 @@ type Message =
   | { type: 'REQUEST_WORLD'; serverSlug: string }
   | { type: 'error'; message: string };
 
+type ShareServerInput = { serverSlug: string };
+
+type ShareServerOutput =
+  | { type: 'database'; databaseBuffer: ArrayBuffer }
+  | { type: 'error'; message: string };
+
+const withReconnect = (fn: () => void, delay = 5000) => {
+  let cancelled = false;
+
+  const retry = () => {
+    if (!cancelled) {
+      setTimeout(fn, delay);
+    }
+  };
+
+  return {
+    retry,
+    cancel: () => {
+      cancelled = true;
+    },
+  };
+};
+
 export const WebRTCAdvertiser = () => {
   const { gameWorldListing } = useGameWorldListing();
   const gameWorldListingRef = useRef(gameWorldListing);
   const peerRef = useRef<Peer | null>(null);
   const registryPeerRef = useRef<Peer | null>(null);
+  const registryConnectionRef = useRef<DataConnection | null>(null);
   const activePeersRef = useRef<
     Map<string, { worlds: Server[]; deviceId?: string }>
   >(new Map());
+  const registryConnectionsRef = useRef<Set<DataConnection>>(new Set());
+
+  const createAnnounceMessage = useCallback(
+    (peerId: string): Message => ({
+      type: 'ANNOUNCE_WORLDS',
+      worlds: gameWorldListingRef.current,
+      peerId,
+      deviceId: getDeviceId(),
+    }),
+    [],
+  );
+
+  const buildAvailableWorldsList = useCallback(
+    (selfId?: string): AvailableWorld[] => {
+      return Array.from(activePeersRef.current.entries())
+        .filter(([peerId]) => peerId !== selfId)
+        .map(([peerId, data]) => ({
+          peerId,
+          worlds: data.worlds,
+          deviceId: data.deviceId,
+        }));
+    },
+    [],
+  );
 
   useEffect(() => {
     gameWorldListingRef.current = gameWorldListing;
@@ -45,54 +93,48 @@ export const WebRTCAdvertiser = () => {
     peerRef.current = peer;
 
     peer.on('open', (id) => {
-      // Try to connect to BROADCAST_CHANNEL to announce ourselves
+      const { retry, cancel } = withReconnect(() => {
+        if (peer.destroyed) {
+          return;
+        }
+        announce();
+      });
+
       const announce = () => {
         if (peer.destroyed) {
           return;
         }
 
         const conn = peer.connect(BROADCAST_CHANNEL);
+        registryConnectionRef.current = conn;
         conn.on('open', () => {
-          conn.send({
-            type: 'ANNOUNCE_WORLDS',
-            worlds: gameWorldListingRef.current,
-            peerId: id,
-            deviceId: getDeviceId(),
-          } satisfies Message);
+          conn.send(createAnnounceMessage(id));
         });
 
-        conn.on('error', (_err) => {
-          if (!peer.destroyed) {
-            setTimeout(announce, 5000);
-          }
-        });
-
+        conn.on('error', retry);
         conn.on('close', () => {
-          if (!peer.destroyed) {
-            setTimeout(announce, 5000);
+          if (registryConnectionRef.current === conn) {
+            registryConnectionRef.current = null;
           }
+          retry();
         });
       };
 
       announce();
+
+      return cancel;
     });
 
     peer.on('connection', (conn) => {
       conn.on('data', async (data) => {
         const message = data as Message;
         if (message.type === 'QUERY_WORLDS') {
-          conn.send({
-            type: 'ANNOUNCE_WORLDS',
-            worlds: gameWorldListingRef.current,
-            peerId: peer.id,
-            deviceId: getDeviceId(),
-          } satisfies Message);
+          conn.send(createAnnounceMessage(peer.id));
         } else if (message.type === 'REQUEST_WORLD') {
           try {
             const result = await workerFactory<
-              { serverSlug: string },
-              | { type: 'database'; databaseBuffer: ArrayBuffer }
-              | { type: 'error'; message: string }
+              ShareServerInput,
+              ShareServerOutput
             >(ShareServerWorker, { serverSlug: message.serverSlug });
 
             if (result.type === 'database') {
@@ -119,41 +161,17 @@ export const WebRTCAdvertiser = () => {
     });
 
     const connections = new Map<string, string>(); // conn.peer -> peerId
-
     const broadcast = (list: AvailableWorld[]) => {
-      const connectionsMap = (
-        registryPeerRef.current as unknown as {
-          connections:
-            | Map<string, DataConnection[]>
-            | Record<string, DataConnection[]>;
+      for (const conn of registryConnectionsRef.current) {
+        if (conn.open) {
+          conn.send({ type: 'AVAILABLE_WORLDS_LIST', list } satisfies Message);
         }
-      )?.connections;
-      if (connectionsMap instanceof Map) {
-        for (const connArray of connectionsMap.values()) {
-          for (const c of connArray) {
-            if (c.open) {
-              c.send({
-                type: 'AVAILABLE_WORLDS_LIST',
-                list,
-              } satisfies Message);
-            }
-          }
-        }
-      } else if (connectionsMap) {
-        Object.values(connectionsMap).forEach((connArray) => {
-          connArray.forEach((c) => {
-            if (c.open) {
-              c.send({
-                type: 'AVAILABLE_WORLDS_LIST',
-                list,
-              } satisfies Message);
-            }
-          });
-        });
       }
     };
 
     registryPeer.on('connection', (conn) => {
+      registryConnectionsRef.current.add(conn);
+
       conn.on('data', (data) => {
         const message = data as Message;
         if (message.type === 'ANNOUNCE_WORLDS') {
@@ -164,74 +182,61 @@ export const WebRTCAdvertiser = () => {
           connections.set(conn.peer, message.peerId);
 
           // Notify all active connections about the updated list
-          const list = Array.from(activePeersRef.current.entries())
-            .filter(([peerId]) => peerId !== registryPeer.id)
-            .map(([peerId, data]) => ({
-              peerId,
-              worlds: data.worlds,
-              deviceId: data.deviceId,
-            }));
-
-          broadcast(list);
+          broadcast(buildAvailableWorldsList(registryPeer.id));
         } else if (message.type === 'QUERY_WORLDS') {
-          const list = Array.from(activePeersRef.current.entries())
-            .filter(([peerId]) => peerId !== registryPeer.id)
-            .map(([peerId, data]) => ({
-              peerId,
-              worlds: data.worlds,
-              deviceId: data.deviceId,
-            }));
-          conn.send({ type: 'AVAILABLE_WORLDS_LIST', list } satisfies Message);
+          conn.send({
+            type: 'AVAILABLE_WORLDS_LIST',
+            list: buildAvailableWorldsList(registryPeer.id),
+          } satisfies Message);
         }
       });
 
       conn.on('close', () => {
+        registryConnectionsRef.current.delete(conn);
+
         const peerId = connections.get(conn.peer);
         if (peerId) {
           activePeersRef.current.delete(peerId);
           connections.delete(conn.peer);
 
           // Broadcast update
-          const list = Array.from(activePeersRef.current.entries())
-            .filter(([id]) => id !== registryPeer.id)
-            .map(([id, data]) => ({
-              peerId: id,
-              worlds: data.worlds,
-              deviceId: data.deviceId,
-            }));
-
-          broadcast(list);
+          broadcast(buildAvailableWorldsList(registryPeer.id));
         }
+      });
+
+      conn.on('error', () => {
+        registryConnectionsRef.current.delete(conn);
       });
     });
 
     return () => {
-      peer.destroy();
-      registryPeer.destroy();
+      peerRef.current?.destroy();
+      registryPeerRef.current?.destroy();
     };
-  }, []);
+  }, [createAnnounceMessage, buildAvailableWorldsList]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect specifically reacts to gameWorldListing changes to announce them.
   useEffect(() => {
     if (peerRef.current?.open) {
-      const conn = peerRef.current.connect(BROADCAST_CHANNEL);
-      conn.on('open', () => {
-        conn.send({
-          type: 'ANNOUNCE_WORLDS',
-          worlds: gameWorldListing,
-          peerId: peerRef.current!.id,
-          deviceId: getDeviceId(),
-        } satisfies Message);
+      // Find the existing connection to the registry and send update
+      const existingConn = registryConnectionRef.current;
 
-        // Disconnect after announcing as we only need to update registry
-        setTimeout(() => conn.close(), 1000);
-      });
+      if (existingConn?.open) {
+        existingConn.send(createAnnounceMessage(peerRef.current.id));
+      } else {
+        const conn = peerRef.current.connect(BROADCAST_CHANNEL);
+        registryConnectionRef.current = conn;
+        conn.on('open', () => {
+          conn.send(createAnnounceMessage(peerRef.current!.id));
+        });
+        conn.on('close', () => {
+          if (registryConnectionRef.current === conn) {
+            registryConnectionRef.current = null;
+          }
+        });
+      }
     }
-
-    if (registryPeerRef.current?.open) {
-      // If we are the registry, we should update our own state if needed
-      // (though registryPeer doesn't usually announce itself, but good for completeness)
-    }
-  }, [gameWorldListing]);
+  }, [gameWorldListing, createAnnounceMessage]);
 
   return null;
 };
