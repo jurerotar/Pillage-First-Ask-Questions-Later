@@ -23,7 +23,7 @@
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.9",
+    "@biomejs/biome": "2.4.10",
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
     "@playwright/test": "1.58.2",
@@ -33,7 +33,7 @@
     "oxlint-tsgolint": "0.18.1",
     "playwright": "1.58.2",
     "sharp": "0.34.5",
-    "turbo": "2.8.21",
+    "turbo": "2.9.0",
     "typescript": "6.0.2"
   },
   "engines": {
