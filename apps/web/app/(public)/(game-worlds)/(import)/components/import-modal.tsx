@@ -169,7 +169,7 @@ export const ImportModal = ({
           'The game world is already open on this device. Please close it before reattempting.'
         ) {
           message =
-            'The game world is already open on the other device. Please close it there before reattempting.';
+            "The game world is already open on the device you're attempting to import from. Please close it there before reattempting.";
         }
 
         toast.error(message, { id: toastId });
