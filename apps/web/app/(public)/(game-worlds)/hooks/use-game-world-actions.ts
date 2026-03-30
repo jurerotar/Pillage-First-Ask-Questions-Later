@@ -241,7 +241,6 @@ export const useGameWorldActions = () => {
 
         peer.on('connection', (conn) => {
           conn.on('error', (err) => {
-            console.error('Peer connection error:', err);
             if (toastId) {
               toast.dismiss(toastId);
             }
