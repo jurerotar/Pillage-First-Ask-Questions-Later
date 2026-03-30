@@ -21,6 +21,14 @@ export const isEventResolvedNotificationMessageEvent = (
   );
 };
 
+export const isEventCreatedNotificationMessageEvent = (
+  event: MessageEvent,
+): event is MessageEvent<EventApiNotificationEvent> => {
+  return (
+    isNotificationMessageEvent(event) && event.data.eventKey === 'event:created'
+  );
+};
+
 export const isEventResolvedSuccessfullyNotificationMessageEvent = (
   event: MessageEvent,
 ): event is MessageEvent<EventApiNotificationEvent> => {

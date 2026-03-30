@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type {
   GameEvent,
   GameEventType,
@@ -94,6 +95,11 @@ export const createEvents = <T extends GameEventType>(
 
   insertEvents(database, events);
   runEventCreationSideEffects(database, events);
+
+  globalThis.postMessage({
+    eventKey: 'event:created',
+    ...events[0],
+  } satisfies EventApiNotificationEvent);
 
   // Determine if any created events should already be resolved
   const createdImmediate = newResolvesAt.some((r) => r <= now);
