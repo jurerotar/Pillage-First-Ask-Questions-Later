@@ -427,7 +427,7 @@
   "Server overview": "Server overview",
   "Settlers are already on route to this location": "Settlers are already on route to this location",
   "Settlers found a new village at coordinates ({{x}}|{{y}})": "Settlers found a new village at coordinates ({{x}}|{{y}})",
-  "Settlers sent to find new village at coordinates ({{x}}|{{y}})": "Settlers sent to find new village at coordinates ({{x}}|{{y}})",
+  "Settlers sent to found a new village at coordinates ({{x}}|{{y}})": "Settlers sent to found a new village at coordinates ({{x}}|{{y}})",
   "Show only trades buying {{resource}}": "Show only trades buying {{resource}}",
   "Show only trades offering {{resource}}": "Show only trades offering {{resource}}",
   "Shows the names of buildings on village and resources views.": "Shows the names of buildings on village and resources views.",

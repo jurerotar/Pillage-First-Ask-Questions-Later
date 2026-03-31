@@ -206,7 +206,7 @@ const getEventCreatedInfo = (
 
     return {
       toastTitle: t(
-        'Settlers sent to find new village at coordinates ({{x}}|{{y}})',
+        'Settlers sent to found a new village at coordinates ({{x}}|{{y}})',
         {
           x: targetCoordinates.x,
           y: targetCoordinates.y,
