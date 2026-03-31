@@ -43,7 +43,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
 export const useApiWorker = (serverSlug: Server['slug']) => {
   const { data: apiWorker } = useSuspenseQuery({
     queryKey: ['api-worker', serverSlug],
-    queryFn: () => createWorkerWithReadySignal(serverSlug),
+    queryFn: async () => createWorkerWithReadySignal(serverSlug),
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
   });

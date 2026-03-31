@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
 import { ServerCard } from 'app/(public)/(game-worlds)/(index)/components/server-card';
-import { useGameWorldListing } from 'app/(public)/(game-worlds)/(index)/hooks/use-game-world-listing';
+import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
@@ -58,10 +58,15 @@ const MyGameWorldsPage = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Text>Want to create a new game world instead?</Text>
-            <Link to="/game-worlds/create">
-              <Button variant="outline">Create a new game world</Button>
-            </Link>
+            <Text>Want to create or import an existing game state?</Text>
+            <div className="flex gap-2 overflow-x-scroll scrollbar-hidden">
+              <Link to="/game-worlds/create">
+                <Button>Create a new game world</Button>
+              </Link>
+              <Link to="/game-worlds/import">
+                <Button variant="outline">Import existing game state</Button>
+              </Link>
+            </div>
           </div>
         </main>
       </div>

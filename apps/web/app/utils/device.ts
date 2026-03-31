@@ -48,3 +48,19 @@ export const getCookie = async (name: CookieName): Promise<string | null> => {
     .find((row) => row.startsWith(name));
   return cookie?.split('=')[1] || null;
 };
+
+export const getDeviceId = (): string => {
+  if (typeof window === 'undefined') {
+    return 'server';
+  }
+
+  const KEY = 'pillage-first:device-id';
+  let deviceId = window.localStorage.getItem(KEY);
+
+  if (!deviceId) {
+    deviceId = window.crypto.randomUUID();
+    window.localStorage.setItem(KEY, deviceId);
+  }
+
+  return deviceId;
+};

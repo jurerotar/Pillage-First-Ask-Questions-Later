@@ -61,7 +61,7 @@ export const getHeroLoadout = createController(
           )
     `,
     schema: getHeroLoadoutSchema,
-  })!;
+  });
 });
 
 export const getHeroInventory = createController(
@@ -82,7 +82,7 @@ export const getHeroInventory = createController(
           )
     `,
     schema: getHeroInventorySchema,
-  })!;
+  });
 });
 
 export const getHeroAdventures = createController(
@@ -196,11 +196,10 @@ export const changeHeroAttributes = createController(
             wheat: 'wheatProduction',
           };
 
-          if (resourceMap[resourceToProduce] === effectId) {
-            value = focusedProductionPerPoint * resourceProduction;
-          } else {
-            value = 0;
-          }
+          value =
+            resourceMap[resourceToProduce] === effectId
+              ? focusedProductionPerPoint * resourceProduction
+              : 0;
         }
 
         database.exec({
@@ -296,11 +295,10 @@ export const changeHeroResourceToProduce = createController(
           wheat: 'wheatProduction',
         };
 
-        if (resourceMap[resource] === effectId) {
-          value = focusedProductionPerPoint * hero.resource_production;
-        } else {
-          value = 0;
-        }
+        value =
+          resourceMap[resource] === effectId
+            ? focusedProductionPerPoint * hero.resource_production
+            : 0;
       }
 
       database.exec({

@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import { type Label as LabelPrimitive, Slot } from 'radix-ui';
-import { type ComponentProps, createContext, use } from 'react';
+import { type ComponentProps, createContext, use, useMemo } from 'react';
 import {
   Controller,
   type ControllerProps,
@@ -31,8 +31,14 @@ export const FormField = <
 >({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
+  const value = useMemo(() => {
+    return {
+      name: props.name,
+    };
+  }, [props.name]);
+
   return (
-    <FormFieldContext value={{ name: props.name }}>
+    <FormFieldContext value={value}>
       <Controller {...props} />
     </FormFieldContext>
   );

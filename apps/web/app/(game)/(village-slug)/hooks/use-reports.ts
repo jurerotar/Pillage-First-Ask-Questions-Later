@@ -1,7 +1,7 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { Report, ReportTag } from '@pillage-first/types/models/report';
-import { reportsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { reportsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useReports = () => {

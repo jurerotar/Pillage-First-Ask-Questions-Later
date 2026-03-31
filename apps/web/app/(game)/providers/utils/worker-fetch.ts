@@ -1,5 +1,5 @@
 import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
-import { isControllerMessageErrorNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards.ts';
+import { isControllerMessageErrorNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
 

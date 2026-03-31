@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
-import { adventurePointsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { adventurePointsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useHeroAdventures = () => {
