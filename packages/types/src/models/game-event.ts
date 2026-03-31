@@ -65,7 +65,8 @@ export type TroopMovementType =
 
 type BaseTroopMovementEvent = {
   troops: Troop[];
-  coordinates: Coordinates;
+  originCoordinates: Coordinates;
+  targetCoordinates: Coordinates;
 };
 
 export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {

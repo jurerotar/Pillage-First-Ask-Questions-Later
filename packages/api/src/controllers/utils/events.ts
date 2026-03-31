@@ -21,6 +21,7 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
+import { effectSchema } from '@pillage-first/types/models/effect';
 import type {
   GameEvent,
   TroopMovementEvent,
@@ -52,13 +53,17 @@ import {
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
-import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
+import {
+  selectAllRelevantEffectsByIdQuery,
+  selectUnitSpeedRelevantEffectsQuery,
+} from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
 import { removeTroops } from '../resolvers/utils/troops';
 import { calculateAdventureDuration } from './adventures';
+import { calculateTravelDuration } from './troop-movement-duration.ts';
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
   const requiredEventProperties = new Set([
@@ -500,7 +505,7 @@ export const validateEventCreationPrerequisites = (
 
     if (isAttackTroopMovementEvent(event) || isRaidTroopMovementEvent(event)) {
       const {
-        coordinates: { x, y },
+        targetCoordinates: { x, y },
       } = event;
 
       const isVillageOrOasis = database.selectValue({
@@ -530,7 +535,7 @@ export const validateEventCreationPrerequisites = (
 
     if (isFindNewVillageTroopMovementEvent(event)) {
       const {
-        coordinates: { x, y },
+        targetCoordinates: { x, y },
       } = event;
 
       const isUnoccupied = database.selectValue({
@@ -561,7 +566,7 @@ export const validateEventCreationPrerequisites = (
 
     if (isOasisOccupationTroopMovementEvent(event)) {
       const {
-        coordinates: { x, y },
+        targetCoordinates: { x, y },
         villageId,
       } = event;
 
@@ -638,7 +643,7 @@ export const validateEventCreationPrerequisites = (
       isRelocationTroopMovementEvent(event)
     ) {
       const {
-        coordinates: { x, y },
+        targetCoordinates: { x, y },
       } = event;
 
       const isPlayerVillage = database.selectValue({
@@ -972,9 +977,23 @@ export const getEventDuration = (
       return calculateAdventureDuration(database, true);
     }
 
-    // For now, return the duration from the event itself to avoid the error,
-    // until a proper distance-based calculation is implemented.
-    return 10_000;
+    const { villageId, targetCoordinates, originCoordinates, troops } = event;
+
+    const effects = database.selectObjects({
+      sql: selectUnitSpeedRelevantEffectsQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: effectSchema,
+    });
+
+    return calculateTravelDuration({
+      originVillageId: villageId,
+      targetCoordinates,
+      originCoordinates,
+      troops,
+      effects,
+    });
   }
 
   if (isHeroRevivalEvent(event)) {

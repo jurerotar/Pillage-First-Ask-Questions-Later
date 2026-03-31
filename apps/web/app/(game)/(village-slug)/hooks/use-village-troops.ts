@@ -17,7 +17,7 @@ import { invalidateQueries } from 'app/utils/react-query.ts';
 type SendTroopsArgs = {
   type: TroopMovementEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
-  coordinates: GameEvent<'troopMovementReinforcements'>['coordinates'];
+  targetCoordinates: GameEvent<'troopMovementReinforcements'>['targetCoordinates'];
 };
 
 export const useVillageTroops = () => {
@@ -41,13 +41,14 @@ export const useVillageTroops = () => {
   }, [villageTroops, currentVillage.tileId]);
 
   const { mutate: sendTroops } = useMutation({
-    mutationFn: async ({ coordinates, type, troops }: SendTroopsArgs) => {
+    mutationFn: async ({ targetCoordinates, type, troops }: SendTroopsArgs) => {
       await fetcher('/events', {
         method: 'POST',
         body: {
           villageId: currentVillage.id,
+          originCoordinates: currentVillage.coordinates,
           type,
-          coordinates,
+          targetCoordinates,
           troops,
         },
       });

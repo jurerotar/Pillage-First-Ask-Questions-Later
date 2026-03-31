@@ -555,7 +555,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            coordinates: { x: 1, y: 1 },
+            targetCoordinates: { x: 1, y: 1 },
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -592,7 +592,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            coordinates: { x: 1, y: 1 },
+            targetCoordinates: { x: 1, y: 1 },
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -638,7 +638,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            coordinates: { x: 1, y: 1 },
+            targetCoordinates: { x: 1, y: 1 },
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -653,7 +653,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createTroopMovementAttackEventMock({
-            coordinates: { x: 100, y: 100 },
+            targetCoordinates: { x: 100, y: 100 },
           }),
         ),
       ).toThrow('Target must be a village or an oasis');
@@ -671,7 +671,7 @@ describe('events utils', () => {
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createTroopMovementAttackEventMock({ coordinates: { x, y } }),
+          createTroopMovementAttackEventMock({ targetCoordinates: { x, y } }),
         ),
       ).not.toThrow();
     });
@@ -682,7 +682,9 @@ describe('events utils', () => {
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createTroopMovementRaidEventMock({ coordinates: { x: 100, y: 100 } }),
+          createTroopMovementRaidEventMock({
+            targetCoordinates: { x: 100, y: 100 },
+          }),
         ),
       ).toThrow('Target must be a village or an oasis');
     });
@@ -699,7 +701,9 @@ describe('events utils', () => {
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createTroopMovementFindNewVillageEventMock({ coordinates: { x, y } }),
+          createTroopMovementFindNewVillageEventMock({
+            targetCoordinates: { x, y },
+          }),
         ),
       ).toThrow('Target tile must be unoccupied');
     });
@@ -711,7 +715,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createGameEventMock('troopMovementOasisOccupation', {
-            coordinates: { x: 100, y: 100 },
+            targetCoordinates: { x: 100, y: 100 },
           }),
         ),
       ).toThrow('Target must be an oasis');
@@ -740,7 +744,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            coordinates: { x, y },
+            targetCoordinates: { x, y },
           }),
         ),
       ).toThrow('Oasis is already occupied by you');
@@ -753,7 +757,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createTroopMovementRelocationEventMock({
-            coordinates: { x: 100, y: 100 },
+            targetCoordinates: { x: 100, y: 100 },
           }),
         ),
       ).toThrow(
@@ -767,7 +771,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createGameEventMock('troopMovementAttack', {
-            coordinates: { x: 1, y: 1 },
+            targetCoordinates: { x: 1, y: 1 },
             troops: [
               { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 },
             ],

@@ -91,8 +91,8 @@ const partitionTroopMovementEvents = (
       isReturnTroopMovementEvent(event)
     ) {
       const isIncoming =
-        currentVillageCoordinates.x === event.coordinates.x &&
-        currentVillageCoordinates.y === event.coordinates.y;
+        currentVillageCoordinates.x === event.targetCoordinates.x &&
+        currentVillageCoordinates.y === event.targetCoordinates.y;
 
       const target = isIncoming
         ? incomingDeploymentMovementEvents
@@ -102,8 +102,8 @@ const partitionTroopMovementEvents = (
     }
     if (isAttackTroopMovementEvent(event) || isRaidTroopMovementEvent(event)) {
       const isIncoming =
-        currentVillageCoordinates.x === event.coordinates.x &&
-        currentVillageCoordinates.y === event.coordinates.y;
+        currentVillageCoordinates.x === event.targetCoordinates.x &&
+        currentVillageCoordinates.y === event.targetCoordinates.y;
 
       const target = isIncoming
         ? incomingOffensiveMovementEvents

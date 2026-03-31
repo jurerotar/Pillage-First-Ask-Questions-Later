@@ -201,8 +201,8 @@ const FoundNewVillageAction = ({ tile }: FoundNewVillageActionProps) => {
   const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
     if (isFindNewVillageTroopMovementEvent(event)) {
       return (
-        tile.coordinates.x === event.coordinates.x &&
-        tile.coordinates.y === event.coordinates.y
+        tile.coordinates.x === event.targetCoordinates.x &&
+        tile.coordinates.y === event.targetCoordinates.y
       );
     }
 

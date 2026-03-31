@@ -47,7 +47,7 @@ describe(adventureMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: villageId,
-      coordinates: { x: 1, y: 1 },
+      targetCoordinates: { x: 1, y: 1 },
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -86,7 +86,7 @@ describe(adventureMovementResolver, () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ x: z.number(), y: z.number() }),
     })!;
-    expect(returnEvent.coordinates).toEqual({ x, y });
+    expect(returnEvent.targetCoordinates).toEqual({ x, y });
 
     // Verify quest completion
     const quest = database.selectObject({
@@ -122,7 +122,7 @@ describe(adventureMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: villageId,
-      coordinates: { x: 1, y: 1 },
+      targetCoordinates: { x: 1, y: 1 },
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -188,7 +188,7 @@ describe(relocationMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: initialVillageId,
-      coordinates: { x, y },
+      targetCoordinates: { x, y },
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -246,7 +246,7 @@ describe(findNewVillageMovementResolver, () => {
       startsAt: 1000,
       duration: 1000,
       villageId: 1, // existing village
-      coordinates: { x: targetTile.x, y: targetTile.y },
+      targetCoordinates: { x: targetTile.x, y: targetTile.y },
       troops: [],
     });
 
@@ -357,7 +357,7 @@ describe(attackMovementResolver, () => {
       duration: 500,
       villageId,
       troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
-      coordinates: { x: 0, y: 1 },
+      targetCoordinates: { x: 0, y: 1 },
     });
 
     attackMovementResolver(database, mockEvent);
@@ -375,7 +375,7 @@ describe(attackMovementResolver, () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ x: z.number(), y: z.number() }),
     })!;
-    expect(returnEvent.coordinates).toEqual({ x, y });
+    expect(returnEvent.targetCoordinates).toEqual({ x, y });
   });
 });
 
@@ -390,7 +390,7 @@ describe(raidMovementResolver, () => {
       duration: 200,
       villageId,
       troops: [{ unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, source: 1 }],
-      coordinates: { x: 0, y: 1 },
+      targetCoordinates: { x: 0, y: 1 },
     });
 
     raidMovementResolver(database, mockEvent);
@@ -408,6 +408,6 @@ describe(raidMovementResolver, () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ x: z.number(), y: z.number() }),
     })!;
-    expect(returnEvent.coordinates).toEqual({ x, y });
+    expect(returnEvent.targetCoordinates).toEqual({ x, y });
   });
 });

@@ -132,7 +132,8 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
 
   const getBaseEventArgs = (data: T) => ({
     troops: formatTroopsForSubmission(data.units),
-    coordinates: {
+    originCoordinates: currentVillage.coordinates,
+    targetCoordinates: {
       x: data.target.x,
       y: data.target.y,
     },

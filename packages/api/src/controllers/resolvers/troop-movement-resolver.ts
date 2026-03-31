@@ -94,7 +94,7 @@ export const adventureMovementResolver: Resolver<
   createEvents<'troopMovementReturn'>(database, {
     ...args,
     startsAt: resolvesAt,
-    coordinates: { x, y },
+    targetCoordinates: { x, y },
     type: 'troopMovementReturn',
     originalMovementType: 'adventure',
   });
@@ -108,7 +108,7 @@ export const findNewVillageMovementResolver: Resolver<
   GameEvent<'troopMovementFindNewVillage'>
 > = (database, args) => {
   const {
-    coordinates: { x, y },
+    targetCoordinates: { x, y },
     resolvesAt,
   } = args;
 
@@ -329,7 +329,7 @@ export const returnMovementResolver: Resolver<
   GameEvent<'troopMovementReturn'>
 > = (database, args) => {
   const {
-    coordinates: { x, y },
+    targetCoordinates: { x, y },
     troops,
   } = args;
 
@@ -352,7 +352,7 @@ export const relocationMovementResolver: Resolver<
   GameEvent<'troopMovementRelocation'>
 > = (database, args) => {
   const {
-    coordinates: { x, y },
+    targetCoordinates: { x, y },
     troops,
     resolvesAt,
     villageId,
@@ -412,7 +412,7 @@ export const reinforcementMovementResolver: Resolver<
   GameEvent<'troopMovementReinforcements'>
 > = (database, args) => {
   const {
-    coordinates: { x, y },
+    targetCoordinates: { x, y },
     troops,
   } = args;
 
@@ -446,7 +446,7 @@ export const attackMovementResolver: Resolver<
   createEvents<'troopMovementReturn'>(database, {
     ...args,
     startsAt: resolvesAt,
-    coordinates: { x, y },
+    targetCoordinates: { x, y },
     type: 'troopMovementReturn',
     originalMovementType: 'attack',
   });
@@ -468,7 +468,7 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
   createEvents<'troopMovementReturn'>(database, {
     ...args,
     startsAt: resolvesAt,
-    coordinates: { x, y },
+    targetCoordinates: { x, y },
     type: 'troopMovementReturn',
     originalMovementType: 'raid',
   });

@@ -149,7 +149,7 @@ export const startHeroAdventure = createController(
   createEvents(database, {
     type: 'troopMovementAdventure',
     villageId: heroInfo.village_id,
-    coordinates: { x: 0, y: 0 },
+    targetCoordinates: { x: 0, y: 0 },
     troops: [
       {
         unitId: 'HERO',

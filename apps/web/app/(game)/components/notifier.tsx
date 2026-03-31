@@ -95,7 +95,7 @@ const getEventResolvedInfo = (
   }
 
   if (isRelocationTroopMovementEvent(event)) {
-    const { coordinates } = event;
+    const { targetCoordinates } = event;
 
     const toastTitle = t('Relocation finished');
 
@@ -103,14 +103,14 @@ const getEventResolvedInfo = (
       toastTitle,
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
       body: t('Troops relocated to village at coordinates ({{x}}|{{y}})', {
-        x: coordinates.x,
-        y: coordinates.y,
+        x: targetCoordinates.x,
+        y: targetCoordinates.y,
       }),
     };
   }
 
   if (isFindNewVillageTroopMovementEvent(event)) {
-    const { coordinates } = event;
+    const { targetCoordinates } = event;
 
     const toastTitle = t('New village found');
 
@@ -118,8 +118,8 @@ const getEventResolvedInfo = (
       toastTitle,
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
       body: t('Settlers found a new village at coordinates ({{x}}|{{y}})', {
-        x: coordinates.x,
-        y: coordinates.y,
+        x: targetCoordinates.x,
+        y: targetCoordinates.y,
       }),
     };
   }
@@ -174,56 +174,56 @@ const getEventCreatedInfo = (
   }
 
   if (isReinforcementsTroopMovementEvent(event)) {
-    const { coordinates } = event;
+    const { targetCoordinates } = event;
 
     return {
       toastTitle: t(
         'Reinforcements sent to village at coordinates ({{x}}|{{y}})',
         {
-          x: coordinates.x,
-          y: coordinates.y,
+          x: targetCoordinates.x,
+          y: targetCoordinates.y,
         },
       ),
     };
   }
 
   if (isRelocationTroopMovementEvent(event)) {
-    const { coordinates } = event;
+    const { targetCoordinates } = event;
 
     return {
       toastTitle: t(
         'Relocation of troops to village at coordinates ({{x}}|{{y}}) has started',
         {
-          x: coordinates.x,
-          y: coordinates.y,
+          x: targetCoordinates.x,
+          y: targetCoordinates.y,
         },
       ),
     };
   }
 
   if (isFindNewVillageTroopMovementEvent(event)) {
-    const { coordinates } = event;
+    const { targetCoordinates } = event;
 
     return {
       toastTitle: t(
         'Settlers sent to find new village at coordinates ({{x}}|{{y}})',
         {
-          x: coordinates.x,
-          y: coordinates.y,
+          x: targetCoordinates.x,
+          y: targetCoordinates.y,
         },
       ),
     };
   }
 
   if (isOasisOccupationTroopMovementEvent(event)) {
-    const { coordinates } = event;
+    const { targetCoordinates } = event;
 
     return {
       toastTitle: t(
         'Troops sent to occupy oasis at coordinates ({{x}}|{{y}})',
         {
-          x: coordinates.x,
-          y: coordinates.y,
+          x: targetCoordinates.x,
+          y: targetCoordinates.y,
         },
       ),
     };
