@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import type { z } from 'zod';
 import {
   Section,
@@ -6,6 +7,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event.ts';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import { Form } from 'app/components/ui/form.tsx';
@@ -19,6 +21,8 @@ const oasisOccupationFormSchema = baseTroopFormSchema;
 
 export const OasisOccupationForm = () => {
   const { t } = useTranslation();
+  const { preferences } = usePreferences();
+  const navigate = useNavigate();
   const { createEvent: createOasisOccupationEvent } = useCreateEvent(
     'troopMovementOasisOccupation',
   );
@@ -36,6 +40,10 @@ export const OasisOccupationForm = () => {
     createOasisOccupationEvent(eventArgs, {
       onSuccess: () => {
         resetForm();
+
+        if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
+          navigate('..', { relative: 'path' });
+        }
       },
     });
   };

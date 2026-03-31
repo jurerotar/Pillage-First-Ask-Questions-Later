@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import type { z } from 'zod';
 import { getSettlerUnitIdByTribe } from '@pillage-first/game-assets/utils/units';
 import {
@@ -8,6 +9,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event.ts';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
@@ -20,6 +22,8 @@ import { foundNewVillageFormSchema } from './utils/schema.ts';
 
 export const FoundNewVillageForm = () => {
   const { t } = useTranslation();
+  const { preferences } = usePreferences();
+  const navigate = useNavigate();
   const tribe = useTribe();
   const { createEvent: createFindNewVillageEvent } = useCreateEvent(
     'troopMovementFindNewVillage',
@@ -49,6 +53,10 @@ export const FoundNewVillageForm = () => {
     createFindNewVillageEvent(eventArgs, {
       onSuccess: () => {
         resetForm();
+
+        if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
+          navigate('..', { relative: 'path' });
+        }
       },
     });
   };
