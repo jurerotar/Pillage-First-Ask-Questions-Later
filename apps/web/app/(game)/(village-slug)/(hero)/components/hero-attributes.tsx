@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { FaHome } from 'react-icons/fa';
+import { FaStar } from 'react-icons/fa6';
 import { LuMinus, LuPlus } from 'react-icons/lu';
 import { Link } from 'react-router';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
@@ -113,6 +114,10 @@ export const HeroAttributes = () => {
           </Text>
         </SectionContent>
         <SectionContent>
+          <div className="inline-flex gap-2 items-center font-medium">
+            <FaStar className="size-5" />
+            <Text>{t('Your hero is level {{level}}.', { level })}</Text>
+          </div>
           <div className="inline-flex gap-2 items-center font-medium">
             <FaHome className="size-6" />
             <span>

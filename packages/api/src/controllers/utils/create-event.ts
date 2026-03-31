@@ -96,7 +96,7 @@ export const createEvents = <T extends GameEventType>(
   insertEvents(database, events);
   runEventCreationSideEffects(database, events);
 
-  globalThis.postMessage({
+  globalThis.postMessage?.({
     eventKey: 'event:created',
     ...events[0],
   } satisfies EventApiNotificationEvent);
