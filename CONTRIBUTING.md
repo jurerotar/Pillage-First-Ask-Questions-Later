@@ -27,9 +27,9 @@ later.
 4. Run `npm run inject-graphics` at the root of the repository
 5. (Optional) If you cloned the repository before we migrated to a monorepo, you will have some orphaned directories
    sticking around. Run `npm run remove-deprecated-directories` command to remove these unneeded files.
-6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` file inside
-   `node_modules/@pillage-first/dev` with all table
-   definitions and indexes. Useful for giving context to AI when building queries.
+6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` & `db.sqlite3` files inside
+   `packages/db/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
+   queries.
 
 ## 2. Repository
 

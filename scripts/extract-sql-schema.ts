@@ -3,9 +3,9 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { pathToFileURL } from 'node:url';
 
-const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
+const EXPORT_PATH = join('packages', 'db', 'sql-schema');
 // SQLite file
-const DB_EXPORT_PATH = join(EXPORT_PATH, 'schema.sqlite');
+const DB_EXPORT_PATH = join(EXPORT_PATH, 'db.sqlite3');
 // Text export(s)
 const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
 
