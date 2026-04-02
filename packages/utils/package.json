@@ -39,6 +39,9 @@
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },
+    "./game/troop-movement-duration": {
+      "default": "./src/game/troop-movement-duration.ts"
+    },
     "./game/calculate-current-resources": {
       "default": "./src/game/calculate-current-resources.ts"
     },

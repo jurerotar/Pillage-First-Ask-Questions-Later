@@ -18,7 +18,9 @@ import {
   FormLabel,
 } from 'app/components/ui/form.tsx';
 import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group.tsx';
+import { useDialog } from 'app/hooks/use-dialog.ts';
 import { getFormErrorBag } from 'app/utils/forms.ts';
+import { TroopMovementConfirmationModal } from './components/confirmation-modal.tsx';
 import { CoordinateSelector } from './components/target-selectors.tsx';
 import { UnitSelector } from './components/unit-selector.tsx';
 import { useTroopForm } from './hooks/use-troop-form.ts';
@@ -46,15 +48,33 @@ export const AttackRaidForm = () => {
     },
   );
 
+  const {
+    isOpen: isConfirmationModalOpen,
+    openModal,
+    closeModal,
+    modalArgs: formData,
+  } = useDialog<z.infer<typeof attackRaidFormSchema>>();
+
   const onFormSubmit = (data: z.infer<typeof attackRaidFormSchema>) => {
-    const eventArgs = getBaseEventArgs(data);
+    openModal(data);
+  };
+
+  const onConfirm = () => {
+    if (!formData.current) {
+      return;
+    }
+
+    const eventArgs = getBaseEventArgs(formData.current);
 
     const createEventFn =
-      data.action === 'attack_normal' ? createAttackEvent : createRaidEvent;
+      formData.current.action === 'attack_normal'
+        ? createAttackEvent
+        : createRaidEvent;
 
     createEventFn(eventArgs, {
       onSuccess: () => {
         resetForm();
+        closeModal();
 
         if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
           navigate('..', { relative: 'path' });
@@ -118,6 +138,20 @@ export const AttackRaidForm = () => {
             <Button type="submit">{t('Confirm')}</Button>
           </form>
         </Form>
+
+        {formData.current && (
+          <TroopMovementConfirmationModal
+            isOpen={isConfirmationModalOpen}
+            onClose={closeModal}
+            onConfirm={onConfirm}
+            formData={formData.current}
+            title={
+              formData.current.action === 'attack_normal'
+                ? t('Attack: Normal')
+                : t('Attack: Raid')
+            }
+          />
+        )}
       </SectionContent>
     </Section>
   );

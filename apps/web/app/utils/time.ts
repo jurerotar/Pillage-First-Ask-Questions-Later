@@ -34,6 +34,7 @@ export const formatFutureTimestamp = (
     ? {
         hour: 'numeric',
         minute: 'numeric',
+        second: 'numeric',
         hour12: false,
       }
     : {
@@ -41,6 +42,7 @@ export const formatFutureTimestamp = (
         day: 'numeric',
         hour: 'numeric',
         minute: 'numeric',
+        second: 'numeric',
         hour12: false,
       };
 

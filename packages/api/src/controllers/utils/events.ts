@@ -30,6 +30,7 @@ import { speedSchema } from '@pillage-first/types/models/server';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
+import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
 import {
   isAdventurePointIncreaseEvent,
   isAdventureTroopMovementEvent,
@@ -63,7 +64,6 @@ import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
 import { removeTroops } from '../resolvers/utils/troops';
 import { calculateAdventureDuration } from './adventures';
-import { calculateTravelDuration } from './troop-movement-duration.ts';
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
   const requiredEventProperties = new Set([

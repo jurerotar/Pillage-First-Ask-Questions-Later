@@ -14,7 +14,9 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import { Form } from 'app/components/ui/form.tsx';
+import { useDialog } from 'app/hooks/use-dialog.ts';
 import { getFormErrorBag } from 'app/utils/forms.ts';
+import { TroopMovementConfirmationModal } from './components/confirmation-modal.tsx';
 import { CoordinateSelector } from './components/target-selectors.tsx';
 import { UnitSelector } from './components/unit-selector.tsx';
 import { useTroopForm } from './hooks/use-troop-form.ts';
@@ -47,12 +49,28 @@ export const FoundNewVillageForm = () => {
     },
   );
 
+  const {
+    isOpen: isConfirmationModalOpen,
+    openModal,
+    closeModal,
+    modalArgs: formData,
+  } = useDialog<z.infer<typeof foundNewVillageFormSchema>>();
+
   const onFormSubmit = (data: z.infer<typeof foundNewVillageFormSchema>) => {
-    const eventArgs = getBaseEventArgs(data);
+    openModal(data);
+  };
+
+  const onConfirm = () => {
+    if (!formData.current) {
+      return;
+    }
+
+    const eventArgs = getBaseEventArgs(formData.current);
 
     createFindNewVillageEvent(eventArgs, {
       onSuccess: () => {
         resetForm();
+        closeModal();
 
         if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
           navigate('..', { relative: 'path' });
@@ -97,6 +115,16 @@ export const FoundNewVillageForm = () => {
             <Button type="submit">{t('Confirm')}</Button>
           </form>
         </Form>
+
+        {formData.current && (
+          <TroopMovementConfirmationModal
+            isOpen={isConfirmationModalOpen}
+            onClose={closeModal}
+            onConfirm={onConfirm}
+            formData={formData.current}
+            title={t('Found a new village')}
+          />
+        )}
       </SectionContent>
     </Section>
   );

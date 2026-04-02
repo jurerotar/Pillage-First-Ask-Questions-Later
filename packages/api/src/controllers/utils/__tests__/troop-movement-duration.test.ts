@@ -7,7 +7,7 @@ import {
 import { villageMock } from '@pillage-first/mocks/village';
 import type { Effect } from '@pillage-first/types/models/effect';
 import type { Troop } from '@pillage-first/types/models/troop';
-import { calculateTravelDuration } from '../troop-movement-duration';
+import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
 
 describe('calculateTravelDuration', () => {
   const defaultArgs = {
