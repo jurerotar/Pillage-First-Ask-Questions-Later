@@ -112,7 +112,7 @@ const getEventResolvedInfo = (
   if (isFindNewVillageTroopMovementEvent(event)) {
     const { targetCoordinates } = event;
 
-    const toastTitle = t('New village found');
+    const toastTitle = t('New village founded');
 
     return {
       toastTitle,
