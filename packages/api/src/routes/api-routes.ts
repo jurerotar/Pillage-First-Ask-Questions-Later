@@ -16,8 +16,11 @@ import { getVillageEffects } from '../controllers/effect-controllers';
 import {
   cancelConstructionEvent,
   createNewEvents,
+  getScheduledBuildingUpgrades,
   getVillageEvents,
   getVillageEventsByType,
+  removeScheduledBuildingUpgrade,
+  scheduleBuildingUpgrade,
 } from '../controllers/event-controllers';
 import {
   addTileToFarmList,
@@ -174,6 +177,9 @@ const apiRoutes: Route[] = [
   createRoute(getVillageEffects),
   createRoute(getVillageEvents),
   createRoute(getVillageEventsByType),
+  createRoute(getScheduledBuildingUpgrades),
+  createRoute(scheduleBuildingUpgrade),
+  createRoute(removeScheduledBuildingUpgrade),
   createRoute(renameVillage),
   createRoute(occupyOasis),
   createRoute(abandonOasis),

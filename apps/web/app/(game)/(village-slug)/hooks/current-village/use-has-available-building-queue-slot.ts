@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
-// TODO: Raise this to 5 once you figure out how to solve the scheduledBuildingEvent bug
-const MAX_BUILDINGS_IN_QUEUE = 1;
+const MAX_BUILDINGS_IN_QUEUE = 5;
 
 export const useHasAvailableBuildingQueueSlot = (
   buildingFieldId: BuildingField['id'],

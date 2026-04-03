@@ -1243,33 +1243,6 @@ describe('events utils', () => {
       expect(startTime).toBe(2500);
     });
 
-    test('scheduledBuildingEvent - should return resolvesAt from database', async () => {
-      const database = await prepareTestDatabase();
-      const villageId = getAnyVillageId(database);
-
-      const startsAt = 3000;
-      const duration = 400;
-      insertEvents(database, [
-        createBuildingLevelChangeEventMock({
-          id: 66_001,
-          villageId,
-          startsAt,
-          duration,
-        }),
-      ]);
-
-      const startTime = getEventStartTime(
-        database,
-        createGameEventMock('buildingScheduledConstruction', {
-          villageId,
-          level: 2,
-          previousLevel: 1,
-        }),
-      );
-
-      expect(startTime).toBe(3400);
-    });
-
     test('adventurePointIncrease - should return startsAt + duration', async () => {
       const database = await prepareTestDatabase();
       const event = createGameEventMock('adventurePointIncrease', {

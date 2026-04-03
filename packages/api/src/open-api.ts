@@ -44,6 +44,10 @@ import { getPreferencesSchema } from './controllers/schemas/preferences-schemas'
 import { getQuestsSchema } from './controllers/schemas/quest-schemas';
 import { getReputationsSchema } from './controllers/schemas/reputation-schemas';
 import {
+  getScheduledBuildingUpgradesSchema,
+  scheduleBuildingUpgradeSchema,
+} from './controllers/schemas/scheduled-upgrades-schemas';
+import {
   getPlayerRankingsSchema,
   getServerOverviewStatisticsSchema,
   getVillageRankingsSchema,
@@ -827,6 +831,62 @@ export const paths = {
       responses: {
         '204': {
           description: 'Farm list renamed',
+        },
+      },
+    },
+  },
+  '/villages/:villageId/scheduled-upgrades': {
+    get: {
+      summary: 'Get scheduled building upgrades',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Scheduled building upgrades',
+          content: {
+            'application/json': {
+              schema: getScheduledBuildingUpgradesSchema,
+            },
+          },
+        },
+      },
+    },
+    post: {
+      summary: 'Schedule building upgrade',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: scheduleBuildingUpgradeSchema,
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Building upgrade scheduled',
+        },
+      },
+    },
+  },
+  '/villages/:villageId/scheduled-upgrades/:scheduledUpgradeId': {
+    delete: {
+      summary: 'Remove scheduled building upgrade',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+          scheduledUpgradeId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Scheduled building upgrade removed',
         },
       },
     },

@@ -185,7 +185,7 @@ export const rearrangeBuildingFields = createController(
         SET meta = JSON_SET(meta, '$.buildingFieldId', ur.field_id)
         FROM updates_raw ur
         WHERE events.village_id = $village_id
-          AND events.type IN ('buildingScheduledConstruction', 'buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
+          AND events.type IN ('buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
           AND JSON_EXTRACT(meta, '$.buildingId') = ur.building_text
           AND ur.building_text IS NOT NULL;
       `,
