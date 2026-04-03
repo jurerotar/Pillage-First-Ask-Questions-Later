@@ -73,7 +73,7 @@ modify related code.
   statement the app currently uses. Useful for debugging performance & checking indexing.
 - `npm run extract-sql-seeder-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
   statement the app currently uses to seed the game world. Useful for debugging seeding performance.
-- `turbo run swagger` - opens Swagger UI documentation on `http://localhost:5174` .
+- `turbo run swagger` - opens Swagger UI documentation on `http://localhost:5174`.
 - `turbo run erd` - opens SQLite ERD on `http://localhost:5175`.
 
 ## 3. Technology Stack
