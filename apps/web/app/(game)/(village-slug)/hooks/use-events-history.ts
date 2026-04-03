@@ -10,6 +10,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 export const getEventsHistorySchema = z.discriminatedUnion('type', [
   z.strictObject({
     id: z.string(),
+    villageId: z.number(),
     type: z.literal('construction'),
     timestamp: z.number(),
     data: z.preprocess(
@@ -24,6 +25,7 @@ export const getEventsHistorySchema = z.discriminatedUnion('type', [
   }),
   z.strictObject({
     id: z.string(),
+    villageId: z.number(),
     type: z.literal('training'),
     timestamp: z.number(),
     data: z.preprocess(
@@ -38,6 +40,7 @@ export const getEventsHistorySchema = z.discriminatedUnion('type', [
   }),
   z.strictObject({
     id: z.string(),
+    villageId: z.number(),
     type: z.literal('improvement'),
     timestamp: z.number(),
     data: z.preprocess(
@@ -51,6 +54,7 @@ export const getEventsHistorySchema = z.discriminatedUnion('type', [
   }),
   z.strictObject({
     id: z.string(),
+    villageId: z.number(),
     type: z.literal('research'),
     timestamp: z.number(),
     data: z.preprocess(
