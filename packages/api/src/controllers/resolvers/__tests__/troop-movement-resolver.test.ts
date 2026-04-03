@@ -241,6 +241,12 @@ describe(findNewVillageMovementResolver, () => {
     })!;
 
     const resolvesAt = 2000;
+
+    // Set initial troop consumption for source village to 3 (3 settlers)
+    database.exec({
+      sql: "UPDATE effects SET value = 3 WHERE village_id = 1 AND source = 'troops' AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction');",
+    });
+
     const mockEvent = createTroopMovementFindNewVillageEventMock({
       id: 1,
       startsAt: 1000,
@@ -343,6 +349,14 @@ describe(findNewVillageMovementResolver, () => {
     expect(troopWheatEffects).toHaveLength(1);
     expect(troopWheatEffects[0].sourceSpecifier).toBe(0);
     expect(troopWheatEffects[0].value).toBe(0);
+
+    // Verify troop consumption in source village
+    const sourceTroopWheatEffects = database.selectObjects({
+      sql: "SELECT e.value FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = 1 AND e.source = 'troops' AND ei.effect = 'wheatProduction';",
+      schema: z.strictObject({ value: z.number() }),
+    });
+    // Assuming initial value was 3 (for 3 settlers)
+    expect(sourceTroopWheatEffects[0].value).toBe(0);
   });
 });
 

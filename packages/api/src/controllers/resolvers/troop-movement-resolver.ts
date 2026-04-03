@@ -110,6 +110,7 @@ export const findNewVillageMovementResolver: Resolver<
   const {
     targetCoordinates: { x, y },
     resolvesAt,
+    villageId,
   } = args;
 
   const { id: tileId } = database.selectObject({
@@ -323,6 +324,25 @@ export const findNewVillageMovementResolver: Resolver<
       $villageId: newVillageId,
     },
   });
+
+  // Reduce troop consumption in the source village by 3 (since 3 settlers are consumed)
+  database.exec({
+    sql: `
+      UPDATE effects
+      SET
+        value = value - 3
+      WHERE
+        effect_id = $effectId
+        AND source = 'troops'
+        AND village_id = $villageId;
+    `,
+    bind: {
+      $effectId: wheatProductionEffectId,
+      $villageId: villageId,
+    },
+  });
+
+  updateVillageResourcesAt(database, villageId, resolvesAt);
 };
 
 export const returnMovementResolver: Resolver<
