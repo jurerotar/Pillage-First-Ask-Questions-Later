@@ -28,7 +28,7 @@ later.
 5. (Optional) If you cloned the repository before we migrated to a monorepo, you will have some orphaned directories
    sticking around. Run `npm run remove-deprecated-directories` command to remove these unneeded files.
 6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` & `db.sqlite3` files inside
-   `packages/db/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
+   `apps/sqlite-erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
    queries.
 
 ## 2. Repository
@@ -70,11 +70,11 @@ modify related code.
 - `npm run extract-sql-schema` - generates a `schema.sql` file inside `node_modules/@pillage-first/dev` with all table
   definitions and indexes. Useful for giving context to AI when building queries.
 - `npm run extract-sql-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
-  statement
-  the app currently uses. Useful for debugging performance & checking indexing.
+  statement the app currently uses. Useful for debugging performance & checking indexing.
 - `npm run extract-sql-seeder-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
-  statement
-  the app currently uses to seed the game world. Useful for debugging seeding performance.
+  statement the app currently uses to seed the game world. Useful for debugging seeding performance.
+- `turbo run swagger` - opens Swagger UI documentation on `http://localhost:5174` .
+- `turbo run erd` - opens SQLite ERD on `http://localhost:5175`.
 
 ## 3. Technology Stack
 

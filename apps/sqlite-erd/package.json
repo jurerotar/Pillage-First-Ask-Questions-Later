@@ -1,0 +1,36 @@
+{
+  "$schema": "https://www.schemastore.org/package.json",
+  "name": "@pillage-first/sqlite-erd",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "author": "Jure Rotar <hello@jurerotar.com>",
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jurerotar/Pillage-First-Ask-Questions-Later",
+    "directory": "apps/sqlite-erd"
+  },
+  "scripts": {
+    "erd": "vite",
+    "lint:check": "biome lint --no-errors-on-unmatched",
+    "lint": "biome lint --fix --no-errors-on-unmatched",
+    "lint:check/oxlint": "oxlint --type-aware",
+    "lint/oxlint": "oxlint --type-aware --fix",
+    "format:check": "biome ci --linter-enabled=false",
+    "format": "biome check --write --no-errors-on-unmatched",
+    "type-check": "tsgo"
+  },
+  "dependencies": {
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "sqlite-erd": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@typescript/native-preview": "7.0.0-dev.20260330.1",
+    "typescript": "6.0.2",
+    "vite": "8.0.3"
+  }
+}
