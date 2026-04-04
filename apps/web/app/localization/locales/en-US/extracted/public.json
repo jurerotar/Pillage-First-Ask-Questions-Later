@@ -49,6 +49,12 @@
   "Pillage First! logo": "Pillage First! logo",
   "Play anywhere, anytime, without an internet connection.": "Play anywhere, anytime, without an internet connection.",
   "Preferences": "Preferences",
+  "public:Buildings": "public:Buildings",
+  "public:Home": "public:Home",
+  "public:Index": "public:Index",
+  "public:Units": "public:Units",
+  "public:Wiki": "public:Wiki",
+  "public:Wiki Navigation": "public:Wiki Navigation",
   "Resources": "Resources",
   "Return to homepage": "Return to homepage",
   "Scan for devices": "Scan for devices",
@@ -61,6 +67,6 @@
   "This method allows you to import game world files directly from your computer.": "This method allows you to import game world files directly from your computer.",
   "Want to create a new game world, or continue with your existing ones instead?": "Want to create a new game world, or continue with your existing ones instead?",
   "We strive for a great experience on any device.": "We strive for a great experience on any device.",
-  "Wiki (coming soon)": "Wiki (coming soon)",
+  "Wiki": "Wiki",
   "Your game worlds": "Your game worlds"
 }
