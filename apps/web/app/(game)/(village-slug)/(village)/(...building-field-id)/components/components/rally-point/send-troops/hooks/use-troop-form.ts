@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { type DefaultValues, type FieldValues, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import type { z } from 'zod';
@@ -11,7 +11,6 @@ import type { TroopMovementEventType } from '@pillage-first/types/models/game-ev
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing.ts';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
 import { useValidateTroopMovement } from 'app/(game)/(village-slug)/hooks/use-validate-troop-movement';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
@@ -45,12 +44,11 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
   const tribe = useTribe();
   const { getDeployableTroops } = useVillageTroops();
   const [searchParams] = useSearchParams();
-  const { playerVillages } = usePlayerVillageListing();
   const { validateTroopMovement } = useValidateTroopMovement();
 
-  const [serverErrors, setServerErrors] = useState<string[]>([]);
-
-  const deployableTroops = getDeployableTroops();
+  const deployableTroops = useMemo(() => {
+    return getDeployableTroops();
+  }, [getDeployableTroops]);
 
   const initialTarget = useMemo(() => {
     const xParam = searchParams.get('x');
@@ -101,12 +99,11 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     defaultValues: initialValues,
   });
 
-  const resetForm = useCallback(
-    () => form.reset(initialValues),
-    [form, initialValues],
-  );
+  const resetForm = useCallback(() => {
+    return form.reset(initialValues);
+  }, [form, initialValues]);
 
-  const lastResetValuesRef = useRef<string>('');
+  const lastResetValuesRef = useRef<string>(JSON.stringify(initialValues));
 
   useEffect(() => {
     const currentValuesJson = JSON.stringify(initialValues);
@@ -156,8 +153,6 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
       | 'raid'
       | 'oasisOccupation',
   ) => {
-    setServerErrors([]);
-
     const movementTypeMap = {
       reinforcements: 'troopMovementReinforcements',
       relocation: 'troopMovementRelocation',
@@ -174,8 +169,16 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
       type: type,
     });
 
+    form.clearErrors('root');
+
     if (errors.length > 0) {
-      setServerErrors(errors);
+      errors.forEach((error, index) => {
+        form.setError(`root.${index}`, {
+          type: 'manual',
+          message: error,
+        });
+      });
+
       return false;
     }
 
@@ -186,9 +189,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     form,
     currentVillage,
     getBaseEventArgs,
-    playerVillages,
     resetForm,
-    serverErrors,
     validateTroopMovementAsync,
   };
 };

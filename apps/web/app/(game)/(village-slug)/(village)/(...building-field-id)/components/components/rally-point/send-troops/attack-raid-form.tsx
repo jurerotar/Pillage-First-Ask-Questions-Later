@@ -39,17 +39,12 @@ export const AttackRaidForm = () => {
   );
   const { createEvent: createRaidEvent } = useCreateEvent('troopMovementRaid');
 
-  const {
-    form,
-    getBaseEventArgs,
-    resetForm,
-    serverErrors,
-    validateTroopMovementAsync,
-  } = useTroopForm(attackRaidFormSchema, {
-    defaultValues: {
-      action: 'attack_normal',
-    },
-  });
+  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
+    useTroopForm(attackRaidFormSchema, {
+      defaultValues: {
+        action: 'attack_normal',
+      },
+    });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -143,12 +138,7 @@ export const AttackRaidForm = () => {
               />
             </div>
 
-            <ErrorBag
-              errorBag={[
-                ...getFormErrorBag(form.formState.errors),
-                ...serverErrors,
-              ]}
-            />
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

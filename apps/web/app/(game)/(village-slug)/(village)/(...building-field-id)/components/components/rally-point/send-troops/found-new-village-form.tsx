@@ -41,16 +41,11 @@ export const FoundNewVillageForm = () => {
     return [{ unitId: settlerUnitId, amount: 3 }];
   }, [settlerUnitId]);
 
-  const {
-    form,
-    getBaseEventArgs,
-    resetForm,
-    serverErrors,
-    validateTroopMovementAsync,
-  } = useTroopForm(foundNewVillageFormSchema, {
-    defaultValues: {},
-    defaultUnits,
-  });
+  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
+    useTroopForm(foundNewVillageFormSchema, {
+      defaultValues: {},
+      defaultUnits,
+    });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -119,12 +114,7 @@ export const FoundNewVillageForm = () => {
               <CoordinateSelector />
             </div>
 
-            <ErrorBag
-              errorBag={[
-                ...getFormErrorBag(form.formState.errors),
-                ...serverErrors,
-              ]}
-            />
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

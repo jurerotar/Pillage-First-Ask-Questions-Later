@@ -41,18 +41,12 @@ export const ReinforcementRelocationForm = () => {
     'troopMovementRelocation',
   );
 
-  const {
-    form,
-    getBaseEventArgs,
-    playerVillages,
-    resetForm,
-    serverErrors,
-    validateTroopMovementAsync,
-  } = useTroopForm(reinforcementRelocationFormSchema, {
-    defaultValues: {
-      action: 'reinforcement',
-    },
-  });
+  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
+    useTroopForm(reinforcementRelocationFormSchema, {
+      defaultValues: {
+        action: 'reinforcement',
+      },
+    });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -64,21 +58,6 @@ export const ReinforcementRelocationForm = () => {
   const onFormSubmit = async (
     data: z.infer<typeof reinforcementRelocationFormSchema>,
   ) => {
-    const isTargetingOwnVillage = playerVillages.some(
-      (v) =>
-        v.coordinates.x === data.target.x && v.coordinates.y === data.target.y,
-    );
-
-    if (!isTargetingOwnVillage) {
-      form.setError('target', {
-        type: 'manual',
-        message: t(
-          'Reinforcements and relocations can only be sent to your own villages',
-        ),
-      });
-      return;
-    }
-
     const isValid = await validateTroopMovementAsync(
       data,
       data.action === 'reinforcement' ? 'reinforcements' : 'relocation',
@@ -163,12 +142,7 @@ export const ReinforcementRelocationForm = () => {
               />
             </div>
 
-            <ErrorBag
-              errorBag={[
-                ...getFormErrorBag(form.formState.errors),
-                ...serverErrors,
-              ]}
-            />
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

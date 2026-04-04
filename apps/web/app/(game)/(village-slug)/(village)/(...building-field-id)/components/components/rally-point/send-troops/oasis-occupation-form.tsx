@@ -29,15 +29,10 @@ export const OasisOccupationForm = () => {
     'troopMovementOasisOccupation',
   );
 
-  const {
-    form,
-    getBaseEventArgs,
-    resetForm,
-    serverErrors,
-    validateTroopMovementAsync,
-  } = useTroopForm(oasisOccupationFormSchema, {
-    defaultValues: {},
-  });
+  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
+    useTroopForm(oasisOccupationFormSchema, {
+      defaultValues: {},
+    });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -92,12 +87,7 @@ export const OasisOccupationForm = () => {
               <CoordinateSelector />
             </div>
 
-            <ErrorBag
-              errorBag={[
-                ...getFormErrorBag(form.formState.errors),
-                ...serverErrors,
-              ]}
-            />
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>
