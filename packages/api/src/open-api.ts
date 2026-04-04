@@ -9,6 +9,7 @@ import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { serverDbSchema } from '@pillage-first/types/models/server';
+import packageJson from '../../../package.json' with { type: 'json' };
 import { getDeveloperSettingsSchema } from './controllers/schemas/developer-tools-schemas';
 import {
   farmListSchema,
@@ -630,6 +631,21 @@ export const paths = {
       responses: {
         '204': {
           description: 'Adventure points incremented',
+        },
+      },
+    },
+  },
+  '/developer-settings/:heroId/kill': {
+    patch: {
+      summary: 'Kill hero',
+      requestParams: {
+        path: z.strictObject({
+          heroId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Hero killed',
         },
       },
     },
@@ -1513,14 +1529,51 @@ export const paths = {
       },
     },
   },
+  '/troop-movements/validate': {
+    post: {
+      summary: 'Validate troop movement',
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              type: z.string(),
+              villageId: z.number(),
+              targetCoordinates: z.strictObject({
+                x: z.number(),
+                y: z.number(),
+              }),
+              troops: z.array(
+                z.strictObject({
+                  unitId: z.string(),
+                  amount: z.number(),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Validation results',
+          content: {
+            'application/json': {
+              schema: z.strictObject({
+                errors: z.array(z.string()),
+              }),
+            },
+          },
+        },
+      },
+    },
+  },
 } satisfies ZodOpenApiPathsObject;
 
 export const document = createDocument({
   openapi: '3.1.0',
   info: {
     title: 'Pillage First! worker-based API',
-    version: '1.0.0',
-    description: 'Proof of Concept for zod-openapi',
+    version: packageJson.version,
+    description: 'Pillage First! worker-based API',
   },
   paths,
 });

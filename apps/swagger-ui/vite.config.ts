@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
 const viteConfig = defineConfig({
   server: {
-    open: false,
+    open: true,
     port: 5174,
   },
 });

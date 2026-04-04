@@ -2,10 +2,20 @@ import type { TFunction } from 'i18next';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
+import type {
+  ApiNotificationEvent,
+  EventApiNotificationEvent,
+} from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
 import {
+  isAdventureTroopMovementEvent,
   isBuildingLevelUpEvent,
+  isFindNewVillageTroopMovementEvent,
+  isHeroRevivalEvent,
+  isOasisOccupationTroopMovementEvent,
+  isReinforcementsTroopMovementEvent,
+  isRelocationTroopMovementEvent,
+  isTroopTrainingEvent,
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
@@ -16,6 +26,7 @@ import { useNotificationPermission } from 'app/(game)/hooks/use-notification-per
 import { useTabFocus } from 'app/(game)/hooks/use-tab-focus';
 import {
   isControllerMessageErrorNotificationMessageEvent,
+  isEventCreatedNotificationMessageEvent,
   isEventResolvedNotificationMessageEvent,
 } from 'app/(game)/providers/guards/api-notification-event-guards';
 
@@ -24,36 +35,27 @@ type NotificationFactoryArgs = {
   serverName: string;
 };
 
-type NotificationFactoryReturn =
-  | {
-      toastTitle: string;
-      notificationTitle: string;
-      body?: string;
-    }
-  | undefined;
+type NotificationInfo = {
+  toastTitle: string;
+  notificationTitle?: string;
+  body?: string;
+};
 
-type NotificationFactory = (
-  event: MessageEvent<EventApiNotificationEvent>,
-  args: NotificationFactoryArgs,
-) => NotificationFactoryReturn | undefined;
-
-const eventResolvedNotificationFactory: NotificationFactory = (
-  { data },
-  { t, serverName },
-) => {
-  if (isBuildingLevelUpEvent(data)) {
-    const buildingName = t(`BUILDINGS.${data.buildingId}.NAME`);
-    const { level } = data;
+const getEventResolvedInfo = (
+  event: EventApiNotificationEvent,
+  { t, serverName }: NotificationFactoryArgs,
+): NotificationInfo | undefined => {
+  if (isBuildingLevelUpEvent(event)) {
+    const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
+    const { level } = event;
 
     const toastTitle = t('{{buildingName}} upgraded', {
       buildingName,
     });
 
-    const notificationTitle = `${toastTitle} | Pillage First! - ${serverName}`;
-
     return {
       toastTitle,
-      notificationTitle,
+      notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
       body: t('{{buildingName}} was upgraded to level {{level}}', {
         buildingName,
         level,
@@ -61,37 +63,180 @@ const eventResolvedNotificationFactory: NotificationFactory = (
     };
   }
 
-  if (isUnitResearchEvent(data)) {
-    const unitName = t(`UNITS.${data.unitId}.NAME`);
+  if (isUnitResearchEvent(event)) {
+    const unitName = t(`UNITS.${event.unitId}.NAME`);
 
     const toastTitle = t('{{unitName}} researched', {
       unitName,
     });
 
-    const notificationTitle = `${toastTitle} | Pillage First! - ${serverName}`;
-
     return {
       toastTitle,
-      notificationTitle,
+      notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
     };
   }
 
-  if (isUnitImprovementEvent(data)) {
-    const unitName = t(`UNITS.${data.unitId}.NAME`);
-    const { level } = data;
+  if (isUnitImprovementEvent(event)) {
+    const unitName = t(`UNITS.${event.unitId}.NAME`);
+    const { level } = event;
 
     const toastTitle = t('{{unitName}} upgraded', {
       unitName,
     });
 
-    const notificationTitle = `${toastTitle} | Pillage First! - ${serverName}`;
-
     return {
       toastTitle,
-      notificationTitle,
+      notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
       body: t('{{unitName}} was upgraded to level {{level}}', {
         unitName,
         level,
+      }),
+    };
+  }
+
+  if (isRelocationTroopMovementEvent(event)) {
+    const { targetCoordinates } = event;
+
+    const toastTitle = t('Relocation finished');
+
+    return {
+      toastTitle,
+      notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
+      body: t('Troops relocated to village at coordinates ({{x}}|{{y}})', {
+        x: targetCoordinates.x,
+        y: targetCoordinates.y,
+      }),
+    };
+  }
+
+  if (isFindNewVillageTroopMovementEvent(event)) {
+    const { targetCoordinates } = event;
+
+    const toastTitle = t('New village founded');
+
+    return {
+      toastTitle,
+      notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
+      body: t('Settlers found a new village at coordinates ({{x}}|{{y}})', {
+        x: targetCoordinates.x,
+        y: targetCoordinates.y,
+      }),
+    };
+  }
+
+  return;
+};
+
+const getEventCreatedInfo = (
+  event: EventApiNotificationEvent,
+  { t }: NotificationFactoryArgs,
+): NotificationInfo | undefined => {
+  if (isBuildingLevelUpEvent(event)) {
+    const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
+    const { level } = event;
+
+    return {
+      toastTitle: t('{{buildingName}} level {{level}} upgrade started', {
+        buildingName,
+        level,
+      }),
+    };
+  }
+
+  if (isUnitResearchEvent(event)) {
+    const unitName = t(`UNITS.${event.unitId}.NAME`);
+
+    return {
+      toastTitle: t('{{unitName}} research started', {
+        unitName,
+      }),
+    };
+  }
+
+  if (isUnitImprovementEvent(event)) {
+    const unitName = t(`UNITS.${event.unitId}.NAME`);
+    const { level } = event;
+
+    return {
+      toastTitle: t('{{unitName}} level {{level}} upgrade started', {
+        unitName,
+        level,
+      }),
+    };
+  }
+
+  if (isAdventureTroopMovementEvent(event)) {
+    return { toastTitle: t('Hero sent on adventure') };
+  }
+
+  if (isHeroRevivalEvent(event)) {
+    return { toastTitle: t('Hero revival started') };
+  }
+
+  if (isReinforcementsTroopMovementEvent(event)) {
+    const { targetCoordinates } = event;
+
+    return {
+      toastTitle: t(
+        'Reinforcements sent to village at coordinates ({{x}}|{{y}})',
+        {
+          x: targetCoordinates.x,
+          y: targetCoordinates.y,
+        },
+      ),
+    };
+  }
+
+  if (isRelocationTroopMovementEvent(event)) {
+    const { targetCoordinates } = event;
+
+    return {
+      toastTitle: t(
+        'Relocation of troops to village at coordinates ({{x}}|{{y}}) has started',
+        {
+          x: targetCoordinates.x,
+          y: targetCoordinates.y,
+        },
+      ),
+    };
+  }
+
+  if (isFindNewVillageTroopMovementEvent(event)) {
+    const { targetCoordinates } = event;
+
+    return {
+      toastTitle: t(
+        'Settlers sent to found a new village at coordinates ({{x}}|{{y}})',
+        {
+          x: targetCoordinates.x,
+          y: targetCoordinates.y,
+        },
+      ),
+    };
+  }
+
+  if (isOasisOccupationTroopMovementEvent(event)) {
+    const { targetCoordinates } = event;
+
+    return {
+      toastTitle: t(
+        'Troops sent to occupy oasis at coordinates ({{x}}|{{y}})',
+        {
+          x: targetCoordinates.x,
+          y: targetCoordinates.y,
+        },
+      ),
+    };
+  }
+
+  if (isTroopTrainingEvent(event)) {
+    const unitName = t(`UNITS.${event.unitId}.NAME`);
+    const { amount } = event;
+
+    return {
+      toastTitle: t('Added {{count}} {{unitName}} to training queue', {
+        count: amount,
+        unitName,
       }),
     };
   }
@@ -116,8 +261,17 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       return;
     }
 
-    const handleMessage = (event: MessageEvent<EventApiNotificationEvent>) => {
-      if (!isEventResolvedNotificationMessageEvent(event)) {
+    const handleMessage = (event: MessageEvent<ApiNotificationEvent>) => {
+      if (isEventCreatedNotificationMessageEvent(event)) {
+        const { data } = event;
+        const info = getEventCreatedInfo(data, {
+          t,
+          serverName: server.name,
+        });
+
+        if (info) {
+          toast(info.toastTitle);
+        }
         return;
       }
 
@@ -131,18 +285,25 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
           description: message,
           richColors: true,
         });
+        return;
       }
 
-      const toastArgs = eventResolvedNotificationFactory(event, {
+      if (!isEventResolvedNotificationMessageEvent(event)) {
+        return;
+      }
+
+      const { data } = event;
+
+      const info = getEventResolvedInfo(data, {
         t,
         serverName: server.name,
       });
 
-      if (!toastArgs) {
+      if (!info) {
         return;
       }
 
-      const { toastTitle, notificationTitle, body } = toastArgs;
+      const { toastTitle, notificationTitle, body } = info;
 
       toast(toastTitle, { description: body });
 
@@ -151,18 +312,16 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       }
 
       const shouldShowNotification =
-        (isBuildingLevelUpEvent(event.data) &&
+        (isBuildingLevelUpEvent(data) &&
           preferences.shouldShowNotificationsOnBuildingUpgradeCompletion) ||
-        (isUnitImprovementEvent(event.data) &&
+        (isUnitImprovementEvent(data) &&
           preferences.shouldShowNotificationsOnUnitUpgradeCompletion) ||
-        (isUnitResearchEvent(event.data) &&
+        (isUnitResearchEvent(data) &&
           preferences.shouldShowNotificationsOnAcademyResearchCompletion);
 
-      if (!shouldShowNotification) {
-        return;
+      if (shouldShowNotification && notificationTitle) {
+        new Notification(notificationTitle, { body });
       }
-
-      new Notification(notificationTitle, { body });
     };
 
     apiWorker.addEventListener('message', handleMessage);

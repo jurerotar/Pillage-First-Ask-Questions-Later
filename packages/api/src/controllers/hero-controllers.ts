@@ -11,9 +11,10 @@ import {
   getHeroLoadoutSchema,
   getHeroSchema,
 } from './schemas/hero-schemas';
+import { createEvents } from './utils/create-event.ts';
 
 export const getHero = createController('/players/:playerId/hero')(
-  ({ database }) => {
+  ({ database, path: { playerId } }) => {
     return database.selectObject({
       sql: `
         SELECT
@@ -33,12 +34,24 @@ export const getHero = createController('/players/:playerId/hero')(
           hsa.attack_power,
           hsa.resource_production,
           hsa.attack_bonus,
-          hsa.defence_bonus
+          hsa.defence_bonus,
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              troops t
+                JOIN unit_ids ui ON t.unit_id = ui.id
+                JOIN villages v ON t.tile_id = v.tile_id
+            WHERE
+              ui.unit = 'HERO'
+              AND v.player_id = $player_id
+            ) AS is_home
         FROM
           heroes h
             JOIN
             hero_selectable_attributes hsa ON h.id = hsa.hero_id;
       `,
+      bind: { $player_id: playerId },
       schema: getHeroSchema,
     })!;
   },
@@ -92,6 +105,60 @@ export const getHeroAdventures = createController(
     sql: 'SELECT available, completed FROM hero_adventures;',
     schema: heroAdventuresSchema,
   })!;
+});
+
+export const startHeroAdventure = createController(
+  '/players/:playerId/hero/adventures',
+  'post',
+)(({ database, path: { playerId } }) => {
+  const heroInfo = database.selectObject({
+    sql: `
+      SELECT
+        h.id,
+        h.health,
+        t.tile_id,
+        v.id AS village_id
+      FROM
+        heroes h
+          JOIN troops t ON h.id = t.unit_id
+          JOIN unit_ids ui ON t.unit_id = ui.id
+          JOIN villages v ON t.tile_id = v.tile_id
+      WHERE
+        h.player_id = $player_id
+        AND ui.unit = 'HERO'
+        AND v.player_id = $player_id
+      LIMIT 1;
+    `,
+    bind: { $player_id: playerId },
+    schema: z.strictObject({
+      id: z.number(),
+      health: z.number(),
+      tile_id: z.number(),
+      village_id: z.number(),
+    }),
+  });
+
+  if (!heroInfo) {
+    throw new Error('Hero is not at home or not found');
+  }
+
+  if (heroInfo.health <= 0) {
+    throw new Error('Hero is dead');
+  }
+
+  createEvents(database, {
+    type: 'troopMovementAdventure',
+    villageId: heroInfo.village_id,
+    targetCoordinates: { x: 0, y: 0 },
+    troops: [
+      {
+        unitId: 'HERO',
+        amount: 1,
+        tileId: heroInfo.tile_id,
+        source: heroInfo.tile_id,
+      },
+    ],
+  });
 });
 
 export const changeHeroAttributes = createController(
@@ -212,8 +279,10 @@ export const changeHeroAttributes = createController(
               AND source_specifier = 0
               AND effect_id = (
                 SELECT id
-                FROM effect_ids
-                WHERE effect = $effectId
+                FROM
+                  effect_ids
+                WHERE
+                  effect = $effectId
                 )
               AND village_id = $village_id
           `,
@@ -311,8 +380,10 @@ export const changeHeroResourceToProduce = createController(
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
-              FROM effect_ids
-              WHERE effect = $effectId
+              FROM
+                effect_ids
+              WHERE
+                effect = $effectId
               )
             AND village_id = $village_id
         `,
@@ -616,11 +687,16 @@ export const useHeroItem = createController(
         database.exec({
           sql: `
             UPDATE effects
-            SET value = 0
+            SET
+              value = 0
             WHERE
               source = 'hero'
               AND source_specifier = 0
-              AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effectId)
+              AND effect_id = (
+                SELECT id
+                FROM effect_ids
+                WHERE effect = $effectId
+                )
               AND village_id = $village_id
           `,
           bind: {

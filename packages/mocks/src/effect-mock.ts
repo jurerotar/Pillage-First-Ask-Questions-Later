@@ -152,3 +152,33 @@ export const wheatProductionServerEffectMock: ServerEffect = {
   type: 'bonus',
   sourceSpecifier: null,
 };
+
+export const unitSpeedHeroBonusEffectMock: HeroEffect = {
+  villageId,
+  id: 'unitSpeed',
+  scope: 'village',
+  source: 'hero',
+  value: 2,
+  type: 'bonus',
+  sourceSpecifier: null,
+};
+
+export const unitSpeedAfter20FieldsHeroBonusEffectMock: HeroEffect = {
+  villageId,
+  id: 'unitSpeedAfter20Fields',
+  scope: 'village',
+  source: 'hero',
+  value: 2,
+  type: 'bonus',
+  sourceSpecifier: null,
+};
+
+export const unitSpeedAfter20FieldsHugeHeroBonusEffectMock: HeroEffect = {
+  villageId,
+  id: 'unitSpeedAfter20Fields',
+  scope: 'village',
+  source: 'hero',
+  value: 10,
+  type: 'bonus',
+  sourceSpecifier: null,
+};

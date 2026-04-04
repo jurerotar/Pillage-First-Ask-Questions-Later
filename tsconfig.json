@@ -15,6 +15,7 @@
     "noImplicitReturns": true,
     "strictNullChecks": true,
     "erasableSyntaxOnly": true,
+    "moduleResolution": "bundler",
     "noEmit": true
   },
   "include": [

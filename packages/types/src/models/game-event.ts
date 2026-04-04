@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
+import type { Coordinates } from './coordinates';
 import type { TroopTrainingDurationEffectId } from './effect';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
@@ -64,7 +65,8 @@ export type TroopMovementType =
 
 type BaseTroopMovementEvent = {
   troops: Troop[];
-  targetId: Village['id'];
+  originCoordinates: Coordinates;
+  targetCoordinates: Coordinates;
 };
 
 export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {

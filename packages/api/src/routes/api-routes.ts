@@ -6,6 +6,7 @@ import {
 import {
   getDeveloperSettings,
   incrementHeroAdventurePoints,
+  killHero,
   levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
@@ -37,6 +38,7 @@ import {
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
+  startHeroAdventure,
   unequipHeroItem,
   useHeroItem,
 } from '../controllers/hero-controllers';
@@ -85,6 +87,7 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from '../controllers/statistics-controllers';
+import { validateTroopMovement } from '../controllers/troop-movement-controllers';
 import { getUnitImprovements } from '../controllers/unit-improvement-controllers';
 import { getResearchedUnits } from '../controllers/unit-research-controllers';
 import {
@@ -107,6 +110,7 @@ const apiRoutes: Route[] = [
   createRoute(spawnHeroItem),
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
+  createRoute(killHero),
 
   // Auctions
   // createRoute(getAuctions),
@@ -116,6 +120,7 @@ const apiRoutes: Route[] = [
   createRoute(getHeroLoadout),
   createRoute(getHeroInventory),
   createRoute(getHeroAdventures),
+  createRoute(startHeroAdventure),
   createRoute(useHeroItem),
   createRoute(equipHeroItem),
   createRoute(unequipHeroItem),
@@ -205,6 +210,9 @@ const apiRoutes: Route[] = [
   createRoute(getBuildingLevelChangeHistory),
   createRoute(getEventsHistory),
   createRoute(getUnitTrainingHistory),
+
+  // Troop Movements
+  createRoute(validateTroopMovement),
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

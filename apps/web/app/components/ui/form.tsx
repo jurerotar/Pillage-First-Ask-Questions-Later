@@ -82,7 +82,7 @@ export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
     <FormItemContext value={{ id: name }}>
       <div
         data-slot="form-item"
-        className={clsx('grid gap-2', className)}
+        className={className}
         {...props}
       />
     </FormItemContext>

@@ -55,6 +55,24 @@ export const selectAllRelevantEffectsByIdQuery = `
     AND (e.scope IN ('global', 'server') OR e.village_id = $village_id);
 `;
 
+export const selectUnitSpeedRelevantEffectsQuery = `
+  SELECT
+    ei.effect AS id,
+    e.value,
+    e.type,
+    e.scope,
+    e.source,
+    e.village_id AS villageId,
+    e.source_specifier AS sourceSpecifier
+  FROM
+    effects AS e
+      LEFT JOIN effect_ids AS ei
+                ON ei.id = e.effect_id
+  WHERE
+    (ei.effect IN ('unitSpeed', 'unitSpeedAfter20Fields'))
+    AND (e.scope IN ('global', 'server') OR e.village_id = $village_id);
+`;
+
 export const updatePopulationEffectQuery = `
   UPDATE effects
   SET
