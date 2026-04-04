@@ -36,6 +36,20 @@
     "turbo": "2.9.3",
     "typescript": "6.0.2"
   },
+  "overrides": {
+    "@react-router/dev": {
+      "typescript": "6.0.2"
+    },
+    "vite-plugin-devtools-json": {
+      "vite": "^8.0.0"
+    },
+    "vite-plugin-pwa": {
+      "vite": "^8.0.0"
+    },
+    "openapi-typescript": {
+      "typescript": "6.0.2"
+    }
+  },
   "engines": {
     "node": ">=24.12.0"
   },
