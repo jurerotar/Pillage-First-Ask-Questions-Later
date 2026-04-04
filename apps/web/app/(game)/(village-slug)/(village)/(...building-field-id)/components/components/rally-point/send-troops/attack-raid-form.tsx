@@ -39,14 +39,17 @@ export const AttackRaidForm = () => {
   );
   const { createEvent: createRaidEvent } = useCreateEvent('troopMovementRaid');
 
-  const { form, getBaseEventArgs, resetForm } = useTroopForm(
-    attackRaidFormSchema,
-    {
-      defaultValues: {
-        action: 'attack_normal',
-      },
+  const {
+    form,
+    getBaseEventArgs,
+    resetForm,
+    serverErrors,
+    validateTroopMovementAsync,
+  } = useTroopForm(attackRaidFormSchema, {
+    defaultValues: {
+      action: 'attack_normal',
     },
-  );
+  });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -55,8 +58,15 @@ export const AttackRaidForm = () => {
     modalArgs: formData,
   } = useDialog<z.infer<typeof attackRaidFormSchema>>();
 
-  const onFormSubmit = (data: z.infer<typeof attackRaidFormSchema>) => {
-    openModal(data);
+  const onFormSubmit = async (data: z.infer<typeof attackRaidFormSchema>) => {
+    const isValid = await validateTroopMovementAsync(
+      data,
+      data.action === 'attack_normal' ? 'attack' : 'raid',
+    );
+
+    if (isValid) {
+      openModal(data);
+    }
   };
 
   const onConfirm = () => {
@@ -133,7 +143,12 @@ export const AttackRaidForm = () => {
               />
             </div>
 
-            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
+            <ErrorBag
+              errorBag={[
+                ...getFormErrorBag(form.formState.errors),
+                ...serverErrors,
+              ]}
+            />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

@@ -1529,6 +1529,43 @@ export const paths = {
       },
     },
   },
+  '/troop-movements/validate': {
+    post: {
+      summary: 'Validate troop movement',
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              type: z.string(),
+              villageId: z.number(),
+              targetCoordinates: z.strictObject({
+                x: z.number(),
+                y: z.number(),
+              }),
+              troops: z.array(
+                z.strictObject({
+                  unitId: z.string(),
+                  amount: z.number(),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Validation results',
+          content: {
+            'application/json': {
+              schema: z.strictObject({
+                errors: z.array(z.string()),
+              }),
+            },
+          },
+        },
+      },
+    },
+  },
 } satisfies ZodOpenApiPathsObject;
 
 export const document = createDocument({

@@ -41,14 +41,18 @@ export const ReinforcementRelocationForm = () => {
     'troopMovementRelocation',
   );
 
-  const { form, getBaseEventArgs, playerVillages, resetForm } = useTroopForm(
-    reinforcementRelocationFormSchema,
-    {
-      defaultValues: {
-        action: 'reinforcement',
-      },
+  const {
+    form,
+    getBaseEventArgs,
+    playerVillages,
+    resetForm,
+    serverErrors,
+    validateTroopMovementAsync,
+  } = useTroopForm(reinforcementRelocationFormSchema, {
+    defaultValues: {
+      action: 'reinforcement',
     },
-  );
+  });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -57,7 +61,7 @@ export const ReinforcementRelocationForm = () => {
     modalArgs: formData,
   } = useDialog<z.infer<typeof reinforcementRelocationFormSchema>>();
 
-  const onFormSubmit = (
+  const onFormSubmit = async (
     data: z.infer<typeof reinforcementRelocationFormSchema>,
   ) => {
     const isTargetingOwnVillage = playerVillages.some(
@@ -75,7 +79,14 @@ export const ReinforcementRelocationForm = () => {
       return;
     }
 
-    openModal(data);
+    const isValid = await validateTroopMovementAsync(
+      data,
+      data.action === 'reinforcement' ? 'reinforcements' : 'relocation',
+    );
+
+    if (isValid) {
+      openModal(data);
+    }
   };
 
   const onConfirm = () => {
@@ -152,7 +163,12 @@ export const ReinforcementRelocationForm = () => {
               />
             </div>
 
-            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
+            <ErrorBag
+              errorBag={[
+                ...getFormErrorBag(form.formState.errors),
+                ...serverErrors,
+              ]}
+            />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

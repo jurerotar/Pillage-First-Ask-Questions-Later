@@ -87,6 +87,7 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from '../controllers/statistics-controllers';
+import { validateTroopMovement } from '../controllers/troop-movement-controllers';
 import { getUnitImprovements } from '../controllers/unit-improvement-controllers';
 import { getResearchedUnits } from '../controllers/unit-research-controllers';
 import {
@@ -209,6 +210,9 @@ const apiRoutes: Route[] = [
   createRoute(getBuildingLevelChangeHistory),
   createRoute(getEventsHistory),
   createRoute(getUnitTrainingHistory),
+
+  // Troop Movements
+  createRoute(validateTroopMovement),
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

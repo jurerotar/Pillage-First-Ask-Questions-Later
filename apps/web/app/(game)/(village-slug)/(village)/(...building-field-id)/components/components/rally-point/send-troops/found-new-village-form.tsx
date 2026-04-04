@@ -41,13 +41,16 @@ export const FoundNewVillageForm = () => {
     return [{ unitId: settlerUnitId, amount: 3 }];
   }, [settlerUnitId]);
 
-  const { form, getBaseEventArgs, resetForm } = useTroopForm(
-    foundNewVillageFormSchema,
-    {
-      defaultValues: {},
-      defaultUnits,
-    },
-  );
+  const {
+    form,
+    getBaseEventArgs,
+    resetForm,
+    serverErrors,
+    validateTroopMovementAsync,
+  } = useTroopForm(foundNewVillageFormSchema, {
+    defaultValues: {},
+    defaultUnits,
+  });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -56,8 +59,14 @@ export const FoundNewVillageForm = () => {
     modalArgs: formData,
   } = useDialog<z.infer<typeof foundNewVillageFormSchema>>();
 
-  const onFormSubmit = (data: z.infer<typeof foundNewVillageFormSchema>) => {
-    openModal(data);
+  const onFormSubmit = async (
+    data: z.infer<typeof foundNewVillageFormSchema>,
+  ) => {
+    const isValid = await validateTroopMovementAsync(data, 'findNewVillage');
+
+    if (isValid) {
+      openModal(data);
+    }
   };
 
   const onConfirm = () => {
@@ -110,7 +119,12 @@ export const FoundNewVillageForm = () => {
               <CoordinateSelector />
             </div>
 
-            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
+            <ErrorBag
+              errorBag={[
+                ...getFormErrorBag(form.formState.errors),
+                ...serverErrors,
+              ]}
+            />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

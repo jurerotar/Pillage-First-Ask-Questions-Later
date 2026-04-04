@@ -29,12 +29,15 @@ export const OasisOccupationForm = () => {
     'troopMovementOasisOccupation',
   );
 
-  const { form, getBaseEventArgs, resetForm } = useTroopForm(
-    oasisOccupationFormSchema,
-    {
-      defaultValues: {},
-    },
-  );
+  const {
+    form,
+    getBaseEventArgs,
+    resetForm,
+    serverErrors,
+    validateTroopMovementAsync,
+  } = useTroopForm(oasisOccupationFormSchema, {
+    defaultValues: {},
+  });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -43,8 +46,14 @@ export const OasisOccupationForm = () => {
     modalArgs: formData,
   } = useDialog<z.infer<typeof oasisOccupationFormSchema>>();
 
-  const onFormSubmit = (data: z.infer<typeof oasisOccupationFormSchema>) => {
-    openModal(data);
+  const onFormSubmit = async (
+    data: z.infer<typeof oasisOccupationFormSchema>,
+  ) => {
+    const isValid = await validateTroopMovementAsync(data, 'oasisOccupation');
+
+    if (isValid) {
+      openModal(data);
+    }
   };
 
   const onConfirm = () => {
@@ -83,7 +92,12 @@ export const OasisOccupationForm = () => {
               <CoordinateSelector />
             </div>
 
-            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
+            <ErrorBag
+              errorBag={[
+                ...getFormErrorBag(form.formState.errors),
+                ...serverErrors,
+              ]}
+            />
 
             <Button type="submit">{t('Confirm')}</Button>
           </form>

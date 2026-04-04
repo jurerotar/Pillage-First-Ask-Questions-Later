@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type DefaultValues, type FieldValues, useForm } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import type { z } from 'zod';
@@ -7,11 +7,13 @@ import {
   getUnitDefinition,
   getUnitsByTribe,
 } from '@pillage-first/game-assets/utils/units';
+import type { TroopMovementEventType } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing.ts';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
+import { useValidateTroopMovement } from 'app/(game)/(village-slug)/hooks/use-validate-troop-movement';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
 import { villageTroopsCacheKey } from 'app/(game)/constants/query-keys.ts';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema.ts';
@@ -44,6 +46,9 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
   const { getDeployableTroops } = useVillageTroops();
   const [searchParams] = useSearchParams();
   const { playerVillages } = usePlayerVillageListing();
+  const { validateTroopMovement } = useValidateTroopMovement();
+
+  const [serverErrors, setServerErrors] = useState<string[]>([]);
 
   const deployableTroops = getDeployableTroops();
 
@@ -137,8 +142,45 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
       x: data.target.x,
       y: data.target.y,
     },
+    villageId: currentVillage.id,
     cachesToClearImmediately: [villageTroopsCacheKey],
   });
+
+  const validateTroopMovementAsync = async (
+    data: T,
+    movementType:
+      | 'reinforcements'
+      | 'relocation'
+      | 'findNewVillage'
+      | 'attack'
+      | 'raid'
+      | 'oasisOccupation',
+  ) => {
+    setServerErrors([]);
+
+    const movementTypeMap = {
+      reinforcements: 'troopMovementReinforcements',
+      relocation: 'troopMovementRelocation',
+      findNewVillage: 'troopMovementFindNewVillage',
+      attack: 'troopMovementAttack',
+      raid: 'troopMovementRaid',
+      oasisOccupation: 'troopMovementOasisOccupation',
+    } as const satisfies Record<string, TroopMovementEventType>;
+
+    const type = movementTypeMap[movementType];
+
+    const { errors } = await validateTroopMovement({
+      ...getBaseEventArgs(data),
+      type: type,
+    });
+
+    if (errors.length > 0) {
+      setServerErrors(errors);
+      return false;
+    }
+
+    return true;
+  };
 
   return {
     form,
@@ -146,5 +188,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     getBaseEventArgs,
     playerVillages,
     resetForm,
+    serverErrors,
+    validateTroopMovementAsync,
   };
 };
