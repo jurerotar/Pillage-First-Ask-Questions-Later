@@ -1,5 +1,6 @@
 import { clsx } from 'clsx';
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
+import { Link } from 'react-router';
 import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
 import type { Village } from '@pillage-first/types/models/village';
 import {
@@ -31,16 +32,17 @@ type TroopMovementProps = {
     | 'findNewVillage'
   >;
   events: TroopMovementEvent[];
+  href?: string;
 };
 
-const TroopMovement = ({ type, events }: TroopMovementProps) => {
+const TroopMovement = ({ type, events, href }: TroopMovementProps) => {
   if (events.length === 0) {
     return null;
   }
 
   const [earliestEvent] = events;
 
-  return (
+  const content = (
     <div className="inline-flex gap-1 bg-background border-2 border-l-0 items-center rounded-r-xs border-white/80 dark:border-border/80 py-0.5 px-2 lg:py-1 shadow-sm font-semibold text-xs lg:text-base transition-colors">
       <span className="inline-flex gap-2 min-w-16">
         <Icon
@@ -59,6 +61,19 @@ const TroopMovement = ({ type, events }: TroopMovementProps) => {
       </span>
     </div>
   );
+
+  if (href) {
+    return (
+      <Link
+        to={href}
+        relative="path"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 };
 
 const partitionTroopMovementEvents = (
@@ -143,31 +158,47 @@ const TroopMovementsContent = () => {
     currentVillage.coordinates,
   );
 
+  const rallyPoint = useMemo(() => {
+    return currentVillage.buildingFields.find((field) => field.id === 39);
+  }, [currentVillage.buildingFields]);
+
+  const rallyPointLink = useMemo(() => {
+    return rallyPoint && rallyPoint.level >= 1
+      ? 'village/39?tab=troop-movements'
+      : undefined;
+  }, [rallyPoint]);
+
   return (
     <aside className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-30 lg:top-40 z-20">
       <TroopMovement
         type="findNewVillage"
         events={findNewVillageMovementEvents}
+        href={rallyPointLink}
       />
       <TroopMovement
         type="adventure"
         events={adventureMovementEvents}
+        href={rallyPointLink}
       />
       <TroopMovement
         type="deploymentOutgoing"
         events={outgoingDeploymentMovementEvents}
+        href={rallyPointLink}
       />
       <TroopMovement
         type="deploymentIncoming"
         events={incomingDeploymentMovementEvents}
+        href={rallyPointLink}
       />
       <TroopMovement
         type="offensiveMovementOutgoing"
         events={outgoingOffensiveMovementEvents}
+        href={rallyPointLink}
       />
       <TroopMovement
         type="offensiveMovementIncoming"
         events={incomingOffensiveMovementEvents}
+        href={rallyPointLink}
       />
     </aside>
   );
