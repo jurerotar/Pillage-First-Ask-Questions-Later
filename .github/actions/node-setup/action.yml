@@ -26,4 +26,4 @@ runs:
       shell: bash
       run: |
         set -euo pipefail
-        npm install --no-audit --no-fund
+        npm ci --no-audit --no-fund --include=optional
