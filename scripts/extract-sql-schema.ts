@@ -3,7 +3,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { pathToFileURL } from 'node:url';
 
-const EXPORT_PATH = join('apps', 'sqlite-erd', 'sql-schema');
+const EXPORT_PATH = join('apps', 'erd', 'sql-schema');
 // SQLite file
 const DB_EXPORT_PATH = join(EXPORT_PATH, 'db.sqlite3');
 // Text export(s)
