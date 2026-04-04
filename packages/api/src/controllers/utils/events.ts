@@ -479,6 +479,34 @@ export const validateEventCreationPrerequisites = (
     }
   }
 
+  if (isAdventureTroopMovementEvent(event)) {
+    const adventurePoints = database.selectValue({
+      sql: `
+        SELECT
+          available
+        FROM
+          hero_adventures
+        WHERE
+          hero_id = (
+            SELECT
+              id
+            FROM
+              heroes
+            WHERE
+              player_id = $player_id
+            );
+      `,
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+      schema: z.number(),
+    });
+
+    if (adventurePoints === 0) {
+      throw new Error('No adventure points available');
+    }
+  }
+
   if (isTroopMovementEvent(event)) {
     const errors = validateTroopMovementLogic(
       database,

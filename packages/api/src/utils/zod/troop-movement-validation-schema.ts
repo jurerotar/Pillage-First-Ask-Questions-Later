@@ -163,14 +163,13 @@ export const validateTroopMovementLogic = (
 
     if (!oasisStatus?.is_oasis) {
       errors.push('Target must be an oasis');
-    }
+    } else {
+      if (oasisStatus?.is_occupied_by_you) {
+        errors.push('Oasis is already occupied by you');
+      }
 
-    if (oasisStatus?.is_occupied_by_you) {
-      errors.push('Oasis is already occupied by you');
-    }
-
-    const { occupiedOases, occupiedOasisSlots } = database.selectObject({
-      sql: `
+      const { occupiedOases, occupiedOasisSlots } = database.selectObject({
+        sql: `
         SELECT
           (
             SELECT COUNT(*)
@@ -196,23 +195,24 @@ export const validateTroopMovementLogic = (
             LIMIT 1
             ) AS occupiedOasisSlots;
       `,
-      bind: {
-        $village_id: villageId,
-      },
-      schema: z.strictObject({
-        occupiedOases: z.number(),
-        occupiedOasisSlots: z.number().nullable(),
-      }),
-    })!;
+        bind: {
+          $village_id: villageId,
+        },
+        schema: z.strictObject({
+          occupiedOases: z.number(),
+          occupiedOasisSlots: z.number().nullable(),
+        }),
+      })!;
 
-    if (occupiedOases >= (occupiedOasisSlots ?? 0)) {
-      errors.push('No free oasis occupation slots available');
-    }
+      if (occupiedOases >= (occupiedOasisSlots ?? 0)) {
+        errors.push('No free oasis occupation slots available');
+      }
 
-    const hasHero = troops?.some(({ unitId }) => unitId === 'HERO');
+      const hasHero = troops?.some(({ unitId }) => unitId === 'HERO');
 
-    if (!hasHero) {
-      errors.push('Hero must be present in selected troops');
+      if (!hasHero) {
+        errors.push('Hero must be present in selected troops');
+      }
     }
   }
 
@@ -229,21 +229,23 @@ export const validateTroopMovementLogic = (
           v.player_id = $player_id AS is_player_village
         FROM
           tiles t
-            JOIN villages v ON v.tile_id = t.id
+            LEFT JOIN villages v ON v.tile_id = t.id
         WHERE
           t.x = $x
           AND t.y = $y;
       `,
       bind: { $x: x, $y: y, $player_id: PLAYER_ID },
       schema: z.object({
-        id: z.number(),
-        is_player_village: z.coerce.boolean(),
+        id: z.number().nullable(),
+        is_player_village: z.coerce.boolean().nullable(),
       }),
     });
 
-    if (!targetVillageInfo) {
-      errors.push('Target village does not exist');
-    } else {
+    if (targetVillageInfo?.id === null) {
+      errors.push(
+        'Reinforcements and relocations can only be sent to your own villages',
+      );
+    } else if (targetVillageInfo) {
       if (targetVillageInfo.id === villageId) {
         errors.push('Target village cannot be the current village');
       }
@@ -251,6 +253,8 @@ export const validateTroopMovementLogic = (
       if (!targetVillageInfo.is_player_village) {
         errors.push('Target village must belong to you');
       }
+    } else {
+      errors.push('Target village does not exist');
     }
   }
 
