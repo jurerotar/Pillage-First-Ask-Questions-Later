@@ -1023,48 +1023,6 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('unit research', () => {
-    test('tier 1 unit is researched for player villages', () => {
-      const tribe = database.selectValue({
-        sql: `
-          SELECT ti.tribe
-          FROM
-            players p
-              JOIN tribe_ids ti ON p.tribe_id = ti.id
-          WHERE
-            p.id = $player_id;
-        `,
-        bind: { $player_id: PLAYER_ID },
-        schema: tribeSchema,
-      })!;
-
-      const tier1UnitId = getUnitsByTribe(tribe)[0].id;
-
-      const researchCount = database.selectValue({
-        sql: `
-          SELECT COUNT(*)
-          FROM
-            unit_research ur
-              JOIN villages v ON ur.village_id = v.id
-              JOIN unit_ids ui ON ur.unit_id = ui.id
-          WHERE
-            v.player_id = $player_id
-            AND ui.unit = $unit_id;
-        `,
-        bind: { $player_id: PLAYER_ID, $unit_id: tier1UnitId },
-        schema: z.number(),
-      });
-
-      const playerVillageCount = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM villages WHERE player_id = $player_id;',
-        bind: { $player_id: PLAYER_ID },
-        schema: z.number(),
-      });
-
-      expect(researchCount).toBe(playerVillageCount);
-    });
-  });
-
   describe('unit improvement', () => {
     test('upgradable units are seeded with level 0 for player', () => {
       const improvements = database.selectObjects({

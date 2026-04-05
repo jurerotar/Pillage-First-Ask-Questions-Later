@@ -78,7 +78,6 @@ import { troopSeeder } from '../seeders/troop-seeder';
 import { unitDataSeeder } from '../seeders/unit-data-seeder';
 import { unitIdsSeeder } from '../seeders/unit-ids-seeder';
 import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
-import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
@@ -230,7 +229,6 @@ export const migrateAndSeed = (
 
     // Unit research
     db.exec({ sql: createUnitResearchTable });
-    unitResearchSeeder(db, server);
 
     // Unit improvement
     db.exec({ sql: createUnitImprovementTable });

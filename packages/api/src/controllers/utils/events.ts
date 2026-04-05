@@ -250,40 +250,6 @@ export const validateEventCreationPrerequisites = (
 
     const hasAlreadyResearchedUnitsWithSameIdAndVillage = database.selectValue({
       sql: `
-          SELECT
-            EXISTS
-            (
-              SELECT 1
-              FROM
-                unit_research
-              WHERE
-                village_id = $village_id
-                AND unit_id = (
-                  SELECT id
-                  FROM
-                    unit_ids
-                  WHERE
-                    unit = $unit_id
-                  )
-              ) AS is_researched;
-        `,
-      bind: {
-        $village_id: villageId,
-        $unit_id: unitId,
-      },
-      schema: z.coerce.boolean(),
-    });
-
-    if (hasAlreadyResearchedUnitsWithSameIdAndVillage) {
-      throw new Error('Unit is already researched');
-    }
-  }
-
-  if (isTroopTrainingEvent(event)) {
-    const { villageId, unitId, buildingId } = event;
-
-    const isUnitResearched = database.selectValue({
-      sql: `
         SELECT
           EXISTS
           (
@@ -299,7 +265,8 @@ export const validateEventCreationPrerequisites = (
                 WHERE
                   unit = $unit_id
                 )
-            ) AS is_researched;`,
+            ) AS is_researched;
+      `,
       bind: {
         $village_id: villageId,
         $unit_id: unitId,
@@ -307,8 +274,45 @@ export const validateEventCreationPrerequisites = (
       schema: z.coerce.boolean(),
     });
 
-    if (!isUnitResearched) {
-      throw new Error('Unit is not researched');
+    if (hasAlreadyResearchedUnitsWithSameIdAndVillage) {
+      throw new Error('Unit is already researched');
+    }
+  }
+
+  if (isTroopTrainingEvent(event)) {
+    const { villageId, unitId, buildingId } = event;
+
+    const unit = getUnitDefinition(unitId);
+
+    if (unit.researchRequirements.length > 0) {
+      const isUnitResearched = database.selectValue({
+        sql: `
+          SELECT
+            EXISTS
+            (
+              SELECT 1
+              FROM
+                unit_research
+              WHERE
+                village_id = $village_id
+                AND unit_id = (
+                  SELECT id
+                  FROM
+                    unit_ids
+                  WHERE
+                    unit = $unit_id
+                  )
+              ) AS is_researched;`,
+        bind: {
+          $village_id: villageId,
+          $unit_id: unitId,
+        },
+        schema: z.coerce.boolean(),
+      });
+
+      if (!isUnitResearched) {
+        throw new Error('Unit is not researched');
+      }
     }
 
     const doesUnitTrainingBuildingExist = database.selectValue({

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { buildingMap } from '@pillage-first/game-assets/buildings';
-import { newVillageUnitResearchFactory } from '@pillage-first/game-assets/factories/unit-research';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
@@ -273,27 +272,6 @@ export const findNewVillageMovementResolver: Resolver<
       },
     });
   }
-
-  const [tier1UnitId, settlerUnitId] = newVillageUnitResearchFactory(tribe);
-
-  database.exec({
-    sql: `
-      INSERT INTO
-        unit_research (village_id, unit_id)
-      SELECT
-        $village_id,
-        u.id
-      FROM
-        unit_ids u
-      WHERE
-        u.unit IN ($tier1Unit, $settlerUnit);
-    `,
-    bind: {
-      $village_id: newVillageId,
-      $tier1Unit: tier1UnitId,
-      $settlerUnit: settlerUnitId,
-    },
-  });
 
   // Population effect
   database.exec({
