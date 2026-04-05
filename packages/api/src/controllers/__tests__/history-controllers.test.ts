@@ -111,7 +111,7 @@ describe('history-controllers', () => {
       database.exec({
         sql: `
           INSERT INTO unit_research_history (village_id, unit_id, timestamp)
-          VALUES ($v, (SELECT id FROM unit_ids WHERE unit = 'PHALANX'), 3000)
+          VALUES ($v, (SELECT id FROM unit_ids WHERE unit = 'SWORDSMAN'), 3000)
         `,
         bind: { $v: villageId },
       });

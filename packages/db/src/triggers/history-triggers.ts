@@ -78,10 +78,13 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
     `,
   });
 
+  // Exclude the tier 1 unit and settler unit research as they are automatically added when a new village is founded and would clutter the history
+  // Currently, hardcoded with the unit ids but can be changed in the future to be more flexible if needed
   db.exec({
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_unit_research_history_insert
       AFTER INSERT ON unit_research
+      WHEN NEW.unit_id NOT IN ('LEGIONNAIRE', 'PHALANX', 'CLUBSWINGER', 'SLAVE_MILITIA', 'MERCENARY', 'HOPLITE', 'RAT', 'PIKEMAN', 'ROMAN_SETTLER', 'GAUL_SETTLER', 'TEUTON_SETTLER', 'EGYPTIAN_SETTLER', 'HUN_SETTLER', 'SPARTAN_SETTLER', 'NATARIAN_SETTLER')
       BEGIN
         INSERT INTO unit_research_history
           (village_id, unit_id, timestamp)
