@@ -243,14 +243,10 @@ describe('events utils', () => {
     test('troopTraining - should throw if unit is not researched', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      database.exec({
-        sql: `DELETE FROM unit_research
-              WHERE village_id = $village_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
-        bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
-      });
 
       const event = createTroopTrainingEventMock({
         villageId,
+        unitId: 'IMPERIAN',
       });
 
       expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
