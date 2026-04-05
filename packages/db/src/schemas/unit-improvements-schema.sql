@@ -10,5 +10,4 @@ CREATE TABLE unit_improvements
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id)
 ) STRICT, WITHOUT ROWID;
 
-CREATE INDEX idx_unit_improvements_player_id ON unit_improvements(player_id);
 CREATE INDEX idx_unit_improvements_unit_id ON unit_improvements(unit_id);
