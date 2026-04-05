@@ -8,3 +8,5 @@ CREATE TABLE hero_inventory
 
   FOREIGN KEY (hero_id) REFERENCES heroes (id) ON DELETE CASCADE
 ) STRICT, WITHOUT ROWID;
+
+CREATE INDEX idx_hero_inventory_hero_id ON hero_inventory(hero_id);

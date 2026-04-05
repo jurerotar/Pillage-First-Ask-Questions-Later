@@ -24,3 +24,5 @@ CREATE TABLE preferences
 
   FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
 ) STRICT, WITHOUT ROWID;
+
+CREATE INDEX idx_preferences_player_id ON preferences(player_id);

@@ -14,7 +14,7 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
   const pendingVariableResolutions: string[] = [];
 
   for await (const entry of glob('packages/api/src/**/*.ts')) {
-    if (entry.endsWith('api-worker.ts')) {
+    if (entry.endsWith('api-worker.ts') || entry.includes('__tests__') || entry.endsWith('.test.ts') || entry.endsWith('.spec.ts')) {
       continue;
     }
     const content = await readFile(entry, 'utf8');

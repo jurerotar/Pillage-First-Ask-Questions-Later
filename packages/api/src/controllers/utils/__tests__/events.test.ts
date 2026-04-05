@@ -869,6 +869,10 @@ describe('events utils', () => {
 
       // Seed some troops
       database.exec({
+        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        bind: { $tile_id: villageTileId },
+      });
+      database.exec({
         sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
               VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
         bind: { $tile_id: villageTileId },
@@ -889,7 +893,8 @@ describe('events utils', () => {
       runEventCreationSideEffects(database, [event]);
 
       const amount = database.selectValue({
-        sql: "SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')",
+        sql: "SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        bind: { $tile_id: villageTileId },
         schema: z.number(),
       });
 
@@ -907,8 +912,16 @@ describe('events utils', () => {
 
       // Seed some troops
       database.exec({
+        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        bind: { $tile_id: villageTileId },
+      });
+      database.exec({
         sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
               VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
+        bind: { $tile_id: villageTileId },
+      });
+      database.exec({
+        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN') AND tile_id = $tile_id",
         bind: { $tile_id: villageTileId },
       });
       database.exec({
@@ -946,8 +959,8 @@ describe('events utils', () => {
 
       const getAmount = (unit: Unit['id']) =>
         database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)',
-          bind: { $unit: unit },
+          sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit) AND tile_id = $tile_id',
+          bind: { $unit: unit, $tile_id: villageTileId },
           schema: z.number(),
         });
 

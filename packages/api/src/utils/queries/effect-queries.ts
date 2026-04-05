@@ -77,14 +77,10 @@ export const updatePopulationEffectQuery = `
   UPDATE effects
   SET
     value = value - ($value)
+  FROM effect_ids ei
   WHERE
-    effect_id = (
-      SELECT id
-      FROM
-        effect_ids
-      WHERE
-        effect = 'wheatProduction'
-      )
+    effects.effect_id = ei.id
+    AND ei.effect = 'wheatProduction'
     AND type = 'base'
     AND scope = 'village'
     AND source = 'building'
@@ -96,14 +92,10 @@ export const updateBuildingEffectQuery = `
   UPDATE effects
   SET
     value = $value
+  FROM effect_ids ei
   WHERE
-    effect_id = (
-      SELECT id
-      FROM
-        effect_ids
-      WHERE
-        effect = $effect_id
-      )
+    effects.effect_id = ei.id
+    AND ei.effect = $effect_id
     AND village_id = $village_id
     AND type = $type
     AND scope = 'village'
@@ -117,7 +109,7 @@ export const deleteHeroEffectsQuery = `
     effects
   WHERE
     source = 'hero'
-    AND village_id = (
+    AND village_id IN (
       SELECT village_id
       FROM
         heroes
@@ -161,7 +153,7 @@ export const updateHeroEffectsVillageIdQuery = `
     village_id = $targetId
   WHERE
     source = 'hero'
-    AND village_id = (
+    AND village_id IN (
       SELECT village_id
       FROM
         heroes

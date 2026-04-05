@@ -1,4 +1,5 @@
-CREATE INDEX idx_effects_effect_id   ON effects(effect_id);
+CREATE INDEX idx_effects_effect_id ON effects(effect_id);
+CREATE INDEX idx_effects_village_id ON effects(village_id);
 CREATE INDEX idx_effects_village_effect_scope_spec
   ON effects(village_id, effect_id, scope, source_specifier);
 
