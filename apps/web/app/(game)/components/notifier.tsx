@@ -261,7 +261,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       return;
     }
 
-    const handleMessage = (event: MessageEvent<ApiNotificationEvent>) => {
+    const handleMessage = async (event: MessageEvent<ApiNotificationEvent>) => {
       if (isEventCreatedNotificationMessageEvent(event)) {
         const { data } = event;
         const info = getEventCreatedInfo(data, {
@@ -320,7 +320,9 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
           preferences.shouldShowNotificationsOnAcademyResearchCompletion);
 
       if (shouldShowNotification && notificationTitle) {
-        new Notification(notificationTitle, { body });
+        const registration = await navigator.serviceWorker.ready;
+
+        registration.showNotification(notificationTitle, { body });
       }
     };
 
