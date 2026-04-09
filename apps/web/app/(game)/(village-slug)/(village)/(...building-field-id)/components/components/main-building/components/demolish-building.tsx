@@ -5,6 +5,10 @@ import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/ut
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useDemolishBuildingErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/hooks/use-demolish-building-error-bag';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
@@ -68,65 +72,68 @@ export const DemolishBuilding = () => {
   };
 
   return (
-    <section className="flex flex-col gap-2">
-      <Text as="h2">{t('Demolish buildings')}</Text>
-      <Text>
-        {t(
-          'With a level 10 {{mainBuilding}} you are able to downgrade or demolish a building. You cannot downgrade or demolish buildings which are currently being upgraded.',
-          {
-            mainBuilding: t('BUILDINGS.MAIN_BUILDING.NAME'),
-          },
-        )}
-      </Text>
+    <Section>
+      <SectionContent>
+        <Text as="h2">{t('Demolish buildings')}</Text>
+        <Text>
+          {t(
+            'With a level 10 {{mainBuilding}} you are able to downgrade or demolish a building. You cannot downgrade or demolish buildings which are currently being upgraded.',
+            {
+              mainBuilding: t('BUILDINGS.MAIN_BUILDING.NAME'),
+            },
+          )}
+        </Text>
+      </SectionContent>
+      <SectionContent>
+        <Select
+          disabled={!canDemolishBuildings}
+          onValueChange={onValueChange}
+          value={`${buildingFieldToDemolish.id}`}
+        >
+          <SelectGroup>
+            <SelectLabel>{t('Select building')}</SelectLabel>
+            <SelectTrigger className="w-full lg:w-1/2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {demolishableBuildings.map((buildingField) => (
+                <SelectItem
+                  key={buildingField.id}
+                  value={`${buildingField.id}`}
+                >
+                  {t(`BUILDINGS.${buildingField.buildingId}.NAME`)} -{' '}
+                  {t('level {{level}}', { level: buildingField.level })}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectGroup>
+        </Select>
 
-      <Select
-        disabled={!canDemolishBuildings}
-        onValueChange={onValueChange}
-        value={`${buildingFieldToDemolish.id}`}
-      >
-        <SelectGroup>
-          <SelectLabel>{t('Select building')}</SelectLabel>
-          <SelectTrigger className="w-full lg:w-1/2">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {demolishableBuildings.map((buildingField) => (
-              <SelectItem
-                key={buildingField.id}
-                value={`${buildingField.id}`}
-              >
-                {t(`BUILDINGS.${buildingField.buildingId}.NAME`)} -{' '}
-                {t('level {{level}}', { level: buildingField.level })}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </SelectGroup>
-      </Select>
-
-      <div className="flex gap-2 flex-wrap">
-        {buildingFieldToDemolish.level > 1 && (
+        <div className="flex gap-2 flex-wrap">
+          {buildingFieldToDemolish.level > 1 && (
+            <Button
+              size="fit"
+              disabled={
+                !canDemolishBuildings || buildingDowngradeErrorBag.length > 0
+              }
+              onClick={onDowngrade}
+            >
+              {t('Downgrade to level {{level}}', {
+                level: buildingFieldToDemolish.level - 1,
+              })}
+            </Button>
+          )}
           <Button
             size="fit"
             disabled={
               !canDemolishBuildings || buildingDowngradeErrorBag.length > 0
             }
-            onClick={onDowngrade}
+            onClick={onDemolish}
           >
-            {t('Downgrade to level {{level}}', {
-              level: buildingFieldToDemolish.level - 1,
-            })}
+            {t('Demolish completely')}
           </Button>
-        )}
-        <Button
-          size="fit"
-          disabled={
-            !canDemolishBuildings || buildingDowngradeErrorBag.length > 0
-          }
-          onClick={onDemolish}
-        >
-          {t('Demolish completely')}
-        </Button>
-      </div>
-    </section>
+        </div>
+      </SectionContent>
+    </Section>
   );
 };

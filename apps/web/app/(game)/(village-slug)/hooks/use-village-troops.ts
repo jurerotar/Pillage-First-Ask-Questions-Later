@@ -1,15 +1,14 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { use } from 'react';
+import { use, useCallback } from 'react';
 import { z } from 'zod';
 import type {
   GameEvent,
   TroopMovementEventType,
 } from '@pillage-first/types/models/game-event';
 import { troopSchema } from '@pillage-first/types/models/troop';
-import type { Village } from '@pillage-first/types/models/village';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
-  eventsCacheKey,
+  troopMovementsCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -18,7 +17,7 @@ import { invalidateQueries } from 'app/utils/react-query.ts';
 type SendTroopsArgs = {
   type: TroopMovementEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
-  targetId: GameEvent<'troopMovementReinforcements'>['targetId'];
+  targetCoordinates: GameEvent<'troopMovementReinforcements'>['targetCoordinates'];
 };
 
 export const useVillageTroops = () => {
@@ -34,20 +33,22 @@ export const useVillageTroops = () => {
     },
   });
 
-  const getDeployableTroops = (villageId: Village['id']) => {
+  const getDeployableTroops = useCallback(() => {
     return villageTroops.filter(
-      ({ tileId, source }) => tileId === villageId && source === villageId,
+      ({ tileId, source }) =>
+        tileId === currentVillage.tileId && source === currentVillage.tileId,
     );
-  };
+  }, [villageTroops, currentVillage.tileId]);
 
   const { mutate: sendTroops } = useMutation({
-    mutationFn: async ({ targetId, type, troops }: SendTroopsArgs) => {
+    mutationFn: async ({ targetCoordinates, type, troops }: SendTroopsArgs) => {
       await fetcher('/events', {
         method: 'POST',
         body: {
           villageId: currentVillage.id,
+          originCoordinates: currentVillage.coordinates,
           type,
-          targetId,
+          targetCoordinates,
           troops,
         },
       });
@@ -55,7 +56,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.tileId],
-        [eventsCacheKey, 'troopMovement', currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.id],
       ]);
     },
   });

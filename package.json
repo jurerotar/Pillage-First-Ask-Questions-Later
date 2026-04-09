@@ -23,18 +23,32 @@
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.8",
+    "@biomejs/biome": "2.4.10",
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
-    "@playwright/test": "1.58.2",
-    "@typescript/native-preview": "7.0.0-dev.20260317.1",
-    "lefthook": "2.1.4",
-    "oxlint": "1.56.0",
-    "oxlint-tsgolint": "0.17.0",
-    "playwright": "1.58.2",
+    "@playwright/test": "1.59.1",
+    "@typescript/native-preview": "7.0.0-dev.20260409.1",
+    "lefthook": "2.1.5",
+    "oxlint": "1.59.0",
+    "oxlint-tsgolint": "0.20.0",
+    "playwright": "1.59.1",
     "sharp": "0.34.5",
-    "turbo": "2.8.19",
-    "typescript": "6.0.0-beta"
+    "turbo": "2.9.5",
+    "typescript": "6.0.2"
+  },
+  "overrides": {
+    "@react-router/dev": {
+      "typescript": "6.0.2"
+    },
+    "vite-plugin-devtools-json": {
+      "vite": "^8.0.0"
+    },
+    "vite-plugin-pwa": {
+      "vite": "^8.0.0"
+    },
+    "openapi-typescript": {
+      "typescript": "6.0.2"
+    }
   },
   "engines": {
     "node": ">=24.12.0"

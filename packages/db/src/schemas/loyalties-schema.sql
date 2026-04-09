@@ -5,3 +5,5 @@ CREATE TABLE loyalties
 
   FOREIGN KEY (tile_id) REFERENCES tiles (id)
 ) STRICT;
+
+CREATE INDEX idx_loyalties_tile_id ON loyalties(tile_id);

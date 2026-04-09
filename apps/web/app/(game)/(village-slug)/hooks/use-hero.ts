@@ -26,6 +26,7 @@ export const useHero = () => {
   });
 
   const { health, experience } = hero.stats;
+  const { isHeroHome } = hero;
   const isHeroAlive = health > 0;
 
   const { mutate: updateHeroAttributes } = useMutation<
@@ -73,6 +74,7 @@ export const useHero = () => {
     experience,
     health,
     isHeroAlive,
+    isHeroHome,
     updateHeroAttributes,
     updateHeroResourceToProduce,
   };

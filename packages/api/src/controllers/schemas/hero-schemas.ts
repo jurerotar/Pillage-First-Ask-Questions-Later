@@ -19,6 +19,7 @@ export const getHeroSchema = z
     village_id: z.number(),
     natarian_attack_bonus: z.number(),
     resource_to_produce: heroResourceToProduceSchema,
+    is_home: z.number(),
   })
   .transform((t) => {
     return {
@@ -43,6 +44,7 @@ export const getHeroSchema = z
       },
       villageId: t.village_id,
       resourceToProduce: t.resource_to_produce,
+      isHeroHome: Boolean(t.is_home),
     };
   })
   .pipe(
@@ -68,6 +70,7 @@ export const getHeroSchema = z
       }),
       villageId: z.number(),
       resourceToProduce: heroResourceToProduceSchema,
+      isHeroHome: z.boolean(),
     }),
   )
   .meta({ id: 'GetHero' });

@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
+import { FaHome } from 'react-icons/fa';
+import { FaStar } from 'react-icons/fa6';
 import { LuMinus, LuPlus } from 'react-icons/lu';
+import { Link } from 'react-router';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { HeroResourceToProduce } from '@pillage-first/types/models/hero';
 import { HeroRevival } from 'app/(game)/(village-slug)/(hero)/components/hero-revival';
@@ -8,7 +11,10 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
+import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation.ts';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
+import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing.ts';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { Icon } from 'app/components/icon';
@@ -33,7 +39,14 @@ export const HeroAttributes = () => {
     updateHeroResourceToProduce,
   } = useHero();
   const { server } = useServer();
+  const { currentVillage } = useCurrentVillage();
   const tribe = useTribe();
+  const { playerVillages } = usePlayerVillageListing();
+  const { getNewVillageUrl } = useGameNavigation();
+
+  const heroHomeVillage = playerVillages.find(({ id }) => {
+    return hero.villageId === id;
+  })!;
 
   const isEgyptian = tribe === 'egyptians';
   const sharedProductionPerPoint = isEgyptian ? 12 : 9;
@@ -101,6 +114,34 @@ export const HeroAttributes = () => {
           </Text>
         </SectionContent>
         <SectionContent>
+          <div className="inline-flex gap-2 items-center font-medium">
+            <FaStar className="size-5" />
+            <Text>{t('Your hero is level {{level}}.', { level })}</Text>
+          </div>
+          <div className="inline-flex gap-2 items-center font-medium">
+            <FaHome className="size-6" />
+            <span>
+              {currentVillage.id === hero.id &&
+                t(
+                  "Your hero's home village is set to the current village. Should your hero die, it can only be revived from here.",
+                )}
+              {currentVillage.id !== hero.id && (
+                <Trans>
+                  Your hero's home village is set to{' '}
+                  <Text
+                    as="span"
+                    variant="link"
+                  >
+                    <Link to={getNewVillageUrl(heroHomeVillage.slug)}>
+                      {heroHomeVillage.name}
+                    </Link>
+                  </Text>
+                  . Should your hero die, it can only be revived from its home
+                  village.
+                </Trans>
+              )}
+            </span>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center">

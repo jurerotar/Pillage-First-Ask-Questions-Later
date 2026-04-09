@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import {
   calculateMaxUnits,
   calculateUnitResearchCost,
@@ -31,6 +32,7 @@ import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
@@ -211,6 +213,8 @@ export const UnitResearch = () => {
   const hasResearched = isUnitResearched(unitId);
   const { createEvent: createUnitResearchEvent } =
     useCreateEvent('unitResearch');
+  const { preferences } = usePreferences();
+  const navigate = useNavigate();
   const { currentVillage } = useCurrentVillage();
   const { hasEvents: hasResearchEventsOngoing, eventsByType: researchEvents } =
     useEventsByType('unitResearch');
@@ -285,7 +289,11 @@ export const UnitResearch = () => {
 
   const canStartResearch = errorBag.length === 0;
 
-  const researchUnit = () => {
+  const researchUnit = async () => {
+    if (preferences.isAutomaticNavigationAfterUnitResearchEnabled) {
+      await navigate('..', { relative: 'path' });
+    }
+
     createUnitResearchEvent({
       unitId,
       cachesToClearImmediately: [currentVillageCacheKey],
@@ -341,6 +349,8 @@ export const UnitImprovement = () => {
   );
   const { createEvent: createUnitImprovementEvent } =
     useCreateEvent('unitImprovement');
+  const { preferences } = usePreferences();
+  const navigate = useNavigate();
   const { unitVirtualLevel, isMaxLevel } = useUnitImprovementLevel(unitId);
   const { eventsByType: unitImprovementEvents } =
     useEventsByType('unitImprovement');
@@ -404,7 +414,11 @@ export const UnitImprovement = () => {
 
   const canUpgrade = errorBag.length === 0;
 
-  const upgradeUnit = () => {
+  const upgradeUnit = async () => {
+    if (preferences.isAutomaticNavigationAfterUnitUpgradeEnabled) {
+      await navigate('..', { relative: 'path' });
+    }
+
     createUnitImprovementEvent({
       unitId,
       level: unitVirtualLevel + 1,

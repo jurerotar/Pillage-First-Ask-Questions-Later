@@ -21,6 +21,7 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
+import { effectSchema } from '@pillage-first/types/models/effect';
 import type {
   GameEvent,
   TroopMovementEvent,
@@ -29,6 +30,7 @@ import { speedSchema } from '@pillage-first/types/models/server';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
+import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
 import {
   isAdventurePointIncreaseEvent,
   isAdventureTroopMovementEvent,
@@ -48,11 +50,15 @@ import {
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
-import { selectAllRelevantEffectsByIdQuery } from '../../utils/queries/effect-queries';
+import {
+  selectAllRelevantEffectsByIdQuery,
+  selectUnitSpeedRelevantEffectsQuery,
+} from '../../utils/queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { eventSchema } from '../../utils/zod/event-schemas';
+import { validateTroopMovementLogic } from '../../utils/zod/troop-movement-validation-schema';
 import { removeTroops } from '../resolvers/utils/troops';
 import { calculateAdventureDuration } from './adventures';
 
@@ -244,40 +250,6 @@ export const validateEventCreationPrerequisites = (
 
     const hasAlreadyResearchedUnitsWithSameIdAndVillage = database.selectValue({
       sql: `
-          SELECT
-            EXISTS
-            (
-              SELECT 1
-              FROM
-                unit_research
-              WHERE
-                village_id = $village_id
-                AND unit_id = (
-                  SELECT id
-                  FROM
-                    unit_ids
-                  WHERE
-                    unit = $unit_id
-                  )
-              ) AS is_researched;
-        `,
-      bind: {
-        $village_id: villageId,
-        $unit_id: unitId,
-      },
-      schema: z.coerce.boolean(),
-    });
-
-    if (hasAlreadyResearchedUnitsWithSameIdAndVillage) {
-      throw new Error('Unit is already researched');
-    }
-  }
-
-  if (isTroopTrainingEvent(event)) {
-    const { villageId, unitId, buildingId } = event;
-
-    const isUnitResearched = database.selectValue({
-      sql: `
         SELECT
           EXISTS
           (
@@ -293,7 +265,8 @@ export const validateEventCreationPrerequisites = (
                 WHERE
                   unit = $unit_id
                 )
-            ) AS is_researched;`,
+            ) AS is_researched;
+      `,
       bind: {
         $village_id: villageId,
         $unit_id: unitId,
@@ -301,8 +274,45 @@ export const validateEventCreationPrerequisites = (
       schema: z.coerce.boolean(),
     });
 
-    if (!isUnitResearched) {
-      throw new Error('Unit is not researched');
+    if (hasAlreadyResearchedUnitsWithSameIdAndVillage) {
+      throw new Error('Unit is already researched');
+    }
+  }
+
+  if (isTroopTrainingEvent(event)) {
+    const { villageId, unitId, buildingId } = event;
+
+    const unit = getUnitDefinition(unitId);
+
+    if (unit.researchRequirements.length > 0) {
+      const isUnitResearched = database.selectValue({
+        sql: `
+          SELECT
+            EXISTS
+            (
+              SELECT 1
+              FROM
+                unit_research
+              WHERE
+                village_id = $village_id
+                AND unit_id = (
+                  SELECT id
+                  FROM
+                    unit_ids
+                  WHERE
+                    unit = $unit_id
+                  )
+              ) AS is_researched;`,
+        bind: {
+          $village_id: villageId,
+          $unit_id: unitId,
+        },
+        schema: z.coerce.boolean(),
+      });
+
+      if (!isUnitResearched) {
+        throw new Error('Unit is not researched');
+      }
     }
 
     const doesUnitTrainingBuildingExist = database.selectValue({
@@ -375,9 +385,11 @@ export const validateEventCreationPrerequisites = (
                 pt.tribe <> 'romans'
                   -- If Romans, only include events from the same "half" (<=18 or >18)
                   OR (
-                  (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) <= 18 AND CAST($building_field_id AS INTEGER) <= 18)
+                  (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) <= 18 AND
+                   CAST($building_field_id AS INTEGER) <= 18)
                     OR
-                  (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) > 18 AND CAST($building_field_id AS INTEGER) > 18)
+                  (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) > 18 AND
+                   CAST($building_field_id AS INTEGER) > 18)
                   )
                 )
             ) AS buildingEventsCount
@@ -405,17 +417,17 @@ export const validateEventCreationPrerequisites = (
     const hasOngoingBuildingDestructionEventInThisVillage =
       database.selectValue({
         sql: `
-        SELECT
-          EXISTS
-          (
-            SELECT 1
-            FROM
-              events
-            WHERE
-              type = 'buildingDestruction'
-              AND village_id = $village_id
-            ) AS event_exists;
-      `,
+          SELECT
+            EXISTS
+            (
+              SELECT 1
+              FROM
+                events
+              WHERE
+                type = 'buildingDestruction'
+                AND village_id = $village_id
+              ) AS event_exists;
+        `,
         bind: {
           $village_id: villageId,
         },
@@ -472,66 +484,40 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isAdventureTroopMovementEvent(event)) {
-    const hasAvailableAdventurePoints = database.selectValue({
+    const adventurePoints = database.selectValue({
       sql: `
         SELECT
-          COALESCE(ha.available, 0) > 0 AS has_available_adventure_points
+          available
         FROM
-          heroes h
-            LEFT JOIN hero_adventures ha ON ha.hero_id = h.id
+          hero_adventures
         WHERE
-          h.player_id = $player_id;
+          hero_id = (
+            SELECT
+              id
+            FROM
+              heroes
+            WHERE
+              player_id = $player_id
+            );
       `,
-      bind: { $player_id: PLAYER_ID },
-      schema: z.coerce.boolean(),
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+      schema: z.number(),
     });
 
-    if (!hasAvailableAdventurePoints) {
+    if (adventurePoints === 0) {
       throw new Error('No adventure points available');
     }
   }
 
-  if (isOasisOccupationTroopMovementEvent(event)) {
-    const { villageId } = event;
-
-    const { occupiedOases, occupiedOasisSlots } = database.selectObject({
-      sql: `
-        SELECT
-          (
-            SELECT COUNT(*)
-            FROM
-              oasis
-            WHERE
-              village_id = $village_id
-            ) AS occupiedOases,
-          (
-            SELECT
-              CASE
-                WHEN bf.level >= 20 THEN 3
-                WHEN bf.level >= 15 THEN 2
-                WHEN bf.level >= 10 THEN 1
-                ELSE 0
-                END
-            FROM
-              building_fields bf
-                JOIN building_ids bi ON bi.id = bf.building_id
-            WHERE
-              bf.village_id = $village_id
-              AND bi.building = 'HEROS_MANSION'
-            LIMIT 1
-            ) AS occupiedOasisSlots;
-      `,
-      bind: {
-        $village_id: villageId,
-      },
-      schema: z.strictObject({
-        occupiedOases: z.number(),
-        occupiedOasisSlots: z.number().nullable(),
-      }),
-    })!;
-
-    if (occupiedOases >= (occupiedOasisSlots ?? 0)) {
-      throw new Error('No free oasis occupation slots available');
+  if (isTroopMovementEvent(event)) {
+    const errors = validateTroopMovementLogic(
+      database,
+      event as TroopMovementEvent,
+    );
+    if (errors.length > 0) {
+      throw new Error(errors[0]);
     }
   }
 };
@@ -561,7 +547,7 @@ export const runEventCreationSideEffects = (
 ) => {
   const [event] = events;
 
-  if (isTroopMovementEvent(event)) {
+  if (isTroopMovementEvent(event) && !isReturnTroopMovementEvent(event)) {
     const troopMovementEvents = events as TroopMovementEvent[];
 
     for (const { troops } of troopMovementEvents) {
@@ -817,7 +803,7 @@ export const getEventDuration = (
     return calculateAdventurePointIncreaseEventDuration(created_at, speed);
   }
 
-  if (isAdventureTroopMovementEvent(event)) {
+  if (isTroopMovementEvent(event)) {
     const isInstantUnitTravelEnabled = database.selectValue({
       sql: 'SELECT is_instant_unit_travel_enabled FROM developer_settings',
       schema: z.coerce.boolean(),
@@ -827,26 +813,35 @@ export const getEventDuration = (
       return 0;
     }
 
-    return calculateAdventureDuration(database, false);
-  }
-
-  if (isReturnTroopMovementEvent(event)) {
-    const isInstantUnitTravelEnabled = database.selectValue({
-      sql: 'SELECT is_instant_unit_travel_enabled FROM developer_settings',
-      schema: z.coerce.boolean(),
-    })!;
-
-    if (isInstantUnitTravelEnabled) {
-      return 0;
+    if (isAdventureTroopMovementEvent(event)) {
+      return calculateAdventureDuration(database, false);
     }
 
-    const { originalMovementType } = event;
-
-    if (originalMovementType === 'adventure') {
+    // This case has to be handled differently, because hero adventure return duration is not affected by any bonuses
+    if (
+      isReturnTroopMovementEvent(event) &&
+      event.originalMovementType === 'adventure'
+    ) {
       return calculateAdventureDuration(database, true);
     }
 
-    // TODO: Add calculation for troop return
+    const { villageId, targetCoordinates, originCoordinates, troops } = event;
+
+    const effects = database.selectObjects({
+      sql: selectUnitSpeedRelevantEffectsQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: effectSchema,
+    });
+
+    return calculateTravelDuration({
+      originVillageId: villageId,
+      targetCoordinates,
+      originCoordinates,
+      troops,
+      effects,
+    });
   }
 
   if (isHeroRevivalEvent(event)) {
@@ -900,8 +895,9 @@ export const getEventDuration = (
     return calculateLoyaltyIncreaseEventDuration(speed);
   }
 
-  console.error('Missing duration calculation for event', event);
-  return 0;
+  throw new Error(
+    `Missing duration calculation for event type "${event.type}"`,
+  );
 };
 
 // WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
