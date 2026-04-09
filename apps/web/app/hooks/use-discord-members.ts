@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 
 type DiscordInvite = {
   approximate_member_count: number;
-  approximate_presence_count: number;
 };
 
 export const useDiscordMembers = (inviteCode = 'Ep7NKVXUZA') => {
@@ -17,15 +16,10 @@ export const useDiscordMembers = (inviteCode = 'Ep7NKVXUZA') => {
 
       return {
         memberCount: data.approximate_member_count,
-        presenceCount: data.approximate_presence_count,
       };
     },
-    initialData: () => {
-      return {
-        memberCount: 196,
-        presenceCount: 40,
-      };
+    placeholderData: {
+      memberCount: 200,
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
