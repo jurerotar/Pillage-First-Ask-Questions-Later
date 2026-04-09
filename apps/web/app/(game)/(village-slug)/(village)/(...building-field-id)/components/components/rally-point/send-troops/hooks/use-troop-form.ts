@@ -14,7 +14,6 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
 import { useValidateTroopMovement } from 'app/(game)/(village-slug)/hooks/use-validate-troop-movement';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
-import { villageTroopsCacheKey } from 'app/(game)/constants/query-keys.ts';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema.ts';
 
 type TroopFormOptions<T extends FieldValues> = {
@@ -134,13 +133,10 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
 
   const getBaseEventArgs = (data: T) => ({
     troops: formatTroopsForSubmission(data.units),
-    originCoordinates: currentVillage.coordinates,
     targetCoordinates: {
       x: data.target.x,
       y: data.target.y,
     },
-    villageId: currentVillage.id,
-    cachesToClearImmediately: [villageTroopsCacheKey],
   });
 
   const validateTroopMovementAsync = async (
@@ -167,6 +163,8 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     const { errors } = await validateTroopMovement({
       ...getBaseEventArgs(data),
       type: type,
+      villageId: currentVillage.id,
+      originCoordinates: currentVillage.coordinates,
     });
 
     form.clearErrors('root');

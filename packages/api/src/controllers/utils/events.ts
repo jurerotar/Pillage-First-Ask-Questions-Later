@@ -547,7 +547,7 @@ export const runEventCreationSideEffects = (
 ) => {
   const [event] = events;
 
-  if (isTroopMovementEvent(event)) {
+  if (isTroopMovementEvent(event) && !isReturnTroopMovementEvent(event)) {
     const troopMovementEvents = events as TroopMovementEvent[];
 
     for (const { troops } of troopMovementEvents) {

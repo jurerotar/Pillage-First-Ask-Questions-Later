@@ -1,22 +1,10 @@
 import { clsx } from 'clsx';
 import { Suspense, useMemo } from 'react';
 import { Link } from 'react-router';
-import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
-import type { Village } from '@pillage-first/types/models/village';
-import {
-  isAdventureTroopMovementEvent,
-  isAttackTroopMovementEvent,
-  isFindNewVillageTroopMovementEvent,
-  isOasisOccupationTroopMovementEvent,
-  isRaidTroopMovementEvent,
-  isReinforcementsTroopMovementEvent,
-  isRelocationTroopMovementEvent,
-  isReturnTroopMovementEvent,
-} from '@pillage-first/utils/guards/event';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
+import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state.ts';
+import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icons';
 import { Separator } from 'app/components/ui/separator';
@@ -31,7 +19,7 @@ type TroopMovementProps = {
     | 'adventure'
     | 'findNewVillage'
   >;
-  events: TroopMovementEvent[];
+  events: ReturnType<typeof useVillageTroopMovements>['troopMovements'];
   href?: string;
 };
 
@@ -53,7 +41,7 @@ const TroopMovement = ({ type, events, href }: TroopMovementProps) => {
             type === 'offensiveMovementIncoming' && 'animate-scale-pulse',
           )}
         />
-        <Countdown endsAt={earliestEvent.startsAt + earliestEvent.duration} />
+        <Countdown endsAt={earliestEvent.resolvesAt} />
       </span>
       <Separator orientation="vertical" />
       <span className="inline-flex min-w-4 lg:min-w-6 justify-end">
@@ -77,37 +65,35 @@ const TroopMovement = ({ type, events, href }: TroopMovementProps) => {
 };
 
 const partitionTroopMovementEvents = (
-  events: TroopMovementEvent[],
-  currentVillageCoordinates: Village['coordinates'],
+  events: ReturnType<typeof useVillageTroopMovements>['troopMovements'],
+  currentVillageId: number,
 ) => {
   // Raid, attack, oasis-occupation
-  const outgoingOffensiveMovementEvents: TroopMovementEvent[] = [];
+  const outgoingOffensiveMovementEvents: typeof events = [];
   // Relocation, reinforcement
-  const outgoingDeploymentMovementEvents: TroopMovementEvent[] = [];
+  const outgoingDeploymentMovementEvents: typeof events = [];
   // Raid, attack
-  const incomingOffensiveMovementEvents: TroopMovementEvent[] = [];
+  const incomingOffensiveMovementEvents: typeof events = [];
   // Relocation, reinforcement, return
-  const incomingDeploymentMovementEvents: TroopMovementEvent[] = [];
-  const adventureMovementEvents: TroopMovementEvent[] = [];
-  const findNewVillageMovementEvents: TroopMovementEvent[] = [];
+  const incomingDeploymentMovementEvents: typeof events = [];
+  const adventureMovementEvents: typeof events = [];
+  const findNewVillageMovementEvents: typeof events = [];
 
   for (const event of events) {
-    if (isFindNewVillageTroopMovementEvent(event)) {
+    if (event.type === 'troopMovementFindNewVillage') {
       findNewVillageMovementEvents.push(event);
       continue;
     }
-    if (isAdventureTroopMovementEvent(event)) {
+    if (event.type === 'troopMovementAdventure') {
       adventureMovementEvents.push(event);
       continue;
     }
     if (
-      isReinforcementsTroopMovementEvent(event) ||
-      isRelocationTroopMovementEvent(event) ||
-      isReturnTroopMovementEvent(event)
+      event.type === 'troopMovementReinforcements' ||
+      event.type === 'troopMovementRelocation' ||
+      event.type === 'troopMovementReturn'
     ) {
-      const isIncoming =
-        currentVillageCoordinates.x === event.targetCoordinates.x &&
-        currentVillageCoordinates.y === event.targetCoordinates.y;
+      const isIncoming = event.originatingVillageId !== currentVillageId;
 
       const target = isIncoming
         ? incomingDeploymentMovementEvents
@@ -115,10 +101,11 @@ const partitionTroopMovementEvents = (
       target.push(event);
       continue;
     }
-    if (isAttackTroopMovementEvent(event) || isRaidTroopMovementEvent(event)) {
-      const isIncoming =
-        currentVillageCoordinates.x === event.targetCoordinates.x &&
-        currentVillageCoordinates.y === event.targetCoordinates.y;
+    if (
+      event.type === 'troopMovementAttack' ||
+      event.type === 'troopMovementRaid'
+    ) {
+      const isIncoming = event.originatingVillageId !== currentVillageId;
 
       const target = isIncoming
         ? incomingOffensiveMovementEvents
@@ -126,7 +113,7 @@ const partitionTroopMovementEvents = (
       target.push(event);
       continue;
     }
-    if (isOasisOccupationTroopMovementEvent(event)) {
+    if (event.type === 'troopMovementOasisOccupation') {
       outgoingOffensiveMovementEvents.push(event);
     }
   }
@@ -143,8 +130,7 @@ const partitionTroopMovementEvents = (
 
 const TroopMovementsContent = () => {
   const { currentVillage } = useCurrentVillage();
-  const { eventsByType: troopMovementEvents } =
-    useEventsByType('troopMovement');
+  const { troopMovements } = useVillageTroopMovements();
 
   const {
     findNewVillageMovementEvents,
@@ -153,10 +139,7 @@ const TroopMovementsContent = () => {
     outgoingDeploymentMovementEvents,
     incomingDeploymentMovementEvents,
     adventureMovementEvents,
-  } = partitionTroopMovementEvents(
-    troopMovementEvents,
-    currentVillage.coordinates,
-  );
+  } = partitionTroopMovementEvents(troopMovements, currentVillage.id);
 
   const rallyPoint = useMemo(() => {
     return currentVillage.buildingFields.find((field) => field.id === 39);

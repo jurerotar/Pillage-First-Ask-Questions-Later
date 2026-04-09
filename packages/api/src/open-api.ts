@@ -48,6 +48,10 @@ import {
   getServerOverviewStatisticsSchema,
   getVillageRankingsSchema,
 } from './controllers/schemas/statistics-schemas';
+import {
+  getVillageTroopMovementStatsSchema,
+  getVillageTroopMovementsSchema,
+} from './controllers/schemas/troop-movement-schemas';
 import { getUnitImprovementsSchema } from './controllers/schemas/unit-improvement-schemas';
 import { getResearchedUnitsSchema } from './controllers/schemas/unit-research-schemas';
 import {
@@ -1525,6 +1529,61 @@ export const paths = {
       responses: {
         '204': {
           description: 'Preference updated',
+        },
+      },
+    },
+  },
+  '/villages/:villageId/troop-movements': {
+    get: {
+      summary: 'Get village troop movements',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'List of troop movements',
+          content: {
+            'application/json': {
+              schema: z.array(getVillageTroopMovementsSchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/troop-movements/stats': {
+    get: {
+      summary: 'Get village troop movement stats',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Troop movement stats',
+          content: {
+            'application/json': {
+              schema: z.array(getVillageTroopMovementStatsSchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/troop-movements/:eventId': {
+    delete: {
+      summary: 'Cancel troop movement',
+      requestParams: {
+        path: z.strictObject({
+          eventId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Movement cancelled',
         },
       },
     },

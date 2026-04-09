@@ -8,7 +8,7 @@ import type {
 import { troopSchema } from '@pillage-first/types/models/troop';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
-  eventsCacheKey,
+  troopMovementsCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -56,7 +56,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.tileId],
-        [eventsCacheKey, 'troopMovement', currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.id],
       ]);
     },
   });
