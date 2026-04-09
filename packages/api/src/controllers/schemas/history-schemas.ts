@@ -84,6 +84,17 @@ export const baseGetEventsHistorySchema = z.discriminatedUnion('type', [
       unit: unitIdSchema,
     }),
   }),
+  z.strictObject({
+    id: z.string(),
+    villageId: z.number(),
+    type: z.literal('founding'),
+    timestamp: z.number(),
+    data: z.strictObject({
+      tileId: z.number(),
+      x: z.number(),
+      y: z.number(),
+    }),
+  }),
 ]);
 
 export const getEventsHistorySchema = z
@@ -141,6 +152,20 @@ export const getEventsHistorySchema = z
         (val) => (typeof val === 'string' ? JSON.parse(val) : val),
         z.strictObject({
           unit: unitIdSchema,
+        }),
+      ),
+    }),
+    z.strictObject({
+      id: z.string(),
+      villageId: z.number(),
+      type: z.literal('founding'),
+      timestamp: z.number(),
+      data: z.preprocess(
+        (val) => (typeof val === 'string' ? JSON.parse(val) : val),
+        z.strictObject({
+          tileId: z.number(),
+          x: z.number(),
+          y: z.number(),
         }),
       ),
     }),

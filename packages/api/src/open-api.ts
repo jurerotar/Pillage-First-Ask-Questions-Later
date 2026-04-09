@@ -888,9 +888,23 @@ export const paths = {
           scope: z.enum(['village', 'global']).optional().default('village'),
           types: z
             .array(
-              z.enum(['construction', 'training', 'improvement', 'research']),
+              z.enum([
+                'construction',
+                'training',
+                'improvement',
+                'research',
+                'founding',
+              ]),
             )
-            .or(z.enum(['construction', 'training', 'improvement', 'research']))
+            .or(
+              z.enum([
+                'construction',
+                'training',
+                'improvement',
+                'research',
+                'founding',
+              ]),
+            )
             .optional(),
         }),
       },

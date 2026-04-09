@@ -321,6 +321,21 @@ export const findNewVillageMovementResolver: Resolver<
   });
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
+
+  // Founding village history
+  database.exec({
+    sql: `
+      INSERT INTO village_founding_history (village_id, tile_id, x, y, timestamp)
+      VALUES ($village_id, $tile_id, $x, $y, $timestamp);
+    `,
+    bind: {
+      $village_id: newVillageId,
+      $tile_id: tileId,
+      $x: x,
+      $y: y,
+      $timestamp: resolvesAt,
+    },
+  });
 };
 
 export const returnMovementResolver: Resolver<

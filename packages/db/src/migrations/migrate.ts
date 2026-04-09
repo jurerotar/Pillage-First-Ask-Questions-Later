@@ -25,6 +25,7 @@ import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/bui
 import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-improvement-history-schema.sql?raw';
 import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
+import createVillageFoundingHistoryTable from '../schemas/history-tables/village-founding-history-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
@@ -121,6 +122,7 @@ export const migrateAndSeed = (
     db.exec({ sql: createBuildingLevelChangeHistoryTable });
     db.exec({ sql: createUnitImprovementHistoryTable });
     db.exec({ sql: createUnitResearchHistoryTable });
+    db.exec({ sql: createVillageFoundingHistoryTable });
 
     // Developer settings
     db.exec({ sql: createDeveloperSettingsTable });

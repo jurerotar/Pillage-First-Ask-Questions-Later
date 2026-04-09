@@ -148,6 +148,23 @@ export const getEventsHistory = createController(
     `);
   }
 
+  if (types.length === 0 || types.includes('founding')) {
+    queries.push(`
+      SELECT
+        'founding-' || id as id,
+        village_id as villageId,
+        'founding' as type,
+        timestamp,
+        json_object(
+          'tileId', tile_id,
+          'x', x,
+          'y', y
+        ) as data
+      FROM village_founding_history
+      ${villageFilter}
+    `);
+  }
+
   const sql = `
     SELECT * FROM (
       ${queries.join(' UNION ALL ')}

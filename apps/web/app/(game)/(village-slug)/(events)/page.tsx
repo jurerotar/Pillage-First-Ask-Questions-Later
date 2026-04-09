@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaBookBookmark } from 'react-icons/fa6';
-import { LuAnvil, LuConstruction } from 'react-icons/lu';
+import { LuAnvil, LuConstruction, LuFlag } from 'react-icons/lu';
 import { TbTargetArrow } from 'react-icons/tb';
 import { useSearchParams } from 'react-router';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page.ts';
@@ -54,6 +54,9 @@ const EventsListTableIcon = ({ type }: EventsListTableIconProps) => {
     }
     case 'training': {
       return <TbTargetArrow />;
+    }
+    case 'founding': {
+      return <LuFlag />;
     }
   }
 };
@@ -121,6 +124,8 @@ const EventsList = ({
         return t('Researched {{unit}}', {
           unit: t(`UNITS.${data.unit}.NAME`),
         });
+      case 'founding':
+        return t('Village founded at ({{x}}, {{y}})', { x: data.x, y: data.y });
       default:
         return JSON.stringify(data);
     }
@@ -185,7 +190,7 @@ const EventsList = ({
                   className="text-center py-8"
                 >
                   {t(
-                    'No events found yet. Upgrade a building or train, research or improve a unit first.',
+                    'No events found yet. Upgrade a building or train, research, improve a unit or found a village first.',
                   )}
                 </TableCell>
               </TableRow>
