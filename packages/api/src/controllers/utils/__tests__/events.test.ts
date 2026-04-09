@@ -243,14 +243,10 @@ describe('events utils', () => {
     test('troopTraining - should throw if unit is not researched', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      database.exec({
-        sql: `DELETE FROM unit_research
-              WHERE village_id = $village_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
-        bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
-      });
 
       const event = createTroopTrainingEventMock({
         villageId,
+        unitId: 'IMPERIAN',
       });
 
       expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
@@ -648,12 +644,18 @@ describe('events utils', () => {
     test('troopMovementAttack - should throw if target is not village or oasis', async () => {
       const database = await prepareTestDatabase();
 
-      // (0, 0) in default mock database is normally an empty tile or village, let's use some far coordinates
+      database.exec({
+        sql: 'DELETE FROM villages WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
+      });
+      database.exec({
+        sql: 'DELETE FROM oasis WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
+      });
+
       expect(() =>
         validateEventCreationPrerequisites(
           database,
           createTroopMovementAttackEventMock({
-            targetCoordinates: { x: 100, y: 100 },
+            targetCoordinates: { x: 2, y: 2 },
           }),
         ),
       ).toThrow('Target must be a village or an oasis');
@@ -679,11 +681,18 @@ describe('events utils', () => {
     test('troopMovementRaid - should throw if target is not village or oasis', async () => {
       const database = await prepareTestDatabase();
 
+      database.exec({
+        sql: 'DELETE FROM villages WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
+      });
+      database.exec({
+        sql: 'DELETE FROM oasis WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
+      });
+
       expect(() =>
         validateEventCreationPrerequisites(
           database,
           createTroopMovementRaidEventMock({
-            targetCoordinates: { x: 100, y: 100 },
+            targetCoordinates: { x: 2, y: 2 },
           }),
         ),
       ).toThrow('Target must be a village or an oasis');
@@ -710,12 +719,36 @@ describe('events utils', () => {
 
     test('troopMovementOasisOccupation - should throw if target is not oasis', async () => {
       const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      // Give some levels to hero's mansion so we don't get "No free oasis occupation slots available" error first
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET
+            building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION'),
+            level = 10
+          WHERE field_id = (
+            SELECT field_id
+            FROM building_fields
+            WHERE village_id = $village_id
+            LIMIT 1
+          );
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      database.exec({
+        sql: 'DELETE FROM oasis WHERE tile_id = (SELECT id FROM tiles WHERE x = 2 AND y = 2)',
+      });
 
       expect(() =>
         validateEventCreationPrerequisites(
           database,
           createGameEventMock('troopMovementOasisOccupation', {
-            targetCoordinates: { x: 100, y: 100 },
+            villageId,
+            targetCoordinates: { x: 2, y: 2 },
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
       ).toThrow('Target must be an oasis');
@@ -757,7 +790,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createTroopMovementRelocationEventMock({
-            targetCoordinates: { x: 100, y: 100 },
+            targetCoordinates: { x: 2, y: 2 },
           }),
         ),
       ).toThrow(
@@ -832,6 +865,10 @@ describe('events utils', () => {
 
       // Seed some troops
       database.exec({
+        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        bind: { $tile_id: villageTileId },
+      });
+      database.exec({
         sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
               VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
         bind: { $tile_id: villageTileId },
@@ -852,7 +889,8 @@ describe('events utils', () => {
       runEventCreationSideEffects(database, [event]);
 
       const amount = database.selectValue({
-        sql: "SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE')",
+        sql: "SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        bind: { $tile_id: villageTileId },
         schema: z.number(),
       });
 
@@ -870,8 +908,16 @@ describe('events utils', () => {
 
       // Seed some troops
       database.exec({
+        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE') AND tile_id = $tile_id",
+        bind: { $tile_id: villageTileId },
+      });
+      database.exec({
         sql: `INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
               VALUES ((SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, $tile_id, $tile_id)`,
+        bind: { $tile_id: villageTileId },
+      });
+      database.exec({
+        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN') AND tile_id = $tile_id",
         bind: { $tile_id: villageTileId },
       });
       database.exec({
@@ -909,8 +955,8 @@ describe('events utils', () => {
 
       const getAmount = (unit: Unit['id']) =>
         database.selectValue({
-          sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)',
-          bind: { $unit: unit },
+          sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit) AND tile_id = $tile_id',
+          bind: { $unit: unit, $tile_id: villageTileId },
           schema: z.number(),
         });
 

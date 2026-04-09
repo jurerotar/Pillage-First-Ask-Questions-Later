@@ -34,3 +34,4 @@ export const gameWorldOverviewStatisticsCacheKey =
   'game-world-overview-statistics';
 export const farmListsCacheKey = 'farm-lists';
 export const tilesCacheKey = 'tiles';
+export const troopMovementsCacheKey = 'troop-movements';

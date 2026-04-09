@@ -37,8 +37,6 @@ export const useScheduledBuildingUpgrades = () => {
         `/villages/${currentVillage.id}/scheduled-upgrades`,
       );
 
-      console.log(data);
-
       return z.array(scheduledUpgradeSchema).parse(data);
     },
   });

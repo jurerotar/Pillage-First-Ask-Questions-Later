@@ -6,8 +6,8 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import { Form } from 'app/components/ui/form.tsx';
@@ -25,16 +25,12 @@ export const OasisOccupationForm = () => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const navigate = useNavigate();
-  const { createEvent: createOasisOccupationEvent } = useCreateEvent(
-    'troopMovementOasisOccupation',
-  );
+  const { sendTroops } = useVillageTroops();
 
-  const { form, getBaseEventArgs, resetForm } = useTroopForm(
-    oasisOccupationFormSchema,
-    {
+  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
+    useTroopForm(oasisOccupationFormSchema, {
       defaultValues: {},
-    },
-  );
+    });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -43,8 +39,14 @@ export const OasisOccupationForm = () => {
     modalArgs: formData,
   } = useDialog<z.infer<typeof oasisOccupationFormSchema>>();
 
-  const onFormSubmit = (data: z.infer<typeof oasisOccupationFormSchema>) => {
-    openModal(data);
+  const onFormSubmit = async (
+    data: z.infer<typeof oasisOccupationFormSchema>,
+  ) => {
+    const isValid = await validateTroopMovementAsync(data, 'oasisOccupation');
+
+    if (isValid) {
+      openModal(data);
+    }
   };
 
   const onConfirm = () => {
@@ -52,18 +54,22 @@ export const OasisOccupationForm = () => {
       return;
     }
 
-    const eventArgs = getBaseEventArgs(formData.current);
-
-    createOasisOccupationEvent(eventArgs, {
-      onSuccess: () => {
-        resetForm();
-        closeModal();
-
-        if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
-          navigate('..', { relative: 'path' });
-        }
+    sendTroops(
+      {
+        type: 'troopMovementOasisOccupation',
+        ...getBaseEventArgs(formData.current),
       },
-    });
+      {
+        onSuccess: () => {
+          resetForm();
+          closeModal();
+
+          if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
+            navigate('..', { relative: 'path' });
+          }
+        },
+      },
+    );
   };
 
   return (

@@ -9,4 +9,5 @@ CREATE TABLE map_markers
 
 ) STRICT;
 
+CREATE INDEX idx_map_markers_player_id ON map_markers (player_id);
 CREATE INDEX idx_map_markers_tile_id ON map_markers (tile_id);

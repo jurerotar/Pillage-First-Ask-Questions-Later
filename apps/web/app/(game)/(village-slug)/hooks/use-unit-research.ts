@@ -23,10 +23,6 @@ export const useUnitResearch = () => {
 
   const unitsByTribe = getUnitsByTribe(tribe);
 
-  const researchableUnits = unitsByTribe.filter(
-    (unit) => !unit.id.includes('SETTLER'),
-  );
-
   const { data: unitResearch } = useSuspenseQuery({
     queryKey: [unitResearchCacheKey, currentVillage.id],
     queryFn: async () => {
@@ -38,13 +34,17 @@ export const useUnitResearch = () => {
   });
 
   const isUnitResearched = (unitId: Unit['id']): boolean => {
-    return !!unitResearch.find(
-      (unitResearch) => unitResearch.unitId === unitId,
-    );
+    const unit = getUnitDefinition(unitId);
+
+    if (unit.researchRequirements.length === 0) {
+      return true;
+    }
+
+    return unitResearch.some((unitResearch) => unitResearch.unitId === unitId);
   };
 
   const getResearchedUnits = () => {
-    return researchableUnits.filter(({ id }) => isUnitResearched(id));
+    return unitsByTribe.filter(({ id }) => isUnitResearched(id));
   };
 
   const getResearchedUnitsByCategory = (category: Unit['category']) => {
@@ -60,6 +60,6 @@ export const useUnitResearch = () => {
     unitResearch,
     isUnitResearched,
     getResearchedUnitsByCategory,
-    researchableUnits,
+    researchableUnits: unitsByTribe,
   };
 };

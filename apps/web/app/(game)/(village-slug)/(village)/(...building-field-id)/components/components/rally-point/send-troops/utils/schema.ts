@@ -13,7 +13,7 @@ export const unitSelectionSchema = z.object({
   category: unitCategorySchema,
 });
 
-export const targetSchema = z.strictObject({
+export const targetSchema = z.object({
   x: z.coerce
     .number({ error: 'X coordinate is required' })
     .int({ error: 'X must be an integer' }),
@@ -38,7 +38,7 @@ export const troopFormRefinementOptions = [
 ];
 
 export const baseTroopFormSchema = z
-  .strictObject({
+  .object({
     units: z.array(unitSelectionSchema),
     target: targetSchema,
   })

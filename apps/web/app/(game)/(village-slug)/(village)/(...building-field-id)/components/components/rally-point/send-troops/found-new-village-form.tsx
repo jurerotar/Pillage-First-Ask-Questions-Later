@@ -8,9 +8,9 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import { Form } from 'app/components/ui/form.tsx';
@@ -27,9 +27,7 @@ export const FoundNewVillageForm = () => {
   const { preferences } = usePreferences();
   const navigate = useNavigate();
   const tribe = useTribe();
-  const { createEvent: createFindNewVillageEvent } = useCreateEvent(
-    'troopMovementFindNewVillage',
-  );
+  const { sendTroops } = useVillageTroops();
 
   const settlerUnitId = getSettlerUnitIdByTribe(tribe);
 
@@ -41,13 +39,11 @@ export const FoundNewVillageForm = () => {
     return [{ unitId: settlerUnitId, amount: 3 }];
   }, [settlerUnitId]);
 
-  const { form, getBaseEventArgs, resetForm } = useTroopForm(
-    foundNewVillageFormSchema,
-    {
+  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
+    useTroopForm(foundNewVillageFormSchema, {
       defaultValues: {},
       defaultUnits,
-    },
-  );
+    });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -56,8 +52,14 @@ export const FoundNewVillageForm = () => {
     modalArgs: formData,
   } = useDialog<z.infer<typeof foundNewVillageFormSchema>>();
 
-  const onFormSubmit = (data: z.infer<typeof foundNewVillageFormSchema>) => {
-    openModal(data);
+  const onFormSubmit = async (
+    data: z.infer<typeof foundNewVillageFormSchema>,
+  ) => {
+    const isValid = await validateTroopMovementAsync(data, 'findNewVillage');
+
+    if (isValid) {
+      openModal(data);
+    }
   };
 
   const onConfirm = () => {
@@ -65,18 +67,22 @@ export const FoundNewVillageForm = () => {
       return;
     }
 
-    const eventArgs = getBaseEventArgs(formData.current);
-
-    createFindNewVillageEvent(eventArgs, {
-      onSuccess: () => {
-        resetForm();
-        closeModal();
-
-        if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
-          navigate('..', { relative: 'path' });
-        }
+    sendTroops(
+      {
+        type: 'troopMovementFindNewVillage',
+        ...getBaseEventArgs(formData.current),
       },
-    });
+      {
+        onSuccess: () => {
+          resetForm();
+          closeModal();
+
+          if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
+            navigate('..', { relative: 'path' });
+          }
+        },
+      },
+    );
   };
 
   return (

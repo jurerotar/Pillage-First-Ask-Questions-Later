@@ -6,8 +6,8 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import {
@@ -34,19 +34,14 @@ export const AttackRaidForm = () => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const navigate = useNavigate();
-  const { createEvent: createAttackEvent } = useCreateEvent(
-    'troopMovementAttack',
-  );
-  const { createEvent: createRaidEvent } = useCreateEvent('troopMovementRaid');
+  const { sendTroops } = useVillageTroops();
 
-  const { form, getBaseEventArgs, resetForm } = useTroopForm(
-    attackRaidFormSchema,
-    {
+  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
+    useTroopForm(attackRaidFormSchema, {
       defaultValues: {
         action: 'attack_normal',
       },
-    },
-  );
+    });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -55,8 +50,15 @@ export const AttackRaidForm = () => {
     modalArgs: formData,
   } = useDialog<z.infer<typeof attackRaidFormSchema>>();
 
-  const onFormSubmit = (data: z.infer<typeof attackRaidFormSchema>) => {
-    openModal(data);
+  const onFormSubmit = async (data: z.infer<typeof attackRaidFormSchema>) => {
+    const isValid = await validateTroopMovementAsync(
+      data,
+      data.action === 'attack_normal' ? 'attack' : 'raid',
+    );
+
+    if (isValid) {
+      openModal(data);
+    }
   };
 
   const onConfirm = () => {
@@ -64,23 +66,25 @@ export const AttackRaidForm = () => {
       return;
     }
 
-    const eventArgs = getBaseEventArgs(formData.current);
-
-    const createEventFn =
-      formData.current.action === 'attack_normal'
-        ? createAttackEvent
-        : createRaidEvent;
-
-    createEventFn(eventArgs, {
-      onSuccess: () => {
-        resetForm();
-        closeModal();
-
-        if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
-          navigate('..', { relative: 'path' });
-        }
+    sendTroops(
+      {
+        type:
+          formData.current.action === 'attack_normal'
+            ? 'troopMovementAttack'
+            : 'troopMovementRaid',
+        ...getBaseEventArgs(formData.current),
       },
-    });
+      {
+        onSuccess: () => {
+          resetForm();
+          closeModal();
+
+          if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
+            navigate('..', { relative: 'path' });
+          }
+        },
+      },
+    );
   };
 
   return (

@@ -14,7 +14,7 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
   const pendingVariableResolutions: string[] = [];
 
   for await (const entry of glob('packages/api/src/**/*.ts')) {
-    if (entry.endsWith('api-worker.ts')) {
+    if (entry.endsWith('api-worker.ts') || entry.includes('__tests__') || entry.endsWith('.test.ts') || entry.endsWith('.spec.ts')) {
       continue;
     }
     const content = await readFile(entry, 'utf8');
@@ -71,7 +71,7 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
   const sortedStatements = Array.from(sqlStatements)
     .filter(s => s.length > 0)
     .map(s => {
-      let cleaned = s.trim();
+      let cleaned = s.replace(/\s+/g, ' ').trim();
       if (!cleaned.endsWith(';')) {
         cleaned += ';';
       }
@@ -83,11 +83,7 @@ const FUNCTIONS = ['selectObjects', 'selectValue', 'selectValues', 'selectObject
     '-- Extracted SQL statements',
     `-- Generated: ${new Date().toISOString()}`,
     '',
-    ...sortedStatements.flatMap((s, i) => [
-      `-- Statement ${i + 1}`,
-      s,
-      ''
-    ]),
+    ...sortedStatements,
   ].join('\n');
 
   await mkdir(dirname(STATEMENTS_EXPORT_PATH), { recursive: true });

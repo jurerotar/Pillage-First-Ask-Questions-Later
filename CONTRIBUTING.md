@@ -28,7 +28,7 @@ later.
 5. (Optional) If you cloned the repository before we migrated to a monorepo, you will have some orphaned directories
    sticking around. Run `npm run remove-deprecated-directories` command to remove these unneeded files.
 6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` & `db.sqlite3` files inside
-   `apps/sqlite-erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
+   `apps/erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
    queries.
 
 ## 2. Repository
@@ -40,6 +40,7 @@ It currently consists of the following apps & packages:
 -
   - [web](/apps/web/README.md) (frontend client)
   - [swagger-ui](/apps/swagger-ui/README.md) (open api client)
+  - [erd](/apps/erd/README.md) (ERD)
 
 - **packages**
 -

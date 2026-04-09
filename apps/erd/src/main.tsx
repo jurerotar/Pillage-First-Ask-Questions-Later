@@ -4,7 +4,7 @@ import { SQLiteERD } from 'sqlite-erd';
 import 'sqlite-erd/sqlite-erd.css';
 import sqlSchema from '../sql-schema/schema.sql?raw';
 
-const rootElement = document.querySelector('#sqlite-erd');
+const rootElement = document.querySelector('#erd');
 
 if (rootElement) {
   createRoot(rootElement).render(

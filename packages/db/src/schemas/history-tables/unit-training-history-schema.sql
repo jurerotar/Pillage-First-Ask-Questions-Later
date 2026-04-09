@@ -14,3 +14,7 @@ CREATE TABLE unit_training_history
 
   UNIQUE (batch_id, unit_id)
 ) STRICT;
+
+CREATE INDEX idx_unit_training_history_village_id ON unit_training_history(village_id);
+CREATE INDEX idx_unit_training_history_unit_id ON unit_training_history(unit_id);
+CREATE INDEX idx_unit_training_history_building_id ON unit_training_history(building_id);

@@ -31,7 +31,7 @@ export const createEvents = <T extends GameEventType>(
   args: CreateNewEventsArgs<T>,
 ) => {
   const sampleEvent = args as GameEvent<T>;
-  let { startsAt = null } = sampleEvent;
+  let { startsAt = null, duration = null } = sampleEvent;
   const amount = args?.amount ?? 1;
 
   validateEventCreationPrerequisites(database, sampleEvent);
@@ -58,7 +58,7 @@ export const createEvents = <T extends GameEventType>(
 
   startsAt ??= getEventStartTime(database, sampleEvent);
 
-  const duration = Math.ceil(getEventDuration(database, sampleEvent));
+  duration ??= Math.ceil(getEventDuration(database, sampleEvent));
 
   const events: GameEvent<T>[] = Array.from({ length: amount });
 

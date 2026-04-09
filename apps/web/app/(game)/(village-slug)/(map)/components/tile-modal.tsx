@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getSettlerUnitIdByTribe } from '@pillage-first/game-assets/utils/units';
 import type {
@@ -31,7 +31,6 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
-import { Button } from 'app/components/ui/button';
 import {
   DialogContent,
   DialogDescription,
@@ -299,9 +298,8 @@ const OccupiedOccupiableTileModal = ({
   tile,
 }: OccupiedOccupiableTileModalProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { currentVillage } = useCurrentVillage();
-  const { getNewVillageUrl } = useGameNavigation();
+  const { getVillageBasePath } = useGameNavigation();
 
   const { owner, ownerVillage } = tile;
   const { id: playerId } = owner;
@@ -328,13 +326,11 @@ const OccupiedOccupiableTileModal = ({
         <Text as="h3">{t('Actions')}</Text>
         {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
         {isOwnedByPlayer && tile.id !== currentVillage.id && (
-          <Button
-            size="fit"
-            variant="link"
-            onClick={() => navigate(getNewVillageUrl(villageSlug!))}
-          >
-            {t('Enter village')}
-          </Button>
+          <Text variant="link">
+            <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>
+              {t('Enter {{villageName}}', { villageName })}
+            </Link>
+          </Text>
         )}
       </div>
     </>

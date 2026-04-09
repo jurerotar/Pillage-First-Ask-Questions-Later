@@ -1,10 +1,13 @@
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import createBuildingFieldsIndexes from '../indexes/building-fields-indexes.sql?raw';
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from '../indexes/players-indexes.sql?raw';
+import createResourceSitesIndexes from '../indexes/resource-sites-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
+import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
 import createBuildingFieldsTable from '../schemas/building-fields-schema.sql?raw';
 import createDeveloperSettingsTable from '../schemas/developer-settings-schema.sql?raw';
@@ -76,7 +79,6 @@ import { troopSeeder } from '../seeders/troop-seeder';
 import { unitDataSeeder } from '../seeders/unit-data-seeder';
 import { unitIdsSeeder } from '../seeders/unit-ids-seeder';
 import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
-import { unitResearchSeeder } from '../seeders/unit-research-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
@@ -204,6 +206,7 @@ export const migrateAndSeed = (
     // Building fields
     db.exec({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
+    db.exec({ sql: createBuildingFieldsIndexes });
 
     // Troops
     db.exec({ sql: createTroopsTable });
@@ -218,14 +221,15 @@ export const migrateAndSeed = (
     // Resource sites
     db.exec({ sql: createResourceSitesTable });
     resourceSitesSeeder(db, server);
+    db.exec({ sql: createResourceSitesIndexes });
 
     // World items
     db.exec({ sql: createWorldItemsTable });
     worldItemsSeeder(db, server);
+    db.exec({ sql: createWorldItemsIndexes });
 
     // Unit research
     db.exec({ sql: createUnitResearchTable });
-    unitResearchSeeder(db, server);
 
     // Unit improvement
     db.exec({ sql: createUnitImprovementTable });

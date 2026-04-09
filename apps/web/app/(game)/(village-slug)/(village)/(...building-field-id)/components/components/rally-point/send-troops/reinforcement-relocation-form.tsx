@@ -6,8 +6,8 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout.tsx';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event.ts';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
 import { Text } from 'app/components/text.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import {
@@ -34,21 +34,14 @@ export const ReinforcementRelocationForm = () => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const navigate = useNavigate();
-  const { createEvent: createReinforcementEvent } = useCreateEvent(
-    'troopMovementReinforcements',
-  );
-  const { createEvent: createRelocationEvent } = useCreateEvent(
-    'troopMovementRelocation',
-  );
+  const { sendTroops } = useVillageTroops();
 
-  const { form, getBaseEventArgs, playerVillages, resetForm } = useTroopForm(
-    reinforcementRelocationFormSchema,
-    {
+  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
+    useTroopForm(reinforcementRelocationFormSchema, {
       defaultValues: {
         action: 'reinforcement',
       },
-    },
-  );
+    });
 
   const {
     isOpen: isConfirmationModalOpen,
@@ -57,25 +50,17 @@ export const ReinforcementRelocationForm = () => {
     modalArgs: formData,
   } = useDialog<z.infer<typeof reinforcementRelocationFormSchema>>();
 
-  const onFormSubmit = (
+  const onFormSubmit = async (
     data: z.infer<typeof reinforcementRelocationFormSchema>,
   ) => {
-    const isTargetingOwnVillage = playerVillages.some(
-      (v) =>
-        v.coordinates.x === data.target.x && v.coordinates.y === data.target.y,
+    const isValid = await validateTroopMovementAsync(
+      data,
+      data.action === 'reinforcement' ? 'reinforcements' : 'relocation',
     );
 
-    if (!isTargetingOwnVillage) {
-      form.setError('target', {
-        type: 'manual',
-        message: t(
-          'Reinforcements and relocations can only be sent to your own villages',
-        ),
-      });
-      return;
+    if (isValid) {
+      openModal(data);
     }
-
-    openModal(data);
   };
 
   const onConfirm = () => {
@@ -83,23 +68,25 @@ export const ReinforcementRelocationForm = () => {
       return;
     }
 
-    const eventArgs = getBaseEventArgs(formData.current);
-
-    const createEventFn =
-      formData.current.action === 'reinforcement'
-        ? createReinforcementEvent
-        : createRelocationEvent;
-
-    createEventFn(eventArgs, {
-      onSuccess: () => {
-        resetForm();
-        closeModal();
-
-        if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
-          navigate('..', { relative: 'path' });
-        }
+    sendTroops(
+      {
+        type:
+          formData.current.action === 'reinforcement'
+            ? 'troopMovementReinforcements'
+            : 'troopMovementRelocation',
+        ...getBaseEventArgs(formData.current),
       },
-    });
+      {
+        onSuccess: () => {
+          resetForm();
+          closeModal();
+
+          if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
+            navigate('..', { relative: 'path' });
+          }
+        },
+      },
+    );
   };
 
   return (
