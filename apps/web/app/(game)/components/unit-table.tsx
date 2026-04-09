@@ -5,9 +5,9 @@ import {
   getUnitsByTribe,
 } from '@pillage-first/game-assets/utils/units';
 import type { Tribe } from '@pillage-first/types/models/tribe';
-import { Icon } from 'app/components/icon.tsx';
-import { unitIdToUnitIconMapper } from 'app/components/icons/icons.tsx';
-import { Input } from 'app/components/ui/input.tsx';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { Input } from 'app/components/ui/input';
 
 type UnitTableContextValue = {
   tribe: Tribe;

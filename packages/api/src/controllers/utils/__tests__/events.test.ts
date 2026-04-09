@@ -982,7 +982,7 @@ describe('events utils', () => {
 
       const result = getEventCost(database, event);
       expect(result).toHaveLength(4);
-      expect(result.some((v) => v > 0)).toBeTruthy();
+      expect(result.some((v) => v > 0)).toBe(true);
     });
 
     test('unitResearch - should return zero cost if free unit research enabled', async () => {

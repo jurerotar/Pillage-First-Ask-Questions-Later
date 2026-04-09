@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useLocation } from 'react-router';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { useServer } from 'app/(game)/(village-slug)/hooks/use-server.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 
 export const useGameNavigation = () => {
   const { currentVillage } = useCurrentVillage();

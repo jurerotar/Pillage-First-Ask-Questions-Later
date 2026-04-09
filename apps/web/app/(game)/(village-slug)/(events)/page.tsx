@@ -4,13 +4,13 @@ import { FaBookBookmark } from 'react-icons/fa6';
 import { LuAnvil, LuConstruction, LuFlag } from 'react-icons/lu';
 import { TbTargetArrow } from 'react-icons/tb';
 import { useSearchParams } from 'react-router';
-import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page.ts';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import { EventFilters } from 'app/(game)/(village-slug)/(events)/components/event-filters';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import {
   type HistoryEvent,

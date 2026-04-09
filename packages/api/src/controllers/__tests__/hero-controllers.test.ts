@@ -28,7 +28,7 @@ describe('hero-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getHeroLoadout should return equipped items', async () => {
@@ -41,7 +41,7 @@ describe('hero-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getHeroInventory should return inventory items', async () => {
@@ -54,7 +54,7 @@ describe('hero-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getHeroAdventures should return adventures status', async () => {
@@ -67,7 +67,7 @@ describe('hero-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   describe(changeHeroAttributes, () => {

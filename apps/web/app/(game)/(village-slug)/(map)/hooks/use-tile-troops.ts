@@ -3,7 +3,7 @@ import { use } from 'react';
 import { z } from 'zod';
 import type { Tile } from '@pillage-first/types/models/tile';
 import { troopSchema } from '@pillage-first/types/models/troop';
-import { tileTroopsCacheKey } from 'app/(game)/constants/query-keys.ts';
+import { tileTroopsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useTileTroops = (tileId: Tile['id']) => {

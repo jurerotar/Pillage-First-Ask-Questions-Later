@@ -72,7 +72,7 @@ export const cancelTroopMovement = createController(
     const now = Date.now();
     const duration = now - movementEvent.startsAt;
 
-    if (duration > 60000) {
+    if (duration > 60_000) {
       throw new Error(
         'Movements can only be cancelled within 1 minute of dispatch',
       );

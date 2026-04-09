@@ -6,21 +6,21 @@ import { getSettlerUnitIdByTribe } from '@pillage-first/game-assets/utils/units'
 import {
   Section,
   SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout.tsx';
-import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
-import { Text } from 'app/components/text.tsx';
-import { Button } from 'app/components/ui/button.tsx';
-import { Form } from 'app/components/ui/form.tsx';
-import { useDialog } from 'app/hooks/use-dialog.ts';
-import { getFormErrorBag } from 'app/utils/forms.ts';
-import { TroopMovementConfirmationModal } from './components/confirmation-modal.tsx';
-import { CoordinateSelector } from './components/target-selectors.tsx';
-import { UnitSelector } from './components/unit-selector.tsx';
-import { useTroopForm } from './hooks/use-troop-form.ts';
-import { foundNewVillageFormSchema } from './utils/schema.ts';
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
+import { Form } from 'app/components/ui/form';
+import { useDialog } from 'app/hooks/use-dialog';
+import { getFormErrorBag } from 'app/utils/forms';
+import { TroopMovementConfirmationModal } from './components/confirmation-modal';
+import { CoordinateSelector } from './components/target-selectors';
+import { UnitSelector } from './components/unit-selector';
+import { useTroopForm } from './hooks/use-troop-form';
+import { foundNewVillageFormSchema } from './utils/schema';
 
 export const FoundNewVillageForm = () => {
   const { t } = useTranslation();

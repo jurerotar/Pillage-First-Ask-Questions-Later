@@ -11,7 +11,7 @@ import {
   heroCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { invalidateQueries } from 'app/utils/react-query.ts';
+import { invalidateQueries } from 'app/utils/react-query';
 
 export const useHero = () => {
   const { fetcher } = use(ApiContext);

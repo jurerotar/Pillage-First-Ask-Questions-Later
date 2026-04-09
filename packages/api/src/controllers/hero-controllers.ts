@@ -11,7 +11,7 @@ import {
   getHeroLoadoutSchema,
   getHeroSchema,
 } from './schemas/hero-schemas';
-import { createEvents } from './utils/create-event.ts';
+import { createEvents } from './utils/create-event';
 
 export const getHero = createController('/players/:playerId/hero')(
   ({ database, path: { playerId } }) => {

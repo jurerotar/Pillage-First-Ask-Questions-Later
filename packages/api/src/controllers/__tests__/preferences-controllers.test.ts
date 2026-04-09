@@ -17,7 +17,7 @@ describe('preferences-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('updatePreference should update a preference', async () => {
@@ -37,6 +37,6 @@ describe('preferences-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });

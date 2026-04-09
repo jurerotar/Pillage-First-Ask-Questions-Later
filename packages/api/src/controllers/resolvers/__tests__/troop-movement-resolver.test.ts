@@ -46,7 +46,7 @@ describe(adventureMovementResolver, () => {
       id: 1,
       startsAt: 1000,
       duration: 500,
-      villageId: villageId,
+      villageId,
       targetCoordinates: { x: 1, y: 1 },
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
@@ -86,7 +86,7 @@ describe(adventureMovementResolver, () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ x: z.number(), y: z.number() }),
     })!;
-    expect(returnEvent.targetCoordinates).toEqual({ x, y });
+    expect(returnEvent.targetCoordinates).toStrictEqual({ x, y });
 
     // Verify quest completion
     const quest = database.selectObject({
@@ -121,7 +121,7 @@ describe(adventureMovementResolver, () => {
       id: 1,
       startsAt: 1000,
       duration: 500,
-      villageId: villageId,
+      villageId,
       targetCoordinates: { x: 1, y: 1 },
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
@@ -389,7 +389,7 @@ describe(attackMovementResolver, () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ x: z.number(), y: z.number() }),
     })!;
-    expect(returnEvent.targetCoordinates).toEqual({ x, y });
+    expect(returnEvent.targetCoordinates).toStrictEqual({ x, y });
   });
 });
 
@@ -422,6 +422,6 @@ describe(raidMovementResolver, () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ x: z.number(), y: z.number() }),
     })!;
-    expect(returnEvent.targetCoordinates).toEqual({ x, y });
+    expect(returnEvent.targetCoordinates).toStrictEqual({ x, y });
   });
 });

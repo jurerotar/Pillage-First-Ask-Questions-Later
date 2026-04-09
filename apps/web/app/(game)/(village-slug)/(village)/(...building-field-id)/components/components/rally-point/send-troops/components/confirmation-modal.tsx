@@ -2,27 +2,27 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
 import { calculateDistanceBetweenPoints } from '@pillage-first/utils/math';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects.ts';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   UnitTable,
   UnitTableHeader,
   UnitTableRow,
-} from 'app/(game)/components/unit-table.tsx';
-import { Text } from 'app/components/text.tsx';
-import { Button } from 'app/components/ui/button.tsx';
+} from 'app/(game)/components/unit-table';
+import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from 'app/components/ui/dialog.tsx';
-import { Separator } from 'app/components/ui/separator.tsx';
-import { formatTime } from 'app/utils/time.ts';
-import type { BaseTroopFormValues } from '../utils/schema.ts';
-import { ArrivalTime } from './arrival-time.tsx';
+} from 'app/components/ui/dialog';
+import { Separator } from 'app/components/ui/separator';
+import { formatTime } from 'app/utils/time';
+import type { BaseTroopFormValues } from '../utils/schema';
+import { ArrivalTime } from './arrival-time';
 
 type TroopMovementConfirmationModalProps = {
   isOpen: boolean;

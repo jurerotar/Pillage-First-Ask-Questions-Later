@@ -24,7 +24,7 @@ describe('event-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getVillageEventsByType should return events for a village by type', async () => {
@@ -42,18 +42,18 @@ describe('event-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('cancelConstructionEvent should refund resources based on completion %', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
-    const now = 1000000;
+    const now = 1_000_000;
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
     const startsAt = now;
-    const duration = 100000;
+    const duration = 100_000;
 
     const meta = JSON.stringify({
       buildingId: 'MAIN_BUILDING',
@@ -125,11 +125,11 @@ describe('event-controllers', () => {
   test('cancelConstructionEvent should refund proportionally when cancelled at 50% completion', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
-    const startsAt = 1000000;
-    const duration = 100000;
+    const startsAt = 1_000_000;
+    const duration = 100_000;
 
     // 50% completion at startsAt + 50000
-    const now = startsAt + 50000;
+    const now = startsAt + 50_000;
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
@@ -210,11 +210,11 @@ describe('event-controllers', () => {
   test('cancelConstructionEvent should refund 40% when cancelled at 99% completion', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
-    const startsAt = 1000000;
-    const duration = 100000;
+    const startsAt = 1_000_000;
+    const duration = 100_000;
 
     // 99% completion at startsAt + 99000
-    const now = startsAt + 99000;
+    const now = startsAt + 99_000;
     vi.useFakeTimers();
     vi.setSystemTime(now);
 

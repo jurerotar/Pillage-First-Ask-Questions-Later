@@ -4,7 +4,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';

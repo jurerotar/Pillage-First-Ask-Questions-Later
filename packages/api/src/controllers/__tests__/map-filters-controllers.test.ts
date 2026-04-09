@@ -17,7 +17,7 @@ describe('map-filters-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('updateMapFilter should update a map filter', async () => {
@@ -34,6 +34,6 @@ describe('map-filters-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });

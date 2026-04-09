@@ -4,13 +4,13 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Text } from 'app/components/text';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs.tsx';
-import { AttackRaidForm } from './send-troops/attack-raid-form.tsx';
-import { FoundNewVillageForm } from './send-troops/found-new-village-form.tsx';
-import { OasisOccupationForm } from './send-troops/oasis-occupation-form.tsx';
-import { ReinforcementRelocationForm } from './send-troops/reinforcement-relocation-form.tsx';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
+import { AttackRaidForm } from './send-troops/attack-raid-form';
+import { FoundNewVillageForm } from './send-troops/found-new-village-form';
+import { OasisOccupationForm } from './send-troops/oasis-occupation-form';
+import { ReinforcementRelocationForm } from './send-troops/reinforcement-relocation-form';
 
 const tabs = [
   'attack-or-raid',

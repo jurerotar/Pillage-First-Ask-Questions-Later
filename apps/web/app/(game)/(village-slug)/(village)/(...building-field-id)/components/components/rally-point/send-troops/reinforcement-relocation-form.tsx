@@ -4,28 +4,28 @@ import { z } from 'zod';
 import {
   Section,
   SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout.tsx';
-import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
-import { Text } from 'app/components/text.tsx';
-import { Alert } from 'app/components/ui/alert.tsx';
-import { Button } from 'app/components/ui/button.tsx';
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
+import { Button } from 'app/components/ui/button';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from 'app/components/ui/form.tsx';
-import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group.tsx';
-import { useDialog } from 'app/hooks/use-dialog.ts';
-import { getFormErrorBag } from 'app/utils/forms.ts';
-import { TroopMovementConfirmationModal } from './components/confirmation-modal.tsx';
-import { PlayerVillageSelector } from './components/target-selectors.tsx';
-import { UnitSelector } from './components/unit-selector.tsx';
-import { useTroopForm } from './hooks/use-troop-form.ts';
-import { baseTroopFormSchema } from './utils/schema.ts';
+} from 'app/components/ui/form';
+import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
+import { useDialog } from 'app/hooks/use-dialog';
+import { getFormErrorBag } from 'app/utils/forms';
+import { TroopMovementConfirmationModal } from './components/confirmation-modal';
+import { PlayerVillageSelector } from './components/target-selectors';
+import { UnitSelector } from './components/unit-selector';
+import { useTroopForm } from './hooks/use-troop-form';
+import { baseTroopFormSchema } from './utils/schema';
 
 const reinforcementRelocationFormSchema = baseTroopFormSchema.extend({
   action: z.enum(['reinforcement', 'relocation']),

@@ -9,7 +9,7 @@ import {
   encodeGraphicsProperty,
   tileIdToCoordinates,
 } from '@pillage-first/utils/map';
-import { tilesCacheKey } from 'app/(game)/constants/query-keys.ts';
+import { tilesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useServer } from './use-server';
 

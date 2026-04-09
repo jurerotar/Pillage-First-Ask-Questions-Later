@@ -1,10 +1,10 @@
 import { clsx } from 'clsx';
 import { useFormContext } from 'react-hook-form';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { Icon } from 'app/components/icon.tsx';
-import { unitIdToUnitIconMapper } from 'app/components/icons/icons.tsx';
-import { FormControl, FormField, FormItem } from 'app/components/ui/form.tsx';
-import { Input } from 'app/components/ui/input.tsx';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { FormControl, FormField, FormItem } from 'app/components/ui/form';
+import { Input } from 'app/components/ui/input';
 
 const displayGroups: (Unit['category'] | 'scout')[] = [
   'infantry',

@@ -5,7 +5,7 @@ import { developerSettingsSchema } from '@pillage-first/types/models/developer-s
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider.tsx';
+import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import {
   currentVillageCacheKey,
   developerSettingsCacheKey,
@@ -16,7 +16,7 @@ import {
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { invalidateQueries } from 'app/utils/react-query.ts';
+import { invalidateQueries } from 'app/utils/react-query';
 
 type UpdateDeveloperSettingArgs = {
   developerSettingName: keyof DeveloperSettings;

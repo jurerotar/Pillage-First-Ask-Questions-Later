@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getCurrentTime, subscribeToTimer } from 'app/(game)/utils/timer.ts';
-import { Text } from 'app/components/text.tsx';
-import { formatFutureTimestamp } from 'app/utils/time.ts';
+import { getCurrentTime, subscribeToTimer } from 'app/(game)/utils/timer';
+import { Text } from 'app/components/text';
+import { formatFutureTimestamp } from 'app/utils/time';
 
 type ArrivalTimeProps = {
   travelDuration: number;

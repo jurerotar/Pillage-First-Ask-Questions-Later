@@ -8,14 +8,14 @@ import type { Resource } from '@pillage-first/types/models/resource';
 import {
   Section,
   SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout.tsx';
-import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { Icon } from 'app/components/icon.tsx';
-import { Text } from 'app/components/text.tsx';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
   Dialog,

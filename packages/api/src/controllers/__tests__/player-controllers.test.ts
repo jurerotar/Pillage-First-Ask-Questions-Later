@@ -20,7 +20,7 @@ describe('player-controllers', () => {
 
     getMe(database, createControllerArgs<'/players/me'>({}));
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getPlayerVillageListing should return village listing for a player', async () => {
@@ -127,7 +127,7 @@ describe('player-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('renameVillage should rename a village', async () => {
@@ -147,7 +147,7 @@ describe('player-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getPlayerBySlug should return player details by slug', async () => {

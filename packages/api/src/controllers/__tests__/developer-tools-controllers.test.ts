@@ -11,7 +11,7 @@ import {
 } from '../developer-tools-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
-vi.mock<typeof import('../../scheduler/scheduler-signal')>(
+vi.mock<typeof schedulerSignal>(
   import('../../scheduler/scheduler-signal'),
   async () => {
     const actual = await vi.importActual<typeof schedulerSignal>(

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import { Text } from 'app/components/text';
-import { Alert } from 'app/components/ui/alert.tsx';
+import { Alert } from 'app/components/ui/alert';
 import { Badge } from 'app/components/ui/badge';
 import { Button } from 'app/components/ui/button';
 import {

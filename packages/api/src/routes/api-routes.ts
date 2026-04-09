@@ -47,7 +47,7 @@ import {
   getEventsHistory,
   getUnitTrainingHistory,
 } from '../controllers/history-controllers';
-import { getTileLoyalty } from '../controllers/loyalty-controllers.ts';
+import { getTileLoyalty } from '../controllers/loyalty-controllers';
 import {
   addMapMarker,
   getMapMarkers,

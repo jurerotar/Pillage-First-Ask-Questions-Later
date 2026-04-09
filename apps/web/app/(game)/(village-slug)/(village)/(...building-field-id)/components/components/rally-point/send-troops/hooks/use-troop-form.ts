@@ -10,11 +10,11 @@ import {
 import type { TroopMovementEventType } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useValidateTroopMovement } from 'app/(game)/(village-slug)/hooks/use-validate-troop-movement';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
-import type { BaseTroopFormValues, UnitSelection } from '../utils/schema.ts';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
 
 type TroopFormOptions<T extends FieldValues> = {
   defaultUnits?: { unitId: Unit['id']; amount: number }[];

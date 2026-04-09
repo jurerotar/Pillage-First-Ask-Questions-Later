@@ -3,7 +3,7 @@ import { Suspense, useMemo } from 'react';
 import { Link } from 'react-router';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state.ts';
+import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icons';

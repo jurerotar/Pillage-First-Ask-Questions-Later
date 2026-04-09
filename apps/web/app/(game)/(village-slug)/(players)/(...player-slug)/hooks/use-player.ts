@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { type Player, playerSchema } from '@pillage-first/types/models/player';
-import { playerCacheKey } from 'app/(game)/constants/query-keys.ts';
+import { playerCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const usePlayer = (playerSlug: Player['slug']) => {

@@ -7,7 +7,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';

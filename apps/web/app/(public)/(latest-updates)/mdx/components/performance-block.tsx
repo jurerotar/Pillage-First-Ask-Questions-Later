@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { BiWrench } from 'react-icons/bi';
-import { Text } from 'app/components/text.tsx';
+import { Text } from 'app/components/text';
 
 export const PerformanceBlock = ({ children }: PropsWithChildren) => {
   if (!children) {
