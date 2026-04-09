@@ -1,8 +1,43 @@
-import { Alert } from 'app/components/ui/alert.tsx';
-import { PerformanceBlock } from './components/performance-block.tsx';
-import { FeaturesBlock } from './components/features-block.tsx';
-import { BugFixesBlock } from './components/bug-fixes-block.tsx';
-import { TechnicalImprovementBlock } from './components/technical-improvement-block.tsx';
+import { Alert } from 'app/components/ui/alert';
+import { PerformanceBlock } from './components/performance-block';
+import { FeaturesBlock } from './components/features-block';
+import { BugFixesBlock } from './components/bug-fixes-block';
+import { TechnicalImprovementBlock } from './components/technical-improvement-block';
+
+<section>
+  ## Version 0.4.0
+  #### Apr 9, 2026
+
+  <FeaturesBlock>
+    * We added the ability to found new villages. You're able to found new villages by selecting an empty tile on the
+    map, while having 3 settlers present in you village.
+
+    * We're getting a new page! **Event log page** will show a list of latest events happening in your kingdom! It will
+    show completed **construction/destruction/downgrade events**, **training events**, as well as **unit improvement
+    events**, **unit research events** and **new village founding events**. You'll be able to toggle between
+    village-specific events or all events. This will allow you to see what was done since you were last online, at a
+    glance!
+
+    * We added new custom-made icons! This time for **cavalry defence** and **infantry defence**.
+
+    * We added experimental support for transferring game world between devices on the same network. This is done using
+    WebRTC technology. To transfer the game world to a new device, both devices must have the app open and be on the
+    same network.
+
+    * We added an initial implementation for village loyalty mechanic. This will be expanded in the future with the
+    introduction of combat mechanics.
+
+    * We added an initial implementation for farm lists. This will be expanded in the future with the introduction
+    of combat mechanics.
+
+    * We reworked how construction cancellation works. Previously, cancelling an ongoing construction refunded a flat
+    80% of the construction cost, regardless of when the construction was cancelled. This penalized players who
+    initialized construction by mistake. New refund system is based on proportionality of already-completed
+    construction. Cancelling immediately or in the first 5% of construction duration will refund 95% of the construction
+    cost. From 5% of construction duration forwards, the system will refund resources proportionally, with the minimum
+    amount return of 40%.
+  </FeaturesBlock>
+</section>
 
 <section>
   ## Version 0.3.17

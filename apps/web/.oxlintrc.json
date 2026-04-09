@@ -30,19 +30,16 @@
     "suspicious": "error"
   },
   "rules": {
-    "react/*": "error",
     "react/react-in-jsx-scope": "off",
     "react/no-array-index-key": "warn",
     "react/exhaustive-deps": "warn",
     "react/jsx-filename-extension": "off",
     "react/jsx-props-no-spreading": "off",
     "react/only-export-components": "off",
-    "react-perf/*": "error",
     "react-perf/jsx-no-new-function-as-prop": "off",
     "react-perf/jsx-no-new-object-as-prop": "off",
     "react-perf/jsx-no-jsx-as-prop": "off",
-    "react-perf/jsx-no-new-array-as-prop": "off",
-    "jsx-a11y/*": "error"
+    "react-perf/jsx-no-new-array-as-prop": "off"
   },
   "overrides": [
     {

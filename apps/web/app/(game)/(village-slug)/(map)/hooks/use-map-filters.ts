@@ -1,8 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { MapFilters } from '@pillage-first/types/models/map-filters';
-import { mapFiltersCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { mapFiltersCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { invalidateQueries } from 'app/utils/react-query';
 
 type UpdateMapFiltersArgs = {
   filterName: keyof MapFilters;
@@ -34,9 +35,7 @@ export const useMapFilters = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await context.client.invalidateQueries({
-        queryKey: [mapFiltersCacheKey],
-      });
+      await invalidateQueries(context, [[mapFiltersCacheKey]]);
     },
   });
 

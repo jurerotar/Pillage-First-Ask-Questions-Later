@@ -50,8 +50,7 @@
     "@pillage-first/types": "*"
   },
   "devDependencies": {
-    "@biomejs/biome": "*",
-    "@typescript/native-preview": "*",
-    "typescript": "*"
+    "@typescript/native-preview": "7.0.0-dev.20260409.1",
+    "typescript": "6.0.2"
   }
 }

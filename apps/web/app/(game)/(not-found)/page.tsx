@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, Links, Scripts, ScrollRestoration } from 'react-router';
 import type { Route } from '@react-router/types/app/(game)/(not-found)/+types/page';
 import { gameWorldNotExistsMiddleware } from 'app/(game)/(not-found)/middleware/game-world-not-locked-middleware';
-import { HeadLinks } from 'app/components/head-links.tsx';
+import { HeadLinks } from 'app/components/head-links';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 

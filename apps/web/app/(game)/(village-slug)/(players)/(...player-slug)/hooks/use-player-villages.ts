@@ -2,6 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { playerVillagesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 const getPlayerVillageSchema = z.strictObject({
@@ -21,7 +22,7 @@ export const usePlayerVillages = (playerId: number) => {
   const { fetcher } = use(ApiContext);
 
   const { data: playerVillages } = useSuspenseQuery({
-    queryKey: ['player-villages', playerId],
+    queryKey: [playerVillagesCacheKey, playerId],
     queryFn: async () => {
       const response = await fetcher(
         `/players/${playerId}/villages-with-population`,

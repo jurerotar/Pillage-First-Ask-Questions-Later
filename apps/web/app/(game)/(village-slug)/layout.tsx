@@ -7,7 +7,6 @@ import {
   type ReactNode,
   Suspense,
   use,
-  useMemo,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,7 +17,12 @@ import { GiWheat } from 'react-icons/gi';
 import { GoGraph } from 'react-icons/go';
 import { HiStar } from 'react-icons/hi2';
 import { LuBookMarked, LuScrollText } from 'react-icons/lu';
-import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
+import {
+  MdEventNote,
+  MdFace,
+  MdOutlineHolidayVillage,
+  MdSettings,
+} from 'react-icons/md';
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
@@ -55,7 +59,6 @@ import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adve
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import {
   CurrentVillageStateContext,
@@ -233,6 +236,30 @@ const VillageOverviewDesktopItem = () => {
   );
 };
 
+const EventLogDesktopItem = () => {
+  const { t } = useTranslation();
+
+  return (
+    <NavLink
+      to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research"
+      aria-label={t('Event log')}
+      data-tooltip-content={t('Event log')}
+      data-tooltip-id="general-tooltip"
+      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+      tabIndex={0}
+      className={clsx(
+        'flex items-center justify-center shadow-md rounded-md p-1.5 border border-[#f1f1f1] dark:border-border relative',
+        'transition-transform active:scale-95 active:shadow-inner',
+        'lg:transition-colors',
+      )}
+    >
+      <span className="lg:bg-background rounded-md flex items-center justify-center">
+        <MdEventNote className="text-xl" />
+      </span>
+    </NavLink>
+  );
+};
+
 const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
   const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
@@ -273,12 +300,7 @@ const VillageOverviewMobileItem = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, isHeroAlive, health, experience } = useHero();
-  const { villageTroops } = useVillageTroops();
-
-  const isHeroHome = useMemo(() => {
-    return villageTroops.some(({ unitId }) => unitId === 'HERO');
-  }, [villageTroops]);
+  const { hero, isHeroAlive, health, experience, isHeroHome } = useHero();
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
@@ -536,10 +558,6 @@ const VillageSelect = () => {
   const { playerVillages } = usePlayerVillageListing();
   const { currentVillage } = useCurrentVillage();
 
-  const resourceFieldComposition = parseResourcesFromRFC(
-    currentVillage.resourceFieldComposition,
-  ).join('-');
-
   return (
     <Select
       onValueChange={(value) => navigate(getNewVillageUrl(value))}
@@ -553,20 +571,26 @@ const VillageSelect = () => {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {playerVillages.map(({ slug, name, id, coordinates }) => {
-          const { x, y } = coordinates;
-          const formattedId = `${x}|${y}`;
-          return (
-            <SelectItem
-              key={id}
-              value={slug}
-            >
-              <Text className="text-xs sm:text-sm">
-                {name} ({formattedId}) | {resourceFieldComposition}
-              </Text>
-            </SelectItem>
-          );
-        })}
+        {playerVillages.map(
+          ({ slug, name, id, coordinates, resourceFieldComposition }) => {
+            const { x, y } = coordinates;
+            const formattedId = `${x}|${y}`;
+            const parsedRFC = parseResourcesFromRFC(
+              resourceFieldComposition,
+            ).join('-');
+
+            return (
+              <SelectItem
+                key={id}
+                value={slug}
+              >
+                <Text className="text-xs sm:text-sm">
+                  {name} ({formattedId}) | {parsedRFC}
+                </Text>
+              </SelectItem>
+            );
+          },
+        )}
       </SelectContent>
     </Select>
   );
@@ -678,6 +702,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
                 <VillageSelect />
               </Suspense>
               <VillageOverviewDesktopItem />
+              <EventLogDesktopItem />
             </div>
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-3 justify-center items-center">
@@ -783,6 +808,15 @@ const MobileBottomNavigation = ({
           </li>
           <li>
             <Separator orientation="vertical" />
+          </li>
+          <li>
+            <NavigationSideItem
+              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research"
+              aria-label={t('Event log')}
+              title={t('Event log')}
+            >
+              <MdEventNote className="text-2xl" />
+            </NavigationSideItem>
           </li>
           <li>
             <AdventuresNavigationItem />

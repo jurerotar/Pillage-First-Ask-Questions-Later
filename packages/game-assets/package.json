@@ -59,6 +59,9 @@
     },
     "./factories/unit-research": {
       "default": "./src/factories/unit-research.ts"
+    },
+    "./utils/loyalty": {
+      "default": "./src/utils/loyalty.ts"
     }
   },
   "scripts": {
@@ -72,9 +75,8 @@
     "type-check": "tsgo"
   },
   "devDependencies": {
-    "@biomejs/biome": "*",
-    "@typescript/native-preview": "*",
-    "typescript": "*",
-    "vitest": "*"
+    "@typescript/native-preview": "7.0.0-dev.20260409.1",
+    "typescript": "6.0.2",
+    "vitest": "4.1.4"
   }
 }

@@ -9,3 +9,4 @@ CREATE TABLE farm_list_tiles
 ) STRICT, WITHOUT ROWID;
 
 CREATE INDEX idx_farm_list_tiles_farm_list_id ON farm_list_tiles(farm_list_id);
+CREATE INDEX idx_farm_list_tiles_tile_id ON farm_list_tiles(tile_id);

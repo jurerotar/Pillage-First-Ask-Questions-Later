@@ -30,13 +30,12 @@
     "@pillage-first/types": "*",
     "@pillage-first/game-assets": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "*"
+    "@sqlite.org/sqlite-wasm": "3.51.2-build8"
   },
   "devDependencies": {
-    "@biomejs/biome": "*",
-    "@typescript/native-preview": "*",
-    "typescript": "*",
-    "vitest": "*",
-    "zod": "*"
+    "@typescript/native-preview": "7.0.0-dev.20260409.1",
+    "typescript": "6.0.2",
+    "vitest": "4.1.4",
+    "zod": "4.3.6"
   }
 }

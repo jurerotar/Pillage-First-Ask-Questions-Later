@@ -140,7 +140,7 @@ describe('map-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getTileOasisBonuses should return bonuses for an oasis tile', async () => {
@@ -159,7 +159,7 @@ describe('map-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getTileWorldItem should return world item for a tile with world items', async () => {
@@ -178,7 +178,7 @@ describe('map-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('MapMarker controllers should add, get and remove markers', async () => {
@@ -205,7 +205,7 @@ describe('map-controllers', () => {
     );
 
     expect(markers).toHaveLength(1);
-    expect(markers[0]).toEqual({ tileId });
+    expect(markers[0]).toStrictEqual({ tileId });
 
     // 3. Remove marker
     removeMapMarker(

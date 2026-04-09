@@ -1,18 +1,11 @@
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero.ts';
-import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures.ts';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
+import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 
 export const useAdventuresActionsErrorBag = () => {
   const { t } = useTranslation();
   const { available } = useHeroAdventures();
-  const { isHeroAlive } = useHero();
-  const { villageTroops } = useVillageTroops();
-
-  const isHeroInVillage = useMemo(() => {
-    return villageTroops.some(({ unitId }) => unitId === 'HERO');
-  }, [villageTroops]);
+  const { isHeroAlive, isHeroHome } = useHero();
 
   const errorBag: string[] = [];
 
@@ -28,7 +21,7 @@ export const useAdventuresActionsErrorBag = () => {
     );
   }
 
-  if (!isHeroInVillage && isHeroAlive) {
+  if (!isHeroHome && isHeroAlive) {
     errorBag.push(t('Your hero is currently travelling.'));
   }
 

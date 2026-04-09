@@ -11,4 +11,5 @@ CREATE TABLE bookmarks
 ) STRICT, WITHOUT ROWID;
 
 CREATE INDEX idx_bookmarks_village_id ON bookmarks(village_id);
+CREATE INDEX idx_bookmarks_building_id ON bookmarks(building_id);
 

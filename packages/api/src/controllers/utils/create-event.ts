@@ -1,11 +1,12 @@
 import { z } from 'zod';
+import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type {
   GameEvent,
   GameEventType,
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { triggerKick } from '../../scheduler/scheduler-signal';
-import { subtractVillageResourcesAt } from '../../utils/village.ts';
+import { subtractVillageResourcesAt } from '../../utils/village';
 import {
   getEventCost,
   getEventDuration,
@@ -30,7 +31,7 @@ export const createEvents = <T extends GameEventType>(
   args: CreateNewEventsArgs<T>,
 ) => {
   const sampleEvent = args as GameEvent<T>;
-  let { startsAt = null } = sampleEvent;
+  let { startsAt = null, duration = null } = sampleEvent;
   const amount = args?.amount ?? 1;
 
   validateEventCreationPrerequisites(database, sampleEvent);
@@ -52,12 +53,12 @@ export const createEvents = <T extends GameEventType>(
 
     const { villageId } = sampleEvent;
 
-    subtractVillageResourcesAt(database, villageId, startsAt, eventCost);
+    subtractVillageResourcesAt(database, villageId!, startsAt, eventCost);
   }
 
   startsAt ??= getEventStartTime(database, sampleEvent);
 
-  const duration = Math.ceil(getEventDuration(database, sampleEvent));
+  duration ??= Math.ceil(getEventDuration(database, sampleEvent));
 
   const events: GameEvent<T>[] = Array.from({ length: amount });
 
@@ -94,6 +95,11 @@ export const createEvents = <T extends GameEventType>(
 
   insertEvents(database, events);
   runEventCreationSideEffects(database, events);
+
+  globalThis.postMessage?.({
+    eventKey: 'event:created',
+    ...events[0],
+  } satisfies EventApiNotificationEvent);
 
   // Determine if any created events should already be resolved
   const createdImmediate = newResolvesAt.some((r) => r <= now);

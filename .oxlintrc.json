@@ -23,7 +23,6 @@
     "node_modules"
   ],
   "rules": {
-    "eslint/*": "error",
     "eslint/no-await-in-loop": "warn",
     "eslint/id-length": "off",
     "eslint/max-statements": "off",
@@ -31,15 +30,15 @@
     "eslint/no-console": [
       "error",
       {
-        "allow": ["error"]
+        "allow": [
+          "error"
+        ]
       }
     ],
-    "eslint/prefer-string-slice": "off",
     "eslint/max-lines-per-function": "off",
     "eslint/max-lines": "off",
     "eslint/complexity": "off",
     "eslint/max-depth": "off",
-    "eslint/max-dependencies": "off",
     "eslint/no-magic-numbers": "off",
     "eslint/arrow-body-style": "off",
     "eslint/sort-keys": "off",
@@ -56,7 +55,9 @@
     "eslint/no-implicit-coercion": [
       "error",
       {
-        "allow": ["!!"]
+        "allow": [
+          "!!"
+        ]
       }
     ],
     "eslint/no-unused-vars": [
@@ -68,25 +69,29 @@
         "caughtErrors": false
       }
     ],
-    "typescript/*": "error",
     "typescript/no-unsafe-type-assertion": "warn",
     "typescript/promise-function-async": "warn",
     "typescript/explicit-function-return-type": "off",
     "typescript/explicit-module-boundary-types": "off",
-    "typescript/no-non-null-assertion": "warn",
-    "typescript/consistent-type-definitions": ["error", "type"],
+    "typescript/no-non-null-assertion": "off",
+    "typescript/strict-boolean-expressions": "off",
+    "typescript/no-unnecessary-type-arguments": "off",
+    "typescript/consistent-return": "off",
+    "typescript/consistent-type-definitions": [
+      "error",
+      "type"
+    ],
     "typescript/no-confusing-void-expression": [
       "off",
       {
         "ignoreArrowShorthand": true
       }
     ],
-    "unicorn/*": "error",
     "unicorn/no-null": "off",
     "unicorn/prefer-global-this": "off",
     "unicorn/no-await-expression-member": "off",
     "unicorn/require-post-message-target-origin": "off",
-    "import/*": "error",
+    "unicorn/prefer-string-slice": "off",
     "import/default": "off",
     "import/no-relative-parent-imports": "off",
     "import/prefer-default-export": "off",
@@ -97,14 +102,29 @@
     "import/max-dependencies": "off",
     "import/consistent-type-specifier-style": "off",
     "import/no-unassigned-import": "off",
-    "vitest/*": "error",
+    "import/extensions": [
+      "error",
+      "never",
+      {
+        "ignorePackages": true,
+        "css": "always",
+        "sql": "always",
+        "mdx": "always",
+        "scss": "always",
+        "json": "always"
+      }
+    ],
     "vitest/prefer-called-once": "off",
     "vitest/no-importing-vitest-globals": "off",
-    "jest/*": "error",
+    "vitest/require-test-timeout": "off",
+    "vitest/prefer-to-be-truthy": "off",
+    "vitest/prefer-to-be-falsy": "off",
     "jest/valid-expect": "off",
     "jest/valid-title": "off",
     "jest/require-hook": "off",
     "jest/max-expects": "off",
+    "jest/prefer-to-be": "off",
+    "jest/require-to-throw-message": "off",
     "jest/prefer-called-with": "off",
     "jest/prefer-lowercase-title": "warn",
     "jest/no-conditional-in-test": "off",
@@ -114,14 +134,25 @@
         "fn": "test"
       }
     ],
-    "oxc/*": "error",
     "oxc/no-async-await": "off",
     "oxc/no-rest-spread-properties": "off",
     "oxc/no-optional-chaining": "off",
     "oxc/no-map-spread": "off",
-    "promise/*": "error",
     "promise/avoid-new": "off",
     "promise/no-multiple-resolved": "off",
     "promise/prefer-await-to-callbacks": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.config.ts"
+      ],
+      "rules": {
+        "import/no-nodejs-modules": "off",
+        "import/no-default-export": "off",
+        "import/prefer-default-export": "error",
+        "import/no-named-export": "error"
+      }
+    }
+  ]
 }

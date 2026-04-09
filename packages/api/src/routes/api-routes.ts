@@ -6,6 +6,7 @@ import {
 import {
   getDeveloperSettings,
   incrementHeroAdventurePoints,
+  killHero,
   levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
@@ -24,8 +25,10 @@ import {
   deleteFarmList,
   getFarmList,
   getFarmLists,
+  getMeFarmLists,
   removeTileFromFarmList,
   renameFarmList,
+  updateFarmList,
 } from '../controllers/farm-list-controllers';
 import {
   changeHeroAttributes,
@@ -35,9 +38,16 @@ import {
   getHeroAdventures,
   getHeroInventory,
   getHeroLoadout,
+  startHeroAdventure,
   unequipHeroItem,
   useHeroItem,
 } from '../controllers/hero-controllers';
+import {
+  getBuildingLevelChangeHistory,
+  getEventsHistory,
+  getUnitTrainingHistory,
+} from '../controllers/history-controllers';
+import { getTileLoyalty } from '../controllers/loyalty-controllers';
 import {
   addMapMarker,
   getMapMarkers,
@@ -77,6 +87,12 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from '../controllers/statistics-controllers';
+import {
+  cancelTroopMovement,
+  getVillageTroopMovementStats,
+  getVillageTroopMovements,
+  validateTroopMovement,
+} from '../controllers/troop-movement-controllers';
 import { getUnitImprovements } from '../controllers/unit-improvement-controllers';
 import { getResearchedUnits } from '../controllers/unit-research-controllers';
 import {
@@ -84,8 +100,7 @@ import {
   getVillageBySlug,
 } from '../controllers/village-controllers';
 import { getArtifactsAroundVillage } from '../controllers/world-items-controllers';
-import type { Route } from './route.ts';
-import { createRoute } from './route.ts';
+import { createRoute, type Route } from './route';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -100,6 +115,7 @@ const apiRoutes: Route[] = [
   createRoute(spawnHeroItem),
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
+  createRoute(killHero),
 
   // Auctions
   // createRoute(getAuctions),
@@ -109,6 +125,7 @@ const apiRoutes: Route[] = [
   createRoute(getHeroLoadout),
   createRoute(getHeroInventory),
   createRoute(getHeroAdventures),
+  createRoute(startHeroAdventure),
   createRoute(useHeroItem),
   createRoute(equipHeroItem),
   createRoute(unequipHeroItem),
@@ -134,8 +151,10 @@ const apiRoutes: Route[] = [
 
   // Farm List
   createRoute(getFarmLists),
+  createRoute(getMeFarmLists),
   createRoute(createFarmList),
   createRoute(getFarmList),
+  createRoute(updateFarmList),
   createRoute(deleteFarmList),
   createRoute(addTileToFarmList),
   createRoute(removeTileFromFarmList),
@@ -188,6 +207,20 @@ const apiRoutes: Route[] = [
 
   // Reputations
   createRoute(getReputations),
+
+  // Loyalty
+  createRoute(getTileLoyalty),
+
+  // History
+  createRoute(getBuildingLevelChangeHistory),
+  createRoute(getEventsHistory),
+  createRoute(getUnitTrainingHistory),
+
+  // Troop Movements
+  createRoute(getVillageTroopMovements),
+  createRoute(getVillageTroopMovementStats),
+  createRoute(validateTroopMovement),
+  createRoute(cancelTroopMovement),
 ];
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({

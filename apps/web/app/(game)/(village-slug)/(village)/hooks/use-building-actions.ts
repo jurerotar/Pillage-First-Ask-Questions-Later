@@ -2,9 +2,9 @@ import { use, useCallback } from 'react';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
-import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useBuildingActions = (
   buildingId: Building['id'],
@@ -36,7 +36,7 @@ export const useBuildingActions = (
       buildingId,
       level: 1,
       previousLevel: 0,
-      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearImmediately: [currentVillageCacheKey],
     });
   }, [createBuildingConstructionEvent, buildingFieldId, buildingId]);
 
@@ -46,7 +46,7 @@ export const useBuildingActions = (
       buildingId,
       level: virtualLevel + 1,
       previousLevel: virtualLevel,
-      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearImmediately: [currentVillageCacheKey],
     };
 
     if (hasCurrentVillageBuildingEvents) {

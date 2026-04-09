@@ -4,8 +4,9 @@ import {
   type Preferences,
   preferencesSchema,
 } from '@pillage-first/types/models/preferences';
-import { preferencesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
+import { preferencesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { invalidateQueries } from 'app/utils/react-query';
 
 type UpdatePreferenceArgs = {
   preferenceName: keyof Preferences;
@@ -40,9 +41,7 @@ export const usePreferences = () => {
       });
     },
     onSuccess: async (_, _args, _onMutateResult, context) => {
-      await context.client.invalidateQueries({
-        queryKey: [preferencesCacheKey],
-      });
+      await invalidateQueries(context, [[preferencesCacheKey]]);
     },
   });
 

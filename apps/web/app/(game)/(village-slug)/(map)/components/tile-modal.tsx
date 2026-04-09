@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { getSettlerUnitIdByTribe } from '@pillage-first/game-assets/utils/units';
 import type {
   OasisTile,
   OccupiableTile,
@@ -22,16 +23,14 @@ import {
 } from '@pillage-first/utils/math';
 import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { playerTroopsCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
-import { Button } from 'app/components/ui/button';
 import {
   DialogContent,
   DialogDescription,
@@ -187,33 +186,89 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
   );
 };
 
+type FoundNewVillageActionProps = {
+  tile: OccupiableTile;
+};
+
+const FoundNewVillageAction = ({ tile }: FoundNewVillageActionProps) => {
+  const { t } = useTranslation();
+  const { events } = useEvents();
+  const tribe = useTribe();
+  const { villageTroops } = useVillageTroops();
+  const { currentVillage } = useCurrentVillage();
+
+  const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
+    if (isFindNewVillageTroopMovementEvent(event)) {
+      return (
+        tile.coordinates.x === event.targetCoordinates.x &&
+        tile.coordinates.y === event.targetCoordinates.y
+      );
+    }
+
+    return false;
+  });
+
+  if (hasOngoingVillageFindEventOnThisTile) {
+    return (
+      <Text className="text-gray-500">
+        {t('Settlers are already on route to this location')}
+      </Text>
+    );
+  }
+
+  const hasRallyPoint = currentVillage.buildingFields.some(
+    ({ buildingId, level }) => {
+      return buildingId === 'RALLY_POINT' && level > 0;
+    },
+  );
+
+  if (!hasRallyPoint) {
+    return (
+      <Text className="text-gray-500">
+        {t(
+          'You need to build a rally point before you can found a new village',
+        )}
+      </Text>
+    );
+  }
+
+  const settlerUnitId = getSettlerUnitIdByTribe(tribe);
+
+  const hasAtLeast3Settlers = villageTroops.some(
+    ({ unitId, amount, source }) => {
+      return (
+        unitId === settlerUnitId &&
+        source === currentVillage.tileId &&
+        amount >= 3
+      );
+    },
+  );
+
+  if (!hasAtLeast3Settlers) {
+    return (
+      <Text className="text-gray-500">
+        {t('You need at least 3 settlers before you can found a new village')}
+      </Text>
+    );
+  }
+
+  return (
+    <Text variant="link">
+      <Link
+        to={`../village/39?tab=send-troops&rally-point-send-troops-tab=found-new-village&x=${tile.coordinates.x}&y=${tile.coordinates.y}`}
+      >
+        {t('Found new village')}
+      </Link>
+    </Text>
+  );
+};
+
 type OccupiableTileModalProps = {
   tile: OccupiableTile;
 };
 
 const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
   const { t } = useTranslation();
-  const { events } = useEvents();
-
-  const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
-    if (isFindNewVillageTroopMovementEvent(event)) {
-      return tile.id === event.targetId;
-    }
-
-    return false;
-  });
-
-  const { createEvent: createFindNewVillageEvent } = useCreateEvent(
-    'troopMovementFindNewVillage',
-  );
-
-  const onFoundNewVillage = () => {
-    createFindNewVillageEvent({
-      targetId: tile.id,
-      troops: [],
-      cachesToClearImmediately: [playerTroopsCacheKey],
-    });
-  };
 
   return (
     <>
@@ -229,21 +284,7 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
       </DialogHeader>
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        <Text>{t('No actions available')}</Text>
-        {hasOngoingVillageFindEventOnThisTile && (
-          <span className="text-gray-500">
-            {t('Settlers are already on route to this location')}
-          </span>
-        )}
-        {false && (
-          <Button
-            size="fit"
-            variant="link"
-            onClick={onFoundNewVillage}
-          >
-            Found new village
-          </Button>
-        )}
+        <FoundNewVillageAction tile={tile} />
       </div>
     </>
   );
@@ -257,40 +298,14 @@ const OccupiedOccupiableTileModal = ({
   tile,
 }: OccupiedOccupiableTileModalProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { currentVillage } = useCurrentVillage();
-  const { getNewVillageUrl } = useGameNavigation();
-  const { villageTroops, sendTroops } = useVillageTroops();
-
-  const currentVillageMovableTroops = villageTroops.filter(
-    ({ tileId, source }) =>
-      tileId === currentVillage.id && source === currentVillage.id,
-  );
-
-  const isHeroInCurrentVillage = currentVillageMovableTroops.some(
-    ({ unitId }) => unitId === 'HERO',
-  );
+  const { getVillageBasePath } = useGameNavigation();
 
   const { owner, ownerVillage } = tile;
   const { id: playerId } = owner;
   const { name: villageName, slug: villageSlug } = ownerVillage;
 
   const isOwnedByPlayer = playerId === PLAYER_ID;
-
-  const onSendHero = () => {
-    sendTroops({
-      targetId: tile.id,
-      type: 'troopMovementRelocation',
-      troops: [
-        {
-          unitId: 'HERO',
-          amount: 1,
-          tileId: currentVillage.id,
-          source: currentVillage.id,
-        },
-      ],
-    });
-  };
 
   return (
     <>
@@ -311,24 +326,11 @@ const OccupiedOccupiableTileModal = ({
         <Text as="h3">{t('Actions')}</Text>
         {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
         {isOwnedByPlayer && tile.id !== currentVillage.id && (
-          <>
-            <Button
-              size="fit"
-              variant="link"
-              onClick={() => navigate(getNewVillageUrl(villageSlug!))}
-            >
-              Enter village
-            </Button>
-            {isHeroInCurrentVillage && (
-              <Button
-                size="fit"
-                variant="link"
-                onClick={onSendHero}
-              >
-                Send hero
-              </Button>
-            )}
-          </>
+          <Text variant="link">
+            <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>
+              {t('Enter {{villageName}}', { villageName })}
+            </Link>
+          </Text>
         )}
       </div>
     </>

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateAdventurePointIncreaseEventDuration } from '@pillage-first/game-assets/utils/adventures';
 import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
+import { calculateLoyaltyIncreaseEventDuration } from '@pillage-first/game-assets/utils/loyalty';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -40,6 +41,14 @@ export const eventsSeeder = (database: DbFacade, server: Server): void => {
       heroHealthRegeneration,
       server.configuration.speed,
     ),
+    null,
+    null,
+  ]);
+
+  eventsToInsert.push([
+    'loyaltyIncrease',
+    server.createdAt,
+    calculateLoyaltyIncreaseEventDuration(server.configuration.speed),
     null,
     null,
   ]);

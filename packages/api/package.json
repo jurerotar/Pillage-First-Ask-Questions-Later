@@ -37,19 +37,18 @@
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "*",
-    "moderndash": "4.0.0",
-    "path-to-regexp": "8.3.0",
+    "@sqlite.org/sqlite-wasm": "3.51.2-build8",
+    "moderndash": "4.0.2",
+    "path-to-regexp": "8.4.2",
     "tsx": "4.21.0",
-    "zod": "*",
+    "zod": "4.3.6",
     "zod-openapi": "5.4.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "*",
-    "@typescript/native-preview": "*",
+    "@typescript/native-preview": "7.0.0-dev.20260409.1",
     "@visulima/jsdoc-open-api": "2.0.95",
     "openapi-typescript": "7.13.0",
-    "typescript": "*",
-    "vitest": "*"
+    "typescript": "6.0.2",
+    "vitest": "4.1.4"
   }
 }

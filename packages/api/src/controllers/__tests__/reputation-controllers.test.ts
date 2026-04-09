@@ -12,6 +12,6 @@ describe('reputation-controllers', () => {
       createControllerArgs<'/players/:playerId/reputations'>({}),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });

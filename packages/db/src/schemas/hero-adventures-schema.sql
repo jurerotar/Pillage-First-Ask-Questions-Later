@@ -8,3 +8,5 @@ CREATE TABLE hero_adventures
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) STRICT;
+
+CREATE INDEX idx_hero_adventures_hero_id ON hero_adventures(hero_id);

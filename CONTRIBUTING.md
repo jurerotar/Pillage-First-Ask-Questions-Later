@@ -27,9 +27,9 @@ later.
 4. Run `npm run inject-graphics` at the root of the repository
 5. (Optional) If you cloned the repository before we migrated to a monorepo, you will have some orphaned directories
    sticking around. Run `npm run remove-deprecated-directories` command to remove these unneeded files.
-6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` file inside
-   `node_modules/@pillage-first/dev` with all table
-   definitions and indexes. Useful for giving context to AI when building queries.
+6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` & `db.sqlite3` files inside
+   `apps/erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
+   queries.
 
 ## 2. Repository
 
@@ -40,6 +40,7 @@ It currently consists of the following apps & packages:
 -
   - [web](/apps/web/README.md) (frontend client)
   - [swagger-ui](/apps/swagger-ui/README.md) (open api client)
+  - [erd](/apps/erd/README.md) (ERD)
 
 - **packages**
 -
@@ -70,11 +71,11 @@ modify related code.
 - `npm run extract-sql-schema` - generates a `schema.sql` file inside `node_modules/@pillage-first/dev` with all table
   definitions and indexes. Useful for giving context to AI when building queries.
 - `npm run extract-sql-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
-  statement
-  the app currently uses. Useful for debugging performance & checking indexing.
+  statement the app currently uses. Useful for debugging performance & checking indexing.
 - `npm run extract-sql-seeder-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
-  statement
-  the app currently uses to seed the game world. Useful for debugging seeding performance.
+  statement the app currently uses to seed the game world. Useful for debugging seeding performance.
+- `turbo run swagger` - opens Swagger UI documentation on `http://localhost:5174`.
+- `turbo run erd` - opens SQLite ERD on `http://localhost:5175`.
 
 ## 3. Technology Stack
 

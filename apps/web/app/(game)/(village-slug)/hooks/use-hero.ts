@@ -6,11 +6,12 @@ import type {
 } from '@pillage-first/types/models/hero';
 import { heroSchema } from '@pillage-first/types/models/hero';
 import {
+  currentVillageCacheKey,
   effectsCacheKey,
   heroCacheKey,
-  playerVillagesCacheKey,
-} from 'app/(game)/(village-slug)/constants/query-keys';
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { invalidateQueries } from 'app/utils/react-query';
 
 export const useHero = () => {
   const { fetcher } = use(ApiContext);
@@ -25,6 +26,7 @@ export const useHero = () => {
   });
 
   const { health, experience } = hero.stats;
+  const { isHeroHome } = hero;
   const isHeroAlive = health > 0;
 
   const { mutate: updateHeroAttributes } = useMutation<
@@ -39,16 +41,10 @@ export const useHero = () => {
       });
     },
     onSuccess: async (_, _args, _onMutateResult, context) => {
-      await Promise.all([
-        context.client.invalidateQueries({
-          queryKey: [heroCacheKey],
-        }),
-        context.client.invalidateQueries({
-          queryKey: [effectsCacheKey],
-        }),
-        context.client.invalidateQueries({
-          queryKey: [playerVillagesCacheKey],
-        }),
+      await invalidateQueries(context, [
+        [heroCacheKey],
+        [effectsCacheKey],
+        [currentVillageCacheKey],
       ]);
     },
   });
@@ -65,16 +61,10 @@ export const useHero = () => {
       });
     },
     onSuccess: async (_, _args, _onMutateResult, context) => {
-      await Promise.all([
-        context.client.invalidateQueries({
-          queryKey: [heroCacheKey],
-        }),
-        context.client.invalidateQueries({
-          queryKey: [effectsCacheKey],
-        }),
-        context.client.invalidateQueries({
-          queryKey: [playerVillagesCacheKey],
-        }),
+      await invalidateQueries(context, [
+        [heroCacheKey],
+        [effectsCacheKey],
+        [currentVillageCacheKey],
       ]);
     },
   });
@@ -84,6 +74,7 @@ export const useHero = () => {
     experience,
     health,
     isHeroAlive,
+    isHeroHome,
     updateHeroAttributes,
     updateHeroResourceToProduce,
   };

@@ -46,8 +46,8 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
     };
 
     const allRequiredBonuses: { resource: string; bonus: number }[] = [];
-    [firstOasis, secondOasis, thirdOasis].forEach((slot) => {
-      slot.forEach((b) => {
+    for (const slot of [firstOasis, secondOasis, thirdOasis]) {
+      for (const b of slot) {
         if (
           !allRequiredBonuses.some(
             (existing) =>
@@ -56,8 +56,8 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
         ) {
           allRequiredBonuses.push(b);
         }
-      });
-    });
+      }
+    }
 
     const hasRequiredOases = allRequiredBonuses.length > 0;
 
@@ -74,10 +74,10 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
         .map((_, i) => `(o.resource = $ro_r${i} AND o.bonus = $ro_b${i})`)
         .join(' OR ');
 
-      allRequiredBonuses.forEach((b, i) => {
+      for (const [i, b] of allRequiredBonuses.entries()) {
         sqlBindings[`$ro_r${i}`] = b.resource;
         sqlBindings[`$ro_b${i}`] = b.bonus;
-      });
+      }
 
       sqlParts.push(`
       candidates AS (
@@ -220,7 +220,7 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
     const sql = sqlParts.join('\n');
 
     return database.selectObjects({
-      sql: sql,
+      sql,
       bind: sqlBindings,
       schema: getTilesWithBonusesSchema,
     });

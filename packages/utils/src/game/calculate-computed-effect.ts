@@ -193,6 +193,34 @@ export function calculateComputedEffect(
     artifactEffectValues,
   } = effectBreakdown;
 
+  const hasAnyBaseEffect =
+    buildingEffectValues.base.length > 0 ||
+    heroEffectValues.base.length > 0 ||
+    oasisEffectValues.base.length > 0 ||
+    artifactEffectValues.base.length > 0 ||
+    effectBreakdown.troopEffectValues.base.length > 0;
+
+  if (!hasAnyBaseEffect) {
+    const isEffectResourceProduction =
+      effectId === 'woodProduction' ||
+      effectId === 'clayProduction' ||
+      effectId === 'ironProduction' ||
+      effectId === 'wheatProduction';
+
+    if (isEffectResourceProduction) {
+      if (effectId === 'wheatProduction') {
+        return {
+          total: 0,
+          population: 0,
+          buildingWheatLimit: 0,
+        };
+      }
+      return {
+        total: 0,
+      };
+    }
+  }
+
   // Some effects act only as modifiers to hardcoded values.
   // Examples of these effects are things like building duration and training duration.
   // In these cases, we need only to return the modifier value to apply to our base.

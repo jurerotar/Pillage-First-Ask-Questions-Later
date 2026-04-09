@@ -5,7 +5,7 @@ import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
 import { buildingLevelChangeResolver } from '../building-resolvers';
 
-describe('Quest completion on building level up', () => {
+describe('quest completion on building level up', () => {
   test('should complete building quest when level increases to required level', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
@@ -32,7 +32,7 @@ describe('Quest completion on building level up', () => {
       bind: { $quest_id: questId, $village_id: villageId },
       schema: z.strictObject({ completed_at: z.number().nullable() }),
     })!;
-    expect(initialQuest.completed_at).toBeNull();
+    expect(initialQuest.completed_at).toBe(null);
 
     // 3. Trigger level change to level 1
     const mockEvent = createBuildingLevelChangeEventMock({
@@ -54,7 +54,7 @@ describe('Quest completion on building level up', () => {
       bind: { $quest_id: questId, $village_id: villageId },
       schema: z.strictObject({ completed_at: z.number().nullable() }),
     })!;
-    expect(finalQuest.completed_at).not.toBeNull();
+    expect(finalQuest.completed_at).not.toBe(null);
     expect(finalQuest.completed_at).toBe(1500);
   });
 
@@ -111,7 +111,7 @@ describe('Quest completion on building level up', () => {
       bind: { $quest_id: questId, $village_id: villageId },
       schema: z.strictObject({ completed_at: z.number().nullable() }),
     })!;
-    expect(initialQuest.completed_at).toBeNull();
+    expect(initialQuest.completed_at).toBe(null);
 
     // 4. Trigger level change for field 2 to level 1
     const mockEvent = createBuildingLevelChangeEventMock({
@@ -133,7 +133,7 @@ describe('Quest completion on building level up', () => {
       bind: { $quest_id: questId, $village_id: villageId },
       schema: z.strictObject({ completed_at: z.number().nullable() }),
     })!;
-    expect(finalQuest.completed_at).not.toBeNull();
+    expect(finalQuest.completed_at).not.toBe(null);
     expect(finalQuest.completed_at).toBe(2500);
   });
 });

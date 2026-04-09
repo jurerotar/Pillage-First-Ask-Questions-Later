@@ -17,6 +17,6 @@ describe('unit-improvement-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });

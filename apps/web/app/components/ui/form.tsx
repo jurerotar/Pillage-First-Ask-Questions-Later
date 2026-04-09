@@ -1,6 +1,6 @@
 import { clsx } from 'clsx';
 import { type Label as LabelPrimitive, Slot } from 'radix-ui';
-import { type ComponentProps, createContext, use } from 'react';
+import { type ComponentProps, createContext, use, useMemo } from 'react';
 import {
   Controller,
   type ControllerProps,
@@ -31,8 +31,14 @@ export const FormField = <
 >({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
+  const value = useMemo(() => {
+    return {
+      name: props.name,
+    };
+  }, [props.name]);
+
   return (
-    <FormFieldContext value={{ name: props.name }}>
+    <FormFieldContext value={value}>
       <Controller {...props} />
     </FormFieldContext>
   );
@@ -76,7 +82,7 @@ export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
     <FormItemContext value={{ id: name }}>
       <div
         data-slot="form-item"
-        className={clsx('grid gap-2', className)}
+        className={className}
         {...props}
       />
     </FormItemContext>
@@ -135,7 +141,7 @@ export const FormDescription = ({
 
 export const FormMessage = ({ className, ...props }: ComponentProps<'p'>) => {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? '') : props.children;
+  const body = error ? (error?.message ?? '') : props.children;
 
   if (!body) {
     return null;

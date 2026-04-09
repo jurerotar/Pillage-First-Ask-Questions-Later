@@ -29,6 +29,7 @@ export const heroSchema = z
     }),
     resourceToProduce: heroResourceToProduceSchema,
     villageId: z.number(),
+    isHeroHome: z.boolean(),
   })
   .meta({ id: 'Hero' });
 

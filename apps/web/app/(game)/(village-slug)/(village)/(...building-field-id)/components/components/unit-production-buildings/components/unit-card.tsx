@@ -1,7 +1,14 @@
 import { clsx } from 'clsx';
-import { createContext, Fragment, type PropsWithChildren, use } from 'react';
+import {
+  createContext,
+  Fragment,
+  type PropsWithChildren,
+  use,
+  useMemo,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import {
   calculateMaxUnits,
   calculateUnitResearchCost,
@@ -14,11 +21,10 @@ import type { TroopTrainingBuildingId } from '@pillage-first/types/models/buildi
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
-import { useUnitRecruitmentErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/hooks/use-unit-recruitment-error-bag.tsx';
-import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
+import { useUnitRecruitmentErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/hooks/use-unit-recruitment-error-bag';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
-import { playerVillagesCacheKey } from 'app/(game)/(village-slug)/constants/query-keys';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
@@ -26,9 +32,11 @@ import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
@@ -63,8 +71,16 @@ export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
     showOuterBorder = true,
   } = props;
 
+  const value = useMemo(() => {
+    return {
+      unitId,
+      durationEffect,
+      buildingId,
+    };
+  }, [unitId, durationEffect, buildingId]);
+
   return (
-    <UnitCardContext value={{ unitId, durationEffect, buildingId }}>
+    <UnitCardContext value={value}>
       <article
         className={clsx(
           'flex flex-col gap-2 p-2',
@@ -197,6 +213,8 @@ export const UnitResearch = () => {
   const hasResearched = isUnitResearched(unitId);
   const { createEvent: createUnitResearchEvent } =
     useCreateEvent('unitResearch');
+  const { preferences } = usePreferences();
+  const navigate = useNavigate();
   const { currentVillage } = useCurrentVillage();
   const { hasEvents: hasResearchEventsOngoing, eventsByType: researchEvents } =
     useEventsByType('unitResearch');
@@ -271,10 +289,14 @@ export const UnitResearch = () => {
 
   const canStartResearch = errorBag.length === 0;
 
-  const researchUnit = () => {
+  const researchUnit = async () => {
+    if (preferences.isAutomaticNavigationAfterUnitResearchEnabled) {
+      await navigate('..', { relative: 'path' });
+    }
+
     createUnitResearchEvent({
       unitId,
-      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearImmediately: [currentVillageCacheKey],
     });
   };
 
@@ -327,6 +349,8 @@ export const UnitImprovement = () => {
   );
   const { createEvent: createUnitImprovementEvent } =
     useCreateEvent('unitImprovement');
+  const { preferences } = usePreferences();
+  const navigate = useNavigate();
   const { unitVirtualLevel, isMaxLevel } = useUnitImprovementLevel(unitId);
   const { eventsByType: unitImprovementEvents } =
     useEventsByType('unitImprovement');
@@ -390,11 +414,15 @@ export const UnitImprovement = () => {
 
   const canUpgrade = errorBag.length === 0;
 
-  const upgradeUnit = () => {
+  const upgradeUnit = async () => {
+    if (preferences.isAutomaticNavigationAfterUnitUpgradeEnabled) {
+      await navigate('..', { relative: 'path' });
+    }
+
     createUnitImprovementEvent({
       unitId,
       level: unitVirtualLevel + 1,
-      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearImmediately: [currentVillageCacheKey],
     });
   };
 
@@ -582,7 +610,7 @@ export const UnitRecruitment = () => {
       amount,
       unitId,
       durationEffectId: durationEffect!,
-      cachesToClearImmediately: [playerVillagesCacheKey],
+      cachesToClearImmediately: [currentVillageCacheKey],
     });
   };
 

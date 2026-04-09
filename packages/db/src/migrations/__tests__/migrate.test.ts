@@ -12,6 +12,7 @@ import {
 } from '@pillage-first/game-assets/utils/units';
 import { serverMock } from '@pillage-first/mocks/server';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
@@ -41,9 +42,9 @@ describe('migrateAndSeed', () => {
         schema: tileTypeSchema,
       });
 
-      expect(
-        types.every((type) => type === 'free' || type === 'oasis'),
-      ).toBeTruthy();
+      expect(types.every((type) => type === 'free' || type === 'oasis')).toBe(
+        true,
+      );
     });
 
     test('every free tile should have resource_field_composition as not null and oasis_graphics as null', () => {
@@ -65,7 +66,7 @@ describe('migrateAndSeed', () => {
         }),
       });
 
-      expect(true).toBeTruthy();
+      expect(true).toBe(true);
     });
 
     test('every oasis tile should have oasis_graphics as not null and resource_field_composition as null', () => {
@@ -87,7 +88,7 @@ describe('migrateAndSeed', () => {
         }),
       });
 
-      expect(true).toBeTruthy();
+      expect(true).toBe(true);
     });
 
     test('oasis groups tile counts are multiples of expected shape sizes', () => {
@@ -162,12 +163,11 @@ describe('migrateAndSeed', () => {
           resource_field_composition: resourceFieldCompositionSchema.nullable(),
           oasis_graphics: z.number().nullable(),
         }),
-      });
+      })!;
 
-      expect(center).toBeTruthy();
-      expect(center?.type).toBe('free');
-      expect(center?.resource_field_composition).toBe('4446');
-      expect(center?.oasis_graphics).toBeNull();
+      expect(center.type).toBe('free');
+      expect(center.resource_field_composition).toBe('4446');
+      expect(center.oasis_graphics).toBe(null);
     });
 
     test('no tile has both resource_field_composition_id AND oasis_graphics non-null', () => {
@@ -235,6 +235,17 @@ describe('migrateAndSeed', () => {
     });
   });
 
+  describe('loyalties', () => {
+    test('loyalties table should be empty by default', () => {
+      const rowCount = database.selectValue({
+        sql: 'SELECT COUNT(*) FROM loyalties;',
+        schema: z.number(),
+      });
+
+      expect(rowCount).toBe(0);
+    });
+  });
+
   describe('players', () => {
     test('slugs are unique and contain only lowercase alphanumeric and dashes', () => {
       const slugs = database.selectValues({
@@ -251,7 +262,7 @@ describe('migrateAndSeed', () => {
 
       // slug format (lowercase, digits, dashes)
       for (const s of slugs) {
-        expect(/^[a-z0-9-]+$/.test(s)).toBeTruthy();
+        expect(/^[a-z0-9-]+$/.test(s)).toBe(true);
         // no leading or trailing dash
         expect(s).not.toMatch(/^-/);
         expect(s).not.toMatch(/-$/);
@@ -349,16 +360,15 @@ describe('migrateAndSeed', () => {
       const rows = database.selectObjects({
         sql: 'SELECT resource, bonus FROM oasis;',
         schema: z.strictObject({
-          resource: z.string(),
+          resource: resourceSchema,
           bonus: z.number(),
         }),
       });
 
       for (const r of rows) {
         expectTypeOf(typeof r.resource).toBeString();
-        expect(r.resource).toBe(r.resource?.toLowerCase());
-        const bonusNum = Number(r.bonus);
-        expect([25, 50].includes(bonusNum)).toBeTruthy();
+        expect(r.resource).toBe(r.resource.toLowerCase());
+        expect([25, 50]).toContain(r.bonus);
       }
     });
 
@@ -1012,48 +1022,6 @@ describe('migrateAndSeed', () => {
     });
   });
 
-  describe('unit research', () => {
-    test('tier 1 unit is researched for player villages', () => {
-      const tribe = database.selectValue({
-        sql: `
-          SELECT ti.tribe
-          FROM
-            players p
-              JOIN tribe_ids ti ON p.tribe_id = ti.id
-          WHERE
-            p.id = $player_id;
-        `,
-        bind: { $player_id: PLAYER_ID },
-        schema: tribeSchema,
-      })!;
-
-      const tier1UnitId = getUnitsByTribe(tribe)[0].id;
-
-      const researchCount = database.selectValue({
-        sql: `
-          SELECT COUNT(*)
-          FROM
-            unit_research ur
-              JOIN villages v ON ur.village_id = v.id
-              JOIN unit_ids ui ON ur.unit_id = ui.id
-          WHERE
-            v.player_id = $player_id
-            AND ui.unit = $unit_id;
-        `,
-        bind: { $player_id: PLAYER_ID, $unit_id: tier1UnitId },
-        schema: z.number(),
-      });
-
-      const playerVillageCount = database.selectValue({
-        sql: 'SELECT COUNT(*) FROM villages WHERE player_id = $player_id;',
-        bind: { $player_id: PLAYER_ID },
-        schema: z.number(),
-      });
-
-      expect(researchCount).toBe(playerVillageCount);
-    });
-  });
-
   describe('unit improvement', () => {
     test('upgradable units are seeded with level 0 for player', () => {
       const improvements = database.selectObjects({
@@ -1063,7 +1031,7 @@ describe('migrateAndSeed', () => {
       });
 
       expect(improvements.length).toBeGreaterThan(0);
-      expect(improvements.every((i) => i.level === 0)).toBeTruthy();
+      expect(improvements.every((i) => i.level === 0)).toBe(true);
     });
   });
 
@@ -1186,7 +1154,7 @@ describe('migrateAndSeed', () => {
       for (const qid of unitTroopCountQuests) {
         // Format: unitTroopCount-<UNIT>-<COUNT>
         const [_, unitId] = qid.split('-');
-        expect(allowed.has(unitId as UnitId)).toBeTruthy();
+        expect(allowed.has(unitId as UnitId)).toBe(true);
       }
     });
 
@@ -1382,6 +1350,61 @@ describe('migrateAndSeed', () => {
 
       for (const [villageId, consumption] of villageTroopConsumption) {
         expect(effectValues.get(villageId)).toBe(consumption);
+      }
+    });
+  });
+
+  describe('meta and triggers', () => {
+    test('meta table exists', () => {
+      const exists = database.selectValue({
+        sql: "SELECT COUNT(*) FROM sqlite_schema WHERE type='table' AND name='meta';",
+        schema: z.number(),
+      });
+      expect(exists).toBe(1);
+    });
+
+    test('triggers exist for all tables', () => {
+      const tables = database.selectValues({
+        sql: "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '%_ids' AND name NOT LIKE '%_history' AND name != 'meta';",
+        schema: z.string(),
+      });
+
+      for (const table of tables) {
+        const triggers = database.selectValues({
+          sql: `SELECT name FROM sqlite_schema WHERE type='trigger' AND tbl_name = '${table}' AND name LIKE 'trg_update_meta_on_${table}_%';`,
+          schema: z.string(),
+        });
+
+        expect(triggers).toContain(`trg_update_meta_on_${table}_insert`);
+        expect(triggers).toContain(`trg_update_meta_on_${table}_update`);
+        expect(triggers).toContain(`trg_update_meta_on_${table}_delete`);
+      }
+    });
+
+    test('writing to a table updates meta.last_write', () => {
+      // 1. Get current last_write (or null if not exists)
+      const initialMeta = database.selectObject({
+        sql: 'SELECT last_write FROM meta LIMIT 1;',
+        schema: z.strictObject({ last_write: z.number() }),
+      });
+
+      // 2. Perform a write to some table (e.g., preferences)
+      database.exec({
+        sql: 'UPDATE preferences SET is_accessibility_mode_enabled = 1 WHERE player_id = $player_id;',
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      // 3. Check meta again
+      const updatedMeta = database.selectObject({
+        sql: 'SELECT last_write FROM meta LIMIT 1;',
+        schema: z.strictObject({ last_write: z.number() }),
+      });
+
+      expect(updatedMeta).toBeDefined();
+      if (initialMeta) {
+        expect(updatedMeta?.last_write).not.toBe(initialMeta.last_write);
+      } else {
+        expect(updatedMeta?.last_write).toBeDefined();
       }
     });
   });

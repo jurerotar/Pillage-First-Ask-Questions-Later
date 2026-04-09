@@ -4,9 +4,9 @@ import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-as
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../../types/resolver';
 import { insertHeroEffectsQuery } from '../../utils/queries/effect-queries';
-import { updateVillageResourcesAt } from '../../utils/village.ts';
+import { updateVillageResourcesAt } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
-import { addTroops } from './utils/troops.ts';
+import { addTroops } from './utils/troops';
 
 export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
   database,

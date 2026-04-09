@@ -9,6 +9,6 @@ describe('server-controllers', () => {
 
     getServer(database, createControllerArgs<'/server'>({}));
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });
