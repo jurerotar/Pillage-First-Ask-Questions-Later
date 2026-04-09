@@ -9,6 +9,7 @@ import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
 import { Text } from 'app/components/text.tsx';
+import { Alert } from 'app/components/ui/alert.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import { Form } from 'app/components/ui/form.tsx';
 import { useDialog } from 'app/hooks/use-dialog.ts';
@@ -20,6 +21,8 @@ import { useTroopForm } from './hooks/use-troop-form.ts';
 import { baseTroopFormSchema } from './utils/schema.ts';
 
 const oasisOccupationFormSchema = baseTroopFormSchema;
+
+const IS_OASIS_OCCUPATION_FORM_ENABLED = false;
 
 export const OasisOccupationForm = () => {
   const { t } = useTranslation();
@@ -78,31 +81,40 @@ export const OasisOccupationForm = () => {
         <Text as="h2">{t('Occupy oasis')}</Text>
       </SectionContent>
       <SectionContent>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onFormSubmit)}
-            className="space-y-6"
-          >
-            <UnitSelector />
+        {!IS_OASIS_OCCUPATION_FORM_ENABLED && (
+          <Alert variant="warning">
+            {t('This page is still under development')}
+          </Alert>
+        )}
+        {IS_OASIS_OCCUPATION_FORM_ENABLED && (
+          <>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onFormSubmit)}
+                className="space-y-6"
+              >
+                <UnitSelector />
 
-            <div className="flex items-end gap-8">
-              <CoordinateSelector />
-            </div>
+                <div className="flex items-end gap-8">
+                  <CoordinateSelector />
+                </div>
 
-            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
+                <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
-            <Button type="submit">{t('Confirm')}</Button>
-          </form>
-        </Form>
+                <Button type="submit">{t('Confirm')}</Button>
+              </form>
+            </Form>
 
-        {formData.current && (
-          <TroopMovementConfirmationModal
-            isOpen={isConfirmationModalOpen}
-            onClose={closeModal}
-            onConfirm={onConfirm}
-            formData={formData.current}
-            title={t('Occupy oasis')}
-          />
+            {formData.current && (
+              <TroopMovementConfirmationModal
+                isOpen={isConfirmationModalOpen}
+                onClose={closeModal}
+                onConfirm={onConfirm}
+                formData={formData.current}
+                title={t('Occupy oasis')}
+              />
+            )}
+          </>
         )}
       </SectionContent>
     </Section>

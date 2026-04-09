@@ -9,6 +9,7 @@ import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences.ts';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
 import { Text } from 'app/components/text.tsx';
+import { Alert } from 'app/components/ui/alert.tsx';
 import { Button } from 'app/components/ui/button.tsx';
 import {
   Form,
@@ -29,6 +30,8 @@ import { baseTroopFormSchema } from './utils/schema.ts';
 const attackRaidFormSchema = baseTroopFormSchema.extend({
   action: z.enum(['attack_normal', 'attack_raid']),
 });
+
+const IS_ATTACK_FORM_ENABLED = false;
 
 export const AttackRaidForm = () => {
   const { t } = useTranslation();
@@ -93,68 +96,77 @@ export const AttackRaidForm = () => {
         <Text as="h2">{t('Attack or raid')}</Text>
       </SectionContent>
       <SectionContent>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onFormSubmit)}
-            className="space-y-6"
-          >
-            <UnitSelector />
+        {!IS_ATTACK_FORM_ENABLED && (
+          <Alert variant="warning">
+            {t('This page is still under development')}
+          </Alert>
+        )}
+        {IS_ATTACK_FORM_ENABLED && (
+          <>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onFormSubmit)}
+                className="space-y-6"
+              >
+                <UnitSelector />
 
-            <div className="flex items-end gap-4">
-              <CoordinateSelector />
+                <div className="flex items-end gap-4">
+                  <CoordinateSelector />
 
-              <FormField
-                control={form.control}
-                name="action"
-                render={({ field }) => (
-                  <FormItem className="space-y-2 border-l border-border pl-4">
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col gap-2"
-                      >
-                        <FormItem className="flex items-center flex-row space-x-2 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="attack_normal" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            {t('Attack: Normal')}
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-2 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="attack_raid" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            {t('Attack: Raid')}
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                  </FormItem>
-                )}
+                  <FormField
+                    control={form.control}
+                    name="action"
+                    render={({ field }) => (
+                      <FormItem className="space-y-2 border-l border-border pl-4">
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col gap-2"
+                          >
+                            <FormItem className="flex items-center flex-row space-x-2 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="attack_normal" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                {t('Attack: Normal')}
+                              </FormLabel>
+                            </FormItem>
+                            <FormItem className="flex items-center space-x-2 space-y-0">
+                              <FormControl>
+                                <RadioGroupItem value="attack_raid" />
+                              </FormControl>
+                              <FormLabel className="font-normal">
+                                {t('Attack: Raid')}
+                              </FormLabel>
+                            </FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
+
+                <Button type="submit">{t('Confirm')}</Button>
+              </form>
+            </Form>
+
+            {formData.current && (
+              <TroopMovementConfirmationModal
+                isOpen={isConfirmationModalOpen}
+                onClose={closeModal}
+                onConfirm={onConfirm}
+                formData={formData.current}
+                title={
+                  formData.current.action === 'attack_normal'
+                    ? t('Attack: Normal')
+                    : t('Attack: Raid')
+                }
               />
-            </div>
-
-            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
-
-            <Button type="submit">{t('Confirm')}</Button>
-          </form>
-        </Form>
-
-        {formData.current && (
-          <TroopMovementConfirmationModal
-            isOpen={isConfirmationModalOpen}
-            onClose={closeModal}
-            onConfirm={onConfirm}
-            formData={formData.current}
-            title={
-              formData.current.action === 'attack_normal'
-                ? t('Attack: Normal')
-                : t('Attack: Raid')
-            }
-          />
+            )}
+          </>
         )}
       </SectionContent>
     </Section>
