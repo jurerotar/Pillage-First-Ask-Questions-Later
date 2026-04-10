@@ -180,7 +180,7 @@ const OasisTileTooltip = ({ tile }: OasisTileTooltipProps) => {
             className="size-4"
             type={resource}
           />
-          {bonus}
+          {bonus}%
         </span>
       ))}
       {isOccupied && <TileTooltipPlayerInfo tile={tile} />}

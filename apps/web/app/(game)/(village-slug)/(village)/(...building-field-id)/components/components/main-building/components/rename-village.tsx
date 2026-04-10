@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { t } from 'i18next';
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -43,6 +43,10 @@ export const RenameVillage = () => {
       name: currentVillage.name,
     },
   });
+
+  useEffect(() => {
+    form.reset({ name: currentVillage.name });
+  }, [currentVillage.name, form.reset]);
 
   const { mutate: renameVillage } = useMutation<
     void,
