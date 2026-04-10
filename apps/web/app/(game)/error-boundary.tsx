@@ -1,6 +1,4 @@
 import { FaroErrorBoundary } from '@grafana/faro-react';
-import { faro } from '@grafana/faro-web-sdk';
-import { useEffect } from 'react';
 import {
   Link,
   Links,
@@ -13,10 +11,6 @@ import { HeadLinks } from 'app/components/head-links';
 
 export const ErrorBoundary = () => {
   const error = useRouteError() as Error;
-
-  useEffect(() => {
-    faro.api?.pushError(error);
-  }, [error]);
 
   const isDatabaseInitializationError =
     error instanceof OutdatedDatabaseSchemaError;

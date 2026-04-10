@@ -139,8 +139,6 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
 
         break;
       } catch (error) {
-        console.error(error);
-
         const errorEvent = {
           eventKey: 'event:error',
           error: error as Error,

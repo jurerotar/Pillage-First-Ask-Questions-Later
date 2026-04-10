@@ -102,10 +102,6 @@
       "last 1 safari version"
     ]
   },
-  "overrides": {
-    "typescript": "6.0.2",
-    "vite": "8.0.2"
-  },
   "knip": {
     "$schema": "https://unpkg.com/knip@5/schema.json",
     "entry": [
