@@ -13,8 +13,8 @@ import { Pagination } from 'app/components/ui/pagination';
 export const AuctionsBuyItem = () => {
   const { t } = useTranslation();
 
-  const pagination = usePagination([], 20);
-  const auctionFilters = useAuctionFilters();
+  const { page, handlePageChange, ...auctionFilters } = useAuctionFilters();
+  const pagination = usePagination([], 20, page);
 
   return (
     <Section>
@@ -31,7 +31,10 @@ export const AuctionsBuyItem = () => {
         {t('This page is still under development')}
       </Alert>
       <div className="flex w-full justify-end">
-        <Pagination {...pagination} />
+        <Pagination
+          {...pagination}
+          setPage={handlePageChange}
+        />
       </div>
     </Section>
   );

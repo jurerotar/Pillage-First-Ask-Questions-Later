@@ -4,6 +4,7 @@ import {
   GiBroadsword,
   GiChestArmor,
   GiHealthPotion,
+  GiHorseHead,
   GiShield,
   GiVikingHelmet,
 } from 'react-icons/gi';
@@ -13,11 +14,14 @@ import { SectionContent } from 'app/(game)/(village-slug)/components/building-la
 import { Text } from 'app/components/text';
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 
-type AuctionFiltersProps = ReturnType<typeof useAuctionFilters>;
+type AuctionFiltersProps = Pick<
+  ReturnType<typeof useAuctionFilters>,
+  'auctionFilters' | 'onAuctionFiltersChange'
+>;
 
 export const AuctionFilters = ({
-  auctionFilter,
-  onAuctionFilterChange,
+  auctionFilters,
+  onAuctionFiltersChange,
 }: AuctionFiltersProps) => {
   const { t } = useTranslation();
 
@@ -25,9 +29,9 @@ export const AuctionFilters = ({
     <SectionContent>
       <Text className="font-medium">{t('Filter auction offers')}</Text>
       <ToggleGroup
-        type="single"
-        value={auctionFilter}
-        onValueChange={onAuctionFilterChange}
+        type="multiple"
+        value={auctionFilters}
+        onValueChange={onAuctionFiltersChange}
         variant="outline"
         size="sm"
         className="overflow-x-scroll scrollbar-hidden"
