@@ -126,7 +126,7 @@ export const UnitSelector = ({
                         control={control}
                         name={`units.${unit.index}.selected`}
                         render={({ field }) => (
-                          <FormItem className="w-full">
+                          <FormItem className="w-full space-y-2">
                             <FormControl>
                               <Input
                                 {...field}

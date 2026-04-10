@@ -84,7 +84,7 @@ export const RenameVillage = () => {
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="space-y-2">
                   <FormLabel>{t('Village name')}</FormLabel>
                   <FormControl>
                     <Input

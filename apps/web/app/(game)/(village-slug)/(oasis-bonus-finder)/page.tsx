@@ -310,7 +310,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   <FormField
                     name="origin.x"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="space-y-2">
                         <FormLabel>{t('Start position (x)')}</FormLabel>
                         <FormControl>
                           <Input
@@ -339,7 +339,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   <FormField
                     name="origin.y"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="space-y-2">
                         <FormLabel>{t('Start position (y)')}</FormLabel>
                         <FormControl>
                           <Input
