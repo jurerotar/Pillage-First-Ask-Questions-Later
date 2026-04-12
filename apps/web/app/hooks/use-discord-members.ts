@@ -1,25 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 
-type DiscordInvite = {
-  approximate_member_count: number;
-};
-
-export const useDiscordMembers = (inviteCode = 'Ep7NKVXUZA') => {
+export const useDiscordMembers = () => {
   return useQuery({
-    queryKey: ['discord-members', inviteCode],
+    queryKey: ['discord-members'],
     queryFn: async () => {
-      const response = await fetch(
-        `https://discord.com/api/v10/invites/${inviteCode}?with_counts=true`,
-      );
+      const response = await fetch('/api/discord-members?code=Ep7NKVXUZA');
 
-      const data = (await response.json()) as DiscordInvite;
+      const data = await response.json();
 
-      return {
-        memberCount: data.approximate_member_count,
-      };
+      return data;
     },
     placeholderData: {
-      memberCount: 200,
+      memberCount: 217,
     },
   });
 };

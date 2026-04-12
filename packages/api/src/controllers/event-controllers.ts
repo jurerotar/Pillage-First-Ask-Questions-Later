@@ -64,7 +64,7 @@ export const createNewEvents = createController(
   '/events',
   'post',
 )(({ database, body }) => {
-  createEvents(database, body);
+  createEvents(database, body!);
 });
 
 export const cancelConstructionEvent = createController(

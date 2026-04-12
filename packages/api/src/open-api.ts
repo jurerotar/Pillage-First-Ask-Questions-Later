@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
@@ -61,7 +62,7 @@ import {
 } from './controllers/schemas/village-schemas';
 import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas';
 import { apiEffectSchema } from './utils/zod/effect-schemas';
-import { baseEventSchema } from './utils/zod/event-schemas';
+import { baseEventSchema, eventSchema } from './utils/zod/event-schemas';
 
 export const paths = {
   '/server': {
@@ -419,6 +420,16 @@ export const paths = {
         path: z.strictObject({
           playerId: z.coerce.number(),
         }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              villageId: z.coerce.number(),
+              originCoordinates: coordinatesSchema,
+            }),
+          },
+        },
       },
       responses: {
         '204': {
@@ -975,7 +986,7 @@ export const paths = {
       requestBody: {
         content: {
           'application/json': {
-            schema: z.record(z.string(), z.any()),
+            schema: z.optional(eventSchema),
           },
         },
       },

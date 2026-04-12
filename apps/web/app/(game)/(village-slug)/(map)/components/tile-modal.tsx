@@ -148,7 +148,7 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
                 className="size-4"
                 type={resource}
               />
-              <span>{bonus}</span>
+              <span>{bonus}%</span>
             </span>
           ))}
         </div>

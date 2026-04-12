@@ -1,15 +1,28 @@
-import { useState } from 'react';
-import type { HeroItem } from '@pillage-first/types/models/hero-item';
+import type { HeroItemSlot } from '@pillage-first/types/models/hero-item';
+import { useFilters } from 'app/hooks/use-filters';
+
+const auctionFilterSlots: HeroItemSlot[] = [
+  'head',
+  'torso',
+  'legs',
+  'boots',
+  'right-hand',
+  'left-hand',
+  'horse',
+  'consumable',
+];
 
 export const useAuctionFilters = () => {
-  const [auctionFilter, setAuctionFilter] = useState<HeroItem['slot'] | ''>('');
-
-  const onAuctionFilterChange = (filter: HeroItem['slot'] | '') => {
-    setAuctionFilter(filter);
-  };
+  const { filters, onFiltersChange, page, handlePageChange } =
+    useFilters<HeroItemSlot>({
+      paramName: 'slot',
+      defaultFilters: [...auctionFilterSlots],
+    });
 
   return {
-    auctionFilter,
-    onAuctionFilterChange,
+    auctionFilters: filters,
+    onAuctionFiltersChange: onFiltersChange,
+    page,
+    handlePageChange,
   };
 };
