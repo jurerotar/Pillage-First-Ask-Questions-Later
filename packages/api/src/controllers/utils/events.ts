@@ -818,7 +818,7 @@ export const getEventDuration = (
     // This case has to be handled differently, because hero adventure return duration is not affected by any bonuses
     if (
       isReturnTroopMovementEvent(event) &&
-      event.originalMovementType === 'adventure'
+      event.originalMovementType === 'troopMovementAdventure'
     ) {
       return calculateAdventureDuration(database, true);
     }

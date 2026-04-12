@@ -90,7 +90,7 @@ export const adventureMovementResolver: Resolver<
     startsAt: resolvesAt,
     targetCoordinates: originCoordinates,
     type: 'troopMovementReturn',
-    originalMovementType: 'adventure',
+    originalMovementType: 'troopMovementAdventure',
     troops,
   });
 };
@@ -459,7 +459,7 @@ export const attackMovementResolver: Resolver<
     originCoordinates: targetCoordinates,
     startsAt: resolvesAt,
     type: 'troopMovementReturn',
-    originalMovementType: 'attack',
+    originalMovementType: 'troopMovementAttack',
   });
 };
 
@@ -483,6 +483,6 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
     targetCoordinates: originCoordinates,
     originCoordinates: targetCoordinates,
     type: 'troopMovementReturn',
-    originalMovementType: 'raid',
+    originalMovementType: 'troopMovementRaid',
   });
 };

@@ -62,7 +62,7 @@ import {
 } from './controllers/schemas/village-schemas';
 import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas';
 import { apiEffectSchema } from './utils/zod/effect-schemas';
-import { baseEventSchema } from './utils/zod/event-schemas';
+import { baseEventSchema, eventSchema } from './utils/zod/event-schemas';
 
 export const paths = {
   '/server': {
@@ -986,7 +986,7 @@ export const paths = {
       requestBody: {
         content: {
           'application/json': {
-            schema: z.record(z.string(), z.any()),
+            schema: z.optional(eventSchema),
           },
         },
       },
