@@ -17,8 +17,13 @@ import {
   validateEventCreationResources,
 } from './events';
 
-type CreateNewEventsArgs<T extends GameEventType> = Partial<GameEvent<T>> & {
+type CreateNewEventsArgs<T extends GameEventType> = Omit<
+  GameEvent<T>,
+  'id' | 'resolvesAt' | 'startsAt' | 'duration'
+> & {
   amount?: number;
+  startsAt?: number;
+  duration?: number;
 };
 
 const createEventsSchema = z.strictObject({

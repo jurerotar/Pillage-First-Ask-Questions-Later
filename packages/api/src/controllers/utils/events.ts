@@ -512,10 +512,8 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTroopMovementEvent(event)) {
-    const errors = validateTroopMovementLogic(
-      database,
-      event as TroopMovementEvent,
-    );
+    const errors = validateTroopMovementLogic(database, event);
+
     if (errors.length > 0) {
       throw new Error(errors[0]);
     }
@@ -1003,16 +1001,10 @@ export const getEventStartTime = (
     return resolvesAt;
   }
 
-  if (isAdventurePointIncreaseEvent(event)) {
-    const { startsAt, duration } = event;
-
-    return startsAt + duration;
-  }
-
   if (isHeroHealthRegenerationEvent(event)) {
-    const { startsAt, duration } = event;
+    const { resolvesAt } = event;
 
-    return startsAt + duration;
+    return resolvesAt;
   }
 
   if (isBuildingConstructionEvent(event) || isBuildingLevelUpEvent(event)) {
@@ -1029,9 +1021,9 @@ export const getEventStartTime = (
     return Date.now();
   }
   if (isReturnTroopMovementEvent(event)) {
-    const { startsAt, duration } = event;
+    const { resolvesAt } = event;
 
-    return startsAt + duration;
+    return resolvesAt;
   }
 
   return Date.now();

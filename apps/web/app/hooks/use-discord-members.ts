@@ -4,7 +4,7 @@ export const useDiscordMembers = () => {
   return useQuery({
     queryKey: ['discord-members'],
     queryFn: async () => {
-      const response = await fetch(`/api/discord-members?code=Ep7NKVXUZA`);
+      const response = await fetch('/api/discord-members?code=Ep7NKVXUZA');
 
       const data = await response.json();
 

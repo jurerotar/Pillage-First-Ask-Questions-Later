@@ -21,7 +21,7 @@ import { addTroops } from './utils/troops';
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
 > = (database, args) => {
-  const { villageId, resolvesAt } = args;
+  const { villageId, resolvesAt, originCoordinates, troops } = args;
 
   const { heroId, health } = database.selectObject({
     sql: `
@@ -84,18 +84,14 @@ export const adventureMovementResolver: Resolver<
 
   assessAdventureCountQuestCompletion(database, resolvesAt);
 
-  const { x, y } = database.selectObject({
-    sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
-    bind: { $village_id: villageId },
-    schema: z.strictObject({ x: z.number(), y: z.number() }),
-  })!;
-
   createEvents<'troopMovementReturn'>(database, {
-    ...args,
+    villageId,
+    originCoordinates,
     startsAt: resolvesAt,
-    targetCoordinates: { x, y },
+    targetCoordinates: originCoordinates,
     type: 'troopMovementReturn',
     originalMovementType: 'adventure',
+    troops,
   });
 };
 
@@ -447,19 +443,21 @@ export const reinforcementMovementResolver: Resolver<
 export const attackMovementResolver: Resolver<
   GameEvent<'troopMovementAttack'>
 > = (database, args) => {
-  const { villageId, resolvesAt } = args;
-
-  const { x, y } = database.selectObject({
-    sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
-    bind: { $village_id: villageId },
-    schema: z.strictObject({ x: z.number(), y: z.number() }),
-  })!;
+  const {
+    villageId,
+    resolvesAt,
+    originCoordinates,
+    targetCoordinates,
+    troops,
+  } = args;
 
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
-    ...args,
+    villageId,
+    troops,
+    targetCoordinates: originCoordinates,
+    originCoordinates: targetCoordinates,
     startsAt: resolvesAt,
-    targetCoordinates: { x, y },
     type: 'troopMovementReturn',
     originalMovementType: 'attack',
   });
@@ -469,19 +467,21 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
   database,
   args,
 ) => {
-  const { villageId, resolvesAt } = args;
-
-  const { x, y } = database.selectObject({
-    sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
-    bind: { $village_id: villageId },
-    schema: z.strictObject({ x: z.number(), y: z.number() }),
-  })!;
+  const {
+    villageId,
+    resolvesAt,
+    troops,
+    originCoordinates,
+    targetCoordinates,
+  } = args;
 
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
-    ...args,
+    villageId,
+    troops,
     startsAt: resolvesAt,
-    targetCoordinates: { x, y },
+    targetCoordinates: originCoordinates,
+    originCoordinates: targetCoordinates,
     type: 'troopMovementReturn',
     originalMovementType: 'raid',
   });

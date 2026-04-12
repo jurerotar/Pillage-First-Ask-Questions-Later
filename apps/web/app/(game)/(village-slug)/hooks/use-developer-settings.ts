@@ -4,6 +4,7 @@ import type { DeveloperSettings } from '@pillage-first/types/models/developer-se
 import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import {
@@ -39,6 +40,7 @@ export const useDeveloperSettings = () => {
   const { fetcher } = use(ApiContext);
   const { villageSlug } = use(VillageSlugContext);
   const { hero } = useHero();
+  const { currentVillage } = useCurrentVillage();
 
   const { data: developerSettings } = useSuspenseQuery({
     queryKey: [developerSettingsCacheKey],
@@ -143,8 +145,8 @@ export const useDeveloperSettings = () => {
     onSuccess: async (_, _args, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [villageTroopsCacheKey],
-        [effectsCacheKey],
+        [villageTroopsCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.id],
       ]);
     },
   });

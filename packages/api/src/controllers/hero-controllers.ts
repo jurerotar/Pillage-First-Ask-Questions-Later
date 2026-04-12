@@ -110,56 +110,53 @@ export const getHeroAdventures = createController(
 export const startHeroAdventure = createController(
   '/players/:playerId/hero/adventures',
   'post',
-)(({ database, path: { playerId } }) => {
-  const heroInfo = database.selectObject({
-    sql: `
+)(
+  ({
+    database,
+    path: { playerId },
+    body: { villageId, originCoordinates },
+  }) => {
+    const { health, tileId } = database.selectObject({
+      sql: `
       SELECT
-        h.id,
         h.health,
-        t.tile_id,
-        v.id AS village_id
+        t.tile_id as tileId
       FROM
         heroes h
           JOIN troops t ON h.id = t.unit_id
           JOIN unit_ids ui ON t.unit_id = ui.id
-          JOIN villages v ON t.tile_id = v.tile_id
       WHERE
         h.player_id = $player_id
         AND ui.unit = 'HERO'
-        AND v.player_id = $player_id
       LIMIT 1;
     `,
-    bind: { $player_id: playerId },
-    schema: z.strictObject({
-      id: z.number(),
-      health: z.number(),
-      tile_id: z.number(),
-      village_id: z.number(),
-    }),
-  });
+      bind: { $player_id: playerId },
+      schema: z.strictObject({
+        health: z.number(),
+        tileId: z.number(),
+      }),
+    })!;
 
-  if (!heroInfo) {
-    throw new Error('Hero is not at home or not found');
-  }
+    if (health <= 0) {
+      throw new Error('Hero is dead');
+    }
 
-  if (heroInfo.health <= 0) {
-    throw new Error('Hero is dead');
-  }
-
-  createEvents(database, {
-    type: 'troopMovementAdventure',
-    villageId: heroInfo.village_id,
-    targetCoordinates: { x: 0, y: 0 },
-    troops: [
-      {
-        unitId: 'HERO',
-        amount: 1,
-        tileId: heroInfo.tile_id,
-        source: heroInfo.tile_id,
-      },
-    ],
-  });
-});
+    createEvents<'troopMovementAdventure'>(database, {
+      type: 'troopMovementAdventure',
+      villageId,
+      originCoordinates,
+      targetCoordinates: { x: 0, y: 0 },
+      troops: [
+        {
+          unitId: 'HERO',
+          amount: 1,
+          tileId,
+          source: tileId,
+        },
+      ],
+    });
+  },
+);
 
 export const changeHeroAttributes = createController(
   '/players/:playerId/hero/attributes',

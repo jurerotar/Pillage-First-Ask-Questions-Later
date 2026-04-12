@@ -4,7 +4,6 @@ import {
   GiBroadsword,
   GiChestArmor,
   GiHealthPotion,
-  GiHorseHead,
   GiShield,
   GiVikingHelmet,
 } from 'react-icons/gi';
