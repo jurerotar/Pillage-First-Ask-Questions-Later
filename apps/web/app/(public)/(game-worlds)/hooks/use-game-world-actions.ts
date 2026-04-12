@@ -115,10 +115,13 @@ export const useGameWorldActions = () => {
       const url = new URL(ExportServerWorker, import.meta.url);
       url.searchParams.set('server-slug', server.slug);
 
-      const { databaseBuffer } = await workerFactory<
-        void,
-        ExportServerWorkerReturn
-      >(url);
+      const result = await workerFactory<void, ExportServerWorkerReturn>(url);
+
+      if (!result.resolved) {
+        throw new Error(result.error);
+      }
+
+      const { databaseBuffer } = result;
 
       const blob = new Blob([databaseBuffer], {
         type: 'application/x-sqlite3',
@@ -133,6 +136,11 @@ export const useGameWorldActions = () => {
       a.click();
       a.remove();
       URL.revokeObjectURL(exportUrl);
+    },
+    onError: (error) => {
+      toast.error('Failed to export game world', {
+        description: error.message,
+      });
     },
   });
 
