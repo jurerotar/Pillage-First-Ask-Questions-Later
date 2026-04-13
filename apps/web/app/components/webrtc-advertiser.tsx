@@ -109,6 +109,11 @@ export const WebRTCAdvertiser = () => {
         }
 
         const conn = peer.connect(BROADCAST_CHANNEL);
+        if (!conn) {
+          retry();
+          return;
+        }
+
         registryConnectionRef.current = conn;
         conn.on('open', () => {
           conn.send(createAnnounceMessage(id));
@@ -231,6 +236,10 @@ export const WebRTCAdvertiser = () => {
         existingConn.send(createAnnounceMessage(peerRef.current.id));
       } else {
         const conn = peerRef.current.connect(BROADCAST_CHANNEL);
+        if (!conn) {
+          return;
+        }
+
         registryConnectionRef.current = conn;
         conn.on('open', () => {
           conn.send(createAnnounceMessage(peerRef.current!.id));
