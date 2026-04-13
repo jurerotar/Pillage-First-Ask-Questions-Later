@@ -13,7 +13,7 @@ import type { Effect } from '@pillage-first/types/models/effect';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value.ts';
+import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import {
