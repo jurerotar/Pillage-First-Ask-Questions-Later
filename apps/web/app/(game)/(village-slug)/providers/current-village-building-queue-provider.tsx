@@ -8,10 +8,15 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { partition } from '@pillage-first/utils/array';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import {
+  type ScheduledBuildingUpgrade,
+  useScheduledBuildingUpgrades,
+} from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 type CurrentVillageBuildingQueueContextReturn = {
   currentVillageBuildingEvents: BuildingEvent[];
+  scheduledBuildingUpgrades: ScheduledBuildingUpgrade[];
   getBuildingEventQueue: (
     buildingFieldId: BuildingField['id'],
   ) => BuildingEvent[];
@@ -27,6 +32,7 @@ export const CurrentVillageBuildingQueueContextProvider = ({
 }: PropsWithChildren) => {
   const tribe = useTribe();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { scheduledBuildingUpgrades } = useScheduledBuildingUpgrades();
 
   const buildingEventQueues = useMemo(() => {
     const [resourceQueue, villageQueue] = partition<BuildingEvent>(
@@ -56,9 +62,14 @@ export const CurrentVillageBuildingQueueContextProvider = ({
   const value = useMemo(
     () => ({
       currentVillageBuildingEvents,
+      scheduledBuildingUpgrades,
       getBuildingEventQueue,
     }),
-    [currentVillageBuildingEvents, getBuildingEventQueue],
+    [
+      currentVillageBuildingEvents,
+      scheduledBuildingUpgrades,
+      getBuildingEventQueue,
+    ],
   );
 
   return (

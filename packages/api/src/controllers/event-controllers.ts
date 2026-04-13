@@ -12,8 +12,176 @@ import {
 } from '../utils/queries/event-queries';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
 import { eventSchema } from '../utils/zod/event-schemas';
+import { scheduledUpgradeSchema } from './schemas/scheduled-upgrades-schemas';
 import { createEvents } from './utils/create-event';
-import { getEventStartTime } from './utils/events';
+
+export const getScheduledBuildingUpgrades = createController(
+  '/villages/:villageId/scheduled-upgrades',
+)(({ database, path: { villageId } }) => {
+  return database.selectObjects({
+    sql: `
+      SELECT
+        su.id,
+        bi.building AS buildingId,
+        su.village_id AS villageId,
+        su.building_field_id AS buildingFieldId,
+        su.level
+      FROM
+        scheduled_building_upgrades su
+          JOIN building_ids bi ON bi.id = su.building_id
+      WHERE
+        su.village_id = $village_id
+      ORDER BY
+        su.id ASC;
+    `,
+    bind: {
+      $village_id: villageId,
+    },
+    schema: scheduledUpgradeSchema,
+  });
+});
+
+export const scheduleBuildingUpgrade = createController(
+  '/villages/:villageId/scheduled-upgrades',
+  'post',
+)(
+  ({
+    database,
+    path: { villageId },
+    body: { buildingId, buildingFieldId, level },
+  }) => {
+    database.transaction((db) => {
+      const count = db.selectValue({
+        sql: 'SELECT COUNT(*) FROM scheduled_building_upgrades WHERE village_id = $village_id',
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      })!;
+
+      if (count >= 4) {
+        throw new Error('Maximum of 4 scheduled upgrades reached');
+      }
+
+      if (level === 0) {
+        db.exec({
+          sql: `
+            INSERT INTO
+              building_fields (village_id, field_id, building_id, level)
+            VALUES
+              ($village_id, $field_id, (
+                SELECT id
+                FROM building_ids
+                WHERE building = $building_id
+                ), 0)
+          `,
+          bind: {
+            $village_id: villageId,
+            $field_id: buildingFieldId,
+            $building_id: buildingId,
+          },
+        });
+      }
+
+      db.exec({
+        sql: `
+          INSERT INTO
+            scheduled_building_upgrades (building_id, village_id, building_field_id, level)
+          VALUES
+            ((
+               SELECT id
+               FROM building_ids
+               WHERE building = $building_id
+               ), $village_id, $building_field_id, $level)
+        `,
+        bind: {
+          $building_id: buildingId,
+          $village_id: villageId,
+          $building_field_id: buildingFieldId,
+          $level: level,
+        },
+      });
+    });
+
+    triggerKick();
+  },
+);
+
+export const removeScheduledBuildingUpgrade = createController(
+  '/villages/:villageId/scheduled-upgrades/:scheduledUpgradeId',
+  'delete',
+)(({ database, path: { villageId, scheduledUpgradeId } }) => {
+  database.transaction((db) => {
+    const upgradeToRemove = db.selectObject({
+      sql: 'SELECT building_field_id AS buildingFieldId, level FROM scheduled_building_upgrades WHERE id = $id AND village_id = $village_id',
+      bind: { $id: scheduledUpgradeId, $village_id: villageId },
+      schema: z.object({
+        buildingFieldId: z.number(),
+        level: z.number(),
+      }),
+    });
+
+    if (!upgradeToRemove) {
+      return;
+    }
+
+    // Cancel this one and all higher levels of the same building
+    const scheduledUpgradesToRemove = db.selectObjects({
+      sql: `
+        SELECT level
+        FROM
+          scheduled_building_upgrades
+        WHERE
+          village_id = $village_id
+          AND building_field_id = $building_field_id
+          AND level >= $level
+      `,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: upgradeToRemove.buildingFieldId,
+        $level: upgradeToRemove.level,
+      },
+      schema: z.strictObject({ level: z.number() }),
+    });
+
+    const hasLevel0 = scheduledUpgradesToRemove.some((u) => u.level === 0);
+
+    db.exec({
+      sql: `
+        DELETE
+        FROM
+          scheduled_building_upgrades
+        WHERE
+          village_id = $village_id
+          AND building_field_id = $building_field_id
+          AND level >= $level
+      `,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: upgradeToRemove.buildingFieldId,
+        $level: upgradeToRemove.level,
+      },
+    });
+
+    if (hasLevel0) {
+      db.exec({
+        sql: `
+          DELETE
+          FROM
+            building_fields
+          WHERE
+            village_id = $village_id
+            AND field_id = $building_field_id
+            AND level = 0
+        `,
+        bind: {
+          $village_id: villageId,
+          $building_field_id: upgradeToRemove.buildingFieldId,
+        },
+      });
+    }
+  });
+
+  triggerKick();
+});
 
 export const getVillageEvents = createController('/villages/:villageId/events')(
   ({ database, path: { villageId } }) => {
@@ -84,7 +252,7 @@ export const cancelConstructionEvent = createController(
       cancelledEvent;
 
     // Delete this event and all future events on the same building fields
-    const cancelledScheduledEvents = db.selectObjects({
+    db.exec({
       sql: `
         DELETE
         FROM
@@ -93,9 +261,6 @@ export const cancelConstructionEvent = createController(
           village_id = $village_id
           AND JSON_EXTRACT(events.meta, '$.buildingFieldId') = $building_field_id
           AND resolves_at >= $resolves_at
-        RETURNING
-          JSON_EXTRACT(events.meta, '$.buildingFieldId') AS buildingFieldId,
-          JSON_EXTRACT(events.meta, '$.level') AS level;
         ;
       `,
       bind: {
@@ -103,46 +268,29 @@ export const cancelConstructionEvent = createController(
         $building_field_id: buildingFieldId,
         $resolves_at: resolvesAt,
       },
-      schema: z.strictObject({
-        buildingFieldId: z.number(),
-        level: z.number(),
-      }),
     });
 
-    for (const { buildingFieldId, level } of cancelledScheduledEvents) {
-      // If building is currently upgrading to level 1, we need to demolish it
-      if (level === 1) {
-        demolishBuilding(db, villageId, buildingFieldId);
-      }
-    }
-
-    // Remaining building events now need to have their start times adjusted.
-    // Only scheduled construction events need adjusting, since any ongoing events are already ongoing.
-    const scheduledEvents = db.selectObjects({
-      sql: selectAllVillageEventsByTypeQuery,
+    // Also cancel all higher levels of the same building from the new table
+    db.exec({
+      sql: `
+        DELETE
+        FROM
+          scheduled_building_upgrades
+        WHERE
+          village_id = $village_id
+          AND building_field_id = $building_field_id
+          AND level >= $level
+      `,
       bind: {
         $village_id: villageId,
-        $type: 'buildingScheduledConstruction',
+        $building_field_id: buildingFieldId,
+        $level: level,
       },
-      schema: eventSchema,
     });
 
-    for (const event of scheduledEvents) {
-      const startsAt = getEventStartTime(db, event);
-
-      db.exec({
-        sql: `
-          UPDATE events
-          SET
-            starts_at = $starts_at
-          WHERE
-            id = $event_id;
-        `,
-        bind: {
-          $event_id: event.id,
-          $starts_at: startsAt,
-        },
-      });
+    // If building was being created (level 1), we need to demolish it
+    if (level === 1) {
+      demolishBuilding(db, villageId, buildingFieldId);
     }
 
     // If event is already ongoing, refund resources

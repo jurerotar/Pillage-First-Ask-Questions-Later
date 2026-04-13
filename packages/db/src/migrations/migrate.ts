@@ -43,6 +43,7 @@ import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
+import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
@@ -239,6 +240,9 @@ export const migrateAndSeed = (
     // Quests
     db.exec({ sql: createQuestsTable });
     questsSeeder(db);
+
+    // Scheduled building upgrades
+    db.exec({ sql: createScheduledBuildingUpgradesTable });
 
     // Events
     db.exec({ sql: createEventsTable });

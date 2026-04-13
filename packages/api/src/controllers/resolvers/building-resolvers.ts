@@ -12,6 +12,7 @@ import {
 } from '../../utils/queries/effect-queries';
 import {
   demolishBuilding,
+  processScheduledUpgrades,
   updateVillageResourcesAt,
 } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
@@ -94,6 +95,9 @@ export const buildingLevelChangeResolver: Resolver<
   }
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
+
+  // Check for scheduled upgrades
+  processScheduledUpgrades(database, villageId);
 };
 
 export const buildingConstructionResolver: Resolver<
@@ -164,6 +168,9 @@ export const buildingConstructionResolver: Resolver<
     buildingId,
     type: 'buildingLevelChange',
   });
+
+  // Check for scheduled upgrades
+  processScheduledUpgrades(database, villageId);
 };
 
 export const buildingDestructionResolver: Resolver<
@@ -226,14 +233,5 @@ export const buildingDestructionResolver: Resolver<
       $village_id: villageId,
       $value: -population + (isNonDestroyable ? level0Population : 0),
     },
-  });
-};
-
-export const buildingScheduledConstructionEventResolver: Resolver<
-  GameEvent<'buildingScheduledConstruction'>
-> = (database, args) => {
-  createEvents<'buildingLevelChange'>(database, {
-    ...args,
-    type: 'buildingLevelChange',
   });
 };

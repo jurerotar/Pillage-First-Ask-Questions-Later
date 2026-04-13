@@ -3,6 +3,7 @@ import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
+import { useScheduleBuildingUpgrade } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 
@@ -12,8 +13,7 @@ export const useBuildingActions = (
 ) => {
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const { virtualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
-  const { createEvent: createBuildingScheduledConstructionEvent } =
-    useCreateEvent('buildingScheduledConstruction');
+  const { mutate: scheduleBuildingUpgrade } = useScheduleBuildingUpgrade();
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent(
     'buildingConstruction',
   );
@@ -50,7 +50,11 @@ export const useBuildingActions = (
     };
 
     if (hasCurrentVillageBuildingEvents) {
-      createBuildingScheduledConstructionEvent(args);
+      scheduleBuildingUpgrade({
+        buildingId,
+        buildingFieldId,
+        level: virtualLevel + 1,
+      });
       return;
     }
 
@@ -60,7 +64,7 @@ export const useBuildingActions = (
     buildingId,
     virtualLevel,
     hasCurrentVillageBuildingEvents,
-    createBuildingScheduledConstructionEvent,
+    scheduleBuildingUpgrade,
     createBuildingLevelChangeEvent,
   ]);
 
