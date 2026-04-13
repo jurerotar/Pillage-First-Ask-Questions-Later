@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
@@ -420,16 +419,6 @@ export const paths = {
         path: z.strictObject({
           playerId: z.coerce.number(),
         }),
-      },
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              villageId: z.coerce.number(),
-              originCoordinates: coordinatesSchema,
-            }),
-          },
-        },
       },
       responses: {
         '204': {

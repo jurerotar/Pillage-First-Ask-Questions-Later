@@ -52,11 +52,7 @@ export const AcademyUnitResearch = () => {
                   buildingId="BARRACKS"
                 >
                   <UnitOverview />
-                  {!isResearched && (
-                    <>
-                      <UnitCost />
-                    </>
-                  )}
+                  {!isResearched && <UnitCost />}
 
                   <UnitResearch />
                   {!isResearched && !canResearch && <UnitRequirements />}

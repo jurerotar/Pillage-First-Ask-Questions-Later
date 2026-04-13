@@ -110,53 +110,54 @@ export const getHeroAdventures = createController(
 export const startHeroAdventure = createController(
   '/players/:playerId/hero/adventures',
   'post',
-)(
-  ({
-    database,
-    path: { playerId },
-    body: { villageId, originCoordinates },
-  }) => {
-    const { health, tileId } = database.selectObject({
-      sql: `
+)(({ database, path: { playerId } }) => {
+  const { health, tileId, villageId, x, y } = database.selectObject({
+    sql: `
       SELECT
         h.health,
-        t.tile_id as tileId
+        t.tile_id as tileId,
+        h.village_id as villageId,
+        tl.x,
+        tl.y
       FROM
         heroes h
           JOIN troops t ON h.id = t.unit_id
           JOIN unit_ids ui ON t.unit_id = ui.id
+          JOIN tiles tl ON t.tile_id = tl.id
       WHERE
         h.player_id = $player_id
         AND ui.unit = 'HERO'
       LIMIT 1;
     `,
-      bind: { $player_id: playerId },
-      schema: z.strictObject({
-        health: z.number(),
-        tileId: z.number(),
-      }),
-    })!;
+    bind: { $player_id: playerId },
+    schema: z.strictObject({
+      health: z.number(),
+      tileId: z.number(),
+      villageId: z.number(),
+      x: z.number(),
+      y: z.number(),
+    }),
+  })!;
 
-    if (health <= 0) {
-      throw new Error('Hero is dead');
-    }
+  if (health <= 0) {
+    throw new Error('Hero is dead');
+  }
 
-    createEvents<'troopMovementAdventure'>(database, {
-      type: 'troopMovementAdventure',
-      villageId,
-      originCoordinates,
-      targetCoordinates: { x: 0, y: 0 },
-      troops: [
-        {
-          unitId: 'HERO',
-          amount: 1,
-          tileId,
-          source: tileId,
-        },
-      ],
-    });
-  },
-);
+  createEvents<'troopMovementAdventure'>(database, {
+    type: 'troopMovementAdventure',
+    villageId,
+    originCoordinates: { x, y },
+    targetCoordinates: { x: 0, y: 0 },
+    troops: [
+      {
+        unitId: 'HERO',
+        amount: 1,
+        tileId,
+        source: tileId,
+      },
+    ],
+  });
+});
 
 export const changeHeroAttributes = createController(
   '/players/:playerId/hero/attributes',
@@ -518,7 +519,7 @@ export const equipHeroItem = createController(
         });
       }
     }
-  })!;
+  });
 });
 
 export const unequipHeroItem = createController(
@@ -568,7 +569,7 @@ export const unequipHeroItem = createController(
         bind: { $hero_id: heroId, $slot: slot },
       });
     }
-  })!;
+  });
 });
 
 export const useHeroItem = createController(
@@ -737,5 +738,5 @@ export const useHeroItem = createController(
         },
       });
     }
-  })!;
+  });
 });

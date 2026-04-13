@@ -31,10 +31,6 @@ export const useHeroAdventures = () => {
     mutationFn: async () => {
       await fetcher('/me/hero/adventures', {
         method: 'POST',
-        body: {
-          villageId: currentVillage.id,
-          originCoordinates: currentVillage.coordinates,
-        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
