@@ -88,8 +88,11 @@ export const WebRTCAdvertiser = () => {
   }, [gameWorldListing]);
 
   useEffect(() => {
-    // 1. My unique peer for actual transfers
-    const peer = new Peer();
+    const peer = new Peer({
+      config: {
+        iceServers: [],
+      },
+    });
     peerRef.current = peer;
 
     peer.on('open', (id) => {
@@ -150,8 +153,11 @@ export const WebRTCAdvertiser = () => {
       });
     });
 
-    // 2. Try to become the registry
-    const registryPeer = new Peer(BROADCAST_CHANNEL);
+    const registryPeer = new Peer(BROADCAST_CHANNEL, {
+      config: {
+        iceServers: [],
+      },
+    });
     registryPeerRef.current = registryPeer;
 
     registryPeer.on('error', (err) => {
