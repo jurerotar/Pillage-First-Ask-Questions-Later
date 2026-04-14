@@ -10,3 +10,5 @@ CREATE TABLE map_filters
 
   FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
 ) STRICT;
+
+CREATE INDEX idx_map_filters_player_id ON map_filters(player_id);

@@ -5,7 +5,7 @@ import type { Route } from '@react-router/types/app/(public)/+types/layout';
 import { DesktopNavigation } from 'app/(public)/components/desktop-navigation';
 import { Footer } from 'app/(public)/components/footer';
 import { MobileNavigation } from 'app/(public)/components/mobile-navigation';
-import { HeadLinks } from 'app/components/head-links.tsx';
+import { HeadLinks } from 'app/components/head-links';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import { Toaster } from 'app/components/ui/toaster';

@@ -4,7 +4,8 @@ type EventKey =
   | 'event:database-initialization-success'
   | 'event:database-initialization-error'
   | 'event:success'
-  | 'event:error';
+  | 'event:error'
+  | 'event:created';
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;
@@ -18,7 +19,6 @@ export type DatabaseInitializationErrorEvent = {
 export type ControllerErrorEvent = {
   eventKey: EventKey;
   error: Error;
-  reason?: string;
 };
 
 export type EventApiNotificationEvent<

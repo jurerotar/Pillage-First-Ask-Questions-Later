@@ -8,13 +8,14 @@ import type { Resource } from '@pillage-first/types/models/resource';
 import {
   Section,
   SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout.tsx';
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { Icon } from 'app/components/icon.tsx';
-import { Text } from 'app/components/text.tsx';
+import { Icon } from 'app/components/icon';
+import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
   Dialog,
@@ -93,8 +94,9 @@ export const DeveloperToolsConsole = ({
     spawnHeroItem,
     levelUpHero,
     incrementHeroAdventurePoints,
+    killHero,
   } = useDeveloperSettings();
-  const { hero } = useHero();
+  const { hero, isHeroAlive, isHeroHome } = useHero();
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [amount, setAmount] = useState(1);
@@ -102,6 +104,8 @@ export const DeveloperToolsConsole = ({
   const { level } = useMemo(() => {
     return calculateHeroLevel(hero.stats.experience);
   }, [hero.stats.experience]);
+
+  const canKillHero = isHeroAlive && isHeroHome;
 
   const handleUpdateResource = (
     resource: Resource,
@@ -389,6 +393,26 @@ export const DeveloperToolsConsole = ({
               <Button onClick={() => incrementHeroAdventurePoints()}>
                 {t('Add 1 adventure point')}
               </Button>
+            </div>
+          </SectionContent>
+
+          <Separator orientation="horizontal" />
+
+          <SectionContent>
+            <Text as="h3">{t('Kill hero')}</Text>
+            <div className="flex flex-col gap-1 items-start">
+              <Button
+                variant="destructive"
+                disabled={!canKillHero}
+                onClick={() => killHero()}
+              >
+                {t('Kill hero')}
+              </Button>
+              {!canKillHero && (
+                <ErrorBag
+                  errorBag={['Hero must be at home and alive to be killed']}
+                />
+              )}
             </div>
           </SectionContent>
         </Section>

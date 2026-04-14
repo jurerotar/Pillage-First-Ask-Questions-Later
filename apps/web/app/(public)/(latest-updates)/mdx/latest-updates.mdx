@@ -1,22 +1,82 @@
-import { Alert } from 'app/components/ui/alert.tsx';
-import { PerformanceBlock } from './components/performance-block.tsx';
-import { FeaturesBlock } from './components/features-block.tsx';
-import { BugFixesBlock } from './components/bug-fixes-block.tsx';
-import { TechnicalImprovementBlock } from './components/technical-improvement-block.tsx';
+import { Alert } from 'app/components/ui/alert';
+import { PerformanceBlock } from './components/performance-block';
+import { FeaturesBlock } from './components/features-block';
+import { BugFixesBlock } from './components/bug-fixes-block';
+import { TechnicalImprovementBlock } from './components/technical-improvement-block';
+
+<section>
+  ## Version 0.4.4
+  #### Apr 13, 2026
+
+  <BugFixesBlock>
+    * Fixed an issue where a hero unit would get duplicated when being sent on an adventure from a non-home village.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.4.3
+  #### Apr 13, 2026
+
+  <FeaturesBlock>
+    * Building benefits tab now show all building effect values.
+  </FeaturesBlock>
+
+  <BugFixesBlock>
+    * Fixed wall building incorrectly showing defence bonus of over 100%.
+  </BugFixesBlock>
+</section>
+
+<section>
+  ## Version 0.4.2
+  #### Apr 12, 2026
+
+  <BugFixesBlock>
+    * Rename village screen will now correctly show current village's name on village change.
+
+    * Map tile tooltips and modals will now correctly show "%" sign next to oasis bonus value.
+
+    * Fixed incorrect wheat field label on 0-0-0-15 resource fields.
+
+    * Fixed certain frontend caches not being properly invalidated when specific events were triggered.
+
+    * Fixed homepage's Discord button not correctly showing current server user count.
+  </BugFixesBlock>
+
+  <TechnicalImprovementBlock>
+    * Selected filters and toggles (ex. on reports page) will now persist through app refreshes.
+
+    * Improved error-handling flow when exporting game worlds.
+  </TechnicalImprovementBlock>
+</section>
+
+<section>
+  ## Version 0.4.1
+  #### Apr 10, 2026
+
+  <BugFixesBlock>
+    * Fixed missing spacings between labels and inputs on forms.
+  </BugFixesBlock>
+</section>
 
 <section>
   ## Version 0.4.0
-  #### Mar 6, 2026
+  #### Apr 9, 2026
 
   <FeaturesBlock>
+    * We added the ability to found new villages. You're able to found new villages by selecting an empty tile on the
+    map, while having 3 settlers present in you village.
+
     * We're getting a new page! **Event log page** will show a list of latest events happening in your kingdom! It will
     show completed **construction/destruction/downgrade events**, **training events**, as well as **unit improvement
-    events** and **unit research events**. You'll be able to toggle between village-specific events or all events. This
-    will allow you to see what was done since you were last online, at a glance!
+    events**, **unit research events** and **new village founding events**. You'll be able to toggle between
+    village-specific events or all events. This will allow you to see what was done since you were last online, at a
+    glance!
 
     * We added new custom-made icons! This time for **cavalry defence** and **infantry defence**.
 
-    * We added experimental support for transferring game world between devices on the same network.
+    * We added experimental support for transferring game world between devices on the same network. This is done using
+    WebRTC technology. To transfer the game world to a new device, both devices must have the app open and be on the
+    same network.
 
     * We added an initial implementation for village loyalty mechanic. This will be expanded in the future with the
     introduction of combat mechanics.
@@ -31,6 +91,15 @@ import { TechnicalImprovementBlock } from './components/technical-improvement-bl
     cost. From 5% of construction duration forwards, the system will refund resources proportionally, with the minimum
     amount return of 40%.
   </FeaturesBlock>
+</section>
+
+<section>
+  ## Version 0.3.17
+  #### Mar 31, 2026
+
+  <BugFixesBlock>
+    * Fixed an issue where double-clicking a building field would take you to a non-existing page.
+  </BugFixesBlock>
 </section>
 
 <section>

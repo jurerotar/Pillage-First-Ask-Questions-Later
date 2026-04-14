@@ -38,8 +38,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from 'app/components/ui/select.tsx';
-import { Switch } from 'app/components/ui/switch.tsx';
+} from 'app/components/ui/select';
+import { Switch } from 'app/components/ui/switch';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -224,7 +224,7 @@ export const CreateNewGameWorldForm = () => {
                     control={form.control}
                     name="seed"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="space-y-2">
                         <FormLabel>Seed</FormLabel>
                         <FormControl>
                           <Input
@@ -243,7 +243,7 @@ export const CreateNewGameWorldForm = () => {
                     name="name"
                     disabled={isPending || isSuccess}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="space-y-2">
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input
@@ -260,7 +260,7 @@ export const CreateNewGameWorldForm = () => {
                     control={form.control}
                     name="configuration.mapSize"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="space-y-2">
                         <FormLabel>Size</FormLabel>
                         <Select
                           disabled={isPending || isSuccess}
@@ -286,7 +286,7 @@ export const CreateNewGameWorldForm = () => {
                     control={form.control}
                     name="configuration.speed"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="space-y-2">
                         <FormLabel>Speed</FormLabel>
                         <Select
                           disabled={isPending || isSuccess}
@@ -323,7 +323,7 @@ export const CreateNewGameWorldForm = () => {
                     name="playerConfiguration.name"
                     disabled={isPending || isSuccess}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="space-y-2">
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -337,7 +337,7 @@ export const CreateNewGameWorldForm = () => {
                     control={form.control}
                     name="playerConfiguration.tribe"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="space-y-2">
                         <FormLabel>Tribe</FormLabel>
                         <Select
                           disabled={isPending || isSuccess}

@@ -15,27 +15,27 @@ import {
 
 describe('quest guards', () => {
   test('should identify resource quest rewards', () => {
-    expect(isResourceQuestReward(resourceQuestRewardMock)).toBeTruthy();
-    expect(isResourceQuestReward(heroExperienceQuestRewardMock)).toBeFalsy();
+    expect(isResourceQuestReward(resourceQuestRewardMock)).toBe(true);
+    expect(isResourceQuestReward(heroExperienceQuestRewardMock)).toBe(false);
   });
 
   test('should identify hero experience quest rewards', () => {
-    expect(
-      isHeroExperienceQuestReward(heroExperienceQuestRewardMock),
-    ).toBeTruthy();
-    expect(isHeroExperienceQuestReward(resourceQuestRewardMock)).toBeFalsy();
+    expect(isHeroExperienceQuestReward(heroExperienceQuestRewardMock)).toBe(
+      true,
+    );
+    expect(isHeroExperienceQuestReward(resourceQuestRewardMock)).toBe(false);
   });
 
   test('should identify hero item quest rewards', () => {
-    expect(isHeroItemQuestReward(heroItemQuestRewardMock)).toBeTruthy();
-    expect(isHeroItemQuestReward(resourceQuestRewardMock)).toBeFalsy();
+    expect(isHeroItemQuestReward(heroItemQuestRewardMock)).toBe(true);
+    expect(isHeroItemQuestReward(resourceQuestRewardMock)).toBe(false);
   });
 
   test('should identify if quest was collected', () => {
-    expect(
-      wasQuestCollected({ ...questMock, collectedAt: Date.now() }),
-    ).toBeTruthy();
-    expect(wasQuestCollected({ ...questMock, collectedAt: null })).toBeFalsy();
+    expect(wasQuestCollected({ ...questMock, collectedAt: Date.now() })).toBe(
+      true,
+    );
+    expect(wasQuestCollected({ ...questMock, collectedAt: null })).toBe(false);
   });
 
   test('should identify if quest is collectable', () => {
@@ -55,8 +55,8 @@ describe('quest guards', () => {
       collectedAt: Date.now(),
     };
 
-    expect(isQuestCollectable(completedNotCollected)).toBeTruthy();
-    expect(isQuestCollectable(notCompletedNotCollected)).toBeFalsy();
-    expect(isQuestCollectable(completedAndCollected)).toBeFalsy();
+    expect(isQuestCollectable(completedNotCollected)).toBe(true);
+    expect(isQuestCollectable(notCompletedNotCollected)).toBe(false);
+    expect(isQuestCollectable(completedAndCollected)).toBe(false);
   });
 });

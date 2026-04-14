@@ -2,8 +2,8 @@ import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { Effect } from '@pillage-first/types/models/effect';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
-import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
-import { calculateDistanceBetweenPoints } from '@pillage-first/utils/math';
+import { calculateDistanceBetweenPoints } from '../math';
+import { calculateComputedEffect } from './calculate-computed-effect';
 
 type CalculateTravelDurationArgs = {
   originVillageId: Village['id'];

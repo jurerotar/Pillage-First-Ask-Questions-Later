@@ -1,10 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { t } from 'i18next';
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { villageListingCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -19,7 +23,7 @@ import {
   FormMessage,
 } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
-import { invalidateQueries } from 'app/utils/react-query.ts';
+import { invalidateQueries } from 'app/utils/react-query';
 
 const formSchema = z.strictObject({
   name: z
@@ -39,6 +43,10 @@ export const RenameVillage = () => {
       name: currentVillage.name,
     },
   });
+
+  useEffect(() => {
+    form.reset({ name: currentVillage.name });
+  }, [currentVillage.name, form.reset]);
 
   const { mutate: renameVillage } = useMutation<
     void,
@@ -63,41 +71,44 @@ export const RenameVillage = () => {
   };
 
   return (
-    <section className="flex flex-col gap-2">
-      <Text as="h2">{t('Rename village')}</Text>
-      <Text>
-        {t('Rename current village. Name cannot exceed 30 characters.')}
-      </Text>
-
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-2 mt-2"
-        >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('Village name')}</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder={t('Village name')}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            size="fit"
-            type="submit"
+    <Section>
+      <SectionContent>
+        <Text as="h2">{t('Rename village')}</Text>
+        <Text>
+          {t('Rename current village. Name cannot exceed 30 characters.')}
+        </Text>
+      </SectionContent>
+      <SectionContent>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-2 mt-2"
           >
-            {t('Update village name')}
-          </Button>
-        </form>
-      </Form>
-    </section>
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>{t('Village name')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('Village name')}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              size="fit"
+              type="submit"
+            >
+              {t('Update village name')}
+            </Button>
+          </form>
+        </Form>
+      </SectionContent>
+    </Section>
   );
 };

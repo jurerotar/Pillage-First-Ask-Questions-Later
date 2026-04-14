@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
+import type { Coordinates } from './coordinates';
 import type { TroopTrainingDurationEffectId } from './effect';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
@@ -52,23 +53,26 @@ type BaseUnitTrainingEvent = {
   buildingId: Building['id'];
 };
 
-export type TroopMovementType =
-  | 'reinforcements'
-  | 'relocation'
-  | 'return'
-  | 'find-new-village'
-  | 'attack'
-  | 'raid'
-  | 'oasis-occupation'
-  | 'adventure';
-
 type BaseTroopMovementEvent = {
   troops: Troop[];
-  targetId: Village['id'];
+  originCoordinates: Coordinates;
+  targetCoordinates: Coordinates;
 };
 
+export type TroopMovementEventType = Extract<
+  GameEventType,
+  | 'troopMovementReinforcements'
+  | 'troopMovementRelocation'
+  | 'troopMovementReturn'
+  | 'troopMovementFindNewVillage'
+  | 'troopMovementAttack'
+  | 'troopMovementRaid'
+  | 'troopMovementOasisOccupation'
+  | 'troopMovementAdventure'
+>;
+
 export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
-  originalMovementType: TroopMovementType;
+  originalMovementType: TroopMovementEventType;
 };
 
 export const gameEventTypeSchema = z.enum([
@@ -94,18 +98,6 @@ export const gameEventTypeSchema = z.enum([
 ]);
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;
-
-export type TroopMovementEventType = Extract<
-  GameEventType,
-  | 'troopMovementReinforcements'
-  | 'troopMovementRelocation'
-  | 'troopMovementReturn'
-  | 'troopMovementFindNewVillage'
-  | 'troopMovementAttack'
-  | 'troopMovementRaid'
-  | 'troopMovementOasisOccupation'
-  | 'troopMovementAdventure'
->;
 
 export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   buildingScheduledConstruction: BuildingScheduledConstructionEvent &

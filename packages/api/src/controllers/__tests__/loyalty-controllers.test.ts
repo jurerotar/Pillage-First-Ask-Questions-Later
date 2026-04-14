@@ -21,7 +21,7 @@ describe('loyalty-controllers', () => {
       createControllerArgs<'/tiles/:tileId/loyalty'>({ path: { tileId } }),
     );
 
-    expect(result).toEqual({ loyalty: 100 });
+    expect(result).toStrictEqual({ loyalty: 100 });
   });
 
   test('should return current loyalty if tile is in loyalties table', async () => {
@@ -39,7 +39,7 @@ describe('loyalty-controllers', () => {
       createControllerArgs<'/tiles/:tileId/loyalty'>({ path: { tileId } }),
     );
 
-    expect(result).toEqual({ loyalty: loyaltyValue });
+    expect(result).toStrictEqual({ loyalty: loyaltyValue });
   });
 
   test('loyaltyIncreaseResolver should increment loyalty based on residence level and delete if >= 100', async () => {
@@ -103,6 +103,6 @@ describe('loyalty-controllers', () => {
     });
 
     expect(loyalty1).toHaveLength(0); // Should be deleted as it hit 101 (99 + 2)
-    expect(loyalty2).toEqual([56]); // Should be 50 + (1 + 5) = 56
+    expect(loyalty2).toStrictEqual([56]); // Should be 50 + (1 + 5) = 56
   });
 });

@@ -20,7 +20,7 @@ describe('buildings utils', () => {
           (e) =>
             e.effectId === 'infantryDefence' && e.currentLevelValue === 200,
         ),
-      ).toBeTruthy();
+      ).toBe(true);
     });
 
     test('bakery wheat production bonus', () => {
@@ -31,7 +31,7 @@ describe('buildings utils', () => {
           (e) =>
             e.effectId === 'wheatProduction' && e.currentLevelValue === 1.25,
         ),
-      ).toBeTruthy();
+      ).toBe(true);
     });
 
     test('clay pit clay production', () => {
@@ -48,7 +48,7 @@ describe('buildings utils', () => {
       expect(
         result.find((e) => e.effectId === 'infantryDefence')!
           .areEffectValuesRising,
-      ).toBeTruthy();
+      ).toBe(true);
     });
 
     test('bakery wheat production bonus values are increasing', () => {
@@ -59,7 +59,7 @@ describe('buildings utils', () => {
           (e) =>
             e.effectId === 'wheatProduction' && e.currentLevelValue === 1.15,
         )!.areEffectValuesRising,
-      ).toBeTruthy();
+      ).toBe(true);
     });
   });
 
@@ -67,14 +67,14 @@ describe('buildings utils', () => {
     test('main building level 1', () => {
       const { isMaxLevel, nextLevelPopulation, nextLevelResourceCost } =
         getBuildingDataForLevel('MAIN_BUILDING', 1);
-      expect(isMaxLevel).toBeFalsy();
+      expect(isMaxLevel).toBe(false);
       expect(nextLevelPopulation).toBe(3);
       expect(nextLevelResourceCost).toStrictEqual([90, 55, 80, 30]);
     });
 
     test('main building level 20', () => {
       const { isMaxLevel } = getBuildingDataForLevel('MAIN_BUILDING', 20);
-      expect(isMaxLevel).toBeTruthy();
+      expect(isMaxLevel).toBe(true);
     });
   });
 

@@ -15,7 +15,7 @@ import { BuildingConstructionViewModeToggle } from 'app/(game)/(village-slug)/(v
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { Text } from 'app/components/text';

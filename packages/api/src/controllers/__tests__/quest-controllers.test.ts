@@ -24,7 +24,7 @@ describe('quest-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getCollectableQuestCount should return collectable quest count', async () => {
@@ -122,6 +122,6 @@ describe('quest-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });

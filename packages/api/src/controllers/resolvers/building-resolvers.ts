@@ -34,9 +34,11 @@ export const buildingLevelChangeResolver: Resolver<
     sql: `
       UPDATE building_fields
       SET level = $level
+      FROM building_ids bi
       WHERE village_id = $village_id
         AND field_id = $building_field_id
-        AND building_id = (SELECT id FROM building_ids WHERE building = $building_id);
+        AND bi.id = building_fields.building_id
+        AND bi.building = $building_id;
     `,
     bind: {
       $village_id: villageId,
@@ -97,13 +99,22 @@ export const buildingLevelChangeResolver: Resolver<
 export const buildingConstructionResolver: Resolver<
   GameEvent<'buildingConstruction'>
 > = (database, args) => {
-  const { villageId, buildingFieldId, buildingId } = args;
+  const {
+    villageId,
+    buildingFieldId,
+    buildingId,
+    level,
+    previousLevel,
+    startsAt,
+  } = args;
 
   // Create building field
   database.exec({
     sql: `
       INSERT INTO building_fields (village_id, field_id, building_id, level)
-      VALUES ($village_id, $field_id, (SELECT id FROM building_ids WHERE building = $building_id), 0)
+      SELECT $village_id, $field_id, bi.id, 0
+      FROM building_ids bi
+      WHERE bi.building = $building_id
     `,
     bind: {
       $village_id: villageId,
@@ -119,8 +130,9 @@ export const buildingConstructionResolver: Resolver<
     database.exec({
       sql: `
         INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-        VALUES ((SELECT id FROM effect_ids WHERE effect = $effect_id), $value, $type, 'village', 'building',
-                $village_id, $source_specifier);
+        SELECT ei.id, $value, $type, 'village', 'building', $village_id, $source_specifier
+        FROM effect_ids ei
+        WHERE ei.effect = $effect_id;
       `,
       bind: {
         $effect_id: effectId,
@@ -144,7 +156,12 @@ export const buildingConstructionResolver: Resolver<
   });
 
   createEvents<'buildingLevelChange'>(database, {
-    ...args,
+    villageId,
+    level,
+    previousLevel,
+    startsAt,
+    buildingFieldId,
+    buildingId,
     type: 'buildingLevelChange',
   });
 };

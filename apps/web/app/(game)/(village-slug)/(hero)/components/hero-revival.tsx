@@ -5,9 +5,10 @@ import {
   calculateHeroRevivalTime,
 } from '@pillage-first/game-assets/utils/hero';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown.tsx';
-import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag.tsx';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
@@ -26,6 +27,7 @@ export const HeroRevival = () => {
   const { hero } = useHero();
   const { reviveHero } = useReviveHero();
   const { server } = useServer();
+  const { currentVillage } = useCurrentVillage();
   const { eventsByType: heroRevivalEvents } = useEventsByType('heroRevival');
 
   const { isInstantHeroReviveEnabled, isFreeHeroReviveEnabled } =
@@ -56,6 +58,10 @@ export const HeroRevival = () => {
     ...hasEnoughGranaryCapacityErrorBag,
   ];
 
+  if (currentVillage.id !== hero.villageId) {
+    errorBag.push('Hero can only be revived in its home village.');
+  }
+
   const canRevive = errorBag.length === 0 && !isReviving;
 
   return (
@@ -63,7 +69,7 @@ export const HeroRevival = () => {
       <Text as="h2">{t('Revive hero')}</Text>
       <Text>
         {t(
-          "Your hero is dead. While the hero is dead, it can not produce resources, give bonuses or start adventures. Revival cost and duration increases with your hero's level.",
+          "Your hero is dead. While the hero is dead, it can not produce resources, give bonuses or start adventures. Revival cost and duration increases with your hero's level. Hero can only be revived in its home village.",
         )}
       </Text>
       {isReviving && (

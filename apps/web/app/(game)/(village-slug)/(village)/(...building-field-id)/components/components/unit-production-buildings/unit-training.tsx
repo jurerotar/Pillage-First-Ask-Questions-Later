@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
 import type { Unit } from '@pillage-first/types/models/unit';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark.tsx';
-import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units.ts';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units';
 import {
   UnitAttributes,
   UnitCard,
@@ -12,18 +12,18 @@ import {
   UnitOverview,
   UnitRecruitment,
   UnitRequirements,
-} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card.tsx';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider.tsx';
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import {
   Section,
   SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout.tsx';
-import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table.tsx';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
-import { Icon } from 'app/components/icon.tsx';
-import { unitIdToUnitIconMapper } from 'app/components/icons/icons.tsx';
-import { Text } from 'app/components/text.tsx';
-import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs.tsx';
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { Text } from 'app/components/text';
+import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const buildingIdToTroopTrainingEffectAndCategoryMap = new Map<
   TroopTrainingBuildingId,

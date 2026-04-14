@@ -24,7 +24,7 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { oasisBonusFinderCacheKey } from 'app/(game)/constants/query-keys.ts';
+import { oasisBonusFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -310,7 +310,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   <FormField
                     name="origin.x"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>{t('Start position (x)')}</FormLabel>
                         <FormControl>
                           <Input
@@ -339,7 +339,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   <FormField
                     name="origin.y"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>{t('Start position (y)')}</FormLabel>
                         <FormControl>
                           <Input
@@ -370,7 +370,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   control={form.control}
                   name="resourceFieldComposition"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col gap-2">
                       <FormLabel>{t('Resource field composition')}</FormLabel>
                       <Select
                         onValueChange={(v) => {
@@ -436,7 +436,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   control={form.control}
                   name="firstOasisBonus"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col gap-2">
                       <FormLabel>{t('First oasis bonus')}</FormLabel>
                       <Select
                         onValueChange={(v) => {
@@ -466,7 +466,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   control={form.control}
                   name="secondOasisBonus"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col gap-2">
                       <FormLabel>{t('Second oasis bonus')}</FormLabel>
                       <Select
                         onValueChange={(v) => {
@@ -496,7 +496,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   control={form.control}
                   name="thirdOasisBonus"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="flex flex-col gap-2">
                       <FormLabel>{t('Third oasis bonus')}</FormLabel>
                       <Select
                         onValueChange={(v) => {

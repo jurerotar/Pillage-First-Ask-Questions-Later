@@ -1,8 +1,9 @@
 export class OutdatedDatabaseSchemaError extends Error {
+  static readonly name = 'OutdatedDatabaseSchemaError';
+
   constructor() {
-    super();
-    this.name = 'OutdatedDatabaseSchemaError';
-    this.message = 'Your game world version is outdated.';
+    super('Your game world version is outdated.');
+    this.name = OutdatedDatabaseSchemaError.name;
     Object.setPrototypeOf(this, OutdatedDatabaseSchemaError.prototype);
   }
 }

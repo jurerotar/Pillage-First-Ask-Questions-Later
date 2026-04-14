@@ -7,7 +7,7 @@ import type {
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { invalidateQueries } from 'app/utils/react-query.ts';
+import { invalidateQueries } from 'app/utils/react-query';
 
 type CreateEventArgs<T extends GameEventType> = Omit<
   GameEventTypeToEventArgsMap<T>,

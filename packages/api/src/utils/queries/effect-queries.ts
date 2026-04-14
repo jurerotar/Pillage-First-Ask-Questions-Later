@@ -55,18 +55,32 @@ export const selectAllRelevantEffectsByIdQuery = `
     AND (e.scope IN ('global', 'server') OR e.village_id = $village_id);
 `;
 
+export const selectUnitSpeedRelevantEffectsQuery = `
+  SELECT
+    ei.effect AS id,
+    e.value,
+    e.type,
+    e.scope,
+    e.source,
+    e.village_id AS villageId,
+    e.source_specifier AS sourceSpecifier
+  FROM
+    effects AS e
+      LEFT JOIN effect_ids AS ei
+                ON ei.id = e.effect_id
+  WHERE
+    (ei.effect IN ('unitSpeed', 'unitSpeedAfter20Fields'))
+    AND (e.scope IN ('global', 'server') OR e.village_id = $village_id);
+`;
+
 export const updatePopulationEffectQuery = `
   UPDATE effects
   SET
     value = value - ($value)
+  FROM effect_ids ei
   WHERE
-    effect_id = (
-      SELECT id
-      FROM
-        effect_ids
-      WHERE
-        effect = 'wheatProduction'
-      )
+    effects.effect_id = ei.id
+    AND ei.effect = 'wheatProduction'
     AND type = 'base'
     AND scope = 'village'
     AND source = 'building'
@@ -78,14 +92,10 @@ export const updateBuildingEffectQuery = `
   UPDATE effects
   SET
     value = $value
+  FROM effect_ids ei
   WHERE
-    effect_id = (
-      SELECT id
-      FROM
-        effect_ids
-      WHERE
-        effect = $effect_id
-      )
+    effects.effect_id = ei.id
+    AND ei.effect = $effect_id
     AND village_id = $village_id
     AND type = $type
     AND scope = 'village'
@@ -99,7 +109,7 @@ export const deleteHeroEffectsQuery = `
     effects
   WHERE
     source = 'hero'
-    AND village_id = (
+    AND village_id IN (
       SELECT village_id
       FROM
         heroes
@@ -143,7 +153,7 @@ export const updateHeroEffectsVillageIdQuery = `
     village_id = $targetId
   WHERE
     source = 'hero'
-    AND village_id = (
+    AND village_id IN (
       SELECT village_id
       FROM
         heroes

@@ -4,7 +4,7 @@ import { prepareTestDatabase } from '@pillage-first/db';
 import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
 import { loyaltyIncreaseResolver } from '../loyalty-resolvers';
 
-describe('loyaltyIncreaseResolver', () => {
+describe(loyaltyIncreaseResolver, () => {
   test('should increase loyalty for all villages and oases', async () => {
     const database = await prepareTestDatabase();
 
@@ -47,7 +47,7 @@ describe('loyaltyIncreaseResolver', () => {
       bind: { $tile_id: oasisTile },
     });
 
-    const duration = 3600000;
+    const duration = 3_600_000;
     const now = Date.now();
 
     loyaltyIncreaseResolver(
@@ -104,7 +104,7 @@ describe('loyaltyIncreaseResolver', () => {
       bind: { $tile_id: tileId },
     });
 
-    const duration = 3600000;
+    const duration = 3_600_000;
     const now = Date.now();
 
     loyaltyIncreaseResolver(
@@ -149,7 +149,7 @@ describe('loyaltyIncreaseResolver', () => {
       bind: { $tile_id: tileId },
     });
 
-    const duration = 3600000;
+    const duration = 3_600_000;
     const now = Date.now();
 
     loyaltyIncreaseResolver(
@@ -177,7 +177,7 @@ describe('loyaltyIncreaseResolver', () => {
     // Clear existing events
     database.exec({ sql: "DELETE FROM events WHERE type = 'loyaltyIncrease'" });
 
-    const duration = 3600000;
+    const duration = 3_600_000;
 
     loyaltyIncreaseResolver(
       database,

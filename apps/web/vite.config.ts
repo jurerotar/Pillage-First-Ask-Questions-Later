@@ -89,7 +89,7 @@ const viteConfig = defineViteConfig({
         keepSourcemaps: false,
         verbose: false,
         recursive: true,
-        outputPath: resolve(__dirname, 'build/client'),
+        outputPath: resolve(import.meta.dirname, 'build/client'),
       }),
   ],
   server: {
@@ -110,7 +110,7 @@ const viteConfig = defineViteConfig({
   },
   resolve: {
     alias: {
-      app: resolve(__dirname, 'app'),
+      app: resolve(import.meta.dirname, 'app'),
       ...(!isDeployingToMaster && {
         'react-dom/client': 'react-dom/profiling',
         'scheduler/tracing': 'scheduler/tracing-profiling',

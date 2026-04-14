@@ -22,3 +22,4 @@ tsconfig.tsbuildinfo
 .turbo
 open-api.json
 apps/web/public/landing
+apps/erd/sql-schema

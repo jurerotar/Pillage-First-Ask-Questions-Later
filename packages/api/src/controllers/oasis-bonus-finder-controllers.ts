@@ -220,7 +220,7 @@ export const getTilesWithBonuses = createController('/oasis-bonus-finder')(
     const sql = sqlParts.join('\n');
 
     return database.selectObjects({
-      sql: sql,
+      sql,
       bind: sqlBindings,
       schema: getTilesWithBonusesSchema,
     });

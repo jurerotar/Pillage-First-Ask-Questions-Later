@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { TbBugOff } from 'react-icons/tb';
-import { Text } from 'app/components/text.tsx';
+import { Text } from 'app/components/text';
 
 export const BugFixesBlock = ({ children }: PropsWithChildren) => {
   if (!children) {

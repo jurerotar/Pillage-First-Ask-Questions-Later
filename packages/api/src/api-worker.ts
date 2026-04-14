@@ -140,10 +140,13 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         break;
       } catch (error) {
         console.error(error);
-        globalThis.postMessage({
+        const errorEvent = {
           eventKey: 'event:error',
           error: error as Error,
-        } satisfies ControllerErrorEvent);
+        } satisfies ControllerErrorEvent;
+
+        port.postMessage(errorEvent);
+        globalThis.postMessage(errorEvent);
         break;
       }
     }

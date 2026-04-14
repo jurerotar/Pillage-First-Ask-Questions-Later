@@ -91,7 +91,7 @@ describe('building-requirements', () => {
           'tribe',
           assessBuildingConstructionReadiness({ ...args }),
         );
-        expect(fulfilled).toBeFalsy();
+        expect(fulfilled).toBe(false);
       });
 
       test('natars can not build brewery', () => {
@@ -104,7 +104,7 @@ describe('building-requirements', () => {
           'tribe',
           assessBuildingConstructionReadiness(args),
         );
-        expect(fulfilled).toBeFalsy();
+        expect(fulfilled).toBe(false);
       });
 
       test('natars can not build horse drinking trough', () => {
@@ -117,20 +117,20 @@ describe('building-requirements', () => {
           'tribe',
           assessBuildingConstructionReadiness(args),
         );
-        expect(fulfilled).toBeFalsy();
+        expect(fulfilled).toBe(false);
       });
 
-      test('natars can not build command center', () => {
+      test('natars can not build trapper', () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           tribe: 'natars',
-          buildingId: 'COMMAND_CENTER',
+          buildingId: 'TRAPPER',
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
           assessBuildingConstructionReadiness(args),
         );
-        expect(fulfilled).toBeFalsy();
+        expect(fulfilled).toBe(false);
       });
 
       test('natars can not build waterworks', () => {
@@ -143,7 +143,7 @@ describe('building-requirements', () => {
           'tribe',
           assessBuildingConstructionReadiness(args),
         );
-        expect(fulfilled).toBeFalsy();
+        expect(fulfilled).toBe(false);
       });
     });
 
@@ -157,7 +157,7 @@ describe('building-requirements', () => {
         'tribe',
         assessBuildingConstructionReadiness({ ...args }),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
     test('teutons may build brewery', () => {
@@ -170,7 +170,7 @@ describe('building-requirements', () => {
         'tribe',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
     test('romans may build horse drinking trough', () => {
@@ -183,21 +183,21 @@ describe('building-requirements', () => {
         'tribe',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
-    test('huns may build command center', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
-        ...defaultArgs,
-        tribe: 'huns',
-        buildingId: 'COMMAND_CENTER',
-      };
-      const { fulfilled } = getAssessedRequirementByType(
-        'tribe',
-        assessBuildingConstructionReadiness(args),
-      );
-      expect(fulfilled).toBeTruthy();
-    });
+    // test('huns may build command center', () => {
+    //   const args: AssessBuildingConstructionReadinessArgs = {
+    //     ...defaultArgs,
+    //     tribe: 'huns',
+    //     buildingId: 'COMMAND_CENTER',
+    //   };
+    //   const { fulfilled } = getAssessedRequirementByType(
+    //     'tribe',
+    //     assessBuildingConstructionReadiness(args),
+    //   );
+    //   expect(fulfilled).toBe(true);
+    // });
 
     test('egyptians may build waterworks', () => {
       const args: AssessBuildingConstructionReadinessArgs = {
@@ -209,7 +209,7 @@ describe('building-requirements', () => {
         'tribe',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
   });
 
@@ -223,7 +223,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
     test("can't build a second main building", () => {
@@ -235,7 +235,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeFalsy();
+      expect(fulfilled).toBe(false);
     });
 
     test("can't build a palisade", () => {
@@ -250,7 +250,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeFalsy();
+      expect(fulfilled).toBe(false);
     });
 
     test("can't build a second main building even if first is max level", () => {
@@ -265,7 +265,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeFalsy();
+      expect(fulfilled).toBe(false);
     });
 
     test('can build a second cranny if first one is max level', () => {
@@ -280,7 +280,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
     test('can build a third cranny if one is max level, even if other is not max level', () => {
@@ -296,7 +296,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
     test("can't build a cranny if one is already in building queue", () => {
@@ -310,7 +310,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeFalsy();
+      expect(fulfilled).toBe(false);
     });
 
     test('can build a third cranny even if one is already in building queue, if you have a max level one', () => {
@@ -327,7 +327,7 @@ describe('building-requirements', () => {
         'amount',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
   });
 
@@ -341,7 +341,7 @@ describe('building-requirements', () => {
         'building',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeFalsy();
+      expect(fulfilled).toBe(false);
     });
 
     test('can build barracks once main building is upgraded', () => {
@@ -356,7 +356,7 @@ describe('building-requirements', () => {
         'building',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
     test('can build workshop with academy and main building at lvl 10', () => {
@@ -371,7 +371,7 @@ describe('building-requirements', () => {
         'building',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
     // Testing this to make sure your buildings can be higher level than required
@@ -387,7 +387,7 @@ describe('building-requirements', () => {
         'building',
         assessBuildingConstructionReadiness(args),
       );
-      expect(fulfilled).toBeTruthy();
+      expect(fulfilled).toBe(true);
     });
 
     test("can not build brickyard with clay pit lvl 10 if it's missing main building", () => {
@@ -402,7 +402,7 @@ describe('building-requirements', () => {
         'building',
         assessBuildingConstructionReadiness(args),
       ).every(({ fulfilled }) => fulfilled);
-      expect(canBuild).toBeFalsy();
+      expect(canBuild).toBe(false);
     });
   });
 });

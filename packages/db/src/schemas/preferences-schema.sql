@@ -12,6 +12,9 @@ CREATE TABLE preferences
 
   -- Functionality
   is_automatic_navigation_after_building_level_change_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_building_level_change_enabled IN (0,1)),
+  is_automatic_navigation_after_unit_research_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_unit_research_enabled IN (0,1)),
+  is_automatic_navigation_after_unit_upgrade_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_unit_upgrade_enabled IN (0,1)),
+  is_automatic_navigation_after_send_units_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_send_units_enabled IN (0,1)),
   is_developer_tools_console_enabled INTEGER NOT NULL CHECK (is_developer_tools_console_enabled IN (0,1)),
 
   -- Notifications
@@ -21,3 +24,5 @@ CREATE TABLE preferences
 
   FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
 ) STRICT, WITHOUT ROWID;
+
+CREATE INDEX idx_preferences_player_id ON preferences(player_id);

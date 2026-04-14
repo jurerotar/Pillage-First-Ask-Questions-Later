@@ -3,17 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { FaPen } from 'react-icons/fa6';
 import { LuTrash } from 'react-icons/lu';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { CreateFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/farm-list/create-farm-list-modal.tsx';
-import { EditFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/farm-list/edit-farm-list-modal.tsx';
+import { CreateFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/farm-list/create-farm-list-modal';
+import { EditFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/farm-list/edit-farm-list-modal';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useFarmLists } from 'app/(game)/(village-slug)/hooks/use-farm-lists.ts';
-import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing.ts';
+import { useFarmLists } from 'app/(game)/(village-slug)/hooks/use-farm-lists';
+import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { Text } from 'app/components/text';
-import { Button } from 'app/components/ui/button.tsx';
-import { useDialog } from 'app/hooks/use-dialog.ts';
+import { Button } from 'app/components/ui/button';
+import { useDialog } from 'app/hooks/use-dialog';
 
 export const RallyPointFarmList = () => {
   const { t } = useTranslation();
