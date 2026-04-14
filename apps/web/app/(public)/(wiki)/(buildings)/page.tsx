@@ -29,11 +29,11 @@ const WikiBuildingPage = () => {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink to="/">{t('public:Home')}</BreadcrumbLink>
+            <BreadcrumbLink to="/">{t('Home')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink to="/wiki">{t('public:Wiki')}</BreadcrumbLink>
+            <BreadcrumbLink to="/wiki">{t('Wiki')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -50,7 +50,7 @@ const WikiBuildingPage = () => {
       </Text>
 
       <div className="prose dark:prose-invert max-w-none">
-        <p>{t(`assets:BUILDINGS.${building.id}.DESCRIPTION`)}</p>
+        <p>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</p>
 
         <h3>Stats</h3>
         <ul>

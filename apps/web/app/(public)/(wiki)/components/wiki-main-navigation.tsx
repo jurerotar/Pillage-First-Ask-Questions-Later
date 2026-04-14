@@ -140,16 +140,16 @@ export const WikiMainNavigation = ({
 
     return [
       {
-        title: t('public:Index'),
+        title: t('Index'),
         to: '/wiki',
       },
       {
-        title: t('public:Units'),
+        title: t('Units'),
         to: '/wiki/units',
         items: unitItems.sort((a, b) => a.title.localeCompare(b.title)),
       },
       {
-        title: t('public:Buildings'),
+        title: t('Buildings'),
         to: '/wiki/buildings',
         items: buildingItems.sort((a, b) => a.title.localeCompare(b.title)),
       },
@@ -164,7 +164,7 @@ export const WikiMainNavigation = ({
           variant="muted"
           className="uppercase text-xs tracking-wider"
         >
-          {t('public:Wiki Navigation')}
+          {t('Wiki Navigation')}
         </Text>
       )}
       <div className="flex flex-col gap-1">

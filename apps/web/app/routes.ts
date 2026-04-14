@@ -20,12 +20,12 @@ export default [
       ...prefix('wiki', [
         layout('(public)/(wiki)/layout.tsx', [
           index('(public)/(wiki)/(index)/page.tsx'),
-          ...prefix('units', [
-            route(':unitId', '(public)/(wiki)/(units)/page.tsx'),
-          ]),
-          ...prefix('buildings', [
-            route(':buildingId', '(public)/(wiki)/(buildings)/page.tsx'),
-          ]),
+          // ...prefix('units', [
+          //   route(':unitId', '(public)/(wiki)/(units)/page.tsx'),
+          // ]),
+          // ...prefix('buildings', [
+          //   route(':buildingId', '(public)/(wiki)/(buildings)/page.tsx'),
+          // ]),
         ]),
       ]),
       ...prefix('game-worlds', [
