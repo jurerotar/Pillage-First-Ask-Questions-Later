@@ -15,6 +15,9 @@ const publicPagesToPrerender = [
   '/get-involved',
   '/latest-updates',
   '/404',
+  '/wiki',
+  '/wiki/buildings',
+  '/wiki/units',
 ];
 
 const localizedPagesToPrerender = locales.flatMap((locale) => {
