@@ -65,6 +65,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
   );
 
   createEvents<'heroHealthRegeneration'>(database, {
+    villageId: null,
     type: 'heroHealthRegeneration',
     startsAt: resolvesAt,
     duration,
@@ -105,6 +106,7 @@ export const heroHealthRegenerationResolver: Resolver<
   );
 
   createEvents<'heroHealthRegeneration'>(database, {
+    villageId: null,
     type: 'heroHealthRegeneration',
     startsAt: resolvesAt,
     duration,

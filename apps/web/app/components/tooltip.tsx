@@ -9,7 +9,7 @@ export const Tooltip = (props: ReactTooltipProps) => {
 
   return (
     <ReactTooltip
-      className={clsx('!z-20 !rounded-lg !px-2 !py-1 !text-xs', className)}
+      className={clsx('z-20! rounded-lg! px-2! py-1! text-xs!', className)}
       {...rest}
     />
   );

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { ReportFilters } from 'app/(game)/(village-slug)/(reports)/components/components/report-filters';
-import { useReportFilters } from 'app/(game)/(village-slug)/(reports)/components/hooks/use-report-filters';
+import { useReportFilters } from 'app/(game)/(village-slug)/(reports)/hooks/use-report-filters';
 import {
   Section,
   SectionContent,
@@ -12,9 +12,14 @@ import { Pagination } from 'app/components/ui/pagination';
 
 export const CurrentVillageReports = () => {
   const { t } = useTranslation();
-  const { reportFilters, onReportFiltersChange } = useReportFilters();
+  const {
+    filters: reportFilters,
+    onFiltersChange: onReportFiltersChange,
+    page,
+    handlePageChange,
+  } = useReportFilters();
 
-  const pagination = usePagination([], 20);
+  const pagination = usePagination([], 20, page);
 
   return (
     <Section>
@@ -34,7 +39,10 @@ export const CurrentVillageReports = () => {
         {t('This page is still under development')}
       </Alert>
       <div className="flex w-full justify-end">
-        <Pagination {...pagination} />
+        <Pagination
+          {...pagination}
+          setPage={handlePageChange}
+        />
       </div>
     </Section>
   );

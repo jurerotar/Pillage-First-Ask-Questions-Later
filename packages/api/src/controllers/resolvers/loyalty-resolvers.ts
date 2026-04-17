@@ -6,6 +6,8 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
   database,
   args,
 ) => {
+  const { resolvesAt } = args;
+
   database.exec({
     sql: `
       UPDATE loyalties
@@ -40,8 +42,8 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
   });
 
   createEvents<'loyaltyIncrease'>(database, {
-    ...args,
-    startsAt: args.resolvesAt,
+    villageId: null,
+    startsAt: resolvesAt,
     type: 'loyaltyIncrease',
   });
 };

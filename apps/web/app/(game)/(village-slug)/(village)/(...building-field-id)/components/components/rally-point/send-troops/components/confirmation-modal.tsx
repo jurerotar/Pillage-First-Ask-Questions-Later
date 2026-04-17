@@ -7,8 +7,8 @@ import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   UnitTable,
-  UnitTableHeader,
   UnitTableRow,
+  UnitTableUnitIcons,
 } from 'app/(game)/components/unit-table';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -86,8 +86,9 @@ export const TroopMovementConfirmationModal = ({
         <div className="space-y-2">
           <div className="flex flex-col gap-4">
             <UnitTable tribe={tribe}>
-              <UnitTableHeader />
+              <UnitTableUnitIcons />
               <UnitTableRow
+                label={t('Troops')}
                 amount={formData.units.map(({ selected }) => selected)}
               />
             </UnitTable>

@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { FaBookBookmark } from 'react-icons/fa6';
 import { LuAnvil, LuConstruction, LuFlag } from 'react-icons/lu';
 import { TbTargetArrow } from 'react-icons/tb';
-import { useSearchParams } from 'react-router';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import { EventFilters } from 'app/(game)/(village-slug)/(events)/components/event-filters';
+import { useEventFilters } from 'app/(game)/(village-slug)/(events)/hooks/use-event-filters';
 import {
   Section,
   SectionContent,
@@ -65,18 +65,14 @@ type EventsListProps = {
   scope: 'village' | 'global';
   page: number;
   eventFilters: HistoryEvent['type'][];
-  setSearchParams: (
-    nextSearchParams:
-      | URLSearchParams
-      | ((prev: URLSearchParams) => URLSearchParams),
-  ) => void;
+  handlePageChange: (newPage: number | ((prev: number) => number)) => void;
 };
 
 const EventsList = ({
   scope,
   page,
   eventFilters,
-  setSearchParams,
+  handlePageChange,
 }: EventsListProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
@@ -87,14 +83,6 @@ const EventsList = ({
   const villageMap = useMemo(() => {
     return new Map(playerVillages.map((v) => [v.id, v.name]));
   }, [playerVillages]);
-
-  const handlePageChange = (newPage: number | ((prev: number) => number)) => {
-    setSearchParams((prev) => {
-      const nextP = typeof newPage === 'function' ? newPage(page) : newPage;
-      prev.set('page', nextP.toString());
-      return prev;
-    });
-  };
 
   const formatEventData = (event: HistoryEvent) => {
     const { type, data } = event;
@@ -215,21 +203,12 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
 
   const { t } = useTranslation();
   const { tabIndex, navigateToTab } = useTabParam(tabs);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const page = Number.parseInt(searchParams.get('page') ?? '1', 10);
-  const eventFilters = (searchParams.getAll('types') ??
-    []) as HistoryEvent['type'][];
-
-  const handleFilterChange = (newFilters: HistoryEvent['type'][]) => {
-    setSearchParams((prev) => {
-      prev.delete('types');
-      for (const filter of newFilters) {
-        prev.append('types', filter);
-      }
-      prev.set('page', '1');
-      return prev;
-    });
-  };
+  const {
+    filters: eventFilters,
+    onFiltersChange: onEventFiltersChange,
+    page,
+    handlePageChange,
+  } = useEventFilters();
 
   const title = `${t('Event log')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -251,7 +230,7 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
           <Text as="h1">{t('Event log')}</Text>
           <EventFilters
             eventFilters={eventFilters}
-            onChange={handleFilterChange}
+            onChange={onEventFiltersChange}
           />
         </SectionContent>
         <SectionContent>
@@ -270,7 +249,7 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
                     scope="village"
                     page={page}
                     eventFilters={eventFilters}
-                    setSearchParams={setSearchParams}
+                    handlePageChange={handlePageChange}
                   />
                 </SectionContent>
               </Section>
@@ -282,7 +261,7 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
                     scope="global"
                     page={page}
                     eventFilters={eventFilters}
-                    setSearchParams={setSearchParams}
+                    handlePageChange={handlePageChange}
                   />
                 </SectionContent>
               </Section>

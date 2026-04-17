@@ -1,31 +1,32 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type {
-  GameEvent,
-  TroopMovementEvent,
-} from '@pillage-first/types/models/game-event';
+import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
+  isAdventureTroopMovementEvent,
   isAttackTroopMovementEvent,
   isFindNewVillageTroopMovementEvent,
   isOasisOccupationTroopMovementEvent,
   isRaidTroopMovementEvent,
   isReinforcementsTroopMovementEvent,
   isRelocationTroopMovementEvent,
-  isTroopMovementEvent,
+  isReturnTroopMovementEvent,
 } from '@pillage-first/utils/guards/event';
 
 export const validateTroopMovementLogic = (
   database: DbFacade,
   event: Partial<TroopMovementEvent>,
 ): string[] => {
-  const errors: string[] = [];
+  const troopMovementEvent = event as TroopMovementEvent;
 
-  if (!isTroopMovementEvent(event as GameEvent)) {
-    return errors;
+  if (
+    isAdventureTroopMovementEvent(troopMovementEvent) ||
+    isReturnTroopMovementEvent(troopMovementEvent)
+  ) {
+    return [];
   }
 
-  const troopMovementEvent = event as TroopMovementEvent;
+  const errors: string[] = [];
 
   const {
     targetCoordinates: { x, y },
@@ -170,31 +171,31 @@ export const validateTroopMovementLogic = (
 
       const { occupiedOases, occupiedOasisSlots } = database.selectObject({
         sql: `
-        SELECT
-          (
-            SELECT COUNT(*)
-            FROM
-              oasis
-            WHERE
-              village_id = $village_id
-            ) AS occupiedOases,
-          (
-            SELECT
-              CASE
-                WHEN bf.level >= 20 THEN 3
-                WHEN bf.level >= 15 THEN 2
-                WHEN bf.level >= 10 THEN 1
-                ELSE 0
-                END
-            FROM
-              building_fields bf
-                JOIN building_ids bi ON bi.id = bf.building_id
-            WHERE
-              bf.village_id = $village_id
-              AND bi.building = 'HEROS_MANSION'
-            LIMIT 1
-            ) AS occupiedOasisSlots;
-      `,
+          SELECT
+            (
+              SELECT COUNT(*)
+              FROM
+                oasis
+              WHERE
+                village_id = $village_id
+              ) AS occupiedOases,
+            (
+              SELECT
+                CASE
+                  WHEN bf.level >= 20 THEN 3
+                  WHEN bf.level >= 15 THEN 2
+                  WHEN bf.level >= 10 THEN 1
+                  ELSE 0
+                  END
+              FROM
+                building_fields bf
+                  JOIN building_ids bi ON bi.id = bf.building_id
+              WHERE
+                bf.village_id = $village_id
+                AND bi.building = 'HEROS_MANSION'
+              LIMIT 1
+              ) AS occupiedOasisSlots;
+        `,
         bind: {
           $village_id: villageId,
         },

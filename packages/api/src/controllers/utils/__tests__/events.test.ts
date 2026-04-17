@@ -1316,15 +1316,6 @@ describe('events utils', () => {
       expect(startTime).toBe(3400);
     });
 
-    test('adventurePointIncrease - should return startsAt + duration', async () => {
-      const database = await prepareTestDatabase();
-      const event = createGameEventMock('adventurePointIncrease', {
-        startsAt: 1000,
-        duration: 500,
-      });
-      expect(getEventStartTime(database, event)).toBe(1500);
-    });
-
     test('returnTroopMovement - should return startsAt + duration', async () => {
       const database = await prepareTestDatabase();
       const event = createGameEventMock('troopMovementReturn', {

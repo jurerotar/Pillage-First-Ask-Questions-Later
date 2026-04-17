@@ -1,4 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { type QueryKey, useQueryClient } from '@tanstack/react-query';
 import { debounce } from 'moderndash';
 import {
   createContext,
@@ -48,14 +48,11 @@ export const ApiProvider = ({
       ReturnType<typeof debounce>
     >();
 
-    const makeDebouncedInvalidator = (
-      keyId: string,
-      resolvedKey: readonly unknown[],
-    ) => {
+    const makeDebouncedInvalidator = (keyId: string, resolvedKey: QueryKey) => {
       const fn = async () => {
         try {
           await queryClient.invalidateQueries({
-            queryKey: Array.from(resolvedKey),
+            queryKey: resolvedKey,
           });
         } catch (error) {
           console.error('Failed to invalidate query', resolvedKey, error);
@@ -82,10 +79,9 @@ export const ApiProvider = ({
       for (const queryKey of cachesToClear) {
         const keyId = JSON.stringify(queryKey);
 
-        const resolvedKey = Array.isArray(queryKey) ? queryKey : [queryKey];
         const debounced =
           debouncedInvalidators.get(keyId) ??
-          makeDebouncedInvalidator(keyId, resolvedKey);
+          makeDebouncedInvalidator(keyId, queryKey);
         debounced();
       }
 

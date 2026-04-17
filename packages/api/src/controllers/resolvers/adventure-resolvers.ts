@@ -5,14 +5,15 @@ import { createEvents } from '../utils/create-event';
 export const adventurePointIncreaseResolver: Resolver<
   GameEvent<'adventurePointIncrease'>
 > = (database, args) => {
+  const { resolvesAt } = args;
+
   database.exec({
     sql: 'UPDATE hero_adventures SET available = available + 1;',
   });
 
   createEvents<'adventurePointIncrease'>(database, {
-    // Args need to be present, because next event depends on end of last
-    ...args,
-    startsAt: args.resolvesAt,
+    villageId: null,
+    startsAt: resolvesAt,
     type: 'adventurePointIncrease',
   });
 };

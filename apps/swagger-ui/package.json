@@ -25,7 +25,7 @@
     "@pillage-first/api": "*",
     "react": "19.2.5",
     "react-dom": "19.2.5",
-    "swagger-ui-react": "5.32.2"
+    "swagger-ui-react": "5.32.4"
   },
   "devDependencies": {
     "@types/react": "19.2.14",

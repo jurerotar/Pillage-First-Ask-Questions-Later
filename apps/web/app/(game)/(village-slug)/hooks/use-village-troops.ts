@@ -25,7 +25,7 @@ export const useVillageTroops = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: villageTroops } = useSuspenseQuery({
-    queryKey: [villageTroopsCacheKey, currentVillage.tileId],
+    queryKey: [villageTroopsCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await fetcher(`/villages/${currentVillage.id}/troops`);
 
@@ -38,7 +38,7 @@ export const useVillageTroops = () => {
       ({ tileId, source }) =>
         tileId === currentVillage.tileId && source === currentVillage.tileId,
     );
-  }, [villageTroops, currentVillage.tileId]);
+  }, [villageTroops, currentVillage]);
 
   const { mutate: sendTroops } = useMutation({
     mutationFn: async ({ targetCoordinates, type, troops }: SendTroopsArgs) => {
@@ -55,7 +55,7 @@ export const useVillageTroops = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [villageTroopsCacheKey, currentVillage.tileId],
+        [villageTroopsCacheKey, currentVillage.id],
         [troopMovementsCacheKey, currentVillage.id],
       ]);
     },

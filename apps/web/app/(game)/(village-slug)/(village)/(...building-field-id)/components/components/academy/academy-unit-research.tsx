@@ -20,7 +20,7 @@ import { Text } from 'app/components/text';
 export const AcademyUnitResearch = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { researchableUnits } = useUnitResearch();
+  const { researchableUnits, isUnitResearched } = useUnitResearch();
 
   return (
     <Section>
@@ -43,6 +43,8 @@ export const AcademyUnitResearch = () => {
               id,
               currentVillage,
             );
+            const isResearched = isUnitResearched(id);
+
             return (
               <li key={id}>
                 <UnitCard
@@ -50,9 +52,10 @@ export const AcademyUnitResearch = () => {
                   buildingId="BARRACKS"
                 >
                   <UnitOverview />
-                  <UnitCost />
+                  {!isResearched && <UnitCost />}
+
                   <UnitResearch />
-                  {!canResearch && <UnitRequirements />}
+                  {!isResearched && !canResearch && <UnitRequirements />}
                 </UnitCard>
               </li>
             );
