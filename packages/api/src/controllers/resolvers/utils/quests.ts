@@ -1,5 +1,6 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { Building } from '@pillage-first/types/models/building';
+import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const assessAdventureCountQuestCompletion = (
@@ -62,6 +63,40 @@ export const assessTroopCountQuestCompletion = (
     `,
     bind: {
       $completed_at: timestamp,
+      $player_id: PLAYER_ID,
+    },
+  });
+};
+
+export const assessUnitTroopCountQuestCompletion = (
+  database: DbFacade,
+  unitId: Unit['id'],
+  timestamp: number,
+): void => {
+  database.exec({
+    sql: `
+      UPDATE quests
+      SET
+        completed_at = $completed_at
+      WHERE
+        completed_at IS NULL
+        AND quest_id LIKE 'unitTroopCount-' || $unit_id || '-%'
+        AND substr(quest_id, length('unitTroopCount-' || $unit_id || '-') + 1) GLOB '[0-9]*'
+        AND (
+          SELECT COALESCE(SUM(t.amount), 0)
+          FROM troops t
+          JOIN unit_ids ui ON t.unit_id = ui.id
+          JOIN villages v ON t.tile_id = v.tile_id
+          WHERE v.player_id = $player_id
+            AND ui.unit = $unit_id
+        ) >= CAST (
+        substr(
+        quest_id
+        , length('unitTroopCount-' || $unit_id || '-') + 1) AS INTEGER);
+    `,
+    bind: {
+      $completed_at: timestamp,
+      $unit_id: unitId,
       $player_id: PLAYER_ID,
     },
   });
