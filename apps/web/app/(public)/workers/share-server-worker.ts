@@ -1,3 +1,5 @@
+import type { SAHPoolUtil, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
+
 export type ShareServerWorkerPayload = {
   serverSlug: string;
 };
@@ -5,6 +7,9 @@ export type ShareServerWorkerPayload = {
 export type ShareServerWorkerResponse =
   | { type: 'database'; databaseBuffer: ArrayBuffer }
   | { type: 'error'; message: string };
+
+let sqlite3: Sqlite3Static | null = null;
+let opfsSahPool: SAHPoolUtil | null = null;
 
 globalThis.addEventListener(
   'message',
@@ -15,9 +20,10 @@ globalThis.addEventListener(
       const { default: sqlite3InitModule } = await import(
         '@sqlite.org/sqlite-wasm'
       );
-      const sqlite3 = await sqlite3InitModule();
 
-      const opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+      sqlite3 ??= await sqlite3InitModule();
+
+      opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
         directory: `/pillage-first-ask-questions-later/${serverSlug}`,
       });
 
@@ -36,7 +42,6 @@ globalThis.addEventListener(
         } satisfies ShareServerWorkerResponse,
         [buffer],
       );
-      globalThis.close();
     } catch (error) {
       console.error('[ShareServerWorker] Export failed:', error);
       let message = 'Failed to prepare game world for sharing.';
@@ -54,6 +59,8 @@ globalThis.addEventListener(
         type: 'error',
         message,
       } satisfies ShareServerWorkerResponse);
+    } finally {
+      opfsSahPool?.pauseVfs();
       globalThis.close();
     }
   },
