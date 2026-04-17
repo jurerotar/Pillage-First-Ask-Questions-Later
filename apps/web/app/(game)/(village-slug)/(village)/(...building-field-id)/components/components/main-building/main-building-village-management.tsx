@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { DemolishBuilding } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/demolish-building';
+import { RearrangeBuildingFields } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/rearrange-building-fields.tsx';
 import { RenameVillage } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/rename-village';
 import {
   Section,
@@ -10,7 +11,11 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
-const tabs = ['rename-village', 'demolish-buildings'];
+const tabs = [
+  'rename-village',
+  'demolish-buildings',
+  'rearrange-building-fields',
+];
 
 export const MainBuildingVillageManagement = () => {
   const { t } = useTranslation();
@@ -39,12 +44,16 @@ export const MainBuildingVillageManagement = () => {
         <TabList>
           <Tab value="rename-village">{t('Rename village')}</Tab>
           <Tab value="demolish-buildings">{t('Demolish buildings')}</Tab>
+          <Tab value="rearrange-building-fields">{t('Demolish buildings')}</Tab>
         </TabList>
         <TabPanel value="rename-village">
           <RenameVillage />
         </TabPanel>
         <TabPanel value="demolish-buildings">
           <DemolishBuilding />
+        </TabPanel>
+        <TabPanel value="rearrange-building-fields">
+          <RearrangeBuildingFields />
         </TabPanel>
       </Tabs>
     </Section>
