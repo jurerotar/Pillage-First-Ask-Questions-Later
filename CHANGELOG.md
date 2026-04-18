@@ -1,3 +1,9 @@
+## Version 0.4.6
+
+#### Apr 18, 2026
+
+* [Feature] "Train `{number}` `{unit_name}`" quests may now be progressed.
+
 ## Version 0.4.5
 
 #### Apr 15, 2026
