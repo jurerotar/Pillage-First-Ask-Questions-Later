@@ -47,7 +47,7 @@ const deleteServerData = async (server: Server) => {
   if (sawLockedError) {
     toast.error("Server couldn't be deleted", {
       description:
-        'Database file was still locked by the browser. Try again in a few seconds!',
+        "The game world can only be deleted if there's no current open instance of it.",
     });
     return;
   }
@@ -113,8 +113,18 @@ export const useGameWorldActions = () => {
       URL.revokeObjectURL(exportUrl);
     },
     onError: (error) => {
+      let description = error.message;
+
+      if (
+        error.message.includes('NoModificationAllowedError') ||
+        error.message.includes('createSyncAccessHandle')
+      ) {
+        description =
+          "The game world can only be exported if there's no current open instance of it.";
+      }
+
       toast.error('Failed to export game world', {
-        description: error.message,
+        description,
       });
     },
   });
