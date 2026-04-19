@@ -1,3 +1,9 @@
+## Version 0.4.7
+
+#### Apr 19, 2026
+
+* [BugFix] Fixed an issue where queuing troops would refund resources.
+
 ## Version 0.4.6
 
 #### Apr 18, 2026
