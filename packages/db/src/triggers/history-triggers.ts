@@ -3,7 +3,7 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 export const setupHistoryTriggers = (db: DbFacade): void => {
   db.exec({
     sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_building_level_change_history_update
+      CREATE TRIGGER trg_building_level_change_history_update
       AFTER UPDATE OF level ON building_fields
       WHEN OLD.level <> NEW.level
       BEGIN
@@ -17,7 +17,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
 
   db.exec({
     sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_building_level_change_history_delete
+      CREATE TRIGGER trg_building_level_change_history_delete
       AFTER DELETE ON building_fields
       WHEN OLD.level > 0
       BEGIN
@@ -31,7 +31,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
 
   db.exec({
     sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_unit_training_history_delete
+      CREATE TRIGGER trg_unit_training_history_delete
       AFTER DELETE ON events
       WHEN OLD.type = 'troopTraining'
       BEGIN
@@ -53,7 +53,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
 
   db.exec({
     sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_unit_improvement_history_update
+      CREATE TRIGGER trg_unit_improvement_history_update
       AFTER UPDATE OF level ON unit_improvements
       WHEN OLD.level <> NEW.level
       BEGIN
@@ -67,7 +67,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
 
   db.exec({
     sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_unit_improvement_history_insert
+      CREATE TRIGGER trg_unit_improvement_history_insert
       AFTER INSERT ON unit_improvements
       BEGIN
         INSERT INTO unit_improvement_history
@@ -80,7 +80,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
 
   db.exec({
     sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_unit_research_history_insert
+      CREATE TRIGGER trg_unit_research_history_insert
       AFTER INSERT ON unit_research
       BEGIN
         INSERT INTO unit_research_history
