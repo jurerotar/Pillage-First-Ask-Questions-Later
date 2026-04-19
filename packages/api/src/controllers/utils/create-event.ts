@@ -10,6 +10,7 @@ import { subtractVillageResourcesAt } from '../../utils/village';
 import {
   getEventCost,
   getEventDuration,
+  getEventResourceSubtractionTimestamp,
   getEventStartTime,
   insertEvents,
   runEventCreationSideEffects,
@@ -55,10 +56,17 @@ export const createEvents = <T extends GameEventType>(
     }
 
     startsAt ??= getEventStartTime(database, sampleEvent);
+    const eventResourceSubtractionTimestamp =
+      getEventResourceSubtractionTimestamp(database, sampleEvent, startsAt);
 
     const { villageId } = sampleEvent;
 
-    subtractVillageResourcesAt(database, villageId!, startsAt, eventCost);
+    subtractVillageResourcesAt(
+      database,
+      villageId!,
+      eventResourceSubtractionTimestamp,
+      eventCost,
+    );
   }
 
   startsAt ??= getEventStartTime(database, sampleEvent);

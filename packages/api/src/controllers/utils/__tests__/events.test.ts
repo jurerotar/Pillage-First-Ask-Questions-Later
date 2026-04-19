@@ -31,6 +31,7 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   getEventCost,
   getEventDuration,
+  getEventResourceSubtractionTimestamp,
   getEventStartTime,
   insertEvents,
   runEventCreationSideEffects,
@@ -39,7 +40,8 @@ import {
 
 const getAnyVillageId = (database: DbFacade): number => {
   return database.selectValue({
-    sql: 'SELECT id FROM villages LIMIT 1;',
+    sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1;',
+    bind: { $player_id: PLAYER_ID },
     schema: z.number(),
   })!;
 };
@@ -1335,6 +1337,66 @@ describe('events utils', () => {
         createBuildingConstructionEventMock(),
       );
       expect(result).toBe(now);
+      vi.useRealTimers();
+    });
+  });
+
+  describe(getEventResourceSubtractionTimestamp, () => {
+    test('should return now even if the event starts in the future (repro for incorrect resource subtraction)', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      vi.useFakeTimers();
+      const now = 1_000_000;
+      vi.setSystemTime(new Date(now));
+
+      // 1. Setup village with enough resources
+      database.exec({
+        sql: `
+          UPDATE resource_sites
+          SET wood = 1000000, clay = 1000000, iron = 1000000, wheat = 1000000, updated_at = $now
+          WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+        `,
+        bind: { $village_id: villageId, $now: now },
+      });
+
+      // 2. Mock a training event that starts far in the future
+      const unitId = 'LEGIONNAIRE';
+      // We need a Barracks
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET building_id = (SELECT id FROM building_ids WHERE building = 'BARRACKS'), level = 1
+          WHERE village_id = $village_id
+        `,
+        bind: { $village_id: villageId },
+      });
+      database.exec({
+        sql: `INSERT OR IGNORE INTO unit_research (village_id, unit_id)
+              VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))`,
+        bind: { $village_id: villageId, $unit: unitId },
+      });
+
+      const futureStartsAt = now + 1_000_000;
+      const trainingEvent = createTroopTrainingEventMock({
+        villageId,
+        unitId,
+        amount: 1,
+        buildingId: 'BARRACKS',
+        startsAt: futureStartsAt, // This might be overridden by createEvents but we'll try
+      });
+
+      // Instead of relying on createEvents to pick up our startsAt (it won't),
+      // we'll directly test getEventResourceSubtractionTimestamp with a future startsAt.
+      const resultTimestamp = getEventResourceSubtractionTimestamp(
+        database,
+        trainingEvent,
+        futureStartsAt,
+      );
+
+      // It MUST return 'now', not 'futureStartsAt'
+      expect(resultTimestamp).toBe(now);
+
       vi.useRealTimers();
     });
   });

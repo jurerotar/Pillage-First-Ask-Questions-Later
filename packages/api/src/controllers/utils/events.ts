@@ -898,6 +898,14 @@ export const getEventDuration = (
   );
 };
 
+export const getEventResourceSubtractionTimestamp = (
+  _database: DbFacade,
+  _event: GameEvent,
+  _startsAt: number,
+) => {
+  return Date.now();
+};
+
 // WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
 export const getEventStartTime = (
   database: DbFacade,
