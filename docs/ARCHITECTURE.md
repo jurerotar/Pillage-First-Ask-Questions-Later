@@ -29,10 +29,84 @@ The app consists of 3 separate logic layers:
 This project uses [SQLite WASM](https://github.com/sqlite/sqlite-wasm) as data storage provider. Each game world has its
 own database. Database is created and seeded on game world creation and fully deleted on game world deletion.
 
-All table schemas are defined with `STRICT` mode. Most indexes are defined right by the corresponding schema, but some
-indexes are defined separately and are executed after seeding to improve seeding performance. We use handwritten (no
-ORM) SQL queries. Reason for this is that due to us having no control over which device this app is being run on, we
-have to limit any unnecessary wrappers.
+#### Table schemas
+
+All table schemas are defined in SQL files with `STRICT` mode enabled. This ensures that SQLite enforces data types for
+all columns, providing better data integrity. Schemas often include foreign key constraints to maintain relational
+integrity.
+
+Example schema (`villages-schema.sql`):
+
+```sql
+CREATE TABLE villages
+(
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT,
+  tile_id INTEGER NOT NULL,
+  player_id INTEGER NOT NULL,
+
+  UNIQUE (tile_id),
+
+  FOREIGN KEY (tile_id) REFERENCES tiles (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  FOREIGN KEY (player_id) REFERENCES players (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) STRICT;
+```
+
+#### Seeders
+
+Seeders are responsible for populating the database with initial data when a game world is created. This includes
+loading static data (like building and unit statistics) and generating dynamic world data (like the map grid, oases, and
+starting player information).
+
+Seeders use the `database` facade to execute `INSERT` statements, often in batches (using `batchInsert` utility) for
+better performance when dealing with large amounts of data like map tiles.
+
+Example seeder (`server-seeder.ts`):
+
+```ts
+export const serverSeeder = (database: DbFacade, server: Server): void => {
+  const { id, version, name, slug, createdAt, seed, configuration, playerConfiguration } = server;
+  const { speed, mapSize } = configuration;
+  const { name: playerName, tribe } = playerConfiguration;
+
+  database.exec({
+    sql: `
+      INSERT INTO
+        servers
+      (id, version, name, slug, created_at, seed, speed, map_size, player_name, player_tribe)
+      VALUES
+        ($id, $version, $name, $slug, $created_at, $seed, $speed, $map_size, $player_name, $player_tribe);
+    `,
+    bind: {
+      $id: id,
+      $version: version,
+      $name: name,
+      $slug: slug,
+      $created_at: createdAt,
+      $seed: seed,
+      $speed: speed,
+      $map_size: mapSize,
+      $player_name: playerName,
+      $player_tribe: tribe,
+    },
+  });
+};
+```
+
+#### Post-seeding indexes
+
+While most indexes are defined directly within the schema files, some indexes are defined in separate SQL files and are
+executed only *after* seeding is complete. This is done to improve seeding performance; inserting thousands of rows into
+a table that already has multiple indexes is significantly slower than inserting them into a table without indexes and
+creating the indexes afterwards.
+
+We use handwritten (no ORM) SQL queries. Reason for this is that due to us having no control over which device this app
+is being run on, we have to limit any unnecessary wrappers.
 
 ### API worker
 
@@ -42,6 +116,32 @@ It only exists in the offline version of the application, and it's meant to less
 offline-first and online app.
 During runtime, API worker listens to worker messages sent by the frontend, parses out the `pathname` and `method`,
 invokes a `controller` and then returns a response using `worker.postMessage`.
+
+#### Controllers
+
+Controllers are the core logic handlers for API requests. Each controller is responsible for a specific endpoint or a
+group of related endpoints. They interact with the database, perform business logic, and return data that follows a
+predefined schema.
+
+Controllers are created using the `createController` utility, which provides access to the `database` facade and other
+utilities.
+
+Example controller (`server-controllers.ts`):
+
+```ts
+export const getServer = createController('/server')(({ database }) => {
+  return database.selectObject({
+    sql: `
+      SELECT
+        id, version, name, slug, created_at, seed, speed, map_size, player_name, player_tribe
+      FROM
+        servers;
+    `,
+    schema: serverDbSchema,
+  })!;
+});
+```
+
 API worker defines a set of "endpoints", which look like this:
 
 ```ts
