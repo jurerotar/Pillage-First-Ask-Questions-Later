@@ -6,6 +6,7 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { triggerKick } from '../../scheduler/scheduler-signal';
+import { getEffectiveNow } from '../../utils/game-time';
 import { subtractVillageResourcesAt } from '../../utils/village';
 import {
   getEventCost,
@@ -73,7 +74,7 @@ export const createEvents = <T extends GameEventType>(
 
   const earliestEvent = events.at(0)!;
 
-  const now = Date.now();
+  const now = getEffectiveNow(database);
   const newResolvesAt = events.map((e) => e.startsAt + e.duration);
   const earliestNewResolvesAt = earliestEvent.startsAt + earliestEvent.duration;
 

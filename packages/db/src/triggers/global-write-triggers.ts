@@ -14,7 +14,9 @@ export const setupGlobalWriteTriggers = (db: DbFacade): void => {
     // We update the 'meta' table with the current Unix timestamp on every write
     const triggerLogic = `
       BEGIN
-        UPDATE meta SET last_write = unixepoch();
+        UPDATE meta
+        SET
+          last_write = CAST(unixepoch('subsec') * 1000 AS INTEGER);
       END;
     `;
 

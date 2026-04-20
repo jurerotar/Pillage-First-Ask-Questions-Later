@@ -17,11 +17,12 @@ export const preferencesSeeder = (database: DbFacade): void => {
                      is_automatic_navigation_after_unit_research_enabled,
                      is_automatic_navigation_after_unit_upgrade_enabled,
                      is_automatic_navigation_after_send_units_enabled, is_developer_tools_console_enabled,
+                     should_show_time_skip_button,
                      should_show_notifications_on_building_upgrade_completion,
                      should_show_notifications_on_unit_upgrade_completion,
                      should_show_notifications_on_academy_research_completion)
       VALUES
-        ($player_id, 0, 0, 1, 'detailed', ${falseInDev}, ${falseInDev}, ${falseInDev}, ${falseInDev}, ${trueInDev}, 0, 0, 0)
+        ($player_id, 0, 0, 1, 'detailed', ${falseInDev}, ${falseInDev}, ${falseInDev}, ${falseInDev}, ${trueInDev}, 1, 0, 0, 0)
     `,
     bind: {
       $player_id: PLAYER_ID,

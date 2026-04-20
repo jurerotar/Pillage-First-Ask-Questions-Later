@@ -74,27 +74,32 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
 > = async ({ reactRouterConfig }) => {
   const clientDir = resolve('build/client');
 
-  for await (const svgSpriteFile of glob(
-    './build/client/react-icons-sprite-*.svg',
-  )) {
-    const svgSpriteName = svgSpriteFile.replace(/build[/\\]client[/\\]?/, '/');
+  const [svgSpriteFile] = await Array.fromAsync(
+    glob('./build/client/react-icons-sprite-*.svg'),
+  );
 
-    const preRenderedFileUrls =
-      // @ts-expect-error: This type is dumb af
-      (reactRouterConfig.prerender!.paths as string[]).map((path) => {
-        return resolve(clientDir, `.${path}`, 'index.html');
-      });
+  const svgSpriteName = svgSpriteFile.replace(/build[/\\]client[/\\]?/, '/');
 
-    await Promise.all(
-      preRenderedFileUrls.map(async (filePath) => {
-        const content = await readFile(filePath, 'utf8');
-        const updatedContent = content.replaceAll(
-          REACT_ICONS_SPRITE_URL_PLACEHOLDER,
-          svgSpriteName,
-        );
+  const preRenderedFileUrls =
+    // @ts-expect-error: This type is dumb af
+    (reactRouterConfig.prerender!.paths as string[]).map((path) => {
+      return resolve(clientDir, `.${path}`, 'index.html');
+    });
 
-        await writeFile(filePath, updatedContent, 'utf8');
-      }),
-    );
-  }
+  await Promise.all(
+    preRenderedFileUrls.map(async (filePath) => {
+      const content = await readFile(filePath, 'utf8');
+
+      if (!content.includes(REACT_ICONS_SPRITE_URL_PLACEHOLDER)) {
+        return;
+      }
+
+      const updatedContent = content.replaceAll(
+        REACT_ICONS_SPRITE_URL_PLACEHOLDER,
+        svgSpriteName,
+      );
+
+      await writeFile(filePath, updatedContent, 'utf8');
+    }),
+  );
 };

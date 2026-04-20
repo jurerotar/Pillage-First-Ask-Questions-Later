@@ -1,5 +1,7 @@
+import { useMutation } from '@tanstack/react-query';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import type {
   BuildingConstructionViewMode,
   SkinVariant,
@@ -11,6 +13,8 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { ApiContext } from 'app/(game)/providers/api-provider';
+import { closeGameWorld } from 'app/(game)/utils/close-game-world';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
@@ -37,6 +41,21 @@ export const GeneralPreferences = () => {
   const { t, i18n } = useTranslation();
   const { updatePreference, preferences } = usePreferences();
   const { locale, skinVariant, uiColorScheme, timeOfDay } = use(CookieContext);
+  const { apiWorker, fetcher } = use(ApiContext);
+  const navigate = useNavigate();
+
+  const { mutate: enableVacationMode, isPending: isEnablingVacationMode } =
+    useMutation({
+      mutationFn: async () => {
+        await fetcher('/events/vacation', {
+          method: 'POST',
+        });
+      },
+      onSuccess: () => {
+        closeGameWorld(apiWorker);
+        navigate('/game-worlds');
+      },
+    });
 
   return (
     <Section>
@@ -73,7 +92,14 @@ export const GeneralPreferences = () => {
             </span>
           </Text>
           <div className="flex flex-1 justify-end items-center">
-            <Button disabled>{t('Enable vacation mode')}</Button>
+            <Button
+              disabled={isEnablingVacationMode}
+              onClick={() => {
+                enableVacationMode();
+              }}
+            >
+              {t('Enable vacation mode')}
+            </Button>
           </div>
         </div>
       </SectionContent>
@@ -322,6 +348,24 @@ export const GeneralPreferences = () => {
               checked={
                 preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled
               }
+            />
+          </div>
+        </div>
+        <Separator orientation="horizontal" />
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col">
+            <span className="font-medium">{t('Time skip')}</span>
+            <span>{t('Enable the time skip functionality.')}</span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <Switch
+              onCheckedChange={() =>
+                updatePreference({
+                  preferenceName: 'shouldShowTimeSkipButton',
+                  value: !preferences.shouldShowTimeSkipButton,
+                })
+              }
+              checked={preferences.shouldShowTimeSkipButton}
             />
           </div>
         </div>

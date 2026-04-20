@@ -17,6 +17,7 @@ export const getPreferences = createController(
         is_automatic_navigation_after_unit_upgrade_enabled,
         is_automatic_navigation_after_send_units_enabled,
         is_developer_tools_console_enabled,
+        should_show_time_skip_button,
         should_show_notifications_on_building_upgrade_completion,
         should_show_notifications_on_unit_upgrade_completion,
         should_show_notifications_on_academy_research_completion

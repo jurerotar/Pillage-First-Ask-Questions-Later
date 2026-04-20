@@ -16,6 +16,7 @@ CREATE TABLE preferences
   is_automatic_navigation_after_unit_upgrade_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_unit_upgrade_enabled IN (0,1)),
   is_automatic_navigation_after_send_units_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_send_units_enabled IN (0,1)),
   is_developer_tools_console_enabled INTEGER NOT NULL CHECK (is_developer_tools_console_enabled IN (0,1)),
+  should_show_time_skip_button INTEGER NOT NULL CHECK (should_show_time_skip_button IN (0,1)),
 
   -- Notifications
   should_show_notifications_on_building_upgrade_completion INTEGER NOT NULL CHECK (should_show_notifications_on_building_upgrade_completion IN (0,1)),

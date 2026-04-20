@@ -27,6 +27,7 @@ export const preferencesSchema = z
     isAutomaticNavigationAfterUnitUpgradeEnabled: z.boolean(),
     isAutomaticNavigationAfterSendUnitsEnabled: z.boolean(),
     isDeveloperToolsConsoleEnabled: z.boolean(),
+    shouldShowTimeSkipButton: z.boolean(),
     shouldShowNotificationsOnBuildingUpgradeCompletion: z.boolean(),
     shouldShowNotificationsOnUnitUpgradeCompletion: z.boolean(),
     shouldShowNotificationsOnAcademyResearchCompletion: z.boolean(),

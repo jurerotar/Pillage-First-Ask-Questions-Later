@@ -88,6 +88,25 @@ describe('scheduler', () => {
     expect(mockDataSource.getPastEventIds).toHaveBeenCalledTimes(2);
   });
 
+  test('scheduleNextEvent uses resolvesAt as computed wall-clock fire time', () => {
+    using context = setupSchedulerTest();
+    const { mockDataSource } = context;
+
+    vi.clearAllMocks();
+    mockDataSource.getPastEventIds.mockReturnValue([]);
+    mockDataSource.getNextEvent
+      .mockReturnValueOnce({ id: 9, resolvesAt: 2_000 })
+      .mockReturnValue(null);
+
+    scheduleNextEvent(mockDataSource);
+
+    vi.advanceTimersByTime(999);
+    expect(mockDataSource.resolveEvent).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(9);
+  });
+
   test('kickSchedulerNow clears existing timeout and rescans', () => {
     using context = setupSchedulerTest();
     const { mockDataSource } = context;
