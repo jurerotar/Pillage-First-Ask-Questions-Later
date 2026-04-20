@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { getBuildingDataForLevel } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
-import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
 import { useHasAvailableBuildingQueueSlot } from 'app/(game)/(village-slug)/hooks/current-village/use-has-available-building-queue-slot';
 import { useHasEnoughFreeCrop } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-free-crop';
@@ -17,7 +16,6 @@ type UseBuildingRequirementsReturn = {
 export const useBuildingConstructionErrorBag = (
   buildingId: Building['id'],
   level: number,
-  buildingFieldId: BuildingField['id'],
 ): UseBuildingRequirementsReturn => {
   const { developerSettings } = useDeveloperSettings();
   const { errorBag: hasEnoughFreeCropErrorBag } = useHasEnoughFreeCrop(
@@ -34,7 +32,7 @@ export const useBuildingConstructionErrorBag = (
   const { errorBag: hasEnoughGranaryCapacityErrorBag } =
     useHasEnoughStorageCapacity('granaryCapacity', nextLevelResourceCost);
   const { errorBag: hasHasAvailableBuildingQueueSlotErrorBag } =
-    useHasAvailableBuildingQueueSlot(buildingFieldId);
+    useHasAvailableBuildingQueueSlot();
 
   const {
     isFreeBuildingConstructionEnabled,

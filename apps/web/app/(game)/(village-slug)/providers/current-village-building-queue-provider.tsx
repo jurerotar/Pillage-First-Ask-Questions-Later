@@ -55,14 +55,14 @@ export const CurrentVillageBuildingQueueContextProvider = ({
       buildingFieldId: BuildingField['id'],
     ): (BuildingEvent | ScheduledBuildingUpgrade)[] => {
       if (tribe !== 'romans') {
-        return currentVillageBuildingEvents;
+        return buildingEvents;
       }
 
       return buildingFieldId <= 18
         ? buildingEventQueues.resourceQueue
         : buildingEventQueues.villageQueue;
     },
-    [tribe, currentVillageBuildingEvents, buildingEventQueues],
+    [tribe, buildingEvents, buildingEventQueues],
   );
 
   const value = useMemo(
