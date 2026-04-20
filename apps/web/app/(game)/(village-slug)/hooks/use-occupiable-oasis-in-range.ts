@@ -25,15 +25,15 @@ const getOccupiableOasisInRangeSchema = z.strictObject({
     ),
   }),
   village: z
-    .object({
+    .strictObject({
       id: z.number(),
       coordinates: coordinatesSchema,
       name: z.string(),
-      slug: z.string(),
+      slug: z.string().nullable(),
     })
     .nullable(),
   player: z
-    .object({
+    .strictObject({
       id: z.number(),
       name: z.string(),
       slug: z.string(),
@@ -66,8 +66,8 @@ export const useOccupiableOasisInRange = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [occupiableOasisInRangeCacheKey],
-        [effectsCacheKey],
+        [occupiableOasisInRangeCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.id],
       ]);
     },
   });
@@ -80,8 +80,8 @@ export const useOccupiableOasisInRange = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [occupiableOasisInRangeCacheKey],
-        [effectsCacheKey],
+        [occupiableOasisInRangeCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.id],
       ]);
     },
   });

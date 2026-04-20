@@ -1211,7 +1211,7 @@ describe('migrateAndSeed', () => {
     test('heroHealthRegeneration event exists on seed', () => {
       const event = database.selectObject({
         sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
-        schema: z.object({ type: z.string() }),
+        schema: z.strictObject({ type: z.string() }),
       });
       expect(event).toBeDefined();
       expect(event?.type).toBe('heroHealthRegeneration');

@@ -189,15 +189,13 @@ describe(loyaltyIncreaseResolver, () => {
       }),
     );
 
-    const nextEvent = database.selectObject({
-      sql: "SELECT * FROM events WHERE type = 'loyaltyIncrease'",
-      schema: z.object({
+    const { starts_at } = database.selectObject({
+      sql: "SELECT starts_at FROM events WHERE type = 'loyaltyIncrease'",
+      schema: z.strictObject({
         starts_at: z.number(),
-        type: z.string(),
       }),
-    });
+    })!;
 
-    expect(nextEvent).toBeDefined();
-    expect(nextEvent?.starts_at).toBe(resolvesAt);
+    expect(starts_at).toBe(resolvesAt);
   });
 });

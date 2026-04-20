@@ -1,3 +1,9 @@
+## Version 0.4.8
+
+#### Apr 20, 2026
+
+* [BugFix] Fixed a Zod type issue occurring on Hero's Mansion page when NPC players are occupying an oasis in your vicinity.
+
 ## Version 0.4.7
 
 #### Apr 19, 2026

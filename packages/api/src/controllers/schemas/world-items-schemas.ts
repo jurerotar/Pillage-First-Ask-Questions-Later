@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,
@@ -31,10 +32,7 @@ export const getArtifactsAroundVillageSchema = z
   .pipe(
     z.strictObject({
       id: z.number(),
-      coordinates: z.strictObject({
-        x: z.number(),
-        y: z.number(),
-      }),
+      coordinates: coordinatesSchema,
       distance: z.number(),
     }),
   )

@@ -5,6 +5,7 @@ import type {
   HeroResourceToProduce,
 } from '@pillage-first/types/models/hero';
 import { heroSchema } from '@pillage-first/types/models/hero';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import {
   currentVillageCacheKey,
   effectsCacheKey,
@@ -15,6 +16,7 @@ import { invalidateQueries } from 'app/utils/react-query';
 
 export const useHero = () => {
   const { fetcher } = use(ApiContext);
+  const { currentVillage } = useCurrentVillage();
 
   const { data: hero } = useSuspenseQuery({
     queryKey: [heroCacheKey],
@@ -43,8 +45,8 @@ export const useHero = () => {
     onSuccess: async (_, _args, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [effectsCacheKey],
-        [currentVillageCacheKey],
+        [effectsCacheKey, currentVillage.id],
+        [currentVillageCacheKey, currentVillage.slug],
       ]);
     },
   });
@@ -63,8 +65,8 @@ export const useHero = () => {
     onSuccess: async (_, _args, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [effectsCacheKey],
-        [currentVillageCacheKey],
+        [effectsCacheKey, currentVillage.id],
+        [currentVillageCacheKey, currentVillage.slug],
       ]);
     },
   });

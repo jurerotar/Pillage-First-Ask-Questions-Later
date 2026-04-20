@@ -57,7 +57,7 @@ export const cachesToClearOnResolve: Handlers = {
   },
   troopMovementReinforcements: ({ villageId }) => {
     return [
-      [villageTroopsCacheKey],
+      [villageTroopsCacheKey, villageId],
       [effectsCacheKey, villageId],
       [currentVillageCacheKey],
       [troopMovementsCacheKey, villageId],
@@ -117,9 +117,9 @@ export const cachesToClearOnResolve: Handlers = {
       [heroCacheKey],
       [adventurePointsCacheKey],
       [heroInventoryCacheKey],
-      [questsCacheKey],
+      [questsCacheKey, villageId],
       [effectsCacheKey, villageId],
-      [troopMovementsCacheKey],
+      [troopMovementsCacheKey, villageId],
     ];
   },
   unitResearch: ({ villageId }) => {
@@ -142,7 +142,7 @@ export const cachesToClearOnResolve: Handlers = {
   heroHealthRegeneration: () => {
     return [[heroCacheKey]];
   },
-  loyaltyIncrease: () => {
-    return [[loyaltyCacheKey]];
+  loyaltyIncrease: ({ villageId }) => {
+    return [[loyaltyCacheKey, villageId]];
   },
 };

@@ -156,7 +156,7 @@ export const validateTroopMovementLogic = (
           AND t.y = $y;
       `,
       bind: { $x: x, $y: y, $village_id: villageId },
-      schema: z.object({
+      schema: z.strictObject({
         is_oasis: z.coerce.boolean(),
         is_occupied_by_you: z.coerce.boolean(),
       }),
@@ -236,7 +236,7 @@ export const validateTroopMovementLogic = (
           AND t.y = $y;
       `,
       bind: { $x: x, $y: y, $player_id: PLAYER_ID },
-      schema: z.object({
+      schema: z.strictObject({
         id: z.number().nullable(),
         is_player_village: z.coerce.boolean().nullable(),
       }),
