@@ -876,7 +876,7 @@ export const getEventDuration = (
     const { healthRegeneration, speed } = database.selectObject({
       sql: 'SELECT health_regeneration AS healthRegeneration, servers.speed FROM heroes JOIN servers ON 1 = 1 WHERE player_id = $player_id;',
       bind: { $player_id: PLAYER_ID },
-      schema: z.object({
+      schema: z.strictObject({
         healthRegeneration: z.number(),
         speed: speedSchema,
       }),
@@ -896,6 +896,14 @@ export const getEventDuration = (
   throw new Error(
     `Missing duration calculation for event type "${event.type}"`,
   );
+};
+
+export const getEventResourceSubtractionTimestamp = (
+  _database: DbFacade,
+  _event: GameEvent,
+  _startsAt: number,
+) => {
+  return Date.now();
 };
 
 // WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!

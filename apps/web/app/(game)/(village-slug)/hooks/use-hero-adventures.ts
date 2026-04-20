@@ -4,7 +4,6 @@ import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventure
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import {
   adventurePointsCacheKey,
-  eventsCacheKey,
   heroCacheKey,
   troopMovementsCacheKey,
   villageTroopsCacheKey,
@@ -36,8 +35,6 @@ export const useHeroAdventures = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [adventurePointsCacheKey],
-        [eventsCacheKey],
         [villageTroopsCacheKey, currentVillage.id],
         [troopMovementsCacheKey, currentVillage.id],
       ]);

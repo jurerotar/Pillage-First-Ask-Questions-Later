@@ -81,7 +81,7 @@ describe('hero-resolvers', () => {
     // 5. Verify next event scheduled
     const nextEvent = database.selectObject({
       sql: "SELECT type, starts_at AS startsAt FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
-      schema: z.object({ type: z.string(), startsAt: z.number() }),
+      schema: z.strictObject({ type: z.string(), startsAt: z.number() }),
     });
     expect(nextEvent).toBeDefined();
     expect(nextEvent?.type).toBe('heroHealthRegeneration');
@@ -117,7 +117,7 @@ describe('hero-resolvers', () => {
     // 5. Verify next event scheduled
     const nextEvent = database.selectObject({
       sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
-      schema: z.object({ type: z.string() }),
+      schema: z.strictObject({ type: z.string() }),
     });
     expect(nextEvent).toBeDefined();
     expect(nextEvent?.type).toBe('heroHealthRegeneration');

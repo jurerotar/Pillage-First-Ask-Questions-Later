@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react';
 import { FaDiscord, FaUsers } from 'react-icons/fa6';
+import { useDiscordMembers } from 'app/(public)/hooks/use-discord-members.ts';
 import { Button } from 'app/components/ui/button';
-import { useDiscordMembers } from 'app/hooks/use-discord-members';
 
 type DiscordButtonProps = {
   showMemberCount?: boolean;

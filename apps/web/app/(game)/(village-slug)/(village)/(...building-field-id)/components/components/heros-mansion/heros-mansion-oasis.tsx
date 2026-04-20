@@ -9,6 +9,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { useMe } from 'app/(game)/(village-slug)/hooks/use-me.ts';
 import { useOccupiableOasisInRange } from 'app/(game)/(village-slug)/hooks/use-occupiable-oasis-in-range';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
@@ -122,6 +123,7 @@ const OccupiableOasisSlotActions = ({
   const { oasis, player } = occupiableOasis;
 
   const { t } = useTranslation();
+  const { player: me } = useMe();
   const { occupyOasis } = useOccupiableOasisInRange();
   const { villageTroops } = useVillageTroops();
   const { currentVillage } = useCurrentVillage();
@@ -135,7 +137,7 @@ const OccupiableOasisSlotActions = ({
     );
   }, [villageTroops, currentVillage.tileId]);
 
-  const isOccupiedByPlayer = player !== null && player.id === 0;
+  const isOccupiedByPlayer = player !== null && player.id === me.id;
 
   if (isOccupiedByPlayer) {
     return <Text>{t('You already occupy this oasis')}</Text>;
