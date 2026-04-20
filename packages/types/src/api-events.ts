@@ -6,7 +6,8 @@ type EventKey =
   | 'event:scheduler-start-success'
   | 'event:scheduler-start-error'
   | 'event:success'
-  | 'event:error';
+  | 'event:error'
+  | 'event:created';
 
 export type ApiNotificationEvent = {
   eventKey: EventKey;

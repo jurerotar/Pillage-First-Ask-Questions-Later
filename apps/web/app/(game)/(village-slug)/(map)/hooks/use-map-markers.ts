@@ -3,7 +3,7 @@ import { use } from 'react';
 import type { MapMarker } from '@pillage-first/types/models/map-marker';
 import { mapMarkersCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { invalidateQueries } from 'app/utils/react-query.ts';
+import { invalidateQueries } from 'app/utils/react-query';
 
 export const useMapMarkers = () => {
   const { fetcher } = use(ApiContext);

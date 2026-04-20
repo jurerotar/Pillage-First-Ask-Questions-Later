@@ -3,7 +3,7 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(repor
 import { ArchivedReports } from 'app/(game)/(village-slug)/(reports)/components/archived-reports';
 import { CurrentVillageReports } from 'app/(game)/(village-slug)/(reports)/components/current-village-reports';
 import { Reports } from 'app/(game)/(village-slug)/(reports)/components/reports';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param.ts';
+import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,

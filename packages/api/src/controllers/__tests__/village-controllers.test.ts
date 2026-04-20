@@ -25,7 +25,7 @@ describe('village-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('getOccupiableOasisInRange should return occupiable oasis in range', async () => {
@@ -43,7 +43,7 @@ describe('village-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   describe(rearrangeBuildingFields, () => {

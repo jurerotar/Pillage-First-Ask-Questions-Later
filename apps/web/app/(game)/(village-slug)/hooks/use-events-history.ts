@@ -9,7 +9,8 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const getEventsHistorySchema = z.discriminatedUnion('type', [
   z.strictObject({
-    id: z.number(),
+    id: z.string(),
+    villageId: z.number(),
     type: z.literal('construction'),
     timestamp: z.number(),
     data: z.preprocess(
@@ -23,7 +24,8 @@ export const getEventsHistorySchema = z.discriminatedUnion('type', [
     ),
   }),
   z.strictObject({
-    id: z.number(),
+    id: z.string(),
+    villageId: z.number(),
     type: z.literal('training'),
     timestamp: z.number(),
     data: z.preprocess(
@@ -37,7 +39,8 @@ export const getEventsHistorySchema = z.discriminatedUnion('type', [
     ),
   }),
   z.strictObject({
-    id: z.number(),
+    id: z.string(),
+    villageId: z.number(),
     type: z.literal('improvement'),
     timestamp: z.number(),
     data: z.preprocess(
@@ -50,13 +53,28 @@ export const getEventsHistorySchema = z.discriminatedUnion('type', [
     ),
   }),
   z.strictObject({
-    id: z.number(),
+    id: z.string(),
+    villageId: z.number(),
     type: z.literal('research'),
     timestamp: z.number(),
     data: z.preprocess(
       (val) => (typeof val === 'string' ? JSON.parse(val) : val),
       z.strictObject({
         unit: unitIdSchema,
+      }),
+    ),
+  }),
+  z.strictObject({
+    id: z.string(),
+    villageId: z.number(),
+    type: z.literal('founding'),
+    timestamp: z.number(),
+    data: z.preprocess(
+      (val) => (typeof val === 'string' ? JSON.parse(val) : val),
+      z.strictObject({
+        tileId: z.number(),
+        x: z.number(),
+        y: z.number(),
       }),
     ),
   }),

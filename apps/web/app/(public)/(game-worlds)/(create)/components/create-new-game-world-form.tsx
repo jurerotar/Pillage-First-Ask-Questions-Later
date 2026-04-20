@@ -38,8 +38,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from 'app/components/ui/select.tsx';
-import { Switch } from 'app/components/ui/switch.tsx';
+} from 'app/components/ui/select';
+import { Switch } from 'app/components/ui/switch';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),

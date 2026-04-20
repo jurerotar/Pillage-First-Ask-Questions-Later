@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { env } from '@pillage-first/utils/env';
-import { SqlitePrefetchLink } from 'app/components/sqlite-prefetch-link.tsx';
+import { SqlitePrefetchLink } from 'app/components/sqlite-prefetch-link';
 
 export const HeadLinks = () => {
   const { i18n } = useTranslation();

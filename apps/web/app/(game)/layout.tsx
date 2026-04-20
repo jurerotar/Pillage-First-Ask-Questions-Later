@@ -18,13 +18,13 @@ import { ApiWorkerBootstrap } from 'app/(game)/components/api-worker-bootstrap.t
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
-import { HeadLinks } from 'app/components/head-links.tsx';
+import { HeadLinks } from 'app/components/head-links';
 import { Spinner } from 'app/components/ui/spinner';
 import { Toaster } from 'app/components/ui/toaster';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
 
-export { ErrorBoundary } from 'app/(game)/error-boundary.tsx';
+export { ErrorBoundary } from 'app/(game)/error-boundary';
 
 export const clientLoader = async ({
   context,

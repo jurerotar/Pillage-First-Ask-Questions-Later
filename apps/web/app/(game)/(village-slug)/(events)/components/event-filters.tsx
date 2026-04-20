@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { FaBookBookmark } from 'react-icons/fa6';
-import { LuAnvil, LuConstruction } from 'react-icons/lu';
+import { LuAnvil, LuConstruction, LuFlag } from 'react-icons/lu';
 import { TbTargetArrow } from 'react-icons/tb';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import type { HistoryEvent } from 'app/(game)/(village-slug)/hooks/use-events-history';
@@ -52,6 +52,13 @@ export const EventFilters = ({ eventFilters, onChange }: EventFiltersProps) => {
           value="research"
         >
           <FaBookBookmark className="size-4" />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
+          data-tooltip-content={t('Toggle founding events')}
+          value="founding"
+        >
+          <LuFlag className="size-4" />
         </ToggleGroupItem>
       </ToggleGroup>
     </SectionContent>

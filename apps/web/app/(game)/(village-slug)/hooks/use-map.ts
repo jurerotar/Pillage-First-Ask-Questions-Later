@@ -9,6 +9,7 @@ import {
   encodeGraphicsProperty,
   tileIdToCoordinates,
 } from '@pillage-first/utils/map';
+import { tilesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useServer } from './use-server';
 
@@ -16,7 +17,7 @@ const useTiles = () => {
   const { fetcher } = use(ApiContext);
 
   const { data: tiles } = useSuspenseQuery({
-    queryKey: ['tiles'],
+    queryKey: [tilesCacheKey],
     queryFn: async () => {
       // TODO: This query is *really* heavy.
       // What we should do is remove all the non-static parts (world items, troop movements,...) so that this query can be permanently cached.

@@ -22,6 +22,6 @@ describe('oasis-bonus-finder-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });

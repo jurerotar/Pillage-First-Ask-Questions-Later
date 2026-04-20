@@ -22,7 +22,7 @@ describe('bookmark-controllers', () => {
     for (const buildingId of buildingIds) {
       expect(result).toHaveProperty(buildingId);
     }
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('updateBookmark should update the bookmark correctly', async () => {

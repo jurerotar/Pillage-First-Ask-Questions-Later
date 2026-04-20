@@ -34,3 +34,5 @@ export const gameWorldOverviewStatisticsCacheKey =
 export const isVacationModeEnabledCacheKey = 'is-vacation-mode-enabled';
 export const appTimeCacheKey = 'cache-key';
 export const farmListsCacheKey = 'farm-lists';
+export const tilesCacheKey = 'tiles';
+export const troopMovementsCacheKey = 'troop-movements';

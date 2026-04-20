@@ -84,6 +84,7 @@ export const getEventsHistory = createController(
     queries.push(`
       SELECT
         'construction-' || id as id,
+        village_id as villageId,
         'construction' as type,
         timestamp,
         json_object(
@@ -101,6 +102,7 @@ export const getEventsHistory = createController(
     queries.push(`
       SELECT
         'training-' || id as id,
+        village_id as villageId,
         'training' as type,
         timestamp,
         json_object(
@@ -118,6 +120,7 @@ export const getEventsHistory = createController(
     queries.push(`
       SELECT
         'improvement-' || id as id,
+        (SELECT id FROM villages WHERE player_id = unit_improvement_history.player_id LIMIT 1) as villageId,
         'improvement' as type,
         timestamp,
         json_object(
@@ -134,12 +137,30 @@ export const getEventsHistory = createController(
     queries.push(`
       SELECT
         'research-' || id as id,
+        village_id as villageId,
         'research' as type,
         timestamp,
         json_object(
           'unit', (SELECT unit FROM unit_ids WHERE id = unit_id)
         ) as data
       FROM unit_research_history
+      ${villageFilter}
+    `);
+  }
+
+  if (types.length === 0 || types.includes('founding')) {
+    queries.push(`
+      SELECT
+        'founding-' || id as id,
+        village_id as villageId,
+        'founding' as type,
+        timestamp,
+        json_object(
+          'tileId', tile_id,
+          'x', x,
+          'y', y
+        ) as data
+      FROM village_founding_history
       ${villageFilter}
     `);
   }

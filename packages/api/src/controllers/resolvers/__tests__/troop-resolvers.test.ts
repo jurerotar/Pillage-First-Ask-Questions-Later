@@ -62,7 +62,7 @@ describe(troopTrainingEventResolver, () => {
       schema: z.strictObject({ completed_at: z.number().nullable() }),
     });
     // It should NOT be completed yet as we only trained 1 troop (and total is < 10)
-    expect(quest?.completed_at).toBeNull();
+    expect(quest?.completed_at).toBe(null);
 
     // Now train enough to complete the quest
     for (let i = 0; i < 9; i += 1) {

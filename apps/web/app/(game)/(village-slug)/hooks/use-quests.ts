@@ -10,7 +10,7 @@ import {
   questsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { invalidateQueries } from 'app/utils/react-query.ts';
+import { invalidateQueries } from 'app/utils/react-query';
 
 export const useQuests = () => {
   const { fetcher } = use(ApiContext);

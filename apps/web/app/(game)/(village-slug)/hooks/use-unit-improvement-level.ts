@@ -1,5 +1,5 @@
 import type { Unit } from '@pillage-first/types/models/unit';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type.ts';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useUnitImprovement } from 'app/(game)/(village-slug)/hooks/use-unit-improvement';
 
 export const useUnitImprovementLevel = (unitId: Unit['id']) => {

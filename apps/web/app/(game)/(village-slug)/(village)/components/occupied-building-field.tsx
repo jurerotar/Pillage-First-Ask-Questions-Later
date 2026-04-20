@@ -14,7 +14,7 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
-import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag.ts';
+import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import {
   BuildingUpgradeStatusContext,

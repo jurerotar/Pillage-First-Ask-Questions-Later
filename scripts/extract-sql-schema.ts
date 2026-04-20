@@ -3,16 +3,16 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { pathToFileURL } from 'node:url';
 
-const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
+const EXPORT_PATH = join('apps', 'erd', 'sql-schema');
 // SQLite file
-const DB_EXPORT_PATH = join(EXPORT_PATH, 'schema.sqlite');
+const DB_EXPORT_PATH = join(EXPORT_PATH, 'db.sqlite3');
 // Text export(s)
 const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
 
 const footer = (): string => ['', 'COMMIT;', ''].join('\n');
 
 const ensureSemicolon = (stmt: string | null): string =>
-  (stmt ?? '').trim().replace(/;?\s*$/u, ';');
+  (stmt ?? '').trim().replace(/\s+/gu, ' ').replace(/;?\s*$/u, ';');
 
 await (async (): Promise<void> => {
   await mkdir(dirname(DB_EXPORT_PATH), { recursive: true });
@@ -89,8 +89,8 @@ await (async (): Promise<void> => {
   `);
   const rows = stmt.all() as { sql: string }[];
 
-  const body = rows.map((r) => ensureSemicolon(r.sql)).join('\n');
-  const exportContent = [header(), body, footer()].join('\n');
+  const body = rows.map((r) => ensureSemicolon(r.sql)).join('');
+  const exportContent = [header(), body, footer()].join('');
 
   await writeFile(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf8');
   const schemaUrl = pathToFileURL(resolve(DB_SCHEMA_EXPORT_PATH)).href;

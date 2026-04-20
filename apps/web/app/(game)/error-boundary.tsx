@@ -9,7 +9,7 @@ import {
   useRouteError,
 } from 'react-router';
 import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
-import { HeadLinks } from 'app/components/head-links.tsx';
+import { HeadLinks } from 'app/components/head-links';
 import { CookieContext } from 'app/providers/cookie-provider.tsx';
 
 export const ErrorBoundary = () => {

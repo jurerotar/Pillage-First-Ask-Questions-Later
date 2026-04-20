@@ -369,6 +369,85 @@ export const GeneralPreferences = () => {
             />
           </div>
         </div>
+        <Separator orientation="horizontal" />
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col">
+            <span className="font-medium">
+              {t('Navigation after unit research')}
+            </span>
+            <span>
+              {t(
+                'Enable automatic navigation to village view after starting a unit research',
+              )}
+            </span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <Switch
+              onCheckedChange={() =>
+                updatePreference({
+                  preferenceName:
+                    'isAutomaticNavigationAfterUnitResearchEnabled',
+                  value:
+                    !preferences.isAutomaticNavigationAfterUnitResearchEnabled,
+                })
+              }
+              checked={
+                preferences.isAutomaticNavigationAfterUnitResearchEnabled
+              }
+            />
+          </div>
+        </div>
+        <Separator orientation="horizontal" />
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col">
+            <span className="font-medium">
+              {t('Navigation after unit improvement')}
+            </span>
+            <span>
+              {t(
+                'Enable automatic navigation to village view after starting a unit improvement',
+              )}
+            </span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <Switch
+              onCheckedChange={() =>
+                updatePreference({
+                  preferenceName:
+                    'isAutomaticNavigationAfterUnitUpgradeEnabled',
+                  value:
+                    !preferences.isAutomaticNavigationAfterUnitUpgradeEnabled,
+                })
+              }
+              checked={preferences.isAutomaticNavigationAfterUnitUpgradeEnabled}
+            />
+          </div>
+        </div>
+        <Separator orientation="horizontal" />
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col">
+            <span className="font-medium">
+              {t('Navigation after send units')}
+            </span>
+            <span>
+              {t(
+                'Enable automatic navigation to village view after sending units',
+              )}
+            </span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <Switch
+              onCheckedChange={() =>
+                updatePreference({
+                  preferenceName: 'isAutomaticNavigationAfterSendUnitsEnabled',
+                  value:
+                    !preferences.isAutomaticNavigationAfterSendUnitsEnabled,
+                })
+              }
+              checked={preferences.isAutomaticNavigationAfterSendUnitsEnabled}
+            />
+          </div>
+        </div>
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>

@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { IoMdGitCompare } from 'react-icons/io';
-import { Text } from 'app/components/text.tsx';
+import { Text } from 'app/components/text';
 
 export const TechnicalImprovementBlock = ({ children }: PropsWithChildren) => {
   if (!children) {

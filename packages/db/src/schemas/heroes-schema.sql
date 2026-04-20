@@ -22,3 +22,4 @@ CREATE TABLE heroes
 ) STRICT;
 
 CREATE INDEX idx_heroes_player_id ON heroes(player_id);
+CREATE INDEX idx_heroes_village_id ON heroes(village_id);

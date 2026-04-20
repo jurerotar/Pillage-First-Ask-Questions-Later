@@ -8,7 +8,7 @@ import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-serve
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
 import type { ShareServerWorkerResponse } from 'app/(public)/workers/share-server-worker';
 import ShareServerWorker from 'app/(public)/workers/share-server-worker?worker&url';
-import { invalidateQueries } from 'app/utils/react-query.ts';
+import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
 
 const getRootHandle = async (): Promise<FileSystemDirectoryHandle> => {
@@ -241,7 +241,6 @@ export const useGameWorldActions = () => {
 
         peer.on('connection', (conn) => {
           conn.on('error', (err) => {
-            console.error('Peer connection error:', err);
             if (toastId) {
               toast.dismiss(toastId);
             }

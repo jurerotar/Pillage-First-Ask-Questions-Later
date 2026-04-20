@@ -13,7 +13,7 @@ import { IoIosChatbubbles } from 'react-icons/io';
 import { IoCreate } from 'react-icons/io5';
 import { PiHandshakeBold } from 'react-icons/pi';
 import { Link, type LinkProps, useLocation } from 'react-router';
-import { DiscordButton } from 'app/(public)/components/discord-button.tsx';
+import { DiscordButton } from 'app/(public)/components/discord-button';
 import { Button } from 'app/components/ui/button';
 
 const DropdownContent = ({ children }: PropsWithChildren) => {

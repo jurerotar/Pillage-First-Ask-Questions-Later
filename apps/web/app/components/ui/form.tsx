@@ -82,7 +82,7 @@ export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
     <FormItemContext value={{ id: name }}>
       <div
         data-slot="form-item"
-        className={clsx('grid gap-2', className)}
+        className={className}
         {...props}
       />
     </FormItemContext>
@@ -141,7 +141,7 @@ export const FormDescription = ({
 
 export const FormMessage = ({ className, ...props }: ComponentProps<'p'>) => {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? '') : props.children;
+  const body = error ? (error?.message ?? '') : props.children;
 
   if (!body) {
     return null;
