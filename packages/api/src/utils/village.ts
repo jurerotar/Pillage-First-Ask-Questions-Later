@@ -392,14 +392,16 @@ export const processScheduledUpgrades = (
     if (nextScheduled) {
       try {
         if (nextScheduled.level === 0) {
-          createEvents(database, {
+          createEvents<'buildingConstruction'>(database, {
             type: 'buildingConstruction',
             villageId,
             buildingId: nextScheduled.buildingId,
             buildingFieldId: nextScheduled.buildingFieldId,
+            level: 1,
+            previousLevel: 0,
           });
         } else {
-          createEvents(database, {
+          createEvents<'buildingLevelChange'>(database, {
             type: 'buildingLevelChange',
             villageId,
             buildingId: nextScheduled.buildingId,

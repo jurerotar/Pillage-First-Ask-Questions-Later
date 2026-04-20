@@ -14,7 +14,7 @@ export const useHasAvailableBuildingQueueSlot = (
   const currentVillageBuildingEventsQueue =
     getBuildingEventQueue(buildingFieldId);
   const canAddAdditionalBuildingToQueue =
-    currentVillageBuildingEventsQueue.length < MAX_BUILDINGS_IN_QUEUE;
+    currentVillageBuildingEventsQueue.length <= MAX_BUILDINGS_IN_QUEUE;
 
   const errorBag: string[] = [];
 

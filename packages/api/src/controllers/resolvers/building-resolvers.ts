@@ -96,7 +96,6 @@ export const buildingLevelChangeResolver: Resolver<
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
 
-  // Check for scheduled upgrades
   processScheduledUpgrades(database, villageId);
 };
 

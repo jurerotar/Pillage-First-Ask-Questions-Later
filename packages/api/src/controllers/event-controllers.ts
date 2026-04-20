@@ -10,7 +10,11 @@ import {
   selectEventsByTypeQuery,
   selectTroopMovementEventsQuery,
 } from '../utils/queries/event-queries';
-import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
+import {
+  addVillageResourcesAt,
+  demolishBuilding,
+  processScheduledUpgrades,
+} from '../utils/village';
 import { eventSchema } from '../utils/zod/event-schemas';
 import { scheduledUpgradeSchema } from './schemas/scheduled-upgrades-schemas';
 import { createEvents } from './utils/create-event';
@@ -308,6 +312,8 @@ export const cancelConstructionEvent = createController(
       );
 
       addVillageResourcesAt(db, villageId, now, resourcesToRefund);
+
+      processScheduledUpgrades(database, villageId);
     }
   });
 

@@ -19,7 +19,7 @@ type CurrentVillageBuildingQueueContextReturn = {
   scheduledBuildingUpgrades: ScheduledBuildingUpgrade[];
   getBuildingEventQueue: (
     buildingFieldId: BuildingField['id'],
-  ) => BuildingEvent[];
+  ) => (BuildingEvent | ScheduledBuildingUpgrade)[];
 };
 
 export const CurrentVillageBuildingQueueContext =
@@ -34,9 +34,13 @@ export const CurrentVillageBuildingQueueContextProvider = ({
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
   const { scheduledBuildingUpgrades } = useScheduledBuildingUpgrades();
 
+  const buildingEvents = useMemo(() => {
+    return [...currentVillageBuildingEvents, ...scheduledBuildingUpgrades];
+  }, [currentVillageBuildingEvents, scheduledBuildingUpgrades]);
+
   const buildingEventQueues = useMemo(() => {
-    const [resourceQueue, villageQueue] = partition<BuildingEvent>(
-      currentVillageBuildingEvents,
+    const [resourceQueue, villageQueue] = partition(
+      buildingEvents,
       (event) => event.buildingFieldId <= 18,
     );
 
@@ -44,10 +48,12 @@ export const CurrentVillageBuildingQueueContextProvider = ({
       resourceQueue,
       villageQueue,
     };
-  }, [currentVillageBuildingEvents]);
+  }, [buildingEvents]);
 
   const getBuildingEventQueue = useCallback(
-    (buildingFieldId: BuildingField['id']): BuildingEvent[] => {
+    (
+      buildingFieldId: BuildingField['id'],
+    ): (BuildingEvent | ScheduledBuildingUpgrade)[] => {
       if (tribe !== 'romans') {
         return currentVillageBuildingEvents;
       }
