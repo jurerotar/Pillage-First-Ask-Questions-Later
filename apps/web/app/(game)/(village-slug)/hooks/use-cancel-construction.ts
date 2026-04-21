@@ -22,7 +22,7 @@ export const useCancelConstruction = () => {
       await invalidateQueries(context, [
         [eventsCacheKey, 'buildingLevelChange', currentVillage.id],
         [scheduledBuildingUpgradesCacheKey, currentVillage.id],
-        [currentVillageCacheKey],
+        [currentVillageCacheKey, currentVillage.slug],
       ]);
     },
   });

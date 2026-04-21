@@ -669,7 +669,7 @@ describe('events utils', () => {
       const { x, y } = database.selectObject({
         sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $id)',
         bind: { $id: villageId },
-        schema: z.object({ x: z.number(), y: z.number() }),
+        schema: z.strictObject({ x: z.number(), y: z.number() }),
       })!;
 
       expect(() =>
@@ -706,7 +706,7 @@ describe('events utils', () => {
       const { x, y } = database.selectObject({
         sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $id)',
         bind: { $id: villageId },
-        schema: z.object({ x: z.number(), y: z.number() }),
+        schema: z.strictObject({ x: z.number(), y: z.number() }),
       })!;
 
       expect(() =>
@@ -766,7 +766,7 @@ describe('events utils', () => {
           JOIN oasis o ON o.tile_id = t.id
           LIMIT 1
         `,
-        schema: z.object({ x: z.number(), y: z.number() }),
+        schema: z.strictObject({ x: z.number(), y: z.number() }),
       })!;
 
       database.exec({

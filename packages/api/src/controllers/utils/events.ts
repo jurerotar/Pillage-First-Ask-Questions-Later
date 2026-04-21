@@ -874,7 +874,7 @@ export const getEventDuration = (
     const { healthRegeneration, speed } = database.selectObject({
       sql: 'SELECT health_regeneration AS healthRegeneration, servers.speed FROM heroes JOIN servers ON 1 = 1 WHERE player_id = $player_id;',
       bind: { $player_id: PLAYER_ID },
-      schema: z.object({
+      schema: z.strictObject({
         healthRegeneration: z.number(),
         speed: speedSchema,
       }),

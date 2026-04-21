@@ -5,7 +5,7 @@ import {
   unitTierSchema,
 } from '@pillage-first/types/models/unit';
 
-export const unitSelectionSchema = z.object({
+export const unitSelectionSchema = z.strictObject({
   unitId: unitIdSchema,
   selected: z.coerce.number().int().nonnegative().default(0),
   available: z.number().int().nonnegative(),
@@ -13,7 +13,7 @@ export const unitSelectionSchema = z.object({
   category: unitCategorySchema,
 });
 
-export const targetSchema = z.object({
+export const targetSchema = z.strictObject({
   x: z.coerce
     .number({ error: 'X coordinate is required' })
     .int({ error: 'X must be an integer' }),

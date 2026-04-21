@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 
 export const getVillagesByPlayerSchema = z
@@ -28,10 +29,7 @@ export const getVillagesByPlayerSchema = z
     z.strictObject({
       id: z.number(),
       tileId: z.number(),
-      coordinates: z.strictObject({
-        x: z.number(),
-        y: z.number(),
-      }),
+      coordinates: coordinatesSchema,
       name: z.string(),
       slug: z.string(),
       resourceFieldComposition: resourceFieldCompositionSchema,
@@ -68,10 +66,7 @@ export const getPlayerVillagesWithPopulationSchema = z
     z.strictObject({
       id: z.number(),
       tileId: z.number(),
-      coordinates: z.strictObject({
-        x: z.number(),
-        y: z.number(),
-      }),
+      coordinates: coordinatesSchema,
       name: z.string(),
       slug: z.string(),
       resourceFieldComposition: resourceFieldCompositionSchema,
