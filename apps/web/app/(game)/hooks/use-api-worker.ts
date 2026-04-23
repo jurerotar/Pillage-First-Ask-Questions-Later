@@ -2,7 +2,10 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
 import ApiWorker from '@pillage-first/api?worker&url';
 import type { Server } from '@pillage-first/types/models/server';
-import { isNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
+import {
+  isDatabaseInitializationErrorNotificationMessageEvent,
+  isDatabaseInitializationSuccessNotificationMessageEvent,
+} from 'app/(game)/providers/guards/api-notification-event-guards';
 
 const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
   return new Promise((resolve, reject) => {
@@ -11,11 +14,7 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
     const worker = new Worker(url.toString(), { type: 'module' });
 
     const handleWorkerInitializationMessage = (event: MessageEvent) => {
-      if (!isNotificationMessageEvent(event)) {
-        return;
-      }
-
-      if (event.data.eventKey === 'event:database-initialization-success') {
+      if (isDatabaseInitializationSuccessNotificationMessageEvent(event)) {
         worker.removeEventListener(
           'message',
           handleWorkerInitializationMessage,
@@ -23,12 +22,20 @@ const createWorkerWithReadySignal = (serverSlug: string): Promise<Worker> => {
         resolve(worker);
       }
 
-      if (event.data.eventKey === 'event:database-initialization-error') {
+      if (isDatabaseInitializationErrorNotificationMessageEvent(event)) {
         worker.removeEventListener(
           'message',
           handleWorkerInitializationMessage,
         );
-        reject(new OutdatedDatabaseSchemaError());
+
+        const { error } = event.data;
+
+        if (error.name === OutdatedDatabaseSchemaError.name) {
+          reject(new OutdatedDatabaseSchemaError());
+          return;
+        }
+
+        reject(error);
       }
     };
 

@@ -119,7 +119,8 @@ export const ReinforcementRelocationForm = () => {
                     control={form.control}
                     name="action"
                     render={({ field }) => (
-                      <FormItem className="space-y-4 border-l dark:border-border pl-4">
+                      <FormItem className="space-y-2 border-l dark:border-border pl-4">
+                        <FormLabel>{t('Action')}</FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}

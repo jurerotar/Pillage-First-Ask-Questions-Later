@@ -34,9 +34,6 @@ const i18nextCliConfig: I18nextToolkitConfig = defineConfig({
       'data-testid',
       'value',
     ],
-    functions: ['t'],
-    transComponents: ['Trans'],
-    removeUnusedKeys: true,
   },
 });
 

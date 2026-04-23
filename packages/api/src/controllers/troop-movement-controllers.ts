@@ -69,6 +69,9 @@ export const cancelTroopMovement = createController(
       throw new Error('Cannot cancel a return movement');
     }
 
+    const { troops, targetCoordinates, originCoordinates, villageId, type } =
+      movementEvent;
+
     const now = Date.now();
     const duration = now - movementEvent.startsAt;
 
@@ -83,13 +86,15 @@ export const cancelTroopMovement = createController(
       bind: { $event_id: eventId },
     });
 
-    createEvents(db, {
-      ...movementEvent,
+    createEvents<'troopMovementReturn'>(db, {
       type: 'troopMovementReturn',
+      villageId,
+      troops,
       startsAt: now,
       duration,
-      targetCoordinates: movementEvent.originCoordinates,
-      originCoordinates: movementEvent.targetCoordinates,
+      targetCoordinates,
+      originCoordinates,
+      originalMovementType: type,
     });
   });
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { roundToNDecimalPoints } from '@pillage-first/utils/math';
 
@@ -22,10 +23,7 @@ export const getTilesWithBonusesSchema = z
   .pipe(
     z.strictObject({
       tileId: z.number(),
-      coordinates: z.strictObject({
-        x: z.number(),
-        y: z.number(),
-      }),
+      coordinates: coordinatesSchema,
       resourceFieldComposition: resourceFieldCompositionSchema,
       distance: z.number(),
     }),

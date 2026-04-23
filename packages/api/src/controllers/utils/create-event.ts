@@ -10,6 +10,7 @@ import { subtractVillageResourcesAt } from '../../utils/village';
 import {
   getEventCost,
   getEventDuration,
+  getEventResourceSubtractionTimestamp,
   getEventStartTime,
   insertEvents,
   runEventCreationSideEffects,
@@ -17,8 +18,13 @@ import {
   validateEventCreationResources,
 } from './events';
 
-type CreateNewEventsArgs<T extends GameEventType> = Partial<GameEvent<T>> & {
+type CreateNewEventsArgs<T extends GameEventType> = Omit<
+  GameEvent<T>,
+  'id' | 'resolvesAt' | 'startsAt' | 'duration'
+> & {
   amount?: number;
+  startsAt?: number;
+  duration?: number;
 };
 
 const createEventsSchema = z.strictObject({
@@ -50,10 +56,17 @@ export const createEvents = <T extends GameEventType>(
     }
 
     startsAt ??= getEventStartTime(database, sampleEvent);
+    const eventResourceSubtractionTimestamp =
+      getEventResourceSubtractionTimestamp(database, sampleEvent, startsAt);
 
     const { villageId } = sampleEvent;
 
-    subtractVillageResourcesAt(database, villageId!, startsAt, eventCost);
+    subtractVillageResourcesAt(
+      database,
+      villageId!,
+      eventResourceSubtractionTimestamp,
+      eventCost,
+    );
   }
 
   startsAt ??= getEventStartTime(database, sampleEvent);

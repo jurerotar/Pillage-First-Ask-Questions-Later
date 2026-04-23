@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import {
   type Resource,
   resourceSchema,
@@ -8,7 +10,7 @@ import { decodeGraphicsProperty } from '@pillage-first/utils/map';
 
 export const buildingFieldRowSchema = z.strictObject({
   field_id: z.number(),
-  building_id: z.string(),
+  building_id: buildingIdSchema,
   level: z.number(),
 });
 
@@ -65,10 +67,7 @@ export const getVillageBySlugSchema = z
       playerId: z.number(),
       name: z.string(),
       slug: z.string(),
-      coordinates: z.strictObject({
-        x: z.number(),
-        y: z.number(),
-      }),
+      coordinates: coordinatesSchema,
       lastUpdatedAt: z.number(),
       resources: z.strictObject({
         wood: z.number(),
@@ -80,7 +79,7 @@ export const getVillageBySlugSchema = z
       buildingFields: z.array(
         z.strictObject({
           id: z.number(),
-          buildingId: z.string(),
+          buildingId: buildingIdSchema,
           level: z.number(),
         }),
       ),
@@ -162,10 +161,7 @@ export const getOccupiableOasisInRangeSchema = z
     z.strictObject({
       oasis: z.strictObject({
         id: z.number(),
-        coordinates: z.strictObject({
-          x: z.number(),
-          y: z.number(),
-        }),
+        coordinates: coordinatesSchema,
         bonuses: z.array(
           z.strictObject({
             resource: resourceSchema,
@@ -174,19 +170,16 @@ export const getOccupiableOasisInRangeSchema = z
         ),
       }),
       player: z
-        .object({
+        .strictObject({
           id: z.number(),
           name: z.string().nullable(),
           slug: z.string().nullable(),
         })
         .nullable(),
       village: z
-        .object({
+        .strictObject({
           id: z.number(),
-          coordinates: z.strictObject({
-            x: z.number().nullable(),
-            y: z.number().nullable(),
-          }),
+          coordinates: coordinatesSchema,
           name: z.string().nullable(),
           slug: z.string().nullable(),
         })

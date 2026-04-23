@@ -58,7 +58,11 @@ const viteConfig = defineViteConfig({
     //     },
     //   }),
     !isInTestMode &&
-      mdx({ providerImportSource: '@mdx-js/react', development: false }),
+      mdx({
+        providerImportSource: '@mdx-js/react',
+        development: false,
+        include: /\.mdx$/,
+      }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),

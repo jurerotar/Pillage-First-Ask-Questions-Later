@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { factionSchema } from '@pillage-first/types/models/faction';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 
@@ -65,10 +66,7 @@ export const getVillageRankingsSchema = z
     z.strictObject({
       id: z.number(),
       name: z.string(),
-      coordinates: z.strictObject({
-        x: z.number(),
-        y: z.number(),
-      }),
+      coordinates: coordinatesSchema,
       population: z.number(),
       playerId: z.number(),
       playerName: z.string(),

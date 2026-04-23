@@ -43,7 +43,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
     ) => {
       await invalidateQueries(context, [
         ...cachesToClearImmediately.map((queryKey) => [queryKey]),
-        [eventsCacheKey],
+        [eventsCacheKey, eventType, currentVillage.id],
       ]);
     },
   });

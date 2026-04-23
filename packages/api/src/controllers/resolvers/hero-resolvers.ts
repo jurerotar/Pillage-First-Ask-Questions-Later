@@ -30,7 +30,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
       bind: {
         $player_id: PLAYER_ID,
       },
-      schema: z.object({
+      schema: z.strictObject({
         villageId: z.number(),
         tileId: z.number(),
         healthRegeneration: z.number(),
@@ -65,6 +65,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
   );
 
   createEvents<'heroHealthRegeneration'>(database, {
+    villageId: null,
     type: 'heroHealthRegeneration',
     startsAt: resolvesAt,
     duration,
@@ -93,7 +94,7 @@ export const heroHealthRegenerationResolver: Resolver<
     bind: {
       $player_id: PLAYER_ID,
     },
-    schema: z.object({
+    schema: z.strictObject({
       healthRegeneration: z.number(),
       speed: z.number(),
     }),
@@ -105,6 +106,7 @@ export const heroHealthRegenerationResolver: Resolver<
   );
 
   createEvents<'heroHealthRegeneration'>(database, {
+    villageId: null,
     type: 'heroHealthRegeneration',
     startsAt: resolvesAt,
     duration,

@@ -64,7 +64,11 @@ export const ImportModal = ({
       return;
     }
 
-    const peer = new Peer();
+    const peer = new Peer({
+      config: {
+        iceServers: [],
+      },
+    });
     peerRef.current = peer;
 
     setIsDiscoveryLoading(true);

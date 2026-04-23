@@ -222,6 +222,7 @@ const increasingPercentageBuildingEffects = new Set<Effect['id']>([
   'clayProduction',
   'ironProduction',
   'wheatProduction',
+  'defenceBonus',
 ]);
 
 type BuildingBenefitProps = {
