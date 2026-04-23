@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { MdOutlineNewReleases } from 'react-icons/md';
-import { Text } from 'app/components/text.tsx';
+import { Text } from 'app/components/text';
 
 export const FeaturesBlock = ({ children }: PropsWithChildren) => {
   if (!children) {

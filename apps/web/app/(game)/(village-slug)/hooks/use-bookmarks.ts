@@ -4,7 +4,7 @@ import type { Bookmarks } from '@pillage-first/types/models/bookmark';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { bookmarksCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { invalidateQueries } from 'app/utils/react-query.ts';
+import { invalidateQueries } from 'app/utils/react-query';
 
 type UpdateBookmarksArgs = {
   buildingId: keyof Bookmarks;

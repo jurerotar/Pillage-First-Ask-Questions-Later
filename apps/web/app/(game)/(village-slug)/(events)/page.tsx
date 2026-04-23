@@ -1,21 +1,23 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaBookBookmark } from 'react-icons/fa6';
-import { LuAnvil, LuConstruction } from 'react-icons/lu';
+import { LuAnvil, LuConstruction, LuFlag } from 'react-icons/lu';
 import { TbTargetArrow } from 'react-icons/tb';
 import { useSearchParams } from 'react-router';
-import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page.ts';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import { EventFilters } from 'app/(game)/(village-slug)/(events)/components/event-filters';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import {
   type HistoryEvent,
   useEventsHistory,
 } from 'app/(game)/(village-slug)/hooks/use-events-history';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -53,6 +55,9 @@ const EventsListTableIcon = ({ type }: EventsListTableIconProps) => {
     case 'training': {
       return <TbTargetArrow />;
     }
+    case 'founding': {
+      return <LuFlag />;
+    }
   }
 };
 
@@ -75,8 +80,13 @@ const EventsList = ({
 }: EventsListProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
+  const { playerVillages } = usePlayerVillageListing();
   const { events } = useEventsHistory(scope, eventFilters);
   const pagination = usePagination(events, 20, page);
+
+  const villageMap = useMemo(() => {
+    return new Map(playerVillages.map((v) => [v.id, v.name]));
+  }, [playerVillages]);
 
   const handlePageChange = (newPage: number | ((prev: number) => number)) => {
     setSearchParams((prev) => {
@@ -114,6 +124,8 @@ const EventsList = ({
         return t('Researched {{unit}}', {
           unit: t(`UNITS.${data.unit}.NAME`),
         });
+      case 'founding':
+        return t('Village founded at ({{x}}, {{y}})', { x: data.x, y: data.y });
       default:
         return JSON.stringify(data);
     }
@@ -145,6 +157,9 @@ const EventsList = ({
           <TableHeader>
             <TableRow>
               <TableHeaderCell>{t('Type')}</TableHeaderCell>
+              {scope === 'global' && (
+                <TableHeaderCell>{t('Village')}</TableHeaderCell>
+              )}
               <TableHeaderCell>{t('Details')}</TableHeaderCell>
               <TableHeaderCell>{t('Date')}</TableHeaderCell>
             </TableRow>
@@ -157,6 +172,11 @@ const EventsList = ({
                     <EventsListTableIcon type={event.type} />
                   </span>
                 </TableCell>
+                {scope === 'global' && (
+                  <TableCell>
+                    {villageMap.get(event.villageId) ?? t('Unknown')}
+                  </TableCell>
+                )}
                 <TableCell>{formatEventData(event)}</TableCell>
                 <TableCell>
                   {new Date(event.timestamp * 1000).toLocaleString()}
@@ -166,11 +186,11 @@ const EventsList = ({
             {events.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={3}
+                  colSpan={scope === 'global' ? 4 : 3}
                   className="text-center py-8"
                 >
                   {t(
-                    'No events found yet. Upgrade a building or train, research or improve a unit first.',
+                    'No events found yet. Upgrade a building or train, research, improve a unit or found a village first.',
                   )}
                 </TableCell>
               </TableRow>

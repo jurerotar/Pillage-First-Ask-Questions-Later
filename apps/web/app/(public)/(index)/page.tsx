@@ -14,7 +14,7 @@ import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubButton } from 'app/(public)/components/github-button';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { CookieContext } from 'app/providers/cookie-provider.tsx';
+import { CookieContext } from 'app/providers/cookie-provider';
 import screenshotsData from './assets/screenshots.json' with { type: 'json' };
 import Landing from './mdx/landing.mdx';
 import Motivation from './mdx/motivation.mdx';

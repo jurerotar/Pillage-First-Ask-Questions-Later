@@ -3,33 +3,26 @@ import { use } from 'react';
 import type {
   GameEvent,
   GameEventType,
-  TroopMovementEvent,
 } from '@pillage-first/types/models/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-// `troopMovement` is a special type that selects all troopMovement events
-export const useEventsByType = <T extends GameEventType | 'troopMovement'>(
-  eventType: T,
-) => {
+export const useEventsByType = <T extends GameEventType>(eventType: T) => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: eventsByType } = useSuspenseQuery({
     queryKey: [eventsCacheKey, eventType, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<
-        T extends 'troopMovement'
-          ? TroopMovementEvent[]
-          : GameEvent<Extract<T, GameEventType>>[]
-      >(`/villages/${currentVillage.id}/events/${eventType}`);
+      const { data } = await fetcher<GameEvent<Extract<T, GameEventType>>[]>(
+        `/villages/${currentVillage.id}/events/${eventType}`,
+      );
       return data;
     },
   });
 
-  const hasEvents =
-    (eventsByType as (GameEvent | TroopMovementEvent)[]).length > 0;
+  const hasEvents = eventsByType.length > 0;
 
   return {
     eventsByType: eventsByType,

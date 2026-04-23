@@ -7,6 +7,7 @@ import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,
 } from '../utils/village';
+import { onHeroDeath } from './resolvers/utils/hero';
 import { getDeveloperSettingsSchema } from './schemas/developer-tools-schemas';
 
 export const getDeveloperSettings = createController('/developer-settings')(
@@ -202,4 +203,53 @@ export const incrementHeroAdventurePoints = createController(
       $hero_id: heroId,
     },
   });
+});
+
+export const killHero = createController(
+  '/developer-settings/:heroId/kill',
+  'patch',
+)(({ database, path: { heroId } }) => {
+  const heroInTroops = database.selectValue({
+    sql: `
+      SELECT
+        1
+      FROM
+        troops
+      WHERE
+        unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO')
+        AND tile_id = source_tile_id
+    `,
+    schema: z.number().optional(),
+  });
+
+  if (!heroInTroops) {
+    throw new Error('Hero must be at home to be killed');
+  }
+
+  const now = Date.now();
+
+  database.exec({
+    sql: `
+      UPDATE heroes
+      SET
+        health = 0
+      WHERE
+        id = $hero_id
+    `,
+    bind: {
+      $hero_id: heroId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      DELETE FROM
+        troops
+      WHERE
+        unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO')
+        AND tile_id = source_tile_id
+    `,
+  });
+
+  onHeroDeath(database, now);
 });

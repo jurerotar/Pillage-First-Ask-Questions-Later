@@ -21,10 +21,13 @@ globalThis.addEventListener(
         directory: `/pillage-first-ask-questions-later/${serverSlug}`,
       });
 
-      const exportedDb = await opfsSahPool.exportFile(`/${serverSlug}.sqlite3`);
-      const buffer: ArrayBuffer = exportedDb.buffer as ArrayBuffer;
+      const fileName = `/${serverSlug}.sqlite3`;
+      if (!opfsSahPool.getFileNames().includes(fileName)) {
+        throw new Error(`Game world ${serverSlug} not found.`);
+      }
 
-      opfsSahPool.pauseVfs();
+      const exportedDb = await opfsSahPool.exportFile(fileName);
+      const buffer: ArrayBuffer = exportedDb.buffer as ArrayBuffer;
 
       globalThis.postMessage(
         {
@@ -35,10 +38,21 @@ globalThis.addEventListener(
       );
       globalThis.close();
     } catch (error) {
-      console.error(error);
+      console.error('[ShareServerWorker] Export failed:', error);
+      let message = 'Failed to prepare game world for sharing.';
+
+      if (
+        error instanceof Error &&
+        (error.name === 'NoModificationAllowedError' ||
+          error.message.includes('NoModificationAllowedError'))
+      ) {
+        message =
+          'The game world is already open on this device. Please close it before reattempting.';
+      }
+
       globalThis.postMessage({
         type: 'error',
-        message: 'Failed to prepare game world for sharing.',
+        message,
       } satisfies ShareServerWorkerResponse);
       globalThis.close();
     }

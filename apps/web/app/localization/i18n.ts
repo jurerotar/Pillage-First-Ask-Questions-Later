@@ -14,7 +14,6 @@ await use(initReactI18next).init({
   load: 'currentOnly',
   defaultNS: 'app',
   supportedLngs: locales,
-  showSupportNotice: false,
   interpolation: {
     escapeValue: false,
   },

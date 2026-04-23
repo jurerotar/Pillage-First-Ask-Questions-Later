@@ -165,6 +165,6 @@ describe('statistics-controllers', () => {
       createControllerArgs<'/statistics/overview'>({}),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });

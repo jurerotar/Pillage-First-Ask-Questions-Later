@@ -14,15 +14,15 @@ describe('localization completeness check for assets.json', () => {
         expect(
           Object.hasOwn(unitData, 'NAME'),
           `Missing NAME in UNITS.${unitKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
         expect(
           Object.hasOwn(unitData, 'NAME_other'),
           `Missing NAME_other in UNITS.${unitKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
         expect(
           Object.hasOwn(unitData, 'DESCRIPTION'),
           `Missing DESCRIPTION in UNITS.${unitKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
 
         expect(unitData.NAME, `UNITS.${unitKey}.NAME is empty`).not.toBe('');
         expect(
@@ -43,15 +43,15 @@ describe('localization completeness check for assets.json', () => {
         expect(
           Object.hasOwn(buildingData, 'NAME'),
           `Missing NAME in BUILDINGS.${buildingKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
         expect(
           Object.hasOwn(buildingData, 'NAME_other'),
           `Missing NAME_other in BUILDINGS.${buildingKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
         expect(
           Object.hasOwn(buildingData, 'DESCRIPTION'),
           `Missing DESCRIPTION in BUILDINGS.${buildingKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
 
         expect(
           buildingData.NAME,
@@ -73,15 +73,15 @@ describe('localization completeness check for assets.json', () => {
         expect(
           Object.hasOwn(itemData, 'NAME'),
           `Missing NAME in ITEMS.${itemKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
         expect(
           Object.hasOwn(itemData, 'NAME_other'),
           `Missing NAME_other in ITEMS.${itemKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
         expect(
           Object.hasOwn(itemData, 'DESCRIPTION'),
           `Missing DESCRIPTION in ITEMS.${itemKey}`,
-        ).toBeTruthy();
+        ).toBe(true);
         expect(itemData.NAME, `ITEMS.${itemKey}.NAME is empty`).not.toBe('');
         expect(
           itemData.NAME_other,

@@ -25,7 +25,7 @@ describe('oasis-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 
   test('abandonOasis should abandon an oasis', async () => {
@@ -49,6 +49,6 @@ describe('oasis-controllers', () => {
       }),
     );
 
-    expect(true).toBeTruthy();
+    expect(true).toBe(true);
   });
 });

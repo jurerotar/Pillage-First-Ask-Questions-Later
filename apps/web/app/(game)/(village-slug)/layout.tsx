@@ -7,7 +7,6 @@ import {
   type ReactNode,
   Suspense,
   use,
-  useMemo,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -60,7 +59,6 @@ import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adve
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import {
   CurrentVillageStateContext,
@@ -302,12 +300,7 @@ const VillageOverviewMobileItem = () => {
 
 const HeroNavigationItem = () => {
   const { t } = useTranslation();
-  const { hero, isHeroAlive, health, experience } = useHero();
-  const { villageTroops } = useVillageTroops();
-
-  const isHeroHome = useMemo(() => {
-    return villageTroops.some(({ unitId }) => unitId === 'HERO');
-  }, [villageTroops]);
+  const { hero, isHeroAlive, health, experience, isHeroHome } = useHero();
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
@@ -565,10 +558,6 @@ const VillageSelect = () => {
   const { playerVillages } = usePlayerVillageListing();
   const { currentVillage } = useCurrentVillage();
 
-  const resourceFieldComposition = parseResourcesFromRFC(
-    currentVillage.resourceFieldComposition,
-  ).join('-');
-
   return (
     <Select
       onValueChange={(value) => navigate(getNewVillageUrl(value))}
@@ -582,20 +571,26 @@ const VillageSelect = () => {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {playerVillages.map(({ slug, name, id, coordinates }) => {
-          const { x, y } = coordinates;
-          const formattedId = `${x}|${y}`;
-          return (
-            <SelectItem
-              key={id}
-              value={slug}
-            >
-              <Text className="text-xs sm:text-sm">
-                {name} ({formattedId}) | {resourceFieldComposition}
-              </Text>
-            </SelectItem>
-          );
-        })}
+        {playerVillages.map(
+          ({ slug, name, id, coordinates, resourceFieldComposition }) => {
+            const { x, y } = coordinates;
+            const formattedId = `${x}|${y}`;
+            const parsedRFC = parseResourcesFromRFC(
+              resourceFieldComposition,
+            ).join('-');
+
+            return (
+              <SelectItem
+                key={id}
+                value={slug}
+              >
+                <Text className="text-xs sm:text-sm">
+                  {name} ({formattedId}) | {parsedRFC}
+                </Text>
+              </SelectItem>
+            );
+          },
+        )}
       </SelectContent>
     </Select>
   );

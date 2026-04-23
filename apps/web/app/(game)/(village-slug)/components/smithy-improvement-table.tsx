@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import {
   Table,

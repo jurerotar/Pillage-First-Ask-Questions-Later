@@ -166,6 +166,26 @@ export const unitIdSchema = z
   ])
   .meta({ id: 'UnitId' });
 
+export const unitCategorySchema = z
+  .enum(['infantry', 'cavalry', 'siege', 'administration', 'hero'])
+  .meta({ id: 'UnitId' });
+
+export const unitTierSchema = z
+  .enum([
+    'tier-1',
+    'tier-2',
+    'tier-3',
+    'scout',
+    'tier-4',
+    'tier-5',
+    'siege-ram',
+    'siege-catapult',
+    'administration',
+    'settler',
+    'hero',
+  ])
+  .meta({ id: 'UnitId' });
+
 export type UnitId = z.infer<typeof unitIdSchema>;
 
 export type UnitResearchRequirement = {
@@ -177,18 +197,6 @@ export type UnitRecruitmentRequirement = {
   buildingId: Building['id'];
   level: number;
 };
-
-type UnitTier =
-  | 'tier-1'
-  | 'tier-2'
-  | 'tier-3'
-  | 'scout'
-  | 'tier-4'
-  | 'tier-5'
-  | 'siege-ram'
-  | 'siege-catapult'
-  | 'administration'
-  | 'hero';
 
 type SettlerUnitId =
   | RomanSettlerUnitId
@@ -237,9 +245,9 @@ type BaseUnit = {
   unitSpeed: number;
   unitCarryCapacity: number;
   unitWheatConsumption: number;
-  category: 'infantry' | 'cavalry' | 'siege' | 'administration' | 'hero';
+  category: z.infer<typeof unitCategorySchema>;
   tribe: Tribe | 'all';
-  tier: UnitTier;
+  tier: z.infer<typeof unitTierSchema>;
   recruitmentRequirements: UnitRecruitmentRequirement[];
   researchRequirements: UnitResearchRequirement[];
 };
@@ -252,7 +260,7 @@ type Tier1Unit = BaseUnit & {
 type SettlerUnit = BaseUnit & {
   id: SettlerUnitId;
   category: 'administration';
-  tier: 'administration';
+  tier: 'settler';
   researchRequirements: [];
   recruitmentRequirements: [{ buildingId: 'RESIDENCE'; level: number }];
 };
