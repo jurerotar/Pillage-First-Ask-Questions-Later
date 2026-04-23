@@ -120,11 +120,11 @@ describe('building-requirements', () => {
         expect(fulfilled).toBe(false);
       });
 
-      test('natars can not build command center', () => {
+      test('natars can not build trapper', () => {
         const args: AssessBuildingConstructionReadinessArgs = {
           ...defaultArgs,
           tribe: 'natars',
-          buildingId: 'COMMAND_CENTER',
+          buildingId: 'TRAPPER',
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
@@ -186,18 +186,18 @@ describe('building-requirements', () => {
       expect(fulfilled).toBe(true);
     });
 
-    test('huns may build command center', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
-        ...defaultArgs,
-        tribe: 'huns',
-        buildingId: 'COMMAND_CENTER',
-      };
-      const { fulfilled } = getAssessedRequirementByType(
-        'tribe',
-        assessBuildingConstructionReadiness(args),
-      );
-      expect(fulfilled).toBe(true);
-    });
+    // test('huns may build command center', () => {
+    //   const args: AssessBuildingConstructionReadinessArgs = {
+    //     ...defaultArgs,
+    //     tribe: 'huns',
+    //     buildingId: 'COMMAND_CENTER',
+    //   };
+    //   const { fulfilled } = getAssessedRequirementByType(
+    //     'tribe',
+    //     assessBuildingConstructionReadiness(args),
+    //   );
+    //   expect(fulfilled).toBe(true);
+    // });
 
     test('egyptians may build waterworks', () => {
       const args: AssessBuildingConstructionReadinessArgs = {

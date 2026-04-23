@@ -264,6 +264,44 @@ const npcUnitCompositionByTribeAndSize = new Map<
       ],
     ]),
   ],
+  [
+    'natars',
+    new Map([
+      [
+        'xs',
+        [
+          ['PIKEMAN', 30, 70],
+          ['THORNED_WARRIOR', 5, 20],
+        ],
+      ],
+      [
+        'sm',
+        [
+          ['PIKEMAN', 30, 70],
+          ['THORNED_WARRIOR', 5, 20],
+          ['NATARIAN_SCOUT', 5, 10],
+        ],
+      ],
+      [
+        'md',
+        [
+          ['PIKEMAN', 30, 70],
+          ['THORNED_WARRIOR', 5, 20],
+          ['NATARIAN_SCOUT', 5, 10],
+        ],
+      ],
+      [
+        'lg',
+        [
+          ['PIKEMAN', 30, 70],
+          ['THORNED_WARRIOR', 5, 20],
+          ['NATARIAN_SCOUT', 5, 10],
+          ['NATARIAN_RAM', 20, 100],
+          ['NATARIAN_CATAPULT', 20, 50],
+        ],
+      ],
+    ]),
+  ],
 ]);
 
 export const troopSeeder = (database: DbFacade, server: Server): void => {

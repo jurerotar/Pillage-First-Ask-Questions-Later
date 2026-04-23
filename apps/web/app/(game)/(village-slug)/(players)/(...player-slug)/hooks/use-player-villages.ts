@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { z } from 'zod';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playerVillagesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -8,10 +9,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 const getPlayerVillageSchema = z.strictObject({
   id: z.number(),
   tileId: z.number(),
-  coordinates: z.strictObject({
-    x: z.number(),
-    y: z.number(),
-  }),
+  coordinates: coordinatesSchema,
   name: z.string(),
   slug: z.string(),
   population: z.number(),

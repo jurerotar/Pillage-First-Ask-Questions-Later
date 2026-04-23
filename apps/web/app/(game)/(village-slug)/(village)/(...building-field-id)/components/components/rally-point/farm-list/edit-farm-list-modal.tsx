@@ -88,7 +88,7 @@ export const EditFarmListModal = ({
               control={form.control}
               name="name"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="space-y-2">
                   <FormLabel>{t('Name')}</FormLabel>
                   <FormControl>
                     <Input
@@ -106,7 +106,7 @@ export const EditFarmListModal = ({
               control={form.control}
               name="villageId"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="space-y-2">
                   <FormLabel>{t('Village')}</FormLabel>
                   <Select
                     onValueChange={field.onChange}

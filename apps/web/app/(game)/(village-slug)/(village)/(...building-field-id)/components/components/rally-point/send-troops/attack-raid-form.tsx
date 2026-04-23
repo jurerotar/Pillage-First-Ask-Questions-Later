@@ -118,6 +118,7 @@ export const AttackRaidForm = () => {
                     name="action"
                     render={({ field }) => (
                       <FormItem className="space-y-2 border-l border-border pl-4">
+                        <FormLabel>{t('Action')}</FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}

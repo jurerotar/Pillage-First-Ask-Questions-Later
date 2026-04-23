@@ -78,8 +78,8 @@
   "devDependencies": {
     "@typescript/native-preview": "7.0.0-dev.20260409.1",
     "vitest": "4.1.4",
-    "type-fest": "5.5.0",
-    "typescript": "6.0.2",
+    "type-fest": "5.6.0",
+    "typescript": "6.0.3",
     "zod": "4.3.6"
   }
 }

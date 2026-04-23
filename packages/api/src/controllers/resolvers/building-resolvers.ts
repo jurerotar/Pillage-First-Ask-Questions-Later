@@ -99,7 +99,14 @@ export const buildingLevelChangeResolver: Resolver<
 export const buildingConstructionResolver: Resolver<
   GameEvent<'buildingConstruction'>
 > = (database, args) => {
-  const { villageId, buildingFieldId, buildingId } = args;
+  const {
+    villageId,
+    buildingFieldId,
+    buildingId,
+    level,
+    previousLevel,
+    startsAt,
+  } = args;
 
   // Create building field
   database.exec({
@@ -149,7 +156,12 @@ export const buildingConstructionResolver: Resolver<
   });
 
   createEvents<'buildingLevelChange'>(database, {
-    ...args,
+    villageId,
+    level,
+    previousLevel,
+    startsAt,
+    buildingFieldId,
+    buildingId,
     type: 'buildingLevelChange',
   });
 };

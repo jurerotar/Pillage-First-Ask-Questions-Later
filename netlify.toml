@@ -14,3 +14,7 @@ command = "npm run inject-graphics && turbo run build:dev"
 # deploy-preview
 [context.deploy-preview]
 command = "npm run inject-graphics && turbo run build:dev"
+
+[[edge_functions]]
+path = "/api/discord-members"
+function = "discord-members"

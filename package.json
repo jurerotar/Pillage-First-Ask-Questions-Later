@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.0",
+  "version": "0.4.9",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -23,23 +23,20 @@
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.10",
+    "@biomejs/biome": "2.4.12",
     "@commitlint/cli": "20.5.0",
     "@commitlint/config-conventional": "20.5.0",
     "@playwright/test": "1.59.1",
     "@typescript/native-preview": "7.0.0-dev.20260409.1",
-    "lefthook": "2.1.5",
-    "oxlint": "1.59.0",
-    "oxlint-tsgolint": "0.20.0",
+    "lefthook": "2.1.6",
+    "oxlint": "1.60.0",
+    "oxlint-tsgolint": "0.21.1",
     "playwright": "1.59.1",
     "sharp": "0.34.5",
-    "turbo": "2.9.5",
-    "typescript": "6.0.2"
+    "turbo": "2.9.6",
+    "typescript": "6.0.3"
   },
   "overrides": {
-    "@react-router/dev": {
-      "typescript": "6.0.2"
-    },
     "vite-plugin-devtools-json": {
       "vite": "^8.0.0"
     },

@@ -1,6 +1,4 @@
 import { FaroErrorBoundary } from '@grafana/faro-react';
-import { faro } from '@grafana/faro-web-sdk';
-import { useEffect } from 'react';
 import {
   Link,
   Links,
@@ -14,14 +12,17 @@ import { HeadLinks } from 'app/components/head-links';
 export const ErrorBoundary = () => {
   const error = useRouteError() as Error;
 
-  useEffect(() => {
-    faro.api?.pushError(error);
-  }, [error]);
-
   const isDatabaseInitializationError =
     error instanceof OutdatedDatabaseSchemaError;
 
-  const isErrorWithCustomSteps = isDatabaseInitializationError;
+  const isMultipleTabsError =
+    error.name === 'NoModificationAllowedError' ||
+    error.message.includes(
+      "Failed to execute 'createSyncAccessHandle' on 'FileSystemFileHandle'",
+    );
+
+  const isErrorWithCustomSteps =
+    isDatabaseInitializationError || isMultipleTabsError;
 
   const { message, name, cause, stack } = error;
 
@@ -63,32 +64,56 @@ export const ErrorBoundary = () => {
               </p>
             )}
 
+            {isMultipleTabsError && (
+              <p className="text-foreground">
+                It seems like you have multiple tabs of this game world open.
+                The game requires exclusive access to the file system to ensure
+                data consistency.
+              </p>
+            )}
+
             <p className="text-foreground font-medium">Try these steps:</p>
             <ul className="list-disc pl-6 space-y-1">
               {isErrorWithCustomSteps && isDatabaseInitializationError && (
                 <>
-                  <li>
-                    If you've opened this game world through a link on{' '}
-                    <Link
-                      className="underline"
-                      to="/game-worlds"
-                    >
-                      game worlds
-                    </Link>{' '}
-                    page, please navigate back to that page, delete the game
-                    world and create a new one.
-                  </li>
-                  <li>
-                    If you've opened this game world directly with the URL,
-                    please navigate to{' '}
-                    <Link
-                      className="underline"
-                      to="/game-worlds/create"
-                    >
-                      create new game world
-                    </Link>{' '}
-                    page and create a new game world.
-                  </li>
+                  {isDatabaseInitializationError && (
+                    <>
+                      <li>
+                        If you've opened this game world through a link on{' '}
+                        <Link
+                          className="underline"
+                          to="/game-worlds"
+                        >
+                          game worlds
+                        </Link>{' '}
+                        page, please navigate back to that page, delete the game
+                        world and create a new one.
+                      </li>
+                      <li>
+                        If you've opened this game world directly with the URL,
+                        please navigate to{' '}
+                        <Link
+                          className="underline"
+                          to="/game-worlds/create"
+                        >
+                          create new game world
+                        </Link>{' '}
+                        page and create a new game world.
+                      </li>
+                    </>
+                  )}
+                  {isMultipleTabsError && (
+                    <>
+                      <li>
+                        Refresh this page — this often resolves the issue after
+                        other tabs are closed.
+                      </li>
+                      <li>
+                        Make sure you close all other tabs with the same game
+                        world.
+                      </li>
+                    </>
+                  )}
                 </>
               )}
               {!isErrorWithCustomSteps && (

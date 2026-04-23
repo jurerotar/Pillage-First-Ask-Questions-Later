@@ -77,7 +77,7 @@ describe('event-controllers', () => {
 
     const { eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() AS eventId',
-      schema: z.object({ eventId: z.number() }),
+      schema: z.strictObject({ eventId: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -155,7 +155,7 @@ describe('event-controllers', () => {
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -240,7 +240,7 @@ describe('event-controllers', () => {
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap

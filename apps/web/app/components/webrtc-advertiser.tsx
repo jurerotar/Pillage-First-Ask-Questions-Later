@@ -88,8 +88,11 @@ export const WebRTCAdvertiser = () => {
   }, [gameWorldListing]);
 
   useEffect(() => {
-    // 1. My unique peer for actual transfers
-    const peer = new Peer();
+    const peer = new Peer({
+      config: {
+        iceServers: [],
+      },
+    });
     peerRef.current = peer;
 
     peer.on('open', (id) => {
@@ -106,6 +109,11 @@ export const WebRTCAdvertiser = () => {
         }
 
         const conn = peer.connect(BROADCAST_CHANNEL);
+        if (!conn) {
+          retry();
+          return;
+        }
+
         registryConnectionRef.current = conn;
         conn.on('open', () => {
           conn.send(createAnnounceMessage(id));
@@ -150,8 +158,11 @@ export const WebRTCAdvertiser = () => {
       });
     });
 
-    // 2. Try to become the registry
-    const registryPeer = new Peer(BROADCAST_CHANNEL);
+    const registryPeer = new Peer(BROADCAST_CHANNEL, {
+      config: {
+        iceServers: [],
+      },
+    });
     registryPeerRef.current = registryPeer;
 
     registryPeer.on('error', (err) => {
@@ -225,6 +236,10 @@ export const WebRTCAdvertiser = () => {
         existingConn.send(createAnnounceMessage(peerRef.current.id));
       } else {
         const conn = peerRef.current.connect(BROADCAST_CHANNEL);
+        if (!conn) {
+          return;
+        }
+
         registryConnectionRef.current = conn;
         conn.on('open', () => {
           conn.send(createAnnounceMessage(peerRef.current!.id));
