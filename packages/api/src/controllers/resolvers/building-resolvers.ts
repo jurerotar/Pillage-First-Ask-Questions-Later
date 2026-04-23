@@ -11,6 +11,7 @@ import {
   updatePopulationEffectQuery,
 } from '../../utils/queries/effect-queries';
 import {
+  constructBuilding,
   demolishBuilding,
   processScheduledUpgrades,
   updateVillageResourcesAt,
@@ -111,52 +112,7 @@ export const buildingConstructionResolver: Resolver<
     startsAt,
   } = args;
 
-  // Create building field
-  database.exec({
-    sql: `
-      INSERT INTO building_fields (village_id, field_id, building_id, level)
-      SELECT $village_id, $field_id, bi.id, 0
-      FROM building_ids bi
-      WHERE bi.building = $building_id
-    `,
-    bind: {
-      $village_id: villageId,
-      $field_id: buildingFieldId,
-      $building_id: buildingId,
-    },
-  });
-
-  // Create building effects
-  const { effects } = getBuildingDefinition(buildingId);
-
-  for (const { effectId, valuesPerLevel, type } of effects) {
-    database.exec({
-      sql: `
-        INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-        SELECT ei.id, $value, $type, 'village', 'building', $village_id, $source_specifier
-        FROM effect_ids ei
-        WHERE ei.effect = $effect_id;
-      `,
-      bind: {
-        $effect_id: effectId,
-        $value: valuesPerLevel[0],
-        $type: type,
-        $village_id: villageId,
-        $source_specifier: buildingFieldId,
-      },
-    });
-  }
-
-  // Update population effect
-  const { population } = getBuildingDataForLevel(buildingId, 0);
-
-  database.exec({
-    sql: updatePopulationEffectQuery,
-    bind: {
-      $village_id: villageId,
-      $value: population,
-    },
-  });
+  constructBuilding(database, villageId, buildingId, buildingFieldId);
 
   createEvents<'buildingLevelChange'>(database, {
     villageId,

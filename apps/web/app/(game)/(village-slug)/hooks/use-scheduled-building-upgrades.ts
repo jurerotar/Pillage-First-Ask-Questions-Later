@@ -41,16 +41,7 @@ export const useScheduledBuildingUpgrades = () => {
     },
   });
 
-  return {
-    scheduledBuildingUpgrades,
-  };
-};
-
-export const useScheduleBuildingUpgrade = () => {
-  const { fetcher } = use(ApiContext);
-  const { currentVillage } = useCurrentVillage();
-
-  return useMutation<
+  const { mutate: scheduleBuildingUpgrade } = useMutation<
     void,
     Error,
     z.infer<typeof scheduleBuildingUpgradeSchema>
@@ -64,16 +55,16 @@ export const useScheduleBuildingUpgrade = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [scheduledBuildingUpgradesCacheKey, currentVillage.id],
+        [currentVillageCacheKey, currentVillage.slug],
       ]);
     },
   });
-};
 
-export const useRemoveScheduledBuildingUpgrade = () => {
-  const { fetcher } = use(ApiContext);
-  const { currentVillage } = useCurrentVillage();
-
-  return useMutation<void, Error, { scheduledUpgradeId: number }>({
+  const { mutate: removeScheduledBuildingUpgrade } = useMutation<
+    void,
+    Error,
+    { scheduledUpgradeId: number }
+  >({
     mutationFn: async ({ scheduledUpgradeId }) => {
       await fetcher(
         `/villages/${currentVillage.id}/scheduled-upgrades/${scheduledUpgradeId}`,
@@ -87,4 +78,10 @@ export const useRemoveScheduledBuildingUpgrade = () => {
       ]);
     },
   });
+
+  return {
+    scheduledBuildingUpgrades,
+    scheduleBuildingUpgrade,
+    removeScheduledBuildingUpgrade,
+  };
 };

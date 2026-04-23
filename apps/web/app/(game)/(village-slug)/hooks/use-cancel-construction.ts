@@ -14,7 +14,11 @@ export const useCancelConstruction = () => {
   const { fetcher } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  return useMutation<void, Error, { eventId: GameEvent['id'] }>({
+  const { mutate: cancelConstruction } = useMutation<
+    void,
+    Error,
+    { eventId: GameEvent['id'] }
+  >({
     mutationFn: async ({ eventId }) => {
       await fetcher(`/events/${eventId}`, { method: 'DELETE' });
     },
@@ -26,4 +30,8 @@ export const useCancelConstruction = () => {
       ]);
     },
   });
+
+  return {
+    cancelConstruction,
+  };
 };

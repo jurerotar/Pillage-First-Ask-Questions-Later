@@ -3,7 +3,7 @@ import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import { useScheduleBuildingUpgrade } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
+import { useScheduledBuildingUpgrades } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 
@@ -13,7 +13,7 @@ export const useBuildingActions = (
 ) => {
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const { virtualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
-  const { mutate: scheduleBuildingUpgrade } = useScheduleBuildingUpgrade();
+  const { scheduleBuildingUpgrade } = useScheduledBuildingUpgrades();
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent(
     'buildingConstruction',
   );
@@ -31,6 +31,15 @@ export const useBuildingActions = (
     currentVillageBuildingEventsQueue.length > 0;
 
   const constructBuilding = useCallback(() => {
+    if (hasCurrentVillageBuildingEvents) {
+      scheduleBuildingUpgrade({
+        buildingId,
+        buildingFieldId,
+        level: 0,
+      });
+      return;
+    }
+
     createBuildingConstructionEvent({
       buildingFieldId,
       buildingId,
@@ -38,7 +47,13 @@ export const useBuildingActions = (
       previousLevel: 0,
       cachesToClearImmediately: [currentVillageCacheKey],
     });
-  }, [createBuildingConstructionEvent, buildingFieldId, buildingId]);
+  }, [
+    hasCurrentVillageBuildingEvents,
+    scheduleBuildingUpgrade,
+    buildingId,
+    buildingFieldId,
+    createBuildingConstructionEvent,
+  ]);
 
   const upgradeBuilding = useCallback(() => {
     const args = {

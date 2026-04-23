@@ -49,7 +49,7 @@ export const VillageConstructionTable = () => {
     return [...base, ...empties];
   }, [currentVillageBuildingEvents, availableSlotsCount]);
 
-  const { mutate: cancelConstruction } = useCancelConstruction();
+  const { cancelConstruction } = useCancelConstruction();
 
   return (
     <div className="w-full overflow-x-auto">

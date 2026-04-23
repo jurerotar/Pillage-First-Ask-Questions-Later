@@ -16,7 +16,7 @@ import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cance
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import {
   type ScheduledBuildingUpgrade,
-  useRemoveScheduledBuildingUpgrade,
+  useScheduledBuildingUpgrades,
 } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
@@ -36,7 +36,7 @@ const ConstructionQueueBuilding = ({
   const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const { mutate: cancelConstruction } = useCancelConstruction();
+  const { cancelConstruction } = useCancelConstruction();
 
   const tooltipId = `tooltip-${buildingEvent.id}`;
   const tooltipKey = isWiderThanLg
@@ -135,12 +135,15 @@ const ConstructionQueueScheduledUpgrade = ({
   const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-  const { mutate: removeUpgrade } = useRemoveScheduledBuildingUpgrade();
+  const { removeScheduledBuildingUpgrade } = useScheduledBuildingUpgrades();
 
   const tooltipId = `tooltip-scheduled-${upgrade.id}`;
   const tooltipKey = isWiderThanLg
     ? 'is-wider-than-lg-scheduled'
     : 'is-not-wider-than-lg-scheduled';
+
+  const levelUpgradingFrom = upgrade.level === 0 ? 0 : upgrade.level - 1;
+  const levelUpgradingTo = upgrade.level === 0 ? 1 : upgrade.level;
 
   return (
     <>
@@ -181,8 +184,8 @@ const ConstructionQueueScheduledUpgrade = ({
               <span className="inline-flex gap-1 whitespace-nowrap">
                 <b>{t(`BUILDINGS.${upgrade.buildingId}.NAME`)}</b>
                 <span className="inline-flex items-center text-sm">
-                  ({upgrade.level - 1} <IoIosArrowRoundForward />{' '}
-                  {upgrade.level})
+                  ({levelUpgradingFrom} <IoIosArrowRoundForward />{' '}
+                  {levelUpgradingTo})
                 </span>
               </span>
               <span className="inline-flex gap-1 text-sm">
@@ -192,9 +195,11 @@ const ConstructionQueueScheduledUpgrade = ({
             <div className="flex items-center">
               <button
                 aria-label={t('Remove scheduled building upgrade')}
-                onClick={() =>
-                  removeUpgrade({ scheduledUpgradeId: upgrade.id })
-                }
+                onClick={() => {
+                  removeScheduledBuildingUpgrade({
+                    scheduledUpgradeId: upgrade.id,
+                  });
+                }}
                 type="button"
               >
                 <MdCancel className="text-xl lg:text-2xl text-red-400 box-content" />

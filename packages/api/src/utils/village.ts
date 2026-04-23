@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
@@ -45,6 +49,49 @@ export const demolishBuilding = (
       $building_field_id: buildingFieldId,
     },
   });
+};
+
+export const constructBuilding = (
+  database: DbFacade,
+  villageId: number,
+  buildingId: Building['id'],
+  buildingFieldId: number,
+): void => {
+  // Create building field
+  database.exec({
+    sql: `
+      INSERT INTO building_fields (village_id, field_id, building_id, level)
+      SELECT $village_id, $field_id, bi.id, 0
+      FROM building_ids bi
+      WHERE bi.building = $building_id
+    `,
+    bind: {
+      $village_id: villageId,
+      $field_id: buildingFieldId,
+      $building_id: buildingId,
+    },
+  });
+
+  // Create building effects
+  const { effects } = getBuildingDefinition(buildingId);
+
+  for (const { effectId, valuesPerLevel, type } of effects) {
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+        SELECT ei.id, $value, $type, 'village', 'building', $village_id, $source_specifier
+        FROM effect_ids ei
+        WHERE ei.effect = $effect_id;
+      `,
+      bind: {
+        $effect_id: effectId,
+        $value: valuesPerLevel[0],
+        $type: type,
+        $village_id: villageId,
+        $source_specifier: buildingFieldId,
+      },
+    });
+  }
 };
 
 type CalculateVillageResourcesAtReturn = {

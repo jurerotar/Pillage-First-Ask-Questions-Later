@@ -12,6 +12,7 @@ import {
 } from '../utils/queries/event-queries';
 import {
   addVillageResourcesAt,
+  constructBuilding,
   demolishBuilding,
   processScheduledUpgrades,
 } from '../utils/village';
@@ -66,23 +67,7 @@ export const scheduleBuildingUpgrade = createController(
       }
 
       if (level === 0) {
-        db.exec({
-          sql: `
-            INSERT INTO
-              building_fields (village_id, field_id, building_id, level)
-            VALUES
-              ($village_id, $field_id, (
-                SELECT id
-                FROM building_ids
-                WHERE building = $building_id
-                ), 0)
-          `,
-          bind: {
-            $village_id: villageId,
-            $field_id: buildingFieldId,
-            $building_id: buildingId,
-          },
-        });
+        constructBuilding(database, villageId, buildingId, buildingFieldId);
       }
 
       db.exec({

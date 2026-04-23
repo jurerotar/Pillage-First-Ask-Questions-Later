@@ -377,7 +377,7 @@ export const validateEventCreationPrerequisites = (
             FROM
               events e
             WHERE
-              e.type IN ('buildingConstruction', 'buildingLevelChange')
+              e.type = 'buildingLevelChange'
               AND e.village_id = $village_id
               AND e.id <> $resolving_event_id
               AND (
@@ -399,7 +399,7 @@ export const validateEventCreationPrerequisites = (
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
-        $resolving_event_id: event.id ?? -1,
+        $resolving_event_id: event.id,
       },
       schema: z.strictObject({
         tribe: playableTribeSchema,
