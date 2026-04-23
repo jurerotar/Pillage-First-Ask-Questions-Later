@@ -1,3 +1,10 @@
+## Version 0.4.9
+
+#### Apr 23, 2026
+
+* [Feature] Added Natars as a possible NPC tribe during game world creation.
+* [BugFix] Removed Nature and Spartans from game world overview charts.
+
 ## Version 0.4.8
 
 #### Apr 20, 2026

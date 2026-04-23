@@ -6,7 +6,7 @@ import {
 } from '@pillage-first/game-assets/player';
 import type { Player } from '@pillage-first/types/models/player';
 import type { Server } from '@pillage-first/types/models/server';
-import type { PlayableTribe } from '@pillage-first/types/models/tribe';
+import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import { seededRandomArrayElement } from '@pillage-first/utils/random';
 
@@ -30,13 +30,10 @@ const npcPlayerFactory = ({
 
   const paddedDiscriminator = `${id % 10_000}`.padStart(4, '0');
 
-  const tribe = seededRandomArrayElement<PlayableTribe>(prng, [
-    'romans',
-    'gauls',
-    'teutons',
-    'egyptians',
-    'huns',
-  ]);
+  const tribe = seededRandomArrayElement<Tribe>(
+    prng,
+    tribeSchema.exclude(['spartans', 'nature']).options,
+  );
 
   return {
     id,
