@@ -16,6 +16,10 @@ export default [
         'frequently-asked-questions',
         '(public)/(frequently-asked-questions)/page.tsx',
       ),
+      ...prefix('wiki', [
+        index('(public)/(wiki)/(index)/page.tsx'),
+        route('introduction', '(public)/(wiki)/(introduction)/page.tsx'),
+      ]),
       route('latest-updates', '(public)/(latest-updates)/page.tsx'),
       ...prefix('game-worlds', [
         index('(public)/(game-worlds)/(index)/page.tsx'),

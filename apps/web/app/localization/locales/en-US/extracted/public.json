@@ -29,6 +29,7 @@
   "Import game world": "Import game world",
   "Imported": "Imported",
   "Importing...": "Importing...",
+  "Introduction": "Introduction",
   "Latest updates": "Latest updates",
   "Learn about the game": "Learn about the game",
   "Light": "Light",
@@ -61,6 +62,6 @@
   "This method allows you to import game world files directly from your computer.": "This method allows you to import game world files directly from your computer.",
   "Want to create a new game world, or continue with your existing ones instead?": "Want to create a new game world, or continue with your existing ones instead?",
   "We strive for a great experience on any device.": "We strive for a great experience on any device.",
-  "Wiki (coming soon)": "Wiki (coming soon)",
+  "Wiki": "Wiki",
   "Your game worlds": "Your game worlds"
 }
