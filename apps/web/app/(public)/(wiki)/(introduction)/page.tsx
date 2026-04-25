@@ -6,13 +6,13 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import WikiIndexMdx from './mdx/content.mdx';
+import WikiIntroductionMdx from './mdx/content.mdx';
 
-const WikiIndexPage = () => {
+const WikiIntroductionPage = () => {
   const { t } = useTranslation('public');
 
   const title = t('{{title}} | Pillage First!', {
-    title: 'Wiki',
+    title: 'Introduction',
   });
 
   return (
@@ -28,15 +28,16 @@ const WikiIndexPage = () => {
             <BreadcrumbItem>
               <BreadcrumbLink to="/wiki">{t('Wiki')}</BreadcrumbLink>
             </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>{t('Introduction')}</BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
         <main className="flex flex-col gap-4">
-          <WikiIndexMdx />
+          <WikiIntroductionMdx />
         </main>
       </div>
     </>
   );
 };
 
-export default WikiIndexPage;
+export default WikiIntroductionPage;

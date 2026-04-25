@@ -93,7 +93,7 @@ export const Footer = () => {
             </li>
             <li>
               <Link to="/wiki">
-                <Text className="font-medium ">{t('Wiki')}</Text>
+                <Text className="font-medium">{t('Wiki')}</Text>
               </Link>
             </li>
             <li>

@@ -20,6 +20,7 @@ export default [
       ...prefix('wiki', [
         layout('(public)/(wiki)/layout.tsx', [
           index('(public)/(wiki)/(index)/page.tsx'),
+          route('introduction', '(public)/(wiki)/(introduction)/page.tsx'),
           // ...prefix('units', [
           //   route(':unitId', '(public)/(wiki)/(units)/page.tsx'),
           // ]),
