@@ -16,14 +16,11 @@ export default [
         'frequently-asked-questions',
         '(public)/(frequently-asked-questions)/page.tsx',
       ),
-      ...prefix('wiki', [
-        index('(public)/(wiki)/(index)/page.tsx'),
-        route('introduction', '(public)/(wiki)/(introduction)/page.tsx'),
-      ]),
       route('latest-updates', '(public)/(latest-updates)/page.tsx'),
       ...prefix('wiki', [
         layout('(public)/(wiki)/layout.tsx', [
           index('(public)/(wiki)/(index)/page.tsx'),
+          route('introduction', '(public)/(wiki)/(introduction)/page.tsx'),
           // ...prefix('units', [
           //   route(':unitId', '(public)/(wiki)/(units)/page.tsx'),
           // ]),

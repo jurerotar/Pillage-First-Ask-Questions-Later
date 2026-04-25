@@ -6,7 +6,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import IndexMdx from './mdx/index.mdx';
+import WikiIndexMdx from './mdx/content.mdx';
 
 const WikiIndexPage = () => {
   const { t } = useTranslation('public');
@@ -32,7 +32,7 @@ const WikiIndexPage = () => {
         </Breadcrumb>
 
         <main className="flex flex-col gap-4">
-          <IndexMdx />
+          <WikiIndexMdx />
         </main>
       </div>
     </>
