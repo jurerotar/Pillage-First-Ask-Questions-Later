@@ -1,57 +1,27 @@
-import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  getBuildingDataForLevel,
-  getBuildingFieldByBuildingFieldId,
-} from '@pillage-first/game-assets/utils/buildings';
+import { getBuildingDataForLevel } from '@pillage-first/game-assets/utils/buildings';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
+import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { Icon } from 'app/components/icon';
 import { formatTime } from 'app/utils/time';
 
 type BuildingFieldTooltipProps = {
-  buildingFieldId: BuildingField['id'];
+  buildingField: BuildingField;
 };
 
 export const BuildingFieldTooltip = ({
-  buildingFieldId,
+  buildingField,
 }: BuildingFieldTooltipProps) => {
+  const { buildingId, id: buildingFieldId, level } = buildingField;
+
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const buildingField = getBuildingFieldByBuildingFieldId(
-    currentVillage,
-    buildingFieldId,
-  );
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
+  const { virtualLevel, isUpgrading, isDowngrading } =
+    useBuildingVirtualLevel(buildingFieldId);
 
-  if (!buildingField) {
-    return t('Building site');
-  }
-
-  const { buildingId, level } = buildingField;
-
-  const sameBuildingConstructionEvents = currentVillageBuildingEvents.filter(
-    ({
-      buildingFieldId: eventBuildingFieldId,
-      buildingId: buildingUnderConstructionId,
-    }) => {
-      return (
-        buildingUnderConstructionId === buildingId &&
-        eventBuildingFieldId === buildingFieldId
-      );
-    },
-  );
-
-  const isCurrentlyUpgradingThisBuilding =
-    sameBuildingConstructionEvents.length > 0;
-
-  const upgradingToLevel = level + sameBuildingConstructionEvents.length;
+  const upgradingToLevel = virtualLevel;
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
     getBuildingDataForLevel(buildingId, upgradingToLevel);
@@ -73,7 +43,14 @@ export const BuildingFieldTooltip = ({
       )}
       {!isMaxLevel && (
         <>
-          {isCurrentlyUpgradingThisBuilding && (
+          {isDowngrading && (
+            <span className="text-warning">
+              {t('Currently downgrading to level {{level}}', {
+                level: upgradingToLevel,
+              })}
+            </span>
+          )}
+          {isUpgrading && (
             <span className="text-warning">
               {t('Currently upgrading to level {{level}}', {
                 level: upgradingToLevel,

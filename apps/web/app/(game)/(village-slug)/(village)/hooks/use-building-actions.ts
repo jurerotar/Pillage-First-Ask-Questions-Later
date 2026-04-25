@@ -11,7 +11,7 @@ export const useBuildingActions = (
   buildingFieldId: BuildingField['id'],
 ) => {
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
-  const { virtualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
+  const { virtualLevel } = useBuildingVirtualLevel(buildingFieldId);
   const { createEvent: createBuildingScheduledConstructionEvent } =
     useCreateEvent('buildingScheduledConstruction');
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent(

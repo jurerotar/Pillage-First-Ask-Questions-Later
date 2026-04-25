@@ -87,10 +87,8 @@ export const BuildingOverview = ({
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { buildingFieldId } = use(BuildingFieldContext);
-  const { actualLevel, virtualLevel } = useBuildingVirtualLevel(
-    buildingId,
-    buildingFieldId,
-  );
+  const { actualLevel, virtualLevel, isUpgrading, isDowngrading } =
+    useBuildingVirtualLevel(buildingFieldId);
 
   const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(
     buildingId,
@@ -112,14 +110,19 @@ export const BuildingOverview = ({
           {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
         </Text>
       )}
-      {actualLevel !== virtualLevel && (
+      {(isUpgrading || isDowngrading) && (
         <span
           data-testid="building-overview-currently-upgrading-span"
           className="inline-flex text-warning mt-2"
         >
-          {t('Currently upgrading to level {{level}}', {
-            level: virtualLevel,
-          })}
+          {t(
+            isUpgrading
+              ? 'Currently upgrading to level {{level}}'
+              : 'Currently downgrading to level {{level}}',
+            {
+              level: virtualLevel,
+            },
+          )}
         </span>
       )}
       {isActualMaxLevel && (
@@ -140,10 +143,8 @@ export const BuildingCost = () => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
   const { buildingId } = use(BuildingCardContext);
-  const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(
-    buildingId,
-    buildingFieldId,
-  );
+  const { virtualLevel, doesBuildingExist } =
+    useBuildingVirtualLevel(buildingFieldId);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
@@ -285,7 +286,7 @@ export const BuildingBenefits = () => {
   const { building, buildingId } = use(BuildingCardContext);
   const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel, doesBuildingExist } =
-    useBuildingVirtualLevel(buildingId, buildingFieldId);
+    useBuildingVirtualLevel(buildingFieldId);
 
   const {
     isMaxLevel,

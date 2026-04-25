@@ -21,9 +21,7 @@ import {
 export const VillageConstructionTable = () => {
   const { t } = useTranslation();
   const tribe = useTribe();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
+  const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
 
   const totalSlotsCount = 5;
   const availableSlotsCount = tribe === 'romans' ? 2 : 1;
@@ -31,14 +29,14 @@ export const VillageConstructionTable = () => {
   const slots = useMemo(() => {
     const emptySlotsCount = Math.max(
       0,
-      totalSlotsCount - currentVillageBuildingEvents.length,
+      totalSlotsCount - buildingUpgradeEvents.length,
     );
-    const base = currentVillageBuildingEvents.map((event) => ({
+    const base = buildingUpgradeEvents.map((event) => ({
       type: 'building' as const,
       event,
     }));
     const empties = Array.from({ length: emptySlotsCount }, (_, i) => {
-      const slotIndex = currentVillageBuildingEvents.length + i;
+      const slotIndex = buildingUpgradeEvents.length + i;
       const isFree = slotIndex < availableSlotsCount;
       return {
         type: 'empty' as const,
@@ -47,7 +45,7 @@ export const VillageConstructionTable = () => {
       };
     });
     return [...base, ...empties];
-  }, [currentVillageBuildingEvents, availableSlotsCount]);
+  }, [buildingUpgradeEvents, availableSlotsCount]);
 
   const { mutate: cancelConstruction } = useCancelConstruction();
 

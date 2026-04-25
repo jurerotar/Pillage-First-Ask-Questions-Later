@@ -17,6 +17,9 @@ const publicPagesToPrerender = [
   '/wiki',
   '/wiki/introduction',
   '/404',
+  '/wiki',
+  '/wiki/buildings',
+  '/wiki/units',
 ];
 
 const localizedPagesToPrerender = locales.flatMap((locale) => {

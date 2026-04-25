@@ -47,19 +47,30 @@ const getEventResolvedInfo = (
 ): NotificationInfo | undefined => {
   if (isBuildingLevelUpEvent(event)) {
     const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
-    const { level } = event;
+    const { level, previousLevel } = event;
+    const isDowngradeEvent = level < previousLevel;
 
-    const toastTitle = t('{{buildingName}} upgraded', {
-      buildingName,
-    });
+    const toastTitle = t(
+      isDowngradeEvent
+        ? '{{buildingName}} downgraded'
+        : '{{buildingName}} upgraded',
+      {
+        buildingName,
+      },
+    );
 
     return {
       toastTitle,
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
-      body: t('{{buildingName}} was upgraded to level {{level}}', {
-        buildingName,
-        level,
-      }),
+      body: t(
+        isDowngradeEvent
+          ? '{{buildingName}} was downgraded to level {{level}}'
+          : '{{buildingName}} was upgraded to level {{level}}',
+        {
+          buildingName,
+          level,
+        },
+      ),
     };
   }
 
@@ -133,13 +144,19 @@ const getEventCreatedInfo = (
 ): NotificationInfo | undefined => {
   if (isBuildingLevelUpEvent(event)) {
     const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
-    const { level } = event;
+    const { level, previousLevel } = event;
+    const isDowngradeEvent = level < previousLevel;
 
     return {
-      toastTitle: t('{{buildingName}} level {{level}} upgrade started', {
-        buildingName,
-        level,
-      }),
+      toastTitle: t(
+        isDowngradeEvent
+          ? '{{buildingName}} level {{level}} downgrade started'
+          : '{{buildingName}} level {{level}} upgrade started',
+        {
+          buildingName,
+          level,
+        },
+      ),
     };
   }
 
