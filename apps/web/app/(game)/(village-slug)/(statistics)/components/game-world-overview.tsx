@@ -32,6 +32,8 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 
+const overviewTribes = tribeSchema.exclude(['nature', 'spartans']).options;
+
 export const GameWorldOverview = () => {
   const { t } = useTranslation();
   const { server } = useServer();
@@ -54,7 +56,7 @@ export const GameWorldOverview = () => {
   }, [gameWorldOverviewStatistics.villagesByFaction]);
 
   const playersByTribeData = useMemo(() => {
-    return tribeSchema.options.map((name) => ({
+    return overviewTribes.map((name) => ({
       name,
       value: gameWorldOverviewStatistics.playersByTribe[name],
       fill: TRIBE_COLORS[name] ?? '#94a3b8',
@@ -62,7 +64,7 @@ export const GameWorldOverview = () => {
   }, [gameWorldOverviewStatistics.playersByTribe]);
 
   const villagesByTribeData = useMemo(() => {
-    return tribeSchema.options.map((name) => ({
+    return overviewTribes.map((name) => ({
       name,
       value: gameWorldOverviewStatistics.villagesByTribe[name],
       fill: TRIBE_COLORS[name] ?? '#94a3b8',
