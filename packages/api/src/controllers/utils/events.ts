@@ -380,6 +380,11 @@ export const validateEventCreationPrerequisites = (
             WHERE
               e.type IN ('buildingConstruction', 'buildingLevelChange')
               AND e.village_id = $village_id
+              AND NOT (
+                e.type = 'buildingLevelChange'
+                AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
+                  CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
+              )
               AND (
                 -- If player is not Romans, include all building events
                 pt.tribe <> 'romans'

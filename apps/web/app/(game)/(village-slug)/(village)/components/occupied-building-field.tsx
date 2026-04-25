@@ -66,9 +66,7 @@ export const OccupiedBuildingField = ({
   buildingField,
 }: OccupiedBuildingFieldProps) => {
   const { t } = useTranslation();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
+  const { buildingEvents } = use(CurrentVillageBuildingQueueContext);
   const { bookmarks } = useBookmarks();
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
@@ -79,11 +77,11 @@ export const OccupiedBuildingField = ({
   const tab = bookmarks[buildingId] ?? 'default';
 
   const currentBuildingFieldBuildingEvent = useMemo(() => {
-    return currentVillageBuildingEvents.find(
+    return buildingEvents.find(
       ({ buildingFieldId: buildingEventBuildingFieldId }) =>
         buildingEventBuildingFieldId === buildingFieldId,
     );
-  }, [currentVillageBuildingEvents, buildingFieldId]);
+  }, [buildingEvents, buildingFieldId]);
 
   const content = (
     <OccupiedBuildingFieldContent

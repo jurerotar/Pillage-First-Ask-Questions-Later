@@ -2,9 +2,11 @@ import { Activity, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
+import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/utils/buildings';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
 import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import { Tooltip } from 'app/components/tooltip';
@@ -25,6 +27,7 @@ const VillagePage = (props: Route.ComponentProps) => {
 
   const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { currentVillage } = useCurrentVillage();
 
   const isResourcesPageOpen = matches.some(
     (match) => match?.id === 'resources-page',
@@ -42,9 +45,20 @@ const VillagePage = (props: Route.ComponentProps) => {
         return null;
       }
 
-      return <BuildingFieldTooltip buildingFieldId={Number(id)} />;
+      const buildingFieldId = Number(id)!;
+
+      const buildingField = getBuildingFieldByBuildingFieldId(
+        currentVillage,
+        buildingFieldId,
+      );
+
+      if (!buildingField) {
+        return t('Building site');
+      }
+
+      return <BuildingFieldTooltip buildingField={buildingField} />;
     },
-    [],
+    [currentVillage, t],
   );
 
   useEffect(() => {
@@ -70,7 +84,7 @@ const VillagePage = (props: Route.ComponentProps) => {
         render={renderTooltip}
       />
       <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
-        <div className="relative aspect-[16/10] scrollbar-hidden min-w-[460px] max-w-5xl w-full">
+        <div className="relative aspect-16/10 scrollbar-hidden min-w-[460px] max-w-5xl w-full">
           {resourceViewBuildingFieldIds.map((buildingFieldId) => (
             <Activity
               mode={isResourcesPageOpen ? 'visible' : 'hidden'}
