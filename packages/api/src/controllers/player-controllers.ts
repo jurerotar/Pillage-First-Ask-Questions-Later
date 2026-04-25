@@ -85,7 +85,8 @@ export const getPlayerVillagesWithPopulation = createController(
       WHERE
         v.player_id = $player_id
       GROUP BY
-        v.id, v.tile_id, t.x, t.y, v.name, v.slug, rfc.resource_field_composition;
+        v.id, v.tile_id, t.x, t.y, v.name, v.slug, rfc.resource_field_composition
+      ORDER BY population DESC;
     `,
     bind: { $player_id: playerId },
     schema: getPlayerVillagesWithPopulationSchema,

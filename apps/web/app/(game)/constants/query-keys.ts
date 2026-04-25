@@ -14,6 +14,7 @@ export const unitResearchCacheKey = 'unit-research';
 export const villageListingCacheKey = 'village-listing';
 export const mapFiltersCacheKey = 'map-filters';
 export const eventsCacheKey = 'events';
+export const scheduledBuildingUpgradesCacheKey = 'scheduled-building-upgrades';
 export const mapMarkersCacheKey = 'map-markers';
 export const artifactsInVicinityCacheKey = 'artifacts-in-vicinity';
 export const adventurePointsCacheKey = 'adventure-points';

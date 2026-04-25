@@ -15,7 +15,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination.ts';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
@@ -28,7 +28,7 @@ import {
 } from 'app/(game)/components/unit-table';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
-import { Pagination } from 'app/components/ui/pagination.tsx';
+import { Pagination } from 'app/components/ui/pagination';
 
 const formatTroopAmount = (tribe: Tribe, troops: Troop[]) => {
   const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];

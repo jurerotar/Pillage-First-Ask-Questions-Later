@@ -8,13 +8,18 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { partition } from '@pillage-first/utils/array';
 import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import {
+  type ScheduledBuildingUpgrade,
+  useScheduledBuildingUpgrades,
+} from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 type CurrentVillageBuildingQueueContextReturn = {
   currentVillageBuildingEvents: BuildingEvent[];
+  scheduledBuildingUpgrades: ScheduledBuildingUpgrade[];
   getBuildingEventQueue: (
     buildingFieldId: BuildingField['id'],
-  ) => BuildingEvent[];
+  ) => (BuildingEvent | ScheduledBuildingUpgrade)[];
 };
 
 export const CurrentVillageBuildingQueueContext =
@@ -27,10 +32,15 @@ export const CurrentVillageBuildingQueueContextProvider = ({
 }: PropsWithChildren) => {
   const tribe = useTribe();
   const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { scheduledBuildingUpgrades } = useScheduledBuildingUpgrades();
+
+  const buildingEvents = useMemo(() => {
+    return [...currentVillageBuildingEvents, ...scheduledBuildingUpgrades];
+  }, [currentVillageBuildingEvents, scheduledBuildingUpgrades]);
 
   const buildingEventQueues = useMemo(() => {
-    const [resourceQueue, villageQueue] = partition<BuildingEvent>(
-      currentVillageBuildingEvents,
+    const [resourceQueue, villageQueue] = partition(
+      buildingEvents,
       (event) => event.buildingFieldId <= 18,
     );
 
@@ -38,27 +48,34 @@ export const CurrentVillageBuildingQueueContextProvider = ({
       resourceQueue,
       villageQueue,
     };
-  }, [currentVillageBuildingEvents]);
+  }, [buildingEvents]);
 
   const getBuildingEventQueue = useCallback(
-    (buildingFieldId: BuildingField['id']): BuildingEvent[] => {
+    (
+      buildingFieldId: BuildingField['id'],
+    ): (BuildingEvent | ScheduledBuildingUpgrade)[] => {
       if (tribe !== 'romans') {
-        return currentVillageBuildingEvents;
+        return buildingEvents;
       }
 
       return buildingFieldId <= 18
         ? buildingEventQueues.resourceQueue
         : buildingEventQueues.villageQueue;
     },
-    [tribe, currentVillageBuildingEvents, buildingEventQueues],
+    [tribe, buildingEvents, buildingEventQueues],
   );
 
   const value = useMemo(
     () => ({
       currentVillageBuildingEvents,
+      scheduledBuildingUpgrades,
       getBuildingEventQueue,
     }),
-    [currentVillageBuildingEvents, getBuildingEventQueue],
+    [
+      currentVillageBuildingEvents,
+      scheduledBuildingUpgrades,
+      getBuildingEventQueue,
+    ],
   );
 
   return (

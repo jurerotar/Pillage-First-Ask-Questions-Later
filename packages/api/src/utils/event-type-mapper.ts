@@ -4,7 +4,6 @@ import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
-  buildingScheduledConstructionEventResolver,
 } from '../controllers/resolvers/building-resolvers';
 import {
   heroHealthRegenerationResolver,
@@ -35,9 +34,6 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'buildingDestruction': {
       return buildingDestructionResolver;
-    }
-    case 'buildingScheduledConstruction': {
-      return buildingScheduledConstructionEventResolver;
     }
     case 'troopTraining': {
       return troopTrainingEventResolver;
@@ -83,6 +79,9 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'unitImprovement': {
       return unitImprovementResolver;
+    }
+    case 'buildingScheduledConstruction': {
+      return () => {};
     }
     default: {
       console.error(`No resolver function set for event type ${gameEventType}`);

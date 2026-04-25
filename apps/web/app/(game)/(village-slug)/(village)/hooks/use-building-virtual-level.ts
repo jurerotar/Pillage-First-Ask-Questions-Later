@@ -9,7 +9,7 @@ export const useBuildingVirtualLevel = (
   buildingFieldId: BuildingField['id'],
 ) => {
   const { currentVillage } = useCurrentVillage();
-  const { currentVillageBuildingEvents } = use(
+  const { currentVillageBuildingEvents, scheduledBuildingUpgrades } = use(
     CurrentVillageBuildingQueueContext,
   );
 
@@ -35,12 +35,34 @@ export const useBuildingVirtualLevel = (
       },
     );
 
-    if (sameBuildingConstructionEvents.length > 0) {
-      return actualLevel + sameBuildingConstructionEvents.length;
+    const sameBuildingScheduledUpgrades = scheduledBuildingUpgrades.filter(
+      ({
+        buildingFieldId: upgradeBuildingFieldId,
+        buildingId: upgradeBuildingId,
+      }) => {
+        return (
+          upgradeBuildingId === buildingId &&
+          upgradeBuildingFieldId === buildingFieldId
+        );
+      },
+    );
+
+    const extraLevels =
+      sameBuildingConstructionEvents.length +
+      sameBuildingScheduledUpgrades.length;
+
+    if (extraLevels > 0) {
+      return actualLevel + extraLevels;
     }
 
     return actualLevel;
-  }, [currentVillageBuildingEvents, buildingId, buildingFieldId, actualLevel]);
+  }, [
+    currentVillageBuildingEvents,
+    scheduledBuildingUpgrades,
+    buildingId,
+    buildingFieldId,
+    actualLevel,
+  ]);
 
   return {
     doesBuildingExist,

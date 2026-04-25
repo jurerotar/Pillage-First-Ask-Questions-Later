@@ -130,11 +130,7 @@ const OccupiedBuildingFieldActive = ({
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
-  const { errorBag } = useBuildingConstructionErrorBag(
-    buildingId,
-    level,
-    buildingFieldId,
-  );
+  const { errorBag } = useBuildingConstructionErrorBag(buildingId, level);
   const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
 
   const onLongPress = () => {

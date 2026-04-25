@@ -1,7 +1,13 @@
 import { z } from 'zod';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
+import { createEvents } from '../controllers/utils/create-event';
 import { selectAllRelevantEffectsQuery } from './queries/effect-queries';
 import { apiEffectSchema } from './zod/effect-schemas';
 
@@ -43,6 +49,49 @@ export const demolishBuilding = (
       $building_field_id: buildingFieldId,
     },
   });
+};
+
+export const constructBuilding = (
+  database: DbFacade,
+  villageId: number,
+  buildingId: Building['id'],
+  buildingFieldId: number,
+): void => {
+  // Create building field
+  database.exec({
+    sql: `
+      INSERT INTO building_fields (village_id, field_id, building_id, level)
+      SELECT $village_id, $field_id, bi.id, 0
+      FROM building_ids bi
+      WHERE bi.building = $building_id
+    `,
+    bind: {
+      $village_id: villageId,
+      $field_id: buildingFieldId,
+      $building_id: buildingId,
+    },
+  });
+
+  // Create building effects
+  const { effects } = getBuildingDefinition(buildingId);
+
+  for (const { effectId, valuesPerLevel, type } of effects) {
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+        SELECT ei.id, $value, $type, 'village', 'building', $village_id, $source_specifier
+        FROM effect_ids ei
+        WHERE ei.effect = $effect_id;
+      `,
+      bind: {
+        $effect_id: effectId,
+        $value: valuesPerLevel[0],
+        $type: type,
+        $village_id: villageId,
+        $source_specifier: buildingFieldId,
+      },
+    });
+  }
 };
 
 type CalculateVillageResourcesAtReturn = {
@@ -358,4 +407,108 @@ export const subtractVillageResourcesAt = (
       $ts: timestamp,
     },
   });
+};
+
+export const processScheduledUpgrades = (
+  database: DbFacade,
+  villageId: number,
+): void => {
+  let hasProcessed = true;
+
+  while (hasProcessed) {
+    hasProcessed = false;
+
+    const nextScheduled = database.selectObject({
+      sql: `
+        SELECT su.id, bi.building AS buildingId, su.building_field_id AS buildingFieldId, su.level
+        FROM scheduled_building_upgrades su
+        JOIN building_ids bi ON bi.id = su.building_id
+        WHERE su.village_id = $village_id
+        ORDER BY su.id ASC
+        LIMIT 1;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        id: z.number(),
+        buildingId: buildingIdSchema,
+        buildingFieldId: z.number(),
+        level: z.number(),
+      }),
+    });
+
+    if (nextScheduled) {
+      try {
+        if (nextScheduled.level === 0) {
+          createEvents<'buildingConstruction'>(database, {
+            type: 'buildingConstruction',
+            villageId,
+            buildingId: nextScheduled.buildingId,
+            buildingFieldId: nextScheduled.buildingFieldId,
+            level: 1,
+            previousLevel: 0,
+          });
+        } else {
+          createEvents<'buildingLevelChange'>(database, {
+            type: 'buildingLevelChange',
+            villageId,
+            buildingId: nextScheduled.buildingId,
+            buildingFieldId: nextScheduled.buildingFieldId,
+            level: nextScheduled.level,
+            previousLevel: nextScheduled.level - 1,
+          });
+        }
+
+        // Remove from scheduled table if successfully created
+        database.exec({
+          sql: 'DELETE FROM scheduled_building_upgrades WHERE id = $id',
+          bind: { $id: nextScheduled.id },
+        });
+
+        hasProcessed = true;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message === 'Building construction queue is full'
+        ) {
+          // If queue is full, we stop processing for now
+          break;
+        }
+
+        console.error('Failed to create event for scheduled upgrade', error);
+        // If the creation fails (e.g. not enough resources or other prerequisite),
+        // cancel all higher levels of the same building
+        if (nextScheduled.level === 0) {
+          database.exec({
+            sql: `
+              DELETE FROM building_fields
+              WHERE village_id = $village_id
+                AND field_id = $building_field_id
+                AND level = 0
+            `,
+            bind: {
+              $village_id: villageId,
+              $building_field_id: nextScheduled.buildingFieldId,
+            },
+          });
+        }
+
+        database.exec({
+          sql: `
+            DELETE FROM scheduled_building_upgrades
+            WHERE village_id = $village_id
+              AND building_field_id = $building_field_id
+              AND level >= $level
+          `,
+          bind: {
+            $village_id: villageId,
+            $building_field_id: nextScheduled.buildingFieldId,
+            $level: nextScheduled.level,
+          },
+        });
+
+        // We deleted some entries, so we should try to pick up the next available one (for a different field maybe)
+        hasProcessed = true;
+      }
+    }
+  }
 };

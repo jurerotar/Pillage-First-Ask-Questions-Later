@@ -21,12 +21,11 @@ export const BuildingUpgradeStatusContextProvider = ({
   buildingField,
   children,
 }: BuildingUpgradeStatusContextProviderProps) => {
-  const { buildingId, level, id } = buildingField;
+  const { buildingId, level } = buildingField;
 
   const { errorBag, variant } = useBuildingConstructionErrorBag(
     buildingId,
     level,
-    id,
   );
 
   const value = useMemo(() => {

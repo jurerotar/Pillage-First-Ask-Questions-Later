@@ -12,34 +12,58 @@ type QuestGroup = {
 };
 
 export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
-  const map = new Map<string, (Quest & { _order: number })[]>();
+  const map = new Map<string, { quest: Quest; order: number }[]>();
 
   for (const quest of quests) {
-    const parts = quest.id.split('-');
-    const groupKey = parts.slice(0, -1).join('-');
-    const order = Number.parseInt(parts[parts.length - 1], 10);
+    const separatorIdx = quest.id.lastIndexOf('-');
+    const groupKey =
+      separatorIdx === -1 ? quest.id : quest.id.slice(0, separatorIdx);
+    const order = Number.parseInt(
+      separatorIdx === -1 ? '0' : quest.id.slice(separatorIdx + 1),
+      10,
+    );
 
-    if (!map.has(groupKey)) {
-      map.set(groupKey, []);
+    const bucket = map.get(groupKey);
+
+    if (bucket) {
+      bucket.push({ quest, order });
+    } else {
+      map.set(groupKey, [{ quest, order }]);
     }
-
-    map.get(groupKey)!.push({ ...quest, _order: order });
   }
 
   const result: QuestGroup[] = [];
 
   for (const [groupKey, questsWithOrder] of map.entries()) {
-    const sorted = questsWithOrder
-      .toSorted((a, b) => a._order - b._order)
-      .map(({ _order, ...q }) => q);
+    questsWithOrder.sort((a, b) => a.order - b.order);
 
-    const hasCollectible = sorted.some(
-      (q) => q.completedAt !== null && q.collectedAt === null,
-    );
-    const allCollected = sorted.every((q) => q.collectedAt !== null);
+    const sorted: Quest[] = new Array(questsWithOrder.length);
+    let hasCollectible = false;
+    let allCollected = true;
+    let doneQuests = 0;
+
+    for (let i = 0; i < questsWithOrder.length; i++) {
+      const quest = questsWithOrder[i].quest;
+
+      sorted[i] = quest;
+
+      const completed = quest.completedAt !== null;
+      const collected = quest.collectedAt !== null;
+
+      if (completed) {
+        doneQuests += 1;
+      }
+
+      if (completed && !collected) {
+        hasCollectible = true;
+      }
+
+      if (!collected) {
+        allCollected = false;
+      }
+    }
 
     const totalQuests = sorted.length;
-    const doneQuests = sorted.filter((q) => q.completedAt !== null).length;
 
     result.push({
       groupKey,

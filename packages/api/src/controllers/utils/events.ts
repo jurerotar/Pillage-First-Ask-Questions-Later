@@ -44,7 +44,6 @@ import {
   isLoyaltyIncreaseEvent,
   isOasisOccupationTroopMovementEvent,
   isReturnTroopMovementEvent,
-  isScheduledBuildingEvent,
   isTroopMovementEvent,
   isTroopTrainingEvent,
   isUnitImprovementEvent,
@@ -378,8 +377,9 @@ export const validateEventCreationPrerequisites = (
             FROM
               events e
             WHERE
-              e.type IN ('buildingConstruction', 'buildingLevelChange')
+              e.type = 'buildingLevelChange'
               AND e.village_id = $village_id
+              AND e.id <> $resolving_event_id
               AND (
                 -- If player is not Romans, include all building events
                 pt.tribe <> 'romans'
@@ -399,6 +399,7 @@ export const validateEventCreationPrerequisites = (
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
+        $resolving_event_id: event.id,
       },
       schema: z.strictObject({
         tribe: playableTribeSchema,
@@ -466,9 +467,6 @@ export const validateEventCreationPrerequisites = (
     if (isBuildingFieldOccupied) {
       throw new Error('Building field is already occupied');
     }
-  }
-
-  if (isScheduledBuildingEvent(event)) {
   }
 
   if (isHeroRevivalEvent(event)) {
@@ -663,7 +661,7 @@ export const getEventDuration = (
   if (isBuildingConstructionEvent(event) || isBuildingDestructionEvent(event)) {
     return 0;
   }
-  if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
+  if (isBuildingLevelUpEvent(event)) {
     const isInstantBuildingConstructionEnabled = database.selectValue({
       sql: 'SELECT is_instant_building_construction_enabled FROM developer_settings',
       schema: z.coerce.boolean(),
@@ -959,54 +957,10 @@ export const getEventStartTime = (
     return lastResolvesAtForThisUnitId;
   }
 
-  if (isScheduledBuildingEvent(event)) {
-    const { villageId, buildingFieldId } = event;
+  if (isAdventurePointIncreaseEvent(event)) {
+    const { startsAt, duration } = event;
 
-    const resolvesAt = database.selectValue({
-      sql: `
-        WITH
-          player_tribe AS (
-            SELECT ti.tribe AS tribe
-            FROM
-              villages v
-                JOIN players p ON p.id = v.player_id
-                JOIN tribe_ids ti ON p.tribe_id = ti.id
-            WHERE
-              v.id = $village_id
-            )
-        SELECT
-          COALESCE(
-            (
-              SELECT MAX(e.resolves_at)
-              FROM
-                events e,
-                player_tribe pt
-              WHERE
-                e.type = 'buildingLevelChange'
-                AND e.village_id = $village_id
-                AND (
-                  -- If player is not Romans, include all building events
-                  pt.tribe <> 'romans'
-                    -- If Romans, only include events from the same "half" (<=18 or >18)
-                    OR (
-                    (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) <= 18 AND $building_field_id <= 18)
-                      OR
-                    (CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) > 18 AND $building_field_id > 18)
-                    )
-                  )
-              ),
-            $now
-          ) AS resolves_at;
-      `,
-      bind: {
-        $village_id: villageId,
-        $building_field_id: buildingFieldId,
-        $now: Date.now(),
-      },
-      schema: z.number(),
-    })!;
-
-    return resolvesAt;
+    return startsAt + duration;
   }
 
   if (isHeroHealthRegenerationEvent(event)) {

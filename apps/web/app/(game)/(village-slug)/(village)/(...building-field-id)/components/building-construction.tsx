@@ -2,6 +2,7 @@ import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
+import { partition } from '@pillage-first/utils/array';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import {
   BuildingBenefits,
@@ -90,18 +91,14 @@ const BuildingCategoryPanel = ({
     });
   }, [buildingsByCategory, assessments, tribe]);
 
-  const sortedAvailableBuildings = useMemo(
-    () =>
-      availableBuildings.toSorted((prev, next) => {
-        const prevAssessment = assessments.get(prev.id)!;
-        const nextAssessment = assessments.get(next.id)!;
+  const sortedAvailableBuildings = useMemo(() => {
+    const [buildableBuildings, nonBuildableBuildings] = partition(
+      availableBuildings,
+      (building) => assessments.get(building.id)!.canBuild,
+    );
 
-        return (
-          Number(nextAssessment.canBuild) - Number(prevAssessment.canBuild)
-        );
-      }),
-    [availableBuildings, assessments],
-  );
+    return [...buildableBuildings, ...nonBuildableBuildings];
+  }, [availableBuildings, assessments]);
 
   const hasNoAvailableBuildings = availableBuildings.length === 0;
 

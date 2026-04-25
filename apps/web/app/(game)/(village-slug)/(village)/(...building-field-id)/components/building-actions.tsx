@@ -29,12 +29,7 @@ const BuildingCardActionsConstruction = ({
   onBuildingConstruction,
 }: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId } = use(BuildingFieldContext);
-  const { errorBag } = useBuildingConstructionErrorBag(
-    buildingId,
-    0,
-    buildingFieldId,
-  );
+  const { errorBag } = useBuildingConstructionErrorBag(buildingId, 0);
 
   return (
     <>
@@ -70,11 +65,7 @@ const BuildingCardActionsUpgrade = ({
     buildingFieldId,
   )!;
 
-  const { errorBag } = useBuildingConstructionErrorBag(
-    buildingId,
-    level,
-    buildingFieldId,
-  );
+  const { errorBag } = useBuildingConstructionErrorBag(buildingId, level);
 
   return (
     <>
