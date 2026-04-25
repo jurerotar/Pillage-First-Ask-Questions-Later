@@ -226,7 +226,7 @@ export const BuildingDetails = () => {
 
   const { buildingId } = buildingField!;
 
-  const { actualLevel } = useBuildingVirtualLevel(buildingId, buildingFieldId);
+  const { actualLevel } = useBuildingVirtualLevel(buildingFieldId);
 
   const tabs = [
     'default',

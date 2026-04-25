@@ -1,8 +1,8 @@
-import { createContext, type PropsWithChildren, useMemo } from 'react';
+import { createContext, type PropsWithChildren, use, useMemo } from 'react';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useCurrentVillageBuildingEvents } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village-building-events';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider.tsx';
 
 type BuildingContextProps = {
   buildingFieldId: BuildingField['id'];
@@ -26,7 +26,7 @@ export const BuildingFieldProvider = ({
   buildingFieldId,
 }: PropsWithChildren<BuildingContextProps>) => {
   const { currentVillage } = useCurrentVillage();
-  const { currentVillageBuildingEvents } = useCurrentVillageBuildingEvents();
+  const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
 
   const { buildingFields } = currentVillage;
 
@@ -46,12 +46,12 @@ export const BuildingFieldProvider = ({
   const buildingIdsInQueue = useMemo(() => {
     const buildingIdsInQueueSet = new Set<Building['id']>();
 
-    for (const ev of currentVillageBuildingEvents) {
+    for (const ev of buildingUpgradeEvents) {
       buildingIdsInQueueSet.add(ev.buildingId);
     }
 
     return buildingIdsInQueueSet;
-  }, [currentVillageBuildingEvents]);
+  }, [buildingUpgradeEvents]);
 
   const value = useMemo(
     () => ({

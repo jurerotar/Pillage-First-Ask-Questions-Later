@@ -494,6 +494,61 @@ describe('events utils', () => {
       ).toThrow('Building construction queue is full');
     });
 
+    test('isBuildingEvent - should not throw if only downgrade event is in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      // Set tribe to Teutons (not Romans) so queue is shared
+      database.exec({
+        sql: `
+          UPDATE players
+          SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'teutons')
+          WHERE id = (SELECT player_id FROM villages WHERE id = $village_id)
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingLevelChangeEventMock({
+          villageId,
+          buildingFieldId: 19,
+          previousLevel: 2,
+          level: 1,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId: 20,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('isBuildingEvent - should not throw if only buildingDestruction event is in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      insertEvents(database, [
+        createBuildingDestructionEventMock({
+          villageId,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId: 20,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
     test('isBuildingDestructionEvent - should throw if building destruction is already in progress', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);

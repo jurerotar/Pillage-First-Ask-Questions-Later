@@ -10,7 +10,9 @@ export const useHasAvailableBuildingQueueSlot = (
   buildingFieldId: BuildingField['id'],
 ) => {
   const { t } = useTranslation();
-  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
+  const { getBuildingEventQueue, buildingDowngradeEvents } = use(
+    CurrentVillageBuildingQueueContext,
+  );
 
   const currentVillageBuildingEventsQueue =
     getBuildingEventQueue(buildingFieldId);
@@ -21,6 +23,20 @@ export const useHasAvailableBuildingQueueSlot = (
 
   if (!canAddAdditionalBuildingToQueue) {
     errorBag.push(t('Building construction queue is full.'));
+  }
+
+  const downgradedBuilding = buildingDowngradeEvents.find(
+    ({ buildingFieldId: eventBuildingFieldId }) =>
+      eventBuildingFieldId === buildingFieldId,
+  );
+
+  if (downgradedBuilding) {
+    const { buildingId } = downgradedBuilding;
+    errorBag.push(
+      t('{{buildingName}} is currently being downgraded or demolished.', {
+        buildingName: t(`BUILDINGS.${buildingId}.NAME`),
+      }),
+    );
   }
 
   return {
