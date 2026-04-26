@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { Button } from 'app/components/ui/button';
 import {
   Table,
   TableBody,
@@ -11,7 +12,13 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 
-export const SmithyImprovementTable = () => {
+type SmithyImprovementTableProps = {
+  onImprovementCancel: (improvementEvent: number) => void;
+};
+
+export const SmithyImprovementTable = ({
+  onImprovementCancel,
+}: SmithyImprovementTableProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { eventsByType: unitImprovementEvents } =
@@ -30,32 +37,38 @@ export const SmithyImprovementTable = () => {
           <TableHeaderCell>{t('Unit')}</TableHeaderCell>
           <TableHeaderCell>{t('Level')}</TableHeaderCell>
           <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
+          <TableHeaderCell>{t('Actions')}</TableHeaderCell>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {hasOngoingCurrentVillageImprovementEvents && (
-          <TableRow>
-            <TableCell>
-              {t(
-                `UNITS.${currentVillageUnitImprovementEvents[0].unitId}.NAME`,
-                {
-                  count: 1,
-                },
-              )}
-            </TableCell>
-            <TableCell>
-              {currentVillageUnitImprovementEvents[0].level}
-            </TableCell>
-            <TableCell>
-              <Countdown
-                endsAt={
-                  currentVillageUnitImprovementEvents[0].startsAt +
-                  currentVillageUnitImprovementEvents[0].duration
-                }
-              />
-            </TableCell>
-          </TableRow>
-        )}
+        {hasOngoingCurrentVillageImprovementEvents &&
+          currentVillageUnitImprovementEvents.map((improvementEvent) => {
+            return (
+              <TableRow key={improvementEvent.id}>
+                <TableCell>
+                  {t(`UNITS.${improvementEvent.unitId}.NAME`, {
+                    count: 1,
+                  })}
+                </TableCell>
+                <TableCell>{improvementEvent.level}</TableCell>
+                <TableCell>
+                  <Countdown
+                    endsAt={
+                      improvementEvent.startsAt + improvementEvent.duration
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <Button
+                    onClick={() => onImprovementCancel(improvementEvent.id)}
+                    size="fit"
+                  >
+                    {t('Cancel')}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         {!hasOngoingCurrentVillageImprovementEvents && (
           <TableRow>
             <TableCell colSpan={3}>

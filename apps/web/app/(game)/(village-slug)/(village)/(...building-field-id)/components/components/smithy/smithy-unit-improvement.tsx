@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { units } from '@pillage-first/game-assets/units';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
@@ -11,15 +12,22 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { SmithyImprovementCancelDialog } from 'app/(game)/(village-slug)/components/smithy-improvement-cancel-dialog';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { Text } from 'app/components/text';
+import { useDialog } from 'app/hooks/use-dialog';
 
 export const SmithyUnitImprovement = () => {
   const { t } = useTranslation();
   const tribe = useTribe();
   const { isUnitResearched } = useUnitResearch();
+  const {
+    isOpen: isCancelImprovementDialogOpen,
+    toggleModal: toggleCancelImprovementDialog,
+  } = useDialog();
+  const [eventIdToBeCancelled, setEventIdToBeCancelled] = useState<number>();
 
   const upgradableUnits = units.filter(({ category, tribe: unitTribe, id }) => {
     return (
@@ -28,6 +36,11 @@ export const SmithyUnitImprovement = () => {
       isUnitResearched(id)
     );
   });
+
+  const cancelUnitUpgrade = (upgradeEventId: number) => {
+    setEventIdToBeCancelled(upgradeEventId);
+    toggleCancelImprovementDialog();
+  };
 
   return (
     <Section>
@@ -41,7 +54,7 @@ export const SmithyUnitImprovement = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <SmithyImprovementTable />
+        <SmithyImprovementTable onImprovementCancel={cancelUnitUpgrade} />
       </SectionContent>
       <SectionContent>
         {upgradableUnits.map(({ id }) => (
@@ -56,6 +69,13 @@ export const SmithyUnitImprovement = () => {
           </UnitCard>
         ))}
       </SectionContent>
+      {eventIdToBeCancelled && (
+        <SmithyImprovementCancelDialog
+          isOpen={isCancelImprovementDialogOpen}
+          onOpenChange={toggleCancelImprovementDialog}
+          eventId={eventIdToBeCancelled}
+        />
+      )}
     </Section>
   );
 };

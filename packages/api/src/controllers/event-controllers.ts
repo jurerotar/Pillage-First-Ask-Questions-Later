@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/utils/buildings';
+import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { Unit } from '@pillage-first/types/models/unit';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {
@@ -14,7 +16,6 @@ import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
 import { eventSchema } from '../utils/zod/event-schemas';
 import { createEvents } from './utils/create-event';
 import { getEventStartTime } from './utils/events';
-
 export const getVillageEvents = createController('/villages/:villageId/events')(
   ({ database, path: { villageId } }) => {
     return database.selectObjects({
@@ -163,5 +164,60 @@ export const cancelConstructionEvent = createController(
     }
   });
 
+  triggerKick();
+});
+
+export const cancelUnitImprovementEvent = createController(
+  '/events/unit-improvement-event/:eventId',
+  'delete',
+)(({ database, path: { eventId } }) => {
+  database.transaction((db) => {
+    const cancelledEvent = db.selectObject({
+      sql: selectEventByIdQuery,
+      bind: {
+        $event_id: eventId,
+      },
+      schema: eventSchema,
+    })! as GameEvent<'unitImprovement'>;
+
+    // Delete this event and all future events on the same units
+    const cancelledEvents = db.selectObjects({
+      sql: `
+        DELETE
+        FROM
+          events
+        WHERE
+          JSON_EXTRACT(events.meta, '$.unitId') = $unitId
+          AND JSON_EXTRACT(events.meta, '$.level') >= $level
+        RETURNING
+          village_id AS villageId,
+          JSON_EXTRACT(events.meta, '$.unitId') AS unitId,
+          JSON_EXTRACT(events.meta, '$.level') AS level;
+        ;
+      `,
+      bind: {
+        $unitId: cancelledEvent.unitId,
+        $level: cancelledEvent.level,
+      },
+      schema: z.strictObject({
+        villageId: z.number(),
+        unitId: z.string() as z.ZodType<Unit['id']>,
+        level: z.number(),
+      }),
+    });
+
+    cancelledEvents.forEach((cancelledEvent) => {
+      const resourcesToRefund = calculateUnitUpgradeCostForLevel(
+        cancelledEvent.unitId,
+        cancelledEvent.level,
+      );
+      addVillageResourcesAt(
+        db,
+        cancelledEvent.villageId,
+        Date.now(),
+        resourcesToRefund,
+      );
+    });
+  });
   triggerKick();
 });
