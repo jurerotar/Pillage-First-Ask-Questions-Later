@@ -235,3 +235,15 @@ export const calculateBuildingDurationForLevel = (
     1000
   );
 };
+
+
+/**
+ * Calculate duration for building destruction or downgrade.
+ * Formula: 5 minutes * level / game world speed
+ */
+export const calculateBuildingDowngradeDuration = (
+  level: number,
+  speed: number,
+): number => {
+  return (5 * 60 * 1000 * level) / speed;
+};
