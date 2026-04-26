@@ -5,6 +5,7 @@ import { calculateAdventurePointIncreaseEventDuration } from '@pillage-first/gam
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDurationForLevel,
+  calculateBuildingDowngradeDuration,
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
 import {
