@@ -1139,6 +1139,52 @@ describe('events utils', () => {
       expect(getEventDuration(database, event)).toBe(0);
     });
 
+    test('buildingDestruction - should apply server speed and return correct duration', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      const speed = database.selectValue({
+        sql: 'SELECT speed FROM servers',
+        schema: speedSchema,
+      })!;
+
+      const previousLevel = 3;
+      const expectedDuration = calculateBuildingDowngradeDuration(previousLevel, speed);
+
+      const event = createBuildingDestructionEventMock({
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        previousLevel,
+      });
+
+      const result = getEventDuration(database, event);
+      expect(result).toBe(expectedDuration);
+    });
+
+    test('buildingLevelChange downgrade - should apply server speed and return correct duration', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      setDevFlag(database, 'is_instant_building_construction_enabled', 0);
+
+      const speed = database.selectValue({
+        sql: 'SELECT speed FROM servers',
+        schema: speedSchema,
+      })!;
+
+      const level = 2;
+      const expectedDuration = calculateBuildingDowngradeDuration(level, speed);
+
+      const event = createBuildingLevelChangeEventMock({
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        previousLevel: 3,
+        level,
+      });
+
+      const result = getEventDuration(database, event);
+      expect(result).toBe(expectedDuration);
+    });
+
     test('buildingLevelUp - should return 0 if instant construction enabled', async () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_instant_building_construction_enabled', 1);
