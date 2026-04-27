@@ -16,6 +16,7 @@ const publicPagesToPrerender = [
   '/latest-updates',
   '/wiki',
   '/wiki/introduction',
+  '/wiki/game-world',
   '/404',
 ];
 

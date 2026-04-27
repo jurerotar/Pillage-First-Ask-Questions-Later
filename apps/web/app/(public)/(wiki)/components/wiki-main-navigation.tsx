@@ -144,6 +144,14 @@ export const WikiMainNavigation = ({
         to: '/wiki',
       },
       {
+        title: t('Introduction'),
+        to: '/wiki/introduction',
+      },
+      {
+        title: t('Game world'),
+        to: '/wiki/game-world',
+      },
+      {
         title: t('Units'),
         to: '/wiki/units',
         items: unitItems.sort((a, b) => a.title.localeCompare(b.title)),

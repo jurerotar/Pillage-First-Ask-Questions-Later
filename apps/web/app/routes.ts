@@ -21,6 +21,7 @@ export default [
         layout('(public)/(wiki)/layout.tsx', [
           index('(public)/(wiki)/(index)/page.tsx'),
           route('introduction', '(public)/(wiki)/(introduction)/page.tsx'),
+          route('game-world', '(public)/(wiki)/(game-world)/page.tsx'),
           // ...prefix('units', [
           //   route(':unitId', '(public)/(wiki)/(units)/page.tsx'),
           // ]),
