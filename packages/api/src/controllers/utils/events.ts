@@ -537,10 +537,10 @@ export const validateEventCreationResources = (
     calculateVillageResourcesAt(database, villageId!, startsAt);
 
   return !(
-    woodCost > currentWood ||
-    clayCost > currentClay ||
-    ironCost > currentIron ||
-    wheatCost > currentWheat
+    woodCost >= currentWood ||
+    clayCost >= currentClay ||
+    ironCost >= currentIron ||
+    wheatCost >= currentWheat
   );
 };
 
