@@ -1,4 +1,5 @@
 import { t } from 'i18next';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Button } from 'app/components/ui/button';
 import {
   Dialog,
@@ -8,17 +9,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHeaderCell,
-  TableRow,
-} from 'app/components/ui/table';
 import { useCancelUnitImprovement } from '../hooks/use-cancel-unit-improvement-event';
 import { useEventsByType } from '../hooks/use-events-by-type';
-import { Countdown } from './countdown';
 
 type SmithyImprovementCancelDialogProps = {
   isOpen: boolean;
@@ -45,6 +37,16 @@ export const SmithyImprovementCancelDialog = ({
 
   const { mutate: cancelUnitImprovement } = useCancelUnitImprovement();
 
+  const errorBag = allEventsToBeCancelled.map((improvementEventToBeCancelled) =>
+    t('{{unitName}} level {{previousLevel}} to level {{level}}.', {
+      unitName: t(`UNITS.${improvementEventToBeCancelled.unitId}.NAME`, {
+        count: 1,
+      }),
+      previousLevel: improvementEventToBeCancelled.level - 1,
+      level: improvementEventToBeCancelled.level,
+    }),
+  );
+
   return (
     <Dialog
       open={isOpen}
@@ -57,37 +59,7 @@ export const SmithyImprovementCancelDialog = ({
             {t('Following upgrades will be canceled.')}
           </DialogDescription>
         </DialogHeader>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>{t('Unit')}</TableHeaderCell>
-              <TableHeaderCell>{t('Level')}</TableHeaderCell>
-              <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {allEventsToBeCancelled.map((improvementEventToBeCancelled) => {
-              return (
-                <TableRow key={improvementEventToBeCancelled.id}>
-                  <TableCell>
-                    {t(`UNITS.${improvementEventToBeCancelled.unitId}.NAME`, {
-                      count: 1,
-                    })}
-                  </TableCell>
-                  <TableCell>{improvementEventToBeCancelled.level}</TableCell>
-                  <TableCell>
-                    <Countdown
-                      endsAt={
-                        improvementEventToBeCancelled.startsAt +
-                        improvementEventToBeCancelled.duration
-                      }
-                    />
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+        <ErrorBag errorBag={errorBag} />
         <DialogFooter className="mt-4">
           <Button
             variant="outline"
@@ -102,7 +74,7 @@ export const SmithyImprovementCancelDialog = ({
               onOpenChange(false);
             }}
           >
-            {t('Save')}
+            {t('Confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

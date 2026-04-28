@@ -28,6 +28,7 @@
   "{{unit}} is fully upgraded": "{{unit}} is fully upgraded",
   "{{unit}} researched": "{{unit}} researched",
   "{{unitName}} level {{level}} upgrade started": "{{unitName}} level {{level}} upgrade started",
+  "{{unitName}} level {{previousLevel}} to level {{level}}.": "{{unitName}} level {{previousLevel}} to level {{level}}.",
   "{{unitName}} requires {{buildingName}} of level {{level}} or higher to train.": "{{unitName}} requires {{buildingName}} of level {{level}} or higher to train.",
   "{{unitName}} research started": "{{unitName}} research started",
   "{{unitName}} researched": "{{unitName}} researched",
