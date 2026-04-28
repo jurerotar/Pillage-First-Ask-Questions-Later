@@ -115,6 +115,7 @@ export const Footer = () => {
                 <a
                   href="https://discord.gg/Ep7NKVXUZA"
                   rel="noopener nofollow"
+                  target="_blank"
                   className="flex items-center justify-center gap-2 rounded-full bg-[#5865F2] shadow-md p-2 hover:opacity-80 transition-opacity"
                   aria-label="Discord"
                 >
@@ -125,6 +126,7 @@ export const Footer = () => {
                 <a
                   href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
                   rel="noopener nofollow"
+                  target="_blank"
                   className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 hover:opacity-80 transition-opacity"
                   aria-label="GitHub"
                 >
