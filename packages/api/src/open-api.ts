@@ -1001,6 +1001,21 @@ export const paths = {
       },
     },
   },
+  '/events/unit-improvement-event/:eventId': {
+    delete: {
+      summary: 'Cancel unit improvement event',
+      requestParams: {
+        path: z.strictObject({
+          eventId: z.string(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Event cancelled',
+        },
+      },
+    },
+  },
   '/tiles': {
     get: {
       summary: 'Get all tiles',

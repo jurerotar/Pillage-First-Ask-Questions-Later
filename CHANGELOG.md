@@ -1,3 +1,21 @@
+## Version 0.4.11
+
+#### Apr 29, 2026
+
+* [Feature] Added the ability to cancel unit improvements.
+* [Feature] Added a confirmation modal for cancelling unit improvements.
+* [BugFix] Fixed an incorrectly calculated cost for unit improvements.
+
+## Version 0.4.10
+
+#### Apr 25, 2026
+
+fix: building downgrade fixes
+* [Feature] Added a table of current ongoing demolishments to "Demolish buildings" tab of Village management.
+* [Feature] Added a confirmation modal with details of what will happen, if you confirm downgrading or demolishing buildings.
+* [BugFix] Building overview & building field tooltip will now properly display "Currently downgrading to level x", if building is being downgraded.
+* [BugFix] Toast notifications will now properly say "Building was downgraded to level x".
+
 ## Version 0.4.9
 
 #### Apr 23, 2026

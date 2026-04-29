@@ -371,7 +371,7 @@ export const UnitImprovement = () => {
 
     return (
       unitImprovementDurationModifier *
-      calculateUnitUpgradeDurationForLevel(unitId, unitVirtualLevel)
+      calculateUnitUpgradeDurationForLevel(unitId, unitVirtualLevel + 1)
     );
   })();
 
@@ -380,7 +380,7 @@ export const UnitImprovement = () => {
       return [0, 0, 0, 0];
     }
 
-    return calculateUnitUpgradeCostForLevel(unitId, unitVirtualLevel);
+    return calculateUnitUpgradeCostForLevel(unitId, unitVirtualLevel + 1);
   })();
 
   const { errorBag: hasEnoughResourcesErrorBag } =
