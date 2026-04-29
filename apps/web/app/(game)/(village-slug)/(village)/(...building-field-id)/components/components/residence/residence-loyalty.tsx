@@ -4,19 +4,14 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useLoyalty } from 'app/(game)/(village-slug)/hooks/use-loyalty';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
+import { ResidenceLoyaltyCountdown } from './residence-loyalty-countdown';
 
 export const ResidenceLoyalty = () => {
   const { t } = useTranslation();
   const { loyalty } = useLoyalty();
-  const { eventsByType: loyaltyIncreaseEvents } =
-    useEventsByType('loyaltyIncrease');
-
-  const [nextLoyaltyIncreaseEvent] = loyaltyIncreaseEvents;
 
   return (
     <Section>
@@ -57,17 +52,7 @@ export const ResidenceLoyalty = () => {
         <Text>
           {t('Current loyalty:')} <strong>{loyalty}%</strong>
         </Text>
-        {loyalty < 100 && nextLoyaltyIncreaseEvent && (
-          <Text>
-            {t('Next increase in:')}{' '}
-            <Countdown
-              endsAt={
-                nextLoyaltyIncreaseEvent.startsAt +
-                nextLoyaltyIncreaseEvent.duration
-              }
-            />
-          </Text>
-        )}
+        <ResidenceLoyaltyCountdown loyalty={loyalty} />
         {loyalty === 100 && (
           <Alert variant="info">{t('Village loyalty is at maximum.')}</Alert>
         )}
