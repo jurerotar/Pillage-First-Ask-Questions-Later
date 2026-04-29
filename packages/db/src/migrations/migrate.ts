@@ -83,6 +83,7 @@ import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
+import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
 
 export const migrateAndSeed = (
   database: DbFacade,
@@ -249,6 +250,7 @@ export const migrateAndSeed = (
     metaSeeder(db);
     setupGlobalWriteTriggers(db);
     setupHistoryTriggers(db);
+    setupLoyaltyTriggers(db);
   });
 
   const t1 = performance.now();

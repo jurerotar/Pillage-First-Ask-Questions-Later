@@ -1,6 +1,7 @@
+import { z } from 'zod';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../../types/resolver';
-import { createEvents } from '../utils/create-event';
+import { createLoyaltyIncreaseEvent } from './utils/loyalty';
 
 export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
   database,
@@ -37,13 +38,12 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
     `,
   });
 
-  database.exec({
-    sql: 'DELETE FROM loyalties WHERE loyalty >= 100;',
-  });
+  const hasLoyalties = database.selectValue({
+    sql: 'SELECT EXISTS(SELECT 1 FROM loyalties);',
+    schema: z.coerce.boolean(),
+  })!;
 
-  createEvents<'loyaltyIncrease'>(database, {
-    villageId: null,
-    startsAt: resolvesAt,
-    type: 'loyaltyIncrease',
-  });
+  if (hasLoyalties) {
+    createLoyaltyIncreaseEvent(database, resolvesAt);
+  }
 };
