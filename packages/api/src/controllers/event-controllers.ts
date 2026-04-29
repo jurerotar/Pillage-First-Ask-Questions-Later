@@ -221,3 +221,52 @@ export const cancelUnitImprovementEvent = createController(
   });
   triggerKick();
 });
+
+export const cancelDemolitionEvent = createController(
+  '/villages/:villageId/events/demolition',
+  'delete',
+)(({ database, path: { villageId } }) => {
+  database.transaction((db) => {
+    const demolitionEvent = db.selectObject({
+      sql: `
+        DELETE
+        FROM
+          events
+        WHERE
+          id = (
+            SELECT
+              id
+            FROM
+              events
+            WHERE
+              village_id = $village_id
+              AND (
+                type = 'buildingDestruction'
+                OR (
+                  type = 'buildingLevelChange'
+                  AND CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER) >
+                    CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
+                )
+              )
+            ORDER BY
+              resolves_at
+            LIMIT 1
+          )
+        RETURNING
+          id;
+      `,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.strictObject({
+        id: z.number(),
+      }),
+    });
+
+    if (!demolitionEvent) {
+      throw new Error('Demolition event not found');
+    }
+  });
+
+  triggerKick();
+});

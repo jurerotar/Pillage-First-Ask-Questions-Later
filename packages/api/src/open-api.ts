@@ -876,6 +876,21 @@ export const paths = {
       },
     },
   },
+  '/villages/:villageId/events/demolition': {
+    delete: {
+      summary: 'Cancel demolition event',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Demolition event cancelled',
+        },
+      },
+    },
+  },
   '/villages/:villageId/history/events': {
     get: {
       summary: 'Get village events history',

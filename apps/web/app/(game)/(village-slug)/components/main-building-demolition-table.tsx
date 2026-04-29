@@ -2,7 +2,9 @@ import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useCancelDemolition } from 'app/(game)/(village-slug)/hooks/use-cancel-demolition';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider.tsx';
+import { Button } from 'app/components/ui/button';
 import {
   Table,
   TableBody,
@@ -15,6 +17,7 @@ import {
 export const MainBuildingDemolitionTable = () => {
   const { t } = useTranslation();
   const { buildingDowngradeEvents } = use(CurrentVillageBuildingQueueContext);
+  const { mutate: cancelDemolition } = useCancelDemolition();
 
   const hasDemolitionEvents = buildingDowngradeEvents.length > 0;
 
@@ -40,7 +43,14 @@ export const MainBuildingDemolitionTable = () => {
               <TableCell>
                 <Countdown endsAt={event.startsAt + event.duration} />
               </TableCell>
-              <TableCell>/</TableCell>
+              <TableCell>
+                <Button
+                  onClick={() => cancelDemolition()}
+                  size="fit"
+                >
+                  {t('Cancel')}
+                </Button>
+              </TableCell>
             </TableRow>
           ))}
         {!hasDemolitionEvents && (
