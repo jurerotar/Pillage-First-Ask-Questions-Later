@@ -890,12 +890,23 @@ export const getEventDuration = (
     return calculateHealthRegenerationEventDuration(healthRegeneration, speed);
   }
   if (isLoyaltyIncreaseEvent(event)) {
-    const speed = database.selectValue({
-      sql: 'SELECT speed FROM servers',
-      schema: speedSchema,
+    const { createdAt, speed } = database.selectObject({
+      sql: 'SELECT created_at AS createdAt, speed FROM servers LIMIT 1;',
+      schema: z.strictObject({
+        createdAt: z.number(),
+        speed: speedSchema,
+      }),
     })!;
 
-    return calculateLoyaltyIncreaseEventDuration(speed);
+    const loyaltyIncreaseDuration =
+      calculateLoyaltyIncreaseEventDuration(speed);
+    const elapsedSinceServerStart = Date.now() - createdAt;
+    const timeUntilNextIncrease =
+      (loyaltyIncreaseDuration -
+        (elapsedSinceServerStart % loyaltyIncreaseDuration)) %
+      loyaltyIncreaseDuration;
+
+    return timeUntilNextIncrease || loyaltyIncreaseDuration;
   }
 
   throw new Error(

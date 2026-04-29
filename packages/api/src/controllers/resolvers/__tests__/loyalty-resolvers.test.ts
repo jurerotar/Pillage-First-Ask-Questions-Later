@@ -170,9 +170,19 @@ describe(loyaltyIncreaseResolver, () => {
     expect(loyalties).toHaveLength(0);
   });
 
-  test('should schedule next loyaltyIncrease event even if villageId is null', async () => {
+  test('should schedule next loyaltyIncrease event when loyalties still exist', async () => {
     const database = await prepareTestDatabase();
     const resolvesAt = Date.now();
+
+    const tileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = 1',
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: 'INSERT INTO loyalties (tile_id, loyalty) VALUES ($tile_id, 50)',
+      bind: { $tile_id: tileId },
+    });
 
     // Clear existing events
     database.exec({ sql: "DELETE FROM events WHERE type = 'loyaltyIncrease'" });
@@ -197,5 +207,30 @@ describe(loyaltyIncreaseResolver, () => {
     })!;
 
     expect(starts_at).toBe(resolvesAt);
+  });
+
+  test('should not schedule next loyaltyIncrease event when no loyalties remain', async () => {
+    const database = await prepareTestDatabase();
+    const resolvesAt = Date.now();
+
+    database.exec({ sql: 'DELETE FROM loyalties;' });
+    database.exec({ sql: "DELETE FROM events WHERE type = 'loyaltyIncrease'" });
+
+    loyaltyIncreaseResolver(
+      database,
+      createLoyaltyIncreaseEventMock({
+        villageId: null,
+        duration: 3_600_000,
+        resolvesAt,
+        startsAt: resolvesAt - 3_600_000,
+      }),
+    );
+
+    const eventCount = database.selectValue({
+      sql: "SELECT COUNT(*) FROM events WHERE type = 'loyaltyIncrease'",
+      schema: z.number(),
+    })!;
+
+    expect(eventCount).toBe(0);
   });
 });

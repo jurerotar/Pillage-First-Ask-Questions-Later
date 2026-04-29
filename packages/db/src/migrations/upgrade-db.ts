@@ -4,6 +4,18 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 // should already be part of the new schema, so contents of this function should be deleted
 export const upgradeDb = (database: DbFacade): void => {
   database.transaction((db) => {
+    db.exec({
+      sql: `
+        CREATE TRIGGER IF NOT EXISTS loyalties_delete_capped_entries_after_update
+        AFTER UPDATE OF loyalty
+        ON loyalties
+        WHEN NEW.loyalty >= 100
+        BEGIN
+          DELETE FROM loyalties WHERE tile_id = NEW.tile_id;
+        END;
+      `,
+    });
+
     // Delete all heroes present in troops table
     db.exec({
       sql: `

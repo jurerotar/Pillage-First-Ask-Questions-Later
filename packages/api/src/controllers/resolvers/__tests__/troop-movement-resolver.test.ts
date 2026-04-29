@@ -94,6 +94,13 @@ describe(adventureMovementResolver, () => {
       schema: z.strictObject({ completed_at: z.number().nullable() }),
     });
     expect(quest?.completed_at).toBe(1500);
+
+    const regenerationEvent = database.selectObject({
+      sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
+      schema: z.strictObject({ type: z.string() }),
+    })!;
+
+    expect(regenerationEvent.type).toBe('heroHealthRegeneration');
   });
 
   test('should handle hero death during adventure', async () => {
@@ -153,6 +160,12 @@ describe(adventureMovementResolver, () => {
       schema: eventSchema,
     });
     expect(returnEvent).toBeUndefined();
+
+    const regenerationEvent = database.selectObject({
+      sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
+      schema: z.strictObject({ type: z.string() }),
+    });
+    expect(regenerationEvent).toBeUndefined();
 
     // Check if hero effects were removed
     const effects = database.selectObjects({
