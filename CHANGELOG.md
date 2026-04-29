@@ -1,3 +1,10 @@
+## Version 0.4.12
+
+#### Apr 29, 2026
+
+* [Performance] Optimized background event generation. This update speeds up simulating of past events by 4-6x on game
+  worlds, inactive by more than 10 days.
+
 ## Version 0.4.11
 
 #### Apr 29, 2026
@@ -11,9 +18,12 @@
 #### Apr 25, 2026
 
 fix: building downgrade fixes
+
 * [Feature] Added a table of current ongoing demolishments to "Demolish buildings" tab of Village management.
-* [Feature] Added a confirmation modal with details of what will happen, if you confirm downgrading or demolishing buildings.
-* [BugFix] Building overview & building field tooltip will now properly display "Currently downgrading to level x", if building is being downgraded.
+* [Feature] Added a confirmation modal with details of what will happen, if you confirm downgrading or demolishing
+  buildings.
+* [BugFix] Building overview & building field tooltip will now properly display "Currently downgrading to level x", if
+  building is being downgraded.
 * [BugFix] Toast notifications will now properly say "Building was downgraded to level x".
 
 ## Version 0.4.9
@@ -27,7 +37,8 @@ fix: building downgrade fixes
 
 #### Apr 20, 2026
 
-* [BugFix] Fixed a Zod type issue occurring on Hero's Mansion page when NPC players are occupying an oasis in your vicinity.
+* [BugFix] Fixed a Zod type issue occurring on Hero's Mansion page when NPC players are occupying an oasis in your
+  vicinity.
 
 ## Version 0.4.7
 
