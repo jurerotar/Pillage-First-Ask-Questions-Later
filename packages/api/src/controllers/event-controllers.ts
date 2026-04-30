@@ -188,12 +188,11 @@ export const cancelUnitImprovementEvent = createController(
           events
         WHERE
           JSON_EXTRACT(events.meta, '$.unitId') = $unitId
-          AND JSON_EXTRACT(events.meta, '$.level') >= $level
+          AND CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) >= $level
         RETURNING
           village_id AS villageId,
           JSON_EXTRACT(events.meta, '$.unitId') AS unitId,
-          JSON_EXTRACT(events.meta, '$.level') AS level;
-        ;
+          CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) AS level;
       `,
       bind: {
         $unitId: cancelledEvent.unitId,
@@ -249,7 +248,8 @@ export const cancelDemolitionEvent = createController(
                 )
               )
             ORDER BY
-              resolves_at
+              resolves_at,
+              id
             LIMIT 1
           )
         RETURNING

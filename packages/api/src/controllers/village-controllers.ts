@@ -133,7 +133,11 @@ export const rearrangeBuildingFields = createController(
       sql: `
         DELETE FROM building_fields
         WHERE village_id = $village_id
-          AND field_id IN (SELECT value ->> '$.buildingFieldId' FROM JSON_EACH($updates));
+          AND EXISTS (
+            SELECT 1
+            FROM JSON_EACH($updates) AS j
+            WHERE CAST(j.value ->> '$.buildingFieldId' AS INTEGER) = building_fields.field_id
+          );
       `,
       bind: { $village_id: villageId, $updates: JSON.stringify(updates) },
     });
