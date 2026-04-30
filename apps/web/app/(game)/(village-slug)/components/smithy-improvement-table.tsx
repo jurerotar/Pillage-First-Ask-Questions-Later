@@ -49,10 +49,10 @@ export const SmithyImprovementTable = () => {
 
   const eventIdToBeCancelled = modalArgs.current?.eventId;
 
-  const mainEventToBeCancelled = currentVillageUnitImprovementEvents.find(
+  const mainEventToBeCancelled = unitImprovementEvents.find(
     (upgradeEvent) => upgradeEvent.id === eventIdToBeCancelled,
   );
-  const allEventsToBeCancelled = currentVillageUnitImprovementEvents.filter(
+  const allEventsToBeCancelled = unitImprovementEvents.filter(
     (upgradeEvent) =>
       upgradeEvent.type === mainEventToBeCancelled?.type &&
       upgradeEvent.level >= mainEventToBeCancelled?.level,
