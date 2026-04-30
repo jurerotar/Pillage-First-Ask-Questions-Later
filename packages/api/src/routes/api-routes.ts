@@ -22,11 +22,13 @@ import {
 } from '../controllers/event-controllers';
 import {
   addTileToFarmList,
+  cloneFarmList,
   createFarmList,
   deleteFarmList,
   getFarmList,
   getFarmLists,
   getMeFarmLists,
+  removeTileFromAllPlayerFarmLists,
   removeTileFromFarmList,
   renameFarmList,
   updateFarmList,
@@ -158,7 +160,9 @@ const apiRoutes: Route[] = [
   createRoute(updateFarmList),
   createRoute(deleteFarmList),
   createRoute(addTileToFarmList),
+  createRoute(cloneFarmList),
   createRoute(removeTileFromFarmList),
+  createRoute(removeTileFromAllPlayerFarmLists),
   createRoute(renameFarmList),
 
   // Preferences
