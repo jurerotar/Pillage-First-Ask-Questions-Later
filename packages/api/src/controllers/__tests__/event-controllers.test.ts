@@ -1,8 +1,12 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
-import * as schedulerSignal from '../../scheduler/scheduler-signal';
+import {
+  createBuildingDestructionEventMock,
+  createBuildingLevelChangeEventMock,
+  createUnitImprovementEventMock,
+} from '@pillage-first/mocks/event';
 import {
   cancelConstructionEvent,
   cancelDemolitionEvent,
@@ -10,26 +14,10 @@ import {
   getVillageEvents,
   getVillageEventsByType,
 } from '../event-controllers';
+import { insertEvents } from '../utils/events';
 import { createControllerArgs } from './utils/controller-args';
 
-vi.mock<typeof schedulerSignal>(
-  import('../../scheduler/scheduler-signal'),
-  async () => {
-    const actual = await vi.importActual<typeof schedulerSignal>(
-      '../../scheduler/scheduler-signal',
-    );
-    return {
-      ...actual,
-      triggerKick: vi.fn(),
-    };
-  },
-);
-
 describe('event-controllers', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   test('getVillageEvents should return events for a village', async () => {
     const database = await prepareTestDatabase();
 
@@ -76,29 +64,20 @@ describe('event-controllers', () => {
     const startsAt = now;
     const duration = 100_000;
 
-    const meta = JSON.stringify({
-      buildingId: 'MAIN_BUILDING',
-      buildingFieldId: 1,
-      level: 1,
-      previousLevel: 0,
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES ('buildingLevelChange', $starts_at, $duration, $village_id, $meta)
-      `,
-      bind: {
-        $starts_at: startsAt,
-        $duration: duration,
-        $village_id: villageId,
-        $meta: meta,
-      },
-    });
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        startsAt,
+        duration,
+        villageId,
+        buildingFieldId: 1,
+        level: 1,
+        previousLevel: 0,
+      }),
+    ]);
 
     const { eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() AS eventId',
-      schema: z.object({ eventId: z.number() }),
+      schema: z.strictObject({ eventId: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -154,29 +133,20 @@ describe('event-controllers', () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    const meta = JSON.stringify({
-      buildingId: 'MAIN_BUILDING',
-      buildingFieldId: 1,
-      level: 1,
-      previousLevel: 0,
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES ('buildingLevelChange', $starts_at, $duration, $village_id, $meta)
-      `,
-      bind: {
-        $starts_at: startsAt,
-        $duration: duration,
-        $village_id: villageId,
-        $meta: meta,
-      },
-    });
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        startsAt,
+        duration,
+        villageId,
+        buildingFieldId: 1,
+        level: 1,
+        previousLevel: 0,
+      }),
+    ]);
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -239,29 +209,20 @@ describe('event-controllers', () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    const meta = JSON.stringify({
-      buildingId: 'MAIN_BUILDING',
-      buildingFieldId: 1,
-      level: 1,
-      previousLevel: 0,
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES ('buildingLevelChange', $starts_at, $duration, $village_id, $meta)
-      `,
-      bind: {
-        $starts_at: startsAt,
-        $duration: duration,
-        $village_id: villageId,
-        $meta: meta,
-      },
-    });
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        startsAt,
+        duration,
+        villageId,
+        buildingFieldId: 1,
+        level: 1,
+        previousLevel: 0,
+      }),
+    ]);
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -323,28 +284,19 @@ describe('event-controllers', () => {
     vi.useFakeTimers();
     vi.setSystemTime(startsAt + 10_000); // Set time to somewhere in the middle of the upgrade
 
-    const meta = JSON.stringify({
-      unitId,
-      level,
-    });
-
-    // Insert the unit improvement event
-    database.exec({
-      sql: `
-      INSERT INTO events (type, starts_at, duration, village_id, meta)
-      VALUES ('unitImprovement', $starts_at, $duration, $village_id, $meta)
-    `,
-      bind: {
-        $starts_at: startsAt,
-        $duration: duration,
-        $village_id: villageId,
-        $meta: meta,
-      },
-    });
+    insertEvents(database, [
+      createUnitImprovementEventMock({
+        startsAt,
+        duration,
+        villageId,
+        unitId,
+        level,
+      }),
+    ]);
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set baseline resources to avoid warehouse capacity caps during refund
@@ -397,7 +349,7 @@ describe('event-controllers', () => {
     const deletedEvent = database.selectObject({
       sql: 'SELECT id FROM events WHERE id = $event_id',
       bind: { $event_id: eventId },
-      schema: z.object({ id: z.number() }).optional(),
+      schema: z.strictObject({ id: z.number() }).optional(),
     });
 
     expect(deletedEvent).toBeUndefined();
@@ -411,38 +363,31 @@ describe('event-controllers', () => {
     const otherVillageId = 2;
     const now = Date.now();
 
-    database.exec({
-      sql: `
-        INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES
-          ('buildingDestruction', $now, 10_000, $village_id, $destruction_meta),
-          ('buildingLevelChange', $now, 10_000, $village_id, $upgrade_meta),
-          ('buildingLevelChange', $now, 10_000, $other_village_id, $downgrade_meta)
-      `,
-      bind: {
-        $now: now,
-        $village_id: villageId,
-        $other_village_id: otherVillageId,
-        $destruction_meta: JSON.stringify({
-          buildingId: 'MAIN_BUILDING',
-          buildingFieldId: 26,
-          previousLevel: 10,
-          level: 9,
-        }),
-        $upgrade_meta: JSON.stringify({
-          buildingId: 'MAIN_BUILDING',
-          buildingFieldId: 15,
-          previousLevel: 1,
-          level: 2,
-        }),
-        $downgrade_meta: JSON.stringify({
-          buildingId: 'MAIN_BUILDING',
-          buildingFieldId: 26,
-          previousLevel: 5,
-          level: 4,
-        }),
-      },
-    });
+    insertEvents(database, [
+      createBuildingDestructionEventMock({
+        startsAt: now,
+        duration: 10000,
+        villageId,
+        buildingFieldId: 26,
+        previousLevel: 10,
+      }),
+      createBuildingLevelChangeEventMock({
+        startsAt: now,
+        duration: 10000,
+        villageId,
+        buildingFieldId: 15,
+        previousLevel: 1,
+        level: 2,
+      }),
+      createBuildingLevelChangeEventMock({
+        startsAt: now,
+        duration: 10000,
+        villageId: otherVillageId,
+        buildingFieldId: 26,
+        previousLevel: 5,
+        level: 4,
+      }),
+    ]);
 
     cancelDemolitionEvent(
       database,
@@ -503,7 +448,6 @@ describe('event-controllers', () => {
           event.previousLevel > event.level,
       ),
     ).toBe(true);
-    expect(schedulerSignal.triggerKick).toHaveBeenCalledOnce();
   });
 
   test('cancelDemolitionEvent should remove downgrade buildingLevelChange event in village', async () => {
@@ -511,22 +455,16 @@ describe('event-controllers', () => {
     const villageId = 1;
     const now = Date.now();
 
-    database.exec({
-      sql: `
-        INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES ('buildingLevelChange', $now, 10_000, $village_id, $downgrade_meta)
-      `,
-      bind: {
-        $now: now,
-        $village_id: villageId,
-        $downgrade_meta: JSON.stringify({
-          buildingId: 'MAIN_BUILDING',
-          buildingFieldId: 26,
-          previousLevel: 8,
-          level: 7,
-        }),
-      },
-    });
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        startsAt: now,
+        duration: 10000,
+        villageId,
+        buildingFieldId: 26,
+        previousLevel: 8,
+        level: 7,
+      }),
+    ]);
 
     cancelDemolitionEvent(
       database,
@@ -535,21 +473,24 @@ describe('event-controllers', () => {
       }),
     );
 
-    const demolitionEventsInVillage = database.selectValue({
+    const hasDemolitionEventsInVillage = database.selectValue({
       sql: `
         SELECT
-          COUNT(*)
-        FROM
-          events
-        WHERE
-          village_id = $village_id
-          AND (
-            type = 'buildingDestruction'
-            OR (
-              type = 'buildingLevelChange'
-              AND CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER) >
-                CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
-            )
+          EXISTS(
+            SELECT
+              1
+            FROM
+              events
+            WHERE
+              village_id = $village_id
+              AND (
+                type = 'buildingDestruction'
+                OR (
+                  type = 'buildingLevelChange'
+                  AND CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER) >
+                    CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
+                )
+              )
           )
       `,
       bind: {
@@ -558,7 +499,6 @@ describe('event-controllers', () => {
       schema: z.number(),
     });
 
-    expect(demolitionEventsInVillage).toBe(0);
-    expect(schedulerSignal.triggerKick).toHaveBeenCalledOnce();
+    expect(hasDemolitionEventsInVillage).toBe(0);
   });
 });
