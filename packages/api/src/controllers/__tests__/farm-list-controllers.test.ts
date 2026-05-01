@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
   addTileToFarmList,
+  cloneFarmList,
   createFarmList,
   deleteFarmList,
   getFarmList,
@@ -152,5 +153,78 @@ describe('farm-list-controllers', () => {
       }),
     );
     expect(farmListsAfterDelete).toHaveLength(0);
+  });
+
+  test('should clone farm list to another village without changing source', async () => {
+    const database = await prepareTestDatabase();
+
+    createFarmList(
+      database,
+      createControllerArgs<'/villages/:villageId/farm-lists', 'post'>({
+        path: { villageId: 1 },
+        body: { name: 'Source List' },
+      }),
+    );
+
+    const sourceFarmListId = getFarmLists(
+      database,
+      createControllerArgs<'/villages/:villageId/farm-lists'>({
+        path: { villageId: 1 },
+      }),
+    )[0].id;
+
+    addTileToFarmList(
+      database,
+      createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
+        path: { farmListId: sourceFarmListId },
+        body: { tileId: 301 },
+      }),
+    );
+    addTileToFarmList(
+      database,
+      createControllerArgs<'/farm-lists/:farmListId/tiles', 'post'>({
+        path: { farmListId: sourceFarmListId },
+        body: { tileId: 302 },
+      }),
+    );
+
+    cloneFarmList(
+      database,
+      createControllerArgs<'/farm-lists/:farmListId/clone', 'post'>({
+        path: { farmListId: sourceFarmListId },
+        body: { villageId: 2 },
+      }),
+    );
+
+    const sourceFarmList = getFarmList(
+      database,
+      createControllerArgs<'/farm-lists/:farmListId'>({
+        path: { farmListId: sourceFarmListId },
+      }),
+    );
+
+    const village2FarmLists = getFarmLists(
+      database,
+      createControllerArgs<'/villages/:villageId/farm-lists'>({
+        path: { villageId: 2 },
+      }),
+    );
+
+    expect(village2FarmLists).toHaveLength(1);
+
+    const clonedFarmListId = village2FarmLists[0].id;
+    const clonedFarmList = getFarmList(
+      database,
+      createControllerArgs<'/farm-lists/:farmListId'>({
+        path: { farmListId: clonedFarmListId },
+      }),
+    );
+
+    expect(clonedFarmListId).not.toBe(sourceFarmListId);
+    expect(clonedFarmList.name).toBe('Source List');
+    expect(clonedFarmList.tileIds).toEqual(sourceFarmList.tileIds);
+
+    expect(sourceFarmList.name).toBe('Source List');
+    expect(sourceFarmList.tileIds).toEqual([301, 302]);
   });
 });

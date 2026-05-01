@@ -716,6 +716,30 @@ export const paths = {
       },
     },
   },
+  '/players/:playerId/farm-lists/tiles': {
+    delete: {
+      summary: 'Remove tile from all player farm lists',
+      requestParams: {
+        path: z.strictObject({
+          playerId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              tileId: z.number(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Tile removed from all farm lists',
+        },
+      },
+    },
+  },
   '/farm-lists/:farmListId': {
     get: {
       summary: 'Get farm list details',
@@ -791,6 +815,30 @@ export const paths = {
       responses: {
         '204': {
           description: 'Tile added',
+        },
+      },
+    },
+  },
+  '/farm-lists/:farmListId/clone': {
+    post: {
+      summary: 'Clone farm list to another village',
+      requestParams: {
+        path: z.strictObject({
+          farmListId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              villageId: z.number(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Farm list cloned',
         },
       },
     },
