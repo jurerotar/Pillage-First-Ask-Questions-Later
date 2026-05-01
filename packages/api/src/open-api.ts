@@ -9,6 +9,7 @@ import { playerSchema } from '@pillage-first/types/models/player';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { serverDbSchema } from '@pillage-first/types/models/server';
+import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
 import packageJson from '../../../package.json' with { type: 'json' };
 import { getDeveloperSettingsSchema } from './controllers/schemas/developer-tools-schemas';
 import {
@@ -34,6 +35,7 @@ import {
   getTileTroopsSchema,
   getTileWorldItemSchema,
 } from './controllers/schemas/map-schemas';
+import { getOasesWithAnimalsSchema } from './controllers/schemas/oasis-animal-finder-schemas';
 import { getTilesWithBonusesSchema } from './controllers/schemas/oasis-bonus-finder-schemas';
 import {
   getPlayerVillagesWithPopulationSchema,
@@ -1559,6 +1561,41 @@ export const paths = {
           content: {
             'application/json': {
               schema: z.array(getTilesWithBonusesSchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/oasis-animal-finder': {
+    get: {
+      summary: 'Find oasis tiles with specific nature troop amounts',
+      requestParams: {
+        query: z.strictObject({
+          x: z.coerce.number(),
+          y: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              animalFilters: z.array(
+                z.strictObject({
+                  animal: natureUnitIdSchema,
+                  amount: z.number().min(1),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Oases that match the animal criteria',
+          content: {
+            'application/json': {
+              schema: z.array(getOasesWithAnimalsSchema),
             },
           },
         },

@@ -64,6 +64,7 @@ import {
   getMapFilters,
   updateMapFilter,
 } from '../controllers/map-filters-controllers';
+import { getOasesWithAnimals } from '../controllers/oasis-animal-finder-controllers';
 import { getTilesWithBonuses } from '../controllers/oasis-bonus-finder-controllers';
 import { abandonOasis, occupyOasis } from '../controllers/oasis-controllers';
 import {
@@ -204,6 +205,9 @@ const apiRoutes: Route[] = [
 
   // Bonus Finder
   createRoute(getTilesWithBonuses),
+
+  // Animal Finder
+  createRoute(getOasesWithAnimals),
 
   // Statistics
   createRoute(getPlayerRankings),

@@ -1,3 +1,12 @@
+## Version 0.4.13
+
+#### May 1, 2026
+
+* [Feature] Added `Oasis animal finder` page. Oasis animal finder page allows you to search for all oasis with a
+  specific combination of animals present. For each selected animal type, you can set a minimum amount of animals of
+  that type that must be present in the oasis, allowing oyu to further narrow down the search. Oasis animal finder is
+  accessible through the map page.
+
 ## Version 0.4.12
 
 #### Apr 29, 2026
