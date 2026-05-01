@@ -2,7 +2,10 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
+import {
+  calculateBuildingDestructionDuration,
+  getBuildingDefinition,
+} from '@pillage-first/game-assets/utils/buildings';
 import {
   calculateHeroLevel,
   calculateHeroRevivalCost,
@@ -1137,6 +1140,24 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       const event = createGameEventMock('buildingConstruction');
       expect(getEventDuration(database, event)).toBe(0);
+    });
+
+    test('buildingDestruction - should return duration based on level and server speed', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: 'UPDATE servers SET speed = $speed',
+        bind: { $speed: 2 },
+      });
+
+      const event = createBuildingDestructionEventMock({
+        villageId,
+        previousLevel: 6,
+      });
+
+      const expectedDuration = calculateBuildingDestructionDuration(6, 2);
+      expect(getEventDuration(database, event)).toBe(expectedDuration);
     });
 
     test('buildingLevelUp - should return 0 if instant construction enabled', async () => {

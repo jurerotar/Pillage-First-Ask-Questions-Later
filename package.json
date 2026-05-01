@@ -16,7 +16,6 @@
   "scripts": {
     "prepare": "lefthook install",
     "inject-graphics": "node scripts/inject-graphics.ts",
-    "remove-deprecated-directories": "node scripts/remove-deprecated-directories.ts",
     "extract-sql-schema": "node scripts/extract-sql-schema.ts",
     "extract-sql-usage": "node scripts/extract-sql-usage.ts",
     "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts",

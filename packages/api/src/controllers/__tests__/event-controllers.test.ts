@@ -3,11 +3,18 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import {
+  createBuildingDestructionEventMock,
+  createBuildingLevelChangeEventMock,
+  createUnitImprovementEventMock,
+} from '@pillage-first/mocks/event';
+import {
   cancelConstructionEvent,
+  cancelDemolitionEvent,
   cancelUnitImprovementEvent,
   getVillageEvents,
   getVillageEventsByType,
 } from '../event-controllers';
+import { insertEvents } from '../utils/events';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('event-controllers', () => {
@@ -57,29 +64,20 @@ describe('event-controllers', () => {
     const startsAt = now;
     const duration = 100_000;
 
-    const meta = JSON.stringify({
-      buildingId: 'MAIN_BUILDING',
-      buildingFieldId: 1,
-      level: 1,
-      previousLevel: 0,
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES ('buildingLevelChange', $starts_at, $duration, $village_id, $meta)
-      `,
-      bind: {
-        $starts_at: startsAt,
-        $duration: duration,
-        $village_id: villageId,
-        $meta: meta,
-      },
-    });
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        startsAt,
+        duration,
+        villageId,
+        buildingFieldId: 1,
+        level: 1,
+        previousLevel: 0,
+      }),
+    ]);
 
     const { eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() AS eventId',
-      schema: z.object({ eventId: z.number() }),
+      schema: z.strictObject({ eventId: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -135,29 +133,20 @@ describe('event-controllers', () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    const meta = JSON.stringify({
-      buildingId: 'MAIN_BUILDING',
-      buildingFieldId: 1,
-      level: 1,
-      previousLevel: 0,
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES ('buildingLevelChange', $starts_at, $duration, $village_id, $meta)
-      `,
-      bind: {
-        $starts_at: startsAt,
-        $duration: duration,
-        $village_id: villageId,
-        $meta: meta,
-      },
-    });
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        startsAt,
+        duration,
+        villageId,
+        buildingFieldId: 1,
+        level: 1,
+        previousLevel: 0,
+      }),
+    ]);
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -220,29 +209,20 @@ describe('event-controllers', () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
 
-    const meta = JSON.stringify({
-      buildingId: 'MAIN_BUILDING',
-      buildingFieldId: 1,
-      level: 1,
-      previousLevel: 0,
-    });
-
-    database.exec({
-      sql: `
-        INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES ('buildingLevelChange', $starts_at, $duration, $village_id, $meta)
-      `,
-      bind: {
-        $starts_at: startsAt,
-        $duration: duration,
-        $village_id: villageId,
-        $meta: meta,
-      },
-    });
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        startsAt,
+        duration,
+        villageId,
+        buildingFieldId: 1,
+        level: 1,
+        previousLevel: 0,
+      }),
+    ]);
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -304,28 +284,19 @@ describe('event-controllers', () => {
     vi.useFakeTimers();
     vi.setSystemTime(startsAt + 10_000); // Set time to somewhere in the middle of the upgrade
 
-    const meta = JSON.stringify({
-      unitId,
-      level,
-    });
-
-    // Insert the unit improvement event
-    database.exec({
-      sql: `
-      INSERT INTO events (type, starts_at, duration, village_id, meta)
-      VALUES ('unitImprovement', $starts_at, $duration, $village_id, $meta)
-    `,
-      bind: {
-        $starts_at: startsAt,
-        $duration: duration,
-        $village_id: villageId,
-        $meta: meta,
-      },
-    });
+    insertEvents(database, [
+      createUnitImprovementEventMock({
+        startsAt,
+        duration,
+        villageId,
+        unitId,
+        level,
+      }),
+    ]);
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set baseline resources to avoid warehouse capacity caps during refund
@@ -378,11 +349,156 @@ describe('event-controllers', () => {
     const deletedEvent = database.selectObject({
       sql: 'SELECT id FROM events WHERE id = $event_id',
       bind: { $event_id: eventId },
-      schema: z.object({ id: z.number() }).optional(),
+      schema: z.strictObject({ id: z.number() }).optional(),
     });
 
     expect(deletedEvent).toBeUndefined();
 
     vi.useRealTimers();
+  });
+
+  test('cancelDemolitionEvent should remove only demolition event in village', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const otherVillageId = 2;
+    const now = Date.now();
+
+    insertEvents(database, [
+      createBuildingDestructionEventMock({
+        startsAt: now,
+        duration: 10000,
+        villageId,
+        buildingFieldId: 26,
+        previousLevel: 10,
+      }),
+      createBuildingLevelChangeEventMock({
+        startsAt: now,
+        duration: 10000,
+        villageId,
+        buildingFieldId: 15,
+        previousLevel: 1,
+        level: 2,
+      }),
+      createBuildingLevelChangeEventMock({
+        startsAt: now,
+        duration: 10000,
+        villageId: otherVillageId,
+        buildingFieldId: 26,
+        previousLevel: 5,
+        level: 4,
+      }),
+    ]);
+
+    cancelDemolitionEvent(
+      database,
+      createControllerArgs<'/villages/:villageId/events/demolition', 'delete'>({
+        path: { villageId },
+      }),
+    );
+
+    const remainingEvents = database.selectObjects({
+      sql: `
+        SELECT
+          type,
+          village_id AS villageId,
+          CAST(
+            COALESCE(
+              JSON_EXTRACT(meta, '$.previousLevel'),
+              JSON_EXTRACT(meta, '$.previous_level')
+            ) AS INTEGER
+          ) AS previousLevel,
+          CAST(
+            COALESCE(
+              JSON_EXTRACT(meta, '$.level'),
+              JSON_EXTRACT(meta, '$.target_level')
+            ) AS INTEGER
+          ) AS level
+        FROM
+          events
+        WHERE
+          village_id IN ($village_id, $other_village_id)
+          AND type IN ('buildingLevelChange', 'buildingDestruction')
+      `,
+      bind: {
+        $village_id: villageId,
+        $other_village_id: otherVillageId,
+      },
+      schema: z.strictObject({
+        type: z.string(),
+        villageId: z.number(),
+        previousLevel: z.number(),
+        level: z.number(),
+      }),
+    });
+
+    expect(remainingEvents).toHaveLength(2);
+    expect(
+      remainingEvents.some(
+        (event) =>
+          event.type === 'buildingLevelChange' &&
+          event.villageId === villageId &&
+          event.previousLevel < event.level,
+      ),
+    ).toBe(true);
+    expect(
+      remainingEvents.some(
+        (event) =>
+          event.type === 'buildingLevelChange' &&
+          event.villageId === otherVillageId &&
+          event.previousLevel > event.level,
+      ),
+    ).toBe(true);
+  });
+
+  test('cancelDemolitionEvent should remove downgrade buildingLevelChange event in village', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const now = Date.now();
+
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        startsAt: now,
+        duration: 10000,
+        villageId,
+        buildingFieldId: 26,
+        previousLevel: 8,
+        level: 7,
+      }),
+    ]);
+
+    cancelDemolitionEvent(
+      database,
+      createControllerArgs<'/villages/:villageId/events/demolition', 'delete'>({
+        path: { villageId },
+      }),
+    );
+
+    const hasDemolitionEventsInVillage = database.selectValue({
+      sql: `
+        SELECT
+          EXISTS(
+            SELECT
+              1
+            FROM
+              events
+            WHERE
+              village_id = $village_id
+              AND (
+                type = 'buildingDestruction'
+                OR (
+                  type = 'buildingLevelChange'
+                  AND CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER) >
+                    CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
+                )
+              )
+          )
+      `,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    });
+
+    expect(hasDemolitionEventsInVillage).toBe(0);
   });
 });

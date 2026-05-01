@@ -109,12 +109,14 @@ export const deleteHeroEffectsQuery = `
     effects
   WHERE
     source = 'hero'
-    AND village_id IN (
-      SELECT village_id
+    AND EXISTS (
+      SELECT
+        1
       FROM
         heroes
       WHERE
-        player_id = $player_id
+        heroes.village_id = effects.village_id
+        AND heroes.player_id = $player_id
       );
 `;
 
@@ -153,11 +155,13 @@ export const updateHeroEffectsVillageIdQuery = `
     village_id = $targetId
   WHERE
     source = 'hero'
-    AND village_id IN (
-      SELECT village_id
+    AND EXISTS (
+      SELECT
+        1
       FROM
         heroes
       WHERE
-        player_id = $player_id
+        heroes.village_id = effects.village_id
+        AND heroes.player_id = $player_id
       );
 `;

@@ -188,12 +188,11 @@ export const cancelUnitImprovementEvent = createController(
           events
         WHERE
           JSON_EXTRACT(events.meta, '$.unitId') = $unitId
-          AND JSON_EXTRACT(events.meta, '$.level') >= $level
+          AND CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) >= $level
         RETURNING
           village_id AS villageId,
           JSON_EXTRACT(events.meta, '$.unitId') AS unitId,
-          JSON_EXTRACT(events.meta, '$.level') AS level;
-        ;
+          CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) AS level;
       `,
       bind: {
         $unitId: cancelledEvent.unitId,
@@ -219,5 +218,55 @@ export const cancelUnitImprovementEvent = createController(
       );
     });
   });
+  triggerKick();
+});
+
+export const cancelDemolitionEvent = createController(
+  '/villages/:villageId/events/demolition',
+  'delete',
+)(({ database, path: { villageId } }) => {
+  database.transaction((db) => {
+    const demolitionEvent = db.selectObject({
+      sql: `
+        DELETE
+        FROM
+          events
+        WHERE
+          id = (
+            SELECT
+              id
+            FROM
+              events
+            WHERE
+              village_id = $village_id
+              AND (
+                type = 'buildingDestruction'
+                OR (
+                  type = 'buildingLevelChange'
+                  AND CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER) >
+                    CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
+                )
+              )
+            ORDER BY
+              resolves_at,
+              id
+            LIMIT 1
+          )
+        RETURNING
+          id;
+      `,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.strictObject({
+        id: z.number(),
+      }),
+    });
+
+    if (!demolitionEvent) {
+      throw new Error('Demolition event not found');
+    }
+  });
+
   triggerKick();
 });

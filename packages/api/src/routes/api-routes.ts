@@ -15,6 +15,7 @@ import {
 import { getVillageEffects } from '../controllers/effect-controllers';
 import {
   cancelConstructionEvent,
+  cancelDemolitionEvent,
   cancelUnitImprovementEvent,
   createNewEvents,
   getVillageEvents,
@@ -173,6 +174,8 @@ const apiRoutes: Route[] = [
   createRoute(createNewEvents),
   createRoute(cancelConstructionEvent),
   createRoute(cancelUnitImprovementEvent),
+  createRoute(cancelDemolitionEvent),
+
   // Players
   createRoute(getMe),
   createRoute(getPlayerBySlug),

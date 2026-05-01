@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   calculateBuildingCancellationRefundForLevel,
   calculateBuildingCostForLevel,
+  calculateBuildingDestructionDuration,
   calculateBuildingDurationForLevel,
   calculateBuildingEffectValues,
   calculateTotalCulturePointsForLevel,
@@ -144,6 +145,13 @@ describe('buildings utils', () => {
     test('should calculate correct duration for level 1', () => {
       const duration = calculateBuildingDurationForLevel('MAIN_BUILDING', 1);
       expect(duration).toBe(2_000_000);
+    });
+  });
+
+  describe(calculateBuildingDestructionDuration, () => {
+    test('should calculate demolition duration based on level and speed', () => {
+      const duration = calculateBuildingDestructionDuration(6, 2);
+      expect(duration).toBe(900_000);
     });
   });
 

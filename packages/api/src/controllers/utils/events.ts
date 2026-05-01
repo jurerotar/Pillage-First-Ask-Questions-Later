@@ -4,6 +4,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateAdventurePointIncreaseEventDuration } from '@pillage-first/game-assets/utils/adventures';
 import {
   calculateBuildingCostForLevel,
+  calculateBuildingDestructionDuration,
   calculateBuildingDurationForLevel,
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
@@ -665,9 +666,21 @@ export const getEventDuration = (
   database: DbFacade,
   event: GameEvent,
 ): number => {
-  if (isBuildingConstructionEvent(event) || isBuildingDestructionEvent(event)) {
+  if (isBuildingConstructionEvent(event)) {
     return 0;
   }
+
+  if (isBuildingDestructionEvent(event)) {
+    const { speed } = database.selectObject({
+      sql: 'SELECT speed FROM servers LIMIT 1;',
+      schema: z.strictObject({
+        speed: speedSchema,
+      }),
+    })!;
+
+    return calculateBuildingDestructionDuration(event.previousLevel, speed);
+  }
+
   if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
     const isInstantBuildingConstructionEnabled = database.selectValue({
       sql: 'SELECT is_instant_building_construction_enabled FROM developer_settings',
