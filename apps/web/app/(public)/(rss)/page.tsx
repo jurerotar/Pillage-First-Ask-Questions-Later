@@ -58,16 +58,8 @@ const buildRssXml = (): string => {
 
 const rssXml = buildRssXml();
 
-export const loader = () => {
-  return new Response(rssXml, {
-    headers: {
-      'Content-Type': 'application/rss+xml; charset=utf-8',
-    },
-  });
-};
-
 const RssPage = () => {
-  return null;
+  return rssXml;
 };
 
 export default RssPage;
