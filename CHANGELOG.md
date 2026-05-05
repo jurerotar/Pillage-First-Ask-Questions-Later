@@ -1,3 +1,24 @@
+## Version 0.4.15
+
+#### May 5, 2026
+
+* [Feature] Expanded NPC village templates. NPC villages will now be created with more buildings and higher population.
+
+## Version 0.4.14
+
+#### May 4, 2026
+
+* [BugFix] Minor CSS overflow fixes.
+
+## Version 0.4.13
+
+#### May 1, 2026
+
+* [Feature] Added `Oasis animal finder` page. Oasis animal finder page allows you to search for all oasis with a
+  specific combination of animals present. For each selected animal type, you can set a minimum amount of animals of
+  that type that must be present in the oasis, allowing oyu to further narrow down the search. Oasis animal finder is
+  accessible through the map page.
+
 ## Version 0.4.12
 
 #### Apr 29, 2026

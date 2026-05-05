@@ -598,11 +598,13 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                           </TableCell>
                           <TableCell>
                             <Text>
-                              <Resources
-                                className="justify-center"
-                                iconClassName="size-4"
-                                resources={resources}
-                              />
+                              <span className="inline-flex gap-2">
+                                <Resources
+                                  className="justify-center"
+                                  iconClassName="size-4"
+                                  resources={resources}
+                                />
+                              </span>
                             </Text>
                           </TableCell>
                           <TableCell>

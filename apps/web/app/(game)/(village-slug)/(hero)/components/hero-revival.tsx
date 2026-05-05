@@ -80,7 +80,9 @@ export const HeroRevival = () => {
       )}
       {!isReviving && (
         <div className="flex flex-col gap-2">
-          <Resources resources={revivalCost} />
+          <div className="flex gap-2">
+            <Resources resources={revivalCost} />
+          </div>
           <div className="flex items-center gap-1">
             <Icon type="heroRevivalDuration" />
             <Text>{formatTime(revivalTime)}</Text>

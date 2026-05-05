@@ -2,9 +2,6 @@
 name: Technical Improvement
 about: Suggest a technical enhancement to improve code quality, performance, or maintainability.
 title: "[Technical Improvement]: "
-labels:
-  - enhancement
-  - technical-debt
 ---
 
 ### Description

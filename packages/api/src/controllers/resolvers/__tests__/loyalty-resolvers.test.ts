@@ -26,7 +26,18 @@ describe(loyaltyIncreaseResolver, () => {
     });
 
     // Village 2: No Residence (60 -> 61)
-    const v2 = 2;
+    const v2 = database.selectValue({
+      sql: `
+        SELECT v.id
+        FROM villages v
+        LEFT JOIN building_fields bf
+          ON bf.village_id = v.id
+          AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'RESIDENCE')
+        WHERE bf.village_id IS NULL
+        LIMIT 1
+      `,
+      schema: z.number(),
+    })!;
     const v2Tile = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
       bind: { $village_id: v2 },

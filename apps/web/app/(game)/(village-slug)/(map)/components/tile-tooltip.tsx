@@ -143,10 +143,12 @@ const TileTooltipResources = ({ tile }: TileTooltipResourcesProps) => {
   );
 
   return (
-    <Resources
-      iconClassName="size-4"
-      resources={resources}
-    />
+    <div className="flex gap-2">
+      <Resources
+        iconClassName="size-4"
+        resources={resources}
+      />
+    </div>
   );
 };
 
@@ -171,18 +173,20 @@ const OasisTileTooltip = ({ tile }: OasisTileTooltipProps) => {
     <>
       <span className="font-semibold">{title}</span>
       <TileTooltipLocation tile={tile} />
-      {oasisBonuses.map(({ resource, bonus }) => (
-        <span
-          key={resource}
-          className="flex gap-1"
-        >
-          <Icon
-            className="size-4"
-            type={resource}
-          />
-          {bonus}%
-        </span>
-      ))}
+      <div className="flex gap-2">
+        {oasisBonuses.map(({ resource, bonus }) => (
+          <span
+            key={resource}
+            className="flex gap-1"
+          >
+            <Icon
+              className="size-4"
+              type={resource}
+            />
+            {bonus}%
+          </span>
+        ))}
+      </div>
       {isOccupied && <TileTooltipPlayerInfo tile={tile} />}
       {!isOccupied && <TileTooltipAnimals tile={tile} />}
     </>

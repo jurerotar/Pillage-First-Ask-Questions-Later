@@ -12,7 +12,11 @@ export const createWorkerFetcher = (worker: Worker) => {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         port1.close();
-        reject(new Error('Worker request timed out'));
+        reject(
+          new Error(
+            `Worker request timed out: ${init?.method ?? 'GET'} ${url}`,
+          ),
+        );
       }, 10_000);
 
       const handler = (event: MessageEvent) => {

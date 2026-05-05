@@ -1,6 +1,7 @@
 import { clsx } from 'clsx';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
+import { OasisAnimalFinderLink } from 'app/(game)/(village-slug)/(map)/components/oasis-animal-finder-link';
 import { OasisBonusFinderLink } from 'app/(game)/(village-slug)/(map)/components/oasis-bonus-finder-link';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
@@ -215,6 +216,9 @@ export const MapControls = () => {
       </div>
       <div className="pointer-events-auto">
         <OasisBonusFinderLink />
+      </div>
+      <div className="pointer-events-auto">
+        <OasisAnimalFinderLink />
       </div>
     </div>
   );

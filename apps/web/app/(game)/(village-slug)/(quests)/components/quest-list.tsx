@@ -66,17 +66,15 @@ const QuestListItem = ({ quest, onComplete }: QuestListItemProps) => {
         <div className="flex flex-col gap-2">
           <Text className="font-semibold">{title}</Text>
           <Text>{description}</Text>
-          <div className="inline-flex gap-2">
+          <div className="inline-flex gap-2 flex-wrap">
             <Text className="font-medium">{t('Reward')}:</Text>
 
-            <div className="flex flex-col gap-2">
-              {rewards.map((reward) => (
-                <QuestReward
-                  key={reward.type}
-                  reward={reward}
-                />
-              ))}
-            </div>
+            {rewards.map((reward) => (
+              <QuestReward
+                key={reward.type}
+                reward={reward}
+              />
+            ))}
           </div>
         </div>
 

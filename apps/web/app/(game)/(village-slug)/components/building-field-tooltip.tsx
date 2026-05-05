@@ -63,7 +63,9 @@ export const BuildingFieldTooltip = ({
             })}
             :
           </span>
-          <Resources resources={nextLevelResourceCost} />
+          <div className="flex gap-2">
+            <Resources resources={nextLevelResourceCost} />
+          </div>
           <span className="flex gap-1">
             <Icon
               type="buildingDuration"
