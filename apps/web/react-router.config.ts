@@ -14,6 +14,7 @@ const publicPagesToPrerender = [
   '/frequently-asked-questions',
   '/get-involved',
   '/latest-updates',
+  '/rss',
   '/404',
 ];
 

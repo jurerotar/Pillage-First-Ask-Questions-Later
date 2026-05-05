@@ -9,6 +9,7 @@
 /get-involved                     /en-US/get-involved/index.html                  200
 /frequently-asked-questions       /en-US/frequently-asked-questions/index.html    200
 /latest-updates                   /en-US/latest-updates/index.html                200
+/rss                              /en-US/rss/index.html                           200
 
 /en-US                                  /en-US/index.html                               200
 /en-US/game-worlds                      /en-US/game-worlds/index.html                   200
@@ -17,6 +18,7 @@
 /en-US/get-involved                     /en-US/get-involved/index.html                  200
 /en-US/frequently-asked-questions       /en-US/frequently-asked-questions/index.html    200
 /en-US/latest-updates                   /en-US/latest-updates/index.html                200
+/en-US/rss                              /en-US/rss/index.html                           200
 
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===

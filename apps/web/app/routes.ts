@@ -9,6 +9,7 @@ import {
 export default [
   // Public routes
   ...prefix(':locale?', [
+    route('rss', '(public)/(rss)/page.tsx'),
     layout('(public)/layout.tsx', [
       index('(public)/(index)/page.tsx'),
       route('get-involved', '(public)/(get-involved)/page.tsx'),

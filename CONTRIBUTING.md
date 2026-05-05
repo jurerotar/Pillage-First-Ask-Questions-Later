@@ -27,7 +27,7 @@ later.
 4. Run `npm run inject-graphics` at the root of the repository
 5. (Optional) If you cloned the repository before we migrated to a monorepo, you will have some orphaned directories
    sticking around. Run `npm run remove-deprecated-directories` command to remove these unneeded files.
-6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` & `db.sqlite3` files inside
+6. (Optional) Run `npm run extract-sql-schema`, which generates `schema.sql` and `db.sqlite3` files inside
    `apps/erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
    queries.
 
@@ -63,12 +63,12 @@ modify related code.
 
 ### 2.1 Useful scripts
 
-- `npm run inject-graphics` - app graphics are stored in `@pillage-first/graphics` npm package. This commands takes the
+- `npm run inject-graphics` - app graphics are stored in `@pillage-first/graphics` npm package. This command takes the
   graphic contents of `@pillage-first/graphics` and injects it to `apps/web/public`. This is required for graphics to be
   displayed correctly.
 - `npm run remove-deprecated-directories` - if you cloned the repository before we migrated to a monorepo, you will have
   some orphaned directories sticking around. Run this command to remove these unneeded files.
-- `npm run extract-sql-schema` - generates a `schema.sql` file inside `node_modules/@pillage-first/dev` with all table
+- `npm run extract-sql-schema` - generates `schema.sql` and `db.sqlite3` inside `apps/erd/sql-schema` with all table
   definitions and indexes. Useful for giving context to AI when building queries.
 - `npm run extract-sql-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
   statement the app currently uses. Useful for debugging performance & checking indexing.
@@ -114,7 +114,7 @@ We use git hooks to enforce consistent code standards and checks. Currently, 3 h
 the [default configuration](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional),
 without the body length check.
 
-`pre-commit`: Lint, format and localization-extraction script are run.
+`pre-commit`: Format and localization-extraction script are run.
 
 `pre-push`: Lint and format is validated before push.
 
@@ -138,7 +138,7 @@ You may run these checks locally.
 - format - `turbo run format` or `turbo run format:check`
 - typecheck - `turbo run type-check`
 - test - `turbo run test`
-- i18n check - `npx --workspace="web" i18next-cli extract --ci`
+- i18n check - `npx --workspace="@pillage-first/web" i18next-cli extract --ci`
 
 ## 8. Deployment & CI/CD
 
