@@ -1,3 +1,9 @@
+## Version 0.4.16
+
+#### May 5, 2026
+
+* [Performance] Removed unnecessary sorting operations on player, building details & quests pages.
+
 ## Version 0.4.15
 
 #### May 5, 2026
