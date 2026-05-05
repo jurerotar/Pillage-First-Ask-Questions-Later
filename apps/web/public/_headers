@@ -42,3 +42,6 @@
 
 /sw.js
   Cache-Control: no-cache
+
+/rss
+  Content-Type: application/rss+xml; charset=utf-8

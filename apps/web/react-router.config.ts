@@ -14,7 +14,6 @@ const publicPagesToPrerender = [
   '/frequently-asked-questions',
   '/get-involved',
   '/latest-updates',
-  '/rss',
   '/404',
 ];
 
@@ -29,6 +28,7 @@ const reactRouterConfig: Config = {
     paths: [
       ...publicPagesToPrerender,
       ...localizedPagesToPrerender,
+      '/rss',
       '/__spa-preload',
     ],
   },
