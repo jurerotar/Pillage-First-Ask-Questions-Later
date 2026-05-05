@@ -1,6 +1,16 @@
 import changelogRaw from '../../../../../CHANGELOG.md?raw';
 import { parseChangelog } from '../(latest-updates)/mdx/changelog-parser';
 
+export const loader = async () => {
+  const rssXml = buildRssXml();
+
+  return new Response(rssXml, {
+    headers: {
+      'Content-Type': 'application/rss+xml; charset=utf-8',
+    },
+  });
+};
+
 const escapeXml = (value: string): string => {
   return value
     .replaceAll('&', '&amp;')
@@ -56,10 +66,8 @@ const buildRssXml = (): string => {
 </rss>`;
 };
 
-const rssXml = buildRssXml();
-
 const RssPage = () => {
-  return rssXml;
+  return null;
 };
 
 export default RssPage;
