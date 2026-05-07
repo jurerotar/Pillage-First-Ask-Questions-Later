@@ -10,13 +10,17 @@ const useLoyaltySchema = z.strictObject({
 });
 
 export const useLoyalty = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: loyalty } = useSuspenseQuery({
     queryKey: [loyaltyCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher(`/tiles/${currentVillage.id}/loyalty`);
+      const { data } = await apiClient.get('/tiles/:tileId/loyalty', {
+        path: {
+          tileId: currentVillage.id,
+        },
+      });
 
       return useLoyaltySchema.parse(data);
     },

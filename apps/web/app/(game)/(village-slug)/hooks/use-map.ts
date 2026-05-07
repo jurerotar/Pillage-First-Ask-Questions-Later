@@ -14,14 +14,14 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useServer } from './use-server';
 
 const useTiles = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: tiles } = useSuspenseQuery({
     queryKey: [tilesCacheKey],
     queryFn: async () => {
       // TODO: This query is *really* heavy.
       // What we should do is remove all the non-static parts (world items, troop movements,...) so that this query can be permanently cached.
-      const { data } = await fetcher('/tiles');
+      const { data } = await apiClient.get('/tiles');
 
       return z.array(tilesApiSchema).parse(data);
     },

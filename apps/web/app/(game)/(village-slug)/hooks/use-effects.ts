@@ -12,13 +12,17 @@ const getEffectsSchema = effectSchema.extend({
 });
 
 export const useEffects = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: effects } = useSuspenseQuery({
     queryKey: [effectsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher(`/villages/${currentVillage.id}/effects`);
+      const { data } = await apiClient.get('/villages/:villageId/effects', {
+        path: {
+          villageId: currentVillage.id,
+        },
+      });
 
       return z.array(getEffectsSchema).parse(data);
     },

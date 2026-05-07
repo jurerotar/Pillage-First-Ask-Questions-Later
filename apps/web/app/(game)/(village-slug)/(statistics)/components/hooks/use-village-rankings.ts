@@ -16,12 +16,16 @@ const getVillageRankingsSchema = z.strictObject({
 });
 
 export const useVillageRankings = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: rankedVillages } = useSuspenseQuery({
     queryKey: [villageRankingsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/statistics/villages?lastVillageId=null');
+      const { data } = await apiClient.get('/statistics/villages', {
+        query: {
+          lastVillageId: null,
+        },
+      });
 
       return z.array(getVillageRankingsSchema).parse(data);
     },

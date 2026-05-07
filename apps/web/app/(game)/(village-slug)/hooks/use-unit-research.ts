@@ -17,7 +17,7 @@ const getResearchedUnitsSchema = z.strictObject({
 });
 
 export const useUnitResearch = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const tribe = useTribe();
   const { currentVillage } = useCurrentVillage();
 
@@ -26,10 +26,16 @@ export const useUnitResearch = () => {
   const { data: unitResearch } = useSuspenseQuery({
     queryKey: [unitResearchCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<
-        z.infer<typeof getResearchedUnitsSchema>[]
-      >(`/villages/${currentVillage.id}/researched-units`);
-      return data;
+      const { data } = await apiClient.get(
+        '/villages/:villageId/researched-units',
+        {
+          path: {
+            villageId: currentVillage.id,
+          },
+        },
+      );
+
+      return z.array(getResearchedUnitsSchema).parse(data);
     },
   });
 

@@ -10,17 +10,26 @@ import {
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
+import { useMe } from './use-me';
 
 export const useHeroAdventures = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
+  const { player } = useMe();
 
   const {
     data: { available, completed },
   } = useSuspenseQuery({
     queryKey: [adventurePointsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/me/hero/adventures');
+      const { data } = await apiClient.get(
+        '/players/:playerId/hero/adventures',
+        {
+          path: {
+            playerId: player.id,
+          },
+        },
+      );
 
       return heroAdventuresSchema.parse(data);
     },
@@ -28,8 +37,10 @@ export const useHeroAdventures = () => {
 
   const { mutate: startAdventure } = useMutation({
     mutationFn: async () => {
-      await fetcher('/me/hero/adventures', {
-        method: 'POST',
+      await apiClient.post('/players/:playerId/hero/adventures', {
+        path: {
+          playerId: player.id,
+        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {

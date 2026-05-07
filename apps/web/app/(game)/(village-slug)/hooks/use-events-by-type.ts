@@ -9,16 +9,23 @@ import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useEventsByType = <T extends GameEventType>(eventType: T) => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: eventsByType } = useSuspenseQuery({
     queryKey: [eventsCacheKey, eventType, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<GameEvent<Extract<T, GameEventType>>[]>(
-        `/villages/${currentVillage.id}/events/${eventType}`,
+      const { data } = await apiClient.get(
+        '/villages/:villageId/events/:eventType',
+        {
+          path: {
+            villageId: currentVillage.id,
+            eventType,
+          },
+        },
       );
-      return data;
+
+      return data as GameEvent<Extract<T, GameEventType>>[];
     },
   });
 

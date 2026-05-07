@@ -17,13 +17,18 @@ const getPlayerVillageSchema = z.strictObject({
 });
 
 export const usePlayerVillages = (playerId: number) => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: playerVillages } = useSuspenseQuery({
     queryKey: [playerVillagesCacheKey, playerId],
     queryFn: async () => {
-      const response = await fetcher(
-        `/players/${playerId}/villages-with-population`,
+      const response = await apiClient.get(
+        '/players/:playerId/villages-with-population',
+        {
+          path: {
+            playerId,
+          },
+        },
       );
       return z.array(getPlayerVillageSchema).parse(response.data);
     },

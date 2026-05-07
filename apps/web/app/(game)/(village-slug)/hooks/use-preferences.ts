@@ -7,6 +7,7 @@ import {
 import { preferencesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
+import { useMe } from './use-me';
 
 type UpdatePreferenceArgs = {
   preferenceName: keyof Preferences;
@@ -14,12 +15,17 @@ type UpdatePreferenceArgs = {
 };
 
 export const usePreferences = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
+  const { player } = useMe();
 
   const { data: preferences } = useSuspenseQuery({
     queryKey: [preferencesCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/me/preferences');
+      const { data } = await apiClient.get('/players/:playerId/preferences', {
+        path: {
+          playerId: player.id,
+        },
+      });
 
       return preferencesSchema.parse(data);
     },
@@ -33,8 +39,11 @@ export const usePreferences = () => {
     UpdatePreferenceArgs
   >({
     mutationFn: async ({ preferenceName, value }) => {
-      await fetcher<Preferences>(`/me/preferences/${preferenceName}`, {
-        method: 'PATCH',
+      await apiClient.patch('/players/:playerId/preferences/:preferenceName', {
+        path: {
+          playerId: player.id,
+          preferenceName,
+        },
         body: {
           value,
         },

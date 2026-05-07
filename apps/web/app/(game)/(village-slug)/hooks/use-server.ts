@@ -5,12 +5,12 @@ import { serverCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useServer = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: server } = useSuspenseQuery({
     queryKey: [serverCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/server');
+      const { data } = await apiClient.get('/server');
 
       return serverSchema.parse(data);
     },

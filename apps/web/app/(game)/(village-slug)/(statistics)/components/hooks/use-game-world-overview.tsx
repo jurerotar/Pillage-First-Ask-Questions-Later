@@ -16,14 +16,12 @@ const gameWorldOverviewStatisticsSchema = z.strictObject({
 });
 
 export const useGameWorldOverview = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: gameWorldOverviewStatistics } = useSuspenseQuery({
     queryKey: [gameWorldOverviewStatisticsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/statistics/overview', {
-        method: 'GET',
-      });
+      const { data } = await apiClient.get('/statistics/overview');
 
       return gameWorldOverviewStatisticsSchema.parse(data);
     },

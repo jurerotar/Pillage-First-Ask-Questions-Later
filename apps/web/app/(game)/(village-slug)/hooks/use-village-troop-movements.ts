@@ -36,14 +36,19 @@ const troopMovementSchema = z.union([
 ]);
 
 export const useVillageTroopMovements = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: troopMovements } = useSuspenseQuery({
     queryKey: [troopMovementsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher(
-        `/villages/${currentVillage.id}/troop-movements`,
+      const { data } = await apiClient.get(
+        '/villages/:villageId/troop-movements',
+        {
+          path: {
+            villageId: currentVillage.id,
+          },
+        },
       );
 
       return z.array(troopMovementSchema).parse(data);

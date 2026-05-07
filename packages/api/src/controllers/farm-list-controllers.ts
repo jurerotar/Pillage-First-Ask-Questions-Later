@@ -172,13 +172,3 @@ export const updateFarmList = createController(
     }
   });
 });
-
-export const renameFarmList = createController(
-  '/farm-lists/:farmListId/rename',
-  'patch',
-)(({ database, path: { farmListId }, body: { name } }) => {
-  database.exec({
-    sql: 'UPDATE farm_lists SET name = $name WHERE id = $farmListId',
-    bind: { $name: name, $farmListId: farmListId },
-  });
-});

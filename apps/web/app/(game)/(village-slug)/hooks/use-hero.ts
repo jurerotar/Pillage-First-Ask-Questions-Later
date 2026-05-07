@@ -13,15 +13,21 @@ import {
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
+import { useMe } from './use-me';
 
 export const useHero = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
+  const { player } = useMe();
 
   const { data: hero } = useSuspenseQuery({
     queryKey: [heroCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/me/hero');
+      const { data } = await apiClient.get('/players/:playerId/hero', {
+        path: {
+          playerId: player.id,
+        },
+      });
 
       return heroSchema.parse(data);
     },
@@ -37,8 +43,10 @@ export const useHero = () => {
     Hero['selectableAttributes']
   >({
     mutationFn: async (attributes) => {
-      await fetcher('/me/hero/attributes', {
-        method: 'PATCH',
+      await apiClient.patch('/players/:playerId/hero/attributes', {
+        path: {
+          playerId: player.id,
+        },
         body: attributes,
       });
     },
@@ -57,8 +65,10 @@ export const useHero = () => {
     HeroResourceToProduce
   >({
     mutationFn: async (resource) => {
-      await fetcher('/me/hero/resource-to-produce', {
-        method: 'PATCH',
+      await apiClient.patch('/players/:playerId/hero/resource-to-produce', {
+        path: {
+          playerId: player.id,
+        },
         body: { resource },
       });
     },

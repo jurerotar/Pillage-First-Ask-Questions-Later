@@ -9,12 +9,14 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 
 export const useCancelUnitImprovement = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   return useMutation<void, Error, { eventId: GameEvent['id'] }>({
     mutationFn: async ({ eventId }) => {
-      await fetcher(`/events/unit-improvement-event/${eventId}`, {
-        method: 'DELETE',
+      await apiClient.delete('/events/unit-improvement-event/:eventId', {
+        path: {
+          eventId: `${eventId}`,
+        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {

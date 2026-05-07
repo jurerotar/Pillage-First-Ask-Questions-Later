@@ -44,14 +44,19 @@ const getOccupiableOasisInRangeSchema = z.strictObject({
 const occupiableOasisInRangeCacheKey = 'occupiable-oasis-in-range';
 
 export const useOccupiableOasisInRange = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: occupiableOasisInRange } = useSuspenseQuery({
     queryKey: [occupiableOasisInRangeCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher(
-        `/villages/${currentVillage.id}/occupiable-oasis`,
+      const { data } = await apiClient.get(
+        '/villages/:villageId/occupiable-oasis',
+        {
+          path: {
+            villageId: currentVillage.id,
+          },
+        },
       );
 
       return z.array(getOccupiableOasisInRangeSchema).parse(data);
@@ -60,8 +65,11 @@ export const useOccupiableOasisInRange = () => {
 
   const { mutate: abandonOasis } = useMutation<void, Error, AbandonOasisArgs>({
     mutationFn: async ({ oasisId }) => {
-      await fetcher(`/villages/${currentVillage.id}/oasis/${oasisId}`, {
-        method: 'DELETE',
+      await apiClient.delete('/villages/:villageId/oasis/:oasisId', {
+        path: {
+          villageId: currentVillage.id,
+          oasisId,
+        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
@@ -74,8 +82,11 @@ export const useOccupiableOasisInRange = () => {
 
   const { mutate: occupyOasis } = useMutation<void, Error, AbandonOasisArgs>({
     mutationFn: async ({ oasisId }) => {
-      await fetcher(`/villages/${currentVillage.id}/oasis/${oasisId}`, {
-        method: 'POST',
+      await apiClient.post('/villages/:villageId/oasis/:oasisId', {
+        path: {
+          villageId: currentVillage.id,
+          oasisId,
+        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {

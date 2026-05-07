@@ -89,7 +89,7 @@ const splitOasisBonus = (oasisBonus: OasisBonus) => {
 
 const parseOasisBonus = (
   oasisBonus: OasisBonus | typeof NO_OASIS_BONUS_KEY,
-) => {
+): Array<{ bonus: 25 | 50; resource: Resource }> => {
   if (oasisBonus === NO_OASIS_BONUS_KEY) {
     return [];
   }
@@ -99,14 +99,14 @@ const parseOasisBonus = (
 
   const bonuses = [
     {
-      bonus: Number.parseInt(firstBonus, 10),
+      bonus: Number.parseInt(firstBonus, 10) as 25 | 50,
       resource: firstResource,
     },
   ];
 
   if (secondBonus && secondResource) {
     bonuses.push({
-      bonus: Number.parseInt(secondBonus, 10),
+      bonus: Number.parseInt(secondBonus, 10) as 25 | 50,
       resource: secondResource,
     });
   }
@@ -191,7 +191,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
   const { mapSize } = useServer();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -252,8 +252,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
       thirdOasisBonus,
     ],
     queryFn: async () => {
-      const { data } = await fetcher('/search/oases/by-bonus', {
-        method: 'POST',
+      const { data } = await apiClient.post('/search/oases/by-bonus', {
         body: {
           x,
           y,

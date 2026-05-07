@@ -84,7 +84,7 @@ const animalFilterSchema = z.strictObject({
 const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
   const { t } = useTranslation();
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
   const { mapSize } = useServer();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -129,8 +129,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
     queryKey: [oasisAnimalFinderCacheKey, x, y],
     queryFn: async () => {
       const values = form.getValues();
-      const { data } = await fetcher('/search/oases/by-animals', {
-        method: 'POST',
+      const { data } = await apiClient.post('/search/oases/by-animals', {
         body: {
           x,
           y,

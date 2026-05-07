@@ -86,20 +86,23 @@ export const useEventsHistory = (
   scope: 'village' | 'global',
   types: HistoryEvent['type'][] = [],
 ) => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: events } = useSuspenseQuery({
     queryKey: [eventsHistoryCacheKey, currentVillage.id, scope, types],
     queryFn: async () => {
-      const searchParams = new URLSearchParams();
-      searchParams.set('scope', scope);
-      for (const type of types) {
-        searchParams.append('types', type);
-      }
-
-      const { data } = await fetcher(
-        `/villages/${currentVillage.id}/history/events?${searchParams.toString()}`,
+      const { data } = await apiClient.get(
+        '/villages/:villageId/history/events',
+        {
+          path: {
+            villageId: currentVillage.id,
+          },
+          query: {
+            scope,
+            ...(types.length > 0 ? { types } : {}),
+          },
+        },
       );
 
       return z.array(getEventsHistorySchema).parse(data);

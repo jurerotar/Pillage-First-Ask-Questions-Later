@@ -13,15 +13,17 @@ const getArtifactsAroundCurrentVillageSchema = z.strictObject({
 });
 
 export const useArtifactsAroundCurrentVillage = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: artifactsAroundCurrentVillage } = useSuspenseQuery({
     queryKey: [artifactsInVicinityCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher(
-        `/villages/${currentVillage.id}/artifacts`,
-      );
+      const { data } = await apiClient.get('/villages/:villageId/artifacts', {
+        path: {
+          villageId: currentVillage.id,
+        },
+      });
 
       return z.array(getArtifactsAroundCurrentVillageSchema).parse(data);
     },

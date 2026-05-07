@@ -9,10 +9,9 @@ export const useReports = () => {
 
   const { data: reports } = useSuspenseQuery({
     queryKey: [reportsCacheKey],
-    queryFn: () => {
-      return [];
-      // const { data } = await fetcher<Report[]>('/me/reports');
-      // return data;
+    queryFn: async () => {
+      const { data } = await fetcher<Report[]>('/me/reports');
+      return data;
     },
   });
 

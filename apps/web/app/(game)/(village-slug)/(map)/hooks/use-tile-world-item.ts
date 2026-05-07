@@ -7,12 +7,16 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 const tileWorldItemSchema = worldItemSchema.omit({ tileId: true }).nullable();
 
 export const useTileWorldItem = (tileId: Tile['id']) => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: worldItem } = useSuspenseQuery({
     queryKey: ['tile-world-item', tileId],
     queryFn: async () => {
-      const { data } = await fetcher(`/tiles/${tileId}/world-item`);
+      const { data } = await apiClient.get('/tiles/:tileId/world-item', {
+        path: {
+          tileId,
+        },
+      });
 
       return tileWorldItemSchema.parse(data);
     },

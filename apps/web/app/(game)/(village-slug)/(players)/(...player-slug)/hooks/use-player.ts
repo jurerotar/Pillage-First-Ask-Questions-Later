@@ -5,12 +5,16 @@ import { playerCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const usePlayer = (playerSlug: Player['slug']) => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: player } = useSuspenseQuery({
     queryKey: [playerCacheKey, playerSlug],
     queryFn: async () => {
-      const response = await fetcher(`/players/${playerSlug}`);
+      const response = await apiClient.get('/players/:playerSlug', {
+        path: {
+          playerSlug,
+        },
+      });
 
       return playerSchema.parse(response.data);
     },

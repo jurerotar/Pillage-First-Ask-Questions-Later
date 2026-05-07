@@ -11,12 +11,16 @@ const oasisBonusesSchema = z.strictObject({
 });
 
 export const useOasisBonuses = (tileId: Tile['id']) => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: oasisBonuses } = useSuspenseQuery({
     queryKey: ['oasis-bonuses', tileId],
     queryFn: async () => {
-      const { data } = await fetcher(`/tiles/${tileId}/bonuses`);
+      const { data } = await apiClient.get('/tiles/:tileId/bonuses', {
+        path: {
+          tileId,
+        },
+      });
 
       return z.array(oasisBonusesSchema).parse(data);
     },

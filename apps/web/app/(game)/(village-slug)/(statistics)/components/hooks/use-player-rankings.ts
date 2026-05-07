@@ -11,12 +11,16 @@ const getPlayerRankingsSchema = playerSchema.extend({
 });
 
 export const usePlayerRankings = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: rankedPlayers } = useSuspenseQuery({
     queryKey: [playerRankingsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/statistics/players?lastPlayerId=null');
+      const { data } = await apiClient.get('/statistics/players', {
+        query: {
+          lastPlayerId: null,
+        },
+      });
 
       return z.array(getPlayerRankingsSchema).parse(data);
     },

@@ -13,13 +13,17 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 
 export const useQuests = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: quests } = useSuspenseQuery({
     queryKey: [questsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher(`/villages/${currentVillage.id}/quests`);
+      const { data } = await apiClient.get('/villages/:villageId/quests', {
+        path: {
+          villageId: currentVillage.id,
+        },
+      });
 
       return z.array(questSchema).parse(data);
     },
@@ -31,12 +35,12 @@ export const useQuests = () => {
     { questId: Quest['id'] }
   >({
     mutationFn: async ({ questId }) => {
-      await fetcher(
-        `/villages/${currentVillage.id}/quests/${questId}/collect`,
-        {
-          method: 'PATCH',
+      await apiClient.patch('/villages/:villageId/quests/:questId/collect', {
+        path: {
+          villageId: currentVillage.id,
+          questId,
         },
-      );
+      });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
