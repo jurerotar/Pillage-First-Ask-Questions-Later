@@ -35,9 +35,9 @@ export const getBuildingLevelChangeHistory = createController(
 
 export const getUnitTrainingHistory = createController(
   '/villages/:villageId/history/units',
-)(({ database, path, body }) => {
+)(({ database, path, query }) => {
   const { villageId } = path;
-  const { buildingId = null } = body;
+  const { buildingId = null } = query;
 
   return database.selectObjects({
     sql: `

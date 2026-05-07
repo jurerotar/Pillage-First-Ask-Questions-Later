@@ -129,9 +129,11 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
     queryKey: [oasisAnimalFinderCacheKey, x, y],
     queryFn: async () => {
       const values = form.getValues();
-      const { data } = await fetcher(`/oasis-animal-finder?x=${x}&y=${y}`, {
-        method: 'GET',
+      const { data } = await fetcher('/search/oases/by-animals', {
+        method: 'POST',
         body: {
+          x,
+          y,
           animalFilters: values.animalFilters,
         },
       });

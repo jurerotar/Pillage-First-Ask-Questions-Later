@@ -119,7 +119,7 @@ export const getTroopsByVillage = createController(
 });
 
 export const renameVillage = createController(
-  '/villages/:villageId/rename',
+  '/villages/:villageId',
   'patch',
 )(({ database, path: { villageId }, body: { name } }) => {
   database.exec({

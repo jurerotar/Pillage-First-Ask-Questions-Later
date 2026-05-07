@@ -21,11 +21,7 @@ export const useVillageRankings = () => {
   const { data: rankedVillages } = useSuspenseQuery({
     queryKey: [villageRankingsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/statistics/villages', {
-        body: {
-          lastVillageId: null,
-        },
-      });
+      const { data } = await fetcher('/statistics/villages?lastVillageId=null');
 
       return z.array(getVillageRankingsSchema).parse(data);
     },

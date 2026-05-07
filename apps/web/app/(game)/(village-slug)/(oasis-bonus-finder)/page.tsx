@@ -252,9 +252,11 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
       thirdOasisBonus,
     ],
     queryFn: async () => {
-      const { data } = await fetcher(`/oasis-bonus-finder?x=${x}&y=${y}`, {
-        method: 'GET',
+      const { data } = await fetcher('/search/oases/by-bonus', {
+        method: 'POST',
         body: {
+          x,
+          y,
           resourceFieldComposition,
           bonuses: {
             firstOasis: parseOasisBonus(firstOasisBonus),

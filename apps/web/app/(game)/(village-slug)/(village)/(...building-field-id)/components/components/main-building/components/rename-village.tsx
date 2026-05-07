@@ -54,7 +54,7 @@ export const RenameVillage = () => {
     z.infer<typeof formSchema>
   >({
     mutationFn: async ({ name }) => {
-      await fetcher(`/villages/${currentVillage.id}/rename`, {
+      await fetcher(`/villages/${currentVillage.id}`, {
         method: 'PATCH',
         body: {
           name,

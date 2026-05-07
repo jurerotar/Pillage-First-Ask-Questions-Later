@@ -30,7 +30,6 @@ import {
   getMeFarmLists,
   removeTileFromAllPlayerFarmLists,
   removeTileFromFarmList,
-  renameFarmList,
   updateFarmList,
 } from '../controllers/farm-list-controllers';
 import {
@@ -164,7 +163,6 @@ const apiRoutes: Route[] = [
   createRoute(cloneFarmList),
   createRoute(removeTileFromFarmList),
   createRoute(removeTileFromAllPlayerFarmLists),
-  createRoute(renameFarmList),
 
   // Preferences
   createRoute(getPreferences),

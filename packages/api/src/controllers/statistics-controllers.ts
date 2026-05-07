@@ -10,8 +10,8 @@ import {
 } from './schemas/statistics-schemas';
 
 export const getPlayerRankings = createController('/statistics/players')(
-  ({ database, body }) => {
-    const { lastPlayerId = null } = body;
+  ({ database, query }) => {
+    const { lastPlayerId = null } = query;
 
     // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
     return database.selectObjects({
@@ -98,8 +98,8 @@ export const getPlayerRankings = createController('/statistics/players')(
 );
 
 export const getVillageRankings = createController('/statistics/villages')(
-  ({ database, body }) => {
-    const { lastVillageId = null } = body;
+  ({ database, query }) => {
+    const { lastVillageId = null } = query;
 
     // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
     return database.selectObjects({

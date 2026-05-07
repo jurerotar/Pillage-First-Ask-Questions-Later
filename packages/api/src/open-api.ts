@@ -176,7 +176,7 @@ export const paths = {
       },
     },
   },
-  '/villages/:villageId/rename': {
+  '/villages/:villageId': {
     patch: {
       summary: 'Rename village',
       requestParams: {
@@ -861,30 +861,6 @@ export const paths = {
       },
     },
   },
-  '/farm-lists/:farmListId/rename': {
-    patch: {
-      summary: 'Rename farm list',
-      requestParams: {
-        path: z.strictObject({
-          farmListId: z.coerce.number(),
-        }),
-      },
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              name: z.string(),
-            }),
-          },
-        },
-      },
-      responses: {
-        '204': {
-          description: 'Farm list renamed',
-        },
-      },
-    },
-  },
   '/villages/:villageId/events': {
     get: {
       summary: 'Get village events',
@@ -997,15 +973,9 @@ export const paths = {
         path: z.strictObject({
           villageId: z.coerce.number(),
         }),
-      },
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              buildingId: buildingIdSchema.nullable().optional(),
-            }),
-          },
-        },
+        query: z.strictObject({
+          buildingId: buildingIdSchema.nullable().optional(),
+        }),
       },
       responses: {
         '200': {
@@ -1345,14 +1315,10 @@ export const paths = {
   '/statistics/players': {
     get: {
       summary: 'Get player rankings',
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              lastPlayerId: z.number().nullable(),
-            }),
-          },
-        },
+      requestParams: {
+        query: z.strictObject({
+          lastPlayerId: z.coerce.number().nullable().optional(),
+        }),
       },
       responses: {
         '200': {
@@ -1369,14 +1335,10 @@ export const paths = {
   '/statistics/villages': {
     get: {
       summary: 'Get village rankings',
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              lastVillageId: z.number().nullable(),
-            }),
-          },
-        },
+      requestParams: {
+        query: z.strictObject({
+          lastVillageId: z.coerce.number().nullable().optional(),
+        }),
       },
       responses: {
         '200': {
@@ -1515,19 +1477,15 @@ export const paths = {
       },
     },
   },
-  '/oasis-bonus-finder': {
-    get: {
+  '/search/oases/by-bonus': {
+    post: {
       summary: 'Find tiles with specific oasis bonuses',
-      requestParams: {
-        query: z.strictObject({
-          x: z.coerce.number(),
-          y: z.coerce.number(),
-        }),
-      },
       requestBody: {
         content: {
           'application/json': {
             schema: z.strictObject({
+              x: z.number(),
+              y: z.number(),
               resourceFieldComposition: resourceFieldCompositionSchema.or(
                 z.literal('any-cropper'),
               ),
@@ -1567,19 +1525,15 @@ export const paths = {
       },
     },
   },
-  '/oasis-animal-finder': {
-    get: {
+  '/search/oases/by-animals': {
+    post: {
       summary: 'Find oasis tiles with specific nature troop amounts',
-      requestParams: {
-        query: z.strictObject({
-          x: z.coerce.number(),
-          y: z.coerce.number(),
-        }),
-      },
       requestBody: {
         content: {
           'application/json': {
             schema: z.strictObject({
+              x: z.number(),
+              y: z.number(),
               animalFilters: z.array(
                 z.strictObject({
                   animal: natureUnitIdSchema,

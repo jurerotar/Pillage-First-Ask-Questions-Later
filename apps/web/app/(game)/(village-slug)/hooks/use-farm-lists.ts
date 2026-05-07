@@ -75,7 +75,7 @@ export const useFarmLists = () => {
 
   const { mutate: renameFarmList } = useMutation({
     mutationFn: async ({ id, name }: { id: number; name: string }) => {
-      await fetcher(`/farm-lists/${id}/rename`, {
+      await fetcher(`/farm-lists/${id}`, {
         method: 'PATCH',
         body: { name },
       });

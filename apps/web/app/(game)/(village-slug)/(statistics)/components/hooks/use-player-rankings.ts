@@ -16,11 +16,7 @@ export const usePlayerRankings = () => {
   const { data: rankedPlayers } = useSuspenseQuery({
     queryKey: [playerRankingsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/statistics/players', {
-        body: {
-          lastPlayerId: null,
-        },
-      });
+      const { data } = await fetcher('/statistics/players?lastPlayerId=null');
 
       return z.array(getPlayerRankingsSchema).parse(data);
     },
