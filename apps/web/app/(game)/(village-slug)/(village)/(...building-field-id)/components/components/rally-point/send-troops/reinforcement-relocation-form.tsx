@@ -7,9 +7,9 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Text } from 'app/components/text';
-import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
 import {
   Form,
@@ -31,12 +31,11 @@ const reinforcementRelocationFormSchema = baseTroopFormSchema.extend({
   action: z.enum(['reinforcement', 'relocation']),
 });
 
-const IS_REINFORCEMENTS_FORM_ENABLED = false;
-
 export const ReinforcementRelocationForm = () => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const navigate = useNavigate();
+  const tribe = useTribe();
   const { sendTroops } = useVillageTroops();
 
   const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
@@ -98,78 +97,70 @@ export const ReinforcementRelocationForm = () => {
         <Text as="h2">{t('Reinforce or relocate')}</Text>
       </SectionContent>
       <SectionContent>
-        {!IS_REINFORCEMENTS_FORM_ENABLED && (
-          <Alert variant="warning">
-            {t('This page is still under development')}
-          </Alert>
-        )}
-        {IS_REINFORCEMENTS_FORM_ENABLED && (
-          <>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onFormSubmit)}
-                className="space-y-6"
-              >
-                <UnitSelector />
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onFormSubmit)}
+            className="space-y-6"
+          >
+            <UnitSelector />
 
-                <div className="flex items-end gap-4">
-                  <PlayerVillageSelector />
+            <div className="flex items-end gap-4">
+              <PlayerVillageSelector />
 
-                  <FormField
-                    control={form.control}
-                    name="action"
-                    render={({ field }) => (
-                      <FormItem className="space-y-2 border-l dark:border-border pl-4">
-                        <FormLabel>{t('Action')}</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            className="flex flex-col space-y-2"
-                          >
-                            <FormItem className="flex items-center space-x-4 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="reinforcement" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {t('Reinforcement')}
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-4 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="relocation" />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {t('Relocation')}
-                              </FormLabel>
-                            </FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
-
-                <Button type="submit">{t('Confirm')}</Button>
-              </form>
-            </Form>
-
-            {formData.current && (
-              <TroopMovementConfirmationModal
-                isOpen={isConfirmationModalOpen}
-                onClose={closeModal}
-                onConfirm={onConfirm}
-                formData={formData.current}
-                title={
-                  formData.current.action === 'reinforcement'
-                    ? t('Reinforcement')
-                    : t('Relocation')
-                }
+              <FormField
+                control={form.control}
+                name="action"
+                render={({ field }) => (
+                  <FormItem className="space-y-2 border-l dark:border-border pl-4">
+                    <FormLabel>{t('Action')}</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-2"
+                      >
+                        <FormItem className="flex items-center space-x-4 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="reinforcement" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            {t('Reinforcement')}
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-4 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="relocation" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            {t('Relocation')}
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                  </FormItem>
+                )}
               />
-            )}
-          </>
+            </div>
+
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
+
+            <Button type="submit">{t('Confirm')}</Button>
+          </form>
+        </Form>
+
+        {formData.current && (
+          <TroopMovementConfirmationModal
+            isOpen={isConfirmationModalOpen}
+            onClose={closeModal}
+            onConfirm={onConfirm}
+            formData={formData.current}
+            tribe={tribe}
+            title={
+              formData.current.action === 'reinforcement'
+                ? t('Reinforcement')
+                : t('Relocation')
+            }
+          />
         )}
       </SectionContent>
     </Section>

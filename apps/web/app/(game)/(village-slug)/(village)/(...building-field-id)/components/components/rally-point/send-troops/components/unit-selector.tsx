@@ -65,7 +65,7 @@ export const UnitSelector = ({
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-3 md:flex md:flex-row gap-4 justify-start">
         {displayGroups.map((group) => {
-          const categoryUnits = groupedUnits[group];
+          const categoryUnits = groupedUnits[group] ?? [];
 
           return (
             <div

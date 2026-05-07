@@ -7,6 +7,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -37,6 +38,7 @@ export const AttackRaidForm = () => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const navigate = useNavigate();
+  const tribe = useTribe();
   const { sendTroops } = useVillageTroops();
 
   const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
@@ -160,6 +162,7 @@ export const AttackRaidForm = () => {
                 onClose={closeModal}
                 onConfirm={onConfirm}
                 formData={formData.current}
+                tribe={tribe}
                 title={
                   formData.current.action === 'attack_normal'
                     ? t('Attack: Normal')

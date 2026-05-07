@@ -1,6 +1,8 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { createController } from '../utils/controller';
+import { relocateHero } from './resolvers/utils/hero';
 import {
   getPlayerVillagesWithPopulationSchema,
   getTroopsByVillageSchema,
@@ -129,6 +131,139 @@ export const renameVillage = createController(
       WHERE id = $village_id
     `,
     bind: { $name: name, $village_id: villageId },
+  });
+});
+
+export const relocateReinforcements = createController(
+  '/villages/:villageId/relocate-reinforcements',
+  'post',
+)(({ database, path: { villageId }, body: { sourceTileId, troops } }) => {
+  database.transaction((db) => {
+    const { sourceVillageId, currentVillageTile } = db.selectObject({
+      sql: `
+        SELECT
+          (
+            SELECT id
+            FROM villages
+            WHERE tile_id = $source_tile_id
+          ) AS sourceVillageId,
+          tile_id AS currentVillageTile
+        FROM villages
+        WHERE id = $village_id
+      `,
+      bind: {
+        $source_tile_id: sourceTileId,
+        $village_id: villageId,
+      },
+      schema: z.strictObject({
+        sourceVillageId: z.number().nullable(),
+        currentVillageTile: z.number(),
+      }),
+    })!;
+
+    if (!currentVillageTile) {
+      throw new Error('Village not found');
+    }
+
+    if (!sourceVillageId) {
+      throw new Error('Source village not found');
+    }
+
+    for (const troop of troops) {
+      const availableAmount = db.selectValue({
+        sql: `
+          SELECT amount
+          FROM troops t
+            JOIN unit_ids ui ON ui.id = t.unit_id
+          WHERE
+            t.tile_id = $tile_id
+            AND t.source_tile_id = $source_tile_id
+            AND ui.unit = $unit_id
+          LIMIT 1
+        `,
+        bind: {
+          $tile_id: currentVillageTile,
+          $source_tile_id: sourceTileId,
+          $unit_id: troop.unitId,
+        },
+        schema: z.number().nullable(),
+      });
+
+      if (!availableAmount || availableAmount < troop.amount) {
+        throw new Error('Not enough troops available for relocation');
+      }
+
+      db.exec({
+        sql: `
+          UPDATE troops
+          SET amount = amount - $amount
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (
+              SELECT id
+              FROM unit_ids
+              WHERE unit = $unit_id
+            )
+            AND amount >= $amount
+        `,
+        bind: {
+          $tile_id: currentVillageTile,
+          $source_tile_id: sourceTileId,
+          $unit_id: troop.unitId,
+          $amount: troop.amount,
+        },
+      });
+
+      db.exec({
+        sql: `
+          INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+          VALUES (
+            $tile_id,
+            $target_source_tile_id,
+            (
+              SELECT id
+              FROM unit_ids
+              WHERE unit = $unit_id
+            ),
+            $amount
+          )
+          ON CONFLICT (tile_id, source_tile_id, unit_id)
+          DO UPDATE
+          SET amount = amount + $amount
+        `,
+        bind: {
+          $tile_id: currentVillageTile,
+          $target_source_tile_id: currentVillageTile,
+          $unit_id: troop.unitId,
+          $amount: troop.amount,
+        },
+      });
+
+      db.exec({
+        sql: `
+          DELETE FROM troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (
+              SELECT id
+              FROM unit_ids
+              WHERE unit = $unit_id
+            )
+            AND amount = 0
+        `,
+        bind: {
+          $tile_id: currentVillageTile,
+          $source_tile_id: sourceTileId,
+          $unit_id: troop.unitId,
+        },
+      });
+    }
+
+    if (troops.some(({ unitId }) => unitId === 'HERO')) {
+      relocateHero(db, sourceVillageId, villageId, Date.now());
+    }
   });
 });
 

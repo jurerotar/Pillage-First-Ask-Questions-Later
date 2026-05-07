@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getVillagesByPlayerSchema = z
   .strictObject({
@@ -99,3 +100,15 @@ export const getTroopsByVillageSchema = z
     }),
   )
   .meta({ id: 'GetTroopsByVillage' });
+
+export const relocateReinforcementsSchema = z
+  .strictObject({
+    sourceTileId: z.number(),
+    troops: z.array(
+      z.strictObject({
+        unitId: unitIdSchema,
+        amount: z.number().int().min(1),
+      }),
+    ),
+  })
+  .meta({ id: 'RelocateReinforcements' });

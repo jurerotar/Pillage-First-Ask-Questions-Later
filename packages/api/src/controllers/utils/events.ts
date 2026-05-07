@@ -38,11 +38,10 @@ import {
   isBuildingDestructionEvent,
   isBuildingEvent,
   isBuildingLevelUpEvent,
-  isFindNewVillageTroopMovementEvent,
   isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
   isLoyaltyIncreaseEvent,
-  isOasisOccupationTroopMovementEvent,
+  isManuallyTriggeredReturnTroopMovementEvent,
   isReturnTroopMovementEvent,
   isScheduledBuildingEvent,
   isTroopMovementEvent,
@@ -382,9 +381,9 @@ export const validateEventCreationPrerequisites = (
               AND e.village_id = $village_id
               AND NOT (
                 e.type = 'buildingLevelChange'
-                AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
-                  CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
-              )
+                  AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
+                      CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
+                )
               AND (
                 -- If player is not Romans, include all building events
                 pt.tribe <> 'romans'
@@ -1035,19 +1034,18 @@ export const getEventStartTime = (
     return Date.now();
   }
 
-  if (isAdventureTroopMovementEvent(event)) {
-    return Date.now();
-  }
-  if (isFindNewVillageTroopMovementEvent(event)) {
-    return Date.now();
-  }
-  if (isOasisOccupationTroopMovementEvent(event)) {
-    return Date.now();
-  }
-  if (isReturnTroopMovementEvent(event)) {
-    const { resolvesAt } = event;
+  if (isTroopMovementEvent(event)) {
+    if (isReturnTroopMovementEvent(event)) {
+      if (isManuallyTriggeredReturnTroopMovementEvent(event)) {
+        return Date.now();
+      }
 
-    return resolvesAt;
+      const { resolvesAt } = event;
+
+      return resolvesAt;
+    }
+
+    return Date.now();
   }
 
   return Date.now();

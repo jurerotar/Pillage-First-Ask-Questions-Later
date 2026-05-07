@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { IoReturnUpForwardOutline } from 'react-icons/io5';
+import { TbMapPinDown } from 'react-icons/tb';
 import {
   getUnitDefinition,
   getUnitsByTribe,
@@ -24,8 +26,16 @@ import {
   UnitTableWheatConsumption,
 } from 'app/(game)/components/unit-table';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import { Pagination } from 'app/components/ui/pagination.tsx';
+import { useDialog } from 'app/hooks/use-dialog.ts';
 import { useFilters } from 'app/hooks/use-filters.ts';
+import { RelocateTroopsModal } from './send-troops/components/relocate-troops-modal';
+import { ReturnReinforcementsModal } from './send-troops/components/return-reinforcements-modal';
+
+type ReinforcementDialogData = {
+  sourceTileId: number;
+};
 
 const formatTroopAmount = (tribe: Tribe, troops: Troop[]) => {
   const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
@@ -45,6 +55,18 @@ export const RallyPointStationedTroops = () => {
   const { page, handlePageChange } = useFilters({
     paramName: 'page',
   });
+  const {
+    isOpen: isReturnModalOpen,
+    openModal: openReturnModal,
+    closeModal: closeReturnModal,
+    modalArgs: returnModalArgs,
+  } = useDialog<ReinforcementDialogData>();
+  const {
+    isOpen: isRelocateModalOpen,
+    openModal: openRelocateModal,
+    closeModal: closeRelocateModal,
+    modalArgs: relocateModalArgs,
+  } = useDialog<ReinforcementDialogData>();
 
   const [ownTroops, reinforcements] = useMemo(() => {
     return partition(
@@ -57,9 +79,9 @@ export const RallyPointStationedTroops = () => {
     return formatTroopAmount(tribe, ownTroops);
   }, [tribe, ownTroops]);
 
-  const villageNameByTileId = useMemo(() => {
+  const villagesByTileId = useMemo(() => {
     return new Map(
-      playerVillages.map((village) => [village.tileId, village.name] as const),
+      playerVillages.map((village) => [village.tileId, village] as const),
     );
   }, [playerVillages]);
 
@@ -84,12 +106,30 @@ export const RallyPointStationedTroops = () => {
 
       return {
         sourceTileId,
-        sourceVillageName: villageNameByTileId.get(sourceTileId),
+        sourceVillageName: villagesByTileId.get(sourceTileId)?.name,
+        sourceCoordinates: villagesByTileId.get(sourceTileId)?.coordinates,
         tribe: sourceTribe,
+        troops,
         amount: formatTroopAmount(sourceTribe, troops),
       };
     });
-  }, [reinforcements, tribe, villageNameByTileId]);
+  }, [reinforcements, tribe, villagesByTileId]);
+
+  const selectedReturnSourceReinforcements = returnModalArgs.current
+    ?.sourceTileId
+    ? (reinforcingTroopsBySource.find(
+        ({ sourceTileId }) =>
+          sourceTileId === returnModalArgs.current?.sourceTileId,
+      ) ?? null)
+    : null;
+
+  const selectedRelocateSourceReinforcements = relocateModalArgs.current
+    ?.sourceTileId
+    ? (reinforcingTroopsBySource.find(
+        ({ sourceTileId }) =>
+          sourceTileId === relocateModalArgs.current?.sourceTileId,
+      ) ?? null)
+    : null;
 
   const pagination = usePagination(reinforcingTroopsBySource, 20, page);
 
@@ -121,15 +161,48 @@ export const RallyPointStationedTroops = () => {
         <SectionContent>
           <Text as="h3">{t('Reinforcements')}</Text>
           {reinforcingTroopsBySource.map(
-            ({ sourceTileId, sourceVillageName, tribe, amount }) => (
+            ({
+              sourceTileId,
+              sourceVillageName,
+              sourceCoordinates,
+              tribe,
+              amount,
+            }) => (
               <UnitTable
                 key={sourceTileId}
                 tribe={tribe}
               >
                 <UnitTableTitle>
-                  {t('Reinforcements from {{villageName}}', {
-                    villageName: sourceVillageName,
-                  })}
+                  <div className="flex items-center justify-between gap-2">
+                    <span>
+                      {t('Reinforcements from {{villageName}}', {
+                        villageName: sourceVillageName,
+                      })}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={!sourceCoordinates}
+                        data-tooltip-id="general-tooltip"
+                        data-tooltip-content={t('Return reinforcements')}
+                        onClick={() => openReturnModal({ sourceTileId })}
+                      >
+                        <IoReturnUpForwardOutline className="size-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        data-tooltip-id="general-tooltip"
+                        data-tooltip-content={t(
+                          'Convert reinforcements to relocated troops',
+                        )}
+                        onClick={() => openRelocateModal({ sourceTileId })}
+                      >
+                        <TbMapPinDown className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </UnitTableTitle>
                 <UnitTableUnitIcons />
                 <UnitTableRow
@@ -147,6 +220,28 @@ export const RallyPointStationedTroops = () => {
             />
           </div>
         </SectionContent>
+      )}
+
+      {selectedReturnSourceReinforcements && (
+        <ReturnReinforcementsModal
+          isOpen={isReturnModalOpen}
+          onClose={closeReturnModal}
+          title={t('Return reinforcements')}
+          tribe={selectedReturnSourceReinforcements.tribe}
+          sourceTileId={selectedReturnSourceReinforcements.sourceTileId}
+          troops={selectedReturnSourceReinforcements.troops}
+        />
+      )}
+
+      {selectedRelocateSourceReinforcements && (
+        <RelocateTroopsModal
+          isOpen={isRelocateModalOpen}
+          onClose={closeRelocateModal}
+          title={t('Convert reinforcements to relocated troops')}
+          tribe={selectedRelocateSourceReinforcements.tribe}
+          sourceTileId={selectedRelocateSourceReinforcements.sourceTileId}
+          troops={selectedRelocateSourceReinforcements.troops}
+        />
       )}
     </Section>
   );

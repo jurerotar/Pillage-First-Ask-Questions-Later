@@ -8,14 +8,14 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { FoundNewVillageForm } from './send-troops/found-new-village-form';
+import { ReinforcementRelocationForm } from './send-troops/reinforcement-relocation-form';
 
 // import { AttackRaidForm } from './send-troops/attack-raid-form';
 // import { OasisOccupationForm } from './send-troops/oasis-occupation-form';
-// import { ReinforcementRelocationForm } from './send-troops/reinforcement-relocation-form';
 
 const tabs = [
   // 'attack-or-raid',
-  // 'reinforce-or-relocate',
+  'reinforce-or-relocate',
   // 'occupy-oasis',
   'found-new-village',
 ];
@@ -41,16 +41,16 @@ export const RallyPointSendTroops = () => {
       >
         <TabList>
           {/*<Tab value="attack-or-raid">{t('Attack or raid')}</Tab>*/}
-          {/*<Tab value="reinforce-or-relocate">{t('Reinforce or relocate')}</Tab>*/}
+          <Tab value="reinforce-or-relocate">{t('Reinforce or relocate')}</Tab>
           {/*<Tab value="occupy-oasis">{t('Occupy oasis')}</Tab>*/}
           <Tab value="found-new-village">{t('Found new village')}</Tab>
         </TabList>
         {/*<TabPanel value="attack-or-raid">*/}
         {/*  <AttackRaidForm />*/}
         {/*</TabPanel>*/}
-        {/*<TabPanel value="reinforce-or-relocate">*/}
-        {/*  <ReinforcementRelocationForm />*/}
-        {/*</TabPanel>*/}
+        <TabPanel value="reinforce-or-relocate">
+          <ReinforcementRelocationForm />
+        </TabPanel>
         {/*<TabPanel value="occupy-oasis">*/}
         {/*  <OasisOccupationForm />*/}
         {/*</TabPanel>*/}

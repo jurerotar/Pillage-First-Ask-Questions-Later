@@ -41,6 +41,7 @@ import {
   getPlayerVillagesWithPopulationSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
+  relocateReinforcementsSchema,
 } from './controllers/schemas/player-schemas';
 import { getPreferencesSchema } from './controllers/schemas/preferences-schemas';
 import { getQuestsSchema } from './controllers/schemas/quest-schemas';
@@ -196,6 +197,28 @@ export const paths = {
       responses: {
         '204': {
           description: 'Village renamed',
+        },
+      },
+    },
+  },
+  '/villages/:villageId/relocate-reinforcements': {
+    post: {
+      summary: 'Relocate reinforcements to stationed troops',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: relocateReinforcementsSchema,
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Reinforcements relocated',
         },
       },
     },

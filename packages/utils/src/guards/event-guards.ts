@@ -68,6 +68,14 @@ export const isReturnTroopMovementEvent = (
   return event.type === 'troopMovementReturn';
 };
 
+// If event.originalMovementType is undefined, it means that we're dealing with a troop reinforcement return situation.
+// Other events fill `originalMovementType` property.
+export const isManuallyTriggeredReturnTroopMovementEvent = (
+  event: GameEvent,
+): event is GameEvent<'troopMovementReturn'> => {
+  return isReturnTroopMovementEvent(event) && !event.originalMovementType;
+};
+
 export const isFindNewVillageTroopMovementEvent = (
   event: GameEvent,
 ): event is GameEvent<'troopMovementFindNewVillage'> => {

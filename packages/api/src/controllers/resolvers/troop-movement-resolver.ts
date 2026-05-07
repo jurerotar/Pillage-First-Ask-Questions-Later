@@ -11,12 +11,12 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Resolver } from '../../types/resolver';
-import { updateHeroEffectsVillageIdQuery } from '../../utils/queries/effect-queries';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
 import {
   createHeroHealthRegenerationEventByVillageId,
   onHeroDeath,
+  relocateHero,
 } from './utils/hero';
 import { assessAdventureCountQuestCompletion } from './utils/quests';
 import { addTroops } from './utils/troops';
@@ -404,27 +404,8 @@ export const relocationMovementResolver: Resolver<
     })),
   );
 
-  // If hero is relocated, update effects as well
   if (troops.some(({ unitId }) => unitId === 'HERO')) {
-    // Update resources in both villages, due to effects changing
-    updateVillageResourcesAt(database, villageId, resolvesAt);
-    updateVillageResourcesAt(database, targetVillageId, resolvesAt);
-
-    database.exec({
-      sql: updateHeroEffectsVillageIdQuery,
-      bind: {
-        $player_id: PLAYER_ID,
-        $targetId: targetVillageId,
-      },
-    });
-
-    database.exec({
-      sql: 'UPDATE heroes SET village_id = $targetId WHERE player_id = $player_id;',
-      bind: {
-        $player_id: PLAYER_ID,
-        $targetId: targetVillageId,
-      },
-    });
+    relocateHero(database, villageId, targetVillageId, resolvesAt);
   }
 };
 

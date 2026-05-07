@@ -1373,12 +1373,33 @@ describe('events utils', () => {
       expect(startTime).toBe(3400);
     });
 
-    test('returnTroopMovement - should return startsAt + duration', async () => {
+    test('returnTroopMovement - should return now for manually triggered return', async () => {
       const database = await prepareTestDatabase();
+
+      vi.useFakeTimers();
+      const now = 5_000;
+      vi.setSystemTime(new Date(now));
+
       const event = createGameEventMock('troopMovementReturn', {
         startsAt: 2000,
         duration: 1000,
       });
+
+      expect(getEventStartTime(database, event)).toBe(now);
+
+      vi.useRealTimers();
+    });
+
+    test('returnTroopMovement - should return resolvesAt for movement-triggered return', async () => {
+      const database = await prepareTestDatabase();
+
+      const event = createGameEventMock('troopMovementReturn', {
+        startsAt: 2000,
+        duration: 1000,
+        resolvesAt: 3000,
+        originalMovementType: 'troopMovementAttack',
+      });
+
       expect(getEventStartTime(database, event)).toBe(3000);
     });
 

@@ -2,7 +2,10 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { deleteHeroEffectsQuery } from '../../../utils/queries/effect-queries';
+import {
+  deleteHeroEffectsQuery,
+  updateHeroEffectsVillageIdQuery,
+} from '../../../utils/queries/effect-queries';
 import { updateVillageResourcesAt } from '../../../utils/village';
 import { createEvents } from '../../utils/create-event';
 
@@ -35,13 +38,17 @@ export const createHeroHealthRegenerationEventByVillageId = (
       SELECT
         heroes.health_regeneration AS healthRegeneration,
         servers.speed AS speed
-      FROM heroes
-      JOIN servers ON 1 = 1
-      WHERE heroes.player_id = (
-        SELECT player_id
-        FROM villages
-        WHERE id = $village_id
-      );
+      FROM
+        heroes
+          JOIN servers ON 1 = 1
+      WHERE
+        heroes.player_id = (
+          SELECT player_id
+          FROM
+            villages
+          WHERE
+            id = $village_id
+          );
     `,
     bind: {
       $village_id: villageId,
@@ -62,5 +69,31 @@ export const createHeroHealthRegenerationEventByVillageId = (
     type: 'heroHealthRegeneration',
     startsAt,
     duration,
+  });
+};
+
+export const relocateHero = (
+  database: DbFacade,
+  villageId: number,
+  targetVillageId: number,
+  resolvesAt: number,
+) => {
+  updateVillageResourcesAt(database, villageId, resolvesAt);
+  updateVillageResourcesAt(database, targetVillageId, resolvesAt);
+
+  database.exec({
+    sql: updateHeroEffectsVillageIdQuery,
+    bind: {
+      $player_id: PLAYER_ID,
+      $targetId: targetVillageId,
+    },
+  });
+
+  database.exec({
+    sql: 'UPDATE heroes SET village_id = $targetId WHERE player_id = $player_id;',
+    bind: {
+      $player_id: PLAYER_ID,
+      $targetId: targetVillageId,
+    },
   });
 };

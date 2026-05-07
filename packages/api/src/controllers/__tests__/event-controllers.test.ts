@@ -79,7 +79,7 @@ describe('event-controllers', () => {
 
     const { eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() AS eventId',
-      schema: z.object({ eventId: z.number() }),
+      schema: z.strictObject({ eventId: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -157,7 +157,7 @@ describe('event-controllers', () => {
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -242,7 +242,7 @@ describe('event-controllers', () => {
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -325,7 +325,7 @@ describe('event-controllers', () => {
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.object({ id: z.number() }),
+      schema: z.strictObject({ id: z.number() }),
     })!;
 
     // Set baseline resources to avoid warehouse capacity caps during refund
@@ -378,7 +378,7 @@ describe('event-controllers', () => {
     const deletedEvent = database.selectObject({
       sql: 'SELECT id FROM events WHERE id = $event_id',
       bind: { $event_id: eventId },
-      schema: z.object({ id: z.number() }).optional(),
+      schema: z.strictObject({ id: z.number() }).optional(),
     });
 
     expect(deletedEvent).toBeUndefined();

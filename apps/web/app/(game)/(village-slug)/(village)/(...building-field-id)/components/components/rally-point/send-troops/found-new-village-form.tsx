@@ -129,6 +129,7 @@ export const FoundNewVillageForm = () => {
             onConfirm={onConfirm}
             formData={formData.current}
             title={t('Found a new village')}
+            tribe={tribe}
           />
         )}
       </SectionContent>

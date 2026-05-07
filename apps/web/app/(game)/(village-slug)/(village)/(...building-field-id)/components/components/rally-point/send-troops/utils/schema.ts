@@ -38,7 +38,7 @@ export const troopFormRefinementOptions = [
 ];
 
 export const baseTroopFormSchema = z
-  .object({
+  .strictObject({
     units: z.array(unitSelectionSchema),
     target: targetSchema,
   })

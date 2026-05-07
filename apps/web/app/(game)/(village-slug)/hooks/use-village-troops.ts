@@ -6,8 +6,11 @@ import type {
   TroopMovementEventType,
 } from '@pillage-first/types/models/game-event';
 import { troopSchema } from '@pillage-first/types/models/troop';
+import type { Unit } from '@pillage-first/types/models/unit';
+import type { Village } from '@pillage-first/types/models/village';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
+  effectsCacheKey,
   troopMovementsCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
@@ -15,9 +18,19 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 
 type SendTroopsArgs = {
+  villageId?: Village['id'];
+  originCoordinates?: Village['coordinates'];
   type: TroopMovementEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
   targetCoordinates: GameEvent<'troopMovementReinforcements'>['targetCoordinates'];
+};
+
+type RelocateReinforcementsArgs = {
+  sourceTileId: number;
+  troops: {
+    unitId: Unit['id'];
+    amount: number;
+  }[];
 };
 
 export const useVillageTroops = () => {
@@ -41,12 +54,18 @@ export const useVillageTroops = () => {
   }, [villageTroops, currentVillage]);
 
   const { mutate: sendTroops } = useMutation({
-    mutationFn: async ({ targetCoordinates, type, troops }: SendTroopsArgs) => {
+    mutationFn: async ({
+      targetCoordinates,
+      type,
+      troops,
+      villageId,
+      originCoordinates,
+    }: SendTroopsArgs) => {
       await fetcher('/events', {
         method: 'POST',
         body: {
-          villageId: currentVillage.id,
-          originCoordinates: currentVillage.coordinates,
+          villageId: villageId ?? currentVillage.id,
+          originCoordinates: originCoordinates ?? currentVillage.coordinates,
           type,
           targetCoordinates,
           troops,
@@ -61,9 +80,32 @@ export const useVillageTroops = () => {
     },
   });
 
+  const { mutate: relocateReinforcements } = useMutation({
+    mutationFn: async ({
+      sourceTileId,
+      troops,
+    }: RelocateReinforcementsArgs) => {
+      await fetcher(`/villages/${currentVillage.id}/relocate-reinforcements`, {
+        method: 'POST',
+        body: {
+          sourceTileId,
+          troops,
+        },
+      });
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [effectsCacheKey, currentVillage.id],
+        [villageTroopsCacheKey, currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.id],
+      ]);
+    },
+  });
+
   return {
     villageTroops,
     sendTroops,
+    relocateReinforcements,
     getDeployableTroops,
   };
 };

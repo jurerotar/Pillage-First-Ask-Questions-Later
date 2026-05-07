@@ -1,10 +1,10 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Tribe } from '@pillage-first/types/models/tribe';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
 import { calculateDistanceBetweenPoints } from '@pillage-first/utils/math';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   UnitTable,
   UnitTableRow,
@@ -30,6 +30,7 @@ type TroopMovementConfirmationModalProps = {
   onConfirm: () => void;
   formData: BaseTroopFormValues;
   title: string;
+  tribe: Tribe;
 };
 
 export const TroopMovementConfirmationModal = ({
@@ -38,10 +39,10 @@ export const TroopMovementConfirmationModal = ({
   onConfirm,
   formData,
   title,
+  tribe,
 }: TroopMovementConfirmationModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const tribe = useTribe();
   const { effects } = useEffects();
 
   const selectedTroops = useMemo(() => {

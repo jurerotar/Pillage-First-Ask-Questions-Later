@@ -18,7 +18,13 @@ type TargetFormValues = {
   };
 };
 
-export const PlayerVillageSelector = () => {
+type PlayerVillageSelectorProps = {
+  disabled?: boolean;
+};
+
+export const PlayerVillageSelector = ({
+  disabled = false,
+}: PlayerVillageSelectorProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
@@ -39,6 +45,7 @@ export const PlayerVillageSelector = () => {
           {t('Village:')}
         </label>
         <Select
+          disabled={disabled}
           value={
             target.x !== undefined && target.y !== undefined
               ? `${target.x},${target.y}`
