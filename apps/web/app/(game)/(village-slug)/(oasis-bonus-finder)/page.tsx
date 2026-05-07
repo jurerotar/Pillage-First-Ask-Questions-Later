@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { z } from 'zod';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   type ResourceFieldComposition,
@@ -180,13 +179,6 @@ const OasisBonusSelectContent = () => {
   );
 };
 
-const bonusFinderQuerySchema = z.strictObject({
-  tileId: z.number(),
-  coordinates: coordinatesSchema,
-  resourceFieldComposition: resourceFieldCompositionSchema,
-  distance: z.number(),
-});
-
 const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
@@ -265,7 +257,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
         },
       });
 
-      return z.array(bonusFinderQuerySchema).parse(data);
+      return data;
     },
     staleTime: 2000,
     enabled: false,

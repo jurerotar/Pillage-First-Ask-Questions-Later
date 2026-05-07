@@ -1,9 +1,9 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use, useMemo } from 'react';
-import { z } from 'zod';
-import {
+import type { z } from 'zod';
+import type {
   tileSchema,
-  type UnoccupiedOasisTile,
+  UnoccupiedOasisTile,
 } from '@pillage-first/types/models/tile';
 import {
   encodeGraphicsProperty,
@@ -23,7 +23,7 @@ const useTiles = () => {
       // What we should do is remove all the non-static parts (world items, troop movements,...) so that this query can be permanently cached.
       const { data } = await apiClient.get('/tiles');
 
-      return z.array(tilesApiSchema).parse(data);
+      return data;
     },
   });
 
@@ -73,9 +73,6 @@ const useBorderTiles = () => {
   };
 };
 
-// We don't save border tiles to db, so they come back as null;
-const tilesApiSchema = tileSchema.nullable();
-
 export const BORDER_TILES_OASIS_VARIANTS = new Set([1, 2, 3, 4]);
 
 const BORDER_TILES_OASIS_GRAPHICS = Array.from([
@@ -89,9 +86,7 @@ export const useMap = () => {
   const { borderTiles } = useBorderTiles();
 
   const map = useMemo(() => {
-    const completeTiles: z.infer<typeof tileSchema>[] = Array.from({
-      length: tiles.length,
-    });
+    const completeTiles = new Array<z.infer<typeof tileSchema>>(tiles.length);
 
     let borderTileIndex = 0;
 

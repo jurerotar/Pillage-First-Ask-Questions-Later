@@ -23,6 +23,7 @@ export const useBookmarks = () => {
           villageId: currentVillage.id,
         },
       });
+
       return data;
     },
     staleTime: Number.POSITIVE_INFINITY,

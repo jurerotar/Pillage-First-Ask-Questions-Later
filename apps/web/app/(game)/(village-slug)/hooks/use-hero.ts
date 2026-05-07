@@ -4,7 +4,6 @@ import type {
   Hero,
   HeroResourceToProduce,
 } from '@pillage-first/types/models/hero';
-import { heroSchema } from '@pillage-first/types/models/hero';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import {
   currentVillageCacheKey,
@@ -29,7 +28,7 @@ export const useHero = () => {
         },
       });
 
-      return heroSchema.parse(data);
+      return data;
     },
   });
 

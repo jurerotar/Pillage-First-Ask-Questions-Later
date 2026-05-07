@@ -1,10 +1,11 @@
 import { createController } from '../utils/controller';
-import { getUnitImprovementsSchema } from './schemas/unit-improvement-schemas';
+import { mapUnitImprovementRowToDto } from './mappers/unit-mapper';
+import { getUnitImprovementsRowSchema } from './schemas/unit-improvement-schemas';
 
 export const getUnitImprovements = createController(
   '/players/:playerId/unit-improvements',
 )(({ database, path: { playerId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT ui.unit AS unit_id, u.level
       FROM
@@ -16,6 +17,8 @@ export const getUnitImprovements = createController(
     bind: {
       $player_id: playerId,
     },
-    schema: getUnitImprovementsSchema,
+    schema: getUnitImprovementsRowSchema,
   });
+
+  return rows.map(mapUnitImprovementRowToDto);
 });

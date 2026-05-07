@@ -1,9 +1,9 @@
 import type { z } from 'zod';
-import type { paths as openApiPaths } from '@pillage-first/api/open-api';
+import { paths } from '@pillage-first/api/open-api';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
 type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
-type paths = typeof openApiPaths;
+type OpenApiPaths = typeof paths;
 
 type JsonSchemaFor<
   TOperation,
@@ -31,20 +31,20 @@ type InferOutputSchema<TSchema> = TSchema extends z.ZodType
   : never;
 
 type PathForMethod<TMethod extends HttpMethod> = {
-  [TPath in keyof paths]: TMethod extends keyof paths[TPath]
-    ? paths[TPath][TMethod] extends never
+  [TPath in keyof OpenApiPaths]: TMethod extends keyof OpenApiPaths[TPath]
+    ? OpenApiPaths[TPath][TMethod] extends never
       ? never
       : TPath extends string
         ? TPath
         : never
     : never;
-}[keyof paths];
+}[keyof OpenApiPaths];
 
 type Operation<
   TPath extends PathForMethod<TMethod>,
   TMethod extends HttpMethod,
-> = TMethod extends keyof paths[TPath]
-  ? NonNullable<paths[TPath][TMethod]>
+> = TMethod extends keyof OpenApiPaths[TPath]
+  ? NonNullable<OpenApiPaths[TPath][TMethod]>
   : never;
 
 type ParametersFor<TOperation> = TOperation extends {
@@ -119,6 +119,44 @@ type RequestOptions<TOperation> = PathParamOptions<TOperation> &
   QueryParamOptions<TOperation> &
   BodyOptions<TOperation>;
 
+const getResponseSchema = <
+  TMethod extends HttpMethod,
+  TPath extends PathForMethod<TMethod>,
+>(
+  method: TMethod,
+  pathTemplate: TPath,
+) => {
+  const operation = (
+    paths[pathTemplate] as Partial<Record<HttpMethod, { responses?: unknown }>>
+  )[method];
+
+  if (!operation) {
+    return null;
+  }
+
+  const responses = (operation.responses ?? {}) as Record<string, unknown>;
+  const successResponse =
+    responses['200'] ?? responses['201'] ?? responses['204'] ?? null;
+
+  if (!successResponse) {
+    return null;
+  }
+
+  const schema = (
+    successResponse as {
+      content?: {
+        'application/json'?: {
+          schema?: unknown;
+        };
+      };
+    }
+  ).content?.['application/json']?.schema;
+
+  return schema && typeof schema === 'object' && 'parse' in schema
+    ? (schema as z.ZodType)
+    : null;
+};
+
 const buildPath = <TOperation>(
   pathTemplate: string,
   options?: Partial<RequestOptions<TOperation>>,
@@ -160,13 +198,25 @@ export const createTypedApiClient = (fetcher: Fetcher) => {
   ): Promise<{ data: SuccessResponseFor<Operation<TPath, TMethod>> }> => {
     const url = buildPath<Operation<TPath, TMethod>>(pathTemplate, options);
 
-    return fetcher<
+    const { data } = await fetcher<
       SuccessResponseFor<Operation<TPath, TMethod>>,
       BodyFor<Operation<TPath, TMethod>>
     >(url, {
       method: method.toUpperCase(),
       body: options?.body,
     });
+
+    const responseSchema = getResponseSchema(method, pathTemplate);
+
+    if (!responseSchema) {
+      return { data };
+    }
+
+    return {
+      data: responseSchema.parse(data) as SuccessResponseFor<
+        Operation<TPath, TMethod>
+      >,
+    };
   };
 
   return {

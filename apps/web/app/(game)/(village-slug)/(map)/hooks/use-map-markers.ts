@@ -18,6 +18,7 @@ export const useMapMarkers = () => {
           playerId: player.id,
         },
       });
+
       return data;
     },
   });

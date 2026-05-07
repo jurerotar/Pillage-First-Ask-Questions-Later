@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { playerSchema } from '@pillage-first/types/models/player';
 import { playersCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
@@ -12,7 +11,7 @@ export const useMe = () => {
     queryFn: async () => {
       const { data } = await apiClient.get('/players/me');
 
-      return playerSchema.parse(data);
+      return data;
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,

@@ -1,11 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use, useCallback } from 'react';
-import { z } from 'zod';
 import type {
   GameEvent,
   TroopMovementEventType,
 } from '@pillage-first/types/models/game-event';
-import { troopSchema } from '@pillage-first/types/models/troop';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   troopMovementsCacheKey,
@@ -33,7 +31,7 @@ export const useVillageTroops = () => {
         },
       });
 
-      return z.array(troopSchema).parse(data);
+      return data;
     },
   });
 

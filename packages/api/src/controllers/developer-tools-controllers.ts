@@ -7,12 +7,13 @@ import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,
 } from '../utils/village';
+import { mapDeveloperSettingsRowToDto } from './mappers/developer-tools-mapper';
 import { onHeroDeath } from './resolvers/utils/hero';
-import { getDeveloperSettingsSchema } from './schemas/developer-tools-schemas';
+import { getDeveloperSettingsRowSchema } from './schemas/developer-tools-schemas';
 
 export const getDeveloperSettings = createController('/developer-settings')(
   ({ database }) => {
-    return database.selectObject({
+    const row = database.selectObject({
       sql: `
       SELECT
         is_instant_building_construction_enabled,
@@ -29,8 +30,10 @@ export const getDeveloperSettings = createController('/developer-settings')(
       FROM
         developer_settings
     `,
-      schema: getDeveloperSettingsSchema,
-    });
+      schema: getDeveloperSettingsRowSchema,
+    })!;
+
+    return mapDeveloperSettingsRowToDto(row);
   },
 );
 

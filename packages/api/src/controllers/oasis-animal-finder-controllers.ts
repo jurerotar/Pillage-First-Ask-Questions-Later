@@ -1,6 +1,7 @@
 import type { NatureUnitId } from '@pillage-first/types/models/unit';
 import { createController } from '../utils/controller';
-import { getOasesWithAnimalsSchema } from './schemas/oasis-animal-finder-schemas';
+import { mapOasisWithAnimalsRowToDto } from './mappers/oasis-finder-mapper';
+import { getOasesWithAnimalsRowSchema } from './schemas/oasis-animal-finder-schemas';
 
 export const getOasesWithAnimals = createController(
   '/search/oases/by-animals',
@@ -38,7 +39,7 @@ export const getOasesWithAnimals = createController(
       `);
   }
 
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
         SELECT
           t.id AS tile_id,
@@ -73,6 +74,7 @@ export const getOasesWithAnimals = createController(
         ORDER BY distance_squared ASC;
       `,
     bind: sqlBindings,
-    schema: getOasesWithAnimalsSchema,
+    schema: getOasesWithAnimalsRowSchema,
   });
+  return rows.map(mapOasisWithAnimalsRowToDto);
 });

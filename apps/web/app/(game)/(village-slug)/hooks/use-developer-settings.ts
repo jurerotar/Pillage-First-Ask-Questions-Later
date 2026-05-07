@@ -1,7 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
-import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
@@ -47,7 +46,7 @@ export const useDeveloperSettings = () => {
     queryFn: async () => {
       const { data } = await apiClient.get('/developer-settings');
 
-      return developerSettingsSchema.parse(data);
+      return data;
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,

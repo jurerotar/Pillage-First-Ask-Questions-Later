@@ -1,7 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { z } from 'zod';
-import { type Quest, questSchema } from '@pillage-first/types/models/quest';
+import type { Quest } from '@pillage-first/types/models/quest';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   collectableQuestCountCacheKey,
@@ -25,7 +24,7 @@ export const useQuests = () => {
         },
       });
 
-      return z.array(questSchema).parse(data);
+      return data;
     },
   });
 

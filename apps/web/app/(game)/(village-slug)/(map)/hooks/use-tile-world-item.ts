@@ -1,10 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { Tile } from '@pillage-first/types/models/tile';
-import { worldItemSchema } from '@pillage-first/types/models/world-item';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-
-const tileWorldItemSchema = worldItemSchema.omit({ tileId: true }).nullable();
 
 export const useTileWorldItem = (tileId: Tile['id']) => {
   const { apiClient } = use(ApiContext);
@@ -18,7 +15,7 @@ export const useTileWorldItem = (tileId: Tile['id']) => {
         },
       });
 
-      return tileWorldItemSchema.parse(data);
+      return data;
     },
   });
 

@@ -1,6 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
 import {
   adventurePointsCacheKey,
@@ -31,7 +30,7 @@ export const useHeroAdventures = () => {
         },
       );
 
-      return heroAdventuresSchema.parse(data);
+      return data;
     },
   });
 

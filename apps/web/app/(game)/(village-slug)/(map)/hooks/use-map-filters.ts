@@ -23,6 +23,7 @@ export const useMapFilters = () => {
           playerId: player.id,
         },
       });
+
       return data;
     },
   });

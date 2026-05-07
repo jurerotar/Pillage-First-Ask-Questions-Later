@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { villageSchema } from '@pillage-first/types/models/village';
 import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -18,7 +17,7 @@ export const useCurrentVillage = () => {
         },
       });
 
-      return villageSchema.parse(data);
+      return data;
     },
     staleTime: 20_000,
   });

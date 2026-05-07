@@ -1,9 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import {
-  type Preferences,
-  preferencesSchema,
-} from '@pillage-first/types/models/preferences';
+import type { Preferences } from '@pillage-first/types/models/preferences';
 import { preferencesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -27,7 +24,7 @@ export const usePreferences = () => {
         },
       });
 
-      return preferencesSchema.parse(data);
+      return data;
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,

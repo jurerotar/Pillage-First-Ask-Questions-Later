@@ -1,6 +1,8 @@
+import { oasisByBonusSearchResultItemDtoSchema } from '@pillage-first/types/dtos/oasis-search';
 import type { Resource } from '@pillage-first/types/models/resource';
+import { roundToNDecimalPoints } from '@pillage-first/utils/math';
 import { createController } from '../utils/controller';
-import { getTilesWithBonusesSchema } from './schemas/oasis-bonus-finder-schemas';
+import { getTilesWithBonusesRowSchema } from './schemas/oasis-bonus-finder-schemas';
 
 const createSqlBindings = (slot: OasisBonus[]) => {
   if (slot.length === 0) {
@@ -220,9 +222,18 @@ export const getTilesWithBonuses = createController(
 
   const sql = sqlParts.join('\n');
 
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql,
     bind: sqlBindings,
-    schema: getTilesWithBonusesSchema,
+    schema: getTilesWithBonusesRowSchema,
   });
+
+  return rows.map((row) =>
+    oasisByBonusSearchResultItemDtoSchema.parse({
+      tileId: row.tile_id,
+      coordinates: { x: row.coordinates_x, y: row.coordinates_y },
+      resourceFieldComposition: row.resource_field_composition,
+      distance: roundToNDecimalPoints(Math.sqrt(row.distance_squared), 2),
+    }),
+  );
 });

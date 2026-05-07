@@ -7,8 +7,6 @@ import { FaTrash } from 'react-icons/fa6';
 import { Link, useSearchParams } from 'react-router';
 import { z } from 'zod';
 import { natureUnits } from '@pillage-first/game-assets/units';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
-import { resourceSchema } from '@pillage-first/types/models/resource';
 import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page.ts';
@@ -57,24 +55,6 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-
-const animalFinderQuerySchema = z.strictObject({
-  tileId: z.number(),
-  coordinates: coordinatesSchema,
-  bonuses: z.array(
-    z.strictObject({
-      resource: resourceSchema,
-      bonus: z.number(),
-    }),
-  ),
-  animals: z.array(
-    z.strictObject({
-      unitId: natureUnitIdSchema,
-      amount: z.number(),
-    }),
-  ),
-  distance: z.number(),
-});
 
 const animalFilterSchema = z.strictObject({
   animal: natureUnitIdSchema,
@@ -137,7 +117,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
         },
       });
 
-      return z.array(animalFinderQuerySchema).parse(data);
+      return data;
     },
     staleTime: 2000,
     enabled: false,

@@ -35,7 +35,7 @@ export const useValidateTroopMovement = () => {
         body: args,
       });
 
-      return validateTroopMovementSchema.parse(data);
+      return data;
     },
   });
 

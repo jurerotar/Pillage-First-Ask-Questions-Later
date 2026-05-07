@@ -3,7 +3,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { createController } from '../utils/controller';
 import {
   farmListSchema,
-  farmListTileSchema,
+  farmListTileRowSchema,
 } from './schemas/farm-list-schemas';
 
 export const getMeFarmLists = createController('/players/:playerId/farm-lists')(
@@ -49,15 +49,15 @@ export const getFarmList = createController('/farm-lists/:farmListId')(
       schema: farmListSchema,
     })!;
 
-    const tiles = database.selectObjects({
+    const tileRows = database.selectObjects({
       sql: 'SELECT tile_id FROM farm_list_tiles WHERE farm_list_id = $farmListId',
       bind: { $farmListId: farmListId },
-      schema: farmListTileSchema,
+      schema: farmListTileRowSchema,
     });
 
     return {
       ...farmList,
-      tileIds: tiles,
+      tileIds: tileRows.map((r) => r.tile_id),
     };
   },
 );

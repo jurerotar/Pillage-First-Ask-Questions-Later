@@ -1,11 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use, useCallback, useMemo } from 'react';
-import { z } from 'zod';
 import type { Faction } from '@pillage-first/types/models/faction';
-import {
-  type Reputation,
-  reputationSchema,
-} from '@pillage-first/types/models/reputation';
+import type { Reputation } from '@pillage-first/types/models/reputation';
 import { reputationsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { useMe } from './use-me';
@@ -23,7 +19,7 @@ export const useReputations = () => {
         },
       });
 
-      return z.array(reputationSchema).parse(data);
+      return data;
     },
   });
 

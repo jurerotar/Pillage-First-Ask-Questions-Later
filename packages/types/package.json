@@ -12,6 +12,57 @@
     "directory": "packages/types"
   },
   "exports": {
+    "./dtos/preferences": {
+      "default": "./src/dtos/preferences.ts"
+    },
+    "./dtos/village": {
+      "default": "./src/dtos/village.ts"
+    },
+    "./dtos/player": {
+      "default": "./src/dtos/player.ts"
+    },
+    "./dtos/map": {
+      "default": "./src/dtos/map.ts"
+    },
+    "./dtos/hero": {
+      "default": "./src/dtos/hero.ts"
+    },
+    "./dtos/map-filters": {
+      "default": "./src/dtos/map-filters.ts"
+    },
+    "./dtos/quest": {
+      "default": "./src/dtos/quest.ts"
+    },
+    "./dtos/farm-list": {
+      "default": "./src/dtos/farm-list.ts"
+    },
+    "./dtos/effect": {
+      "default": "./src/dtos/effect.ts"
+    },
+    "./dtos/event": {
+      "default": "./src/dtos/event.ts"
+    },
+    "./dtos/oasis": {
+      "default": "./src/dtos/oasis.ts"
+    },
+    "./dtos/history": {
+      "default": "./src/dtos/history.ts"
+    },
+    "./dtos/statistics": {
+      "default": "./src/dtos/statistics.ts"
+    },
+    "./dtos/unit": {
+      "default": "./src/dtos/unit.ts"
+    },
+    "./dtos/loyalty": {
+      "default": "./src/dtos/loyalty.ts"
+    },
+    "./dtos/oasis-search": {
+      "default": "./src/dtos/oasis-search.ts"
+    },
+    "./dtos/troop-movement": {
+      "default": "./src/dtos/troop-movement.ts"
+    },
     "./api-events": {
       "default": "./src/api-events.ts"
     },

@@ -1,12 +1,16 @@
 import { createController } from '../utils/controller';
 import {
-  getOccupiableOasisInRangeSchema,
+  mapOccupiableOasisRowToDto,
+  mapVillageBySlug,
+} from './mappers/village-mapper';
+import {
+  getOccupiableOasisInRangeRowSchema,
   getVillageBySlugSchema,
 } from './schemas/village-schemas';
 
 export const getVillageBySlug = createController('/villages/:villageSlug')(
   ({ database, path: { villageSlug } }) => {
-    return database.selectObject({
+    const row = database.selectObject({
       sql: `
       SELECT
         v.id,
@@ -52,13 +56,15 @@ export const getVillageBySlug = createController('/villages/:villageSlug')(
       bind: { $slug: villageSlug },
       schema: getVillageBySlugSchema,
     })!;
+
+    return mapVillageBySlug(row);
   },
 );
 
 export const getOccupiableOasisInRange = createController(
   '/villages/:villageId/occupiable-oasis',
 )(({ database, path: { villageId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       WITH
         src_village AS (
@@ -119,8 +125,9 @@ export const getOccupiableOasisInRange = createController(
       $village_id: villageId,
       $radius: 3,
     },
-    schema: getOccupiableOasisInRangeSchema,
+    schema: getOccupiableOasisInRangeRowSchema,
   });
+  return rows.map(mapOccupiableOasisRowToDto);
 });
 
 export const rearrangeBuildingFields = createController(

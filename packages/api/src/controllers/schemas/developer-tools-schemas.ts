@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 
-export const getDeveloperSettingsSchema = z
+export const getDeveloperSettingsRowSchema = z
   .strictObject({
     is_instant_building_construction_enabled: z.number(),
     is_instant_unit_training_enabled: z.number(),
@@ -15,43 +15,7 @@ export const getDeveloperSettingsSchema = z
     is_instant_hero_revive_enabled: z.number(),
     is_free_hero_revive_enabled: z.number(),
   })
-  .transform((t) => {
-    return {
-      isInstantBuildingConstructionEnabled: Boolean(
-        t.is_instant_building_construction_enabled,
-      ),
-      isInstantUnitTrainingEnabled: Boolean(t.is_instant_unit_training_enabled),
-      isInstantUnitImprovementEnabled: Boolean(
-        t.is_instant_unit_improvement_enabled,
-      ),
-      isInstantUnitResearchEnabled: Boolean(t.is_instant_unit_research_enabled),
-      isInstantUnitTravelEnabled: Boolean(t.is_instant_unit_travel_enabled),
-      isFreeBuildingConstructionEnabled: Boolean(
-        t.is_free_building_construction_enabled,
-      ),
-      isFreeUnitTrainingEnabled: Boolean(t.is_free_unit_training_enabled),
-      isFreeUnitImprovementEnabled: Boolean(t.is_free_unit_improvement_enabled),
-      isFreeUnitResearchEnabled: Boolean(t.is_free_unit_research_enabled),
-      isInstantHeroReviveEnabled: Boolean(t.is_instant_hero_revive_enabled),
-      isFreeHeroReviveEnabled: Boolean(t.is_free_hero_revive_enabled),
-    };
-  })
-  .pipe(
-    z.strictObject({
-      isInstantBuildingConstructionEnabled: z.boolean(),
-      isInstantUnitTrainingEnabled: z.boolean(),
-      isInstantUnitImprovementEnabled: z.boolean(),
-      isInstantUnitResearchEnabled: z.boolean(),
-      isInstantUnitTravelEnabled: z.boolean(),
-      isFreeBuildingConstructionEnabled: z.boolean(),
-      isFreeUnitTrainingEnabled: z.boolean(),
-      isFreeUnitImprovementEnabled: z.boolean(),
-      isFreeUnitResearchEnabled: z.boolean(),
-      isInstantHeroReviveEnabled: z.boolean(),
-      isFreeHeroReviveEnabled: z.boolean(),
-    }),
-  )
-  .meta({ id: 'GetDeveloperSettings' });
+  .meta({ id: 'GetDeveloperSettingsRow' });
 
 export const updateVillageResourcesSchema = z.strictObject({
   resource: resourceSchema,

@@ -1,6 +1,5 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { serverSchema } from '@pillage-first/types/models/server';
 import { serverCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
@@ -12,7 +11,7 @@ export const useServer = () => {
     queryFn: async () => {
       const { data } = await apiClient.get('/server');
 
-      return serverSchema.parse(data);
+      return data;
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
