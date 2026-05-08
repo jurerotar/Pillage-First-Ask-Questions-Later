@@ -12,13 +12,11 @@ export const updateFarmListSchema = z.strictObject({
   villageId: z.number().optional(),
 });
 
-export const farmListTileSchema = z
+export const farmListTileRowSchema = z
   .strictObject({
     tile_id: z.number(),
   })
-  .transform((t) => t.tile_id)
-  .pipe(z.number())
-  .meta({ id: 'FarmListTile' });
+  .meta({ id: 'FarmListTileRow' });
 
 export const createFarmListSchema = z.strictObject({
   name: z.string().min(1),

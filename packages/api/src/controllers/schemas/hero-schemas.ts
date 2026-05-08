@@ -21,59 +21,7 @@ export const getHeroSchema = z
     resource_to_produce: heroResourceToProduceSchema,
     is_home: z.number(),
   })
-  .transform((t) => {
-    return {
-      id: t.id,
-      stats: {
-        health: t.health,
-        experience: t.experience,
-        attackPower: t.base_attack_power,
-        healthRegeneration: t.health_regeneration,
-        damageReduction: t.damage_reduction,
-        experienceModifier: t.experience_modifier,
-        speed: t.speed,
-        natarianAttackBonus: t.natarian_attack_bonus,
-        attackBonus: t.attack_bonus,
-        defenceBonus: t.defence_bonus,
-      },
-      selectableAttributes: {
-        attackPower: t.attack_power,
-        resourceProduction: t.resource_production,
-        attackBonus: t.attack_bonus,
-        defenceBonus: t.defence_bonus,
-      },
-      villageId: t.village_id,
-      resourceToProduce: t.resource_to_produce,
-      isHeroHome: Boolean(t.is_home),
-    };
-  })
-  .pipe(
-    z.strictObject({
-      id: z.number(),
-      stats: z.strictObject({
-        health: z.number(),
-        experience: z.number(),
-        attackPower: z.number(),
-        healthRegeneration: z.number(),
-        damageReduction: z.number(),
-        experienceModifier: z.number(),
-        speed: z.number(),
-        natarianAttackBonus: z.number(),
-        attackBonus: z.number(),
-        defenceBonus: z.number(),
-      }),
-      selectableAttributes: z.strictObject({
-        attackPower: z.number(),
-        resourceProduction: z.number(),
-        attackBonus: z.number(),
-        defenceBonus: z.number(),
-      }),
-      villageId: z.number(),
-      resourceToProduce: heroResourceToProduceSchema,
-      isHeroHome: z.boolean(),
-    }),
-  )
-  .meta({ id: 'GetHero' });
+  .meta({ id: 'GetHeroRow' });
 
 export const getHeroLoadoutSchema = z
   .strictObject({
@@ -81,33 +29,11 @@ export const getHeroLoadoutSchema = z
     slot: heroLoadoutSlotSchema,
     amount: z.number().min(1),
   })
-  .transform((t) => ({
-    itemId: t.item_id,
-    slot: t.slot,
-    amount: t.amount,
-  }))
-  .pipe(
-    z.strictObject({
-      itemId: z.number(),
-      slot: heroLoadoutSlotSchema,
-      amount: z.number(),
-    }),
-  )
-  .meta({ id: 'GetHeroLoadout' });
+  .meta({ id: 'GetHeroLoadoutRow' });
 
 export const getHeroInventorySchema = z
   .strictObject({
     item_id: z.number(),
     amount: z.number().int().positive(),
   })
-  .transform((t) => ({
-    id: t.item_id,
-    amount: t.amount,
-  }))
-  .pipe(
-    z.strictObject({
-      id: z.number(),
-      amount: z.number(),
-    }),
-  )
-  .meta({ id: 'GetHeroInventory' });
+  .meta({ id: 'GetHeroInventoryRow' });

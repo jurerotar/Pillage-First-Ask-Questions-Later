@@ -1,11 +1,6 @@
 import { z } from 'zod';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
-import {
-  calculateDistanceBetweenPoints,
-  roundToNDecimalPoints,
-} from '@pillage-first/utils/math';
 
-export const getArtifactsAroundVillageSchema = z
+export const getArtifactsAroundVillageRowSchema = z
   .strictObject({
     item_id: z.number(),
     x: z.number(),
@@ -13,27 +8,4 @@ export const getArtifactsAroundVillageSchema = z
     vx: z.number(),
     vy: z.number(),
   })
-  .transform((t) => {
-    return {
-      id: t.item_id,
-      coordinates: {
-        x: t.x,
-        y: t.y,
-      },
-      distance: roundToNDecimalPoints(
-        calculateDistanceBetweenPoints(
-          { x: t.x, y: t.y },
-          { x: t.vx, y: t.vy },
-        ),
-        2,
-      ),
-    };
-  })
-  .pipe(
-    z.strictObject({
-      id: z.number(),
-      coordinates: coordinatesSchema,
-      distance: z.number(),
-    }),
-  )
-  .meta({ id: 'GetArtifactsAroundVillage' });
+  .meta({ id: 'GetArtifactsAroundVillageRow' });

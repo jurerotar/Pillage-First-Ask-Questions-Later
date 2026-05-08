@@ -3,13 +3,13 @@ import { FaBookBookmark } from 'react-icons/fa6';
 import { LuAnvil, LuConstruction, LuFlag } from 'react-icons/lu';
 import { TbTargetArrow } from 'react-icons/tb';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
-import type { HistoryEvent } from 'app/(game)/(village-slug)/hooks/use-events-history';
+import type { HistoryEventType } from 'app/(game)/(village-slug)/hooks/use-events-history';
 import { Text } from 'app/components/text';
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 
 type EventFiltersProps = {
-  eventFilters: HistoryEvent['type'][];
-  onChange: (eventFilters: HistoryEvent['type'][]) => void;
+  eventFilters: HistoryEventType[];
+  onChange: (eventFilters: HistoryEventType[]) => void;
 };
 
 export const EventFilters = ({ eventFilters, onChange }: EventFiltersProps) => {

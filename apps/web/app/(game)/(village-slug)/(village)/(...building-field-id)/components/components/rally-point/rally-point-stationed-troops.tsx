@@ -14,8 +14,8 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
@@ -27,9 +27,9 @@ import {
 } from 'app/(game)/components/unit-table';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { Pagination } from 'app/components/ui/pagination.tsx';
+import { Pagination } from 'app/components/ui/pagination';
 import { useDialog } from 'app/hooks/use-dialog.ts';
-import { useFilters } from 'app/hooks/use-filters.ts';
+import { useFilters } from 'app/hooks/use-filters';
 import { RelocateTroopsModal } from './send-troops/components/relocate-troops-modal';
 import { ReturnReinforcementsModal } from './send-troops/components/return-reinforcements-modal';
 

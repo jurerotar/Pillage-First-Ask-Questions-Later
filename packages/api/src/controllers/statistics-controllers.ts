@@ -2,19 +2,23 @@ import type { Faction } from '@pillage-first/types/models/faction';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import { createController } from '../utils/controller';
 import {
-  getPlayerRankingsSchema,
-  getServerOverviewStatisticsSchema,
-  getVillageRankingsSchema,
+  mapPlayerRankingRowToDto,
+  mapServerOverviewRowToDto,
+  mapVillageRankingRowToDto,
+} from './mappers/statistics-mapper';
+import {
+  getPlayerRankingsRowSchema,
+  getVillageRankingsRowSchema,
   playersStatsRowSchema,
   villagesStatsRowSchema,
 } from './schemas/statistics-schemas';
 
 export const getPlayerRankings = createController('/statistics/players')(
-  ({ database, body }) => {
-    const { lastPlayerId = null } = body;
+  ({ database, query }) => {
+    const { lastPlayerId = null } = query;
 
     // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-    return database.selectObjects({
+    const rows = database.selectObjects({
       sql: `
         WITH
           player_pop AS (
@@ -92,17 +96,19 @@ export const getPlayerRankings = createController('/statistics/players')(
       bind: {
         $last_player_id: lastPlayerId,
       },
-      schema: getPlayerRankingsSchema,
+      schema: getPlayerRankingsRowSchema,
     });
+
+    return rows.map(mapPlayerRankingRowToDto);
   },
 );
 
 export const getVillageRankings = createController('/statistics/villages')(
-  ({ database, body }) => {
-    const { lastVillageId = null } = body;
+  ({ database, query }) => {
+    const { lastVillageId = null } = query;
 
     // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
-    return database.selectObjects({
+    const rows = database.selectObjects({
       sql: `
         WITH
           village_pop AS (
@@ -176,8 +182,10 @@ export const getVillageRankings = createController('/statistics/villages')(
       bind: {
         $last_village_id: lastVillageId,
       },
-      schema: getVillageRankingsSchema,
+      schema: getVillageRankingsRowSchema,
     });
+
+    return rows.map(mapVillageRankingRowToDto);
   },
 );
 
@@ -278,7 +286,7 @@ export const getGameWorldOverview = createController('/statistics/overview')(
       villagesByFaction[row.faction] += row.village_count;
     }
 
-    return getServerOverviewStatisticsSchema.parse({
+    return mapServerOverviewRowToDto({
       player_count: totalPlayers,
       village_count: totalVillages,
       players_by_tribe: playersByTribe,

@@ -33,7 +33,7 @@ const formSchema = z.strictObject({
 });
 
 export const RenameVillage = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
 
@@ -54,8 +54,10 @@ export const RenameVillage = () => {
     z.infer<typeof formSchema>
   >({
     mutationFn: async ({ name }) => {
-      await fetcher(`/villages/${currentVillage.id}/rename`, {
-        method: 'PATCH',
+      await apiClient.patch('/villages/:villageId', {
+        path: {
+          villageId: currentVillage.id,
+        },
         body: {
           name,
         },

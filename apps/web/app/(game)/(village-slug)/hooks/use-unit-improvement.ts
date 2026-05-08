@@ -1,24 +1,26 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { z } from 'zod';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { unitImprovementCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-
-const getUnitImprovementsSchema = z.strictObject({
-  unitId: unitIdSchema,
-  level: z.number(),
-});
+import { useMe } from './use-me';
 
 export const useUnitImprovement = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
+  const { player } = useMe();
 
   const { data: unitImprovements } = useSuspenseQuery({
     queryKey: [unitImprovementCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/me/unit-improvements');
+      const { data } = await apiClient.get(
+        '/players/:playerId/unit-improvements',
+        {
+          path: {
+            playerId: player.id,
+          },
+        },
+      );
 
-      return z.array(getUnitImprovementsSchema).parse(data);
+      return data;
     },
   });
 

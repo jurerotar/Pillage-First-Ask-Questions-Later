@@ -29,58 +29,7 @@ export const getTilesSchema = z
 
     item_id: z.number().nullable(),
   })
-  .transform((t) => {
-    const isOccupiableTile = t.type === 'free';
-    const isOasisTile = !isOccupiableTile;
-
-    const isOccupied = t.player_id !== null;
-
-    return {
-      id: t.id,
-      type: t.type,
-      coordinates: {
-        x: t.coordinates_x,
-        y: t.coordinates_y,
-      },
-      ...(isOccupiableTile && {
-        attributes: {
-          resourceFieldComposition: t.rfc,
-        },
-        item:
-          t.item_id === null
-            ? null
-            : {
-                id: t.item_id,
-              },
-      }),
-      ...(isOasisTile && {
-        attributes: {
-          oasisGraphics: t.oasis_graphics,
-          isOccupiable: t.oasis_is_occupiable === 1,
-        },
-      }),
-      ...(isOccupied && {
-        owner: {
-          id: t.player_id,
-          name: t.player_name,
-          slug: t.player_slug,
-          tribe: t.player_tribe,
-          faction: t.player_faction,
-        },
-        ownerVillage: {
-          id: t.village_id,
-          name: t.village_name,
-          slug: t.village_slug,
-          population: t.population,
-        },
-      }),
-      ...(!isOccupied && {
-        owner: null,
-        ownerVillage: null,
-      }),
-    };
-  })
-  .meta({ id: 'GetTiles' });
+  .meta({ id: 'GetTilesRow' });
 
 export const getTileTroopsSchema = z
   .strictObject({
@@ -89,66 +38,24 @@ export const getTileTroopsSchema = z
     tile_id: z.number(),
     source_tile_id: z.number(),
   })
-  .transform((t) => ({
-    unitId: t.unit_id,
-    amount: t.amount,
-    tileId: t.tile_id,
-    source: t.source_tile_id,
-  }))
-  .pipe(
-    z.strictObject({
-      unitId: z.string(),
-      amount: z.number(),
-      tileId: z.number(),
-      source: z.number(),
-    }),
-  )
-  .meta({ id: 'GetTileTroops' });
+  .meta({ id: 'GetTileTroopsRow' });
 
 export const getTileOasisBonusesSchema = z
   .strictObject({
     resource: resourceSchema,
     bonus: z.number(),
   })
-  .transform((t) => ({
-    resource: t.resource,
-    bonus: t.bonus,
-  }))
-  .pipe(
-    z.strictObject({
-      resource: resourceSchema,
-      bonus: z.number(),
-    }),
-  )
-  .meta({ id: 'GetTileOasisBonuses' });
+  .meta({ id: 'GetTileOasisBonusesRow' });
 
 export const getTileWorldItemSchema = z
   .strictObject({
     item_id: z.number(),
     amount: z.number(),
   })
-  .transform((t) => ({
-    id: t.item_id,
-    amount: t.amount,
-  }))
-  .pipe(
-    z.strictObject({
-      id: z.number(),
-      amount: z.number(),
-    }),
-  )
-  .meta({ id: 'GetTileWorldItem' });
+  .meta({ id: 'GetTileWorldItemRow' });
 
 export const getMapMarkersSchema = z
   .strictObject({
     tile_id: z.number(),
   })
-  .transform((t) => ({
-    tileId: t.tile_id,
-  }))
-  .pipe(
-    z.strictObject({
-      tileId: z.number(),
-    }),
-  )
-  .meta({ id: 'GetMapMarkers' });
+  .meta({ id: 'GetMapMarkersRow' });

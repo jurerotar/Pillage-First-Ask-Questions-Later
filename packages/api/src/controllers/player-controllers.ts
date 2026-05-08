@@ -2,6 +2,11 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
 import { createController } from '../utils/controller';
+import {
+  mapPlayerVillage,
+  mapPlayerVillageWithPopulation,
+  mapVillageTroop,
+} from './mappers/player-mapper';
 import { relocateHero } from './resolvers/utils/hero';
 import {
   getPlayerVillagesWithPopulationSchema,
@@ -33,7 +38,7 @@ export const getMe = createController('/players/me')(({ database }) => {
 export const getPlayerVillageListing = createController(
   '/players/:playerId/villages',
 )(({ database, path: { playerId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT
         v.id,
@@ -55,12 +60,14 @@ export const getPlayerVillageListing = createController(
     bind: { $player_id: playerId },
     schema: getVillagesByPlayerSchema,
   });
+
+  return rows.map(mapPlayerVillage);
 });
 
 export const getPlayerVillagesWithPopulation = createController(
   '/players/:playerId/villages-with-population',
 )(({ database, path: { playerId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT
         v.id,
@@ -93,12 +100,14 @@ export const getPlayerVillagesWithPopulation = createController(
     bind: { $player_id: playerId },
     schema: getPlayerVillagesWithPopulationSchema,
   });
+
+  return rows.map(mapPlayerVillageWithPopulation);
 });
 
 export const getTroopsByVillage = createController(
   '/villages/:villageId/troops',
 )(({ database, path: { villageId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT
         ui.unit AS unit_id,
@@ -118,10 +127,12 @@ export const getTroopsByVillage = createController(
     bind: { $village_id: villageId },
     schema: getTroopsByVillageSchema,
   });
+
+  return rows.map(mapVillageTroop);
 });
 
 export const renameVillage = createController(
-  '/villages/:villageId/rename',
+  '/villages/:villageId',
   'patch',
 )(({ database, path: { villageId }, body: { name } }) => {
   database.exec({

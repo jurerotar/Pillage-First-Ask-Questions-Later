@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/utils/buildings';
 import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Unit } from '@pillage-first/types/models/unit';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {
@@ -13,18 +13,24 @@ import {
   selectTroopMovementEventsQuery,
 } from '../utils/queries/event-queries';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
-import { eventSchema } from '../utils/zod/event-schemas';
+import {
+  baseEventRowSchema,
+  mapEventRowToTypedEvent,
+} from '../utils/zod/event-schemas';
 import { createEvents } from './utils/create-event';
 import { getEventStartTime } from './utils/events';
+
 export const getVillageEvents = createController('/villages/:villageId/events')(
   ({ database, path: { villageId } }) => {
-    return database.selectObjects({
+    const rows = database.selectObjects({
       sql: selectAllVillageEventsQuery,
       bind: {
         $village_id: villageId,
       },
-      schema: eventSchema,
+      schema: baseEventRowSchema,
     });
+
+    return rows.map(mapEventRowToTypedEvent);
   },
 );
 
@@ -32,33 +38,39 @@ export const getVillageEventsByType = createController(
   '/villages/:villageId/events/:eventType',
 )(({ database, path: { villageId, eventType } }) => {
   if (eventType === 'troopMovement') {
-    return database.selectObjects({
+    const rows = database.selectObjects({
       sql: selectTroopMovementEventsQuery,
       bind: {
         $village_id: villageId,
       },
-      schema: eventSchema,
+      schema: baseEventRowSchema,
     });
+
+    return rows.map(mapEventRowToTypedEvent);
   }
 
   if (eventType === 'unitImprovement') {
-    return database.selectObjects({
+    const rows = database.selectObjects({
       sql: selectEventsByTypeQuery,
       bind: {
         $type: eventType,
       },
-      schema: eventSchema,
+      schema: baseEventRowSchema,
     });
+
+    return rows.map(mapEventRowToTypedEvent);
   }
 
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: selectAllVillageEventsByTypeQuery,
     bind: {
       $village_id: villageId,
       $type: eventType,
     },
-    schema: eventSchema,
+    schema: baseEventRowSchema,
   });
+
+  return rows.map(mapEventRowToTypedEvent);
 });
 
 export const createNewEvents = createController(
@@ -73,13 +85,17 @@ export const cancelConstructionEvent = createController(
   'delete',
 )(({ database, path: { eventId } }) => {
   database.transaction((db) => {
-    const cancelledEvent = db.selectObject({
+    const cancelledEventRow = db.selectObject({
       sql: selectEventByIdQuery,
       bind: {
         $event_id: eventId,
       },
-      schema: eventSchema,
-    })! as GameEvent<'buildingLevelChange'>;
+      schema: baseEventRowSchema,
+    });
+
+    const cancelledEvent = mapEventRowToTypedEvent(
+      cancelledEventRow!,
+    ) as GameEvent<'buildingLevelChange'>;
 
     const { level, buildingId, villageId, buildingFieldId, resolvesAt } =
       cancelledEvent;
@@ -119,16 +135,16 @@ export const cancelConstructionEvent = createController(
 
     // Remaining building events now need to have their start times adjusted.
     // Only scheduled construction events need adjusting, since any ongoing events are already ongoing.
-    const scheduledEvents = db.selectObjects({
+    const scheduledEventRows = db.selectObjects({
       sql: selectAllVillageEventsByTypeQuery,
       bind: {
         $village_id: villageId,
         $type: 'buildingScheduledConstruction',
       },
-      schema: eventSchema,
+      schema: baseEventRowSchema,
     });
 
-    for (const event of scheduledEvents) {
+    for (const event of scheduledEventRows.map(mapEventRowToTypedEvent)) {
       const startsAt = getEventStartTime(db, event);
 
       db.exec({
@@ -172,13 +188,17 @@ export const cancelUnitImprovementEvent = createController(
   'delete',
 )(({ database, path: { eventId } }) => {
   database.transaction((db) => {
-    const cancelledEvent = db.selectObject({
+    const cancelledEventRow = db.selectObject({
       sql: selectEventByIdQuery,
       bind: {
         $event_id: eventId,
       },
-      schema: eventSchema,
-    })! as GameEvent<'unitImprovement'>;
+      schema: baseEventRowSchema,
+    });
+
+    const cancelledEvent = mapEventRowToTypedEvent(
+      cancelledEventRow!,
+    ) as GameEvent<'unitImprovement'>;
 
     // Delete this event and all future events on the same units
     const cancelledEvents = db.selectObjects({
@@ -201,7 +221,7 @@ export const cancelUnitImprovementEvent = createController(
       },
       schema: z.strictObject({
         villageId: z.number(),
-        unitId: z.string() as z.ZodType<Unit['id']>,
+        unitId: unitIdSchema,
         level: z.number(),
       }),
     });
@@ -211,6 +231,7 @@ export const cancelUnitImprovementEvent = createController(
         cancelledEvent.unitId,
         cancelledEvent.level,
       );
+
       addVillageResourcesAt(
         db,
         cancelledEvent.villageId,
@@ -219,5 +240,6 @@ export const cancelUnitImprovementEvent = createController(
       );
     });
   });
+
   triggerKick();
 });

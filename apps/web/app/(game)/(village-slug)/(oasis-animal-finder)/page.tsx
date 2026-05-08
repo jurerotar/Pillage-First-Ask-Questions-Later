@@ -7,11 +7,9 @@ import { FaTrash } from 'react-icons/fa6';
 import { Link, useSearchParams } from 'react-router';
 import { z } from 'zod';
 import { natureUnits } from '@pillage-first/game-assets/units';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
-import { resourceSchema } from '@pillage-first/types/models/resource';
 import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
 import { calculateGridLayout } from '@pillage-first/utils/map';
-import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page.ts';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import {
   Section,
   SectionContent,
@@ -21,7 +19,7 @@ import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { oasisAnimalFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { Icon } from 'app/components/icon.tsx';
+import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
 import {
@@ -58,24 +56,6 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 
-const animalFinderQuerySchema = z.strictObject({
-  tileId: z.number(),
-  coordinates: coordinatesSchema,
-  bonuses: z.array(
-    z.strictObject({
-      resource: resourceSchema,
-      bonus: z.number(),
-    }),
-  ),
-  animals: z.array(
-    z.strictObject({
-      unitId: natureUnitIdSchema,
-      amount: z.number(),
-    }),
-  ),
-  distance: z.number(),
-});
-
 const animalFilterSchema = z.strictObject({
   animal: natureUnitIdSchema,
   amount: z.number().min(1),
@@ -84,7 +64,7 @@ const animalFilterSchema = z.strictObject({
 const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
   const { t } = useTranslation();
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
   const { mapSize } = useServer();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -129,14 +109,15 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
     queryKey: [oasisAnimalFinderCacheKey, x, y],
     queryFn: async () => {
       const values = form.getValues();
-      const { data } = await fetcher(`/oasis-animal-finder?x=${x}&y=${y}`, {
-        method: 'GET',
+      const { data } = await apiClient.post('/search/oases/by-animals', {
         body: {
+          x,
+          y,
           animalFilters: values.animalFilters,
         },
       });
 
-      return z.array(animalFinderQuerySchema).parse(data);
+      return data;
     },
     staleTime: 2000,
     enabled: false,

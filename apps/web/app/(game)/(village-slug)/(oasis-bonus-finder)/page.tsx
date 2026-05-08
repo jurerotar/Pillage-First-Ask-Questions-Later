@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
 import { z } from 'zod';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   type ResourceFieldComposition,
@@ -89,7 +88,7 @@ const splitOasisBonus = (oasisBonus: OasisBonus) => {
 
 const parseOasisBonus = (
   oasisBonus: OasisBonus | typeof NO_OASIS_BONUS_KEY,
-) => {
+): Array<{ bonus: 25 | 50; resource: Resource }> => {
   if (oasisBonus === NO_OASIS_BONUS_KEY) {
     return [];
   }
@@ -99,14 +98,14 @@ const parseOasisBonus = (
 
   const bonuses = [
     {
-      bonus: Number.parseInt(firstBonus, 10),
+      bonus: Number.parseInt(firstBonus, 10) as 25 | 50,
       resource: firstResource,
     },
   ];
 
   if (secondBonus && secondResource) {
     bonuses.push({
-      bonus: Number.parseInt(secondBonus, 10),
+      bonus: Number.parseInt(secondBonus, 10) as 25 | 50,
       resource: secondResource,
     });
   }
@@ -180,18 +179,11 @@ const OasisBonusSelectContent = () => {
   );
 };
 
-const bonusFinderQuerySchema = z.strictObject({
-  tileId: z.number(),
-  coordinates: coordinatesSchema,
-  resourceFieldComposition: resourceFieldCompositionSchema,
-  distance: z.number(),
-});
-
 const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
   const { mapSize } = useServer();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -252,9 +244,10 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
       thirdOasisBonus,
     ],
     queryFn: async () => {
-      const { data } = await fetcher(`/oasis-bonus-finder?x=${x}&y=${y}`, {
-        method: 'GET',
+      const { data } = await apiClient.post('/search/oases/by-bonus', {
         body: {
+          x,
+          y,
           resourceFieldComposition,
           bonuses: {
             firstOasis: parseOasisBonus(firstOasisBonus),
@@ -264,7 +257,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
         },
       });
 
-      return z.array(bonusFinderQuerySchema).parse(data);
+      return data;
     },
     staleTime: 2000,
     enabled: false,

@@ -6,11 +6,18 @@ import {
   selectTroopMovementStatsByVillageIdQuery,
   selectTroopMovementsByVillageIdQuery,
 } from '../utils/queries/event-queries';
-import { eventSchema } from '../utils/zod/event-schemas';
+import {
+  baseEventRowSchema,
+  mapEventRowToTypedEvent,
+} from '../utils/zod/event-schemas';
 import { validateTroopMovementLogic } from '../utils/zod/troop-movement-validation-schema';
 import {
-  getVillageTroopMovementStatsSchema,
-  getVillageTroopMovementsSchema,
+  mapTroopMovementRowToDto,
+  mapTroopMovementStatsRowToDto,
+} from './mappers/troop-movement-mapper';
+import {
+  getVillageTroopMovementStatsRowSchema,
+  getVillageTroopMovementsRowSchema,
 } from './schemas/troop-movement-schemas';
 import { createEvents } from './utils/create-event';
 
@@ -29,25 +36,29 @@ export const validateTroopMovement = createController(
 export const getVillageTroopMovements = createController(
   '/villages/:villageId/troop-movements',
 )(({ database, path: { villageId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: selectTroopMovementsByVillageIdQuery,
     bind: {
       $village_id: villageId,
     },
-    schema: getVillageTroopMovementsSchema,
+    schema: getVillageTroopMovementsRowSchema,
   });
+
+  return rows.map(mapTroopMovementRowToDto);
 });
 
 export const getVillageTroopMovementStats = createController(
   '/villages/:villageId/troop-movements/stats',
 )(({ database, path: { villageId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: selectTroopMovementStatsByVillageIdQuery,
     bind: {
       $village_id: villageId,
     },
-    schema: getVillageTroopMovementStatsSchema,
+    schema: getVillageTroopMovementStatsRowSchema,
   });
+
+  return rows.map(mapTroopMovementStatsRowToDto);
 });
 
 export const cancelTroopMovement = createController(
@@ -55,11 +66,14 @@ export const cancelTroopMovement = createController(
   'delete',
 )(({ database, path: { eventId } }) => {
   database.transaction((db) => {
-    const movementEvent = db.selectObject({
+    const eventRow = db.selectObject({
       sql: selectEventByIdQuery,
       bind: { $event_id: eventId },
-      schema: eventSchema,
-    }) as TroopMovementEvent;
+      schema: baseEventRowSchema,
+    });
+    const movementEvent = mapEventRowToTypedEvent(
+      eventRow!,
+    ) as TroopMovementEvent;
 
     if (!movementEvent) {
       throw new Error('Movement event not found');

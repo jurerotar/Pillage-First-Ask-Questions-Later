@@ -7,7 +7,7 @@ import {
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { partition } from '@pillage-first/utils/array';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type.ts';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 type CurrentVillageBuildingQueueContextReturn = {

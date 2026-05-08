@@ -8,7 +8,7 @@ import {
   getFarmList,
   getFarmLists,
   removeTileFromFarmList,
-  renameFarmList,
+  updateFarmList,
 } from '../farm-list-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -122,10 +122,10 @@ describe('farm-list-controllers', () => {
       );
     }).toThrow('Farm list cannot have more than 100 tiles');
 
-    // 8. Rename farm list
-    renameFarmList(
+    // 8. Update farm list name
+    updateFarmList(
       database,
-      createControllerArgs<'/farm-lists/:farmListId/rename', 'patch'>({
+      createControllerArgs<'/farm-lists/:farmListId', 'patch'>({
         path: { farmListId },
         body: { name: 'New Farm List Name' },
       }),

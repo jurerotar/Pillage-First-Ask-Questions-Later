@@ -9,9 +9,10 @@ describe('oasis-bonus-finder-controllers', () => {
 
     getTilesWithBonuses(
       database,
-      createControllerArgs<'/oasis-bonus-finder'>({
-        query: { x: 0, y: 0 },
+      createControllerArgs<'/search/oases/by-bonus', 'post'>({
         body: {
+          x: 0,
+          y: 0,
           resourceFieldComposition: 'any-cropper',
           bonuses: {
             firstOasis: [{ resource: 'wheat', bonus: 50 }],

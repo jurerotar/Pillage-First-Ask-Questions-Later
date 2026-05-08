@@ -1,33 +1,32 @@
 import type { NatureUnitId } from '@pillage-first/types/models/unit';
 import { createController } from '../utils/controller';
-import { getOasesWithAnimalsSchema } from './schemas/oasis-animal-finder-schemas';
+import { mapOasisWithAnimalsRowToDto } from './mappers/oasis-finder-mapper';
+import { getOasesWithAnimalsRowSchema } from './schemas/oasis-animal-finder-schemas';
 
-export const getOasesWithAnimals = createController('/oasis-animal-finder')(
-  ({ database, query, body }) => {
-    const { x, y } = query;
-    const { animalFilters } = body;
+export const getOasesWithAnimals = createController(
+  '/search/oases/by-animals',
+  'post',
+)(({ database, body }) => {
+  const { x, y, animalFilters } = body;
 
-    const sqlBindings: Record<string, number | string> = {
-      $tile_x: x,
-      $tile_y: y,
-    };
+  const sqlBindings: Record<string, number | string> = {
+    $tile_x: x,
+    $tile_y: y,
+  };
 
-    const uniqueFilters = new Map<NatureUnitId, number>();
-    for (const { animal, amount } of animalFilters) {
-      uniqueFilters.set(
-        animal,
-        Math.max(uniqueFilters.get(animal) ?? 0, amount),
-      );
-    }
+  const uniqueFilters = new Map<NatureUnitId, number>();
+  for (const { animal, amount } of animalFilters) {
+    uniqueFilters.set(animal, Math.max(uniqueFilters.get(animal) ?? 0, amount));
+  }
 
-    const filterClauses: string[] = [];
-    for (const [index, [animal, amount]] of [
-      ...uniqueFilters.entries(),
-    ].entries()) {
-      sqlBindings[`$animal_${index}`] = animal;
-      sqlBindings[`$amount_${index}`] = amount;
+  const filterClauses: string[] = [];
+  for (const [index, [animal, amount]] of [
+    ...uniqueFilters.entries(),
+  ].entries()) {
+    sqlBindings[`$animal_${index}`] = animal;
+    sqlBindings[`$amount_${index}`] = amount;
 
-      filterClauses.push(`
+    filterClauses.push(`
         EXISTS (
           SELECT 1
           FROM troops tr
@@ -38,10 +37,10 @@ export const getOasesWithAnimals = createController('/oasis-animal-finder')(
           HAVING SUM(tr.amount) >= $amount_${index}
         )
       `);
-    }
+  }
 
-    return database.selectObjects({
-      sql: `
+  const rows = database.selectObjects({
+    sql: `
         SELECT
           t.id AS tile_id,
           t.x AS coordinates_x,
@@ -74,8 +73,8 @@ export const getOasesWithAnimals = createController('/oasis-animal-finder')(
           ${filterClauses.length > 0 ? `AND ${filterClauses.join(' AND ')}` : ''}
         ORDER BY distance_squared ASC;
       `,
-      bind: sqlBindings,
-      schema: getOasesWithAnimalsSchema,
-    });
-  },
-);
+    bind: sqlBindings,
+    schema: getOasesWithAnimalsRowSchema,
+  });
+  return rows.map(mapOasisWithAnimalsRowToDto);
+});

@@ -10,12 +10,10 @@ describe('oasis-animal-finder-controllers', () => {
 
     const lowThreshold = getOasesWithAnimals(
       database,
-      createControllerArgs<'/oasis-animal-finder'>({
-        query: {
+      createControllerArgs<'/search/oases/by-animals', 'post'>({
+        body: {
           x: 0,
           y: 0,
-        },
-        body: {
           animalFilters: [{ animal: 'RAT', amount: 1 }],
         },
       }),
@@ -23,12 +21,10 @@ describe('oasis-animal-finder-controllers', () => {
 
     const highThreshold = getOasesWithAnimals(
       database,
-      createControllerArgs<'/oasis-animal-finder'>({
-        query: {
+      createControllerArgs<'/search/oases/by-animals', 'post'>({
+        body: {
           x: 0,
           y: 0,
-        },
-        body: {
           animalFilters: [{ animal: 'RAT', amount: 9999 }],
         },
       }),
