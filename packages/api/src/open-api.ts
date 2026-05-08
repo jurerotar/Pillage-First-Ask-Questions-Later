@@ -1698,6 +1698,36 @@ export const paths = {
       },
     },
   },
+  '/villages/:villageId/relocate-reinforcements': {
+    post: {
+      summary: 'Relocate reinforcements to current village',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              sourceTileId: z.number(),
+              troops: z.array(
+                z.strictObject({
+                  unitId: unitIdSchema,
+                  amount: z.number(),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Reinforcements relocated',
+        },
+      },
+    },
+  },
   '/players/:playerId/reports': {
     get: {
       summary: 'Get my reports',

@@ -86,8 +86,10 @@ export const useVillageTroops = () => {
       sourceTileId,
       troops,
     }: RelocateReinforcementsArgs) => {
-      await fetcher(`/villages/${currentVillage.id}/relocate-reinforcements`, {
-        method: 'POST',
+      await apiClient.post('/villages/:villageId/relocate-reinforcements', {
+        path: {
+          villageId: currentVillage.id,
+        },
         body: {
           sourceTileId,
           troops,
