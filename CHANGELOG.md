@@ -1,3 +1,12 @@
+## Version 0.4.18
+
+#### May 8, 2026
+
+* [TechnicalImprovement] We reworked how communication between threads work, enabling complete type safety. Previous, we
+  had no way to guarantee that the data we pass is actually correct, without just manually testing it. This causes
+  issues during refactors, since any missing argument/parameter isn't actually caught during lint/type-check and has to
+  be manually checked.
+
 ## Version 0.4.17
 
 #### May 6, 2026
