@@ -141,7 +141,7 @@ describe('player-controllers', () => {
 
     renameVillage(
       database,
-      createControllerArgs<'/villages/:villageId/rename', 'patch'>({
+      createControllerArgs<'/villages/:villageId', 'patch'>({
         path: { villageId: village.id },
         body: { name: 'New Village Name' },
       }),

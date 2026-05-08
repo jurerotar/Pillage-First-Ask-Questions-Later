@@ -24,6 +24,11 @@ export type CreateNewGameWorldWorkerResponse =
   | {
       type: 'result';
       migrationDuration: number;
+    }
+  | {
+      type: 'error';
+      message: string;
+      stack?: string;
     };
 
 let sqlite3: Sqlite3Static | null = null;
@@ -72,6 +77,17 @@ globalThis.addEventListener(
       port.postMessage({
         type: 'result',
         migrationDuration,
+      } satisfies CreateNewGameWorldWorkerResponse);
+    } catch (error) {
+      const normalizedError =
+        error instanceof Error
+          ? error
+          : new Error('Unknown error happened while creating game world');
+
+      port.postMessage({
+        type: 'error',
+        message: normalizedError.message,
+        stack: normalizedError.stack,
       } satisfies CreateNewGameWorldWorkerResponse);
     } finally {
       dbFacade?.close();

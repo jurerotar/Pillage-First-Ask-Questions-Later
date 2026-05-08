@@ -1,10 +1,11 @@
 import { snakeCase } from 'moderndash';
 import { createController } from '../utils/controller';
-import { getMapFiltersSchema } from './schemas/map-filters-schemas';
+import { mapMapFiltersRowToDto } from './mappers/map-filters-mapper';
+import { getMapFiltersRowSchema } from './schemas/map-filters-schemas';
 
 export const getMapFilters = createController('/players/:playerId/map-filters')(
   ({ database }) => {
-    return database.selectObject({
+    const row = database.selectObject({
       sql: `
     SELECT
       should_show_faction_reputation,
@@ -14,8 +15,10 @@ export const getMapFilters = createController('/players/:playerId/map-filters')(
       should_show_tile_tooltips,
       should_show_treasure_icons
     FROM map_filters`,
-      schema: getMapFiltersSchema,
+      schema: getMapFiltersRowSchema,
     })!;
+
+    return mapMapFiltersRowToDto(row);
   },
 );
 

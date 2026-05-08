@@ -9,7 +9,7 @@ import type { Tribe } from '@pillage-first/types/models/tribe';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
-import { Text } from 'app/components/text.tsx';
+import { Text } from 'app/components/text';
 
 type UnitTableContextValue = {
   tribe: Tribe;

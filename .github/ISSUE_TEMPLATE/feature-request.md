@@ -2,8 +2,6 @@
 name: Feature Request
 about: Suggest a new feature or improvement for the project.
 title: "[Feature Request]: "
-labels:
-  - enhancement
 ---
 
 ### Description

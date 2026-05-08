@@ -70,15 +70,21 @@ const RallyPointFarmList = lazyWithRetry(async () => ({
     .RallyPointFarmList,
 }));
 
-const _RallyPointSimulator = lazyWithRetry(async () => ({
+const RallyPointSimulator = lazyWithRetry(async () => ({
   default: (await import('./components/rally-point/rally-point-simulator'))
     .RallyPointSimulator,
+}));
+
+const RallyPointStationedTroops = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/rally-point/rally-point-stationed-troops')
+  ).RallyPointStationedTroops,
 }));
 
 const ResidenceLoyalty = lazyWithRetry(async () => ({
   default: (
     await import(
-      'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/residence/residence-loyalty.tsx'
+      'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/residence/residence-loyalty'
     )
   ).ResidenceLoyalty,
 }));
@@ -86,7 +92,7 @@ const ResidenceLoyalty = lazyWithRetry(async () => ({
 const ResidenceExpansion = lazyWithRetry(async () => ({
   default: (
     await import(
-      'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/residence/residence-expansion.tsx'
+      'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/residence/residence-expansion'
     )
   ).ResidenceExpansion,
 }));
@@ -172,9 +178,11 @@ const buildingDetailsTabMap = new Map<
   [
     'RALLY_POINT',
     new Map([
+      ['stationed-troops', RallyPointStationedTroops],
       ['troop-movements', RallyPointTroopMovements],
       ['send-troops', RallyPointSendTroops],
       ['farm-list', RallyPointFarmList],
+      ['simulator', RallyPointSimulator],
     ]),
   ],
   ['TREASURY', new Map([['artifacts', TreasuryArtifacts]])],
@@ -206,6 +214,7 @@ const buildingDetailsTabMap = new Map<
 // t('village-management')
 // t('construction-log')
 // t('troop-movements')
+// t('stationed-troops')
 // t('send-troops')
 // t('farm-list')
 // t('simulator')

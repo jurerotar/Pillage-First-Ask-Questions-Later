@@ -2,8 +2,6 @@
 name: Bug Report
 about: Report a bug or unexpected behavior in the project.
 title: "[Bug Report]: "
-labels:
-  - bug
 ---
 
 ### Description

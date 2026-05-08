@@ -57,7 +57,10 @@ import {
 import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
-import { eventSchema } from '../../utils/zod/event-schemas';
+import {
+  baseEventRowSchema,
+  mapEventRowToTypedEvent,
+} from '../../utils/zod/event-schemas';
 import { validateTroopMovementLogic } from '../../utils/zod/troop-movement-validation-schema';
 import { removeTroops } from '../resolvers/utils/troops';
 import { calculateAdventureDuration } from './adventures';
@@ -890,12 +893,23 @@ export const getEventDuration = (
     return calculateHealthRegenerationEventDuration(healthRegeneration, speed);
   }
   if (isLoyaltyIncreaseEvent(event)) {
-    const speed = database.selectValue({
-      sql: 'SELECT speed FROM servers',
-      schema: speedSchema,
+    const { createdAt, speed } = database.selectObject({
+      sql: 'SELECT created_at AS createdAt, speed FROM servers LIMIT 1;',
+      schema: z.strictObject({
+        createdAt: z.number(),
+        speed: speedSchema,
+      }),
     })!;
 
-    return calculateLoyaltyIncreaseEventDuration(speed);
+    const loyaltyIncreaseDuration =
+      calculateLoyaltyIncreaseEventDuration(speed);
+    const elapsedSinceServerStart = Date.now() - createdAt;
+    const timeUntilNextIncrease =
+      (loyaltyIncreaseDuration -
+        (elapsedSinceServerStart % loyaltyIncreaseDuration)) %
+      loyaltyIncreaseDuration;
+
+    return timeUntilNextIncrease || loyaltyIncreaseDuration;
   }
 
   throw new Error(
@@ -919,14 +933,17 @@ export const getEventStartTime = (
   if (isTroopTrainingEvent(event)) {
     const { villageId, buildingId } = event;
 
-    const events = database.selectObjects({
+    const eventRows = database.selectObjects({
       sql: selectAllVillageEventsByTypeQuery,
       bind: {
         $village_id: villageId,
         $type: 'troopTraining',
       },
-      schema: eventSchema,
-    }) as GameEvent<'troopTraining'>[];
+      schema: baseEventRowSchema,
+    });
+    const events = eventRows.map(
+      mapEventRowToTypedEvent,
+    ) as GameEvent<'troopTraining'>[];
 
     const relevantTrainingEvents = events.filter((event) => {
       return event.buildingId === buildingId;

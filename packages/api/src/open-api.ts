@@ -1,67 +1,76 @@
 import { z } from 'zod';
 import { createDocument, type ZodOpenApiPathsObject } from 'zod-openapi';
+import { apiEffectDtoSchema } from '@pillage-first/types/dtos/effect';
+import {
+  baseEventDtoSchema,
+  eventDtoSchema,
+} from '@pillage-first/types/dtos/event';
+import {
+  farmListDetailsDtoSchema,
+  farmListDtoSchema,
+  updateFarmListDtoSchema,
+} from '@pillage-first/types/dtos/farm-list';
+import {
+  heroDtoSchema,
+  heroInventoryEntryDtoSchema,
+  heroLoadoutEntryDtoSchema,
+} from '@pillage-first/types/dtos/hero';
+import {
+  buildingLevelChangeHistoryItemDtoSchema,
+  eventsHistoryItemDtoSchema,
+  unitTrainingHistoryItemDtoSchema,
+} from '@pillage-first/types/dtos/history';
+import { tileLoyaltyDtoSchema } from '@pillage-first/types/dtos/loyalty';
+import {
+  mapMarkerDtoSchema,
+  mapTileDtoSchema,
+  mapTileOasisBonusDtoSchema,
+  mapTileTroopDtoSchema,
+  mapTileWorldItemDtoSchema,
+} from '@pillage-first/types/dtos/map';
+import { mapFiltersDtoSchema } from '@pillage-first/types/dtos/map-filters';
+import { occupiableOasisDtoSchema } from '@pillage-first/types/dtos/oasis';
+import {
+  oasisByAnimalsSearchResultItemDtoSchema,
+  oasisByBonusSearchResultItemDtoSchema,
+} from '@pillage-first/types/dtos/oasis-search';
+import {
+  playerVillageDtoSchema,
+  playerVillageWithPopulationDtoSchema,
+  villageTroopDtoSchema,
+} from '@pillage-first/types/dtos/player';
+import {
+  playerRankingItemDtoSchema,
+  serverOverviewStatisticsDtoSchema,
+  villageRankingItemDtoSchema,
+} from '@pillage-first/types/dtos/statistics';
+import {
+  troopMovementItemDtoSchema,
+  troopMovementStatsItemDtoSchema,
+} from '@pillage-first/types/dtos/troop-movement';
+import {
+  researchedUnitDtoSchema,
+  unitImprovementDtoSchema,
+} from '@pillage-first/types/dtos/unit';
+import { villageBySlugDtoSchema } from '@pillage-first/types/dtos/village';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
 import { playerSchema } from '@pillage-first/types/models/player';
+import { preferencesSchema } from '@pillage-first/types/models/preferences';
+import { questSchema } from '@pillage-first/types/models/quest';
+import { reputationSchema } from '@pillage-first/types/models/reputation';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
-import { serverDbSchema } from '@pillage-first/types/models/server';
+import { serverSchema } from '@pillage-first/types/models/server';
+import {
+  natureUnitIdSchema,
+  unitIdSchema,
+} from '@pillage-first/types/models/unit';
 import packageJson from '../../../package.json' with { type: 'json' };
-import { getDeveloperSettingsSchema } from './controllers/schemas/developer-tools-schemas';
-import {
-  farmListSchema,
-  farmListTileSchema,
-  updateFarmListSchema,
-} from './controllers/schemas/farm-list-schemas';
-import {
-  getHeroInventorySchema,
-  getHeroLoadoutSchema,
-  getHeroSchema,
-} from './controllers/schemas/hero-schemas';
-import {
-  baseGetBuildingLevelChangeHistorySchema,
-  baseGetEventsHistorySchema,
-  baseGetUnitTrainingHistorySchema,
-} from './controllers/schemas/history-schemas';
-import { getMapFiltersSchema } from './controllers/schemas/map-filters-schemas';
-import {
-  getMapMarkersSchema,
-  getTileOasisBonusesSchema,
-  getTilesSchema,
-  getTileTroopsSchema,
-  getTileWorldItemSchema,
-} from './controllers/schemas/map-schemas';
-import { getTilesWithBonusesSchema } from './controllers/schemas/oasis-bonus-finder-schemas';
-import {
-  getPlayerVillagesWithPopulationSchema,
-  getTroopsByVillageSchema,
-  getVillagesByPlayerSchema,
-} from './controllers/schemas/player-schemas';
-import { getPreferencesSchema } from './controllers/schemas/preferences-schemas';
-import { getQuestsSchema } from './controllers/schemas/quest-schemas';
-import { getReputationsSchema } from './controllers/schemas/reputation-schemas';
-import {
-  getPlayerRankingsSchema,
-  getServerOverviewStatisticsSchema,
-  getVillageRankingsSchema,
-} from './controllers/schemas/statistics-schemas';
-import {
-  getVillageTroopMovementStatsSchema,
-  getVillageTroopMovementsSchema,
-} from './controllers/schemas/troop-movement-schemas';
-import { getUnitImprovementsSchema } from './controllers/schemas/unit-improvement-schemas';
-import { getResearchedUnitsSchema } from './controllers/schemas/unit-research-schemas';
-import {
-  getOccupiableOasisInRangeSchema,
-  getVillageBySlugSchema,
-  getVillageLoyaltySchema,
-} from './controllers/schemas/village-schemas';
-import { getArtifactsAroundVillageSchema } from './controllers/schemas/world-items-schemas';
-import { apiEffectSchema } from './utils/zod/effect-schemas';
-import { baseEventSchema, eventSchema } from './utils/zod/event-schemas';
 
 export const paths = {
   '/server': {
@@ -72,7 +81,7 @@ export const paths = {
           description: 'Server details',
           content: {
             'application/json': {
-              schema: serverDbSchema,
+              schema: serverSchema,
             },
           },
         },
@@ -107,7 +116,7 @@ export const paths = {
           description: 'Object with village listing',
           content: {
             'application/json': {
-              schema: getVillagesByPlayerSchema,
+              schema: z.array(playerVillageDtoSchema),
             },
           },
         },
@@ -127,7 +136,7 @@ export const paths = {
           description: 'Object with villages and population',
           content: {
             'application/json': {
-              schema: getPlayerVillagesWithPopulationSchema,
+              schema: z.array(playerVillageWithPopulationDtoSchema),
             },
           },
         },
@@ -147,7 +156,7 @@ export const paths = {
           description: 'Troops listing',
           content: {
             'application/json': {
-              schema: z.array(getTroopsByVillageSchema),
+              schema: z.array(villageTroopDtoSchema),
             },
           },
         },
@@ -174,7 +183,7 @@ export const paths = {
       },
     },
   },
-  '/villages/:villageId/rename': {
+  '/villages/:villageId': {
     patch: {
       summary: 'Rename village',
       requestParams: {
@@ -211,7 +220,7 @@ export const paths = {
           description: 'Village details',
           content: {
             'application/json': {
-              schema: getVillageBySlugSchema,
+              schema: villageBySlugDtoSchema,
             },
           },
         },
@@ -231,7 +240,7 @@ export const paths = {
           description: 'Occupiable oasis listing',
           content: {
             'application/json': {
-              schema: z.array(getOccupiableOasisInRangeSchema),
+              schema: z.array(occupiableOasisDtoSchema),
             },
           },
         },
@@ -323,7 +332,7 @@ export const paths = {
           description: 'Hero details',
           content: {
             'application/json': {
-              schema: getHeroSchema,
+              schema: heroDtoSchema,
             },
           },
         },
@@ -343,7 +352,7 @@ export const paths = {
           description: 'Hero loadout',
           content: {
             'application/json': {
-              schema: z.array(getHeroLoadoutSchema),
+              schema: z.array(heroLoadoutEntryDtoSchema),
             },
           },
         },
@@ -387,7 +396,7 @@ export const paths = {
           description: 'Hero inventory',
           content: {
             'application/json': {
-              schema: z.array(getHeroInventorySchema),
+              schema: z.array(heroInventoryEntryDtoSchema),
             },
           },
         },
@@ -527,7 +536,7 @@ export const paths = {
           description: 'Developer settings',
           content: {
             'application/json': {
-              schema: getDeveloperSettingsSchema,
+              schema: developerSettingsSchema,
             },
           },
         },
@@ -667,7 +676,7 @@ export const paths = {
           description: 'Farm lists',
           content: {
             'application/json': {
-              schema: z.array(farmListSchema),
+              schema: z.array(farmListDtoSchema),
             },
           },
         },
@@ -709,9 +718,33 @@ export const paths = {
           description: 'Farm lists',
           content: {
             'application/json': {
-              schema: z.array(farmListSchema),
+              schema: z.array(farmListDtoSchema),
             },
           },
+        },
+      },
+    },
+  },
+  '/players/:playerId/farm-lists/tiles': {
+    delete: {
+      summary: 'Remove tile from all player farm lists',
+      requestParams: {
+        path: z.strictObject({
+          playerId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              tileId: z.number(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Tile removed from all farm lists',
         },
       },
     },
@@ -729,9 +762,7 @@ export const paths = {
           description: 'Farm list details',
           content: {
             'application/json': {
-              schema: farmListSchema.extend({
-                tileIds: z.array(farmListTileSchema),
-              }),
+              schema: farmListDetailsDtoSchema,
             },
           },
         },
@@ -747,7 +778,7 @@ export const paths = {
       requestBody: {
         content: {
           'application/json': {
-            schema: updateFarmListSchema,
+            schema: updateFarmListDtoSchema,
           },
         },
       },
@@ -795,6 +826,30 @@ export const paths = {
       },
     },
   },
+  '/farm-lists/:farmListId/clone': {
+    post: {
+      summary: 'Clone farm list to another village',
+      requestParams: {
+        path: z.strictObject({
+          farmListId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              villageId: z.number(),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Farm list cloned',
+        },
+      },
+    },
+  },
   '/farm-lists/:farmListId/tiles/:tileId': {
     delete: {
       summary: 'Remove tile from farm list',
@@ -807,30 +862,6 @@ export const paths = {
       responses: {
         '204': {
           description: 'Tile removed',
-        },
-      },
-    },
-  },
-  '/farm-lists/:farmListId/rename': {
-    patch: {
-      summary: 'Rename farm list',
-      requestParams: {
-        path: z.strictObject({
-          farmListId: z.coerce.number(),
-        }),
-      },
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              name: z.string(),
-            }),
-          },
-        },
-      },
-      responses: {
-        '204': {
-          description: 'Farm list renamed',
         },
       },
     },
@@ -848,7 +879,7 @@ export const paths = {
           description: 'Village events',
           content: {
             'application/json': {
-              schema: z.array(baseEventSchema),
+              schema: z.array(baseEventDtoSchema),
             },
           },
         },
@@ -869,7 +900,7 @@ export const paths = {
           description: 'Village events by type',
           content: {
             'application/json': {
-              schema: z.array(baseEventSchema),
+              schema: z.array(baseEventDtoSchema),
             },
           },
         },
@@ -913,7 +944,7 @@ export const paths = {
           description: 'Village events history',
           content: {
             'application/json': {
-              schema: z.array(baseGetEventsHistorySchema),
+              schema: z.array(eventsHistoryItemDtoSchema),
             },
           },
         },
@@ -933,7 +964,7 @@ export const paths = {
           description: 'Village building level change history',
           content: {
             'application/json': {
-              schema: z.array(baseGetBuildingLevelChangeHistorySchema),
+              schema: z.array(buildingLevelChangeHistoryItemDtoSchema),
             },
           },
         },
@@ -947,22 +978,16 @@ export const paths = {
         path: z.strictObject({
           villageId: z.coerce.number(),
         }),
-      },
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              buildingId: buildingIdSchema.nullable().optional(),
-            }),
-          },
-        },
+        query: z.strictObject({
+          buildingId: buildingIdSchema.nullable().optional(),
+        }),
       },
       responses: {
         '200': {
           description: 'Village unit training history',
           content: {
             'application/json': {
-              schema: z.array(baseGetUnitTrainingHistorySchema),
+              schema: z.array(unitTrainingHistoryItemDtoSchema),
             },
           },
         },
@@ -975,7 +1000,7 @@ export const paths = {
       requestBody: {
         content: {
           'application/json': {
-            schema: z.optional(eventSchema),
+            schema: z.optional(eventDtoSchema),
           },
         },
       },
@@ -1001,6 +1026,21 @@ export const paths = {
       },
     },
   },
+  '/events/unit-improvement-event/:eventId': {
+    delete: {
+      summary: 'Cancel unit improvement event',
+      requestParams: {
+        path: z.strictObject({
+          eventId: z.string(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Event cancelled',
+        },
+      },
+    },
+  },
   '/tiles': {
     get: {
       summary: 'Get all tiles',
@@ -1009,7 +1049,7 @@ export const paths = {
           description: 'List of all tiles',
           content: {
             'application/json': {
-              schema: z.array(getTilesSchema.nullable()),
+              schema: z.array(mapTileDtoSchema.nullable()),
             },
           },
         },
@@ -1029,7 +1069,7 @@ export const paths = {
           description: 'Troops on tile',
           content: {
             'application/json': {
-              schema: z.array(getTileTroopsSchema),
+              schema: z.array(mapTileTroopDtoSchema),
             },
           },
         },
@@ -1049,7 +1089,7 @@ export const paths = {
           description: 'Oasis bonuses',
           content: {
             'application/json': {
-              schema: z.array(getTileOasisBonusesSchema),
+              schema: z.array(mapTileOasisBonusDtoSchema),
             },
           },
         },
@@ -1069,7 +1109,7 @@ export const paths = {
           description: 'World item on tile',
           content: {
             'application/json': {
-              schema: getTileWorldItemSchema.nullable(),
+              schema: mapTileWorldItemDtoSchema.nullable(),
             },
           },
         },
@@ -1089,7 +1129,7 @@ export const paths = {
           description: 'Tile loyalty',
           content: {
             'application/json': {
-              schema: getVillageLoyaltySchema,
+              schema: tileLoyaltyDtoSchema,
             },
           },
         },
@@ -1109,7 +1149,7 @@ export const paths = {
           description: 'Map markers',
           content: {
             'application/json': {
-              schema: z.array(getMapMarkersSchema),
+              schema: z.array(mapMarkerDtoSchema),
             },
           },
         },
@@ -1167,7 +1207,7 @@ export const paths = {
           description: 'Map filters',
           content: {
             'application/json': {
-              schema: getMapFiltersSchema,
+              schema: mapFiltersDtoSchema,
             },
           },
         },
@@ -1212,7 +1252,7 @@ export const paths = {
           description: 'Village quests',
           content: {
             'application/json': {
-              schema: z.array(getQuestsSchema),
+              schema: z.array(questSchema),
             },
           },
         },
@@ -1270,7 +1310,7 @@ export const paths = {
           description: 'Faction reputations',
           content: {
             'application/json': {
-              schema: z.array(getReputationsSchema),
+              schema: z.array(reputationSchema),
             },
           },
         },
@@ -1280,21 +1320,17 @@ export const paths = {
   '/statistics/players': {
     get: {
       summary: 'Get player rankings',
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              lastPlayerId: z.number().nullable(),
-            }),
-          },
-        },
+      requestParams: {
+        query: z.strictObject({
+          lastPlayerId: z.coerce.number().nullable().optional(),
+        }),
       },
       responses: {
         '200': {
           description: 'Player rankings',
           content: {
             'application/json': {
-              schema: z.array(getPlayerRankingsSchema),
+              schema: z.array(playerRankingItemDtoSchema),
             },
           },
         },
@@ -1304,21 +1340,17 @@ export const paths = {
   '/statistics/villages': {
     get: {
       summary: 'Get village rankings',
-      requestBody: {
-        content: {
-          'application/json': {
-            schema: z.strictObject({
-              lastVillageId: z.number().nullable(),
-            }),
-          },
-        },
+      requestParams: {
+        query: z.strictObject({
+          lastVillageId: z.coerce.number().nullable().optional(),
+        }),
       },
       responses: {
         '200': {
           description: 'Village rankings',
           content: {
             'application/json': {
-              schema: z.array(getVillageRankingsSchema),
+              schema: z.array(villageRankingItemDtoSchema),
             },
           },
         },
@@ -1333,7 +1365,7 @@ export const paths = {
           description: 'Overview statistics',
           content: {
             'application/json': {
-              schema: getServerOverviewStatisticsSchema,
+              schema: serverOverviewStatisticsDtoSchema,
             },
           },
         },
@@ -1353,7 +1385,7 @@ export const paths = {
           description: 'Unit improvements',
           content: {
             'application/json': {
-              schema: z.array(getUnitImprovementsSchema),
+              schema: z.array(unitImprovementDtoSchema),
             },
           },
         },
@@ -1373,7 +1405,7 @@ export const paths = {
           description: 'Researched units',
           content: {
             'application/json': {
-              schema: z.array(getResearchedUnitsSchema),
+              schema: z.array(researchedUnitDtoSchema),
             },
           },
         },
@@ -1393,7 +1425,7 @@ export const paths = {
           description: 'Artifacts list',
           content: {
             'application/json': {
-              schema: z.array(getArtifactsAroundVillageSchema),
+              schema: z.array(mapTileWorldItemDtoSchema),
             },
           },
         },
@@ -1413,7 +1445,7 @@ export const paths = {
           description: 'Village effects',
           content: {
             'application/json': {
-              schema: z.array(apiEffectSchema),
+              schema: z.array(apiEffectDtoSchema),
             },
           },
         },
@@ -1450,19 +1482,15 @@ export const paths = {
       },
     },
   },
-  '/oasis-bonus-finder': {
-    get: {
+  '/search/oases/by-bonus': {
+    post: {
       summary: 'Find tiles with specific oasis bonuses',
-      requestParams: {
-        query: z.strictObject({
-          x: z.coerce.number(),
-          y: z.coerce.number(),
-        }),
-      },
       requestBody: {
         content: {
           'application/json': {
             schema: z.strictObject({
+              x: z.number(),
+              y: z.number(),
               resourceFieldComposition: resourceFieldCompositionSchema.or(
                 z.literal('any-cropper'),
               ),
@@ -1495,7 +1523,38 @@ export const paths = {
           description: 'Tiles with bonuses',
           content: {
             'application/json': {
-              schema: z.array(getTilesWithBonusesSchema),
+              schema: z.array(oasisByBonusSearchResultItemDtoSchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/search/oases/by-animals': {
+    post: {
+      summary: 'Find oasis tiles with specific nature troop amounts',
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              x: z.number(),
+              y: z.number(),
+              animalFilters: z.array(
+                z.strictObject({
+                  animal: natureUnitIdSchema,
+                  amount: z.number().min(1),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Oases that match the animal criteria',
+          content: {
+            'application/json': {
+              schema: z.array(oasisByAnimalsSearchResultItemDtoSchema),
             },
           },
         },
@@ -1515,7 +1574,7 @@ export const paths = {
           description: 'Player preferences',
           content: {
             'application/json': {
-              schema: getPreferencesSchema,
+              schema: preferencesSchema,
             },
           },
         },
@@ -1560,7 +1619,7 @@ export const paths = {
           description: 'List of troop movements',
           content: {
             'application/json': {
-              schema: z.array(getVillageTroopMovementsSchema),
+              schema: z.array(troopMovementItemDtoSchema),
             },
           },
         },
@@ -1580,7 +1639,7 @@ export const paths = {
           description: 'Troop movement stats',
           content: {
             'application/json': {
-              schema: z.array(getVillageTroopMovementStatsSchema),
+              schema: z.array(troopMovementStatsItemDtoSchema),
             },
           },
         },
@@ -1617,7 +1676,7 @@ export const paths = {
               }),
               troops: z.array(
                 z.strictObject({
-                  unitId: z.string(),
+                  unitId: unitIdSchema,
                   amount: z.number(),
                 }),
               ),
@@ -1635,6 +1694,90 @@ export const paths = {
               }),
             },
           },
+        },
+      },
+    },
+  },
+  '/players/:playerId/reports': {
+    get: {
+      summary: 'Get my reports',
+      requestParams: {
+        path: z.strictObject({
+          playerId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'List of reports',
+          content: {
+            'application/json': {
+              schema: z.array(
+                z.strictObject({
+                  id: z.string(),
+                  tags: z.array(z.enum(['read', 'archived'])),
+                  timestamp: z.number().int(),
+                  villageId: z.number().int(),
+                }),
+              ),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/players/:playerId/reports/unread-count': {
+    get: {
+      summary: 'Get unread reports count',
+      requestParams: {
+        path: z.strictObject({
+          playerId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Unread reports count',
+          content: {
+            'application/json': {
+              schema: z.number().int(),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/reports/:reportId': {
+    patch: {
+      summary: 'Update report',
+      requestParams: {
+        path: z.strictObject({
+          reportId: z.string(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              tag: z.enum(['read', 'archived']),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Updated',
+        },
+      },
+    },
+    delete: {
+      summary: 'Delete report',
+      requestParams: {
+        path: z.strictObject({
+          reportId: z.string(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Deleted',
         },
       },
     },

@@ -1,8 +1,12 @@
 import { createController } from '../utils/controller';
 import {
-  getBuildingLevelChangeHistorySchema,
+  mapBuildingLevelChangeHistoryRowToDto,
+  mapUnitTrainingHistoryRowToDto,
+} from './mappers/history-mapper';
+import {
+  getBuildingLevelChangeHistoryRowSchema,
   getEventsHistorySchema,
-  getUnitTrainingHistorySchema,
+  getUnitTrainingHistoryRowSchema,
 } from './schemas/history-schemas';
 
 export const getBuildingLevelChangeHistory = createController(
@@ -10,7 +14,7 @@ export const getBuildingLevelChangeHistory = createController(
 )(({ database, path }) => {
   const { villageId } = path;
 
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT
         h.field_id,
@@ -29,17 +33,19 @@ export const getBuildingLevelChangeHistory = createController(
     bind: {
       $village_id: villageId,
     },
-    schema: getBuildingLevelChangeHistorySchema,
+    schema: getBuildingLevelChangeHistoryRowSchema,
   });
+
+  return rows.map(mapBuildingLevelChangeHistoryRowToDto);
 });
 
 export const getUnitTrainingHistory = createController(
   '/villages/:villageId/history/units',
-)(({ database, path, body }) => {
+)(({ database, path, query }) => {
   const { villageId } = path;
-  const { buildingId = null } = body;
+  const { buildingId = null } = query;
 
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT
         h.batch_id,
@@ -61,8 +67,10 @@ export const getUnitTrainingHistory = createController(
       $village_id: villageId,
       $building_id: buildingId,
     },
-    schema: getUnitTrainingHistorySchema,
+    schema: getUnitTrainingHistoryRowSchema,
   });
+
+  return rows.map(mapUnitTrainingHistoryRowToDto);
 });
 
 export const getEventsHistory = createController(

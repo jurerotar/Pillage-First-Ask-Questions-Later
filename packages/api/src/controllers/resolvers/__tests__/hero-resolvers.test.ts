@@ -87,7 +87,7 @@ describe('hero-resolvers', () => {
     expect(nextEvent?.type).toBe('heroHealthRegeneration');
   });
 
-  test('heroHealthRegenerationResolver should NOT increase health but SHOULD schedule next event if hero health is 100', async () => {
+  test('heroHealthRegenerationResolver should NOT increase health and should NOT schedule next event if hero health is 100', async () => {
     const database = await prepareTestDatabase();
 
     // 1. Setup: hero at 100 health, with health_regeneration = 10
@@ -114,13 +114,12 @@ describe('hero-resolvers', () => {
     });
     expect(health).toBe(100);
 
-    // 5. Verify next event scheduled
+    // 5. Verify next event is not scheduled
     const nextEvent = database.selectObject({
       sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
       schema: z.strictObject({ type: z.string() }),
     });
-    expect(nextEvent).toBeDefined();
-    expect(nextEvent?.type).toBe('heroHealthRegeneration');
+    expect(nextEvent).toBeUndefined();
   });
 
   test('heroHealthRegenerationResolver should NOT increase health if hero is dead (original check)', async () => {

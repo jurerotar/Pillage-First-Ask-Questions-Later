@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { factionSchema } from '@pillage-first/types/models/faction';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 
-export const getPlayerRankingsSchema = z
+// DB row shape — do not camelCase here; mapping happens in controller mappers
+export const getPlayerRankingsRowSchema = z
   .strictObject({
     id: z.number(),
     name: z.string(),
@@ -13,31 +13,9 @@ export const getPlayerRankingsSchema = z
     total_population: z.number(),
     village_count: z.number(),
   })
-  .transform((t) => {
-    return {
-      id: t.id,
-      faction: t.faction,
-      name: t.name,
-      slug: t.slug,
-      tribe: t.tribe,
-      totalPopulation: t.total_population,
-      villageCount: t.village_count,
-    };
-  })
-  .pipe(
-    z.strictObject({
-      id: z.number(),
-      faction: factionSchema,
-      name: z.string(),
-      slug: z.string(),
-      tribe: tribeSchema,
-      totalPopulation: z.number(),
-      villageCount: z.number(),
-    }),
-  )
-  .meta({ id: 'GetPlayerRankings' });
+  .meta({ id: 'GetPlayerRankingsRow' });
 
-export const getVillageRankingsSchema = z
+export const getVillageRankingsRowSchema = z
   .strictObject({
     village_id: z.number(),
     village_name: z.string(),
@@ -48,32 +26,7 @@ export const getVillageRankingsSchema = z
     player_name: z.string(),
     player_slug: z.string(),
   })
-  .transform((t) => {
-    return {
-      id: t.village_id,
-      name: t.village_name,
-      coordinates: {
-        x: t.coordinates_x,
-        y: t.coordinates_y,
-      },
-      population: t.population,
-      playerId: t.player_id,
-      playerName: t.player_name,
-      playerSlug: t.player_slug,
-    };
-  })
-  .pipe(
-    z.strictObject({
-      id: z.number(),
-      name: z.string(),
-      coordinates: coordinatesSchema,
-      population: z.number(),
-      playerId: z.number(),
-      playerName: z.string(),
-      playerSlug: z.string(),
-    }),
-  )
-  .meta({ id: 'GetVillageRankings' });
+  .meta({ id: 'GetVillageRankingsRow' });
 
 export const playersStatsRowSchema = z.strictObject({
   tribe: tribeSchema,
@@ -87,7 +40,7 @@ export const villagesStatsRowSchema = z.strictObject({
   village_count: z.number(),
 });
 
-export const getServerOverviewStatisticsSchema = z
+export const getServerOverviewStatisticsRowSchema = z
   .strictObject({
     player_count: z.number(),
     village_count: z.number(),
@@ -96,14 +49,4 @@ export const getServerOverviewStatisticsSchema = z
     villages_by_tribe: z.record(tribeSchema, z.number()),
     villages_by_faction: z.record(factionSchema, z.number()),
   })
-  .transform((t) => {
-    return {
-      playerCount: t.player_count,
-      villageCount: t.village_count,
-      playersByTribe: t.players_by_tribe,
-      playersByFaction: t.players_by_faction,
-      villagesByTribe: t.villages_by_tribe,
-      villagesByFaction: t.villages_by_faction,
-    };
-  })
-  .meta({ id: 'GetServerOverviewStatistics' });
+  .meta({ id: 'GetServerOverviewStatisticsRow' });

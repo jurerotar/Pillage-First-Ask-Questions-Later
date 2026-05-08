@@ -241,7 +241,7 @@ const EventLogDesktopItem = () => {
 
   return (
     <NavLink
-      to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research"
+      to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
       aria-label={t('Event log')}
       data-tooltip-content={t('Event log')}
       data-tooltip-id="general-tooltip"
@@ -811,7 +811,7 @@ const MobileBottomNavigation = ({
           </li>
           <li>
             <NavigationSideItem
-              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research"
+              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
               aria-label={t('Event log')}
               title={t('Event log')}
             >

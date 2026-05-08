@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 
 export const getVillagesByPlayerSchema = z
@@ -12,30 +11,7 @@ export const getVillagesByPlayerSchema = z
     slug: z.string().nullable(),
     resource_field_composition: resourceFieldCompositionSchema,
   })
-  .transform((t) => {
-    return {
-      id: t.id,
-      tileId: t.tile_id,
-      coordinates: {
-        x: t.coordinates_x,
-        y: t.coordinates_y,
-      },
-      name: t.name,
-      slug: t.slug ?? `v-${t.id}`,
-      resourceFieldComposition: t.resource_field_composition,
-    };
-  })
-  .pipe(
-    z.strictObject({
-      id: z.number(),
-      tileId: z.number(),
-      coordinates: coordinatesSchema,
-      name: z.string(),
-      slug: z.string(),
-      resourceFieldComposition: resourceFieldCompositionSchema,
-    }),
-  )
-  .meta({ id: 'GetVillagesByPlayer' });
+  .meta({ id: 'GetVillagesByPlayerRow' });
 
 export const getPlayerVillagesWithPopulationSchema = z
   .strictObject({
@@ -48,32 +24,7 @@ export const getPlayerVillagesWithPopulationSchema = z
     resource_field_composition: resourceFieldCompositionSchema,
     population: z.number(),
   })
-  .transform((t) => {
-    return {
-      id: t.id,
-      tileId: t.tile_id,
-      coordinates: {
-        x: t.coordinates_x,
-        y: t.coordinates_y,
-      },
-      name: t.name,
-      slug: t.slug ?? `v-${t.id}`,
-      resourceFieldComposition: t.resource_field_composition,
-      population: t.population,
-    };
-  })
-  .pipe(
-    z.strictObject({
-      id: z.number(),
-      tileId: z.number(),
-      coordinates: coordinatesSchema,
-      name: z.string(),
-      slug: z.string(),
-      resourceFieldComposition: resourceFieldCompositionSchema,
-      population: z.number(),
-    }),
-  )
-  .meta({ id: 'GetPlayerVillagesWithPopulation' });
+  .meta({ id: 'GetPlayerVillagesWithPopulationRow' });
 
 export const getTroopsByVillageSchema = z
   .strictObject({
@@ -82,20 +33,4 @@ export const getTroopsByVillageSchema = z
     tile_id: z.number(),
     source_tile_id: z.number(),
   })
-  .transform((t) => {
-    return {
-      unitId: t.unit_id,
-      amount: t.amount,
-      tileId: t.tile_id,
-      source: t.source_tile_id,
-    };
-  })
-  .pipe(
-    z.strictObject({
-      unitId: z.string(),
-      amount: z.number(),
-      tileId: z.number(),
-      source: z.number(),
-    }),
-  )
-  .meta({ id: 'GetTroopsByVillage' });
+  .meta({ id: 'GetTroopsByVillageRow' });

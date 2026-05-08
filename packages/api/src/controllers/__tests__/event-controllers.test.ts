@@ -1,8 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import {
   cancelConstructionEvent,
+  cancelUnitImprovementEvent,
   getVillageEvents,
   getVillageEventsByType,
 } from '../event-controllers';
@@ -77,7 +79,7 @@ describe('event-controllers', () => {
 
     const { eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() AS eventId',
-      schema: z.strictObject({ eventId: z.number() }),
+      schema: z.object({ eventId: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -155,7 +157,7 @@ describe('event-controllers', () => {
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.object({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -240,7 +242,7 @@ describe('event-controllers', () => {
 
     const { id: eventId } = database.selectObject({
       sql: 'SELECT last_insert_rowid() as id',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.object({ id: z.number() }),
     })!;
 
     // Set low resources to avoid warehouse capacity cap
@@ -287,6 +289,99 @@ describe('event-controllers', () => {
     expect(finalResources.clay).toBe(100 + 16);
     expect(finalResources.iron).toBe(100 + 24);
     expect(finalResources.wheat).toBe(100 + 8);
+
+    vi.useRealTimers();
+  });
+
+  test('cancelUnitImprovementEvent should delete the event and refund the full upgrade cost', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const startsAt = Date.now();
+    const duration = 100_000;
+    const unitId = 'PHALANX'; // Using a standard unit ID
+    const level = 1;
+
+    vi.useFakeTimers();
+    vi.setSystemTime(startsAt + 10_000); // Set time to somewhere in the middle of the upgrade
+
+    const meta = JSON.stringify({
+      unitId,
+      level,
+    });
+
+    // Insert the unit improvement event
+    database.exec({
+      sql: `
+      INSERT INTO events (type, starts_at, duration, village_id, meta)
+      VALUES ('unitImprovement', $starts_at, $duration, $village_id, $meta)
+    `,
+      bind: {
+        $starts_at: startsAt,
+        $duration: duration,
+        $village_id: villageId,
+        $meta: meta,
+      },
+    });
+
+    const { id: eventId } = database.selectObject({
+      sql: 'SELECT last_insert_rowid() as id',
+      schema: z.object({ id: z.number() }),
+    })!;
+
+    // Set baseline resources to avoid warehouse capacity caps during refund
+    database.exec({
+      sql: `
+      UPDATE resource_sites
+      SET wood = 100, clay = 100, iron = 100, wheat = 100
+      WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+    `,
+      bind: { $village_id: villageId },
+    });
+
+    // Execute the controller
+    cancelUnitImprovementEvent(
+      database,
+      createControllerArgs<'/events/unit-improvement-event/:eventId', 'delete'>(
+        {
+          path: { eventId: eventId.toString() },
+        },
+      ),
+    );
+
+    // Fetch final resources
+    const finalResources = database.selectObject({
+      sql: `
+      SELECT wood, clay, iron, wheat
+      FROM resource_sites rs
+      JOIN villages v ON v.tile_id = rs.tile_id
+      WHERE v.id = $village_id
+    `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        wood: z.number(),
+        clay: z.number(),
+        iron: z.number(),
+        wheat: z.number(),
+      }),
+    })!;
+
+    // Determine the expected refund amount dynamically to avoid test breakage on balance changes
+    const expectedRefund = calculateUnitUpgradeCostForLevel(unitId, level);
+
+    // Assert that resources were properly refunded
+    expect(finalResources.wood).toBe(100 + expectedRefund[0]);
+    expect(finalResources.clay).toBe(100 + expectedRefund[1]);
+    expect(finalResources.iron).toBe(100 + expectedRefund[2]);
+    expect(finalResources.wheat).toBe(100 + expectedRefund[3]);
+
+    // Assert that the event was actually deleted
+    const deletedEvent = database.selectObject({
+      sql: 'SELECT id FROM events WHERE id = $event_id',
+      bind: { $event_id: eventId },
+      schema: z.object({ id: z.number() }).optional(),
+    });
+
+    expect(deletedEvent).toBeUndefined();
 
     vi.useRealTimers();
   });

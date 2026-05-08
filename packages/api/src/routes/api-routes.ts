@@ -15,19 +15,21 @@ import {
 import { getVillageEffects } from '../controllers/effect-controllers';
 import {
   cancelConstructionEvent,
+  cancelUnitImprovementEvent,
   createNewEvents,
   getVillageEvents,
   getVillageEventsByType,
 } from '../controllers/event-controllers';
 import {
   addTileToFarmList,
+  cloneFarmList,
   createFarmList,
   deleteFarmList,
   getFarmList,
   getFarmLists,
   getMeFarmLists,
+  removeTileFromAllPlayerFarmLists,
   removeTileFromFarmList,
-  renameFarmList,
   updateFarmList,
 } from '../controllers/farm-list-controllers';
 import {
@@ -61,6 +63,7 @@ import {
   getMapFilters,
   updateMapFilter,
 } from '../controllers/map-filters-controllers';
+import { getOasesWithAnimals } from '../controllers/oasis-animal-finder-controllers';
 import { getTilesWithBonuses } from '../controllers/oasis-bonus-finder-controllers';
 import { abandonOasis, occupyOasis } from '../controllers/oasis-controllers';
 import {
@@ -80,6 +83,12 @@ import {
   getCollectableQuestCount,
   getQuests,
 } from '../controllers/quest-controllers';
+import {
+  deleteReport,
+  getMyReports,
+  getUnreadReportCount,
+  updateReport,
+} from '../controllers/report-controllers';
 import { getReputations } from '../controllers/reputation-controllers';
 import { getServer } from '../controllers/server-controllers';
 import {
@@ -157,8 +166,9 @@ const apiRoutes: Route[] = [
   createRoute(updateFarmList),
   createRoute(deleteFarmList),
   createRoute(addTileToFarmList),
+  createRoute(cloneFarmList),
   createRoute(removeTileFromFarmList),
-  createRoute(renameFarmList),
+  createRoute(removeTileFromAllPlayerFarmLists),
 
   // Preferences
   createRoute(getPreferences),
@@ -167,7 +177,7 @@ const apiRoutes: Route[] = [
   // Events
   createRoute(createNewEvents),
   createRoute(cancelConstructionEvent),
-
+  createRoute(cancelUnitImprovementEvent),
   // Players
   createRoute(getMe),
   createRoute(getPlayerBySlug),
@@ -197,8 +207,17 @@ const apiRoutes: Route[] = [
   createRoute(getBookmarks),
   createRoute(updateBookmark),
 
+  // Reports
+  createRoute(getMyReports),
+  createRoute(updateReport),
+  createRoute(deleteReport),
+  createRoute(getUnreadReportCount),
+
   // Bonus Finder
   createRoute(getTilesWithBonuses),
+
+  // Animal Finder
+  createRoute(getOasesWithAnimals),
 
   // Statistics
   createRoute(getPlayerRankings),

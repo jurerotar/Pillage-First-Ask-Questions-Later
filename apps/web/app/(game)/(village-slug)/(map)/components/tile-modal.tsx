@@ -48,7 +48,7 @@ const TileModalResources = ({ tile }: TileModalResourcesProps) => {
   );
 
   return (
-    <div className="flex justify-start text-sm">
+    <div className="flex gap-2 justify-start text-sm">
       <Resources
         iconClassName="size-4"
         resources={resources}

@@ -171,7 +171,9 @@ export const BuildingCost = () => {
               })
             : t('Building construction cost')}
         </Text>
-        <Resources resources={nextLevelResourceCost} />
+        <div className="flex gap-2">
+          <Resources resources={nextLevelResourceCost} />
+        </div>
       </section>
       <section className="flex flex-col flex-wrap gap-2 pt-2 border-t border-border justify-center">
         <Text as="h3">

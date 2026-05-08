@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { FaDiscord, FaUsers } from 'react-icons/fa6';
-import { useDiscordMembers } from 'app/(public)/hooks/use-discord-members.ts';
+import { useDiscordMembers } from 'app/(public)/hooks/use-discord-members';
 import { Button } from 'app/components/ui/button';
 
 type DiscordButtonProps = {

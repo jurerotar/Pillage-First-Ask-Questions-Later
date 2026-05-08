@@ -24,20 +24,22 @@ const localizedPagesToPrerender = locales.flatMap((locale) => {
   return publicPagesToPrerender.map((page) => `/${locale}${page}`);
 });
 
+const prerenderPaths = [
+  ...publicPagesToPrerender,
+  ...localizedPagesToPrerender,
+  '/__spa-preload',
+];
+
 const reactRouterConfig: Config = {
   ssr: false,
+  subResourceIntegrity: false,
   prerender: {
-    unstable_concurrency: 4,
-    paths: [
-      ...publicPagesToPrerender,
-      ...localizedPagesToPrerender,
-      '/__spa-preload',
-    ],
+    concurrency: 1,
+    paths: prerenderPaths,
   },
   future: {
     v8_middleware: true,
     unstable_optimizeDeps: true,
-    unstable_subResourceIntegrity: false,
     v8_viteEnvironmentApi: true,
     v8_splitRouteModules: 'enforce',
   },

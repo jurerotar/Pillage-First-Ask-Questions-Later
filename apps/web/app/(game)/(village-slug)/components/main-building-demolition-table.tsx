@@ -2,7 +2,7 @@ import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider.tsx';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import {
   Table,
   TableBody,

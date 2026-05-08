@@ -14,7 +14,10 @@ import type { Resolver } from '../../types/resolver';
 import { updateHeroEffectsVillageIdQuery } from '../../utils/queries/effect-queries';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
-import { onHeroDeath } from './utils/hero';
+import {
+  createHeroHealthRegenerationEventByVillageId,
+  onHeroDeath,
+} from './utils/hero';
 import { assessAdventureCountQuestCompletion } from './utils/quests';
 import { addTroops } from './utils/troops';
 
@@ -83,6 +86,14 @@ export const adventureMovementResolver: Resolver<
   });
 
   assessAdventureCountQuestCompletion(database, resolvesAt);
+
+  if (health < 100) {
+    createHeroHealthRegenerationEventByVillageId(
+      database,
+      villageId,
+      resolvesAt,
+    );
+  }
 
   createEvents<'troopMovementReturn'>(database, {
     villageId,

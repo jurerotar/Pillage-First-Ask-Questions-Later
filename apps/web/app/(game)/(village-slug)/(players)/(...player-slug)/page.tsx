@@ -44,12 +44,6 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
     return summedPopulation;
   }, [playerVillages]);
 
-  const sortedPlayerVillages = useMemo(() => {
-    return playerVillages.toSorted((prevVillage, nextVillage) => {
-      return nextVillage.population - prevVillage.population;
-    });
-  }, [playerVillages]);
-
   return (
     <>
       <title>{title}</title>
@@ -143,7 +137,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedPlayerVillages.map(
+              {playerVillages.map(
                 ({
                   id,
                   name,
@@ -175,13 +169,15 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
                     </TableCell>
                     <TableCell>
                       <Text>
-                        <Resources
-                          className="justify-center"
-                          iconClassName="size-4"
-                          resources={parseResourcesFromRFC(
-                            resourceFieldComposition,
-                          )}
-                        />
+                        <span className="inline-flex gap-2">
+                          <Resources
+                            className="justify-center"
+                            iconClassName="size-4"
+                            resources={parseResourcesFromRFC(
+                              resourceFieldComposition,
+                            )}
+                          />
+                        </span>
                       </Text>
                     </TableCell>
                   </TableRow>

@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { FaBookBookmark } from 'react-icons/fa6';
 import { LuAnvil, LuConstruction, LuFlag } from 'react-icons/lu';
 import { TbTargetArrow } from 'react-icons/tb';
+import type { z } from 'zod';
+import type { eventsHistoryItemDtoSchema } from '@pillage-first/types/dtos/history';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import { EventFilters } from 'app/(game)/(village-slug)/(events)/components/event-filters';
 import { useEventFilters } from 'app/(game)/(village-slug)/(events)/hooks/use-event-filters';
@@ -13,7 +15,7 @@ import {
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import {
-  type HistoryEvent,
+  type HistoryEventType,
   useEventsHistory,
 } from 'app/(game)/(village-slug)/hooks/use-events-history';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
@@ -38,7 +40,7 @@ import {
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 type EventsListTableIconProps = {
-  type: HistoryEvent['type'];
+  type: HistoryEventType;
 };
 
 const EventsListTableIcon = ({ type }: EventsListTableIconProps) => {
@@ -64,7 +66,7 @@ const EventsListTableIcon = ({ type }: EventsListTableIconProps) => {
 type EventsListProps = {
   scope: 'village' | 'global';
   page: number;
-  eventFilters: HistoryEvent['type'][];
+  eventFilters: HistoryEventType[];
   handlePageChange: (newPage: number | ((prev: number) => number)) => void;
 };
 
@@ -84,7 +86,9 @@ const EventsList = ({
     return new Map(playerVillages.map((v) => [v.id, v.name]));
   }, [playerVillages]);
 
-  const formatEventData = (event: HistoryEvent) => {
+  const formatEventData = (
+    event: z.infer<typeof eventsHistoryItemDtoSchema>,
+  ) => {
     const { type, data } = event;
 
     switch (type) {

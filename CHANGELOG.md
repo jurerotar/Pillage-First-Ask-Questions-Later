@@ -1,3 +1,74 @@
+## Version 0.4.18
+
+#### May 8, 2026
+
+* [TechnicalImprovement] We reworked how communication between threads works, enabling complete type safety. Previously,
+  we had no way to guarantee that the data we pass between threads is actually correct, without just manually testing
+  it. This caused issues during refactors, since any missing argument/parameter isn't actually caught during
+  lint/type-check and had to be manually validated to be working.
+
+## Version 0.4.17
+
+#### May 6, 2026
+
+* [Feature] Introduced stacked tabs layout on desktop devices.
+* [Feature] Split Rally Point's Troop movements tab in to a Troop movements tab & Stationed units tab.
+
+## Version 0.4.16
+
+#### May 5, 2026
+
+* [Performance] Removed unnecessary sorting operations on player, building details & quests pages.
+
+## Version 0.4.15
+
+#### May 5, 2026
+
+* [Feature] Expanded NPC village templates. NPC villages will now be created with more buildings and higher population.
+
+## Version 0.4.14
+
+#### May 4, 2026
+
+* [BugFix] Minor CSS overflow fixes.
+
+## Version 0.4.13
+
+#### May 1, 2026
+
+* [Feature] Added `Oasis animal finder` page. Oasis animal finder page allows you to search for all oasis with a
+  specific combination of animals present. For each selected animal type, you can set a minimum amount of animals of
+  that type that must be present in the oasis, allowing oyu to further narrow down the search. Oasis animal finder is
+  accessible through the map page.
+
+## Version 0.4.12
+
+#### Apr 29, 2026
+
+* [Performance] Optimized background event generation. This update speeds up simulating of past events by 4-6x on game
+  worlds, inactive by more than 10 days.
+
+## Version 0.4.11
+
+#### Apr 29, 2026
+
+* [Feature] Added the ability to cancel unit improvements.
+* [Feature] Added a confirmation modal for cancelling unit improvements.
+* [BugFix] Fixed an incorrectly calculated cost for unit improvements.
+
+## Version 0.4.10
+
+#### Apr 25, 2026
+
+fix: building downgrade fixes
+
+* [Feature] Added a table of current ongoing demolishments to "Demolish buildings" tab of Village management.
+* [Feature] Added a confirmation modal with details of what will happen, if you confirm downgrading or demolishing
+  buildings.
+* [BugFix] Building overview & building field tooltip will now properly display "Currently downgrading to level x", if
+  building is being downgraded.
+* [BugFix] Toast notifications will now properly say "Building was downgraded to level x".
+
 ## Version 0.4.9
 
 #### Apr 23, 2026
@@ -9,7 +80,8 @@
 
 #### Apr 20, 2026
 
-* [BugFix] Fixed a Zod type issue occurring on Hero's Mansion page when NPC players are occupying an oasis in your vicinity.
+* [BugFix] Fixed a Zod type issue occurring on Hero's Mansion page when NPC players are occupying an oasis in your
+  vicinity.
 
 ## Version 0.4.7
 

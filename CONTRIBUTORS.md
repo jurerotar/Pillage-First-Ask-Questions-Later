@@ -16,3 +16,4 @@ I am grateful to our contributors for dedicating their time and effort in to mak
 * [AllNineAliens](https://github.com/AllNineAliens)
 * [n-cybergypsy](https://github.com/n-cybergypsy)
 * [Baritasse](https://github.com/Baritasse)
+* [erayzeki](https://github.com/erayzeki)
