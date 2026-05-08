@@ -17,5 +17,6 @@ export const getResearchedUnits = createController(
     bind: { $village_id: villageId },
     schema: getResearchedUnitsRowSchema,
   });
+
   return rows.map(mapResearchedUnitRowToDto);
 });

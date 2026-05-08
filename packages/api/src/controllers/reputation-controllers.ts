@@ -17,5 +17,6 @@ export const getReputations = createController(
     },
     schema: getReputationsRowSchema,
   });
+
   return rows.map(mapReputationRowToDto);
 });
