@@ -95,9 +95,11 @@ type SuccessResponseFor<TOperation> = TOperation extends {
       ? InferOutputSchema<JsonSchemaFor<TOperation, '200'>>
       : '201' extends keyof TResponses
         ? InferOutputSchema<JsonSchemaFor<TOperation, '201'>>
-        : '204' extends keyof TResponses
-          ? undefined
-          : never
+        : '202' extends keyof TResponses
+          ? InferOutputSchema<JsonSchemaFor<TOperation, '202'>>
+          : '204' extends keyof TResponses
+            ? undefined
+            : never
     : never
   : never;
 
@@ -176,6 +178,17 @@ const buildPath = <TOperation>(
 
   for (const [key, value] of Object.entries(options.query)) {
     if (value == null) {
+      continue;
+    }
+
+    // Properly serialize arrays as repeated query params (e.g., ?types=a&types=b)
+    if (Array.isArray(value)) {
+      for (const v of value) {
+        if (v == null) {
+          continue;
+        }
+        searchParams.append(key, String(v));
+      }
       continue;
     }
 

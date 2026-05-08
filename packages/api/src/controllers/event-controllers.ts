@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game-assets/utils/buildings';
 import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Unit } from '@pillage-first/types/models/unit';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {
@@ -19,6 +19,7 @@ import {
 } from '../utils/zod/event-schemas';
 import { createEvents } from './utils/create-event';
 import { getEventStartTime } from './utils/events';
+
 export const getVillageEvents = createController('/villages/:villageId/events')(
   ({ database, path: { villageId } }) => {
     const rows = database.selectObjects({
@@ -28,6 +29,7 @@ export const getVillageEvents = createController('/villages/:villageId/events')(
       },
       schema: baseEventRowSchema,
     });
+
     return rows.map(mapEventRowToTypedEvent);
   },
 );
@@ -43,6 +45,7 @@ export const getVillageEventsByType = createController(
       },
       schema: baseEventRowSchema,
     });
+
     return rows.map(mapEventRowToTypedEvent);
   }
 
@@ -54,6 +57,7 @@ export const getVillageEventsByType = createController(
       },
       schema: baseEventRowSchema,
     });
+
     return rows.map(mapEventRowToTypedEvent);
   }
 
@@ -65,6 +69,7 @@ export const getVillageEventsByType = createController(
     },
     schema: baseEventRowSchema,
   });
+
   return rows.map(mapEventRowToTypedEvent);
 });
 
@@ -87,6 +92,7 @@ export const cancelConstructionEvent = createController(
       },
       schema: baseEventRowSchema,
     });
+
     const cancelledEvent = mapEventRowToTypedEvent(
       cancelledEventRow!,
     ) as GameEvent<'buildingLevelChange'>;
@@ -189,6 +195,7 @@ export const cancelUnitImprovementEvent = createController(
       },
       schema: baseEventRowSchema,
     });
+
     const cancelledEvent = mapEventRowToTypedEvent(
       cancelledEventRow!,
     ) as GameEvent<'unitImprovement'>;
@@ -214,7 +221,7 @@ export const cancelUnitImprovementEvent = createController(
       },
       schema: z.strictObject({
         villageId: z.number(),
-        unitId: z.string() as z.ZodType<Unit['id']>,
+        unitId: unitIdSchema,
         level: z.number(),
       }),
     });
@@ -224,6 +231,7 @@ export const cancelUnitImprovementEvent = createController(
         cancelledEvent.unitId,
         cancelledEvent.level,
       );
+
       addVillageResourcesAt(
         db,
         cancelledEvent.villageId,
@@ -232,5 +240,6 @@ export const cancelUnitImprovementEvent = createController(
       );
     });
   });
+
   triggerKick();
 });
