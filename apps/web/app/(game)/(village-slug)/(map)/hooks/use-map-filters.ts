@@ -1,10 +1,10 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { MapFilters } from '@pillage-first/types/models/map-filters';
+import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { mapFiltersCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
-import { useMe } from '../../hooks/use-me';
 
 type UpdateMapFiltersArgs = {
   filterName: keyof MapFilters;

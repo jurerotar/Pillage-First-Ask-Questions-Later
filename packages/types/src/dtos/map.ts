@@ -4,7 +4,7 @@ import { factionSchema } from '../models/faction';
 import { resourceSchema } from '../models/resource';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
 import { tribeSchema } from '../models/tribe';
-import { unitIdSchema } from '../models/unit.ts';
+import { unitIdSchema } from '../models/unit';
 
 export const mapOwnerDtoSchema = z.strictObject({
   id: z.number(),

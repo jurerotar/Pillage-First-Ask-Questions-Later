@@ -4,7 +4,7 @@ import type {
   Hero,
   HeroResourceToProduce,
 } from '@pillage-first/types/models/hero';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   currentVillageCacheKey,
   effectsCacheKey,

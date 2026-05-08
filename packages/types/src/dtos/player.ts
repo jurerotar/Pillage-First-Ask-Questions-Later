@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
-import { unitIdSchema } from '../models/unit.ts';
+import { unitIdSchema } from '../models/unit';
 
 export const playerVillageDtoSchema = z.strictObject({
   id: z.number(),

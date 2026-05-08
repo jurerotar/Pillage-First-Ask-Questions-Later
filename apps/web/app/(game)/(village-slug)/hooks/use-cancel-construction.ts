@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { use } from 'react';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   currentVillageCacheKey,
   eventsCacheKey,

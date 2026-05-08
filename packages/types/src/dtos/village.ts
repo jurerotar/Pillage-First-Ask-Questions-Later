@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { buildingFieldSchema } from '../models/building-field.ts';
+import { buildingFieldSchema } from '../models/building-field';
 import { coordinatesSchema } from '../models/coordinates';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
 

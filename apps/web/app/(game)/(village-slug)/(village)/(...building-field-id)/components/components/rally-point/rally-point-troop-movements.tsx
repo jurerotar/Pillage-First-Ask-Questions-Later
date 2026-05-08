@@ -6,7 +6,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination.ts';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';

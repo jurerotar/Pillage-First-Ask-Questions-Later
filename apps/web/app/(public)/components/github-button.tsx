@@ -1,5 +1,5 @@
 import { FaGithub, FaStar } from 'react-icons/fa6';
-import { useGithubStars } from 'app/(public)/hooks/use-github-stars.ts';
+import { useGithubStars } from 'app/(public)/hooks/use-github-stars';
 import { Button } from 'app/components/ui/button';
 
 type GithubButtonProps = {

@@ -12,8 +12,8 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
@@ -24,8 +24,8 @@ import {
   UnitTableWheatConsumption,
 } from 'app/(game)/components/unit-table';
 import { Text } from 'app/components/text';
-import { Pagination } from 'app/components/ui/pagination.tsx';
-import { useFilters } from 'app/hooks/use-filters.ts';
+import { Pagination } from 'app/components/ui/pagination';
+import { useFilters } from 'app/hooks/use-filters';
 
 const formatTroopAmount = (tribe: Tribe, troops: Troop[]) => {
   const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];

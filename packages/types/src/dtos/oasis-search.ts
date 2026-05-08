@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
 import { resourceSchema } from '../models/resource';
-import { resourceFieldCompositionSchema } from '../models/resource-field-composition.ts';
+import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
 import { natureUnitIdSchema } from '../models/unit';
 
 export const oasisByBonusSearchResultItemDtoSchema = z

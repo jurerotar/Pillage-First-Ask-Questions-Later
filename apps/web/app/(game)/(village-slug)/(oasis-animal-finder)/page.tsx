@@ -9,7 +9,7 @@ import { z } from 'zod';
 import { natureUnits } from '@pillage-first/game-assets/units';
 import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
 import { calculateGridLayout } from '@pillage-first/utils/map';
-import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page.ts';
+import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import {
   Section,
   SectionContent,
@@ -19,7 +19,7 @@ import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { oasisAnimalFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
-import { Icon } from 'app/components/icon.tsx';
+import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
 import {
