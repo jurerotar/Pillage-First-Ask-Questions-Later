@@ -3,6 +3,7 @@ import faroRollupPlugin from '@grafana/faro-rollup-plugin';
 import mdx from '@mdx-js/rollup';
 import tailwindcss from '@tailwindcss/vite';
 import { reactIconsSprite } from 'react-icons-sprite/vite';
+import rehypeSlug from 'rehype-slug';
 import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
@@ -61,7 +62,7 @@ const viteConfig = defineViteConfig({
       mdx({
         providerImportSource: '@mdx-js/react',
         development: false,
-        include: /\.mdx$/,
+        rehypePlugins: [rehypeSlug],
       }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),

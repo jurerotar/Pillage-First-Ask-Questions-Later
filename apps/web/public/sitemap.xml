@@ -48,4 +48,25 @@
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
+
+  <url>
+    <loc>https://pillagefirst.com/wiki</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://pillagefirst.com/wiki/introduction</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://pillagefirst.com/wiki/game-world</loc>
+    <lastmod>2026-04-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

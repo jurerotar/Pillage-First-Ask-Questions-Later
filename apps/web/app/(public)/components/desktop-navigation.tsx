@@ -182,13 +182,16 @@ export const DesktopNavigation = () => {
                   icon={<PiHandshakeBold />}
                 />
               </Link>
-              <div className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors opacity-50">
+              <Link
+                to="/wiki"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+              >
                 <DropdownLinkContent
-                  label={t('Wiki (coming soon)')}
+                  label={t('Wiki')}
                   description={t('Learn about the game')}
                   icon={<GrHelpBook />}
                 />
-              </div>
+              </Link>
             </NavMenu>
 
             <NavLink to="/latest-updates">{t('Latest updates')}</NavLink>
