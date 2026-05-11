@@ -5,7 +5,14 @@ import { dirname, join, resolve } from 'node:path';
 import { load } from 'cheerio';
 import { REACT_ICONS_SPRITE_URL_PLACEHOLDER } from 'react-icons-sprite';
 import type { Config } from '@react-router/dev/config';
+import {
+  buildItemsFromChangelog,
+  parseChangelog,
+  toAtomXml,
+  toRssXml,
+} from 'app/utils/changelog';
 import { getGameRoutePaths } from 'app/utils/react-router';
+import changelog from '../../../CHANGELOG.md?raw';
 
 export const createSPAPagesWithPreloads: NonNullable<
   Config['buildEnd']
@@ -97,4 +104,45 @@ export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<
       }),
     );
   }
+};
+
+export const generateStaticFeeds: NonNullable<
+  Config['buildEnd']
+> = async () => {
+  const clientDir = resolve('build/client');
+
+  const baseUrl = 'https://pillagefirst.com';
+
+  const changelogEntries = parseChangelog(changelog);
+  const items = buildItemsFromChangelog(changelogEntries, baseUrl, 30);
+
+  const rss = toRssXml({
+    title: 'Pillage First — Latest Updates',
+    link: `${baseUrl}/latest-updates`,
+    description:
+      'Changelog feed for Pillage First — features, fixes, performance and technical improvements.',
+    language: 'en-US',
+    items,
+  });
+
+  const atom = toAtomXml({
+    id: 'urn:pillage-first:latest-updates',
+    title: 'Pillage First — Latest Updates',
+    link: `${baseUrl}/latest-updates`,
+    feedLink: `${baseUrl}/atom.xml`,
+    updated: items[0]?.pubDate ?? new Date(),
+    entries: items.map((it) => ({
+      id: it.id,
+      title: it.title,
+      link: it.link,
+      summary: it.description,
+      updated: it.pubDate,
+    })),
+  });
+
+  await mkdir(clientDir, { recursive: true });
+  await Promise.all([
+    writeFile(join(clientDir, 'rss.xml'), rss, 'utf8'),
+    writeFile(join(clientDir, 'atom.xml'), atom, 'utf8'),
+  ]);
 };
