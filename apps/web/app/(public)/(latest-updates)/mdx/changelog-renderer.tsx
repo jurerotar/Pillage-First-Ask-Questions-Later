@@ -112,7 +112,8 @@ export const ChangelogRenderer = () => {
 const buildReleaseMarkdown = (release: ChangelogEntry): string => {
   const lines: string[] = [];
 
-  lines.push(`Version ${release.version}`);
+  lines.push(`Version ${release.version} released`);
+
   lines.push(
     release.date.toLocaleDateString('en-US', {
       month: 'long',
@@ -162,6 +163,17 @@ const buildReleaseMarkdown = (release: ChangelogEntry): string => {
     }
     lines.push('');
   }
+
+  lines.push('');
+  lines.push('Links:');
+  lines.push('');
+  lines.push('* [Try it out at pillagefirst.com](https://pillagefirst.com)');
+  lines.push(
+    '* [Star us on GitHub](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later)',
+  );
+  lines.push(
+    '* [Join the community on Discord](https://discord.gg/Ep7NKVXUZA)',
+  );
 
   while (lines.length && lines[lines.length - 1] === '') {
     lines.pop();
