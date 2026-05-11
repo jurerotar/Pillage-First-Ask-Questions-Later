@@ -36,10 +36,7 @@ const renderInlineMarkdown = (text: string): string => {
   return html;
 };
 
-const releases =
-  typeof changelogRaw === 'string'
-    ? parseChangelogFromMarkdown(changelogRaw)
-    : [];
+const releases = parseChangelogFromMarkdown(changelogRaw);
 
 export const ChangelogRenderer = () => {
   if (!releases.length) {
@@ -53,16 +50,14 @@ export const ChangelogRenderer = () => {
           key={release.version}
           id={makeSectionId(release.version)}
         >
-          <h2>{release.version}</h2>
-          {release.date ? (
-            <h4>
-              {release.date.toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-              })}
-            </h4>
-          ) : null}
+          <h2>Version {release.version}</h2>
+          <h4>
+            {release.date.toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </h4>
 
           {groupOrder.map((tag) => {
             const items = release.groups[tag] ?? [];
