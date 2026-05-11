@@ -2,15 +2,14 @@ import { Activity, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BiWorld } from 'react-icons/bi';
 import { CiImport } from 'react-icons/ci';
-import { FaRegNewspaper } from 'react-icons/fa6';
+import { FaRedditAlien, FaRss } from 'react-icons/fa';
+import { FaDiscord, FaGithub, FaRegNewspaper } from 'react-icons/fa6';
 import { GrHelpBook } from 'react-icons/gr';
 import { HiOutlineMenu } from 'react-icons/hi';
 import { IoIosChatbubbles } from 'react-icons/io';
 import { IoCloseOutline, IoCreate } from 'react-icons/io5';
 import { PiHandshakeBold } from 'react-icons/pi';
 import { Link, useLocation } from 'react-router';
-import { DiscordButton } from 'app/(public)/components/discord-button';
-import { GithubButton } from 'app/(public)/components/github-button';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -161,14 +160,52 @@ export const MobileNavigation = () => {
                 <div className="border border-dashed border-border w-full" />
                 <div className="flex flex-col gap-2">
                   <Text className="text-2xs font-semibold uppercase text-muted-foreground">
-                    {t('Community')}
+                    {t('Community & support')}
                   </Text>
-                  <ul className="flex flex-col gap-2">
+                  <ul className="flex flex-wrap gap-2">
                     <li>
-                      <DiscordButton />
+                      <a
+                        href="https://discord.gg/Ep7NKVXUZA"
+                        rel="noopener nofollow"
+                        target="_blank"
+                        className="flex items-center justify-center gap-2 rounded-full bg-[#5865F2] shadow-md p-2 hover:opacity-80 transition-opacity"
+                        aria-label="Discord"
+                      >
+                        <FaDiscord className="text-2xl md:text-3xl text-white" />
+                      </a>
                     </li>
                     <li>
-                      <GithubButton />
+                      <a
+                        href="https://www.reddit.com/r/PillageFirst/"
+                        rel="noopener nofollow"
+                        target="_blank"
+                        className="flex items-center justify-center gap-2 rounded-full bg-[#ff5700] shadow-md p-2 hover:opacity-80 transition-opacity"
+                        aria-label="Reddit"
+                      >
+                        <FaRedditAlien className="text-2xl md:text-3xl text-white" />
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+                        rel="noopener nofollow"
+                        target="_blank"
+                        className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 hover:opacity-80 transition-opacity"
+                        aria-label="GitHub"
+                      >
+                        <FaGithub className="text-2xl md:text-3xl text-white" />
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://pillagefirst.com/rss.xml"
+                        rel="noopener nofollow"
+                        target="_blank"
+                        className="flex items-center justify-center gap-2 rounded-full bg-[#f26522] shadow-md p-2 hover:opacity-80 transition-opacity"
+                        aria-label="RSS"
+                      >
+                        <FaRss className="text-2xl md:text-3xl text-white" />
+                      </a>
                     </li>
                   </ul>
                 </div>
