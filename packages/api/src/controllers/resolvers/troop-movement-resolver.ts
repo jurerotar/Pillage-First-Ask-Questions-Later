@@ -119,32 +119,36 @@ export const findNewVillageMovementResolver: Resolver<
     villageId,
   } = args;
 
-  const { id: tileId } = database.selectObject({
-    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
-    bind: { $x: x, $y: y },
-    schema: z.strictObject({ id: z.number() }),
-  })!;
-
   // tileId here represents a tile_id where the new village will be founded
-  const { resourceFieldComposition, tribe } = database.selectObject({
+  const {
+    id: tileId,
+    resourceFieldComposition,
+    tribe,
+  } = database.selectObject({
     sql: `
       SELECT
+        t.id,
         rfc.resource_field_composition AS resourceFieldComposition,
         ti.tribe
       FROM
         tiles t
-          JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
+          JOIN resource_field_composition_ids rfc
+               ON t.resource_field_composition_id = rfc.id
           CROSS JOIN players p
-          JOIN tribe_ids ti ON p.tribe_id = ti.id
+          JOIN tribe_ids ti
+               ON p.tribe_id = ti.id
       WHERE
-        t.id = $tile_id
+        t.x = $x
+        AND t.y = $y
         AND p.id = $player_id;
     `,
     bind: {
-      $tile_id: tileId,
+      $x: x,
+      $y: y,
       $player_id: PLAYER_ID,
     },
     schema: z.strictObject({
+      id: z.number(),
       resourceFieldComposition: resourceFieldCompositionSchema,
       tribe: playableTribeSchema,
     }),
@@ -354,10 +358,10 @@ export const returnMovementResolver: Resolver<
     troops,
   } = args;
 
-  const { tileId: targetTileId } = database.selectObject({
-    sql: 'SELECT id AS tileId FROM tiles WHERE x = $x AND y = $y;',
+  const { id: targetTileId } = database.selectObject({
+    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
     bind: { $x: x, $y: y },
-    schema: z.strictObject({ tileId: z.number() }),
+    schema: z.strictObject({ id: z.number() }),
   })!;
 
   addTroops(
@@ -418,10 +422,10 @@ export const reinforcementMovementResolver: Resolver<
     troops,
   } = args;
 
-  const { tileId: targetTileId } = database.selectObject({
-    sql: 'SELECT id AS tileId FROM tiles WHERE x = $x AND y = $y;',
+  const { id: targetTileId } = database.selectObject({
+    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
     bind: { $x: x, $y: y },
-    schema: z.strictObject({ tileId: z.number() }),
+    schema: z.strictObject({ id: z.number() }),
   })!;
 
   addTroops(
