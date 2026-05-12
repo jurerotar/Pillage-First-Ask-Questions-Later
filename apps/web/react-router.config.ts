@@ -3,6 +3,7 @@ import { locales } from 'app/localization/i18n';
 import {
   createSPAPagesWithPreloads,
   deleteSPAPreloadPage,
+  generateStaticFeeds,
   replaceReactIconsSpritePlaceholdersOnPreRenderedPages,
 } from './scripts/react-router-build-end-hook-scripts';
 
@@ -44,6 +45,7 @@ const reactRouterConfig: Config = {
     await createSPAPagesWithPreloads(args);
     await replaceReactIconsSpritePlaceholdersOnPreRenderedPages(args);
     await deleteSPAPreloadPage(args);
+    await generateStaticFeeds(args);
   },
 };
 

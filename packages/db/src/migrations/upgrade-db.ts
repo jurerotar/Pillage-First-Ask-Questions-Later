@@ -48,5 +48,19 @@ export const upgradeDb = (database: DbFacade): void => {
           )
       `,
     });
+
+    // Normalize legacy village_founding_history timestamps from milliseconds to seconds
+    // Some historical rows were inserted by JS in milliseconds. Since triggers now set
+    // timestamps via unixepoch() (seconds), convert any ms values at rest.
+    db.exec({
+      sql: `
+        UPDATE village_founding_history
+        SET timestamp = CASE
+          WHEN timestamp > 2000000000 THEN CAST(timestamp / 1000 AS INTEGER)
+          ELSE timestamp
+        END
+        WHERE timestamp > 2000000000;
+      `,
+    });
   });
 };

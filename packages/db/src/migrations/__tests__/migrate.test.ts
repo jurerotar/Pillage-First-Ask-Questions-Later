@@ -294,6 +294,38 @@ describe('migrateAndSeed', () => {
       // The generator uses that formula; assert equality so seeder didn't accidentally change counts.
       expect(actualCount).toBe(expectedTotalPlayers);
     });
+
+    test('all NPC reputation tiers (by faction) are represented by at least one player', () => {
+      // Get the player's faction_id
+      const playerFactionId = database.selectValue({
+        sql: 'SELECT faction_id FROM players WHERE id = $player_id;',
+        bind: { $player_id: PLAYER_ID },
+        schema: z.number(),
+      })!;
+
+      // All target factions that have a defined reputation vs the player faction
+      const targetFactionIds = database.selectValues({
+        sql: `
+          SELECT target_faction_id
+          FROM faction_reputation
+          WHERE source_faction_id = $src
+        `,
+        bind: { $src: playerFactionId },
+        schema: z.number(),
+      });
+
+      expect(targetFactionIds.length).toBeGreaterThan(0);
+
+      // Ensure there is at least one NPC player for each target faction
+      for (const tfid of targetFactionIds) {
+        const cnt = database.selectValue({
+          sql: 'SELECT COUNT(*) AS c FROM players WHERE faction_id = $fid AND id != $player_id;',
+          bind: { $fid: tfid, $player_id: PLAYER_ID },
+          schema: z.number(),
+        });
+        expect(cnt).toBeGreaterThan(0);
+      }
+    });
   });
 
   describe('developer settings', () => {
@@ -749,6 +781,24 @@ describe('migrateAndSeed', () => {
         schema: z.number(),
       });
       expect(c).toBeGreaterThan(0);
+    });
+
+    test('all available tribes exist in tribe_ids', () => {
+      // Available tribes exclude special/non-playable ones
+      const expectedTribes = tribeSchema.exclude([
+        'spartans',
+        'nature',
+      ]).options;
+
+      const tribesInDb = database.selectValues({
+        sql: 'SELECT tribe FROM tribe_ids;',
+        schema: z.string(),
+      });
+
+      // Ensure every expected tribe is present at least once
+      for (const t of expectedTribes) {
+        expect(tribesInDb).toContain(t);
+      }
     });
 
     test('unit_ids seeded (>0)', () => {
