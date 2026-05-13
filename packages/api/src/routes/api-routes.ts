@@ -74,6 +74,7 @@ import {
   getTroopsByVillage,
   relocateReinforcements,
   renameVillage,
+  returnReinforcements,
 } from '../controllers/player-controllers';
 import {
   getPreferences,
@@ -193,6 +194,7 @@ const apiRoutes: Route[] = [
   createRoute(getVillageEventsByType),
   createRoute(renameVillage),
   createRoute(relocateReinforcements),
+  createRoute(returnReinforcements),
   createRoute(occupyOasis),
   createRoute(abandonOasis),
   createRoute(getOccupiableOasisInRange),

@@ -105,10 +105,34 @@ export const useVillageTroops = () => {
     },
   });
 
+  const { mutate: returnReinforcements } = useMutation({
+    mutationFn: async ({
+      sourceTileId,
+      troops,
+    }: RelocateReinforcementsArgs) => {
+      await apiClient.post('/villages/:villageId/return-reinforcements', {
+        path: {
+          villageId: currentVillage.id,
+        },
+        body: {
+          sourceTileId,
+          troops,
+        },
+      });
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [villageTroopsCacheKey, currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.id],
+      ]);
+    },
+  });
+
   return {
     villageTroops,
     sendTroops,
     relocateReinforcements,
+    returnReinforcements,
     getDeployableTroops,
   };
 };

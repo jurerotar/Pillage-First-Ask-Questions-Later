@@ -10,6 +10,7 @@ import {
   getTroopsByVillage,
   relocateReinforcements,
   renameVillage,
+  returnReinforcements,
 } from '../player-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -277,6 +278,132 @@ describe('player-controllers', () => {
     expect(sourceReinforcementAmount).toBe(6);
     expect(villageTroopsAmount).toBe(4);
     expect(sourceVillageId).toBeGreaterThan(0);
+  });
+
+  test('returnReinforcements should create return event and remove troops from reinforcements', async () => {
+    const database = await prepareTestDatabase();
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const sourceTileId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM tiles
+        WHERE id != $target_tile_id
+          AND id NOT IN (SELECT tile_id FROM villages)
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $target_tile_id: targetVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    database.selectValue({
+      sql: `
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES ($name, $slug, $tile_id, $player_id)
+        RETURNING id
+      `,
+      bind: {
+        $name: 'Return Source Village',
+        $slug: `return-source-${Date.now()}`,
+        $tile_id: sourceTileId,
+        $player_id: playerId,
+      },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          $amount
+        )
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+        $amount: 10,
+      },
+    });
+
+    returnReinforcements(
+      database,
+      createControllerArgs<
+        '/villages/:villageId/return-reinforcements',
+        'post'
+      >({
+        path: { villageId: targetVillage.id },
+        body: {
+          sourceTileId,
+          troops: [{ unitId: 'LEGIONNAIRE', amount: 4 }],
+        },
+      }),
+    );
+
+    const sourceReinforcementAmount = database.selectValue({
+      sql: `
+        SELECT t.amount
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit = 'LEGIONNAIRE'
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+      },
+      schema: z.number().nullable(),
+    });
+
+    const returnEvent = database.selectObject({
+      sql: `
+        SELECT
+          type,
+          JSON_EXTRACT(meta, '$.troops[0].unitId') AS unit_id,
+          JSON_EXTRACT(meta, '$.troops[0].amount') AS amount,
+          JSON_EXTRACT(meta, '$.originCoordinates.x') AS origin_x,
+          JSON_EXTRACT(meta, '$.targetCoordinates.x') AS target_x,
+          JSON_EXTRACT(meta, '$.originalMovementType') AS original_movement_type
+        FROM events
+        WHERE type = 'troopMovementReturn'
+        ORDER BY id DESC
+        LIMIT 1
+      `,
+      schema: z.strictObject({
+        type: z.string(),
+        unit_id: z.string(),
+        amount: z.number(),
+        origin_x: z.number(),
+        target_x: z.number(),
+        original_movement_type: z.string(),
+      }),
+    })!;
+
+    expect(sourceReinforcementAmount).toBe(6);
+    expect(returnEvent).not.toBeNull();
+    expect(returnEvent.type).toBe('troopMovementReturn');
+    expect(returnEvent.unit_id).toBe('LEGIONNAIRE');
+    expect(returnEvent.amount).toBe(4);
+    expect(returnEvent.origin_x).not.toBe(returnEvent.target_x);
+    expect(returnEvent.original_movement_type).toBe(
+      'troopMovementReturnReinforcements',
+    );
   });
 
   test('relocateReinforcements should relocate hero and update hero effects village', async () => {

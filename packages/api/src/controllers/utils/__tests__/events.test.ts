@@ -1381,6 +1381,7 @@ describe('events utils', () => {
       vi.setSystemTime(new Date(now));
 
       const event = createGameEventMock('troopMovementReturn', {
+        originalMovementType: 'troopMovementReturnReinforcements',
         startsAt: 2000,
         duration: 1000,
       });

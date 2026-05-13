@@ -73,7 +73,10 @@ export const isReturnTroopMovementEvent = (
 export const isManuallyTriggeredReturnTroopMovementEvent = (
   event: GameEvent,
 ): event is GameEvent<'troopMovementReturn'> => {
-  return isReturnTroopMovementEvent(event) && !event.originalMovementType;
+  return (
+    isReturnTroopMovementEvent(event) &&
+    event.originalMovementType === 'troopMovementReturnReinforcements'
+  );
 };
 
 export const isFindNewVillageTroopMovementEvent = (

@@ -1728,6 +1728,36 @@ export const paths = {
       },
     },
   },
+  '/villages/:villageId/return-reinforcements': {
+    post: {
+      summary: 'Return reinforcements to source village',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              sourceTileId: z.number(),
+              troops: z.array(
+                z.strictObject({
+                  unitId: unitIdSchema,
+                  amount: z.number(),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Reinforcements return started',
+        },
+      },
+    },
+  },
   '/players/:playerId/reports': {
     get: {
       summary: 'Get my reports',

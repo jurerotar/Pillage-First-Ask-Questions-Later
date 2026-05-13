@@ -72,7 +72,9 @@ export type TroopMovementEventType = Extract<
 >;
 
 export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
-  originalMovementType: TroopMovementEventType;
+  originalMovementType:
+    | TroopMovementEventType
+    | 'troopMovementReturnReinforcements';
 };
 
 export const gameEventTypeSchema = z.enum([

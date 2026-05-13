@@ -7,7 +7,6 @@ import {
 } from '@pillage-first/game-assets/utils/units';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop } from '@pillage-first/types/models/troop';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Button } from 'app/components/ui/button';
@@ -44,9 +43,8 @@ export const ReturnReinforcementsModal = ({
   troops,
 }: ReturnReinforcementsModalProps) => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
-  const { sendTroops } = useVillageTroops();
+  const { returnReinforcements } = useVillageTroops();
   const sourceVillage = playerVillages.find(
     (village) => village.tileId === sourceTileId,
   );
@@ -127,21 +125,13 @@ export const ReturnReinforcementsModal = ({
       return;
     }
 
-    sendTroops(
+    returnReinforcements(
       {
-        villageId: sourceVillage.id,
-        originCoordinates: sourceVillage.coordinates,
-        type: 'troopMovementReturn',
         troops: selectedTroops.map(({ unitId, selected }) => ({
           unitId,
           amount: selected,
-          tileId: currentVillage.tileId,
-          source: sourceTileId,
         })),
-        targetCoordinates: {
-          x: pendingReturnData.target.x,
-          y: pendingReturnData.target.y,
-        },
+        sourceTileId,
       },
       {
         onSuccess: () => {

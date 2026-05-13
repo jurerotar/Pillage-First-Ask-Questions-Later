@@ -19,14 +19,28 @@ export const validateTroopMovementLogic = (
 ): string[] => {
   const troopMovementEvent = event as TroopMovementEvent;
 
-  if (
-    isAdventureTroopMovementEvent(troopMovementEvent) ||
-    isReturnTroopMovementEvent(troopMovementEvent)
-  ) {
+  const errors: string[] = [];
+
+  if (isReturnTroopMovementEvent(troopMovementEvent)) {
     return [];
   }
 
-  const errors: string[] = [];
+  if (isAdventureTroopMovementEvent(troopMovementEvent)) {
+    const hasAvailableAdventure = database.selectValue({
+      sql: `
+        SELECT
+          available >= 1 AS has_available_adventure
+        FROM
+          hero_adventures
+        LIMIT 1;
+      `,
+      schema: z.coerce.boolean(),
+    });
+
+    if (!hasAvailableAdventure) {
+      return ['Hero has no available adventures'];
+    }
+  }
 
   const {
     targetCoordinates: { x, y },

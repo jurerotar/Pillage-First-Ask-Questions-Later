@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createController } from '../utils/controller';
 import {
   mapPlayerVillage,
@@ -13,6 +14,7 @@ import {
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
 } from './schemas/player-schemas';
+import { createEvents } from './utils/create-event';
 
 export const getMe = createController('/players/me')(({ database }) => {
   return database.selectObject({
@@ -145,6 +147,86 @@ export const renameVillage = createController(
   });
 });
 
+const decrementReinforcementsFromVillage = (
+  db: DbFacade,
+  {
+    currentVillageTile,
+    sourceTileId,
+    troops,
+  }: {
+    currentVillageTile: number;
+    sourceTileId: number;
+    troops: Array<{ unitId: string; amount: number }>;
+  },
+) => {
+  for (const troop of troops) {
+    const availableAmount = db.selectValue({
+      sql: `
+          SELECT amount
+          FROM troops t
+            JOIN unit_ids ui ON ui.id = t.unit_id
+          WHERE
+            t.tile_id = $tile_id
+            AND t.source_tile_id = $source_tile_id
+            AND ui.unit = $unit_id
+          LIMIT 1
+        `,
+      bind: {
+        $tile_id: currentVillageTile,
+        $source_tile_id: sourceTileId,
+        $unit_id: troop.unitId,
+      },
+      schema: z.number().nullable(),
+    });
+
+    if (!availableAmount || availableAmount < troop.amount) {
+      throw new Error('Not enough troops available for relocation');
+    }
+
+    db.exec({
+      sql: `
+          UPDATE troops
+          SET amount = amount - $amount
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (
+              SELECT id
+              FROM unit_ids
+              WHERE unit = $unit_id
+            )
+            AND amount >= $amount
+        `,
+      bind: {
+        $tile_id: currentVillageTile,
+        $source_tile_id: sourceTileId,
+        $unit_id: troop.unitId,
+        $amount: troop.amount,
+      },
+    });
+
+    db.exec({
+      sql: `
+          DELETE FROM troops
+          WHERE
+            tile_id = $tile_id
+            AND source_tile_id = $source_tile_id
+            AND unit_id = (
+              SELECT id
+              FROM unit_ids
+              WHERE unit = $unit_id
+            )
+            AND amount = 0
+        `,
+      bind: {
+        $tile_id: currentVillageTile,
+        $source_tile_id: sourceTileId,
+        $unit_id: troop.unitId,
+      },
+    });
+  }
+};
+
 export const relocateReinforcements = createController(
   '/villages/:villageId/relocate-reinforcements',
   'post',
@@ -167,65 +249,18 @@ export const relocateReinforcements = createController(
         $village_id: villageId,
       },
       schema: z.strictObject({
-        sourceVillageId: z.number().nullable(),
+        sourceVillageId: z.number(),
         currentVillageTile: z.number(),
       }),
     })!;
 
-    if (!currentVillageTile) {
-      throw new Error('Village not found');
-    }
-
-    if (!sourceVillageId) {
-      throw new Error('Source village not found');
-    }
+    decrementReinforcementsFromVillage(db, {
+      currentVillageTile,
+      sourceTileId,
+      troops,
+    });
 
     for (const troop of troops) {
-      const availableAmount = db.selectValue({
-        sql: `
-          SELECT amount
-          FROM troops t
-            JOIN unit_ids ui ON ui.id = t.unit_id
-          WHERE
-            t.tile_id = $tile_id
-            AND t.source_tile_id = $source_tile_id
-            AND ui.unit = $unit_id
-          LIMIT 1
-        `,
-        bind: {
-          $tile_id: currentVillageTile,
-          $source_tile_id: sourceTileId,
-          $unit_id: troop.unitId,
-        },
-        schema: z.number().nullable(),
-      });
-
-      if (!availableAmount || availableAmount < troop.amount) {
-        throw new Error('Not enough troops available for relocation');
-      }
-
-      db.exec({
-        sql: `
-          UPDATE troops
-          SET amount = amount - $amount
-          WHERE
-            tile_id = $tile_id
-            AND source_tile_id = $source_tile_id
-            AND unit_id = (
-              SELECT id
-              FROM unit_ids
-              WHERE unit = $unit_id
-            )
-            AND amount >= $amount
-        `,
-        bind: {
-          $tile_id: currentVillageTile,
-          $source_tile_id: sourceTileId,
-          $unit_id: troop.unitId,
-          $amount: troop.amount,
-        },
-      });
-
       db.exec({
         sql: `
           INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
@@ -250,31 +285,87 @@ export const relocateReinforcements = createController(
           $amount: troop.amount,
         },
       });
-
-      db.exec({
-        sql: `
-          DELETE FROM troops
-          WHERE
-            tile_id = $tile_id
-            AND source_tile_id = $source_tile_id
-            AND unit_id = (
-              SELECT id
-              FROM unit_ids
-              WHERE unit = $unit_id
-            )
-            AND amount = 0
-        `,
-        bind: {
-          $tile_id: currentVillageTile,
-          $source_tile_id: sourceTileId,
-          $unit_id: troop.unitId,
-        },
-      });
     }
 
     if (troops.some(({ unitId }) => unitId === 'HERO')) {
       relocateHero(db, sourceVillageId, villageId, Date.now());
     }
+  });
+});
+
+export const returnReinforcements = createController(
+  '/villages/:villageId/return-reinforcements',
+  'post',
+)(({ database, path: { villageId }, body: { sourceTileId, troops } }) => {
+  database.transaction((db) => {
+    const {
+      sourceVillageId,
+      currentVillageTile,
+      currentVillageX,
+      currentVillageY,
+      sourceVillageX,
+      sourceVillageY,
+    } = db.selectObject({
+      sql: `
+        SELECT
+          (
+            SELECT id
+            FROM villages
+            WHERE tile_id = $source_tile_id
+          ) AS sourceVillageId,
+          v.tile_id AS currentVillageTile,
+          ct.x AS currentVillageX,
+          ct.y AS currentVillageY,
+          st.x AS sourceVillageX,
+          st.y AS sourceVillageY
+        FROM villages v
+          JOIN tiles ct ON ct.id = v.tile_id
+          LEFT JOIN tiles st ON st.id = $source_tile_id
+        WHERE v.id = $village_id
+      `,
+      bind: {
+        $source_tile_id: sourceTileId,
+        $village_id: villageId,
+      },
+      schema: z.strictObject({
+        sourceVillageId: z.number(),
+        currentVillageTile: z.number(),
+        currentVillageX: z.number(),
+        currentVillageY: z.number(),
+        sourceVillageX: z.number(),
+        sourceVillageY: z.number(),
+      }),
+    })!;
+
+    if (sourceVillageX === null || sourceVillageY === null) {
+      throw new Error('Source village tile not found');
+    }
+
+    decrementReinforcementsFromVillage(db, {
+      currentVillageTile,
+      sourceTileId,
+      troops,
+    });
+
+    createEvents<'troopMovementReturn'>(db, {
+      type: 'troopMovementReturn',
+      villageId: sourceVillageId,
+      originalMovementType: 'troopMovementReturnReinforcements',
+      troops: troops.map((troop) => ({
+        ...troop,
+        source: sourceTileId,
+        tileId: sourceTileId,
+      })),
+      startsAt: Date.now(),
+      originCoordinates: {
+        x: currentVillageX,
+        y: currentVillageY,
+      },
+      targetCoordinates: {
+        x: sourceVillageX,
+        y: sourceVillageY,
+      },
+    });
   });
 });
 
