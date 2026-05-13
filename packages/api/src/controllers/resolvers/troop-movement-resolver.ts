@@ -340,7 +340,8 @@ export const findNewVillageMovementResolver: Resolver<
       $tile_id: tileId,
       $x: x,
       $y: y,
-      $timestamp: resolvesAt,
+      // JS stores values in ms, other history table triggers store it in seconds
+      $timestamp: Math.trunc(resolvesAt / 1000),
     },
   });
 };

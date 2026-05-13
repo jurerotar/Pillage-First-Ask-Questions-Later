@@ -22,7 +22,7 @@ import type {
 import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { Text } from 'app/components/text';
-import { Alert } from 'app/components/ui/alert.tsx';
+import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
 import {
   Form,

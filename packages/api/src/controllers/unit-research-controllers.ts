@@ -1,10 +1,11 @@
 import { createController } from '../utils/controller';
-import { getResearchedUnitsSchema } from './schemas/unit-research-schemas';
+import { mapResearchedUnitRowToDto } from './mappers/unit-mapper';
+import { getResearchedUnitsRowSchema } from './schemas/unit-research-schemas';
 
 export const getResearchedUnits = createController(
   '/villages/:villageId/researched-units',
 )(({ database, path: { villageId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT ui.unit AS unit_id, ur.village_id
       FROM
@@ -14,6 +15,8 @@ export const getResearchedUnits = createController(
         ur.village_id = $village_id;
     `,
     bind: { $village_id: villageId },
-    schema: getResearchedUnitsSchema,
+    schema: getResearchedUnitsRowSchema,
   });
+
+  return rows.map(mapResearchedUnitRowToDto);
 });

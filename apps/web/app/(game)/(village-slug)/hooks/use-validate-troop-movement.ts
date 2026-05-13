@@ -23,7 +23,7 @@ type ValidateTroopMovementResponse = z.infer<
 >;
 
 export const useValidateTroopMovement = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { mutateAsync: validateTroopMovement } = useMutation<
     ValidateTroopMovementResponse,
@@ -31,12 +31,11 @@ export const useValidateTroopMovement = () => {
     ValidateTroopMovementArgs
   >({
     mutationFn: async (args) => {
-      const { data } = await fetcher('/troop-movements/validate', {
-        method: 'POST',
+      const { data } = await apiClient.post('/troop-movements/validate', {
         body: args,
       });
 
-      return validateTroopMovementSchema.parse(data);
+      return data;
     },
   });
 

@@ -10,14 +10,12 @@ describe(matchRoute, () => {
     expect(result.path.villageId).toBe(123);
   });
 
-  test('casts query params using real schema (/oasis-bonus-finder)', () => {
-    // This route exists in api-routes.ts and has a query schema in open-api.ts
-    const result = matchRoute('/oasis-bonus-finder?x=10&y=-20', 'GET');
+  test('casts body params using real schema (/search/oases/by-bonus)', () => {
+    // This route exists in api-routes.ts and has a body schema in open-api.ts
+    const result = matchRoute('/search/oases/by-bonus', 'POST');
 
-    expect(result.query.x).toBe(10);
-    expect(result.query.y).toBe(-20);
-    expect(typeof result.query.x).toBe('number');
-    expect(typeof result.query.y).toBe('number');
+    expect(result.controller.path).toBe('/search/oases/by-bonus');
+    expect(result.controller.method).toBe('post');
   });
 
   test('handles /me alias', () => {

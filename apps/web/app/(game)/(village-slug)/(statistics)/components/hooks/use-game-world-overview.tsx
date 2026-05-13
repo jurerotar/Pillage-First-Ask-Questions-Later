@@ -1,31 +1,17 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { z } from 'zod';
-import { factionSchema } from '@pillage-first/types/models/faction';
-import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { gameWorldOverviewStatisticsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-const gameWorldOverviewStatisticsSchema = z.strictObject({
-  playerCount: z.number(),
-  villageCount: z.number(),
-  playersByTribe: z.record(tribeSchema, z.number()),
-  playersByFaction: z.record(factionSchema, z.number()),
-  villagesByTribe: z.record(tribeSchema, z.number()),
-  villagesByFaction: z.record(factionSchema, z.number()),
-});
-
 export const useGameWorldOverview = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: gameWorldOverviewStatistics } = useSuspenseQuery({
     queryKey: [gameWorldOverviewStatisticsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/statistics/overview', {
-        method: 'GET',
-      });
+      const { data } = await apiClient.get('/statistics/overview');
 
-      return gameWorldOverviewStatisticsSchema.parse(data);
+      return data;
     },
   });
 

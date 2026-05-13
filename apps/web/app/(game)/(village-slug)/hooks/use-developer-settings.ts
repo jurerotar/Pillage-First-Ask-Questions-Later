@@ -1,10 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
-import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import {
@@ -37,7 +36,7 @@ type SpawnHeroItemArgs = {
 };
 
 export const useDeveloperSettings = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { villageSlug } = use(VillageSlugContext);
   const { hero } = useHero();
   const { currentVillage } = useCurrentVillage();
@@ -45,9 +44,9 @@ export const useDeveloperSettings = () => {
   const { data: developerSettings } = useSuspenseQuery({
     queryKey: [developerSettingsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/developer-settings');
+      const { data } = await apiClient.get('/developer-settings');
 
-      return developerSettingsSchema.parse(data);
+      return data;
     },
     staleTime: Number.POSITIVE_INFINITY,
     gcTime: Number.POSITIVE_INFINITY,
@@ -59,8 +58,10 @@ export const useDeveloperSettings = () => {
     UpdateDeveloperSettingArgs
   >({
     mutationFn: async ({ developerSettingName, value }) => {
-      await fetcher(`/developer-settings/${developerSettingName}`, {
-        method: 'PATCH',
+      await apiClient.patch('/developer-settings/:developerSettingName', {
+        path: {
+          developerSettingName,
+        },
         body: {
           value,
         },
@@ -77,8 +78,10 @@ export const useDeveloperSettings = () => {
     UpdateVillageResourcesArgs
   >({
     mutationFn: async ({ villageId, resource, amount, direction }) => {
-      await fetcher(`/developer-settings/${villageId}/resources`, {
-        method: 'PATCH',
+      await apiClient.patch('/developer-settings/:villageId/resources', {
+        path: {
+          villageId,
+        },
         body: {
           resource,
           amount,
@@ -94,8 +97,10 @@ export const useDeveloperSettings = () => {
   const { mutate: spawnHeroItem } = useMutation<void, Error, SpawnHeroItemArgs>(
     {
       mutationFn: async ({ itemId, amount }) => {
-        await fetcher(`/developer-settings/${hero.id}/spawn-item`, {
-          method: 'PATCH',
+        await apiClient.patch('/developer-settings/:heroId/spawn-item', {
+          path: {
+            heroId: hero.id,
+          },
           body: {
             itemId,
             amount,
@@ -113,10 +118,12 @@ export const useDeveloperSettings = () => {
 
   const { mutate: incrementHeroAdventurePoints } = useMutation<void>({
     mutationFn: async () => {
-      await fetcher(
-        `/developer-settings/${hero.id}/increment-adventure-points`,
+      await apiClient.patch(
+        '/developer-settings/:heroId/increment-adventure-points',
         {
-          method: 'PATCH',
+          path: {
+            heroId: hero.id,
+          },
         },
       );
     },
@@ -127,8 +134,10 @@ export const useDeveloperSettings = () => {
 
   const { mutate: levelUpHero } = useMutation<void>({
     mutationFn: async () => {
-      await fetcher(`/developer-settings/${hero.id}/level-up`, {
-        method: 'PATCH',
+      await apiClient.patch('/developer-settings/:heroId/level-up', {
+        path: {
+          heroId: hero.id,
+        },
       });
     },
     onSuccess: async (_, _args, _onMutateResult, context) => {
@@ -138,8 +147,10 @@ export const useDeveloperSettings = () => {
 
   const { mutate: killHero } = useMutation<void>({
     mutationFn: async () => {
-      await fetcher(`/developer-settings/${hero.id}/kill`, {
-        method: 'PATCH',
+      await apiClient.patch('/developer-settings/:heroId/kill', {
+        path: {
+          heroId: hero.id,
+        },
       });
     },
     onSuccess: async (_, _args, _onMutateResult, context) => {

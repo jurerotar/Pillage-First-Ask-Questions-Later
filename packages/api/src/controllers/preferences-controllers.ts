@@ -1,11 +1,12 @@
 import { snakeCase } from 'moderndash';
 import { createController } from '../utils/controller';
+import { mapPreferences } from './mappers/preferences-mapper';
 import { getPreferencesSchema } from './schemas/preferences-schemas';
 
 export const getPreferences = createController(
   '/players/:playerId/preferences',
 )(({ database }) => {
-  return database.selectObject({
+  const row = database.selectObject({
     sql: `
       SELECT
         is_accessibility_mode_enabled,
@@ -25,6 +26,8 @@ export const getPreferences = createController(
     `,
     schema: getPreferencesSchema,
   })!;
+
+  return mapPreferences(row);
 });
 
 export const updatePreference = createController(

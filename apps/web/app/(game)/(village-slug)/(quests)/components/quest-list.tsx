@@ -103,7 +103,7 @@ export const QuestList = ({ quests }: QuestListProps) => {
   const questsToShow = useMemo(() => {
     const grouped = groupQuestsById(quests);
 
-    const sortedGroups = [...grouped].toSorted((a, b) => {
+    const sortedGroups = grouped.sort((a, b) => {
       // Group with collectable quests should come first
       if (a.hasCollectible && !b.hasCollectible) {
         return -1;

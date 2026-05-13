@@ -10,7 +10,10 @@ import {
 } from '@pillage-first/mocks/event';
 import { effectSchema } from '@pillage-first/types/models/effect';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { eventSchema } from '../../../utils/zod/event-schemas';
+import {
+  baseEventRowSchema,
+  mapEventRowToTypedEvent,
+} from '../../../utils/zod/event-schemas';
 import {
   adventureMovementResolver,
   attackMovementResolver,
@@ -73,10 +76,13 @@ describe(adventureMovementResolver, () => {
     expect(adventures.completed).toBe(6);
 
     // Check if return event was created
-    const returnEvent = database.selectObject({
+    const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
-      schema: eventSchema,
-    })! as GameEvent<'troopMovementReturn'>;
+      schema: baseEventRowSchema,
+    })!;
+    const returnEvent = mapEventRowToTypedEvent(
+      returnEventRow,
+    ) as GameEvent<'troopMovementReturn'>;
     expect(returnEvent).toBeDefined();
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 
@@ -155,10 +161,15 @@ describe(adventureMovementResolver, () => {
     expect(adventures.completed).toBe(5);
 
     // Check if return event was NOT created
-    const returnEvent = database.selectObject({
+    const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
-      schema: eventSchema,
+      schema: baseEventRowSchema,
     });
+    const returnEvent = returnEventRow
+      ? (mapEventRowToTypedEvent(
+          returnEventRow,
+        ) as GameEvent<'troopMovementReturn'>)
+      : undefined;
     expect(returnEvent).toBeUndefined();
 
     const regenerationEvent = database.selectObject({
@@ -389,10 +400,13 @@ describe(attackMovementResolver, () => {
 
     attackMovementResolver(database, mockEvent);
 
-    const returnEvent = database.selectObject({
+    const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
-      schema: eventSchema,
-    })! as GameEvent<'troopMovementReturn'>;
+      schema: baseEventRowSchema,
+    })!;
+    const returnEvent = mapEventRowToTypedEvent(
+      returnEventRow,
+    ) as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 
@@ -422,10 +436,13 @@ describe(raidMovementResolver, () => {
 
     raidMovementResolver(database, mockEvent);
 
-    const returnEvent = database.selectObject({
+    const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
-      schema: eventSchema,
-    })! as GameEvent<'troopMovementReturn'>;
+      schema: baseEventRowSchema,
+    })!;
+    const returnEvent = mapEventRowToTypedEvent(
+      returnEventRow,
+    ) as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 

@@ -1,6 +1,7 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { MapFilters } from '@pillage-first/types/models/map-filters';
+import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { mapFiltersCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -11,12 +12,18 @@ type UpdateMapFiltersArgs = {
 };
 
 export const useMapFilters = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
+  const { player } = useMe();
 
   const { data: mapFilters } = useSuspenseQuery({
     queryKey: [mapFiltersCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<MapFilters>('/me/map-filters');
+      const { data } = await apiClient.get('/players/:playerId/map-filters', {
+        path: {
+          playerId: player.id,
+        },
+      });
+
       return data;
     },
   });
@@ -27,8 +34,11 @@ export const useMapFilters = () => {
     UpdateMapFiltersArgs
   >({
     mutationFn: async ({ filterName, value }) => {
-      await fetcher(`/me/map-filters/${filterName}`, {
-        method: 'PATCH',
+      await apiClient.patch('/players/:playerId/map-filters/:filterName', {
+        path: {
+          playerId: player.id,
+          filterName,
+        },
         body: {
           value,
         },

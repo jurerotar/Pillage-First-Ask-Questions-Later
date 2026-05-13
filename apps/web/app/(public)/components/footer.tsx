@@ -1,5 +1,6 @@
 import { use, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaRedditAlien, FaRss } from 'react-icons/fa';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import type { UIColorScheme } from '@pillage-first/types/models/preferences';
@@ -108,7 +109,7 @@ export const Footer = () => {
               as="span"
               className="font-medium uppercase text-xs text-muted-foreground"
             >
-              {t('Community')}
+              {t('Community & support')}
             </Text>
             <ul className="flex flex-wrap gap-2">
               <li>
@@ -124,6 +125,17 @@ export const Footer = () => {
               </li>
               <li>
                 <a
+                  href="https://www.reddit.com/r/PillageFirst/"
+                  rel="noopener nofollow"
+                  target="_blank"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#ff5700] shadow-md p-2 hover:opacity-80 transition-opacity"
+                  aria-label="Reddit"
+                >
+                  <FaRedditAlien className="text-2xl md:text-3xl text-white" />
+                </a>
+              </li>
+              <li>
+                <a
                   href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
                   rel="noopener nofollow"
                   target="_blank"
@@ -131,6 +143,17 @@ export const Footer = () => {
                   aria-label="GitHub"
                 >
                   <FaGithub className="text-2xl md:text-3xl text-white" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://pillagefirst.com/rss.xml"
+                  rel="noopener nofollow"
+                  target="_blank"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#f26522] shadow-md p-2 hover:opacity-80 transition-opacity"
+                  aria-label="RSS"
+                >
+                  <FaRss className="text-2xl md:text-3xl text-white" />
                 </a>
               </li>
             </ul>

@@ -25,9 +25,7 @@ newer.
 2. Clone the forked project
 3. Run `npm install` at the root of the repository
 4. Run `npm run inject-graphics` at the root of the repository
-5. (Optional) If you cloned the repository before we migrated to a monorepo, you will have some orphaned directories
-   sticking around. Run `npm run remove-deprecated-directories` command to remove these unneeded files.
-6. (Optional) Run `npm run extract-sql-schema`, which generates `schema.sql` and `db.sqlite3` files inside
+5. (Optional) Run `npm run extract-sql-schema`, which generates `schema.sql` and `db.sqlite3` files inside
    `apps/erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
    queries.
 

@@ -16,6 +16,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
+import { MainBuildingDemolitionTable } from 'app/(game)/(village-slug)/components/main-building-demolition-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
@@ -38,7 +39,6 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { useDialog } from 'app/hooks/use-dialog';
-import { MainBuildingDemolitionTable } from '../../../../../../components/main-building-demolition-table.tsx';
 
 export const DemolishBuilding = () => {
   const navigate = useNavigate();

@@ -1,3 +1,34 @@
+## Version 0.4.19
+
+#### May 10, 2026
+
+* [TechnicalImprovement] Toast popups and notifications will now display village name.
+* [BugFix] Fixed an issue where village founding events didn't show a correct timestamp on Events page.
+* [BugFix] Fixed an issue where NPC reputation level was incorrectly calculated, resulting in all NPC being shown as
+  with "hated" reputation level.
+
+## Version 0.4.18
+
+#### May 8, 2026
+
+* [TechnicalImprovement] We reworked how communication between threads works, enabling complete type safety. Previously,
+  we had no way to guarantee that the data we pass between threads is actually correct, without just manually testing
+  it. This caused issues during refactors, since any missing argument/parameter isn't actually caught during
+  lint/type-check and had to be manually validated to be working.
+
+## Version 0.4.17
+
+#### May 6, 2026
+
+* [Feature] Introduced stacked tabs layout on desktop devices.
+* [Feature] Split Rally Point's Troop movements tab in to a Troop movements tab & Stationed units tab.
+
+## Version 0.4.16
+
+#### May 5, 2026
+
+* [Performance] Removed unnecessary sorting operations on player, building details & quests pages.
+
 ## Version 0.4.15
 
 #### May 5, 2026
@@ -16,7 +47,7 @@
 
 * [Feature] Added `Oasis animal finder` page. Oasis animal finder page allows you to search for all oasis with a
   specific combination of animals present. For each selected animal type, you can set a minimum amount of animals of
-  that type that must be present in the oasis, allowing oyu to further narrow down the search. Oasis animal finder is
+  that type that must be present in the oasis, allowing you to further narrow down the search. Oasis animal finder is
   accessible through the map page.
 
 ## Version 0.4.12

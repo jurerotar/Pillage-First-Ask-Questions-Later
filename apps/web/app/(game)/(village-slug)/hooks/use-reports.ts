@@ -1,18 +1,23 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { Report, ReportTag } from '@pillage-first/types/models/report';
+import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { reportsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useReports = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
+  const { player } = useMe();
 
   const { data: reports } = useSuspenseQuery({
     queryKey: [reportsCacheKey],
-    queryFn: () => {
-      return [];
-      // const { data } = await fetcher<Report[]>('/me/reports');
-      // return data;
+    queryFn: async () => {
+      const { data } = await apiClient.get('/players/:playerId/reports', {
+        path: {
+          playerId: player.id,
+        },
+      });
+      return data;
     },
   });
 
@@ -22,11 +27,9 @@ export const useReports = () => {
     { reportId: Report['id']; tag: ReportTag }
   >({
     mutationFn: async ({ reportId, tag }) => {
-      await fetcher<Report[]>(`/reports/${reportId}`, {
-        method: 'PATCH',
-        body: {
-          tag,
-        },
+      await apiClient.patch('/reports/:reportId', {
+        path: { reportId },
+        body: { tag },
       });
     },
   });
@@ -37,8 +40,8 @@ export const useReports = () => {
     { reportId: Report['id'] }
   >({
     mutationFn: async ({ reportId }) => {
-      await fetcher<Report[]>(`/reports/${reportId}`, {
-        method: 'DELETE',
+      await apiClient.delete('/reports/:reportId', {
+        path: { reportId },
       });
     },
   });

@@ -1,31 +1,24 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { z } from 'zod';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
-import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playerVillagesCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-const getPlayerVillageSchema = z.strictObject({
-  id: z.number(),
-  tileId: z.number(),
-  coordinates: coordinatesSchema,
-  name: z.string(),
-  slug: z.string(),
-  population: z.number(),
-  resourceFieldComposition: resourceFieldCompositionSchema,
-});
-
 export const usePlayerVillages = (playerId: number) => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
 
   const { data: playerVillages } = useSuspenseQuery({
     queryKey: [playerVillagesCacheKey, playerId],
     queryFn: async () => {
-      const response = await fetcher(
-        `/players/${playerId}/villages-with-population`,
+      const { data } = await apiClient.get(
+        '/players/:playerId/villages-with-population',
+        {
+          path: {
+            playerId,
+          },
+        },
       );
-      return z.array(getPlayerVillageSchema).parse(response.data);
+
+      return data;
     },
   });
 

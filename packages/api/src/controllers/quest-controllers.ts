@@ -7,12 +7,13 @@ import {
 } from '@pillage-first/utils/guards/quest';
 import { createController } from '../utils/controller';
 import { addVillageResourcesAt } from '../utils/village';
-import { getQuestsSchema } from './schemas/quest-schemas';
+import { mapQuestRowToDto } from './mappers/quest-mapper';
+import { getQuestsRowSchema } from './schemas/quest-schemas';
 import { addHeroExperience } from './utils/hero';
 
 export const getQuests = createController('/villages/:villageId/quests')(
   ({ database, path: { villageId } }) => {
-    return database.selectObjects({
+    const rows = database.selectObjects({
       sql: `
         SELECT quest_id, scope, collected_at, completed_at, village_id
         FROM
@@ -35,8 +36,10 @@ export const getQuests = createController('/villages/:villageId/quests')(
       bind: {
         $village_id: villageId,
       },
-      schema: getQuestsSchema,
+      schema: getQuestsRowSchema,
     });
+
+    return rows.map(mapQuestRowToDto);
   },
 );
 

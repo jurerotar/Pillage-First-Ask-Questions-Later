@@ -44,12 +44,6 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
     return summedPopulation;
   }, [playerVillages]);
 
-  const sortedPlayerVillages = useMemo(() => {
-    return playerVillages.toSorted((prevVillage, nextVillage) => {
-      return nextVillage.population - prevVillage.population;
-    });
-  }, [playerVillages]);
-
   return (
     <>
       <title>{title}</title>
@@ -143,7 +137,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedPlayerVillages.map(
+              {playerVillages.map(
                 ({
                   id,
                   name,

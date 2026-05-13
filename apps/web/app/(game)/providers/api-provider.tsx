@@ -12,10 +12,8 @@ import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
-import {
-  createWorkerFetcher,
-  type Fetcher,
-} from 'app/(game)/providers/utils/worker-fetch';
+import { createTypedApiClient } from 'app/(game)/providers/utils/typed-api-client';
+import { createWorkerFetcher } from 'app/(game)/providers/utils/worker-fetch';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];
@@ -23,7 +21,7 @@ type ApiProviderProps = {
 
 type ApiContextReturn = {
   apiWorker: Worker;
-  fetcher: Fetcher;
+  apiClient: ReturnType<typeof createTypedApiClient>;
 };
 
 export const ApiContext = createContext<ApiContextReturn>(
@@ -111,9 +109,11 @@ export const ApiProvider = ({
   }, [apiWorker, queryClient]);
 
   const value: ApiContextReturn = useMemo(() => {
+    const fetcher = createWorkerFetcher(apiWorker);
+
     return {
       apiWorker,
-      fetcher: createWorkerFetcher(apiWorker),
+      apiClient: createTypedApiClient(fetcher),
     };
   }, [apiWorker]);
 

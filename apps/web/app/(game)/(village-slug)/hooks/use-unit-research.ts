@@ -1,23 +1,17 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { z } from 'zod';
 import {
   getUnitDefinition,
   getUnitsByTribe,
 } from '@pillage-first/game-assets/utils/units';
-import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
+import type { Unit } from '@pillage-first/types/models/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { unitResearchCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 
-const getResearchedUnitsSchema = z.strictObject({
-  unitId: unitIdSchema,
-  villageId: z.number(),
-});
-
 export const useUnitResearch = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const tribe = useTribe();
   const { currentVillage } = useCurrentVillage();
 
@@ -26,9 +20,15 @@ export const useUnitResearch = () => {
   const { data: unitResearch } = useSuspenseQuery({
     queryKey: [unitResearchCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher<
-        z.infer<typeof getResearchedUnitsSchema>[]
-      >(`/villages/${currentVillage.id}/researched-units`);
+      const { data } = await apiClient.get(
+        '/villages/:villageId/researched-units',
+        {
+          path: {
+            villageId: currentVillage.id,
+          },
+        },
+      );
+
       return data;
     },
   });
