@@ -64,20 +64,18 @@ export const useBuildingActions = (
     createBuildingLevelChangeEvent,
   ]);
 
-  const downgradeBuilding = useCallback(() => {
-    createBuildingLevelChangeEvent({
-      buildingFieldId,
-      level: virtualLevel - 1,
-      previousLevel: virtualLevel,
-      buildingId,
-      cachesToClearImmediately: [],
-    });
-  }, [
-    createBuildingLevelChangeEvent,
-    buildingFieldId,
-    buildingId,
-    virtualLevel,
-  ]);
+  const downgradeBuilding = useCallback(
+    (targetLevel: number) => {
+      createBuildingLevelChangeEvent({
+        buildingFieldId,
+        level: targetLevel,
+        previousLevel: virtualLevel,
+        buildingId,
+        cachesToClearImmediately: [],
+      });
+    },
+    [createBuildingLevelChangeEvent, buildingFieldId, buildingId, virtualLevel],
+  );
 
   const demolishBuilding = useCallback(() => {
     createBuildingDestructionEvent({

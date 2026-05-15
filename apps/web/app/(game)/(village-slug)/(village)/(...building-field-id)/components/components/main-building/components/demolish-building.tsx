@@ -1,14 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
   calculateTotalPopulationForLevel,
   getBuildingFieldByBuildingFieldId,
 } from '@pillage-first/game-assets/utils/buildings';
-import {
-  type BuildingField,
-  specialFieldIds,
-} from '@pillage-first/types/models/building-field';
+import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useDemolishBuildingErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/hooks/use-demolish-building-error-bag';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import {
@@ -54,74 +51,64 @@ export const DemolishBuilding = () => {
   const demolishableBuildings = currentVillage.buildingFields.filter(
     ({ level }) => level > 0,
   );
-  const {
-    isOpen,
-    openModal,
-    closeModal,
-    modalArgs: pendingAction,
-  } = useDialog<'DOWNGRADE' | 'DEMOLISH'>();
+  const { isOpen, openModal, closeModal } = useDialog();
 
   const [buildingFieldToDemolish, setBuildingFieldToDemolish] =
     useState<BuildingField>(demolishableBuildings[0]);
 
-  const { demolishBuilding, downgradeBuilding } = useBuildingActions(
+  const { downgradeBuilding, demolishBuilding } = useBuildingActions(
     buildingFieldToDemolish.buildingId,
     buildingFieldToDemolish.id,
   );
-  const { getBuildingDowngradeErrorBag, getDemolishBuildingErrorBag } =
-    useDemolishBuildingErrorBag(
-      buildingFieldToDemolish.id,
-      buildingFieldToDemolish.buildingId,
-    );
+  const { getBuildingDowngradeErrorBag } = useDemolishBuildingErrorBag(
+    buildingFieldToDemolish.id,
+    buildingFieldToDemolish.buildingId,
+  );
+
+  const [targetLevel, setTargetLevel] = useState<number>(
+    Math.max(buildingFieldToDemolish.level - 1, 0),
+  );
+
+  useEffect(() => {
+    setTargetLevel(Math.max(buildingFieldToDemolish.level - 1, 0));
+  }, [buildingFieldToDemolish.level]);
+
   const buildingDowngradeErrorBag = getBuildingDowngradeErrorBag();
-  const demolishBuildingErrorBag = getDemolishBuildingErrorBag();
   const buildingName = t(
     `BUILDINGS.${buildingFieldToDemolish.buildingId}.NAME`,
   );
-  const downgradedLevel = buildingFieldToDemolish.level - 1;
+  const isDemolishCompletely = targetLevel === 0;
   const currentLevelPopulation = calculateTotalPopulationForLevel(
     buildingFieldToDemolish.buildingId,
     buildingFieldToDemolish.level,
   );
-  const downgradedLevelPopulation = calculateTotalPopulationForLevel(
+  const targetLevelPopulation = calculateTotalPopulationForLevel(
     buildingFieldToDemolish.buildingId,
-    downgradedLevel,
+    targetLevel,
   );
   const populationLossOnDowngrade =
-    currentLevelPopulation - downgradedLevelPopulation;
+    currentLevelPopulation - targetLevelPopulation;
+  const availableTargetLevels = Array.from(
+    { length: buildingFieldToDemolish.level },
+    (_, index) => buildingFieldToDemolish.level - 1 - index,
+  );
 
-  const confirmationTitle =
-    pendingAction.current === 'DOWNGRADE'
-      ? t('Downgrade {{buildingName}} to level {{level}}', {
-          buildingName,
-          level: downgradedLevel,
-        })
-      : t('Demolish {{buildingName}}', { buildingName });
+  const confirmationTitle = isDemolishCompletely
+    ? t('Demolish {{buildingName}}', { buildingName })
+    : t('Downgrade {{buildingName}} to level {{level}}', {
+        buildingName,
+        level: targetLevel,
+      });
 
   const confirmationConsequences = (() => {
     const consequences: string[] = [];
 
-    if (pendingAction.current === 'DEMOLISH') {
-      if (specialFieldIds.includes(buildingFieldToDemolish.id)) {
-        consequences.push(
-          t(
-            '{{buildingName}} will be demolished completely, but the building field will remain occupied.',
-            {
-              buildingName,
-            },
-          ),
-        );
-      } else {
-        consequences.push(
-          t(
-            '{{buildingName}} will be demolished completely and the building field will be cleared.',
-            {
-              buildingName,
-            },
-          ),
-        );
-      }
-
+    if (isDemolishCompletely) {
+      consequences.push(
+        t('{{buildingName}} will be demolished completely.', {
+          buildingName,
+        }),
+      );
       consequences.push(
         t('Your village will lose all the benefits of {{buildingName}}.', {
           buildingName,
@@ -134,25 +121,38 @@ export const DemolishBuilding = () => {
           {
             buildingName,
             fromLevel: buildingFieldToDemolish.level,
-            toLevel: downgradedLevel,
-          },
-        ),
-        t(
-          'Your village will lose all the benefits of {{buildingName}} level {{level}}.',
-          {
-            buildingName,
-            level: buildingFieldToDemolish.level,
+            toLevel: targetLevel,
           },
         ),
       );
+
+      if (buildingFieldToDemolish.level - targetLevel > 1) {
+        consequences.push(
+          t(
+            'Your village will lose all the benefits of {{buildingName}} levels {{currentLevel}} - {{targetLevel}}.',
+            {
+              buildingName,
+              currentLevel: buildingFieldToDemolish.level,
+              targetLevel: targetLevel,
+            },
+          ),
+        );
+      } else {
+        consequences.push(
+          t(
+            'Your village will lose all the benefits of {{buildingName}} level {{level}}.',
+            {
+              buildingName,
+              level: buildingFieldToDemolish.level,
+            },
+          ),
+        );
+      }
     }
 
     consequences.push(
       t('Your population will decrease by {{populationLoss}}.', {
-        populationLoss:
-          pendingAction.current === 'DEMOLISH'
-            ? currentLevelPopulation
-            : populationLossOnDowngrade,
+        populationLoss: populationLossOnDowngrade,
       }),
     );
 
@@ -167,33 +167,18 @@ export const DemolishBuilding = () => {
     setBuildingFieldToDemolish(buildingField);
   };
 
-  const onDowngrade = async () => {
-    downgradeBuilding();
-
-    if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
-      await navigate('..', { relative: 'path' });
-    }
-  };
-
-  const onDemolish = async () => {
-    demolishBuilding();
-
-    if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
-      await navigate('..', { relative: 'path' });
-    }
-  };
-
   const onConfirm = async () => {
-    if (pendingAction.current === 'DOWNGRADE') {
-      await onDowngrade();
-      closeModal();
-      return;
+    if (targetLevel === 0) {
+      demolishBuilding();
+    } else {
+      downgradeBuilding(targetLevel);
     }
 
-    if (pendingAction.current === 'DEMOLISH') {
-      await onDemolish();
-      closeModal();
+    if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
+      await navigate('..', { relative: 'path' });
     }
+
+    closeModal();
   };
 
   return (
@@ -213,61 +198,74 @@ export const DemolishBuilding = () => {
         <MainBuildingDemolitionTable />
       </SectionContent>
       <SectionContent>
-        <Select
-          disabled={!canDemolishBuildings}
-          onValueChange={onValueChange}
-          value={`${buildingFieldToDemolish.id}`}
-        >
-          <SelectGroup>
-            <SelectLabel>{t('Select building')}</SelectLabel>
-            <SelectTrigger className="w-full lg:w-1/2">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {demolishableBuildings.map((buildingField) => (
-                <SelectItem
-                  key={buildingField.id}
-                  value={`${buildingField.id}`}
-                >
-                  {t(`BUILDINGS.${buildingField.buildingId}.NAME`)} -{' '}
-                  {t('level {{level}}', { level: buildingField.level })}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectGroup>
-        </Select>
+        <div className="flex gap-2 flex-wrap">
+          <Select
+            disabled={!canDemolishBuildings}
+            onValueChange={onValueChange}
+            value={`${buildingFieldToDemolish.id}`}
+          >
+            <SelectGroup>
+              <SelectLabel>{t('Select building')}</SelectLabel>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {demolishableBuildings.map((buildingField) => (
+                  <SelectItem
+                    key={buildingField.id}
+                    value={`${buildingField.id}`}
+                  >
+                    {t(`BUILDINGS.${buildingField.buildingId}.NAME`)} -{' '}
+                    {t('level {{level}}', { level: buildingField.level })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </SelectGroup>
+          </Select>
+
+          <Select
+            disabled={!canDemolishBuildings}
+            onValueChange={(value) =>
+              setTargetLevel(Number.parseInt(value, 10))
+            }
+            value={`${targetLevel}`}
+          >
+            <SelectGroup>
+              <SelectLabel>{t('Target level')}</SelectLabel>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {availableTargetLevels.map((level) => (
+                  <SelectItem
+                    key={level}
+                    value={`${level}`}
+                  >
+                    {level === 0
+                      ? t('Demolish completely')
+                      : t('level {{level}}', { level })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </SelectGroup>
+          </Select>
+        </div>
       </SectionContent>
       <SectionContent>
-        <ErrorBag
-          errorBag={[...buildingDowngradeErrorBag, ...demolishBuildingErrorBag]}
-        />
-
+        <ErrorBag errorBag={buildingDowngradeErrorBag} />
         <div className="flex gap-2 flex-wrap">
-          {buildingFieldToDemolish.level > 1 && (
-            <Button
-              size="fit"
-              disabled={
-                !canDemolishBuildings ||
-                buildingDowngradeErrorBag.length > 0 ||
-                demolishBuildingErrorBag.length > 0
-              }
-              onClick={() => openModal('DOWNGRADE')}
-            >
-              {t('Downgrade to level {{level}}', {
-                level: buildingFieldToDemolish.level - 1,
-              })}
-            </Button>
-          )}
           <Button
             size="fit"
             disabled={
-              !canDemolishBuildings ||
-              buildingDowngradeErrorBag.length > 0 ||
-              demolishBuildingErrorBag.length > 0
+              !canDemolishBuildings || buildingDowngradeErrorBag.length > 0
             }
-            onClick={() => openModal('DEMOLISH')}
+            onClick={() => openModal('DOWNGRADE')}
           >
-            {t('Demolish completely')}
+            {isDemolishCompletely
+              ? t('Demolish completely')
+              : t('Downgrade to level {{level}}', {
+                  level: targetLevel,
+                })}
           </Button>
         </div>
 

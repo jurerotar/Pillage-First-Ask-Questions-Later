@@ -9,13 +9,15 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 
 export const useCancelDemolition = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   return useMutation<void, Error>({
     mutationFn: async () => {
-      await fetcher(`/villages/${currentVillage.id}/events/demolition`, {
-        method: 'DELETE',
+      await apiClient.delete('/villages/:villageId/events/demolition', {
+        path: {
+          villageId: currentVillage.id,
+        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {

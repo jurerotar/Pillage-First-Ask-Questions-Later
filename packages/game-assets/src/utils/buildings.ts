@@ -237,8 +237,8 @@ export const calculateBuildingDurationForLevel = (
 };
 
 export const calculateBuildingDestructionDuration = (
-  level: number,
+  levelDifference: number,
   speed: number,
 ): number => {
-  return (5 * 60 * 1000 * level) / speed;
+  return (5 * 60 * 1000 * levelDifference) / speed;
 };

@@ -121,6 +121,14 @@ type RequestOptions<TOperation> = PathParamOptions<TOperation> &
   QueryParamOptions<TOperation> &
   BodyOptions<TOperation>;
 
+type HasRequiredOptions<TOperation> = [PathParamsFor<TOperation>] extends [
+  never,
+]
+  ? [BodyFor<TOperation>] extends [never]
+    ? false
+    : true
+  : true;
+
 const getResponseSchema = <
   TMethod extends HttpMethod,
   TPath extends PathForMethod<TMethod>,
@@ -204,16 +212,19 @@ export const createTypedApiClient = (fetcher: Fetcher) => {
   const request = async <
     TMethod extends HttpMethod,
     TPath extends PathForMethod<TMethod>,
+    TOperation extends Operation<TPath, TMethod> = Operation<TPath, TMethod>,
   >(
     method: TMethod,
     pathTemplate: TPath,
-    options?: RequestOptions<Operation<TPath, TMethod>>,
-  ): Promise<{ data: SuccessResponseFor<Operation<TPath, TMethod>> }> => {
-    const url = buildPath<Operation<TPath, TMethod>>(pathTemplate, options);
+    ...[options]: HasRequiredOptions<TOperation> extends true
+      ? [RequestOptions<TOperation>]
+      : [RequestOptions<TOperation>?]
+  ): Promise<{ data: SuccessResponseFor<TOperation> }> => {
+    const url = buildPath<TOperation>(pathTemplate, options);
 
     const { data } = await fetcher<
-      SuccessResponseFor<Operation<TPath, TMethod>>,
-      BodyFor<Operation<TPath, TMethod>>
+      SuccessResponseFor<TOperation>,
+      BodyFor<TOperation>
     >(url, {
       method: method.toUpperCase(),
       body: options?.body,
@@ -226,28 +237,34 @@ export const createTypedApiClient = (fetcher: Fetcher) => {
     }
 
     return {
-      data: responseSchema.parse(data) as SuccessResponseFor<
-        Operation<TPath, TMethod>
-      >,
+      data: responseSchema.parse(data) as SuccessResponseFor<TOperation>,
     };
   };
 
   return {
     get: <TPath extends PathForMethod<'get'>>(
       pathTemplate: TPath,
-      options?: RequestOptions<Operation<TPath, 'get'>>,
-    ) => request<'get', TPath>('get', pathTemplate, options),
+      ...args: HasRequiredOptions<Operation<TPath, 'get'>> extends true
+        ? [RequestOptions<Operation<TPath, 'get'>>]
+        : [RequestOptions<Operation<TPath, 'get'>>?]
+    ) => request<'get', TPath>('get', pathTemplate, ...args),
     post: <TPath extends PathForMethod<'post'>>(
       pathTemplate: TPath,
-      options?: RequestOptions<Operation<TPath, 'post'>>,
-    ) => request<'post', TPath>('post', pathTemplate, options),
+      ...args: HasRequiredOptions<Operation<TPath, 'post'>> extends true
+        ? [RequestOptions<Operation<TPath, 'post'>>]
+        : [RequestOptions<Operation<TPath, 'post'>>?]
+    ) => request<'post', TPath>('post', pathTemplate, ...args),
     patch: <TPath extends PathForMethod<'patch'>>(
       pathTemplate: TPath,
-      options?: RequestOptions<Operation<TPath, 'patch'>>,
-    ) => request<'patch', TPath>('patch', pathTemplate, options),
+      ...args: HasRequiredOptions<Operation<TPath, 'patch'>> extends true
+        ? [RequestOptions<Operation<TPath, 'patch'>>]
+        : [RequestOptions<Operation<TPath, 'patch'>>?]
+    ) => request<'patch', TPath>('patch', pathTemplate, ...args),
     delete: <TPath extends PathForMethod<'delete'>>(
       pathTemplate: TPath,
-      options?: RequestOptions<Operation<TPath, 'delete'>>,
-    ) => request<'delete', TPath>('delete', pathTemplate, options),
+      ...args: HasRequiredOptions<Operation<TPath, 'delete'>> extends true
+        ? [RequestOptions<Operation<TPath, 'delete'>>]
+        : [RequestOptions<Operation<TPath, 'delete'>>?]
+    ) => request<'delete', TPath>('delete', pathTemplate, ...args),
   };
 };

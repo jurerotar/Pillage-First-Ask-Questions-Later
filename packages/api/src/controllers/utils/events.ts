@@ -37,8 +37,9 @@ import {
   isAdventureTroopMovementEvent,
   isBuildingConstructionEvent,
   isBuildingDestructionEvent,
+  isBuildingDowngradeEvent,
   isBuildingEvent,
-  isBuildingLevelUpEvent,
+  isBuildingLevelChangeEvent,
   isFindNewVillageTroopMovementEvent,
   isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
@@ -351,7 +352,7 @@ export const validateEventCreationPrerequisites = (
     }
   }
 
-  if (isBuildingLevelUpEvent(event)) {
+  if (isBuildingLevelChangeEvent(event)) {
     const { buildingId, level } = event;
     const { maxLevel } = getBuildingDefinition(buildingId);
 
@@ -386,9 +387,9 @@ export const validateEventCreationPrerequisites = (
               AND e.village_id = $village_id
               AND NOT (
                 e.type = 'buildingLevelChange'
-                AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
-                  CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
-              )
+                  AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
+                      CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
+                )
               AND (
                 -- If player is not Romans, include all building events
                 pt.tribe <> 'romans'
@@ -568,7 +569,11 @@ export const getEventCost = (
   database: DbFacade,
   event: GameEvent,
 ): number[] => {
-  if (isBuildingLevelUpEvent(event)) {
+  if (isBuildingLevelChangeEvent(event)) {
+    if (isBuildingDowngradeEvent(event)) {
+      return [0, 0, 0, 0];
+    }
+
     const isFreeBuildingConstructionEnabled = database.selectValue({
       sql: 'SELECT is_free_building_construction_enabled FROM developer_settings',
       schema: z.coerce.boolean(),
@@ -684,7 +689,7 @@ export const getEventDuration = (
     return calculateBuildingDestructionDuration(event.previousLevel, speed);
   }
 
-  if (isBuildingLevelUpEvent(event) || isScheduledBuildingEvent(event)) {
+  if (isBuildingLevelChangeEvent(event) || isScheduledBuildingEvent(event)) {
     const isInstantBuildingConstructionEnabled = database.selectValue({
       sql: 'SELECT is_instant_building_construction_enabled FROM developer_settings',
       schema: z.coerce.boolean(),
@@ -695,6 +700,20 @@ export const getEventDuration = (
     }
 
     const { villageId, buildingId, level } = event;
+
+    if (isBuildingDowngradeEvent(event)) {
+      const { speed } = database.selectObject({
+        sql: 'SELECT speed FROM servers LIMIT 1;',
+        schema: z.strictObject({
+          speed: speedSchema,
+        }),
+      })!;
+
+      return calculateBuildingDestructionDuration(
+        event.previousLevel - event.level,
+        speed,
+      );
+    }
 
     const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
@@ -1050,19 +1069,26 @@ export const getEventStartTime = (
     return resolvesAt;
   }
 
-  if (isBuildingConstructionEvent(event) || isBuildingLevelUpEvent(event)) {
+  if (isBuildingConstructionEvent(event)) {
+    return Date.now();
+  }
+
+  if (isBuildingLevelChangeEvent(event)) {
     return Date.now();
   }
 
   if (isAdventureTroopMovementEvent(event)) {
     return Date.now();
   }
+
   if (isFindNewVillageTroopMovementEvent(event)) {
     return Date.now();
   }
+
   if (isOasisOccupationTroopMovementEvent(event)) {
     return Date.now();
   }
+
   if (isReturnTroopMovementEvent(event)) {
     const { resolvesAt } = event;
 
