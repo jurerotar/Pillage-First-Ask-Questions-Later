@@ -1,5 +1,5 @@
 import { use } from 'react';
-import { FaDownload, FaTrash } from 'react-icons/fa6';
+import { FaDownload, FaSpinner, FaTrash } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
@@ -18,7 +18,14 @@ type ServerCardProps = {
 
 export const ServerCard = ({ server }: ServerCardProps) => {
   const { locale } = use(CookieContext);
-  const { exportGameWorld, deleteGameWorld } = useGameWorldActions();
+  const {
+    exportGameWorld,
+    isExportGameWorldPending,
+    deleteGameWorld,
+    isDeleteGameWorldPending,
+  } = useGameWorldActions();
+
+  const isActionPending = isExportGameWorldPending || isDeleteGameWorldPending;
 
   const appVersion = env.VERSION;
 
@@ -40,19 +47,35 @@ export const ServerCard = ({ server }: ServerCardProps) => {
       <div className="absolute right-2 top-2 inline-flex gap-2 items-center">
         <Button
           data-tooltip-id="public-tooltip"
-          data-tooltip-content="Export server"
+          data-tooltip-content={
+            isExportGameWorldPending ? 'Exporting server...' : 'Export server'
+          }
           variant="outline"
+          disabled={isActionPending}
+          aria-busy={isExportGameWorldPending}
           onClick={() => exportGameWorld({ server })}
         >
-          <FaDownload className="text-gray-400" />
+          {isExportGameWorldPending ? (
+            <FaSpinner className="text-gray-400 animate-spin" />
+          ) : (
+            <FaDownload className="text-gray-400" />
+          )}
         </Button>
         <Button
           data-tooltip-id="public-tooltip"
-          data-tooltip-content="Delete server"
+          data-tooltip-content={
+            isDeleteGameWorldPending ? 'Deleting server...' : 'Delete server'
+          }
           variant="outline"
+          disabled={isActionPending}
+          aria-busy={isDeleteGameWorldPending}
           onClick={() => deleteGameWorld({ server })}
         >
-          <FaTrash className="text-red-500" />
+          {isDeleteGameWorldPending ? (
+            <FaSpinner className="text-red-500 animate-spin" />
+          ) : (
+            <FaTrash className="text-red-500" />
+          )}
         </Button>
       </div>
       <Text as="h2">{server.name}</Text>
