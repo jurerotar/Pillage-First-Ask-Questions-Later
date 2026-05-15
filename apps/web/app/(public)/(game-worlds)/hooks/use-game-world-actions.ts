@@ -7,6 +7,47 @@ import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker
 import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
 
+const LOCK_RETRY_ATTEMPTS = 5;
+const LOCK_RETRY_DELAY_MS = 250;
+
+const sleep = async (ms: number) =>
+  new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+
+const isLockRelatedError = (error: unknown): boolean => {
+  if (error instanceof DOMException) {
+    return error.name === 'NoModificationAllowedError';
+  }
+
+  if (error instanceof Error) {
+    return (
+      error.message.includes('NoModificationAllowedError') ||
+      error.message.includes('createSyncAccessHandle')
+    );
+  }
+
+  return false;
+};
+
+const retryWhenLocked = async <T>(operation: () => Promise<T>): Promise<T> => {
+  for (let attempt = 1; attempt <= LOCK_RETRY_ATTEMPTS; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      const isFinalAttempt = attempt === LOCK_RETRY_ATTEMPTS;
+
+      if (!isLockRelatedError(error) || isFinalAttempt) {
+        throw error;
+      }
+
+      await sleep(LOCK_RETRY_DELAY_MS);
+    }
+  }
+
+  throw new Error('Unexpected retry state while waiting for lock release.');
+};
+
 const getRootHandle = async (): Promise<FileSystemDirectoryHandle> => {
   const root = await navigator.storage.getDirectory();
   return root.getDirectoryHandle('pillage-first-ask-questions-later', {
@@ -20,26 +61,22 @@ const deleteServerData = async (server: Server) => {
   let sawLockedError = false;
 
   try {
-    await rootHandle.removeEntry(server.slug, {
-      recursive: true,
-    });
+    await retryWhenLocked(() =>
+      rootHandle.removeEntry(server.slug, {
+        recursive: true,
+      }),
+    );
   } catch (error) {
-    if (
-      error instanceof DOMException &&
-      error.name === 'NoModificationAllowedError'
-    ) {
+    if (isLockRelatedError(error)) {
       sawLockedError = true;
     }
   }
 
   try {
     const legacy_jsonFileName = `${server.slug}.json`;
-    await rootHandle.removeEntry(legacy_jsonFileName);
+    await retryWhenLocked(() => rootHandle.removeEntry(legacy_jsonFileName));
   } catch (error) {
-    if (
-      error instanceof DOMException &&
-      error.name === 'NoModificationAllowedError'
-    ) {
+    if (isLockRelatedError(error)) {
       sawLockedError = true;
     }
   }
@@ -81,68 +118,71 @@ export const useGameWorldActions = () => {
     },
   });
 
-  const { mutateAsync: exportGameWorld } = useMutation<
-    void,
-    Error,
-    { server: Server }
-  >({
-    mutationFn: async ({ server }) => {
-      const url = new URL(ExportServerWorker, import.meta.url);
-      url.searchParams.set('server-slug', server.slug);
+  const { mutateAsync: exportGameWorld, isPending: isExportGameWorldPending } =
+    useMutation<void, Error, { server: Server }>({
+      mutationFn: async ({ server }) => {
+        const url = new URL(ExportServerWorker, import.meta.url);
+        url.searchParams.set('server-slug', server.slug);
 
-      const result = await workerFactory<void, ExportServerWorkerReturn>(url);
+        const result = await retryWhenLocked(async () => {
+          const workerResult = await workerFactory<
+            void,
+            ExportServerWorkerReturn
+          >(url);
 
-      if (!result.resolved) {
-        throw new Error(result.error);
-      }
+          if (!workerResult.resolved) {
+            throw new Error(workerResult.error);
+          }
 
-      const { databaseBuffer } = result;
+          return workerResult;
+        });
 
-      const blob = new Blob([databaseBuffer], {
-        type: 'application/x-sqlite3',
-      });
+        const { databaseBuffer } = result;
 
-      const exportUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = exportUrl;
-      a.download = `${server.slug}.sqlite3`;
-      a.rel = 'noopener';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(exportUrl);
-    },
-    onError: (error) => {
-      let description = error.message;
+        const blob = new Blob([databaseBuffer], {
+          type: 'application/x-sqlite3',
+        });
 
-      if (
-        error.message.includes('NoModificationAllowedError') ||
-        error.message.includes('createSyncAccessHandle')
-      ) {
-        description =
-          "The game world can only be exported if there's no current open instance of it.";
-      }
+        const exportUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = exportUrl;
+        a.download = `${server.slug}.sqlite3`;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(exportUrl);
+      },
+      onError: (error) => {
+        let description = error.message;
 
-      toast.error('Failed to export game world', {
-        description,
-      });
-    },
-  });
+        if (
+          error.message.includes('NoModificationAllowedError') ||
+          error.message.includes('createSyncAccessHandle')
+        ) {
+          description =
+            "The game world can only be exported if there's no current open instance of it.";
+        }
 
-  const { mutateAsync: deleteGameWorld } = useMutation<
-    void,
-    Error,
-    { server: Server }
-  >({
-    mutationFn: ({ server }) => deleteServerData(server),
-    onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[availableServerCacheKey]]);
-    },
-  });
+        toast.error('Failed to export game world', {
+          description,
+        });
+      },
+    });
+
+  const { mutateAsync: deleteGameWorld, isPending: isDeleteGameWorldPending } =
+    useMutation<void, Error, { server: Server }>({
+      mutationFn: ({ server }) => deleteServerData(server),
+      onSuccess: async (_data, _vars, _onMutateResult, context) => {
+        await invalidateQueries(context, [[availableServerCacheKey]]);
+      },
+    });
 
   return {
     createGameWorld,
     exportGameWorld,
+    isExportGameWorldPending,
     deleteGameWorld,
+    isDeleteGameWorldPending,
   };
 };
