@@ -1,3 +1,12 @@
+## Version 0.4.20
+
+#### May 15, 2026
+
+* [Feature] Added the ability to cancel building downgrade/demolish events.
+* [Feature] Added the ability to downgrade buildings by more than one level at the time.
+* [Feature] Reworked building downgrade/demolish duration. Duration is now based on level difference. Each level of
+  difference adds `300 seconds / game world speed` to the duration.
+
 ## Version 0.4.19
 
 #### May 10, 2026
