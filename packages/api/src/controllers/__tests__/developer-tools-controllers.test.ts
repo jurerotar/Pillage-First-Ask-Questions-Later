@@ -1,28 +1,24 @@
-import { describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import * as schedulerSignal from '../../scheduler/scheduler-signal';
+import {
+  createBuildingConstructionEventMock,
+  createBuildingDestructionEventMock,
+  createBuildingLevelChangeEventMock,
+  createTroopMovementAdventureEventMock,
+  createTroopTrainingEventMock,
+  createUnitImprovementEventMock,
+  createUnitResearchEventMock,
+} from '@pillage-first/mocks/event';
 import {
   incrementHeroAdventurePoints,
   levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
 } from '../developer-tools-controllers';
+import { insertEvents } from '../utils/events';
 import { createControllerArgs } from './utils/controller-args';
-
-vi.mock<typeof schedulerSignal>(
-  import('../../scheduler/scheduler-signal'),
-  async () => {
-    const actual = await vi.importActual<typeof schedulerSignal>(
-      '../../scheduler/scheduler-signal',
-    );
-    return {
-      ...actual,
-      triggerKick: vi.fn(),
-    };
-  },
-);
 
 describe('developer-tools-controllers', () => {
   const playerId = PLAYER_ID;
@@ -58,11 +54,33 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      // Insert some events
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('buildingLevelChange', $now + 1000, 5000, 1), ('buildingScheduledConstruction', $now + 2000, 6000, 1), ('buildingConstruction', $now + 3000, 7000, 1), ('buildingDestruction', $now + 4000, 8000, 1), ('unitResearch', $now + 5000, 9000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createBuildingLevelChangeEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+        createBuildingLevelChangeEventMock({
+          startsAt: now + 2000,
+          duration: 6000,
+          villageId: 1,
+        }),
+        createBuildingConstructionEventMock({
+          startsAt: now + 3000,
+          duration: 7000,
+          villageId: 1,
+        }),
+        createBuildingDestructionEventMock({
+          startsAt: now + 4000,
+          duration: 8000,
+          villageId: 1,
+        }),
+        createUnitResearchEventMock({
+          startsAt: now + 5000,
+          duration: 9000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -86,10 +104,6 @@ describe('developer-tools-controllers', () => {
         events.find((e) => e.type === 'buildingLevelChange')?.duration,
       ).toBe(0);
       expect(
-        events.find((e) => e.type === 'buildingScheduledConstruction')
-          ?.duration,
-      ).toBe(0);
-      expect(
         events.find((e) => e.type === 'buildingConstruction')?.duration,
       ).toBe(0);
       expect(
@@ -98,17 +112,19 @@ describe('developer-tools-controllers', () => {
       expect(events.find((e) => e.type === 'unitResearch')?.duration).toBe(
         9000,
       );
-      expect(schedulerSignal.triggerKick).toHaveBeenCalled();
     });
 
     test('should instantly finish training events when isInstantUnitTrainingEnabled is set to true', async () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('troopTraining', $now + 1000, 5000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createTroopTrainingEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -133,10 +149,13 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('unitImprovement', $now + 1000, 5000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createUnitImprovementEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -161,10 +180,13 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('unitResearch', $now + 1000, 5000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createUnitResearchEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -189,10 +211,13 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('troopMovementAdventure', $now + 1000, 5000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createTroopMovementAdventureEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,

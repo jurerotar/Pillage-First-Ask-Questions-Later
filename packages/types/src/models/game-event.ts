@@ -33,8 +33,7 @@ type BaseBuildingEvent = {
 
 type BuildingLevelChangeEvent = BaseBuildingEvent;
 type BuildingScheduledConstructionEvent = BaseBuildingEvent;
-
-type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level'>;
+type BuildingDestructionEvent = BaseBuildingEvent;
 
 type UnitResearchEvent = {
   unitId: Unit['id'];
@@ -135,6 +134,7 @@ export type TroopMovementEvent =
   | GameEvent<'troopMovementAdventure'>;
 
 export type BuildingEvent =
+  | GameEvent<'buildingDestruction'>
   | GameEvent<'buildingScheduledConstruction'>
   | GameEvent<'buildingLevelChange'>
   | GameEvent<'buildingConstruction'>;

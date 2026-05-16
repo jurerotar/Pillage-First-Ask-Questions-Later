@@ -66,7 +66,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           break;
         }
         case 'MAIN_BUILDING': {
-          hasMainBuildingAboveLevel10 = field.level > 10;
+          hasMainBuildingAboveLevel10 = field.level >= 10;
           break;
         }
       }

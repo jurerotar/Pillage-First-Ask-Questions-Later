@@ -10,7 +10,7 @@ import type { Server } from '@pillage-first/types/models/server';
 import type { Village } from '@pillage-first/types/models/village';
 import {
   isAdventureTroopMovementEvent,
-  isBuildingLevelUpEvent,
+  isBuildingLevelChangeEvent,
   isFindNewVillageTroopMovementEvent,
   isHeroRevivalEvent,
   isOasisOccupationTroopMovementEvent,
@@ -48,7 +48,7 @@ const getEventResolvedInfo = (
   event: EventApiNotificationEvent,
   { t, serverName, playerVillagesMap }: NotificationFactoryArgs,
 ): NotificationInfo | undefined => {
-  if (isBuildingLevelUpEvent(event)) {
+  if (isBuildingLevelChangeEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
     const { level, previousLevel } = event;
@@ -166,7 +166,7 @@ const getEventCreatedInfo = (
   event: EventApiNotificationEvent,
   { t, playerVillagesMap }: NotificationFactoryArgs,
 ): NotificationInfo | undefined => {
-  if (isBuildingLevelUpEvent(event)) {
+  if (isBuildingLevelChangeEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
     const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
     const { level, previousLevel } = event;
@@ -392,7 +392,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       }
 
       const shouldShowNotification =
-        (isBuildingLevelUpEvent(data) &&
+        (isBuildingLevelChangeEvent(data) &&
           preferences.shouldShowNotificationsOnBuildingUpgradeCompletion) ||
         (isUnitImprovementEvent(data) &&
           preferences.shouldShowNotificationsOnUnitUpgradeCompletion) ||

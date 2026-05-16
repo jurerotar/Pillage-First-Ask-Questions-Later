@@ -45,6 +45,7 @@ export const createBuildingDestructionEventMock = (
     buildingId: 'MAIN_BUILDING',
     buildingFieldId: 19,
     previousLevel: 1,
+    level: 0,
     ...overrides,
   });
 };

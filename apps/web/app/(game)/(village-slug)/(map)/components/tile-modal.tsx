@@ -226,7 +226,7 @@ const FoundNewVillageAction = ({ tile }: FoundNewVillageActionProps) => {
     return (
       <Text className="text-gray-500">
         {t(
-          'You need to build a rally point before you can found a new village',
+          'You need a Rally Point of level 1 or higher before you can found a new village',
         )}
       </Text>
     );

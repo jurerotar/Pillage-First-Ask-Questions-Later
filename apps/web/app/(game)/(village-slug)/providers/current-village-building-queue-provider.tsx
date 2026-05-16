@@ -29,6 +29,8 @@ export const CurrentVillageBuildingQueueContextProvider = ({
 }: PropsWithChildren) => {
   const tribe = useTribe();
 
+  const { eventsByType: currentVillageBuildingDestructionEvents } =
+    useEventsByType('buildingDestruction');
   const { eventsByType: currentVillageBuildingLevelChangeEvents } =
     useEventsByType('buildingLevelChange');
   const { eventsByType: currentVillageBuildingScheduledConstructionEvents } =
@@ -36,12 +38,14 @@ export const CurrentVillageBuildingQueueContextProvider = ({
 
   const buildingEvents = useMemo(() => {
     return [
+      ...currentVillageBuildingDestructionEvents,
       ...currentVillageBuildingLevelChangeEvents,
       ...currentVillageBuildingScheduledConstructionEvents,
     ].toSorted((a, b) => a.startsAt + a.duration - (b.startsAt + b.duration));
   }, [
     currentVillageBuildingLevelChangeEvents,
     currentVillageBuildingScheduledConstructionEvents,
+    currentVillageBuildingDestructionEvents,
   ]);
 
   const [buildingUpgradeEvents, buildingDowngradeEvents] = useMemo(() => {

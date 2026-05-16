@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { type QueryKey, useMutation } from '@tanstack/react-query';
 import { use } from 'react';
 import type {
   GameEventType,
@@ -15,7 +15,7 @@ type CreateEventArgs<T extends GameEventType> = Omit<
 >;
 
 type SendEventArgs<T extends GameEventType> = CreateEventArgs<T> & {
-  cachesToClearImmediately: string[];
+  cachesToClearImmediately: QueryKey[];
 };
 
 export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
@@ -41,7 +41,7 @@ export const useCreateEvent = <T extends GameEventType>(eventType: T) => {
       context,
     ) => {
       await invalidateQueries(context, [
-        ...cachesToClearImmediately.map((queryKey) => [queryKey]),
+        ...cachesToClearImmediately,
         [eventsCacheKey, eventType, currentVillage.id],
       ]);
     },
