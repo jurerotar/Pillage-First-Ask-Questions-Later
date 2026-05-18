@@ -337,17 +337,22 @@ const CavalryUnitColorCard = memo(
   ({
     className,
     colors,
+    defaultColors,
     iconType,
     onColorsChange,
     unit,
   }: {
     className: string;
     colors: HorseColorSet;
+    defaultColors: HorseColorSet;
     iconType: IconType;
     onColorsChange: UpdateHorseColorSet;
     unit: CavalryUnit;
   }) => {
     const previewRef = useRef<HTMLDivElement>(null);
+    const inputRefs = useRef<Partial<Record<HorsePartKey, HTMLInputElement>>>(
+      {},
+    );
     const pendingColorsRef = useRef(colors);
     const commitTimeoutRef = useRef<number | null>(null);
 
@@ -374,6 +379,25 @@ const CavalryUnitColorCard = memo(
       }, horseColorStateCommitDebounceMs);
     }, [className, clearCommitTimeout, onColorsChange]);
 
+    const resetColors = useCallback(() => {
+      clearCommitTimeout();
+      pendingColorsRef.current = defaultColors;
+
+      horseParts.forEach(({ key, cssVariable }) => {
+        const color = defaultColors[key];
+
+        previewRef.current?.style.setProperty(cssVariable, color);
+
+        const input = inputRefs.current[key];
+
+        if (input !== undefined) {
+          input.value = color;
+        }
+      });
+
+      onColorsChange(className, { ...defaultColors });
+    }, [className, clearCommitTimeout, defaultColors, onColorsChange]);
+
     useEffect(() => {
       pendingColorsRef.current = colors;
     }, [colors]);
@@ -387,15 +411,25 @@ const CavalryUnitColorCard = memo(
     return (
       <article className="rounded-md border bg-background p-4">
         <div className="flex gap-4">
-          <div
-            ref={previewRef}
-            className="flex size-24 shrink-0 items-center justify-center rounded-md border bg-muted"
-            style={getHorseStyle(colors)}
-          >
-            <Icon
-              type={iconType}
-              className={clsx(styles.horse, 'size-full')}
-            />
+          <div className="flex w-24 shrink-0 flex-col gap-2">
+            <div
+              ref={previewRef}
+              className="flex size-24 items-center justify-center rounded-md border bg-muted"
+              style={getHorseStyle(colors)}
+            >
+              <Icon
+                type={iconType}
+                className={clsx(styles.horse, 'size-full')}
+              />
+            </div>
+            <Button
+              className="w-full whitespace-normal px-2 py-1 text-xs leading-tight"
+              size="fit"
+              variant="outline"
+              onClick={resetColors}
+            >
+              Reset to default
+            </Button>
           </div>
 
           <div className="min-w-0 flex-1">
@@ -410,6 +444,14 @@ const CavalryUnitColorCard = memo(
                 >
                   <span>{label}</span>
                   <input
+                    ref={(element) => {
+                      if (element === null) {
+                        delete inputRefs.current[key];
+                        return;
+                      }
+
+                      inputRefs.current[key] = element;
+                    }}
                     type="color"
                     defaultValue={colors[key]}
                     onBlur={commitPendingColors}
@@ -507,6 +549,8 @@ const CavalryColorPicker = () => {
                 {tribeUnits.map((unit) => {
                   const className = toClassName(unit.id);
                   const colors = colorsByClass[className] ?? defaultHorseColors;
+                  const defaultColors =
+                    initialHorseColorsByClass[className] ?? defaultHorseColors;
                   const iconType = unitIdToUnitIconMapper(unit.id) as IconType;
 
                   return (
@@ -514,6 +558,7 @@ const CavalryColorPicker = () => {
                       key={unit.id}
                       className={className}
                       colors={colors}
+                      defaultColors={defaultColors}
                       iconType={iconType}
                       onColorsChange={updateColors}
                       unit={unit}
