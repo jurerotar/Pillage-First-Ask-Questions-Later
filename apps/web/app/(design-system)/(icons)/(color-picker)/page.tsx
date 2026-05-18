@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import {
   type CSSProperties,
   memo,
@@ -46,17 +46,16 @@ type HorsePartKey =
   | 'maneFront'
   | 'mouthLine'
   | 'nose'
-  | 'noseDetail'
-  | 'harnessBodyStraps'
-  | 'harnessBrowStrap'
-  | 'harnessFaceStrap'
-  | 'harnessNeckRingFill'
-  | 'harnessNeckRing'
-  | 'harnessNoseBuckle'
-  | 'harnessNoseRing';
+  | 'noseDetail';
 type HorseColorSet = Record<HorsePartKey, string>;
 type HorseColorsByClass = Record<string, HorseColorSet>;
 type UpdateHorseColorSet = (className: string, colors: HorseColorSet) => void;
+type HorseColorControl = {
+  key: string;
+  label: string;
+  partKeys: HorsePartKey[];
+};
+const horsePupilColor = '#FFFFFF';
 
 const horseParts: {
   key: HorsePartKey;
@@ -133,6 +132,61 @@ const horsePartByKey = Object.fromEntries(
   horseParts.map((part) => [part.key, part]),
 ) as Record<HorsePartKey, (typeof horseParts)[number]>;
 
+const horseColorControls: HorseColorControl[] = [
+  { key: 'base', label: 'Base', partKeys: ['base'] },
+  {
+    key: 'baseBottom',
+    label: 'Base bottom',
+    partKeys: ['baseBottom'],
+  },
+  {
+    key: 'baseMiddle',
+    label: 'Base middle',
+    partKeys: ['baseMiddle'],
+  },
+  {
+    key: 'earsBack',
+    label: 'Ears back',
+    partKeys: ['earsBack'],
+  },
+  {
+    key: 'earsFront',
+    label: 'Ears front',
+    partKeys: ['earsFront'],
+  },
+  {
+    key: 'eye',
+    label: 'Eye',
+    partKeys: ['eye'],
+  },
+  {
+    key: 'eyeLids',
+    label: 'Eye lids',
+    partKeys: ['eyeLidBottom', 'eyeLidMiddle', 'eyeLidTop', 'eyeLidTopDetail'],
+  },
+  {
+    key: 'headFront',
+    label: 'Head front',
+    partKeys: ['headFront'],
+  },
+  {
+    key: 'mane',
+    label: 'Mane',
+    partKeys: ['maneBack', 'maneFront'],
+  },
+  { key: 'mouthLine', label: 'Mouth line', partKeys: ['mouthLine'] },
+  { key: 'nose', label: 'Nose', partKeys: ['nose'] },
+  {
+    key: 'noseDetail',
+    label: 'Nose detail',
+    partKeys: ['noseDetail'],
+  },
+];
+const joinedHorsePartGroups: HorsePartKey[][] = [
+  ['eyeLidBottom', 'eyeLidMiddle', 'eyeLidTop', 'eyeLidTopDetail'],
+  ['maneBack', 'maneFront'],
+];
+
 const defaultHorseColors: HorseColorSet = {
   base: '#423A36',
   baseBottom: '#2E2521',
@@ -144,13 +198,25 @@ const defaultHorseColors: HorseColorSet = {
   eyeLidMiddle: '#2E2521',
   eyeLidTop: '#2E2521',
   eyeLidTopDetail: '#2E2521',
-  eyePupil: '#C5BBB1',
+  eyePupil: horsePupilColor,
   headFront: '#40332D',
   maneBack: '#000000',
   maneFront: '#000000',
   mouthLine: '#2E2521',
   nose: '#2E2521',
   noseDetail: '#40332D',
+};
+
+const normalizeHorseColorSet = (colors: HorseColorSet): HorseColorSet => {
+  const normalizedColors = { ...colors, eyePupil: horsePupilColor };
+
+  joinedHorsePartGroups.forEach(([sourceKey, ...joinedKeys]) => {
+    joinedKeys.forEach((joinedKey) => {
+      normalizedColors[joinedKey] = normalizedColors[sourceKey];
+    });
+  });
+
+  return normalizedColors;
 };
 
 const tribeLabels: Record<CavalryTribe, string> = {
@@ -215,8 +281,7 @@ const parseInitialHorseColors = (): HorseColorsByClass => {
       horseParts.forEach(({ key }, index) => {
         colors[key] = colorValues[index] ?? colors[key];
       });
-
-      return [className, colors];
+      return [className, normalizeHorseColorSet(colors)];
     }),
   );
 };
@@ -259,8 +324,7 @@ const mergeHorseColorSet = (
       colors[key] = normalizeColor(persistedColor);
     }
   });
-
-  return colors;
+  return normalizeHorseColorSet(colors);
 };
 
 const getStoredCavalryColors = (): HorseColorsByClass => {
@@ -323,7 +387,9 @@ const getClassesSource = (colorsByClass: HorseColorsByClass) => {
   return cavalryUnits
     .map((unit) => {
       const className = toClassName(unit.id);
-      const colors = colorsByClass[className] ?? defaultHorseColors;
+      const colors = normalizeHorseColorSet(
+        colorsByClass[className] ?? defaultHorseColors,
+      );
       const mixinColors = horseParts
         .map(({ key }) => serializeColor(colors[key]))
         .join(', ');
@@ -350,9 +416,7 @@ const CavalryUnitColorCard = memo(
     unit: CavalryUnit;
   }) => {
     const previewRef = useRef<HTMLDivElement>(null);
-    const inputRefs = useRef<Partial<Record<HorsePartKey, HTMLInputElement>>>(
-      {},
-    );
+    const inputRefs = useRef<Record<string, HTMLInputElement>>({});
     const pendingColorsRef = useRef(colors);
     const commitTimeoutRef = useRef<number | null>(null);
 
@@ -384,9 +448,14 @@ const CavalryUnitColorCard = memo(
       pendingColorsRef.current = defaultColors;
 
       horseParts.forEach(({ key, cssVariable }) => {
-        const color = defaultColors[key];
+        const color =
+          key === 'eyePupil' ? defaultHorseColors.eyePupil : defaultColors[key];
 
         previewRef.current?.style.setProperty(cssVariable, color);
+      });
+
+      horseColorControls.forEach(({ key, partKeys }) => {
+        const color = defaultColors[partKeys[0]];
 
         const input = inputRefs.current[key];
 
@@ -400,6 +469,18 @@ const CavalryUnitColorCard = memo(
 
     useEffect(() => {
       pendingColorsRef.current = colors;
+
+      horseParts.forEach(({ key, cssVariable }) => {
+        previewRef.current?.style.setProperty(cssVariable, colors[key]);
+      });
+
+      horseColorControls.forEach(({ key, partKeys }) => {
+        const input = inputRefs.current[key];
+
+        if (input !== undefined) {
+          input.value = colors[partKeys[0]];
+        }
+      });
     }, [colors]);
 
     useEffect(() => {
@@ -437,7 +518,7 @@ const CavalryUnitColorCard = memo(
             <p className="text-xs text-muted-foreground">.{className}</p>
 
             <div className="mt-3 grid gap-2">
-              {horseParts.map(({ key, label }) => (
+              {horseColorControls.map(({ key, label, partKeys }) => (
                 <label
                   key={key}
                   className="flex items-center justify-between gap-3 text-sm"
@@ -453,17 +534,22 @@ const CavalryUnitColorCard = memo(
                       inputRefs.current[key] = element;
                     }}
                     type="color"
-                    defaultValue={colors[key]}
+                    defaultValue={colors[partKeys[0]]}
                     onBlur={commitPendingColors}
                     onChange={(event) => {
                       const color = event.target.value;
-                      const { cssVariable } = horsePartByKey[key];
+                      const nextColors = { ...pendingColorsRef.current };
 
-                      pendingColorsRef.current = {
-                        ...pendingColorsRef.current,
-                        [key]: color,
-                      };
-                      previewRef.current?.style.setProperty(cssVariable, color);
+                      partKeys.forEach((partKey) => {
+                        const { cssVariable } = horsePartByKey[partKey];
+
+                        nextColors[partKey] = color;
+                        previewRef.current?.style.setProperty(
+                          cssVariable,
+                          color,
+                        );
+                      });
+                      pendingColorsRef.current = nextColors;
                       scheduleCommit();
                     }}
                   />
@@ -478,10 +564,13 @@ const CavalryUnitColorCard = memo(
 );
 
 const CavalryColorPicker = () => {
-  const [colorsByClass, setColorsByClass] = useState<HorseColorsByClass>(
-    getStoredCavalryColors,
-  );
+  const [colorsByClass, setColorsByClass] =
+    useState<HorseColorsByClass>(initialCavalryColors);
   const hasMountedRef = useRef(false);
+
+  useEffect(() => {
+    setColorsByClass(getStoredCavalryColors());
+  }, []);
 
   useEffect(() => {
     if (!hasMountedRef.current) {
