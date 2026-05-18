@@ -1,5 +1,12 @@
 import clsx from 'clsx';
-import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { units } from '@pillage-first/game-assets/units';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { Icon } from 'app/components/icon';
@@ -49,6 +56,7 @@ type HorsePartKey =
   | 'harnessNoseRing';
 type HorseColorSet = Record<HorsePartKey, string>;
 type HorseColorsByClass = Record<string, HorseColorSet>;
+type UpdateHorseColorSet = (className: string, colors: HorseColorSet) => void;
 
 const horseParts: {
   key: HorsePartKey;
@@ -121,6 +129,9 @@ const horseParts: {
     cssVariable: '--nose-detail-color',
   },
 ];
+const horsePartByKey = Object.fromEntries(
+  horseParts.map((part) => [part.key, part]),
+) as Record<HorsePartKey, (typeof horseParts)[number]>;
 
 const defaultHorseColors: HorseColorSet = {
   base: '#423A36',
@@ -225,6 +236,7 @@ const initialCavalryColors = Object.fromEntries(
 
 const horseColorsStorageKey = 'pillage-first:cavalry-icon-colors:v1';
 const horseColorsStorageDebounceMs = 300;
+const horseColorStateCommitDebounceMs = 50;
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -321,6 +333,108 @@ const getClassesSource = (colorsByClass: HorseColorsByClass) => {
     .join('\n\n');
 };
 
+const CavalryUnitColorCard = memo(
+  ({
+    className,
+    colors,
+    iconType,
+    onColorsChange,
+    unit,
+  }: {
+    className: string;
+    colors: HorseColorSet;
+    iconType: IconType;
+    onColorsChange: UpdateHorseColorSet;
+    unit: CavalryUnit;
+  }) => {
+    const previewRef = useRef<HTMLDivElement>(null);
+    const pendingColorsRef = useRef(colors);
+    const commitTimeoutRef = useRef<number | null>(null);
+
+    const clearCommitTimeout = useCallback(() => {
+      if (commitTimeoutRef.current === null) {
+        return;
+      }
+
+      window.clearTimeout(commitTimeoutRef.current);
+      commitTimeoutRef.current = null;
+    }, []);
+
+    const commitPendingColors = useCallback(() => {
+      clearCommitTimeout();
+      onColorsChange(className, { ...pendingColorsRef.current });
+    }, [className, clearCommitTimeout, onColorsChange]);
+
+    const scheduleCommit = useCallback(() => {
+      clearCommitTimeout();
+
+      commitTimeoutRef.current = window.setTimeout(() => {
+        commitTimeoutRef.current = null;
+        onColorsChange(className, { ...pendingColorsRef.current });
+      }, horseColorStateCommitDebounceMs);
+    }, [className, clearCommitTimeout, onColorsChange]);
+
+    useEffect(() => {
+      pendingColorsRef.current = colors;
+    }, [colors]);
+
+    useEffect(() => {
+      return () => {
+        clearCommitTimeout();
+      };
+    }, [clearCommitTimeout]);
+
+    return (
+      <article className="rounded-md border bg-background p-4">
+        <div className="flex gap-4">
+          <div
+            ref={previewRef}
+            className="flex size-24 shrink-0 items-center justify-center rounded-md border bg-muted"
+            style={getHorseStyle(colors)}
+          >
+            <Icon
+              type={iconType}
+              className={clsx(styles.horse, 'size-full')}
+            />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold">{toUnitLabel(unit.id)}</h3>
+            <p className="text-xs text-muted-foreground">.{className}</p>
+
+            <div className="mt-3 grid gap-2">
+              {horseParts.map(({ key, label }) => (
+                <label
+                  key={key}
+                  className="flex items-center justify-between gap-3 text-sm"
+                >
+                  <span>{label}</span>
+                  <input
+                    type="color"
+                    defaultValue={colors[key]}
+                    onBlur={commitPendingColors}
+                    onChange={(event) => {
+                      const color = event.target.value;
+                      const { cssVariable } = horsePartByKey[key];
+
+                      pendingColorsRef.current = {
+                        ...pendingColorsRef.current,
+                        [key]: color,
+                      };
+                      previewRef.current?.style.setProperty(cssVariable, color);
+                      scheduleCommit();
+                    }}
+                  />
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      </article>
+    );
+  },
+);
+
 const CavalryColorPicker = () => {
   const [colorsByClass, setColorsByClass] = useState<HorseColorsByClass>(
     getStoredCavalryColors,
@@ -342,19 +456,12 @@ const CavalryColorPicker = () => {
     };
   }, [colorsByClass]);
 
-  const updateColor = (
-    className: string,
-    partKey: HorsePartKey,
-    color: string,
-  ) => {
+  const updateColors = useCallback<UpdateHorseColorSet>((className, colors) => {
     setColorsByClass((currentColorsByClass) => ({
       ...currentColorsByClass,
-      [className]: {
-        ...(currentColorsByClass[className] ?? defaultHorseColors),
-        [partKey]: color,
-      },
+      [className]: colors,
     }));
-  };
+  }, []);
 
   const copyClasses = async () => {
     await navigator.clipboard.writeText(getClassesSource(colorsByClass));
@@ -403,51 +510,14 @@ const CavalryColorPicker = () => {
                   const iconType = unitIdToUnitIconMapper(unit.id) as IconType;
 
                   return (
-                    <article
+                    <CavalryUnitColorCard
                       key={unit.id}
-                      className="rounded-md border bg-background p-4"
-                    >
-                      <div className="flex gap-4">
-                        <div className="flex size-24 shrink-0 items-center justify-center rounded-md border bg-muted">
-                          <Icon
-                            type={iconType}
-                            className={clsx(styles.horse, 'size-full')}
-                            style={getHorseStyle(colors)}
-                          />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold">
-                            {toUnitLabel(unit.id)}
-                          </h3>
-                          <p className="text-xs text-muted-foreground">
-                            .{className}
-                          </p>
-
-                          <div className="mt-3 grid gap-2">
-                            {horseParts.map(({ key, label }) => (
-                              <label
-                                key={key}
-                                className="flex items-center justify-between gap-3 text-sm"
-                              >
-                                <span>{label}</span>
-                                <input
-                                  type="color"
-                                  value={colors[key]}
-                                  onChange={(event) => {
-                                    updateColor(
-                                      className,
-                                      key,
-                                      event.target.value,
-                                    );
-                                  }}
-                                />
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </article>
+                      className={className}
+                      colors={colors}
+                      iconType={iconType}
+                      onColorsChange={updateColors}
+                      unit={unit}
+                    />
                   );
                 })}
               </div>
