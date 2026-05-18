@@ -22,14 +22,17 @@ export default [
         route('create', '(public)/(game-worlds)/(create)/page.tsx'),
         route('import', '(public)/(game-worlds)/(import)/page.tsx'),
       ]),
+      // Design system
+      ...prefix('design-system', [
+        ...prefix('icons', [
+          index('(design-system)/(icons)/page.tsx'),
+          route(
+            'color-picker',
+            '(design-system)/(icons)/(color-picker)/page.tsx',
+          ),
+        ]),
+      ]),
       route('*', '(public)/(not-found)/page.tsx'),
-    ]),
-  ]),
-  // Design system
-  ...prefix('design-system', [
-    ...prefix('icons', [
-      index('(design-system)/(icons)/page.tsx'),
-      route('color-picker', '(design-system)/(icons)/(color-picker)/page.tsx'),
     ]),
   ]),
   // Game routes
