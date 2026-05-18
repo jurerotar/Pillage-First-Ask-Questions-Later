@@ -1,6 +1,7 @@
-import type { UseFormReturn } from 'react-hook-form';
+import type { SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { Tribe } from '@pillage-first/types/models/tribe';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Button } from 'app/components/ui/button';
 import {
   Dialog,
@@ -10,23 +11,24 @@ import {
   DialogTitle,
 } from 'app/components/ui/dialog';
 import { Form } from 'app/components/ui/form';
+import { getFormErrorBag } from 'app/utils/forms';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
 import { CoordinateSelector, PlayerVillageSelector } from './target-selectors';
 import { UnitSelector } from './unit-selector';
 
-type SendTroopsModalProps = {
+type SendTroopsModalProps<T extends BaseTroopFormValues> = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: SubmitHandler<T>;
   title: string;
   tribe: Tribe;
-  form: UseFormReturn<BaseTroopFormValues>;
+  form: UseFormReturn<T>;
   disabledUnitTiers?: UnitSelection['tier'][];
   maxUnits?: { unitId: UnitSelection['unitId']; amount: number }[];
   targetSelector?: 'coordinates' | 'playerVillage';
 };
 
-export const SendTroopsModal = ({
+export const SendTroopsModal = <T extends BaseTroopFormValues>({
   isOpen,
   onClose,
   onSubmit,
@@ -36,7 +38,7 @@ export const SendTroopsModal = ({
   disabledUnitTiers,
   maxUnits,
   targetSelector = 'coordinates',
-}: SendTroopsModalProps) => {
+}: SendTroopsModalProps<T>) => {
   const { t } = useTranslation();
 
   void tribe;
@@ -67,6 +69,8 @@ export const SendTroopsModal = ({
                 <PlayerVillageSelector />
               )}
             </div>
+
+            <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
 
             <DialogFooter>
               <Button

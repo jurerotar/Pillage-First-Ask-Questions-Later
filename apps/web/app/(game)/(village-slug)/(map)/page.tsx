@@ -22,6 +22,10 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
 import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
+import {
+  type MapSendTroopsAction,
+  MapSendTroopsModal,
+} from 'app/(game)/(village-slug)/(map)/components/map-send-troops-modal';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import { useMapMarkers } from 'app/(game)/(village-slug)/(map)/hooks/use-map-markers';
 import {
@@ -53,9 +57,15 @@ const MapPageContents = () => {
   const {
     isOpen: isTileModalOpened,
     openModal,
-    toggleModal,
+    closeModal: closeTileModal,
     modalArgs,
   } = useDialog<Tile>();
+  const {
+    isOpen: isSendTroopsModalOpen,
+    openModal: openSendTroopsModal,
+    closeModal: closeSendTroopsModal,
+    modalArgs: sendTroopsModalArgs,
+  } = useDialog<MapSendTroopsAction>();
   const { map } = useMap();
   const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
@@ -133,6 +143,14 @@ const MapPageContents = () => {
     createMapMarker,
     deleteMapMarker,
   ]);
+
+  const openMapSendTroopsModal = useCallback(
+    (action: MapSendTroopsAction) => {
+      closeTileModal();
+      openSendTroopsModal(action);
+    },
+    [closeTileModal, openSendTroopsModal],
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
   useEffect(() => {
@@ -281,12 +299,31 @@ const MapPageContents = () => {
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Dialog
         open={isTileModalOpened}
-        onOpenChange={toggleModal}
+        onOpenChange={(open) => !open && closeTileModal()}
       >
         <Suspense fallback={null}>
-          <TileDialog tile={modalArgs.current!} />
+          <TileDialog
+            tile={modalArgs.current!}
+            onFoundNewVillage={(tile) => {
+              openMapSendTroopsModal({
+                mode: 'found-new-village',
+                target: tile.coordinates,
+              });
+            }}
+            onReinforceVillage={(tile) => {
+              openMapSendTroopsModal({
+                mode: 'reinforcement',
+                target: tile.coordinates,
+              });
+            }}
+          />
         </Suspense>
       </Dialog>
+      <MapSendTroopsModal
+        action={sendTroopsModalArgs.current}
+        isOpen={isSendTroopsModalOpen}
+        onClose={closeSendTroopsModal}
+      />
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{

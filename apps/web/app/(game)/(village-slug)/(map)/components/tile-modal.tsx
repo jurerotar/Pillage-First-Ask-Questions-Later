@@ -31,6 +31,7 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import {
   DialogContent,
   DialogDescription,
@@ -59,6 +60,11 @@ const TileModalResources = ({ tile }: TileModalResourcesProps) => {
 
 type TileModalProps = {
   tile: Tile;
+};
+
+type TileModalActionsProps = {
+  onFoundNewVillage: (tile: OccupiableTile) => void;
+  onReinforceVillage: (tile: OccupiedOccupiableTile) => void;
 };
 
 const TileModalLocation = ({ tile }: TileModalProps) => {
@@ -188,9 +194,13 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
 
 type FoundNewVillageActionProps = {
   tile: OccupiableTile;
+  onFoundNewVillage: (tile: OccupiableTile) => void;
 };
 
-const FoundNewVillageAction = ({ tile }: FoundNewVillageActionProps) => {
+const FoundNewVillageAction = ({
+  tile,
+  onFoundNewVillage,
+}: FoundNewVillageActionProps) => {
   const { t } = useTranslation();
   const { events } = useEvents();
   const tribe = useTribe();
@@ -253,21 +263,23 @@ const FoundNewVillageAction = ({ tile }: FoundNewVillageActionProps) => {
   }
 
   return (
-    <Text variant="link">
-      <Link
-        to={`../village/39?tab=send-troops&rally-point-send-troops-tab=found-new-village&x=${tile.coordinates.x}&y=${tile.coordinates.y}`}
-      >
-        {t('Found new village')}
-      </Link>
-    </Text>
+    <Button
+      variant="link"
+      onClick={() => onFoundNewVillage(tile)}
+    >
+      {t('Found new village')}
+    </Button>
   );
 };
 
 type OccupiableTileModalProps = {
   tile: OccupiableTile;
-};
+} & Pick<TileModalActionsProps, 'onFoundNewVillage'>;
 
-const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
+const OccupiableTileModal = ({
+  tile,
+  onFoundNewVillage,
+}: OccupiableTileModalProps) => {
   const { t } = useTranslation();
 
   return (
@@ -284,7 +296,10 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
       </DialogHeader>
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        <FoundNewVillageAction tile={tile} />
+        <FoundNewVillageAction
+          tile={tile}
+          onFoundNewVillage={onFoundNewVillage}
+        />
       </div>
     </>
   );
@@ -292,10 +307,11 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
 
 type OccupiedOccupiableTileModalProps = {
   tile: OccupiedOccupiableTile;
-};
+} & Pick<TileModalActionsProps, 'onReinforceVillage'>;
 
 const OccupiedOccupiableTileModal = ({
   tile,
+  onReinforceVillage,
 }: OccupiedOccupiableTileModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
@@ -332,12 +348,27 @@ const OccupiedOccupiableTileModal = ({
             </Link>
           </Text>
         )}
+        {isOwnedByPlayer && tile.id !== currentVillage.tileId && (
+          <Button
+            variant="link"
+            size="fit"
+            onClick={() => onReinforceVillage(tile)}
+          >
+            {t('Reinforce village')}
+          </Button>
+        )}
       </div>
     </>
   );
 };
 
-export const TileDialog = ({ tile }: TileModalProps) => {
+type TileDialogProps = TileModalProps & TileModalActionsProps;
+
+export const TileDialog = ({
+  tile,
+  onFoundNewVillage,
+  onReinforceVillage,
+}: TileDialogProps) => {
   if (!tile) {
     return null;
   }
@@ -353,7 +384,10 @@ export const TileDialog = ({ tile }: TileModalProps) => {
   if (isOccupiedOccupiableTile(tile)) {
     return (
       <DialogContent>
-        <OccupiedOccupiableTileModal tile={tile} />
+        <OccupiedOccupiableTileModal
+          tile={tile}
+          onReinforceVillage={onReinforceVillage}
+        />
       </DialogContent>
     );
   }
@@ -361,7 +395,10 @@ export const TileDialog = ({ tile }: TileModalProps) => {
   if (isOccupiableTile(tile)) {
     return (
       <DialogContent>
-        <OccupiableTileModal tile={tile} />
+        <OccupiableTileModal
+          tile={tile}
+          onFoundNewVillage={onFoundNewVillage}
+        />
       </DialogContent>
     );
   }

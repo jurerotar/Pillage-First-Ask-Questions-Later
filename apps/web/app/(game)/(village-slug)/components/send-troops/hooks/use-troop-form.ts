@@ -16,7 +16,7 @@ import { useValidateTroopMovement } from 'app/(game)/(village-slug)/hooks/use-va
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
 
-type TroopFormOptions<T extends FieldValues> = {
+export type TroopFormOptions<T extends FieldValues> = {
   defaultUnits?: { unitId: Unit['id']; amount: number }[];
   defaultValues: DefaultValues<T>;
 };

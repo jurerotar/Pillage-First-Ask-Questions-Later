@@ -1,14 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { z } from 'zod';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
@@ -19,77 +16,31 @@ import {
   FormLabel,
 } from 'app/components/ui/form';
 import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
-import { useDialog } from 'app/hooks/use-dialog';
 import { getFormErrorBag } from 'app/utils/forms';
 import { TroopMovementConfirmationModal } from './components/confirmation-modal';
 import { PlayerVillageSelector } from './components/target-selectors';
 import { UnitSelector } from './components/unit-selector';
-import { useTroopForm } from './hooks/use-troop-form';
-import { baseTroopFormSchema } from './utils/schema';
-
-const reinforcementRelocationFormSchema = baseTroopFormSchema.extend({
-  action: z.enum(['reinforcement', 'relocation']),
-});
+import { useReinforcementRelocationTroopForm } from './hooks/use-reinforcement-relocation-troop-form';
 
 export const ReinforcementRelocationForm = () => {
   const { t } = useTranslation();
   const { preferences } = usePreferences();
   const navigate = useNavigate();
-  const tribe = useTribe();
-  const { sendTroops } = useVillageTroops();
-
-  const { form, getBaseEventArgs, resetForm, validateTroopMovementAsync } =
-    useTroopForm(reinforcementRelocationFormSchema, {
-      defaultValues: {
-        action: 'reinforcement',
-      },
-    });
-
   const {
-    isOpen: isConfirmationModalOpen,
-    openModal,
-    closeModal,
-    modalArgs: formData,
-  } = useDialog<z.infer<typeof reinforcementRelocationFormSchema>>();
-
-  const onFormSubmit = async (
-    data: z.infer<typeof reinforcementRelocationFormSchema>,
-  ) => {
-    const isValid = await validateTroopMovementAsync(
-      data,
-      data.action === 'reinforcement' ? 'reinforcements' : 'relocation',
-    );
-
-    if (isValid) {
-      openModal(data);
-    }
-  };
-
-  const onConfirm = () => {
-    if (!formData.current) {
-      return;
-    }
-
-    sendTroops(
-      {
-        type:
-          formData.current.action === 'reinforcement'
-            ? 'troopMovementReinforcements'
-            : 'troopMovementRelocation',
-        ...getBaseEventArgs(formData.current),
-      },
-      {
-        onSuccess: () => {
-          resetForm();
-          closeModal();
-
-          if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
-            navigate('..', { relative: 'path' });
-          }
-        },
-      },
-    );
-  };
+    closeConfirmationModal,
+    form,
+    formData,
+    isConfirmationModalOpen,
+    onConfirm,
+    onFormSubmit,
+    tribe,
+  } = useReinforcementRelocationTroopForm({
+    onSuccess: () => {
+      if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
+        navigate('..', { relative: 'path' });
+      }
+    },
+  });
 
   return (
     <Section>
@@ -151,7 +102,7 @@ export const ReinforcementRelocationForm = () => {
         {formData.current && (
           <TroopMovementConfirmationModal
             isOpen={isConfirmationModalOpen}
-            onClose={closeModal}
+            onClose={closeConfirmationModal}
             onConfirm={onConfirm}
             formData={formData.current}
             tribe={tribe}

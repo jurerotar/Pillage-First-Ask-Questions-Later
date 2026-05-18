@@ -14,6 +14,8 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { RelocateTroopsModal } from 'app/(game)/(village-slug)/components/send-troops/components/relocate-troops-modal';
+import { ReturnReinforcementsModal } from 'app/(game)/(village-slug)/components/send-troops/components/return-reinforcements-modal';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
@@ -30,8 +32,6 @@ import { Button } from 'app/components/ui/button';
 import { Pagination } from 'app/components/ui/pagination';
 import { useDialog } from 'app/hooks/use-dialog.ts';
 import { useFilters } from 'app/hooks/use-filters';
-import { RelocateTroopsModal } from './send-troops/components/relocate-troops-modal';
-import { ReturnReinforcementsModal } from './send-troops/components/return-reinforcements-modal';
 
 type ReinforcementDialogData = {
   sourceTileId: number;

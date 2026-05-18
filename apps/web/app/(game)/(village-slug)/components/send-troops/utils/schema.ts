@@ -72,5 +72,9 @@ export const foundNewVillageFormSchema = baseTroopFormSchema
     },
   );
 
+export const reinforcementRelocationFormSchema = baseTroopFormSchema.extend({
+  action: z.enum(['reinforcement', 'relocation']),
+});
+
 export type UnitSelection = z.infer<typeof unitSelectionSchema>;
 export type BaseTroopFormValues = z.infer<typeof baseTroopFormSchema>;
