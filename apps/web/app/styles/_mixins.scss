@@ -1,25 +1,117 @@
-@mixin horseIconColorSet($base, $eye, $neck-front, $muzzle, $mane-front, $mane-back) {
-  & :global(#base) {
-    fill: $base;
+$harness: white;
+
+@mixin horseIconColorSet(
+  $base,
+  $base-bottom,
+  $base-middle,
+  $ears-back,
+  $ears-front,
+  $eye,
+  $eye-lid-bottom,
+  $eye-lid-middle,
+  $eye-lid-top,
+  $eye-lid-top-detail,
+  $eye-pupil,
+  $head-front,
+  $mane-back,
+  $mane-front,
+  $mouth-line,
+  $nose,
+  $nose-detail,
+) {
+  & :global(#PillageFirstHorse-base) {
+    fill: $base !important;
   }
 
-  & :global(#eye_1_) {
-    fill: $eye;
+  & :global(#PillageFirstHorse-base-bottom) {
+    fill: $base-bottom !important;
   }
 
-  & :global(#neck-front_1_) {
-    fill: $neck-front;
+  & :global(#PillageFirstHorse-base-middle) {
+    fill: $base-middle !important;
   }
 
-  & :global(#muzzle_1_) {
-    fill: $muzzle;
+  & :global(#PillageFirstHorse-ears-back) {
+    fill: $ears-back !important;
   }
 
-  & :global(#mane-front_1_) {
-    fill: $mane-front;
+  & :global(#PillageFirstHorse-ears-front) {
+    fill: $ears-front !important;
   }
 
-  & :global(#mane-back_1_) {
-    fill: $mane-back;
+  & :global(#PillageFirstHorse-eye) {
+    fill: $eye !important;
+  }
+
+  & :global(#PillageFirstHorse-eye-lid-bottom) {
+    fill: $eye-lid-bottom !important;
+  }
+
+  & :global(#PillageFirstHorse-eye-lid-middle) {
+    fill: $eye-lid-middle !important;
+  }
+
+  & :global(#PillageFirstHorse-eye-lid-top) {
+    fill: $eye-lid-top !important;
+  }
+
+  & :global(#PillageFirstHorse-eye-lid-top-detail) {
+    fill: $eye-lid-top-detail !important;
+  }
+
+  & :global(#PillageFirstHorse-eye-pupil) {
+    fill: $eye-pupil !important;
+  }
+
+  & :global(#PillageFirstHorse-head-front) {
+    fill: $head-front !important;
+  }
+
+  & :global(#PillageFirstHorse-mane-back) {
+    fill: $mane-back !important;
+  }
+
+  & :global(#PillageFirstHorse-mane-front) {
+    fill: $mane-front !important;
+  }
+
+  & :global(#PillageFirstHorse-mouth-line) {
+    fill: $mouth-line !important;
+  }
+
+  & :global(#PillageFirstHorse-nose) {
+    fill: $nose !important;
+  }
+
+  & :global(#PillageFirstHorse-nose-detail) {
+    fill: $nose-detail !important;
+  }
+
+  & :global(#PillageFirstHorse-harness-body-straps) {
+    fill: $harness !important;
+  }
+
+  & :global(#PillageFirstHorse-harness-brow-strap) {
+    fill: $harness !important;
+  }
+
+  & :global(#PillageFirstHorse-harness-face-strap) {
+    fill: $harness !important;
+  }
+
+  & :global(#PillageFirstHorse-harness-neck-ring-fill) {
+    fill: $harness !important;
+  }
+
+  & :global(#PillageFirstHorse-harness-neck-ring) {
+    fill: $harness !important;
+  }
+
+  & :global(#PillageFirstHorse-harness-nose-buckle) {
+    fill: $harness !important;
+  }
+
+  & :global(#PillageFirstHorse-harness-nose-ring) {
+    stroke: $harness !important;
   }
 }

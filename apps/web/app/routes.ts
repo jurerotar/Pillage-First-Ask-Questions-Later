@@ -25,6 +25,13 @@ export default [
       route('*', '(public)/(not-found)/page.tsx'),
     ]),
   ]),
+  // Design system
+  ...prefix('design-system', [
+    ...prefix('icons', [
+      index('(design-system)/(icons)/page.tsx'),
+      route('color-picker', '(design-system)/(icons)/(color-picker)/page.tsx'),
+    ]),
+  ]),
   // Game routes
   ...prefix('game', [
     ...prefix(':serverSlug', [

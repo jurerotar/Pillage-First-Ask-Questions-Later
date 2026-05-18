@@ -68,6 +68,7 @@ import type {
   NatarUnitId,
   NatureUnitId,
   RomanUnitId,
+  SpartanUnitId,
   TeutonUnitId,
   Unit,
 } from '@pillage-first/types/models/unit';
@@ -130,6 +131,8 @@ type HunTroopIconType = UpperCaseToCamelCase<HunUnitId>;
 
 type EgyptianTroopIconType = UpperCaseToCamelCase<EgyptianUnitId>;
 
+type SpartanTroopIconType = UpperCaseToCamelCase<SpartanUnitId>;
+
 type NatarTroopIconType = UpperCaseToCamelCase<NatarUnitId>;
 
 type NatureTroopIconType = UpperCaseToCamelCase<NatureUnitId>;
@@ -151,6 +154,7 @@ type UnitIconType =
   | TeutonTroopIconType
   | HunTroopIconType
   | EgyptianTroopIconType
+  | SpartanTroopIconType
   | NatarTroopIconType
   | NatureTroopIconType;
 
@@ -355,7 +359,12 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   legionnaire: (props) => <LuSword {...props} />,
   praetorian: (props) => <LuSword {...props} />,
   imperian: (props) => <LuSword {...props} />,
-  romanScout: (props) => <GiTiedScroll {...props} />,
+  romanScout: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['roman-scout'], props.className)}
+    />
+  ),
   equitesImperatoris: (props) => (
     <PillageFirstHorse
       {...props}
@@ -386,7 +395,12 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   // Gaul troops
   phalanx: (props) => <GiBarbedSpear {...props} />,
   swordsman: (props) => icons.missingIcon(props),
-  gaulScout: (props) => <GiTiedScroll {...props} />,
+  gaulScout: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['gaul-scout'], props.className)}
+    />
+  ),
   theutatesThunder: (props) => (
     <PillageFirstHorse
       {...props}
@@ -456,7 +470,12 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   slaveMilitia: (props) => icons.missingIcon(props),
   ashWarden: (props) => icons.missingIcon(props),
   khopeshWarrior: (props) => icons.missingIcon(props),
-  egyptianScout: (props) => <GiTiedScroll {...props} />,
+  egyptianScout: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['egyptian-scout'], props.className)}
+    />
+  ),
   anhurGuard: (props) => (
     <PillageFirstHorse
       {...props}
@@ -487,7 +506,12 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   // Hun troops
   mercenary: (props) => icons.missingIcon(props),
   bowman: (props) => icons.missingIcon(props),
-  hunScout: (props) => <GiTiedScroll {...props} />,
+  hunScout: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['hun-scout'], props.className)}
+    />
+  ),
   steppeRider: (props) => (
     <PillageFirstHorse
       {...props}
@@ -521,6 +545,38 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     />
   ),
 
+  // Spartan troops
+  hoplite: (props) => <GiBarbedSpear {...props} />,
+  shieldsman: (props) => <LuShield {...props} />,
+  twinsteelTherion: (props) => <LuSwords {...props} />,
+  spartanScout: (props) => <GiTiedScroll {...props} />,
+  elpidaRider: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['elpida-rider'], props.className)}
+    />
+  ),
+  corinthianCrusher: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['corinthian-crusher'], props.className)}
+    />
+  ),
+  spartanRam: (props) => icons.missingIcon(props),
+  spartanCatapult: (props) => <PillageFirstCatapult {...props} />,
+  spartanChief: (props) => (
+    <TbLaurelWreath
+      {...props}
+      className={clsx('text-green-700 dark:text-green-500', props.className)}
+    />
+  ),
+  spartanSettler: (props) => (
+    <GiPointyHat
+      {...props}
+      className={clsx('text-red-700 dark:text-red-500', props.className)}
+    />
+  ),
+
   // Natarian troops
   pikeman: (props) => icons.missingIcon(props),
   thornedWarrior: (props) => icons.missingIcon(props),
@@ -528,14 +584,19 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   axerider: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles[''], props.className)}
+      className={clsx(styles.axerider, props.className)}
     />
   ),
-  natarianScout: (props) => <GiTiedScroll {...props} />,
+  natarianScout: (props) => (
+    <PillageFirstHorse
+      {...props}
+      className={clsx(styles['natarian-scout'], props.className)}
+    />
+  ),
   natarianKnight: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles[''], props.className)}
+      className={clsx(styles['natarian-knight'], props.className)}
     />
   ),
   natarianRam: (props) => icons.missingIcon(props),
