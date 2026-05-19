@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
+import type { Tile } from '@pillage-first/types/models/tile';
+import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createController } from '../utils/controller';
 import {
@@ -149,82 +151,124 @@ export const renameVillage = createController(
 
 const decrementReinforcementsFromVillage = (
   db: DbFacade,
-  {
-    currentVillageTile,
-    sourceTileId,
-    troops,
-  }: {
-    currentVillageTile: number;
-    sourceTileId: number;
-    troops: Array<{ unitId: string; amount: number }>;
-  },
+  currentVillageTile: Tile['id'],
+  sourceTileId: Tile['id'],
+  troops: Omit<Troop, 'source' | 'tileId'>[],
 ) => {
-  for (const troop of troops) {
-    const availableAmount = db.selectValue({
-      sql: `
-          SELECT amount
-          FROM troops t
-            JOIN unit_ids ui ON ui.id = t.unit_id
-          WHERE
-            t.tile_id = $tile_id
-            AND t.source_tile_id = $source_tile_id
-            AND ui.unit = $unit_id
-          LIMIT 1
-        `,
-      bind: {
-        $tile_id: currentVillageTile,
-        $source_tile_id: sourceTileId,
-        $unit_id: troop.unitId,
-      },
-      schema: z.number().nullable(),
-    });
-
-    if (!availableAmount || availableAmount < troop.amount) {
-      throw new Error('Not enough troops available for relocation');
-    }
-
-    db.exec({
-      sql: `
-          UPDATE troops
-          SET amount = amount - $amount
-          WHERE
-            tile_id = $tile_id
-            AND source_tile_id = $source_tile_id
-            AND unit_id = (
-              SELECT id
-              FROM unit_ids
-              WHERE unit = $unit_id
-            )
-            AND amount >= $amount
-        `,
-      bind: {
-        $tile_id: currentVillageTile,
-        $source_tile_id: sourceTileId,
-        $unit_id: troop.unitId,
-        $amount: troop.amount,
-      },
-    });
-
-    db.exec({
-      sql: `
-          DELETE FROM troops
-          WHERE
-            tile_id = $tile_id
-            AND source_tile_id = $source_tile_id
-            AND unit_id = (
-              SELECT id
-              FROM unit_ids
-              WHERE unit = $unit_id
-            )
-            AND amount = 0
-        `,
-      bind: {
-        $tile_id: currentVillageTile,
-        $source_tile_id: sourceTileId,
-        $unit_id: troop.unitId,
-      },
-    });
+  if (troops.length === 0) {
+    return;
   }
+
+  const aggregatedTroops = Array.from(
+    troops.reduce((requestedTroops, { unitId, amount }) => {
+      requestedTroops.set(unitId, (requestedTroops.get(unitId) ?? 0) + amount);
+
+      return requestedTroops;
+    }, new Map<Troop['unitId'], number>()),
+    ([unitId, amount]) => ({ unitId, amount }),
+  );
+
+  const requestedValuesSql = aggregatedTroops
+    .map((_, index) => `($unit_id_${index}, $amount_${index})`)
+    .join(',\n          ');
+
+  const requestedTroopsSql = `
+    WITH
+      requested_troops(unit_id, amount) AS (
+        VALUES
+          ${requestedValuesSql}
+        ),
+      requested_troops_with_ids AS (
+        SELECT
+          ui.id AS db_unit_id,
+          rt.unit_id,
+          rt.amount
+        FROM
+          requested_troops rt
+            JOIN unit_ids ui ON ui.unit = rt.unit_id
+        )
+  `;
+  const bind: Record<string, number | string> = {
+    $tile_id: currentVillageTile,
+    $source_tile_id: sourceTileId,
+  };
+
+  for (const [index, { unitId, amount }] of aggregatedTroops.entries()) {
+    bind[`$unit_id_${index}`] = unitId;
+    bind[`$amount_${index}`] = amount;
+  }
+
+  const unavailableTroops = db.selectValues({
+    sql: `
+      ${requestedTroopsSql}
+      SELECT rtwi.unit_id
+      FROM
+        requested_troops_with_ids rtwi
+          LEFT JOIN troops t
+                    ON t.unit_id = rtwi.db_unit_id
+                      AND t.tile_id = $tile_id
+                      AND t.source_tile_id = $source_tile_id
+      WHERE
+        t.amount IS NULL
+        OR t.amount < rtwi.amount
+    `,
+    bind,
+    schema: z.string(),
+  });
+
+  if (unavailableTroops.length > 0) {
+    throw new Error('Not enough troops available for relocation');
+  }
+
+  db.exec({
+    sql: `
+      ${requestedTroopsSql}
+      DELETE
+      FROM
+        troops
+      WHERE
+        tile_id = $tile_id
+        AND source_tile_id = $source_tile_id
+        AND EXISTS
+        (
+          SELECT 1
+          FROM
+            requested_troops_with_ids rtwi
+          WHERE
+            rtwi.db_unit_id = troops.unit_id
+            AND troops.amount = rtwi.amount
+          )
+    `,
+    bind,
+  });
+
+  db.exec({
+    sql: `
+      ${requestedTroopsSql}
+      UPDATE troops
+      SET
+        amount = amount - (
+          SELECT rtwi.amount
+          FROM
+            requested_troops_with_ids rtwi
+          WHERE
+            rtwi.db_unit_id = troops.unit_id
+          )
+      WHERE
+        tile_id = $tile_id
+        AND source_tile_id = $source_tile_id
+        AND EXISTS
+        (
+          SELECT 1
+          FROM
+            requested_troops_with_ids rtwi
+          WHERE
+            rtwi.db_unit_id = troops.unit_id
+            AND troops.amount > rtwi.amount
+          )
+    `,
+    bind,
+  });
 };
 
 export const relocateReinforcements = createController(
@@ -237,12 +281,16 @@ export const relocateReinforcements = createController(
         SELECT
           (
             SELECT id
-            FROM villages
-            WHERE tile_id = $source_tile_id
-          ) AS sourceVillageId,
+            FROM
+              villages
+            WHERE
+              tile_id = $source_tile_id
+            ) AS sourceVillageId,
           tile_id AS currentVillageTile
-        FROM villages
-        WHERE id = $village_id
+        FROM
+          villages
+        WHERE
+          id = $village_id
       `,
       bind: {
         $source_tile_id: sourceTileId,
@@ -254,29 +302,30 @@ export const relocateReinforcements = createController(
       }),
     })!;
 
-    decrementReinforcementsFromVillage(db, {
+    decrementReinforcementsFromVillage(
+      db,
       currentVillageTile,
       sourceTileId,
       troops,
-    });
+    );
 
     for (const troop of troops) {
       db.exec({
         sql: `
-          INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
-          VALUES (
-            $tile_id,
-            $target_source_tile_id,
-            (
+          INSERT INTO
+            troops (tile_id, source_tile_id, unit_id, amount)
+          VALUES
+            ($tile_id, $target_source_tile_id, (
               SELECT id
-              FROM unit_ids
-              WHERE unit = $unit_id
-            ),
-            $amount
-          )
+              FROM
+                unit_ids
+              WHERE
+                unit = $unit_id
+              ), $amount)
           ON CONFLICT (tile_id, source_tile_id, unit_id)
-          DO UPDATE
-          SET amount = amount + $amount
+            DO UPDATE
+            SET
+              amount = amount + $amount
         `,
         bind: {
           $tile_id: currentVillageTile,
@@ -341,11 +390,12 @@ export const returnReinforcements = createController(
       throw new Error('Source village tile not found');
     }
 
-    decrementReinforcementsFromVillage(db, {
+    decrementReinforcementsFromVillage(
+      db,
       currentVillageTile,
       sourceTileId,
       troops,
-    });
+    );
 
     createEvents<'troopMovementReturn'>(db, {
       type: 'troopMovementReturn',

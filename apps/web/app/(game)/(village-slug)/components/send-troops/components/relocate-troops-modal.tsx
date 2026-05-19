@@ -49,6 +49,8 @@ export const RelocateTroopsModal = ({
       units: [],
     },
   });
+  const units = form.watch('units');
+  const hasSelectedTroops = units.some(({ selected }) => selected > 0);
 
   useEffect(() => {
     if (!isOpen) {
@@ -145,7 +147,12 @@ export const RelocateTroopsModal = ({
               >
                 {t('Cancel')}
               </Button>
-              <Button type="submit">{t('Confirm')}</Button>
+              <Button
+                type="submit"
+                disabled={!hasSelectedTroops}
+              >
+                {t('Confirm')}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

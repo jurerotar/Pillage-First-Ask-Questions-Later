@@ -131,18 +131,16 @@ export const startHeroAdventure = createController(
     sql: `
       SELECT
         h.health,
-        t.tile_id as tileId,
-        h.village_id as villageId,
+        v.tile_id AS tileId,
+        v.id AS villageId,
         tl.x,
         tl.y
       FROM
         heroes h
-          JOIN troops t ON h.id = t.unit_id
-          JOIN unit_ids ui ON t.unit_id = ui.id
-          JOIN tiles tl ON t.tile_id = tl.id
+          JOIN villages v ON v.id = h.village_id
+          JOIN tiles tl ON tl.id = v.tile_id
       WHERE
         h.player_id = $player_id
-        AND ui.unit = 'HERO'
       LIMIT 1;
     `,
     bind: { $player_id: playerId },

@@ -280,6 +280,118 @@ describe('player-controllers', () => {
     expect(sourceVillageId).toBeGreaterThan(0);
   });
 
+  test('relocateReinforcements should delete the reinforcement row when moving the full remaining amount', async () => {
+    const database = await prepareTestDatabase();
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const sourceTileId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM tiles
+        WHERE id != $target_tile_id
+          AND id NOT IN (SELECT tile_id FROM villages)
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $target_tile_id: targetVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    database.selectValue({
+      sql: `
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES ($name, $slug, $tile_id, $player_id)
+        RETURNING id
+      `,
+      bind: {
+        $name: 'Exact Relocation Source Village',
+        $slug: `exact-relocation-source-${Date.now()}`,
+        $tile_id: sourceTileId,
+        $player_id: playerId,
+      },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          $amount
+        )
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+        $amount: 3,
+      },
+    });
+
+    relocateReinforcements(
+      database,
+      createControllerArgs<
+        '/villages/:villageId/relocate-reinforcements',
+        'post'
+      >({
+        path: { villageId: targetVillage.id },
+        body: {
+          sourceTileId,
+          troops: [{ unitId: 'LEGIONNAIRE', amount: 3 }],
+        },
+      }),
+    );
+
+    const sourceReinforcementCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit = 'LEGIONNAIRE'
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+      },
+      schema: z.number(),
+    });
+
+    const villageTroopsAmount = database.selectValue({
+      sql: `
+        SELECT t.amount
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit = 'LEGIONNAIRE'
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: targetVillage.tile_id,
+      },
+      schema: z.number().nullable(),
+    });
+
+    expect(sourceReinforcementCount).toBe(0);
+    expect(villageTroopsAmount).toBe(3);
+  });
+
   test('returnReinforcements should create return event and remove troops from reinforcements', async () => {
     const database = await prepareTestDatabase();
 
@@ -404,6 +516,121 @@ describe('player-controllers', () => {
     expect(returnEvent.original_movement_type).toBe(
       'troopMovementReturnReinforcements',
     );
+  });
+
+  test('returnReinforcements should delete the reinforcement row when returning the full remaining amount', async () => {
+    const database = await prepareTestDatabase();
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const sourceTileId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM tiles
+        WHERE id != $target_tile_id
+          AND id NOT IN (SELECT tile_id FROM villages)
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $target_tile_id: targetVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    database.selectValue({
+      sql: `
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES ($name, $slug, $tile_id, $player_id)
+        RETURNING id
+      `,
+      bind: {
+        $name: 'Exact Return Source Village',
+        $slug: `exact-return-source-${Date.now()}`,
+        $tile_id: sourceTileId,
+        $player_id: playerId,
+      },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          $amount
+        )
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+        $amount: 3,
+      },
+    });
+
+    returnReinforcements(
+      database,
+      createControllerArgs<
+        '/villages/:villageId/return-reinforcements',
+        'post'
+      >({
+        path: { villageId: targetVillage.id },
+        body: {
+          sourceTileId,
+          troops: [{ unitId: 'LEGIONNAIRE', amount: 3 }],
+        },
+      }),
+    );
+
+    const sourceReinforcementCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit = 'LEGIONNAIRE'
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+      },
+      schema: z.number(),
+    });
+
+    const returnEvent = database.selectObject({
+      sql: `
+        SELECT
+          type,
+          JSON_EXTRACT(meta, '$.troops[0].unitId') AS unit_id,
+          JSON_EXTRACT(meta, '$.troops[0].amount') AS amount
+        FROM events
+        WHERE type = 'troopMovementReturn'
+        ORDER BY id DESC
+        LIMIT 1
+      `,
+      schema: z.strictObject({
+        type: z.string(),
+        unit_id: z.string(),
+        amount: z.number(),
+      }),
+    })!;
+
+    expect(sourceReinforcementCount).toBe(0);
+    expect(returnEvent.type).toBe('troopMovementReturn');
+    expect(returnEvent.unit_id).toBe('LEGIONNAIRE');
+    expect(returnEvent.amount).toBe(3);
   });
 
   test('relocateReinforcements should relocate hero and update hero effects village', async () => {

@@ -78,7 +78,13 @@ export const PlayerVillageSelector = ({
   );
 };
 
-export const CoordinateSelector = () => {
+type CoordinateSelectorProps = {
+  disabled?: boolean;
+};
+
+export const CoordinateSelector = ({
+  disabled = false,
+}: CoordinateSelectorProps) => {
   const { t } = useTranslation();
   const { watch, setValue } = useFormContext<TargetFormValues>();
   const target = watch('target');
@@ -99,6 +105,7 @@ export const CoordinateSelector = () => {
           <Input
             id="target-x"
             type="number"
+            disabled={disabled}
             value={xValue}
             onChange={(e) => {
               const x =
@@ -120,6 +127,7 @@ export const CoordinateSelector = () => {
           <Input
             id="target-y"
             type="number"
+            disabled={disabled}
             value={yValue}
             onChange={(e) => {
               const y =

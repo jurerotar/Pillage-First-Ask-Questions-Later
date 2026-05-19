@@ -4,6 +4,13 @@ import { TroopMovementConfirmationModal } from 'app/(game)/(village-slug)/compon
 import { SendTroopsModal } from 'app/(game)/(village-slug)/components/send-troops/components/send-troops-modal';
 import { useFoundNewVillageTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-found-new-village-troop-form';
 import { useReinforcementRelocationTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-reinforcement-relocation-troop-form';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from 'app/components/ui/form';
+import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
 
 export type MapSendTroopsAction = {
   mode: 'found-new-village' | 'reinforcement';
@@ -99,10 +106,46 @@ const ReinforceVillageModal = ({
         isOpen={isOpen}
         onClose={onClose}
         onSubmit={onFormSubmit}
-        title={t('Reinforce village')}
+        title={t('Reinforce or relocate')}
         tribe={tribe}
         form={form}
-        targetSelector="playerVillage"
+        targetSelector="coordinates"
+        isTargetSelectorDisabled
+        extraContent={
+          <FormField
+            control={form.control}
+            name="action"
+            render={({ field }) => (
+              <FormItem className="space-y-2 border-l dark:border-border pl-4">
+                <FormLabel>{t('Action')}</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-2"
+                  >
+                    <FormItem className="flex items-center space-x-4 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="reinforcement" />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        {t('Reinforcement')}
+                      </FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-4 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="relocation" />
+                      </FormControl>
+                      <FormLabel className="font-normal">
+                        {t('Relocation')}
+                      </FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        }
       />
 
       {formData.current && (
@@ -111,7 +154,11 @@ const ReinforceVillageModal = ({
           onClose={closeConfirmationModal}
           onConfirm={onConfirm}
           formData={formData.current}
-          title={t('Reinforcement')}
+          title={
+            formData.current.action === 'reinforcement'
+              ? t('Reinforcement')
+              : t('Relocation')
+          }
           tribe={tribe}
         />
       )}

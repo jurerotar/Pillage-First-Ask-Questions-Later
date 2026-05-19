@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { SubmitHandler, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { Tribe } from '@pillage-first/types/models/tribe';
@@ -26,6 +27,8 @@ type SendTroopsModalProps<T extends BaseTroopFormValues> = {
   disabledUnitTiers?: UnitSelection['tier'][];
   maxUnits?: { unitId: UnitSelection['unitId']; amount: number }[];
   targetSelector?: 'coordinates' | 'playerVillage';
+  isTargetSelectorDisabled?: boolean;
+  extraContent?: ReactNode;
 };
 
 export const SendTroopsModal = <T extends BaseTroopFormValues>({
@@ -38,6 +41,8 @@ export const SendTroopsModal = <T extends BaseTroopFormValues>({
   disabledUnitTiers,
   maxUnits,
   targetSelector = 'coordinates',
+  isTargetSelectorDisabled = false,
+  extraContent,
 }: SendTroopsModalProps<T>) => {
   const { t } = useTranslation();
 
@@ -64,10 +69,12 @@ export const SendTroopsModal = <T extends BaseTroopFormValues>({
 
             <div className="flex items-end gap-4">
               {targetSelector === 'coordinates' ? (
-                <CoordinateSelector />
+                <CoordinateSelector disabled={isTargetSelectorDisabled} />
               ) : (
-                <PlayerVillageSelector />
+                <PlayerVillageSelector disabled={isTargetSelectorDisabled} />
               )}
+
+              {extraContent}
             </div>
 
             <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
