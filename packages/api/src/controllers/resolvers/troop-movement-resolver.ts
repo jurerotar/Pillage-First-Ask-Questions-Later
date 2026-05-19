@@ -68,18 +68,11 @@ export const adventureMovementResolver: Resolver<
   if (health === 0) {
     onHeroDeath(database, resolvesAt);
 
-    database.exec({
-      sql: 'UPDATE hero_adventures SET available = available - 1 WHERE hero_id = $hero_id;',
-      bind: {
-        $hero_id: heroId,
-      },
-    });
-
     return;
   }
 
   database.exec({
-    sql: 'UPDATE hero_adventures SET completed = completed + 1, available = available - 1 WHERE hero_id = $hero_id;',
+    sql: 'UPDATE hero_adventures SET completed = completed + 1 WHERE hero_id = $hero_id;',
     bind: {
       $hero_id: heroId,
     },

@@ -36,6 +36,9 @@
     "./env": {
       "default": "./src/env.ts"
     },
+    "./opfs-lock-retry": {
+      "default": "./src/opfs-lock-retry.ts"
+    },
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },

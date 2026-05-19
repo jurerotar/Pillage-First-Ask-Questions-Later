@@ -17,7 +17,7 @@ export const useHeroAdventures = () => {
   const { player } = useMe();
 
   const {
-    data: { available, completed },
+    data: { available, completed, nextAvailableAt },
   } = useSuspenseQuery({
     queryKey: [adventurePointsCacheKey],
     queryFn: async () => {
@@ -44,6 +44,7 @@ export const useHeroAdventures = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
+        [adventurePointsCacheKey],
         [heroCacheKey],
         [villageTroopsCacheKey, currentVillage.id],
         [troopMovementsCacheKey, currentVillage.id],
@@ -54,6 +55,7 @@ export const useHeroAdventures = () => {
   return {
     available,
     completed,
+    nextAvailableAt,
     startAdventure,
   };
 };

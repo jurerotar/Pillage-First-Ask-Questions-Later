@@ -4,6 +4,45 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 // should already be part of the new schema, so contents of this function should be deleted
 export const upgradeDb = (database: DbFacade): void => {
   database.transaction((db) => {
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE hero_adventures
+          ADD COLUMN last_updated_at INTEGER NOT NULL DEFAULT 0;
+        `,
+      });
+    } catch {
+      // Column already exists on newer databases.
+    }
+
+    db.exec({
+      sql: `
+        UPDATE hero_adventures
+        SET last_updated_at = COALESCE(
+          (
+            SELECT resolves_at
+            FROM events
+            WHERE type = 'adventurePointIncrease'
+            LIMIT 1
+          ),
+          (
+            SELECT last_write
+            FROM meta
+            LIMIT 1
+          ),
+          last_updated_at
+        )
+        WHERE last_updated_at = 0;
+      `,
+    });
+
+    db.exec({
+      sql: `
+        DELETE FROM events
+        WHERE type = 'adventurePointIncrease';
+      `,
+    });
+
     db.exec({
       sql: `
         CREATE TRIGGER IF NOT EXISTS loyalties_delete_capped_entries_after_update

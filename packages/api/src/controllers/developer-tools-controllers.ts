@@ -11,6 +11,7 @@ import {
 import { mapDeveloperSettingsRowToDto } from './mappers/developer-tools-mapper';
 import { onHeroDeath } from './resolvers/utils/hero';
 import { getDeveloperSettingsRowSchema } from './schemas/developer-tools-schemas';
+import { materializeHeroAdventurePointsAt } from './utils/adventures';
 
 export const getDeveloperSettings = createController('/developer-settings')(
   ({ database }) => {
@@ -195,16 +196,22 @@ export const incrementHeroAdventurePoints = createController(
   '/developer-settings/:heroId/increment-adventure-points',
   'patch',
 )(({ database, path: { heroId } }) => {
+  const now = Date.now();
+
+  materializeHeroAdventurePointsAt(database, heroId, now);
+
   database.exec({
     sql: `
       UPDATE hero_adventures
       SET
-        available = available + 1
+        available = available + 1,
+        last_updated_at = $now
       WHERE
         hero_id = $hero_id
     `,
     bind: {
       $hero_id: heroId,
+      $now: now,
     },
   });
 });

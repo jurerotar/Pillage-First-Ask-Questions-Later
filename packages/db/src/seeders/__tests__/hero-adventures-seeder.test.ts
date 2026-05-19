@@ -9,7 +9,11 @@ describe('heroAdventuresSeeder', () => {
   test('hero has 3 available adventures and 0 completed', () => {
     const row = database.selectObject({
       sql: `
-        SELECT available, completed
+        SELECT
+          available,
+          completed,
+          last_updated_at AS lastUpdatedAt,
+          (SELECT created_at FROM servers LIMIT 1) AS serverCreatedAt
         FROM
           hero_adventures
         WHERE
@@ -25,11 +29,14 @@ describe('heroAdventuresSeeder', () => {
       schema: z.strictObject({
         available: z.number(),
         completed: z.number(),
+        lastUpdatedAt: z.number(),
+        serverCreatedAt: z.number(),
       }),
     });
 
     expect(row).toBeDefined();
     expect(row?.available).toBe(3);
     expect(row?.completed).toBe(0);
+    expect(row?.lastUpdatedAt).toBe(row?.serverCreatedAt);
   });
 });

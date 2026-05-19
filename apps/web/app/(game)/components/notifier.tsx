@@ -321,7 +321,7 @@ type NotifierProps = {
 
 export const Notifier = ({ serverSlug }: NotifierProps) => {
   const { t } = useTranslation();
-  const { apiWorker } = useApiWorker(serverSlug);
+  const { subscribeToApiWorkerNotifications } = useApiWorker(serverSlug);
   const { preferences } = usePreferences();
   const notificationPermission = useNotificationPermission();
   const isTabFocused = useTabFocus();
@@ -335,10 +335,6 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
   }, [playerVillages]);
 
   useEffect(() => {
-    if (!apiWorker) {
-      return;
-    }
-
     const handleMessage = async (event: MessageEvent<ApiNotificationEvent>) => {
       if (isEventCreatedNotificationMessageEvent(event)) {
         const { data } = event;
@@ -406,19 +402,15 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       }
     };
 
-    apiWorker.addEventListener('message', handleMessage);
-
-    return () => {
-      apiWorker.removeEventListener('message', handleMessage);
-    };
+    return subscribeToApiWorkerNotifications(handleMessage);
   }, [
-    apiWorker,
     t,
     notificationPermission,
     isTabFocused,
     server,
     preferences,
     playerVillagesMap,
+    subscribeToApiWorkerNotifications,
   ]);
 
   return null;

@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
@@ -295,6 +295,10 @@ describe('developer-tools-controllers', () => {
   describe(incrementHeroAdventurePoints, () => {
     test('should increment hero adventure points', async () => {
       const database = await prepareTestDatabase();
+      const now = 9 * 60 * 60 * 1000;
+
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(now));
 
       const hero = database.selectObject({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -303,12 +307,21 @@ describe('developer-tools-controllers', () => {
       })!;
       const heroId = hero.id;
 
-      // Initial points (should be 0 or some seeded value)
-      const initialPoints = database.selectObject({
-        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $hero_id',
+      database.exec({
+        sql: `
+          UPDATE servers
+          SET created_at = 0
+        `,
+      });
+
+      database.exec({
+        sql: `
+          UPDATE hero_adventures
+          SET last_updated_at = 0
+          WHERE hero_id = $hero_id
+        `,
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ available: z.number() }),
-      })!.available;
+      });
 
       incrementHeroAdventurePoints(
         database,
@@ -321,12 +334,18 @@ describe('developer-tools-controllers', () => {
       );
 
       const points = database.selectObject({
-        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $hero_id',
+        sql: 'SELECT available, last_updated_at AS lastUpdatedAt FROM hero_adventures WHERE hero_id = $hero_id',
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ available: z.number() }),
+        schema: z.strictObject({
+          available: z.number(),
+          lastUpdatedAt: z.number(),
+        }),
       })!;
 
-      expect(points.available).toBe(initialPoints + 1);
+      expect(points.available).toBe(5);
+      expect(points.lastUpdatedAt).toBe(now);
+
+      vi.useRealTimers();
     });
   });
 

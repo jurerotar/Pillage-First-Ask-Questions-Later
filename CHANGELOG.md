@@ -1,10 +1,19 @@
+## Version 0.4.22
+
+#### May 19, 2026
+
+* [Performance] Greatly improved adventure point calculation, resolving in noticeably faster game world initialization,
+  especially for game worlds which haven't been opened in a while.
+
 ## Version 0.4.21
 
 #### May 16, 2026
 
-* [BugFix] Fixed an issue where starting a building demolition, the demolition countdown would not appear in the Village Overview or Main Building's Demolish Buildings views.
+* [BugFix] Fixed an issue where starting a building demolition, the demolition countdown would not appear in the Village
+  Overview or Main Building's Demolish Buildings views.
 * [BugFix] Fixed an issue where upgrading a building would prevent a separate building from being downgraded.
-* [BugFix] Fixed an issue where Village Overview's demolition table would not appear unless Main Building was at level 11.
+* [BugFix] Fixed an issue where Village Overview's demolition table would not appear unless the Main Building was at
+  level 11.
 * [TechnicalImprovement] Reworded some error descriptions for more clarity.
 
 ## Version 0.4.20
@@ -12,7 +21,7 @@
 #### May 15, 2026
 
 * [Feature] Added the ability to cancel building downgrade/demolish events.
-* [Feature] Added the ability to downgrade buildings by more than one level at the time.
+* [Feature] Added the ability to downgrade buildings by more than one level at a time.
 * [Feature] Reworked building downgrade/demolish duration. Duration is now based on level difference. Each level of
   difference adds `300 seconds / game world speed` to the duration.
 
@@ -20,8 +29,8 @@
 
 #### May 10, 2026
 
-* [TechnicalImprovement] Toast popups and notifications will now display village name.
-* [BugFix] Fixed an issue where village founding events didn't show a correct timestamp on Events page.
+* [TechnicalImprovement] Toast popups and notifications will now display the village name.
+* [BugFix] Fixed an issue where village founding events didn't show a correct timestamp on the Events page.
 * [BugFix] Fixed an issue where NPC reputation level was incorrectly calculated, resulting in all NPC being shown as
   with "hated" reputation level.
 
@@ -31,7 +40,7 @@
 
 * [TechnicalImprovement] We reworked how communication between threads works, enabling complete type safety. Previously,
   we had no way to guarantee that the data we pass between threads is actually correct, without just manually testing
-  it. This caused issues during refactors, since any missing argument/parameter isn't actually caught during
+  it. This caused issues during refactoring, since any missing argument/parameter isn't actually caught during
   lint/type-check and had to be manually validated to be working.
 
 ## Version 0.4.17
@@ -45,13 +54,14 @@
 
 #### May 5, 2026
 
-* [Performance] Removed unnecessary sorting operations on player, building details & quests pages.
+* [Performance] Removed unnecessary sorting operations on player, building details and quests pages.
 
 ## Version 0.4.15
 
 #### May 5, 2026
 
-* [Feature] Expanded NPC village templates. NPC villages will now be created with more buildings and higher population.
+* [Feature] Expanded NPC village templates. NPC villages will now be created with more buildings and a higher
+  population.
 
 ## Version 0.4.14
 
@@ -63,8 +73,8 @@
 
 #### May 1, 2026
 
-* [Feature] Added `Oasis animal finder` page. Oasis animal finder page allows you to search for all oasis with a
-  specific combination of animals present. For each selected animal type, you can set a minimum amount of animals of
+* [Feature] Added `Oasis animal finder` page. Oasis animal finder page allows you to search for all oases with a
+  specific combination of animals present. For each selected animal type, you can set a minimum number of animals of
   that type that must be present in the oasis, allowing you to further narrow down the search. Oasis animal finder is
   accessible through the map page.
 
@@ -89,12 +99,12 @@
 
 fix: building downgrade fixes
 
-* [Feature] Added a table of current ongoing demolishments to "Demolish buildings" tab of Village management.
-* [Feature] Added a confirmation modal with details of what will happen, if you confirm downgrading or demolishing
+* [Feature] Added a table of current ongoing demolishments to the "Demolish buildings" tab of Village management.
+* [Feature] Added a confirmation modal with details of what will happen if you confirm downgrading or demolishing
   buildings.
-* [BugFix] Building overview & building field tooltip will now properly display "Currently downgrading to level x", if
-  building is being downgraded.
-* [BugFix] Toast notifications will now properly say "Building was downgraded to level x".
+* [BugFix] Building overview and building field tooltip will now properly display "Currently downgrading to level x", if
+  the building is being downgraded.
+* [BugFix] Toast notifications will now properly say, "Building was downgraded to level x".
 
 ## Version 0.4.9
 
@@ -126,7 +136,7 @@ fix: building downgrade fixes
 
 #### Apr 15, 2026
 
-* [Feature] Added stationed troops section to the Rally Point's Troop movements tab. This section displays troops
+* [Feature] Added a stationed troops section to the Rally Point's Troop movements tab. This section displays troops
   currently stationed in your village, both deployable troops and reinforcements.
 
 ## Version 0.4.4
@@ -140,7 +150,7 @@ fix: building downgrade fixes
 
 #### Apr 13, 2026
 
-* [Feature] Building benefits tab now show all building effect values.
+* [Feature] Building benefits tab now shows all building effect values.
 
 * [BugFix] Fixed wall building incorrectly showing defense bonus of over 100%.
 
@@ -148,9 +158,9 @@ fix: building downgrade fixes
 
 #### Apr 12, 2026
 
-* [BugFix] Rename village screen will now correctly show current village's name on village change.
+* [BugFix] Rename village screen will now correctly show the current village's name on village change.
 
-* [BugFix] Map tile tooltips and modals will now correctly show "%" sign next to oasis bonus value.
+* [BugFix] Map tile tooltips and modals will now correctly show the "%" sign next to the oasis bonus value.
 
 * [BugFix] Fixed incorrect wheat field label on 0-0-0-15 resource fields.
 
@@ -158,7 +168,7 @@ fix: building downgrade fixes
 
 * [BugFix] Fixed homepage's Discord button not correctly showing current server user count.
 
-* [TechnicalImprovement] Selected filters and toggles (ex. on reports page) will now persist through app refreshes.
+* [TechnicalImprovement] Selected filters and toggles (ex. on report page) will now persist through app refreshes.
 
 * [TechnicalImprovement] Improved error-handling flow when exporting game worlds.
 
@@ -175,9 +185,10 @@ fix: building downgrade fixes
 * [Breaking] This version introduces breaking changes
 
 * [Feature] We added the ability to found new villages. You're able to found new villages by selecting an empty tile on
-  the map, while having 3 settlers present in you village.
+  the map, while having three settlers present in your village.
 
-* [Feature] We're getting a new page! **Event log page** will show a list of latest events happening in your kingdom! It
+* [Feature] We're getting a new page! **Event log page** will show a list of the latest events happening in your
+  kingdom! It
   will show completed **construction/destruction/downgrade events**, **training events**, as well as **unit improvement
   events**, **unit research events** and **new village founding events**. You'll be able to toggle between
   village-specific events or all events. This will allow you to see what was done since you were last online, at a
@@ -185,7 +196,8 @@ fix: building downgrade fixes
 
 * [Feature] We added new custom-made icons! This time for **cavalry defense** and **infantry defense**.
 
-* [Feature] We added experimental support for transferring game world between devices on the same network. This is done
+* [Feature] We added experimental support for transferring a game world between devices on the same network. This is
+  done
   using WebRTC technology. To transfer the game world to a new device, both devices must have the app open and be on the
   same network.
 
@@ -197,7 +209,8 @@ fix: building downgrade fixes
 
 * [Feature] We reworked how construction cancellation works. Previously, cancelling an ongoing construction refunded a
   flat 80% of the construction cost, regardless of when the construction was canceled. This penalized players who
-  initialized construction by mistake. New refund system is based on proportionality of already-completed construction.
+  initialized construction by mistake. The new refund system is based on the proportionality of already-completed
+  construction.
   Cancelling immediately or in the first 5% of construction duration will refund 95% of the construction cost. From 5%
   of construction duration forwards, the system will refund resources proportionally, with the minimum amount return of
   40%.
@@ -249,13 +262,13 @@ fix: building downgrade fixes
 
 #### Mar 12, 2026
 
-* [BugFix] Added missing residence training queue to Village Overview page.
+* [BugFix] Added a missing residence training queue to the Village Overview page.
 
 ## Version 0.3.9
 
 #### Mar 11, 2026
 
-* [BugFix] Fixed incorrect building duration value shown on Upgrade Details' Upgrade Duration tab.
+* [BugFix] Fixed the incorrect building duration value shown on Upgrade Details' Upgrade Duration tab.
 
 ## Version 0.3.8
 
@@ -268,7 +281,7 @@ fix: building downgrade fixes
 
 #### Mar 6, 2026
 
-* [BugFix] Added additional validations to prevent app from getting in to incorrect state.
+* [BugFix] Added additional validations to prevent the app from getting in to incorrect state.
 
 ## Version 0.3.6
 
@@ -280,7 +293,8 @@ fix: building downgrade fixes
 
 #### Mar 6, 2026
 
-* [BugFix] Added additional validations to prevent the app from getting to incorrect state. These fixes should prevent
+* [BugFix] Added additional validations to prevent the app from getting to an incorrect state. These fixes should
+  prevent
   users from being able to upgrade units beyond level 20, upgrade buildings beyond their max level and surpass other
   similar limitations.
 
@@ -304,7 +318,7 @@ fix: building downgrade fixes
 
 * [BugFix] Fixed an issue upgrading buildings wouldn't complete "upgrade building to level x" quests.
 
-* [BugFix] Fixed an issue where training multiple units at once actually trained X * X amount of units, instead of X.
+* [BugFix] Fixed an issue where training multiple units at once actually trained X * X number of units, instead of X.
 
 * [BugFix] Fixed an issue where a Hero would return immediately after completing an adventure.
 
@@ -322,8 +336,8 @@ fix: building downgrade fixes
 
 * [Breaking] This version introduces breaking changes
 
-* [Feature] Added hero adventures! Too long have our heroes sat idly by. No longer! You'll now have an option to send
-  hero on adventures to gather loot and experience! <br /> Adventures will take anywhere from 8 to 12 minutes, and are
+* [Feature] Added hero adventures! Too long have our heroes sat idly by. No longer! You'll now be able to send
+  a hero on adventures to gather loot and experience! <br /> Adventures will take anywhere from 8 to 12 minutes, and are
   scaled with game world speed.<br /> Each adventure will cost your hero some health points; 5 to be exact. This can be
   reduced by wearing damage-reducing gear!<br /> Your hero earns experience each time it completes an adventure. It
   currently receives `10 * (number_of_completed_adventures + 1)` experience per successful adventure!<br /> Your hero
@@ -338,12 +352,14 @@ fix: building downgrade fixes
 
 * [BugFix] Fixed an issue where some occupiable oasis did not have proper resource bonuses and animals generated.
 
-* [BugFix] Fixed an issue where not all occupiable oasis were shown in Hero's Mansion.
+* [BugFix] Fixed an issue where not all occupiable oases were shown in Hero's Mansion.
 
-* [Performance] Improved database seeding performance and reduced overall size of the database file. We implemented 2
-  separate changes in regard to database. First one reduced overall database size by around 10-30% percent, depending
-  on game world size. Second one cut the time to seed the database by over 50% on game worlds of all sizes. This results
-  in faster game world creation, as well as better performance while in game!
+* [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented
+  2
+  separate changes in regard to a database. The first one reduced overall database size by around 10–30%, depending
+  on game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This
+  results
+  in faster game world creation, as well as better performance while in the game!
 
 * [TechnicalImprovement] Improved database breaking changes detection. App will now more consistently detect outdated
   game worlds.
@@ -359,13 +375,14 @@ fix: building downgrade fixes
 
 #### Feb 23, 2026
 
-* [Feature] Village overview page now shows ongoing building construction table with the ability to cancel construction
+* [Feature] Village overview page now shows an ongoing building construction table with the ability to cancel
+  construction
 
 ## Version 0.2.3
 
 #### Feb 21, 2026
 
-* [BugFix] Fixed discrepancy between population count shown on the map and in statistics.
+* [BugFix] Fixed the discrepancy between population count shown on the map and in statistics.
 
 ## Version 0.2.2
 
@@ -377,7 +394,8 @@ fix: building downgrade fixes
 
 #### Feb 16, 2026
 
-* [Feature] Added an option to view constructable buildings list in compacted form. This change allows players to scroll
+* [Feature] Added an option to view the constructable buildings list in compacted form. This change allows players to
+  scroll
   less, especially on mobile devices.
 
 * [Feature] Added the ability to commit minor database upgrades without breaking game worlds.
@@ -389,7 +407,7 @@ fix: building downgrade fixes
 * [Breaking] This version introduces breaking changes
 
 * [Feature] Added hero attributes page. You're now able to see all your hero attributes. There are some additional
-  attributes which are not shown (cranny plunder,...). These options will be added in a later patch. Page also allows
+  attributes that are not shown (cranny plunder, ...). These options will be added in a later patch. Page also allows
   you to change hero's ability points, along with the ability to switch hero resource production focus. The dropdown
   shows you production values to expect on change.
 
@@ -406,18 +424,18 @@ fix: building downgrade fixes
 #### Feb 11, 2026
 
 * [BugFix] Fixed an issue where upgrading buildings wouldn't increase the building effect values (building duration,
-  troop training,...).
+  troop training, ...).
 
 * [BugFix] Fixed an issue where environment variables weren't getting injected.
 
-* [Performance] Improved performance of resolving events. Updating resources query now doesn't run, if there's no change
+* [Performance] Improved performance of resolving events. Updating resource query now doesn't run if there's no change
   to resources.
 
 ## Version 0.1.0
 
 #### Feb 9, 2026
 
-* [Breaking] This update is not compatible with existing game worlds and requires creation of new game worlds
+* [Breaking] This update is not compatible with existing game worlds and requires the creation of new game worlds
 * [Feature] Player pages - you can now see player information, along with the list of villages they occupy.
 * [Feature] Statistics pages - you can now see the ranking of all players and all villages, based on population.
 * [Feature] Game world overview page - you can now see the split of tribes, factions and basic game world information.
@@ -428,9 +446,10 @@ fix: building downgrade fixes
 * [Feature] Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as
   development continues!
 
-  From technical improvement perspective, we haven't been idling. New version fixes the long-standing issue of game
+  From a technical improvement perspective, we haven't been idling. The new version fixes the long-standing issue of
+  game
   world state corruption, it massively improves developer experience and speed, adds over 200 tests and enables us to
-  onboard new contributors easier! These changes were contributed by over 7 new contributors!
+  onboard new contributors easier! These changes were contributed by over seven new contributors!
 
 ## Version 0.0.49
 
@@ -443,29 +462,32 @@ fix: building downgrade fixes
 
 #### Jan 19, 2026
 
-* [Feature] You'll now be able to start building upgrades faster on mobile! Simply press the building upgrade indicator
-  for a second and the building will start upgrading, without you having to open the building interface and clicking the
+* [Feature] You'll now be able to start building upgrades faster on mobile! Press the building upgrade indicator
+  for a second, and the building will start upgrading, without you having to open the building interface and clicking
+  the
   build button.
 
 ## Version 0.0.47
 
 #### Jan 7, 2026
 
-* [Performance] We've reworked some of the scripts used in game-world generation and as a result, generation is now
-  about 10-15% faster. This is especially important on larger worlds or when using a lower-end device, where generation
+* [Performance] We've reworked some of the scripts used in game-world generation, and as a result, generation is now
+  about 10-15% faster. This is especially important in larger worlds or when using a lower-end device, where generation
   may take a couple of seconds.
 
-* [TechnicalImprovement] We transitioned repository to a monorepo. This came with some technical challenges, but also a
+* [TechnicalImprovement] We transitioned the repository to a monorepo. This came with some technical challenges, but
+  also a
   ton of clarity. Project is now much simpler to navigate and reason about!
 
-* [TechnicalImprovement] We've added oxlint to the project. This a new linting tool and it's very promising. Plan is to
+* [TechnicalImprovement] We've added oxlint to the project. This is a new linting tool, and it's very promising. Plan is
+  to
   use it side-by-side with Biome (our current linter), with the goal of eventually transitioning fully off of Biome.
 
 ## Version 0.0.46
 
 #### Jan 4, 2026
 
-* [Feature] We added game-world-overview page. Thank you very much for your contribution!
+* [Feature] We added a game-world-overview page. Thank you very much for your contribution!
 
 ## Version 0.0.45
 
@@ -478,13 +500,13 @@ fix: building downgrade fixes
 
 #### Dec 24, 2025
 
-* [Feature] UI color scheme (dark/light mode), graphic skin variant (default, snow,...), locale & graphics day-night
-  setting are now persistent between game worlds. This doesn't mean much yet, because we don't have graphics, only
+* [Feature] UI color scheme (dark/light mode), graphic skin variant (default, snow, ...), locale and graphics day-night
+  setting are now persistent between game worlds. This doesn't mean much yet. We don't have graphics, only
   support a single locale and don't have a dark mode yet, but once those things arrive, you'll be able to set them once
   and have the setting persist through all game worlds.
 
-* [Performance] We've done a minor clean up. In this case, we managed to remove a minor dependency, which reduced the
-  final bundle by about ~60kb.
+* [Performance] We've done a minor cleanup. In this case, we managed to remove a minor dependency, which reduced the
+  final bundle by about ~60 kb.
 
 ## Version 0.0.43
 
@@ -494,9 +516,9 @@ fix: building downgrade fixes
   if these are just bots trying different subpages, but in case some real users are getting lost, this should help them
   out a bit.
 
-* [Feature] We've reworked the in-game error pages for game world not found and game world is already opened errors.
+* [Feature] We've reworked the in-game error pages for a game world not found and game world is already opened errors.
   Instead of being redirected to /404 or /403, you'll now remain inside the relevant game world url. This reduces the
-  amount of clicks needed to solve a particular error.
+  number of clicks needed to solve a particular error.
 
 ## Version 0.0.42
 
@@ -504,8 +526,8 @@ fix: building downgrade fixes
 
 * [BugFix] We've fixed an annoying layout shift, which appeared when changing between village and non-village pages!
 
-* [Performance] We've substantially improved performance of the construct new building page. This page was actually
-  flagged as one of the slowest pages we have. The reason for this is that in order to determine which buildings you're
+* [Performance] We've substantially improved the performance of the construct new building page. This page was actually
+  flagged as one of the slowest pages we have. The reason for this is that to determine which buildings you're
   allowed to construct, we have to run a bunch of checks. While these checks are not that slow individually, we had to
   run these checks multiple times for each building, which added up quickly. We've now reworked this to make it more
   efficient. You should be seeing faster page renders, especially on mid/lower-end devices.
