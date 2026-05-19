@@ -1,6 +1,7 @@
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { postWorkerMessage } from '../notification-port';
 import { getGameEventResolver } from './event-type-mapper';
 import {
   baseEventRowSchema,
@@ -29,13 +30,13 @@ export const resolveEvent = (
     const resolver = getGameEventResolver(event.type);
     (resolver as (db: DbFacade, ev: GameEvent) => void)(database, event);
 
-    globalThis.postMessage({
+    postWorkerMessage({
       eventKey: 'event:success',
       ...event,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
     console.error(error);
-    globalThis.postMessage({
+    postWorkerMessage({
       eventKey: 'event:error',
       ...event,
     } satisfies EventApiNotificationEvent);
