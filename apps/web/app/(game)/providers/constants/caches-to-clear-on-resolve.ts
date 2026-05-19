@@ -128,9 +128,6 @@ export const cachesToClearOnResolve: Handlers = {
   unitImprovement: ({ villageId }) => {
     return [[unitImprovementCacheKey], [eventsHistoryCacheKey, villageId]];
   },
-  adventurePointIncrease: () => {
-    return [[adventurePointsCacheKey]];
-  },
   heroRevival: ({ villageId }) => {
     return [
       [heroCacheKey],

@@ -1,7 +1,6 @@
 import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { calculateAdventurePointIncreaseEventDuration } from '@pillage-first/game-assets/utils/adventures';
 import {
   calculateBuildingCostForLevel,
   calculateBuildingDestructionDuration,
@@ -33,7 +32,6 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
 import {
-  isAdventurePointIncreaseEvent,
   isAdventureTroopMovementEvent,
   isBuildingConstructionEvent,
   isBuildingDowngradeEvent,
@@ -64,7 +62,11 @@ import {
 } from '../../utils/zod/event-schemas';
 import { validateTroopMovementLogic } from '../../utils/zod/troop-movement-validation-schema';
 import { removeTroops } from '../resolvers/utils/troops';
-import { calculateAdventureDuration } from './adventures';
+import {
+  calculateAdventureDuration,
+  getPlayerHeroAdventureStateAt,
+  materializeHeroAdventurePointsAt,
+} from './adventures';
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
   const requiredEventProperties = new Set([
@@ -519,27 +521,10 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isAdventureTroopMovementEvent(event)) {
-    const adventurePoints = database.selectValue({
-      sql: `
-        SELECT
-          available
-        FROM
-          hero_adventures
-        WHERE
-          hero_id = (
-            SELECT
-              id
-            FROM
-              heroes
-            WHERE
-              player_id = $player_id
-            );
-      `,
-      bind: {
-        $player_id: PLAYER_ID,
-      },
-      schema: z.number(),
-    });
+    const { available: adventurePoints } = getPlayerHeroAdventureStateAt(
+      database,
+      Date.now(),
+    );
 
     if (adventurePoints === 0) {
       throw new Error('No adventure points available');
@@ -581,6 +566,42 @@ export const runEventCreationSideEffects = (
   events: GameEvent[],
 ) => {
   const [event] = events;
+
+  if (isAdventureTroopMovementEvent(event)) {
+    const heroId = database.selectValue({
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+      schema: z.number(),
+    })!;
+
+    const now = Date.now();
+    const { available } = materializeHeroAdventurePointsAt(
+      database,
+      heroId,
+      now,
+    );
+
+    if (available <= 0) {
+      throw new Error('No adventure points available');
+    }
+
+    database.exec({
+      sql: `
+        UPDATE hero_adventures
+        SET
+          available = available - 1,
+          last_updated_at = $now
+        WHERE
+          hero_id = $hero_id
+      `,
+      bind: {
+        $hero_id: heroId,
+        $now: now,
+      },
+    });
+  }
 
   if (isTroopMovementEvent(event) && !isReturnTroopMovementEvent(event)) {
     const troopMovementEvents = events as TroopMovementEvent[];
@@ -847,18 +868,6 @@ export const getEventDuration = (
     const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
     return total * baseRecruitmentDuration;
-  }
-
-  if (isAdventurePointIncreaseEvent(event)) {
-    const { created_at, speed } = database.selectObject({
-      sql: 'SELECT created_at, speed FROM servers LIMIT 1;',
-      schema: z.strictObject({
-        created_at: z.number(),
-        speed: speedSchema,
-      }),
-    })!;
-
-    return calculateAdventurePointIncreaseEventDuration(created_at, speed);
   }
 
   if (isTroopMovementEvent(event)) {

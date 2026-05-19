@@ -16,6 +16,7 @@ import {
   getHeroLoadoutSchema,
   getHeroSchema,
 } from './schemas/hero-schemas';
+import { getPlayerHeroAdventureStateAt } from './utils/adventures';
 import { createEvents } from './utils/create-event';
 
 export const getHero = createController('/players/:playerId/hero')(
@@ -112,10 +113,14 @@ export const getHeroInventory = createController(
 export const getHeroAdventures = createController(
   '/players/:playerId/hero/adventures',
 )(({ database }) => {
-  return database.selectObject({
-    sql: 'SELECT available, completed FROM hero_adventures;',
-    schema: heroAdventuresSchema,
-  })!;
+  const { available, completed, nextAvailableAt } =
+    getPlayerHeroAdventureStateAt(database, Date.now());
+
+  return heroAdventuresSchema.parse({
+    available,
+    completed,
+    nextAvailableAt,
+  });
 });
 
 export const startHeroAdventure = createController(

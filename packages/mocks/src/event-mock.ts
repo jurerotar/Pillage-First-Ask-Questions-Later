@@ -105,15 +105,6 @@ export const createTroopMovementRaidEventMock = (
   });
 };
 
-export const createAdventurePointIncreaseEventMock = (
-  overrides: Partial<GameEvent<'adventurePointIncrease'>> = {},
-): GameEvent<'adventurePointIncrease'> => {
-  return createGameEventMock('adventurePointIncrease', {
-    villageId: null,
-    ...overrides,
-  });
-};
-
 export const createHeroRevivalEventMock = (
   overrides: Partial<GameEvent<'heroRevival'>> = {},
 ): GameEvent<'heroRevival'> => {

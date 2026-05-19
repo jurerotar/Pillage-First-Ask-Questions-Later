@@ -8,7 +8,6 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
-import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { Text } from 'app/components/text';
@@ -18,8 +17,8 @@ import { formatTime } from 'app/utils/time';
 export const HeroAdventures = () => {
   const { t } = useTranslation();
   const { server } = useServer();
-  const { available, completed, startAdventure } = useHeroAdventures();
-  const { eventsByType } = useEventsByType('adventurePointIncrease');
+  const { available, completed, nextAvailableAt, startAdventure } =
+    useHeroAdventures();
   const { errorBag } = useAdventuresActionsErrorBag();
 
   const canStartAdventure = errorBag.length === 0;
@@ -32,12 +31,6 @@ export const HeroAdventures = () => {
     (seededRandomIntFromInterval(adventurePrng, 8 * 60, 12 * 60) * 1000) /
       server.configuration.speed,
   );
-
-  const nextAdventurePointIncreaseEvent = eventsByType.at(0)!;
-
-  const nextAdventurePointIncreaseTimestamp =
-    nextAdventurePointIncreaseEvent.startsAt +
-    nextAdventurePointIncreaseEvent.duration;
 
   return (
     <Section>
@@ -61,7 +54,7 @@ export const HeroAdventures = () => {
             'You have enough adventure points for {{count}} adventures. You will receive your next adventure point in ',
             { count: available },
           )}
-          <Countdown endsAt={nextAdventurePointIncreaseTimestamp} />.
+          <Countdown endsAt={nextAvailableAt} />.
         </Text>
         <Text className="font-medium">
           {t('You estimate next adventure will take {{duration}}.', {

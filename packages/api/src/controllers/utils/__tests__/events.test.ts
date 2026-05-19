@@ -1094,6 +1094,54 @@ describe('events utils', () => {
   });
 
   describe(runEventCreationSideEffects, () => {
+    test('troopMovementAdventure - should materialize accrued points before spending one', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const heroId = database.selectValue({
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: PLAYER_ID },
+        schema: z.number(),
+      })!;
+
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(9 * 60 * 60 * 1000));
+
+      database.exec({
+        sql: 'UPDATE servers SET created_at = 0',
+      });
+
+      database.exec({
+        sql: `
+          UPDATE hero_adventures
+          SET available = 3, last_updated_at = 0
+          WHERE hero_id = $hero_id
+        `,
+        bind: { $hero_id: heroId },
+      });
+
+      runEventCreationSideEffects(database, [
+        createTroopMovementAdventureEventMock({ villageId }),
+      ]);
+
+      const adventures = database.selectObject({
+        sql: `
+          SELECT available, last_updated_at AS lastUpdatedAt
+          FROM hero_adventures
+          WHERE hero_id = $hero_id
+        `,
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({
+          available: z.number(),
+          lastUpdatedAt: z.number(),
+        }),
+      })!;
+
+      expect(adventures.available).toBe(3);
+      expect(adventures.lastUpdatedAt).toBe(9 * 60 * 60 * 1000);
+
+      vi.useRealTimers();
+    });
+
     test('troopMovement - should remove troops for movements', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);

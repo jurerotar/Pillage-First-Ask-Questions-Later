@@ -1,5 +1,4 @@
 import type { GameEventType } from '@pillage-first/types/models/game-event';
-import { adventurePointIncreaseResolver } from '../controllers/resolvers/adventure-resolvers';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
@@ -65,9 +64,6 @@ export const getGameEventResolver = (gameEventType: GameEventType) => {
     }
     case 'troopMovementAdventure': {
       return adventureMovementResolver;
-    }
-    case 'adventurePointIncrease': {
-      return adventurePointIncreaseResolver;
     }
     case 'heroRevival': {
       return heroRevivalResolver;
