@@ -1,10 +1,19 @@
+## Version 0.4.22
+
+#### May 19, 2026
+
+* [Performance] Greatly improved adventure point calculation, resolving in noticeably faster game world initialization,
+  especially for game worlds which haven't been opened in a while.
+
 ## Version 0.4.21
 
 #### May 16, 2026
 
-* [BugFix] Fixed an issue where starting a building demolition, the demolition countdown would not appear in the Village Overview or Main Building's Demolish Buildings views.
+* [BugFix] Fixed an issue where starting a building demolition, the demolition countdown would not appear in the Village
+  Overview or Main Building's Demolish Buildings views.
 * [BugFix] Fixed an issue where upgrading a building would prevent a separate building from being downgraded.
-* [BugFix] Fixed an issue where Village Overview's demolition table would not appear unless the Main Building was at level 11.
+* [BugFix] Fixed an issue where Village Overview's demolition table would not appear unless the Main Building was at
+  level 11.
 * [TechnicalImprovement] Reworded some error descriptions for more clarity.
 
 ## Version 0.4.20
@@ -51,7 +60,8 @@
 
 #### May 5, 2026
 
-* [Feature] Expanded NPC village templates. NPC villages will now be created with more buildings and a higher population.
+* [Feature] Expanded NPC village templates. NPC villages will now be created with more buildings and a higher
+  population.
 
 ## Version 0.4.14
 
@@ -93,7 +103,7 @@ fix: building downgrade fixes
 * [Feature] Added a confirmation modal with details of what will happen if you confirm downgrading or demolishing
   buildings.
 * [BugFix] Building overview and building field tooltip will now properly display "Currently downgrading to level x", if
-   the building is being downgraded.
+  the building is being downgraded.
 * [BugFix] Toast notifications will now properly say, "Building was downgraded to level x".
 
 ## Version 0.4.9
@@ -177,7 +187,8 @@ fix: building downgrade fixes
 * [Feature] We added the ability to found new villages. You're able to found new villages by selecting an empty tile on
   the map, while having three settlers present in your village.
 
-* [Feature] We're getting a new page! **Event log page** will show a list of the latest events happening in your kingdom! It
+* [Feature] We're getting a new page! **Event log page** will show a list of the latest events happening in your
+  kingdom! It
   will show completed **construction/destruction/downgrade events**, **training events**, as well as **unit improvement
   events**, **unit research events** and **new village founding events**. You'll be able to toggle between
   village-specific events or all events. This will allow you to see what was done since you were last online, at a
@@ -185,7 +196,8 @@ fix: building downgrade fixes
 
 * [Feature] We added new custom-made icons! This time for **cavalry defense** and **infantry defense**.
 
-* [Feature] We added experimental support for transferring a game world between devices on the same network. This is done
+* [Feature] We added experimental support for transferring a game world between devices on the same network. This is
+  done
   using WebRTC technology. To transfer the game world to a new device, both devices must have the app open and be on the
   same network.
 
@@ -197,7 +209,8 @@ fix: building downgrade fixes
 
 * [Feature] We reworked how construction cancellation works. Previously, cancelling an ongoing construction refunded a
   flat 80% of the construction cost, regardless of when the construction was canceled. This penalized players who
-  initialized construction by mistake. The new refund system is based on the proportionality of already-completed construction.
+  initialized construction by mistake. The new refund system is based on the proportionality of already-completed
+  construction.
   Cancelling immediately or in the first 5% of construction duration will refund 95% of the construction cost. From 5%
   of construction duration forwards, the system will refund resources proportionally, with the minimum amount return of
   40%.
@@ -280,7 +293,8 @@ fix: building downgrade fixes
 
 #### Mar 6, 2026
 
-* [BugFix] Added additional validations to prevent the app from getting to an incorrect state. These fixes should prevent
+* [BugFix] Added additional validations to prevent the app from getting to an incorrect state. These fixes should
+  prevent
   users from being able to upgrade units beyond level 20, upgrade buildings beyond their max level and surpass other
   similar limitations.
 
@@ -340,9 +354,11 @@ fix: building downgrade fixes
 
 * [BugFix] Fixed an issue where not all occupiable oases were shown in Hero's Mansion.
 
-* [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented 2
+* [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented
+  2
   separate changes in regard to a database. The first one reduced overall database size by around 10–30%, depending
-  on game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This results
+  on game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This
+  results
   in faster game world creation, as well as better performance while in the game!
 
 * [TechnicalImprovement] Improved database breaking changes detection. App will now more consistently detect outdated
@@ -359,7 +375,8 @@ fix: building downgrade fixes
 
 #### Feb 23, 2026
 
-* [Feature] Village overview page now shows an ongoing building construction table with the ability to cancel construction
+* [Feature] Village overview page now shows an ongoing building construction table with the ability to cancel
+  construction
 
 ## Version 0.2.3
 
@@ -377,7 +394,8 @@ fix: building downgrade fixes
 
 #### Feb 16, 2026
 
-* [Feature] Added an option to view the constructable buildings list in compacted form. This change allows players to scroll
+* [Feature] Added an option to view the constructable buildings list in compacted form. This change allows players to
+  scroll
   less, especially on mobile devices.
 
 * [Feature] Added the ability to commit minor database upgrades without breaking game worlds.
@@ -428,7 +446,8 @@ fix: building downgrade fixes
 * [Feature] Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as
   development continues!
 
-  From a technical improvement perspective, we haven't been idling. The new version fixes the long-standing issue of game
+  From a technical improvement perspective, we haven't been idling. The new version fixes the long-standing issue of
+  game
   world state corruption, it massively improves developer experience and speed, adds over 200 tests and enables us to
   onboard new contributors easier! These changes were contributed by over seven new contributors!
 
@@ -444,7 +463,8 @@ fix: building downgrade fixes
 #### Jan 19, 2026
 
 * [Feature] You'll now be able to start building upgrades faster on mobile! Press the building upgrade indicator
-  for a second, and the building will start upgrading, without you having to open the building interface and clicking the
+  for a second, and the building will start upgrading, without you having to open the building interface and clicking
+  the
   build button.
 
 ## Version 0.0.47
@@ -455,10 +475,12 @@ fix: building downgrade fixes
   about 10-15% faster. This is especially important in larger worlds or when using a lower-end device, where generation
   may take a couple of seconds.
 
-* [TechnicalImprovement] We transitioned the repository to a monorepo. This came with some technical challenges, but also a
+* [TechnicalImprovement] We transitioned the repository to a monorepo. This came with some technical challenges, but
+  also a
   ton of clarity. Project is now much simpler to navigate and reason about!
 
-* [TechnicalImprovement] We've added oxlint to the project. This is a new linting tool, and it's very promising. Plan is to
+* [TechnicalImprovement] We've added oxlint to the project. This is a new linting tool, and it's very promising. Plan is
+  to
   use it side-by-side with Biome (our current linter), with the goal of eventually transitioning fully off of Biome.
 
 ## Version 0.0.46
