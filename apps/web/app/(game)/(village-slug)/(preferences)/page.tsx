@@ -3,6 +3,7 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(prefe
 import { GeneralPreferences } from 'app/(game)/(village-slug)/(preferences)/components/general-preferences';
 import { NotificationPreferences } from 'app/(game)/(village-slug)/(preferences)/components/notification-preferences';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -25,7 +26,7 @@ const PreferencesPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Preferences')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -54,7 +55,7 @@ const PreferencesPage = ({ params }: Route.ComponentProps) => {
           <NotificationPreferences />
         </TabPanel>
       </Tabs>
-    </>
+    </PageContents>
   );
 };
 

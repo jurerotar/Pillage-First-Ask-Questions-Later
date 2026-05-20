@@ -9,6 +9,7 @@ import type {
 } from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker';
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
@@ -67,7 +68,7 @@ const ImportGameWorld = () => {
   });
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
@@ -198,7 +199,7 @@ const ImportGameWorld = () => {
           await importGameWorld(buffer);
         }}
       />
-    </>
+    </PageContents>
   );
 };
 

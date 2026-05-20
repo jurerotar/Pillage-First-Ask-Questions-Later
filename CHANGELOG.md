@@ -1,5 +1,12 @@
 ## Version 0.4.22
 
+#### May 20, 2026
+
+* [Feature] Tile modal now displays a link to player profile.
+* [BugFix] Minor technical changes to prevent common errors from occurring.
+
+## Version 0.4.22
+
 #### May 19, 2026
 
 * [Performance] Greatly improved adventure point calculation, resolving in noticeably faster game world initialization,

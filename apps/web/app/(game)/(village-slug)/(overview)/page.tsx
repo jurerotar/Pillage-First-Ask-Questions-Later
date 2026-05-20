@@ -12,6 +12,7 @@ import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smi
 import { VillageConstructionTable } from 'app/(game)/(village-slug)/components/village-construction-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
@@ -90,7 +91,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -186,7 +187,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           </>
         )}
       </Section>
-    </>
+    </PageContents>
   );
 };
 

@@ -20,6 +20,7 @@ import {
 } from 'app/(game)/(village-slug)/hooks/use-events-history';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -217,7 +218,7 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Event log')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -273,7 +274,7 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
           </Tabs>
         </SectionContent>
       </Section>
-    </>
+    </PageContents>
   );
 };
 

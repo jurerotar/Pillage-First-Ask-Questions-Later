@@ -4,6 +4,7 @@ import { GameWorldOverview } from 'app/(game)/(village-slug)/(statistics)/compon
 import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
 import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -26,7 +27,7 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Statistics')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -59,7 +60,7 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
           <GameWorldOverview />
         </TabPanel>
       </Tabs>
-    </>
+    </PageContents>
   );
 };
 

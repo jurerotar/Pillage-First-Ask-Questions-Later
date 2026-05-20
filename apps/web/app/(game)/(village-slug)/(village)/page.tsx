@@ -9,6 +9,7 @@ import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/build
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
+import { PageContents } from 'app/components/page-contents';
 import { Tooltip } from 'app/components/tooltip';
 
 const resourceViewBuildingFieldIds = Array.from(
@@ -73,7 +74,7 @@ const VillagePage = (props: Route.ComponentProps) => {
   const title = `${isResourcesPageOpen ? t('Resources') : t('Village')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Tooltip
         anchorSelect="[data-building-field-id]"
@@ -112,7 +113,7 @@ const VillagePage = (props: Route.ComponentProps) => {
           )}
         </div>
       </main>
-    </>
+    </PageContents>
   );
 };
 

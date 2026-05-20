@@ -90,14 +90,17 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
   const { getReputation } = useReputations();
 
-  const { tribe, name, faction } = tile.owner!;
+  const { tribe, name, faction, slug } = tile.owner!;
   const { population } = tile.ownerVillage!;
 
   return (
     <div className="flex flex-col gap-2">
-      <span>
-        {t('Player')} - {name}
-      </span>
+      <div className="flex">
+        {t('Player')} -{' '}
+        <Text variant="link">
+          <Link to={`../players/${slug}`}>{name}</Link>
+        </Text>
+      </div>
       {faction !== 'player' && (
         <>
           <span>
@@ -188,6 +191,7 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
           </>
         )}
       </DialogDescription>
+      {isOccupied && <TileModalPlayerInfo tile={tile} />}
     </DialogHeader>
   );
 };

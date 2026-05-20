@@ -12,6 +12,7 @@ import { MdOutlineMobileFriendly } from 'react-icons/md';
 import { Link } from 'react-router';
 import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubButton } from 'app/(public)/components/github-button';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { CookieContext } from 'app/providers/cookie-provider';
@@ -233,7 +234,7 @@ const OpenSourceSection = () => {
 
 const HomePage = () => {
   return (
-    <>
+    <PageContents>
       <title>Pillage First! (Ask Questions Later)</title>
       <main>
         <div className="max-w-7xl mx-auto flex py-8 lg:py-12 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
@@ -263,7 +264,7 @@ const HomePage = () => {
         <MotivationSection />
         <OpenSourceSection />
       </main>
-    </>
+    </PageContents>
   );
 };
 
