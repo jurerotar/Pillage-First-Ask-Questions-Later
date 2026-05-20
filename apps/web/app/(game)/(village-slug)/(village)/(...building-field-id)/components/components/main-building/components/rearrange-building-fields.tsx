@@ -1,6 +1,8 @@
 import { clsx } from 'clsx';
 import { type DragEvent, use, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useRearrangeBuildingFields } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/hooks/use-rearrange-building-fields';
@@ -14,6 +16,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 
 type RearrangeableBuildingFieldId = BuildingField['id'];
 type BuildingFieldSlots = Record<
@@ -45,8 +48,19 @@ const isLockedBuildingField = (buildingFieldId: BuildingField['id']) => {
   return lockedBuildingFieldIds.has(buildingFieldId);
 };
 
+const areBuildingFieldSlotsEqual = (
+  firstSlots: BuildingFieldSlots,
+  secondSlots: BuildingFieldSlots,
+) => {
+  return villageViewBuildingFieldIds.every(
+    (buildingFieldId) =>
+      firstSlots[buildingFieldId] === secondSlots[buildingFieldId],
+  );
+};
+
 export const RearrangeBuildingFields = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { currentVillage } = useCurrentVillage();
   const { preferences } = usePreferences();
   const { buildingEvents } = use(CurrentVillageBuildingQueueContext);
@@ -83,7 +97,12 @@ export const RearrangeBuildingFields = () => {
     );
   };
 
-  const moveBuildingField = async (
+  const hasChanges = !areBuildingFieldSlotsEqual(
+    initialBuildingFieldSlots,
+    buildingFieldSlots,
+  );
+
+  const moveBuildingField = (
     sourceBuildingFieldId: BuildingField['id'],
     targetBuildingFieldId: BuildingField['id'],
   ) => {
@@ -104,17 +123,9 @@ export const RearrangeBuildingFields = () => {
 
     setBuildingFieldSlots(nextBuildingFieldSlots);
     setSelectedBuildingFieldId(null);
-
-    try {
-      await persistBuildingFieldSlots(nextBuildingFieldSlots);
-    } catch {
-      setBuildingFieldSlots(buildingFieldSlots);
-    }
   };
 
-  const handleBuildingFieldClick = async (
-    buildingFieldId: BuildingField['id'],
-  ) => {
+  const handleBuildingFieldClick = (buildingFieldId: BuildingField['id']) => {
     if (isLockedBuildingField(buildingFieldId) || isRearrangingBuildingFields) {
       return;
     }
@@ -131,7 +142,7 @@ export const RearrangeBuildingFields = () => {
       return;
     }
 
-    await moveBuildingField(selectedBuildingFieldId, buildingFieldId);
+    moveBuildingField(selectedBuildingFieldId, buildingFieldId);
   };
 
   const handleDragStart = (
@@ -168,7 +179,7 @@ export const RearrangeBuildingFields = () => {
     setDragOverBuildingFieldId(buildingFieldId);
   };
 
-  const handleDrop = async (
+  const handleDrop = (
     event: DragEvent<HTMLButtonElement>,
     targetBuildingFieldId: BuildingField['id'],
   ) => {
@@ -190,12 +201,25 @@ export const RearrangeBuildingFields = () => {
       return;
     }
 
-    await moveBuildingField(sourceBuildingFieldId, targetBuildingFieldId);
+    moveBuildingField(sourceBuildingFieldId, targetBuildingFieldId);
   };
 
   const handleDragEnd = () => {
     setDraggedBuildingFieldId(null);
     setDragOverBuildingFieldId(null);
+  };
+
+  const handleReset = () => {
+    setBuildingFieldSlots(initialBuildingFieldSlots);
+    setSelectedBuildingFieldId(null);
+    setDraggedBuildingFieldId(null);
+    setDragOverBuildingFieldId(null);
+  };
+
+  const handleConfirm = async () => {
+    await persistBuildingFieldSlots(buildingFieldSlots);
+    toast.success(t('Buildings rearranged'));
+    await navigate('..', { relative: 'path' });
   };
 
   return (
@@ -207,7 +231,7 @@ export const RearrangeBuildingFields = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden">
+        <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden select-none">
           {villageViewBuildingFieldIds.map((buildingFieldId) => {
             const buildingId = buildingFieldSlots[buildingFieldId];
             const isLocked = isLockedBuildingField(buildingFieldId);
@@ -263,8 +287,8 @@ export const RearrangeBuildingFields = () => {
                   className={clsx(
                     'touch-manipulation',
                     buildingId
-                      ? 'relative size-10 lg:size-16 rounded-full select-none focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border'
-                      : 'w-12 lg:w-20 h-8 lg:h-12 bg-green-900/50 hover:bg-green-800/70 cursor-pointer',
+                      ? 'relative size-8 lg:size-12 rounded-full select-none focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border'
+                      : 'w-8 lg:w-16 h-4 lg:h-10 bg-green-900/50 hover:bg-green-800/70 cursor-pointer',
                     buildingId !== null &&
                       !isLocked &&
                       !isRearrangingBuildingFields &&
@@ -291,6 +315,23 @@ export const RearrangeBuildingFields = () => {
               </div>
             );
           })}
+        </div>
+        <div className="flex flex-wrap gap-2 mt-4 justify-end">
+          <Button
+            size="fit"
+            variant="outline"
+            disabled={!hasChanges || isRearrangingBuildingFields}
+            onClick={handleReset}
+          >
+            {t('Reset')}
+          </Button>
+          <Button
+            size="fit"
+            disabled={!hasChanges || isRearrangingBuildingFields}
+            onClick={handleConfirm}
+          >
+            {t('Confirm changes')}
+          </Button>
         </div>
       </SectionContent>
     </Section>
