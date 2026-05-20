@@ -17,10 +17,14 @@ const swappableBuildingFieldIds = new Set(
 );
 
 export const useRearrangeBuildingFields = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { mutate: rearrangeBuildingFields } = useMutation({
+  const {
+    mutate: rearrangeBuildingFields,
+    mutateAsync: rearrangeBuildingFieldsAsync,
+    isPending: isRearrangingBuildingFields,
+  } = useMutation({
     mutationFn: async (buildingFields: RearrangeBuildingField[]) => {
       const normalizedBuildingFields = buildingFields
         .filter((buildingField) =>
@@ -31,8 +35,10 @@ export const useRearrangeBuildingFields = () => {
           buildingId: buildingField.buildingId,
         }));
 
-      await fetcher(`/villages/${currentVillage.id}/building-fields`, {
-        method: 'PATCH',
+      await apiClient.patch('/villages/:villageId/building-fields', {
+        path: {
+          villageId: currentVillage.id,
+        },
         body: normalizedBuildingFields,
       });
     },
@@ -43,5 +49,7 @@ export const useRearrangeBuildingFields = () => {
 
   return {
     rearrangeBuildingFields,
+    rearrangeBuildingFieldsAsync,
+    isRearrangingBuildingFields,
   };
 };

@@ -44,7 +44,9 @@ export const MainBuildingVillageManagement = () => {
         <TabList>
           <Tab value="rename-village">{t('Rename village')}</Tab>
           <Tab value="demolish-buildings">{t('Demolish buildings')}</Tab>
-          <Tab value="rearrange-building-fields">{t('Demolish buildings')}</Tab>
+          <Tab value="rearrange-building-fields">
+            {t('Rearrange buildings')}
+          </Tab>
         </TabList>
         <TabPanel value="rename-village">
           <RenameVillage />

@@ -108,6 +108,7 @@ import { getResearchedUnits } from '../controllers/unit-research-controllers';
 import {
   getOccupiableOasisInRange,
   getVillageBySlug,
+  rearrangeBuildingFields,
 } from '../controllers/village-controllers';
 import { getArtifactsAroundVillage } from '../controllers/world-items-controllers';
 import { createRoute, type Route } from './route';
@@ -197,6 +198,7 @@ const apiRoutes: Route[] = [
   createRoute(occupyOasis),
   createRoute(abandonOasis),
   createRoute(getOccupiableOasisInRange),
+  createRoute(rearrangeBuildingFields),
   createRoute(getResearchedUnits),
 
   // Map Filters

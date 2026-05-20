@@ -136,18 +136,18 @@ export const rearrangeBuildingFields = createController(
 )(({ database, path: { villageId }, body: updates }) => {
   database.transaction(() => {
     database.exec({
-      sql: 'DROP TABLE IF EXISTS temp_rearrange_source_levels;',
+      sql: 'DROP TABLE IF EXISTS temp_rearrange_source_fields;',
     });
 
     database.exec({
       sql: `
-        CREATE TEMP TABLE temp_rearrange_source_levels AS
-        SELECT bf.building_id, MAX(bf.level) AS level
+        CREATE TEMP TABLE temp_rearrange_source_fields AS
+        SELECT bf.field_id, bf.building_id, bi.building AS building_text, bf.level
         FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
         WHERE bf.village_id = $village_id
           AND bf.field_id BETWEEN 19 AND 38
-          AND bf.building_id IS NOT NULL
-        GROUP BY bf.building_id;
+          AND bf.building_id IS NOT NULL;
       `,
       bind: {
         $village_id: villageId,
@@ -169,8 +169,8 @@ export const rearrangeBuildingFields = createController(
         WHERE village_id = $village_id
           AND EXISTS (
             SELECT 1
-            FROM JSON_EACH($updates) AS j
-            WHERE CAST(j.value ->> '$.buildingFieldId' AS INTEGER) = building_fields.field_id
+            FROM updates u
+            WHERE u.field_id = building_fields.field_id
           );
       `,
       bind: {
@@ -195,16 +195,39 @@ export const rearrangeBuildingFields = createController(
           SELECT
             u.field_id,
             u.building_id,
-            COALESCE(sl.level, 0) as level
+            COALESCE(
+              (
+                SELECT sf.level
+                FROM temp_rearrange_source_fields sf
+                WHERE sf.building_id = u.building_id
+                  AND EXISTS (
+                    SELECT 1
+                    FROM updates source_update
+                    WHERE source_update.field_id = sf.field_id
+                      AND (
+                        source_update.building_id IS NULL
+                        OR source_update.building_id <> sf.building_id
+                      )
+                  )
+                LIMIT 1
+              ),
+              (
+                SELECT sf.level
+                FROM temp_rearrange_source_fields sf
+                WHERE sf.field_id = u.field_id
+                  AND sf.building_id = u.building_id
+                LIMIT 1
+              ),
+              0
+            ) as level
           FROM updates u
-          LEFT JOIN temp_rearrange_source_levels sl ON sl.building_id = u.building_id
           WHERE u.building_id IS NOT NULL
         )
         INSERT INTO building_fields (village_id, field_id, building_id, level)
         SELECT $village_id, field_id, building_id, level
         FROM new_occupied_state;
 
-        DROP TABLE IF EXISTS temp_rearrange_source_levels;
+        DROP TABLE IF EXISTS temp_rearrange_source_fields;
       `,
       bind: {
         $village_id: villageId,
