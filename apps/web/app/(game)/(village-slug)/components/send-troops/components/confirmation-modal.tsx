@@ -35,15 +35,25 @@ type TroopMovementConfirmationModalProps = {
   originCoordinates?: Coordinates;
 };
 
-export const TroopMovementConfirmationModal = ({
-  isOpen,
-  onClose,
+type TroopMovementConfirmationContentProps = {
+  onBack: () => void;
+  onConfirm: () => void;
+  formData: BaseTroopFormValues;
+  title: string;
+  tribe: Tribe;
+  originCoordinates?: Coordinates;
+  backLabel?: string;
+};
+
+export const TroopMovementConfirmationContent = ({
+  onBack,
   onConfirm,
   formData,
   title,
   tribe,
   originCoordinates,
-}: TroopMovementConfirmationModalProps) => {
+  backLabel,
+}: TroopMovementConfirmationContentProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
@@ -87,65 +97,78 @@ export const TroopMovementConfirmationModal = ({
   }, [currentVillage.coordinates, formData.target, originCoordinates]);
 
   return (
+    <>
+      <DialogHeader>
+        <DialogTitle>{title}</DialogTitle>
+      </DialogHeader>
+
+      <div className="space-y-2">
+        <div className="flex flex-col gap-4">
+          <UnitTable tribe={tribe}>
+            <UnitTableUnitIcons />
+            <UnitTableRow
+              label={t('Troops')}
+              amount={formData.units.map(({ selected }) => selected)}
+            />
+          </UnitTable>
+        </div>
+
+        <Separator orientation="horizontal" />
+
+        <div className="space-y-2 dark:border-border">
+          <div className="flex justify-between">
+            <Text className="text-muted-foreground">{t('Target')}:</Text>
+            <Text className="font-medium">
+              ({formData.target.x}|{formData.target.y})
+            </Text>
+          </div>
+          <div className="flex justify-between">
+            <Text className="text-muted-foreground">{t('Distance')}:</Text>
+            <Text className="font-medium">
+              {distance.toFixed(1)} {t('tiles')}
+            </Text>
+          </div>
+          <div className="flex justify-between">
+            <Text className="text-muted-foreground">
+              {t('Travel duration')}:
+            </Text>
+            <Text className="font-medium">{formatTime(travelDuration)}</Text>
+          </div>
+          <div className="flex justify-between">
+            <Text className="text-muted-foreground">{t('Arrival time')}:</Text>
+            <ArrivalTime travelDuration={travelDuration} />
+          </div>
+        </div>
+      </div>
+
+      <DialogFooter>
+        <Button
+          variant="outline"
+          onClick={onBack}
+        >
+          {backLabel ?? t('Cancel')}
+        </Button>
+        <Button onClick={onConfirm}>{t('Confirm')}</Button>
+      </DialogFooter>
+    </>
+  );
+};
+
+export const TroopMovementConfirmationModal = ({
+  isOpen,
+  onClose,
+  ...props
+}: TroopMovementConfirmationModalProps) => {
+  return (
     <Dialog
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
     >
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-2">
-          <div className="flex flex-col gap-4">
-            <UnitTable tribe={tribe}>
-              <UnitTableUnitIcons />
-              <UnitTableRow
-                label={t('Troops')}
-                amount={formData.units.map(({ selected }) => selected)}
-              />
-            </UnitTable>
-          </div>
-
-          <Separator orientation="horizontal" />
-
-          <div className="space-y-2 dark:border-border">
-            <div className="flex justify-between">
-              <Text className="text-muted-foreground">{t('Target')}:</Text>
-              <Text className="font-medium">
-                ({formData.target.x}|{formData.target.y})
-              </Text>
-            </div>
-            <div className="flex justify-between">
-              <Text className="text-muted-foreground">{t('Distance')}:</Text>
-              <Text className="font-medium">
-                {distance.toFixed(1)} {t('tiles')}
-              </Text>
-            </div>
-            <div className="flex justify-between">
-              <Text className="text-muted-foreground">
-                {t('Travel duration')}:
-              </Text>
-              <Text className="font-medium">{formatTime(travelDuration)}</Text>
-            </div>
-            <div className="flex justify-between">
-              <Text className="text-muted-foreground">
-                {t('Arrival time')}:
-              </Text>
-              <ArrivalTime travelDuration={travelDuration} />
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
-            {t('Cancel')}
-          </Button>
-          <Button onClick={onConfirm}>{t('Confirm')}</Button>
-        </DialogFooter>
+        <TroopMovementConfirmationContent
+          onBack={onClose}
+          {...props}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -37,9 +37,9 @@ export const useTroopMovementForm = <
     useTroopForm(schema, formOptions);
 
   const {
-    isOpen: isConfirmationModalOpen,
-    openModal,
-    closeModal,
+    isOpen: isConfirmationStepOpen,
+    openModal: openConfirmationStep,
+    closeModal: closeConfirmationStep,
     modalArgs: formData,
   } = useDialog<T>();
 
@@ -50,7 +50,7 @@ export const useTroopMovementForm = <
     );
 
     if (isValid) {
-      openModal(data);
+      openConfirmationStep(data);
     }
   };
 
@@ -67,7 +67,7 @@ export const useTroopMovementForm = <
       {
         onSuccess: () => {
           resetForm();
-          closeModal();
+          closeConfirmationStep();
           onSuccess?.();
         },
       },
@@ -77,9 +77,9 @@ export const useTroopMovementForm = <
   return {
     form,
     formData,
-    isConfirmationModalOpen,
+    isConfirmationStepOpen,
     onConfirm,
     onFormSubmit,
-    closeConfirmationModal: closeModal,
+    closeConfirmationStep,
   };
 };

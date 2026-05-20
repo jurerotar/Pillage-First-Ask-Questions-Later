@@ -15,7 +15,7 @@ import { Button } from 'app/components/ui/button';
 import { Form } from 'app/components/ui/form';
 import { useDialog } from 'app/hooks/use-dialog';
 import { getFormErrorBag } from 'app/utils/forms';
-import { TroopMovementConfirmationModal } from './components/confirmation-modal';
+import { TroopMovementConfirmationContent } from './components/confirmation-modal';
 import { CoordinateSelector } from './components/target-selectors';
 import { UnitSelector } from './components/unit-selector';
 import { useTroopForm } from './hooks/use-troop-form';
@@ -38,9 +38,9 @@ export const OasisOccupationForm = () => {
     });
 
   const {
-    isOpen: isConfirmationModalOpen,
-    openModal,
-    closeModal,
+    isOpen: isConfirmationStepOpen,
+    openModal: openConfirmationStep,
+    closeModal: closeConfirmationStep,
     modalArgs: formData,
   } = useDialog<z.infer<typeof oasisOccupationFormSchema>>();
 
@@ -50,7 +50,7 @@ export const OasisOccupationForm = () => {
     const isValid = await validateTroopMovementAsync(data, 'oasisOccupation');
 
     if (isValid) {
-      openModal(data);
+      openConfirmationStep(data);
     }
   };
 
@@ -67,7 +67,7 @@ export const OasisOccupationForm = () => {
       {
         onSuccess: () => {
           resetForm();
-          closeModal();
+          closeConfirmationStep();
 
           if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
             navigate('..', { relative: 'path' });
@@ -88,8 +88,17 @@ export const OasisOccupationForm = () => {
             {t('This page is still under development')}
           </Alert>
         )}
-        {IS_OASIS_OCCUPATION_FORM_ENABLED && (
-          <>
+        {IS_OASIS_OCCUPATION_FORM_ENABLED &&
+          (isConfirmationStepOpen && formData.current ? (
+            <TroopMovementConfirmationContent
+              onBack={closeConfirmationStep}
+              onConfirm={onConfirm}
+              formData={formData.current}
+              title={t('Occupy oasis')}
+              tribe={tribe}
+              backLabel={t('Back')}
+            />
+          ) : (
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onFormSubmit)}
@@ -106,19 +115,7 @@ export const OasisOccupationForm = () => {
                 <Button type="submit">{t('Confirm')}</Button>
               </form>
             </Form>
-
-            {formData.current && (
-              <TroopMovementConfirmationModal
-                isOpen={isConfirmationModalOpen}
-                onClose={closeModal}
-                onConfirm={onConfirm}
-                formData={formData.current}
-                title={t('Occupy oasis')}
-                tribe={tribe}
-              />
-            )}
-          </>
-        )}
+          ))}
       </SectionContent>
     </Section>
   );

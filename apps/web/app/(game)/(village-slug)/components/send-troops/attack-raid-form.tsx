@@ -22,7 +22,7 @@ import {
 import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
 import { useDialog } from 'app/hooks/use-dialog';
 import { getFormErrorBag } from 'app/utils/forms';
-import { TroopMovementConfirmationModal } from './components/confirmation-modal';
+import { TroopMovementConfirmationContent } from './components/confirmation-modal';
 import { CoordinateSelector } from './components/target-selectors';
 import { UnitSelector } from './components/unit-selector';
 import { useTroopForm } from './hooks/use-troop-form';
@@ -49,9 +49,9 @@ export const AttackRaidForm = () => {
     });
 
   const {
-    isOpen: isConfirmationModalOpen,
-    openModal,
-    closeModal,
+    isOpen: isConfirmationStepOpen,
+    openModal: openConfirmationStep,
+    closeModal: closeConfirmationStep,
     modalArgs: formData,
   } = useDialog<z.infer<typeof attackRaidFormSchema>>();
 
@@ -62,7 +62,7 @@ export const AttackRaidForm = () => {
     );
 
     if (isValid) {
-      openModal(data);
+      openConfirmationStep(data);
     }
   };
 
@@ -82,7 +82,7 @@ export const AttackRaidForm = () => {
       {
         onSuccess: () => {
           resetForm();
-          closeModal();
+          closeConfirmationStep();
 
           if (preferences.isAutomaticNavigationAfterSendUnitsEnabled) {
             navigate('..', { relative: 'path' });
@@ -103,8 +103,21 @@ export const AttackRaidForm = () => {
             {t('This page is still under development')}
           </Alert>
         )}
-        {IS_ATTACK_FORM_ENABLED && (
-          <>
+        {IS_ATTACK_FORM_ENABLED &&
+          (isConfirmationStepOpen && formData.current ? (
+            <TroopMovementConfirmationContent
+              onBack={closeConfirmationStep}
+              onConfirm={onConfirm}
+              formData={formData.current}
+              tribe={tribe}
+              title={
+                formData.current.action === 'attack_normal'
+                  ? t('Attack: Normal')
+                  : t('Attack: Raid')
+              }
+              backLabel={t('Back')}
+            />
+          ) : (
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onFormSubmit)}
@@ -155,23 +168,7 @@ export const AttackRaidForm = () => {
                 <Button type="submit">{t('Confirm')}</Button>
               </form>
             </Form>
-
-            {formData.current && (
-              <TroopMovementConfirmationModal
-                isOpen={isConfirmationModalOpen}
-                onClose={closeModal}
-                onConfirm={onConfirm}
-                formData={formData.current}
-                tribe={tribe}
-                title={
-                  formData.current.action === 'attack_normal'
-                    ? t('Attack: Normal')
-                    : t('Attack: Raid')
-                }
-              />
-            )}
-          </>
-        )}
+          ))}
       </SectionContent>
     </Section>
   );

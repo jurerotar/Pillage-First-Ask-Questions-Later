@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
-import { TroopMovementConfirmationModal } from 'app/(game)/(village-slug)/components/send-troops/components/confirmation-modal';
-import { SendTroopsModal } from 'app/(game)/(village-slug)/components/send-troops/components/send-troops-modal';
+import { TroopMovementConfirmationContent } from 'app/(game)/(village-slug)/components/send-troops/components/confirmation-modal';
+import { SendTroopsModalContent } from 'app/(game)/(village-slug)/components/send-troops/components/send-troops-modal';
 import { useFoundNewVillageTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-found-new-village-troop-form';
 import { useReinforcementRelocationTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-reinforcement-relocation-troop-form';
+import { Dialog, DialogContent } from 'app/components/ui/dialog';
 import {
   FormControl,
   FormField,
@@ -36,11 +37,11 @@ const FoundNewVillageModal = ({
 }: FoundNewVillageModalProps) => {
   const { t } = useTranslation();
   const {
-    closeConfirmationModal,
+    closeConfirmationStep,
     disabledUnitTiers,
     form,
     formData,
-    isConfirmationModalOpen,
+    isConfirmationStepOpen,
     maxUnits,
     onConfirm,
     onFormSubmit,
@@ -48,29 +49,33 @@ const FoundNewVillageModal = ({
   } = useFoundNewVillageTroopForm({ target, onSuccess: onClose });
 
   return (
-    <>
-      <SendTroopsModal
-        isOpen={isOpen}
-        onClose={onClose}
-        onSubmit={onFormSubmit}
-        title={t('Found a new village')}
-        tribe={tribe}
-        form={form}
-        disabledUnitTiers={disabledUnitTiers}
-        maxUnits={maxUnits}
-      />
-
-      {formData.current && (
-        <TroopMovementConfirmationModal
-          isOpen={isConfirmationModalOpen}
-          onClose={closeConfirmationModal}
-          onConfirm={onConfirm}
-          formData={formData.current}
-          title={t('Found a new village')}
-          tribe={tribe}
-        />
-      )}
-    </>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+    >
+      <DialogContent>
+        {isConfirmationStepOpen && formData.current ? (
+          <TroopMovementConfirmationContent
+            onBack={closeConfirmationStep}
+            onConfirm={onConfirm}
+            formData={formData.current}
+            title={t('Found a new village')}
+            tribe={tribe}
+            backLabel={t('Back')}
+          />
+        ) : (
+          <SendTroopsModalContent
+            onClose={onClose}
+            onSubmit={onFormSubmit}
+            title={t('Found a new village')}
+            tribe={tribe}
+            form={form}
+            disabledUnitTiers={disabledUnitTiers}
+            maxUnits={maxUnits}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -87,10 +92,10 @@ const ReinforceVillageModal = ({
 }: ReinforceVillageModalProps) => {
   const { t } = useTranslation();
   const {
-    closeConfirmationModal,
+    closeConfirmationStep,
     form,
     formData,
-    isConfirmationModalOpen,
+    isConfirmationStepOpen,
     onConfirm,
     onFormSubmit,
     tribe,
@@ -99,70 +104,74 @@ const ReinforceVillageModal = ({
     target,
     onSuccess: onClose,
   });
+  const confirmationTitle =
+    formData.current?.action === 'reinforcement'
+      ? t('Reinforcement')
+      : t('Relocation');
 
   return (
-    <>
-      <SendTroopsModal
-        isOpen={isOpen}
-        onClose={onClose}
-        onSubmit={onFormSubmit}
-        title={t('Reinforce or relocate')}
-        tribe={tribe}
-        form={form}
-        targetSelector="coordinates"
-        isTargetSelectorDisabled
-        extraContent={
-          <FormField
-            control={form.control}
-            name="action"
-            render={({ field }) => (
-              <FormItem className="space-y-2 border-l dark:border-border pl-4">
-                <FormLabel>{t('Action')}</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className="flex flex-col space-y-2"
-                  >
-                    <FormItem className="flex items-center space-x-4 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="reinforcement" />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        {t('Reinforcement')}
-                      </FormLabel>
-                    </FormItem>
-                    <FormItem className="flex items-center space-x-4 space-y-0">
-                      <FormControl>
-                        <RadioGroupItem value="relocation" />
-                      </FormControl>
-                      <FormLabel className="font-normal">
-                        {t('Relocation')}
-                      </FormLabel>
-                    </FormItem>
-                  </RadioGroup>
-                </FormControl>
-              </FormItem>
-            )}
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+    >
+      <DialogContent>
+        {isConfirmationStepOpen && formData.current ? (
+          <TroopMovementConfirmationContent
+            onBack={closeConfirmationStep}
+            onConfirm={onConfirm}
+            formData={formData.current}
+            title={confirmationTitle}
+            tribe={tribe}
+            backLabel={t('Back')}
           />
-        }
-      />
-
-      {formData.current && (
-        <TroopMovementConfirmationModal
-          isOpen={isConfirmationModalOpen}
-          onClose={closeConfirmationModal}
-          onConfirm={onConfirm}
-          formData={formData.current}
-          title={
-            formData.current.action === 'reinforcement'
-              ? t('Reinforcement')
-              : t('Relocation')
-          }
-          tribe={tribe}
-        />
-      )}
-    </>
+        ) : (
+          <SendTroopsModalContent
+            onClose={onClose}
+            onSubmit={onFormSubmit}
+            title={t('Reinforce or relocate')}
+            tribe={tribe}
+            form={form}
+            targetSelector="coordinates"
+            isTargetSelectorDisabled
+            extraContent={
+              <FormField
+                control={form.control}
+                name="action"
+                render={({ field }) => (
+                  <FormItem className="space-y-2 border-l dark:border-border pl-4">
+                    <FormLabel>{t('Action')}</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-2"
+                      >
+                        <FormItem className="flex items-center space-x-4 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="reinforcement" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            {t('Reinforcement')}
+                          </FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-4 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="relocation" />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            {t('Relocation')}
+                          </FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            }
+          />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
 

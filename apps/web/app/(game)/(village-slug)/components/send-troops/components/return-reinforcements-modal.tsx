@@ -22,7 +22,7 @@ import {
 import { Form } from 'app/components/ui/form';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { BaseTroopFormValues } from '../utils/schema';
-import { TroopMovementConfirmationModal } from './confirmation-modal';
+import { TroopMovementConfirmationContent } from './confirmation-modal';
 import { PlayerVillageSelector } from './target-selectors';
 import { UnitSelector } from './unit-selector';
 
@@ -57,10 +57,10 @@ export const ReturnReinforcementsModal = ({
       ? selectedVillage?.coordinates
       : currentVillage.coordinates;
   const {
-    isOpen: isConfirmationOpen,
-    openModal: openConfirmation,
-    closeModal: closeConfirmation,
-    modalArgs: confirmationArgs,
+    isOpen: isConfirmationStepOpen,
+    openModal: openConfirmationStep,
+    closeModal: closeConfirmationStep,
+    modalArgs: confirmationStepData,
   } = useDialog<BaseTroopFormValues>();
   const form = useForm<BaseTroopFormValues>({
     defaultValues: {
@@ -103,7 +103,7 @@ export const ReturnReinforcementsModal = ({
       return;
     }
 
-    openConfirmation({
+    openConfirmationStep({
       target: {
         x: targetCoordinates.x,
         y: targetCoordinates.y,
@@ -116,7 +116,7 @@ export const ReturnReinforcementsModal = ({
   });
 
   const onConfirmReturnAction = () => {
-    const pendingReturnData = confirmationArgs.current;
+    const pendingReturnData = confirmationStepData.current;
 
     if (
       pendingReturnData?.target.x === undefined ||
@@ -142,7 +142,7 @@ export const ReturnReinforcementsModal = ({
     };
 
     const onSuccess = () => {
-      closeConfirmation();
+      closeConfirmationStep();
       onClose();
     };
 
@@ -168,71 +168,71 @@ export const ReturnReinforcementsModal = ({
   };
 
   return (
-    <>
-      <Dialog
-        open={isOpen}
-        onOpenChange={(open) => !open && onClose()}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription>
-              {mode === 'incoming'
-                ? t(
-                    'Select the units to send back to their home village. Units not currently stationed here cannot be selected.',
-                  )
-                : t(
-                    'Select the units to recall from this village back to your current village.',
-                  )}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form
-              className="space-y-4"
-              onSubmit={onSubmit}
-            >
-              <UnitSelector
-                maxUnits={troops.map(({ unitId, amount }) => ({
-                  unitId,
-                  amount,
-                }))}
-              />
-              <div className="flex items-end gap-4">
-                <PlayerVillageSelector disabled />
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onClose}
-                >
-                  {t('Cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!hasSelectedTroops}
-                >
-                  {t('Confirm')}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {isConfirmationOpen && (
-        <TroopMovementConfirmationModal
-          isOpen
-          onClose={closeConfirmation}
-          onConfirm={onConfirmReturnAction}
-          formData={confirmationArgs.current!}
-          title={title}
-          tribe={tribe}
-          originCoordinates={
-            mode === 'outgoing' ? selectedVillage?.coordinates : undefined
-          }
-        />
-      )}
-    </>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+    >
+      <DialogContent>
+        {isConfirmationStepOpen && confirmationStepData.current ? (
+          <TroopMovementConfirmationContent
+            onBack={closeConfirmationStep}
+            onConfirm={onConfirmReturnAction}
+            formData={confirmationStepData.current}
+            title={title}
+            tribe={tribe}
+            originCoordinates={
+              mode === 'outgoing' ? selectedVillage?.coordinates : undefined
+            }
+            backLabel={t('Back')}
+          />
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle>{title}</DialogTitle>
+              <DialogDescription>
+                {mode === 'incoming'
+                  ? t(
+                      'Select the units to send back to their home village. Units not currently stationed here cannot be selected.',
+                    )
+                  : t(
+                      'Select the units to recall from this village back to your current village.',
+                    )}
+              </DialogDescription>
+            </DialogHeader>
+            <Form {...form}>
+              <form
+                className="space-y-4"
+                onSubmit={onSubmit}
+              >
+                <UnitSelector
+                  maxUnits={troops.map(({ unitId, amount }) => ({
+                    unitId,
+                    amount,
+                  }))}
+                />
+                <div className="flex items-end gap-4">
+                  <PlayerVillageSelector disabled />
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onClose}
+                  >
+                    {t('Cancel')}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={!hasSelectedTroops}
+                  >
+                    {t('Confirm')}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
