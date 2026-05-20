@@ -131,9 +131,7 @@ export const RallyPointSentReinforcementsTab = () => {
                         variant="outline"
                         size="sm"
                         data-tooltip-id="general-tooltip"
-                        data-tooltip-content={t(
-                          'Relocate reinforcements to another village',
-                        )}
+                        data-tooltip-content={t('Relocate reinforcements')}
                         onClick={() =>
                           openRelocateModal({ tileId: village.tileId })
                         }
