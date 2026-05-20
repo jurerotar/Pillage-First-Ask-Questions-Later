@@ -364,6 +364,7 @@ export const relocateSentReinforcements = createController(
         stationedTileId,
         homeTileId: currentVillageTile,
         targetTileId,
+        movementSourceTileId: targetTileId,
         troops,
       });
     });

@@ -164,10 +164,11 @@ const addVillageTroops = (
 const createMovementTroops = (
   troops: Omit<Troop, 'source' | 'tileId'>[],
   homeTileId: Tile['id'],
+  movementSourceTileId: Tile['id'] = homeTileId,
 ) => {
   return troops.map((troop) => ({
     ...troop,
-    source: homeTileId,
+    source: movementSourceTileId,
     tileId: homeTileId,
   }));
 };
@@ -244,6 +245,7 @@ export const handleRelocateReinforcements = ({
   stationedTileId,
   homeTileId,
   targetTileId,
+  movementSourceTileId = homeTileId,
   relocateHeroFromVillageId,
   troops,
 }: {
@@ -252,6 +254,7 @@ export const handleRelocateReinforcements = ({
   stationedTileId: Tile['id'];
   homeTileId: Tile['id'];
   targetTileId: Tile['id'];
+  movementSourceTileId?: Tile['id'];
   troops: Omit<Troop, 'source' | 'tileId'>[];
   relocateHeroFromVillageId?: number;
 }) => {
@@ -318,7 +321,7 @@ export const handleRelocateReinforcements = ({
   createEvents<'troopMovementReinforcements'>(db, {
     type: 'troopMovementReinforcements',
     villageId,
-    troops: createMovementTroops(troops, homeTileId),
+    troops: createMovementTroops(troops, homeTileId, movementSourceTileId),
     startsAt: Date.now(),
     originCoordinates: {
       x: stationedVillageX,

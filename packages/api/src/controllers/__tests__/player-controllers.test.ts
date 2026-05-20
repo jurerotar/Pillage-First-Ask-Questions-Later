@@ -948,6 +948,7 @@ describe('player-controllers', () => {
           type,
           JSON_EXTRACT(meta, '$.troops[0].unitId') AS unit_id,
           JSON_EXTRACT(meta, '$.troops[0].amount') AS amount,
+          JSON_EXTRACT(meta, '$.troops[0].source') AS source_tile_id,
           JSON_EXTRACT(meta, '$.targetCoordinates.x') AS target_x
         FROM events
         WHERE type = 'troopMovementReinforcements'
@@ -958,6 +959,7 @@ describe('player-controllers', () => {
         type: z.string(),
         unit_id: z.string(),
         amount: z.number(),
+        source_tile_id: z.number(),
         target_x: z.number(),
       }),
     })!;
@@ -966,6 +968,7 @@ describe('player-controllers', () => {
     expect(movementEvent.type).toBe('troopMovementReinforcements');
     expect(movementEvent.unit_id).toBe('LEGIONNAIRE');
     expect(movementEvent.amount).toBe(2);
+    expect(movementEvent.source_tile_id).toBe(targetTileId);
     expect(movementEvent.target_x).toBeDefined();
   });
 
