@@ -182,7 +182,7 @@ export const ErrorBoundary = () => {
               open
               className="rounded-md border bg-white p-3"
             >
-              <summary className="cursor-pointer select-none font-medium">
+              <summary className="cursor-pointer non-selectable font-medium">
                 Technical details
               </summary>
               <pre className="mt-2 overflow-auto rounded bg-gray-50 p-2 text-xs">

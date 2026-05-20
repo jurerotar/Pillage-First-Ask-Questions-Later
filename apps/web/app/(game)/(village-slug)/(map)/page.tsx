@@ -318,7 +318,7 @@ const MapPageContents = () => {
         {Cell}
       </FixedSizeGrid>
       {/* Y-axis ruler */}
-      <div className="absolute left-0 top-0 select-none pointer-events-none">
+      <div className="absolute left-0 top-0 non-selectable pointer-events-none">
         <FixedSizeList
           className="scrollbar-hidden will-change-scroll"
           ref={leftMapRulerRef}
@@ -336,7 +336,7 @@ const MapPageContents = () => {
         </FixedSizeList>
       </div>
       {/* X-axis ruler */}
-      <div className="absolute bottom-0 left-0 select-none pointer-events-none">
+      <div className="absolute bottom-0 left-0 non-selectable pointer-events-none">
         <FixedSizeList
           className="scrollbar-hidden will-change-scroll"
           ref={bottomMapRulerRef}

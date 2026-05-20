@@ -269,7 +269,7 @@ export const RearrangeBuildingFields = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden non-selectable select-none">
+        <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden non-selectable non-selectable">
           {villageViewBuildingFieldIds.map((buildingFieldId) => {
             const buildingId = buildingFieldSlots[buildingFieldId];
             const isLocked = isLockedBuildingField(buildingFieldId);
