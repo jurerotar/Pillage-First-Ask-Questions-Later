@@ -122,10 +122,9 @@ export const CreateNewGameWorldForm = () => {
             channel.port1.close();
             resolve(data.migrationDuration);
           } else if (data.type === 'error') {
-            console.error('Game world seeding failed:', {
-              message: data.message,
-              stack: data.stack,
-            });
+            console.error(
+              `Game world seeding failed. Message: ${data.message}`,
+            );
 
             worker.terminate();
             channel.port1.close();
