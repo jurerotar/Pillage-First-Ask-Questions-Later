@@ -97,6 +97,7 @@ const viteConfig = defineViteConfig({
   },
   build: {
     target: 'esnext',
+    cssTarget: 'safari26',
     sourcemap: true,
     rolldownOptions: {
       // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
