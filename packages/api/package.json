@@ -47,6 +47,6 @@
     "@typescript/native-preview": "7.0.0-dev.20260504.1",
     "openapi-typescript": "7.13.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.5"
+    "vitest": "4.1.7"
   }
 }

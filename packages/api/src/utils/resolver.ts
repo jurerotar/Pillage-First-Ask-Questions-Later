@@ -24,6 +24,7 @@ export const resolveEvent = (
     bind: { $id: eventId },
     schema: baseEventRowSchema,
   })!;
+
   const event = mapEventRowToTypedEvent(eventRow);
 
   try {
