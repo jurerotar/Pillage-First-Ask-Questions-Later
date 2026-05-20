@@ -1,30 +1,21 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import {
-  getUnitDefinition,
-  getUnitsByTribe,
-} from '@pillage-first/game-assets/utils/units';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
-import { Button } from 'app/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
-import { Form } from 'app/components/ui/form';
 import { useDialog } from 'app/hooks/use-dialog';
+import { useTroopSelectionForm } from '../hooks/use-troop-selection-form';
 import type { BaseTroopFormValues } from '../utils/schema';
 import { TroopMovementConfirmationContent } from './confirmation-modal';
-import { PlayerVillageSelector } from './target-selectors';
-import { UnitSelector } from './unit-selector';
+import { TroopSelectionForm } from './troop-selection-form';
 
 type ReturnReinforcementsModalProps = {
   isOpen: boolean;
@@ -62,43 +53,14 @@ export const ReturnReinforcementsModal = ({
     closeModal: closeConfirmationStep,
     modalArgs: confirmationStepData,
   } = useDialog<BaseTroopFormValues>();
-  const form = useForm<BaseTroopFormValues>({
-    defaultValues: {
-      target: {},
-      units: [],
-    },
+  const { form, hasSelectedTroops, maxUnits } = useTroopSelectionForm({
+    isOpen,
+    tribe,
+    troops,
+    targetCoordinates,
   });
-  const units = form.watch('units');
-  const hasSelectedTroops = units.some(({ selected }) => selected > 0);
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const troopAmountByUnitId = new Map(
-      troops.map(({ unitId, amount }) => [unitId, amount] as const),
-    );
-    const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
-
-    form.reset({
-      target: targetCoordinates
-        ? {
-            x: targetCoordinates.x,
-            y: targetCoordinates.y,
-          }
-        : {},
-      units: tribeUnits.map((unitDef) => ({
-        unitId: unitDef.id,
-        selected: 0,
-        available: troopAmountByUnitId.get(unitDef.id) ?? 0,
-        tier: unitDef.tier,
-        category: unitDef.category,
-      })),
-    });
-  }, [form, isOpen, targetCoordinates, tribe, troops]);
-
-  const onSubmit = form.handleSubmit(({ units }) => {
+  const onSubmit = ({ units }: BaseTroopFormValues) => {
     if (!targetCoordinates) {
       return;
     }
@@ -113,7 +75,7 @@ export const ReturnReinforcementsModal = ({
         available: unit.selected,
       })),
     });
-  });
+  };
 
   const onConfirmReturnAction = () => {
     const pendingReturnData = confirmationStepData.current;
@@ -199,37 +161,16 @@ export const ReturnReinforcementsModal = ({
                     )}
               </DialogDescription>
             </DialogHeader>
-            <Form {...form}>
-              <form
-                className="space-y-4"
-                onSubmit={onSubmit}
-              >
-                <UnitSelector
-                  maxUnits={troops.map(({ unitId, amount }) => ({
-                    unitId,
-                    amount,
-                  }))}
-                />
-                <div className="flex items-end gap-4">
-                  <PlayerVillageSelector disabled />
-                </div>
-                <DialogFooter>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onClose}
-                  >
-                    {t('Cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={!hasSelectedTroops}
-                  >
-                    {t('Confirm')}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </Form>
+            <TroopSelectionForm
+              form={form}
+              onSubmit={onSubmit}
+              maxUnits={maxUnits}
+              targetSelector="playerVillage"
+              isTargetSelectorDisabled
+              formClassName="space-y-4"
+              isSubmitDisabled={!hasSelectedTroops}
+              onCancel={onClose}
+            />
           </>
         )}
       </DialogContent>

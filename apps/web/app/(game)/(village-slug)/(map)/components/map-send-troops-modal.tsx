@@ -1,17 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import { TroopMovementConfirmationContent } from 'app/(game)/(village-slug)/components/send-troops/components/confirmation-modal';
+import { ReinforcementRelocationActionSelector } from 'app/(game)/(village-slug)/components/send-troops/components/reinforcement-relocation-action-selector';
 import { SendTroopsModalContent } from 'app/(game)/(village-slug)/components/send-troops/components/send-troops-modal';
 import { useFoundNewVillageTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-found-new-village-troop-form';
 import { useReinforcementRelocationTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-reinforcement-relocation-troop-form';
 import { Dialog, DialogContent } from 'app/components/ui/dialog';
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from 'app/components/ui/form';
-import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
 
 export type MapSendTroopsAction = {
   mode: 'found-new-village' | 'reinforcement';
@@ -133,41 +127,7 @@ const ReinforceVillageModal = ({
             form={form}
             targetSelector="coordinates"
             isTargetSelectorDisabled
-            extraContent={
-              <FormField
-                control={form.control}
-                name="action"
-                render={({ field }) => (
-                  <FormItem className="space-y-2 border-l dark:border-border pl-4">
-                    <FormLabel>{t('Action')}</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-2"
-                      >
-                        <FormItem className="flex items-center space-x-4 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="reinforcement" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            {t('Reinforcement')}
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-4 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="relocation" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            {t('Relocation')}
-                          </FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            }
+            extraContent={<ReinforcementRelocationActionSelector />}
           />
         )}
       </DialogContent>

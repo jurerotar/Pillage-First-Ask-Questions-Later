@@ -4,15 +4,11 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { Form } from 'app/components/ui/form';
-import { getFormErrorBag } from 'app/utils/forms';
 import { TroopMovementConfirmationContent } from './components/confirmation-modal';
-import { CoordinateSelector } from './components/target-selectors';
-import { UnitSelector } from './components/unit-selector';
+import { TroopSelectionForm } from './components/troop-selection-form';
 import { useFoundNewVillageTroopForm } from './hooks/use-found-new-village-troop-form';
 
 export const FoundNewVillageForm = () => {
@@ -53,25 +49,15 @@ export const FoundNewVillageForm = () => {
             backLabel={t('Back')}
           />
         ) : (
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onFormSubmit)}
-              className="space-y-6"
-            >
-              <UnitSelector
-                disabledUnitTiers={disabledUnitTiers}
-                maxUnits={maxUnits}
-              />
-
-              <div className="flex items-end gap-8">
-                <CoordinateSelector />
-              </div>
-
-              <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
-
-              <Button type="submit">{t('Confirm')}</Button>
-            </form>
-          </Form>
+          <TroopSelectionForm
+            form={form}
+            onSubmit={onFormSubmit}
+            targetSelector="coordinates"
+            disabledUnitTiers={disabledUnitTiers}
+            maxUnits={maxUnits}
+            targetWrapperClassName="flex items-end gap-8"
+            actions={<Button type="submit">{t('Confirm')}</Button>}
+          />
         )}
       </SectionContent>
     </Section>
