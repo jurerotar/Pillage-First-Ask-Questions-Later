@@ -1,5 +1,12 @@
 import { clsx } from 'clsx';
-import { type DragEvent, use, useEffect, useMemo, useState } from 'react';
+import {
+  type DragEvent,
+  use,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
@@ -13,7 +20,6 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -62,7 +68,6 @@ export const RearrangeBuildingFields = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { currentVillage } = useCurrentVillage();
-  const { preferences } = usePreferences();
   const { buildingEvents } = use(CurrentVillageBuildingQueueContext);
   const { rearrangeBuildingFieldsAsync, isRearrangingBuildingFields } =
     useRearrangeBuildingFields();
@@ -82,11 +87,24 @@ export const RearrangeBuildingFields = () => {
   const [selectedBuildingFieldId, setSelectedBuildingFieldId] = useState<
     BuildingField['id'] | null
   >(null);
+  const dragImageRef = useRef<HTMLElement | null>(null);
+
+  const removeDragImage = () => {
+    dragImageRef.current?.remove();
+    dragImageRef.current = null;
+  };
 
   useEffect(() => {
     setBuildingFieldSlots(initialBuildingFieldSlots);
     setSelectedBuildingFieldId(null);
   }, [initialBuildingFieldSlots]);
+
+  useEffect(() => {
+    return () => {
+      dragImageRef.current?.remove();
+      dragImageRef.current = null;
+    };
+  }, []);
 
   const persistBuildingFieldSlots = async (slots: BuildingFieldSlots) => {
     await rearrangeBuildingFieldsAsync(
@@ -161,6 +179,24 @@ export const RearrangeBuildingFields = () => {
     setSelectedBuildingFieldId(null);
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', String(buildingFieldId));
+
+    removeDragImage();
+
+    const dragImage = event.currentTarget.cloneNode(true) as HTMLElement;
+    const { width, height } = event.currentTarget.getBoundingClientRect();
+
+    dragImage.style.position = 'fixed';
+    dragImage.style.top = '-1000px';
+    dragImage.style.left = '-1000px';
+    dragImage.style.width = `${width}px`;
+    dragImage.style.height = `${height}px`;
+    dragImage.style.pointerEvents = 'none';
+    dragImage.style.opacity = '1';
+    dragImage.style.transform = 'none';
+
+    document.body.append(dragImage);
+    event.dataTransfer.setDragImage(dragImage, width / 2, height / 2);
+    dragImageRef.current = dragImage;
   };
 
   const handleDragOver = (
@@ -191,6 +227,7 @@ export const RearrangeBuildingFields = () => {
 
     setDraggedBuildingFieldId(null);
     setDragOverBuildingFieldId(null);
+    removeDragImage();
 
     if (
       !sourceBuildingFieldId ||
@@ -207,6 +244,7 @@ export const RearrangeBuildingFields = () => {
   const handleDragEnd = () => {
     setDraggedBuildingFieldId(null);
     setDragOverBuildingFieldId(null);
+    removeDragImage();
   };
 
   const handleReset = () => {
@@ -298,7 +336,7 @@ export const RearrangeBuildingFields = () => {
                     (isDragOver || isSelected) && 'ring-2 ring-ring bg-accent',
                   )}
                 >
-                  {buildingId && preferences.shouldShowBuildingNames && (
+                  {buildingId && (
                     <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
                       {hasEvent && (
                         <Countdown
