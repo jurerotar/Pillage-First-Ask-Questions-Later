@@ -1826,7 +1826,7 @@ export const paths = {
   },
   '/villages/:villageId/relocate-sent-reinforcements': {
     post: {
-      summary: 'Relocate sent reinforcements to another village',
+      summary: 'Convert sent reinforcements into stationed village troops',
       requestParams: {
         path: z.strictObject({
           villageId: z.coerce.number(),
@@ -1837,7 +1837,6 @@ export const paths = {
           'application/json': {
             schema: z.strictObject({
               stationedTileId: z.number(),
-              targetTileId: z.number(),
               troops: z.array(
                 z.strictObject({
                   unitId: unitIdSchema,

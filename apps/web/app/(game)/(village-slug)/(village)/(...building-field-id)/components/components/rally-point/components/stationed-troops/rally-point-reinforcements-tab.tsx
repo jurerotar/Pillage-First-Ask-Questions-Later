@@ -217,7 +217,7 @@ export const RallyPointReinforcementsTab = () => {
           onClose={closeRelocateModal}
           title={t('Convert reinforcements to relocated troops')}
           tribe={selectedRelocateSourceReinforcements.tribe}
-          tileId={selectedRelocateSourceReinforcements.sourceTileId}
+          sourceTileId={selectedRelocateSourceReinforcements.sourceTileId}
           troops={selectedRelocateSourceReinforcements.troops}
         />
       )}

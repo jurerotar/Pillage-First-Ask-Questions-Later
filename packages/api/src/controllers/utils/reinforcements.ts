@@ -247,6 +247,7 @@ export const handleRelocateReinforcements = ({
   targetTileId,
   movementSourceTileId = homeTileId,
   relocateHeroFromVillageId,
+  relocateHeroToVillageId,
   troops,
 }: {
   db: DbFacade;
@@ -257,6 +258,7 @@ export const handleRelocateReinforcements = ({
   movementSourceTileId?: Tile['id'];
   troops: Omit<Troop, 'source' | 'tileId'>[];
   relocateHeroFromVillageId?: number;
+  relocateHeroToVillageId?: number;
 }) => {
   const {
     currentVillageTile,
@@ -315,7 +317,16 @@ export const handleRelocateReinforcements = ({
   }
 
   if (targetTileId === stationedTileId) {
-    throw new Error('Target village must differ from stationed village');
+    addVillageTroops(db, stationedTileId, stationedTileId, troops);
+
+    if (
+      relocateHeroToVillageId !== undefined &&
+      troops.some(({ unitId }) => unitId === 'HERO')
+    ) {
+      relocateHero(db, villageId, relocateHeroToVillageId, Date.now());
+    }
+
+    return;
   }
 
   createEvents<'troopMovementReinforcements'>(db, {

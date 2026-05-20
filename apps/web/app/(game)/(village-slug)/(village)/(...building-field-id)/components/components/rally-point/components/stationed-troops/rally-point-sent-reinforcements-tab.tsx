@@ -181,9 +181,8 @@ export const RallyPointSentReinforcementsTab = () => {
           onClose={closeRelocateModal}
           title={t('Relocate reinforcements')}
           mode="outgoing"
-          villageId={selectedRelocateSentReinforcements.village.id}
-          villageName={selectedRelocateSentReinforcements.village.name}
-          tileId={selectedRelocateSentReinforcements.village.tileId}
+          stationedVillageName={selectedRelocateSentReinforcements.village.name}
+          stationedTileId={selectedRelocateSentReinforcements.village.tileId}
           tribe={tribe}
           troops={selectedRelocateSentReinforcements.troops}
         />

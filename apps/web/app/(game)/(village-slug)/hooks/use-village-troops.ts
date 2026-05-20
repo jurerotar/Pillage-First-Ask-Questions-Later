@@ -40,9 +40,7 @@ type ReturnSentReinforcementsArgs = {
   }[];
 };
 
-type RelocateSentReinforcementsArgs = ReturnSentReinforcementsArgs & {
-  targetTileId: number;
-};
+type RelocateSentReinforcementsArgs = ReturnSentReinforcementsArgs;
 
 export const useVillageTroops = () => {
   const { apiClient } = use(ApiContext);
@@ -183,7 +181,6 @@ export const useVillageTroops = () => {
   const { mutate: relocateSentReinforcements } = useMutation({
     mutationFn: async ({
       stationedTileId,
-      targetTileId,
       troops,
     }: RelocateSentReinforcementsArgs) => {
       await apiClient.post(
@@ -194,7 +191,6 @@ export const useVillageTroops = () => {
           },
           body: {
             stationedTileId,
-            targetTileId,
             troops,
           },
         },

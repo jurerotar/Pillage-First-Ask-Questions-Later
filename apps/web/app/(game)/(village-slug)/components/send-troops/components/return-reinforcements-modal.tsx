@@ -165,8 +165,6 @@ export const ReturnReinforcementsModal = ({
               form={form}
               onSubmit={onSubmit}
               maxUnits={maxUnits}
-              targetSelector="playerVillage"
-              isTargetSelectorDisabled
               formClassName="space-y-4"
               isSubmitDisabled={!hasSelectedTroops}
               onCancel={onClose}

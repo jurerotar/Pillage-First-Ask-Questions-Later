@@ -324,15 +324,10 @@ export const returnSentReinforcements = createController(
 export const relocateSentReinforcements = createController(
   '/villages/:villageId/relocate-sent-reinforcements',
   'post',
-)(
-  ({
-    database,
-    path: { villageId },
-    body: { stationedTileId, targetTileId, troops },
-  }) => {
-    database.transaction((db) => {
-      const { currentVillageTile, stationedVillageId } = db.selectObject({
-        sql: `
+)(({ database, path: { villageId }, body: { stationedTileId, troops } }) => {
+  database.transaction((db) => {
+    const { currentVillageTile, stationedVillageId } = db.selectObject({
+      sql: `
         SELECT
           cv.tile_id AS currentVillageTile,
           sv.id AS stationedVillageId
@@ -340,36 +335,31 @@ export const relocateSentReinforcements = createController(
           LEFT JOIN villages sv ON sv.tile_id = $stationed_tile_id
         WHERE cv.id = $village_id
       `,
-        bind: {
-          $stationed_tile_id: stationedTileId,
-          $village_id: villageId,
-        },
-        schema: z.strictObject({
-          currentVillageTile: z.number(),
-          stationedVillageId: z.number().nullable(),
-        }),
-      })!;
+      bind: {
+        $stationed_tile_id: stationedTileId,
+        $village_id: villageId,
+      },
+      schema: z.strictObject({
+        currentVillageTile: z.number(),
+        stationedVillageId: z.number().nullable(),
+      }),
+    })!;
 
-      if (stationedVillageId === null) {
-        throw new Error('Stationed village not found');
-      }
+    if (stationedVillageId === null) {
+      throw new Error('Stationed village not found');
+    }
 
-      if (targetTileId === currentVillageTile) {
-        throw new Error('Use return instead of relocating to the home village');
-      }
-
-      handleRelocateReinforcements({
-        db,
-        villageId,
-        stationedTileId,
-        homeTileId: currentVillageTile,
-        targetTileId,
-        movementSourceTileId: targetTileId,
-        troops,
-      });
+    handleRelocateReinforcements({
+      db,
+      villageId,
+      stationedTileId,
+      homeTileId: currentVillageTile,
+      targetTileId: stationedTileId,
+      troops,
+      relocateHeroToVillageId: stationedVillageId,
     });
-  },
-);
+  });
+});
 
 export const getPlayerBySlug = createController('/players/:playerSlug')(
   ({ database, path: { playerSlug } }) => {

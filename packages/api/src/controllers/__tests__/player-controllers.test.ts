@@ -919,7 +919,6 @@ describe('player-controllers', () => {
         path: { villageId: sourceVillage.id },
         body: {
           stationedTileId,
-          targetTileId,
           troops: [{ unitId: 'LEGIONNAIRE', amount: 2 }],
         },
       }),
@@ -942,34 +941,25 @@ describe('player-controllers', () => {
       schema: z.number().nullable(),
     });
 
-    const movementEvent = database.selectObject({
+    const stationedVillageTroops = database.selectValue({
       sql: `
-        SELECT
-          type,
-          JSON_EXTRACT(meta, '$.troops[0].unitId') AS unit_id,
-          JSON_EXTRACT(meta, '$.troops[0].amount') AS amount,
-          JSON_EXTRACT(meta, '$.troops[0].source') AS source_tile_id,
-          JSON_EXTRACT(meta, '$.targetCoordinates.x') AS target_x
-        FROM events
-        WHERE type = 'troopMovementReinforcements'
-        ORDER BY id DESC
-        LIMIT 1
-      `,
-      schema: z.strictObject({
-        type: z.string(),
-        unit_id: z.string(),
-        amount: z.number(),
-        source_tile_id: z.number(),
-        target_x: z.number(),
-      }),
+          SELECT t.amount
+          FROM troops t
+            JOIN unit_ids ui ON ui.id = t.unit_id
+          WHERE
+            t.tile_id = $tile_id
+            AND t.source_tile_id = $source_tile_id
+            AND ui.unit = 'LEGIONNAIRE'
+        `,
+      bind: {
+        $tile_id: stationedTileId,
+        $source_tile_id: stationedTileId,
+      },
+      schema: z.number().nullable(),
     })!;
 
     expect(stationedAmount).toBe(4);
-    expect(movementEvent.type).toBe('troopMovementReinforcements');
-    expect(movementEvent.unit_id).toBe('LEGIONNAIRE');
-    expect(movementEvent.amount).toBe(2);
-    expect(movementEvent.source_tile_id).toBe(targetTileId);
-    expect(movementEvent.target_x).toBeDefined();
+    expect(stationedVillageTroops).toBe(2);
   });
 
   test('relocateReinforcements should relocate hero and update hero effects village', async () => {
