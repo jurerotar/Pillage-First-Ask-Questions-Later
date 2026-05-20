@@ -1,6 +1,5 @@
 import type {
   OpfsSAHPoolDatabase,
-  SAHPoolUtil,
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
@@ -15,11 +14,17 @@ import {
   createDbFacade,
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
+import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 import {
   parseAppVersion,
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
 import { OutdatedDatabaseSchemaError } from './errors';
+import {
+  postWorkerMessage,
+  setNotificationPort,
+  setShouldPostNotifications,
+} from './notification-port';
 import { matchRoute } from './routes/route-matcher';
 import {
   cancelScheduling,
@@ -29,7 +34,6 @@ import {
 import { createSchedulerDataSource } from './scheduler/scheduler-data-source';
 
 let sqlite3: Sqlite3Static | null = null;
-let opfsSahPool: SAHPoolUtil | null = null;
 let database: OpfsSAHPoolDatabase | null = null;
 let dbFacade: DbFacade | null = null;
 
@@ -40,6 +44,14 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
   switch (type) {
     case 'WORKER_INIT': {
       try {
+        const [port] = event.ports;
+
+        if (!port) {
+          throw new Error('Missing notification port during worker init');
+        }
+
+        setNotificationPort(port);
+
         const urlParams = new URLSearchParams(globalThis.location.search);
         const serverSlug = urlParams.get('server-slug')!;
 
@@ -51,16 +63,25 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
           sqlite3 = await sqlite3InitModule();
         }
 
-        opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+        const opfsSahPoolOptions = {
           directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-        });
+          forceReinitIfPreviouslyFailed: true,
+        };
+
+        const initializedSqlite3 = sqlite3;
+
+        const initializedOpfsSahPool = await retryWhenFileSystemLocked(() =>
+          initializedSqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions),
+        );
 
         // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
-        if (opfsSahPool.getFileCount() === 0) {
+        if (initializedOpfsSahPool.getFileCount() === 0) {
           throw new OutdatedDatabaseSchemaError();
         }
 
-        database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
+        database = new initializedOpfsSahPool.OpfsSAHPoolDb(
+          `/${serverSlug}.sqlite3`,
+        );
 
         dbFacade = createDbFacade(database, false);
 
@@ -101,17 +122,31 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         initScheduler(dataSource);
         scheduleNextEvent(dataSource);
 
-        globalThis.postMessage({
-          eventKey: 'event:database-initialization-success',
-        } satisfies ApiNotificationEvent);
+        postWorkerMessage(
+          {
+            eventKey: 'event:database-initialization-success',
+          } satisfies ApiNotificationEvent,
+          { force: true },
+        );
         break;
       } catch (error) {
-        globalThis.postMessage({
-          eventKey: 'event:database-initialization-error',
-          error: error as Error,
-        } satisfies DatabaseInitializationErrorEvent);
+        postWorkerMessage(
+          {
+            eventKey: 'event:database-initialization-error',
+            error: error as Error,
+          } satisfies DatabaseInitializationErrorEvent,
+          { force: true },
+        );
         break;
       }
+    }
+    case 'WORKER_START_NOTIFICATION_POSTING': {
+      setShouldPostNotifications(true);
+      break;
+    }
+    case 'WORKER_STOP_NOTIFICATION_POSTING': {
+      setShouldPostNotifications(false);
+      break;
     }
     case 'WORKER_MESSAGE': {
       const { data, ports } = event;
@@ -146,11 +181,12 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         } satisfies ControllerErrorEvent;
 
         port.postMessage(errorEvent);
-        globalThis.postMessage(errorEvent);
+        postWorkerMessage(errorEvent);
         break;
       }
     }
     case 'WORKER_CLOSE': {
+      setShouldPostNotifications(false);
       cancelScheduling();
 
       dbFacade!.close();
@@ -159,7 +195,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       database!.close();
       database = null;
 
-      globalThis.postMessage({ type: 'WORKER_CLOSE_SUCCESS' });
+      postWorkerMessage({ type: 'WORKER_CLOSE_SUCCESS' }, { force: true });
       break;
     }
   }

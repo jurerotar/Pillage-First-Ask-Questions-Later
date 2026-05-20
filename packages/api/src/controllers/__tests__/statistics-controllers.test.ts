@@ -80,7 +80,7 @@ describe('statistics-controllers', () => {
     const result = getPlayerRankings(
       database,
       createControllerArgs<'/statistics/players'>({
-        body: { lastPlayerId: null },
+        query: { lastPlayerId: null },
       }),
     );
 
@@ -148,7 +148,7 @@ describe('statistics-controllers', () => {
     const result = getVillageRankings(
       database,
       createControllerArgs<'/statistics/villages'>({
-        body: { lastVillageId: null },
+        query: { lastVillageId: null },
       }),
     );
 

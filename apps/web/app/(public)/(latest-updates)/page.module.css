@@ -1,18 +1,26 @@
 @reference '../../styles/app.css';
 
 .changelog {
-  @apply relative ml-2 pl-4 border-l-2 border-success flex flex-col gap-4;
+  @apply relative ml-2 pl-4 border-l-2 border-success/70 flex flex-col gap-6;
 
   & > section {
-    @apply relative flex flex-col gap-2;
+    @apply relative flex flex-col gap-3;
 
-    & div[role="alert"] {
-      @apply my-2;
+    & ul {
+      @apply list-disc ml-4 space-y-2;
+    }
+
+    & > h2 {
+      @apply text-xl font-semibold;
+    }
+
+    & > h4 {
+      @apply text-muted-foreground text-sm font-medium;
     }
 
     &::before {
       content: "";
-      @apply absolute -left-8.25 size-3 rounded-full bg-success border-10 border-background box-content;
+      @apply absolute box-content left-0 top-0 -translate-x-[1.95rem] size-3 rounded-full transition-colors bg-success border-[8px] border-background;
     }
   }
 }

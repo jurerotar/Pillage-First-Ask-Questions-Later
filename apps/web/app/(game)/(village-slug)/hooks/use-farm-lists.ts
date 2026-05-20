@@ -1,39 +1,35 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { z } from 'zod';
 import { farmListsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 import { useCurrentVillage } from './current-village/use-current-village';
-
-const farmListSchema = z.strictObject({
-  id: z.number(),
-  name: z.string(),
-  villageId: z.number(),
-  targetCount: z.number(),
-});
-
-const farmListWithTilesSchema = farmListSchema.extend({
-  tileIds: z.array(z.number()),
-});
+import { useMe } from './use-me';
 
 export const useFarmLists = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
+  const { player } = useMe();
 
   const { data: farmLists } = useSuspenseQuery({
     queryKey: [farmListsCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher('/me/farm-lists');
+      const { data } = await apiClient.get('/players/:playerId/farm-lists', {
+        path: {
+          playerId: player.id,
+        },
+      });
 
-      return z.array(farmListSchema).parse(data);
+      return data;
     },
   });
 
   const { mutate: createFarmList } = useMutation({
     mutationFn: async (name: string) => {
-      await fetcher(`/villages/${currentVillage.id}/farm-lists`, {
-        method: 'POST',
+      await apiClient.post('/villages/:villageId/farm-lists', {
+        path: {
+          villageId: currentVillage.id,
+        },
         body: { name },
       });
     },
@@ -44,8 +40,10 @@ export const useFarmLists = () => {
 
   const { mutate: deleteFarmList } = useMutation({
     mutationFn: async (farmListId: number) => {
-      await fetcher(`/farm-lists/${farmListId}`, {
-        method: 'DELETE',
+      await apiClient.delete('/farm-lists/:farmListId', {
+        path: {
+          farmListId,
+        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
@@ -63,8 +61,10 @@ export const useFarmLists = () => {
       name?: string;
       villageId?: number;
     }) => {
-      await fetcher(`/farm-lists/${id}`, {
-        method: 'PATCH',
+      await apiClient.patch('/farm-lists/:farmListId', {
+        path: {
+          farmListId: id,
+        },
         body: { name, villageId },
       });
     },
@@ -75,8 +75,10 @@ export const useFarmLists = () => {
 
   const { mutate: renameFarmList } = useMutation({
     mutationFn: async ({ id, name }: { id: number; name: string }) => {
-      await fetcher(`/farm-lists/${id}/rename`, {
-        method: 'PATCH',
+      await apiClient.patch('/farm-lists/:farmListId', {
+        path: {
+          farmListId: id,
+        },
         body: { name },
       });
     },
@@ -86,8 +88,12 @@ export const useFarmLists = () => {
   });
 
   const getFarmList = async (farmListId: number) => {
-    const { data } = await fetcher(`/farm-lists/${farmListId}`);
-    return farmListWithTilesSchema.parse(data);
+    const { data } = await apiClient.get('/farm-lists/:farmListId', {
+      path: {
+        farmListId,
+      },
+    });
+    return data;
   };
 
   const { mutate: addTileToFarmList } = useMutation({
@@ -98,8 +104,10 @@ export const useFarmLists = () => {
       farmListId: number;
       tileId: number;
     }) => {
-      await fetcher(`/farm-lists/${farmListId}/tiles`, {
-        method: 'POST',
+      await apiClient.post('/farm-lists/:farmListId/tiles', {
+        path: {
+          farmListId,
+        },
         body: { tileId },
       });
     },
@@ -118,8 +126,11 @@ export const useFarmLists = () => {
       farmListId: number;
       tileId: number;
     }) => {
-      await fetcher(`/farm-lists/${farmListId}/tiles/${tileId}`, {
-        method: 'DELETE',
+      await apiClient.delete('/farm-lists/:farmListId/tiles/:tileId', {
+        path: {
+          farmListId,
+          tileId,
+        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {

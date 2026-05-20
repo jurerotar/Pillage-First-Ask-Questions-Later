@@ -80,20 +80,6 @@ import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
 import { useDialog } from 'app/hooks/use-dialog';
 
-const closeGameWorld = (apiWorker: Worker): void => {
-  const handler = ({ data }: MessageEvent) => {
-    const { type } = data;
-
-    if (type === 'WORKER_CLOSE_SUCCESS') {
-      apiWorker.removeEventListener('message', handler);
-      apiWorker.terminate();
-    }
-  };
-
-  apiWorker.addEventListener('message', handler);
-  apiWorker.postMessage({ type: 'WORKER_CLOSE' });
-};
-
 const TOOLTIP_DELAY_SHOW = 500;
 
 type CounterProps = {
@@ -241,7 +227,7 @@ const EventLogDesktopItem = () => {
 
   return (
     <NavLink
-      to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research"
+      to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
       aria-label={t('Event log')}
       data-tooltip-content={t('Event log')}
       data-tooltip-id="general-tooltip"
@@ -602,7 +588,7 @@ type TopNavigationProps = {
 
 const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
   const { t } = useTranslation();
-  const { apiWorker } = use(ApiContext);
+  const { closeApiWorker } = use(ApiContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { preferences } = usePreferences();
 
@@ -682,7 +668,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
                   <Link
                     to="/game-worlds"
                     onClick={() => {
-                      closeGameWorld(apiWorker);
+                      void closeApiWorker();
                     }}
                   >
                     <DesktopTopRowItem
@@ -767,7 +753,7 @@ const MobileBottomNavigation = ({
   onDeveloperToolsToggle,
 }: MobileBottomNavigationProps) => {
   const { t } = useTranslation();
-  const { apiWorker } = use(ApiContext);
+  const { closeApiWorker } = use(ApiContext);
   const { preferences } = usePreferences();
 
   const container = useRef<HTMLDivElement>(null);
@@ -811,7 +797,7 @@ const MobileBottomNavigation = ({
           </li>
           <li>
             <NavigationSideItem
-              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research"
+              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
               aria-label={t('Event log')}
               title={t('Event log')}
             >
@@ -878,7 +864,7 @@ const MobileBottomNavigation = ({
             <NavigationSideItem
               to="/game-worlds"
               onClick={() => {
-                closeGameWorld(apiWorker);
+                void closeApiWorker();
               }}
               aria-label={t('Logout')}
               title={t('Logout')}

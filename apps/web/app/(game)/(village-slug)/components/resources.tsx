@@ -1,4 +1,3 @@
-import { clsx } from 'clsx';
 import type { HTMLAttributes } from 'react';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Icon } from 'app/components/icon';
@@ -10,17 +9,12 @@ type ResourcesProps = {
 
 export const Resources = ({
   resources,
-  className,
   iconClassName = 'size-5',
-  ...rest
 }: ResourcesProps) => {
   const [wood, clay, iron, wheat] = resources;
 
   return (
-    <span
-      className={clsx('flex gap-2 transition-colors', className)}
-      {...rest}
-    >
+    <>
       <span className="flex gap-1 items-center">
         <Icon
           type="wood"
@@ -49,6 +43,6 @@ export const Resources = ({
         />
         {formatNumber(wheat)}
       </span>
-    </span>
+    </>
   );
 };

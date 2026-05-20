@@ -3,7 +3,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { createController } from '../utils/controller';
 import {
   farmListSchema,
-  farmListTileSchema,
+  farmListTileRowSchema,
 } from './schemas/farm-list-schemas';
 
 export const getMeFarmLists = createController('/players/:playerId/farm-lists')(
@@ -49,15 +49,15 @@ export const getFarmList = createController('/farm-lists/:farmListId')(
       schema: farmListSchema,
     })!;
 
-    const tiles = database.selectObjects({
+    const tileRows = database.selectObjects({
       sql: 'SELECT tile_id FROM farm_list_tiles WHERE farm_list_id = $farmListId',
       bind: { $farmListId: farmListId },
-      schema: farmListTileSchema,
+      schema: farmListTileRowSchema,
     });
 
     return {
       ...farmList,
-      tileIds: tiles,
+      tileIds: tileRows.map((r) => r.tile_id),
     };
   },
 );
@@ -104,6 +104,55 @@ export const removeTileFromFarmList = createController(
   });
 });
 
+export const removeTileFromAllPlayerFarmLists = createController(
+  '/players/:playerId/farm-lists/tiles',
+  'delete',
+)(({ database, body: { tileId } }) => {
+  database.exec({
+    sql: `
+      DELETE FROM farm_list_tiles
+      WHERE tile_id = $tile_id
+        AND farm_list_id IN (
+          SELECT fl.id
+          FROM farm_lists fl
+          JOIN villages v ON v.id = fl.village_id
+          WHERE v.player_id = $player_id
+        )
+    `,
+    bind: { $tile_id: tileId, $player_id: PLAYER_ID },
+  });
+});
+
+export const cloneFarmList = createController(
+  '/farm-lists/:farmListId/clone',
+  'post',
+)(({ database, path: { farmListId }, body: { villageId } }) => {
+  database.transaction(() => {
+    const sourceFarmList = database.selectObject({
+      sql: 'SELECT name FROM farm_lists WHERE id = $farmListId',
+      bind: { $farmListId: farmListId },
+      schema: z.strictObject({
+        name: z.string(),
+      }),
+    })!;
+
+    database.exec({
+      sql: 'INSERT INTO farm_lists (village_id, name) VALUES ($villageId, $name)',
+      bind: { $villageId: villageId, $name: sourceFarmList.name },
+    });
+
+    const clonedFarmListId = database.selectValue({
+      sql: 'SELECT last_insert_rowid()',
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: 'INSERT INTO farm_list_tiles (farm_list_id, tile_id) SELECT $clonedFarmListId, tile_id FROM farm_list_tiles WHERE farm_list_id = $farmListId',
+      bind: { $clonedFarmListId: clonedFarmListId, $farmListId: farmListId },
+    });
+  });
+});
+
 export const updateFarmList = createController(
   '/farm-lists/:farmListId',
   'patch',
@@ -121,15 +170,5 @@ export const updateFarmList = createController(
         bind: { $villageId: villageId, $farmListId: farmListId },
       });
     }
-  });
-});
-
-export const renameFarmList = createController(
-  '/farm-lists/:farmListId/rename',
-  'patch',
-)(({ database, path: { farmListId }, body: { name } }) => {
-  database.exec({
-    sql: 'UPDATE farm_lists SET name = $name WHERE id = $farmListId',
-    bind: { $name: name, $farmListId: farmListId },
   });
 });

@@ -127,9 +127,7 @@ const ConstructionQueueEmptySlot = ({
 const ConstructionQueueContent = () => {
   const { t } = useTranslation();
   const tribe = useTribe();
-  const { currentVillageBuildingEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
+  const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const [isExtended, setIsExtended] = useState<boolean>(false);
 
@@ -142,26 +140,26 @@ const ConstructionQueueContent = () => {
 
   const emptySlotsCount = Math.max(
     0,
-    totalSlotsCount - currentVillageBuildingEvents.length,
+    totalSlotsCount - buildingUpgradeEvents.length,
   );
 
   // TODO: We've had reports of a bug where emptySlots is less than 0. We're manually reporting the issue, remove this code block once resolved.
-  if (totalSlotsCount - currentVillageBuildingEvents.length < 0) {
+  if (totalSlotsCount - buildingUpgradeEvents.length < 0) {
     faro.api.pushError(
       new Error(
         'Invalid array length at ConstructionQueue' +
-          JSON.stringify({ currentVillageBuildingEvents }),
+          JSON.stringify({ buildingUpgradeEvents }),
       ),
     );
   }
 
   const slots = [
-    ...currentVillageBuildingEvents.map((event) => ({
+    ...buildingUpgradeEvents.map((event) => ({
       type: 'building' as const,
       event,
     })),
     ...Array.from({ length: emptySlotsCount }, (_, i) => {
-      const slotIndex = currentVillageBuildingEvents.length + i;
+      const slotIndex = buildingUpgradeEvents.length + i;
       const isFree = slotIndex < availableSlotsCount;
 
       return {

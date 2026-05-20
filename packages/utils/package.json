@@ -36,6 +36,9 @@
     "./env": {
       "default": "./src/env.ts"
     },
+    "./opfs-lock-retry": {
+      "default": "./src/opfs-lock-retry.ts"
+    },
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },
@@ -76,10 +79,11 @@
     "ts-seedrandom": "1.4.1"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260409.1",
-    "vitest": "4.1.4",
-    "type-fest": "5.5.0",
-    "typescript": "6.0.2",
-    "zod": "4.3.6"
+    "@typescript/native-preview": "7.0.0-dev.20260504.1",
+    "vitest": "4.1.7",
+    "type-fest": "5.6.0",
+    "typescript": "6.0.3",
+    "zod": "4.4.3",
+    "vite": "8.0.13"
   }
 }

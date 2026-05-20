@@ -1,11 +1,9 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use, useCallback } from 'react';
-import { z } from 'zod';
 import type {
   GameEvent,
   TroopMovementEventType,
 } from '@pillage-first/types/models/game-event';
-import { troopSchema } from '@pillage-first/types/models/troop';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   troopMovementsCacheKey,
@@ -21,15 +19,19 @@ type SendTroopsArgs = {
 };
 
 export const useVillageTroops = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: villageTroops } = useSuspenseQuery({
     queryKey: [villageTroopsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await fetcher(`/villages/${currentVillage.id}/troops`);
+      const { data } = await apiClient.get('/villages/:villageId/troops', {
+        path: {
+          villageId: currentVillage.id,
+        },
+      });
 
-      return z.array(troopSchema).parse(data);
+      return data;
     },
   });
 
@@ -42,15 +44,14 @@ export const useVillageTroops = () => {
 
   const { mutate: sendTroops } = useMutation({
     mutationFn: async ({ targetCoordinates, type, troops }: SendTroopsArgs) => {
-      await fetcher('/events', {
-        method: 'POST',
+      await apiClient.post('/events', {
         body: {
           villageId: currentVillage.id,
           originCoordinates: currentVillage.coordinates,
           type,
           targetCoordinates,
           troops,
-        },
+        } as never,
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {

@@ -63,7 +63,22 @@
         "noUnusedTemplateLiteral": "error",
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
-        "noUselessElse": "error"
+        "noUselessElse": "error",
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["*.ts"],
+                "message": "Do not use .ts extensions in imports."
+              },
+              {
+                "group": ["*.tsx"],
+                "message": "Do not use .tsx extensions in imports."
+              }
+            ]
+          }
+        }
       }
     }
   },

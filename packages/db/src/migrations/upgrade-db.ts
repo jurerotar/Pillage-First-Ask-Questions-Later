@@ -4,6 +4,57 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 // should already be part of the new schema, so contents of this function should be deleted
 export const upgradeDb = (database: DbFacade): void => {
   database.transaction((db) => {
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE hero_adventures
+          ADD COLUMN last_updated_at INTEGER NOT NULL DEFAULT 0;
+        `,
+      });
+    } catch {
+      // Column already exists on newer databases.
+    }
+
+    db.exec({
+      sql: `
+        UPDATE hero_adventures
+        SET last_updated_at = COALESCE(
+          (
+            SELECT resolves_at
+            FROM events
+            WHERE type = 'adventurePointIncrease'
+            LIMIT 1
+          ),
+          (
+            SELECT last_write
+            FROM meta
+            LIMIT 1
+          ),
+          last_updated_at
+        )
+        WHERE last_updated_at = 0;
+      `,
+    });
+
+    db.exec({
+      sql: `
+        DELETE FROM events
+        WHERE type = 'adventurePointIncrease';
+      `,
+    });
+
+    db.exec({
+      sql: `
+        CREATE TRIGGER IF NOT EXISTS loyalties_delete_capped_entries_after_update
+        AFTER UPDATE OF loyalty
+        ON loyalties
+        WHEN NEW.loyalty >= 100
+        BEGIN
+          DELETE FROM loyalties WHERE tile_id = NEW.tile_id;
+        END;
+      `,
+    });
+
     // Delete all heroes present in troops table
     db.exec({
       sql: `
@@ -34,6 +85,20 @@ export const upgradeDb = (database: DbFacade): void => {
             WHERE e.village_id = v.id
               AND e.type = 'troopMovementAdventure'
           )
+      `,
+    });
+
+    // Normalize legacy village_founding_history timestamps from milliseconds to seconds
+    // Some historical rows were inserted by JS in milliseconds. Since triggers now set
+    // timestamps via unixepoch() (seconds), convert any ms values at rest.
+    db.exec({
+      sql: `
+        UPDATE village_founding_history
+        SET timestamp = CASE
+          WHEN timestamp > 2000000000 THEN CAST(timestamp / 1000 AS INTEGER)
+          ELSE timestamp
+        END
+        WHERE timestamp > 2000000000;
       `,
     });
   });

@@ -1,18 +1,21 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
+import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
 import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,
 } from '../utils/village';
+import { mapDeveloperSettingsRowToDto } from './mappers/developer-tools-mapper';
 import { onHeroDeath } from './resolvers/utils/hero';
-import { getDeveloperSettingsSchema } from './schemas/developer-tools-schemas';
+import { getDeveloperSettingsRowSchema } from './schemas/developer-tools-schemas';
+import { materializeHeroAdventurePointsAt } from './utils/adventures';
 
 export const getDeveloperSettings = createController('/developer-settings')(
   ({ database }) => {
-    return database.selectObject({
+    const row = database.selectObject({
       sql: `
       SELECT
         is_instant_building_construction_enabled,
@@ -29,8 +32,10 @@ export const getDeveloperSettings = createController('/developer-settings')(
       FROM
         developer_settings
     `,
-      schema: getDeveloperSettingsSchema,
-    });
+      schema: getDeveloperSettingsRowSchema,
+    })!;
+
+    return mapDeveloperSettingsRowToDto(row);
   },
 );
 
@@ -52,7 +57,7 @@ export const updateDeveloperSettings = createController(
   });
 
   if (value) {
-    let eventTypes: string[] = [];
+    let eventTypes: GameEventType[] = [];
 
     switch (developerSettingName) {
       case 'isInstantBuildingConstructionEnabled': {
@@ -191,16 +196,22 @@ export const incrementHeroAdventurePoints = createController(
   '/developer-settings/:heroId/increment-adventure-points',
   'patch',
 )(({ database, path: { heroId } }) => {
+  const now = Date.now();
+
+  materializeHeroAdventurePointsAt(database, heroId, now);
+
   database.exec({
     sql: `
       UPDATE hero_adventures
       SET
-        available = available + 1
+        available = available + 1,
+        last_updated_at = $now
       WHERE
         hero_id = $hero_id
     `,
     bind: {
       $hero_id: heroId,
+      $now: now,
     },
   });
 });

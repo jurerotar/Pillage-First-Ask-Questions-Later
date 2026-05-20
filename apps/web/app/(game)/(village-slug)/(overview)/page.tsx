@@ -7,10 +7,12 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { MainBuildingDemolitionTable } from 'app/(game)/(village-slug)/components/main-building-demolition-table';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 import { VillageConstructionTable } from 'app/(game)/(village-slug)/components/village-construction-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
@@ -34,6 +36,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
     doesSmithyExist,
     doesMarketplaceExist,
     doesBreweryExist,
+    isMainBuildingAboveLevel10,
   ] = useMemo(() => {
     const fields = currentVillage.buildingFields;
 
@@ -41,6 +44,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
     let hasSmithyBuilding = false;
     let hasMarketplaceBuilding = false;
     let hasBreweryBuilding = false;
+    let hasMainBuildingAboveLevel10 = false;
 
     for (const field of fields) {
       const id = field.buildingId;
@@ -62,6 +66,10 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           hasBreweryBuilding = true;
           break;
         }
+        case 'MAIN_BUILDING': {
+          hasMainBuildingAboveLevel10 = field.level >= 10;
+          break;
+        }
       }
     }
 
@@ -70,9 +78,11 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
       hasSmithyBuilding,
       hasMarketplaceBuilding,
       hasBreweryBuilding,
+      hasMainBuildingAboveLevel10,
     ];
   }, [currentVillage.buildingFields]);
 
+  const mainBuildingName = t('BUILDINGS.MAIN_BUILDING.NAME');
   const academyName = t('BUILDINGS.ACADEMY.NAME');
   const smithyName = t('BUILDINGS.SMITHY.NAME');
   const marketplaceName = t('BUILDINGS.MARKETPLACE.NAME');
@@ -81,7 +91,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -102,6 +112,16 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
         <SectionContent>
           <Text as="h2">{t('Construction')}</Text>
           <VillageConstructionTable />
+        </SectionContent>
+        <Separator orientation="horizontal" />
+        <SectionContent>
+          <Text as="h2">{t('Demolition')}</Text>
+          {!isMainBuildingAboveLevel10 &&
+            t(
+              'You need to upgrade the {{buildingName}} to level 10 before you can start demolishing buildings.',
+              { buildingName: mainBuildingName },
+            )}
+          {isMainBuildingAboveLevel10 && <MainBuildingDemolitionTable />}
         </SectionContent>
         <Separator orientation="horizontal" />
         <SectionContent>
@@ -167,7 +187,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           </>
         )}
       </Section>
-    </>
+    </PageContents>
   );
 };
 

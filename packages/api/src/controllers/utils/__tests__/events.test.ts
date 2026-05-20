@@ -2,7 +2,10 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
+import {
+  calculateBuildingDestructionDuration,
+  getBuildingDefinition,
+} from '@pillage-first/game-assets/utils/buildings';
 import {
   calculateHeroLevel,
   calculateHeroRevivalCost,
@@ -31,6 +34,7 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   getEventCost,
   getEventDuration,
+  getEventResourceSubtractionTimestamp,
   getEventStartTime,
   insertEvents,
   runEventCreationSideEffects,
@@ -39,7 +43,8 @@ import {
 
 const getAnyVillageId = (database: DbFacade): number => {
   return database.selectValue({
-    sql: 'SELECT id FROM villages LIMIT 1;',
+    sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1;',
+    bind: { $player_id: PLAYER_ID },
     schema: z.number(),
   })!;
 };
@@ -255,6 +260,23 @@ describe('events utils', () => {
     });
 
     test('buildingLevelChange - should throw if target level exceeds max level', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const { maxLevel } = getBuildingDefinition('MAIN_BUILDING');
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingId: 'MAIN_BUILDING',
+            level: maxLevel + 1,
+          }),
+        ),
+      ).toThrow('Building level cannot exceed max level');
+    });
+
+    test('buildingConstruction - should throw if target level exceeds max level', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const { maxLevel } = getBuildingDefinition('MAIN_BUILDING');
@@ -492,7 +514,41 @@ describe('events utils', () => {
       ).toThrow('Building construction queue is full');
     });
 
-    test('isBuildingDestructionEvent - should throw if building destruction is already in progress', async () => {
+    test('isBuildingEvent - should not throw if only downgrade event is in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      // Set tribe to Teutons (not Romans) so queue is shared
+      database.exec({
+        sql: `
+          UPDATE players
+          SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'teutons')
+          WHERE id = (SELECT player_id FROM villages WHERE id = $village_id)
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingLevelChangeEventMock({
+          villageId,
+          buildingFieldId: 19,
+          previousLevel: 2,
+          level: 1,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId: 20,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('isBuildingEvent - should not throw if only buildingDestruction event is in queue', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -505,8 +561,193 @@ describe('events utils', () => {
       expect(() =>
         validateEventCreationPrerequisites(
           database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId: 20,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('isBuildingDowngradeEvent - should throw if main building level is lower than 10', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 9
+          WHERE village_id = $village_id
+          AND building_id = (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING')
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            previousLevel: 2,
+            level: 1,
+          }),
+        ),
+      ).toThrow('Main building level 10 is required to downgrade buildings');
+    });
+
+    test('isBuildingDowngradeEvent - should not throw if main building level is at least 10', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 10
+          WHERE village_id = $village_id
+          AND building_id = (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING')
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            previousLevel: 2,
+            level: 1,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('isBuildingDowngradeEvent - should throw if another downgrade event is already in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 10
+          WHERE village_id = $village_id
+          AND building_id = (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING')
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingLevelChangeEventMock({
+          villageId,
+          previousLevel: 2,
+          level: 1,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            previousLevel: 3,
+            level: 2,
+          }),
+        ),
+      ).toThrow('Main building is busy');
+    });
+
+    test('isBuildingDowngradeEvent - should throw if a building destruction event is already in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 10
+          WHERE village_id = $village_id
+          AND building_id = (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING')
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingDestructionEventMock({
+          villageId,
+          previousLevel: 10,
+          level: 0,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            previousLevel: 2,
+            level: 1,
+          }),
+        ),
+      ).toThrow('Main building is busy');
+    });
+
+    test('isBuildingDestructionEvent - should throw if a building downgrade event is already in queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 10
+          WHERE village_id = $village_id AND field_id = 38;
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingLevelChangeEventMock({
+          villageId,
+          previousLevel: 2,
+          level: 1,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
           createBuildingDestructionEventMock({
             villageId,
+          }),
+        ),
+      ).toThrow('Main building is busy');
+    });
+
+    test('isBuildingDestructionEvent - should throw if building destruction is already in progress', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 10
+          WHERE village_id = $village_id AND field_id = 38;
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      insertEvents(database, [
+        createBuildingDestructionEventMock({
+          villageId,
+          previousLevel: 10,
+          level: 0,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingDestructionEventMock({
+            villageId,
+            previousLevel: 9,
+            level: 0,
           }),
         ),
       ).toThrow('Main building is busy');
@@ -667,7 +908,7 @@ describe('events utils', () => {
       const { x, y } = database.selectObject({
         sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $id)',
         bind: { $id: villageId },
-        schema: z.object({ x: z.number(), y: z.number() }),
+        schema: z.strictObject({ x: z.number(), y: z.number() }),
       })!;
 
       expect(() =>
@@ -704,7 +945,7 @@ describe('events utils', () => {
       const { x, y } = database.selectObject({
         sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $id)',
         bind: { $id: villageId },
-        schema: z.object({ x: z.number(), y: z.number() }),
+        schema: z.strictObject({ x: z.number(), y: z.number() }),
       })!;
 
       expect(() =>
@@ -764,7 +1005,7 @@ describe('events utils', () => {
           JOIN oasis o ON o.tile_id = t.id
           LIMIT 1
         `,
-        schema: z.object({ x: z.number(), y: z.number() }),
+        schema: z.strictObject({ x: z.number(), y: z.number() }),
       })!;
 
       database.exec({
@@ -853,6 +1094,54 @@ describe('events utils', () => {
   });
 
   describe(runEventCreationSideEffects, () => {
+    test('troopMovementAdventure - should materialize accrued points before spending one', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const heroId = database.selectValue({
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: PLAYER_ID },
+        schema: z.number(),
+      })!;
+
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(9 * 60 * 60 * 1000));
+
+      database.exec({
+        sql: 'UPDATE servers SET created_at = 0',
+      });
+
+      database.exec({
+        sql: `
+          UPDATE hero_adventures
+          SET available = 3, last_updated_at = 0
+          WHERE hero_id = $hero_id
+        `,
+        bind: { $hero_id: heroId },
+      });
+
+      runEventCreationSideEffects(database, [
+        createTroopMovementAdventureEventMock({ villageId }),
+      ]);
+
+      const adventures = database.selectObject({
+        sql: `
+          SELECT available, last_updated_at AS lastUpdatedAt
+          FROM hero_adventures
+          WHERE hero_id = $hero_id
+        `,
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({
+          available: z.number(),
+          lastUpdatedAt: z.number(),
+        }),
+      })!;
+
+      expect(adventures.available).toBe(3);
+      expect(adventures.lastUpdatedAt).toBe(9 * 60 * 60 * 1000);
+
+      vi.useRealTimers();
+    });
+
     test('troopMovement - should remove troops for movements', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
@@ -1080,6 +1369,24 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       const event = createGameEventMock('buildingConstruction');
       expect(getEventDuration(database, event)).toBe(0);
+    });
+
+    test('buildingDestruction - should return duration based on level and server speed', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      database.exec({
+        sql: 'UPDATE servers SET speed = $speed',
+        bind: { $speed: 2 },
+      });
+
+      const event = createBuildingDestructionEventMock({
+        villageId,
+        previousLevel: 6,
+      });
+
+      const expectedDuration = calculateBuildingDestructionDuration(6, 2);
+      expect(getEventDuration(database, event)).toBe(expectedDuration);
     });
 
     test('buildingLevelUp - should return 0 if instant construction enabled', async () => {
@@ -1335,6 +1642,66 @@ describe('events utils', () => {
         createBuildingConstructionEventMock(),
       );
       expect(result).toBe(now);
+      vi.useRealTimers();
+    });
+  });
+
+  describe(getEventResourceSubtractionTimestamp, () => {
+    test('should return now even if the event starts in the future (repro for incorrect resource subtraction)', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      vi.useFakeTimers();
+      const now = 1_000_000;
+      vi.setSystemTime(new Date(now));
+
+      // 1. Setup village with enough resources
+      database.exec({
+        sql: `
+          UPDATE resource_sites
+          SET wood = 1000000, clay = 1000000, iron = 1000000, wheat = 1000000, updated_at = $now
+          WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+        `,
+        bind: { $village_id: villageId, $now: now },
+      });
+
+      // 2. Mock a training event that starts far in the future
+      const unitId = 'LEGIONNAIRE';
+      // We need a Barracks
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET building_id = (SELECT id FROM building_ids WHERE building = 'BARRACKS'), level = 1
+          WHERE village_id = $village_id
+        `,
+        bind: { $village_id: villageId },
+      });
+      database.exec({
+        sql: `INSERT OR IGNORE INTO unit_research (village_id, unit_id)
+              VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))`,
+        bind: { $village_id: villageId, $unit: unitId },
+      });
+
+      const futureStartsAt = now + 1_000_000;
+      const trainingEvent = createTroopTrainingEventMock({
+        villageId,
+        unitId,
+        amount: 1,
+        buildingId: 'BARRACKS',
+        startsAt: futureStartsAt, // This might be overridden by createEvents but we'll try
+      });
+
+      // Instead of relying on createEvents to pick up our startsAt (it won't),
+      // we'll directly test getEventResourceSubtractionTimestamp with a future startsAt.
+      const resultTimestamp = getEventResourceSubtractionTimestamp(
+        database,
+        trainingEvent,
+        futureStartsAt,
+      );
+
+      // It MUST return 'now', not 'futureStartsAt'
+      expect(resultTimestamp).toBe(now);
+
       vi.useRealTimers();
     });
   });

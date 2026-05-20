@@ -12,15 +12,18 @@ type UpdateBookmarksArgs = {
 };
 
 export const useBookmarks = () => {
-  const { fetcher } = use(ApiContext);
+  const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
   const { data: bookmarks } = useSuspenseQuery({
     queryKey: [bookmarksCacheKey],
     queryFn: async () => {
-      const { data } = await fetcher<Bookmarks>(
-        `/villages/${currentVillage.id}/bookmarks`,
-      );
+      const { data } = await apiClient.get('/villages/:villageId/bookmarks', {
+        path: {
+          villageId: currentVillage.id,
+        },
+      });
+
       return data;
     },
     staleTime: Number.POSITIVE_INFINITY,
@@ -32,8 +35,11 @@ export const useBookmarks = () => {
     UpdateBookmarksArgs
   >({
     mutationFn: async ({ buildingId, tab }) => {
-      await fetcher(`/villages/${currentVillage.id}/bookmarks/${buildingId}`, {
-        method: 'PATCH',
+      await apiClient.patch('/villages/:villageId/bookmarks/:buildingId', {
+        path: {
+          villageId: currentVillage.id,
+          buildingId,
+        },
         body: {
           tab,
         },

@@ -12,10 +12,8 @@ import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
-import {
-  createWorkerFetcher,
-  type Fetcher,
-} from 'app/(game)/providers/utils/worker-fetch';
+import { createTypedApiClient } from 'app/(game)/providers/utils/typed-api-client';
+import { createWorkerFetcher } from 'app/(game)/providers/utils/worker-fetch';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];
@@ -23,7 +21,8 @@ type ApiProviderProps = {
 
 type ApiContextReturn = {
   apiWorker: Worker;
-  fetcher: Fetcher;
+  closeApiWorker: () => Promise<void>;
+  apiClient: ReturnType<typeof createTypedApiClient>;
 };
 
 export const ApiContext = createContext<ApiContextReturn>(
@@ -35,7 +34,8 @@ export const ApiProvider = ({
   serverSlug,
 }: PropsWithChildren<ApiProviderProps>) => {
   const queryClient = useQueryClient();
-  const { apiWorker } = useApiWorker(serverSlug);
+  const { apiWorker, closeApiWorker, subscribeToApiWorkerNotifications } =
+    useApiWorker(serverSlug);
 
   useEffect(() => {
     if (!apiWorker) {
@@ -95,10 +95,10 @@ export const ApiProvider = ({
       evDebounced();
     };
 
-    apiWorker.addEventListener('message', handleMessage);
+    const unsubscribe = subscribeToApiWorkerNotifications(handleMessage);
 
     return () => {
-      apiWorker.removeEventListener('message', handleMessage);
+      unsubscribe();
 
       // Attempt to cancel pending debounced calls
       for (const debounced of debouncedInvalidators.values()) {
@@ -108,14 +108,17 @@ export const ApiProvider = ({
       }
       debouncedInvalidators.clear();
     };
-  }, [apiWorker, queryClient]);
+  }, [queryClient, subscribeToApiWorkerNotifications, apiWorker]);
 
   const value: ApiContextReturn = useMemo(() => {
+    const fetcher = createWorkerFetcher(apiWorker);
+
     return {
       apiWorker,
-      fetcher: createWorkerFetcher(apiWorker),
+      closeApiWorker,
+      apiClient: createTypedApiClient(fetcher),
     };
-  }, [apiWorker]);
+  }, [apiWorker, closeApiWorker]);
 
   return <ApiContext value={value}>{children}</ApiContext>;
 };

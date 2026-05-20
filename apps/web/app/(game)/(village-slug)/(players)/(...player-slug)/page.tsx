@@ -6,6 +6,7 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(playe
 import { usePlayer } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player-villages';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -44,14 +45,8 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
     return summedPopulation;
   }, [playerVillages]);
 
-  const sortedPlayerVillages = useMemo(() => {
-    return playerVillages.toSorted((prevVillage, nextVillage) => {
-      return nextVillage.population - prevVillage.population;
-    });
-  }, [playerVillages]);
-
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -143,7 +138,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedPlayerVillages.map(
+              {playerVillages.map(
                 ({
                   id,
                   name,
@@ -175,13 +170,15 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
                     </TableCell>
                     <TableCell>
                       <Text>
-                        <Resources
-                          className="justify-center"
-                          iconClassName="size-4"
-                          resources={parseResourcesFromRFC(
-                            resourceFieldComposition,
-                          )}
-                        />
+                        <span className="inline-flex gap-2">
+                          <Resources
+                            className="justify-center"
+                            iconClassName="size-4"
+                            resources={parseResourcesFromRFC(
+                              resourceFieldComposition,
+                            )}
+                          />
+                        </span>
                       </Text>
                     </TableCell>
                   </TableRow>
@@ -191,7 +188,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
           </Table>
         </div>
       </div>
-    </>
+    </PageContents>
   );
 };
 

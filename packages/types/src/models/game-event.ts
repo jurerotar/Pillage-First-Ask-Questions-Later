@@ -33,8 +33,7 @@ type BaseBuildingEvent = {
 
 type BuildingLevelChangeEvent = BaseBuildingEvent;
 type BuildingScheduledConstructionEvent = BaseBuildingEvent;
-
-type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level'>;
+type BuildingDestructionEvent = BaseBuildingEvent;
 
 type UnitResearchEvent = {
   unitId: Unit['id'];
@@ -91,7 +90,6 @@ export const gameEventTypeSchema = z.enum([
   'troopMovementAdventure',
   'unitResearch',
   'unitImprovement',
-  'adventurePointIncrease',
   'heroRevival',
   'heroHealthRegeneration',
   'loyaltyIncrease',
@@ -116,7 +114,6 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopMovementRaid: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementOasisOccupation: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementAdventure: BaseTroopMovementEvent & VillageGameEvent;
-  adventurePointIncrease: GlobalGameEvent;
   heroRevival: VillageGameEvent;
   heroHealthRegeneration: GlobalGameEvent;
   loyaltyIncrease: GlobalGameEvent;
@@ -133,6 +130,7 @@ export type TroopMovementEvent =
   | GameEvent<'troopMovementAdventure'>;
 
 export type BuildingEvent =
+  | GameEvent<'buildingDestruction'>
   | GameEvent<'buildingScheduledConstruction'>
   | GameEvent<'buildingLevelChange'>
   | GameEvent<'buildingConstruction'>;

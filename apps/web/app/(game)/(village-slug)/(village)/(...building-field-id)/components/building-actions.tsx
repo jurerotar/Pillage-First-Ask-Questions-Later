@@ -106,10 +106,8 @@ export const BuildingActions = () => {
     buildingId,
     buildingFieldId,
   );
-  const { virtualLevel, doesBuildingExist } = useBuildingVirtualLevel(
-    buildingId,
-    buildingFieldId,
-  );
+  const { virtualLevel, doesBuildingExist } =
+    useBuildingVirtualLevel(buildingFieldId);
 
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
 

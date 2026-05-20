@@ -4,6 +4,7 @@ import { ArchivedReports } from 'app/(game)/(village-slug)/(reports)/components/
 import { CurrentVillageReports } from 'app/(game)/(village-slug)/(reports)/components/current-village-reports';
 import { Reports } from 'app/(game)/(village-slug)/(reports)/components/reports';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -26,7 +27,7 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Reports')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -59,7 +60,7 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
           <CurrentVillageReports />
         </TabPanel>
       </Tabs>
-    </>
+    </PageContents>
   );
 };
 

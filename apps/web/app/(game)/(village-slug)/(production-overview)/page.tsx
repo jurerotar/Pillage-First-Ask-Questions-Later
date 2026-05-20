@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(production-overview)/+types/page';
 import { ProductionOverview } from 'app/(game)/(village-slug)/(production-overview)/components/production-overview';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -24,7 +25,7 @@ const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Production overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -61,7 +62,7 @@ const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
           <ProductionOverview effectId="wheatProduction" />
         </TabPanel>
       </Tabs>
-    </>
+    </PageContents>
   );
 };
 

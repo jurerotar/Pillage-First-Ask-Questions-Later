@@ -1,12 +1,16 @@
 import { createController } from '../utils/controller';
 import {
-  getOccupiableOasisInRangeSchema,
+  mapOccupiableOasisRowToDto,
+  mapVillageBySlug,
+} from './mappers/village-mapper';
+import {
+  getOccupiableOasisInRangeRowSchema,
   getVillageBySlugSchema,
 } from './schemas/village-schemas';
 
 export const getVillageBySlug = createController('/villages/:villageSlug')(
   ({ database, path: { villageSlug } }) => {
-    return database.selectObject({
+    const row = database.selectObject({
       sql: `
       SELECT
         v.id,
@@ -52,13 +56,15 @@ export const getVillageBySlug = createController('/villages/:villageSlug')(
       bind: { $slug: villageSlug },
       schema: getVillageBySlugSchema,
     })!;
+
+    return mapVillageBySlug(row);
   },
 );
 
 export const getOccupiableOasisInRange = createController(
   '/villages/:villageId/occupiable-oasis',
 )(({ database, path: { villageId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       WITH
         src_village AS (
@@ -119,8 +125,9 @@ export const getOccupiableOasisInRange = createController(
       $village_id: villageId,
       $radius: 3,
     },
-    schema: getOccupiableOasisInRangeSchema,
+    schema: getOccupiableOasisInRangeRowSchema,
   });
+  return rows.map(mapOccupiableOasisRowToDto);
 });
 
 export const rearrangeBuildingFields = createController(
@@ -160,8 +167,11 @@ export const rearrangeBuildingFields = createController(
         )
         DELETE FROM building_fields
         WHERE village_id = $village_id
-          AND field_id BETWEEN 19 AND 38
-          AND field_id IN (SELECT field_id FROM updates);
+          AND EXISTS (
+            SELECT 1
+            FROM JSON_EACH($updates) AS j
+            WHERE CAST(j.value ->> '$.buildingFieldId' AS INTEGER) = building_fields.field_id
+          );
       `,
       bind: {
         $village_id: villageId,

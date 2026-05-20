@@ -33,6 +33,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
+import { PageContents } from 'app/components/page-contents';
 import { Tooltip } from 'app/components/tooltip';
 import { Dialog } from 'app/components/ui/dialog';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -365,12 +366,12 @@ const MapPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Map')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <MapProvider>
         <MapPageContents />
       </MapProvider>
-    </>
+    </PageContents>
   );
 };
 

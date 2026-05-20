@@ -4,5 +4,6 @@ export const heroAdventuresSchema = z
   .strictObject({
     available: z.number(),
     completed: z.number(),
+    nextAvailableAt: z.number(),
   })
   .meta({ id: 'HeroAdventures' });

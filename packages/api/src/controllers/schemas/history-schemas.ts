@@ -10,16 +10,10 @@ export const baseGetBuildingLevelChangeHistorySchema = z.strictObject({
   timestamp: z.number(),
 });
 
-export const getBuildingLevelChangeHistorySchema =
-  baseGetBuildingLevelChangeHistorySchema
-    .transform((t) => ({
-      fieldId: t.field_id,
-      building: t.building,
-      previousLevel: t.previous_level,
-      newLevel: t.new_level,
-      timestamp: t.timestamp,
-    }))
-    .meta({ id: 'GetBuildingLevelChangeHistory' });
+export const getBuildingLevelChangeHistoryRowSchema =
+  baseGetBuildingLevelChangeHistorySchema.meta({
+    id: 'GetBuildingLevelChangeHistoryRow',
+  });
 
 export const baseGetUnitTrainingHistorySchema = z.strictObject({
   batch_id: z.string(),
@@ -29,15 +23,8 @@ export const baseGetUnitTrainingHistorySchema = z.strictObject({
   timestamp: z.number(),
 });
 
-export const getUnitTrainingHistorySchema = baseGetUnitTrainingHistorySchema
-  .transform((t) => ({
-    batchId: t.batch_id,
-    unit: t.unit,
-    building: t.building,
-    amount: t.amount,
-    timestamp: t.timestamp,
-  }))
-  .meta({ id: 'GetUnitTrainingHistory' });
+export const getUnitTrainingHistoryRowSchema =
+  baseGetUnitTrainingHistorySchema.meta({ id: 'GetUnitTrainingHistoryRow' });
 
 export const baseGetEventsHistorySchema = z.discriminatedUnion('type', [
   z.strictObject({

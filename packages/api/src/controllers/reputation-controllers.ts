@@ -1,10 +1,11 @@
 import { createController } from '../utils/controller';
-import { getReputationsSchema } from './schemas/reputation-schemas';
+import { mapReputationRowToDto } from './mappers/reputation-mapper';
+import { getReputationsRowSchema } from './schemas/reputation-schemas';
 
 export const getReputations = createController(
   '/players/:playerId/reputations',
 )(({ database, path: { playerId } }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
     SELECT fi.faction, fr.reputation
     FROM faction_reputation fr
@@ -14,6 +15,8 @@ export const getReputations = createController(
     bind: {
       $player_id: playerId,
     },
-    schema: getReputationsSchema,
+    schema: getReputationsRowSchema,
   });
+
+  return rows.map(mapReputationRowToDto);
 });

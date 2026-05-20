@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { PageContents } from 'app/components/page-contents';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,7 +17,7 @@ const FrequentlyAskedQuestionsPage = () => {
   });
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
@@ -32,7 +33,7 @@ const FrequentlyAskedQuestionsPage = () => {
           <FrequentlyAskedQuestionsMdx />
         </main>
       </div>
-    </>
+    </PageContents>
   );
 };
 

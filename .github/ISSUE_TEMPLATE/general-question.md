@@ -2,8 +2,6 @@
 name: Question
 about: Ask a general question about the project.
 title: "[Question]: "
-labels:
-  - question
 ---
 
 ### Question

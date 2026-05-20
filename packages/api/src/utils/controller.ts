@@ -55,6 +55,48 @@ export type Controller<
   method: TMethod;
 };
 
+type OperationFor<
+  TPath extends keyof typeof paths,
+  TMethod extends Method,
+> = TMethod extends keyof (typeof paths)[TPath]
+  ? NonNullable<(typeof paths)[TPath][TMethod]>
+  : never;
+
+type JsonSchemaFor<
+  TOperation,
+  TStatusCode extends string,
+> = TOperation extends {
+  responses: {
+    [S in TStatusCode]: {
+      content: {
+        'application/json': { schema: infer TSchema };
+      };
+    };
+  };
+}
+  ? TSchema
+  : never;
+
+type InferOutputSchema<TSchema> = TSchema extends z.ZodType
+  ? z.output<TSchema>
+  : never;
+
+type SuccessResponseFor<TOperation> = TOperation extends {
+  responses: infer TResponses;
+}
+  ? TResponses extends Record<string, unknown>
+    ? '200' extends keyof TResponses
+      ? InferOutputSchema<JsonSchemaFor<TOperation, '200'>>
+      : '201' extends keyof TResponses
+        ? InferOutputSchema<JsonSchemaFor<TOperation, '201'>>
+        : '202' extends keyof TResponses
+          ? InferOutputSchema<JsonSchemaFor<TOperation, '202'>>
+          : '204' extends keyof TResponses
+            ? undefined
+            : unknown
+    : unknown
+  : unknown;
+
 export const createController = <
   TPath extends keyof typeof paths,
   TMethod extends Method = 'get',
@@ -62,7 +104,7 @@ export const createController = <
   path: TPath,
   method: TMethod = 'get' as TMethod,
 ) => {
-  return <TReturn>(
+  return <TReturn = SuccessResponseFor<OperationFor<TPath, TMethod>>>(
     fn: (
       args: ControllerArgs<TPath, TMethod> & { database: DbFacade },
     ) => TReturn,

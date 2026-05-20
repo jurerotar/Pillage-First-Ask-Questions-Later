@@ -7,15 +7,21 @@ import type { Resource } from '@pillage-first/types/models/resource';
 import { createController } from '../utils/controller';
 import { updateVillageResourcesAt } from '../utils/village';
 import {
+  mapHero,
+  mapHeroInventoryEntry,
+  mapHeroLoadoutEntry,
+} from './mappers/hero-mapper';
+import {
   getHeroInventorySchema,
   getHeroLoadoutSchema,
   getHeroSchema,
 } from './schemas/hero-schemas';
+import { getPlayerHeroAdventureStateAt } from './utils/adventures';
 import { createEvents } from './utils/create-event';
 
 export const getHero = createController('/players/:playerId/hero')(
   ({ database, path: { playerId } }) => {
-    return database.selectObject({
+    const row = database.selectObject({
       sql: `
         SELECT
           h.id,
@@ -54,13 +60,15 @@ export const getHero = createController('/players/:playerId/hero')(
       bind: { $player_id: playerId },
       schema: getHeroSchema,
     })!;
+
+    return mapHero(row);
   },
 );
 
 export const getHeroLoadout = createController(
   '/players/:playerId/hero/equipped-items',
 )(({ database }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT slot, item_id, amount
       FROM
@@ -75,12 +83,14 @@ export const getHeroLoadout = createController(
     `,
     schema: getHeroLoadoutSchema,
   });
+
+  return rows.map(mapHeroLoadoutEntry);
 });
 
 export const getHeroInventory = createController(
   '/players/:playerId/hero/inventory',
 )(({ database }) => {
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql: `
       SELECT i.item_id, i.amount
       FROM
@@ -96,15 +106,21 @@ export const getHeroInventory = createController(
     `,
     schema: getHeroInventorySchema,
   });
+
+  return rows.map(mapHeroInventoryEntry);
 });
 
 export const getHeroAdventures = createController(
   '/players/:playerId/hero/adventures',
 )(({ database }) => {
-  return database.selectObject({
-    sql: 'SELECT available, completed FROM hero_adventures;',
-    schema: heroAdventuresSchema,
-  })!;
+  const { available, completed, nextAvailableAt } =
+    getPlayerHeroAdventureStateAt(database, Date.now());
+
+  return heroAdventuresSchema.parse({
+    available,
+    completed,
+    nextAvailableAt,
+  });
 });
 
 export const startHeroAdventure = createController(

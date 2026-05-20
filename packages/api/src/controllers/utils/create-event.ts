@@ -5,11 +5,13 @@ import type {
   GameEventType,
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { postWorkerMessage } from '../../notification-port';
 import { triggerKick } from '../../scheduler/scheduler-signal';
 import { subtractVillageResourcesAt } from '../../utils/village';
 import {
   getEventCost,
   getEventDuration,
+  getEventResourceSubtractionTimestamp,
   getEventStartTime,
   insertEvents,
   runEventCreationSideEffects,
@@ -55,10 +57,17 @@ export const createEvents = <T extends GameEventType>(
     }
 
     startsAt ??= getEventStartTime(database, sampleEvent);
+    const eventResourceSubtractionTimestamp =
+      getEventResourceSubtractionTimestamp(database, sampleEvent, startsAt);
 
     const { villageId } = sampleEvent;
 
-    subtractVillageResourcesAt(database, villageId!, startsAt, eventCost);
+    subtractVillageResourcesAt(
+      database,
+      villageId!,
+      eventResourceSubtractionTimestamp,
+      eventCost,
+    );
   }
 
   startsAt ??= getEventStartTime(database, sampleEvent);
@@ -101,7 +110,7 @@ export const createEvents = <T extends GameEventType>(
   insertEvents(database, events);
   runEventCreationSideEffects(database, events);
 
-  globalThis.postMessage?.({
+  postWorkerMessage({
     eventKey: 'event:created',
     ...events[0],
   } satisfies EventApiNotificationEvent);

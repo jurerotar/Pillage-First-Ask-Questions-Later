@@ -48,7 +48,7 @@ const TileModalResources = ({ tile }: TileModalResourcesProps) => {
   );
 
   return (
-    <div className="flex justify-start text-sm">
+    <div className="flex gap-2 justify-start text-sm">
       <Resources
         iconClassName="size-4"
         resources={resources}
@@ -84,14 +84,17 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
   const { t } = useTranslation();
   const { getReputation } = useReputations();
 
-  const { tribe, name, faction } = tile.owner!;
+  const { tribe, name, faction, slug } = tile.owner!;
   const { population } = tile.ownerVillage!;
 
   return (
     <div className="flex flex-col gap-2">
-      <span>
-        {t('Player')} - {name}
-      </span>
+      <div className="flex">
+        {t('Player')} -{' '}
+        <Text variant="link">
+          <Link to={`../players/${slug}`}>{name}</Link>
+        </Text>
+      </div>
       {faction !== 'player' && (
         <>
           <span>
@@ -182,6 +185,7 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
           </>
         )}
       </DialogDescription>
+      {isOccupied && <TileModalPlayerInfo tile={tile} />}
     </DialogHeader>
   );
 };
@@ -226,7 +230,7 @@ const FoundNewVillageAction = ({ tile }: FoundNewVillageActionProps) => {
     return (
       <Text className="text-gray-500">
         {t(
-          'You need to build a rally point before you can found a new village',
+          'You need a Rally Point of level 1 or higher before you can found a new village',
         )}
       </Text>
     );

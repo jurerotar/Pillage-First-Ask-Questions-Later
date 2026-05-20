@@ -14,7 +14,10 @@ import type { Resolver } from '../../types/resolver';
 import { updateHeroEffectsVillageIdQuery } from '../../utils/queries/effect-queries';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
-import { onHeroDeath } from './utils/hero';
+import {
+  createHeroHealthRegenerationEventByVillageId,
+  onHeroDeath,
+} from './utils/hero';
 import { assessAdventureCountQuestCompletion } from './utils/quests';
 import { addTroops } from './utils/troops';
 
@@ -65,24 +68,25 @@ export const adventureMovementResolver: Resolver<
   if (health === 0) {
     onHeroDeath(database, resolvesAt);
 
-    database.exec({
-      sql: 'UPDATE hero_adventures SET available = available - 1 WHERE hero_id = $hero_id;',
-      bind: {
-        $hero_id: heroId,
-      },
-    });
-
     return;
   }
 
   database.exec({
-    sql: 'UPDATE hero_adventures SET completed = completed + 1, available = available - 1 WHERE hero_id = $hero_id;',
+    sql: 'UPDATE hero_adventures SET completed = completed + 1 WHERE hero_id = $hero_id;',
     bind: {
       $hero_id: heroId,
     },
   });
 
   assessAdventureCountQuestCompletion(database, resolvesAt);
+
+  if (health < 100) {
+    createHeroHealthRegenerationEventByVillageId(
+      database,
+      villageId,
+      resolvesAt,
+    );
+  }
 
   createEvents<'troopMovementReturn'>(database, {
     villageId,
@@ -329,7 +333,8 @@ export const findNewVillageMovementResolver: Resolver<
       $tile_id: tileId,
       $x: x,
       $y: y,
-      $timestamp: resolvesAt,
+      // JS stores values in ms, other history table triggers store it in seconds
+      $timestamp: Math.trunc(resolvesAt / 1000),
     },
   });
 };

@@ -1,14 +1,14 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.5",
+  "version": "0.4.23",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "author": "Jure Rotar <hello@jurerotar.com>",
   "repository": "github:jurerotar/Pillage-First-Ask-Questions-Later",
   "bugs": "https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues",
-  "packageManager": "npm@11.7.0",
+  "packageManager": "npm@11.12.1",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -16,25 +16,24 @@
   "scripts": {
     "prepare": "lefthook install",
     "inject-graphics": "node scripts/inject-graphics.ts",
-    "remove-deprecated-directories": "node scripts/remove-deprecated-directories.ts",
     "extract-sql-schema": "node scripts/extract-sql-schema.ts",
     "extract-sql-usage": "node scripts/extract-sql-usage.ts",
     "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts",
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.12",
-    "@commitlint/cli": "20.5.0",
-    "@commitlint/config-conventional": "20.5.0",
-    "@playwright/test": "1.59.1",
-    "@typescript/native-preview": "7.0.0-dev.20260409.1",
-    "lefthook": "2.1.5",
-    "oxlint": "1.60.0",
-    "oxlint-tsgolint": "0.21.0",
-    "playwright": "1.59.1",
+    "@biomejs/biome": "2.4.15",
+    "@commitlint/cli": "21.0.1",
+    "@commitlint/config-conventional": "21.0.1",
+    "@playwright/test": "1.60.0",
+    "@typescript/native-preview": "7.0.0-dev.20260504.1",
+    "lefthook": "2.1.8",
+    "oxlint": "1.66.0",
+    "oxlint-tsgolint": "0.23.0",
+    "playwright": "1.60.0",
     "sharp": "0.34.5",
-    "turbo": "2.9.6",
-    "typescript": "6.0.2"
+    "turbo": "2.9.14",
+    "typescript": "6.0.3"
   },
   "overrides": {
     "vite-plugin-devtools-json": {
@@ -44,7 +43,7 @@
       "vite": "^8.0.0"
     },
     "openapi-typescript": {
-      "typescript": "6.0.2"
+      "typescript": "^6.0.0"
     }
   },
   "engines": {

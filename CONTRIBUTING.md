@@ -19,15 +19,13 @@ See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for detai
 ## 1. Installation
 
 **Pillage First, Ask Questions Later** requires [Node.js version 24.12.0 (LTS)](https://nodejs.org/en/download) or
-later.
+newer.
 
 1. Fork the project
 2. Clone the forked project
 3. Run `npm install` at the root of the repository
 4. Run `npm run inject-graphics` at the root of the repository
-5. (Optional) If you cloned the repository before we migrated to a monorepo, you will have some orphaned directories
-   sticking around. Run `npm run remove-deprecated-directories` command to remove these unneeded files.
-6. (Optional) Run `npm run extract-sql-schema`, which generates a `schema.sql` & `db.sqlite3` files inside
+5. (Optional) Run `npm run extract-sql-schema`, which generates `schema.sql` and `db.sqlite3` files inside
    `apps/erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
    queries.
 
@@ -63,12 +61,10 @@ modify related code.
 
 ### 2.1 Useful scripts
 
-- `npm run inject-graphics` - app graphics are stored in `@pillage-first/graphics` npm package. This commands takes the
+- `npm run inject-graphics` - app graphics are stored in `@pillage-first/graphics` npm package. This command takes the
   graphic contents of `@pillage-first/graphics` and injects it to `apps/web/public`. This is required for graphics to be
   displayed correctly.
-- `npm run remove-deprecated-directories` - if you cloned the repository before we migrated to a monorepo, you will have
-  some orphaned directories sticking around. Run this command to remove these unneeded files.
-- `npm run extract-sql-schema` - generates a `schema.sql` file inside `node_modules/@pillage-first/dev` with all table
+- `npm run extract-sql-schema` - generates `schema.sql` and `db.sqlite3` inside `apps/erd/sql-schema` with all table
   definitions and indexes. Useful for giving context to AI when building queries.
 - `npm run extract-sql-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
   statement the app currently uses. Useful for debugging performance & checking indexing.
@@ -99,10 +95,12 @@ Before starting, please read through the [architecture documentation](./docs/ARC
 on how the app works.
 
 Run `turbo run dev` at the root of the repository to start a development server, and the app will be available on
-`http://localhost:5173`. A link to it will also be
-posted to your terminal.
+`http://localhost:5173`. A link to it will also be posted to your terminal.
 
-Implement your changes, then create a pull request against the upstream repository's `develop` branch.
+Begin your work either from a `master` branch (typical), or `develop`. Rule of thumb is that breaking changes that
+require database schema changes are typically done from `develop`, while the rest are made from `master`.
+
+Implement your changes, then create a pull request against the upstream repository's `master` or `develop` branches.
 
 Pull requests cannot be merged until all required checks are passing.
 
@@ -114,7 +112,7 @@ We use git hooks to enforce consistent code standards and checks. Currently, 3 h
 the [default configuration](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional),
 without the body length check.
 
-`pre-commit`: Lint, format and localization-extraction script are run.
+`pre-commit`: Format and localization-extraction script are run.
 
 `pre-push`: Lint and format is validated before push.
 
@@ -138,7 +136,7 @@ You may run these checks locally.
 - format - `turbo run format` or `turbo run format:check`
 - typecheck - `turbo run type-check`
 - test - `turbo run test`
-- i18n check - `npx --workspace="web" i18next-cli extract --ci`
+- i18n check - `npx --workspace="@pillage-first/web" i18next-cli extract --ci`
 
 ## 8. Deployment & CI/CD
 

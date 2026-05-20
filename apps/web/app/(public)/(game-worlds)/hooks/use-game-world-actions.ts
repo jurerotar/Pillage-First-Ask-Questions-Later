@@ -1,6 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
+import {
+  isFileSystemLockError,
+  retryWhenFileSystemLocked,
+} from '@pillage-first/utils/opfs-lock-retry';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
@@ -20,26 +24,24 @@ const deleteServerData = async (server: Server) => {
   let sawLockedError = false;
 
   try {
-    await rootHandle.removeEntry(server.slug, {
-      recursive: true,
-    });
+    await retryWhenFileSystemLocked(() =>
+      rootHandle.removeEntry(server.slug, {
+        recursive: true,
+      }),
+    );
   } catch (error) {
-    if (
-      error instanceof DOMException &&
-      error.name === 'NoModificationAllowedError'
-    ) {
+    if (isFileSystemLockError(error)) {
       sawLockedError = true;
     }
   }
 
   try {
     const legacy_jsonFileName = `${server.slug}.json`;
-    await rootHandle.removeEntry(legacy_jsonFileName);
+    await retryWhenFileSystemLocked(() =>
+      rootHandle.removeEntry(legacy_jsonFileName),
+    );
   } catch (error) {
-    if (
-      error instanceof DOMException &&
-      error.name === 'NoModificationAllowedError'
-    ) {
+    if (isFileSystemLockError(error)) {
       sawLockedError = true;
     }
   }
@@ -81,68 +83,68 @@ export const useGameWorldActions = () => {
     },
   });
 
-  const { mutateAsync: exportGameWorld } = useMutation<
-    void,
-    Error,
-    { server: Server }
-  >({
-    mutationFn: async ({ server }) => {
-      const url = new URL(ExportServerWorker, import.meta.url);
-      url.searchParams.set('server-slug', server.slug);
+  const { mutateAsync: exportGameWorld, isPending: isExportGameWorldPending } =
+    useMutation<void, Error, { server: Server }>({
+      mutationFn: async ({ server }) => {
+        const url = new URL(ExportServerWorker, import.meta.url);
+        url.searchParams.set('server-slug', server.slug);
 
-      const result = await workerFactory<void, ExportServerWorkerReturn>(url);
+        const result = await retryWhenFileSystemLocked(async () => {
+          const workerResult = await workerFactory<
+            void,
+            ExportServerWorkerReturn
+          >(url);
 
-      if (!result.resolved) {
-        throw new Error(result.error);
-      }
+          if (!workerResult.resolved) {
+            throw new Error(workerResult.error);
+          }
 
-      const { databaseBuffer } = result;
+          return workerResult;
+        });
 
-      const blob = new Blob([databaseBuffer], {
-        type: 'application/x-sqlite3',
-      });
+        const { databaseBuffer } = result;
 
-      const exportUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = exportUrl;
-      a.download = `${server.slug}.sqlite3`;
-      a.rel = 'noopener';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(exportUrl);
-    },
-    onError: (error) => {
-      let description = error.message;
+        const blob = new Blob([databaseBuffer], {
+          type: 'application/x-sqlite3',
+        });
 
-      if (
-        error.message.includes('NoModificationAllowedError') ||
-        error.message.includes('createSyncAccessHandle')
-      ) {
-        description =
-          "The game world can only be exported if there's no current open instance of it.";
-      }
+        const exportUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = exportUrl;
+        a.download = `${server.slug}.sqlite3`;
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(exportUrl);
+      },
+      onError: (error) => {
+        let description = error.message;
 
-      toast.error('Failed to export game world', {
-        description,
-      });
-    },
-  });
+        if (isFileSystemLockError(error)) {
+          description =
+            "The game world can only be exported if there's no current open instance of it.";
+        }
 
-  const { mutateAsync: deleteGameWorld } = useMutation<
-    void,
-    Error,
-    { server: Server }
-  >({
-    mutationFn: ({ server }) => deleteServerData(server),
-    onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[availableServerCacheKey]]);
-    },
-  });
+        toast.error('Failed to export game world', {
+          description,
+        });
+      },
+    });
+
+  const { mutateAsync: deleteGameWorld, isPending: isDeleteGameWorldPending } =
+    useMutation<void, Error, { server: Server }>({
+      mutationFn: ({ server }) => deleteServerData(server),
+      onSuccess: async (_data, _vars, _onMutateResult, context) => {
+        await invalidateQueries(context, [[availableServerCacheKey]]);
+      },
+    });
 
   return {
     createGameWorld,
     exportGameWorld,
+    isExportGameWorldPending,
     deleteGameWorld,
+    isDeleteGameWorldPending,
   };
 };

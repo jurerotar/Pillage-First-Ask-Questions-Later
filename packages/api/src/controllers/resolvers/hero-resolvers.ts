@@ -30,7 +30,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
       bind: {
         $player_id: PLAYER_ID,
       },
-      schema: z.object({
+      schema: z.strictObject({
         villageId: z.number(),
         tileId: z.number(),
         healthRegeneration: z.number(),
@@ -82,9 +82,10 @@ export const heroHealthRegenerationResolver: Resolver<
     bind: { $player_id: PLAYER_ID },
   });
 
-  const { healthRegeneration, speed } = database.selectObject({
+  const { health, healthRegeneration, speed } = database.selectObject({
     sql: `
       SELECT
+        heroes.health AS health,
         heroes.health_regeneration AS healthRegeneration,
         servers.speed AS speed
       FROM heroes
@@ -94,11 +95,17 @@ export const heroHealthRegenerationResolver: Resolver<
     bind: {
       $player_id: PLAYER_ID,
     },
-    schema: z.object({
+    schema: z.strictObject({
+      health: z.number(),
       healthRegeneration: z.number(),
       speed: z.number(),
     }),
   })!;
+
+  // Don't start an event if hero is at full health
+  if (health === 100) {
+    return;
+  }
 
   const duration = calculateHealthRegenerationEventDuration(
     healthRegeneration,

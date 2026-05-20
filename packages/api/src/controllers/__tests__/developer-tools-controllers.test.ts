@@ -2,27 +2,23 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import * as schedulerSignal from '../../scheduler/scheduler-signal';
+import {
+  createBuildingConstructionEventMock,
+  createBuildingDestructionEventMock,
+  createBuildingLevelChangeEventMock,
+  createTroopMovementAdventureEventMock,
+  createTroopTrainingEventMock,
+  createUnitImprovementEventMock,
+  createUnitResearchEventMock,
+} from '@pillage-first/mocks/event';
 import {
   incrementHeroAdventurePoints,
   levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
 } from '../developer-tools-controllers';
+import { insertEvents } from '../utils/events';
 import { createControllerArgs } from './utils/controller-args';
-
-vi.mock<typeof schedulerSignal>(
-  import('../../scheduler/scheduler-signal'),
-  async () => {
-    const actual = await vi.importActual<typeof schedulerSignal>(
-      '../../scheduler/scheduler-signal',
-    );
-    return {
-      ...actual,
-      triggerKick: vi.fn(),
-    };
-  },
-);
 
 describe('developer-tools-controllers', () => {
   const playerId = PLAYER_ID;
@@ -58,11 +54,33 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      // Insert some events
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('buildingLevelChange', $now + 1000, 5000, 1), ('buildingScheduledConstruction', $now + 2000, 6000, 1), ('buildingConstruction', $now + 3000, 7000, 1), ('buildingDestruction', $now + 4000, 8000, 1), ('unitResearch', $now + 5000, 9000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createBuildingLevelChangeEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+        createBuildingLevelChangeEventMock({
+          startsAt: now + 2000,
+          duration: 6000,
+          villageId: 1,
+        }),
+        createBuildingConstructionEventMock({
+          startsAt: now + 3000,
+          duration: 7000,
+          villageId: 1,
+        }),
+        createBuildingDestructionEventMock({
+          startsAt: now + 4000,
+          duration: 8000,
+          villageId: 1,
+        }),
+        createUnitResearchEventMock({
+          startsAt: now + 5000,
+          duration: 9000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -86,10 +104,6 @@ describe('developer-tools-controllers', () => {
         events.find((e) => e.type === 'buildingLevelChange')?.duration,
       ).toBe(0);
       expect(
-        events.find((e) => e.type === 'buildingScheduledConstruction')
-          ?.duration,
-      ).toBe(0);
-      expect(
         events.find((e) => e.type === 'buildingConstruction')?.duration,
       ).toBe(0);
       expect(
@@ -98,17 +112,19 @@ describe('developer-tools-controllers', () => {
       expect(events.find((e) => e.type === 'unitResearch')?.duration).toBe(
         9000,
       );
-      expect(schedulerSignal.triggerKick).toHaveBeenCalled();
     });
 
     test('should instantly finish training events when isInstantUnitTrainingEnabled is set to true', async () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('troopTraining', $now + 1000, 5000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createTroopTrainingEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -133,10 +149,13 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('unitImprovement', $now + 1000, 5000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createUnitImprovementEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -161,10 +180,13 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('unitResearch', $now + 1000, 5000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createUnitResearchEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -189,10 +211,13 @@ describe('developer-tools-controllers', () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
-      database.exec({
-        sql: "INSERT INTO events (type, starts_at, duration, village_id) VALUES ('troopMovementAdventure', $now + 1000, 5000, 1)",
-        bind: { $now: now },
-      });
+      insertEvents(database, [
+        createTroopMovementAdventureEventMock({
+          startsAt: now + 1000,
+          duration: 5000,
+          villageId: 1,
+        }),
+      ]);
 
       updateDeveloperSettings(
         database,
@@ -270,6 +295,10 @@ describe('developer-tools-controllers', () => {
   describe(incrementHeroAdventurePoints, () => {
     test('should increment hero adventure points', async () => {
       const database = await prepareTestDatabase();
+      const now = 9 * 60 * 60 * 1000;
+
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(now));
 
       const hero = database.selectObject({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -278,12 +307,21 @@ describe('developer-tools-controllers', () => {
       })!;
       const heroId = hero.id;
 
-      // Initial points (should be 0 or some seeded value)
-      const initialPoints = database.selectObject({
-        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $hero_id',
+      database.exec({
+        sql: `
+          UPDATE servers
+          SET created_at = 0
+        `,
+      });
+
+      database.exec({
+        sql: `
+          UPDATE hero_adventures
+          SET last_updated_at = 0
+          WHERE hero_id = $hero_id
+        `,
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ available: z.number() }),
-      })!.available;
+      });
 
       incrementHeroAdventurePoints(
         database,
@@ -296,12 +334,18 @@ describe('developer-tools-controllers', () => {
       );
 
       const points = database.selectObject({
-        sql: 'SELECT available FROM hero_adventures WHERE hero_id = $hero_id',
+        sql: 'SELECT available, last_updated_at AS lastUpdatedAt FROM hero_adventures WHERE hero_id = $hero_id',
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ available: z.number() }),
+        schema: z.strictObject({
+          available: z.number(),
+          lastUpdatedAt: z.number(),
+        }),
       })!;
 
-      expect(points.available).toBe(initialPoints + 1);
+      expect(points.available).toBe(5);
+      expect(points.lastUpdatedAt).toBe(now);
+
+      vi.useRealTimers();
     });
   });
 

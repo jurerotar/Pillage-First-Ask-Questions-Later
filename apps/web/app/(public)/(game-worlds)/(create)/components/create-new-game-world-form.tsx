@@ -22,6 +22,7 @@ import type {
 import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
 import {
   Form,
@@ -120,6 +121,14 @@ export const CreateNewGameWorldForm = () => {
             worker.terminate();
             channel.port1.close();
             resolve(data.migrationDuration);
+          } else if (data.type === 'error') {
+            console.error(
+              `Game world seeding failed. Message: ${data.message}`,
+            );
+
+            worker.terminate();
+            channel.port1.close();
+            reject(new Error(data.message));
           }
         };
 
@@ -192,19 +201,6 @@ export const CreateNewGameWorldForm = () => {
     form.setValue('seed', generateSeed());
     form.setValue('name', `${adjective}${noun}`);
   }, [form]);
-
-  if (isError) {
-    console.error(error);
-
-    return (
-      <div className="flex flex-col gap-4 p-6 max-w-md mx-auto">
-        <div className="bg-destructive/15 text-destructive p-4 rounded-lg">
-          {error.message}
-        </div>
-        <Button onClick={() => window.location.reload()}>Back to form</Button>
-      </div>
-    );
-  }
 
   return (
     <div className="relative">
@@ -410,10 +406,11 @@ export const CreateNewGameWorldForm = () => {
                 />
               </div>
             </details>
+            {isError && <Alert variant="error">{error.message}</Alert>}
             <div className="flex justify-end">
               <Button
                 size="fit"
-                disabled={isPending || isSuccess}
+                disabled={isPending || isSuccess || isError}
                 type="submit"
               >
                 Create world
