@@ -9,6 +9,7 @@ import {
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Button } from 'app/components/ui/button';
 import {
@@ -21,6 +22,7 @@ import {
 } from 'app/components/ui/dialog';
 import { Form } from 'app/components/ui/form';
 import type { BaseTroopFormValues } from '../utils/schema';
+import { PlayerVillageSelector } from './target-selectors';
 import { UnitSelector } from './unit-selector';
 
 type RelocateTroopsModalProps = {
@@ -28,7 +30,10 @@ type RelocateTroopsModalProps = {
   onClose: () => void;
   title: string;
   tribe: Tribe;
-  sourceTileId: number;
+  mode?: 'incoming' | 'outgoing';
+  tileId: number;
+  villageId?: number;
+  villageName?: string;
   troops: Troop[];
 };
 
@@ -37,12 +42,17 @@ export const RelocateTroopsModal = ({
   onClose,
   title,
   tribe,
-  sourceTileId,
+  mode = 'incoming',
+  tileId,
+  villageId,
+  villageName,
   troops,
 }: RelocateTroopsModalProps) => {
   const { t, i18n } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { relocateReinforcements } = useVillageTroops();
+  const { playerVillages } = usePlayerVillageListing();
+  const { relocateReinforcements, relocateSentReinforcements } =
+    useVillageTroops();
   const form = useForm<BaseTroopFormValues>({
     defaultValues: {
       target: {},
@@ -50,6 +60,7 @@ export const RelocateTroopsModal = ({
     },
   });
   const units = form.watch('units');
+  const target = form.watch('target');
   const hasSelectedTroops = units.some(({ selected }) => selected > 0);
 
   useEffect(() => {
@@ -63,6 +74,7 @@ export const RelocateTroopsModal = ({
     const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
 
     form.reset({
+      target: {},
       units: tribeUnits.map((unitDef) => ({
         unitId: unitDef.id,
         selected: 0,
@@ -73,16 +85,66 @@ export const RelocateTroopsModal = ({
     });
   }, [form, isOpen, tribe, troops]);
 
-  const onSubmit = form.handleSubmit(({ units }) => {
+  const onSubmit = form.handleSubmit(({ units, target: formTarget }) => {
     const selectedTroops = units.filter(({ selected }) => selected > 0);
 
     if (selectedTroops.length === 0) {
       return;
     }
 
-    relocateReinforcements(
+    const relocatedTroopSummary = selectedTroops.map(({ unitId, selected }) => {
+      const unitName = t(`UNITS.${unitId}.NAME`, { count: selected });
+
+      return `${selected} ${unitName}`;
+    });
+    const formattedTroopList = new Intl.ListFormat(i18n.language, {
+      style: 'long',
+      type: 'conjunction',
+    }).format(relocatedTroopSummary);
+
+    if (mode === 'incoming') {
+      relocateReinforcements(
+        {
+          sourceTileId: tileId,
+          troops: selectedTroops.map(({ unitId, selected }) => ({
+            unitId,
+            amount: selected,
+          })),
+        },
+        {
+          onSuccess: () => {
+            toast(
+              t("{{troops}} are now part of {{villageName}}'s garrison", {
+                troops: formattedTroopList,
+                villageName: currentVillage.name,
+              }),
+            );
+            onClose();
+          },
+        },
+      );
+
+      return;
+    }
+
+    if (formTarget.x === undefined || formTarget.y === undefined) {
+      return;
+    }
+
+    const targetVillage = playerVillages.find(
+      (village) =>
+        village.coordinates.x === formTarget.x &&
+        village.coordinates.y === formTarget.y,
+    );
+
+    if (!targetVillage) {
+      return;
+    }
+
+    relocateSentReinforcements(
       {
-        sourceTileId,
+        stationedTileId: tileId,
+        targetTileId: targetVillage.tileId,
         troops: selectedTroops.map(({ unitId, selected }) => ({
           unitId,
           amount: selected,
@@ -90,23 +152,15 @@ export const RelocateTroopsModal = ({
       },
       {
         onSuccess: () => {
-          const relocatedTroopSummary = selectedTroops.map(
-            ({ unitId, selected }) => {
-              const unitName = t(`UNITS.${unitId}.NAME`, { count: selected });
-
-              return `${selected} ${unitName}`;
-            },
-          );
-          const formattedTroopList = new Intl.ListFormat(i18n.language, {
-            style: 'long',
-            type: 'conjunction',
-          }).format(relocatedTroopSummary);
-
           toast(
-            t("{{troops}} are now part of {{villageName}}'s garrison", {
-              troops: formattedTroopList,
-              villageName: currentVillage.name,
-            }),
+            t(
+              '{{troops}} are now moving from {{sourceVillage}} to {{targetVillage}}',
+              {
+                troops: formattedTroopList,
+                sourceVillage: villageName,
+                targetVillage: targetVillage.name,
+              },
+            ),
           );
           onClose();
         },
@@ -123,9 +177,13 @@ export const RelocateTroopsModal = ({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            {t(
-              'Select the reinforcements to absorb into this village. Chosen troops will become part of your local garrison.',
-            )}
+            {mode === 'incoming'
+              ? t(
+                  'Select the reinforcements to absorb into this village. Chosen troops will become part of your local garrison.',
+                )
+              : t(
+                  'Select the reinforcements to move out of this village and choose their next destination.',
+                )}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -139,6 +197,13 @@ export const RelocateTroopsModal = ({
                 amount,
               }))}
             />
+            {mode === 'outgoing' && (
+              <div className="flex items-end gap-4">
+                <PlayerVillageSelector
+                  excludedVillageIds={villageId ? [villageId] : []}
+                />
+              </div>
+            )}
             <DialogFooter>
               <Button
                 type="button"
@@ -149,7 +214,11 @@ export const RelocateTroopsModal = ({
               </Button>
               <Button
                 type="submit"
-                disabled={!hasSelectedTroops}
+                disabled={
+                  !hasSelectedTroops ||
+                  (mode === 'outgoing' &&
+                    (target.x === undefined || target.y === undefined))
+                }
               >
                 {t('Confirm')}
               </Button>

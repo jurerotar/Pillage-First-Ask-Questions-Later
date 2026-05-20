@@ -2,10 +2,12 @@ import type { z } from 'zod';
 import {
   playerVillageDtoSchema,
   playerVillageWithPopulationDtoSchema,
+  sentReinforcementDtoSchema,
   villageTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import type {
   getPlayerVillagesWithPopulationSchema,
+  getSentReinforcementsByVillageSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
 } from '../schemas/player-schemas';
@@ -46,4 +48,29 @@ export const mapVillageTroop = (
     source: row.source_tile_id,
   };
   return villageTroopDtoSchema.parse(dto);
+};
+
+export const mapSentReinforcement = (
+  row: z.infer<typeof getSentReinforcementsByVillageSchema>,
+): z.infer<typeof sentReinforcementDtoSchema> => {
+  const dto = {
+    village: playerVillageDtoSchema.parse({
+      id: row.village_id,
+      tileId: row.tile_id,
+      coordinates: { x: row.coordinates_x, y: row.coordinates_y },
+      name: row.name,
+      slug: row.slug ?? `v-${row.village_id}`,
+      resourceFieldComposition: row.resource_field_composition,
+    }),
+    troops: [
+      mapVillageTroop({
+        unit_id: row.unit_id,
+        amount: row.amount,
+        tile_id: row.tile_id,
+        source_tile_id: row.source_tile_id,
+      }),
+    ],
+  };
+
+  return sentReinforcementDtoSchema.parse(dto);
 };

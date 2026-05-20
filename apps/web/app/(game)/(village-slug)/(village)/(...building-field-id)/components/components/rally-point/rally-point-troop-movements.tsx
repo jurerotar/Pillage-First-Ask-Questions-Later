@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
+import { TroopMovementFilters } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/troop-movement-filters';
 import { useTroopMovementFilters } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/hooks/use-troop-movement-filters';
-import { TroopMovementFilters } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/troop-movement-filters';
 import {
   Section,
   SectionContent,

@@ -1,22 +1,23 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
-import type { Tile } from '@pillage-first/types/models/tile';
-import type { Troop } from '@pillage-first/types/models/troop';
-import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createController } from '../utils/controller';
 import {
   mapPlayerVillage,
   mapPlayerVillageWithPopulation,
+  mapSentReinforcement,
   mapVillageTroop,
 } from './mappers/player-mapper';
-import { relocateHero } from './resolvers/utils/hero';
 import {
   getPlayerVillagesWithPopulationSchema,
+  getSentReinforcementsByVillageSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
 } from './schemas/player-schemas';
-import { createEvents } from './utils/create-event';
+import {
+  handleRelocateReinforcements,
+  handleReturnReinforcements,
+} from './utils/reinforcements';
 
 export const getMe = createController('/players/me')(({ database }) => {
   return database.selectObject({
@@ -135,6 +136,66 @@ export const getTroopsByVillage = createController(
   return rows.map(mapVillageTroop);
 });
 
+export const getSentReinforcementsByVillage = createController(
+  '/villages/:villageId/sent-reinforcements',
+)(({ database, path: { villageId } }) => {
+  const rows = database.selectObjects({
+    sql: `
+      SELECT
+        v.id AS village_id,
+        v.tile_id,
+        t.x AS coordinates_x,
+        t.y AS coordinates_y,
+        v.name,
+        v.slug,
+        rfc.resource_field_composition AS resource_field_composition,
+        ui.unit AS unit_id,
+        tr.amount,
+        tr.source_tile_id
+      FROM
+        troops tr
+          JOIN villages cv
+               ON cv.id = $village_id
+          JOIN villages v
+               ON v.tile_id = tr.tile_id
+          JOIN tiles t
+               ON t.id = v.tile_id
+          LEFT JOIN resource_field_composition_ids rfc
+                    ON t.resource_field_composition_id = rfc.id
+          JOIN unit_ids ui
+               ON ui.id = tr.unit_id
+      WHERE
+        tr.source_tile_id = cv.tile_id
+        AND tr.tile_id != cv.tile_id
+      ORDER BY
+        v.name,
+        v.id,
+        ui.id;
+    `,
+    bind: { $village_id: villageId },
+    schema: getSentReinforcementsByVillageSchema,
+  });
+
+  const groupedReinforcements = new Map<
+    number,
+    ReturnType<typeof mapSentReinforcement>
+  >();
+
+  for (const row of rows) {
+    const mapped = mapSentReinforcement(row);
+    const existing = groupedReinforcements.get(mapped.village.id);
+
+    if (existing) {
+      existing.troops.push(...mapped.troops);
+      continue;
+    }
+
+    groupedReinforcements.set(mapped.village.id, mapped);
+  }
+
+  return [...groupedReinforcements.values()];
+});
+
 export const renameVillage = createController(
   '/villages/:villageId',
   'patch',
@@ -148,128 +209,6 @@ export const renameVillage = createController(
     bind: { $name: name, $village_id: villageId },
   });
 });
-
-const decrementReinforcementsFromVillage = (
-  db: DbFacade,
-  currentVillageTile: Tile['id'],
-  sourceTileId: Tile['id'],
-  troops: Omit<Troop, 'source' | 'tileId'>[],
-) => {
-  if (troops.length === 0) {
-    return;
-  }
-
-  const aggregatedTroops = Array.from(
-    troops.reduce((requestedTroops, { unitId, amount }) => {
-      requestedTroops.set(unitId, (requestedTroops.get(unitId) ?? 0) + amount);
-
-      return requestedTroops;
-    }, new Map<Troop['unitId'], number>()),
-    ([unitId, amount]) => ({ unitId, amount }),
-  );
-
-  const requestedValuesSql = aggregatedTroops
-    .map((_, index) => `($unit_id_${index}, $amount_${index})`)
-    .join(',\n          ');
-
-  const requestedTroopsSql = `
-    WITH
-      requested_troops(unit_id, amount) AS (
-        VALUES
-          ${requestedValuesSql}
-        ),
-      requested_troops_with_ids AS (
-        SELECT
-          ui.id AS db_unit_id,
-          rt.unit_id,
-          rt.amount
-        FROM
-          requested_troops rt
-            JOIN unit_ids ui ON ui.unit = rt.unit_id
-        )
-  `;
-  const bind: Record<string, number | string> = {
-    $tile_id: currentVillageTile,
-    $source_tile_id: sourceTileId,
-  };
-
-  for (const [index, { unitId, amount }] of aggregatedTroops.entries()) {
-    bind[`$unit_id_${index}`] = unitId;
-    bind[`$amount_${index}`] = amount;
-  }
-
-  const unavailableTroops = db.selectValues({
-    sql: `
-      ${requestedTroopsSql}
-      SELECT rtwi.unit_id
-      FROM
-        requested_troops_with_ids rtwi
-          LEFT JOIN troops t
-                    ON t.unit_id = rtwi.db_unit_id
-                      AND t.tile_id = $tile_id
-                      AND t.source_tile_id = $source_tile_id
-      WHERE
-        t.amount IS NULL
-        OR t.amount < rtwi.amount
-    `,
-    bind,
-    schema: z.string(),
-  });
-
-  if (unavailableTroops.length > 0) {
-    throw new Error('Not enough troops available for relocation');
-  }
-
-  db.exec({
-    sql: `
-      ${requestedTroopsSql}
-      DELETE
-      FROM
-        troops
-      WHERE
-        tile_id = $tile_id
-        AND source_tile_id = $source_tile_id
-        AND EXISTS
-        (
-          SELECT 1
-          FROM
-            requested_troops_with_ids rtwi
-          WHERE
-            rtwi.db_unit_id = troops.unit_id
-            AND troops.amount = rtwi.amount
-          )
-    `,
-    bind,
-  });
-
-  db.exec({
-    sql: `
-      ${requestedTroopsSql}
-      UPDATE troops
-      SET
-        amount = amount - (
-          SELECT rtwi.amount
-          FROM
-            requested_troops_with_ids rtwi
-          WHERE
-            rtwi.db_unit_id = troops.unit_id
-          )
-      WHERE
-        tile_id = $tile_id
-        AND source_tile_id = $source_tile_id
-        AND EXISTS
-        (
-          SELECT 1
-          FROM
-            requested_troops_with_ids rtwi
-          WHERE
-            rtwi.db_unit_id = troops.unit_id
-            AND troops.amount > rtwi.amount
-          )
-    `,
-    bind,
-  });
-};
 
 export const relocateReinforcements = createController(
   '/villages/:villageId/relocate-reinforcements',
@@ -302,43 +241,15 @@ export const relocateReinforcements = createController(
       }),
     })!;
 
-    decrementReinforcementsFromVillage(
+    handleRelocateReinforcements({
       db,
-      currentVillageTile,
-      sourceTileId,
+      villageId,
+      stationedTileId: currentVillageTile,
+      homeTileId: sourceTileId,
+      targetTileId: currentVillageTile,
       troops,
-    );
-
-    for (const troop of troops) {
-      db.exec({
-        sql: `
-          INSERT INTO
-            troops (tile_id, source_tile_id, unit_id, amount)
-          VALUES
-            ($tile_id, $target_source_tile_id, (
-              SELECT id
-              FROM
-                unit_ids
-              WHERE
-                unit = $unit_id
-              ), $amount)
-          ON CONFLICT (tile_id, source_tile_id, unit_id)
-            DO UPDATE
-            SET
-              amount = amount + $amount
-        `,
-        bind: {
-          $tile_id: currentVillageTile,
-          $target_source_tile_id: currentVillageTile,
-          $unit_id: troop.unitId,
-          $amount: troop.amount,
-        },
-      });
-    }
-
-    if (troops.some(({ unitId }) => unitId === 'HERO')) {
-      relocateHero(db, sourceVillageId, villageId, Date.now());
-    }
+      relocateHeroFromVillageId: sourceVillageId,
+    });
   });
 });
 
@@ -347,14 +258,7 @@ export const returnReinforcements = createController(
   'post',
 )(({ database, path: { villageId }, body: { sourceTileId, troops } }) => {
   database.transaction((db) => {
-    const {
-      sourceVillageId,
-      currentVillageTile,
-      currentVillageX,
-      currentVillageY,
-      sourceVillageX,
-      sourceVillageY,
-    } = db.selectObject({
+    const { sourceVillageId, currentVillageTile } = db.selectObject({
       sql: `
         SELECT
           (
@@ -362,14 +266,8 @@ export const returnReinforcements = createController(
             FROM villages
             WHERE tile_id = $source_tile_id
           ) AS sourceVillageId,
-          v.tile_id AS currentVillageTile,
-          ct.x AS currentVillageX,
-          ct.y AS currentVillageY,
-          st.x AS sourceVillageX,
-          st.y AS sourceVillageY
+          v.tile_id AS currentVillageTile
         FROM villages v
-          JOIN tiles ct ON ct.id = v.tile_id
-          LEFT JOIN tiles st ON st.id = $source_tile_id
         WHERE v.id = $village_id
       `,
       bind: {
@@ -379,45 +277,98 @@ export const returnReinforcements = createController(
       schema: z.strictObject({
         sourceVillageId: z.number(),
         currentVillageTile: z.number(),
-        currentVillageX: z.number(),
-        currentVillageY: z.number(),
-        sourceVillageX: z.number(),
-        sourceVillageY: z.number(),
       }),
     })!;
 
-    if (sourceVillageX === null || sourceVillageY === null) {
-      throw new Error('Source village tile not found');
-    }
-
-    decrementReinforcementsFromVillage(
+    handleReturnReinforcements({
       db,
-      currentVillageTile,
-      sourceTileId,
+      originTileId: currentVillageTile,
+      targetTileId: sourceTileId,
+      homeTileId: sourceTileId,
+      eventVillageId: sourceVillageId,
       troops,
-    );
-
-    createEvents<'troopMovementReturn'>(db, {
-      type: 'troopMovementReturn',
-      villageId: sourceVillageId,
-      originalMovementType: 'troopMovementReturnReinforcements',
-      troops: troops.map((troop) => ({
-        ...troop,
-        source: sourceTileId,
-        tileId: sourceTileId,
-      })),
-      startsAt: Date.now(),
-      originCoordinates: {
-        x: currentVillageX,
-        y: currentVillageY,
-      },
-      targetCoordinates: {
-        x: sourceVillageX,
-        y: sourceVillageY,
-      },
     });
   });
 });
+
+export const returnSentReinforcements = createController(
+  '/villages/:villageId/return-sent-reinforcements',
+  'post',
+)(({ database, path: { villageId }, body: { stationedTileId, troops } }) => {
+  database.transaction((db) => {
+    const { currentVillageTile } = db.selectObject({
+      sql: `
+        SELECT tile_id AS currentVillageTile
+        FROM villages
+        WHERE id = $village_id
+      `,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.strictObject({
+        currentVillageTile: z.number(),
+      }),
+    })!;
+
+    handleReturnReinforcements({
+      db,
+      originTileId: stationedTileId,
+      targetTileId: currentVillageTile,
+      homeTileId: currentVillageTile,
+      eventVillageId: villageId,
+      troops,
+    });
+  });
+});
+
+export const relocateSentReinforcements = createController(
+  '/villages/:villageId/relocate-sent-reinforcements',
+  'post',
+)(
+  ({
+    database,
+    path: { villageId },
+    body: { stationedTileId, targetTileId, troops },
+  }) => {
+    database.transaction((db) => {
+      const { currentVillageTile, stationedVillageId } = db.selectObject({
+        sql: `
+        SELECT
+          cv.tile_id AS currentVillageTile,
+          sv.id AS stationedVillageId
+        FROM villages cv
+          LEFT JOIN villages sv ON sv.tile_id = $stationed_tile_id
+        WHERE cv.id = $village_id
+      `,
+        bind: {
+          $stationed_tile_id: stationedTileId,
+          $village_id: villageId,
+        },
+        schema: z.strictObject({
+          currentVillageTile: z.number(),
+          stationedVillageId: z.number().nullable(),
+        }),
+      })!;
+
+      if (stationedVillageId === null) {
+        throw new Error('Stationed village not found');
+      }
+
+      if (targetTileId === currentVillageTile) {
+        throw new Error('Use return instead of relocating to the home village');
+      }
+
+      handleRelocateReinforcements({
+        db,
+        villageId,
+        stationedTileId,
+        homeTileId: currentVillageTile,
+        targetTileId,
+        troops,
+      });
+    });
+  },
+);
 
 export const getPlayerBySlug = createController('/players/:playerSlug')(
   ({ database, path: { playerSlug } }) => {

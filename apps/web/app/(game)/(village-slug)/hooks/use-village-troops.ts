@@ -9,6 +9,7 @@ import type { Village } from '@pillage-first/types/models/village';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   effectsCacheKey,
+  sentReinforcementsCacheKey,
   troopMovementsCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
@@ -31,6 +32,18 @@ type RelocateReinforcementsArgs = {
   }[];
 };
 
+type ReturnSentReinforcementsArgs = {
+  stationedTileId: number;
+  troops: {
+    unitId: Unit['id'];
+    amount: number;
+  }[];
+};
+
+type RelocateSentReinforcementsArgs = ReturnSentReinforcementsArgs & {
+  targetTileId: number;
+};
+
 export const useVillageTroops = () => {
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
@@ -43,6 +56,22 @@ export const useVillageTroops = () => {
           villageId: currentVillage.id,
         },
       });
+
+      return data;
+    },
+  });
+
+  const { data: sentReinforcements } = useSuspenseQuery({
+    queryKey: [sentReinforcementsCacheKey, currentVillage.id],
+    queryFn: async () => {
+      const { data } = await apiClient.get(
+        '/villages/:villageId/sent-reinforcements',
+        {
+          path: {
+            villageId: currentVillage.id,
+          },
+        },
+      );
 
       return data;
     },
@@ -128,11 +157,65 @@ export const useVillageTroops = () => {
     },
   });
 
+  const { mutate: returnSentReinforcements } = useMutation({
+    mutationFn: async ({
+      stationedTileId,
+      troops,
+    }: ReturnSentReinforcementsArgs) => {
+      await apiClient.post('/villages/:villageId/return-sent-reinforcements', {
+        path: {
+          villageId: currentVillage.id,
+        },
+        body: {
+          stationedTileId,
+          troops,
+        },
+      });
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [sentReinforcementsCacheKey, currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.id],
+      ]);
+    },
+  });
+
+  const { mutate: relocateSentReinforcements } = useMutation({
+    mutationFn: async ({
+      stationedTileId,
+      targetTileId,
+      troops,
+    }: RelocateSentReinforcementsArgs) => {
+      await apiClient.post(
+        '/villages/:villageId/relocate-sent-reinforcements',
+        {
+          path: {
+            villageId: currentVillage.id,
+          },
+          body: {
+            stationedTileId,
+            targetTileId,
+            troops,
+          },
+        },
+      );
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [sentReinforcementsCacheKey, currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.id],
+      ]);
+    },
+  });
+
   return {
     villageTroops,
+    sentReinforcements,
     sendTroops,
     relocateReinforcements,
     returnReinforcements,
+    relocateSentReinforcements,
+    returnSentReinforcements,
     getDeployableTroops,
   };
 };

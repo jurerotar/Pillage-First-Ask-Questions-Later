@@ -36,9 +36,24 @@ export const getTroopsByVillageSchema = z
   })
   .meta({ id: 'GetTroopsByVillageRow' });
 
-export const relocateReinforcementsSchema = z
+export const getSentReinforcementsByVillageSchema = z
   .strictObject({
-    sourceTileId: z.number(),
+    village_id: z.number(),
+    tile_id: z.number(),
+    coordinates_x: z.number(),
+    coordinates_y: z.number(),
+    name: z.string(),
+    slug: z.string().nullable(),
+    resource_field_composition: resourceFieldCompositionSchema,
+    unit_id: z.string(),
+    amount: z.number().min(1),
+    source_tile_id: z.number(),
+  })
+  .meta({ id: 'GetSentReinforcementsByVillageRow' });
+
+export const returnSentReinforcementsSchema = z
+  .strictObject({
+    stationedTileId: z.number(),
     troops: z.array(
       z.strictObject({
         unitId: unitIdSchema,
@@ -46,4 +61,4 @@ export const relocateReinforcementsSchema = z
       }),
     ),
   })
-  .meta({ id: 'RelocateReinforcements' });
+  .meta({ id: 'ReturnSentReinforcements' });

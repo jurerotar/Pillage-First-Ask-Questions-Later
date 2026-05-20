@@ -37,6 +37,7 @@ import {
 import {
   playerVillageDtoSchema,
   playerVillageWithPopulationDtoSchema,
+  sentReinforcementDtoSchema,
   villageTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import {
@@ -157,6 +158,26 @@ export const paths = {
           content: {
             'application/json': {
               schema: z.array(villageTroopDtoSchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/villages/:villageId/sent-reinforcements': {
+    get: {
+      summary: 'Get reinforcements sent from this village',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Sent reinforcements grouped by reinforced village',
+          content: {
+            'application/json': {
+              schema: z.array(sentReinforcementDtoSchema),
             },
           },
         },
@@ -1769,6 +1790,67 @@ export const paths = {
       responses: {
         '204': {
           description: 'Reinforcements return started',
+        },
+      },
+    },
+  },
+  '/villages/:villageId/return-sent-reinforcements': {
+    post: {
+      summary: 'Return sent reinforcements to the current village',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              stationedTileId: z.number(),
+              troops: z.array(
+                z.strictObject({
+                  unitId: unitIdSchema,
+                  amount: z.number(),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Sent reinforcements return started',
+        },
+      },
+    },
+  },
+  '/villages/:villageId/relocate-sent-reinforcements': {
+    post: {
+      summary: 'Relocate sent reinforcements to another village',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      requestBody: {
+        content: {
+          'application/json': {
+            schema: z.strictObject({
+              stationedTileId: z.number(),
+              targetTileId: z.number(),
+              troops: z.array(
+                z.strictObject({
+                  unitId: unitIdSchema,
+                  amount: z.number(),
+                }),
+              ),
+            }),
+          },
+        },
+      },
+      responses: {
+        '204': {
+          description: 'Sent reinforcements relocation started',
         },
       },
     },

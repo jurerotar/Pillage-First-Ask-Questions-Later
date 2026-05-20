@@ -7,6 +7,7 @@ import {
 } from '@pillage-first/game-assets/utils/units';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop } from '@pillage-first/types/models/troop';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Button } from 'app/components/ui/button';
@@ -30,7 +31,8 @@ type ReturnReinforcementsModalProps = {
   onClose: () => void;
   title: string;
   tribe: Tribe;
-  sourceTileId: number;
+  mode?: 'incoming' | 'outgoing';
+  tileId: number;
   troops: Troop[];
 };
 
@@ -39,16 +41,21 @@ export const ReturnReinforcementsModal = ({
   onClose,
   title,
   tribe,
-  sourceTileId,
+  mode = 'incoming',
+  tileId,
   troops,
 }: ReturnReinforcementsModalProps) => {
   const { t } = useTranslation();
+  const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
-  const { returnReinforcements } = useVillageTroops();
-  const sourceVillage = playerVillages.find(
-    (village) => village.tileId === sourceTileId,
+  const { returnReinforcements, returnSentReinforcements } = useVillageTroops();
+  const selectedVillage = playerVillages.find(
+    (village) => village.tileId === tileId,
   );
-  const sourceVillageCoordinates = sourceVillage?.coordinates;
+  const targetCoordinates =
+    mode === 'incoming'
+      ? selectedVillage?.coordinates
+      : currentVillage.coordinates;
   const {
     isOpen: isConfirmationOpen,
     openModal: openConfirmation,
@@ -75,10 +82,10 @@ export const ReturnReinforcementsModal = ({
     const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
 
     form.reset({
-      target: sourceVillageCoordinates
+      target: targetCoordinates
         ? {
-            x: sourceVillageCoordinates.x,
-            y: sourceVillageCoordinates.y,
+            x: targetCoordinates.x,
+            y: targetCoordinates.y,
           }
         : {},
       units: tribeUnits.map((unitDef) => ({
@@ -89,17 +96,17 @@ export const ReturnReinforcementsModal = ({
         category: unitDef.category,
       })),
     });
-  }, [form, isOpen, sourceVillageCoordinates, tribe, troops]);
+  }, [form, isOpen, targetCoordinates, tribe, troops]);
 
   const onSubmit = form.handleSubmit(({ units }) => {
-    if (!sourceVillageCoordinates) {
+    if (!targetCoordinates) {
       return;
     }
 
     openConfirmation({
       target: {
-        x: sourceVillageCoordinates.x,
-        y: sourceVillageCoordinates.y,
+        x: targetCoordinates.x,
+        y: targetCoordinates.y,
       },
       units: units.map((unit) => ({
         ...unit,
@@ -114,7 +121,7 @@ export const ReturnReinforcementsModal = ({
     if (
       pendingReturnData?.target.x === undefined ||
       pendingReturnData.target.y === undefined ||
-      sourceVillage?.id === undefined
+      selectedVillage?.id === undefined
     ) {
       return;
     }
@@ -127,20 +134,36 @@ export const ReturnReinforcementsModal = ({
       return;
     }
 
-    returnReinforcements(
-      {
-        troops: selectedTroops.map(({ unitId, selected }) => ({
-          unitId,
-          amount: selected,
-        })),
-        sourceTileId,
-      },
-      {
-        onSuccess: () => {
-          closeConfirmation();
-          onClose();
+    const mutationArgs = {
+      troops: selectedTroops.map(({ unitId, selected }) => ({
+        unitId,
+        amount: selected,
+      })),
+    };
+
+    const onSuccess = () => {
+      closeConfirmation();
+      onClose();
+    };
+
+    if (mode === 'incoming') {
+      returnReinforcements(
+        {
+          ...mutationArgs,
+          sourceTileId: tileId,
         },
+        { onSuccess },
+      );
+
+      return;
+    }
+
+    returnSentReinforcements(
+      {
+        ...mutationArgs,
+        stationedTileId: tileId,
       },
+      { onSuccess },
     );
   };
 
@@ -154,9 +177,13 @@ export const ReturnReinforcementsModal = ({
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>
-              {t(
-                'Select the units to send back to their home village. Units not currently stationed here cannot be selected.',
-              )}
+              {mode === 'incoming'
+                ? t(
+                    'Select the units to send back to their home village. Units not currently stationed here cannot be selected.',
+                  )
+                : t(
+                    'Select the units to recall from this village back to your current village.',
+                  )}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -201,6 +228,9 @@ export const ReturnReinforcementsModal = ({
           formData={confirmationArgs.current!}
           title={title}
           tribe={tribe}
+          originCoordinates={
+            mode === 'outgoing' ? selectedVillage?.coordinates : undefined
+          }
         />
       )}
     </>

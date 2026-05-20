@@ -20,10 +20,12 @@ type TargetFormValues = {
 
 type PlayerVillageSelectorProps = {
   disabled?: boolean;
+  excludedVillageIds?: number[];
 };
 
 export const PlayerVillageSelector = ({
   disabled = false,
+  excludedVillageIds = [],
 }: PlayerVillageSelectorProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
@@ -32,7 +34,9 @@ export const PlayerVillageSelector = ({
   const target = watch('target');
 
   const otherVillages = playerVillages.filter(
-    (village) => village.id !== currentVillage.id,
+    (village) =>
+      village.id !== currentVillage.id &&
+      !excludedVillageIds.includes(village.id),
   );
 
   return (

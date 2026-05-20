@@ -23,3 +23,8 @@ export const villageTroopDtoSchema = z.strictObject({
   tileId: z.number(),
   source: z.number(),
 });
+
+export const sentReinforcementDtoSchema = z.strictObject({
+  village: playerVillageDtoSchema,
+  troops: z.array(villageTroopDtoSchema),
+});

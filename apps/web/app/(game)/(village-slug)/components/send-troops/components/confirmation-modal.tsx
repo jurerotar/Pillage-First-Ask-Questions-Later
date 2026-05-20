@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
 import { calculateDistanceBetweenPoints } from '@pillage-first/utils/math';
@@ -31,6 +32,7 @@ type TroopMovementConfirmationModalProps = {
   formData: BaseTroopFormValues;
   title: string;
   tribe: Tribe;
+  originCoordinates?: Coordinates;
 };
 
 export const TroopMovementConfirmationModal = ({
@@ -40,6 +42,7 @@ export const TroopMovementConfirmationModal = ({
   formData,
   title,
   tribe,
+  originCoordinates,
 }: TroopMovementConfirmationModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
@@ -52,7 +55,7 @@ export const TroopMovementConfirmationModal = ({
   const travelDuration = useMemo(() => {
     return calculateTravelDuration({
       originVillageId: currentVillage.id,
-      originCoordinates: currentVillage.coordinates,
+      originCoordinates: originCoordinates ?? currentVillage.coordinates,
       targetCoordinates: {
         x: formData.target.x,
         y: formData.target.y,
@@ -65,14 +68,23 @@ export const TroopMovementConfirmationModal = ({
       })),
       effects,
     });
-  }, [currentVillage, formData.target, selectedTroops, effects]);
+  }, [
+    currentVillage,
+    formData.target,
+    selectedTroops,
+    effects,
+    originCoordinates,
+  ]);
 
   const distance = useMemo(() => {
-    return calculateDistanceBetweenPoints(currentVillage.coordinates, {
-      x: formData.target.x,
-      y: formData.target.y,
-    });
-  }, [currentVillage.coordinates, formData.target]);
+    return calculateDistanceBetweenPoints(
+      originCoordinates ?? currentVillage.coordinates,
+      {
+        x: formData.target.x,
+        y: formData.target.y,
+      },
+    );
+  }, [currentVillage.coordinates, formData.target, originCoordinates]);
 
   return (
     <Dialog
