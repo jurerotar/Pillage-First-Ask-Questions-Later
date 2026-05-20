@@ -269,7 +269,7 @@ export const RearrangeBuildingFields = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden select-none">
+        <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden non-selectable select-none">
           {villageViewBuildingFieldIds.map((buildingFieldId) => {
             const buildingId = buildingFieldSlots[buildingFieldId];
             const isLocked = isLockedBuildingField(buildingFieldId);
@@ -289,7 +289,7 @@ export const RearrangeBuildingFields = () => {
                 key={buildingFieldId}
                 className={clsx(
                   positioningStyles,
-                  'absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center',
+                  'absolute non-selectable -translate-x-1/2 -translate-y-1/2 flex items-center justify-center',
                 )}
               >
                 <button
@@ -323,9 +323,9 @@ export const RearrangeBuildingFields = () => {
                       : undefined
                   }
                   className={clsx(
-                    'touch-manipulation',
+                    'touch-manipulation non-selectable',
                     buildingId
-                      ? 'relative size-8 lg:size-12 rounded-full select-none focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border'
+                      ? 'relative size-8 lg:size-12 rounded-full focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border'
                       : 'w-8 lg:w-16 h-4 lg:h-10 bg-green-900/50 hover:bg-green-800/70 cursor-pointer',
                     buildingId !== null &&
                       !isLocked &&
@@ -337,7 +337,7 @@ export const RearrangeBuildingFields = () => {
                   )}
                 >
                   {buildingId && (
-                    <span className="inline-flex flex-col lg:flex-row text-center select-none text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
+                    <span className="inline-flex non-selectable flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
                       {hasEvent && (
                         <Countdown
                           endsAt={
