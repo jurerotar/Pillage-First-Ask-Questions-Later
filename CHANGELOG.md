@@ -1,4 +1,13 @@
-## Version 0.4.22
+## Version 0.4.24
+
+#### May 21, 2026
+
+* [Feature] Added the ability to rearrange buildings in villages. This feature can be accessed through Main Building by
+  accessing Village management's Rearrange buildings tab. Buildings may be rearranged by dragging them onto empty or
+  occupied building fields. Note that Wall and Rally point can't be rearranged and no buildings may be assigned to their
+  building fields.
+
+## Version 0.4.23
 
 #### May 20, 2026
 
