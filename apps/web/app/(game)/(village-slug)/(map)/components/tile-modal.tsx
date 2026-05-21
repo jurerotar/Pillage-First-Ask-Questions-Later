@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
@@ -22,6 +23,7 @@ import {
   roundToNDecimalPoints,
 } from '@pillage-first/utils/math';
 import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
+import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-troops';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
@@ -30,6 +32,7 @@ import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations'
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
+import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
 import {
   DialogContent,
@@ -37,6 +40,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
+import { Skeleton } from 'app/components/ui/skeleton';
 
 type TileModalResourcesProps = {
   tile: OccupiableTile;
@@ -122,6 +126,41 @@ type OasisTileModalProps = {
   tile: OasisTile;
 };
 
+const OasisTileModalAnimals = ({ tile }: OasisTileModalProps) => {
+  const { tileTroops } = useTileTroops(tile.id);
+
+  return (
+    <div className="flex flex-col flex-wrap gap-2">
+      {tileTroops.map(({ unitId, amount }) => (
+        <span
+          key={unitId}
+          className="flex items-center gap-1 text-sm"
+        >
+          <Icon
+            className="size-4"
+            type={unitIdToUnitIconMapper(unitId)}
+          />
+          {amount}
+        </span>
+      ))}
+    </div>
+  );
+};
+
+const OasisTileModalAnimalsSkeleton = () => {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {Array.from({ length: 4 }, (_, i) => (
+        <Skeleton
+          // biome-ignore lint/suspicious/noArrayIndexKey: It's a static loading placeholder.
+          key={`animal-skeleton-${i}`}
+          className="h-4 w-10 rounded-xs"
+        />
+      ))}
+    </div>
+  );
+};
+
 const OasisTileModal = ({ tile }: OasisTileModalProps) => {
   const { t } = useTranslation();
   const { oasisBonuses } = useOasisBonuses(tile.id);
@@ -140,22 +179,6 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
     <DialogHeader>
       <DialogTitle>{title}</DialogTitle>
       <TileModalLocation tile={tile} />
-      {isOccupiable && (
-        <div className="flex justify-start gap-2 items-center">
-          {oasisBonuses.map(({ resource, bonus }) => (
-            <span
-              key={resource}
-              className="flex items-center gap-1"
-            >
-              <Icon
-                className="size-4"
-                type={resource}
-              />
-              <span>{bonus}%</span>
-            </span>
-          ))}
-        </div>
-      )}
       <DialogDescription>
         {!isOccupiable && t('This is an un-occupiable oasis.')}
         {isOccupiable && (
@@ -185,6 +208,27 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
           </>
         )}
       </DialogDescription>
+      {isOccupiable && (
+        <div className="flex justify-start gap-2 items-center">
+          {oasisBonuses.map(({ resource, bonus }) => (
+            <span
+              key={resource}
+              className="flex items-center gap-1"
+            >
+              <Icon
+                className="size-4"
+                type={resource}
+              />
+              <span>{bonus}%</span>
+            </span>
+          ))}
+        </div>
+      )}
+      {!isOccupied && (
+        <Suspense fallback={<OasisTileModalAnimalsSkeleton />}>
+          <OasisTileModalAnimals tile={tile} />
+        </Suspense>
+      )}
       {isOccupied && <TileModalPlayerInfo tile={tile} />}
     </DialogHeader>
   );
