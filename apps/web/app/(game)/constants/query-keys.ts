@@ -10,6 +10,7 @@ export const collectableQuestCountCacheKey = 'collectable-quests';
 export const reportsCacheKey = 'reports';
 export const reputationsCacheKey = 'reputations';
 export const unitImprovementCacheKey = 'unit-improvement';
+export const unitCombatStatsCacheKey = 'unit-combat-stats';
 export const unitResearchCacheKey = 'unit-research';
 export const villageListingCacheKey = 'village-listing';
 export const mapFiltersCacheKey = 'map-filters';

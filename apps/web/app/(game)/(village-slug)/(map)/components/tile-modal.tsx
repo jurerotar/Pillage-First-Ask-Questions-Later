@@ -9,6 +9,8 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from '@pillage-first/types/models/tile';
+import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
+import { calculateOptimalOasisAttackComposition } from '@pillage-first/utils/game/oasis-attack-optimizer';
 import { isFindNewVillageTroopMovementEvent } from '@pillage-first/utils/guards/event';
 import {
   isOasisTile,
@@ -30,6 +32,7 @@ import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-ga
 import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { useUnitCombatStats } from 'app/(game)/(village-slug)/hooks/use-unit-combat-stats';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
@@ -147,6 +150,69 @@ const OasisTileModalAnimals = ({ tile }: OasisTileModalProps) => {
   );
 };
 
+const OasisTileModalAttackRecommendation = ({ tile }: OasisTileModalProps) => {
+  const { t } = useTranslation();
+  const { tileTroops } = useTileTroops(tile.id);
+  const { getDeployableTroops } = useVillageTroops();
+  const { unitCombatStats } = useUnitCombatStats();
+
+  const playerUnitIds = new Set(unitCombatStats.map(({ unitId }) => unitId));
+  const animals = tileTroops.flatMap(({ unitId, amount }) => {
+    const result = natureUnitIdSchema.safeParse(unitId);
+
+    if (!result.success) {
+      return [];
+    }
+
+    return {
+      unitId: result.data,
+      amount,
+    };
+  });
+  const availableUnits = getDeployableTroops()
+    .filter(({ unitId }) => playerUnitIds.has(unitId))
+    .map(({ unitId, amount }) => ({ unitId, amount }));
+  const result = calculateOptimalOasisAttackComposition(
+    animals,
+    availableUnits,
+    unitCombatStats,
+  );
+
+  if (result.bestComposition.length === 0) {
+    return (
+      <div className="flex flex-col gap-1">
+        <Text as="h3">{t('Recommended attack')}</Text>
+        <Text className="text-gray-500">{t('No available units')}</Text>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Text as="h3">{t('Recommended attack')}</Text>
+      <div className="flex flex-wrap gap-2">
+        {result.bestComposition.map(({ unitId, amount }) => (
+          <span
+            key={unitId}
+            className="flex items-center gap-1 text-sm"
+          >
+            <Icon
+              className="size-4"
+              type={unitIdToUnitIconMapper(unitId)}
+            />
+            {amount}
+          </span>
+        ))}
+      </div>
+      <Text className="text-gray-500">
+        {t('{{count}}% expected losses', {
+          count: result.lossPercentage.toFixed(1),
+        })}
+      </Text>
+    </div>
+  );
+};
+
 const OasisTileModalAnimalsSkeleton = () => {
   return (
     <div className="flex flex-wrap gap-2">
@@ -227,6 +293,11 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
       {!isOccupied && (
         <Suspense fallback={<OasisTileModalAnimalsSkeleton />}>
           <OasisTileModalAnimals tile={tile} />
+        </Suspense>
+      )}
+      {!isOccupied && (
+        <Suspense fallback={<OasisTileModalAnimalsSkeleton />}>
+          <OasisTileModalAttackRecommendation tile={tile} />
         </Suspense>
       )}
       {isOccupied && <TileModalPlayerInfo tile={tile} />}
