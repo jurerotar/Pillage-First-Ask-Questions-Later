@@ -116,6 +116,180 @@ describe('village-controllers', () => {
       expect(JSON.parse(event!.meta).buildingFieldId).toBe(fieldId2);
     });
 
+    test('should update building field ids for all rearrangeable building event types', async () => {
+      const database = await prepareTestDatabase();
+
+      const village = database.selectObject({
+        sql: 'SELECT id FROM villages LIMIT 1',
+        schema: z.strictObject({ id: z.number() }),
+      })!;
+      const villageId = village.id;
+      const eventStartsAt = 123_456_789;
+      const buildingEventTypes = [
+        'buildingScheduledConstruction',
+        'buildingConstruction',
+        'buildingLevelChange',
+        'buildingDestruction',
+      ] as const;
+
+      database.exec({
+        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 19, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 7)",
+        bind: { $v: villageId },
+      });
+
+      for (const [index, eventType] of buildingEventTypes.entries()) {
+        database.exec({
+          sql: 'INSERT INTO events (type, starts_at, duration, village_id, meta) VALUES ($type, $starts_at, 100, $v, $meta)',
+          bind: {
+            $type: eventType,
+            $starts_at: eventStartsAt + index,
+            $v: villageId,
+            $meta: JSON.stringify({
+              buildingFieldId: 19,
+              buildingId: 'MAIN_BUILDING',
+              level: 8,
+              previousLevel: 7,
+            }),
+          },
+        });
+      }
+
+      rearrangeBuildingFields(
+        database,
+        createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
+          path: { villageId },
+          body: [
+            { buildingFieldId: 19, buildingId: null },
+            { buildingFieldId: 25, buildingId: 'MAIN_BUILDING' },
+          ],
+        }),
+      );
+
+      const events = database.selectObjects({
+        sql: 'SELECT type, meta FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY type',
+        bind: {
+          $starts_at: eventStartsAt,
+          $ends_at: eventStartsAt + buildingEventTypes.length - 1,
+        },
+        schema: z.strictObject({
+          type: z.string(),
+          meta: z.string(),
+        }),
+      });
+
+      expect(events).toHaveLength(buildingEventTypes.length);
+      for (const event of events) {
+        expect(JSON.parse(event.meta)).toMatchObject({
+          buildingFieldId: 25,
+          buildingId: 'MAIN_BUILDING',
+        });
+      }
+    });
+
+    test('should not update events for other event types, other villages, null targets, or unmatched buildings', async () => {
+      const database = await prepareTestDatabase();
+
+      const villages = database.selectObjects({
+        sql: 'SELECT id FROM villages ORDER BY id LIMIT 2',
+        schema: z.strictObject({ id: z.number() }),
+      });
+      const villageId = villages[0]!.id;
+      const otherVillageId = villages[1]!.id;
+      const eventStartsAt = 223_456_789;
+
+      database.exec({
+        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 19, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 7)",
+        bind: { $v: villageId },
+      });
+      database.exec({
+        sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 20, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 3)",
+        bind: { $v: villageId },
+      });
+
+      const eventsToInsert = [
+        {
+          type: 'troopTraining',
+          villageId,
+          meta: {
+            buildingFieldId: 19,
+            buildingId: 'MAIN_BUILDING',
+          },
+        },
+        {
+          type: 'buildingLevelChange',
+          villageId: otherVillageId,
+          meta: {
+            buildingFieldId: 19,
+            buildingId: 'MAIN_BUILDING',
+          },
+        },
+        {
+          type: 'buildingConstruction',
+          villageId,
+          meta: {
+            buildingFieldId: 20,
+            buildingId: 'BARRACKS',
+          },
+        },
+        {
+          type: 'buildingDestruction',
+          villageId,
+          meta: {
+            buildingFieldId: 21,
+            buildingId: 'ACADEMY',
+          },
+        },
+      ];
+
+      for (const [index, event] of eventsToInsert.entries()) {
+        database.exec({
+          sql: 'INSERT INTO events (type, starts_at, duration, village_id, meta) VALUES ($type, $starts_at, 100, $v, $meta)',
+          bind: {
+            $type: event.type,
+            $starts_at: eventStartsAt + index,
+            $v: event.villageId,
+            $meta: JSON.stringify({
+              ...event.meta,
+              level: 2,
+              previousLevel: 1,
+            }),
+          },
+        });
+      }
+
+      rearrangeBuildingFields(
+        database,
+        createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
+          path: { villageId },
+          body: [
+            { buildingFieldId: 19, buildingId: null },
+            { buildingFieldId: 20, buildingId: null },
+            { buildingFieldId: 25, buildingId: 'MAIN_BUILDING' },
+          ],
+        }),
+      );
+
+      const events = database.selectObjects({
+        sql: 'SELECT type, meta, village_id AS villageId FROM events WHERE starts_at BETWEEN $starts_at AND $ends_at ORDER BY starts_at',
+        bind: {
+          $starts_at: eventStartsAt,
+          $ends_at: eventStartsAt + eventsToInsert.length - 1,
+        },
+        schema: z.strictObject({
+          type: z.string(),
+          meta: z.string(),
+          villageId: z.number(),
+        }),
+      });
+
+      expect(events).toHaveLength(eventsToInsert.length);
+      expect(JSON.parse(events[0]!.meta).buildingFieldId).toBe(19);
+      expect(JSON.parse(events[1]!.meta).buildingFieldId).toBe(19);
+      expect(events[1]!.villageId).toBe(otherVillageId);
+      expect(JSON.parse(events[2]!.meta).buildingFieldId).toBe(20);
+      expect(JSON.parse(events[3]!.meta).buildingFieldId).toBe(21);
+    });
+
     test('should move building to empty field', async () => {
       const database = await prepareTestDatabase();
 
