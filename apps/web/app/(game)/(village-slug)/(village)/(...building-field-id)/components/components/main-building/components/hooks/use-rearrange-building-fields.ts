@@ -3,7 +3,10 @@ import { use } from 'react';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
+import {
+  currentVillageCacheKey,
+  eventsCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 
@@ -43,7 +46,10 @@ export const useRearrangeBuildingFields = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[currentVillageCacheKey]]);
+      await invalidateQueries(context, [
+        [currentVillageCacheKey, currentVillage.slug],
+        [eventsCacheKey, 'buildingLevelChange', currentVillage.id],
+      ]);
     },
   });
 

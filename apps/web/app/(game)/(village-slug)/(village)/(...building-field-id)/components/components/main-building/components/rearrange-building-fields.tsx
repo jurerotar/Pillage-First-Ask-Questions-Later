@@ -1,12 +1,5 @@
 import { clsx } from 'clsx';
-import {
-  type DragEvent,
-  use,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { type DragEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
@@ -18,9 +11,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 
@@ -68,7 +59,6 @@ export const RearrangeBuildingFields = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { currentVillage } = useCurrentVillage();
-  const { buildingEvents } = use(CurrentVillageBuildingQueueContext);
   const { rearrangeBuildingFieldsAsync, isRearrangingBuildingFields } =
     useRearrangeBuildingFields();
 
@@ -278,11 +268,6 @@ export const RearrangeBuildingFields = () => {
             const isSelected = selectedBuildingFieldId === buildingFieldId;
             const positioningStyles =
               buildingFieldStyles[`building-field--${buildingFieldId}`];
-            const currentBuildingFieldBuildingEvent = buildingEvents.find(
-              ({ buildingFieldId: eventBuildingFieldId }) =>
-                eventBuildingFieldId === buildingFieldId,
-            );
-            const hasEvent = !!currentBuildingFieldBuildingEvent;
 
             return (
               <div
@@ -338,15 +323,7 @@ export const RearrangeBuildingFields = () => {
                 >
                   {buildingId && (
                     <span className="inline-flex non-selectable flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
-                      {hasEvent && (
-                        <Countdown
-                          endsAt={
-                            currentBuildingFieldBuildingEvent.startsAt +
-                            currentBuildingFieldBuildingEvent.duration
-                          }
-                        />
-                      )}
-                      {!hasEvent && t(`BUILDINGS.${buildingId}.NAME`)}
+                      {t(`BUILDINGS.${buildingId}.NAME`)}
                     </span>
                   )}
                 </button>
