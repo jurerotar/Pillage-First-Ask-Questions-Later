@@ -74,6 +74,10 @@ export const calculateMaxUnits = (
   return Math.min(...maxUnitsPerResource);
 };
 
+export const calculateImprovedCombatValue = (value: number, level: number) => {
+  return Math.round(value * 1.015 ** level * 10) / 10;
+};
+
 export const calculateUnitUpgradeCostForLevel = (
   unitId: Unit['id'],
   level: number,

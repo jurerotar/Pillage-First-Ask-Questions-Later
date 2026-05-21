@@ -10,6 +10,7 @@ import {
   teutonUnits,
 } from '../../units';
 import {
+  calculateImprovedCombatValue,
   calculateMaxUnits,
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
@@ -56,6 +57,12 @@ describe('units', () => {
     const resources = { wood: 0, clay: 0, iron: 0, wheat: 0 };
     const costs = [1, 1, 1, 1];
     expect(calculateMaxUnits(resources, costs)).toBe(0);
+  });
+
+  test('calculateImprovedCombatValue applies 1.5% per level and rounds to one decimal', () => {
+    expect(calculateImprovedCombatValue(40, 0)).toBe(40);
+    expect(calculateImprovedCombatValue(40, 1)).toBe(40.6);
+    expect(calculateImprovedCombatValue(150, 20)).toBe(202);
   });
 
   test('calculateUnitUpgradeCostForLevel returns correct cost at level 2', () => {

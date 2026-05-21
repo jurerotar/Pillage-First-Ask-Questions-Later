@@ -45,6 +45,9 @@
     "./game/troop-movement-duration": {
       "default": "./src/game/troop-movement-duration.ts"
     },
+    "./game/oasis-attack-optimizer": {
+      "default": "./src/game/oasis-attack-optimizer.ts"
+    },
     "./game/calculate-current-resources": {
       "default": "./src/game/calculate-current-resources.ts"
     },
@@ -75,6 +78,7 @@
     "type-check": "tsgo"
   },
   "dependencies": {
+    "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "ts-seedrandom": "1.4.1"
   },

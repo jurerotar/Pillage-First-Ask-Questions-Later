@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
+  calculateImprovedCombatValue,
   calculateMaxUnits,
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
@@ -121,10 +122,6 @@ type UnitAttributes = Record<
   number
 >;
 
-const calculateUpgradedValue = (value: number, level: number) => {
-  return Math.round(value * 1.015 ** level * 10) / 10;
-};
-
 export const UnitAttributes = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
@@ -179,7 +176,7 @@ export const UnitAttributes = () => {
                     unitLevel !== unitVirtualLevel && 'text-warning',
                   )}
                 >
-                  {calculateUpgradedValue(value, unitVirtualLevel)}
+                  {calculateImprovedCombatValue(value, unitVirtualLevel)}
                 </span>
               </Text>
             </span>

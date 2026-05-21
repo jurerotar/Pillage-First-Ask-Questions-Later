@@ -103,7 +103,10 @@ import {
   getVillageTroopMovements,
   validateTroopMovement,
 } from '../controllers/troop-movement-controllers';
-import { getUnitImprovements } from '../controllers/unit-improvement-controllers';
+import {
+  getPlayerUnitCombatStats,
+  getUnitImprovements,
+} from '../controllers/unit-improvement-controllers';
 import { getResearchedUnits } from '../controllers/unit-research-controllers';
 import {
   getOccupiableOasisInRange,
@@ -144,6 +147,7 @@ const apiRoutes: Route[] = [
 
   // Unit Improvements
   createRoute(getUnitImprovements),
+  createRoute(getPlayerUnitCombatStats),
 
   // Quests
   createRoute(getQuests),

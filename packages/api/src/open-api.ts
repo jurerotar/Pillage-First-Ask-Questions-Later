@@ -50,6 +50,7 @@ import {
 } from '@pillage-first/types/dtos/troop-movement';
 import {
   researchedUnitDtoSchema,
+  unitCombatStatsDtoSchema,
   unitImprovementDtoSchema,
 } from '@pillage-first/types/dtos/unit';
 import { villageBySlugDtoSchema } from '@pillage-first/types/dtos/village';
@@ -1401,6 +1402,26 @@ export const paths = {
           content: {
             'application/json': {
               schema: z.array(unitImprovementDtoSchema),
+            },
+          },
+        },
+      },
+    },
+  },
+  '/players/:playerId/unit-combat-stats': {
+    get: {
+      summary: 'Get improved combat stats for player units',
+      requestParams: {
+        path: z.strictObject({
+          playerId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Improved combat stats for units in player tribe',
+          content: {
+            'application/json': {
+              schema: z.array(unitCombatStatsDtoSchema),
             },
           },
         },

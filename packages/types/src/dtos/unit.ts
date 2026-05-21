@@ -8,6 +8,15 @@ export const unitImprovementDtoSchema = z
   })
   .meta({ id: 'UnitImprovementDto' });
 
+export const unitCombatStatsDtoSchema = z
+  .strictObject({
+    unitId: unitIdSchema,
+    attack: z.number(),
+    infantryDefence: z.number(),
+    cavalryDefence: z.number(),
+  })
+  .meta({ id: 'UnitCombatStatsDto' });
+
 export const researchedUnitDtoSchema = z
   .strictObject({
     unitId: unitIdSchema,
