@@ -12,6 +12,11 @@ import { MdOutlineMobileFriendly } from 'react-icons/md';
 import { Link } from 'react-router';
 import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubButton } from 'app/(public)/components/github-button';
+import {
+  DiscordSocialProofCard,
+  SocialProofMasonry,
+  TwitterSocialProofCard,
+} from 'app/(public)/components/social-proof';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -100,6 +105,76 @@ const CTASection = () => {
             <Button variant="outline">Your game worlds</Button>
           </Link>
         </div>
+      </div>
+    </section>
+  );
+};
+
+const SocialProofSection = () => {
+  return (
+    <section className="bg-background pt-8 lg:pt-12">
+      <div className="max-w-7xl px-2 mx-auto grid grid-cols-1 gap-6 lg:gap-10">
+        <div className="flex flex-col gap-3">
+          <Text as="h2">Built with strategy players in the loop</Text>
+          <Text variant="muted">
+            Feedback from Discord and X helps shape balance, usability and the
+            parts of classic browser strategy games worth preserving.
+          </Text>
+          <div className="flex flex-wrap gap-2">
+            <DiscordButton>Join the Discord</DiscordButton>
+            <GithubButton />
+            {/*<a*/}
+            {/*  rel="noopener noreferrer"*/}
+            {/*  target="_blank"*/}
+            {/*  href="https://x.com/pillagefirst"*/}
+            {/*  className="inline-flex w-fit"*/}
+            {/*>*/}
+            {/*  <Button*/}
+            {/*    variant="outline"*/}
+            {/*    className="inline-flex items-center gap-2"*/}
+            {/*  >*/}
+            {/*    <FaXTwitter className="size-4" />*/}
+            {/*    Follow on X*/}
+            {/*  </Button>*/}
+            {/*</a>*/}
+          </div>
+        </div>
+
+        <SocialProofMasonry>
+          <DiscordSocialProofCard
+            author="Laarva on Discord"
+            body="Very excited for new updates. Really loving what I've seen so far I have been wanting an offline game like this forever. Keep up the good work!"
+          />
+          <DiscordSocialProofCard
+            author="hoangnguyen5639 on Discord"
+            body="I love this game so much, waiting for any update!"
+          />
+          <DiscordSocialProofCard
+            author="AllNineAliens on Discord"
+            body="I'd just like to say, that I love this project! I've thought about making something similar time and time again! Last time I played Travian was in 2015, and I haven't been able to scratch that itch since."
+          />
+          <TwitterSocialProofCard
+            author="Orcdev"
+            body="Here are some amazing open source projects I found: Pillage First Ask Questions Later by @jurerotar"
+            href="https://x.com/orcdev/status/2026055804646723633"
+          />
+          <DiscordSocialProofCard
+            author="Neme on Discord"
+            body="I love the idea of this project. I was actually missing this kind of game as my work hours do not really allow me to 24/7 Travian anymore."
+          />
+          <DiscordSocialProofCard
+            author="Ekklo on Discord"
+            body="Love your work dude! Keep it up!"
+          />
+          <DiscordSocialProofCard
+            author="Petrey on Discord"
+            body="Awesome project I can say. I have just discoverd it and start to test it. I can't imagine how big complexity must be on the backend. But fingers cross, that development will still continue!"
+          />
+          <DiscordSocialProofCard
+            author="Cheese on Discord"
+            body="The game is awesome. I study almost 11 hours a day and I really needed something to play in my 15 minute breaks."
+          />
+        </SocialProofMasonry>
       </div>
     </section>
   );
@@ -260,6 +335,7 @@ const HomePage = () => {
           </section>
         </div>
         <LandingScreenshotsSection />
+        <SocialProofSection />
         <CTASection />
         <MotivationSection />
         <OpenSourceSection />

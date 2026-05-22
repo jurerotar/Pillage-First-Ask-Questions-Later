@@ -135,18 +135,23 @@ export const rearrangeBuildingFields = createController(
   'patch',
 )(({ database, path: { villageId }, body: updates }) => {
   database.transaction(() => {
-    // 1. Update building_fields
+    database.exec({
+      sql: 'DROP TABLE IF EXISTS temp_rearrange_source_fields;',
+    });
+
     database.exec({
       sql: `
-        DELETE FROM building_fields
-        WHERE village_id = $village_id
-          AND EXISTS (
-            SELECT 1
-            FROM JSON_EACH($updates) AS j
-            WHERE CAST(j.value ->> '$.buildingFieldId' AS INTEGER) = building_fields.field_id
-          );
+        CREATE TEMP TABLE temp_rearrange_source_fields AS
+        SELECT bf.field_id, bf.building_id, bi.building AS building_text, bf.level
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id
+          AND bf.field_id BETWEEN 19 AND 38
+          AND bf.building_id IS NOT NULL;
       `,
-      bind: { $village_id: villageId, $updates: JSON.stringify(updates) },
+      bind: {
+        $village_id: villageId,
+      },
     });
 
     database.exec({
@@ -156,27 +161,73 @@ export const rearrangeBuildingFields = createController(
           FROM JSON_EACH($updates)
         ),
         updates AS (
-          SELECT ur.field_id, bi.id AS building_id, ur.building_text
+          SELECT ur.field_id
+          FROM updates_raw ur
+          WHERE ur.field_id BETWEEN 19 AND 38
+        )
+        DELETE FROM building_fields
+        WHERE village_id = $village_id
+          AND EXISTS (
+            SELECT 1
+            FROM updates u
+            WHERE u.field_id = building_fields.field_id
+          );
+      `,
+      bind: {
+        $village_id: villageId,
+        $updates: JSON.stringify(updates),
+      },
+    });
+
+    database.exec({
+      sql: `
+        WITH updates_raw(field_id, building_text) AS (
+          SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+          FROM JSON_EACH($updates)
+        ),
+        updates AS (
+          SELECT ur.field_id, bi.id AS building_id
           FROM updates_raw ur
           LEFT JOIN building_ids bi ON bi.building = ur.building_text
+          WHERE ur.field_id BETWEEN 19 AND 38
         ),
-        current_state AS (
-          SELECT building_id, level
-          FROM building_fields
-          WHERE village_id = $village_id
-        ),
-        new_state AS (
+        new_occupied_state AS (
           SELECT
             u.field_id,
             u.building_id,
-            COALESCE(cs.level, 0) as level
+            COALESCE(
+              (
+                SELECT sf.level
+                FROM temp_rearrange_source_fields sf
+                WHERE sf.building_id = u.building_id
+                  AND EXISTS (
+                    SELECT 1
+                    FROM updates source_update
+                    WHERE source_update.field_id = sf.field_id
+                      AND (
+                        source_update.building_id IS NULL
+                        OR source_update.building_id <> sf.building_id
+                      )
+                  )
+                LIMIT 1
+              ),
+              (
+                SELECT sf.level
+                FROM temp_rearrange_source_fields sf
+                WHERE sf.field_id = u.field_id
+                  AND sf.building_id = u.building_id
+                LIMIT 1
+              ),
+              0
+            ) as level
           FROM updates u
-          LEFT JOIN current_state cs ON cs.building_id = u.building_id
           WHERE u.building_id IS NOT NULL
         )
         INSERT INTO building_fields (village_id, field_id, building_id, level)
         SELECT $village_id, field_id, building_id, level
-        FROM new_state;
+        FROM new_occupied_state;
+
+        DROP TABLE IF EXISTS temp_rearrange_source_fields;
       `,
       bind: {
         $village_id: villageId,
@@ -191,6 +242,7 @@ export const rearrangeBuildingFields = createController(
         WITH updates_raw(field_id, building_text) AS (
           SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
           FROM JSON_EACH($updates)
+          WHERE CAST(value ->> '$.buildingFieldId' AS INTEGER) BETWEEN 19 AND 38
         )
         UPDATE events
         SET meta = JSON_SET(meta, '$.buildingFieldId', ur.field_id)
