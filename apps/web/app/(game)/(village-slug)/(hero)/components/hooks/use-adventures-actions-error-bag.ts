@@ -22,7 +22,9 @@ export const useAdventuresActionsErrorBag = () => {
   }
 
   if (!isHeroHome && isHeroAlive) {
-    errorBag.push(t('Your hero is currently travelling.'));
+    errorBag.push(
+      t('Your hero must be stationed in his home village to start adventures.'),
+    );
   }
 
   return {

@@ -47,15 +47,19 @@ export const getHero = createController('/players/:playerId/hero')(
             FROM
               troops t
                 JOIN unit_ids ui ON t.unit_id = ui.id
-                JOIN villages v ON t.tile_id = v.tile_id
+                JOIN villages v ON v.id = h.village_id
             WHERE
               ui.unit = 'HERO'
-              AND v.player_id = $player_id
+              AND t.tile_id = v.tile_id
+              AND t.source_tile_id = v.tile_id
+              AND t.amount > 0
             ) AS is_home
         FROM
           heroes h
             JOIN
-            hero_selectable_attributes hsa ON h.id = hsa.hero_id;
+            hero_selectable_attributes hsa ON h.id = hsa.hero_id
+        WHERE
+          h.player_id = $player_id;
       `,
       bind: { $player_id: playerId },
       schema: getHeroSchema,
@@ -127,10 +131,22 @@ export const startHeroAdventure = createController(
   '/players/:playerId/hero/adventures',
   'post',
 )(({ database, path: { playerId } }) => {
-  const { health, tileId, villageId, x, y } = database.selectObject({
-    sql: `
+  const { health, isHeroHome, tileId, villageId, x, y } = database.selectObject(
+    {
+      sql: `
       SELECT
         h.health,
+        EXISTS
+        (
+          SELECT 1
+          FROM troops t
+            JOIN unit_ids ui ON t.unit_id = ui.id
+          WHERE
+            ui.unit = 'HERO'
+            AND t.tile_id = v.tile_id
+            AND t.source_tile_id = v.tile_id
+            AND t.amount > 0
+        ) AS isHeroHome,
         v.tile_id AS tileId,
         v.id AS villageId,
         tl.x,
@@ -143,18 +159,24 @@ export const startHeroAdventure = createController(
         h.player_id = $player_id
       LIMIT 1;
     `,
-    bind: { $player_id: playerId },
-    schema: z.strictObject({
-      health: z.number(),
-      tileId: z.number(),
-      villageId: z.number(),
-      x: z.number(),
-      y: z.number(),
-    }),
-  })!;
+      bind: { $player_id: playerId },
+      schema: z.strictObject({
+        health: z.number(),
+        isHeroHome: z.coerce.boolean(),
+        tileId: z.number(),
+        villageId: z.number(),
+        x: z.number(),
+        y: z.number(),
+      }),
+    },
+  )!;
 
   if (health <= 0) {
     throw new Error('Hero is dead');
+  }
+
+  if (!isHeroHome) {
+    throw new Error('Hero is not stationed in his home village');
   }
 
   createEvents<'troopMovementAdventure'>(database, {

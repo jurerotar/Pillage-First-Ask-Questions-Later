@@ -778,6 +778,100 @@ describe('events utils', () => {
       ).not.toThrow();
     });
 
+    test('troopMovementAdventure - should throw if hero is reinforcing another village', async () => {
+      const database = await prepareTestDatabase();
+
+      const homeVillage = database.selectObject({
+        sql: `
+          SELECT id, tile_id
+          FROM villages
+          WHERE player_id = $player_id
+          ORDER BY id
+          LIMIT 1;
+        `,
+        bind: { $player_id: PLAYER_ID },
+        schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      })!;
+
+      const reinforcedVillage = database.selectObject({
+        sql: `
+          WITH free_tile AS (
+            SELECT id
+            FROM tiles
+            WHERE id != $home_tile_id
+              AND id NOT IN (SELECT tile_id FROM villages)
+            ORDER BY id
+            LIMIT 1
+          )
+          INSERT INTO villages (name, slug, tile_id, player_id)
+          VALUES (
+            'Reinforced Adventure Validation Village',
+            'reinforced-adventure-validation-village-test',
+            (SELECT id FROM free_tile),
+            $player_id
+          )
+          RETURNING id, tile_id;
+        `,
+        bind: {
+          $home_tile_id: homeVillage.tile_id,
+          $player_id: PLAYER_ID,
+        },
+        schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+      })!;
+
+      database.exec({
+        sql: `
+          UPDATE hero_adventures
+          SET available = 1
+          WHERE hero_id = (
+            SELECT id
+            FROM heroes
+            WHERE player_id = $player_id
+          )
+        `,
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      database.exec({
+        sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO');",
+      });
+
+      database.exec({
+        sql: `
+          UPDATE heroes
+          SET village_id = $village_id
+          WHERE player_id = $player_id;
+        `,
+        bind: {
+          $village_id: homeVillage.id,
+          $player_id: PLAYER_ID,
+        },
+      });
+
+      database.exec({
+        sql: `
+          INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+          VALUES (
+            $tile_id,
+            $source_tile_id,
+            (SELECT id FROM unit_ids WHERE unit = 'HERO'),
+            1
+          );
+        `,
+        bind: {
+          $tile_id: reinforcedVillage.tile_id,
+          $source_tile_id: homeVillage.tile_id,
+        },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementAdventureEventMock({ villageId: homeVillage.id }),
+        ),
+      ).toThrow('Hero is not stationed in his home village');
+    });
+
     test('troopMovementOasisOccupation - should throw if no free oasis occupation slots', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);

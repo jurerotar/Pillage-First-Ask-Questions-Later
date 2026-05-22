@@ -529,6 +529,33 @@ export const validateEventCreationPrerequisites = (
       throw new Error('No adventure points available');
     }
 
+    const isHeroHome = database.selectValue({
+      sql: `
+        SELECT
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              heroes h
+                JOIN villages v ON v.id = h.village_id
+                JOIN troops t
+                     ON t.tile_id = v.tile_id
+                       AND t.source_tile_id = v.tile_id
+                JOIN unit_ids ui ON ui.id = t.unit_id
+            WHERE
+              h.player_id = $player_id
+              AND ui.unit = 'HERO'
+              AND t.amount > 0
+          ) AS is_hero_home;
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.coerce.boolean(),
+    });
+
+    if (!isHeroHome) {
+      throw new Error('Hero is not stationed in his home village');
+    }
+
     return;
   }
 
