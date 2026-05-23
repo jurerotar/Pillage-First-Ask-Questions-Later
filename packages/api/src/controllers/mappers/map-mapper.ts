@@ -115,5 +115,9 @@ export const mapTileWorldItem = (
 export const mapMarker = (
   row: z.infer<typeof getMapMarkersSchema>,
 ): z.infer<typeof mapMarkerDtoSchema> => {
-  return mapMarkerDtoSchema.parse({ tileId: row.tile_id });
+  return mapMarkerDtoSchema.parse({
+    tileId: row.tile_id,
+    description: row.description,
+    color: row.color,
+  });
 };

@@ -1182,6 +1182,8 @@ export const paths = {
           'application/json': {
             schema: z.strictObject({
               tileId: z.number(),
+              description: z.string(),
+              color: mapMarkerDtoSchema.shape.color,
             }),
           },
         },

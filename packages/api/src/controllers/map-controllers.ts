@@ -20,11 +20,19 @@ export const getMapMarkers = createController('/players/:playerId/map-markers')(
   ({ database, path: { playerId } }) => {
     const rows = database.selectObjects({
       sql: `
-        SELECT tile_id
+        SELECT
+          tile_id,
+          CASE
+            WHEN TRIM(description) = '' THEN 'Map marker ' || ROW_NUMBER() OVER (ORDER BY id)
+            ELSE description
+          END AS description,
+          color
         FROM
           map_markers
         WHERE
-          player_id = $player_id;
+          player_id = $player_id
+        ORDER BY
+          id;
       `,
       bind: {
         $player_id: playerId,
@@ -39,18 +47,37 @@ export const getMapMarkers = createController('/players/:playerId/map-markers')(
 export const addMapMarker = createController(
   '/players/:playerId/map-markers',
   'post',
-)(({ database, path: { playerId }, body: { tileId } }) => {
-  database.exec({
-    sql: `
-      INSERT INTO
-        map_markers (player_id, tile_id)
-      VALUES
-        ($player_id, $tile_id);
-    `,
-    bind: {
-      $player_id: playerId,
-      $tile_id: tileId,
-    },
+)(({ database, path: { playerId }, body: { tileId, description, color } }) => {
+  database.transaction((db) => {
+    db.exec({
+      sql: `
+        DELETE
+        FROM
+          map_markers
+        WHERE
+          player_id = $player_id
+          AND tile_id = $tile_id;
+      `,
+      bind: {
+        $player_id: playerId,
+        $tile_id: tileId,
+      },
+    });
+
+    db.exec({
+      sql: `
+        INSERT INTO
+          map_markers (player_id, tile_id, description, color)
+        VALUES
+          ($player_id, $tile_id, $description, $color);
+      `,
+      bind: {
+        $player_id: playerId,
+        $tile_id: tileId,
+        $description: description,
+        $color: color,
+      },
+    });
   });
 });
 

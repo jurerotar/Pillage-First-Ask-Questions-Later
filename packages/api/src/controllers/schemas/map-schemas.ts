@@ -57,5 +57,7 @@ export const getTileWorldItemSchema = z
 export const getMapMarkersSchema = z
   .strictObject({
     tile_id: z.number(),
+    description: z.string(),
+    color: z.string().regex(/^#[\dA-Fa-f]{6}$/),
   })
   .meta({ id: 'GetMapMarkersRow' });

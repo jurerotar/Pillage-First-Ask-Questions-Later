@@ -268,14 +268,18 @@ const MapPageContents = () => {
       }
 
       const tile = map[tileId - 1];
+      const mapMarker = mapMarkers.find((marker) => marker.tileId === tileId);
 
       return (
         <Suspense fallback={null}>
-          <TileTooltip tile={tile} />
+          <TileTooltip
+            mapMarker={mapMarker}
+            tile={tile}
+          />
         </Suspense>
       );
     },
-    [map],
+    [map, mapMarkers],
   );
 
   return (
@@ -285,7 +289,12 @@ const MapPageContents = () => {
         onOpenChange={toggleModal}
       >
         <Suspense fallback={null}>
-          <TileDialog tile={modalArgs.current!} />
+          <TileDialog
+            createMapMarker={createMapMarker}
+            deleteMapMarker={deleteMapMarker}
+            mapMarkers={mapMarkers}
+            tile={modalArgs.current!}
+          />
         </Suspense>
       </Dialog>
       <Tooltip

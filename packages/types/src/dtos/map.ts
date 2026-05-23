@@ -71,4 +71,6 @@ export const mapTileWorldItemDtoSchema = z.strictObject({
 
 export const mapMarkerDtoSchema = z.strictObject({
   tileId: z.number(),
+  description: z.string(),
+  color: z.string().regex(/^#[\dA-Fa-f]{6}$/, 'Expected a hex color value'),
 });

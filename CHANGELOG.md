@@ -1,3 +1,10 @@
+## Version 0.4.25
+
+#### May 23, 2026
+
+* [Feature] Added the ability to mark map tiles with markers. You're able to attach a description and select a color for
+  the marker.
+
 ## Version 0.4.24
 
 #### May 21, 2026

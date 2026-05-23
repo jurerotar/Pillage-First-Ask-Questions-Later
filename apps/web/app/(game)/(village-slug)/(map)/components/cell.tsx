@@ -24,7 +24,11 @@ type CellBaseProps = {
   magnification: number;
   preferences: Preferences;
   mapMarkers: MapMarker[];
-  createMapMarker: (args: { tileId: number }) => void;
+  createMapMarker: (args: {
+    tileId: number;
+    description: string;
+    color: MapMarker['color'];
+  }) => void;
   deleteMapMarker: (args: { tileId: number }) => void;
   onClick: (tileId: number) => void;
   getReputation: ReturnType<typeof useReputations>['getReputation'];
@@ -44,16 +48,24 @@ const CellIcons = (props: CellIconsProps) => {
     shouldShowWheatFields,
   } = mapFilters;
 
-  const hasMarker = mapMarkers.some((marker) => marker.tileId === tile.id);
+  const marker = mapMarkers.find((marker) => marker.tileId === tile.id);
 
-  const classes = clsx(
+  const tileIconClasses = clsx(
     cellStyles['tile-icon'],
     cellStyles[`tile-icon-magnification-${magnification}`],
   );
 
-  if (hasMarker) {
+  const mapMarkerClasses = clsx(
+    'size-6',
+    cellStyles['map-marker'],
+    cellStyles[`map-marker-magnification-${magnification}`],
+  );
+
+  if (marker) {
     return (
       <Icon
+        className={mapMarkerClasses}
+        style={{ color: marker.color }}
         type="mapMarker"
         shouldShowTooltip={false}
       />
@@ -67,7 +79,7 @@ const CellIcons = (props: CellIconsProps) => {
   ) {
     return (
       <BorderIndicator
-        className={classes}
+        className={tileIconClasses}
         variant="yellow"
       >
         <Icon
@@ -89,7 +101,7 @@ const CellIcons = (props: CellIconsProps) => {
 
     return (
       <BorderIndicator
-        className={classes}
+        className={tileIconClasses}
         variant={tile.owner !== null ? 'red' : 'green'}
       >
         <Icon
@@ -103,7 +115,7 @@ const CellIcons = (props: CellIconsProps) => {
   if (shouldShowTreasureIcons && tile.type === 'free' && tile.item !== null) {
     return (
       <TreasureIcon
-        className={classes}
+        className={tileIconClasses}
         itemId={tile.item.id}
       />
     );
@@ -171,18 +183,6 @@ export const Cell = memo<CellProps>(
       !tile.attributes.isOccupiable &&
       BORDER_TILES_OASIS_VARIANTS.has(tile.attributes.oasisGraphics);
 
-    // const onContextMenu = (event: ReactMouseEvent) => {
-    //   event.preventDefault();
-    //
-    //   const hasMarker = mapMarkers.some((marker) => marker.tileId === tileId);
-    //
-    //   if (hasMarker) {
-    //     deleteMapMarker({ tileId });
-    //   } else {
-    //     createMapMarker({ tileId });
-    //   }
-    // };
-
     const className = isBorderTile
       ? clsx(
           cellStyles.tile,
@@ -198,7 +198,6 @@ export const Cell = memo<CellProps>(
     return (
       <button
         onClick={() => onClick(tileId)}
-        // onContextMenu={onContextMenu}
         type="button"
         style={style}
         data-tile-id={tileId}
