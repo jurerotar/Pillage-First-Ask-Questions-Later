@@ -42,6 +42,7 @@ import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
+import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
@@ -244,6 +245,9 @@ export const migrateAndSeed = (
     // Events
     db.exec({ sql: createEventsTable });
     eventsSeeder(db, server);
+
+    // Reports
+    db.exec({ sql: createReportsTable });
 
     // Meta table and write triggers
     db.exec({ sql: createMetaTable });

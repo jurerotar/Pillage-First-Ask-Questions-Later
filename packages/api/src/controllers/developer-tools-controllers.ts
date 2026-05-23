@@ -10,6 +10,7 @@ import {
 } from '../utils/village';
 import { mapDeveloperSettingsRowToDto } from './mappers/developer-tools-mapper';
 import { onHeroDeath } from './resolvers/utils/hero';
+import { insertReport } from './resolvers/utils/reports';
 import { getDeveloperSettingsRowSchema } from './schemas/developer-tools-schemas';
 import { materializeHeroAdventurePointsAt } from './utils/adventures';
 
@@ -263,4 +264,65 @@ export const killHero = createController(
   });
 
   onHeroDeath(database, now);
+});
+
+export const spawnFakeReport = createController(
+  '/developer-settings/:villageId/spawn-report',
+  'post',
+)(({ database, path: { villageId } }) => {
+  const village = database.selectObject({
+    sql: `
+      SELECT v.tile_id AS tile_id, t.x AS x, t.y AS y
+      FROM villages v
+      JOIN tiles t ON t.id = v.tile_id
+      WHERE v.id = $village_id;
+    `,
+    bind: { $village_id: villageId },
+    schema: z.strictObject({
+      tile_id: z.number(),
+      x: z.number(),
+      y: z.number(),
+    }),
+  });
+
+  if (!village) {
+    throw new Error('Village not found');
+  }
+
+  insertReport(database, {
+    type: 'attack',
+    timestamp: Date.now(),
+    villageId,
+    defenderTileId: village.tile_id,
+    outcome: 'attacker-wins',
+    payload: {
+      attacker: {
+        playerId: null,
+        villageId: null,
+        villageName: 'Fake attacker',
+        coordinates: { x: village.x + 5, y: village.y + 5 },
+      },
+      defender: {
+        playerId: null,
+        villageId,
+        villageName: 'You',
+        coordinates: { x: village.x, y: village.y },
+      },
+      attackers: [
+        { unitId: 'LEGIONNAIRE', amount: 100, losses: 12 },
+        { unitId: 'EQUITES_IMPERATORIS', amount: 20, losses: 3 },
+      ],
+      defenders: [
+        { unitId: 'PHALANX', amount: 50, losses: 50 },
+        { unitId: 'DRUIDRIDER', amount: 10, losses: 10 },
+      ],
+      bonuses: {
+        wallDefenceBonus: 1.31,
+        wallDefenceBase: 100,
+        moralBonus: 1,
+        oasisDefenceBonus: 0,
+      },
+      loot: [500, 500, 500, 250],
+    },
+  });
 });

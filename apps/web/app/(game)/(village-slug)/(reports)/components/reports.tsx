@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { ReportFilters } from 'app/(game)/(village-slug)/(reports)/components/components/report-filters';
 import { useReportFilters } from 'app/(game)/(village-slug)/(reports)/hooks/use-report-filters';
 import {
@@ -6,12 +7,22 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Pagination } from 'app/components/ui/pagination';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
 
 export const Reports = () => {
   const { t } = useTranslation();
+  const { reports } = useReports();
   const {
     filters: reportFilters,
     onFiltersChange: onReportFiltersChange,
@@ -19,7 +30,8 @@ export const Reports = () => {
     handlePageChange,
   } = useReportFilters();
 
-  const pagination = usePagination([], 20, page);
+  const visibleReports = reports.filter((r) => reportFilters.includes(r.type));
+  const pagination = usePagination(visibleReports, 20, page);
 
   return (
     <Section>
@@ -35,9 +47,36 @@ export const Reports = () => {
         reportFilters={reportFilters}
         onChange={onReportFiltersChange}
       />
-      <Alert variant="warning">
-        {t('This page is still under development')}
-      </Alert>
+
+      {pagination.currentPageItems.length === 0 ? (
+        <Alert variant="info">{t('No reports to display')}</Alert>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell>{t('Type')}</TableHeaderCell>
+              <TableHeaderCell>{t('Outcome')}</TableHeaderCell>
+              <TableHeaderCell>{t('When')}</TableHeaderCell>
+              <TableHeaderCell />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pagination.currentPageItems.map((report) => (
+              <TableRow key={report.id}>
+                <TableCell>{t(report.type)}</TableCell>
+                <TableCell>{t(report.outcome)}</TableCell>
+                <TableCell>
+                  {new Date(report.timestamp).toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <Link to={`./${report.id}`}>{t('View')}</Link>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
       <div className="flex w-full justify-end">
         <Pagination
           {...pagination}

@@ -8,6 +8,7 @@ import {
   incrementHeroAdventurePoints,
   killHero,
   levelUpHero,
+  spawnFakeReport,
   spawnHeroItem,
   updateDeveloperSettings,
   updateVillageResources,
@@ -87,6 +88,7 @@ import {
 import {
   deleteReport,
   getMyReports,
+  getReportById,
   getUnreadReportCount,
   updateReport,
 } from '../controllers/report-controllers';
@@ -127,6 +129,7 @@ const apiRoutes: Route[] = [
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
   createRoute(killHero),
+  createRoute(spawnFakeReport),
 
   // Auctions
   // createRoute(getAuctions),
@@ -214,6 +217,7 @@ const apiRoutes: Route[] = [
 
   // Reports
   createRoute(getMyReports),
+  createRoute(getReportById),
   createRoute(updateReport),
   createRoute(deleteReport),
   createRoute(getUnreadReportCount),

@@ -40,6 +40,10 @@ import {
   villageTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import {
+  reportDtoSchema,
+  reportListItemDtoSchema,
+} from '@pillage-first/types/dtos/report';
+import {
   playerRankingItemDtoSchema,
   serverOverviewStatisticsDtoSchema,
   villageRankingItemDtoSchema,
@@ -62,6 +66,7 @@ import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout'
 import { playerSchema } from '@pillage-first/types/models/player';
 import { preferencesSchema } from '@pillage-first/types/models/preferences';
 import { questSchema } from '@pillage-first/types/models/quest';
+import { reportTagSchema } from '@pillage-first/types/models/report';
 import { reputationSchema } from '@pillage-first/types/models/reputation';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
@@ -659,6 +664,21 @@ export const paths = {
       responses: {
         '204': {
           description: 'Hero killed',
+        },
+      },
+    },
+  },
+  '/developer-settings/:villageId/spawn-report': {
+    post: {
+      summary: 'Spawn fake battle report',
+      requestParams: {
+        path: z.strictObject({
+          villageId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '204': {
+          description: 'Report spawned',
         },
       },
     },
@@ -1726,14 +1746,7 @@ export const paths = {
           description: 'List of reports',
           content: {
             'application/json': {
-              schema: z.array(
-                z.strictObject({
-                  id: z.string(),
-                  tags: z.array(z.enum(['read', 'archived'])),
-                  timestamp: z.number().int(),
-                  villageId: z.number().int(),
-                }),
-              ),
+              schema: z.array(reportListItemDtoSchema),
             },
           },
         },
@@ -1761,18 +1774,36 @@ export const paths = {
     },
   },
   '/reports/:reportId': {
+    get: {
+      summary: 'Get report by id',
+      requestParams: {
+        path: z.strictObject({
+          reportId: z.coerce.number(),
+        }),
+      },
+      responses: {
+        '200': {
+          description: 'Report',
+          content: {
+            'application/json': {
+              schema: reportDtoSchema,
+            },
+          },
+        },
+      },
+    },
     patch: {
       summary: 'Update report',
       requestParams: {
         path: z.strictObject({
-          reportId: z.string(),
+          reportId: z.coerce.number(),
         }),
       },
       requestBody: {
         content: {
           'application/json': {
             schema: z.strictObject({
-              tag: z.enum(['read', 'archived']),
+              tag: reportTagSchema,
             }),
           },
         },
@@ -1787,7 +1818,7 @@ export const paths = {
       summary: 'Delete report',
       requestParams: {
         path: z.strictObject({
-          reportId: z.string(),
+          reportId: z.coerce.number(),
         }),
       },
       responses: {

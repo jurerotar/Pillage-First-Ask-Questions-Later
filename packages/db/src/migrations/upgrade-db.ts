@@ -88,6 +88,37 @@ export const upgradeDb = (database: DbFacade): void => {
       `,
     });
 
+    db.exec({
+      sql: `
+        CREATE TABLE IF NOT EXISTS reports
+        (
+          id INTEGER PRIMARY KEY,
+          type TEXT NOT NULL,
+          timestamp INTEGER NOT NULL,
+          village_id INTEGER NOT NULL,
+          defender_tile_id INTEGER NOT NULL,
+          outcome TEXT NOT NULL,
+          tags TEXT NOT NULL DEFAULT '[]',
+          payload TEXT NOT NULL,
+
+          FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE,
+          FOREIGN KEY (defender_tile_id) REFERENCES tiles (id) ON DELETE CASCADE
+        ) STRICT;
+      `,
+    });
+
+    db.exec({
+      sql: `
+        CREATE INDEX IF NOT EXISTS idx_reports_village_id ON reports (village_id);
+      `,
+    });
+
+    db.exec({
+      sql: `
+        CREATE INDEX IF NOT EXISTS idx_reports_timestamp ON reports (timestamp);
+      `,
+    });
+
     // Normalize legacy village_founding_history timestamps from milliseconds to seconds
     // Some historical rows were inserted by JS in milliseconds. Since triggers now set
     // timestamps via unixepoch() (seconds), convert any ms values at rest.

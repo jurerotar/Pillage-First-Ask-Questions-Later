@@ -13,6 +13,7 @@ import {
   heroCacheKey,
   heroInventoryCacheKey,
   heroLoadoutCacheKey,
+  reportsCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -162,6 +163,19 @@ export const useDeveloperSettings = () => {
     },
   });
 
+  const { mutate: spawnFakeReport } = useMutation<void>({
+    mutationFn: async () => {
+      await apiClient.post('/developer-settings/:villageId/spawn-report', {
+        path: {
+          villageId: currentVillage.id,
+        },
+      });
+    },
+    onSuccess: async (_, _args, _onMutateResult, context) => {
+      await invalidateQueries(context, [[reportsCacheKey]]);
+    },
+  });
+
   return {
     developerSettings,
     updateDeveloperSetting,
@@ -170,5 +184,6 @@ export const useDeveloperSettings = () => {
     levelUpHero,
     incrementHeroAdventurePoints,
     killHero,
+    spawnFakeReport,
   };
 };

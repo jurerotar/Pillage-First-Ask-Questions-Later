@@ -60,6 +60,9 @@
     "./dtos/oasis-search": {
       "default": "./src/dtos/oasis-search.ts"
     },
+    "./dtos/report": {
+      "default": "./src/dtos/report.ts"
+    },
     "./dtos/troop-movement": {
       "default": "./src/dtos/troop-movement.ts"
     },
