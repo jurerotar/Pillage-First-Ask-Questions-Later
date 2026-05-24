@@ -61,8 +61,4 @@ export const batchInsert = (
     const stmt = getStmt(batchEnd - i);
     stmt.bind(params).stepReset();
   }
-
-  for (const s of stmts.values()) {
-    s.finalize();
-  }
 };

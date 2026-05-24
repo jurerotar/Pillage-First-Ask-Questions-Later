@@ -1,12 +1,21 @@
 import { prngMulberry32 } from 'ts-seedrandom';
-import { z } from 'zod';
-import {
-  type ResourceFieldComposition,
-  resourceFieldCompositionSchema,
-} from '@pillage-first/types/models/resource-field-composition';
+import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { seededRandomArrayElement } from '@pillage-first/utils/random';
+
+type FreeTileRow = {
+  id: number;
+  x: number;
+  y: number;
+  resource_field_composition: ResourceFieldComposition;
+};
+
+type WheatOasisRow = {
+  id: number;
+  x: number;
+  y: number;
+};
 
 // There should be at least some "good" croppers. This means 18c/15c with 150% bonus
 export const guaranteedCroppersSeeder = (
@@ -15,32 +24,70 @@ export const guaranteedCroppersSeeder = (
 ): void => {
   const prng = prngMulberry32(server.seed);
 
-  const tilesWith3Unique50PercentWheatBonuses = database.selectObjects({
+  const freeTileStatement = database.prepare({
     sql: `
       SELECT
         t.id,
+        t.x,
+        t.y,
         rfc.resource_field_composition
+      FROM
+        tiles t
+          JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
+      WHERE
+        t.type = 'free'
+      ORDER BY
+        t.id;
+    `,
+  });
+
+  const freeTiles: FreeTileRow[] = [];
+  const freeTilesByCoordinates = new Map<`${number}-${number}`, FreeTileRow>();
+
+  while (freeTileStatement.step()) {
+    const tile = freeTileStatement.get({}) as FreeTileRow;
+    freeTiles.push(tile);
+    freeTilesByCoordinates.set(`${tile.x}-${tile.y}`, tile);
+  }
+  freeTileStatement.reset();
+
+  const wheatOasisStatement = database.prepare({
+    sql: `
+      SELECT DISTINCT
+        ot.id,
+        ot.x,
+        ot.y
       FROM
         oasis o
           JOIN tiles ot ON ot.id = o.tile_id
-          JOIN tiles t ON t.x BETWEEN ot.x - 3 AND ot.x + 3
-                    AND t.y BETWEEN ot.y - 3 AND ot.y + 3
-          LEFT JOIN resource_field_composition_ids rfc
-                    ON rfc.id = t.resource_field_composition_id
       WHERE
         o.resource = 'wheat'
         AND o.bonus = 50
-        AND t.type = 'free'
-      GROUP BY
-        t.id, rfc.resource_field_composition
-      HAVING
-        COUNT(DISTINCT o.tile_id) >= 3;
+      ORDER BY
+        ot.id;
     `,
-    schema: z.strictObject({
-      id: z.number(),
-      resource_field_composition: resourceFieldCompositionSchema,
-    }),
   });
+
+  const nearbyWheatOasisCountByTileId = new Map<number, number>();
+
+  while (wheatOasisStatement.step()) {
+    const oasis = wheatOasisStatement.get({}) as WheatOasisRow;
+    for (let x = oasis.x - 3; x <= oasis.x + 3; x += 1) {
+      for (let y = oasis.y - 3; y <= oasis.y + 3; y += 1) {
+        const tile = freeTilesByCoordinates.get(`${x}-${y}`);
+
+        if (!tile) {
+          continue;
+        }
+
+        nearbyWheatOasisCountByTileId.set(
+          tile.id,
+          (nearbyWheatOasisCountByTileId.get(tile.id) ?? 0) + 1,
+        );
+      }
+    }
+  }
+  wheatOasisStatement.reset();
 
   const tileIdsEligibleForRFCChange = new Set<number>();
 
@@ -48,10 +95,11 @@ export const guaranteedCroppersSeeder = (
   const fifteenCropperTileIds = new Set<number>();
   const nineCropperTileIds = new Set<number>();
 
-  for (const {
-    id,
-    resource_field_composition,
-  } of tilesWith3Unique50PercentWheatBonuses) {
+  for (const { id, resource_field_composition } of freeTiles) {
+    if ((nearbyWheatOasisCountByTileId.get(id) ?? 0) < 3) {
+      continue;
+    }
+
     if (resource_field_composition === '00018') {
       eighteenCropperTileIds.add(id);
       continue;
