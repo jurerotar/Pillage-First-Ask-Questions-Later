@@ -1,4 +1,8 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { use } from 'react';
 import type { Report, ReportTag } from '@pillage-first/types/models/report';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
@@ -10,6 +14,7 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 
 export const useReport = (reportId: Report['id']) => {
   const { apiClient } = use(ApiContext);
+  const queryClient = useQueryClient();
 
   const { data: report } = useSuspenseQuery({
     queryKey: [reportCacheKey, reportId],
@@ -21,7 +26,19 @@ export const useReport = (reportId: Report['id']) => {
     },
   });
 
-  return { report };
+  const { mutate: markAsRead } = useMutation({
+    mutationFn: async () => {
+      await apiClient.patch('/reports/:reportId', {
+        path: { reportId },
+        body: { tag: 'read' as ReportTag },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [reportsCacheKey] });
+    },
+  });
+
+  return { report, markAsRead };
 };
 
 export const useReports = () => {

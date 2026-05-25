@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import { useReport } from 'app/(game)/(village-slug)/hooks/use-reports';
@@ -22,7 +23,11 @@ import {
 const ReportPage = ({ params }: Route.ComponentProps) => {
   const { reportId, villageSlug, serverSlug } = params;
   const { t } = useTranslation();
-  const { report } = useReport(Number(reportId));
+  const { report, markAsRead } = useReport(Number(reportId));
+
+  useEffect(() => {
+    markAsRead();
+  }, [markAsRead]);
 
   const title = `${t('Report - {{reportId}}', { reportId })} | Pillage First! - ${serverSlug} - ${villageSlug}`;
   const { attacker, defender, attackers, defenders, bonuses, loot } =
