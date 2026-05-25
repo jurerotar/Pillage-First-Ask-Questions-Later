@@ -1,3 +1,9 @@
+## Version 0.4.26
+
+#### May 25, 2026
+
+* [Performance] Improved game world creation speed. Tests indicate between 35% to 40% speed increase.
+
 ## Version 0.4.25
 
 #### May 23, 2026
