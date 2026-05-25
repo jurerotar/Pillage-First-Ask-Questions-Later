@@ -186,13 +186,15 @@ describe('map-controllers', () => {
 
     const playerId = 1;
     const tileId = 123;
+    const description = 'Forward village target';
+    const color = '#2563eb';
 
     // 1. Add marker
     addMapMarker(
       database,
       createControllerArgs<'/players/:playerId/map-markers', 'post'>({
         path: { playerId },
-        body: { tileId },
+        body: { tileId, description, color },
       }),
     );
 
@@ -205,7 +207,33 @@ describe('map-controllers', () => {
     );
 
     expect(markers).toHaveLength(1);
-    expect(markers[0]).toStrictEqual({ tileId });
+    expect(markers[0]).toStrictEqual({ tileId, description, color });
+
+    addMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
+        path: { playerId },
+        body: {
+          tileId,
+          description: 'Updated target',
+          color: '#16a34a',
+        },
+      }),
+    );
+
+    const updatedMarkers = getMapMarkers(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(updatedMarkers).toHaveLength(1);
+    expect(updatedMarkers[0]).toStrictEqual({
+      tileId,
+      description: 'Updated target',
+      color: '#16a34a',
+    });
 
     // 3. Remove marker
     removeMapMarker(
@@ -224,5 +252,65 @@ describe('map-controllers', () => {
     );
 
     expect(markersAfterRemoval).toHaveLength(0);
+  });
+
+  test('getMapMarkers should add a generic description when marker description is missing', async () => {
+    const database = await prepareTestDatabase();
+
+    const playerId = 1;
+
+    addMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
+        path: { playerId },
+        body: {
+          tileId: 123,
+          description: 'Forward village target',
+          color: '#2563eb',
+        },
+      }),
+    );
+
+    addMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
+        path: { playerId },
+        body: {
+          tileId: 124,
+          description: '',
+          color: '#dc2626',
+        },
+      }),
+    );
+
+    addMapMarker(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers', 'post'>({
+        path: { playerId },
+        body: {
+          tileId: 125,
+          description: '   ',
+          color: '#16a34a',
+        },
+      }),
+    );
+
+    const markers = getMapMarkers(
+      database,
+      createControllerArgs<'/players/:playerId/map-markers'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(markers).toContainEqual({
+      tileId: 124,
+      description: 'Map marker 2',
+      color: '#dc2626',
+    });
+    expect(markers).toContainEqual({
+      tileId: 125,
+      description: 'Map marker 3',
+      color: '#16a34a',
+    });
   });
 });

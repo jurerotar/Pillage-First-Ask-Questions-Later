@@ -15,6 +15,28 @@ export const upgradeDb = (database: DbFacade): void => {
       // Column already exists on newer databases.
     }
 
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE map_markers
+          ADD COLUMN description TEXT NOT NULL DEFAULT '';
+        `,
+      });
+    } catch {
+      // Column already exists on newer databases.
+    }
+
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE map_markers
+          ADD COLUMN color TEXT NOT NULL DEFAULT '#dc2626';
+        `,
+      });
+    } catch {
+      // Column already exists on newer databases.
+    }
+
     db.exec({
       sql: `
         UPDATE hero_adventures

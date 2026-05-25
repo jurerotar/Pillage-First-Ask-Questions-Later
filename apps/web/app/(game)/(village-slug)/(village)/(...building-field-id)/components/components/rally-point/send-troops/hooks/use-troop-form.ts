@@ -22,7 +22,7 @@ type TroopFormOptions<T extends FieldValues> = {
 };
 
 export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
-  schema: z.ZodSchema<T>,
+  schema: z.ZodType<T, FieldValues>,
   options: TroopFormOptions<T>,
 ) => {
   const {
@@ -92,9 +92,8 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     [defaultValues, initialTarget, initialUnits],
   );
 
-  const form = useForm<T>({
-    // Unsure if this can be typed more strictly :(
-    resolver: zodResolver(schema as any),
+  const form = useForm<FieldValues, unknown, T>({
+    resolver: zodResolver(schema),
     defaultValues: initialValues,
   });
 

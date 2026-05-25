@@ -3,6 +3,8 @@ CREATE TABLE map_markers
   id INTEGER PRIMARY KEY,
   player_id INTEGER NOT NULL,
   tile_id INTEGER NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  color TEXT NOT NULL DEFAULT '#dc2626',
 
   FOREIGN KEY (tile_id) REFERENCES tiles (id) ON DELETE CASCADE,
   FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE

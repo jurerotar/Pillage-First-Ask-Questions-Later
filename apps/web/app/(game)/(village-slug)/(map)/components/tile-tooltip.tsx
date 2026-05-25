@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
+import type { MapMarker } from '@pillage-first/types/models/map-marker';
 import type {
   OasisTile,
   OccupiableTile,
@@ -31,6 +32,32 @@ import { Skeleton } from 'app/components/ui/skeleton';
 
 type TileTooltipProps = {
   tile: Tile;
+};
+
+type TileTooltipMarkerDescriptionProps = {
+  mapMarker?: MapMarker;
+};
+
+const TileTooltipMarkerDescription = ({
+  mapMarker,
+}: TileTooltipMarkerDescriptionProps) => {
+  if (!mapMarker?.description) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-1 border-t border-border py-1">
+      <span className="flex items-center gap-1 font-semibold">
+        <Icon
+          className="size-4"
+          shouldShowTooltip={false}
+          style={{ color: mapMarker.color }}
+          type="mapMarker"
+        />
+        <span className="text-gray-300">{mapMarker.description}</span>
+      </span>
+    </div>
+  );
 };
 
 const TileTooltipLocation = ({ tile }: TileTooltipProps) => {
@@ -257,13 +284,17 @@ const TileTooltipSkeleton = ({ count }: TileTooltipSkeletonProps) => {
   );
 };
 
-export const TileTooltip = ({ tile }: TileTooltipProps) => {
+type TileTooltipRootProps = TileTooltipProps &
+  TileTooltipMarkerDescriptionProps;
+
+export const TileTooltip = ({ tile, mapMarker }: TileTooltipRootProps) => {
   if (isOasisTile(tile)) {
     return (
       <div className="flex flex-col gap-1">
         <Suspense fallback={<TileTooltipSkeleton count={3} />}>
           <OasisTileTooltip tile={tile} />
         </Suspense>
+        <TileTooltipMarkerDescription mapMarker={mapMarker} />
       </div>
     );
   }
@@ -274,6 +305,7 @@ export const TileTooltip = ({ tile }: TileTooltipProps) => {
         <Suspense fallback={<TileTooltipSkeleton count={7} />}>
           <OccupiedOccupiableTileTooltip tile={tile} />
         </Suspense>
+        <TileTooltipMarkerDescription mapMarker={mapMarker} />
       </div>
     );
   }
@@ -281,6 +313,7 @@ export const TileTooltip = ({ tile }: TileTooltipProps) => {
   return (
     <div className="flex flex-col gap-1">
       <OccupiableTileTooltip tile={tile as OccupiableTile} />
+      <TileTooltipMarkerDescription mapMarker={mapMarker} />
     </div>
   );
 };
