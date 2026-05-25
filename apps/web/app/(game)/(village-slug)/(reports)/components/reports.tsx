@@ -61,18 +61,25 @@ export const Reports = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {pagination.currentPageItems.map((report) => (
-              <TableRow key={report.id}>
-                <TableCell>{t(report.type)}</TableCell>
-                <TableCell>{t(report.outcome)}</TableCell>
-                <TableCell>
-                  {new Date(report.timestamp).toLocaleString()}
-                </TableCell>
-                <TableCell>
-                  <Link to={`./${report.id}`}>{t('View')}</Link>
-                </TableCell>
-              </TableRow>
-            ))}
+            {pagination.currentPageItems.map((report) => {
+              const isUnread = !report.tags.includes('read');
+              return (
+                <TableRow key={report.id}>
+                  <TableCell className={isUnread ? 'font-semibold' : undefined}>
+                    {t(report.type)}
+                  </TableCell>
+                  <TableCell className={isUnread ? 'font-semibold' : undefined}>
+                    {t(report.outcome)}
+                  </TableCell>
+                  <TableCell className={isUnread ? 'font-semibold' : undefined}>
+                    {new Date(report.timestamp).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    <Link to={`./${report.id}`}>{t('View')}</Link>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       )}
