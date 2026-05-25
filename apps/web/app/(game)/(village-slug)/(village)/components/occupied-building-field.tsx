@@ -8,7 +8,7 @@ import type { BuildingField as BuildingFieldType } from '@pillage-first/types/mo
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
 import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';
-import { useUpgradeBuildingAction } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
+import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { VillageMapContext } from 'app/(game)/(village-slug)/(village)/providers/village-map-context';
 import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/building-upgrade-indicator';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
@@ -127,10 +127,7 @@ const OccupiedBuildingFieldActive = ({
     () => ({ canUpgrade, errorBag: [], variant }),
     [canUpgrade, variant],
   );
-  const { upgradeBuilding } = useUpgradeBuildingAction(
-    buildingId,
-    buildingFieldId,
-  );
+  const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
 
   const onLongPress = () => {
     if (canUpgrade) {
