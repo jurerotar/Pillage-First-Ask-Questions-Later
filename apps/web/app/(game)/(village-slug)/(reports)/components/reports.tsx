@@ -67,7 +67,11 @@ export const Reports = () => {
               return (
                 <TableRow
                   key={report.id}
-                  className={`cursor-pointer hover:brightness-95 ${isUnread ? 'bg-green-50 dark:bg-green-950/20' : ''}`}
+                  className={
+                    isUnread
+                      ? 'cursor-pointer bg-green-50 hover:bg-green-100 dark:bg-green-950/20 dark:hover:bg-green-950/40'
+                      : 'cursor-pointer hover:bg-muted/50'
+                  }
                   onClick={() => navigate(`./${report.id}`)}
                 >
                   <TableCell>
