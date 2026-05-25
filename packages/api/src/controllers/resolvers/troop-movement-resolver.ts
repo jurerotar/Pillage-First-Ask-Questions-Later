@@ -662,8 +662,8 @@ const resolveCombatMovement = (
     })
     .filter(({ amount }) => amount > 0);
 
-  // Loot: attacker wins and there is a defender village with resources to steal
-  let loot: [number, number, number, number] | undefined;
+  // Loot: always report [0,0,0,0] for attack/raid; populate real values when attacker wins
+  const loot: [number, number, number, number] = [0, 0, 0, 0];
   if (
     battleResult.outcome === 'attacker-wins' &&
     defenderVillage !== null &&
@@ -681,22 +681,24 @@ const resolveCombatMovement = (
         resolvesAt,
       );
 
-    loot = calculateLoot(
+    const calculated = calculateLoot(
       [currentWood, currentClay, currentIron, currentWheat],
       crannyCapacity,
       carryCapacity,
     );
 
-    const hasLoot = loot.some((r) => r > 0);
-    if (hasLoot) {
+    loot[0] = calculated[0];
+    loot[1] = calculated[1];
+    loot[2] = calculated[2];
+    loot[3] = calculated[3];
+
+    if (calculated.some((r) => r > 0)) {
       subtractVillageResourcesAt(
         database,
         defenderVillage.villageId,
         resolvesAt,
-        loot,
+        calculated,
       );
-    } else {
-      loot = undefined;
     }
   }
 
@@ -731,7 +733,8 @@ const resolveCombatMovement = (
       type: 'troopMovementReturn',
       originalMovementType:
         attackerType === 'attack' ? 'troopMovementAttack' : 'troopMovementRaid',
-      loot,
+      // Only carry loot in transit when there's something to deliver
+      loot: loot.some((r) => r > 0) ? loot : undefined,
     });
   }
 };
