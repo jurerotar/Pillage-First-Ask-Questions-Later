@@ -230,6 +230,18 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
         </Suspense>
       )}
       {isOccupied && <TileModalPlayerInfo tile={tile} />}
+      {isOccupiable && (
+        <div className="flex flex-col gap-2">
+          <Text as="h3">{t('Actions')}</Text>
+          <Text variant="link">
+            <Link
+              to={`../village/39?tab=send-troops&rally-point-send-troops-tab=attack-or-raid&x=${tile.coordinates.x}&y=${tile.coordinates.y}`}
+            >
+              {t('Attack or raid')}
+            </Link>
+          </Text>
+        </div>
+      )}
     </DialogHeader>
   );
 };
@@ -372,7 +384,15 @@ const OccupiedOccupiableTileModal = ({
       <TileModalPlayerInfo tile={tile} />
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
+        {!isOwnedByPlayer && (
+          <Text variant="link">
+            <Link
+              to={`../village/39?tab=send-troops&rally-point-send-troops-tab=attack-or-raid&x=${tile.coordinates.x}&y=${tile.coordinates.y}`}
+            >
+              {t('Attack or raid')}
+            </Link>
+          </Text>
+        )}
         {isOwnedByPlayer && tile.id !== currentVillage.id && (
           <Text variant="link">
             <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>

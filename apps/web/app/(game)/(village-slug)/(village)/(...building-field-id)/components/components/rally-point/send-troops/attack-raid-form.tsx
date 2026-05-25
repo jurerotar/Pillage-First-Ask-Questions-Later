@@ -31,7 +31,7 @@ const attackRaidFormSchema = baseTroopFormSchema.extend({
   action: z.enum(['attack_normal', 'attack_raid']),
 });
 
-const IS_ATTACK_FORM_ENABLED = false;
+const IS_ATTACK_FORM_ENABLED = true;
 
 export const AttackRaidForm = () => {
   const { t } = useTranslation();
