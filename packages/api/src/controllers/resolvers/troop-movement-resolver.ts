@@ -16,13 +16,23 @@ import type { UnitId } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import type { Resolver } from '../../types/resolver';
 import { updateHeroEffectsVillageIdQuery } from '../../utils/queries/effect-queries';
-import { updateVillageResourcesAt } from '../../utils/village';
+import {
+  addVillageResourcesAt,
+  calculateVillageResourcesAt,
+  subtractVillageResourcesAt,
+  updateVillageResourcesAt,
+} from '../../utils/village';
 import { createEvents } from '../utils/create-event';
 import { type BattleSide, resolveBattle } from './utils/battle';
 import {
   createHeroHealthRegenerationEventByVillageId,
   onHeroDeath,
 } from './utils/hero';
+import {
+  calculateLoot,
+  getCrannyCapacity,
+  sumCarryCapacity,
+} from './utils/loot';
 import { assessAdventureCountQuestCompletion } from './utils/quests';
 import { insertReport } from './utils/reports';
 import { addTroops, getDefendersAtTile, removeTroops } from './utils/troops';
@@ -418,6 +428,9 @@ export const returnMovementResolver: Resolver<
   const {
     targetCoordinates: { x, y },
     troops,
+    villageId,
+    resolvesAt,
+    loot,
   } = args;
 
   const { tileId: targetTileId } = database.selectObject({
@@ -433,6 +446,10 @@ export const returnMovementResolver: Resolver<
       tileId: targetTileId,
     })),
   );
+
+  if (loot) {
+    addVillageResourcesAt(database, villageId, resolvesAt, loot);
+  }
 };
 
 export const relocationMovementResolver: Resolver<
@@ -635,6 +652,54 @@ const resolveCombatMovement = (
     coordinates: targetCoordinates,
   };
 
+  // Only dispatch return movement if any attackers survived
+  const survivingTroops = troops
+    .map((troop) => {
+      const lossRecord = battleResult.attackerLosses.find(
+        (l) => l.unitId === troop.unitId,
+      );
+      return { ...troop, amount: troop.amount - (lossRecord?.losses ?? 0) };
+    })
+    .filter(({ amount }) => amount > 0);
+
+  // Loot: attacker wins and there is a defender village with resources to steal
+  let loot: [number, number, number, number] | undefined;
+  if (
+    battleResult.outcome === 'attacker-wins' &&
+    defenderVillage !== null &&
+    survivingTroops.length > 0
+  ) {
+    const carryCapacity = sumCarryCapacity(survivingTroops);
+    const crannyCapacity = getCrannyCapacity(
+      database,
+      defenderVillage.villageId,
+    );
+    const { currentWood, currentClay, currentIron, currentWheat } =
+      calculateVillageResourcesAt(
+        database,
+        defenderVillage.villageId,
+        resolvesAt,
+      );
+
+    loot = calculateLoot(
+      [currentWood, currentClay, currentIron, currentWheat],
+      crannyCapacity,
+      carryCapacity,
+    );
+
+    const hasLoot = loot.some((r) => r > 0);
+    if (hasLoot) {
+      subtractVillageResourcesAt(
+        database,
+        defenderVillage.villageId,
+        resolvesAt,
+        loot,
+      );
+    } else {
+      loot = undefined;
+    }
+  }
+
   insertReport(database, {
     type: attackerType,
     timestamp: resolvesAt,
@@ -652,18 +717,9 @@ const resolveCombatMovement = (
         moralBonus: 1,
         oasisDefenceBonus: 0,
       },
+      loot,
     },
   });
-
-  // Only dispatch return movement if any attackers survived
-  const survivingTroops = troops
-    .map((troop) => {
-      const lossRecord = battleResult.attackerLosses.find(
-        (l) => l.unitId === troop.unitId,
-      );
-      return { ...troop, amount: troop.amount - (lossRecord?.losses ?? 0) };
-    })
-    .filter(({ amount }) => amount > 0);
 
   if (survivingTroops.length > 0) {
     createEvents<'troopMovementReturn'>(database, {
@@ -675,6 +731,7 @@ const resolveCombatMovement = (
       type: 'troopMovementReturn',
       originalMovementType:
         attackerType === 'attack' ? 'troopMovementAttack' : 'troopMovementRaid',
+      loot,
     });
   }
 };
