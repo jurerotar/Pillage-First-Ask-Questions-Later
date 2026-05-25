@@ -1,5 +1,38 @@
+import { z } from 'zod';
 import type { Troop } from '@pillage-first/types/models/troop';
+import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+
+export type StationedTroop = {
+  unitId: UnitId;
+  amount: number;
+  source: number;
+};
+
+export const getDefendersAtTile = (
+  database: DbFacade,
+  tileId: number,
+): StationedTroop[] => {
+  return database.selectObjects({
+    sql: `
+      SELECT
+        ui.unit AS unitId,
+        t.amount,
+        t.source_tile_id AS source
+      FROM
+        troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+      WHERE
+        t.tile_id = $tile_id;
+    `,
+    bind: { $tile_id: tileId },
+    schema: z.strictObject({
+      unitId: unitIdSchema,
+      amount: z.number(),
+      source: z.number(),
+    }),
+  });
+};
 
 export const addTroops = (database: DbFacade, troops: Troop[]) => {
   const stmt = database.prepare({

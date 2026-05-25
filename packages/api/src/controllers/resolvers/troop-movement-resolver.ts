@@ -8,18 +8,91 @@ import {
   buildingIdSchema,
 } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { ReportParty } from '@pillage-first/types/models/report';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import type { Troop } from '@pillage-first/types/models/troop';
+import type { UnitId } from '@pillage-first/types/models/unit';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import type { Resolver } from '../../types/resolver';
 import { updateHeroEffectsVillageIdQuery } from '../../utils/queries/effect-queries';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
+import { type BattleSide, resolveBattle } from './utils/battle';
 import {
   createHeroHealthRegenerationEventByVillageId,
   onHeroDeath,
 } from './utils/hero';
 import { assessAdventureCountQuestCompletion } from './utils/quests';
-import { addTroops } from './utils/troops';
+import { insertReport } from './utils/reports';
+import { addTroops, getDefendersAtTile, removeTroops } from './utils/troops';
+
+const getTileIdByCoordinates = (
+  database: DbFacade,
+  x: number,
+  y: number,
+): number => {
+  return database.selectObject({
+    sql: 'SELECT id AS tileId FROM tiles WHERE x = $x AND y = $y;',
+    bind: { $x: x, $y: y },
+    schema: z.strictObject({ tileId: z.number() }),
+  })!.tileId;
+};
+
+const getVillageAtTile = (
+  database: DbFacade,
+  tileId: number,
+): { villageId: number; villageName: string; playerId: number } | null => {
+  return (
+    database.selectObject({
+      sql: `
+        SELECT
+          v.id AS villageId,
+          v.name AS villageName,
+          v.player_id AS playerId
+        FROM
+          villages v
+        WHERE
+          v.tile_id = $tile_id;
+      `,
+      bind: { $tile_id: tileId },
+      schema: z.strictObject({
+        villageId: z.number(),
+        villageName: z.string(),
+        playerId: z.number(),
+      }),
+    }) ?? null
+  );
+};
+
+const getWallModifiers = (
+  database: DbFacade,
+  villageId: number,
+): { wallDefenceBonus: number; wallDefenceBase: number } => {
+  const row = database.selectObject({
+    sql: `
+      SELECT
+        COALESCE(SUM(CASE WHEN e.type = 'bonus' THEN e.value END), 1) AS wallDefenceBonus,
+        COALESCE(SUM(CASE WHEN e.type = 'base' THEN e.value END), 0) AS wallDefenceBase
+      FROM
+        effects e
+          JOIN effect_ids ei ON ei.id = e.effect_id
+      WHERE
+        ei.effect = 'infantryDefence'
+        AND e.village_id = $village_id
+        AND e.source = 'building';
+    `,
+    bind: { $village_id: villageId },
+    schema: z.strictObject({
+      wallDefenceBonus: z.number(),
+      wallDefenceBase: z.number(),
+    }),
+  });
+  return {
+    wallDefenceBonus: row?.wallDefenceBonus ?? 1,
+    wallDefenceBase: row?.wallDefenceBase ?? 0,
+  };
+};
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
@@ -445,49 +518,176 @@ export const reinforcementMovementResolver: Resolver<
   );
 };
 
-export const attackMovementResolver: Resolver<
-  GameEvent<'troopMovementAttack'>
-> = (database, args) => {
+const resolveCombatMovement = (
+  database: DbFacade,
+  args: {
+    villageId: number;
+    resolvesAt: number;
+    originCoordinates: { x: number; y: number };
+    targetCoordinates: { x: number; y: number };
+    troops: Troop[];
+    attackerType: 'attack' | 'raid';
+  },
+) => {
   const {
     villageId,
     resolvesAt,
     originCoordinates,
     targetCoordinates,
     troops,
+    attackerType,
   } = args;
 
-  // TODO: Combat
-  createEvents<'troopMovementReturn'>(database, {
-    villageId,
-    troops,
-    targetCoordinates: originCoordinates,
-    originCoordinates: targetCoordinates,
-    startsAt: resolvesAt,
-    type: 'troopMovementReturn',
-    originalMovementType: 'troopMovementAttack',
+  const targetTileId = getTileIdByCoordinates(
+    database,
+    targetCoordinates.x,
+    targetCoordinates.y,
+  );
+
+  const defenderVillage = getVillageAtTile(database, targetTileId);
+
+  const stationedDefenders = getDefendersAtTile(database, targetTileId);
+
+  const { wallDefenceBonus, wallDefenceBase } = defenderVillage
+    ? getWallModifiers(database, defenderVillage.villageId)
+    : { wallDefenceBonus: 1, wallDefenceBase: 0 };
+
+  const attackerVillageName = database.selectObject({
+    sql: 'SELECT name AS villageName FROM villages WHERE id = $village_id;',
+    bind: { $village_id: villageId },
+    schema: z.strictObject({ villageName: z.string() }),
+  })!.villageName;
+
+  // Aggregate defenders by unitId (multiple stacks may exist from reinforcements)
+  const defenderStacksByUnit = new Map<
+    UnitId,
+    { amount: number; stacks: typeof stationedDefenders }
+  >();
+  for (const stationed of stationedDefenders) {
+    const existing = defenderStacksByUnit.get(stationed.unitId);
+    if (existing) {
+      existing.amount += stationed.amount;
+      existing.stacks.push(stationed);
+    } else {
+      defenderStacksByUnit.set(stationed.unitId, {
+        amount: stationed.amount,
+        stacks: [stationed],
+      });
+    }
+  }
+
+  const attackerSide: BattleSide = {
+    troops: troops.map(({ unitId, amount }) => ({ unitId, amount })),
+  };
+  const defenderSide: BattleSide = {
+    troops: Array.from(defenderStacksByUnit.entries()).map(
+      ([unitId, { amount }]) => ({ unitId, amount }),
+    ),
+  };
+
+  const battleResult = resolveBattle(attackerSide, defenderSide, {
+    wallDefenceBonus,
+    wallDefenceBase,
+    moralBonus: 1,
+    oasisDefenceBonus: 0,
+    attackerType,
   });
+
+  // Apply defender losses proportionally across source stacks
+  for (const { unitId, amount, losses } of battleResult.defenderLosses) {
+    if (losses <= 0) {
+      continue;
+    }
+    const unitData = defenderStacksByUnit.get(unitId);
+    if (!unitData) {
+      continue;
+    }
+    const lossRate = amount > 0 ? losses / amount : 0;
+    for (const stack of unitData.stacks) {
+      const stackLosses = Math.min(
+        stack.amount,
+        Math.round(stack.amount * lossRate),
+      );
+      if (stackLosses <= 0) {
+        continue;
+      }
+      removeTroops(database, [
+        {
+          unitId,
+          amount: stackLosses,
+          tileId: targetTileId,
+          source: stack.source,
+        },
+      ]);
+    }
+  }
+
+  const attackerParty: ReportParty = {
+    playerId: PLAYER_ID,
+    villageId,
+    villageName: attackerVillageName,
+    coordinates: originCoordinates,
+  };
+  const defenderParty: ReportParty = {
+    playerId: defenderVillage?.playerId ?? null,
+    villageId: defenderVillage?.villageId ?? null,
+    villageName: defenderVillage?.villageName ?? null,
+    coordinates: targetCoordinates,
+  };
+
+  insertReport(database, {
+    type: attackerType,
+    timestamp: resolvesAt,
+    villageId,
+    defenderTileId: targetTileId,
+    outcome: battleResult.outcome,
+    payload: {
+      attacker: attackerParty,
+      defender: defenderParty,
+      attackers: battleResult.attackerLosses,
+      defenders: battleResult.defenderLosses,
+      bonuses: {
+        wallDefenceBonus,
+        wallDefenceBase,
+        moralBonus: 1,
+        oasisDefenceBonus: 0,
+      },
+    },
+  });
+
+  // Only dispatch return movement if any attackers survived
+  const survivingTroops = troops
+    .map((troop) => {
+      const lossRecord = battleResult.attackerLosses.find(
+        (l) => l.unitId === troop.unitId,
+      );
+      return { ...troop, amount: troop.amount - (lossRecord?.losses ?? 0) };
+    })
+    .filter(({ amount }) => amount > 0);
+
+  if (survivingTroops.length > 0) {
+    createEvents<'troopMovementReturn'>(database, {
+      villageId,
+      troops: survivingTroops,
+      targetCoordinates: originCoordinates,
+      originCoordinates: targetCoordinates,
+      startsAt: resolvesAt,
+      type: 'troopMovementReturn',
+      originalMovementType:
+        attackerType === 'attack' ? 'troopMovementAttack' : 'troopMovementRaid',
+    });
+  }
+};
+
+export const attackMovementResolver: Resolver<
+  GameEvent<'troopMovementAttack'>
+> = (database, args) => {
+  resolveCombatMovement(database, { ...args, attackerType: 'attack' });
 };
 
 export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
   database,
   args,
 ) => {
-  const {
-    villageId,
-    resolvesAt,
-    troops,
-    originCoordinates,
-    targetCoordinates,
-  } = args;
-
-  // TODO: Combat
-  createEvents<'troopMovementReturn'>(database, {
-    villageId,
-    troops,
-    startsAt: resolvesAt,
-    targetCoordinates: originCoordinates,
-    originCoordinates: targetCoordinates,
-    type: 'troopMovementReturn',
-    originalMovementType: 'troopMovementRaid',
-  });
+  resolveCombatMovement(database, { ...args, attackerType: 'raid' });
 };
