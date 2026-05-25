@@ -8,7 +8,6 @@ import {
 import { MdUpgrade } from 'react-icons/md';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
-import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import {
   BorderIndicator,
   type BorderIndicatorBackgroundVariant,
@@ -43,16 +42,17 @@ const StaticButton = ({
 type UpgradeButtonProps = {
   buildingField: BuildingField;
   backgroundVariant: BorderIndicatorBackgroundVariant;
+  onUpgrade: () => void;
   variant: BorderIndicatorBorderVariant;
 };
 
 const UpgradeButton = ({
   buildingField,
   backgroundVariant,
+  onUpgrade,
   variant,
 }: UpgradeButtonProps) => {
-  const { buildingId, id, level } = buildingField;
-  const { upgradeBuilding } = useBuildingActions(buildingId, id);
+  const { level } = buildingField;
 
   const [shouldShowUpgradeButton, setShouldShowUpgradeButton] =
     useState<boolean>(false);
@@ -60,14 +60,14 @@ const UpgradeButton = ({
   const onUpgradeButtonClick = (event: ReactMouseEvent | ReactTouchEvent) => {
     event.stopPropagation();
     event.preventDefault();
-    upgradeBuilding();
+    onUpgrade();
   };
 
   const onKeyDown = (event: ReactKeyboardEvent) => {
     if (event.key === 'Enter') {
       event.stopPropagation();
       event.preventDefault();
-      upgradeBuilding();
+      onUpgrade();
     }
   };
 
@@ -98,16 +98,16 @@ type BuildingUpgradeIndicatorProps = {
   isHovered: boolean;
   buildingField: BuildingField;
   buildingEvent: BuildingEvent | undefined;
+  onUpgrade: () => void;
 };
 
 export const BuildingUpgradeIndicator = ({
   buildingField,
   isHovered,
   buildingEvent,
+  onUpgrade,
 }: BuildingUpgradeIndicatorProps) => {
-  const { variant, errorBag } = use(BuildingUpgradeStatusContext);
-
-  const canUpgrade: boolean = errorBag.length === 0;
+  const { variant, canUpgrade } = use(BuildingUpgradeStatusContext);
 
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
     if (buildingEvent) {
@@ -124,6 +124,7 @@ export const BuildingUpgradeIndicator = ({
     <ChildComponent
       buildingField={buildingField}
       backgroundVariant={backgroundVariant}
+      onUpgrade={onUpgrade}
       variant={variant}
     />
   );

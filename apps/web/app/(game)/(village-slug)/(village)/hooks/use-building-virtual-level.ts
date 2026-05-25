@@ -7,9 +7,8 @@ export const useBuildingVirtualLevel = (
   buildingFieldId: BuildingField['id'],
 ) => {
   const { currentVillage } = useCurrentVillage();
-  const { buildingUpgradeEvents, buildingDowngradeEvents } = use(
-    CurrentVillageBuildingQueueContext,
-  );
+  const { buildingUpgradeEventCountByFieldId, downgradedBuildingByFieldId } =
+    use(CurrentVillageBuildingQueueContext);
 
   const building = useMemo(() => {
     return currentVillage.buildingFields.find(
@@ -21,25 +20,20 @@ export const useBuildingVirtualLevel = (
   const actualLevel = building?.level ?? 0;
 
   const virtualLevel = useMemo(() => {
-    const isDowngradingBuilding = buildingDowngradeEvents.some(
-      ({ buildingFieldId: eventBuildingFieldId }) =>
-        eventBuildingFieldId === buildingFieldId,
-    );
+    const isDowngradingBuilding =
+      downgradedBuildingByFieldId.has(buildingFieldId);
 
     if (isDowngradingBuilding) {
       return actualLevel - 1;
     }
 
-    const sameBuildingConstructionEvents = buildingUpgradeEvents.filter(
-      ({ buildingFieldId: eventBuildingFieldId }) => {
-        return eventBuildingFieldId === buildingFieldId;
-      },
+    return (
+      actualLevel +
+      (buildingUpgradeEventCountByFieldId.get(buildingFieldId) ?? 0)
     );
-
-    return actualLevel + sameBuildingConstructionEvents.length;
   }, [
-    buildingUpgradeEvents,
-    buildingDowngradeEvents,
+    buildingUpgradeEventCountByFieldId,
+    downgradedBuildingByFieldId,
     buildingFieldId,
     actualLevel,
   ]);

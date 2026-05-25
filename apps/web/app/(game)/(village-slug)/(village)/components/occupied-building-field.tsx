@@ -9,17 +9,11 @@ import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
 import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
+import { VillageMapContext } from 'app/(game)/(village-slug)/(village)/providers/village-map-context';
 import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/building-upgrade-indicator';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
-import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
-import {
-  BuildingUpgradeStatusContext,
-  BuildingUpgradeStatusContextProvider,
-} from 'app/(game)/(village-slug)/providers/building-upgrade-status-provider';
+import { useBuildingConstructionStatus } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
+import { BuildingUpgradeStatusContext } from 'app/(game)/(village-slug)/providers/building-upgrade-status-provider';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { useLongPress } from 'app/hooks/use-long-press';
 
@@ -66,8 +60,8 @@ export const OccupiedBuildingField = ({
   buildingField,
 }: OccupiedBuildingFieldProps) => {
   const { t } = useTranslation();
-  const { buildingEvents } = use(CurrentVillageBuildingQueueContext);
-  const { bookmarks } = useBookmarks();
+  const { bookmarks } = use(VillageMapContext);
+  const { buildingEventByFieldId } = use(CurrentVillageBuildingQueueContext);
 
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
@@ -76,12 +70,8 @@ export const OccupiedBuildingField = ({
 
   const tab = bookmarks[buildingId] ?? 'default';
 
-  const currentBuildingFieldBuildingEvent = useMemo(() => {
-    return buildingEvents.find(
-      ({ buildingFieldId: buildingEventBuildingFieldId }) =>
-        buildingEventBuildingFieldId === buildingFieldId,
-    );
-  }, [buildingEvents, buildingFieldId]);
+  const currentBuildingFieldBuildingEvent =
+    buildingEventByFieldId.get(buildingFieldId);
 
   const content = (
     <OccupiedBuildingFieldContent
@@ -93,6 +83,7 @@ export const OccupiedBuildingField = ({
 
   if (isMaxLevel) {
     const status = {
+      canUpgrade: false,
       variant: 'blue' as const,
       errorBag: [t("Building can't be upgraded any further")],
     };
@@ -124,19 +115,22 @@ const OccupiedBuildingFieldActive = ({
   currentBuildingFieldBuildingEvent,
   tab,
 }: OccupiedBuildingFieldActiveProps) => {
-  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-
+  const { isWiderThanLg } = use(VillageMapContext);
   const { id: buildingFieldId, buildingId, level } = buildingField;
 
-  const { errorBag } = useBuildingConstructionErrorBag(
+  const { canUpgrade, variant } = useBuildingConstructionStatus(
     buildingId,
     level,
     buildingFieldId,
   );
+  const status = useMemo(
+    () => ({ canUpgrade, errorBag: [], variant }),
+    [canUpgrade, variant],
+  );
   const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
 
   const onLongPress = () => {
-    if (errorBag.length === 0) {
+    if (canUpgrade) {
       upgradeBuilding();
     }
   };
@@ -146,11 +140,12 @@ const OccupiedBuildingFieldActive = ({
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   return (
-    <BuildingUpgradeStatusContextProvider buildingField={buildingField}>
+    <BuildingUpgradeStatusContext value={status}>
       <OccupiedBuildingFieldContent
         buildingField={buildingField}
         currentBuildingFieldBuildingEvent={currentBuildingFieldBuildingEvent}
         tab={tab}
+        onUpgrade={upgradeBuilding}
         {...(isWiderThanLg
           ? {
               onMouseEnter: () => setIsHovered(true),
@@ -165,7 +160,7 @@ const OccupiedBuildingFieldActive = ({
           : longPress)}
         isHovered={isHovered}
       />
-    </BuildingUpgradeStatusContextProvider>
+    </BuildingUpgradeStatusContext>
   );
 };
 
@@ -174,6 +169,7 @@ type OccupiedBuildingFieldContentProps = {
   currentBuildingFieldBuildingEvent: BuildingEvent | undefined;
   tab: string;
   isHovered?: boolean;
+  onUpgrade?: () => void;
 } & AnchorHTMLAttributes<HTMLAnchorElement>;
 
 const OccupiedBuildingFieldContent = ({
@@ -181,14 +177,13 @@ const OccupiedBuildingFieldContent = ({
   currentBuildingFieldBuildingEvent,
   tab,
   isHovered = false,
+  onUpgrade = () => {},
   ...props
 }: OccupiedBuildingFieldContentProps) => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { preferences } = usePreferences();
+  const { currentVillage, shouldShowBuildingNames } = use(VillageMapContext);
 
   const { id: buildingFieldId, buildingId } = buildingField;
-  const { shouldShowBuildingNames } = preferences;
   const hasEvent = !!currentBuildingFieldBuildingEvent;
 
   return (
@@ -215,6 +210,7 @@ const OccupiedBuildingFieldContent = ({
           isHovered={isHovered}
           buildingField={buildingField}
           buildingEvent={currentBuildingFieldBuildingEvent}
+          onUpgrade={onUpgrade}
         />
       </div>
       {shouldShowBuildingNames && (

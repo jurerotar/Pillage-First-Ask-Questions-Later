@@ -1,13 +1,16 @@
-import { Activity, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/utils/buildings';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
+import { VillageMapContext } from 'app/(game)/(village-slug)/(village)/providers/village-map-context';
 import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import { PageContents } from 'app/components/page-contents';
 import { Tooltip } from 'app/components/tooltip';
@@ -29,6 +32,8 @@ const VillagePage = (props: Route.ComponentProps) => {
   const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { currentVillage } = useCurrentVillage();
+  const { bookmarks } = useBookmarks();
+  const { preferences } = usePreferences();
 
   const isResourcesPageOpen = matches.some(
     (match) => match?.id === 'resources-page',
@@ -72,6 +77,24 @@ const VillagePage = (props: Route.ComponentProps) => {
   }, [isVillagePageOpen]);
 
   const title = `${isResourcesPageOpen ? t('Resources') : t('Village')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+  const buildingFieldIds = isResourcesPageOpen
+    ? resourceViewBuildingFieldIds
+    : villageViewBuildingFieldIds;
+
+  const villageMapContextValue = useMemo(
+    () => ({
+      bookmarks,
+      currentVillage,
+      isWiderThanLg,
+      shouldShowBuildingNames: preferences.shouldShowBuildingNames,
+    }),
+    [
+      bookmarks,
+      currentVillage,
+      isWiderThanLg,
+      preferences.shouldShowBuildingNames,
+    ],
+  );
 
   return (
     <PageContents>
@@ -85,33 +108,25 @@ const VillagePage = (props: Route.ComponentProps) => {
         render={renderTooltip}
       />
       <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
-        <div className="relative aspect-16/10 scrollbar-hidden min-w-[460px] max-w-5xl w-full">
-          {resourceViewBuildingFieldIds.map((buildingFieldId) => (
-            <Activity
-              mode={isResourcesPageOpen ? 'visible' : 'hidden'}
-              key={buildingFieldId}
-            >
-              <BuildingField buildingFieldId={buildingFieldId} />
-            </Activity>
-          ))}
-          {villageViewBuildingFieldIds.map((buildingFieldId) => (
-            <Activity
-              mode={isVillagePageOpen ? 'visible' : 'hidden'}
-              key={buildingFieldId}
-            >
-              <BuildingField buildingFieldId={buildingFieldId} />
-            </Activity>
-          ))}
-          {isResourcesPageOpen && (
-            <Link
-              to="../village"
-              className="absolute text-xs lg:size-24 lg:text-sm left-1/2 top-1/2 size-14 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
-              aria-label={t('Village')}
-            >
-              Village
-            </Link>
-          )}
-        </div>
+        <VillageMapContext value={villageMapContextValue}>
+          <div className="relative aspect-16/10 scrollbar-hidden min-w-[460px] max-w-5xl w-full">
+            {buildingFieldIds.map((buildingFieldId) => (
+              <BuildingField
+                buildingFieldId={buildingFieldId}
+                key={buildingFieldId}
+              />
+            ))}
+            {isResourcesPageOpen && (
+              <Link
+                to="../village"
+                className="absolute text-xs lg:size-24 lg:text-sm left-1/2 top-1/2 size-14 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-red-500"
+                aria-label={t('Village')}
+              >
+                Village
+              </Link>
+            )}
+          </div>
+        </VillageMapContext>
       </main>
     </PageContents>
   );
