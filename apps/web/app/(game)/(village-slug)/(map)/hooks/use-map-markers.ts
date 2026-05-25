@@ -26,14 +26,14 @@ export const useMapMarkers = () => {
   const { mutate: createMapMarker } = useMutation<
     void,
     Error,
-    { tileId: number }
+    { tileId: number; description: string; color: MapMarker['color'] }
   >({
-    mutationFn: async ({ tileId }) => {
+    mutationFn: async ({ tileId, description, color }) => {
       await apiClient.post('/players/:playerId/map-markers', {
         path: {
           playerId: player.id,
         },
-        body: { tileId },
+        body: { tileId, description, color },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {

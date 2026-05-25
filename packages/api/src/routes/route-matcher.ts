@@ -6,6 +6,15 @@ import { compiledApiRoutes } from './api-routes';
 
 const routesByMethodCache = new Map<string, typeof compiledApiRoutes>();
 
+type RouteRequestParamsConfig = Record<string, unknown> & {
+  requestParams?: {
+    path?: z.ZodType;
+    query?: z.ZodType;
+  };
+};
+
+type RouteMethodsConfig = Partial<Record<Method, RouteRequestParamsConfig>>;
+
 const getRoutesForMethod = (method: string) => {
   let cached = routesByMethodCache.get(method);
 
@@ -40,14 +49,8 @@ export const matchRoute = (url: string, method: string) => {
     const pathKey = route.path;
     const methodKey = method.toLowerCase() as Method;
 
-    const routeConfig = (paths[pathKey] as any)[methodKey] as
-      | {
-          requestParams?: {
-            path?: z.ZodType;
-            query?: z.ZodType;
-          };
-        }
-      | undefined;
+    const routeConfigByMethod: RouteMethodsConfig = paths[pathKey];
+    const routeConfig = routeConfigByMethod[methodKey];
 
     const requestParams = routeConfig?.requestParams;
 

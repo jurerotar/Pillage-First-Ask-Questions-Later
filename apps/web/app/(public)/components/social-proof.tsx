@@ -1,13 +1,11 @@
 import { clsx } from 'clsx';
-import type { ComponentType, PropsWithChildren, ReactNode } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import {
   FaArrowUpRightFromSquare,
   FaDiscord,
   FaQuoteLeft,
-  FaUsers,
   FaXTwitter,
 } from 'react-icons/fa6';
-import { useDiscordMembers } from 'app/(public)/hooks/use-discord-members';
 import { Text } from 'app/components/text';
 
 type SocialProofMasonryProps = PropsWithChildren<{
@@ -35,7 +33,7 @@ type SocialProofCardProps = {
   body: ReactNode;
   className?: string;
   href?: string;
-  icon: ComponentType<{ className?: string }>;
+  icon: ReactNode;
   meta?: ReactNode;
   source: string;
   tone: 'discord' | 'twitter';
@@ -53,7 +51,7 @@ const SocialProofCard = ({
   body,
   className,
   href,
-  icon: Icon,
+  icon,
   meta,
   source,
   tone,
@@ -69,7 +67,7 @@ const SocialProofCard = ({
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <span className="grid size-8 shrink-0 place-items-center rounded-md bg-background shadow-xs">
-            <Icon className="size-4" />
+            {icon}
           </span>
           <div className="min-w-0">
             <Text
@@ -146,7 +144,7 @@ export const TwitterSocialProofCard = ({
       body={body}
       className={className}
       href={href}
-      icon={FaXTwitter}
+      icon={<FaXTwitter className="size-4" />}
       meta={meta}
       source="X / Twitter"
       tone="twitter"
@@ -160,7 +158,6 @@ type DiscordSocialProofCardProps = {
   className?: string;
   href?: string;
   meta?: ReactNode;
-  showMemberCount?: boolean;
 };
 
 export const DiscordSocialProofCard = ({
@@ -169,25 +166,15 @@ export const DiscordSocialProofCard = ({
   className,
   href = 'https://discord.gg/Ep7NKVXUZA',
   meta,
-  showMemberCount = false,
 }: DiscordSocialProofCardProps) => {
-  const { data: discordData } = useDiscordMembers();
-  const memberCount =
-    showMemberCount && discordData?.memberCount !== undefined ? (
-      <span className="inline-flex items-center gap-1">
-        <FaUsers className="size-3" />
-        {discordData.memberCount} Discord members
-      </span>
-    ) : undefined;
-
   return (
     <SocialProofCard
       author={author}
       body={body}
       className={className}
       href={href}
-      icon={FaDiscord}
-      meta={meta ?? memberCount}
+      icon={<FaDiscord className="size-4" />}
+      meta={meta}
       source="Discord"
       tone="discord"
     />
