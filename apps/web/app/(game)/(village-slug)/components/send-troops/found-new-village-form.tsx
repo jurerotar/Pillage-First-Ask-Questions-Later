@@ -7,7 +7,7 @@ import {
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { TroopMovementConfirmationContent } from './components/confirmation-modal';
+import { TroopMovementConfirmationModal } from './components/confirmation-modal';
 import { TroopSelectionForm } from './components/troop-selection-form';
 import { useFoundNewVillageTroopForm } from './hooks/use-found-new-village-troop-form';
 
@@ -39,26 +39,26 @@ export const FoundNewVillageForm = () => {
         <Text as="h2">{t('Found a new village')}</Text>
       </SectionContent>
       <SectionContent>
-        {isConfirmationStepOpen && formData.current ? (
-          <TroopMovementConfirmationContent
-            onBack={closeConfirmationStep}
+        <TroopSelectionForm
+          form={form}
+          onSubmit={onFormSubmit}
+          targetSelector="coordinates"
+          disabledUnitTiers={disabledUnitTiers}
+          maxUnits={maxUnits}
+          targetWrapperClassName="flex items-end gap-8"
+          actions={<Button type="submit">{t('Confirm')}</Button>}
+        />
+        {formData.current ? (
+          <TroopMovementConfirmationModal
+            isOpen={isConfirmationStepOpen}
+            onClose={closeConfirmationStep}
             onConfirm={onConfirm}
             formData={formData.current}
             title={t('Found a new village')}
             tribe={tribe}
             backLabel={t('Back')}
           />
-        ) : (
-          <TroopSelectionForm
-            form={form}
-            onSubmit={onFormSubmit}
-            targetSelector="coordinates"
-            disabledUnitTiers={disabledUnitTiers}
-            maxUnits={maxUnits}
-            targetWrapperClassName="flex items-end gap-8"
-            actions={<Button type="submit">{t('Confirm')}</Button>}
-          />
-        )}
+        ) : null}
       </SectionContent>
     </Section>
   );

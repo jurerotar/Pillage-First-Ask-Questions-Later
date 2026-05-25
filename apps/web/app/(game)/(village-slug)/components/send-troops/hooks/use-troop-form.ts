@@ -1,6 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { type DefaultValues, type FieldValues, useForm } from 'react-hook-form';
+import {
+  type DefaultValues,
+  type FieldValues,
+  type Resolver,
+  useForm,
+} from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import type { z } from 'zod';
 import {
@@ -22,7 +27,7 @@ export type TroopFormOptions<T extends FieldValues> = {
 };
 
 export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
-  schema: z.ZodType<T, FieldValues>,
+  schema: z.ZodType<T>,
   options: TroopFormOptions<T>,
 ) => {
   const {
@@ -92,9 +97,13 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     [defaultValues, initialTarget, initialUnits],
   );
 
-  const form = useForm<FieldValues, unknown, T>({
-    resolver: zodResolver(schema),
-    defaultValues: initialValues,
+  const form = useForm<T, unknown, T>({
+    resolver: zodResolver(schema as z.ZodType<T, FieldValues>) as Resolver<
+      T,
+      unknown,
+      T
+    >,
+    defaultValues: initialValues as DefaultValues<T>,
   });
 
   const resetForm = useCallback(() => {

@@ -15,7 +15,7 @@ import { Button } from 'app/components/ui/button';
 import { Form } from 'app/components/ui/form';
 import { useDialog } from 'app/hooks/use-dialog';
 import { getFormErrorBag } from 'app/utils/forms';
-import { TroopMovementConfirmationContent } from './components/confirmation-modal';
+import { TroopMovementConfirmationModal } from './components/confirmation-modal';
 import { CoordinateSelector } from './components/target-selectors';
 import { UnitSelector } from './components/unit-selector';
 import { useTroopForm } from './hooks/use-troop-form';
@@ -88,17 +88,8 @@ export const OasisOccupationForm = () => {
             {t('This page is still under development')}
           </Alert>
         )}
-        {IS_OASIS_OCCUPATION_FORM_ENABLED &&
-          (isConfirmationStepOpen && formData.current ? (
-            <TroopMovementConfirmationContent
-              onBack={closeConfirmationStep}
-              onConfirm={onConfirm}
-              formData={formData.current}
-              title={t('Occupy oasis')}
-              tribe={tribe}
-              backLabel={t('Back')}
-            />
-          ) : (
+        {IS_OASIS_OCCUPATION_FORM_ENABLED && (
+          <>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onFormSubmit)}
@@ -115,7 +106,19 @@ export const OasisOccupationForm = () => {
                 <Button type="submit">{t('Confirm')}</Button>
               </form>
             </Form>
-          ))}
+            {formData.current ? (
+              <TroopMovementConfirmationModal
+                isOpen={isConfirmationStepOpen}
+                onClose={closeConfirmationStep}
+                onConfirm={onConfirm}
+                formData={formData.current}
+                title={t('Occupy oasis')}
+                tribe={tribe}
+                backLabel={t('Back')}
+              />
+            ) : null}
+          </>
+        )}
       </SectionContent>
     </Section>
   );

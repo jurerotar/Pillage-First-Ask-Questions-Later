@@ -11,7 +11,7 @@ type SendTroopsModalProps<T extends BaseTroopFormValues> = {
   onSubmit: SubmitHandler<T>;
   title: string;
   tribe: Tribe;
-  form: UseFormReturn<T>;
+  form: UseFormReturn<T, unknown, T>;
   disabledUnitTiers?: UnitSelection['tier'][];
   maxUnits?: { unitId: UnitSelection['unitId']; amount: number }[];
   targetSelector?: 'coordinates' | 'playerVillage';
@@ -24,7 +24,7 @@ type SendTroopsModalContentProps<T extends BaseTroopFormValues> = {
   onSubmit: SubmitHandler<T>;
   title: string;
   tribe: Tribe;
-  form: UseFormReturn<T>;
+  form: UseFormReturn<T, unknown, T>;
   disabledUnitTiers?: UnitSelection['tier'][];
   maxUnits?: { unitId: UnitSelection['unitId']; amount: number }[];
   targetSelector?: 'coordinates' | 'playerVillage';

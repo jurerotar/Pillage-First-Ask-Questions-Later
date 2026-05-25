@@ -15,7 +15,7 @@ import { CoordinateSelector, PlayerVillageSelector } from './target-selectors';
 import { UnitSelector } from './unit-selector';
 
 type TroopSelectionFormProps<T extends BaseTroopFormValues> = {
-  form: UseFormReturn<T>;
+  form: UseFormReturn<T, unknown, T>;
   onSubmit: SubmitHandler<T>;
   title?: string;
   disabledUnitTiers?: UnitSelection['tier'][];

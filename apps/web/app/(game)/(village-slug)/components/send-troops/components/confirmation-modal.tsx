@@ -33,6 +33,7 @@ type TroopMovementConfirmationModalProps = {
   title: string;
   tribe: Tribe;
   originCoordinates?: Coordinates;
+  backLabel?: string;
 };
 
 type TroopMovementConfirmationContentProps = {

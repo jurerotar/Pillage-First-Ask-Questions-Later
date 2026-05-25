@@ -7,7 +7,7 @@ import {
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { TroopMovementConfirmationContent } from './components/confirmation-modal';
+import { TroopMovementConfirmationModal } from './components/confirmation-modal';
 import { ReinforcementRelocationActionSelector } from './components/reinforcement-relocation-action-selector';
 import { TroopSelectionForm } from './components/troop-selection-form';
 import { useReinforcementRelocationTroopForm } from './hooks/use-reinforcement-relocation-troop-form';
@@ -38,9 +38,17 @@ export const ReinforcementRelocationForm = () => {
         <Text as="h2">{t('Reinforce or relocate')}</Text>
       </SectionContent>
       <SectionContent>
-        {isConfirmationStepOpen && formData.current ? (
-          <TroopMovementConfirmationContent
-            onBack={closeConfirmationStep}
+        <TroopSelectionForm
+          form={form}
+          onSubmit={onFormSubmit}
+          targetSelector="playerVillage"
+          extraTargetContent={<ReinforcementRelocationActionSelector />}
+          actions={<Button type="submit">{t('Confirm')}</Button>}
+        />
+        {formData.current ? (
+          <TroopMovementConfirmationModal
+            isOpen={isConfirmationStepOpen}
+            onClose={closeConfirmationStep}
             onConfirm={onConfirm}
             formData={formData.current}
             tribe={tribe}
@@ -51,15 +59,7 @@ export const ReinforcementRelocationForm = () => {
             }
             backLabel={t('Back')}
           />
-        ) : (
-          <TroopSelectionForm
-            form={form}
-            onSubmit={onFormSubmit}
-            targetSelector="playerVillage"
-            extraTargetContent={<ReinforcementRelocationActionSelector />}
-            actions={<Button type="submit">{t('Confirm')}</Button>}
-          />
-        )}
+        ) : null}
       </SectionContent>
     </Section>
   );

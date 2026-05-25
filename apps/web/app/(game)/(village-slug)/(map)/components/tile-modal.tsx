@@ -108,7 +108,7 @@ const TileModalMarkerAction = ({
   mapMarkers,
   createMapMarker,
   deleteMapMarker,
-}: TileDialogProps) => {
+}: TileModalProps & TileModalMarkerProps) => {
   const { t } = useTranslation();
   const marker = mapMarkers.find((marker) => marker.tileId === tile.id);
   const label = marker ? t('Edit map marker') : t('Create map marker');
