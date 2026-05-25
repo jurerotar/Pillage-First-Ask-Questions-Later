@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { LuMail, LuMailOpen } from 'react-icons/lu';
 import { Link } from 'react-router';
 import { ReportFilters } from 'app/(game)/(village-slug)/(reports)/components/components/report-filters';
 import { useReportFilters } from 'app/(game)/(village-slug)/(reports)/hooks/use-report-filters';
@@ -64,9 +65,23 @@ export const Reports = () => {
             {pagination.currentPageItems.map((report) => {
               const isUnread = !report.tags.includes('read');
               return (
-                <TableRow key={report.id}>
-                  <TableCell className={isUnread ? 'font-semibold' : undefined}>
-                    {t(report.type)}
+                <TableRow
+                  key={report.id}
+                  className={
+                    isUnread ? 'bg-green-50 dark:bg-green-950/20' : undefined
+                  }
+                >
+                  <TableCell>
+                    <span className="flex items-center gap-2">
+                      {isUnread ? (
+                        <LuMail className="shrink-0 text-green-600" />
+                      ) : (
+                        <LuMailOpen className="shrink-0 text-muted-foreground" />
+                      )}
+                      <span className={isUnread ? 'font-semibold' : undefined}>
+                        {t(report.type)}
+                      </span>
+                    </span>
                   </TableCell>
                   <TableCell className={isUnread ? 'font-semibold' : undefined}>
                     {t(report.outcome)}
