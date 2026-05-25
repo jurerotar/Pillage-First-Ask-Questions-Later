@@ -100,7 +100,8 @@ const Counter = ({ counter }: CounterProps) => {
 
 const ReportsCounter = () => {
   const { reports } = useReports();
-  return <Counter counter={reports.length} />;
+  const unreadCount = reports.filter((r) => !r.tags.includes('read')).length;
+  return <Counter counter={unreadCount} />;
 };
 
 const AdventurePointsCounter = () => {
