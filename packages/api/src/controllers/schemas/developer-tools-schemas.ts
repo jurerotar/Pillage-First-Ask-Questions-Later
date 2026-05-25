@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { resourceSchema } from '@pillage-first/types/models/resource';
 
 export const getDeveloperSettingsRowSchema = z
   .strictObject({
@@ -16,9 +15,3 @@ export const getDeveloperSettingsRowSchema = z
     is_free_hero_revive_enabled: z.number(),
   })
   .meta({ id: 'GetDeveloperSettingsRow' });
-
-export const updateVillageResourcesSchema = z.strictObject({
-  resource: resourceSchema,
-  amount: z.union([z.literal(100), z.literal(1000), z.literal(10_000)]),
-  direction: z.enum(['add', 'subtract']),
-});

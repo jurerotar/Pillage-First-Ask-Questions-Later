@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
 import ApiWorker from '@pillage-first/api?worker&url';
 import type { Server } from '@pillage-first/types/models/server';
+import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
 import {
   isDatabaseInitializationErrorNotificationMessageEvent,
   isDatabaseInitializationSuccessNotificationMessageEvent,

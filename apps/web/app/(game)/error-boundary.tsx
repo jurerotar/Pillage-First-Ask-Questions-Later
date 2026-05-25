@@ -6,7 +6,7 @@ import {
   ScrollRestoration,
   useRouteError,
 } from 'react-router';
-import { OutdatedDatabaseSchemaError } from '@pillage-first/api/errors';
+import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
 import { HeadLinks } from 'app/components/head-links';
 
 export const ErrorBoundary = () => {

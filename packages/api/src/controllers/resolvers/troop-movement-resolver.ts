@@ -10,8 +10,8 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import { updateHeroEffectsVillageIdQuery } from '../../queries/effect-queries';
 import type { Resolver } from '../../types/resolver';
-import { updateHeroEffectsVillageIdQuery } from '../../utils/queries/effect-queries';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createEvents } from '../utils/create-event';
 import {

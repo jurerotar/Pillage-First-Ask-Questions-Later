@@ -10,6 +10,7 @@ import type {
   DatabaseInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
 import { env } from '@pillage-first/utils/env';
+import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
 import {
   createDbFacade,
   type DbFacade,
@@ -19,7 +20,6 @@ import {
   parseAppVersion,
   parseDatabaseUserVersion,
 } from '@pillage-first/utils/version';
-import { OutdatedDatabaseSchemaError } from './errors';
 import {
   postWorkerMessage,
   setNotificationPort,

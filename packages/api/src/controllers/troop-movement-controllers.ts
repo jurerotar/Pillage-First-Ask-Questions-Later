@@ -1,11 +1,11 @@
 import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
-import { triggerKick } from '../scheduler/scheduler-signal';
-import { createController } from '../utils/controller';
 import {
   selectEventByIdQuery,
   selectTroopMovementStatsByVillageIdQuery,
   selectTroopMovementsByVillageIdQuery,
-} from '../utils/queries/event-queries';
+} from '../queries/event-queries';
+import { triggerKick } from '../scheduler/scheduler-signal';
+import { createController } from '../utils/controller';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,

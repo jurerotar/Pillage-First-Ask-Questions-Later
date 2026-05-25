@@ -48,7 +48,3 @@ export const getOccupiableOasisInRangeRowSchema = z
     occupying_player_slug: z.string().nullable(),
   })
   .meta({ id: 'GetOccupiableOasisInRangeRow' });
-
-export const getVillageLoyaltySchema = z.strictObject({
-  loyalty: z.number(),
-});

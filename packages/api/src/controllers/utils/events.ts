@@ -52,8 +52,8 @@ import {
 import {
   selectAllRelevantEffectsByIdQuery,
   selectUnitSpeedRelevantEffectsQuery,
-} from '../../utils/queries/effect-queries';
-import { selectAllVillageEventsByTypeQuery } from '../../utils/queries/event-queries';
+} from '../../queries/effect-queries';
+import { selectAllVillageEventsByTypeQuery } from '../../queries/event-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import {

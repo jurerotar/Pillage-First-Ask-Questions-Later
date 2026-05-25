@@ -5,11 +5,11 @@ import {
 } from '@pillage-first/game-assets/utils/buildings';
 import { specialFieldIds } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Resolver } from '../../types/resolver';
 import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
-} from '../../utils/queries/effect-queries';
+} from '../../queries/effect-queries';
+import type { Resolver } from '../../types/resolver';
 import {
   demolishBuilding,
   updateVillageResourcesAt,

@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { deleteHeroEffectsQuery } from '../../../utils/queries/effect-queries';
+import { deleteHeroEffectsQuery } from '../../../queries/effect-queries';
 import { updateVillageResourcesAt } from '../../../utils/village';
 import { createEvents } from '../../utils/create-event';
 
