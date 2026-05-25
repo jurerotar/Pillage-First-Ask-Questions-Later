@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { LuMail, LuMailOpen } from 'react-icons/lu';
-import { Link } from 'react-router';
+import { useNavigate } from 'react-router';
 import { ReportFilters } from 'app/(game)/(village-slug)/(reports)/components/components/report-filters';
 import { useReportFilters } from 'app/(game)/(village-slug)/(reports)/hooks/use-report-filters';
 import {
@@ -23,6 +23,7 @@ import {
 
 export const Reports = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { reports } = useReports();
   const {
     filters: reportFilters,
@@ -58,7 +59,6 @@ export const Reports = () => {
               <TableHeaderCell>{t('Type')}</TableHeaderCell>
               <TableHeaderCell>{t('Outcome')}</TableHeaderCell>
               <TableHeaderCell>{t('When')}</TableHeaderCell>
-              <TableHeaderCell />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -67,9 +67,8 @@ export const Reports = () => {
               return (
                 <TableRow
                   key={report.id}
-                  className={
-                    isUnread ? 'bg-green-50 dark:bg-green-950/20' : undefined
-                  }
+                  className={`cursor-pointer hover:brightness-95 ${isUnread ? 'bg-green-50 dark:bg-green-950/20' : ''}`}
+                  onClick={() => navigate(`./${report.id}`)}
                 >
                   <TableCell>
                     <span className="flex items-center gap-2">
@@ -88,9 +87,6 @@ export const Reports = () => {
                   </TableCell>
                   <TableCell className={isUnread ? 'font-semibold' : undefined}>
                     {new Date(report.timestamp).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Link to={`./${report.id}`}>{t('View')}</Link>
                   </TableCell>
                 </TableRow>
               );
