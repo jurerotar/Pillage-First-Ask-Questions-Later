@@ -1,4 +1,4 @@
-import { use, useMemo } from 'react';
+import { use } from 'react';
 import { getBuildingDataForLevel } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
@@ -30,6 +30,62 @@ type UseBuildingRequirementsReturn = {
 type UseBuildingConstructionStatusReturn = {
   canUpgrade: boolean;
   variant: BorderIndicatorBorderVariant;
+};
+
+type GetBuildingConstructionStatusArgs = {
+  hasAvailableBuildingQueueSlot: boolean;
+  hasEnoughFreeCrop: boolean;
+  hasEnoughGranaryCapacity: boolean;
+  hasEnoughResources: boolean;
+  hasEnoughWarehouseCapacity: boolean;
+  isFreeBuildingConstructionEnabled: boolean;
+  isInstantBuildingConstructionEnabled: boolean;
+};
+
+const getBuildingConstructionStatus = ({
+  hasAvailableBuildingQueueSlot,
+  hasEnoughFreeCrop,
+  hasEnoughGranaryCapacity,
+  hasEnoughResources,
+  hasEnoughWarehouseCapacity,
+  isFreeBuildingConstructionEnabled,
+  isInstantBuildingConstructionEnabled,
+}: GetBuildingConstructionStatusArgs): UseBuildingConstructionStatusReturn => {
+  const isResourceBlocked =
+    !isFreeBuildingConstructionEnabled &&
+    (!hasEnoughFreeCrop ||
+      !hasEnoughResources ||
+      !hasEnoughWarehouseCapacity ||
+      !hasEnoughGranaryCapacity);
+  const isQueueBlocked =
+    !isInstantBuildingConstructionEnabled && !hasAvailableBuildingQueueSlot;
+
+  if (
+    !isFreeBuildingConstructionEnabled &&
+    (!hasEnoughFreeCrop ||
+      !hasEnoughWarehouseCapacity ||
+      !hasEnoughGranaryCapacity)
+  ) {
+    return {
+      canUpgrade: !isResourceBlocked && !isQueueBlocked,
+      variant: 'gray',
+    };
+  }
+
+  if (
+    (!isInstantBuildingConstructionEnabled && !hasAvailableBuildingQueueSlot) ||
+    (!isFreeBuildingConstructionEnabled && !hasEnoughResources)
+  ) {
+    return {
+      canUpgrade: !isResourceBlocked && !isQueueBlocked,
+      variant: 'yellow',
+    };
+  }
+
+  return {
+    canUpgrade: !isResourceBlocked && !isQueueBlocked,
+    variant: 'green',
+  };
 };
 
 export const useBuildingConstructionStatus = (
@@ -81,48 +137,15 @@ export const useBuildingConstructionStatus = (
     getBuildingEventQueue(buildingFieldId).length < 1 &&
     !downgradedBuildingByFieldId.has(buildingFieldId);
 
-  const isResourceBlocked =
-    !isFreeBuildingConstructionEnabled &&
-    (!hasEnoughFreeCrop ||
-      !hasEnoughResources ||
-      !hasEnoughWarehouseCapacity ||
-      !hasEnoughGranaryCapacity);
-  const isQueueBlocked =
-    !isInstantBuildingConstructionEnabled && !hasAvailableBuildingQueueSlot;
-
-  const variant = useMemo<BorderIndicatorBorderVariant>(() => {
-    if (
-      !isFreeBuildingConstructionEnabled &&
-      (!hasEnoughFreeCrop ||
-        !hasEnoughWarehouseCapacity ||
-        !hasEnoughGranaryCapacity)
-    ) {
-      return 'gray';
-    }
-
-    if (
-      (!isInstantBuildingConstructionEnabled &&
-        !hasAvailableBuildingQueueSlot) ||
-      (!isFreeBuildingConstructionEnabled && !hasEnoughResources)
-    ) {
-      return 'yellow';
-    }
-
-    return 'green';
-  }, [
-    isFreeBuildingConstructionEnabled,
-    hasEnoughFreeCrop,
-    hasEnoughWarehouseCapacity,
-    hasEnoughGranaryCapacity,
-    isInstantBuildingConstructionEnabled,
+  return getBuildingConstructionStatus({
     hasAvailableBuildingQueueSlot,
+    hasEnoughFreeCrop,
+    hasEnoughGranaryCapacity,
     hasEnoughResources,
-  ]);
-
-  return {
-    canUpgrade: !isResourceBlocked && !isQueueBlocked,
-    variant,
-  };
+    hasEnoughWarehouseCapacity,
+    isFreeBuildingConstructionEnabled,
+    isInstantBuildingConstructionEnabled,
+  });
 };
 
 export const useBuildingConstructionErrorBag = (
@@ -131,21 +154,24 @@ export const useBuildingConstructionErrorBag = (
   buildingFieldId: BuildingField['id'],
 ): UseBuildingRequirementsReturn => {
   const { developerSettings } = useDeveloperSettings();
-  const { errorBag: hasEnoughFreeCropErrorBag } = useHasEnoughFreeCrop(
-    buildingId,
-    level,
-  );
+  const { errorBag: hasEnoughFreeCropErrorBag, hasEnoughFreeCrop } =
+    useHasEnoughFreeCrop(buildingId, level);
   const { nextLevelResourceCost } = getBuildingDataForLevel(buildingId, level);
 
-  const { errorBag: hasEnoughResourcesErrorBag } = useHasEnoughResources(
-    nextLevelResourceCost,
-  );
-  const { errorBag: hasEnoughWarehouseCapacityErrorBag } =
-    useHasEnoughStorageCapacity('warehouseCapacity', nextLevelResourceCost);
-  const { errorBag: hasEnoughGranaryCapacityErrorBag } =
-    useHasEnoughStorageCapacity('granaryCapacity', nextLevelResourceCost);
-  const { errorBag: hasHasAvailableBuildingQueueSlotErrorBag } =
-    useHasAvailableBuildingQueueSlot(buildingFieldId);
+  const { errorBag: hasEnoughResourcesErrorBag, hasEnoughResources } =
+    useHasEnoughResources(nextLevelResourceCost);
+  const {
+    errorBag: hasEnoughWarehouseCapacityErrorBag,
+    hasEnoughStorageCapacity: hasEnoughWarehouseCapacity,
+  } = useHasEnoughStorageCapacity('warehouseCapacity', nextLevelResourceCost);
+  const {
+    errorBag: hasEnoughGranaryCapacityErrorBag,
+    hasEnoughStorageCapacity: hasEnoughGranaryCapacity,
+  } = useHasEnoughStorageCapacity('granaryCapacity', nextLevelResourceCost);
+  const {
+    errorBag: hasHasAvailableBuildingQueueSlotErrorBag,
+    hasAvailableBuildingQueueSlot,
+  } = useHasAvailableBuildingQueueSlot(buildingFieldId);
 
   const {
     isFreeBuildingConstructionEnabled,
@@ -166,40 +192,19 @@ export const useBuildingConstructionErrorBag = (
       : []),
   ];
 
-  // Max-level variant is already handled in occupied-building-field.tsx
-  const variant = useMemo<BorderIndicatorBorderVariant>(() => {
-    if (
-      !isFreeBuildingConstructionEnabled &&
-      (hasEnoughFreeCropErrorBag.length > 0 ||
-        hasEnoughWarehouseCapacityErrorBag.length > 0 ||
-        hasEnoughGranaryCapacityErrorBag.length > 0)
-    ) {
-      return 'gray';
-    }
-
-    if (
-      (!isInstantBuildingConstructionEnabled &&
-        hasHasAvailableBuildingQueueSlotErrorBag.length > 0) ||
-      (!isFreeBuildingConstructionEnabled &&
-        hasEnoughResourcesErrorBag.length > 0)
-    ) {
-      return 'yellow';
-    }
-
-    return 'green';
-  }, [
+  const status = getBuildingConstructionStatus({
+    hasAvailableBuildingQueueSlot,
+    hasEnoughFreeCrop,
+    hasEnoughGranaryCapacity,
+    hasEnoughResources,
+    hasEnoughWarehouseCapacity,
     isFreeBuildingConstructionEnabled,
-    hasEnoughFreeCropErrorBag,
-    hasEnoughWarehouseCapacityErrorBag,
-    hasEnoughGranaryCapacityErrorBag,
     isInstantBuildingConstructionEnabled,
-    hasHasAvailableBuildingQueueSlotErrorBag,
-    hasEnoughResourcesErrorBag,
-  ]);
+  });
 
   return {
-    canUpgrade: errorBag.length === 0,
+    canUpgrade: status.canUpgrade,
     errorBag,
-    variant,
+    variant: status.variant,
   };
 };
