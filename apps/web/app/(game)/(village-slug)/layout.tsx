@@ -40,7 +40,7 @@ import type { Resource } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/+types/layout';
-import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
+import { BuildingQueues } from 'app/(game)/(village-slug)/components/building-queues';
 import {
   DeveloperToolsButton,
   DeveloperToolsConsole,
@@ -918,7 +918,7 @@ const GameLayout = memo<Route.ComponentProps>(
               <Suspense fallback={<PageFallback />}>
                 <Outlet />
               </Suspense>
-              <ConstructionQueue />
+              <BuildingQueues />
               <TroopList />
               {!isWiderThanLg && (
                 <MobileBottomNavigation onDeveloperToolsToggle={toggleModal} />
