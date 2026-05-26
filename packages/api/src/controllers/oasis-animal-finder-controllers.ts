@@ -1,3 +1,4 @@
+import type { BindableValue } from '@sqlite.org/sqlite-wasm';
 import type { NatureUnitId } from '@pillage-first/types/models/unit';
 import { createController } from '../utils/controller';
 import { mapOasisWithAnimalsRowToDto } from './mappers/oasis-finder-mapper';
@@ -9,10 +10,7 @@ export const getOasesWithAnimals = createController(
 )(({ database, body }) => {
   const { x, y, animalFilters } = body;
 
-  const sqlBindings: Record<string, number | string> = {
-    $tile_x: x,
-    $tile_y: y,
-  };
+  const sqlBindings: Record<string, BindableValue> = {};
 
   const uniqueFilters = new Map<NatureUnitId, number>();
   for (const { animal, amount } of animalFilters) {
@@ -73,7 +71,11 @@ export const getOasesWithAnimals = createController(
           ${filterClauses.length > 0 ? `AND ${filterClauses.join(' AND ')}` : ''}
         ORDER BY distance_squared ASC;
       `,
-    bind: sqlBindings,
+    bind: {
+      ...sqlBindings,
+      $tile_x: x,
+      $tile_y: y,
+    },
     schema: getOasesWithAnimalsRowSchema,
   });
   return rows.map(mapOasisWithAnimalsRowToDto);
