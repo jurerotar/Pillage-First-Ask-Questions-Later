@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
+import { selectTileLoyaltyQuery } from '../../../queries/loyalty-queries';
 import { loyaltyIncreaseResolver } from '../loyalty-resolvers';
 
 describe(loyaltyIncreaseResolver, () => {
@@ -71,17 +72,17 @@ describe(loyaltyIncreaseResolver, () => {
     );
 
     const v1Loyalty = database.selectValue({
-      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      sql: selectTileLoyaltyQuery,
       bind: { $tile_id: v1Tile },
       schema: z.number(),
     });
     const v2Loyalty = database.selectValue({
-      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      sql: selectTileLoyaltyQuery,
       bind: { $tile_id: v2Tile },
       schema: z.number(),
     });
     const oasisLoyalty = database.selectValue({
-      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      sql: selectTileLoyaltyQuery,
       bind: { $tile_id: oasisTile },
       schema: z.number(),
     });
@@ -128,7 +129,7 @@ describe(loyaltyIncreaseResolver, () => {
     );
 
     const loyalty = database.selectValue({
-      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      sql: selectTileLoyaltyQuery,
       bind: { $tile_id: tileId },
       schema: z.number(),
     });
@@ -173,7 +174,7 @@ describe(loyaltyIncreaseResolver, () => {
     );
 
     const loyalties = database.selectValues({
-      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      sql: selectTileLoyaltyQuery,
       bind: { $tile_id: tileId },
       schema: z.number(),
     });

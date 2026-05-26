@@ -6,6 +6,7 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { postWorkerMessage } from '../../notification-port';
+import { selectNextEventQuery } from '../../queries/event-queries';
 import { triggerKick } from '../../scheduler/scheduler-signal';
 import { subtractVillageResourcesAt } from '../../utils/village';
 import {
@@ -93,16 +94,7 @@ export const createEvents = <T extends GameEventType>(
 
   // read current next event BEFORE we insert, using the same "now" snapshot
   const currentNext = database.selectObject({
-    sql: `
-      SELECT id, resolves_at AS resolvesAt
-      FROM
-        events
-      WHERE
-        resolves_at > $now
-      ORDER BY
-        resolves_at
-      LIMIT 1;
-    `,
+    sql: selectNextEventQuery,
     bind: { $now: now },
     schema: createEventsSchema,
   });

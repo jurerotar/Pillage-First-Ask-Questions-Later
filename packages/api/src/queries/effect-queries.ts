@@ -165,3 +165,20 @@ export const updateHeroEffectsVillageIdQuery = `
         AND heroes.player_id = $player_id
       );
 `;
+
+export const updateHeroResourceProductionEffectQuery = `
+  UPDATE effects
+  SET
+    value = $value
+  WHERE
+    source = 'hero'
+    AND source_specifier = 0
+    AND effect_id = (
+      SELECT id
+      FROM
+        effect_ids
+      WHERE
+        effect = $effect_id
+    )
+    AND village_id = $village_id;
+`;

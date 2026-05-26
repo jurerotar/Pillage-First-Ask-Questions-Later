@@ -1,5 +1,6 @@
 import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
 import {
+  deleteEventByIdQuery,
   selectEventByIdQuery,
   selectTroopMovementStatsByVillageIdQuery,
   selectTroopMovementsByVillageIdQuery,
@@ -96,7 +97,7 @@ export const cancelTroopMovement = createController(
     }
 
     db.exec({
-      sql: 'DELETE FROM events WHERE id = $event_id',
+      sql: deleteEventByIdQuery,
       bind: { $event_id: eventId },
     });
 

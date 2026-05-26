@@ -5,6 +5,11 @@ import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
+import {
+  collectQuestQuery,
+  selectCollectableQuestCountQuery,
+  selectVillageQuestsQuery,
+} from '../queries/quest-queries';
 import { createController } from '../utils/controller';
 import { addVillageResourcesAt } from '../utils/village';
 import { mapQuestRowToDto } from './mappers/quest-mapper';
@@ -14,25 +19,7 @@ import { addHeroExperience } from './utils/hero';
 export const getQuests = createController('/villages/:villageId/quests')(
   ({ database, path: { villageId } }) => {
     const rows = database.selectObjects({
-      sql: `
-        SELECT quest_id, scope, collected_at, completed_at, village_id
-        FROM
-          (
-            SELECT quest_id, scope, collected_at, completed_at, village_id
-            FROM
-              quests
-            WHERE
-              village_id = $village_id
-
-            UNION ALL
-
-            SELECT quest_id, scope, collected_at, completed_at, village_id
-            FROM
-              quests
-            WHERE
-              village_id IS NULL
-            ) AS q
-      `,
+      sql: selectVillageQuestsQuery,
       bind: {
         $village_id: villageId,
       },
@@ -47,19 +34,7 @@ export const getCollectableQuestCount = createController(
   '/villages/:villageId/quests/collectables/count',
 )(({ database, path: { villageId } }) => {
   const collectableQuestCount = database.selectValue({
-    sql: `
-      SELECT COUNT(*) AS COUNT
-      FROM
-        quests
-      WHERE
-        completed_at IS NOT NULL
-        AND collected_at IS NULL
-        AND (
-        village_id =
-        $village_id
-        OR village_id IS NULL
-        );
-    `,
+    sql: selectCollectableQuestCountQuery,
     bind: {
       $village_id: villageId,
     },
@@ -76,22 +51,7 @@ export const collectQuest = createController(
   'patch',
 )(({ database, path: { questId, villageId } }) => {
   database.exec({
-    sql: `
-      UPDATE quests
-      SET
-        collected_at = $collected_at
-      WHERE
-        id = (
-          SELECT id
-          FROM
-            quests
-          WHERE
-            quest_id = $quest_id
-            AND (village_id = $village_id OR village_id IS NULL)
-          ORDER BY (village_id = $village_id) DESC, (village_id IS NULL) DESC
-          LIMIT 1
-          );
-    `,
+    sql: collectQuestQuery,
     bind: {
       $collected_at: Date.now(),
       $quest_id: questId,

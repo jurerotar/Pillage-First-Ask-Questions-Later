@@ -4,6 +4,7 @@ import type { ResourceProductionEffectId } from '@pillage-first/types/models/eff
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import type { Resource } from '@pillage-first/types/models/resource';
+import { updateHeroResourceProductionEffectQuery } from '../queries/effect-queries';
 import { createController } from '../utils/controller';
 import { updateVillageResourcesAt } from '../utils/village';
 import {
@@ -284,25 +285,10 @@ export const changeHeroAttributes = createController(
         }
 
         database.exec({
-          sql: `
-            UPDATE effects
-            SET
-              value = $value
-            WHERE
-              source = 'hero'
-              AND source_specifier = 0
-              AND effect_id = (
-                SELECT id
-                FROM
-                  effect_ids
-                WHERE
-                  effect = $effectId
-                )
-              AND village_id = $village_id
-          `,
+          sql: updateHeroResourceProductionEffectQuery,
           bind: {
             $value: value,
-            $effectId: effectId,
+            $effect_id: effectId,
             $village_id: villageId,
           },
         });
@@ -385,25 +371,10 @@ export const changeHeroResourceToProduce = createController(
       }
 
       database.exec({
-        sql: `
-          UPDATE effects
-          SET
-            value = $value
-          WHERE
-            source = 'hero'
-            AND source_specifier = 0
-            AND effect_id = (
-              SELECT id
-              FROM
-                effect_ids
-              WHERE
-                effect = $effectId
-              )
-            AND village_id = $village_id
-        `,
+        sql: updateHeroResourceProductionEffectQuery,
         bind: {
           $value: value,
-          $effectId: effectId,
+          $effect_id: effectId,
           $village_id: villageId,
         },
       });
@@ -699,22 +670,10 @@ export const useHeroItem = createController(
 
       for (const effectId of resourceProductionEffectIds) {
         database.exec({
-          sql: `
-            UPDATE effects
-            SET
-              value = 0
-            WHERE
-              source = 'hero'
-              AND source_specifier = 0
-              AND effect_id = (
-                SELECT id
-                FROM effect_ids
-                WHERE effect = $effectId
-                )
-              AND village_id = $village_id
-          `,
+          sql: updateHeroResourceProductionEffectQuery,
           bind: {
-            $effectId: effectId,
+            $value: 0,
+            $effect_id: effectId,
             $village_id: villageId,
           },
         });

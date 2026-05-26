@@ -4,6 +4,17 @@ export const selectEventByIdQuery = `
   WHERE id = $event_id;
 `;
 
+export const selectNextEventQuery = `
+  SELECT id, resolves_at AS resolvesAt
+  FROM
+    events
+  WHERE
+    resolves_at > $now
+  ORDER BY
+    resolves_at
+  LIMIT 1;
+`;
+
 export const selectAllVillageEventsQuery = `
   SELECT id, type, starts_at, duration, resolves_at, meta, village_id
   FROM
@@ -180,4 +191,70 @@ export const selectTroopMovementStatsByVillageIdQuery = `
       )
     )
   GROUP BY movement_type;
+`;
+
+export const deleteScheduledBuildingEventsFromEventQuery = `
+  DELETE
+  FROM
+    events
+  WHERE
+    village_id = $village_id
+    AND JSON_EXTRACT(events.meta, '$.buildingFieldId') = $building_field_id
+    AND resolves_at >= $resolves_at
+  RETURNING
+    JSON_EXTRACT(events.meta, '$.buildingFieldId') AS buildingFieldId,
+    JSON_EXTRACT(events.meta, '$.level') AS level;
+`;
+
+export const updateEventStartsAtQuery = `
+  UPDATE events
+  SET
+    starts_at = $starts_at
+  WHERE
+    id = $event_id;
+`;
+
+export const deleteEventByIdQuery = `
+  DELETE
+  FROM
+    events
+  WHERE
+    id = $event_id;
+`;
+
+export const deleteUnitImprovementEventsFromLevelQuery = `
+  DELETE
+  FROM
+    events
+  WHERE
+    JSON_EXTRACT(events.meta, '$.unitId') = $unit_id
+    AND CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) >= $level
+  RETURNING
+    village_id AS villageId,
+    JSON_EXTRACT(events.meta, '$.unitId') AS unitId,
+    CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) AS level;
+`;
+
+export const deleteNextDemolitionEventQuery = `
+  DELETE
+  FROM
+    events
+  WHERE
+    id = (
+      SELECT id
+      FROM
+        events
+      WHERE
+        village_id = $village_id
+        AND (
+          type = 'buildingDestruction'
+          OR (
+            type = 'buildingLevelChange'
+            AND CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER) >
+                CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
+          )
+        )
+      ORDER BY resolves_at, id
+      LIMIT 1
+    );
 `;

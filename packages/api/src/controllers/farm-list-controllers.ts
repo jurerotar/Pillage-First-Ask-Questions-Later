@@ -1,5 +1,22 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import {
+  deleteFarmListQuery,
+  deleteFarmListTileQuery,
+  deletePlayerFarmListTileQuery,
+  insertClonedFarmListTilesQuery,
+  insertFarmListQuery,
+  insertFarmListTileQuery,
+  selectFarmListNameQuery,
+  selectFarmListQuery,
+  selectFarmListTileCountQuery,
+  selectFarmListTileIdsQuery,
+  selectLastInsertedRowIdQuery,
+  selectPlayerFarmListsQuery,
+  selectVillageFarmListsQuery,
+  updateFarmListNameQuery,
+  updateFarmListVillageQuery,
+} from '../queries/farm-list-queries';
 import { createController } from '../utils/controller';
 import {
   farmListSchema,
@@ -9,12 +26,7 @@ import {
 export const getMeFarmLists = createController('/players/:playerId/farm-lists')(
   ({ database }) => {
     return database.selectObjects({
-      sql: `
-        SELECT fl.id, fl.name, fl.village_id AS villageId, (SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = fl.id) AS targetCount
-        FROM farm_lists fl
-        JOIN villages v ON v.id = fl.village_id
-        WHERE v.player_id = $player_id
-      `,
+      sql: selectPlayerFarmListsQuery,
       bind: { $player_id: PLAYER_ID },
       schema: farmListSchema,
     });
@@ -24,7 +36,7 @@ export const getMeFarmLists = createController('/players/:playerId/farm-lists')(
 export const getFarmLists = createController('/villages/:villageId/farm-lists')(
   ({ database, path: { villageId } }) => {
     return database.selectObjects({
-      sql: 'SELECT id, name, village_id AS villageId, (SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = id) AS targetCount FROM farm_lists WHERE village_id = $village_id',
+      sql: selectVillageFarmListsQuery,
       bind: { $village_id: villageId },
       schema: farmListSchema,
     });
@@ -36,7 +48,7 @@ export const createFarmList = createController(
   'post',
 )(({ database, path: { villageId }, body: { name } }) => {
   database.exec({
-    sql: 'INSERT INTO farm_lists (village_id, name) VALUES ($village_id, $name)',
+    sql: insertFarmListQuery,
     bind: { $village_id: villageId, $name: name },
   });
 });
@@ -44,14 +56,14 @@ export const createFarmList = createController(
 export const getFarmList = createController('/farm-lists/:farmListId')(
   ({ database, path: { farmListId } }) => {
     const farmList = database.selectObject({
-      sql: 'SELECT id, name, village_id AS villageId, (SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = $farmListId) AS targetCount FROM farm_lists WHERE id = $farmListId',
-      bind: { $farmListId: farmListId },
+      sql: selectFarmListQuery,
+      bind: { $farm_list_id: farmListId },
       schema: farmListSchema,
     })!;
 
     const tileRows = database.selectObjects({
-      sql: 'SELECT tile_id FROM farm_list_tiles WHERE farm_list_id = $farmListId',
-      bind: { $farmListId: farmListId },
+      sql: selectFarmListTileIdsQuery,
+      bind: { $farm_list_id: farmListId },
       schema: farmListTileRowSchema,
     });
 
@@ -67,8 +79,8 @@ export const deleteFarmList = createController(
   'delete',
 )(({ database, path: { farmListId } }) => {
   database.exec({
-    sql: 'DELETE FROM farm_lists WHERE id = $farmListId',
-    bind: { $farmListId: farmListId },
+    sql: deleteFarmListQuery,
+    bind: { $farm_list_id: farmListId },
   });
 });
 
@@ -78,8 +90,8 @@ export const addTileToFarmList = createController(
 )(({ database, path: { farmListId }, body: { tileId } }) => {
   database.transaction(() => {
     const count = database.selectValue({
-      sql: 'SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = $farmListId',
-      bind: { $farmListId: farmListId },
+      sql: selectFarmListTileCountQuery,
+      bind: { $farm_list_id: farmListId },
       schema: z.number(),
     })!;
 
@@ -88,8 +100,8 @@ export const addTileToFarmList = createController(
     }
 
     database.exec({
-      sql: 'INSERT OR IGNORE INTO farm_list_tiles (farm_list_id, tile_id) VALUES ($farmListId, $tile_id)',
-      bind: { $farmListId: farmListId, $tile_id: tileId },
+      sql: insertFarmListTileQuery,
+      bind: { $farm_list_id: farmListId, $tile_id: tileId },
     });
   });
 });
@@ -99,8 +111,8 @@ export const removeTileFromFarmList = createController(
   'delete',
 )(({ database, path: { farmListId, tileId } }) => {
   database.exec({
-    sql: 'DELETE FROM farm_list_tiles WHERE farm_list_id = $farmListId AND tile_id = $tile_id',
-    bind: { $farmListId: farmListId, $tile_id: tileId },
+    sql: deleteFarmListTileQuery,
+    bind: { $farm_list_id: farmListId, $tile_id: tileId },
   });
 });
 
@@ -109,16 +121,7 @@ export const removeTileFromAllPlayerFarmLists = createController(
   'delete',
 )(({ database, body: { tileId } }) => {
   database.exec({
-    sql: `
-      DELETE FROM farm_list_tiles
-      WHERE tile_id = $tile_id
-        AND farm_list_id IN (
-          SELECT fl.id
-          FROM farm_lists fl
-          JOIN villages v ON v.id = fl.village_id
-          WHERE v.player_id = $player_id
-        )
-    `,
+    sql: deletePlayerFarmListTileQuery,
     bind: { $tile_id: tileId, $player_id: PLAYER_ID },
   });
 });
@@ -129,26 +132,29 @@ export const cloneFarmList = createController(
 )(({ database, path: { farmListId }, body: { villageId } }) => {
   database.transaction(() => {
     const sourceFarmList = database.selectObject({
-      sql: 'SELECT name FROM farm_lists WHERE id = $farmListId',
-      bind: { $farmListId: farmListId },
+      sql: selectFarmListNameQuery,
+      bind: { $farm_list_id: farmListId },
       schema: z.strictObject({
         name: z.string(),
       }),
     })!;
 
     database.exec({
-      sql: 'INSERT INTO farm_lists (village_id, name) VALUES ($villageId, $name)',
-      bind: { $villageId: villageId, $name: sourceFarmList.name },
+      sql: insertFarmListQuery,
+      bind: { $village_id: villageId, $name: sourceFarmList.name },
     });
 
     const clonedFarmListId = database.selectValue({
-      sql: 'SELECT last_insert_rowid()',
+      sql: selectLastInsertedRowIdQuery,
       schema: z.number(),
     })!;
 
     database.exec({
-      sql: 'INSERT INTO farm_list_tiles (farm_list_id, tile_id) SELECT $clonedFarmListId, tile_id FROM farm_list_tiles WHERE farm_list_id = $farmListId',
-      bind: { $clonedFarmListId: clonedFarmListId, $farmListId: farmListId },
+      sql: insertClonedFarmListTilesQuery,
+      bind: {
+        $cloned_farm_list_id: clonedFarmListId,
+        $farm_list_id: farmListId,
+      },
     });
   });
 });
@@ -160,14 +166,14 @@ export const updateFarmList = createController(
   database.transaction(() => {
     if (name !== undefined) {
       database.exec({
-        sql: 'UPDATE farm_lists SET name = $name WHERE id = $farmListId',
-        bind: { $name: name, $farmListId: farmListId },
+        sql: updateFarmListNameQuery,
+        bind: { $name: name, $farm_list_id: farmListId },
       });
     }
     if (villageId !== undefined) {
       database.exec({
-        sql: 'UPDATE farm_lists SET village_id = $villageId WHERE id = $farmListId',
-        bind: { $villageId: villageId, $farmListId: farmListId },
+        sql: updateFarmListVillageQuery,
+        bind: { $village_id: villageId, $farm_list_id: farmListId },
       });
     }
   });

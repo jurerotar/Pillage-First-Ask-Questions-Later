@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { createUnitResearchEventMock } from '@pillage-first/mocks/event';
 import type { Unit } from '@pillage-first/types/models/unit';
+import { selectVillageResearchedUnitsQuery } from '../../../queries/unit-queries';
 import { unitResearchResolver } from '../unit-research-resolvers';
 
 describe(unitResearchResolver, () => {
@@ -21,11 +22,16 @@ describe(unitResearchResolver, () => {
 
     unitResearchResolver(database, mockEvent);
 
-    const research = database.selectObject({
-      sql: 'SELECT village_id, unit_id FROM unit_research WHERE village_id = $village_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);',
-      bind: { $village_id: villageId, $unit_id: unitId },
-      schema: z.strictObject({ village_id: z.number(), unit_id: z.number() }),
-    })!;
+    const research = database
+      .selectObjects({
+        sql: selectVillageResearchedUnitsQuery,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          unit_id: z.string(),
+          village_id: z.number(),
+        }),
+      })
+      .find((row) => row.unit_id === unitId);
 
     expect(research).toBeDefined();
   });

@@ -4,11 +4,15 @@ import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/uti
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
+  deleteNextDemolitionEventQuery,
+  deleteScheduledBuildingEventsFromEventQuery,
+  deleteUnitImprovementEventsFromLevelQuery,
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
   selectEventByIdQuery,
   selectEventsByTypeQuery,
   selectTroopMovementEventsQuery,
+  updateEventStartsAtQuery,
 } from '../queries/event-queries';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
@@ -102,19 +106,7 @@ export const cancelConstructionEvent = createController(
 
     // Delete this event and all future events on the same building fields
     const cancelledScheduledEvents = db.selectObjects({
-      sql: `
-        DELETE
-        FROM
-          events
-        WHERE
-          village_id = $village_id
-          AND JSON_EXTRACT(events.meta, '$.buildingFieldId') = $building_field_id
-          AND resolves_at >= $resolves_at
-        RETURNING
-          JSON_EXTRACT(events.meta, '$.buildingFieldId') AS buildingFieldId,
-          JSON_EXTRACT(events.meta, '$.level') AS level;
-        ;
-      `,
+      sql: deleteScheduledBuildingEventsFromEventQuery,
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
@@ -148,13 +140,7 @@ export const cancelConstructionEvent = createController(
       const startsAt = getEventStartTime(db, event);
 
       db.exec({
-        sql: `
-          UPDATE events
-          SET
-            starts_at = $starts_at
-          WHERE
-            id = $event_id;
-        `,
+        sql: updateEventStartsAtQuery,
         bind: {
           $event_id: event.id,
           $starts_at: startsAt,
@@ -202,20 +188,9 @@ export const cancelUnitImprovementEvent = createController(
 
     // Delete this event and all future events on the same units
     const cancelledEvents = db.selectObjects({
-      sql: `
-        DELETE
-        FROM
-          events
-        WHERE
-          JSON_EXTRACT(events.meta, '$.unitId') = $unitId
-          AND CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) >= $level
-        RETURNING
-          village_id AS villageId,
-          JSON_EXTRACT(events.meta, '$.unitId') AS unitId,
-          CAST(JSON_EXTRACT(events.meta, '$.level') AS INTEGER) AS level;
-      `,
+      sql: deleteUnitImprovementEventsFromLevelQuery,
       bind: {
-        $unitId: cancelledEvent.unitId,
+        $unit_id: cancelledEvent.unitId,
         $level: cancelledEvent.level,
       },
       schema: z.strictObject({
@@ -248,29 +223,7 @@ export const cancelDemolitionEvent = createController(
   'delete',
 )(({ database, path: { villageId } }) => {
   database.exec({
-    sql: `
-      DELETE
-      FROM
-        events
-      WHERE
-        id = (
-          SELECT id
-          FROM
-            events
-          WHERE
-            village_id = $village_id
-            AND (
-              type = 'buildingDestruction'
-                OR (
-                type = 'buildingLevelChange'
-                  AND CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER) >
-                      CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
-                )
-              )
-          ORDER BY resolves_at, id
-          LIMIT 1
-          );
-    `,
+    sql: deleteNextDemolitionEventQuery,
     bind: {
       $village_id: villageId,
     },

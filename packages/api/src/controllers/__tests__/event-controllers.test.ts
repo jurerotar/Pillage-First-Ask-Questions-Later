@@ -7,6 +7,8 @@ import {
   createBuildingLevelChangeEventMock,
   createUnitImprovementEventMock,
 } from '@pillage-first/mocks/event';
+import { selectEventByIdQuery } from '../../queries/event-queries';
+import { updateResourceSiteResourcesByVillageIdQuery } from '../../queries/village-queries';
 import {
   cancelConstructionEvent,
   cancelDemolitionEvent,
@@ -82,12 +84,15 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: `
-        UPDATE resource_sites
-        SET wood = 100, clay = 100, iron = 100, wheat = 100
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
-      `,
-      bind: { $village_id: villageId },
+      sql: updateResourceSiteResourcesByVillageIdQuery,
+      bind: {
+        $village_id: villageId,
+        $wood: 100,
+        $clay: 100,
+        $iron: 100,
+        $wheat: 100,
+        $updated_at: now,
+      },
     });
 
     cancelConstructionEvent(
@@ -151,12 +156,15 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: `
-        UPDATE resource_sites
-        SET wood = 100, clay = 100, iron = 100, wheat = 100
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
-      `,
-      bind: { $village_id: villageId },
+      sql: updateResourceSiteResourcesByVillageIdQuery,
+      bind: {
+        $village_id: villageId,
+        $wood: 100,
+        $clay: 100,
+        $iron: 100,
+        $wheat: 100,
+        $updated_at: now,
+      },
     });
 
     cancelConstructionEvent(
@@ -227,12 +235,15 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: `
-        UPDATE resource_sites
-        SET wood = 100, clay = 100, iron = 100, wheat = 100
-        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
-      `,
-      bind: { $village_id: villageId },
+      sql: updateResourceSiteResourcesByVillageIdQuery,
+      bind: {
+        $village_id: villageId,
+        $wood: 100,
+        $clay: 100,
+        $iron: 100,
+        $wheat: 100,
+        $updated_at: now,
+      },
     });
 
     cancelConstructionEvent(
@@ -301,12 +312,15 @@ describe('event-controllers', () => {
 
     // Set baseline resources to avoid warehouse capacity caps during refund
     database.exec({
-      sql: `
-      UPDATE resource_sites
-      SET wood = 100, clay = 100, iron = 100, wheat = 100
-      WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
-    `,
-      bind: { $village_id: villageId },
+      sql: updateResourceSiteResourcesByVillageIdQuery,
+      bind: {
+        $village_id: villageId,
+        $wood: 100,
+        $clay: 100,
+        $iron: 100,
+        $wheat: 100,
+        $updated_at: startsAt,
+      },
     });
 
     // Execute the controller
@@ -347,9 +361,9 @@ describe('event-controllers', () => {
 
     // Assert that the event was actually deleted
     const deletedEvent = database.selectObject({
-      sql: 'SELECT id FROM events WHERE id = $event_id',
+      sql: selectEventByIdQuery,
       bind: { $event_id: eventId },
-      schema: z.strictObject({ id: z.number() }).optional(),
+      schema: z.object({ id: z.number() }).optional(),
     });
 
     expect(deletedEvent).toBeUndefined();

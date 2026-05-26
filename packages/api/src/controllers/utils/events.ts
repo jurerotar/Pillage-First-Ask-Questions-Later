@@ -54,6 +54,7 @@ import {
   selectUnitSpeedRelevantEffectsQuery,
 } from '../../queries/effect-queries';
 import { selectAllVillageEventsByTypeQuery } from '../../queries/event-queries';
+import { selectIsUnitResearchedQuery } from '../../queries/unit-research-queries';
 import { calculateVillageResourcesAt } from '../../utils/village';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import {
@@ -257,24 +258,7 @@ export const validateEventCreationPrerequisites = (
     }
 
     const hasAlreadyResearchedUnitsWithSameIdAndVillage = database.selectValue({
-      sql: `
-        SELECT
-          EXISTS
-          (
-            SELECT 1
-            FROM
-              unit_research
-            WHERE
-              village_id = $village_id
-              AND unit_id = (
-                SELECT id
-                FROM
-                  unit_ids
-                WHERE
-                  unit = $unit_id
-                )
-            ) AS is_researched;
-      `,
+      sql: selectIsUnitResearchedQuery,
       bind: {
         $village_id: villageId,
         $unit_id: unitId,
@@ -296,23 +280,7 @@ export const validateEventCreationPrerequisites = (
 
     if (unit.researchRequirements.length > 0) {
       const isUnitResearched = database.selectValue({
-        sql: `
-          SELECT
-            EXISTS
-            (
-              SELECT 1
-              FROM
-                unit_research
-              WHERE
-                village_id = $village_id
-                AND unit_id = (
-                  SELECT id
-                  FROM
-                    unit_ids
-                  WHERE
-                    unit = $unit_id
-                  )
-              ) AS is_researched;`,
+        sql: selectIsUnitResearchedQuery,
         bind: {
           $village_id: villageId,
           $unit_id: unitId,

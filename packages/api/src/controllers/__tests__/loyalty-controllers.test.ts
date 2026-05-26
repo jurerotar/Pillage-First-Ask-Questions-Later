@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { selectTileLoyaltyQuery } from '../../queries/loyalty-queries';
 import { getTileLoyalty } from '../loyalty-controllers';
 import { loyaltyIncreaseResolver } from '../resolvers/loyalty-resolvers';
 import { createControllerArgs } from './utils/controller-args';
@@ -92,12 +93,12 @@ describe('loyalty-controllers', () => {
     });
 
     const loyalty1 = database.selectValues({
-      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      sql: selectTileLoyaltyQuery,
       bind: { $tile_id: tileId1 },
       schema: z.number(),
     });
     const loyalty2 = database.selectValues({
-      sql: 'SELECT loyalty FROM loyalties WHERE tile_id = $tile_id',
+      sql: selectTileLoyaltyQuery,
       bind: { $tile_id: tileId2 },
       schema: z.number(),
     });
