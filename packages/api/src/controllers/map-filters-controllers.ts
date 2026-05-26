@@ -1,11 +1,11 @@
 import { snakeCase } from 'moderndash';
+import { mapMapFiltersRowToDto } from '../mappers/map-filters-mapper';
 import {
   createUpdateMapFilterQuery,
   selectMapFiltersQuery,
 } from '../queries/map-filter-queries';
+import { getMapFiltersRowSchema } from '../schemas/map-filters-schemas';
 import { createController } from '../utils/controller';
-import { mapMapFiltersRowToDto } from './mappers/map-filters-mapper';
-import { getMapFiltersRowSchema } from './schemas/map-filters-schemas';
 
 export const getMapFilters = createController('/players/:playerId/map-filters')(
   ({ database }) => {

@@ -17,11 +17,11 @@ import {
   updateFarmListNameQuery,
   updateFarmListVillageQuery,
 } from '../queries/farm-list-queries';
-import { createController } from '../utils/controller';
 import {
   farmListSchema,
   farmListTileRowSchema,
-} from './schemas/farm-list-schemas';
+} from '../schemas/farm-list-schemas';
+import { createController } from '../utils/controller';
 
 export const getMeFarmLists = createController('/players/:playerId/farm-lists')(
   ({ database }) => {

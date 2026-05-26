@@ -9,6 +9,7 @@ import {
 } from '@pillage-first/mocks/event';
 import { selectEventByIdQuery } from '../../queries/event-queries';
 import { updateResourceSiteResourcesByVillageIdQuery } from '../../queries/village-queries';
+import { insertEvents } from '../../utils/events.ts';
 import {
   cancelConstructionEvent,
   cancelDemolitionEvent,
@@ -16,7 +17,6 @@ import {
   getVillageEvents,
   getVillageEventsByType,
 } from '../event-controllers';
-import { insertEvents } from '../utils/events';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('event-controllers', () => {

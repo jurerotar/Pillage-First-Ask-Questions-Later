@@ -13,7 +13,7 @@ export const selectPlayerMapMarkersQuery = `
     CASE
       WHEN TRIM(description) = '' THEN 'Map marker ' || ROW_NUMBER() OVER (ORDER BY id)
       ELSE description
-    END AS description,
+      END AS description,
     color
   FROM
     map_markers

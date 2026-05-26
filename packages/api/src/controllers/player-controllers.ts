@@ -1,6 +1,11 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
 import {
+  mapPlayerVillage,
+  mapPlayerVillageWithPopulation,
+  mapVillageTroop,
+} from '../mappers/player-mapper';
+import {
   selectPlayerByIdQuery,
   selectPlayerBySlugQuery,
   selectPlayerVillageListingQuery,
@@ -8,17 +13,12 @@ import {
   selectVillageTroopsQuery,
   updateVillageNameQuery,
 } from '../queries/player-queries';
-import { createController } from '../utils/controller';
-import {
-  mapPlayerVillage,
-  mapPlayerVillageWithPopulation,
-  mapVillageTroop,
-} from './mappers/player-mapper';
 import {
   getPlayerVillagesWithPopulationSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
-} from './schemas/player-schemas';
+} from '../schemas/player-schemas';
+import { createController } from '../utils/controller';
 
 export const getMe = createController('/players/me')(({ database }) => {
   return database.selectObject({

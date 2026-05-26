@@ -2,8 +2,8 @@ import {
   selectVillageBookmarksQuery,
   updateVillageBookmarkTabQuery,
 } from '../queries/bookmark-queries';
+import { getBookmarksSchema } from '../schemas/bookmark-schemas';
 import { createController } from '../utils/controller';
-import { getBookmarksSchema } from './schemas/bookmark-schemas';
 
 export const getBookmarks = createController('/villages/:villageId/bookmarks')(
   ({ database, path: { villageId } }) => {

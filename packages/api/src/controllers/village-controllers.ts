@@ -1,4 +1,8 @@
 import {
+  mapOccupiableOasisRowToDto,
+  mapVillageBySlug,
+} from '../mappers/village-mapper';
+import {
   createRearrangeSourceFieldsTableQuery,
   deleteRearrangedBuildingFieldsQuery,
   dropRearrangeSourceFieldsTableQuery,
@@ -7,15 +11,11 @@ import {
   selectVillageBySlugQuery,
   updateRearrangedBuildingFieldEventsQuery,
 } from '../queries/village-queries';
-import { createController } from '../utils/controller';
-import {
-  mapOccupiableOasisRowToDto,
-  mapVillageBySlug,
-} from './mappers/village-mapper';
 import {
   getOccupiableOasisInRangeRowSchema,
   getVillageBySlugSchema,
-} from './schemas/village-schemas';
+} from '../schemas/village-schemas';
+import { createController } from '../utils/controller';
 
 export const getVillageBySlug = createController('/villages/:villageSlug')(
   ({ database, path: { villageSlug } }) => {

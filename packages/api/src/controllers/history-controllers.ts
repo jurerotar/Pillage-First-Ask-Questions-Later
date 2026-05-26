@@ -1,17 +1,17 @@
 import {
+  mapBuildingLevelChangeHistoryRowToDto,
+  mapUnitTrainingHistoryRowToDto,
+} from '../mappers/history-mapper';
+import {
   selectBuildingLevelChangeHistoryQuery,
   selectUnitTrainingHistoryQuery,
 } from '../queries/history-queries';
-import { createController } from '../utils/controller';
-import {
-  mapBuildingLevelChangeHistoryRowToDto,
-  mapUnitTrainingHistoryRowToDto,
-} from './mappers/history-mapper';
 import {
   getBuildingLevelChangeHistoryRowSchema,
   getEventsHistorySchema,
   getUnitTrainingHistoryRowSchema,
-} from './schemas/history-schemas';
+} from '../schemas/history-schemas';
+import { createController } from '../utils/controller';
 
 export const getBuildingLevelChangeHistory = createController(
   '/villages/:villageId/history/buildings',

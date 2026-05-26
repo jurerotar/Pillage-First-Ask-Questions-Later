@@ -1,8 +1,8 @@
 import type { BindableValue } from '@sqlite.org/sqlite-wasm';
 import type { NatureUnitId } from '@pillage-first/types/models/unit';
+import { mapOasisWithAnimalsRowToDto } from '../mappers/oasis-finder-mapper';
+import { getOasesWithAnimalsRowSchema } from '../schemas/oasis-animal-finder-schemas';
 import { createController } from '../utils/controller';
-import { mapOasisWithAnimalsRowToDto } from './mappers/oasis-finder-mapper';
-import { getOasesWithAnimalsRowSchema } from './schemas/oasis-animal-finder-schemas';
 
 export const getOasesWithAnimals = createController(
   '/search/oases/by-animals',

@@ -15,10 +15,10 @@ export const selectPlayerRankingsQuery = `
           JOIN faction_ids fi ON fi.id = p.faction_id
           LEFT JOIN villages v ON v.player_id = p.id
           LEFT JOIN effects e ON e.village_id = v.id
-            AND e.type = 'base'
-            AND e.scope = 'village'
-            AND e.source = 'building'
-            AND e.source_specifier = 0
+          AND e.type = 'base'
+          AND e.scope = 'village'
+          AND e.source = 'building'
+          AND e.source_specifier = 0
           LEFT JOIN effect_ids ei ON ei.id = e.effect_id
       GROUP BY
         p.id,
@@ -26,7 +26,7 @@ export const selectPlayerRankingsQuery = `
         p.slug,
         ti.tribe,
         fi.faction
-    ),
+      ),
 
     cursor_row AS (
       SELECT total_population, id
@@ -34,7 +34,7 @@ export const selectPlayerRankingsQuery = `
         player_pop
       WHERE
         id = $last_player_id
-    )
+      )
 
   SELECT
     id,
@@ -54,25 +54,25 @@ export const selectPlayerRankingsQuery = `
         SELECT 1
         FROM
           cursor_row
-      )
-      AND (
+        )
+        AND (
         (
           total_population < (
             SELECT total_population
             FROM
               cursor_row
+            )
           )
-        )
-        OR (
+          OR (
           total_population = (
             SELECT total_population
             FROM
               cursor_row
+            )
+            AND id > $last_player_id
           )
-          AND id > $last_player_id
         )
       )
-    )
   ORDER BY
     total_population DESC, id;
 `;

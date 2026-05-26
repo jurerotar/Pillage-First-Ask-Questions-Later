@@ -16,13 +16,13 @@ import {
 } from '../queries/event-queries';
 import { triggerKick } from '../scheduler/scheduler-signal';
 import { createController } from '../utils/controller';
+import { createEvents } from '../utils/create-event.ts';
+import { getEventStartTime } from '../utils/events.ts';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
 } from '../utils/zod/event-schemas';
-import { createEvents } from './utils/create-event';
-import { getEventStartTime } from './utils/events';
 
 export const getVillageEvents = createController('/villages/:villageId/events')(
   ({ database, path: { villageId } }) => {

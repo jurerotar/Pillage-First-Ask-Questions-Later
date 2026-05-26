@@ -1,7 +1,7 @@
+import { mapResearchedUnitRowToDto } from '../mappers/unit-mapper';
 import { selectVillageResearchedUnitsQuery } from '../queries/unit-queries';
+import { getResearchedUnitsRowSchema } from '../schemas/unit-research-schemas';
 import { createController } from '../utils/controller';
-import { mapResearchedUnitRowToDto } from './mappers/unit-mapper';
-import { getResearchedUnitsRowSchema } from './schemas/unit-research-schemas';
 
 export const getResearchedUnits = createController(
   '/villages/:villageId/researched-units',

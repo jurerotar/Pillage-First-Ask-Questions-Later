@@ -15,7 +15,7 @@ export const selectVillageQuestsQuery = `
         quests
       WHERE
         village_id IS NULL
-    ) AS q;
+      ) AS q;
 `;
 
 export const selectCollectableQuestCountQuery = `

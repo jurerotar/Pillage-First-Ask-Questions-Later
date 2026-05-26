@@ -12,5 +12,5 @@ export const selectPlayerFactionReputationsQuery = `
         players
       WHERE
         id = $player_id
-    );
+      );
 `;

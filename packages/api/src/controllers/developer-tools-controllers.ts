@@ -2,16 +2,16 @@ import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { GameEventType } from '@pillage-first/types/models/game-event';
+import { mapDeveloperSettingsRowToDto } from '../mappers/developer-tools-mapper';
 import { triggerKick } from '../scheduler/scheduler-signal';
+import { getDeveloperSettingsRowSchema } from '../schemas/developer-tools-schemas';
+import { materializeHeroAdventurePointsAt } from '../utils/adventures.ts';
 import { createController } from '../utils/controller';
+import { onHeroDeath } from '../utils/hero';
 import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,
 } from '../utils/village';
-import { mapDeveloperSettingsRowToDto } from './mappers/developer-tools-mapper';
-import { onHeroDeath } from './resolvers/utils/hero';
-import { getDeveloperSettingsRowSchema } from './schemas/developer-tools-schemas';
-import { materializeHeroAdventurePointsAt } from './utils/adventures';
 
 export const getDeveloperSettings = createController('/developer-settings')(
   ({ database }) => {

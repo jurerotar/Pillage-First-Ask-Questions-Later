@@ -3,7 +3,11 @@ export const selectPlayerFarmListsQuery = `
     fl.id,
     fl.name,
     fl.village_id AS villageId,
-    (SELECT COUNT(*) FROM farm_list_tiles WHERE farm_list_id = fl.id) AS targetCount
+    (
+      SELECT COUNT(*)
+      FROM farm_list_tiles
+      WHERE farm_list_id = fl.id
+      ) AS targetCount
   FROM
     farm_lists fl
       JOIN villages v ON v.id = fl.village_id

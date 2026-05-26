@@ -13,6 +13,6 @@ export const selectIsUnitResearchedQuery = `
             unit_ids
           WHERE
             unit = $unit_id
-        )
-    ) AS is_researched;
+          )
+      ) AS is_researched;
 `;

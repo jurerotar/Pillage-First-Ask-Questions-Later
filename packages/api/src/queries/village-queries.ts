@@ -13,7 +13,7 @@ export const updateResourceSiteResourcesByVillageIdQuery = `
         villages
       WHERE
         id = $village_id
-    );
+      );
 `;
 
 export const selectVillageBySlugQuery = `

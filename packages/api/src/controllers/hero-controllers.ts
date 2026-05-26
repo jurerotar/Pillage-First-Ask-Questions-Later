@@ -4,21 +4,21 @@ import type { ResourceProductionEffectId } from '@pillage-first/types/models/eff
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import type { Resource } from '@pillage-first/types/models/resource';
-import { updateHeroResourceProductionEffectQuery } from '../queries/effect-queries';
-import { createController } from '../utils/controller';
-import { updateVillageResourcesAt } from '../utils/village';
 import {
   mapHero,
   mapHeroInventoryEntry,
   mapHeroLoadoutEntry,
-} from './mappers/hero-mapper';
+} from '../mappers/hero-mapper';
+import { updateHeroResourceProductionEffectQuery } from '../queries/effect-queries';
 import {
   getHeroInventorySchema,
   getHeroLoadoutSchema,
   getHeroSchema,
-} from './schemas/hero-schemas';
-import { getPlayerHeroAdventureStateAt } from './utils/adventures';
-import { createEvents } from './utils/create-event';
+} from '../schemas/hero-schemas';
+import { getPlayerHeroAdventureStateAt } from '../utils/adventures.ts';
+import { createController } from '../utils/controller';
+import { createEvents } from '../utils/create-event.ts';
+import { updateVillageResourcesAt } from '../utils/village';
 
 export const getHero = createController('/players/:playerId/hero')(
   ({ database, path: { playerId } }) => {

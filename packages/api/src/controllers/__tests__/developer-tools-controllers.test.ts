@@ -11,13 +11,13 @@ import {
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
+import { insertEvents } from '../../utils/events.ts';
 import {
   incrementHeroAdventurePoints,
   levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
 } from '../developer-tools-controllers';
-import { insertEvents } from '../utils/events';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('developer-tools-controllers', () => {
