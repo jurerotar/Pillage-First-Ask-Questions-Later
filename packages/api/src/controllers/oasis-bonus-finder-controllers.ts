@@ -1,8 +1,8 @@
 import { oasisByBonusSearchResultItemDtoSchema } from '@pillage-first/types/dtos/oasis-search';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { roundToNDecimalPoints } from '@pillage-first/utils/math';
+import { createController } from '../http/controller';
 import { getTilesWithBonusesRowSchema } from '../schemas/oasis-bonus-finder-schemas';
-import { createController } from '../utils/controller';
 
 const createSqlBindings = (slot: OasisBonus[]) => {
   if (slot.length === 0) {

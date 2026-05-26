@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { createController } from '../http/controller';
 import {
   deleteFarmListQuery,
   deleteFarmListTileQuery,
@@ -21,7 +22,6 @@ import {
   farmListSchema,
   farmListTileRowSchema,
 } from '../schemas/farm-list-schemas';
-import { createController } from '../utils/controller';
 
 export const getMeFarmLists = createController('/players/:playerId/farm-lists')(
   ({ database }) => {

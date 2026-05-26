@@ -13,7 +13,7 @@
   },
   "exports": {
     ".": {
-      "default": "./src/api-worker.ts"
+      "default": "./src/worker/api-worker.ts"
     },
     "./open-api": {
       "default": "./src/open-api.ts"

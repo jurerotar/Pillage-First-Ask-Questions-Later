@@ -1,3 +1,4 @@
+import { createController } from '../http/controller';
 import {
   mapBuildingLevelChangeHistoryRowToDto,
   mapUnitTrainingHistoryRowToDto,
@@ -11,7 +12,6 @@ import {
   getEventsHistorySchema,
   getUnitTrainingHistoryRowSchema,
 } from '../schemas/history-schemas';
-import { createController } from '../utils/controller';
 
 export const getBuildingLevelChangeHistory = createController(
   '/villages/:villageId/history/buildings',

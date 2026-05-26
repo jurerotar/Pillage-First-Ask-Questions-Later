@@ -1,4 +1,4 @@
-import { createController } from '../utils/controller';
+import { createController } from '../http/controller';
 
 export const getMyReports = createController('/players/:playerId/reports')(
   () => {

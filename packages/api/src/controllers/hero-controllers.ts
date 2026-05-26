@@ -4,6 +4,7 @@ import type { ResourceProductionEffectId } from '@pillage-first/types/models/eff
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import type { Resource } from '@pillage-first/types/models/resource';
+import { createController } from '../http/controller';
 import {
   mapHero,
   mapHeroInventoryEntry,
@@ -16,7 +17,6 @@ import {
   getHeroSchema,
 } from '../schemas/hero-schemas';
 import { getPlayerHeroAdventureStateAt } from '../utils/adventures.ts';
-import { createController } from '../utils/controller';
 import { createEvents } from '../utils/create-event.ts';
 import { updateVillageResourcesAt } from '../utils/village';
 

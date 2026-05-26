@@ -5,9 +5,9 @@ import type {
   GameEventType,
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { postWorkerMessage } from '../notification-port.ts';
+import { triggerKick } from '../events/scheduler/scheduler-signal.ts';
 import { selectNextEventQuery } from '../queries/event-queries.ts';
-import { triggerKick } from '../scheduler/scheduler-signal.ts';
+import { postWorkerMessage } from '../worker/notification-port.ts';
 import {
   getEventCost,
   getEventDuration,

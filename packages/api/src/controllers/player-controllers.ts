@@ -1,5 +1,6 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { playerSchema } from '@pillage-first/types/models/player';
+import { createController } from '../http/controller';
 import {
   mapPlayerVillage,
   mapPlayerVillageWithPopulation,
@@ -18,7 +19,6 @@ import {
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
 } from '../schemas/player-schemas';
-import { createController } from '../utils/controller';
 
 export const getMe = createController('/players/me')(({ database }) => {
   return database.selectObject({

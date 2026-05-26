@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { createController } from '../http/controller';
 import { selectTileLoyaltyQuery } from '../queries/loyalty-queries';
-import { createController } from '../utils/controller';
 
 export const getTileLoyalty = createController('/tiles/:tileId/loyalty')(
   ({ database, path: { tileId } }) => {

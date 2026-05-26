@@ -3,6 +3,8 @@ import { calculateBuildingCancellationRefundForLevel } from '@pillage-first/game
 import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
+import { triggerKick } from '../events/scheduler/scheduler-signal';
+import { createController } from '../http/controller';
 import {
   deleteNextDemolitionEventQuery,
   deleteScheduledBuildingEventsFromEventQuery,
@@ -14,8 +16,6 @@ import {
   selectTroopMovementEventsQuery,
   updateEventStartsAtQuery,
 } from '../queries/event-queries';
-import { triggerKick } from '../scheduler/scheduler-signal';
-import { createController } from '../utils/controller';
 import { createEvents } from '../utils/create-event.ts';
 import { getEventStartTime } from '../utils/events.ts';
 import { addVillageResourcesAt, demolishBuilding } from '../utils/village';

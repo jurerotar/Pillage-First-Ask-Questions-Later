@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { loyaltyIncreaseResolver } from '../../events/resolvers/loyalty-resolvers';
 import { selectTileLoyaltyQuery } from '../../queries/loyalty-queries';
-import { loyaltyIncreaseResolver } from '../../resolvers/loyalty-resolvers';
 import { getTileLoyalty } from '../loyalty-controllers';
 import { createControllerArgs } from './utils/controller-args';
 

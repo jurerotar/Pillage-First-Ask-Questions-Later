@@ -1,5 +1,5 @@
+import type { ControllerArgs } from '../../../http/controller';
 import type { paths } from '../../../open-api';
-import type { ControllerArgs } from '../../../utils/controller';
 
 type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 

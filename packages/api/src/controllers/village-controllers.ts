@@ -1,3 +1,4 @@
+import { createController } from '../http/controller';
 import {
   mapOccupiableOasisRowToDto,
   mapVillageBySlug,
@@ -15,7 +16,6 @@ import {
   getOccupiableOasisInRangeRowSchema,
   getVillageBySlugSchema,
 } from '../schemas/village-schemas';
-import { createController } from '../utils/controller';
 
 export const getVillageBySlug = createController('/villages/:villageSlug')(
   ({ database, path: { villageSlug } }) => {

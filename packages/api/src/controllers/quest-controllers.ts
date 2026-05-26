@@ -5,6 +5,7 @@ import {
   isHeroExperienceQuestReward,
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
+import { createController } from '../http/controller';
 import { mapQuestRowToDto } from '../mappers/quest-mapper';
 import {
   collectQuestQuery,
@@ -12,7 +13,6 @@ import {
   selectVillageQuestsQuery,
 } from '../queries/quest-queries';
 import { getQuestsRowSchema } from '../schemas/quest-schemas';
-import { createController } from '../utils/controller';
 import { addHeroExperience } from '../utils/hero.ts';
 import { addVillageResourcesAt } from '../utils/village';
 

@@ -1,7 +1,7 @@
+import { createController } from '../http/controller';
 import { mapUnitImprovementRowToDto } from '../mappers/unit-mapper';
 import { selectPlayerUnitImprovementsQuery } from '../queries/unit-queries';
 import { getUnitImprovementsRowSchema } from '../schemas/unit-improvement-schemas';
-import { createController } from '../utils/controller';
 
 export const getUnitImprovements = createController(
   '/players/:playerId/unit-improvements',

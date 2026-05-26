@@ -1,4 +1,6 @@
 import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
+import { triggerKick } from '../events/scheduler/scheduler-signal';
+import { createController } from '../http/controller';
 import {
   mapTroopMovementRowToDto,
   mapTroopMovementStatsRowToDto,
@@ -9,12 +11,10 @@ import {
   selectTroopMovementStatsByVillageIdQuery,
   selectTroopMovementsByVillageIdQuery,
 } from '../queries/event-queries';
-import { triggerKick } from '../scheduler/scheduler-signal';
 import {
   getVillageTroopMovementStatsRowSchema,
   getVillageTroopMovementsRowSchema,
 } from '../schemas/troop-movement-schemas';
-import { createController } from '../utils/controller';
 import { createEvents } from '../utils/create-event.ts';
 import { validateTroopMovement as validateTroopMovementLogic } from '../utils/troops';
 import {

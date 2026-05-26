@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
+import { createController } from '../http/controller';
 import { selectTileOasisBonusesQuery } from '../queries/map-queries';
 import {
   abandonOasisQuery,
@@ -7,7 +8,6 @@ import {
   insertOasisProductionEffectQuery,
   occupyOasisQuery,
 } from '../queries/oasis-queries';
-import { createController } from '../utils/controller';
 import { updateVillageResourcesAt } from '../utils/village';
 
 export const occupyOasis = createController(

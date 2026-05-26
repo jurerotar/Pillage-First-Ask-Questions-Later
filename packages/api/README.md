@@ -5,9 +5,9 @@ This package contains worker-api, event scheduler and "backend" controllers. Ple
 ## Registering new controllers
 
 1. Create a controller using `createController` in `src/controllers`.
-2. Register the controller in `src/routes/api-routes.ts`.
-3. Manually add the endpoint and its Zod schema to the OpenAPI spec in `src/open-api.ts`.
-   - Controller `path`, `query`, and `body` params are automatically typed via Zod by matching the path and method in `src/open-api.ts`.
+2. Register the controller in `src/http/api-routes.ts`.
+3. Manually add the endpoint and its Zod schema to the matching domain file in `src/contracts/paths`.
+   - Controller `path`, `query`, and `body` params are automatically typed via Zod by matching the path and method in `src/open-api.ts`, which re-exports the composed OpenAPI contract.
 4. View the OpenAPI spec through the `swagger-ui` app in `apps/swagger-ui`.
 
 ### Example
@@ -17,7 +17,7 @@ This package contains worker-api, event scheduler and "backend" controllers. Ple
 export const getMyData = createController(
   '/my-path/:id',
 )(({ database, path }) => {
-  const { id } = path; // id is typed as string/number based on open-api.ts
+  const { id } = path; // id is typed as string/number based on the OpenAPI contract
   // ...
 });
 ```

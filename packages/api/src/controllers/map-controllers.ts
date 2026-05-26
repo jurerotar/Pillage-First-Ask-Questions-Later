@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { calculateGridLayout } from '@pillage-first/utils/map';
+import { createController } from '../http/controller';
 import {
   mapMarker,
   mapTile,
@@ -24,7 +25,6 @@ import {
   getTileTroopsSchema,
   getTileWorldItemSchema,
 } from '../schemas/map-schemas';
-import { createController } from '../utils/controller';
 
 export const getMapMarkers = createController('/players/:playerId/map-markers')(
   ({ database, path: { playerId } }) => {
