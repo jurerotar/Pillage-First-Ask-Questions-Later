@@ -20,6 +20,14 @@ import {
 
 let dbFacade: DbFacade | null = null;
 
+const getInitializedDatabase = (): DbFacade => {
+  if (dbFacade === null) {
+    throw new Error('API worker database is not initialized');
+  }
+
+  return dbFacade;
+};
+
 globalThis.addEventListener('message', async (event: MessageEvent) => {
   const { data } = event;
   const { type } = data;
@@ -36,7 +44,11 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         setNotificationPort(port);
 
         const urlParams = new URLSearchParams(globalThis.location.search);
-        const serverSlug = urlParams.get('server-slug')!;
+        const serverSlug = urlParams.get('server-slug');
+
+        if (!serverSlug) {
+          throw new Error('Missing server slug during worker init');
+        }
 
         dbFacade = await openWorkerDatabase(serverSlug);
 
@@ -78,16 +90,18 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       const { url, method, body } = data;
 
       try {
+        const database = getInitializedDatabase();
         const {
           controller,
           path,
           query,
+          body: parsedBody,
           url: rawUrl,
-        } = matchRoute(url, method);
-        const result = controller(dbFacade!, {
+        } = matchRoute(url, method, body);
+        const result = controller(database, {
           path,
           query,
-          body,
+          body: parsedBody as never,
           url: rawUrl,
         });
 
@@ -112,7 +126,10 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
       setShouldPostNotifications(false);
       cancelScheduling();
 
-      closeWorkerDatabase(dbFacade!);
+      if (dbFacade !== null) {
+        closeWorkerDatabase(dbFacade);
+      }
+
       dbFacade = null;
 
       postWorkerMessage({ type: 'WORKER_CLOSE_SUCCESS' }, { force: true });

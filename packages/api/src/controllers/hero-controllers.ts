@@ -1,16 +1,13 @@
 import { z } from 'zod';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
-import type { ResourceProductionEffectId } from '@pillage-first/types/models/effect';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
-import type { Resource } from '@pillage-first/types/models/resource';
 import { createController } from '../http/controller';
 import {
   mapHero,
   mapHeroInventoryEntry,
   mapHeroLoadoutEntry,
 } from '../mappers/hero-mapper';
-import { updateHeroResourceProductionEffectQuery } from '../queries/effect-queries';
 import {
   getHeroInventorySchema,
   getHeroLoadoutSchema,
@@ -18,6 +15,7 @@ import {
 } from '../schemas/hero-schemas';
 import { getPlayerHeroAdventureStateAt } from '../utils/adventures.ts';
 import { createEvents } from '../utils/create-event.ts';
+import { updateHeroResourceProductionEffects } from '../utils/hero.ts';
 import { updateVillageResourcesAt } from '../utils/village';
 
 export const getHero = createController('/players/:playerId/hero')(
@@ -251,48 +249,19 @@ export const changeHeroAttributes = createController(
         },
       });
 
-      const isEgyptian = hero.tribe.toLowerCase() === 'egyptians';
-      const sharedProductionPerPoint = isEgyptian ? 12 : 9;
-      const focusedProductionPerPoint = isEgyptian ? 40 : 30;
       const resourceToProduce = database.selectValue({
         sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
         schema: heroResourceToProduceSchema,
       })!;
 
-      const resourceProductionEffectIds = [
-        'woodProduction',
-        'clayProduction',
-        'ironProduction',
-        'wheatProduction',
-      ];
-
-      for (const effectId of resourceProductionEffectIds) {
-        let value = sharedProductionPerPoint * resourceProduction;
-
-        if (resourceToProduce !== 'shared') {
-          const resourceMap: Record<Resource, ResourceProductionEffectId> = {
-            wood: 'woodProduction',
-            clay: 'clayProduction',
-            iron: 'ironProduction',
-            wheat: 'wheatProduction',
-          };
-
-          value =
-            resourceMap[resourceToProduce] === effectId
-              ? focusedProductionPerPoint * resourceProduction
-              : 0;
-        }
-
-        database.exec({
-          sql: updateHeroResourceProductionEffectQuery,
-          bind: {
-            $value: value,
-            $effect_id: effectId,
-            $village_id: villageId,
-          },
-        });
-      }
+      updateHeroResourceProductionEffects({
+        database,
+        villageId,
+        tribe: hero.tribe,
+        resourceProduction,
+        resourceToProduce,
+      });
     });
   },
 );
@@ -334,10 +303,6 @@ export const changeHeroResourceToProduce = createController(
       }),
     })!;
 
-    const isEgyptian = hero.tribe.toLowerCase() === 'egyptians';
-    const sharedProductionPerPoint = isEgyptian ? 12 : 9;
-    const focusedProductionPerPoint = isEgyptian ? 40 : 30;
-
     const villageId = database.selectValue({
       sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
       bind: { $player_id: playerId },
@@ -346,39 +311,13 @@ export const changeHeroResourceToProduce = createController(
 
     updateVillageResourcesAt(database, villageId, Date.now());
 
-    const resourceProductionEffectIds = [
-      'woodProduction',
-      'clayProduction',
-      'ironProduction',
-      'wheatProduction',
-    ];
-
-    for (const effectId of resourceProductionEffectIds) {
-      let value = sharedProductionPerPoint * hero.resource_production;
-
-      if (resource !== 'shared') {
-        const resourceMap: Record<string, string> = {
-          wood: 'woodProduction',
-          clay: 'clayProduction',
-          iron: 'ironProduction',
-          wheat: 'wheatProduction',
-        };
-
-        value =
-          resourceMap[resource] === effectId
-            ? focusedProductionPerPoint * hero.resource_production
-            : 0;
-      }
-
-      database.exec({
-        sql: updateHeroResourceProductionEffectQuery,
-        bind: {
-          $value: value,
-          $effect_id: effectId,
-          $village_id: villageId,
-        },
-      });
-    }
+    updateHeroResourceProductionEffects({
+      database,
+      villageId,
+      tribe: hero.tribe,
+      resourceProduction: hero.resource_production,
+      resourceToProduce: resource,
+    });
   });
 });
 
@@ -661,23 +600,13 @@ export const useHeroItem = createController(
         bind: { $hero_id: heroId, $initialStrength: initialStrength },
       });
 
-      const resourceProductionEffectIds = [
-        'woodProduction',
-        'clayProduction',
-        'ironProduction',
-        'wheatProduction',
-      ];
-
-      for (const effectId of resourceProductionEffectIds) {
-        database.exec({
-          sql: updateHeroResourceProductionEffectQuery,
-          bind: {
-            $value: 0,
-            $effect_id: effectId,
-            $village_id: villageId,
-          },
-        });
-      }
+      updateHeroResourceProductionEffects({
+        database,
+        villageId,
+        tribe: hero.tribe,
+        resourceProduction: 0,
+        resourceToProduce: 'shared',
+      });
     } else if (itemId === 1030) {
       // EXPERIENCE_SCROLL
       itemsToUse = 1;

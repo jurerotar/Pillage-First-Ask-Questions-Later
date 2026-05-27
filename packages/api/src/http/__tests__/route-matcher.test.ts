@@ -10,12 +10,43 @@ describe(matchRoute, () => {
     expect(result.path.villageId).toBe(123);
   });
 
-  test('casts body params using real schema (/search/oases/by-bonus)', () => {
-    // This route exists in http/api-routes.ts and has a body schema in the OpenAPI contract.
-    const result = matchRoute('/search/oases/by-bonus', 'POST');
+  test('matches routes regardless of method casing', () => {
+    const result = matchRoute('/villages/123/troops', 'get');
 
-    expect(result.controller.path).toBe('/search/oases/by-bonus');
-    expect(result.controller.method).toBe('post');
+    expect(result.controller.path).toBe('/villages/:villageId/troops');
+  });
+
+  test('matches body routes using real schema', () => {
+    const result = matchRoute(
+      '/villages/123/bookmarks/MAIN_BUILDING',
+      'PATCH',
+      {
+        tab: 'overview',
+      },
+    );
+
+    expect(result.controller.path).toBe(
+      '/villages/:villageId/bookmarks/:buildingId',
+    );
+    expect(result.controller.method).toBe('patch');
+  });
+
+  test('parses request bodies using real schema', () => {
+    const result = matchRoute(
+      '/villages/123/bookmarks/MAIN_BUILDING',
+      'PATCH',
+      {
+        tab: 'overview',
+      },
+    );
+
+    expect(result.body).toStrictEqual({ tab: 'overview' });
+  });
+
+  test('throws on body validation error', () => {
+    expect(() =>
+      matchRoute('/villages/123/bookmarks/MAIN_BUILDING', 'PATCH', { tab: 1 }),
+    ).toThrow();
   });
 
   test('handles /me alias', () => {

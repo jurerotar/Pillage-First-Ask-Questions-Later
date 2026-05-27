@@ -1,10 +1,42 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
+import type { ResourceProductionEffectId } from '@pillage-first/types/models/effect';
+import {
+  type HeroResourceToProduce,
+  heroResourceToProduceSchema,
+} from '@pillage-first/types/models/hero';
+import type { Resource } from '@pillage-first/types/models/resource';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { deleteHeroEffectsQuery } from '../queries/effect-queries.ts';
+import {
+  deleteHeroEffectsQuery,
+  updateHeroResourceProductionEffectQuery,
+} from '../queries/effect-queries.ts';
 import { createEvents } from './create-event.ts';
 import { updateVillageResourcesAt } from './village.ts';
+
+const resourceProductionEffectIds = [
+  'woodProduction',
+  'clayProduction',
+  'ironProduction',
+  'wheatProduction',
+] satisfies ResourceProductionEffectId[];
+
+const resourceProductionEffectByResource = {
+  wood: 'woodProduction',
+  clay: 'clayProduction',
+  iron: 'ironProduction',
+  wheat: 'wheatProduction',
+} satisfies Record<Resource, ResourceProductionEffectId>;
+
+const getHeroResourceProductionPerPoint = (tribe: string) => {
+  const isEgyptian = tribe.toLowerCase() === 'egyptians';
+
+  return {
+    shared: isEgyptian ? 12 : 9,
+    focused: isEgyptian ? 40 : 30,
+  };
+};
 
 export const addHeroExperience = (
   database: DbFacade,
@@ -42,6 +74,43 @@ export const onHeroDeath = (database: DbFacade, timestamp: number) => {
   database.exec({
     sql: "DELETE FROM events WHERE type = 'heroHealthRegeneration';",
   });
+};
+
+export const updateHeroResourceProductionEffects = ({
+  database,
+  villageId,
+  tribe,
+  resourceProduction,
+  resourceToProduce,
+}: {
+  database: DbFacade;
+  villageId: number;
+  tribe: string;
+  resourceProduction: number;
+  resourceToProduce: HeroResourceToProduce;
+}): void => {
+  const productionPerPoint = getHeroResourceProductionPerPoint(tribe);
+  const parsedResourceToProduce =
+    heroResourceToProduceSchema.parse(resourceToProduce);
+
+  for (const effectId of resourceProductionEffectIds) {
+    const value =
+      parsedResourceToProduce === 'shared'
+        ? productionPerPoint.shared * resourceProduction
+        : resourceProductionEffectByResource[parsedResourceToProduce] ===
+            effectId
+          ? productionPerPoint.focused * resourceProduction
+          : 0;
+
+    database.exec({
+      sql: updateHeroResourceProductionEffectQuery,
+      bind: {
+        $value: value,
+        $effect_id: effectId,
+        $village_id: villageId,
+      },
+    });
+  }
 };
 
 export const createHeroHealthRegenerationEventByVillageId = (
