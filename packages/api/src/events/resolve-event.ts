@@ -4,6 +4,7 @@ import type {
   GameEventType,
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import type { Resolver } from '../types/resolver';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
@@ -34,69 +35,30 @@ import { troopTrainingEventResolver } from './resolvers/troop-resolvers';
 import { unitImprovementResolver } from './resolvers/unit-improvement-resolvers';
 import { unitResearchResolver } from './resolvers/unit-research-resolvers';
 
-export const getGameEventResolver = (gameEventType: GameEventType) => {
-  switch (gameEventType) {
-    case 'buildingLevelChange': {
-      return buildingLevelChangeResolver;
-    }
-    case 'buildingConstruction': {
-      return buildingConstructionResolver;
-    }
-    case 'buildingDestruction': {
-      return buildingDestructionResolver;
-    }
-    case 'buildingScheduledConstruction': {
-      return buildingScheduledConstructionEventResolver;
-    }
-    case 'troopTraining': {
-      return troopTrainingEventResolver;
-    }
-    case 'troopMovementReinforcements': {
-      return reinforcementMovementResolver;
-    }
-    case 'troopMovementRelocation': {
-      return relocationMovementResolver;
-    }
-    case 'troopMovementReturn': {
-      return returnMovementResolver;
-    }
-    case 'troopMovementFindNewVillage': {
-      return findNewVillageMovementResolver;
-    }
-    case 'troopMovementAttack': {
-      return attackMovementResolver;
-    }
-    case 'troopMovementRaid': {
-      return raidMovementResolver;
-    }
-    case 'troopMovementOasisOccupation': {
-      return oasisOccupationMovementResolver;
-    }
-    case 'troopMovementAdventure': {
-      return adventureMovementResolver;
-    }
-    case 'heroRevival': {
-      return heroRevivalResolver;
-    }
-    case 'heroHealthRegeneration': {
-      return heroHealthRegenerationResolver;
-    }
-    case 'loyaltyIncrease': {
-      return loyaltyIncreaseResolver;
-    }
-    case 'unitResearch': {
-      return unitResearchResolver;
-    }
-    case 'unitImprovement': {
-      return unitImprovementResolver;
-    }
-    default: {
-      console.error(`No resolver function set for event type ${gameEventType}`);
-
-      return () => {};
-    }
-  }
+type GameEventResolverMap = {
+  [TEventType in GameEventType]: Resolver<GameEvent<TEventType>>;
 };
+
+const gameEventResolvers = {
+  buildingLevelChange: buildingLevelChangeResolver,
+  buildingConstruction: buildingConstructionResolver,
+  buildingDestruction: buildingDestructionResolver,
+  buildingScheduledConstruction: buildingScheduledConstructionEventResolver,
+  troopTraining: troopTrainingEventResolver,
+  troopMovementReinforcements: reinforcementMovementResolver,
+  troopMovementRelocation: relocationMovementResolver,
+  troopMovementReturn: returnMovementResolver,
+  troopMovementFindNewVillage: findNewVillageMovementResolver,
+  troopMovementAttack: attackMovementResolver,
+  troopMovementRaid: raidMovementResolver,
+  troopMovementOasisOccupation: oasisOccupationMovementResolver,
+  troopMovementAdventure: adventureMovementResolver,
+  heroRevival: heroRevivalResolver,
+  heroHealthRegeneration: heroHealthRegenerationResolver,
+  loyaltyIncrease: loyaltyIncreaseResolver,
+  unitResearch: unitResearchResolver,
+  unitImprovement: unitImprovementResolver,
+} satisfies GameEventResolverMap;
 
 export const resolveEvent = (
   database: DbFacade,
@@ -118,7 +80,7 @@ export const resolveEvent = (
   const event = mapEventRowToTypedEvent(eventRow);
 
   try {
-    const resolver = getGameEventResolver(event.type);
+    const resolver = gameEventResolvers[event.type];
     (resolver as (db: DbFacade, ev: GameEvent) => void)(database, event);
 
     postWorkerMessage({
