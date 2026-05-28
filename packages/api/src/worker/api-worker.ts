@@ -8,8 +8,8 @@ import {
   cancelScheduling,
   initScheduler,
   scheduleNextEvent,
-} from '../events/scheduler/scheduler';
-import { createSchedulerDataSource } from '../events/scheduler/scheduler-data-source';
+} from '../http/events/scheduler/scheduler';
+import { createSchedulerDataSource } from '../http/events/scheduler/scheduler-data-source';
 import { matchRoute } from '../http/route-matcher';
 import { closeWorkerDatabase, openWorkerDatabase } from './database';
 import {

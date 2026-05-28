@@ -1,8 +1,13 @@
 import { match } from 'path-to-regexp';
+import type {
+  ZodOpenApiOperationObject,
+  ZodOpenApiPathsObject,
+} from 'zod-openapi';
+import type { ControllerOperation, Method } from './controller';
 import {
   getBookmarks,
   updateBookmark,
-} from '../controllers/bookmark-controllers';
+} from './controllers/bookmark-controllers';
 import {
   getDeveloperSettings,
   incrementHeroAdventurePoints,
@@ -11,8 +16,8 @@ import {
   spawnHeroItem,
   updateDeveloperSettings,
   updateVillageResources,
-} from '../controllers/developer-tools-controllers';
-import { getVillageEffects } from '../controllers/effect-controllers';
+} from './controllers/developer-tools-controllers';
+import { getVillageEffects } from './controllers/effect-controllers';
 import {
   cancelConstructionEvent,
   cancelDemolitionEvent,
@@ -20,7 +25,7 @@ import {
   createNewEvents,
   getVillageEvents,
   getVillageEventsByType,
-} from '../controllers/event-controllers';
+} from './controllers/event-controllers';
 import {
   addTileToFarmList,
   cloneFarmList,
@@ -32,7 +37,7 @@ import {
   removeTileFromAllPlayerFarmLists,
   removeTileFromFarmList,
   updateFarmList,
-} from '../controllers/farm-list-controllers';
+} from './controllers/farm-list-controllers';
 import {
   changeHeroAttributes,
   changeHeroResourceToProduce,
@@ -44,13 +49,13 @@ import {
   startHeroAdventure,
   unequipHeroItem,
   useHeroItem,
-} from '../controllers/hero-controllers';
+} from './controllers/hero-controllers';
 import {
   getBuildingLevelChangeHistory,
   getEventsHistory,
   getUnitTrainingHistory,
-} from '../controllers/history-controllers';
-import { getTileLoyalty } from '../controllers/loyalty-controllers';
+} from './controllers/history-controllers';
+import { getTileLoyalty } from './controllers/loyalty-controllers';
 import {
   addMapMarker,
   getMapMarkers,
@@ -59,14 +64,14 @@ import {
   getTileTroops,
   getTileWorldItem,
   removeMapMarker,
-} from '../controllers/map-controllers';
+} from './controllers/map-controllers';
 import {
   getMapFilters,
   updateMapFilter,
-} from '../controllers/map-filters-controllers';
-import { getOasesWithAnimals } from '../controllers/oasis-animal-finder-controllers';
-import { getTilesWithBonuses } from '../controllers/oasis-bonus-finder-controllers';
-import { abandonOasis, occupyOasis } from '../controllers/oasis-controllers';
+} from './controllers/map-filters-controllers';
+import { getOasesWithAnimals } from './controllers/oasis-animal-finder-controllers';
+import { getTilesWithBonuses } from './controllers/oasis-bonus-finder-controllers';
+import { abandonOasis, occupyOasis } from './controllers/oasis-controllers';
 import {
   getMe,
   getPlayerBySlug,
@@ -74,48 +79,81 @@ import {
   getPlayerVillagesWithPopulation,
   getTroopsByVillage,
   renameVillage,
-} from '../controllers/player-controllers';
+} from './controllers/player-controllers';
 import {
   getPreferences,
   updatePreference,
-} from '../controllers/preferences-controllers';
+} from './controllers/preferences-controllers';
 import {
   collectQuest,
   getCollectableQuestCount,
   getQuests,
-} from '../controllers/quest-controllers';
+} from './controllers/quest-controllers';
 import {
   deleteReport,
   getMyReports,
   getUnreadReportCount,
   updateReport,
-} from '../controllers/report-controllers';
-import { getReputations } from '../controllers/reputation-controllers';
-import { getServer } from '../controllers/server-controllers';
+} from './controllers/report-controllers';
+import { getReputations } from './controllers/reputation-controllers';
+import { getServer } from './controllers/server-controllers';
 import {
   getGameWorldOverview,
   getPlayerRankings,
   getVillageRankings,
-} from '../controllers/statistics-controllers';
+} from './controllers/statistics-controllers';
 import {
   cancelTroopMovement,
   getVillageTroopMovementStats,
   getVillageTroopMovements,
   validateTroopMovement,
-} from '../controllers/troop-movement-controllers';
-import { getUnitImprovements } from '../controllers/unit-improvement-controllers';
-import { getResearchedUnits } from '../controllers/unit-research-controllers';
+} from './controllers/troop-movement-controllers';
+import { getUnitImprovements } from './controllers/unit-improvement-controllers';
+import { getResearchedUnits } from './controllers/unit-research-controllers';
 import {
   getOccupiableOasisInRange,
   getVillageBySlug,
   rearrangeBuildingFields,
-} from '../controllers/village-controllers';
-import { getArtifactsAroundVillage } from '../controllers/world-items-controllers';
-import { createRoute, type Route } from './route';
+} from './controllers/village-controllers';
+import { getArtifactsAroundVillage } from './controllers/world-items-controllers';
+import { createRoute } from './route';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
-const apiRoutes: Route[] = [
+type UnionToIntersection<T> = (
+  T extends unknown
+    ? (value: T) => void
+    : never
+) extends (value: infer U) => void
+  ? U
+  : never;
+
+type RouteMetadata = {
+  controller: {
+    path: string;
+    method: Method;
+    operation: ControllerOperation;
+  };
+};
+
+type PathsFromRoutes<TRoutes extends readonly RouteMetadata[]> =
+  UnionToIntersection<
+    TRoutes[number] extends { controller: infer TController }
+      ? TController extends {
+          path: infer TPath extends string;
+          method: infer TMethod extends Method;
+          operation: infer TOperation;
+        }
+        ? {
+            [TPathKey in TPath]: {
+              [TMethodKey in TMethod]: TOperation;
+            };
+          }
+        : never
+      : never
+  >;
+
+export const apiRoutes = [
   // Server
   createRoute(getServer),
 
@@ -245,7 +283,15 @@ const apiRoutes: Route[] = [
   createRoute(getVillageTroopMovementStats),
   createRoute(validateTroopMovement),
   createRoute(cancelTroopMovement),
-];
+] as const;
+
+export const paths = apiRoutes.reduce<ZodOpenApiPathsObject>((acc, route) => {
+  acc[route.path] ??= {};
+  acc[route.path][route.controller.method] = route.controller
+    .operation as ZodOpenApiOperationObject;
+
+  return acc;
+}, {}) as PathsFromRoutes<typeof apiRoutes>;
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({
   ...route,

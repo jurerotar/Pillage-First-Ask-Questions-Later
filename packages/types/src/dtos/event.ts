@@ -13,4 +13,9 @@ export const baseEventDtoSchema = z
   })
   .meta({ id: 'BaseEventDto' });
 
-export const eventDtoSchema = baseEventDtoSchema.meta({ id: 'EventDto' });
+export const createEventDtoSchema = z
+  .looseObject({
+    type: gameEventTypeSchema,
+    villageId: z.number().nullable(),
+  })
+  .meta({ id: 'CreateEventDto' });

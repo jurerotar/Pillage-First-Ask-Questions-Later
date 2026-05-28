@@ -1,19 +1,28 @@
-import type { paths } from '../open-api';
-import type { Controller, Method } from './controller';
+import type { Controller, ControllerOperation, Method } from './controller';
 
-export type Route<TPath extends keyof typeof paths = keyof typeof paths> = {
-  path: TPath;
+type ControllerRouteMetadata = {
+  path: string;
+  method: Method;
+  operation: ControllerOperation;
+};
+
+export type Route<
+  TController extends ControllerRouteMetadata = ControllerRouteMetadata,
+> = {
+  path: TController['path'];
   method: string;
-  controller: Controller;
+  controller: TController;
 };
 
 export const createRoute = <
-  TPath extends keyof typeof paths,
+  TPath extends string,
   TMethod extends Method,
+  TOperation extends ControllerOperation,
+  TReturn,
 >(
-  controller: Controller<TPath, TMethod>,
-): Route<TPath> => ({
+  controller: Controller<TPath, TMethod, TOperation, TReturn>,
+): Route<typeof controller> => ({
   path: controller.path,
   method: controller.method.toUpperCase(),
-  controller: controller as unknown as Controller,
+  controller,
 });

@@ -1,26 +1,17 @@
-import type { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { paths } from '../open-api';
 import { compiledApiRoutes } from './api-routes';
-import type { Method } from './controller';
+import {
+  type Controller,
+  type ControllerOperationConfig,
+  getJsonRequestBodySchema,
+} from './controller';
 
 const routesByMethodCache = new Map<string, typeof compiledApiRoutes>();
 
 type RouteRequestParamsConfig = Record<string, unknown> & {
-  requestParams?: {
-    path?: z.ZodType;
-    query?: z.ZodType;
-  };
-  requestBody?: {
-    content?: {
-      'application/json'?: {
-        schema?: z.ZodType;
-      };
-    };
-  };
+  requestParams?: ControllerOperationConfig['requestParams'];
+  requestBody?: ControllerOperationConfig['requestBody'];
 };
-
-type RouteMethodsConfig = Partial<Record<Method, RouteRequestParamsConfig>>;
 
 const getRoutesForMethod = (method: string) => {
   const normalizedMethod = method.toUpperCase();
@@ -55,11 +46,7 @@ export const matchRoute = (url: string, method: string, body?: unknown) => {
 
     const { params: rawPathParams } = result;
 
-    const pathKey = route.path;
-    const methodKey = normalizedMethod.toLowerCase() as Method;
-
-    const routeConfigByMethod: RouteMethodsConfig = paths[pathKey];
-    const routeConfig = routeConfigByMethod[methodKey];
+    const routeConfig = route.controller.operation as RouteRequestParamsConfig;
 
     const requestParams = routeConfig?.requestParams;
 
@@ -71,12 +58,11 @@ export const matchRoute = (url: string, method: string, body?: unknown) => {
       ? requestParams.query.parse(rawQuery)
       : rawQuery;
 
-    const bodySchema =
-      routeConfig?.requestBody?.content?.['application/json']?.schema;
+    const bodySchema = getJsonRequestBodySchema(routeConfig?.requestBody);
     const parsedBody = bodySchema ? bodySchema.parse(body) : body;
 
     return {
-      controller: route.controller,
+      controller: route.controller as Controller,
       path: pathParams as Record<string, string | number>,
       query: queryParams as Record<string, string | number>,
       body: parsedBody,

@@ -1,0 +1,752 @@
+import { z } from 'zod';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
+import {
+  heroDtoSchema,
+  heroInventoryEntryDtoSchema,
+  heroLoadoutEntryDtoSchema,
+} from '@pillage-first/types/dtos/hero';
+import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
+import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
+import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
+import { getPlayerHeroAdventureStateAt } from '../../utils/adventures.ts';
+import { createEvents } from '../../utils/create-event.ts';
+import { updateHeroResourceProductionEffects } from '../../utils/hero.ts';
+import { updateVillageResourcesAt } from '../../utils/village';
+import { createController } from '../controller';
+import {
+  mapHero,
+  mapHeroInventoryEntry,
+  mapHeroLoadoutEntry,
+} from './mappers/hero-mapper';
+import {
+  getHeroInventorySchema,
+  getHeroLoadoutSchema,
+  getHeroSchema,
+} from './schemas/hero-schemas';
+
+export const getHero = createController('/players/:playerId/hero', {
+  summary: 'Get hero details',
+  requestParams: {
+    path: z.strictObject({
+      playerId: z.coerce.number(),
+    }),
+  },
+  response: heroDtoSchema,
+})(({ database, path: { playerId } }) => {
+  const row = database.selectObject({
+    sql: `
+        SELECT
+          h.id,
+          h.health,
+          h.experience,
+          h.base_attack_power,
+          h.health_regeneration,
+          h.damage_reduction,
+          h.experience_modifier,
+          h.speed,
+          h.village_id,
+          h.natarian_attack_bonus,
+          h.attack_bonus,
+          h.defence_bonus,
+          h.resource_to_produce,
+          hsa.attack_power,
+          hsa.resource_production,
+          hsa.attack_bonus,
+          hsa.defence_bonus,
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              troops t
+                JOIN unit_ids ui ON t.unit_id = ui.id
+                JOIN villages v ON t.tile_id = v.tile_id
+            WHERE
+              ui.unit = 'HERO'
+              AND v.player_id = $player_id
+            ) AS is_home
+        FROM
+          heroes h
+            JOIN
+            hero_selectable_attributes hsa ON h.id = hsa.hero_id;
+      `,
+    bind: { $player_id: playerId },
+    schema: getHeroSchema,
+  })!;
+
+  return mapHero(row);
+});
+
+export const getHeroLoadout = createController(
+  '/players/:playerId/hero/equipped-items',
+  {
+    summary: 'Get hero loadout',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+      }),
+    },
+    response: z.array(heroLoadoutEntryDtoSchema),
+  },
+)(({ database }) => {
+  const rows = database.selectObjects({
+    sql: `
+      SELECT slot, item_id, amount
+      FROM
+        hero_equipped_items
+      WHERE
+        hero_id = (
+          SELECT id
+          FROM
+            heroes
+          LIMIT 1
+          )
+    `,
+    schema: getHeroLoadoutSchema,
+  });
+
+  return rows.map(mapHeroLoadoutEntry);
+});
+
+export const getHeroInventory = createController(
+  '/players/:playerId/hero/inventory',
+  {
+    summary: 'Get hero inventory',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+      }),
+    },
+    response: z.array(heroInventoryEntryDtoSchema),
+  },
+)(({ database }) => {
+  const rows = database.selectObjects({
+    sql: `
+      SELECT i.item_id, i.amount
+      FROM
+        hero_inventory i
+      WHERE
+        i.hero_id = (
+          SELECT h.id
+          FROM
+            heroes h
+          ORDER BY h.id
+          LIMIT 1
+          )
+    `,
+    schema: getHeroInventorySchema,
+  });
+
+  return rows.map(mapHeroInventoryEntry);
+});
+
+export const getHeroAdventures = createController(
+  '/players/:playerId/hero/adventures',
+  {
+    summary: 'Get hero adventures',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+      }),
+    },
+    response: heroAdventuresSchema,
+  },
+)(({ database }) => {
+  const { available, completed, nextAvailableAt } =
+    getPlayerHeroAdventureStateAt(database, Date.now());
+
+  return heroAdventuresSchema.parse({
+    available,
+    completed,
+    nextAvailableAt,
+  });
+});
+
+export const startHeroAdventure = createController(
+  '/players/:playerId/hero/adventures',
+  'post',
+  {
+    summary: 'Start hero adventure',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+      }),
+    },
+  },
+)(({ database, path: { playerId } }) => {
+  const { health, tileId, villageId, x, y } = database.selectObject({
+    sql: `
+      SELECT
+        h.health,
+        t.tile_id as tileId,
+        h.village_id as villageId,
+        tl.x,
+        tl.y
+      FROM
+        heroes h
+          JOIN troops t ON h.id = t.unit_id
+          JOIN unit_ids ui ON t.unit_id = ui.id
+          JOIN tiles tl ON t.tile_id = tl.id
+      WHERE
+        h.player_id = $player_id
+        AND ui.unit = 'HERO'
+      LIMIT 1;
+    `,
+    bind: { $player_id: playerId },
+    schema: z.strictObject({
+      health: z.number(),
+      tileId: z.number(),
+      villageId: z.number(),
+      x: z.number(),
+      y: z.number(),
+    }),
+  })!;
+
+  if (health <= 0) {
+    throw new Error('Hero is dead');
+  }
+
+  createEvents<'troopMovementAdventure'>(database, {
+    type: 'troopMovementAdventure',
+    villageId,
+    originCoordinates: { x, y },
+    targetCoordinates: { x: 0, y: 0 },
+    troops: [
+      {
+        unitId: 'HERO',
+        amount: 1,
+        tileId,
+        source: tileId,
+      },
+    ],
+  });
+});
+
+export const changeHeroAttributes = createController(
+  '/players/:playerId/hero/attributes',
+  'patch',
+  {
+    summary: 'Change hero attributes',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+      }),
+    },
+    requestBody: z.strictObject({
+      attackPower: z.number().int().min(0).max(100),
+      resourceProduction: z.number().int().min(0).max(100),
+      attackBonus: z.number().int().min(0).max(100),
+      defenceBonus: z.number().int().min(0).max(100),
+    }),
+  },
+)(
+  ({
+    database,
+    path: { playerId },
+    body: { attackPower, resourceProduction, attackBonus, defenceBonus },
+  }) => {
+    database.transaction(() => {
+      const hero = database.selectObject({
+        sql: `
+          SELECT h.id, ti.tribe
+          FROM
+            heroes h
+              JOIN players p ON h.player_id = p.id
+              JOIN tribe_ids ti ON p.tribe_id = ti.id
+          WHERE
+            p.id = $player_id
+        `,
+        bind: { $player_id: playerId },
+        schema: z.strictObject({ id: z.number(), tribe: z.string() }),
+      })!;
+
+      database.exec({
+        sql: `
+          UPDATE hero_selectable_attributes
+          SET
+            attack_power = $attackPower,
+            resource_production = $resourceProduction,
+            attack_bonus = $attackBonus,
+            defence_bonus = $defenceBonus
+          WHERE
+            hero_id = $hero_id
+        `,
+        bind: {
+          $hero_id: hero.id,
+          $attackPower: attackPower,
+          $resourceProduction: resourceProduction,
+          $attackBonus: attackBonus,
+          $defenceBonus: defenceBonus,
+        },
+      });
+
+      const strengthPerPoint = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
+      const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
+
+      const villageId = database.selectValue({
+        sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      })!;
+
+      updateVillageResourcesAt(database, villageId, Date.now());
+
+      database.exec({
+        sql: `
+          UPDATE heroes
+          SET
+            base_attack_power = $initialStrength + ($strengthPerPoint * $attackPower),
+            attack_bonus = $attackBonus * 2, -- 0.2% * 10 (stored as integer)
+            defence_bonus = $defenceBonus * 2
+          WHERE
+            id = $hero_id
+        `,
+        bind: {
+          $hero_id: hero.id,
+          $initialStrength: initialStrength,
+          $strengthPerPoint: strengthPerPoint,
+          $attackPower: attackPower,
+          $attackBonus: attackBonus,
+          $defenceBonus: defenceBonus,
+        },
+      });
+
+      const resourceToProduce = database.selectValue({
+        sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: heroResourceToProduceSchema,
+      })!;
+
+      updateHeroResourceProductionEffects({
+        database,
+        villageId,
+        tribe: hero.tribe,
+        resourceProduction,
+        resourceToProduce,
+      });
+    });
+  },
+);
+
+export const changeHeroResourceToProduce = createController(
+  '/players/:playerId/hero/resource-to-produce',
+  'patch',
+  {
+    summary: 'Change hero resource to produce',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+      }),
+    },
+    requestBody: z.strictObject({
+      resource: heroResourceToProduceSchema,
+    }),
+  },
+)(({ database, path: { playerId }, body: { resource } }) => {
+  database.transaction(() => {
+    database.exec({
+      sql: `
+        UPDATE heroes
+        SET
+          resource_to_produce = $resource
+        WHERE
+          player_id = $player_id
+      `,
+      bind: {
+        $player_id: playerId,
+        $resource: resource,
+      },
+    });
+
+    const hero = database.selectObject({
+      sql: `
+        SELECT hsa.resource_production, ti.tribe
+        FROM
+          hero_selectable_attributes hsa
+            JOIN heroes h ON hsa.hero_id = h.id
+            JOIN players p ON h.player_id = p.id
+            JOIN tribe_ids ti ON p.tribe_id = ti.id
+        WHERE
+          p.id = $player_id
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({
+        resource_production: z.number(),
+        tribe: z.string(),
+      }),
+    })!;
+
+    const villageId = database.selectValue({
+      sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    updateVillageResourcesAt(database, villageId, Date.now());
+
+    updateHeroResourceProductionEffects({
+      database,
+      villageId,
+      tribe: hero.tribe,
+      resourceProduction: hero.resource_production,
+      resourceToProduce: resource,
+    });
+  });
+});
+
+export const equipHeroItem = createController(
+  '/players/:playerId/hero/equipped-items',
+  'patch',
+  {
+    summary: 'Equip hero item',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+      }),
+    },
+    requestBody: z.strictObject({
+      itemId: z.number(),
+      slot: heroLoadoutSlotSchema,
+      amount: z.number(),
+    }),
+  },
+)(({ database, path: { playerId }, body: { itemId, slot, amount } }) => {
+  database.transaction(() => {
+    const heroId = database.selectValue({
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    // 1. Get currently equipped item in this slot (if any)
+    const currentlyEquipped = database.selectObject({
+      sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+      bind: { $hero_id: heroId, $slot: slot },
+      schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
+    });
+
+    if (currentlyEquipped && currentlyEquipped.item_id !== itemId) {
+      // If a DIFFERENT item is there, move it back to inventory
+      database.exec({
+        sql: `
+          INSERT INTO
+            hero_inventory (hero_id, item_id, amount)
+          VALUES
+            ($hero_id, $equippedItemId, $equippedAmount)
+          ON CONFLICT(hero_id, item_id) DO UPDATE SET
+            amount = amount + EXCLUDED.amount
+        `,
+        bind: {
+          $hero_id: heroId,
+          $equippedItemId: String(currentlyEquipped.item_id),
+          $equippedAmount: currentlyEquipped.amount,
+        },
+      });
+
+      // Remove effects of replaced item
+      database.exec({
+        sql: "DELETE FROM effects WHERE source = 'hero' AND source_specifier = $itemId",
+        bind: { $itemId: currentlyEquipped.item_id },
+      });
+
+      // Remove from equipped
+      database.exec({
+        sql: 'DELETE FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
+      });
+    }
+
+    // 2. Remove new item from inventory
+    database.exec({
+      sql: `
+        DELETE
+        FROM
+          hero_inventory
+        WHERE
+          hero_id = $hero_id
+          AND item_id = $itemId
+          AND amount = $amount
+      `,
+      bind: { $hero_id: heroId, $itemId: itemId, $amount: amount },
+    });
+
+    database.exec({
+      sql: `
+        UPDATE hero_inventory
+        SET
+          amount = amount - $amount
+        WHERE
+          hero_id = $hero_id
+          AND item_id = $itemId
+          AND amount > $amount
+      `,
+      bind: { $hero_id: heroId, $itemId: itemId, $amount: amount },
+    });
+
+    // 3. Equip the new item
+    database.exec({
+      sql: `
+        INSERT INTO
+          hero_equipped_items (hero_id, slot, item_id, amount)
+        VALUES
+          ($hero_id, $slot, $itemId, $amount)
+        ON CONFLICT(hero_id, slot) DO UPDATE SET
+          amount = amount + EXCLUDED.amount
+      `,
+      bind: { $hero_id: heroId, $slot: slot, $itemId: itemId, $amount: amount },
+    });
+
+    // 4. Handle effects of newly equipped item
+    const itemDef = getItemDefinition(itemId);
+    if (itemDef.effects) {
+      const villageId = database.selectValue({
+        sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      });
+
+      for (const effect of itemDef.effects) {
+        database.exec({
+          sql: `
+            INSERT INTO
+              effects (effect_id, value, type, scope, source, village_id, source_specifier)
+            VALUES
+              ((
+                 SELECT id
+                 FROM
+                   effect_ids
+                 WHERE
+                   effect = $effectId
+                 ), $value, $type, $scope, 'hero', $village_id, $itemId)
+          `,
+          bind: {
+            $effectId: effect.id,
+            $value: effect.value,
+            $type: effect.type,
+            $scope: effect.scope,
+            $village_id:
+              effect.scope === 'village' ? (villageId ?? null) : null,
+            $itemId: itemId,
+          },
+        });
+      }
+    }
+  });
+});
+
+export const unequipHeroItem = createController(
+  '/players/:playerId/hero/equipped-items/:slot',
+  'delete',
+  {
+    summary: 'Unequip hero item',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+        slot: heroLoadoutSlotSchema,
+      }),
+    },
+  },
+)(({ database, path: { playerId, slot } }) => {
+  database.transaction(() => {
+    const heroId = database.selectValue({
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    const equipped = database.selectObject({
+      sql: 'SELECT item_id, amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+      bind: { $hero_id: heroId, $slot: slot },
+      schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
+    });
+
+    if (equipped) {
+      // Move to inventory
+      database.exec({
+        sql: `
+          INSERT INTO
+            hero_inventory (hero_id, item_id, amount)
+          VALUES
+            ($hero_id, $itemId, $amount)
+          ON CONFLICT(hero_id, item_id) DO UPDATE SET
+            amount = amount + EXCLUDED.amount
+        `,
+        bind: {
+          $hero_id: heroId,
+          $itemId: equipped.item_id,
+          $amount: equipped.amount,
+        },
+      });
+
+      // Remove effects
+      database.exec({
+        sql: "DELETE FROM effects WHERE source = 'hero' AND source_specifier = $itemId",
+        bind: { $itemId: equipped.item_id },
+      });
+
+      // Remove from equipped
+      database.exec({
+        sql: 'DELETE FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
+        bind: { $hero_id: heroId, $slot: slot },
+      });
+    }
+  });
+});
+
+export const useHeroItem = createController(
+  '/players/:playerId/hero/item',
+  'post',
+  {
+    summary: 'Use hero item',
+    requestParams: {
+      path: z.strictObject({
+        playerId: z.coerce.number(),
+      }),
+    },
+    requestBody: z.strictObject({
+      itemId: z.number(),
+      amount: z.number(),
+    }),
+  },
+)(({ database, path: { playerId }, body: { itemId, amount } }) => {
+  database.transaction(() => {
+    const heroId = database.selectObject({
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number() }),
+    })?.id;
+
+    if (heroId === undefined) {
+      throw new Error('Hero not found');
+    }
+
+    // Check inventory
+    const inventoryAmount =
+      database.selectObject({
+        sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: itemId },
+        schema: z.strictObject({ amount: z.number() }),
+      })?.amount ?? 0;
+
+    if (inventoryAmount < amount) {
+      throw new Error('Not enough items in inventory');
+    }
+
+    let itemsToUse = amount;
+
+    if (itemId === 1021) {
+      // HEALING_POTION
+      const currentHealth = database.selectObject({
+        sql: 'SELECT health FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({ health: z.number() }),
+      })!.health;
+
+      const healthNeeded = 100 - currentHealth;
+      if (healthNeeded <= 0) {
+        return; // Already at full health
+      }
+      itemsToUse = Math.min(amount, healthNeeded);
+
+      database.exec({
+        sql: 'UPDATE heroes SET health = health + $healthToAdd WHERE id = $hero_id',
+        bind: { $hero_id: heroId, $healthToAdd: itemsToUse },
+      });
+    } else if (itemId === 1022) {
+      // BOOK_OF_WISDOM
+      itemsToUse = 1;
+
+      const hero = database.selectObject({
+        sql: `
+          SELECT ti.tribe
+          FROM
+            heroes h
+              JOIN players p ON h.player_id = p.id
+              JOIN tribe_ids ti ON p.tribe_id = ti.id
+          WHERE
+            h.id = $hero_id
+        `,
+        bind: { $hero_id: heroId },
+        schema: z.strictObject({ tribe: z.string() }),
+      })!;
+
+      const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
+
+      const villageId = database.selectValue({
+        sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      })!;
+
+      updateVillageResourcesAt(database, villageId, Date.now());
+
+      database.exec({
+        sql: `
+          UPDATE hero_selectable_attributes
+          SET
+            attack_power = 0,
+            resource_production = 0,
+            attack_bonus = 0,
+            defence_bonus = 0
+          WHERE
+            hero_id = $hero_id
+        `,
+        bind: { $hero_id: heroId },
+      });
+
+      database.exec({
+        sql: `
+          UPDATE heroes
+          SET
+            base_attack_power = $initialStrength,
+            attack_bonus = 0,
+            defence_bonus = 0
+          WHERE
+            id = $hero_id
+        `,
+        bind: { $hero_id: heroId, $initialStrength: initialStrength },
+      });
+
+      updateHeroResourceProductionEffects({
+        database,
+        villageId,
+        tribe: hero.tribe,
+        resourceProduction: 0,
+        resourceToProduce: 'shared',
+      });
+    } else if (itemId === 1030) {
+      // EXPERIENCE_SCROLL
+      itemsToUse = 1;
+      const experienceToAdd = 10 * amount; // 10 experience per scroll
+
+      database.exec({
+        sql: `
+          UPDATE heroes
+          SET
+            experience = experience + $experienceToAdd
+          WHERE
+            id = $hero_id
+        `,
+        bind: { $hero_id: heroId, $experienceToAdd: experienceToAdd },
+      });
+    } else {
+      throw new Error('Item effect not implemented');
+    }
+
+    // Remove used items from inventory
+    if (inventoryAmount === itemsToUse) {
+      database.exec({
+        sql: 'DELETE FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
+      });
+    } else {
+      database.exec({
+        sql: 'UPDATE hero_inventory SET amount = amount - $itemsUsed WHERE hero_id = $hero_id AND item_id = $itemId',
+        bind: {
+          $hero_id: heroId,
+          $itemId: String(itemId),
+          $itemsUsed: itemsToUse,
+        },
+      });
+    }
+  });
+});
