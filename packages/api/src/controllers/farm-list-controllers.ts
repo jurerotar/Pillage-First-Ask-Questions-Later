@@ -21,7 +21,7 @@ import {
 import {
   farmListSchema,
   farmListTileRowSchema,
-} from '../schemas/farm-list-schemas';
+} from './schemas/farm-list-schemas';
 
 export const getMeFarmLists = createController('/players/:playerId/farm-lists')(
   ({ database }) => {

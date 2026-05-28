@@ -1,9 +1,5 @@
 import { createController } from '../http/controller';
 import {
-  mapOccupiableOasisRowToDto,
-  mapVillageBySlug,
-} from '../mappers/village-mapper';
-import {
   createRearrangeSourceFieldsTableQuery,
   deleteRearrangedBuildingFieldsQuery,
   dropRearrangeSourceFieldsTableQuery,
@@ -13,9 +9,13 @@ import {
   updateRearrangedBuildingFieldEventsQuery,
 } from '../queries/village-queries';
 import {
+  mapOccupiableOasisRowToDto,
+  mapVillageBySlug,
+} from './mappers/village-mapper';
+import {
   getOccupiableOasisInRangeRowSchema,
   getVillageBySlugSchema,
-} from '../schemas/village-schemas';
+} from './schemas/village-schemas';
 
 export const getVillageBySlug = createController('/villages/:villageSlug')(
   ({ database, path: { villageSlug } }) => {

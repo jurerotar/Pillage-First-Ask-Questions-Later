@@ -2,25 +2,25 @@ import type { TroopMovementEvent } from '@pillage-first/types/models/game-event'
 import { triggerKick } from '../events/scheduler/scheduler-signal';
 import { createController } from '../http/controller';
 import {
-  mapTroopMovementRowToDto,
-  mapTroopMovementStatsRowToDto,
-} from '../mappers/troop-movement-mapper';
-import {
   deleteEventByIdQuery,
   selectEventByIdQuery,
   selectTroopMovementStatsByVillageIdQuery,
   selectTroopMovementsByVillageIdQuery,
 } from '../queries/event-queries';
-import {
-  getVillageTroopMovementStatsRowSchema,
-  getVillageTroopMovementsRowSchema,
-} from '../schemas/troop-movement-schemas';
 import { createEvents } from '../utils/create-event.ts';
 import { validateTroopMovement as validateTroopMovementLogic } from '../utils/troops';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
 } from '../utils/zod/event-schemas';
+import {
+  mapTroopMovementRowToDto,
+  mapTroopMovementStatsRowToDto,
+} from './mappers/troop-movement-mapper';
+import {
+  getVillageTroopMovementStatsRowSchema,
+  getVillageTroopMovementsRowSchema,
+} from './schemas/troop-movement-schemas';
 
 export const validateTroopMovement = createController(
   '/troop-movements/validate',

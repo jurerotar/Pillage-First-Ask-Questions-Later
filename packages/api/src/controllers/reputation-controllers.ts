@@ -1,7 +1,7 @@
 import { createController } from '../http/controller';
-import { mapReputationRowToDto } from '../mappers/reputation-mapper';
 import { selectPlayerFactionReputationsQuery } from '../queries/reputation-queries';
-import { getReputationsRowSchema } from '../schemas/reputation-schemas';
+import { mapReputationRowToDto } from './mappers/reputation-mapper';
+import { getReputationsRowSchema } from './schemas/reputation-schemas';
 
 export const getReputations = createController(
   '/players/:playerId/reputations',

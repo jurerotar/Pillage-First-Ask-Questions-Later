@@ -6,15 +6,15 @@ import {
   isResourceQuestReward,
 } from '@pillage-first/utils/guards/quest';
 import { createController } from '../http/controller';
-import { mapQuestRowToDto } from '../mappers/quest-mapper';
 import {
   collectQuestQuery,
   selectCollectableQuestCountQuery,
   selectVillageQuestsQuery,
 } from '../queries/quest-queries';
-import { getQuestsRowSchema } from '../schemas/quest-schemas';
 import { addHeroExperience } from '../utils/hero.ts';
 import { addVillageResourcesAt } from '../utils/village';
+import { mapQuestRowToDto } from './mappers/quest-mapper';
+import { getQuestsRowSchema } from './schemas/quest-schemas';
 
 export const getQuests = createController('/villages/:villageId/quests')(
   ({ database, path: { villageId } }) => {

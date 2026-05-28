@@ -4,12 +4,12 @@ import type {
   GameEventType,
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import type { Resolver } from '../types/resolver';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
 } from '../utils/zod/event-schemas';
 import { postWorkerMessage } from '../worker/notification-port';
+import type { Resolver } from './resolver.ts';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,

@@ -2,22 +2,22 @@ import type { Faction } from '@pillage-first/types/models/faction';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import { createController } from '../http/controller';
 import {
-  mapPlayerRankingRowToDto,
-  mapServerOverviewRowToDto,
-  mapVillageRankingRowToDto,
-} from '../mappers/statistics-mapper';
-import {
   selectPlayerRankingsQuery,
   selectPlayerStatsByTribeAndFactionQuery,
   selectVillageRankingsQuery,
   selectVillageStatsByTribeAndFactionQuery,
 } from '../queries/statistics-queries';
 import {
+  mapPlayerRankingRowToDto,
+  mapServerOverviewRowToDto,
+  mapVillageRankingRowToDto,
+} from './mappers/statistics-mapper';
+import {
   getPlayerRankingsRowSchema,
   getVillageRankingsRowSchema,
   playersStatsRowSchema,
   villagesStatsRowSchema,
-} from '../schemas/statistics-schemas';
+} from './schemas/statistics-schemas';
 
 export const getPlayerRankings = createController('/statistics/players')(
   ({ database, query }) => {

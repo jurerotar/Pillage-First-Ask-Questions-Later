@@ -11,7 +11,6 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import { updateHeroEffectsVillageIdQuery } from '../../queries/effect-queries';
-import type { Resolver } from '../../types/resolver';
 import { createEvents } from '../../utils/create-event.ts';
 import {
   createHeroHealthRegenerationEventByVillageId,
@@ -20,6 +19,7 @@ import {
 import { assessAdventureCountQuestCompletion } from '../../utils/quests.ts';
 import { addTroops } from '../../utils/troops.ts';
 import { updateVillageResourcesAt } from '../../utils/village';
+import type { Resolver } from '../resolver.ts';
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>

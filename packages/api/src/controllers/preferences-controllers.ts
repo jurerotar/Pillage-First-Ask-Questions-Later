@@ -1,11 +1,11 @@
 import { snakeCase } from 'moderndash';
 import { createController } from '../http/controller';
-import { mapPreferences } from '../mappers/preferences-mapper';
 import {
   createUpdatePreferenceQuery,
   selectPreferencesQuery,
 } from '../queries/preferences-queries';
-import { getPreferencesSchema } from '../schemas/preferences-schemas';
+import { mapPreferences } from './mappers/preferences-mapper';
+import { getPreferencesSchema } from './schemas/preferences-schemas';
 
 export const getPreferences = createController(
   '/players/:playerId/preferences',

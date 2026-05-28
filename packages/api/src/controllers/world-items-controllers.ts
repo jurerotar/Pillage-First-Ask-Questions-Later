@@ -1,8 +1,8 @@
 import { artifacts } from '@pillage-first/game-assets/items';
 import { createController } from '../http/controller';
-import { mapArtifactRowToDto } from '../mappers/world-items-mapper';
 import { createSelectArtifactsAroundVillageQuery } from '../queries/world-item-queries';
-import { getArtifactsAroundVillageRowSchema } from '../schemas/world-items-schemas';
+import { mapArtifactRowToDto } from './mappers/world-items-mapper';
+import { getArtifactsAroundVillageRowSchema } from './schemas/world-items-schemas';
 
 const artifactIds = artifacts.map((item) => item.id);
 

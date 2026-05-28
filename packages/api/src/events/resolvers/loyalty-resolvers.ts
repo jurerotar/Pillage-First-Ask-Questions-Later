@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Resolver } from '../../types/resolver';
 import { createLoyaltyIncreaseEvent } from '../../utils/loyalty.ts';
+import type { Resolver } from '../resolver.ts';
 
 export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
   database,
