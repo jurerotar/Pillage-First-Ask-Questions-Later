@@ -62,3 +62,31 @@ export const returnSentReinforcementsSchema = z
     ),
   })
   .meta({ id: 'ReturnSentReinforcements' });
+
+const reinforcementTroopsSchema = z.array(
+  z.strictObject({
+    unitId: unitIdSchema,
+    amount: z.number().int().min(1),
+  }),
+);
+
+export const relocateReinforcementsSchema = z
+  .strictObject({
+    sourceTileId: z.number(),
+    troops: reinforcementTroopsSchema,
+  })
+  .meta({ id: 'RelocateReinforcements' });
+
+export const returnReinforcementsSchema = z
+  .strictObject({
+    sourceTileId: z.number(),
+    troops: reinforcementTroopsSchema,
+  })
+  .meta({ id: 'ReturnReinforcements' });
+
+export const relocateSentReinforcementsSchema = z
+  .strictObject({
+    stationedTileId: z.number(),
+    troops: reinforcementTroopsSchema,
+  })
+  .meta({ id: 'RelocateSentReinforcements' });

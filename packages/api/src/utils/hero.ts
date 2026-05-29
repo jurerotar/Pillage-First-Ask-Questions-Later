@@ -11,7 +11,9 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   deleteHeroEffectsQuery,
   updateHeroResourceProductionEffectQuery,
+  updateHeroVillageEffectsByVillageIdQuery,
 } from '../queries/effect-queries.ts';
+import { updateHeroVillageByCurrentVillageQuery } from '../queries/hero-queries.ts';
 import { createEvents } from './create-event.ts';
 import { updateVillageResourcesAt } from './village.ts';
 
@@ -150,5 +152,31 @@ export const createHeroHealthRegenerationEventByVillageId = (
     type: 'heroHealthRegeneration',
     startsAt,
     duration,
+  });
+};
+
+export const relocateHero = (
+  database: DbFacade,
+  currentVillageId: number,
+  targetVillageId: number,
+  timestamp: number,
+) => {
+  updateVillageResourcesAt(database, currentVillageId, timestamp);
+  updateVillageResourcesAt(database, targetVillageId, timestamp);
+
+  database.exec({
+    sql: updateHeroVillageByCurrentVillageQuery,
+    bind: {
+      $current_village_id: currentVillageId,
+      $target_village_id: targetVillageId,
+    },
+  });
+
+  database.exec({
+    sql: updateHeroVillageEffectsByVillageIdQuery,
+    bind: {
+      $current_village_id: currentVillageId,
+      $target_village_id: targetVillageId,
+    },
   });
 };

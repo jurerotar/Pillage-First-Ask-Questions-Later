@@ -101,3 +101,69 @@ export const selectPlayerBySlugQuery = `
     p.slug = $player_slug
   LIMIT 1;
 `;
+
+export const selectSentReinforcementsByVillageQuery = `
+  SELECT
+    v.id AS village_id,
+    v.tile_id,
+    t.x AS coordinates_x,
+    t.y AS coordinates_y,
+    v.name,
+    v.slug,
+    rfc.resource_field_composition AS resource_field_composition,
+    ui.unit AS unit_id,
+    tr.amount,
+    tr.source_tile_id
+  FROM
+    troops tr
+      JOIN villages cv
+           ON cv.id = $village_id
+      JOIN villages v
+           ON v.tile_id = tr.tile_id
+      JOIN tiles t
+           ON t.id = v.tile_id
+      LEFT JOIN resource_field_composition_ids rfc
+                ON t.resource_field_composition_id = rfc.id
+      JOIN unit_ids ui
+           ON ui.id = tr.unit_id
+  WHERE
+    tr.source_tile_id = cv.tile_id
+    AND tr.tile_id != cv.tile_id
+  ORDER BY
+    v.name,
+    v.id,
+    ui.id;
+`;
+
+export const selectSourceVillageByTileAndCurrentVillageQuery = `
+  SELECT
+    (
+      SELECT id
+      FROM villages
+      WHERE tile_id = $source_tile_id
+    ) AS sourceVillageId,
+    tile_id AS currentVillageTile
+  FROM villages
+  WHERE id = $village_id;
+`;
+
+export const selectVillageTileQuery = `
+  SELECT tile_id AS currentVillageTile
+  FROM villages
+  WHERE id = $village_id;
+`;
+
+export const selectStationedVillageByTileAndCurrentVillageQuery = `
+  SELECT
+    cv.tile_id AS currentVillageTile,
+    sv.id AS stationedVillageId
+  FROM villages cv
+    LEFT JOIN villages sv ON sv.tile_id = $stationed_tile_id
+  WHERE cv.id = $village_id;
+`;
+
+export const selectTileCoordinatesQuery = `
+  SELECT x, y
+  FROM tiles
+  WHERE id = $tile_id;
+`;
