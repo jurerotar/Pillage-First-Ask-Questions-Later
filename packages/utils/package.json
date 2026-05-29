@@ -36,6 +36,9 @@
     "./env": {
       "default": "./src/env.ts"
     },
+    "./errors": {
+      "default": "./src/errors.ts"
+    },
     "./opfs-lock-retry": {
       "default": "./src/opfs-lock-retry.ts"
     },
