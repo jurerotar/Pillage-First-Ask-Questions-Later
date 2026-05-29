@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { DemolishBuilding } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/demolish-building';
-import { RearrangeBuildingFields } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/rearrange-building-fields.tsx';
+import { RearrangeBuildingFields } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/rearrange-building-fields';
 import { RenameVillage } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/rename-village';
 import {
   Section,

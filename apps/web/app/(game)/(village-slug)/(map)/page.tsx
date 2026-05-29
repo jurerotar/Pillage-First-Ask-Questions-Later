@@ -169,7 +169,6 @@ const MapPageContents = () => {
     [closeTileModal, openSendTroopsModal],
   );
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
   useEffect(() => {
     const node = mapGrid?.element;
     if (!node) {
