@@ -167,3 +167,16 @@ export const selectTileCoordinatesQuery = `
   FROM tiles
   WHERE id = $tile_id;
 `;
+
+export const selectTroopAmountQuery = `
+  SELECT amount
+  FROM troops
+  WHERE
+    unit_id = (
+      SELECT id
+      FROM unit_ids
+      WHERE unit = $unit_id
+    )
+    AND tile_id = $tile_id
+    AND source_tile_id = $source_tile_id;
+`;

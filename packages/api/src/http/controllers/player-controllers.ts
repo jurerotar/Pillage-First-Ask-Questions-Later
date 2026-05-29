@@ -7,7 +7,6 @@ import {
   villageTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import { playerSchema } from '@pillage-first/types/models/player';
-import type { Troop } from '@pillage-first/types/models/troop';
 import {
   selectPlayerByIdQuery,
   selectPlayerBySlugQuery,
@@ -16,19 +15,21 @@ import {
   selectSentReinforcementsByVillageQuery,
   selectSourceVillageByTileAndCurrentVillageQuery,
   selectStationedVillageByTileAndCurrentVillageQuery,
-  selectTileCoordinatesQuery,
   selectVillageTileQuery,
   selectVillageTroopsQuery,
   updateVillageNameQuery,
 } from '../../queries/player-queries';
-import { createEvents } from '../../utils/create-event';
 import { relocateHero } from '../../utils/hero';
-import { addTroops, removeTroops } from '../../utils/troops';
+import {
+  hasHero,
+  moveStationedTroops,
+  returnStationedTroops,
+} from '../../utils/reinforcements';
 import { createController } from '../controller';
 import {
   mapPlayerVillage,
   mapPlayerVillageWithPopulation,
-  mapSentReinforcement,
+  mapSentReinforcements,
   mapVillageTroop,
 } from './mappers/player-mapper';
 import {
@@ -40,6 +41,9 @@ import {
   relocateSentReinforcementsSchema,
   returnReinforcementsSchema,
   returnSentReinforcementsSchema,
+  sourceVillageRowSchema,
+  stationedVillageRowSchema,
+  villageTileRowSchema,
 } from './schemas/player-schemas';
 
 export const getMe = createController('/players/me', {
@@ -169,70 +173,8 @@ export const getSentReinforcementsByVillage = createController(
     schema: getSentReinforcementsByVillageSchema,
   });
 
-  const groupedReinforcements = new Map<
-    number,
-    ReturnType<typeof mapSentReinforcement>
-  >();
-
-  for (const row of rows) {
-    const mapped = mapSentReinforcement(row);
-    const existing = groupedReinforcements.get(mapped.village.id);
-
-    if (existing) {
-      existing.troops.push(...mapped.troops);
-      continue;
-    }
-
-    groupedReinforcements.set(mapped.village.id, mapped);
-  }
-
-  return [...groupedReinforcements.values()];
+  return mapSentReinforcements(rows);
 });
-
-const villageTileRowSchema = z.strictObject({
-  currentVillageTile: z.number(),
-});
-
-const sourceVillageRowSchema = z.strictObject({
-  sourceVillageId: z.number(),
-  currentVillageTile: z.number(),
-});
-
-const stationedVillageRowSchema = z.strictObject({
-  currentVillageTile: z.number(),
-  stationedVillageId: z.number().nullable(),
-});
-
-const coordinatesRowSchema = z.strictObject({
-  x: z.number(),
-  y: z.number(),
-});
-
-const getCoordinatesByTileId = (
-  database: Parameters<typeof createEvents>[0],
-  tileId: number,
-) => {
-  return database.selectObject({
-    sql: selectTileCoordinatesQuery,
-    bind: { $tile_id: tileId },
-    schema: coordinatesRowSchema,
-  })!;
-};
-
-const toTroops = ({
-  troops,
-  tileId,
-  source,
-}: {
-  troops: Array<Pick<Troop, 'unitId' | 'amount'>>;
-  tileId: number;
-  source: number;
-}): Troop[] =>
-  troops.map((troop) => ({
-    ...troop,
-    tileId,
-    source,
-  }));
 
 export const relocateReinforcements = createController(
   '/villages/:villageId/relocate-reinforcements',
@@ -257,25 +199,18 @@ export const relocateReinforcements = createController(
       schema: sourceVillageRowSchema,
     })!;
 
-    removeTroops(
+    if (sourceVillageId === null) {
+      throw new Error('Source village not found');
+    }
+
+    moveStationedTroops(
       db,
-      toTroops({
-        troops,
-        tileId: currentVillageTile,
-        source: sourceTileId,
-      }),
+      troops,
+      { tileId: currentVillageTile, source: sourceTileId },
+      { tileId: currentVillageTile, source: currentVillageTile },
     );
 
-    addTroops(
-      db,
-      toTroops({
-        troops,
-        tileId: currentVillageTile,
-        source: currentVillageTile,
-      }),
-    );
-
-    if (troops.some(({ unitId }) => unitId === 'HERO')) {
+    if (hasHero(troops)) {
       relocateHero(db, sourceVillageId, villageId, Date.now());
     }
   });
@@ -304,22 +239,18 @@ export const returnReinforcements = createController(
       schema: sourceVillageRowSchema,
     })!;
 
-    const selectedTroops = toTroops({
+    if (sourceVillageId === null) {
+      throw new Error('Source village not found');
+    }
+
+    returnStationedTroops(
+      db,
+      sourceVillageId,
+      currentVillageTile,
+      sourceTileId,
+      sourceTileId,
       troops,
-      tileId: currentVillageTile,
-      source: sourceTileId,
-    });
-
-    removeTroops(db, selectedTroops);
-
-    createEvents<'troopMovementReturn'>(db, {
-      type: 'troopMovementReturn',
-      villageId: sourceVillageId,
-      originCoordinates: getCoordinatesByTileId(db, currentVillageTile),
-      targetCoordinates: getCoordinatesByTileId(db, sourceTileId),
-      originalMovementType: 'troopMovementReturnReinforcements',
-      troops: selectedTroops,
-    });
+    );
   });
 });
 
@@ -345,22 +276,14 @@ export const returnSentReinforcements = createController(
       schema: villageTileRowSchema,
     })!;
 
-    const selectedTroops = toTroops({
-      troops,
-      tileId: stationedTileId,
-      source: currentVillageTile,
-    });
-
-    removeTroops(db, selectedTroops);
-
-    createEvents<'troopMovementReturn'>(db, {
-      type: 'troopMovementReturn',
+    returnStationedTroops(
+      db,
       villageId,
-      originCoordinates: getCoordinatesByTileId(db, stationedTileId),
-      targetCoordinates: getCoordinatesByTileId(db, currentVillageTile),
-      originalMovementType: 'troopMovementReturnReinforcements',
-      troops: selectedTroops,
-    });
+      stationedTileId,
+      currentVillageTile,
+      currentVillageTile,
+      troops,
+    );
   });
 });
 
@@ -391,25 +314,14 @@ export const relocateSentReinforcements = createController(
       throw new Error('Stationed village not found');
     }
 
-    removeTroops(
+    moveStationedTroops(
       db,
-      toTroops({
-        troops,
-        tileId: stationedTileId,
-        source: currentVillageTile,
-      }),
+      troops,
+      { tileId: stationedTileId, source: currentVillageTile },
+      { tileId: stationedTileId, source: stationedTileId },
     );
 
-    addTroops(
-      db,
-      toTroops({
-        troops,
-        tileId: stationedTileId,
-        source: stationedTileId,
-      }),
-    );
-
-    if (troops.some(({ unitId }) => unitId === 'HERO')) {
+    if (hasHero(troops)) {
       relocateHero(db, villageId, stationedVillageId, Date.now());
     }
   });

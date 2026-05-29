@@ -74,3 +74,26 @@ export const mapSentReinforcement = (
 
   return sentReinforcementDtoSchema.parse(dto);
 };
+
+export const mapSentReinforcements = (
+  rows: z.infer<typeof getSentReinforcementsByVillageSchema>[],
+): z.infer<typeof sentReinforcementDtoSchema>[] => {
+  const groupedReinforcements = new Map<
+    number,
+    z.infer<typeof sentReinforcementDtoSchema>
+  >();
+
+  for (const row of rows) {
+    const mapped = mapSentReinforcement(row);
+    const existing = groupedReinforcements.get(mapped.village.id);
+
+    if (existing) {
+      existing.troops.push(...mapped.troops);
+      continue;
+    }
+
+    groupedReinforcements.set(mapped.village.id, mapped);
+  }
+
+  return [...groupedReinforcements.values()];
+};

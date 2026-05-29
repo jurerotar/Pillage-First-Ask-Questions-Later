@@ -708,6 +708,82 @@ describe('player-controllers', () => {
     expect(returnEvent.amount).toBe(3);
   });
 
+  test('returnReinforcements should reject more troops than are stationed', async () => {
+    const database = await prepareTestDatabase();
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const sourceTileId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM tiles
+        WHERE id != $target_tile_id
+          AND id NOT IN (SELECT tile_id FROM villages)
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $target_tile_id: targetVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    database.selectValue({
+      sql: `
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES ($name, $slug, $tile_id, $player_id)
+        RETURNING id
+      `,
+      bind: {
+        $name: 'Over Return Source Village',
+        $slug: `over-return-source-${Date.now()}`,
+        $tile_id: sourceTileId,
+        $player_id: playerId,
+      },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          3
+        )
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+      },
+    });
+
+    expect(() =>
+      returnReinforcements(
+        database,
+        createControllerArgs<
+          '/villages/:villageId/return-reinforcements',
+          'post'
+        >({
+          path: { villageId: targetVillage.id },
+          body: {
+            sourceTileId,
+            troops: [{ unitId: 'LEGIONNAIRE', amount: 4 }],
+          },
+        }),
+      ),
+    ).toThrow('Not enough troops available');
+  });
+
   test('returnSentReinforcements should create a return event back to the current village', async () => {
     const database = await prepareTestDatabase();
 

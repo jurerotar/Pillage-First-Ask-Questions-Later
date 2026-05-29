@@ -51,42 +51,62 @@ export const getSentReinforcementsByVillageSchema = z
   })
   .meta({ id: 'GetSentReinforcementsByVillageRow' });
 
+export const villageTileRowSchema = z.strictObject({
+  currentVillageTile: z.number(),
+});
+
+export const sourceVillageRowSchema = z.strictObject({
+  sourceVillageId: z.number().nullable(),
+  currentVillageTile: z.number(),
+});
+
+export const stationedVillageRowSchema = z.strictObject({
+  currentVillageTile: z.number(),
+  stationedVillageId: z.number().nullable(),
+});
+
+export const coordinatesRowSchema = z.strictObject({
+  x: z.number(),
+  y: z.number(),
+});
+
+export const troopAmountSchema = z.number().nullable();
+
+const reinforcementTileIdSchema = z.coerce.number().int().min(1);
+
+const reinforcementTroopsSchema = z
+  .array(
+    z.strictObject({
+      unitId: unitIdSchema,
+      amount: z.number().int().min(1),
+    }),
+  )
+  .min(1);
+
 export const returnSentReinforcementsSchema = z
   .strictObject({
-    stationedTileId: z.number(),
-    troops: z.array(
-      z.strictObject({
-        unitId: unitIdSchema,
-        amount: z.number().int().min(1),
-      }),
-    ),
+    stationedTileId: reinforcementTileIdSchema,
+    troops: reinforcementTroopsSchema,
   })
   .meta({ id: 'ReturnSentReinforcements' });
 
-const reinforcementTroopsSchema = z.array(
-  z.strictObject({
-    unitId: unitIdSchema,
-    amount: z.number().int().min(1),
-  }),
-);
-
 export const relocateReinforcementsSchema = z
   .strictObject({
-    sourceTileId: z.number(),
+    sourceTileId: reinforcementTileIdSchema,
     troops: reinforcementTroopsSchema,
   })
   .meta({ id: 'RelocateReinforcements' });
 
 export const returnReinforcementsSchema = z
   .strictObject({
-    sourceTileId: z.number(),
+    sourceTileId: reinforcementTileIdSchema,
     troops: reinforcementTroopsSchema,
   })
   .meta({ id: 'ReturnReinforcements' });
 
 export const relocateSentReinforcementsSchema = z
   .strictObject({
-    stationedTileId: z.number(),
+    stationedTileId: reinforcementTileIdSchema,
     troops: reinforcementTroopsSchema,
   })
   .meta({ id: 'RelocateSentReinforcements' });
