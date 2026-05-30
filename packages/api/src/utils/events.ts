@@ -694,6 +694,15 @@ export const getEventDuration = (
       return 0;
     }
 
+    const isInstantBuildingConstructionEnabled = database.selectValue({
+      sql: 'SELECT is_instant_building_construction_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isInstantBuildingConstructionEnabled) {
+      return 0;
+    }
+
     if (isBuildingDowngradeEvent(event)) {
       const { speed } = database.selectObject({
         sql: 'SELECT speed FROM servers LIMIT 1;',
@@ -706,15 +715,6 @@ export const getEventDuration = (
         event.previousLevel - event.level,
         speed,
       );
-    }
-
-    const isInstantBuildingConstructionEnabled = database.selectValue({
-      sql: 'SELECT is_instant_building_construction_enabled FROM developer_settings',
-      schema: z.coerce.boolean(),
-    });
-
-    if (isInstantBuildingConstructionEnabled) {
-      return 0;
     }
 
     const { villageId, buildingId, level } = event;
