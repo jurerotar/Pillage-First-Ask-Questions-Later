@@ -80,11 +80,11 @@ describe('statistics-controllers', () => {
     const result = getPlayerRankings(
       database,
       createControllerArgs<'/statistics/players'>({
-        query: { lastPlayerId: null },
+        query: { cursor: null, pageSize: 10_000 },
       }),
     );
 
-    const testPlayer = result.find((p) => p.id === player.id)!;
+    const testPlayer = result.items.find((p) => p.id === player.id)!;
     // population = SUM(-value) for matches. Only -200 matches.
     // -(-200) = 200
     expect(testPlayer.totalPopulation).toBe(200);
@@ -148,11 +148,11 @@ describe('statistics-controllers', () => {
     const result = getVillageRankings(
       database,
       createControllerArgs<'/statistics/villages'>({
-        query: { lastVillageId: null },
+        query: { cursor: null, pageSize: 10_000 },
       }),
     );
 
-    const testVillage = result.find((v) => v.id === village.id);
+    const testVillage = result.items.find((v) => v.id === village.id);
     expect(testVillage).toBeDefined();
     expect(testVillage?.population).toBe(300);
   });

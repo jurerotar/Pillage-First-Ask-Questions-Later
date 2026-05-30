@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { cursorPaginatedResponseSchema } from '@pillage-first/types/dtos/pagination';
 import {
   playerRankingItemDtoSchema,
   serverOverviewStatisticsDtoSchema,
@@ -24,51 +24,59 @@ import {
   playersStatsRowSchema,
   villagesStatsRowSchema,
 } from './schemas/statistics-schemas';
+import {
+  createCursorPage,
+  cursorPaginationQuerySchema,
+} from './utils/cursor-pagination';
 
 export const getPlayerRankings = createController('/statistics/players', {
   summary: 'Get player rankings',
   requestParams: {
-    query: z.strictObject({
-      lastPlayerId: z.coerce.number().nullable().optional(),
-    }),
+    query: cursorPaginationQuerySchema,
   },
-  response: z.array(playerRankingItemDtoSchema),
+  response: cursorPaginatedResponseSchema(playerRankingItemDtoSchema),
 })(({ database, query }) => {
-  const { lastPlayerId = null } = query;
+  const { cursor = null, pageSize = 20 } = query;
 
-  // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
   const rows = database.selectObjects({
     sql: selectPlayerRankingsQuery,
     bind: {
-      $last_player_id: lastPlayerId,
+      $last_player_id: cursor ? Number(cursor) : null,
+      $limit: pageSize + 1,
     },
     schema: getPlayerRankingsRowSchema,
   });
 
-  return rows.map(mapPlayerRankingRowToDto);
+  return createCursorPage({
+    items: rows.map(mapPlayerRankingRowToDto),
+    pageSize,
+    getCursor: ({ id }) => String(id),
+  });
 });
 
 export const getVillageRankings = createController('/statistics/villages', {
   summary: 'Get village rankings',
   requestParams: {
-    query: z.strictObject({
-      lastVillageId: z.coerce.number().nullable().optional(),
-    }),
+    query: cursorPaginationQuerySchema,
   },
-  response: z.array(villageRankingItemDtoSchema),
+  response: cursorPaginatedResponseSchema(villageRankingItemDtoSchema),
 })(({ database, query }) => {
-  const { lastVillageId = null } = query;
+  const { cursor = null, pageSize = 20 } = query;
 
-  // TODO: At the moment, this never returns a paginated response. Make sure to optimize that in the future!
   const rows = database.selectObjects({
     sql: selectVillageRankingsQuery,
     bind: {
-      $last_village_id: lastVillageId,
+      $last_village_id: cursor ? Number(cursor) : null,
+      $limit: pageSize + 1,
     },
     schema: getVillageRankingsRowSchema,
   });
 
-  return rows.map(mapVillageRankingRowToDto);
+  return createCursorPage({
+    items: rows.map(mapVillageRankingRowToDto),
+    pageSize,
+    getCursor: ({ id }) => String(id),
+  });
 });
 
 export const getGameWorldOverview = createController('/statistics/overview', {

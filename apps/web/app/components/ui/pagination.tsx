@@ -2,7 +2,10 @@ import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronLeft, LuChevronRight, LuEllipsis } from 'react-icons/lu';
-import type { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import type {
+  useCursorPagination,
+  usePagination,
+} from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { type Button, buttonVariants } from 'app/components/ui/button';
 
 export const PaginationWrapper = ({
@@ -125,7 +128,9 @@ export const PaginationEllipsis = ({
   );
 };
 
-type PaginationProps = ReturnType<typeof usePagination>;
+type PaginationProps =
+  | ReturnType<typeof usePagination>
+  | ReturnType<typeof useCursorPagination>;
 
 export const Pagination = (props: PaginationProps) => {
   const {

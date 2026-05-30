@@ -4,6 +4,7 @@ import {
   eventsHistoryItemDtoSchema,
   unitTrainingHistoryItemDtoSchema,
 } from '@pillage-first/types/dtos/history';
+import { cursorPaginatedResponseSchema } from '@pillage-first/types/dtos/pagination';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   selectBuildingLevelChangeHistoryQuery,
@@ -19,6 +20,10 @@ import {
   getEventsHistorySchema,
   getUnitTrainingHistoryRowSchema,
 } from './schemas/history-schemas';
+import {
+  createCursorPage,
+  cursorPaginationQuerySchema,
+} from './utils/cursor-pagination';
 
 export const getBuildingLevelChangeHistory = createController(
   '/villages/:villageId/history/buildings',
@@ -84,7 +89,7 @@ export const getEventsHistory = createController(
         villageId: z.coerce.number(),
       }),
       query: z.strictObject({
-        page: z.coerce.number().optional().default(1),
+        ...cursorPaginationQuerySchema.shape,
         scope: z.enum(['village', 'global']).optional().default('village'),
         types: z
           .array(
@@ -108,13 +113,15 @@ export const getEventsHistory = createController(
           .optional(),
       }),
     },
-    response: z.array(eventsHistoryItemDtoSchema),
+    response: cursorPaginatedResponseSchema(eventsHistoryItemDtoSchema),
   },
-)(({ database, path, url }) => {
+)(({ database, path, query, url }) => {
   const { villageId } = path;
+  const { cursor = null, pageSize = 20 } = query;
   const { searchParams } = new URL(url, 'http://localhost');
   const scope = searchParams.get('scope') ?? 'village';
   const types = searchParams.getAll('types');
+  const [cursorTimestamp, cursorId] = cursor?.split(':', 2) ?? [];
 
   const villageFilter =
     scope === 'village'
@@ -212,14 +219,32 @@ export const getEventsHistory = createController(
     SELECT * FROM (
       ${queries.join(' UNION ALL ')}
     )
-    ORDER BY timestamp DESC
+    WHERE (
+      $cursor_timestamp IS NULL
+      OR timestamp < $cursor_timestamp
+      OR (
+        timestamp = $cursor_timestamp
+        AND id > $cursor_id
+      )
+    )
+    ORDER BY timestamp DESC, id ASC
+    LIMIT $limit
   `;
 
-  return database.selectObjects({
+  const rows = database.selectObjects({
     sql,
     bind: {
       $village_id: villageId,
+      $cursor_timestamp: cursorTimestamp ? Number(cursorTimestamp) : null,
+      $cursor_id: cursorId ?? null,
+      $limit: pageSize + 1,
     },
     schema: getEventsHistorySchema,
+  });
+
+  return createCursorPage({
+    items: rows,
+    pageSize,
+    getCursor: ({ timestamp, id }) => `${timestamp}:${id}`,
   });
 });

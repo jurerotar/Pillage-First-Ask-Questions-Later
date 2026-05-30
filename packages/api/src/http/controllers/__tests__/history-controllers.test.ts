@@ -132,11 +132,11 @@ describe('history-controllers', () => {
         }),
       );
 
-      expect(allEvents).toHaveLength(4);
-      expect(allEvents[0].type).toBe('improvement');
-      expect(allEvents[1].type).toBe('research');
-      expect(allEvents[2].type).toBe('training');
-      expect(allEvents[3].type).toBe('construction');
+      expect(allEvents.items).toHaveLength(4);
+      expect(allEvents.items[0].type).toBe('improvement');
+      expect(allEvents.items[1].type).toBe('research');
+      expect(allEvents.items[2].type).toBe('training');
+      expect(allEvents.items[3].type).toBe('construction');
 
       // Filtered events
       const trainingEvents = getEventsHistory(
@@ -147,9 +147,9 @@ describe('history-controllers', () => {
         }),
       );
 
-      expect(trainingEvents).toHaveLength(1);
-      expect(trainingEvents[0].type).toBe('training');
-      expect(trainingEvents[0].data).toMatchObject({
+      expect(trainingEvents.items).toHaveLength(1);
+      expect(trainingEvents.items[0].type).toBe('training');
+      expect(trainingEvents.items[0].data).toMatchObject({
         unit: 'PHALANX',
         amount: 10,
       });

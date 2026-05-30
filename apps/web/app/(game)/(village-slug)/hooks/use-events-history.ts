@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { z } from 'zod';
 import type { eventsHistoryItemDtoSchema } from '@pillage-first/types/dtos/history';
@@ -10,6 +9,11 @@ export type HistoryEventType = z.infer<
   typeof eventsHistoryItemDtoSchema
 >['type'];
 
+type EventsHistoryPage = {
+  items: z.infer<typeof eventsHistoryItemDtoSchema>[];
+  nextCursor: string | null;
+};
+
 export const useEventsHistory = (
   scope: 'village' | 'global',
   types: HistoryEventType[] = [],
@@ -17,9 +21,15 @@ export const useEventsHistory = (
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: events } = useSuspenseQuery({
+  return {
     queryKey: [eventsHistoryCacheKey, currentVillage.id, scope, types],
-    queryFn: async () => {
+    queryFn: async ({
+      cursor,
+      pageSize,
+    }: {
+      cursor: string | null;
+      pageSize: number;
+    }): Promise<EventsHistoryPage> => {
       const { data } = await apiClient.get(
         '/villages/:villageId/history/events',
         {
@@ -28,6 +38,8 @@ export const useEventsHistory = (
           },
           query: {
             scope,
+            cursor,
+            pageSize,
             ...(types.length > 0 ? { types } : {}),
           },
         },
@@ -35,9 +47,5 @@ export const useEventsHistory = (
 
       return data;
     },
-  });
-
-  return {
-    events,
   };
 };

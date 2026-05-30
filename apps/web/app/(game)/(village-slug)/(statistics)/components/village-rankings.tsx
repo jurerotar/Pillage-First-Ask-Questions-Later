@@ -1,11 +1,10 @@
 import { clsx } from 'clsx';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { useVillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/hooks/use-village-rankings';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { useCursorPagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { Text } from 'app/components/text';
 import { Pagination } from 'app/components/ui/pagination';
 import {
@@ -23,21 +22,12 @@ const RESULTS_PER_PAGE = 20;
 export const VillageRankings = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { rankedVillages } = useVillageRankings();
+  const rankedVillagesQuery = useVillageRankings();
 
-  const startingPage = useMemo(() => {
-    const currentVillageIndex = rankedVillages.findIndex(
-      ({ id }) => id === currentVillage.id,
-    );
-
-    return Math.max(0, Math.floor(currentVillageIndex / RESULTS_PER_PAGE)) + 1;
-  }, [rankedVillages, currentVillage.id]);
-
-  const pagination = usePagination(
-    rankedVillages,
-    RESULTS_PER_PAGE,
-    startingPage,
-  );
+  const pagination = useCursorPagination({
+    ...rankedVillagesQuery,
+    resultsPerPage: RESULTS_PER_PAGE,
+  });
   const { currentPageItems, page, resultsPerPage } = pagination;
 
   return (

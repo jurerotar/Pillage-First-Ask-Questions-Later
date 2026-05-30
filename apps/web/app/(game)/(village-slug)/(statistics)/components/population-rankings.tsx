@@ -1,11 +1,10 @@
 import { clsx } from 'clsx';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { usePlayerRankings } from 'app/(game)/(village-slug)/(statistics)/components/hooks/use-player-rankings';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { useCursorPagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { Text } from 'app/components/text';
 import { Pagination } from 'app/components/ui/pagination';
 import {
@@ -23,21 +22,12 @@ const RESULTS_PER_PAGE = 20;
 export const PopulationRankings = () => {
   const { t } = useTranslation();
   const { player } = useMe();
-  const { rankedPlayers } = usePlayerRankings();
+  const rankedPlayersQuery = usePlayerRankings();
 
-  const startingPage = useMemo(() => {
-    const currentPlayerIndex = rankedPlayers.findIndex(
-      ({ id }) => id === player.id,
-    );
-
-    return Math.max(0, Math.floor(currentPlayerIndex / RESULTS_PER_PAGE)) + 1;
-  }, [rankedPlayers, player.id]);
-
-  const pagination = usePagination(
-    rankedPlayers,
-    RESULTS_PER_PAGE,
-    startingPage,
-  );
+  const pagination = useCursorPagination({
+    ...rankedPlayersQuery,
+    resultsPerPage: RESULTS_PER_PAGE,
+  });
   const { currentPageItems, page, resultsPerPage } = pagination;
 
   return (
