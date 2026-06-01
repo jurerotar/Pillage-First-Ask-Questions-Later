@@ -98,5 +98,4 @@ export default [
       ]),
     ]),
   ]),
-  route('__spa-preload', '(internal)/(spa-preload)/page.tsx'),
 ] satisfies RouteConfigEntry[];

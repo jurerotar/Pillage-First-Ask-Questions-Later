@@ -1,4 +1,4 @@
-import { type DataConnection, Peer } from 'peerjs';
+import Peer, { type DataConnection } from 'peerjs';
 import { useCallback, useEffect, useRef } from 'react';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';

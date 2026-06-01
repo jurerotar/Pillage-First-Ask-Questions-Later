@@ -1,7 +1,6 @@
 import type { Config } from '@react-router/dev/config';
 import {
   createSPAPagesWithPreloads,
-  deleteSPAPreloadPage,
   generateStaticFeeds,
   replaceReactIconsSpritePlaceholdersOnPreRenderedPages,
 } from './scripts/react-router-build-end-hook-scripts';
@@ -17,14 +16,12 @@ const publicPagesToPrerender = [
   '/404',
 ];
 
-const prerenderPaths = [...publicPagesToPrerender, '/__spa-preload'];
-
 const reactRouterConfig: Config = {
   ssr: false,
   subResourceIntegrity: false,
   prerender: {
     concurrency: 1,
-    paths: prerenderPaths,
+    paths: publicPagesToPrerender,
   },
   future: {
     v8_middleware: true,
@@ -37,7 +34,6 @@ const reactRouterConfig: Config = {
   buildEnd: async (args) => {
     await createSPAPagesWithPreloads(args);
     await replaceReactIconsSpritePlaceholdersOnPreRenderedPages(args);
-    await deleteSPAPreloadPage(args);
     await generateStaticFeeds(args);
   },
 };
