@@ -1,7 +1,6 @@
 import { MDXProvider } from '@mdx-js/react';
 import { type ComponentProps, use } from 'react';
 import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
-import type { Route } from '@react-router/types/app/(public)/+types/layout';
 import { DesktopNavigation } from 'app/(public)/components/desktop-navigation';
 import { Footer } from 'app/(public)/components/footer';
 import { MobileNavigation } from 'app/(public)/components/mobile-navigation';
@@ -9,16 +8,7 @@ import { HeadLinks } from 'app/components/head-links';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import { Toaster } from 'app/components/ui/toaster';
-import { type AvailableLocale, locales } from 'app/localization/i18n';
 import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
-
-const getLocale = (locale?: string): AvailableLocale => {
-  if (!locale || !locales.includes(locale as AvailableLocale)) {
-    return 'en-US';
-  }
-
-  return locale as AvailableLocale;
-};
 
 const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   h1: (props) => (
@@ -79,12 +69,12 @@ const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   ),
 };
 
-const LayoutContent = ({ locale }: { locale: AvailableLocale }) => {
+const LayoutContent = () => {
   const { uiColorScheme } = use(CookieContext);
 
   return (
     <html
-      lang={locale}
+      lang="en-US"
       className={uiColorScheme === 'dark' ? 'dark' : ''}
     >
       <head>
@@ -107,12 +97,10 @@ const LayoutContent = ({ locale }: { locale: AvailableLocale }) => {
   );
 };
 
-export const Layout = ({ params }: Route.ComponentProps) => {
-  const locale = getLocale(params.locale);
-
+export const Layout = () => {
   return (
     <CookieProvider>
-      <LayoutContent locale={locale} />
+      <LayoutContent />
     </CookieProvider>
   );
 };

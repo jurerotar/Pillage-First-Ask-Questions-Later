@@ -1,5 +1,4 @@
 import type { Config } from '@react-router/dev/config';
-import { locales } from 'app/localization/i18n';
 import {
   createSPAPagesWithPreloads,
   deleteSPAPreloadPage,
@@ -18,15 +17,7 @@ const publicPagesToPrerender = [
   '/404',
 ];
 
-const localizedPagesToPrerender = locales.flatMap((locale) => {
-  return publicPagesToPrerender.map((page) => `/${locale}${page}`);
-});
-
-const prerenderPaths = [
-  ...publicPagesToPrerender,
-  ...localizedPagesToPrerender,
-  '/__spa-preload',
-];
+const prerenderPaths = [...publicPagesToPrerender, '/__spa-preload'];
 
 const reactRouterConfig: Config = {
   ssr: false,
