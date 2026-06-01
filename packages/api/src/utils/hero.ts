@@ -11,9 +11,9 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   deleteHeroEffectsQuery,
   updateHeroResourceProductionEffectQuery,
-} from '../queries/effect-queries.ts';
-import { createEvents } from './create-event.ts';
-import { updateVillageResourcesAt } from './village.ts';
+} from '../queries/effect-queries';
+import { createEvents } from './create-event';
+import { updateVillageResourcesAt } from './village';
 
 const resourceProductionEffectIds = [
   'woodProduction',

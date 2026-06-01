@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import { questSchema } from '@pillage-first/types/models/quest';
-import type { getQuestsRowSchema } from '../schemas/quest-schemas.ts';
+import type { getQuestsRowSchema } from '../schemas/quest-schemas';
 
 export const mapQuestRowToDto = (row: z.infer<typeof getQuestsRowSchema>) =>
   questSchema.parse({

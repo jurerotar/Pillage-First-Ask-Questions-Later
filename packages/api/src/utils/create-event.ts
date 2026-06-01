@@ -5,9 +5,9 @@ import type {
   GameEventType,
 } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { triggerKick } from '../http/events/scheduler/scheduler-signal.ts';
-import { selectNextEventQuery } from '../queries/event-queries.ts';
-import { postWorkerMessage } from '../worker/notification-port.ts';
+import { triggerKick } from '../http/events/scheduler/scheduler-signal';
+import { selectNextEventQuery } from '../queries/event-queries';
+import { postWorkerMessage } from '../worker/notification-port';
 import {
   getEventCost,
   getEventDuration,
@@ -17,8 +17,8 @@ import {
   runEventCreationSideEffects,
   validateEventCreationPrerequisites,
   validateEventCreationResources,
-} from './events.ts';
-import { subtractVillageResourcesAt } from './village.ts';
+} from './events';
+import { subtractVillageResourcesAt } from './village';
 
 type CreateNewEventsArgs<T extends GameEventType> = Omit<
   GameEvent<T>,

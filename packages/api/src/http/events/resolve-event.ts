@@ -9,7 +9,7 @@ import {
   mapEventRowToTypedEvent,
 } from '../../utils/zod/event-schemas';
 import { postWorkerMessage } from '../../worker/notification-port';
-import type { Resolver } from './resolver.ts';
+import type { Resolver } from './resolver';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,

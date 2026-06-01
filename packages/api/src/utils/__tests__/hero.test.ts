@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { onHeroDeath } from '../hero.ts';
+import { onHeroDeath } from '../hero';
 
 describe('hero utils resolvers', () => {
   test('onHeroDeath should remove heroHealthRegeneration events', async () => {

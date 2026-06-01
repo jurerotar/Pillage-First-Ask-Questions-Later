@@ -9,7 +9,7 @@ import {
 } from '@pillage-first/mocks/event';
 import { selectEventByIdQuery } from '../../../queries/event-queries';
 import { updateResourceSiteResourcesByVillageIdQuery } from '../../../queries/village-queries';
-import { insertEvents } from '../../../utils/events.ts';
+import { insertEvents } from '../../../utils/events';
 import {
   cancelConstructionEvent,
   cancelDemolitionEvent,

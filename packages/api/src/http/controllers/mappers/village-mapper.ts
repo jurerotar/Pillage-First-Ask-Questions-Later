@@ -6,7 +6,7 @@ import {
   buildingFieldRowSchema,
   type getOccupiableOasisInRangeRowSchema,
   type getVillageBySlugSchema,
-} from '../schemas/village-schemas.ts';
+} from '../schemas/village-schemas';
 
 export const mapVillageBySlug = (
   row: z.infer<typeof getVillageBySlugSchema>,
