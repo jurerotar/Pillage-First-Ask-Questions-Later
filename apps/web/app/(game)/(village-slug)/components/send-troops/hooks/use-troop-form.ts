@@ -172,7 +172,6 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
       ...getBaseEventArgs(data),
       type: type,
       villageId: currentVillage.id,
-      originCoordinates: currentVillage.coordinates,
     });
 
     form.clearErrors('root');

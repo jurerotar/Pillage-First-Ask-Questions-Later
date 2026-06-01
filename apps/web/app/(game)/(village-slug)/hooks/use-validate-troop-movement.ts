@@ -9,7 +9,6 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 type ValidateTroopMovementArgs = {
   type: TroopMovementEventType;
   troops: Troop[];
-  originCoordinates: Coordinates;
   targetCoordinates: Coordinates;
   villageId: number;
 };
@@ -32,7 +31,13 @@ export const useValidateTroopMovement = () => {
   >({
     mutationFn: async (args) => {
       const { data } = await apiClient.post('/troop-movements/validate', {
-        body: args,
+        body: {
+          ...args,
+          troops: args.troops.map(({ unitId, amount }) => ({
+            unitId,
+            amount,
+          })),
+        },
       });
 
       return data;

@@ -18,39 +18,41 @@ export const AcademyResearchTable = () => {
   } = useEventsByType('unitResearch');
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHeaderCell>{t('Unit')}</TableHeaderCell>
-          <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {hasResearchEventsOngoing && (
+    <div className="overflow-x-scroll scrollbar-hidden">
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableCell>
-              {t(`UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`, {
-                count: 1,
-              })}
-            </TableCell>
-            <TableCell>
-              <Countdown
-                endsAt={
-                  currentVillageUnitResearchEvents[0].startsAt +
-                  currentVillageUnitResearchEvents[0].duration
-                }
-              />
-            </TableCell>
+            <TableHeaderCell>{t('Unit')}</TableHeaderCell>
+            <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
           </TableRow>
-        )}
-        {!hasResearchEventsOngoing && (
-          <TableRow>
-            <TableCell colSpan={2}>
-              {t('No research is currently taking place')}
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {hasResearchEventsOngoing && (
+            <TableRow>
+              <TableCell>
+                {t(`UNITS.${currentVillageUnitResearchEvents[0].unitId}.NAME`, {
+                  count: 1,
+                })}
+              </TableCell>
+              <TableCell>
+                <Countdown
+                  endsAt={
+                    currentVillageUnitResearchEvents[0].startsAt +
+                    currentVillageUnitResearchEvents[0].duration
+                  }
+                />
+              </TableCell>
+            </TableRow>
+          )}
+          {!hasResearchEventsOngoing && (
+            <TableRow>
+              <TableCell colSpan={2}>
+                {t('No research is currently taking place')}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
   );
 };

@@ -3,7 +3,11 @@ import {
   troopMovementItemDtoSchema,
   troopMovementStatsItemDtoSchema,
 } from '@pillage-first/types/dtos/troop-movement';
-import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
+import {
+  gameEventTypeSchema,
+  type TroopMovementEvent,
+} from '@pillage-first/types/models/game-event';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   deleteEventByIdQuery,
@@ -34,12 +38,9 @@ export const validateTroopMovement = createController(
   {
     summary: 'Validate troop movement',
     requestBody: z.strictObject({
-      type: z.string(),
+      type: gameEventTypeSchema,
       villageId: z.number(),
-      targetCoordinates: z.strictObject({
-        x: z.number(),
-        y: z.number(),
-      }),
+      targetCoordinates: coordinatesSchema,
       troops: z.array(
         z.strictObject({
           unitId: unitIdSchema,
