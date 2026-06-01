@@ -11,6 +11,9 @@
 /latest-updates                   /latest-updates/index.html                200
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
+/game/:splat/not-allowed                            /game/server-slug/not-allowed/index.html                                  200
+/game/:splat/not-found                              /game/server-slug/not-found/index.html                                    200
+/game/:splat/:splat                                 /game/server-slug/village-slug/index.html                                 200
 /game/:splat/:splat/resources                       /game/server-slug/village-slug/resources/index.html                        200
 /game/:splat/:splat/village                         /game/server-slug/village-slug/village/index.html                          200
 /game/:splat/:splat/map                             /game/server-slug/village-slug/map/index.html                              200
@@ -24,7 +27,10 @@
 /game/:splat/:splat/quests                          /game/server-slug/village-slug/quests/index.html                           200
 /game/:splat/:splat/reports                         /game/server-slug/village-slug/reports/index.html                          200
 /game/:splat/:splat/reports/:splat                  /game/server-slug/village-slug/reports/report-id/index.html                200
-/game/:splat/:splat/players/:splat                  /game/server-slug/village-slug/players/player-id/index.html                200
+/game/:splat/:splat/oasis-animal-finder             /game/server-slug/village-slug/oasis-animal-finder/index.html              200
+/game/:splat/:splat/events                          /game/server-slug/village-slug/events/index.html                           200
+/game/:splat/:splat/players                         /game/server-slug/village-slug/players/index.html                          200
+/game/:splat/:splat/players/:splat                  /game/server-slug/village-slug/players/player-slug/index.html              200
 /game/:splat/:splat/oasis-bonus-finder              /game/server-slug/village-slug/oasis-bonus-finder/index.html               200
 
 # === Dynamic fallback for game routes not statically pre-rendered ===
