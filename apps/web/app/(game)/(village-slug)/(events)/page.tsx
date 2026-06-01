@@ -18,7 +18,7 @@ import {
   type HistoryEventType,
   useEventsHistory,
 } from 'app/(game)/(village-slug)/hooks/use-events-history';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { useCursorPagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
@@ -66,22 +66,23 @@ const EventsListTableIcon = ({ type }: EventsListTableIconProps) => {
 
 type EventsListProps = {
   scope: 'village' | 'global';
-  page: number;
   eventFilters: HistoryEventType[];
   handlePageChange: (newPage: number | ((prev: number) => number)) => void;
 };
 
 const EventsList = ({
   scope,
-  page,
   eventFilters,
   handlePageChange,
 }: EventsListProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
-  const { events } = useEventsHistory(scope, eventFilters);
-  const pagination = usePagination(events, 20, page);
+  const eventsHistoryQuery = useEventsHistory(scope, eventFilters);
+  const pagination = useCursorPagination({
+    ...eventsHistoryQuery,
+    resultsPerPage: 20,
+  });
 
   const villageMap = useMemo(() => {
     return new Map(playerVillages.map((v) => [v.id, v.name]));
@@ -176,7 +177,7 @@ const EventsList = ({
                 </TableCell>
               </TableRow>
             ))}
-            {events.length === 0 && (
+            {pagination.currentPageItems.length === 0 && (
               <TableRow>
                 <TableCell
                   colSpan={scope === 'global' ? 4 : 3}
@@ -194,7 +195,10 @@ const EventsList = ({
       <div className="flex w-full justify-end">
         <Pagination
           {...pagination}
-          setPage={handlePageChange}
+          setPage={(nextPage) => {
+            pagination.setPage(nextPage);
+            handlePageChange(nextPage);
+          }}
         />
       </div>
     </Section>
@@ -211,7 +215,6 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
   const {
     filters: eventFilters,
     onFiltersChange: onEventFiltersChange,
-    page,
     handlePageChange,
   } = useEventFilters();
 
@@ -252,7 +255,6 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
                 <SectionContent>
                   <EventsList
                     scope="village"
-                    page={page}
                     eventFilters={eventFilters}
                     handlePageChange={handlePageChange}
                   />
@@ -264,7 +266,6 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
                 <SectionContent>
                   <EventsList
                     scope="global"
-                    page={page}
                     eventFilters={eventFilters}
                     handlePageChange={handlePageChange}
                   />

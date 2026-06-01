@@ -74,7 +74,8 @@ export const selectPlayerRankingsQuery = `
         )
       )
   ORDER BY
-    total_population DESC, id;
+    total_population DESC, id
+  LIMIT $limit;
 `;
 
 export const selectVillageRankingsQuery = `
@@ -149,7 +150,8 @@ export const selectVillageRankingsQuery = `
       )
     )
   ORDER BY
-    population DESC, village_id;
+    population DESC, village_id
+  LIMIT $limit;
 `;
 
 export const selectPlayerStatsByTribeAndFactionQuery = `

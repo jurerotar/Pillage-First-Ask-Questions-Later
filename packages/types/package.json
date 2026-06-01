@@ -51,6 +51,9 @@
     "./dtos/statistics": {
       "default": "./src/dtos/statistics.ts"
     },
+    "./dtos/pagination": {
+      "default": "./src/dtos/pagination.ts"
+    },
     "./dtos/unit": {
       "default": "./src/dtos/unit.ts"
     },
