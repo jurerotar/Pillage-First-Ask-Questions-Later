@@ -1,4 +1,4 @@
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Resources } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
@@ -37,6 +37,13 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
     computedGranaryCapacityEffect,
   } = use(CurrentVillageStateContext);
   const { locale } = use(CookieContext);
+
+  const resourceListFormatter = useMemo(() => {
+    return new Intl.ListFormat(locale, {
+      style: 'long',
+      type: 'conjunction',
+    });
+  }, [locale]);
 
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
@@ -80,14 +87,9 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
       );
     }
 
-    const lf = new Intl.ListFormat(locale, {
-      style: 'long',
-      type: 'conjunction',
-    });
-
     const errorMessage = t(
       'Not enough resources available. You are still missing {{resources}}.',
-      { resources: lf.format(missingResources) },
+      { resources: resourceListFormatter.format(missingResources) },
     );
 
     errorBag.push(errorMessage);

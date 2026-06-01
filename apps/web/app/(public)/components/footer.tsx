@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react';
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaRedditAlien, FaRss } from 'react-icons/fa';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
@@ -13,17 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
+import { useClientHydration } from 'app/hooks/use-client-hydration';
 import { CookieContext } from 'app/providers/cookie-provider';
 import { setCookie, UI_COLOR_SCHEME_COOKIE_NAME } from 'app/utils/device';
 
 export const Footer = () => {
   const { t } = useTranslation('public');
   const { uiColorScheme } = use(CookieContext);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useClientHydration();
 
   return (
     <footer className="border-t mt-4 pb-safe">

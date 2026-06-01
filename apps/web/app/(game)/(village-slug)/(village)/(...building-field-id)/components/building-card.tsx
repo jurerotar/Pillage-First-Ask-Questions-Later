@@ -52,6 +52,17 @@ type BuildingCardProps = {
   >;
 };
 
+const unfinishedBuildings = new Set<Building['id']>([
+  'HORSE_DRINKING_TROUGH',
+  'RESIDENCE',
+  'RALLY_POINT',
+  'TOWN_HALL',
+  'EMBASSY',
+  'COMMAND_CENTER',
+  'TRAPPER',
+  'MARKETPLACE',
+]);
+
 export const BuildingCard = ({
   buildingId,
   buildingConstructionReadinessAssessment,
@@ -194,18 +205,7 @@ export const BuildingUnfinishedNotice = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
 
-  const unfinishedBuildings: Building['id'][] = [
-    'HORSE_DRINKING_TROUGH',
-    'RESIDENCE',
-    'RALLY_POINT',
-    'TOWN_HALL',
-    'EMBASSY',
-    'COMMAND_CENTER',
-    'TRAPPER',
-    'MARKETPLACE',
-  ];
-
-  if (!unfinishedBuildings.includes(buildingId)) {
+  if (!unfinishedBuildings.has(buildingId)) {
     return null;
   }
 
