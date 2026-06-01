@@ -125,7 +125,7 @@ export const AttackRaidForm = () => {
                             defaultValue={field.value}
                             className="flex flex-col gap-2"
                           >
-                            <FormItem className="flex items-center flex-row space-x-2 space-y-0">
+                            <FormItem className="flex items-center flex-row gap-x-2 gap-y-0">
                               <FormControl>
                                 <RadioGroupItem value="attack_normal" />
                               </FormControl>
@@ -133,7 +133,7 @@ export const AttackRaidForm = () => {
                                 {t('Attack: Normal')}
                               </FormLabel>
                             </FormItem>
-                            <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormItem className="flex items-center gap-x-2 gap-y-0">
                               <FormControl>
                                 <RadioGroupItem value="attack_raid" />
                               </FormControl>
