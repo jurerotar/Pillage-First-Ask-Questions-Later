@@ -1,5 +1,4 @@
 import type { Config } from '@react-router/dev/config';
-import { locales } from 'app/localization/i18n';
 import {
   createSPAPagesWithPreloads,
   deleteSPAPreloadPage,
@@ -18,15 +17,7 @@ const publicPagesToPrerender = [
   '/404',
 ];
 
-const localizedPagesToPrerender = locales.flatMap((locale) => {
-  return publicPagesToPrerender.map((page) => `/${locale}${page}`);
-});
-
-const prerenderPaths = [
-  ...publicPagesToPrerender,
-  ...localizedPagesToPrerender,
-  '/__spa-preload',
-];
+const prerenderPaths = [...publicPagesToPrerender, '/__spa-preload'];
 
 const reactRouterConfig: Config = {
   ssr: false,
@@ -40,6 +31,8 @@ const reactRouterConfig: Config = {
     unstable_optimizeDeps: true,
     v8_viteEnvironmentApi: true,
     v8_splitRouteModules: 'enforce',
+    v8_passThroughRequests: true,
+    v8_trailingSlashAwareDataRequests: true,
   },
   buildEnd: async (args) => {
     await createSPAPagesWithPreloads(args);

@@ -11,8 +11,10 @@ const DB_SCHEMA_EXPORT_PATH = join(EXPORT_PATH, 'schema.sql');
 
 const footer = (): string => ['', 'COMMIT;', ''].join('\n');
 
-const ensureSemicolon = (stmt: string | null): string =>
-  (stmt ?? '').trim().replace(/\s+/gu, ' ').replace(/;?\s*$/u, ';');
+const ensureSemicolon = (stmt: string | null): string => {
+  const trimmed = (stmt ?? '').trim();
+  return trimmed === '' ? '' : `${trimmed.replace(/;+\s*$/u, '')};`;
+};
 
 await (async (): Promise<void> => {
   await mkdir(dirname(DB_EXPORT_PATH), { recursive: true });
@@ -89,7 +91,7 @@ await (async (): Promise<void> => {
   `);
   const rows = stmt.all() as { sql: string }[];
 
-  const body = rows.map((r) => ensureSemicolon(r.sql)).join('');
+  const body = rows.map((r) => ensureSemicolon(r.sql)).join('\n\n');
   const exportContent = [header(), body, footer()].join('');
 
   await writeFile(DB_SCHEMA_EXPORT_PATH, exportContent, 'utf8');
