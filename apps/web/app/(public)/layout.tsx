@@ -9,21 +9,15 @@ import { HeadLinks } from 'app/components/head-links';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import { Toaster } from 'app/components/ui/toaster';
-import { type AvailableLocale, i18n, locales } from 'app/localization/i18n';
+import { type AvailableLocale, locales } from 'app/localization/i18n';
 import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
-  let { locale = 'en-US' } = params;
-
-  if (!locales.includes(locale as AvailableLocale)) {
-    locale = 'en-US';
+const getLocale = (locale?: string): AvailableLocale => {
+  if (!locale || !locales.includes(locale as AvailableLocale)) {
+    return 'en-US';
   }
 
-  await i18n.changeLanguage(locale);
-
-  return {
-    locale,
-  };
+  return locale as AvailableLocale;
 };
 
 const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
@@ -85,12 +79,7 @@ const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   ),
 };
 
-const LayoutContent = ({
-  loaderData,
-}: {
-  loaderData: Route.ComponentProps['loaderData'];
-}) => {
-  const { locale } = loaderData;
+const LayoutContent = ({ locale }: { locale: AvailableLocale }) => {
   const { uiColorScheme } = use(CookieContext);
 
   return (
@@ -118,10 +107,12 @@ const LayoutContent = ({
   );
 };
 
-export const Layout = ({ loaderData }: Route.ComponentProps) => {
+export const Layout = ({ params }: Route.ComponentProps) => {
+  const locale = getLocale(params.locale);
+
   return (
     <CookieProvider>
-      <LayoutContent loaderData={loaderData} />
+      <LayoutContent locale={locale} />
     </CookieProvider>
   );
 };
