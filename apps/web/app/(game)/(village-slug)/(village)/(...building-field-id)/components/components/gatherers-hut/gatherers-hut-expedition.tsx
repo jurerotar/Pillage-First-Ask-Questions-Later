@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark.tsx';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
   Section,
   SectionContent,
-} from 'app/(game)/(village-slug)/components/building-layout.tsx';
-import { Text } from 'app/components/text.tsx';
-import { Alert } from 'app/components/ui/alert.tsx';
+} from 'app/(game)/(village-slug)/components/building-layout';
+import { Text } from 'app/components/text';
+import { Alert } from 'app/components/ui/alert';
 
 export const GatherersHutExpedition = () => {
   const { t } = useTranslation();
