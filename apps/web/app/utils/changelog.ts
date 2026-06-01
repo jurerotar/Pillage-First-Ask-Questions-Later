@@ -284,13 +284,7 @@ export const makeSectionId = (version: string): string => {
   const semverMatch = version.match(/(\d+\.\d+\.\d+)/);
   if (semverMatch) {
     const [major, minor, patch] = parseAppVersion(semverMatch[1]);
-    if (
-      Number.isFinite(major) &&
-      Number.isFinite(minor) &&
-      Number.isFinite(patch)
-    ) {
-      return `version-${major}-${minor}-${patch}`;
-    }
+    return `version-${major}-${minor}-${patch}`;
   }
   return `version-${version}`
     .toLowerCase()

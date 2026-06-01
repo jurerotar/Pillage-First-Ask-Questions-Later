@@ -19,7 +19,7 @@ import { Button } from 'app/components/ui/button';
 const DropdownContent = ({ children }: PropsWithChildren) => {
   return (
     <div className="absolute top-full left-0 mt-0 w-64 bg-card rounded-lg shadow-xl border border-border py-2 pt-4 z-20">
-      <div className="absolute -top-2 left-12 w-4 h-4 bg-card border-t border-l border-border rotate-45" />
+      <div className="absolute -top-2 left-12 size-4 bg-card border-t border-l border-border rotate-45" />
       {children}
     </div>
   );
