@@ -1,9 +1,4 @@
-import {
-  type PropsWithChildren,
-  type ReactNode,
-  useEffect,
-  useState,
-} from 'react';
+import { type PropsWithChildren, type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BiWorld } from 'react-icons/bi';
 import { CiImport } from 'react-icons/ci';
@@ -19,7 +14,7 @@ import { Button } from 'app/components/ui/button';
 const DropdownContent = ({ children }: PropsWithChildren) => {
   return (
     <div className="absolute top-full left-0 mt-0 w-64 bg-card rounded-lg shadow-xl border border-border py-2 pt-4 z-20">
-      <div className="absolute -top-2 left-12 w-4 h-4 bg-card border-t border-l border-border rotate-45" />
+      <div className="absolute -top-2 left-12 size-4 bg-card border-t border-l border-border rotate-45" />
       {children}
     </div>
   );
@@ -91,18 +86,12 @@ const NavLink = (props: PropsWithChildren<LinkProps>) => {
   );
 };
 
-export const DesktopNavigation = () => {
+const DesktopNavigationContent = () => {
   const { t } = useTranslation('public');
-  const { key } = useLocation();
 
   const [activeDropdown, setActiveDropdown] = useState<
     'game' | 'resources' | 'guides' | 'social' | null
   >(null);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Key is expected
-  useEffect(() => {
-    setActiveDropdown(null);
-  }, [key]);
 
   return (
     <nav className="hidden lg:flex max-w-7xl mx-auto px-4 w-[calc(100%-1rem)] bg-card justify-between my-4 mb-6 border border-border rounded-md shadow-xl z-20 transition-colors">
@@ -204,4 +193,10 @@ export const DesktopNavigation = () => {
       </div>
     </nav>
   );
+};
+
+export const DesktopNavigation = () => {
+  const { key } = useLocation();
+
+  return <DesktopNavigationContent key={key} />;
 };

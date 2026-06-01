@@ -7,6 +7,7 @@ import {
   useRouteError,
 } from 'react-router';
 import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
+import { GameErrorContent } from 'app/(game)/components/game-error-content';
 import { HeadLinks } from 'app/components/head-links';
 
 export const ErrorBoundary = () => {
@@ -15,11 +16,7 @@ export const ErrorBoundary = () => {
   const isDatabaseInitializationError =
     error instanceof OutdatedDatabaseSchemaError;
 
-  const isMultipleTabsError =
-    error.name === 'NoModificationAllowedError' ||
-    error.message.includes(
-      "Failed to execute 'createSyncAccessHandle' on 'FileSystemFileHandle'",
-    );
+  const isMultipleTabsError = error.name === 'NoModificationAllowedError';
 
   const isErrorWithCustomSteps =
     isDatabaseInitializationError || isMultipleTabsError;
@@ -49,147 +46,145 @@ export const ErrorBoundary = () => {
           <Links />
         </head>
         <body>
-          <main className="container mx-auto max-w-2xl p-4 flex flex-col gap-4">
-            <div className="rounded-md border border-red-300 bg-red-50 p-3 text-red-900">
-              <h1 className="text-lg font-semibold">{name}</h1>
-              <p className="mt-1">{message}</p>
-            </div>
+          <GameErrorContent
+            title={name}
+            message={message}
+            description={
+              <>
+                {isDatabaseInitializationError && (
+                  <p className="text-foreground">
+                    We've recently released a new version of the app that
+                    introduced breaking changes in existing game worlds. If
+                    you're seeing this error message, your game world is not
+                    compatible with latest version of the app.
+                  </p>
+                )}
 
-            {isDatabaseInitializationError && (
-              <p className="text-foreground">
-                We've recently released a new version of the app that introduced
-                breaking changes in existing game worlds. If you're seeing this
-                error message, your game world is not compatible with latest
-                version of the app.
-              </p>
-            )}
-
-            {isMultipleTabsError && (
-              <p className="text-foreground">
-                It seems like you have multiple tabs of this game world open.
-                The game requires exclusive access to the file system to ensure
-                data consistency.
-              </p>
-            )}
-
-            <p className="text-foreground font-medium">Try these steps:</p>
-            <ul className="list-disc pl-6 space-y-1">
-              {isErrorWithCustomSteps && isDatabaseInitializationError && (
-                <>
-                  {isDatabaseInitializationError && (
-                    <>
+                {isMultipleTabsError && (
+                  <p className="text-foreground">
+                    The database is locked. This can happen when the same game
+                    world is open in multiple tabs, or sometimes at random when
+                    you attempt to refresh the app and the browser has not
+                    released its lock yet.
+                  </p>
+                )}
+              </>
+            }
+            steps={
+              <>
+                {isErrorWithCustomSteps && (
+                  <>
+                    {isDatabaseInitializationError && (
+                      <>
+                        <li>
+                          If you've opened this game world through a link on{' '}
+                          <Link
+                            className="underline"
+                            to="/game-worlds"
+                          >
+                            game worlds
+                          </Link>{' '}
+                          page, please navigate back to that page, delete the
+                          game world and create a new one.
+                        </li>
+                        <li>
+                          If you've opened this game world directly with the
+                          URL, please navigate to{' '}
+                          <Link
+                            className="underline"
+                            to="/game-worlds/create"
+                          >
+                            create new game world
+                          </Link>{' '}
+                          page and create a new game world.
+                        </li>
+                      </>
+                    )}
+                    {isMultipleTabsError && (
                       <li>
-                        If you've opened this game world through a link on{' '}
-                        <Link
-                          className="underline"
-                          to="/game-worlds"
-                        >
-                          game worlds
-                        </Link>{' '}
-                        page, please navigate back to that page, delete the game
-                        world and create a new one.
+                        Refresh this page. This often resolves the issue when
+                        the browser has not released the lock yet.
                       </li>
-                      <li>
-                        If you've opened this game world directly with the URL,
-                        please navigate to{' '}
-                        <Link
-                          className="underline"
-                          to="/game-worlds/create"
-                        >
-                          create new game world
-                        </Link>{' '}
-                        page and create a new game world.
-                      </li>
-                    </>
-                  )}
-                  {isMultipleTabsError && (
-                    <>
-                      <li>
-                        Refresh this page — this often resolves the issue after
-                        other tabs are closed.
-                      </li>
-                      <li>
-                        Make sure you close all other tabs with the same game
-                        world.
-                      </li>
-                    </>
-                  )}
-                </>
-              )}
-              {!isErrorWithCustomSteps && (
-                <>
-                  <li>
-                    Refresh this page — transient issues often resolve on
-                    reload.
-                  </li>
-                  <li>
-                    If the error persists, export your game state from the{' '}
-                    <Link
-                      className="underline"
-                      to="/"
-                    >
-                      home page
-                    </Link>{' '}
-                    and report the issue via:{' '}
-                    <a
-                      className="underline"
-                      href="https://discord.gg/Ep7NKVXUZA"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      #bugs on Discord
-                    </a>{' '}
-                    or{' '}
-                    <a
-                      className="underline"
-                      href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues/new/choose"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      GitHub Issues
-                    </a>
-                    .
-                  </li>
-                </>
-              )}
-            </ul>
-
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                    )}
+                  </>
+                )}
+                {!isErrorWithCustomSteps && (
+                  <>
+                    <li>
+                      Refresh this page — transient issues often resolve on
+                      reload.
+                    </li>
+                    <li>
+                      If the error persists, export your game state from the{' '}
+                      <Link
+                        className="underline"
+                        to="/"
+                      >
+                        home page
+                      </Link>{' '}
+                      and report the issue via:{' '}
+                      <a
+                        className="underline"
+                        href="https://discord.gg/Ep7NKVXUZA"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        #bugs on Discord
+                      </a>{' '}
+                      or{' '}
+                      <a
+                        className="underline"
+                        href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues/new/choose"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        GitHub Issues
+                      </a>
+                      .
+                    </li>
+                  </>
+                )}
+              </>
+            }
+            actions={
+              <>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                >
+                  Refresh page
+                </button>
+                <Link
+                  to="/"
+                  className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                >
+                  Return to homepage
+                </Link>
+                <button
+                  type="button"
+                  onClick={copyDetails}
+                  className="ml-auto inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
+                  title="Copy technical details to clipboard"
+                >
+                  Copy details
+                </button>
+              </>
+            }
+            technicalDetails={
+              <details
+                open
+                className="rounded-md border bg-white p-3"
               >
-                Refresh page
-              </button>
-              <Link
-                to="/"
-                className="inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
-              >
-                Return to homepage
-              </Link>
-              <button
-                type="button"
-                onClick={copyDetails}
-                className="ml-auto inline-flex items-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-gray-50"
-                title="Copy technical details to clipboard"
-              >
-                Copy details
-              </button>
-            </div>
-
-            <details
-              open
-              className="rounded-md border bg-white p-3"
-            >
-              <summary className="cursor-pointer non-selectable font-medium">
-                Technical details
-              </summary>
-              <pre className="mt-2 overflow-auto rounded bg-gray-50 p-2 text-xs">
-                {details}
-              </pre>
-            </details>
-          </main>
+                <summary className="cursor-pointer non-selectable font-medium">
+                  Technical details
+                </summary>
+                <pre className="mt-2 overflow-auto rounded bg-gray-50 p-2 text-xs">
+                  {details}
+                </pre>
+              </details>
+            }
+          />
           <ScrollRestoration />
           <Scripts />
         </body>

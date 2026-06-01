@@ -233,244 +233,252 @@ export const ProductionOverview = ({
     <Section>
       <SectionContent>
         <Text as="h2">{t('Production bonuses')}</Text>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>
-                <Text>{t('Type')}</Text>
-              </TableHeaderCell>
-              <TableHeaderCell>
-                <Text>{t('Source')}</Text>
-              </TableHeaderCell>
-              <TableHeaderCell>
-                <Text>{t('Amount')}</Text>
-              </TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!hasBonuses && (
+        <div className="overflow-x-scroll scrollbar-hidden">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={3}>
-                  <Text>{t('No production bonuses')}</Text>
-                </TableCell>
+                <TableHeaderCell>
+                  <Text>{t('Type')}</Text>
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Text>{t('Source')}</Text>
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Text>{t('Amount')}</Text>
+                </TableHeaderCell>
               </TableRow>
-            )}
-            {hasBonuses && (
-              <>
-                {boostedHeroBonusEffects.map(({ id, value }) => (
-                  <TableRow key={id}>
-                    <TableCell>
-                      <Text>{t('Hero')}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>-</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{formatBonus(value - 1)}%</Text>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {boostedArtifactBonusEffects.map(
-                  ({ value, sourceSpecifier }) => {
-                    const { name } = getItemDefinition(sourceSpecifier!);
+            </TableHeader>
+            <TableBody>
+              {!hasBonuses && (
+                <TableRow>
+                  <TableCell colSpan={3}>
+                    <Text>{t('No production bonuses')}</Text>
+                  </TableCell>
+                </TableRow>
+              )}
+              {hasBonuses && (
+                <>
+                  {boostedHeroBonusEffects.map(({ id, value }) => (
+                    <TableRow key={id}>
+                      <TableCell>
+                        <Text>{t('Hero')}</Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>-</Text>
+                      </TableCell>
+                      <TableCell>
+                        <Text>{formatBonus(value - 1)}%</Text>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {boostedArtifactBonusEffects.map(
+                    ({ value, sourceSpecifier }) => {
+                      const { name } = getItemDefinition(sourceSpecifier!);
 
-                    return (
+                      return (
+                        <TableRow key={sourceSpecifier}>
+                          <TableCell>
+                            <Text>{t('Artifact')}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{t(`ITEMS.${name}.NAME`)}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{formatBonus(value - 1)}%</Text>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    },
+                  )}
+                  {boostedOasisBonusEffects.map(
+                    ({ value, sourceSpecifier }) => {
+                      const { x, y } = tileIdToCoordinates(
+                        sourceSpecifier!,
+                        mapSize,
+                      );
+                      return (
+                        <TableRow key={sourceSpecifier}>
+                          <TableCell>
+                            <Text>{t('Oasis')}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text variant="link">
+                              <Link to={`../map?x=${x}&y=${y}`}>
+                                ({x} | {y})
+                              </Link>
+                            </Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{formatBonus(value - 1)}%</Text>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    },
+                  )}
+                  {boostedBuildingBonusEffects.map(
+                    ({ value, sourceSpecifier, buildingId }) => (
                       <TableRow key={sourceSpecifier}>
                         <TableCell>
-                          <Text>{t('Artifact')}</Text>
+                          <Text>{t('Building')}</Text>
                         </TableCell>
                         <TableCell>
-                          <Text>{t(`ITEMS.${name}.NAME`)}</Text>
+                          <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
                         </TableCell>
                         <TableCell>
                           <Text>{formatBonus(value - 1)}%</Text>
                         </TableCell>
                       </TableRow>
-                    );
-                  },
-                )}
-                {boostedOasisBonusEffects.map(({ value, sourceSpecifier }) => {
-                  const { x, y } = tileIdToCoordinates(
-                    sourceSpecifier!,
-                    mapSize,
-                  );
-                  return (
-                    <TableRow key={sourceSpecifier}>
-                      <TableCell>
-                        <Text>{t('Oasis')}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text variant="link">
-                          <Link to={`../map?x=${x}&y=${y}`}>
-                            ({x} | {y})
-                          </Link>
-                        </Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>{formatBonus(value - 1)}%</Text>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {boostedBuildingBonusEffects.map(
-                  ({ value, sourceSpecifier, buildingId }) => (
-                    <TableRow key={sourceSpecifier}>
-                      <TableCell>
-                        <Text>{t('Building')}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
-                      </TableCell>
-                      <TableCell>
-                        <Text>{formatBonus(value - 1)}%</Text>
-                      </TableCell>
-                    </TableRow>
-                  ),
-                )}
-              </>
-            )}
-          </TableBody>
-        </Table>
+                    ),
+                  )}
+                </>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </SectionContent>
 
       <SectionContent>
         <Text as="h2">{t('Base production')}</Text>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>
-                <Text>{t('Type')}</Text>
-              </TableHeaderCell>
-              <TableHeaderCell>
-                <Text>{t('Source')}</Text>
-              </TableHeaderCell>
-              <TableHeaderCell>
-                <Text>{t('Amount')}</Text>
-              </TableHeaderCell>
-              <TableHeaderCell>
-                <Text>{t('Bonus')}</Text>
-              </TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {!hasBaseProduction && (
+        <div className="overflow-x-scroll scrollbar-hidden">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={3}>
-                  <Text>{t('No resource production')}</Text>
-                </TableCell>
+                <TableHeaderCell>
+                  <Text>{t('Type')}</Text>
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Text>{t('Source')}</Text>
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Text>{t('Amount')}</Text>
+                </TableHeaderCell>
+                <TableHeaderCell>
+                  <Text>{t('Bonus')}</Text>
+                </TableHeaderCell>
               </TableRow>
-            )}
-            {hasBaseProduction && (
-              <>
-                {baseHeroEffectsWithServerModifier.map(({ id, value }) => (
-                  <TableRow key={id}>
-                    <TableCell>
-                      <Text>{t('Hero')}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{t('Hero')}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>{value}</Text>
-                    </TableCell>
-                    <TableCell>
-                      <Text>-</Text>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {baseArtifactsEffectsWithServerModifier.map(
-                  ({ value, sourceSpecifier }) => {
-                    const { name } = getItemDefinition(sourceSpecifier!);
-
-                    return (
-                      <TableRow key={sourceSpecifier}>
-                        <TableCell>
-                          <Text>{t('Artifact')}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>{t(`ITEMS.${name}.NAME`)}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>{value}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>0</Text>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  },
-                )}
-                {baseOasisEffectsWithServerModifier.map(
-                  ({ value, sourceSpecifier }) => {
-                    // Source specifier in oasis effects is actually id of the oasis. Ids are calculated from coordinates,
-                    // so we can reverse engineer coordinates without having to manually fetch them
-                    const { x, y } = tileIdToCoordinates(
-                      sourceSpecifier!,
-                      mapSize,
-                    );
-                    return (
-                      <TableRow key={sourceSpecifier}>
-                        <TableCell>
-                          <Text>{t('Oasis')}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text variant="link">
-                            <Link to={`../map?x=${x}&y=${y}`}>
-                              ({x} | {y})
-                            </Link>
-                          </Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>{value}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>0</Text>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  },
-                )}
-                {baseBuildingEffectsWithServerModifier.map(
-                  ({ value, sourceSpecifier, buildingId }, index) => (
-                    <TableRow key={sourceSpecifier}>
+            </TableHeader>
+            <TableBody>
+              {!hasBaseProduction && (
+                <TableRow>
+                  <TableCell colSpan={3}>
+                    <Text>{t('No resource production')}</Text>
+                  </TableCell>
+                </TableRow>
+              )}
+              {hasBaseProduction && (
+                <>
+                  {baseHeroEffectsWithServerModifier.map(({ id, value }) => (
+                    <TableRow key={id}>
                       <TableCell>
-                        <Text>{t('Building')}</Text>
+                        <Text>{t('Hero')}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
+                        <Text>{t('Hero')}</Text>
                       </TableCell>
                       <TableCell>
                         <Text>{value}</Text>
                       </TableCell>
                       <TableCell>
-                        <Text>{absoluteBonusBuildingEffectValues[index]}</Text>
+                        <Text>-</Text>
                       </TableCell>
                     </TableRow>
-                  ),
-                )}
-              </>
-            )}
-            <TableRow className="font-medium">
-              <TableCell colSpan={2}>
-                <Text>{t('Sum')}</Text>
-              </TableCell>
-              <TableCell>
-                <Text>{summedBaseEffects}</Text>
-              </TableCell>
-              <TableCell>
-                <Text>{summedAbsoluteBonusEffects}</Text>
-              </TableCell>
-            </TableRow>
-            <TableRow className="font-medium">
-              <TableCell colSpan={2}>
-                <Text>{t('Total')}</Text>
-              </TableCell>
-              <TableCell colSpan={2}>
-                <Text>{total}</Text>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+                  ))}
+                  {baseArtifactsEffectsWithServerModifier.map(
+                    ({ value, sourceSpecifier }) => {
+                      const { name } = getItemDefinition(sourceSpecifier!);
+
+                      return (
+                        <TableRow key={sourceSpecifier}>
+                          <TableCell>
+                            <Text>{t('Artifact')}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{t(`ITEMS.${name}.NAME`)}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{value}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>0</Text>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    },
+                  )}
+                  {baseOasisEffectsWithServerModifier.map(
+                    ({ value, sourceSpecifier }) => {
+                      // Source specifier in oasis effects is actually id of the oasis. Ids are calculated from coordinates,
+                      // so we can reverse engineer coordinates without having to manually fetch them
+                      const { x, y } = tileIdToCoordinates(
+                        sourceSpecifier!,
+                        mapSize,
+                      );
+                      return (
+                        <TableRow key={sourceSpecifier}>
+                          <TableCell>
+                            <Text>{t('Oasis')}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text variant="link">
+                              <Link to={`../map?x=${x}&y=${y}`}>
+                                ({x} | {y})
+                              </Link>
+                            </Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{value}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>0</Text>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    },
+                  )}
+                  {baseBuildingEffectsWithServerModifier.map(
+                    ({ value, sourceSpecifier, buildingId }, index) => (
+                      <TableRow key={sourceSpecifier}>
+                        <TableCell>
+                          <Text>{t('Building')}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>{value}</Text>
+                        </TableCell>
+                        <TableCell>
+                          <Text>
+                            {absoluteBonusBuildingEffectValues[index]}
+                          </Text>
+                        </TableCell>
+                      </TableRow>
+                    ),
+                  )}
+                </>
+              )}
+              <TableRow className="font-medium">
+                <TableCell colSpan={2}>
+                  <Text>{t('Sum')}</Text>
+                </TableCell>
+                <TableCell>
+                  <Text>{summedBaseEffects}</Text>
+                </TableCell>
+                <TableCell>
+                  <Text>{summedAbsoluteBonusEffects}</Text>
+                </TableCell>
+              </TableRow>
+              <TableRow className="font-medium">
+                <TableCell colSpan={2}>
+                  <Text>{t('Total')}</Text>
+                </TableCell>
+                <TableCell colSpan={2}>
+                  <Text>{total}</Text>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
       </SectionContent>
     </Section>
   );

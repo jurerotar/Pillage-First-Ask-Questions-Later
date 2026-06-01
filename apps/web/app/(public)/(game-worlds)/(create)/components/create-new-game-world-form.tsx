@@ -69,6 +69,21 @@ const generateSeed = (length = 10): string => {
   return crypto.randomUUID().replaceAll('-', '').substring(0, length);
 };
 
+type CreateServerFormValues = z.infer<typeof createServerFormSchema>;
+
+const createServerFromFormValues = (values: CreateServerFormValues) => {
+  const id = crypto.randomUUID();
+  const slug = `s-${id.slice(0, 4)}`;
+
+  return {
+    id: window.crypto.randomUUID(),
+    slug,
+    version: env.VERSION,
+    createdAt: Date.now(),
+    ...values,
+  };
+};
+
 type MutateArgs = {
   server: Server;
 };
@@ -156,7 +171,7 @@ export const CreateNewGameWorldForm = () => {
     onError: (_, { server }) => deleteGameWorld({ server }),
   });
 
-  const form = useForm<z.infer<typeof createServerFormSchema>>({
+  const form = useForm<CreateServerFormValues>({
     resolver: zodResolver(createServerFormSchema),
     defaultValues: {
       seed: '',
@@ -175,17 +190,8 @@ export const CreateNewGameWorldForm = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof createServerFormSchema>) => {
-    const id = crypto.randomUUID();
-    const slug = `s-${id.slice(0, 4)}`;
-
-    const server = {
-      id: window.crypto.randomUUID(),
-      slug,
-      version: env.VERSION,
-      createdAt: Date.now(),
-      ...values,
-    };
+  const onSubmit = (values: CreateServerFormValues) => {
+    const server = createServerFromFormValues(values);
 
     // @ts-expect-error - Not an error, values for speed and mapSize are already cast as numbers
     createServer({ server });

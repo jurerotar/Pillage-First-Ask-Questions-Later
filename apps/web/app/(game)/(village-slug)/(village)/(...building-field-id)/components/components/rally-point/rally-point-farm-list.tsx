@@ -89,7 +89,7 @@ export const RallyPointFarmList = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
+                          className="size-8"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -101,7 +101,7 @@ export const RallyPointFarmList = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();

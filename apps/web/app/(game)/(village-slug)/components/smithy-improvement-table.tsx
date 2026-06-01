@@ -69,7 +69,7 @@ export const SmithyImprovementTable = () => {
   );
 
   return (
-    <>
+    <div className="overflow-x-scroll scrollbar-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -152,6 +152,6 @@ export const SmithyImprovementTable = () => {
           </DialogContent>
         </Dialog>
       )}
-    </>
+    </div>
   );
 };

@@ -4,7 +4,7 @@ import {
   calculateDistanceBetweenPoints,
   roundToNDecimalPoints,
 } from '@pillage-first/utils/math';
-import type { getArtifactsAroundVillageRowSchema } from '../schemas/world-items-schemas.ts';
+import type { getArtifactsAroundVillageRowSchema } from '../schemas/world-items-schemas';
 
 export const mapArtifactRowToDto = (
   row: z.infer<typeof getArtifactsAroundVillageRowSchema>,

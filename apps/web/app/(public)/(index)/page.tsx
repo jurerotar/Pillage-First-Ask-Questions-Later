@@ -26,31 +26,31 @@ import Landing from './mdx/landing.mdx';
 import Motivation from './mdx/motivation.mdx';
 import OpenSource from './mdx/open-source.mdx';
 
+const screenshots = [
+  {
+    base: 'image-1',
+    alt: 'Resources view',
+  },
+  {
+    base: 'image-2',
+    alt: 'Village view',
+  },
+  {
+    base: 'image-3',
+    alt: 'Map view',
+  },
+  {
+    base: 'image-4',
+    alt: 'Building view',
+  },
+  {
+    base: 'image-5',
+    alt: 'Resources details',
+  },
+];
+
 const LandingScreenshotsSection = () => {
   const { uiColorScheme } = use(CookieContext);
-
-  const screenshots = [
-    {
-      base: 'image-1',
-      alt: 'Resources view',
-    },
-    {
-      base: 'image-2',
-      alt: 'Village view',
-    },
-    {
-      base: 'image-3',
-      alt: 'Map view',
-    },
-    {
-      base: 'image-4',
-      alt: 'Building view',
-    },
-    {
-      base: 'image-5',
-      alt: 'Resources details',
-    },
-  ];
 
   const { timestamp } = screenshotsData;
 

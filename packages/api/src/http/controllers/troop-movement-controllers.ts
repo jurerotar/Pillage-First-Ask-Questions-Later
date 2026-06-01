@@ -15,7 +15,7 @@ import {
   selectTroopMovementStatsByVillageIdQuery,
   selectTroopMovementsByVillageIdQuery,
 } from '../../queries/event-queries';
-import { createEvents } from '../../utils/create-event.ts';
+import { createEvents } from '../../utils/create-event';
 import { validateTroopMovement as validateTroopMovementLogic } from '../../utils/troops';
 import {
   baseEventRowSchema,

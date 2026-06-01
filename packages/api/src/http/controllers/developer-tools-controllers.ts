@@ -4,7 +4,7 @@ import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
-import { materializeHeroAdventurePointsAt } from '../../utils/adventures.ts';
+import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
 import { onHeroDeath } from '../../utils/hero';
 import {
   addVillageResourcesAt,

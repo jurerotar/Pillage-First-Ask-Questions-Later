@@ -11,7 +11,7 @@ import {
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
-import { insertEvents } from '../../../utils/events.ts';
+import { insertEvents } from '../../../utils/events';
 import {
   incrementHeroAdventurePoints,
   levelUpHero,

@@ -8,7 +8,7 @@ import type {
   getPlayerRankingsRowSchema,
   getServerOverviewStatisticsRowSchema,
   getVillageRankingsRowSchema,
-} from '../schemas/statistics-schemas.ts';
+} from '../schemas/statistics-schemas';
 
 export const mapPlayerRankingRowToDto = (
   row: z.infer<typeof getPlayerRankingsRowSchema>,

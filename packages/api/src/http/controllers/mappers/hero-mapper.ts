@@ -8,7 +8,7 @@ import type {
   getHeroInventorySchema,
   getHeroLoadoutSchema,
   getHeroSchema,
-} from '../schemas/hero-schemas.ts';
+} from '../schemas/hero-schemas';
 
 export const mapHero = (
   row: z.infer<typeof getHeroSchema>,

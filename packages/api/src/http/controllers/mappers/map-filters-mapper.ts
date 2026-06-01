@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import { mapFiltersDtoSchema } from '@pillage-first/types/dtos/map-filters';
-import type { getMapFiltersRowSchema } from '../schemas/map-filters-schemas.ts';
+import type { getMapFiltersRowSchema } from '../schemas/map-filters-schemas';
 
 export const mapMapFiltersRowToDto = (
   row: z.infer<typeof getMapFiltersRowSchema>,

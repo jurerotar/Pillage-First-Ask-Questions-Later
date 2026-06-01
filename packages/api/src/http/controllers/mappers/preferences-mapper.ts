@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import { preferencesSchema } from '@pillage-first/types/models/preferences';
-import type { getPreferencesSchema } from '../schemas/preferences-schemas.ts';
+import type { getPreferencesSchema } from '../schemas/preferences-schemas';
 
 export const mapPreferences = (row: z.infer<typeof getPreferencesSchema>) => {
   const dto = {

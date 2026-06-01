@@ -3,10 +3,10 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { insertHeroEffectsQuery } from '../../../queries/effect-queries';
-import { createEvents } from '../../../utils/create-event.ts';
-import { addTroops } from '../../../utils/troops.ts';
+import { createEvents } from '../../../utils/create-event';
+import { addTroops } from '../../../utils/troops';
 import { updateVillageResourcesAt } from '../../../utils/village';
-import type { Resolver } from '../resolver.ts';
+import type { Resolver } from '../resolver';
 
 export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
   database,

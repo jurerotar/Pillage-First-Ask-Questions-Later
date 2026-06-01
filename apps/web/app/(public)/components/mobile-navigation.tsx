@@ -166,7 +166,7 @@ export const MobileNavigation = () => {
                     <li>
                       <a
                         href="https://discord.gg/Ep7NKVXUZA"
-                        rel="noopener nofollow"
+                        rel="noopener noreferrer nofollow"
                         target="_blank"
                         className="flex items-center justify-center gap-2 rounded-full bg-[#5865F2] shadow-md p-2 hover:opacity-80 transition-opacity"
                         aria-label="Discord"
@@ -177,7 +177,7 @@ export const MobileNavigation = () => {
                     <li>
                       <a
                         href="https://www.reddit.com/r/PillageFirst/"
-                        rel="noopener nofollow"
+                        rel="noopener noreferrer nofollow"
                         target="_blank"
                         className="flex items-center justify-center gap-2 rounded-full bg-[#ff5700] shadow-md p-2 hover:opacity-80 transition-opacity"
                         aria-label="Reddit"
@@ -188,7 +188,7 @@ export const MobileNavigation = () => {
                     <li>
                       <a
                         href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-                        rel="noopener nofollow"
+                        rel="noopener noreferrer nofollow"
                         target="_blank"
                         className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 hover:opacity-80 transition-opacity"
                         aria-label="GitHub"
@@ -199,7 +199,7 @@ export const MobileNavigation = () => {
                     <li>
                       <a
                         href="https://pillagefirst.com/rss.xml"
-                        rel="noopener nofollow"
+                        rel="noopener noreferrer nofollow"
                         target="_blank"
                         className="flex items-center justify-center gap-2 rounded-full bg-[#f26522] shadow-md p-2 hover:opacity-80 transition-opacity"
                         aria-label="RSS"

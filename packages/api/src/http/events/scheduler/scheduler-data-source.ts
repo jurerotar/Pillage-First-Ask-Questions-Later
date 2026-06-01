@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectNextEventQuery } from '../../../queries/event-queries';
-import { resolveEvent } from '../resolve-event.ts';
+import { resolveEvent } from '../resolve-event';
 import type { SchedulerDataSource } from './scheduler';
 
 const getPastEventIdsSchema = z.number();

@@ -69,12 +69,8 @@
           "options": {
             "patterns": [
               {
-                "group": ["*.ts"],
-                "message": "Do not use .ts extensions in imports."
-              },
-              {
-                "group": ["*.tsx"],
-                "message": "Do not use .tsx extensions in imports."
+                "group": ["**/*.ts", "**/*.tsx", "*.ts", "*.tsx"],
+                "message": "Do not use .ts/.tsx extensions in imports."
               }
             ]
           }

@@ -1,8 +1,6 @@
 import type { Config } from '@react-router/dev/config';
-import { locales } from 'app/localization/i18n';
 import {
   createSPAPagesWithPreloads,
-  deleteSPAPreloadPage,
   generateStaticFeeds,
   replaceReactIconsSpritePlaceholdersOnPreRenderedPages,
 } from './scripts/react-router-build-end-hook-scripts';
@@ -18,33 +16,24 @@ const publicPagesToPrerender = [
   '/404',
 ];
 
-const localizedPagesToPrerender = locales.flatMap((locale) => {
-  return publicPagesToPrerender.map((page) => `/${locale}${page}`);
-});
-
-const prerenderPaths = [
-  ...publicPagesToPrerender,
-  ...localizedPagesToPrerender,
-  '/__spa-preload',
-];
-
 const reactRouterConfig: Config = {
   ssr: false,
   subResourceIntegrity: false,
   prerender: {
     concurrency: 1,
-    paths: prerenderPaths,
+    paths: publicPagesToPrerender,
   },
   future: {
     v8_middleware: true,
     unstable_optimizeDeps: true,
     v8_viteEnvironmentApi: true,
     v8_splitRouteModules: 'enforce',
+    v8_passThroughRequests: true,
+    v8_trailingSlashAwareDataRequests: true,
   },
   buildEnd: async (args) => {
     await createSPAPagesWithPreloads(args);
     await replaceReactIconsSpritePlaceholdersOnPreRenderedPages(args);
-    await deleteSPAPreloadPage(args);
     await generateStaticFeeds(args);
   },
 };

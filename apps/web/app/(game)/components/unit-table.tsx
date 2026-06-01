@@ -32,9 +32,11 @@ const getTribeUnits = (tribe: Tribe) => [
 export const UnitTable = ({ tribe, children }: UnitTableProps) => {
   return (
     <UnitTableContext.Provider value={{ tribe }}>
-      <table className="w-full border-collapse border overflow-hidden dark:border-border text-left">
-        {children}
-      </table>
+      <div className="overflow-x-scroll scrollbar-hidden">
+        <table className="w-full border-collapse border overflow-hidden dark:border-border text-left">
+          {children}
+        </table>
+      </div>
     </UnitTableContext.Provider>
   );
 };

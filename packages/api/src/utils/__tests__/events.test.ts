@@ -39,7 +39,7 @@ import {
   insertEvents,
   runEventCreationSideEffects,
   validateEventCreationPrerequisites,
-} from '../events.ts';
+} from '../events';
 
 const getAnyVillageId = (database: DbFacade): number => {
   return database.selectValue({

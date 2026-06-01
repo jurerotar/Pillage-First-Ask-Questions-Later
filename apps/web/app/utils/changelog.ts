@@ -4,7 +4,7 @@ const parseDateLine = (line: string): Date | null => {
   // Example: "#### May 10, 2026"
   const trimmed = line.replace(/^#+\s*/, '').trim();
   const d = new Date(trimmed);
-  return Number.isNaN(+d) ? null : d;
+  return Number.isNaN(Number(d)) ? null : d;
 };
 
 export const parseChangelog = (markdown: string): ChangelogEntry[] => {
@@ -250,7 +250,7 @@ export const buildItemsFromChangelog = (
     const knownSet = new Set<string>(groupOrder as readonly string[]);
     const unknownTags = Object.keys(entry.groups)
       .filter((k) => !knownSet.has(k) && (entry.groups[k]?.length ?? 0) > 0)
-      .sort();
+      .toSorted();
     for (const tag of unknownTags) {
       const groupItems = entry.groups[tag] ?? [];
       const listItems = groupItems
@@ -284,13 +284,7 @@ export const makeSectionId = (version: string): string => {
   const semverMatch = version.match(/(\d+\.\d+\.\d+)/);
   if (semverMatch) {
     const [major, minor, patch] = parseAppVersion(semverMatch[1]);
-    if (
-      Number.isFinite(major) &&
-      Number.isFinite(minor) &&
-      Number.isFinite(patch)
-    ) {
-      return `version-${major}-${minor}-${patch}`;
-    }
+    return `version-${major}-${minor}-${patch}`;
   }
   return `version-${version}`
     .toLowerCase()

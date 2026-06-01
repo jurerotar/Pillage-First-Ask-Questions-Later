@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
-import type { getDeveloperSettingsRowSchema } from '../schemas/developer-tools-schemas.ts';
+import type { getDeveloperSettingsRowSchema } from '../schemas/developer-tools-schemas';
 
 export const mapDeveloperSettingsRowToDto = (
   row: z.infer<typeof getDeveloperSettingsRowSchema>,

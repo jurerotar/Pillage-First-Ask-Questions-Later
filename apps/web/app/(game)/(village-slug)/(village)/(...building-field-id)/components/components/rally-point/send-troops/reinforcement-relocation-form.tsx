@@ -125,9 +125,9 @@ export const ReinforcementRelocationForm = () => {
                           <RadioGroup
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            className="flex flex-col space-y-2"
+                            className="flex flex-col gap-y-2"
                           >
-                            <FormItem className="flex items-center space-x-4 space-y-0">
+                            <FormItem className="flex items-center gap-x-4 gap-y-0">
                               <FormControl>
                                 <RadioGroupItem value="reinforcement" />
                               </FormControl>
@@ -135,7 +135,7 @@ export const ReinforcementRelocationForm = () => {
                                 {t('Reinforcement')}
                               </FormLabel>
                             </FormItem>
-                            <FormItem className="flex items-center space-x-4 space-y-0">
+                            <FormItem className="flex items-center gap-x-4 gap-y-0">
                               <FormControl>
                                 <RadioGroupItem value="relocation" />
                               </FormControl>

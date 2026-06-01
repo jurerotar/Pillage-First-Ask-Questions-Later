@@ -66,9 +66,9 @@ export const DemolishBuilding = () => {
       buildingFieldToDemolish.buildingId,
     );
 
-  const [targetLevel, setTargetLevel] = useState<number>(
-    Math.max(buildingFieldToDemolish.level - 1, 0),
-  );
+  const [targetLevel, setTargetLevel] = useState<number>(() => {
+    return Math.max(buildingFieldToDemolish.level - 1, 0);
+  });
 
   useEffect(() => {
     setTargetLevel(Math.max(buildingFieldToDemolish.level - 1, 0));
