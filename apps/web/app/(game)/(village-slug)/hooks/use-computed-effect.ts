@@ -37,7 +37,6 @@ export function useComputedEffect(
     queryKey: [effectId, currentVillage.id, effects],
     queryFn: fetcher,
     initialData: fetcher,
-    initialDataUpdatedAt: Date.now(),
     queryKeyHashFn: () => {
       const effectHash = effects.map((effect) => effect.value).join('|');
       return `effect-id-[${effectId}]-village-id-[${currentVillage.id}]-updated-at-[${currentVillage.lastUpdatedAt}]-${effectHash}`;
