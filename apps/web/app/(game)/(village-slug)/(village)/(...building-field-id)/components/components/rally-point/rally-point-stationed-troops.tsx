@@ -8,6 +8,7 @@ import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { partition } from '@pillage-first/utils/array';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player-villages';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark.tsx';
 import {
   Section,
   SectionContent,
@@ -98,6 +99,7 @@ export const RallyPointStationedTroops = () => {
   return (
     <Section>
       <SectionContent>
+        <Bookmark tab="stationed-troops" />
         <Text as="h2">{t('Stationed troops')}</Text>
         <Text>
           {t(
