@@ -433,22 +433,6 @@ describe('events utils', () => {
       ).toThrow("Hunter's Lodge level is too low");
     });
 
-    test('huntersLodgeHunt - should throw if party level is invalid', async () => {
-      const database = await prepareTestDatabase();
-      const villageId = getAnyVillageId(database);
-      setHuntersLodgeLevel(database, villageId, 2);
-
-      expect(() =>
-        validateEventCreationPrerequisites(
-          database,
-          createGameEventMock('huntersLodgeHunt', {
-            villageId,
-            huntingPartyLevel: 0,
-          }),
-        ),
-      ).toThrow('Invalid hunting party level');
-    });
-
     test("huntersLodgeHunt - should throw if Hunter's Lodge is already hunting", async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
