@@ -20,6 +20,10 @@ import {
   heroHealthRegenerationResolver,
   heroRevivalResolver,
 } from './resolvers/hero-resolvers';
+import {
+  animalCageProductionResolver,
+  huntersLodgeHuntResolver,
+} from './resolvers/hunters-lodge-resolvers';
 import { loyaltyIncreaseResolver } from './resolvers/loyalty-resolvers';
 import {
   adventureMovementResolver,
@@ -58,6 +62,8 @@ const gameEventResolvers = {
   loyaltyIncrease: loyaltyIncreaseResolver,
   unitResearch: unitResearchResolver,
   unitImprovement: unitImprovementResolver,
+  animalCageProduction: animalCageProductionResolver,
+  huntersLodgeHunt: huntersLodgeHuntResolver,
 } satisfies GameEventResolverMap;
 
 export const resolveEvent = (

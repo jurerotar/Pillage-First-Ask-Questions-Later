@@ -133,6 +133,18 @@ export const isTroopTrainingEvent = (
   return event.type === 'troopTraining';
 };
 
+export const isAnimalCageProductionEvent = (
+  event: GameEvent,
+): event is GameEvent<'animalCageProduction'> => {
+  return event.type === 'animalCageProduction';
+};
+
+export const isHuntersLodgeHuntEvent = (
+  event: GameEvent,
+): event is GameEvent<'huntersLodgeHunt'> => {
+  return event.type === 'huntersLodgeHunt';
+};
+
 export const isHeroRevivalEvent = (
   event: GameEvent,
 ): event is GameEvent<'heroRevival'> => {

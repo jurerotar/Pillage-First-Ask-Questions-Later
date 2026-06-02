@@ -6,6 +6,7 @@ import {
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
+  createGameEventMock,
   createTroopMovementAdventureEventMock,
   createTroopTrainingEventMock,
   createUnitImprovementEventMock,
@@ -114,7 +115,7 @@ describe('developer-tools-controllers', () => {
       );
     });
 
-    test('should instantly finish training events when isInstantUnitTrainingEnabled is set to true', async () => {
+    test('should instantly finish unit production events when isInstantUnitTrainingEnabled is set to true', async () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
@@ -123,6 +124,12 @@ describe('developer-tools-controllers', () => {
           startsAt: now + 1000,
           duration: 5000,
           villageId: 1,
+        }),
+        createGameEventMock('animalCageProduction', {
+          startsAt: now + 2000,
+          duration: 6000,
+          villageId: 1,
+          cageAmount: 3,
         }),
       ]);
 
@@ -138,11 +145,18 @@ describe('developer-tools-controllers', () => {
       );
 
       const events = database.selectObjects({
-        sql: "SELECT duration FROM events WHERE type = 'troopTraining'",
-        schema: z.strictObject({ duration: z.number() }),
+        sql: `
+          SELECT type, duration
+          FROM events
+          WHERE type IN ('troopTraining', 'animalCageProduction')
+        `,
+        schema: z.strictObject({ type: z.string(), duration: z.number() }),
       });
 
-      expect(events[0].duration).toBe(0);
+      expect(events.find((e) => e.type === 'troopTraining')?.duration).toBe(0);
+      expect(
+        events.find((e) => e.type === 'animalCageProduction')?.duration,
+      ).toBe(0);
     });
 
     test('should instantly finish improvement events when isInstantUnitImprovementEnabled is set to true', async () => {
@@ -207,7 +221,7 @@ describe('developer-tools-controllers', () => {
       expect(events[0].duration).toBe(0);
     });
 
-    test('should instantly finish travel events when isInstantUnitTravelEnabled is set to true', async () => {
+    test('should instantly finish travel and hunting party events when isInstantUnitTravelEnabled is set to true', async () => {
       const database = await prepareTestDatabase();
       const now = Date.now();
 
@@ -216,6 +230,12 @@ describe('developer-tools-controllers', () => {
           startsAt: now + 1000,
           duration: 5000,
           villageId: 1,
+        }),
+        createGameEventMock('huntersLodgeHunt', {
+          startsAt: now + 2000,
+          duration: 6000,
+          villageId: 1,
+          huntingPartyLevel: 1,
         }),
       ]);
 
@@ -231,11 +251,20 @@ describe('developer-tools-controllers', () => {
       );
 
       const events = database.selectObjects({
-        sql: "SELECT duration FROM events WHERE type = 'troopMovementAdventure'",
-        schema: z.strictObject({ duration: z.number() }),
+        sql: `
+          SELECT type, duration
+          FROM events
+          WHERE type IN ('troopMovementAdventure', 'huntersLodgeHunt')
+        `,
+        schema: z.strictObject({ type: z.string(), duration: z.number() }),
       });
 
-      expect(events[0].duration).toBe(0);
+      expect(
+        events.find((e) => e.type === 'troopMovementAdventure')?.duration,
+      ).toBe(0);
+      expect(events.find((e) => e.type === 'huntersLodgeHunt')?.duration).toBe(
+        0,
+      );
     });
   });
 

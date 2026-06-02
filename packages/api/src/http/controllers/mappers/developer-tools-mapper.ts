@@ -21,6 +21,7 @@ export const mapDeveloperSettingsRowToDto = (
     isFreeUnitTrainingEnabled: Boolean(row.is_free_unit_training_enabled),
     isFreeUnitImprovementEnabled: Boolean(row.is_free_unit_improvement_enabled),
     isFreeUnitResearchEnabled: Boolean(row.is_free_unit_research_enabled),
+    isFreeHuntingPartiesEnabled: Boolean(row.is_free_hunting_parties_enabled),
     isInstantHeroReviveEnabled: Boolean(row.is_instant_hero_revive_enabled),
     isFreeHeroReviveEnabled: Boolean(row.is_free_hero_revive_enabled),
   });

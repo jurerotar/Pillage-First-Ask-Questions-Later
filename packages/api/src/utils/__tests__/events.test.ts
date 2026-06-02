@@ -12,6 +12,10 @@ import {
   calculateHeroRevivalTime,
 } from '@pillage-first/game-assets/utils/hero';
 import {
+  ANIMAL_CAGE_BASE_DURATION,
+  ANIMAL_CAGE_COST,
+} from '@pillage-first/game-assets/utils/hunters-lodge';
+import {
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
@@ -31,6 +35,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { createEvents } from '../create-event';
 import {
   getEventCost,
   getEventDuration,
@@ -53,6 +58,32 @@ const setDevFlag = (database: DbFacade, column: string, value: number) => {
   database.exec({
     sql: `UPDATE developer_settings SET ${column} = $value`,
     bind: { $value: value },
+  });
+};
+
+const setHuntersLodgeLevel = (
+  database: DbFacade,
+  villageId: number,
+  level: number,
+) => {
+  database.exec({
+    sql: `
+      INSERT INTO
+        building_fields (village_id, field_id, building_id, level)
+      SELECT
+        $village_id, 20, id, $level
+      FROM
+        building_ids
+      WHERE
+        building = 'HUNTERS_LODGE'
+      ON CONFLICT(village_id, field_id) DO UPDATE SET
+        building_id = EXCLUDED.building_id,
+        level = EXCLUDED.level;
+    `,
+    bind: {
+      $village_id: villageId,
+      $level: level,
+    },
   });
 };
 
@@ -384,6 +415,60 @@ describe('events utils', () => {
           createTroopMovementAdventureEventMock({ villageId }),
         ),
       ).toThrow('No adventure points available');
+    });
+
+    test("huntersLodgeHunt - should throw if party level exceeds Hunter's Lodge level", async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      setHuntersLodgeLevel(database, villageId, 2);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('huntersLodgeHunt', {
+            villageId,
+            huntingPartyLevel: 3,
+          }),
+        ),
+      ).toThrow("Hunter's Lodge level is too low");
+    });
+
+    test('huntersLodgeHunt - should throw if party level is invalid', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      setHuntersLodgeLevel(database, villageId, 2);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('huntersLodgeHunt', {
+            villageId,
+            huntingPartyLevel: 0,
+          }),
+        ),
+      ).toThrow('Invalid hunting party level');
+    });
+
+    test("huntersLodgeHunt - should throw if Hunter's Lodge is already hunting", async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      setHuntersLodgeLevel(database, villageId, 2);
+      insertEvents(database, [
+        createGameEventMock('huntersLodgeHunt', {
+          villageId,
+          huntingPartyLevel: 1,
+        }),
+      ]);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createGameEventMock('huntersLodgeHunt', {
+            villageId,
+            huntingPartyLevel: 1,
+          }),
+        ),
+      ).toThrow("Hunter's Lodge is busy");
     });
 
     test('isBuildingEvent - non-Romans should throw if building queue is full', async () => {
@@ -1297,6 +1382,29 @@ describe('events utils', () => {
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     });
 
+    test('animalCageProduction - should return zero cost if free unit training enabled', async () => {
+      const database = await prepareTestDatabase();
+      setDevFlag(database, 'is_free_unit_training_enabled', 1);
+
+      const event = createGameEventMock('animalCageProduction', {
+        cageAmount: 2,
+      });
+
+      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+    });
+
+    test('animalCageProduction - should return cost for the full cage batch', async () => {
+      const database = await prepareTestDatabase();
+
+      const event = createGameEventMock('animalCageProduction', {
+        cageAmount: 2,
+      });
+
+      expect(getEventCost(database, event)).toStrictEqual(
+        ANIMAL_CAGE_COST.map((cost) => cost * 2),
+      );
+    });
+
     test('troopTraining - should return tripled cost for Great Barracks vs Barracks', async () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_free_unit_training_enabled', 0);
@@ -1312,6 +1420,33 @@ describe('events utils', () => {
       const greatCost = getEventCost(database, greatEvent);
 
       expect(greatCost).toStrictEqual(baseCost.map((v) => v * 3));
+    });
+
+    test('huntersLodgeHunt - should return wheat cost based on party level', async () => {
+      const database = await prepareTestDatabase();
+
+      const cost = getEventCost(
+        database,
+        createGameEventMock('huntersLodgeHunt', {
+          huntingPartyLevel: 3,
+        }),
+      );
+
+      expect(cost).toStrictEqual([0, 0, 0, 300]);
+    });
+
+    test('huntersLodgeHunt - should return zero cost if free hunting parties enabled', async () => {
+      const database = await prepareTestDatabase();
+      setDevFlag(database, 'is_free_hunting_parties_enabled', 1);
+
+      const cost = getEventCost(
+        database,
+        createGameEventMock('huntersLodgeHunt', {
+          huntingPartyLevel: 3,
+        }),
+      );
+
+      expect(cost).toStrictEqual([0, 0, 0, 0]);
     });
 
     test('heroRevival - should return correct cost', async () => {
@@ -1426,6 +1561,17 @@ describe('events utils', () => {
       expect(getEventDuration(database, event)).toBe(0);
     });
 
+    test('animalCageProduction - should return 0 if instant unit training enabled', async () => {
+      const database = await prepareTestDatabase();
+      setDevFlag(database, 'is_instant_unit_training_enabled', 1);
+
+      const event = createGameEventMock('animalCageProduction', {
+        cageAmount: 3,
+      });
+
+      expect(getEventDuration(database, event)).toBe(0);
+    });
+
     test('buildingLevelUp - should apply effects and return a positive duration', async () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_instant_building_construction_enabled', 0);
@@ -1465,6 +1611,53 @@ describe('events utils', () => {
       });
       const result = getEventDuration(database, event);
       expect(result).toBeGreaterThan(0);
+    });
+
+    test('animalCageProduction - should return batch duration based on server speed', async () => {
+      const database = await prepareTestDatabase();
+      database.exec({
+        sql: 'UPDATE servers SET speed = $speed',
+        bind: { $speed: 2 },
+      });
+
+      const event = createGameEventMock('animalCageProduction', {
+        cageAmount: 3,
+      });
+
+      expect(getEventDuration(database, event)).toBe(
+        (ANIMAL_CAGE_BASE_DURATION * 3) / 2,
+      );
+    });
+
+    test('huntersLodgeHunt - should return duration based on party level and server speed', async () => {
+      const database = await prepareTestDatabase();
+      database.exec({
+        sql: 'UPDATE servers SET speed = $speed',
+        bind: { $speed: 2 },
+      });
+
+      const result = getEventDuration(
+        database,
+        createGameEventMock('huntersLodgeHunt', {
+          huntingPartyLevel: 4,
+        }),
+      );
+
+      expect(result).toBe((4 * 30 * 60 * 1000) / 2);
+    });
+
+    test('huntersLodgeHunt - should return zero duration if instant unit travel enabled', async () => {
+      const database = await prepareTestDatabase();
+      setDevFlag(database, 'is_instant_unit_travel_enabled', 1);
+
+      const result = getEventDuration(
+        database,
+        createGameEventMock('huntersLodgeHunt', {
+          huntingPartyLevel: 4,
+        }),
+      );
+
+      expect(result).toBe(0);
     });
 
     test('heroRevival - should apply server speed and return correct duration', async () => {
@@ -1530,6 +1723,109 @@ describe('events utils', () => {
 
       const dayInMs = 24 * 60 * 60 * 1000;
       expect(result).toBe(dayInMs / 25);
+    });
+  });
+
+  describe(createEvents, () => {
+    test('huntersLodgeHunt - should subtract resources and persist calculated duration', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const now = 1_000_000;
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+      setHuntersLodgeLevel(database, villageId, 3);
+
+      database.exec({
+        sql: `
+          UPDATE resource_sites
+          SET
+            wood = 700,
+            clay = 700,
+            iron = 700,
+            wheat = 700,
+            updated_at = $now
+          WHERE
+            tile_id = (
+              SELECT tile_id
+              FROM
+                villages
+              WHERE
+                id = $village_id
+            );
+        `,
+        bind: {
+          $village_id: villageId,
+          $now: now,
+        },
+      });
+
+      createEvents<'huntersLodgeHunt'>(database, {
+        type: 'huntersLodgeHunt',
+        villageId,
+        huntingPartyLevel: 2,
+      });
+
+      const event = database.selectObject({
+        sql: `
+          SELECT
+            duration,
+            JSON_EXTRACT(meta, '$.huntingPartyLevel') AS huntingPartyLevel
+          FROM
+            events
+          WHERE
+            village_id = $village_id
+            AND type = 'huntersLodgeHunt';
+        `,
+        bind: {
+          $village_id: villageId,
+        },
+        schema: z.strictObject({
+          duration: z.number(),
+          huntingPartyLevel: z.number(),
+        }),
+      })!;
+
+      const resources = database.selectObject({
+        sql: `
+          SELECT
+            wood,
+            clay,
+            iron,
+            wheat
+          FROM
+            resource_sites
+          WHERE
+            tile_id = (
+              SELECT tile_id
+              FROM
+                villages
+              WHERE
+                id = $village_id
+            );
+        `,
+        bind: {
+          $village_id: villageId,
+        },
+        schema: z.strictObject({
+          wood: z.number(),
+          clay: z.number(),
+          iron: z.number(),
+          wheat: z.number(),
+        }),
+      })!;
+
+      expect(event).toStrictEqual({
+        duration: 60 * 60 * 1000,
+        huntingPartyLevel: 2,
+      });
+      expect(resources).toStrictEqual({
+        wood: 700,
+        clay: 700,
+        iron: 700,
+        wheat: 500,
+      });
+
+      vi.useRealTimers();
     });
   });
 

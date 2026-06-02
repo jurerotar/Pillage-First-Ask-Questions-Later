@@ -128,6 +128,16 @@ export const cachesToClearOnResolve: Handlers = {
   unitImprovement: ({ villageId }) => {
     return [[unitImprovementCacheKey], [eventsHistoryCacheKey, villageId]];
   },
+  animalCageProduction: ({ villageId }) => {
+    return [[heroInventoryCacheKey], [eventsHistoryCacheKey, villageId]];
+  },
+  huntersLodgeHunt: ({ villageId }) => {
+    return [
+      [currentVillageCacheKey],
+      [villageTroopsCacheKey, villageId],
+      [eventsHistoryCacheKey, villageId],
+    ];
+  },
   heroRevival: ({ villageId }) => {
     return [
       [heroCacheKey],

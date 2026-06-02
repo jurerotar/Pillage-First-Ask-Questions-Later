@@ -57,6 +57,9 @@
     "./utils/units": {
       "default": "./src/utils/units.ts"
     },
+    "./utils/hunters-lodge": {
+      "default": "./src/utils/hunters-lodge.ts"
+    },
     "./factories/unit-research": {
       "default": "./src/factories/unit-research.ts"
     },

@@ -44,6 +44,14 @@ type UnitImprovementEvent = {
   level: number;
 };
 
+type AnimalCageProductionEvent = {
+  cageAmount: number;
+};
+
+type HuntersLodgeHuntEvent = {
+  huntingPartyLevel: number;
+};
+
 type BaseUnitTrainingEvent = {
   batchId: string;
   amount: number;
@@ -90,6 +98,8 @@ export const gameEventTypeSchema = z.enum([
   'troopMovementAdventure',
   'unitResearch',
   'unitImprovement',
+  'animalCageProduction',
+  'huntersLodgeHunt',
   'heroRevival',
   'heroHealthRegeneration',
   'loyaltyIncrease',
@@ -106,6 +116,8 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopTraining: BaseUnitTrainingEvent & VillageGameEvent;
   unitResearch: UnitResearchEvent & VillageGameEvent;
   unitImprovement: UnitImprovementEvent & VillageGameEvent;
+  animalCageProduction: AnimalCageProductionEvent & VillageGameEvent;
+  huntersLodgeHunt: HuntersLodgeHuntEvent & VillageGameEvent;
   troopMovementReinforcements: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementRelocation: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementReturn: ReturnTroopMovementEvent & VillageGameEvent;

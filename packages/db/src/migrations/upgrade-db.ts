@@ -171,6 +171,17 @@ export const upgradeDb = (database: DbFacade): void => {
       // Column already exists on newer databases.
     }
 
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE developer_settings
+            ADD COLUMN is_free_hunting_parties_enabled INTEGER NOT NULL DEFAULT 0 CHECK (is_free_hunting_parties_enabled IN (0, 1));
+        `,
+      });
+    } catch {
+      // Column already exists on newer databases.
+    }
+
     db.exec({
       sql: `
         UPDATE hero_adventures

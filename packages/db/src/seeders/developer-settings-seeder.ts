@@ -14,11 +14,12 @@ export const developerSettingsSeeder = (database: DbFacade): void => {
         is_free_unit_training_enabled,
         is_free_unit_improvement_enabled,
         is_free_unit_research_enabled,
+        is_free_hunting_parties_enabled,
         is_instant_hero_revive_enabled,
         is_free_hero_revive_enabled
       )
       VALUES
-        (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
     `,
   });
 };

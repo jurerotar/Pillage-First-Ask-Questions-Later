@@ -13,6 +13,12 @@ import {
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
 } from '@pillage-first/game-assets/utils/hero';
+import {
+  ANIMAL_CAGE_BASE_DURATION,
+  ANIMAL_CAGE_COST,
+  calculateHuntersLodgeHuntCost,
+  calculateHuntersLodgeHuntDuration,
+} from '@pillage-first/game-assets/utils/hunters-lodge';
 import { calculateLoyaltyIncreaseEventDuration } from '@pillage-first/game-assets/utils/loyalty';
 import {
   calculateUnitResearchCost,
@@ -33,6 +39,7 @@ import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-com
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
 import {
   isAdventureTroopMovementEvent,
+  isAnimalCageProductionEvent,
   isBuildingConstructionEvent,
   isBuildingDowngradeEvent,
   isBuildingEvent,
@@ -40,6 +47,7 @@ import {
   isFindNewVillageTroopMovementEvent,
   isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
+  isHuntersLodgeHuntEvent,
   isLoyaltyIncreaseEvent,
   isOasisOccupationTroopMovementEvent,
   isReturnTroopMovementEvent,
@@ -321,6 +329,73 @@ export const validateEventCreationPrerequisites = (
 
     if (!doesUnitTrainingBuildingExist) {
       throw new Error('Unit training building does not exist');
+    }
+
+    return;
+  }
+
+  if (isAnimalCageProductionEvent(event) || isHuntersLodgeHuntEvent(event)) {
+    const { villageId } = event;
+
+    const huntersLodgeLevel = database.selectValue({
+      sql: `
+        SELECT COALESCE(MAX(bf.level), 0) AS level
+        FROM
+          building_fields bf
+            JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE
+          bf.village_id = $village_id
+          AND bi.building = 'HUNTERS_LODGE';
+      `,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    })!;
+
+    if (huntersLodgeLevel <= 0) {
+      throw new Error("Hunter's Lodge does not exist");
+    }
+
+    if (isAnimalCageProductionEvent(event) && event.cageAmount <= 0) {
+      throw new Error('Animal cage amount must be positive');
+    }
+
+    if (isHuntersLodgeHuntEvent(event)) {
+      if (
+        !Number.isInteger(event.huntingPartyLevel) ||
+        event.huntingPartyLevel < 1 ||
+        event.huntingPartyLevel > 5
+      ) {
+        throw new Error('Invalid hunting party level');
+      }
+
+      if (event.huntingPartyLevel > huntersLodgeLevel) {
+        throw new Error("Hunter's Lodge level is too low");
+      }
+
+      const hasOngoingHunt = database.selectValue({
+        sql: `
+          SELECT
+            EXISTS
+            (
+              SELECT 1
+              FROM
+                events
+              WHERE
+                type = 'huntersLodgeHunt'
+                AND village_id = $village_id
+            ) AS event_exists;
+        `,
+        bind: {
+          $village_id: villageId,
+        },
+        schema: z.coerce.boolean(),
+      });
+
+      if (hasOngoingHunt) {
+        throw new Error("Hunter's Lodge is busy");
+      }
     }
 
     return;
@@ -649,6 +724,32 @@ export const getEventCost = (
     return baseRecruitmentCost.map((cost) => cost * costModifier * amount);
   }
 
+  if (isAnimalCageProductionEvent(event)) {
+    const isFreeUnitTrainingEnabled = database.selectValue({
+      sql: 'SELECT is_free_unit_training_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isFreeUnitTrainingEnabled) {
+      return [0, 0, 0, 0];
+    }
+
+    return ANIMAL_CAGE_COST.map((cost) => cost * event.cageAmount);
+  }
+
+  if (isHuntersLodgeHuntEvent(event)) {
+    const isFreeHuntingPartiesEnabled = database.selectValue({
+      sql: 'SELECT is_free_hunting_parties_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isFreeHuntingPartiesEnabled) {
+      return [0, 0, 0, 0];
+    }
+
+    return calculateHuntersLodgeHuntCost(event.huntingPartyLevel);
+  }
+
   if (isHeroRevivalEvent(event)) {
     const isFreeHeroReviveEnabled = database.selectValue({
       sql: 'SELECT is_free_hero_revive_enabled FROM developer_settings',
@@ -837,6 +938,46 @@ export const getEventDuration = (
     return total * baseRecruitmentDuration;
   }
 
+  if (isAnimalCageProductionEvent(event)) {
+    const isInstantUnitTrainingEnabled = database.selectValue({
+      sql: 'SELECT is_instant_unit_training_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isInstantUnitTrainingEnabled) {
+      return 0;
+    }
+
+    const { speed } = database.selectObject({
+      sql: 'SELECT speed FROM servers LIMIT 1;',
+      schema: z.strictObject({
+        speed: speedSchema,
+      }),
+    })!;
+
+    return (ANIMAL_CAGE_BASE_DURATION * event.cageAmount) / speed;
+  }
+
+  if (isHuntersLodgeHuntEvent(event)) {
+    const isInstantUnitTravelEnabled = database.selectValue({
+      sql: 'SELECT is_instant_unit_travel_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isInstantUnitTravelEnabled) {
+      return 0;
+    }
+
+    const { speed } = database.selectObject({
+      sql: 'SELECT speed FROM servers LIMIT 1;',
+      schema: z.strictObject({
+        speed: speedSchema,
+      }),
+    })!;
+
+    return calculateHuntersLodgeHuntDuration(event.huntingPartyLevel, speed);
+  }
+
   if (isTroopMovementEvent(event)) {
     const isInstantUnitTravelEnabled = database.selectValue({
       sql: 'SELECT is_instant_unit_travel_enabled FROM developer_settings',
@@ -984,6 +1125,27 @@ export const getEventStartTime = (
     }
 
     return Date.now();
+  }
+
+  if (isAnimalCageProductionEvent(event)) {
+    const { villageId } = event;
+    const now = Date.now();
+
+    return database.selectValue({
+      sql: `
+        SELECT COALESCE(MAX(resolves_at), $now) AS resolves_at
+        FROM
+          events
+        WHERE
+          village_id = $village_id
+          AND type = 'animalCageProduction';
+      `,
+      bind: {
+        $village_id: villageId,
+        $now: now,
+      },
+      schema: z.number(),
+    })!;
   }
 
   if (isUnitImprovementEvent(event)) {
