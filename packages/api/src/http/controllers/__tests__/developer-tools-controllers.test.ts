@@ -237,6 +237,12 @@ describe('developer-tools-controllers', () => {
           villageId: 1,
           huntingPartyLevel: 1,
         }),
+        createGameEventMock('gatherersHutGatheringTrip', {
+          startsAt: now + 3000,
+          duration: 7000,
+          villageId: 1,
+          troops: [],
+        }),
       ]);
 
       updateDeveloperSettings(
@@ -254,7 +260,7 @@ describe('developer-tools-controllers', () => {
         sql: `
           SELECT type, duration
           FROM events
-          WHERE type IN ('troopMovementAdventure', 'huntersLodgeHunt')
+          WHERE type IN ('troopMovementAdventure', 'huntersLodgeHunt', 'gatherersHutGatheringTrip')
         `,
         schema: z.strictObject({ type: z.string(), duration: z.number() }),
       });
@@ -265,6 +271,9 @@ describe('developer-tools-controllers', () => {
       expect(events.find((e) => e.type === 'huntersLodgeHunt')?.duration).toBe(
         0,
       );
+      expect(
+        events.find((e) => e.type === 'gatherersHutGatheringTrip')?.duration,
+      ).toBe(0);
     });
   });
 

@@ -46,6 +46,19 @@ export const selectEventsByTypeQuery = `
     resolves_at;
 `;
 
+export const selectVillageEventExistsByTypeQuery = `
+  SELECT
+    EXISTS
+    (
+      SELECT 1
+      FROM
+        events
+      WHERE
+        type = $type
+        AND village_id = $village_id
+    ) AS event_exists;
+`;
+
 export const selectTroopMovementEventsQuery = `
   SELECT id, type, starts_at, duration, resolves_at, meta, village_id
   FROM

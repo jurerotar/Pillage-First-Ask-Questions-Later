@@ -16,6 +16,7 @@ import {
   buildingLevelChangeResolver,
   buildingScheduledConstructionEventResolver,
 } from './resolvers/building-resolvers';
+import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-resolvers';
 import {
   heroHealthRegenerationResolver,
   heroRevivalResolver,
@@ -64,6 +65,7 @@ const gameEventResolvers = {
   unitImprovement: unitImprovementResolver,
   animalCageProduction: animalCageProductionResolver,
   huntersLodgeHunt: huntersLodgeHuntResolver,
+  gatherersHutGatheringTrip: gatherersHutGatheringTripResolver,
 } satisfies GameEventResolverMap;
 
 export const resolveEvent = (

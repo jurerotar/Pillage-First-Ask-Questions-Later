@@ -145,6 +145,12 @@ export const isHuntersLodgeHuntEvent = (
   return event.type === 'huntersLodgeHunt';
 };
 
+export const isGatherersHutGatheringTripEvent = (
+  event: GameEvent,
+): event is GameEvent<'gatherersHutGatheringTrip'> => {
+  return event.type === 'gatherersHutGatheringTrip';
+};
+
 export const isHeroRevivalEvent = (
   event: GameEvent,
 ): event is GameEvent<'heroRevival'> => {

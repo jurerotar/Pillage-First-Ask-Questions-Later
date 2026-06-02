@@ -107,6 +107,7 @@ export const updateDeveloperSettings = createController(
           'troopMovementOasisOccupation',
           'troopMovementAdventure',
           'huntersLodgeHunt',
+          'gatherersHutGatheringTrip',
         ];
         break;
       }
