@@ -1066,6 +1066,8 @@
     "offensiveMovementOutgoing": "Offensive movement (outgoing)",
     "offensiveMovementIncoming": "Offensive movement (incoming)",
     "adventure": "Adventure",
+    "huntingParty": "Hunting party",
+    "gatheringTrip": "Gathering trip",
     "positiveChange": "Increase",
     "negativeChange": "Decrease",
     "merchantSpeed": "Merchant speed",

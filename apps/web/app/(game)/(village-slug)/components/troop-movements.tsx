@@ -3,11 +3,16 @@ import { Suspense, useMemo } from 'react';
 import { Link } from 'react-router';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icons';
 import { Separator } from 'app/components/ui/separator';
+
+type MovementEvent = {
+  resolvesAt: number;
+};
 
 type TroopMovementProps = {
   type: Extract<
@@ -18,8 +23,10 @@ type TroopMovementProps = {
     | 'offensiveMovementIncoming'
     | 'adventure'
     | 'findNewVillage'
+    | 'huntingParty'
+    | 'gatheringTrip'
   >;
-  events: ReturnType<typeof useVillageTroopMovements>['troopMovements'];
+  events: MovementEvent[];
   href?: string;
 };
 
@@ -62,6 +69,67 @@ const TroopMovement = ({ type, events, href }: TroopMovementProps) => {
   }
 
   return content;
+};
+
+const HuntersLodgeHuntMovement = () => {
+  const { currentVillage } = useCurrentVillage();
+  const { eventsByType: huntersLodgeHuntEvents } =
+    useEventsByType('huntersLodgeHunt');
+
+  const huntersLodge = useMemo(() => {
+    return currentVillage.buildingFields.find(
+      (field) => field.buildingId === 'HUNTERS_LODGE',
+    );
+  }, [currentVillage.buildingFields]);
+
+  const huntersLodgeLink = useMemo(() => {
+    return huntersLodge && huntersLodge.level >= 1
+      ? `village/${huntersLodge.id}?tab=hunting-party`
+      : undefined;
+  }, [huntersLodge]);
+
+  if (huntersLodgeHuntEvents.length === 0) {
+    return null;
+  }
+
+  return (
+    <TroopMovement
+      type="huntingParty"
+      events={huntersLodgeHuntEvents}
+      href={huntersLodgeLink}
+    />
+  );
+};
+
+const GatherersHutGatheringTripMovement = () => {
+  const { currentVillage } = useCurrentVillage();
+  const { eventsByType: gatherersHutGatheringTripEvents } = useEventsByType(
+    'gatherersHutGatheringTrip',
+  );
+
+  const gatherersHut = useMemo(() => {
+    return currentVillage.buildingFields.find(
+      (field) => field.buildingId === 'GATHERERS_HUT',
+    );
+  }, [currentVillage.buildingFields]);
+
+  const gatherersHutLink = useMemo(() => {
+    return gatherersHut && gatherersHut.level >= 1
+      ? `village/${gatherersHut.id}?tab=gathering-expedition`
+      : undefined;
+  }, [gatherersHut]);
+
+  if (gatherersHutGatheringTripEvents.length === 0) {
+    return null;
+  }
+
+  return (
+    <TroopMovement
+      type="gatheringTrip"
+      events={gatherersHutGatheringTripEvents}
+      href={gatherersHutLink}
+    />
+  );
 };
 
 const partitionTroopMovementEvents = (
@@ -163,6 +231,8 @@ const TroopMovementsContent = () => {
         events={adventureMovementEvents}
         href={rallyPointLink}
       />
+      <HuntersLodgeHuntMovement />
+      <GatherersHutGatheringTripMovement />
       <TroopMovement
         type="deploymentOutgoing"
         events={outgoingDeploymentMovementEvents}

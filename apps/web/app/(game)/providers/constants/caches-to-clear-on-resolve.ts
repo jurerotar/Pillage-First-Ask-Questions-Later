@@ -174,7 +174,7 @@ export const cachesToClearOnResolve: Handlers = {
     return [
       [currentVillageCacheKey],
       [villageTroopsCacheKey, villageId],
-      [eventsCacheKey, 'huntersLodgeHunt', villageId],
+      [eventsCacheKey, 'gatherersHutGatheringTrip', villageId],
     ];
   },
 };
