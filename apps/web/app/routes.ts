@@ -21,7 +21,12 @@ export default [
       route('create', '(public)/(game-worlds)/(create)/page.tsx'),
       route('import', '(public)/(game-worlds)/(import)/page.tsx'),
     ]),
-    route('*', '(public)/(not-found)/page.tsx'),
+    route('not-found', '(public)/(not-found)/page.tsx', {
+      id: 'public-not-found-page',
+    }),
+    route('*', '(public)/(not-found)/page.tsx', {
+      id: 'public-not-found-catch-all',
+    }),
   ]),
   // Game routes
   ...prefix('game', [

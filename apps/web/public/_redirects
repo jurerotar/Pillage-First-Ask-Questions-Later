@@ -9,6 +9,7 @@
 /get-involved                     /get-involved/index.html                  200
 /frequently-asked-questions       /frequently-asked-questions/index.html    200
 /latest-updates                   /latest-updates/index.html                200
+/not-found                        /not-found/index.html                     404
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
 /game/:splat/not-allowed                            /game/server-slug/not-allowed/index.html                                  200
@@ -36,5 +37,5 @@
 # === Dynamic fallback for game routes not statically pre-rendered ===
 /game/*                                    /__spa-fallback.html                                      200
 
-# === Catch-all for SPA fallback
-/*                                         /index.html                                               200
+# === Catch-all for public routes
+/*                                         /not-found/index.html                                     404

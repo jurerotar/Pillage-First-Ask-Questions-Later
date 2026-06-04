@@ -13,7 +13,7 @@ const publicPagesToPrerender = [
   '/frequently-asked-questions',
   '/get-involved',
   '/latest-updates',
-  '/404',
+  '/not-found',
 ];
 
 const reactRouterConfig: Config = {
