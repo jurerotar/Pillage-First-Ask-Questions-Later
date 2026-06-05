@@ -1,6 +1,6 @@
 import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
-import { type PropsWithChildren, Suspense, use, useState } from 'react';
+import { type PropsWithChildren, use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
@@ -13,7 +13,6 @@ import { isScheduledBuildingEvent } from '@pillage-first/utils/guards/event';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
-import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
@@ -171,67 +170,55 @@ const ConstructionQueueContent = () => {
   ];
 
   return (
-    <aside className="fixed left-0 bottom-26 lg:bottom-14 transition-all">
-      <ul
-        ref={containerRef}
-        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center transition-all"
-      >
-        <li>
-          {slots[0].type === 'building' ? (
-            <ConstructionQueueBuilding
-              tooltipPosition="right-start"
-              buildingEvent={slots[0].event}
-            />
-          ) : (
-            <ConstructionQueueEmptySlot type={slots[0].status} />
-          )}
-        </li>
-
-        {(isWiderThanLg || isExtended) &&
-          slots.slice(1).map((slot) => (
-            <li key={slot.type === 'building' ? slot.event.id : slot.id}>
-              {slot.type === 'building' ? (
-                <ConstructionQueueBuilding
-                  tooltipPosition="right-start"
-                  buildingEvent={slot.event}
-                />
-              ) : (
-                <ConstructionQueueEmptySlot type={slot.status} />
-              )}
-            </li>
-          ))}
-
-        {!isWiderThanLg && (
-          <li>
-            <button
-              aria-label={
-                isExtended
-                  ? t('Close construction queue')
-                  : t('Expand construction queue')
-              }
-              className="text-2xl bg-muted text-muted-foreground py-2.5 box-content border border-border rounded-xs transition-colors"
-              onClick={() => setIsExtended(!isExtended)}
-              type="button"
-            >
-              {isExtended ? <LuChevronLeft /> : <LuChevronRight />}
-            </button>
-          </li>
+    <ul
+      ref={containerRef}
+      className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center transition-all"
+    >
+      <li>
+        {slots[0].type === 'building' ? (
+          <ConstructionQueueBuilding
+            tooltipPosition="right-start"
+            buildingEvent={slots[0].event}
+          />
+        ) : (
+          <ConstructionQueueEmptySlot type={slots[0].status} />
         )}
-      </ul>
-    </aside>
+      </li>
+
+      {(isWiderThanLg || isExtended) &&
+        slots.slice(1).map((slot) => (
+          <li key={slot.type === 'building' ? slot.event.id : slot.id}>
+            {slot.type === 'building' ? (
+              <ConstructionQueueBuilding
+                tooltipPosition="right-start"
+                buildingEvent={slot.event}
+              />
+            ) : (
+              <ConstructionQueueEmptySlot type={slot.status} />
+            )}
+          </li>
+        ))}
+
+      {!isWiderThanLg && (
+        <li>
+          <button
+            aria-label={
+              isExtended
+                ? t('Close construction queue')
+                : t('Expand construction queue')
+            }
+            className="text-2xl bg-muted text-muted-foreground py-2.5 box-content border border-border rounded-xs transition-colors"
+            onClick={() => setIsExtended(!isExtended)}
+            type="button"
+          >
+            {isExtended ? <LuChevronLeft /> : <LuChevronRight />}
+          </button>
+        </li>
+      )}
+    </ul>
   );
 };
 
 export const ConstructionQueue = () => {
-  const { shouldShowSidebars } = useGameLayoutState();
-
-  if (!shouldShowSidebars) {
-    return null;
-  }
-
-  return (
-    <Suspense fallback={null}>
-      <ConstructionQueueContent />
-    </Suspense>
-  );
+  return <ConstructionQueueContent />;
 };
