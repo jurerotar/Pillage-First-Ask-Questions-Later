@@ -8,9 +8,9 @@ import {
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
-import { getPlayerHeroAdventureStateAt } from '../../utils/adventures.ts';
-import { createEvents } from '../../utils/create-event.ts';
-import { updateHeroResourceProductionEffects } from '../../utils/hero.ts';
+import { getPlayerHeroAdventureStateAt } from '../../utils/adventures';
+import { createEvents } from '../../utils/create-event';
+import { updateHeroResourceProductionEffects } from '../../utils/hero';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createController } from '../controller';
 import {

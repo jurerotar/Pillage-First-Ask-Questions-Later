@@ -1,3 +1,12 @@
+## Version 0.4.28
+
+#### Jun 4, 2026
+
+* [Feature] Added our first new building, the **Hunter's Lodge**. Hunter's Lodge allows you to send out hunting parties
+  which will hunt animals from nearby oasis. These captured animals will serve as reinforcements, defending your village
+  from incoming attacks. Hunter's Lodge also allows you to manufacture **Animal cages**, which you'll be able to use
+  with your Hero and capture animals yourself.
+
 ## Version 0.4.27
 
 #### Jun 1, 2026

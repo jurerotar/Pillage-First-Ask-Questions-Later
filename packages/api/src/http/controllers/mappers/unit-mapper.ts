@@ -3,8 +3,8 @@ import {
   researchedUnitDtoSchema,
   unitImprovementDtoSchema,
 } from '@pillage-first/types/dtos/unit';
-import type { getUnitImprovementsRowSchema } from '../schemas/unit-improvement-schemas.ts';
-import type { getResearchedUnitsRowSchema } from '../schemas/unit-research-schemas.ts';
+import type { getUnitImprovementsRowSchema } from '../schemas/unit-improvement-schemas';
+import type { getResearchedUnitsRowSchema } from '../schemas/unit-research-schemas';
 
 export const mapUnitImprovementRowToDto = (
   row: z.infer<typeof getUnitImprovementsRowSchema>,

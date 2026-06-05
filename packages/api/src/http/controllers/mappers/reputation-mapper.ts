@@ -1,7 +1,7 @@
 import type { z } from 'zod';
 import { reputationSchema } from '@pillage-first/types/models/reputation';
 import { getReputationLevel } from '@pillage-first/utils/reputation';
-import type { getReputationsRowSchema } from '../schemas/reputation-schemas.ts';
+import type { getReputationsRowSchema } from '../schemas/reputation-schemas';
 
 export const mapReputationRowToDto = (
   row: z.infer<typeof getReputationsRowSchema>,

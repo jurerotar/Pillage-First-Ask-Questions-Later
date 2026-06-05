@@ -1,26 +1,23 @@
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 const ErrorMessage = ({ message }: { message: ReactNode }) => {
-  const messageRef = useRef<HTMLParagraphElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isClipped, setIsClipped] = useState(false);
 
-  useEffect(() => {
-    const messageElement = messageRef.current;
-
+  const updateMessageRef = (messageElement: HTMLParagraphElement | null) => {
     if (!messageElement) {
       return;
     }
 
     setIsClipped(messageElement.scrollHeight > messageElement.clientHeight);
-  }, []);
+  };
 
   return (
     <>
       <p
-        ref={messageRef}
+        ref={updateMessageRef}
         className={clsx(
           'mt-1 whitespace-pre-wrap text-red-900',
           !isExpanded && 'line-clamp-2',

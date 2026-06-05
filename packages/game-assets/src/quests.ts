@@ -298,6 +298,16 @@ export const getVillageQuests = (
     createBuildingQuest('CRANNY', 3),
     createBuildingQuest('CRANNY', 7),
     createBuildingQuest('CRANNY', 10),
+    // Gatherer's Hut
+    createBuildingQuest('GATHERERS_HUT', 1),
+    createBuildingQuest('GATHERERS_HUT', 5),
+    createBuildingQuest('GATHERERS_HUT', 10),
+    createBuildingQuest('GATHERERS_HUT', 15),
+    createBuildingQuest('GATHERERS_HUT', 20),
+    // Hunter's Lodge
+    createBuildingQuest('HUNTERS_LODGE', 1),
+    createBuildingQuest('HUNTERS_LODGE', 3),
+    createBuildingQuest('HUNTERS_LODGE', 5),
   ];
 };
 

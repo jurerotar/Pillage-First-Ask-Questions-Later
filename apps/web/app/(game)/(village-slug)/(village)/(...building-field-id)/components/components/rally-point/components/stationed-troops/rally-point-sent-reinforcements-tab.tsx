@@ -9,10 +9,10 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { RelocateTroopsModal } from 'app/(game)/(village-slug)/components/send-troops/components/relocate-troops-modal';
 import { ReturnReinforcementsModal } from 'app/(game)/(village-slug)/components/send-troops/components/return-reinforcements-modal';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination.ts';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
   UnitTable,
   UnitTableRow,
@@ -23,8 +23,8 @@ import {
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { Pagination } from 'app/components/ui/pagination';
-import { useDialog } from 'app/hooks/use-dialog.ts';
-import { formatTroopAmount } from '../../utils/format-troop-amount.ts';
+import { useDialog } from 'app/hooks/use-dialog';
+import { formatTroopAmount } from '../../utils/format-troop-amount';
 
 type ReinforcementDialogData = {
   tileId: number;

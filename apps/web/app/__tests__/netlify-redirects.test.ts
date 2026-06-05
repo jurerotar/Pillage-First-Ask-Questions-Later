@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
-import { getGameRoutePaths } from 'app/utils/react-router.ts';
+import { getGameRoutePaths } from 'app/utils/react-router';
 
 const redirectsPath = resolve(import.meta.dirname, '../../public/_redirects');
 
@@ -18,8 +18,8 @@ const getRedirectTargets = (): Set<string> => {
   );
 };
 
-describe('Netlify redirects', () => {
-  test('contain every prerendered game path', () => {
+describe('netlify redirects', () => {
+  test('contain every pre-rendered game path', () => {
     const redirectTargets = getRedirectTargets();
 
     const missingGamePaths = getGameRoutePaths().filter((gamePath) => {

@@ -3,9 +3,9 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import {
   assessTroopCountQuestCompletion,
   assessUnitTroopCountQuestCompletion,
-} from '../../../utils/quests.ts';
+} from '../../../utils/quests';
 import { updateVillageResourcesAt } from '../../../utils/village';
-import type { Resolver } from '../resolver.ts';
+import type { Resolver } from '../resolver';
 
 export const troopTrainingEventResolver: Resolver<
   GameEvent<'troopTraining'>

@@ -9,13 +9,13 @@ import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../../queries/effect-queries';
-import { createEvents } from '../../../utils/create-event.ts';
-import { assessBuildingQuestCompletion } from '../../../utils/quests.ts';
+import { createEvents } from '../../../utils/create-event';
+import { assessBuildingQuestCompletion } from '../../../utils/quests';
 import {
   demolishBuilding,
   updateVillageResourcesAt,
 } from '../../../utils/village';
-import type { Resolver } from '../resolver.ts';
+import type { Resolver } from '../resolver';
 
 export const buildingLevelChangeResolver: Resolver<
   GameEvent<'buildingLevelChange'>

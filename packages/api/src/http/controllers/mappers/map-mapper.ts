@@ -12,7 +12,7 @@ import type {
   getTilesSchema,
   getTileTroopsSchema,
   getTileWorldItemSchema,
-} from '../schemas/map-schemas.ts';
+} from '../schemas/map-schemas';
 
 export const mapTile = (
   row: z.infer<typeof getTilesSchema>,

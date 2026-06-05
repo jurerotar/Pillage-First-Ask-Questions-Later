@@ -12,7 +12,7 @@ export const CopyReleaseButton = ({ text }: CopyReleaseButtonProps) => {
       title="Copy release markdown"
       className="absolute top-0 right-0 p-1.5 text-xs rounded border border-black/10 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
     >
-      <IoCopyOutline className="h-4 w-4" />
+      <IoCopyOutline className="size-4" />
     </button>
   );
 };

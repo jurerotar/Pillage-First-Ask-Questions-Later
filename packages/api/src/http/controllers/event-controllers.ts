@@ -19,8 +19,8 @@ import {
   selectTroopMovementEventsQuery,
   updateEventStartsAtQuery,
 } from '../../queries/event-queries';
-import { createEvents } from '../../utils/create-event.ts';
-import { getEventStartTime } from '../../utils/events.ts';
+import { createEvents } from '../../utils/create-event';
+import { getEventStartTime } from '../../utils/events';
 import { addVillageResourcesAt, demolishBuilding } from '../../utils/village';
 import {
   baseEventRowSchema,

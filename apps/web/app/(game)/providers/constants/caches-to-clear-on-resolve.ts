@@ -29,8 +29,11 @@ type Handlers = {
 
 export const cachesToClearOnResolve: Handlers = {
   buildingScheduledConstruction: () => [],
-  buildingConstruction: () => {
-    return [[currentVillageCacheKey]];
+  buildingConstruction: ({ villageId }) => {
+    return [
+      [currentVillageCacheKey],
+      [eventsCacheKey, 'troopTraining', villageId],
+    ];
   },
   buildingLevelChange: ({ villageId }) => {
     return [
@@ -39,6 +42,7 @@ export const cachesToClearOnResolve: Handlers = {
       [questsCacheKey, villageId],
       [collectableQuestCountCacheKey, villageId],
       [eventsHistoryCacheKey, villageId],
+      [eventsCacheKey, 'buildingLevelChange', villageId],
     ];
   },
   buildingDestruction: ({ villageId }) => {
@@ -46,6 +50,7 @@ export const cachesToClearOnResolve: Handlers = {
       [currentVillageCacheKey],
       [effectsCacheKey, villageId],
       [eventsHistoryCacheKey, villageId],
+      [eventsCacheKey, 'buildingDestruction', villageId],
     ];
   },
   troopTraining: ({ villageId }) => {
@@ -53,6 +58,7 @@ export const cachesToClearOnResolve: Handlers = {
       [villageTroopsCacheKey, villageId],
       [effectsCacheKey, villageId],
       [eventsHistoryCacheKey, villageId],
+      [eventsCacheKey, 'troopTraining', villageId],
     ];
   },
   troopMovementReinforcements: ({ villageId }) => {
@@ -123,16 +129,38 @@ export const cachesToClearOnResolve: Handlers = {
     ];
   },
   unitResearch: ({ villageId }) => {
-    return [[unitResearchCacheKey], [eventsHistoryCacheKey, villageId]];
+    return [
+      [unitResearchCacheKey],
+      [eventsHistoryCacheKey, villageId],
+      [eventsCacheKey, 'unitResearch', villageId],
+    ];
   },
   unitImprovement: ({ villageId }) => {
-    return [[unitImprovementCacheKey], [eventsHistoryCacheKey, villageId]];
+    return [
+      [unitImprovementCacheKey],
+      [eventsHistoryCacheKey, villageId],
+      [eventsCacheKey, 'unitImprovement', villageId],
+    ];
+  },
+  animalCageProduction: ({ villageId }) => {
+    return [
+      [heroInventoryCacheKey],
+      [eventsCacheKey, 'animalCageProduction', villageId],
+      [eventsHistoryCacheKey, villageId],
+    ];
+  },
+  huntersLodgeHunt: ({ villageId }) => {
+    return [
+      [currentVillageCacheKey],
+      [villageTroopsCacheKey, villageId],
+      [eventsCacheKey, 'huntersLodgeHunt', villageId],
+    ];
   },
   heroRevival: ({ villageId }) => {
     return [
       [heroCacheKey],
       [effectsCacheKey, villageId],
-      [eventsCacheKey, villageId],
+      [eventsCacheKey, 'heroRevival', villageId],
       [villageTroopsCacheKey, villageId],
     ];
   },
@@ -141,5 +169,12 @@ export const cachesToClearOnResolve: Handlers = {
   },
   loyaltyIncrease: ({ villageId }) => {
     return [[loyaltyCacheKey, villageId]];
+  },
+  gatherersHutGatheringTrip: ({ villageId }) => {
+    return [
+      [currentVillageCacheKey],
+      [villageTroopsCacheKey, villageId],
+      [eventsCacheKey, 'gatherersHutGatheringTrip', villageId],
+    ];
   },
 };

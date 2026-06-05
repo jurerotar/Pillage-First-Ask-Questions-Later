@@ -1,5 +1,5 @@
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import type { Resolver } from '../resolver.ts';
+import type { Resolver } from '../resolver';
 
 export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
   database,

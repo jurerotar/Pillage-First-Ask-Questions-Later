@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { createEvents } from './create-event.ts';
+import { createEvents } from './create-event';
 
 export const createLoyaltyIncreaseEvent = (
   database: DbFacade,

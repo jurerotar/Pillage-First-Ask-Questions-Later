@@ -10,16 +10,16 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
-import { createEvents } from '../../../utils/create-event.ts';
+import { createEvents } from '../../../utils/create-event';
 import {
   createHeroHealthRegenerationEventByVillageId,
   onHeroDeath,
   relocateHero,
 } from '../../../utils/hero';
-import { assessAdventureCountQuestCompletion } from '../../../utils/quests.ts';
-import { addTroops } from '../../../utils/troops.ts';
+import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
+import { addTroops } from '../../../utils/troops';
 import { updateVillageResourcesAt } from '../../../utils/village';
-import type { Resolver } from '../resolver.ts';
+import type { Resolver } from '../resolver';
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>

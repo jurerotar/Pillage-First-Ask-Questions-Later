@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark.tsx';
+import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { RallyPointReinforcementsTab } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/stationed-troops/rally-point-reinforcements-tab';
 import { RallyPointSentReinforcementsTab } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/stationed-troops/rally-point-sent-reinforcements-tab';
 import { RallyPointStationedTroopsTab } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/stationed-troops/rally-point-stationed-troops-tab';

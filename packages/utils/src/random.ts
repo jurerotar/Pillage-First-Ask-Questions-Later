@@ -15,6 +15,10 @@ export const seededRandomArrayElement = <T>(
   return array[Math.floor(prng() * array.length)];
 };
 
+export const randomArrayElement = <T>(array: T[]): T => {
+  return array[Math.floor(Math.random() * array.length)];
+};
+
 export const seededRandomArrayElements = <T>(
   prng: PRNGFunction,
   array: T[],

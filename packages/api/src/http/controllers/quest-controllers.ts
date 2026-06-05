@@ -11,7 +11,7 @@ import {
   selectCollectableQuestCountQuery,
   selectVillageQuestsQuery,
 } from '../../queries/quest-queries';
-import { addHeroExperience } from '../../utils/hero.ts';
+import { addHeroExperience } from '../../utils/hero';
 import { addVillageResourcesAt } from '../../utils/village';
 import { createController } from '../controller';
 import { mapQuestRowToDto } from './mappers/quest-mapper';

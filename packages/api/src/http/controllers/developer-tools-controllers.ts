@@ -4,7 +4,7 @@ import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
-import { materializeHeroAdventurePointsAt } from '../../utils/adventures.ts';
+import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
 import { onHeroDeath } from '../../utils/hero';
 import {
   addVillageResourcesAt,
@@ -31,6 +31,7 @@ export const getDeveloperSettings = createController('/developer-settings', {
         is_free_unit_training_enabled,
         is_free_unit_improvement_enabled,
         is_free_unit_research_enabled,
+        is_free_hunting_parties_enabled,
         is_instant_hero_revive_enabled,
         is_free_hero_revive_enabled
       FROM
@@ -84,7 +85,7 @@ export const updateDeveloperSettings = createController(
         break;
       }
       case 'isInstantUnitTrainingEnabled': {
-        eventTypes = ['troopTraining'];
+        eventTypes = ['troopTraining', 'animalCageProduction'];
         break;
       }
       case 'isInstantUnitImprovementEnabled': {
@@ -105,6 +106,8 @@ export const updateDeveloperSettings = createController(
           'troopMovementRaid',
           'troopMovementOasisOccupation',
           'troopMovementAdventure',
+          'huntersLodgeHunt',
+          'gatherersHutGatheringTrip',
         ];
         break;
       }

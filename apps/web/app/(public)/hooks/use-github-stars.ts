@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
-interface GithubRepo {
+type GithubRepo = {
   stargazers_count: number;
   forks_count: number;
   watchers_count: number;
-}
+};
 
 export const useGithubStars = (
   repo = 'jurerotar/Pillage-First-Ask-Questions-Later',

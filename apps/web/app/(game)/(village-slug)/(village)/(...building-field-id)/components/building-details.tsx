@@ -54,6 +54,23 @@ const MainBuildingVillageManagement = lazyWithRetry(async () => ({
   ).MainBuildingVillageManagement,
 }));
 
+const GatherersHutExpedition = lazyWithRetry(async () => ({
+  default: (await import('./components/gatherers-hut/gatherers-hut-expedition'))
+    .GatherersHutExpedition,
+}));
+
+const HuntersLodgeHuntingParty = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/hunters-lodge/hunters-lodge-hunting-party')
+  ).HuntersLodgeHuntingParty,
+}));
+
+const HuntersLodgeAnimalCages = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/hunters-lodge/hunters-lodge-animal-cages')
+  ).HuntersLodgeAnimalCages,
+}));
+
 const RallyPointTroopMovements = lazyWithRetry(async () => ({
   default: (
     await import('./components/rally-point/rally-point-troop-movements')
@@ -189,6 +206,17 @@ const buildingDetailsTabMap = new Map<
   ['EMBASSY', new Map([['relations', EmbassyRelations]])],
   ['TOWN_HALL', new Map([['celebrations', TownHallCelebrations]])],
   [
+    'GATHERERS_HUT',
+    new Map([['gathering-expedition', GatherersHutExpedition]]),
+  ],
+  [
+    'HUNTERS_LODGE',
+    new Map([
+      ['hunting-party', HuntersLodgeHuntingParty],
+      ['animal-cages', HuntersLodgeAnimalCages],
+    ]),
+  ],
+  [
     'MARKETPLACE',
     new Map([
       ['trade', MarketplaceBuy],
@@ -228,6 +256,9 @@ const buildingDetailsTabMap = new Map<
 // t('celebrations')
 // t('relations')
 // t('train')
+// t('animal-cages')
+// t('hunting-party')
+// t('gathering-expedition')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
