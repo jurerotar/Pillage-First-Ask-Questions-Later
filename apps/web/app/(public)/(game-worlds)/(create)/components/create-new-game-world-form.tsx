@@ -12,6 +12,7 @@ import {
   npcVillageNameAdjectives,
   npcVillageNameNouns,
 } from '@pillage-first/game-assets/village';
+import type { ServerEffect } from '@pillage-first/types/models/effect';
 import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { env } from '@pillage-first/utils/env';
@@ -40,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
+import { Slider } from 'app/components/ui/slider';
 import { Switch } from 'app/components/ui/switch';
 
 const createServerFormSchema = z.strictObject({
@@ -81,7 +83,64 @@ const createServerFromFormValues = (values: CreateServerFormValues) => {
     version: env.VERSION,
     createdAt: Date.now(),
     ...values,
+    configuration: {
+      ...values.configuration,
+      speed: 1,
+    },
   };
+};
+
+const flowSteps = ['Basics', 'Effects', 'Create'];
+
+const speedControlledServerEffects = [
+  {
+    id: 'merchantCapacity',
+    label: 'Merchant capacity',
+    description: 'Controls how much each merchant can carry.',
+    mode: 'increase',
+  },
+  {
+    id: 'merchantSpeed',
+    label: 'Merchant speed',
+    description: 'Controls trade route and merchant travel speed.',
+    mode: 'increase',
+  },
+  {
+    id: 'resourceProduction',
+    label: 'Resource production',
+    description: 'Controls server-wide wood, clay, iron, and wheat production.',
+    mode: 'increase',
+  },
+  {
+    id: 'unitSpeed',
+    label: 'Unit speed',
+    description: 'Controls troop movement speed.',
+    mode: 'increase',
+  },
+  {
+    id: 'durations',
+    label: 'Duration speed',
+    description:
+      'Controls all training, building, research, and improvement durations.',
+    mode: 'decrease',
+  },
+] as const satisfies readonly {
+  id: ServerEffect['id'] | 'durations' | 'resourceProduction';
+  label: string;
+  description: string;
+  mode: 'increase' | 'decrease';
+}[];
+
+type SpeedControlledServerEffectId =
+  (typeof speedControlledServerEffects)[number]['id'];
+
+type EffectSliderValues = Record<SpeedControlledServerEffectId, number>;
+
+const createDefaultEffectSliderValues = (): EffectSliderValues => {
+  return speedControlledServerEffects.reduce((acc, { id }) => {
+    acc[id] = 1;
+    return acc;
+  }, {} as EffectSliderValues);
 };
 
 type MutateArgs = {
@@ -92,9 +151,12 @@ export const CreateNewGameWorldForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { createGameWorld, deleteGameWorld } = useGameWorldActions();
+  const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
+  const [effectSliderValues, setEffectSliderValues] =
+    useState<EffectSliderValues>(createDefaultEffectSliderValues);
 
-  const steps = [
+  const generationSteps = [
     t('Generating map tiles...'),
     t('Generating oasis...'),
     t('Generating players...'),
@@ -132,7 +194,7 @@ export const CreateNewGameWorldForm = () => {
               return currentIndex + 1;
             });
           } else if (data.type === 'result') {
-            setCurrentStepIndex(steps.length);
+            setCurrentStepIndex(generationSteps.length);
             worker.terminate();
             channel.port1.close();
             resolve(data.migrationDuration);
@@ -190,11 +252,28 @@ export const CreateNewGameWorldForm = () => {
     },
   });
 
-  const onSubmit = (values: CreateServerFormValues) => {
+  const onInitialSubmit = () => {
+    form.setValue('configuration.speed', '1');
+    setActiveStepIndex(1);
+  };
+
+  const startGeneration = (values: CreateServerFormValues) => {
     const server = createServerFromFormValues(values);
+
+    setActiveStepIndex(2);
 
     // @ts-expect-error - Not an error, values for speed and mapSize are already cast as numbers
     createServer({ server });
+  };
+
+  const updateEffectSliderValue = (
+    effectId: SpeedControlledServerEffectId,
+    value: number,
+  ) => {
+    setEffectSliderValues((currentValues) => ({
+      ...currentValues,
+      [effectId]: value,
+    }));
   };
 
   useEffect(() => {
@@ -209,269 +288,402 @@ export const CreateNewGameWorldForm = () => {
   }, [form]);
 
   return (
-    <div className="relative">
-      <div className={clsx(isPending && 'blur-sm pointer-events-none')}>
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 p-2 shadow-xl rounded-md border border-border"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-6">
-                <div className="space-y-4">
-                  <div className="flex flex-col">
-                    <Text as="h2">Game world configuration</Text>
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="seed"
-                    render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Seed</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={isPending || isSuccess}
-                            placeholder="abc123"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+    <Form {...form}>
+      <div className="space-y-4 p-2 shadow-xl rounded-md border border-border overflow-hidden">
+        <div className="px-2 pt-2">
+          <div className="relative flex items-center justify-between gap-2">
+            <div
+              className="absolute left-0 right-0 top-4 h-0.5 bg-muted"
+              aria-hidden="true"
+            />
+            <div
+              className="absolute left-0 top-4 h-0.5 bg-primary transition-all duration-500 ease-out"
+              style={{
+                width: `${(activeStepIndex / (flowSteps.length - 1)) * 100}%`,
+              }}
+              aria-hidden="true"
+            />
+            {flowSteps.map((step, index) => {
+              const isCompleted = index < activeStepIndex;
+              const isCurrent = index === activeStepIndex;
 
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    disabled={isPending || isSuccess}
-                    render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="New World"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="configuration.mapSize"
-                    render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Size</FormLabel>
-                        <Select
-                          disabled={isPending || isSuccess}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="100">100x100</SelectItem>
-                            <SelectItem value="200">200x200</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="configuration.speed"
-                    render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Speed</FormLabel>
-                        <Select
-                          disabled={isPending || isSuccess}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">1x</SelectItem>
-                            <SelectItem value="2">2x</SelectItem>
-                            <SelectItem value="3">3x</SelectItem>
-                            <SelectItem value="5">5x</SelectItem>
-                            <SelectItem value="10">10x</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-6">
-                <div className="space-y-4">
-                  <div className="flex flex-col">
-                    <Text as="h2">Player configuration</Text>
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name="playerConfiguration.name"
-                    disabled={isPending || isSuccess}
-                    render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="playerConfiguration.tribe"
-                    render={({ field }) => (
-                      <FormItem className="space-y-2">
-                        <FormLabel>Tribe</FormLabel>
-                        <Select
-                          disabled={isPending || isSuccess}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Select a tribe" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="romans">Romans</SelectItem>
-                            <SelectItem value="gauls">Gauls</SelectItem>
-                            <SelectItem value="teutons">Teutons</SelectItem>
-                            <SelectItem value="huns">Huns</SelectItem>
-                            <SelectItem value="egyptians">Egyptians</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            </div>
-            <details>
-              <summary className="py-2 underline hover:cursor-pointer">
-                Advanced options
-              </summary>
-              <div className="space-y-4 px-2">
-                <div className="flex flex-col">
-                  <Text
-                    className="text-lg"
-                    as="h3"
-                  >
-                    Advanced gameplay options
-                  </Text>
-                  <Text>These options can be updated in-game at any time.</Text>
-                </div>
-                <FormField
-                  control={form.control}
-                  name="gameplay.areOfflineNpcAttacksEnabled"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex">
-                        <div className="flex flex-4 gap-1 flex-col">
-                          <FormLabel className="text-base">
-                            Offline attacks (in development)
-                          </FormLabel>
-                          <Text>
-                            By keeping this option enabled, enemies may send
-                            attacks while you're offline.
-                          </Text>
-                        </div>
-                        <div className="flex flex-1 justify-end items-center">
-                          <FormControl>
-                            <Switch
-                              disabled
-                              checked={field.value}
-                              onCheckedChange={(v: boolean) =>
-                                field.onChange(v)
-                              }
-                            />
-                          </FormControl>
-                        </div>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </details>
-            {isError && <Alert variant="error">{error.message}</Alert>}
-            <div className="flex justify-end">
-              <Button
-                size="fit"
-                disabled={isPending || isSuccess || isError}
-                type="submit"
-              >
-                Create world
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-      {isPending && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-xs z-10 rounded-md">
-          <div className="flex flex-col gap-4 p-6 shadow-2xl rounded-lg border border-border bg-background max-w-sm w-full mx-4">
-            <div className="flex flex-col relative">
-              <div
-                className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-muted-foreground/20"
-                aria-hidden="true"
-              />
-              {steps.map((step, index) => {
-                const isCompleted = index < currentStepIndex;
-                const isCurrent = index === currentStepIndex;
-
-                return (
+              return (
+                <div
+                  key={step}
+                  className="relative z-10 flex flex-1 flex-col items-center gap-2"
+                >
                   <div
-                    key={step}
-                    className="flex items-center gap-4 relative py-1.5"
+                    className={clsx(
+                      'flex size-8 items-center justify-center rounded-full border bg-background text-sm font-medium transition-all duration-300',
+                      isCompleted &&
+                        'border-primary bg-primary text-primary-foreground',
+                      isCurrent && 'border-primary text-primary shadow-sm',
+                      !isCompleted &&
+                        !isCurrent &&
+                        'border-muted text-muted-foreground',
+                    )}
                   >
-                    <div
-                      className={clsx(
-                        'relative z-10 flex items-center justify-center size-6 rounded-full bg-background border-4 border-background box-content -ml-2.25',
-                      )}
-                    >
-                      <div
-                        className={clsx(
-                          'size-3 rounded-full transition-colors duration-300',
-                          isCompleted ? 'bg-success' : 'bg-muted-foreground/30',
-                          isCurrent && 'bg-muted-foreground/60 animate-pulse',
+                    {index + 1}
+                  </div>
+                  <Text
+                    className={clsx(
+                      'text-xs font-medium transition-colors',
+                      !isCurrent && 'text-muted-foreground',
+                    )}
+                  >
+                    {step}
+                  </Text>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="overflow-hidden">
+          <div
+            className="flex transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{ transform: `translateX(-${activeStepIndex * 100}%)` }}
+          >
+            <section className="w-full shrink-0 p-2">
+              <form
+                onSubmit={form.handleSubmit(onInitialSubmit)}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-6">
+                    <div className="space-y-4">
+                      <div className="flex flex-col">
+                        <Text as="h2">Game world configuration</Text>
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="seed"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel>Seed</FormLabel>
+                            <FormControl>
+                              <Input
+                                disabled={isPending || isSuccess}
+                                placeholder="abc123"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        disabled={isPending || isSuccess}
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="New World"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="configuration.mapSize"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel>Size</FormLabel>
+                            <Select
+                              disabled={isPending || isSuccess}
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="100">100x100</SelectItem>
+                                <SelectItem value="200">200x200</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
                         )}
                       />
                     </div>
-                    <Text
-                      className={clsx(
-                        'text-sm transition-all duration-300',
-                        isCompleted && 'text-foreground font-medium',
-                        isCurrent && 'text-primary font-bold',
-                        !isCompleted && !isCurrent && 'text-muted-foreground',
+                  </div>
+
+                  <div className="flex flex-col gap-6">
+                    <div className="space-y-4">
+                      <div className="flex flex-col">
+                        <Text as="h2">Player configuration</Text>
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="playerConfiguration.name"
+                        disabled={isPending || isSuccess}
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="playerConfiguration.tribe"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel>Tribe</FormLabel>
+                            <Select
+                              disabled={isPending || isSuccess}
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select a tribe" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="romans">Romans</SelectItem>
+                                <SelectItem value="gauls">Gauls</SelectItem>
+                                <SelectItem value="teutons">Teutons</SelectItem>
+                                <SelectItem value="huns">Huns</SelectItem>
+                                <SelectItem value="egyptians">
+                                  Egyptians
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <details>
+                  <summary className="py-2 underline hover:cursor-pointer">
+                    Advanced options
+                  </summary>
+                  <div className="space-y-4 px-2">
+                    <div className="flex flex-col">
+                      <Text
+                        className="text-lg"
+                        as="h3"
+                      >
+                        Advanced gameplay options
+                      </Text>
+                      <Text>
+                        These options can be updated in-game at any time.
+                      </Text>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="gameplay.areOfflineNpcAttacksEnabled"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex">
+                            <div className="flex flex-4 gap-1 flex-col">
+                              <FormLabel className="text-base">
+                                Offline attacks (in development)
+                              </FormLabel>
+                              <Text>
+                                By keeping this option enabled, enemies may send
+                                attacks while you're offline.
+                              </Text>
+                            </div>
+                            <div className="flex flex-1 justify-end items-center">
+                              <FormControl>
+                                <Switch
+                                  disabled
+                                  checked={field.value}
+                                  onCheckedChange={(v: boolean) =>
+                                    field.onChange(v)
+                                  }
+                                />
+                              </FormControl>
+                            </div>
+                          </div>
+                        </FormItem>
                       )}
-                    >
-                      {step}
+                    />
+                  </div>
+                </details>
+                <div className="flex justify-end">
+                  <Button
+                    size="fit"
+                    disabled={isPending || isSuccess}
+                    type="submit"
+                  >
+                    Continue
+                  </Button>
+                </div>
+              </form>
+            </section>
+
+            <section className="w-full shrink-0 p-2">
+              <div className="space-y-4">
+                <div className="flex flex-col gap-1">
+                  <Text as="h2">Server effect tuning</Text>
+                  <Text variant="muted">
+                    These sliders mirror the server effects currently controlled
+                    by speed. For this test, the generated game world still uses
+                    speed 1.
+                  </Text>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {speedControlledServerEffects.map((effect) => {
+                    const value = effectSliderValues[effect.id];
+                    const displayValue = `${value}x`;
+
+                    return (
+                      <div
+                        key={effect.id}
+                        className="space-y-3 rounded-md border border-border bg-background/60 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <Text as="h3">{effect.label}</Text>
+                            <Text
+                              variant="muted"
+                              className="text-sm"
+                            >
+                              {effect.description}
+                            </Text>
+                          </div>
+                          <Text className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-sm font-medium">
+                            {displayValue}
+                          </Text>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Slider
+                            min={1}
+                            max={10}
+                            step={1}
+                            value={[value]}
+                            marks={[1, 10]}
+                            disabled={isPending || isSuccess}
+                            onValueChange={([nextValue]) =>
+                              updateEffectSliderValue(effect.id, nextValue)
+                            }
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+                  <Button
+                    size="fit"
+                    variant="outline"
+                    disabled={isPending || isSuccess}
+                    onClick={() => setActiveStepIndex(0)}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    size="fit"
+                    disabled={isPending || isSuccess}
+                    onClick={form.handleSubmit(startGeneration)}
+                  >
+                    Create world
+                  </Button>
+                </div>
+              </div>
+            </section>
+
+            <section className="w-full shrink-0 p-2">
+              <div className="flex min-h-96 items-center justify-center">
+                <div className="flex w-full max-w-sm flex-col gap-4 rounded-lg border border-border bg-background p-6 shadow-2xl">
+                  <div className="space-y-1">
+                    <Text as="h2">Creating game world</Text>
+                    <Text variant="muted">
+                      Keep this page open while the initial game state is
+                      generated.
                     </Text>
                   </div>
-                );
-              })}
-            </div>
+
+                  <div className="flex flex-col relative">
+                    <div
+                      className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-muted-foreground/20"
+                      aria-hidden="true"
+                    />
+                    {generationSteps.map((step, index) => {
+                      const isCompleted = index < currentStepIndex;
+                      const isCurrent = index === currentStepIndex;
+
+                      return (
+                        <div
+                          key={step}
+                          className="flex items-center gap-4 relative py-1.5"
+                        >
+                          <div className="relative z-10 flex items-center justify-center size-6 rounded-full bg-background border-4 border-background box-content -ml-2.25">
+                            <div
+                              className={clsx(
+                                'size-3 rounded-full transition-colors duration-300',
+                                isCompleted
+                                  ? 'bg-success'
+                                  : 'bg-muted-foreground/30',
+                                isCurrent &&
+                                  'bg-muted-foreground/60 animate-pulse',
+                              )}
+                            />
+                          </div>
+                          <Text
+                            className={clsx(
+                              'text-sm transition-all duration-300',
+                              isCompleted && 'text-foreground font-medium',
+                              isCurrent && 'text-primary font-bold',
+                              !isCompleted &&
+                                !isCurrent &&
+                                'text-muted-foreground',
+                            )}
+                          >
+                            {step}
+                          </Text>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {isError && <Alert variant="error">{error.message}</Alert>}
+
+                  {isError && (
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+                      <Button
+                        size="fit"
+                        variant="outline"
+                        onClick={() => setActiveStepIndex(1)}
+                      >
+                        Back to effects
+                      </Button>
+                      <Button
+                        size="fit"
+                        onClick={form.handleSubmit(startGeneration)}
+                      >
+                        Try again
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    </Form>
   );
 };
