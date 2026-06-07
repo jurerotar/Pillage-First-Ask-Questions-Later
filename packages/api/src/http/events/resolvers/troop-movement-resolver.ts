@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { buildingMap } from '@pillage-first/game-assets/buildings';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
+import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
 import {
   type Building,
@@ -10,6 +11,9 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import type { Troop } from '@pillage-first/types/models/troop';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../../../queries/effect-queries.ts';
 import { createEvents } from '../../../utils/create-event.ts';
 import {
   createHeroHealthRegenerationEventByVillageId,
@@ -366,6 +370,32 @@ export const returnMovementResolver: Resolver<
   );
 };
 
+const updateVillageWheatProductionByTroopsAndVillages = (
+  database: DbFacade,
+  troops: Troop[],
+  villages: { id: number; type: 'origin' | 'target' }[],
+) => {
+  const troopsConsumption = troops.reduce((accumulator, currentValue) => {
+    const { unitWheatConsumption } = getUnitDefinition(currentValue.unitId);
+    return accumulator + unitWheatConsumption * currentValue.amount;
+  }, 0);
+
+  const stmt = database.prepare({
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+  });
+  for (const village of villages) {
+    updateVillageResourcesAt(database, village.id, Date.now());
+    stmt
+      .bind({
+        $increase_amount:
+          troopsConsumption * (village.type === 'origin' ? -1 : 1),
+        $village_id: village.id,
+      })
+      .stepReset();
+    updateVillageResourcesAt(database, village.id, Date.now());
+  }
+};
+
 export const relocationMovementResolver: Resolver<
   GameEvent<'troopMovementRelocation'>
 > = (database, args) => {
@@ -405,6 +435,11 @@ export const relocationMovementResolver: Resolver<
   if (troops.some(({ unitId }) => unitId === 'HERO')) {
     relocateHero(database, villageId, targetVillageId, resolvesAt);
   }
+
+  updateVillageWheatProductionByTroopsAndVillages(database, troops, [
+    { id: villageId, type: 'origin' },
+    { id: targetVillageId, type: 'target' },
+  ]);
 };
 
 export const reinforcementMovementResolver: Resolver<
