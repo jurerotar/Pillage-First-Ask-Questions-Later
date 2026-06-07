@@ -448,13 +448,26 @@ export const reinforcementMovementResolver: Resolver<
   const {
     targetCoordinates: { x, y },
     troops,
+    resolvesAt,
+    villageId,
   } = args;
 
-  const { id: targetTileId } = database.selectObject({
-    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
-    bind: { $x: x, $y: y },
-    schema: z.strictObject({ id: z.number() }),
-  })!;
+  const { tileId: targetTileId, villageId: targetVillageId } =
+    database.selectObject({
+      sql: `
+        SELECT
+          t.id AS tileId,
+          v.id AS villageId
+        FROM
+          tiles t
+            JOIN villages v ON v.tile_id = t.id
+        WHERE
+          t.x = $x
+          AND t.y = $y;
+      `,
+      bind: { $x: x, $y: y },
+      schema: z.strictObject({ tileId: z.number(), villageId: z.number() }),
+    })!;
 
   addTroops(
     database,
@@ -463,6 +476,15 @@ export const reinforcementMovementResolver: Resolver<
       tileId: targetTileId,
     })),
   );
+
+  if (troops.some(({ unitId }) => unitId === 'HERO')) {
+    relocateHero(database, villageId, targetVillageId, resolvesAt);
+  }
+
+  updateVillageWheatProductionByTroopsAndVillages(database, troops, [
+    { id: villageId, type: 'origin' },
+    { id: targetVillageId, type: 'target' },
+  ]);
 };
 
 export const attackMovementResolver: Resolver<
