@@ -72,12 +72,12 @@ describe('hero-controllers', () => {
     expect(true).toBe(true);
   });
 
-  test('startHeroAdventure should not duplicate a hero stationed away from its source village', async () => {
+  test('startHeroAdventure should not duplicate a hero stationed in its home village', async () => {
     const database = await prepareTestDatabase();
 
-    const homeTileId = database.selectValue({
+    const homeVillage = database.selectObject({
       sql: `
-        SELECT v.tile_id
+        SELECT v.id, v.tile_id AS tileId
         FROM
           heroes h
             JOIN villages v ON v.id = h.village_id
@@ -85,35 +85,10 @@ describe('hero-controllers', () => {
           h.player_id = $player_id;
       `,
       bind: { $player_id: playerId },
-      schema: z.number(),
-    })!;
-
-    const secondVillageTileId = database.selectValue({
-      sql: `
-        SELECT t.id
-        FROM
-          tiles t
-            LEFT JOIN villages v ON v.tile_id = t.id
-            LEFT JOIN oasis o ON o.tile_id = t.id
-        WHERE
-          v.id IS NULL
-          AND o.id IS NULL
-        LIMIT 1;
-      `,
-      schema: z.number(),
-    })!;
-
-    database.exec({
-      sql: `
-        INSERT INTO villages (name, slug, tile_id, player_id)
-        VALUES ('Second village', 'v-2', $tile_id, $player_id);
-      `,
-      bind: { $tile_id: secondVillageTileId, $player_id: playerId },
-    });
-
-    const secondVillageId = database.selectValue({
-      sql: "SELECT id FROM villages WHERE slug = 'v-2';",
-      schema: z.number(),
+      schema: z.strictObject({
+        id: z.number(),
+        tileId: z.number(),
+      }),
     })!;
 
     database.exec({
@@ -138,8 +113,8 @@ describe('hero-controllers', () => {
         );
       `,
       bind: {
-        $tile_id: secondVillageTileId,
-        $source_tile_id: homeTileId,
+        $tile_id: homeVillage.tileId,
+        $source_tile_id: homeVillage.tileId,
       },
     });
 
@@ -186,7 +161,7 @@ describe('hero-controllers', () => {
         villageId: z.number(),
       }),
     })!;
-    expect(adventureEvent.villageId).toBe(secondVillageId);
+    expect(adventureEvent.villageId).toBe(homeVillage.id);
 
     resolveEvent(database, adventureEvent.id);
 
@@ -218,8 +193,8 @@ describe('hero-controllers', () => {
     expect(heroTroops).toStrictEqual([
       {
         amount: 1,
-        tileId: secondVillageTileId,
-        sourceTileId: homeTileId,
+        tileId: homeVillage.tileId,
+        sourceTileId: homeVillage.tileId,
       },
     ]);
   });
