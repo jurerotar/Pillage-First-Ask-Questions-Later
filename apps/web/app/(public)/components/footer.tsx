@@ -185,8 +185,8 @@ export const Footer = () => {
         </div>
       </div>
 
-      <div className="border-t">
-        <div className="max-w-7xl mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
+      <div className="">
+        <div className="max-w-7xl border-t mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
           <p className="text-xs text-muted-foreground">
             {t('Not affiliated with Travian Games GmbH.')}
           </p>

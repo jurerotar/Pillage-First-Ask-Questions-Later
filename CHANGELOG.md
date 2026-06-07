@@ -1,3 +1,11 @@
+## Version 0.4.29
+
+#### Jun 6, 2026
+
+* [BugFix] Fixed a stale UI issue where constructing a new building wouldn't update the construction timer.
+* [BugFix] Fixed an error being thrown when toggling between "compact" and "detailed" building construction list.
+* [BugFix] Fixed an error, which in some cases caused a Hero unit to be duplicated after completing an adventure.
+
 ## Version 0.4.28
 
 #### Jun 4, 2026
@@ -11,7 +19,6 @@
 
 #### Jun 1, 2026
 
-* [BugFix] Fixed overflowing tables on mobile devices.
 * [BugFix] Fixed overflowing tables on mobile devices.
 * [BugFix] Added missing bookmark functionality to Rally Point's Send troops view.
 * [TechnicalImprovement] Reworked backend structure.

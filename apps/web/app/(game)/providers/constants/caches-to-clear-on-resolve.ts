@@ -28,12 +28,14 @@ type Handlers = {
 };
 
 export const cachesToClearOnResolve: Handlers = {
-  buildingScheduledConstruction: () => [],
-  buildingConstruction: ({ villageId }) => {
+  buildingScheduledConstruction: ({ villageId }) => {
     return [
-      [currentVillageCacheKey],
-      [eventsCacheKey, 'troopTraining', villageId],
+      [eventsCacheKey, 'buildingScheduledConstruction', villageId],
+      [eventsCacheKey, 'buildingLevelChange', villageId],
     ];
+  },
+  buildingConstruction: () => {
+    return [[currentVillageCacheKey]];
   },
   buildingLevelChange: ({ villageId }) => {
     return [

@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { resolveEvent } from '../../events/resolve-event';
 import {
   changeHeroAttributes,
   changeHeroResourceToProduce,
@@ -69,6 +70,158 @@ describe('hero-controllers', () => {
     );
 
     expect(true).toBe(true);
+  });
+
+  test('startHeroAdventure should not duplicate a hero stationed away from its source village', async () => {
+    const database = await prepareTestDatabase();
+
+    const homeTileId = database.selectValue({
+      sql: `
+        SELECT v.tile_id
+        FROM
+          heroes h
+            JOIN villages v ON v.id = h.village_id
+        WHERE
+          h.player_id = $player_id;
+      `,
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    const secondVillageTileId = database.selectValue({
+      sql: `
+        SELECT t.id
+        FROM
+          tiles t
+            LEFT JOIN villages v ON v.tile_id = t.id
+            LEFT JOIN oasis o ON o.tile_id = t.id
+        WHERE
+          v.id IS NULL
+          AND o.id IS NULL
+        LIMIT 1;
+      `,
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES ('Second village', 'v-2', $tile_id, $player_id);
+      `,
+      bind: { $tile_id: secondVillageTileId, $player_id: playerId },
+    });
+
+    const secondVillageId = database.selectValue({
+      sql: "SELECT id FROM villages WHERE slug = 'v-2';",
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        DELETE FROM troops
+        WHERE unit_id = (
+          SELECT id
+          FROM unit_ids
+          WHERE unit = 'HERO'
+        );
+      `,
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+        VALUES (
+          (SELECT id FROM unit_ids WHERE unit = 'HERO'),
+          1,
+          $tile_id,
+          $source_tile_id
+        );
+      `,
+      bind: {
+        $tile_id: secondVillageTileId,
+        $source_tile_id: homeTileId,
+      },
+    });
+
+    database.exec({
+      sql: `
+        UPDATE hero_adventures
+        SET available = 1
+        WHERE hero_id = (
+          SELECT id
+          FROM heroes
+          WHERE player_id = $player_id
+        );
+      `,
+      bind: { $player_id: playerId },
+    });
+
+    startHeroAdventure(
+      database,
+      createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
+        path: { playerId },
+      }),
+    );
+
+    const heroTroopCountWhileAdventuring = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM troops t
+        JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE ui.unit = 'HERO';
+      `,
+      schema: z.number(),
+    })!;
+
+    expect(heroTroopCountWhileAdventuring).toBe(0);
+
+    const adventureEvent = database.selectObject({
+      sql: `
+        SELECT id, village_id AS villageId
+        FROM events
+        WHERE type = 'troopMovementAdventure';
+      `,
+      schema: z.strictObject({
+        id: z.number(),
+        villageId: z.number(),
+      }),
+    })!;
+    expect(adventureEvent.villageId).toBe(secondVillageId);
+
+    resolveEvent(database, adventureEvent.id);
+
+    const returnEventId = database.selectValue({
+      sql: "SELECT id FROM events WHERE type = 'troopMovementReturn';",
+      schema: z.number(),
+    })!;
+    resolveEvent(database, returnEventId);
+
+    const heroTroops = database.selectObjects({
+      sql: `
+        SELECT
+          t.amount,
+          t.tile_id AS tileId,
+          t.source_tile_id AS sourceTileId
+        FROM
+          troops t
+            JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          ui.unit = 'HERO';
+      `,
+      schema: z.strictObject({
+        amount: z.number(),
+        tileId: z.number(),
+        sourceTileId: z.number(),
+      }),
+    });
+
+    expect(heroTroops).toStrictEqual([
+      {
+        amount: 1,
+        tileId: secondVillageTileId,
+        sourceTileId: homeTileId,
+      },
+    ]);
   });
 
   test('getHero should report hero as not home while reinforcing another village', async () => {

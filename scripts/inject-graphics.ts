@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { existsSync, mkdirSync, copyFileSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, copyFileSync, readdirSync, rmSync, unlinkSync } from 'node:fs';
 import { copyFile, mkdir, readdir, stat } from 'node:fs/promises';
 
 export const clearDirectory = async (path: string) => {
@@ -84,7 +84,6 @@ const copyLandingScreenshots = async () => {
   for (const file of existingDestFiles) {
     if (file.startsWith('mobile-') || file.startsWith('image-')) {
       // We only want to clear the screenshots we manage
-      const { unlinkSync } = await import('node:fs');
       unlinkSync(join(destDir, file));
     }
   }
