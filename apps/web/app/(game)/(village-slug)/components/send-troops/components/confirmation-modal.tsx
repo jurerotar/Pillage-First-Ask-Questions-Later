@@ -109,7 +109,10 @@ export const TroopMovementConfirmationContent = ({
             <UnitTableUnitIcons />
             <UnitTableRow
               label={t('Troops')}
-              amount={formData.units.map(({ selected }) => selected)}
+              troops={formData.units.map(({ unitId, selected }) => ({
+                unitId,
+                amount: selected,
+              }))}
             />
           </UnitTable>
         </div>

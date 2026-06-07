@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IoReturnUpForwardOutline } from 'react-icons/io5';
 import { TbMapPinDown } from 'react-icons/tb';
 import { useSearchParams } from 'react-router';
+import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import {
   Section,
   SectionContent,
@@ -24,7 +25,6 @@ import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { Pagination } from 'app/components/ui/pagination';
 import { useDialog } from 'app/hooks/use-dialog';
-import { formatTroopAmount } from '../../utils/format-troop-amount';
 
 type ReinforcementDialogData = {
   tileId: number;
@@ -53,7 +53,7 @@ export const RallyPointSentReinforcementsTab = () => {
     return sentReinforcements.map(({ village, troops }) => ({
       village,
       troops,
-      amount: formatTroopAmount(tribe, troops),
+      sortedTroops: sortTroops(tribe, troops),
     }));
   }, [sentReinforcements, tribe]);
 
@@ -101,7 +101,7 @@ export const RallyPointSentReinforcementsTab = () => {
           </Text>
         ) : (
           <>
-            {pagination.currentPageItems.map(({ village, amount }) => (
+            {pagination.currentPageItems.map(({ village, sortedTroops }) => (
               <UnitTable
                 key={village.id}
                 tribe={tribe}
@@ -144,9 +144,9 @@ export const RallyPointSentReinforcementsTab = () => {
                 <UnitTableUnitIcons />
                 <UnitTableRow
                   label={t('Troops')}
-                  amount={amount}
+                  troops={sortedTroops}
                 />
-                <UnitTableWheatConsumption amount={amount} />
+                <UnitTableWheatConsumption troops={sortedTroops} />
               </UnitTable>
             ))}
             <div className="flex w-full justify-end">

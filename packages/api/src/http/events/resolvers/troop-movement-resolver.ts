@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { buildingMap } from '@pillage-first/game-assets/buildings';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
+import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
 import {
   type Building,
@@ -10,6 +11,8 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../../../queries/effect-queries';
+import { selectVillageIdAndTileIdQuery } from '../../../queries/village-queries';
 import { createEvents } from '../../../utils/create-event';
 import {
   createHeroHealthRegenerationEventByVillageId,
@@ -226,8 +229,10 @@ export const findNewVillageMovementResolver: Resolver<
           VALUES
             ((
                SELECT id
-               FROM effect_ids
-               WHERE effect = $effectName
+               FROM
+                 effect_ids
+               WHERE
+                 effect = $effectName
                ), $value, $type, 'village', 'building', $villageId, $field_id);
         `,
         bind: {
@@ -329,8 +334,10 @@ export const findNewVillageMovementResolver: Resolver<
   // Founding village history
   database.exec({
     sql: `
-      INSERT INTO village_founding_history (village_id, tile_id, x, y, timestamp)
-      VALUES ($village_id, $tile_id, $x, $y, $timestamp);
+      INSERT INTO
+        village_founding_history (village_id, tile_id, x, y, timestamp)
+      VALUES
+        ($village_id, $tile_id, $x, $y, $timestamp);
     `,
     bind: {
       $village_id: newVillageId,
@@ -378,17 +385,7 @@ export const relocationMovementResolver: Resolver<
 
   const { tileId: targetTileId, villageId: targetVillageId } =
     database.selectObject({
-      sql: `
-        SELECT
-          t.id AS tileId,
-          v.id AS villageId
-        FROM
-          tiles t
-            JOIN villages v ON v.tile_id = t.id
-        WHERE
-          t.x = $x
-          AND t.y = $y;
-      `,
+      sql: selectVillageIdAndTileIdQuery,
       bind: { $x: x, $y: y },
       schema: z.strictObject({ tileId: z.number(), villageId: z.number() }),
     })!;
@@ -405,6 +402,28 @@ export const relocationMovementResolver: Resolver<
   if (troops.some(({ unitId }) => unitId === 'HERO')) {
     relocateHero(database, villageId, targetVillageId, resolvesAt);
   }
+
+  const troopsConsumption = calculateTotalUnitWheatConsumption(troops);
+
+  updateVillageResourcesAt(database, villageId, resolvesAt);
+
+  database.exec({
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    bind: {
+      $village_id: villageId,
+      $increase_amount: -troopsConsumption,
+    },
+  });
+
+  updateVillageResourcesAt(database, targetVillageId, resolvesAt);
+
+  database.exec({
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    bind: {
+      $village_id: targetVillageId,
+      $increase_amount: troopsConsumption,
+    },
+  });
 };
 
 export const reinforcementMovementResolver: Resolver<
@@ -413,13 +432,16 @@ export const reinforcementMovementResolver: Resolver<
   const {
     targetCoordinates: { x, y },
     troops,
+    resolvesAt,
+    villageId,
   } = args;
 
-  const { id: targetTileId } = database.selectObject({
-    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
-    bind: { $x: x, $y: y },
-    schema: z.strictObject({ id: z.number() }),
-  })!;
+  const { tileId: targetTileId, villageId: targetVillageId } =
+    database.selectObject({
+      sql: selectVillageIdAndTileIdQuery,
+      bind: { $x: x, $y: y },
+      schema: z.strictObject({ tileId: z.number(), villageId: z.number() }),
+    })!;
 
   addTroops(
     database,
@@ -428,6 +450,28 @@ export const reinforcementMovementResolver: Resolver<
       tileId: targetTileId,
     })),
   );
+
+  const troopsConsumption = calculateTotalUnitWheatConsumption(troops);
+
+  updateVillageResourcesAt(database, villageId, resolvesAt);
+
+  database.exec({
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    bind: {
+      $village_id: villageId,
+      $increase_amount: -troopsConsumption,
+    },
+  });
+
+  updateVillageResourcesAt(database, targetVillageId, resolvesAt);
+
+  database.exec({
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    bind: {
+      $village_id: targetVillageId,
+      $increase_amount: troopsConsumption,
+    },
+  });
 };
 
 export const attackMovementResolver: Resolver<

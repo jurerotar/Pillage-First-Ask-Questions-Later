@@ -11,6 +11,7 @@ import {
 } from '@pillage-first/mocks/event';
 import { effectSchema } from '@pillage-first/types/models/effect';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
@@ -23,6 +24,46 @@ import {
   reinforcementMovementResolver,
   relocationMovementResolver,
 } from '../troop-movement-resolver';
+
+const getTroopWheatProductionEffectValue = (
+  database: DbFacade,
+  villageId: number,
+) =>
+  database.selectValue({
+    sql: `
+      SELECT e.value
+      FROM effects e
+        JOIN effect_ids ei ON e.effect_id = ei.id
+      WHERE
+        e.village_id = $village_id
+        AND e.source = 'troops'
+        AND ei.effect = 'wheatProduction';
+    `,
+    bind: { $village_id: villageId },
+    schema: z.number(),
+  })!;
+
+const setTroopWheatProductionEffectValue = (
+  database: DbFacade,
+  villageId: number,
+  value: number,
+) => {
+  database.exec({
+    sql: `
+      UPDATE effects
+      SET value = $value
+      WHERE
+        village_id = $village_id
+        AND source = 'troops'
+        AND effect_id = (
+          SELECT id
+          FROM effect_ids
+          WHERE effect = 'wheatProduction'
+        );
+    `,
+    bind: { $village_id: villageId, $value: value },
+  });
+};
 
 describe(adventureMovementResolver, () => {
   test('should handle hero surviving adventure', async () => {
@@ -246,6 +287,75 @@ describe(relocationMovementResolver, () => {
     })!;
     expect(heroTroop.tile_id).toBe(targetTileId);
   });
+
+  test('should move troop wheatProduction effects from origin village to target village', async () => {
+    const database = await prepareTestDatabase();
+
+    const sourceVillageId = 1;
+    const targetVillageId = 2;
+    const troopWheatConsumption = 7;
+
+    const sourceTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+      bind: { $village_id: sourceVillageId },
+      schema: z.number(),
+    })!;
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT
+          v.tile_id AS tileId,
+          t.x,
+          t.y
+        FROM villages v
+          JOIN tiles t ON t.id = v.tile_id
+        WHERE v.id = $village_id;
+      `,
+      bind: { $village_id: targetVillageId },
+      schema: z.strictObject({
+        tileId: z.number(),
+        x: z.number(),
+        y: z.number(),
+      }),
+    })!;
+
+    setTroopWheatProductionEffectValue(database, sourceVillageId, 20);
+    setTroopWheatProductionEffectValue(database, targetVillageId, 5);
+
+    const sourceEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      sourceVillageId,
+    );
+    const targetEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      targetVillageId,
+    );
+
+    const mockEvent = createTroopMovementRelocationEventMock({
+      id: 2,
+      startsAt: 1000,
+      duration: 500,
+      villageId: sourceVillageId,
+      targetCoordinates: { x: targetVillage.x, y: targetVillage.y },
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: troopWheatConsumption,
+          tileId: sourceTileId,
+          source: sourceTileId,
+        },
+      ],
+    });
+
+    relocationMovementResolver(database, mockEvent);
+
+    expect(getTroopWheatProductionEffectValue(database, sourceVillageId)).toBe(
+      sourceEffectBefore - troopWheatConsumption,
+    );
+    expect(getTroopWheatProductionEffectValue(database, targetVillageId)).toBe(
+      targetEffectBefore + troopWheatConsumption,
+    );
+  });
 });
 
 describe(reinforcementMovementResolver, () => {
@@ -326,6 +436,75 @@ describe(reinforcementMovementResolver, () => {
 
     expect(heroVillageId).toBe(sourceVillageId);
     expect(reinforcedHeroAmount).toBe(1);
+  });
+
+  test('should move troop wheatProduction effects from origin village to target village', async () => {
+    const database = await prepareTestDatabase();
+
+    const sourceVillageId = 1;
+    const targetVillageId = 2;
+    const troopWheatConsumption = 4;
+
+    const sourceTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+      bind: { $village_id: sourceVillageId },
+      schema: z.number(),
+    })!;
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT
+          v.tile_id AS tileId,
+          t.x,
+          t.y
+        FROM villages v
+          JOIN tiles t ON t.id = v.tile_id
+        WHERE v.id = $village_id;
+      `,
+      bind: { $village_id: targetVillageId },
+      schema: z.strictObject({
+        tileId: z.number(),
+        x: z.number(),
+        y: z.number(),
+      }),
+    })!;
+
+    setTroopWheatProductionEffectValue(database, sourceVillageId, 12);
+    setTroopWheatProductionEffectValue(database, targetVillageId, 3);
+
+    const sourceEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      sourceVillageId,
+    );
+    const targetEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      targetVillageId,
+    );
+
+    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+      id: 2,
+      startsAt: 1000,
+      duration: 500,
+      villageId: sourceVillageId,
+      targetCoordinates: { x: targetVillage.x, y: targetVillage.y },
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: troopWheatConsumption,
+          tileId: sourceTileId,
+          source: sourceTileId,
+        },
+      ],
+    });
+
+    reinforcementMovementResolver(database, mockEvent);
+
+    expect(getTroopWheatProductionEffectValue(database, sourceVillageId)).toBe(
+      sourceEffectBefore - troopWheatConsumption,
+    );
+    expect(getTroopWheatProductionEffectValue(database, targetVillageId)).toBe(
+      targetEffectBefore + troopWheatConsumption,
+    );
   });
 });
 

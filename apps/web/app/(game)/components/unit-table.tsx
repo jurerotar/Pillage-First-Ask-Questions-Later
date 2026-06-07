@@ -1,11 +1,10 @@
 import { clsx } from 'clsx';
 import { createContext, type ReactNode, use } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  getUnitDefinition,
-  getUnitsByTribe,
-} from '@pillage-first/game-assets/utils/units';
+import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
+import { getUnitsByTribe } from '@pillage-first/game-assets/utils/units';
 import type { Tribe } from '@pillage-first/types/models/tribe';
+import type { TroopLike } from '@pillage-first/types/models/troop';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
@@ -23,11 +22,6 @@ type UnitTableProps = {
   tribe: Tribe;
   children: ReactNode;
 };
-
-const getTribeUnits = (tribe: Tribe) => [
-  ...getUnitsByTribe(tribe),
-  getUnitDefinition('HERO'),
-];
 
 export const UnitTable = ({ tribe, children }: UnitTableProps) => {
   return (
@@ -47,7 +41,7 @@ type UnitTableTitleProps = {
 
 export const UnitTableTitle = ({ children }: UnitTableTitleProps) => {
   const { tribe } = use(UnitTableContext);
-  const tribeUnits = getTribeUnits(tribe);
+  const tribeUnits = getUnitsByTribe(tribe);
 
   return (
     <thead className="bg-muted border-b dark:border-border font-medium">
@@ -65,7 +59,7 @@ export const UnitTableTitle = ({ children }: UnitTableTitleProps) => {
 
 export const UnitTableUnitIcons = () => {
   const { tribe } = use(UnitTableContext);
-  const tribeUnits = getTribeUnits(tribe);
+  const tribeUnits = getUnitsByTribe(tribe);
 
   return (
     <thead className="border-b dark:border-border">
@@ -94,12 +88,15 @@ export const UnitTableUnitIcons = () => {
 
 type UnitTableRowProps = {
   label: ReactNode;
-  amount: number[];
+  troops: TroopLike[];
 };
 
-export const UnitTableRow = ({ label, amount }: UnitTableRowProps) => {
+export const UnitTableRow = ({ label, troops }: UnitTableRowProps) => {
   const { tribe } = use(UnitTableContext);
-  const tribeUnits = getTribeUnits(tribe);
+  const tribeUnits = getUnitsByTribe(tribe);
+  const amountByUnitId = new Map(
+    troops.map(({ unitId, amount }) => [unitId, amount] as const),
+  );
 
   return (
     <tbody className="border-b last:border-b-0 dark:border-border">
@@ -115,7 +112,9 @@ export const UnitTableRow = ({ label, amount }: UnitTableRowProps) => {
               index !== tribeUnits.length - 1 && 'border-r dark:border-border',
             )}
           >
-            <Text className="text-sm">{formatNumber(amount[index])}</Text>
+            <Text className="text-sm">
+              {formatNumber(amountByUnitId.get(unitDef.id) ?? 0)}
+            </Text>
           </td>
         ))}
       </tr>
@@ -124,20 +123,15 @@ export const UnitTableRow = ({ label, amount }: UnitTableRowProps) => {
 };
 
 type UnitTableWheatConsumptionProps = {
-  amount: number[];
+  troops: TroopLike[];
 };
 
 export const UnitTableWheatConsumption = ({
-  amount,
+  troops,
 }: UnitTableWheatConsumptionProps) => {
   const { t } = useTranslation();
-  const { tribe } = use(UnitTableContext);
-  const tribeUnits = getTribeUnits(tribe);
 
-  const totalWheatConsumption = tribeUnits.reduce((acc, unitDef, index) => {
-    const unitAmount = Number(amount[index] ?? 0);
-    return acc + unitAmount * unitDef.unitWheatConsumption;
-  }, 0);
+  const totalWheatConsumption = calculateTotalUnitWheatConsumption(troops);
 
   return (
     <tfoot className="border-t dark:border-border">
@@ -146,7 +140,7 @@ export const UnitTableWheatConsumption = ({
           <Text className="text-sm font-medium">{t('Upkeep')}</Text>
         </td>
         <td
-          colSpan={tribeUnits.length}
+          colSpan={troops.length}
           className="p-2"
         >
           <div className="flex justify-end items-center gap-2">
