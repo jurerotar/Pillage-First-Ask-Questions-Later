@@ -191,3 +191,19 @@ export const updateHeroVillageEffectsByVillageIdQuery = `
     AND scope = 'village'
     AND village_id = $current_village_id;
 `;
+
+export const updateVillageWheatProductionByTroopsAndVillageIdEffectQuery = `
+  UPDATE effects
+  SET
+    value = value + $increase_amount
+  WHERE
+    effect_id = (
+      SELECT id
+      FROM
+        effect_ids
+      WHERE
+        effect = 'wheatProduction'
+      )
+    AND source = 'troops'
+    AND village_id = $village_id;
+`;

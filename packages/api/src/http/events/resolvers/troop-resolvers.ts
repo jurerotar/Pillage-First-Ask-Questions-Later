@@ -1,5 +1,6 @@
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../../../queries/effect-queries.ts';
 import {
   assessTroopCountQuestCompletion,
   assessUnitTroopCountQuestCompletion,
@@ -49,21 +50,7 @@ export const troopTrainingEventResolver: Resolver<
   const { unitWheatConsumption } = getUnitDefinition(unitId);
 
   database.exec({
-    sql: `
-      UPDATE effects
-      SET
-        value = value + $increase_amount
-      WHERE
-        effect_id = (
-          SELECT id
-          FROM
-            effect_ids
-          WHERE
-            effect = 'wheatProduction'
-          )
-        AND source = 'troops'
-        AND village_id = $village_id;
-    `,
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
     bind: {
       $increase_amount: unitWheatConsumption,
       $village_id: villageId,
