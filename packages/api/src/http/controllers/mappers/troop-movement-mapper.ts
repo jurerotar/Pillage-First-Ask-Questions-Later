@@ -6,7 +6,7 @@ import {
 import type {
   getVillageTroopMovementStatsRowSchema,
   getVillageTroopMovementsRowSchema,
-} from '../schemas/troop-movement-schemas.ts';
+} from '../schemas/troop-movement-schemas';
 
 export const mapTroopMovementRowToDto = (
   row: z.infer<typeof getVillageTroopMovementsRowSchema>,

@@ -1,9 +1,10 @@
 /// <reference types="node" />
 
-import { glob, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { glob, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { load } from 'cheerio';
 import { REACT_ICONS_SPRITE_URL_PLACEHOLDER } from 'react-icons-sprite';
+import { matchRoutes, type RouteObject } from 'react-router';
 import type { Config } from '@react-router/dev/config';
 import {
   buildItemsFromChangelog,
@@ -14,6 +15,124 @@ import {
 import { getGameRoutePaths } from 'app/utils/react-router';
 import changelog from '../../../CHANGELOG.md?raw';
 
+type BrowserManifestRoute = {
+  id: string;
+  parentId?: string;
+  path?: string;
+  index?: boolean;
+  caseSensitive?: boolean;
+  module: string;
+  imports?: string[];
+  clientActionModule?: string;
+  clientLoaderModule?: string;
+  hydrateFallbackModule?: string;
+};
+
+type BrowserManifest = {
+  routes: Record<string, BrowserManifestRoute>;
+};
+
+type BrowserManifestRouteObject = RouteObject & {
+  id: string;
+  children?: BrowserManifestRouteObject[];
+};
+
+const findReactRouterBrowserManifest = async (): Promise<BrowserManifest> => {
+  const manifestFiles: string[] = [];
+
+  for await (const manifestFile of glob(
+    './build/client/assets/manifest-*.js',
+  )) {
+    manifestFiles.push(manifestFile);
+  }
+
+  if (manifestFiles.length !== 1) {
+    throw new Error(
+      `Expected exactly one React Router browser manifest, found ${manifestFiles.length}`,
+    );
+  }
+
+  const manifestContent = await readFile(manifestFiles[0], 'utf8');
+  const manifestJson = manifestContent
+    .trim()
+    .replace(/^window\.__reactRouterManifest=/, '')
+    .replace(/;$/, '');
+
+  return JSON.parse(manifestJson) as BrowserManifest;
+};
+
+const createRouteTree = (
+  routes: Record<string, BrowserManifestRoute>,
+): BrowserManifestRouteObject[] => {
+  const routesById = new Map<string, BrowserManifestRouteObject>();
+  const routeTree: BrowserManifestRouteObject[] = [];
+
+  for (const route of Object.values(routes)) {
+    routesById.set(
+      route.id,
+      route.index
+        ? {
+            id: route.id,
+            index: true,
+            caseSensitive: route.caseSensitive,
+          }
+        : {
+            id: route.id,
+            path: route.path,
+            caseSensitive: route.caseSensitive,
+            children: [],
+          },
+    );
+  }
+
+  for (const route of routesById.values()) {
+    const parentId = routes[route.id]?.parentId;
+
+    if (parentId) {
+      routesById.get(parentId)?.children?.push(route);
+      continue;
+    }
+
+    routeTree.push(route);
+  }
+
+  return routeTree;
+};
+
+const getModulePreloadHrefs = (
+  routes: Record<string, BrowserManifestRoute>,
+  page: string,
+): string[] => {
+  const routeTree = createRouteTree(routes);
+  const matches = matchRoutes(routeTree, page);
+
+  if (!matches) {
+    throw new Error(`Could not find React Router matches for "${page}"`);
+  }
+
+  const hrefs = matches.flatMap(({ route }) => {
+    if (!route.id) {
+      return [];
+    }
+
+    const manifestRoute = routes[route.id];
+
+    if (!manifestRoute) {
+      return [];
+    }
+
+    return [
+      manifestRoute.module,
+      manifestRoute.clientActionModule,
+      manifestRoute.clientLoaderModule,
+      manifestRoute.hydrateFallbackModule,
+      ...(manifestRoute.imports ?? []),
+    ];
+  });
+
+  return [...new Set(hrefs.filter((href): href is string => Boolean(href)))];
+};
+
 export const createSPAPagesWithPreloads: NonNullable<
   Config['buildEnd']
 > = async () => {
@@ -22,58 +141,35 @@ export const createSPAPagesWithPreloads: NonNullable<
   const clientDir = resolve('build/client');
 
   const fallbackPath = join(clientDir, '__spa-fallback.html');
-  const prefetchHtmlPath = join(clientDir, '__spa-preload', 'index.html');
-
-  const [fallbackHtml, prefetchHtml] = await Promise.all([
+  const [fallbackHtml, browserManifest] = await Promise.all([
     readFile(fallbackPath, 'utf8'),
-    readFile(prefetchHtmlPath, 'utf8'),
+    findReactRouterBrowserManifest(),
   ]);
-
-  const $prefetch = load(prefetchHtml);
 
   for (const page of gamePagesToPrerender) {
     const $fallback = load(fallbackHtml);
+    const prefetchHrefs = getModulePreloadHrefs(browserManifest.routes, page);
 
-    const matchingLinks = $prefetch(
-      `link[data-prefetch-page="${page}"]`,
-    ).toArray();
-
-    for (const el of matchingLinks) {
-      const $link = $prefetch(el);
-      const href = $link.attr('href');
-
-      if (!href) {
-        continue;
-      }
-
+    for (const href of prefetchHrefs) {
       // Skip if a link with the same href already exists in the fallback
       const alreadyExists = $fallback(`link[href="${href}"]`).length > 0;
       if (alreadyExists) {
         continue;
       }
 
-      $link.removeAttr('data-prefetch-page');
+      const $link = $fallback('<link>');
+      $link.attr('rel', 'modulepreload');
+      $link.attr('href', href);
+      $link.attr('as', 'script');
+      $link.attr('crossorigin', 'anonymous');
 
-      if (href.endsWith('.js')) {
-        $link.attr('as', 'script');
-        $link.attr('crossorigin', 'anonymous');
-      }
-
-      $fallback('head').append($prefetch.html(el));
+      $fallback('head').append($link);
     }
 
     const outputPath = join(clientDir, page.replace(/^\//, ''), 'index.html');
     await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, $fallback.html());
   }
-};
-
-export const deleteSPAPreloadPage: NonNullable<
-  Config['buildEnd']
-> = async () => {
-  const spaPreloadDir = resolve('build/client/__spa-preload');
-
-  await rm(spaPreloadDir, { recursive: true, force: true });
 };
 
 export const replaceReactIconsSpritePlaceholdersOnPreRenderedPages: NonNullable<

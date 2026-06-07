@@ -6,7 +6,7 @@ import {
 import type {
   getBuildingLevelChangeHistoryRowSchema,
   getUnitTrainingHistoryRowSchema,
-} from '../schemas/history-schemas.ts';
+} from '../schemas/history-schemas';
 
 export const mapBuildingLevelChangeHistoryRowToDto = (
   row: z.infer<typeof getBuildingLevelChangeHistoryRowSchema>,

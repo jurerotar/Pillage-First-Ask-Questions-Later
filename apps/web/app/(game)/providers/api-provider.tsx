@@ -8,7 +8,6 @@ import {
 } from 'react';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
-import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
@@ -84,15 +83,6 @@ export const ApiProvider = ({
           makeDebouncedInvalidator(keyId, queryKey);
         debounced();
       }
-
-      // also debounce invalidation of the global events cache key
-      const eventsKeyId = JSON.stringify(eventsCacheKey);
-
-      const evResolvedKey = [eventsCacheKey];
-      const evDebounced =
-        debouncedInvalidators.get(eventsKeyId) ??
-        makeDebouncedInvalidator(eventsKeyId, evResolvedKey);
-      evDebounced();
     };
 
     const unsubscribe = subscribeToApiWorkerNotifications(handleMessage);

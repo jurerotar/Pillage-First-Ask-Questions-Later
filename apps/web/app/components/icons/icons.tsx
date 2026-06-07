@@ -147,7 +147,9 @@ type TroopMovementType =
   | 'offensiveMovementOutgoing'
   | 'offensiveMovementIncoming'
   | 'adventure'
-  | 'findNewVillage';
+  | 'findNewVillage'
+  | 'huntingParty'
+  | 'gatheringTrip';
 
 type UnitIconType =
   | 'hero'
@@ -650,6 +652,21 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <GiPointyHat
       {...props}
       className={clsx('text-blue-500', props.className)}
+    />
+  ),
+  huntingParty: (props) => (
+    <GiWolfTrap
+      {...props}
+      className={clsx('text-orange-600 dark:text-orange-500', props.className)}
+    />
+  ),
+  gatheringTrip: (props) => (
+    <GiSwapBag
+      {...props}
+      className={clsx(
+        'text-emerald-600 dark:text-emerald-500',
+        props.className,
+      )}
     />
   ),
 

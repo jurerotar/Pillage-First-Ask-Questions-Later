@@ -218,9 +218,6 @@ describe(relocationMovementResolver, () => {
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
-    const { relocationMovementResolver } = await import(
-      '../troop-movement-resolver'
-    );
     relocationMovementResolver(database, mockEvent);
 
     // Verify hero village_id update

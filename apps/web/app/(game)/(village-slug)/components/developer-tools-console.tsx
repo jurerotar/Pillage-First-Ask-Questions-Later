@@ -78,6 +78,7 @@ const FREE_SETTINGS: (keyof DeveloperSettings)[] = [
   'isFreeUnitTrainingEnabled',
   'isFreeUnitImprovementEnabled',
   'isFreeUnitResearchEnabled',
+  'isFreeHuntingPartiesEnabled',
   'isFreeHeroReviveEnabled',
 ];
 
@@ -137,14 +138,15 @@ export const DeveloperToolsConsole = ({
 
   const SETTING_LABELS: Record<keyof DeveloperSettings, string> = {
     isInstantBuildingConstructionEnabled: t('Instant building construction'),
-    isInstantUnitTrainingEnabled: t('Instant unit training'),
+    isInstantUnitTrainingEnabled: t('Instant unit production'),
     isInstantUnitImprovementEnabled: t('Instant unit improvement'),
     isInstantUnitResearchEnabled: t('Instant unit research'),
-    isInstantUnitTravelEnabled: t('Instant unit travel'),
+    isInstantUnitTravelEnabled: t('Instant troop movement'),
     isFreeBuildingConstructionEnabled: t('Free building construction'),
-    isFreeUnitTrainingEnabled: t('Free unit training'),
+    isFreeUnitTrainingEnabled: t('Free unit production'),
     isFreeUnitImprovementEnabled: t('Free unit improvement'),
     isFreeUnitResearchEnabled: t('Free unit research'),
+    isFreeHuntingPartiesEnabled: t('Free hunting parties'),
     isInstantHeroReviveEnabled: t('Instant hero revives'),
     isFreeHeroReviveEnabled: t('Free hero revives'),
   };
@@ -154,7 +156,7 @@ export const DeveloperToolsConsole = ({
       'Buildings are constructed instantly without waiting.',
     ),
     isInstantUnitTrainingEnabled: t(
-      'Units are trained instantly in buildings.',
+      'Units and animal cages are produced instantly in buildings.',
     ),
     isInstantUnitImprovementEnabled: t(
       'Units are improved instantly in the smithy.',
@@ -162,16 +164,23 @@ export const DeveloperToolsConsole = ({
     isInstantUnitResearchEnabled: t(
       'Units are researched instantly in the academy.',
     ),
-    isInstantUnitTravelEnabled: t('Units reach their destination instantly.'),
+    isInstantUnitTravelEnabled: t(
+      'Troop movements, hunting parties, and gathering expeditions complete instantly.',
+    ),
     isFreeBuildingConstructionEnabled: t(
       'Buildings do not cost any resources to construct.',
     ),
-    isFreeUnitTrainingEnabled: t('Units do not cost any resources to train.'),
+    isFreeUnitTrainingEnabled: t(
+      'Units and animal cages do not cost any resources to produce.',
+    ),
     isFreeUnitImprovementEnabled: t(
       'Units do not cost any resources to improve.',
     ),
     isFreeUnitResearchEnabled: t(
       'Units do not cost any resources to research.',
+    ),
+    isFreeHuntingPartiesEnabled: t(
+      'Hunting parties do not cost any resources.',
     ),
     isInstantHeroReviveEnabled: t('Heroes are revived instantly.'),
     isFreeHeroReviveEnabled: t('Heroes do not cost any resources to revive.'),

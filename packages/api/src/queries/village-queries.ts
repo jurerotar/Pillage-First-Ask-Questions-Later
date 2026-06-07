@@ -56,6 +56,14 @@ export const selectVillageBySlugQuery = `
   LIMIT 1;
 `;
 
+export const selectVillageTileIdQuery = `
+  SELECT tile_id
+  FROM
+    villages
+  WHERE
+    id = $village_id;
+`;
+
 export const selectOccupiableOasisInRangeQuery = `
   WITH
     src_village AS (
@@ -110,6 +118,17 @@ export const selectOccupiableOasisInRangeQuery = `
   ORDER BY
     (ABS(oa.x - sv.vx) + ABS(oa.y - sv.vy)),
     oa.tile_id;
+`;
+
+export const selectVillageBuildingLevelQuery = `
+  SELECT MAX(bf.level) AS level
+  FROM
+    building_fields bf
+      JOIN building_ids bi ON bi.id = bf.building_id
+  WHERE
+    bf.village_id = $village_id
+    AND bi.building = $building_id
+    AND bf.level > 0;
 `;
 
 export const dropRearrangeSourceFieldsTableQuery = `

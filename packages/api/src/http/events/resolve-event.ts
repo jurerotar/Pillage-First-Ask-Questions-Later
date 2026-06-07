@@ -9,17 +9,22 @@ import {
   mapEventRowToTypedEvent,
 } from '../../utils/zod/event-schemas';
 import { postWorkerMessage } from '../../worker/notification-port';
-import type { Resolver } from './resolver.ts';
+import type { Resolver } from './resolver';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
   buildingScheduledConstructionEventResolver,
 } from './resolvers/building-resolvers';
+import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-resolvers';
 import {
   heroHealthRegenerationResolver,
   heroRevivalResolver,
 } from './resolvers/hero-resolvers';
+import {
+  animalCageProductionResolver,
+  huntersLodgeHuntResolver,
+} from './resolvers/hunters-lodge-resolvers';
 import { loyaltyIncreaseResolver } from './resolvers/loyalty-resolvers';
 import {
   adventureMovementResolver,
@@ -58,6 +63,9 @@ const gameEventResolvers = {
   loyaltyIncrease: loyaltyIncreaseResolver,
   unitResearch: unitResearchResolver,
   unitImprovement: unitImprovementResolver,
+  animalCageProduction: animalCageProductionResolver,
+  huntersLodgeHunt: huntersLodgeHuntResolver,
+  gatherersHutGatheringTrip: gatherersHutGatheringTripResolver,
 } satisfies GameEventResolverMap;
 
 export const resolveEvent = (

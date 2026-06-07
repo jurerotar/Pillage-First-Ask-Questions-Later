@@ -20,10 +20,10 @@ import {
   onHeroDeath,
   relocateHero,
 } from '../../../utils/hero';
-import { assessAdventureCountQuestCompletion } from '../../../utils/quests.ts';
-import { addTroops } from '../../../utils/troops.ts';
+import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
+import { addTroops } from '../../../utils/troops';
 import { updateVillageResourcesAt } from '../../../utils/village';
-import type { Resolver } from '../resolver.ts';
+import type { Resolver } from '../resolver';
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>

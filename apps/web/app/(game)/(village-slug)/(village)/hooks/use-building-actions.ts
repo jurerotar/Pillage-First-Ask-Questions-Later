@@ -42,12 +42,16 @@ export const useBuildingActions = (
       buildingId,
       level: 1,
       previousLevel: 0,
-      cachesToClearImmediately: [[currentVillageCacheKey, currentVillageSlug]],
+      cachesToClearImmediately: [
+        [currentVillageCacheKey, currentVillageSlug],
+        [eventsCacheKey, 'buildingLevelChange', currentVillageId],
+      ],
     });
   }, [
     createBuildingConstructionEvent,
     buildingFieldId,
     buildingId,
+    currentVillageId,
     currentVillageSlug,
   ]);
 

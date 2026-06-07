@@ -30,6 +30,22 @@ export const insertMapMarkerQuery = `
     ($player_id, $tile_id, $description, $color);
 `;
 
+export const selectVillageAndFirstOasisTileIdsQuery = `
+  SELECT
+    v.tile_id AS villageTileId,
+    (
+      SELECT tile_id
+      FROM
+        oasis
+      ORDER BY id
+      LIMIT 1
+    ) AS sourceTileId
+  FROM
+    villages v
+  WHERE
+    v.id = $village_id;
+`;
+
 export const selectMapTilesQuery = `
   WITH
     wheat_id AS (

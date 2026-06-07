@@ -12,10 +12,10 @@ import {
   deleteHeroEffectsQuery,
   updateHeroResourceProductionEffectQuery,
   updateHeroVillageEffectsByVillageIdQuery,
-} from '../queries/effect-queries.ts';
-import { updateHeroVillageByCurrentVillageQuery } from '../queries/hero-queries.ts';
-import { createEvents } from './create-event.ts';
-import { updateVillageResourcesAt } from './village.ts';
+} from '../queries/effect-queries';
+import { updateHeroVillageByCurrentVillageQuery } from '../queries/hero-queries';
+import { createEvents } from './create-event';
+import { updateVillageResourcesAt } from './village';
 
 const resourceProductionEffectIds = [
   'woodProduction',

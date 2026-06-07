@@ -57,6 +57,12 @@
     "./utils/units": {
       "default": "./src/utils/units.ts"
     },
+    "./utils/hunters-lodge": {
+      "default": "./src/utils/hunters-lodge.ts"
+    },
+    "./utils/gatherers-hut": {
+      "default": "./src/utils/gatherers-hut.ts"
+    },
     "./factories/unit-research": {
       "default": "./src/factories/unit-research.ts"
     },
@@ -73,6 +79,10 @@
     "format": "biome check --write --no-errors-on-unmatched",
     "test": "vitest",
     "type-check": "tsgo"
+  },
+  "dependencies": {
+    "@pillage-first/utils": "*",
+    "ts-seedrandom": "1.4.1"
   },
   "devDependencies": {
     "@typescript/native-preview": "7.0.0-dev.20260504.1",

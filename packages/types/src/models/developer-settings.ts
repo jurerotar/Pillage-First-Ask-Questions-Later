@@ -11,6 +11,7 @@ export const developerSettingsSchema = z
     isFreeUnitTrainingEnabled: z.boolean(),
     isFreeUnitImprovementEnabled: z.boolean(),
     isFreeUnitResearchEnabled: z.boolean(),
+    isFreeHuntingPartiesEnabled: z.boolean(),
     isInstantHeroReviveEnabled: z.boolean(),
     isFreeHeroReviveEnabled: z.boolean(),
   })

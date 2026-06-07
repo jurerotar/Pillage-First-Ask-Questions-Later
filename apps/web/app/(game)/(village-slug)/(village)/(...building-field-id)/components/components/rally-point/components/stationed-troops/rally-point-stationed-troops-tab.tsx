@@ -5,9 +5,9 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe.ts';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
   UnitTable,
   UnitTableRow,
@@ -16,7 +16,7 @@ import {
   UnitTableWheatConsumption,
 } from 'app/(game)/components/unit-table';
 import { Text } from 'app/components/text';
-import { formatTroopAmount } from '../../utils/format-troop-amount.ts';
+import { formatTroopAmount } from '../../utils/format-troop-amount';
 
 export const RallyPointStationedTroopsTab = () => {
   const { t } = useTranslation();

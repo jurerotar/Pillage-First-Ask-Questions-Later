@@ -10,7 +10,7 @@ import type {
   getSentReinforcementsByVillageSchema,
   getTroopsByVillageSchema,
   getVillagesByPlayerSchema,
-} from '../schemas/player-schemas.ts';
+} from '../schemas/player-schemas';
 
 export const mapPlayerVillage = (
   row: z.infer<typeof getVillagesByPlayerSchema>,

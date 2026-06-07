@@ -14,6 +14,9 @@ type AvailableWorld = {
   deviceId?: string;
 };
 
+type ActivePeers = Map<string, { worlds: Server[]; deviceId?: string }>;
+type RegistryConnections = Set<DataConnection>;
+
 type Message =
   | { type: 'QUERY_WORLDS' }
   | {
@@ -55,10 +58,16 @@ export const WebRTCAdvertiser = () => {
   const peerRef = useRef<Peer | null>(null);
   const registryPeerRef = useRef<Peer | null>(null);
   const registryConnectionRef = useRef<DataConnection | null>(null);
-  const activePeersRef = useRef<
-    Map<string, { worlds: Server[]; deviceId?: string }>
-  >(new Map());
-  const registryConnectionsRef = useRef<Set<DataConnection>>(new Set());
+  const activePeersRef = useRef<ActivePeers | null>(null);
+  const registryConnectionsRef = useRef<RegistryConnections | null>(null);
+
+  if (activePeersRef.current === null) {
+    activePeersRef.current = new Map();
+  }
+
+  if (registryConnectionsRef.current === null) {
+    registryConnectionsRef.current = new Set();
+  }
 
   const createAnnounceMessage = useCallback(
     (peerId: string): Message => ({
@@ -72,7 +81,7 @@ export const WebRTCAdvertiser = () => {
 
   const buildAvailableWorldsList = useCallback(
     (selfId?: string): AvailableWorld[] => {
-      return Array.from(activePeersRef.current.entries())
+      return Array.from(activePeersRef.current!.entries())
         .filter(([peerId]) => peerId !== selfId)
         .map(([peerId, data]) => ({
           peerId,
@@ -173,7 +182,7 @@ export const WebRTCAdvertiser = () => {
 
     const connections = new Map<string, string>(); // conn.peer -> peerId
     const broadcast = (list: AvailableWorld[]) => {
-      for (const conn of registryConnectionsRef.current) {
+      for (const conn of registryConnectionsRef.current!) {
         if (conn.open) {
           conn.send({ type: 'AVAILABLE_WORLDS_LIST', list } satisfies Message);
         }
@@ -181,12 +190,12 @@ export const WebRTCAdvertiser = () => {
     };
 
     registryPeer.on('connection', (conn) => {
-      registryConnectionsRef.current.add(conn);
+      registryConnectionsRef.current!.add(conn);
 
       conn.on('data', (data) => {
         const message = data as Message;
         if (message.type === 'ANNOUNCE_WORLDS') {
-          activePeersRef.current.set(message.peerId, {
+          activePeersRef.current!.set(message.peerId, {
             worlds: message.worlds,
             deviceId: message.deviceId,
           });
@@ -203,11 +212,11 @@ export const WebRTCAdvertiser = () => {
       });
 
       conn.on('close', () => {
-        registryConnectionsRef.current.delete(conn);
+        registryConnectionsRef.current!.delete(conn);
 
         const peerId = connections.get(conn.peer);
         if (peerId) {
-          activePeersRef.current.delete(peerId);
+          activePeersRef.current!.delete(peerId);
           connections.delete(conn.peer);
 
           // Broadcast update
@@ -216,7 +225,7 @@ export const WebRTCAdvertiser = () => {
       });
 
       conn.on('error', () => {
-        registryConnectionsRef.current.delete(conn);
+        registryConnectionsRef.current!.delete(conn);
       });
     });
 

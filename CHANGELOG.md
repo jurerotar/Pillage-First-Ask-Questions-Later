@@ -1,8 +1,24 @@
+## Version 0.4.29
+
+#### Jun 6, 2026
+
+* [BugFix] Fixed a stale UI issue where constructing a new building wouldn't update the construction timer.
+* [BugFix] Fixed an error being thrown when toggling between "compact" and "detailed" building construction list.
+* [BugFix] Fixed an error, which in some cases caused a Hero unit to be duplicated after completing an adventure.
+
+## Version 0.4.28
+
+#### Jun 4, 2026
+
+* [Feature] Added our first new building, the **Hunter's Lodge**. Hunter's Lodge allows you to send out hunting parties
+  which will hunt animals from nearby oasis. These captured animals will serve as reinforcements, defending your village
+  from incoming attacks. Hunter's Lodge also allows you to manufacture **Animal cages**, which you'll be able to use
+  with your Hero and capture animals yourself.
+
 ## Version 0.4.27
 
 #### Jun 1, 2026
 
-* [BugFix] Fixed overflowing tables on mobile devices.
 * [BugFix] Fixed overflowing tables on mobile devices.
 * [BugFix] Added missing bookmark functionality to Rally Point's Send troops view.
 * [TechnicalImprovement] Reworked backend structure.
