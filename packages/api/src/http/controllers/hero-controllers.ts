@@ -226,7 +226,7 @@ export const startHeroAdventure = createController(
   }
 
   if (!isHeroStationedInOwnVillage) {
-    throw new Error('Hero is not stationed in one of your villages');
+    throw new Error('Hero is not stationed in his home village');
   }
 
   createEvents<'troopMovementAdventure'>(database, {
