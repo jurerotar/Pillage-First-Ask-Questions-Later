@@ -39,6 +39,9 @@
     "./merchants": {
       "default": "./src/merchants.ts"
     },
+    "./utils/troops": {
+      "default": "./src/utils/troops.ts"
+    },
     "./utils/quests": {
       "default": "./src/utils/quests.ts"
     },

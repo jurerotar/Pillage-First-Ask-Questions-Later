@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { IoReturnUpForwardOutline } from 'react-icons/io5';
 import { TbMapPinDown } from 'react-icons/tb';
 import { useSearchParams } from 'react-router';
+import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player-villages';
@@ -27,7 +28,6 @@ import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { Pagination } from 'app/components/ui/pagination';
 import { useDialog } from 'app/hooks/use-dialog';
-import { formatTroopAmount } from '../../utils/format-troop-amount';
 
 type ReinforcementDialogData = {
   tileId: number;
@@ -85,7 +85,7 @@ export const RallyPointReinforcementsTab = () => {
         sourceCoordinates: villagesByTileId.get(sourceTileId)?.coordinates,
         tribe: sourceTribe,
         troops,
-        amount: formatTroopAmount(sourceTribe, troops),
+        sortedTroops: sortTroops(sourceTribe, troops),
       };
     });
   }, [currentVillage.tileId, playerVillages, tribe, villageTroops]);
@@ -139,7 +139,7 @@ export const RallyPointReinforcementsTab = () => {
                 sourceVillageName,
                 sourceCoordinates,
                 tribe,
-                amount,
+                sortedTroops,
               }) => (
                 <UnitTable
                   key={sourceTileId}
@@ -184,9 +184,9 @@ export const RallyPointReinforcementsTab = () => {
                   <UnitTableUnitIcons />
                   <UnitTableRow
                     label={t('Troops')}
-                    amount={amount}
+                    troops={sortedTroops}
                   />
-                  <UnitTableWheatConsumption amount={amount} />
+                  <UnitTableWheatConsumption troops={sortedTroops} />
                 </UnitTable>
               ),
             )}
