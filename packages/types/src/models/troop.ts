@@ -11,3 +11,6 @@ export const troopSchema = z
   .meta({ id: 'Troop' });
 
 export type Troop = z.infer<typeof troopSchema>;
+
+export type TroopLike = Pick<Troop, 'unitId' | 'amount'> &
+  Record<string, unknown>;

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import { partition } from '@pillage-first/utils/array';
 import {
   Section,
@@ -16,7 +17,6 @@ import {
   UnitTableWheatConsumption,
 } from 'app/(game)/components/unit-table';
 import { Text } from 'app/components/text';
-import { formatTroopAmount } from '../../utils/format-troop-amount';
 
 export const RallyPointStationedTroopsTab = () => {
   const { t } = useTranslation();
@@ -31,8 +31,8 @@ export const RallyPointStationedTroopsTab = () => {
     );
   }, [villageTroops, currentVillage.tileId]);
 
-  const ownTroopsAmount = useMemo(() => {
-    return formatTroopAmount(tribe, ownTroops);
+  const sortedTroops = useMemo(() => {
+    return sortTroops(tribe, ownTroops);
   }, [tribe, ownTroops]);
 
   return (
@@ -51,9 +51,9 @@ export const RallyPointStationedTroopsTab = () => {
           <UnitTableUnitIcons />
           <UnitTableRow
             label={t('Troops')}
-            amount={ownTroopsAmount}
+            troops={sortedTroops}
           />
-          <UnitTableWheatConsumption amount={ownTroopsAmount} />
+          <UnitTableWheatConsumption troops={sortedTroops} />
         </UnitTable>
       </SectionContent>
     </Section>
