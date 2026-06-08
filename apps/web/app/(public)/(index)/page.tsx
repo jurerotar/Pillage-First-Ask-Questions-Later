@@ -174,11 +174,11 @@ const SocialProofSection = () => {
           />
           <DiscordSocialProofCard
             author="Stellar on Discord"
-            body="I’ve been dreaming of an offline version, and now it’s finally in the making. Amazing!"
+            body="I've been dreaming of an offline version, and now it's finally in the making. Amazing!"
           />
           <DiscordSocialProofCard
             author="Foxplay on Discord"
-            body="I'm so happy to get a chance playing this again with a few tweeks in quality of life, and a few more things, that make it so much better. Thank you very much, looking forward to this!"
+            body="I'm so happy to get a chance playing this again with a few tweeks in quality of life, that make it so much better. Thank you very much, looking forward to this!"
           />
         </SocialProofMasonry>
       </div>
