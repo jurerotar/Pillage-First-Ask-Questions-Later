@@ -62,7 +62,7 @@ export const sourceVillageRowSchema = z.strictObject({
 
 export const stationedVillageRowSchema = z.strictObject({
   currentVillageTile: z.number(),
-  stationedVillageId: z.number().nullable(),
+  stationedVillageId: z.number(),
 });
 
 export const coordinatesRowSchema = z.strictObject({

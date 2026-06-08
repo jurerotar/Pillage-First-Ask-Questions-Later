@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   getMe,
   getPlayerBySlug,
@@ -19,6 +20,56 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('player-controllers', () => {
   const playerId = PLAYER_ID;
+
+  const getTroopWheatProductionEffectValue = (
+    database: DbFacade,
+    villageId: number,
+  ) =>
+    database.selectValue({
+      sql: `
+        SELECT e.value
+        FROM effects e
+          JOIN effect_ids ei ON e.effect_id = ei.id
+        WHERE
+          e.village_id = $village_id
+          AND e.source = 'troops'
+          AND ei.effect = 'wheatProduction';
+      `,
+      bind: { $village_id: villageId },
+      schema: z.number(),
+    })!;
+
+  const setTroopWheatProductionEffectValue = (
+    database: DbFacade,
+    villageId: number,
+    value: number,
+  ) => {
+    database.exec({
+      sql: `
+        DELETE
+        FROM effects
+        WHERE
+          village_id = $village_id
+          AND source = 'troops'
+          AND effect_id = (
+            SELECT id
+            FROM effect_ids
+            WHERE effect = 'wheatProduction'
+          );
+      `,
+      bind: { $village_id: villageId },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+        SELECT id, $value, 'base', 'village', 'troops', $village_id, NULL
+        FROM effect_ids
+        WHERE effect = 'wheatProduction';
+      `,
+      bind: { $village_id: villageId, $value: value },
+    });
+  };
 
   test('getMe should return current player details', async () => {
     const database = await prepareTestDatabase();
@@ -495,7 +546,7 @@ describe('player-controllers', () => {
       schema: z.number(),
     })!;
 
-    database.selectValue({
+    const sourceVillageId = database.selectValue({
       sql: `
         INSERT INTO villages (name, slug, tile_id, player_id)
         VALUES ($name, $slug, $tile_id, $player_id)
@@ -509,6 +560,18 @@ describe('player-controllers', () => {
       },
       schema: z.number(),
     })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
+        VALUES ($tile_id, 750, 750, 750, 750, $updated_at)
+        ON CONFLICT(tile_id) DO NOTHING
+      `,
+      bind: {
+        $tile_id: sourceTileId,
+        $updated_at: Date.now(),
+      },
+    });
 
     database.exec({
       sql: `
@@ -526,6 +589,18 @@ describe('player-controllers', () => {
         $amount: 10,
       },
     });
+
+    setTroopWheatProductionEffectValue(database, targetVillage.id, 10);
+    setTroopWheatProductionEffectValue(database, sourceVillageId, 2);
+
+    const targetTroopWheatEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      targetVillage.id,
+    );
+    const sourceTroopWheatEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      sourceVillageId,
+    );
 
     returnReinforcements(
       database,
@@ -583,6 +658,12 @@ describe('player-controllers', () => {
     })!;
 
     expect(sourceReinforcementAmount).toBe(6);
+    expect(getTroopWheatProductionEffectValue(database, targetVillage.id)).toBe(
+      targetTroopWheatEffectBefore - 4,
+    );
+    expect(getTroopWheatProductionEffectValue(database, sourceVillageId)).toBe(
+      sourceTroopWheatEffectBefore + 4,
+    );
     expect(returnEvent).not.toBeNull();
     expect(returnEvent.type).toBe('troopMovementReturn');
     expect(returnEvent.unit_id).toBe('LEGIONNAIRE');
@@ -635,6 +716,18 @@ describe('player-controllers', () => {
       },
       schema: z.number(),
     })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
+        VALUES ($tile_id, 750, 750, 750, 750, $updated_at)
+        ON CONFLICT(tile_id) DO NOTHING
+      `,
+      bind: {
+        $tile_id: sourceTileId,
+        $updated_at: Date.now(),
+      },
+    });
 
     database.exec({
       sql: `
@@ -812,7 +905,7 @@ describe('player-controllers', () => {
       schema: z.number(),
     })!;
 
-    database.selectValue({
+    const stationedVillageId = database.selectValue({
       sql: `
         INSERT INTO villages (name, slug, tile_id, player_id)
         VALUES ($name, $slug, $tile_id, $player_id)
@@ -826,6 +919,18 @@ describe('player-controllers', () => {
       },
       schema: z.number(),
     })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
+        VALUES ($tile_id, 750, 750, 750, 750, $updated_at)
+        ON CONFLICT(tile_id) DO NOTHING
+      `,
+      bind: {
+        $tile_id: stationedTileId,
+        $updated_at: Date.now(),
+      },
+    });
 
     database.exec({
       sql: `
@@ -843,6 +948,18 @@ describe('player-controllers', () => {
         $amount: 7,
       },
     });
+
+    setTroopWheatProductionEffectValue(database, sourceVillage.id, 3);
+    setTroopWheatProductionEffectValue(database, stationedVillageId, 7);
+
+    const sourceTroopWheatEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      sourceVillage.id,
+    );
+    const stationedTroopWheatEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      stationedVillageId,
+    );
 
     returnSentReinforcements(
       database,
@@ -898,6 +1015,12 @@ describe('player-controllers', () => {
     })!;
 
     expect(stationedAmount).toBe(3);
+    expect(
+      getTroopWheatProductionEffectValue(database, stationedVillageId),
+    ).toBe(stationedTroopWheatEffectBefore - 4);
+    expect(getTroopWheatProductionEffectValue(database, sourceVillage.id)).toBe(
+      sourceTroopWheatEffectBefore + 4,
+    );
     expect(returnEvent.type).toBe('troopMovementReturn');
     expect(returnEvent.unit_id).toBe('LEGIONNAIRE');
     expect(returnEvent.amount).toBe(4);

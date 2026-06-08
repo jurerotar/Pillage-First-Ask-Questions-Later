@@ -15,7 +15,6 @@ import {
   selectSentReinforcementsByVillageQuery,
   selectSourceVillageByTileAndCurrentVillageQuery,
   selectStationedVillageByTileAndCurrentVillageQuery,
-  selectVillageTileQuery,
   selectVillageTroopsQuery,
   updateVillageNameQuery,
 } from '../../queries/player-queries';
@@ -23,6 +22,7 @@ import { relocateHero } from '../../utils/hero';
 import {
   hasHero,
   moveStationedTroops,
+  moveTroopWheatConsumption,
   returnStationedTroops,
 } from '../../utils/reinforcements';
 import { createController } from '../controller';
@@ -43,7 +43,6 @@ import {
   returnSentReinforcementsSchema,
   sourceVillageRowSchema,
   stationedVillageRowSchema,
-  villageTileRowSchema,
 } from './schemas/player-schemas';
 
 export const getMe = createController('/players/me', {
@@ -243,6 +242,8 @@ export const returnReinforcements = createController(
       throw new Error('Source village not found');
     }
 
+    const now = Date.now();
+
     returnStationedTroops(
       db,
       sourceVillageId,
@@ -250,7 +251,10 @@ export const returnReinforcements = createController(
       sourceTileId,
       sourceTileId,
       troops,
+      now,
     );
+
+    moveTroopWheatConsumption(db, troops, villageId, sourceVillageId, now);
   });
 });
 
@@ -268,13 +272,16 @@ export const returnSentReinforcements = createController(
   },
 )(({ database, path: { villageId }, body: { stationedTileId, troops } }) => {
   database.transaction((db) => {
-    const { currentVillageTile } = db.selectObject({
-      sql: selectVillageTileQuery,
+    const { currentVillageTile, stationedVillageId } = db.selectObject({
+      sql: selectStationedVillageByTileAndCurrentVillageQuery,
       bind: {
+        $stationed_tile_id: stationedTileId,
         $village_id: villageId,
       },
-      schema: villageTileRowSchema,
+      schema: stationedVillageRowSchema,
     })!;
+
+    const now = Date.now();
 
     returnStationedTroops(
       db,
@@ -283,7 +290,10 @@ export const returnSentReinforcements = createController(
       currentVillageTile,
       currentVillageTile,
       troops,
+      now,
     );
+
+    moveTroopWheatConsumption(db, troops, stationedVillageId, villageId, now);
   });
 });
 

@@ -1,17 +1,50 @@
+import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   coordinatesRowSchema,
   troopAmountSchema,
 } from '../http/controllers/schemas/player-schemas';
+import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../queries/effect-queries';
 import {
   selectTileCoordinatesQuery,
   selectTroopAmountQuery,
 } from '../queries/player-queries';
 import { createEvents } from './create-event';
 import { addTroops, removeTroops } from './troops';
+import { updateVillageResourcesAt } from './village';
 
 export type ReinforcementTroopSelection = Pick<Troop, 'unitId' | 'amount'>;
+
+export const moveTroopWheatConsumption = (
+  database: DbFacade,
+  troops: ReinforcementTroopSelection[],
+  sourceVillageId: number,
+  targetVillageId: number,
+  timestamp: number,
+) => {
+  const troopsConsumption = calculateTotalUnitWheatConsumption(troops);
+
+  updateVillageResourcesAt(database, sourceVillageId, timestamp);
+
+  database.exec({
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    bind: {
+      $village_id: sourceVillageId,
+      $increase_amount: -troopsConsumption,
+    },
+  });
+
+  updateVillageResourcesAt(database, targetVillageId, timestamp);
+
+  database.exec({
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    bind: {
+      $village_id: targetVillageId,
+      $increase_amount: troopsConsumption,
+    },
+  });
+};
 
 const toTroops = ({
   troops,
@@ -77,6 +110,7 @@ export const returnStationedTroops = (
   targetTileId: number,
   homeTileId: number,
   troops: ReinforcementTroopSelection[],
+  startsAt?: number,
 ) => {
   const selectedTroops = toTroops({
     troops,
@@ -90,6 +124,7 @@ export const returnStationedTroops = (
   createEvents<'troopMovementReturn'>(database, {
     type: 'troopMovementReturn',
     villageId: eventVillageId,
+    startsAt,
     originCoordinates: database.selectObject({
       sql: selectTileCoordinatesQuery,
       bind: { $tile_id: originTileId },
