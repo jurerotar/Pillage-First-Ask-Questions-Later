@@ -1,8 +1,13 @@
 import { clsx } from 'clsx';
-import { createContext, type ReactNode, use } from 'react';
+import {
+  createContext,
+  type PropsWithChildren,
+  type ReactNode,
+  use,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
-import { getUnitsByTribe } from '@pillage-first/game-assets/utils/units';
+import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { TroopLike } from '@pillage-first/types/models/troop';
 import { formatNumber } from '@pillage-first/utils/format';
@@ -35,19 +40,12 @@ export const UnitTable = ({ tribe, children }: UnitTableProps) => {
   );
 };
 
-type UnitTableTitleProps = {
-  children: ReactNode;
-};
-
-export const UnitTableTitle = ({ children }: UnitTableTitleProps) => {
-  const { tribe } = use(UnitTableContext);
-  const tribeUnits = getUnitsByTribe(tribe);
-
+export const UnitTableTitle = ({ children }: PropsWithChildren) => {
   return (
     <thead className="bg-muted border-b dark:border-border font-medium">
       <tr>
         <th
-          colSpan={tribeUnits.length + 1}
+          colSpan={12}
           className="p-2 text-left font-medium"
         >
           {children}
@@ -59,7 +57,7 @@ export const UnitTableTitle = ({ children }: UnitTableTitleProps) => {
 
 export const UnitTableUnitIcons = () => {
   const { tribe } = use(UnitTableContext);
-  const tribeUnits = getUnitsByTribe(tribe);
+  const tribeUnits = getUnitsByTribeWithHero(tribe);
 
   return (
     <thead className="border-b dark:border-border">
@@ -92,29 +90,21 @@ type UnitTableRowProps = {
 };
 
 export const UnitTableRow = ({ label, troops }: UnitTableRowProps) => {
-  const { tribe } = use(UnitTableContext);
-  const tribeUnits = getUnitsByTribe(tribe);
-  const amountByUnitId = new Map(
-    troops.map(({ unitId, amount }) => [unitId, amount] as const),
-  );
-
   return (
     <tbody className="border-b last:border-b-0 dark:border-border">
       <tr>
         <td className="px-2 py-1 border-r dark:border-border">
           <Text className="text-sm font-medium">{label}</Text>
         </td>
-        {tribeUnits.map((unitDef, index) => (
+        {troops.map(({ unitId, amount }, index) => (
           <td
-            key={`amount-${unitDef.id}`}
+            key={`amount-${unitId}`}
             className={clsx(
               'h-7  text-center',
-              index !== tribeUnits.length - 1 && 'border-r dark:border-border',
+              index !== troops.length - 1 && 'border-r dark:border-border',
             )}
           >
-            <Text className="text-sm">
-              {formatNumber(amountByUnitId.get(unitDef.id) ?? 0)}
-            </Text>
+            <Text className="text-sm">{formatNumber(amount)}</Text>
           </td>
         ))}
       </tr>
