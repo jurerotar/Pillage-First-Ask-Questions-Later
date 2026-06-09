@@ -13,6 +13,7 @@ import {
   heroInventoryCacheKey,
   loyaltyCacheKey,
   questsCacheKey,
+  sentReinforcementsCacheKey,
   tilesCacheKey,
   troopMovementsCacheKey,
   unitImprovementCacheKey,
@@ -69,6 +70,7 @@ export const cachesToClearOnResolve: Handlers = {
       [effectsCacheKey, villageId],
       [currentVillageCacheKey],
       [troopMovementsCacheKey, villageId],
+      [sentReinforcementsCacheKey, villageId],
     ];
   },
   troopMovementRelocation: ({ villageId }) => {
