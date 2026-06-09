@@ -1,3 +1,9 @@
+## Version 0.4.30
+
+#### Jun 9, 2026
+
+* [BugFix] Fixed a navigation bar overlaying app elements on some browsers.
+
 ## Version 0.4.29
 
 #### Jun 6, 2026
