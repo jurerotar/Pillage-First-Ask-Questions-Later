@@ -1,14 +1,14 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.29",
+  "version": "0.4.30",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "author": "Jure Rotar <hello@jurerotar.com>",
   "repository": "github:jurerotar/Pillage-First-Ask-Questions-Later",
   "bugs": "https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues",
-  "packageManager": "npm@11.12.1",
+  "packageManager": "npm@11.16.0",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -61,5 +61,16 @@
         0
       ]
     }
+  },
+  "allowScripts": {
+    "@swc/core@1.15.40": true,
+    "sharp@0.34.5": true,
+    "@parcel/watcher": false,
+    "@scarf/scarf": false,
+    "core-js-pure": false,
+    "esbuild": false,
+    "lefthook": false,
+    "@tree-sitter-grammars/tree-sitter-yaml": false,
+    "tree-sitter-json": false
   }
 }

@@ -1,57 +1,168 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import { migrateTo } from './migrate-db';
 
 // This function should only contain db upgrades between app's minor version bumps. At that point, these DB changes
 // should already be part of the new schema, so contents of this function should be deleted
 export const upgradeDb = (database: DbFacade): void => {
-  const newBuildingIdsCount = database.selectValue({
-    sql: `
+  migrateTo('0.4.12', database, (db) => {
+    db.exec({
+      sql: `
+        CREATE TRIGGER IF NOT EXISTS loyalties_delete_capped_entries_after_update
+        AFTER UPDATE OF loyalty
+        ON loyalties
+        WHEN NEW.loyalty >= 100
+        BEGIN
+          DELETE FROM loyalties WHERE tile_id = NEW.tile_id;
+        END;
+      `,
+    });
+  });
+
+  migrateTo('0.4.19', database, (db) => {
+    // Normalize legacy village_founding_history timestamps from milliseconds to seconds
+    // Some historical rows were inserted by JS in milliseconds. Since triggers now set
+    // timestamps via unixepoch() (seconds), convert any ms values at rest.
+    db.exec({
+      sql: `
+        UPDATE village_founding_history
+        SET
+          timestamp =
+            CASE
+              WHEN timestamp > 2000000000 THEN CAST(timestamp / 1000 AS INTEGER)
+              ELSE timestamp
+              END
+        WHERE
+          timestamp > 2000000000;
+      `,
+    });
+  });
+
+  migrateTo('0.4.22', database, (db) => {
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE hero_adventures
+            ADD COLUMN last_updated_at INTEGER NOT NULL DEFAULT 0;
+        `,
+      });
+    } catch {
+      // Column already exists on newer databases.
+    }
+
+    db.exec({
+      sql: `
+        UPDATE hero_adventures
+        SET
+          last_updated_at = COALESCE(
+            (
+              SELECT resolves_at
+              FROM
+                events
+              WHERE
+                type = 'adventurePointIncrease'
+              LIMIT 1
+              ),
+            (
+              SELECT last_write
+              FROM
+                meta
+              LIMIT 1
+              ),
+            last_updated_at
+                            )
+        WHERE
+          last_updated_at = 0;
+      `,
+    });
+
+    db.exec({
+      sql: `
+        DELETE
+        FROM
+          events
+        WHERE
+          type = 'adventurePointIncrease';
+      `,
+    });
+  });
+
+  migrateTo('0.4.25', database, (db) => {
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE map_markers
+            ADD COLUMN description TEXT NOT NULL DEFAULT '';
+        `,
+      });
+    } catch {
+      // Column already exists on newer databases.
+    }
+
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE map_markers
+            ADD COLUMN color TEXT NOT NULL DEFAULT '#dc2626';
+        `,
+      });
+    } catch {
+      // Column already exists on newer databases.
+    }
+  });
+
+  migrateTo('0.4.28', database, (db) => {
+    const newBuildingIdsCount = db.selectValue({
+      sql: `
       SELECT COUNT(*)
       FROM
         building_ids
       WHERE
         building IN ('GATHERERS_HUT', 'HUNTERS_LODGE');
     `,
-    schema: z.number(),
-  })!;
+      schema: z.number(),
+    })!;
 
-  const shouldRecreateBuildingIds = newBuildingIdsCount !== 2;
+    const shouldRecreateBuildingIds = newBuildingIdsCount !== 2;
 
-  if (shouldRecreateBuildingIds) {
-    database.exec({
-      sql: 'PRAGMA foreign_keys = OFF;',
-    });
+    if (shouldRecreateBuildingIds) {
+      database.exec({
+        sql: 'PRAGMA foreign_keys = OFF;',
+      });
 
-    try {
-      database.transaction((db) => {
-        db.exec({
-          sql: 'DROP TABLE IF EXISTS building_ids;',
-        });
+      try {
+        database.transaction((db) => {
+          db.exec({
+            sql: 'DROP TABLE IF EXISTS building_ids;',
+          });
 
-        db.exec({
-          sql: `
-            CREATE TABLE building_ids
-            (
-              id INTEGER PRIMARY KEY,
-              building TEXT NOT NULL UNIQUE CHECK (building IN
-                                                   ('BARRACKS', 'GREAT_BARRACKS', 'STABLE', 'GREAT_STABLE', 'WORKSHOP',
-                                                    'HOSPITAL', 'CLAY_PIT', 'WHEAT_FIELD', 'WOODCUTTER', 'IRON_MINE',
-                                                    'BAKERY', 'BRICKYARD', 'GRAIN_MILL', 'GRANARY', 'GREAT_GRANARY',
-                                                    'IRON_FOUNDRY', 'SAWMILL', 'WAREHOUSE', 'GREAT_WAREHOUSE',
-                                                    'WATERWORKS', 'ACADEMY', 'ROMAN_WALL', 'TEUTONIC_WALL',
-                                                    'HEROS_MANSION', 'HUN_WALL', 'GAUL_WALL', 'RALLY_POINT',
-                                                    'EGYPTIAN_WALL', 'TRAPPER', 'BREWERY', 'COMMAND_CENTER', 'CRANNY',
-                                                    'HORSE_DRINKING_TROUGH', 'MAIN_BUILDING', 'MARKETPLACE',
-                                                    'RESIDENCE', 'TOURNAMENT_SQUARE', 'TRADE_OFFICE', 'SMITHY',
-                                                    'TOWN_HALL', 'EMBASSY', 'TREASURY', 'GATHERERS_HUT',
-                                                    'HUNTERS_LODGE', 'SPARTAN_WALL', 'NATAR_WALL', 'NATURE_WALL'))
-            ) STRICT;
-          `,
-        });
+          db.exec({
+            sql: `
+              CREATE TABLE building_ids
+              (
+                id INTEGER PRIMARY KEY,
+                building TEXT NOT NULL UNIQUE CHECK (
+                  building IN
+                  ('BARRACKS', 'GREAT_BARRACKS', 'STABLE', 'GREAT_STABLE', 'WORKSHOP',
+                   'HOSPITAL', 'CLAY_PIT', 'WHEAT_FIELD', 'WOODCUTTER', 'IRON_MINE',
+                   'BAKERY', 'BRICKYARD', 'GRAIN_MILL', 'GRANARY', 'GREAT_GRANARY',
+                   'IRON_FOUNDRY', 'SAWMILL', 'WAREHOUSE', 'GREAT_WAREHOUSE',
+                   'WATERWORKS', 'ACADEMY', 'ROMAN_WALL', 'TEUTONIC_WALL',
+                   'HEROS_MANSION', 'HUN_WALL', 'GAUL_WALL', 'RALLY_POINT',
+                   'EGYPTIAN_WALL', 'TRAPPER', 'BREWERY', 'COMMAND_CENTER', 'CRANNY',
+                   'HORSE_DRINKING_TROUGH', 'MAIN_BUILDING', 'MARKETPLACE',
+                   'RESIDENCE', 'TOURNAMENT_SQUARE', 'TRADE_OFFICE', 'SMITHY',
+                   'TOWN_HALL', 'EMBASSY', 'TREASURY', 'GATHERERS_HUT',
+                   'HUNTERS_LODGE', 'SPARTAN_WALL', 'NATAR_WALL', 'NATURE_WALL'))
+              ) STRICT;
+            `,
+          });
 
-        db.exec({
-          sql: `
+          db.exec({
+            sql: `
             INSERT INTO
               building_ids (id, building)
             VALUES
@@ -103,23 +214,23 @@ export const upgradeDb = (database: DbFacade): void => {
               (46, 'GATHERERS_HUT'        ),
               (47, 'HUNTERS_LODGE'        );
           `,
-        });
+          });
 
-        db.exec({
-          sql: `
+          db.exec({
+            sql: `
             CREATE INDEX idx_building_ids_building ON building_ids (building);
           `,
+          });
         });
-      });
-    } finally {
-      database.exec({
-        sql: 'PRAGMA foreign_keys = ON;',
-      });
+      } finally {
+        database.exec({
+          sql: 'PRAGMA foreign_keys = ON;',
+        });
+      }
     }
-  }
 
-  database.exec({
-    sql: `
+    db.exec({
+      sql: `
       INSERT OR IGNORE INTO
         bookmarks (village_id, building_id, tab_name)
       SELECT
@@ -131,45 +242,10 @@ export const upgradeDb = (database: DbFacade): void => {
           CROSS JOIN building_ids
       WHERE
         villages.player_id = $player_id
-        AND
-        building_ids.building IN ('GATHERERS_HUT', 'HUNTERS_LODGE');
+        AND building_ids.building IN ('GATHERERS_HUT', 'HUNTERS_LODGE');
     `,
-    bind: { $player_id: PLAYER_ID },
-  });
-
-  database.transaction((db) => {
-    try {
-      db.exec({
-        sql: `
-          ALTER TABLE hero_adventures
-            ADD COLUMN last_updated_at INTEGER NOT NULL DEFAULT 0;
-        `,
-      });
-    } catch {
-      // Column already exists on newer databases.
-    }
-
-    try {
-      db.exec({
-        sql: `
-          ALTER TABLE map_markers
-            ADD COLUMN description TEXT NOT NULL DEFAULT '';
-        `,
-      });
-    } catch {
-      // Column already exists on newer databases.
-    }
-
-    try {
-      db.exec({
-        sql: `
-          ALTER TABLE map_markers
-            ADD COLUMN color TEXT NOT NULL DEFAULT '#dc2626';
-        `,
-      });
-    } catch {
-      // Column already exists on newer databases.
-    }
+      bind: { $player_id: PLAYER_ID },
+    });
 
     try {
       db.exec({
@@ -181,69 +257,10 @@ export const upgradeDb = (database: DbFacade): void => {
     } catch {
       // Column already exists on newer databases.
     }
+  });
 
-    db.exec({
-      sql: `
-        UPDATE hero_adventures
-        SET
-          last_updated_at = COALESCE(
-            (
-              SELECT resolves_at
-              FROM
-                events
-              WHERE
-                type = 'adventurePointIncrease'
-              LIMIT 1
-              ),
-            (
-              SELECT last_write
-              FROM
-                meta
-              LIMIT 1
-              ),
-            last_updated_at
-                            )
-        WHERE
-          last_updated_at = 0;
-      `,
-    });
-
-    db.exec({
-      sql: `
-        DELETE
-        FROM
-          events
-        WHERE
-          type = 'adventurePointIncrease';
-      `,
-    });
-
-    db.exec({
-      sql: `
-        CREATE TRIGGER IF NOT EXISTS loyalties_delete_capped_entries_after_update
-        AFTER UPDATE OF loyalty
-        ON loyalties
-        WHEN NEW.loyalty >= 100
-        BEGIN
-          DELETE FROM loyalties WHERE tile_id = NEW.tile_id;
-        END;
-      `,
-    });
-
-    // Normalize legacy village_founding_history timestamps from milliseconds to seconds
-    // Some historical rows were inserted by JS in milliseconds. Since triggers now set
-    // timestamps via unixepoch() (seconds), convert any ms values at rest.
-    db.exec({
-      sql: `
-        UPDATE village_founding_history
-        SET
-          timestamp = CASE
-                        WHEN timestamp > 2000000000 THEN CAST(timestamp / 1000 AS INTEGER)
-                        ELSE timestamp
-            END
-        WHERE
-          timestamp > 2000000000;
-      `,
-    });
+  // If all migrations passed, bump it to current version
+  database.exec({
+    sql: `PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};`,
   });
 };
