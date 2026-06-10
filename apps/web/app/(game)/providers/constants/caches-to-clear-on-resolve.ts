@@ -35,8 +35,12 @@ export const cachesToClearOnResolve: Handlers = {
       [eventsCacheKey, 'buildingLevelChange', villageId],
     ];
   },
-  buildingConstruction: () => {
-    return [[currentVillageCacheKey]];
+  buildingConstruction: ({ villageId }) => {
+    return [
+      [currentVillageCacheKey],
+      [eventsCacheKey, 'buildingConstruction', villageId],
+      [eventsCacheKey, 'buildingLevelChange', villageId],
+    ];
   },
   buildingLevelChange: ({ villageId }) => {
     return [
