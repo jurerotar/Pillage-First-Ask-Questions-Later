@@ -1,6 +1,17 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
+import { gameEventTypeSchema } from '../models/game-event';
 import { tribeSchema } from '../models/tribe';
+
+const villageTargetTroopMovementTypeSchema = gameEventTypeSchema.extract([
+  'troopMovementReinforcements',
+  'troopMovementRelocation',
+  'troopMovementReturn',
+  'troopMovementFindNewVillage',
+  'troopMovementAttack',
+  'troopMovementRaid',
+  'troopMovementOasisOccupation',
+]);
 
 export const troopMovementItemDtoSchema = z
   .union([
@@ -17,7 +28,7 @@ export const troopMovementItemDtoSchema = z
     }),
     z.strictObject({
       id: z.number(),
-      type: z.string(),
+      type: villageTargetTroopMovementTypeSchema,
       originatingVillageId: z.number(),
       originatingVillageName: z.string(),
       originatingVillageCoordinates: coordinatesSchema,

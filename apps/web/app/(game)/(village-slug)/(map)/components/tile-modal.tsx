@@ -15,7 +15,6 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from '@pillage-first/types/models/tile';
-import { isFindNewVillageTroopMovementEvent } from '@pillage-first/utils/guards/event';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -33,9 +32,9 @@ import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-tr
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
@@ -458,21 +457,17 @@ const FoundNewVillageAction = ({
   onFoundNewVillage,
 }: FoundNewVillageActionProps) => {
   const { t } = useTranslation();
-  const { events } = useEvents();
+  const { troopMovements } = useVillageTroopMovements();
   const tribe = useTribe();
   const { villageTroops } = useVillageTroops();
   const { currentVillage } = useCurrentVillage();
 
-  const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
-    if (isFindNewVillageTroopMovementEvent(event)) {
-      return (
-        tile.coordinates.x === event.targetCoordinates.x &&
-        tile.coordinates.y === event.targetCoordinates.y
-      );
-    }
-
-    return false;
-  });
+  const hasOngoingVillageFindEventOnThisTile = troopMovements.some(
+    (movement) =>
+      movement.type === 'troopMovementFindNewVillage' &&
+      movement.targetVillageCoordinates!.x === tile.coordinates.x &&
+      movement.targetVillageCoordinates!.y === tile.coordinates.y,
+  );
 
   if (hasOngoingVillageFindEventOnThisTile) {
     return (
