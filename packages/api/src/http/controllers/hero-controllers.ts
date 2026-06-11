@@ -183,8 +183,6 @@ export const startHeroAdventure = createController(
     tileId,
     sourceTileId,
     villageId,
-    x,
-    y,
   } = database.selectObject({
     sql: `
       SELECT
@@ -195,16 +193,13 @@ export const startHeroAdventure = createController(
           AS isHeroStationedInOwnVillage,
         t.tile_id AS tileId,
         t.source_tile_id AS sourceTileId,
-        v.id AS villageId,
-        tl.x,
-        tl.y
+        v.id AS villageId
       FROM
         heroes h
           JOIN unit_ids ui ON ui.unit = 'HERO'
           JOIN troops t ON t.unit_id = ui.id
           JOIN villages v ON v.tile_id = t.tile_id
           AND v.player_id = h.player_id
-          JOIN tiles tl ON tl.id = t.tile_id
       WHERE
         h.player_id = $player_id
       LIMIT 1;
@@ -216,8 +211,6 @@ export const startHeroAdventure = createController(
       tileId: z.number(),
       sourceTileId: z.number(),
       villageId: z.number(),
-      x: z.number(),
-      y: z.number(),
     }),
   })!;
 
@@ -229,11 +222,16 @@ export const startHeroAdventure = createController(
     throw new Error('Hero is not stationed in his home village');
   }
 
+  const adventureTargetTileId = database.selectValue({
+    sql: 'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
+    schema: z.number(),
+  })!;
+
   createEvents<'troopMovementAdventure'>(database, {
     type: 'troopMovementAdventure',
     villageId,
-    originCoordinates: { x, y },
-    targetCoordinates: { x: 0, y: 0 },
+    originTileId: tileId,
+    targetTileId: adventureTargetTileId,
     troops: [
       {
         unitId: 'HERO',

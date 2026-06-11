@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { Icon } from 'app/components/icon';
@@ -36,6 +37,10 @@ export const UnitSelector = ({
 
   const units = watch('units') || [];
 
+  const maxAmountByUnitId = useMemo(() => {
+    return new Map(maxUnits.map(({ unitId, amount }) => [unitId, amount]));
+  }, [maxUnits]);
+
   const groupedUnits = units.reduce(
     (acc, unit, index) => {
       const groupKey = unit.tier === 'scout' ? 'scout' : unit.category;
@@ -56,8 +61,7 @@ export const UnitSelector = ({
     available: number,
     unitId: Unit['id'],
   ) => {
-    const maxAmount =
-      maxUnits.find((u) => u.unitId === unitId)?.amount ?? available;
+    const maxAmount = maxAmountByUnitId.get(unitId) ?? available;
     setValue(`units.${index}.selected`, Math.min(available, maxAmount));
   };
 
@@ -79,8 +83,7 @@ export const UnitSelector = ({
                   const isDisabled = isTierDisabled || !isAvailable;
 
                   const maxAmount =
-                    maxUnits.find((u) => u.unitId === unit.unitId)?.amount ??
-                    unit.available;
+                    maxAmountByUnitId.get(unit.unitId) ?? unit.available;
 
                   return (
                     <div

@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import type { SubmitHandler, UseFormReturn } from 'react-hook-form';
-import type { Tribe } from '@pillage-first/types/models/tribe';
 import { Dialog, DialogContent } from 'app/components/ui/dialog';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
 import { TroopSelectionForm } from './troop-selection-form';
@@ -10,7 +9,6 @@ type SendTroopsModalProps<T extends BaseTroopFormValues> = {
   onClose: () => void;
   onSubmit: SubmitHandler<T>;
   title: string;
-  tribe: Tribe;
   form: UseFormReturn<T, unknown, T>;
   disabledUnitTiers?: UnitSelection['tier'][];
   maxUnits?: { unitId: UnitSelection['unitId']; amount: number }[];
@@ -23,7 +21,6 @@ type SendTroopsModalContentProps<T extends BaseTroopFormValues> = {
   onClose: () => void;
   onSubmit: SubmitHandler<T>;
   title: string;
-  tribe: Tribe;
   form: UseFormReturn<T, unknown, T>;
   disabledUnitTiers?: UnitSelection['tier'][];
   maxUnits?: { unitId: UnitSelection['unitId']; amount: number }[];
@@ -36,7 +33,6 @@ export const SendTroopsModalContent = <T extends BaseTroopFormValues>({
   onClose,
   onSubmit,
   title,
-  tribe,
   form,
   disabledUnitTiers,
   maxUnits,
@@ -44,8 +40,6 @@ export const SendTroopsModalContent = <T extends BaseTroopFormValues>({
   isTargetSelectorDisabled = false,
   extraContent,
 }: SendTroopsModalContentProps<T>) => {
-  void tribe;
-
   return (
     <TroopSelectionForm
       form={form}

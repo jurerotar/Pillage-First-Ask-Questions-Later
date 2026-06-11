@@ -17,10 +17,7 @@ export const mapTroopMovementRowToDto = (
     type: row.type,
     originatingVillageId: row.originating_village_id,
     originatingVillageName: row.originating_village_name,
-    originatingVillageCoordinates: {
-      x: row.originating_village_x,
-      y: row.originating_village_y,
-    },
+    originatingTileId: row.originating_tile_id,
     playerName: row.player_name,
     playerId: row.player_id,
     playerTribe: row.player_tribe,
@@ -30,10 +27,7 @@ export const mapTroopMovementRowToDto = (
       : {
           targetVillageId: row.target_village_id,
           targetVillageName: row.target_village_name,
-          targetVillageCoordinates:
-            row.target_village_x !== null && row.target_village_y !== null
-              ? { x: row.target_village_x, y: row.target_village_y }
-              : null,
+          targetTileId: row.target_tile_id,
         }),
   });
 };

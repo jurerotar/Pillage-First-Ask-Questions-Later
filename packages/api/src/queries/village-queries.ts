@@ -67,13 +67,14 @@ export const selectVillageTileIdQuery = `
 export const selectVillageIdAndTileIdQuery = `
   SELECT
     t.id AS tileId,
-    v.id AS villageId
+    t.type AS tileType,
+    COALESCE(v.id, o.village_id) AS villageId
   FROM
     tiles t
-      JOIN villages v ON v.tile_id = t.id
+      LEFT JOIN villages v ON v.tile_id = t.id
+      LEFT JOIN oasis o ON o.tile_id = t.id
   WHERE
-    t.x = $x
-    AND t.y = $y;
+    t.id = $tile_id;
 `;
 
 export const selectOccupiableOasisInRangeQuery = `

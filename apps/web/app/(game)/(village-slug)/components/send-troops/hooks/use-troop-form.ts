@@ -8,23 +8,27 @@ import {
 } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import type { z } from 'zod';
-import {
-  getUnitDefinition,
-  getUnitsByTribe,
-} from '@pillage-first/game-assets/utils/units';
 import type { TroopMovementEventType } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useValidateTroopMovement } from 'app/(game)/(village-slug)/hooks/use-validate-troop-movement';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
+import {
+  createTroopFormTargetFromCoordinates,
+  createUnitSelections,
+  parseOptionalInteger,
+} from '../utils/troop-form';
 
 export type TroopFormOptions<T extends FieldValues> = {
   defaultUnits?: { unitId: Unit['id']; amount: number }[];
   defaultValues: DefaultValues<T>;
 };
+
+const defaultTroopFormUnits: { unitId: Unit['id']; amount: number }[] = [];
 
 export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
   schema: z.ZodType<T>,
@@ -32,19 +36,11 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
 ) => {
   const {
     defaultValues: providedDefaultValues,
-    defaultUnits: providedDefaultUnits = [],
+    defaultUnits: providedDefaultUnits = defaultTroopFormUnits,
   } = options;
 
-  const defaultValues = useMemo(
-    () => providedDefaultValues,
-    [providedDefaultValues],
-  );
-  const defaultUnits = useMemo(
-    () => providedDefaultUnits,
-    [providedDefaultUnits],
-  );
-
   const { currentVillage } = useCurrentVillage();
+  const { mapSize } = useServer();
   const tribe = useTribe();
   const { getDeployableTroops } = useVillageTroops();
   const [searchParams] = useSearchParams();
@@ -55,46 +51,33 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
   }, [getDeployableTroops]);
 
   const initialTarget = useMemo(() => {
-    const xParam = searchParams.get('x');
-    const yParam = searchParams.get('y');
-
-    const x = xParam !== null ? Number.parseInt(xParam, 10) : undefined;
-    const y = yParam !== null ? Number.parseInt(yParam, 10) : undefined;
-
-    return { x, y };
-  }, [searchParams]);
+    return createTroopFormTargetFromCoordinates(
+      {
+        x: parseOptionalInteger(searchParams.get('x')),
+        y: parseOptionalInteger(searchParams.get('y')),
+      },
+      mapSize,
+    );
+  }, [mapSize, searchParams]);
 
   const initialUnits = useMemo<UnitSelection[]>(() => {
-    const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
-
-    return tribeUnits.map((unitDef) => {
-      const troop = deployableTroops.find((t) => t.unitId === unitDef.id);
-      const available = troop?.amount ?? 0;
-      const defaultUnit = defaultUnits.find((du) => du.unitId === unitDef.id);
-      const selected = defaultUnit
-        ? Math.min(defaultUnit.amount, available)
-        : 0;
-
-      return {
-        unitId: unitDef.id,
-        available,
-        selected,
-        tier: unitDef.tier,
-        category: unitDef.category,
-      };
+    return createUnitSelections({
+      defaultUnits: providedDefaultUnits,
+      tribe,
+      troops: deployableTroops,
     });
-  }, [deployableTroops, tribe, defaultUnits]);
+  }, [deployableTroops, providedDefaultUnits, tribe]);
 
   const initialValues = useMemo(
     () => ({
-      ...defaultValues,
+      ...providedDefaultValues,
       target: {
         ...initialTarget,
-        ...defaultValues.target,
+        ...providedDefaultValues.target,
       },
       units: initialUnits,
     }),
-    [defaultValues, initialTarget, initialUnits],
+    [providedDefaultValues, initialTarget, initialUnits],
   );
 
   const form = useForm<T, unknown, T>({
@@ -107,14 +90,10 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
   });
 
   const resetForm = useCallback(() => {
-    return form.reset(initialValues);
+    form.reset(initialValues);
   }, [form, initialValues]);
 
-  const lastResetValuesRef = useRef<string | null>(null);
-
-  if (lastResetValuesRef.current === null) {
-    lastResetValuesRef.current = JSON.stringify(initialValues);
-  }
+  const lastResetValuesRef = useRef(JSON.stringify(initialValues));
 
   useEffect(() => {
     const currentValuesJson = JSON.stringify(initialValues);
@@ -145,10 +124,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
 
   const getBaseEventArgs = (data: T) => ({
     troops: formatTroopsForSubmission(data.units),
-    targetCoordinates: {
-      x: data.target.x,
-      y: data.target.y,
-    },
+    targetTileId: data.target.tileId,
   });
 
   const validateTroopMovementAsync = async (

@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
   Dialog,
@@ -38,15 +37,8 @@ export const ReturnReinforcementsModal = ({
 }: ReturnReinforcementsModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { playerVillages } = usePlayerVillageListing();
   const { returnReinforcements, returnSentReinforcements } = useVillageTroops();
-  const selectedVillage = playerVillages.find(
-    (village) => village.tileId === tileId,
-  );
-  const targetCoordinates =
-    mode === 'incoming'
-      ? selectedVillage?.coordinates
-      : currentVillage.coordinates;
+  const targetTileId = mode === 'incoming' ? tileId : currentVillage.tileId;
   const {
     isOpen: isConfirmationStepOpen,
     openModal: openConfirmationStep,
@@ -57,19 +49,12 @@ export const ReturnReinforcementsModal = ({
     isOpen,
     tribe,
     troops,
-    targetCoordinates,
+    targetTileId,
   });
 
-  const onSubmit = ({ units }: BaseTroopFormValues) => {
-    if (!targetCoordinates) {
-      return;
-    }
-
+  const onSubmit = ({ target, units }: BaseTroopFormValues) => {
     openConfirmationStep({
-      target: {
-        x: targetCoordinates.x,
-        y: targetCoordinates.y,
-      },
+      target,
       units: units.map((unit) => ({
         ...unit,
         available: unit.selected,
@@ -80,11 +65,7 @@ export const ReturnReinforcementsModal = ({
   const onConfirmReturnAction = () => {
     const pendingReturnData = confirmationStepData.current;
 
-    if (
-      pendingReturnData?.target.x === undefined ||
-      pendingReturnData.target.y === undefined ||
-      selectedVillage?.id === undefined
-    ) {
+    if (pendingReturnData?.target.tileId === undefined) {
       return;
     }
 
@@ -142,9 +123,7 @@ export const ReturnReinforcementsModal = ({
             formData={confirmationStepData.current}
             title={title}
             tribe={tribe}
-            originCoordinates={
-              mode === 'outgoing' ? selectedVillage?.coordinates : undefined
-            }
+            originTileId={mode === 'outgoing' ? tileId : undefined}
             backLabel={t('Back')}
           />
         ) : (

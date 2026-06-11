@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
-import { calculateDistanceBetweenPoints } from '@pillage-first/utils/math';
+import {
+  calculateDistanceBetweenTiles,
+  tileIdToCoordinates,
+} from '@pillage-first/utils/map';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import {
   UnitTable,
   UnitTableRow,
@@ -32,7 +35,7 @@ type TroopMovementConfirmationModalProps = {
   formData: BaseTroopFormValues;
   title: string;
   tribe: Tribe;
-  originCoordinates?: Coordinates;
+  originTileId?: number;
   backLabel?: string;
 };
 
@@ -42,7 +45,7 @@ type TroopMovementConfirmationContentProps = {
   formData: BaseTroopFormValues;
   title: string;
   tribe: Tribe;
-  originCoordinates?: Coordinates;
+  originTileId?: number;
   backLabel?: string;
 };
 
@@ -52,12 +55,15 @@ export const TroopMovementConfirmationContent = ({
   formData,
   title,
   tribe,
-  originCoordinates,
+  originTileId,
   backLabel,
 }: TroopMovementConfirmationContentProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
+  const { mapSize } = useServer();
+
+  const resolvedOriginTileId = originTileId ?? currentVillage.tileId;
 
   const selectedTroops = useMemo(() => {
     return formData.units.filter((u) => u.selected > 0);
@@ -66,11 +72,9 @@ export const TroopMovementConfirmationContent = ({
   const travelDuration = useMemo(() => {
     return calculateTravelDuration({
       originVillageId: currentVillage.id,
-      originCoordinates: originCoordinates ?? currentVillage.coordinates,
-      targetCoordinates: {
-        x: formData.target.x,
-        y: formData.target.y,
-      },
+      originTileId: resolvedOriginTileId,
+      targetTileId: formData.target.tileId,
+      mapSize,
       troops: selectedTroops.map((t) => ({
         unitId: t.unitId,
         amount: t.selected,
@@ -81,21 +85,31 @@ export const TroopMovementConfirmationContent = ({
     });
   }, [
     currentVillage,
-    formData.target,
+    formData.target.tileId,
+    mapSize,
+    resolvedOriginTileId,
     selectedTroops,
     effects,
-    originCoordinates,
   ]);
 
   const distance = useMemo(() => {
-    return calculateDistanceBetweenPoints(
-      originCoordinates ?? currentVillage.coordinates,
-      {
+    return calculateDistanceBetweenTiles(
+      resolvedOriginTileId,
+      formData.target.tileId,
+      mapSize,
+    );
+  }, [formData.target.tileId, mapSize, resolvedOriginTileId]);
+
+  const targetCoordinates = useMemo(() => {
+    if (formData.target.x !== undefined && formData.target.y !== undefined) {
+      return {
         x: formData.target.x,
         y: formData.target.y,
-      },
-    );
-  }, [currentVillage.coordinates, formData.target, originCoordinates]);
+      };
+    }
+
+    return tileIdToCoordinates(formData.target.tileId, mapSize);
+  }, [formData.target.tileId, formData.target.x, formData.target.y, mapSize]);
 
   return (
     <>
@@ -123,7 +137,7 @@ export const TroopMovementConfirmationContent = ({
           <div className="flex justify-between">
             <Text className="text-muted-foreground">{t('Target')}:</Text>
             <Text className="font-medium">
-              ({formData.target.x}|{formData.target.y})
+              ({targetCoordinates.x}|{targetCoordinates.y})
             </Text>
           </div>
           <div className="flex justify-between">

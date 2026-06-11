@@ -8,8 +8,8 @@ import {
   getPlayerBySlug,
   getPlayerVillageListing,
   getPlayerVillagesWithPopulation,
-  getSentReinforcementsByVillage,
-  getTroopsByVillage,
+  getSentReinforcementsByTile,
+  getStationedTroopsByTile,
   relocateReinforcements,
   relocateSentReinforcements,
   renameVillage,
@@ -167,26 +167,26 @@ describe('player-controllers', () => {
     expect(testVillage.population).toBe(400);
   });
 
-  test('getTroopsByVillage should return troops by village for a player', async () => {
+  test('getStationedTroopsByTile should return stationed troops by tile', async () => {
     const database = await prepareTestDatabase();
 
     const village = database.selectObject({
-      sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
+      sql: 'SELECT id, tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
     })!;
 
-    getTroopsByVillage(
+    getStationedTroopsByTile(
       database,
-      createControllerArgs<'/villages/:villageId/troops'>({
-        path: { villageId: village.id },
+      createControllerArgs<'/tiles/:tileId/stationed-troops'>({
+        path: { tileId: village.tile_id },
       }),
     );
 
     expect(true).toBe(true);
   });
 
-  test('getSentReinforcementsByVillage should group current village reinforcements by stationed village', async () => {
+  test('getSentReinforcementsByTile should group current tile reinforcements by stationed village', async () => {
     const database = await prepareTestDatabase();
 
     const sourceVillage = database.selectObject({
@@ -242,10 +242,10 @@ describe('player-controllers', () => {
       },
     });
 
-    const result = getSentReinforcementsByVillage(
+    const result = getSentReinforcementsByTile(
       database,
-      createControllerArgs<'/villages/:villageId/sent-reinforcements'>({
-        path: { villageId: sourceVillage.id },
+      createControllerArgs<'/tiles/:tileId/sent-reinforcements'>({
+        path: { tileId: sourceVillage.tile_id },
       }),
     );
 
@@ -355,11 +355,8 @@ describe('player-controllers', () => {
 
     relocateReinforcements(
       database,
-      createControllerArgs<
-        '/villages/:villageId/relocate-reinforcements',
-        'post'
-      >({
-        path: { villageId: targetVillage.id },
+      createControllerArgs<'/tiles/:tileId/relocate-reinforcements', 'post'>({
+        path: { tileId: targetVillage.tile_id },
         body: {
           sourceTileId,
           troops: [{ unitId: 'LEGIONNAIRE', amount: 4 }],
@@ -468,11 +465,8 @@ describe('player-controllers', () => {
 
     relocateReinforcements(
       database,
-      createControllerArgs<
-        '/villages/:villageId/relocate-reinforcements',
-        'post'
-      >({
-        path: { villageId: targetVillage.id },
+      createControllerArgs<'/tiles/:tileId/relocate-reinforcements', 'post'>({
+        path: { tileId: targetVillage.tile_id },
         body: {
           sourceTileId,
           troops: [{ unitId: 'LEGIONNAIRE', amount: 3 }],
@@ -516,6 +510,113 @@ describe('player-controllers', () => {
 
     expect(sourceReinforcementCount).toBe(0);
     expect(villageTroopsAmount).toBe(3);
+  });
+
+  test('relocateReinforcements should reject reinforcements from an oasis', async () => {
+    const database = await prepareTestDatabase();
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const sourceTileId = database.selectValue({
+      sql: `
+        SELECT tile_id
+        FROM oasis
+        WHERE tile_id != $target_tile_id
+        ORDER BY tile_id
+        LIMIT 1
+      `,
+      bind: { $target_tile_id: targetVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        UPDATE oasis
+        SET village_id = $village_id
+        WHERE tile_id = $tile_id
+      `,
+      bind: {
+        $tile_id: sourceTileId,
+        $village_id: targetVillage.id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          $amount
+        )
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+        $amount: 5,
+      },
+    });
+
+    expect(() =>
+      relocateReinforcements(
+        database,
+        createControllerArgs<'/tiles/:tileId/relocate-reinforcements', 'post'>({
+          path: { tileId: targetVillage.tile_id },
+          body: {
+            sourceTileId,
+            troops: [{ unitId: 'LEGIONNAIRE', amount: 2 }],
+          },
+        }),
+      ),
+    ).toThrow('Reinforcements from oases cannot be relocated');
+
+    const sourceReinforcementAmount = database.selectValue({
+      sql: `
+        SELECT t.amount
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit = 'LEGIONNAIRE'
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+      },
+      schema: z.number().nullable(),
+    });
+
+    const relocatedCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit = 'LEGIONNAIRE'
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: targetVillage.tile_id,
+      },
+      schema: z.number(),
+    });
+
+    expect(sourceReinforcementAmount).toBe(5);
+    expect(relocatedCount).toBe(0);
   });
 
   test('returnReinforcements should create return event and remove troops from reinforcements', async () => {
@@ -604,11 +705,8 @@ describe('player-controllers', () => {
 
     returnReinforcements(
       database,
-      createControllerArgs<
-        '/villages/:villageId/return-reinforcements',
-        'post'
-      >({
-        path: { villageId: targetVillage.id },
+      createControllerArgs<'/tiles/:tileId/return-reinforcements', 'post'>({
+        path: { tileId: targetVillage.tile_id },
         body: {
           sourceTileId,
           troops: [{ unitId: 'LEGIONNAIRE', amount: 4 }],
@@ -639,8 +737,8 @@ describe('player-controllers', () => {
           type,
           JSON_EXTRACT(meta, '$.troops[0].unitId') AS unit_id,
           JSON_EXTRACT(meta, '$.troops[0].amount') AS amount,
-          JSON_EXTRACT(meta, '$.originCoordinates.x') AS origin_x,
-          JSON_EXTRACT(meta, '$.targetCoordinates.x') AS target_x,
+          JSON_EXTRACT(meta, '$.originTileId') AS origin_tile_id,
+          JSON_EXTRACT(meta, '$.targetTileId') AS target_tile_id,
           JSON_EXTRACT(meta, '$.originalMovementType') AS original_movement_type
         FROM events
         WHERE type = 'troopMovementReturn'
@@ -651,8 +749,8 @@ describe('player-controllers', () => {
         type: z.string(),
         unit_id: z.string(),
         amount: z.number(),
-        origin_x: z.number(),
-        target_x: z.number(),
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
         original_movement_type: z.string(),
       }),
     })!;
@@ -668,7 +766,8 @@ describe('player-controllers', () => {
     expect(returnEvent.type).toBe('troopMovementReturn');
     expect(returnEvent.unit_id).toBe('LEGIONNAIRE');
     expect(returnEvent.amount).toBe(4);
-    expect(returnEvent.origin_x).not.toBe(returnEvent.target_x);
+    expect(returnEvent.origin_tile_id).toBe(targetVillage.tile_id);
+    expect(returnEvent.target_tile_id).toBe(sourceTileId);
     expect(returnEvent.original_movement_type).toBe(
       'troopMovementReturnReinforcements',
     );
@@ -748,11 +847,8 @@ describe('player-controllers', () => {
 
     returnReinforcements(
       database,
-      createControllerArgs<
-        '/villages/:villageId/return-reinforcements',
-        'post'
-      >({
-        path: { villageId: targetVillage.id },
+      createControllerArgs<'/tiles/:tileId/return-reinforcements', 'post'>({
+        path: { tileId: targetVillage.tile_id },
         body: {
           sourceTileId,
           troops: [{ unitId: 'LEGIONNAIRE', amount: 3 }],
@@ -863,11 +959,8 @@ describe('player-controllers', () => {
     expect(() =>
       returnReinforcements(
         database,
-        createControllerArgs<
-          '/villages/:villageId/return-reinforcements',
-          'post'
-        >({
-          path: { villageId: targetVillage.id },
+        createControllerArgs<'/tiles/:tileId/return-reinforcements', 'post'>({
+          path: { tileId: targetVillage.tile_id },
           body: {
             sourceTileId,
             troops: [{ unitId: 'LEGIONNAIRE', amount: 4 }],
@@ -875,6 +968,247 @@ describe('player-controllers', () => {
         }),
       ),
     ).toThrow('Not enough troops available');
+  });
+
+  test('returnReinforcements should remove animal reinforcements without creating a return event', async () => {
+    const database = await prepareTestDatabase();
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const sourceTileId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM tiles
+        WHERE id != $target_tile_id
+          AND id NOT IN (SELECT tile_id FROM villages)
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $target_tile_id: targetVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'RAT'),
+          $amount
+        )
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+        $amount: 5,
+      },
+    });
+
+    const returnEventCountBefore = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM events
+        WHERE type = 'troopMovementReturn'
+      `,
+      schema: z.number(),
+    })!;
+
+    returnReinforcements(
+      database,
+      createControllerArgs<'/tiles/:tileId/return-reinforcements', 'post'>({
+        path: { tileId: targetVillage.tile_id },
+        body: {
+          sourceTileId,
+          troops: [{ unitId: 'RAT', amount: 3 }],
+        },
+      }),
+    );
+
+    const remainingRatAmount = database.selectValue({
+      sql: `
+        SELECT t.amount
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit = 'RAT'
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+      },
+      schema: z.number().nullable(),
+    });
+
+    const returnEventCountAfter = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM events
+        WHERE type = 'troopMovementReturn'
+      `,
+      schema: z.number(),
+    })!;
+
+    expect(remainingRatAmount).toBe(2);
+    expect(returnEventCountAfter).toBe(returnEventCountBefore);
+  });
+
+  test('returnReinforcements should only create return events for non-animal troops in mixed selections', async () => {
+    const database = await prepareTestDatabase();
+
+    const targetVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const sourceTileId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM tiles
+        WHERE id != $target_tile_id
+          AND id NOT IN (SELECT tile_id FROM villages)
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $target_tile_id: targetVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    const sourceVillageId = database.selectValue({
+      sql: `
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES ($name, $slug, $tile_id, $player_id)
+        RETURNING id
+      `,
+      bind: {
+        $name: 'Mixed Return Source Village',
+        $slug: `mixed-return-source-${Date.now()}`,
+        $tile_id: sourceTileId,
+        $player_id: playerId,
+      },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
+        VALUES ($tile_id, 750, 750, 750, 750, $updated_at)
+        ON CONFLICT(tile_id) DO NOTHING
+      `,
+      bind: {
+        $tile_id: sourceTileId,
+        $updated_at: Date.now(),
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES
+          (
+            $tile_id,
+            $source_tile_id,
+            (SELECT id FROM unit_ids WHERE unit = 'RAT'),
+            2
+          ),
+          (
+            $tile_id,
+            $source_tile_id,
+            (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+            7
+          )
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+      },
+    });
+
+    setTroopWheatProductionEffectValue(database, targetVillage.id, 10);
+    setTroopWheatProductionEffectValue(database, sourceVillageId, 2);
+
+    returnReinforcements(
+      database,
+      createControllerArgs<'/tiles/:tileId/return-reinforcements', 'post'>({
+        path: { tileId: targetVillage.tile_id },
+        body: {
+          sourceTileId,
+          troops: [
+            { unitId: 'RAT', amount: 2 },
+            { unitId: 'LEGIONNAIRE', amount: 3 },
+          ],
+        },
+      }),
+    );
+
+    const remainingTroops = database.selectObjects({
+      sql: `
+        SELECT ui.unit AS unit_id, t.amount
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit IN ('RAT', 'LEGIONNAIRE')
+        ORDER BY ui.unit
+      `,
+      bind: {
+        $tile_id: targetVillage.tile_id,
+        $source_tile_id: sourceTileId,
+      },
+      schema: z.strictObject({
+        unit_id: z.string(),
+        amount: z.number(),
+      }),
+    });
+
+    const returnEvent = database.selectObject({
+      sql: `
+        SELECT
+          JSON_ARRAY_LENGTH(meta, '$.troops') AS troop_count,
+          JSON_EXTRACT(meta, '$.troops[0].unitId') AS unit_id,
+          JSON_EXTRACT(meta, '$.troops[0].amount') AS amount
+        FROM events
+        WHERE type = 'troopMovementReturn'
+        ORDER BY id DESC
+        LIMIT 1
+      `,
+      schema: z.strictObject({
+        troop_count: z.number(),
+        unit_id: z.string(),
+        amount: z.number(),
+      }),
+    })!;
+
+    expect(remainingTroops).toEqual([{ unit_id: 'LEGIONNAIRE', amount: 4 }]);
+    expect(returnEvent.troop_count).toBe(1);
+    expect(returnEvent.unit_id).toBe('LEGIONNAIRE');
+    expect(returnEvent.amount).toBe(3);
+    expect(getTroopWheatProductionEffectValue(database, targetVillage.id)).toBe(
+      7,
+    );
+    expect(getTroopWheatProductionEffectValue(database, sourceVillageId)).toBe(
+      5,
+    );
   });
 
   test('returnSentReinforcements should create a return event back to the current village', async () => {
@@ -963,16 +1297,15 @@ describe('player-controllers', () => {
 
     returnSentReinforcements(
       database,
-      createControllerArgs<
-        '/villages/:villageId/return-sent-reinforcements',
-        'post'
-      >({
-        path: { villageId: sourceVillage.id },
-        body: {
-          stationedTileId,
-          troops: [{ unitId: 'LEGIONNAIRE', amount: 4 }],
+      createControllerArgs<'/tiles/:tileId/return-sent-reinforcements', 'post'>(
+        {
+          path: { tileId: sourceVillage.tile_id },
+          body: {
+            stationedTileId,
+            troops: [{ unitId: 'LEGIONNAIRE', amount: 4 }],
+          },
         },
-      }),
+      ),
     );
 
     const stationedAmount = database.selectValue({
@@ -998,7 +1331,8 @@ describe('player-controllers', () => {
           type,
           JSON_EXTRACT(meta, '$.troops[0].unitId') AS unit_id,
           JSON_EXTRACT(meta, '$.troops[0].amount') AS amount,
-          JSON_EXTRACT(meta, '$.targetCoordinates.x') AS target_x,
+          JSON_EXTRACT(meta, '$.originTileId') AS origin_tile_id,
+          JSON_EXTRACT(meta, '$.targetTileId') AS target_tile_id,
           JSON_EXTRACT(meta, '$.originalMovementType') AS original_movement_type
         FROM events
         WHERE type = 'troopMovementReturn'
@@ -1009,7 +1343,8 @@ describe('player-controllers', () => {
         type: z.string(),
         unit_id: z.string(),
         amount: z.number(),
-        target_x: z.number(),
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
         original_movement_type: z.string(),
       }),
     })!;
@@ -1024,7 +1359,8 @@ describe('player-controllers', () => {
     expect(returnEvent.type).toBe('troopMovementReturn');
     expect(returnEvent.unit_id).toBe('LEGIONNAIRE');
     expect(returnEvent.amount).toBe(4);
-    expect(returnEvent.target_x).toBeDefined();
+    expect(returnEvent.origin_tile_id).toBe(stationedTileId);
+    expect(returnEvent.target_tile_id).toBe(sourceVillage.tile_id);
     expect(returnEvent.original_movement_type).toBe(
       'troopMovementReturnReinforcements',
     );
@@ -1112,10 +1448,10 @@ describe('player-controllers', () => {
     relocateSentReinforcements(
       database,
       createControllerArgs<
-        '/villages/:villageId/relocate-sent-reinforcements',
+        '/tiles/:tileId/relocate-sent-reinforcements',
         'post'
       >({
-        path: { villageId: sourceVillage.id },
+        path: { tileId: sourceVillage.tile_id },
         body: {
           stationedTileId,
           troops: [{ unitId: 'LEGIONNAIRE', amount: 2 }],
@@ -1159,6 +1495,76 @@ describe('player-controllers', () => {
 
     expect(stationedAmount).toBe(4);
     expect(stationedVillageTroops).toBe(2);
+  });
+
+  test('relocateSentReinforcements should reject relocation to an oasis', async () => {
+    const database = await prepareTestDatabase();
+
+    const sourceVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const stationedTileId = database.selectValue({
+      sql: `
+        SELECT tile_id
+        FROM oasis
+        LIMIT 1
+      `,
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        UPDATE oasis
+        SET village_id = $village_id
+        WHERE tile_id = $tile_id
+      `,
+      bind: {
+        $tile_id: stationedTileId,
+        $village_id: sourceVillage.id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          $amount
+        )
+      `,
+      bind: {
+        $tile_id: stationedTileId,
+        $source_tile_id: sourceVillage.tile_id,
+        $amount: 6,
+      },
+    });
+
+    expect(() =>
+      relocateSentReinforcements(
+        database,
+        createControllerArgs<
+          '/tiles/:tileId/relocate-sent-reinforcements',
+          'post'
+        >({
+          path: { tileId: sourceVillage.tile_id },
+          body: {
+            stationedTileId,
+            troops: [{ unitId: 'LEGIONNAIRE', amount: 2 }],
+          },
+        }),
+      ),
+    ).toThrow('Relocations cannot be sent to oases');
   });
 
   test('relocateReinforcements should relocate hero and update hero effects village', async () => {
@@ -1280,11 +1686,8 @@ describe('player-controllers', () => {
 
     relocateReinforcements(
       database,
-      createControllerArgs<
-        '/villages/:villageId/relocate-reinforcements',
-        'post'
-      >({
-        path: { villageId: targetVillage.id },
+      createControllerArgs<'/tiles/:tileId/relocate-reinforcements', 'post'>({
+        path: { tileId: targetVillage.tile_id },
         body: {
           sourceTileId,
           troops: [{ unitId: 'HERO', amount: 1 }],

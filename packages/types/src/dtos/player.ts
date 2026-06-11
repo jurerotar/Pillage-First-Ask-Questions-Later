@@ -22,9 +22,11 @@ export const villageTroopDtoSchema = z.strictObject({
   amount: z.number(),
   tileId: z.number(),
   source: z.number(),
+  sourceTileType: z.enum(['free', 'oasis']).nullable(),
 });
 
 export const sentReinforcementDtoSchema = z.strictObject({
+  targetType: z.enum(['village', 'oasis']),
   village: playerVillageDtoSchema,
   troops: z.array(villageTroopDtoSchema),
 });

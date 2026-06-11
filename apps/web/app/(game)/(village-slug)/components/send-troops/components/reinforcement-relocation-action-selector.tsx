@@ -10,11 +10,13 @@ import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
 
 type ReinforcementRelocationActionSelectorProps = {
   className?: string;
+  isRelocationEnabled?: boolean;
   radioGroupClassName?: ComponentProps<typeof RadioGroup>['className'];
 };
 
 export const ReinforcementRelocationActionSelector = ({
   className = 'space-y-2 border-l dark:border-border pl-4',
+  isRelocationEnabled = true,
   radioGroupClassName = 'flex flex-col space-y-2',
 }: ReinforcementRelocationActionSelectorProps) => {
   const { t } = useTranslation();
@@ -39,12 +41,16 @@ export const ReinforcementRelocationActionSelector = ({
                   {t('Reinforcement')}
                 </FormLabel>
               </FormItem>
-              <FormItem className="flex items-center space-x-4 space-y-0">
-                <FormControl>
-                  <RadioGroupItem value="relocation" />
-                </FormControl>
-                <FormLabel className="font-normal">{t('Relocation')}</FormLabel>
-              </FormItem>
+              {isRelocationEnabled && (
+                <FormItem className="flex items-center space-x-4 space-y-0">
+                  <FormControl>
+                    <RadioGroupItem value="relocation" />
+                  </FormControl>
+                  <FormLabel className="font-normal">
+                    {t('Relocation')}
+                  </FormLabel>
+                </FormItem>
+              )}
             </RadioGroup>
           </FormControl>
         </FormItem>

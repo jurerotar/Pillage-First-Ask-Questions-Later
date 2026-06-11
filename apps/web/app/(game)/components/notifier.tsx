@@ -20,6 +20,7 @@ import {
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
+import { tileIdToCoordinates } from '@pillage-first/utils/map';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
@@ -35,6 +36,7 @@ import {
 type NotificationFactoryArgs = {
   t: TFunction;
   serverName: string;
+  mapSize: Server['configuration']['mapSize'];
   playerVillagesMap: Map<Village['id'], Village['name']>;
 };
 
@@ -44,9 +46,14 @@ type NotificationInfo = {
   body?: string;
 };
 
+const getTileCoordinates = (
+  tileId: number,
+  mapSize: Server['configuration']['mapSize'],
+) => tileIdToCoordinates(tileId, mapSize);
+
 const getEventResolvedInfo = (
   event: EventApiNotificationEvent,
-  { t, serverName, playerVillagesMap }: NotificationFactoryArgs,
+  { t, serverName, mapSize, playerVillagesMap }: NotificationFactoryArgs,
 ): NotificationInfo | undefined => {
   if (isBuildingLevelChangeEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
@@ -121,7 +128,7 @@ const getEventResolvedInfo = (
 
   if (isRelocationTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
-    const { targetCoordinates } = event;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     const toastTitle = t('Relocation finished');
 
@@ -129,11 +136,11 @@ const getEventResolvedInfo = (
       toastTitle,
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
       body: t(
-        'Troops relocated to village at coordinates ({{x}}|{{y}}) from {{villageName}}',
+        'Troops relocated to coordinates ({{x}}|{{y}}) from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
           villageName,
+          x,
+          y,
         },
       ),
     };
@@ -141,7 +148,7 @@ const getEventResolvedInfo = (
 
   if (isFindNewVillageTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
-    const { targetCoordinates } = event;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     const toastTitle = t('New village founded');
 
@@ -149,11 +156,11 @@ const getEventResolvedInfo = (
       toastTitle,
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
       body: t(
-        'Settlers from {{villageName}} found a new village at ({{x}}|{{y}})',
+        'Settlers from {{villageName}} found a new village at coordinates ({{x}}|{{y}})',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
           villageName,
+          x,
+          y,
         },
       ),
     };
@@ -164,7 +171,7 @@ const getEventResolvedInfo = (
 
 const getEventCreatedInfo = (
   event: EventApiNotificationEvent,
-  { t, playerVillagesMap }: NotificationFactoryArgs,
+  { t, mapSize, playerVillagesMap }: NotificationFactoryArgs,
 ): NotificationInfo | undefined => {
   if (isBuildingLevelChangeEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
@@ -233,15 +240,15 @@ const getEventCreatedInfo = (
 
   if (isReinforcementsTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
-    const { targetCoordinates } = event;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     return {
       toastTitle: t(
-        'Reinforcements sent to village at coordinates ({{x}}|{{y}}) from {{villageName}}',
+        'Reinforcements sent to coordinates ({{x}}|{{y}}) from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
           villageName,
+          x,
+          y,
         },
       ),
     };
@@ -249,15 +256,15 @@ const getEventCreatedInfo = (
 
   if (isRelocationTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
-    const { targetCoordinates } = event;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     return {
       toastTitle: t(
-        'Relocation of troops to village at coordinates ({{x}}|{{y}}) has started from {{villageName}}',
+        'Relocation of troops to coordinates ({{x}}|{{y}}) has started from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
           villageName,
+          x,
+          y,
         },
       ),
     };
@@ -265,15 +272,15 @@ const getEventCreatedInfo = (
 
   if (isFindNewVillageTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
-    const { targetCoordinates } = event;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     return {
       toastTitle: t(
         'Settlers sent to found a new village at coordinates ({{x}}|{{y}}) from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
           villageName,
+          x,
+          y,
         },
       ),
     };
@@ -281,15 +288,15 @@ const getEventCreatedInfo = (
 
   if (isOasisOccupationTroopMovementEvent(event)) {
     const villageName = playerVillagesMap.get(event.villageId)!;
-    const { targetCoordinates } = event;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     return {
       toastTitle: t(
         'Troops sent to occupy oasis at coordinates ({{x}}|{{y}}) from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
           villageName,
+          x,
+          y,
         },
       ),
     };
@@ -325,7 +332,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
   const { preferences } = usePreferences();
   const notificationPermission = useNotificationPermission();
   const isTabFocused = useTabFocus();
-  const { server } = useServer();
+  const { server, mapSize } = useServer();
   const { playerVillages } = usePlayerVillageListing();
 
   const playerVillagesMap = useMemo(() => {
@@ -341,6 +348,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
         const info = getEventCreatedInfo(data, {
           t,
           serverName: server.name,
+          mapSize,
           playerVillagesMap,
         });
 
@@ -372,6 +380,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       const info = getEventResolvedInfo(data, {
         t,
         serverName: server.name,
+        mapSize,
         playerVillagesMap,
       });
 
@@ -408,6 +417,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
     notificationPermission,
     isTabFocused,
     server,
+    mapSize,
     preferences,
     playerVillagesMap,
     subscribeToApiWorkerNotifications,

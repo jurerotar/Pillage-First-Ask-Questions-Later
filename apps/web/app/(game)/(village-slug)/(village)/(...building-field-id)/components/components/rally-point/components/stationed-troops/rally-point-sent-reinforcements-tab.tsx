@@ -50,7 +50,8 @@ export const RallyPointSentReinforcementsTab = () => {
   } = useDialog<ReinforcementDialogData>();
 
   const sentReinforcementEntries = useMemo(() => {
-    return sentReinforcements.map(({ village, troops }) => ({
+    return sentReinforcements.map(({ targetType, village, troops }) => ({
+      targetType,
       village,
       troops,
       sortedTroops: sortTroops(tribe, troops),
@@ -101,54 +102,58 @@ export const RallyPointSentReinforcementsTab = () => {
           </Text>
         ) : (
           <>
-            {pagination.currentPageItems.map(({ village, sortedTroops }) => (
-              <UnitTable
-                key={village.id}
-                tribe={tribe}
-              >
-                <UnitTableTitle>
-                  <div className="flex items-center justify-between gap-2">
-                    <span>
-                      {t('Reinforcing {{villageName}}', {
-                        villageName: village.name,
-                      })}
-                    </span>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        data-tooltip-id="general-tooltip"
-                        data-tooltip-content={t(
-                          'Return reinforcements to this village',
+            {pagination.currentPageItems.map(
+              ({ targetType, village, sortedTroops }) => (
+                <UnitTable
+                  key={village.tileId}
+                  tribe={tribe}
+                >
+                  <UnitTableTitle>
+                    <div className="flex items-center justify-between gap-2">
+                      <span>
+                        {t('Reinforcing {{villageName}}', {
+                          villageName: village.name,
+                        })}
+                      </span>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          data-tooltip-id="general-tooltip"
+                          data-tooltip-content={t(
+                            'Return reinforcements to this village',
+                          )}
+                          onClick={() =>
+                            openReturnModal({ tileId: village.tileId })
+                          }
+                        >
+                          <IoReturnUpForwardOutline className="size-4" />
+                        </Button>
+                        {targetType !== 'oasis' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            data-tooltip-id="general-tooltip"
+                            data-tooltip-content={t('Relocate reinforcements')}
+                            onClick={() =>
+                              openRelocateModal({ tileId: village.tileId })
+                            }
+                          >
+                            <TbMapPinDown className="size-4" />
+                          </Button>
                         )}
-                        onClick={() =>
-                          openReturnModal({ tileId: village.tileId })
-                        }
-                      >
-                        <IoReturnUpForwardOutline className="size-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        data-tooltip-id="general-tooltip"
-                        data-tooltip-content={t('Relocate reinforcements')}
-                        onClick={() =>
-                          openRelocateModal({ tileId: village.tileId })
-                        }
-                      >
-                        <TbMapPinDown className="size-4" />
-                      </Button>
+                      </div>
                     </div>
-                  </div>
-                </UnitTableTitle>
-                <UnitTableUnitIcons />
-                <UnitTableRow
-                  label={t('Troops')}
-                  troops={sortedTroops}
-                />
-                <UnitTableWheatConsumption troops={sortedTroops} />
-              </UnitTable>
-            ))}
+                  </UnitTableTitle>
+                  <UnitTableUnitIcons />
+                  <UnitTableRow
+                    label={t('Troops')}
+                    troops={sortedTroops}
+                  />
+                  <UnitTableWheatConsumption troops={sortedTroops} />
+                </UnitTable>
+              ),
+            )}
             <div className="flex w-full justify-end">
               <Pagination
                 {...pagination}

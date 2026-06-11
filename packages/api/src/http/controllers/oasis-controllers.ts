@@ -7,6 +7,7 @@ import {
   insertOasisProductionEffectQuery,
   occupyOasisQuery,
 } from '../../queries/oasis-queries';
+import { returnOasisReinforcements } from '../../utils/oasis';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createController } from '../controller';
 
@@ -79,7 +80,11 @@ export const abandonOasis = createController(
   },
 )(({ database, path: { oasisId, villageId } }) => {
   database.transaction((db) => {
-    updateVillageResourcesAt(db, villageId, Date.now());
+    const now = Date.now();
+
+    updateVillageResourcesAt(db, villageId, now);
+
+    returnOasisReinforcements(db, oasisId, villageId, now);
 
     db.exec({
       sql: deleteOasisEffectsQuery,

@@ -26,7 +26,7 @@ import type { Resolver } from '../resolver';
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
 > = (database, args) => {
-  const { villageId, resolvesAt, originCoordinates, troops } = args;
+  const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
   const { heroId, health } = database.selectObject({
     sql: `
@@ -92,9 +92,9 @@ export const adventureMovementResolver: Resolver<
 
   createEvents<'troopMovementReturn'>(database, {
     villageId,
-    originCoordinates,
+    originTileId: targetTileId,
     startsAt: resolvesAt,
-    targetCoordinates: originCoordinates,
+    targetTileId: originTileId,
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementAdventure',
     troops,
@@ -108,21 +108,21 @@ export const oasisOccupationMovementResolver: Resolver<
 export const findNewVillageMovementResolver: Resolver<
   GameEvent<'troopMovementFindNewVillage'>
 > = (database, args) => {
-  const {
-    targetCoordinates: { x, y },
-    resolvesAt,
-    villageId,
-  } = args;
+  const { targetTileId, resolvesAt, villageId } = args;
 
   // tileId here represents a tile_id where the new village will be founded
   const {
     id: tileId,
+    x,
+    y,
     resourceFieldComposition,
     tribe,
   } = database.selectObject({
     sql: `
       SELECT
         t.id,
+        t.x,
+        t.y,
         rfc.resource_field_composition AS resourceFieldComposition,
         ti.tribe
       FROM
@@ -133,17 +133,17 @@ export const findNewVillageMovementResolver: Resolver<
           JOIN tribe_ids ti
                ON p.tribe_id = ti.id
       WHERE
-        t.x = $x
-        AND t.y = $y
+        t.id = $tile_id
         AND p.id = $player_id;
     `,
     bind: {
-      $x: x,
-      $y: y,
+      $tile_id: targetTileId,
       $player_id: PLAYER_ID,
     },
     schema: z.strictObject({
       id: z.number(),
+      x: z.number(),
+      y: z.number(),
       resourceFieldComposition: resourceFieldCompositionSchema,
       tribe: playableTribeSchema,
     }),
@@ -352,16 +352,7 @@ export const findNewVillageMovementResolver: Resolver<
 export const returnMovementResolver: Resolver<
   GameEvent<'troopMovementReturn'>
 > = (database, args) => {
-  const {
-    targetCoordinates: { x, y },
-    troops,
-  } = args;
-
-  const { id: targetTileId } = database.selectObject({
-    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
-    bind: { $x: x, $y: y },
-    schema: z.strictObject({ id: z.number() }),
-  })!;
+  const { targetTileId, troops } = args;
 
   addTroops(
     database,
@@ -375,19 +366,17 @@ export const returnMovementResolver: Resolver<
 export const relocationMovementResolver: Resolver<
   GameEvent<'troopMovementRelocation'>
 > = (database, args) => {
-  const {
-    targetCoordinates: { x, y },
-    troops,
-    resolvesAt,
-    villageId,
-  } = args;
+  const { targetTileId, troops, resolvesAt, villageId } = args;
 
-  const { tileId: targetTileId, villageId: targetVillageId } =
-    database.selectObject({
-      sql: selectVillageIdAndTileIdQuery,
-      bind: { $x: x, $y: y },
-      schema: z.strictObject({ tileId: z.number(), villageId: z.number() }),
-    })!;
+  const { villageId: targetVillageId } = database.selectObject({
+    sql: selectVillageIdAndTileIdQuery,
+    bind: { $tile_id: targetTileId },
+    schema: z.strictObject({
+      tileId: z.number(),
+      tileType: z.enum(['free', 'oasis']),
+      villageId: z.number(),
+    }),
+  })!;
 
   addTroops(
     database,
@@ -414,18 +403,17 @@ export const relocationMovementResolver: Resolver<
 export const reinforcementMovementResolver: Resolver<
   GameEvent<'troopMovementReinforcements'>
 > = (database, args) => {
-  const {
-    targetCoordinates: { x, y },
-    troops,
-    resolvesAt,
-    villageId,
-  } = args;
+  const { targetTileId, troops, resolvesAt, villageId } = args;
 
-  const { tileId: targetTileId, villageId: targetVillageId } =
+  const { tileType: targetTileType, villageId: targetVillageId } =
     database.selectObject({
       sql: selectVillageIdAndTileIdQuery,
-      bind: { $x: x, $y: y },
-      schema: z.strictObject({ tileId: z.number(), villageId: z.number() }),
+      bind: { $tile_id: targetTileId },
+      schema: z.strictObject({
+        tileId: z.number(),
+        tileType: z.enum(['free', 'oasis']),
+        villageId: z.number(),
+      }),
     })!;
 
   addTroops(
@@ -436,32 +424,28 @@ export const reinforcementMovementResolver: Resolver<
     })),
   );
 
-  moveTroopWheatConsumption(
-    database,
-    troops,
-    villageId,
-    targetVillageId,
-    resolvesAt,
-  );
+  if (targetTileType !== 'oasis') {
+    moveTroopWheatConsumption(
+      database,
+      troops,
+      villageId,
+      targetVillageId,
+      resolvesAt,
+    );
+  }
 };
 
 export const attackMovementResolver: Resolver<
   GameEvent<'troopMovementAttack'>
 > = (database, args) => {
-  const {
-    villageId,
-    resolvesAt,
-    originCoordinates,
-    targetCoordinates,
-    troops,
-  } = args;
+  const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
     villageId,
     troops,
-    targetCoordinates: originCoordinates,
-    originCoordinates: targetCoordinates,
+    targetTileId: originTileId,
+    originTileId: targetTileId,
     startsAt: resolvesAt,
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementAttack',
@@ -472,21 +456,15 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
   database,
   args,
 ) => {
-  const {
-    villageId,
-    resolvesAt,
-    troops,
-    originCoordinates,
-    targetCoordinates,
-  } = args;
+  const { villageId, resolvesAt, troops, originTileId, targetTileId } = args;
 
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
     villageId,
     troops,
     startsAt: resolvesAt,
-    targetCoordinates: originCoordinates,
-    originCoordinates: targetCoordinates,
+    targetTileId: originTileId,
+    originTileId: targetTileId,
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementRaid',
   });

@@ -27,18 +27,20 @@ export const getPlayerVillagesWithPopulationSchema = z
   })
   .meta({ id: 'GetPlayerVillagesWithPopulationRow' });
 
-export const getTroopsByVillageSchema = z
+export const getStationedTroopsByTileSchema = z
   .strictObject({
     unit_id: z.string(),
     amount: z.number().min(1),
     tile_id: z.number(),
     source_tile_id: z.number(),
+    source_tile_type: z.enum(['free', 'oasis']).nullable(),
   })
-  .meta({ id: 'GetTroopsByVillageRow' });
+  .meta({ id: 'GetStationedTroopsByTileRow' });
 
-export const getSentReinforcementsByVillageSchema = z
+export const getSentReinforcementsByTileSchema = z
   .strictObject({
     village_id: z.number(),
+    target_type: z.enum(['village', 'oasis']),
     tile_id: z.number(),
     coordinates_x: z.number(),
     coordinates_y: z.number(),
@@ -48,21 +50,22 @@ export const getSentReinforcementsByVillageSchema = z
     unit_id: z.string(),
     amount: z.number().min(1),
     source_tile_id: z.number(),
+    source_tile_type: z.enum(['free', 'oasis']).nullable(),
   })
-  .meta({ id: 'GetSentReinforcementsByVillageRow' });
-
-export const villageTileRowSchema = z.strictObject({
-  currentVillageTile: z.number(),
-});
+  .meta({ id: 'GetSentReinforcementsByTileRow' });
 
 export const sourceVillageRowSchema = z.strictObject({
   sourceVillageId: z.number().nullable(),
-  currentVillageTile: z.number(),
+  sourceTileType: z.enum(['free', 'oasis']).nullable(),
+  currentVillageId: z.number(),
+  currentTileId: z.number(),
 });
 
 export const stationedVillageRowSchema = z.strictObject({
-  currentVillageTile: z.number(),
-  stationedVillageId: z.number(),
+  currentVillageId: z.number(),
+  currentTileId: z.number(),
+  stationedTileType: z.enum(['free', 'oasis']).nullable(),
+  stationedVillageId: z.number().nullable(),
 });
 
 export const coordinatesRowSchema = z.strictObject({

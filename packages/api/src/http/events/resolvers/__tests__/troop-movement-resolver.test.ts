@@ -65,6 +65,23 @@ const setTroopWheatProductionEffectValue = (
   });
 };
 
+const getTileIdByCoordinates = (
+  database: DbFacade,
+  coordinates: { x: number; y: number },
+) =>
+  database.selectValue({
+    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
+    bind: { $x: coordinates.x, $y: coordinates.y },
+    schema: z.number(),
+  })!;
+
+const getVillageTileId = (database: DbFacade, villageId: number) =>
+  database.selectValue({
+    sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+    bind: { $village_id: villageId },
+    schema: z.number(),
+  })!;
+
 describe(adventureMovementResolver, () => {
   test('should handle hero surviving adventure', async () => {
     const database = await prepareTestDatabase();
@@ -93,7 +110,8 @@ describe(adventureMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId,
-      targetCoordinates: { x: 1, y: 1 },
+      originTileId: getVillageTileId(database, villageId),
+      targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -129,13 +147,9 @@ describe(adventureMovementResolver, () => {
     expect(returnEvent).toBeDefined();
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 
-    // Verify coordinates of the return event match the origin village
-    const { x, y } = database.selectObject({
-      sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
-      bind: { $village_id: villageId },
-      schema: z.strictObject({ x: z.number(), y: z.number() }),
-    })!;
-    expect(returnEvent.targetCoordinates).toStrictEqual({ x, y });
+    expect(returnEvent.targetTileId).toBe(
+      getVillageTileId(database, villageId),
+    );
 
     // Verify quest completion
     const quest = database.selectObject({
@@ -178,7 +192,8 @@ describe(adventureMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId,
-      targetCoordinates: { x: 1, y: 1 },
+      originTileId: getVillageTileId(database, villageId),
+      targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -244,18 +259,12 @@ describe(relocationMovementResolver, () => {
       schema: z.strictObject({ tileId: z.number() }),
     })!;
 
-    const { x, y } = database.selectObject({
-      sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $targetVillageId);',
-      bind: { $targetVillageId: targetVillageId },
-      schema: z.strictObject({ x: z.number(), y: z.number() }),
-    })!;
-
     const mockEvent = createTroopMovementRelocationEventMock({
       id: 1,
       startsAt: 1000,
       duration: 500,
       villageId: initialVillageId,
-      targetCoordinates: { x, y },
+      targetTileId,
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     });
 
@@ -303,19 +312,13 @@ describe(relocationMovementResolver, () => {
 
     const targetVillage = database.selectObject({
       sql: `
-        SELECT
-          v.tile_id AS tileId,
-          t.x,
-          t.y
+        SELECT v.tile_id AS tileId
         FROM villages v
-          JOIN tiles t ON t.id = v.tile_id
         WHERE v.id = $village_id;
       `,
       bind: { $village_id: targetVillageId },
       schema: z.strictObject({
         tileId: z.number(),
-        x: z.number(),
-        y: z.number(),
       }),
     })!;
 
@@ -336,7 +339,7 @@ describe(relocationMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
-      targetCoordinates: { x: targetVillage.x, y: targetVillage.y },
+      targetTileId: targetVillage.tileId,
       troops: [
         {
           unitId: 'LEGIONNAIRE',
@@ -373,19 +376,13 @@ describe(reinforcementMovementResolver, () => {
 
     const targetVillage = database.selectObject({
       sql: `
-        SELECT
-          v.tile_id AS tileId,
-          t.x,
-          t.y
+        SELECT v.tile_id AS tileId
         FROM villages v
-          JOIN tiles t ON t.id = v.tile_id
         WHERE v.id = $village_id;
       `,
       bind: { $village_id: targetVillageId },
       schema: z.strictObject({
         tileId: z.number(),
-        x: z.number(),
-        y: z.number(),
       }),
     })!;
 
@@ -412,7 +409,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
-      targetCoordinates: { x: targetVillage.x, y: targetVillage.y },
+      targetTileId: targetVillage.tileId,
       troops: [
         {
           unitId: 'HERO',
@@ -455,19 +452,13 @@ describe(reinforcementMovementResolver, () => {
 
     const targetVillage = database.selectObject({
       sql: `
-        SELECT
-          v.tile_id AS tileId,
-          t.x,
-          t.y
+        SELECT v.tile_id AS tileId
         FROM villages v
-          JOIN tiles t ON t.id = v.tile_id
         WHERE v.id = $village_id;
       `,
       bind: { $village_id: targetVillageId },
       schema: z.strictObject({
         tileId: z.number(),
-        x: z.number(),
-        y: z.number(),
       }),
     })!;
 
@@ -481,7 +472,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
-      targetCoordinates: { x: targetVillage.x, y: targetVillage.y },
+      targetTileId: targetVillage.tileId,
       troops: [
         {
           unitId: 'HERO',
@@ -535,19 +526,13 @@ describe(reinforcementMovementResolver, () => {
 
     const targetVillage = database.selectObject({
       sql: `
-        SELECT
-          v.tile_id AS tileId,
-          t.x,
-          t.y
+        SELECT v.tile_id AS tileId
         FROM villages v
-          JOIN tiles t ON t.id = v.tile_id
         WHERE v.id = $village_id;
       `,
       bind: { $village_id: targetVillageId },
       schema: z.strictObject({
         tileId: z.number(),
-        x: z.number(),
-        y: z.number(),
       }),
     })!;
 
@@ -568,7 +553,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
-      targetCoordinates: { x: targetVillage.x, y: targetVillage.y },
+      targetTileId: targetVillage.tileId,
       troops: [
         {
           unitId: 'LEGIONNAIRE',
@@ -586,6 +571,87 @@ describe(reinforcementMovementResolver, () => {
     );
     expect(getTroopWheatProductionEffectValue(database, targetVillageId)).toBe(
       targetEffectBefore + troopWheatConsumption,
+    );
+  });
+
+  test('should keep troop wheatProduction effects on origin village when reinforcing an oasis', async () => {
+    const database = await prepareTestDatabase();
+
+    const sourceVillageId = 1;
+    const owningVillageId = 2;
+    const troopWheatConsumption = 4;
+
+    const sourceTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+      bind: { $village_id: sourceVillageId },
+      schema: z.number(),
+    })!;
+
+    const targetOasisTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1;',
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: 'UPDATE oasis SET village_id = $village_id WHERE tile_id = $tile_id;',
+      bind: {
+        $tile_id: targetOasisTileId,
+        $village_id: owningVillageId,
+      },
+    });
+
+    setTroopWheatProductionEffectValue(database, sourceVillageId, 12);
+    setTroopWheatProductionEffectValue(database, owningVillageId, 3);
+
+    const sourceEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      sourceVillageId,
+    );
+    const owningVillageEffectBefore = getTroopWheatProductionEffectValue(
+      database,
+      owningVillageId,
+    );
+
+    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+      id: 3,
+      startsAt: 1000,
+      duration: 500,
+      villageId: sourceVillageId,
+      targetTileId: targetOasisTileId,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: troopWheatConsumption,
+          tileId: sourceTileId,
+          source: sourceTileId,
+        },
+      ],
+    });
+
+    reinforcementMovementResolver(database, mockEvent);
+
+    const reinforcedAmount = database.selectValue({
+      sql: `
+        SELECT amount
+        FROM troops
+        WHERE
+          tile_id = $tile_id
+          AND source_tile_id = $source_tile_id
+          AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
+      `,
+      bind: {
+        $source_tile_id: sourceTileId,
+        $tile_id: targetOasisTileId,
+      },
+      schema: z.number(),
+    });
+
+    expect(reinforcedAmount).toBe(troopWheatConsumption);
+    expect(getTroopWheatProductionEffectValue(database, sourceVillageId)).toBe(
+      sourceEffectBefore,
+    );
+    expect(getTroopWheatProductionEffectValue(database, owningVillageId)).toBe(
+      owningVillageEffectBefore,
     );
   });
 });
@@ -617,7 +683,7 @@ describe(findNewVillageMovementResolver, () => {
       startsAt: 1000,
       duration: 1000,
       villageId: 1, // existing village
-      targetCoordinates: { x: targetTile.x, y: targetTile.y },
+      targetTileId: targetTile.id,
       troops: [],
     });
 
@@ -735,8 +801,9 @@ describe(attackMovementResolver, () => {
       startsAt: 5000,
       duration: 500,
       villageId,
+      originTileId: getVillageTileId(database, villageId),
       troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
-      targetCoordinates: { x: 0, y: 1 },
+      targetTileId: getTileIdByCoordinates(database, { x: 0, y: 1 }),
     });
 
     attackMovementResolver(database, mockEvent);
@@ -751,13 +818,9 @@ describe(attackMovementResolver, () => {
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 
-    // Verify coordinates of the return event match the origin village
-    const { x, y } = database.selectObject({
-      sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
-      bind: { $village_id: villageId },
-      schema: z.strictObject({ x: z.number(), y: z.number() }),
-    })!;
-    expect(returnEvent.targetCoordinates).toStrictEqual({ x, y });
+    expect(returnEvent.targetTileId).toBe(
+      getVillageTileId(database, villageId),
+    );
   });
 });
 
@@ -771,8 +834,9 @@ describe(raidMovementResolver, () => {
       startsAt: 10_000,
       duration: 200,
       villageId,
+      originTileId: getVillageTileId(database, villageId),
       troops: [{ unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, source: 1 }],
-      targetCoordinates: { x: 0, y: 1 },
+      targetTileId: getTileIdByCoordinates(database, { x: 0, y: 1 }),
     });
 
     raidMovementResolver(database, mockEvent);
@@ -787,12 +851,8 @@ describe(raidMovementResolver, () => {
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
 
-    // Verify coordinates of the return event match the origin village
-    const { x, y } = database.selectObject({
-      sql: 'SELECT x, y FROM tiles t JOIN villages v ON v.tile_id = t.id WHERE v.id = $village_id;',
-      bind: { $village_id: villageId },
-      schema: z.strictObject({ x: z.number(), y: z.number() }),
-    })!;
-    expect(returnEvent.targetCoordinates).toStrictEqual({ x, y });
+    expect(returnEvent.targetTileId).toBe(
+      getVillageTileId(database, villageId),
+    );
   });
 });

@@ -2,15 +2,17 @@ import { useMemo } from 'react';
 import type { DefaultValues } from 'react-hook-form';
 import type { z } from 'zod';
 import { getSettlerUnitIdByTribe } from '@pillage-first/game-assets/utils/units';
-import type { Coordinates } from '@pillage-first/types/models/coordinates';
+import type { Tile } from '@pillage-first/types/models/tile';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { foundNewVillageFormSchema, type UnitSelection } from '../utils/schema';
+import { createTroopFormTargetFromTileId } from '../utils/troop-form';
 import { useTroopMovementForm } from './use-troop-movement-form';
 
 type FoundNewVillageFormValues = z.infer<typeof foundNewVillageFormSchema>;
 
 type UseFoundNewVillageTroopFormOptions = {
-  target?: Coordinates;
+  targetTileId?: Tile['id'];
   onSuccess?: () => void;
 };
 
@@ -28,10 +30,11 @@ export const disabledFoundNewVillageUnitTiers = [
 ] as const satisfies UnitSelection['tier'][];
 
 export const useFoundNewVillageTroopForm = ({
-  target,
+  targetTileId,
   onSuccess,
 }: UseFoundNewVillageTroopFormOptions = {}) => {
   const tribe = useTribe();
+  const { mapSize } = useServer();
   const settlerUnitId = getSettlerUnitIdByTribe(tribe);
 
   const defaultUnits = useMemo(() => {
@@ -42,10 +45,19 @@ export const useFoundNewVillageTroopForm = ({
     return [{ unitId: settlerUnitId, amount: 3 }];
   }, [settlerUnitId]);
 
-  const defaultValues = useMemo<DefaultValues<FoundNewVillageFormValues>>(
-    () => (target ? { target } : {}),
-    [target],
-  );
+  const defaultValues = useMemo<
+    DefaultValues<FoundNewVillageFormValues>
+  >(() => {
+    const target = createTroopFormTargetFromTileId(targetTileId, mapSize);
+
+    if (target.tileId === undefined) {
+      return {};
+    }
+
+    return {
+      target,
+    };
+  }, [mapSize, targetTileId]);
 
   const troopMovementForm = useTroopMovementForm({
     schema: foundNewVillageFormSchema,

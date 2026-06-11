@@ -410,13 +410,14 @@ const MapPageContents = () => {
             onFoundNewVillage={(tile) => {
               openMapSendTroopsModal({
                 mode: 'found-new-village',
-                target: tile.coordinates,
+                targetTileId: tile.id,
               });
             }}
             onReinforceVillage={(tile) => {
               openMapSendTroopsModal({
                 mode: 'reinforcement',
-                target: tile.coordinates,
+                isRelocationEnabled: tile.type !== 'oasis',
+                targetTileId: tile.id,
               });
             }}
           />

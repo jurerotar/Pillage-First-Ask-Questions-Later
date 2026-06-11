@@ -54,6 +54,17 @@ const getAnyVillageId = (database: DbFacade): number => {
   })!;
 };
 
+const getTileIdByCoordinates = (
+  database: DbFacade,
+  coordinates: { x: number; y: number },
+): number => {
+  return database.selectValue({
+    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
+    bind: { $x: coordinates.x, $y: coordinates.y },
+    schema: z.number(),
+  })!;
+};
+
 const setDevFlag = (database: DbFacade, column: string, value: number) => {
   database.exec({
     sql: `UPDATE developer_settings SET ${column} = $value`,
@@ -955,7 +966,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            targetCoordinates: { x: 1, y: 1 },
+            targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -992,7 +1003,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            targetCoordinates: { x: 1, y: 1 },
+            targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -1038,7 +1049,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            targetCoordinates: { x: 1, y: 1 },
+            targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -1059,7 +1070,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createTroopMovementAttackEventMock({
-            targetCoordinates: { x: 2, y: 2 },
+            targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
           }),
         ),
       ).toThrow('Target must be a village or an oasis');
@@ -1068,16 +1079,16 @@ describe('events utils', () => {
     test('troopMovementAttack - should not throw if target is village', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      const { x, y } = database.selectObject({
-        sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $id)',
+      const targetTileId = database.selectValue({
+        sql: 'SELECT tile_id FROM villages WHERE id = $id',
         bind: { $id: villageId },
-        schema: z.strictObject({ x: z.number(), y: z.number() }),
+        schema: z.number(),
       })!;
 
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createTroopMovementAttackEventMock({ targetCoordinates: { x, y } }),
+          createTroopMovementAttackEventMock({ targetTileId }),
         ),
       ).not.toThrow();
     });
@@ -1096,7 +1107,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createTroopMovementRaidEventMock({
-            targetCoordinates: { x: 2, y: 2 },
+            targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
           }),
         ),
       ).toThrow('Target must be a village or an oasis');
@@ -1105,17 +1116,17 @@ describe('events utils', () => {
     test('troopMovementFindNewVillage - should throw if target is occupied', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      const { x, y } = database.selectObject({
-        sql: 'SELECT x, y FROM tiles WHERE id = (SELECT tile_id FROM villages WHERE id = $id)',
+      const targetTileId = database.selectValue({
+        sql: 'SELECT tile_id FROM villages WHERE id = $id',
         bind: { $id: villageId },
-        schema: z.strictObject({ x: z.number(), y: z.number() }),
+        schema: z.number(),
       })!;
 
       expect(() =>
         validateEventCreationPrerequisites(
           database,
           createTroopMovementFindNewVillageEventMock({
-            targetCoordinates: { x, y },
+            targetTileId,
           }),
         ),
       ).toThrow('Target tile must be unoccupied');
@@ -1151,7 +1162,7 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            targetCoordinates: { x: 2, y: 2 },
+            targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
             troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
           }),
         ),
@@ -1161,14 +1172,18 @@ describe('events utils', () => {
     test('troopMovementOasisOccupation - should throw if already occupied by you', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
-      const { x, y } = database.selectObject({
+      const { targetTileId, x, y } = database.selectObject({
         sql: `
-          SELECT t.x, t.y
+          SELECT t.id AS targetTileId, t.x, t.y
           FROM tiles t
           JOIN oasis o ON o.tile_id = t.id
           LIMIT 1
         `,
-        schema: z.strictObject({ x: z.number(), y: z.number() }),
+        schema: z.strictObject({
+          targetTileId: z.number(),
+          x: z.number(),
+          y: z.number(),
+        }),
       })!;
 
       database.exec({
@@ -1181,25 +1196,58 @@ describe('events utils', () => {
           database,
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
-            targetCoordinates: { x, y },
+            targetTileId,
           }),
         ),
       ).toThrow('Oasis is already occupied by you');
     });
 
-    test('troopMovementRelocation - should throw if target is not your own village', async () => {
+    test('troopMovementRelocation - should throw if target tile does not exist', async () => {
       const database = await prepareTestDatabase();
 
       expect(() =>
         validateEventCreationPrerequisites(
           database,
           createTroopMovementRelocationEventMock({
-            targetCoordinates: { x: 2, y: 2 },
+            targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
           }),
         ),
-      ).toThrow(
-        'Reinforcements and relocations can only be sent to your own villages',
-      );
+      ).toThrow('Target tile does not exist');
+    });
+
+    test('troopMovementRelocation - should throw if target tile is an occupied oasis', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const targetTileId = database.selectValue({
+        sql: `
+          SELECT tile_id
+          FROM oasis
+          LIMIT 1;
+        `,
+        schema: z.number(),
+      })!;
+
+      database.exec({
+        sql: `
+          UPDATE oasis
+          SET village_id = $village_id
+          WHERE tile_id = $target_tile_id;
+        `,
+        bind: {
+          $target_tile_id: targetTileId,
+          $village_id: villageId,
+        },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementRelocationEventMock({
+            villageId,
+            targetTileId,
+          }),
+        ),
+      ).toThrow('Troops can not be relocated to oasis');
     });
 
     test('other events - should not throw by default', async () => {
@@ -1208,7 +1256,7 @@ describe('events utils', () => {
         validateEventCreationPrerequisites(
           database,
           createGameEventMock('troopMovementAttack', {
-            targetCoordinates: { x: 1, y: 1 },
+            targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             troops: [
               { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 },
             ],

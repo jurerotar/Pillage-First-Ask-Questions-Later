@@ -41,7 +41,7 @@ export const ReinforcementRelocationForm = () => {
         <TroopSelectionForm
           form={form}
           onSubmit={onFormSubmit}
-          targetSelector="playerVillage"
+          targetSelector="coordinates"
           extraTargetContent={<ReinforcementRelocationActionSelector />}
           actions={<Button type="submit">{t('Confirm')}</Button>}
         />

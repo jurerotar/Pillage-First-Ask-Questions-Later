@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
-import type { Coordinates } from './coordinates';
 import type { TroopTrainingDurationEffectId } from './effect';
+import type { Tile } from './tile';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
 import type { Village } from './village';
@@ -66,8 +66,8 @@ type BaseUnitTrainingEvent = {
 
 type BaseTroopMovementEvent = {
   troops: Troop[];
-  originCoordinates: Coordinates;
-  targetCoordinates: Coordinates;
+  originTileId: Tile['id'];
+  targetTileId: Tile['id'];
 };
 
 export type TroopMovementEventType = Extract<

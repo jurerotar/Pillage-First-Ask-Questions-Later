@@ -1,27 +1,28 @@
 import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import {
-  getUnitDefinition,
-  getUnitsByTribe,
-} from '@pillage-first/game-assets/utils/units';
-import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop } from '@pillage-first/types/models/troop';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import type { BaseTroopFormValues } from '../utils/schema';
+import {
+  createTroopFormTargetFromTileId,
+  createUnitSelections,
+} from '../utils/troop-form';
 
 type UseTroopSelectionFormOptions = {
   isOpen: boolean;
   tribe: Tribe;
   troops: Troop[];
-  targetCoordinates?: Coordinates;
+  targetTileId?: number;
 };
 
 export const useTroopSelectionForm = ({
   isOpen,
   tribe,
   troops,
-  targetCoordinates,
+  targetTileId,
 }: UseTroopSelectionFormOptions) => {
+  const { mapSize } = useServer();
   const form = useForm<BaseTroopFormValues>({
     defaultValues: {
       target: {},
@@ -43,27 +44,11 @@ export const useTroopSelectionForm = ({
       return;
     }
 
-    const troopAmountByUnitId = new Map(
-      troops.map(({ unitId, amount }) => [unitId, amount] as const),
-    );
-    const tribeUnits = [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
-
     form.reset({
-      target: targetCoordinates
-        ? {
-            x: targetCoordinates.x,
-            y: targetCoordinates.y,
-          }
-        : {},
-      units: tribeUnits.map((unitDef) => ({
-        unitId: unitDef.id,
-        selected: 0,
-        available: troopAmountByUnitId.get(unitDef.id) ?? 0,
-        tier: unitDef.tier,
-        category: unitDef.category,
-      })),
+      target: createTroopFormTargetFromTileId(targetTileId, mapSize),
+      units: createUnitSelections({ tribe, troops }),
     });
-  }, [form, isOpen, targetCoordinates, tribe, troops]);
+  }, [form, isOpen, mapSize, targetTileId, tribe, troops]);
 
   return {
     form,

@@ -5,7 +5,6 @@ import { TbMapPinDown } from 'react-icons/tb';
 import { useSearchParams } from 'react-router';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
-import type { Troop } from '@pillage-first/types/models/troop';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player-villages';
 import {
   Section,
@@ -57,7 +56,8 @@ export const RallyPointReinforcementsTab = () => {
     const villagesByTileId = new Map(
       playerVillages.map((village) => [village.tileId, village] as const),
     );
-    const troopsBySource = new Map<Troop['source'], Troop[]>();
+    type VillageTroop = (typeof villageTroops)[number];
+    const troopsBySource = new Map<VillageTroop['source'], VillageTroop[]>();
 
     for (const troop of villageTroops) {
       if (troop.source === currentVillage.tileId) {
@@ -71,6 +71,7 @@ export const RallyPointReinforcementsTab = () => {
 
     return [...troopsBySource.entries()].map(([sourceTileId, troops]) => {
       const firstNonHeroTroop = troops.find(({ unitId }) => unitId !== 'HERO');
+      const sourceTileType = troops[0]?.sourceTileType ?? null;
       const sourceTribe = firstNonHeroTroop
         ? (() => {
             const unitTribe = getUnitDefinition(firstNonHeroTroop.unitId).tribe;
@@ -81,14 +82,16 @@ export const RallyPointReinforcementsTab = () => {
 
       return {
         sourceTileId,
-        sourceVillageName: villagesByTileId.get(sourceTileId)?.name,
-        sourceCoordinates: villagesByTileId.get(sourceTileId)?.coordinates,
+        sourceVillageName:
+          villagesByTileId.get(sourceTileId)?.name ?? t('Oasis'),
+        sourceTileType,
+        canRelocate: sourceTileType !== 'oasis',
         tribe: sourceTribe,
         troops,
         sortedTroops: sortTroops(sourceTribe, troops),
       };
     });
-  }, [currentVillage.tileId, playerVillages, tribe, villageTroops]);
+  }, [currentVillage.tileId, playerVillages, t, tribe, villageTroops]);
 
   const page = Number.parseInt(
     searchParams.get('reinforcements-page') ?? '1',
@@ -113,8 +116,8 @@ export const RallyPointReinforcementsTab = () => {
 
   const selectedRelocateSourceReinforcements = relocateModalArgs.current?.tileId
     ? (reinforcements.find(
-        ({ sourceTileId }) =>
-          sourceTileId === relocateModalArgs.current?.tileId,
+        ({ canRelocate, sourceTileId }) =>
+          canRelocate && sourceTileId === relocateModalArgs.current?.tileId,
       ) ?? null)
     : null;
 
@@ -135,9 +138,9 @@ export const RallyPointReinforcementsTab = () => {
           <>
             {pagination.currentPageItems.map(
               ({
+                canRelocate,
                 sourceTileId,
                 sourceVillageName,
-                sourceCoordinates,
                 tribe,
                 sortedTroops,
               }) => (
@@ -156,7 +159,6 @@ export const RallyPointReinforcementsTab = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          disabled={!sourceCoordinates}
                           data-tooltip-id="general-tooltip"
                           data-tooltip-content={t('Return reinforcements')}
                           onClick={() =>
@@ -165,19 +167,21 @@ export const RallyPointReinforcementsTab = () => {
                         >
                           <IoReturnUpForwardOutline className="size-4" />
                         </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          data-tooltip-id="general-tooltip"
-                          data-tooltip-content={t(
-                            'Convert reinforcements to relocated troops',
-                          )}
-                          onClick={() =>
-                            openRelocateModal({ tileId: sourceTileId })
-                          }
-                        >
-                          <TbMapPinDown className="size-4" />
-                        </Button>
+                        {canRelocate && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            data-tooltip-id="general-tooltip"
+                            data-tooltip-content={t(
+                              'Convert reinforcements to relocated troops',
+                            )}
+                            onClick={() =>
+                              openRelocateModal({ tileId: sourceTileId })
+                            }
+                          >
+                            <TbMapPinDown className="size-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </UnitTableTitle>

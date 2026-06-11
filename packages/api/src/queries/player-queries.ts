@@ -58,23 +58,19 @@ export const selectPlayerVillagesWithPopulationQuery = `
     population DESC;
 `;
 
-export const selectVillageTroopsQuery = `
+export const selectStationedTroopsByTileQuery = `
   SELECT
     ui.unit AS unit_id,
     t.amount,
     t.tile_id,
-    t.source_tile_id
+    t.source_tile_id,
+    source_t.type AS source_tile_type
   FROM
     troops t
+      LEFT JOIN tiles source_t ON source_t.id = t.source_tile_id
       JOIN unit_ids ui ON ui.id = t.unit_id
   WHERE
-    t.tile_id = (
-      SELECT v.tile_id
-      FROM
-        villages v
-      WHERE
-        v.id = $village_id
-    );
+    t.tile_id = $tile_id;
 `;
 
 export const updateVillageNameQuery = `
@@ -102,64 +98,80 @@ export const selectPlayerBySlugQuery = `
   LIMIT 1;
 `;
 
-export const selectSentReinforcementsByVillageQuery = `
+export const selectSentReinforcementsByTileQuery = `
   SELECT
-    v.id AS village_id,
-    v.tile_id,
+    COALESCE(v.id, ov.id) AS village_id,
+    CASE
+      WHEN v.id IS NOT NULL THEN 'village'
+      ELSE 'oasis'
+    END AS target_type,
+    tr.tile_id,
     t.x AS coordinates_x,
     t.y AS coordinates_y,
-    v.name,
-    v.slug,
-    rfc.resource_field_composition AS resource_field_composition,
+    COALESCE(v.name, 'Oasis') AS name,
+    COALESCE(v.slug, ov.slug) AS slug,
+    COALESCE(
+    rfc.resource_field_composition,
+      owner_rfc.resource_field_composition
+    ) AS resource_field_composition,
     ui.unit AS unit_id,
     tr.amount,
-    tr.source_tile_id
+    tr.source_tile_id,
+    source_t.type AS source_tile_type
   FROM
     troops tr
-      JOIN villages cv
-           ON cv.id = $village_id
-      JOIN villages v
-           ON v.tile_id = tr.tile_id
       JOIN tiles t
-           ON t.id = v.tile_id
+           ON t.id = tr.tile_id
+      LEFT JOIN tiles source_t
+           ON source_t.id = tr.source_tile_id
+      LEFT JOIN villages v
+           ON v.tile_id = tr.tile_id
+      LEFT JOIN oasis o
+           ON o.tile_id = tr.tile_id
+      LEFT JOIN villages ov
+           ON ov.id = o.village_id
       LEFT JOIN resource_field_composition_ids rfc
                 ON t.resource_field_composition_id = rfc.id
+      LEFT JOIN tiles owner_t
+                ON owner_t.id = ov.tile_id
+      LEFT JOIN resource_field_composition_ids owner_rfc
+                ON owner_t.resource_field_composition_id = owner_rfc.id
       JOIN unit_ids ui
            ON ui.id = tr.unit_id
   WHERE
-    tr.source_tile_id = cv.tile_id
-    AND tr.tile_id != cv.tile_id
+    tr.source_tile_id = $tile_id
+    AND tr.tile_id != $tile_id
+    AND COALESCE(v.id, ov.id) IS NOT NULL
   ORDER BY
-    v.name,
-    v.id,
+    name,
+    tr.tile_id,
     ui.id;
 `;
 
-export const selectSourceVillageByTileAndCurrentVillageQuery = `
+export const selectSourceVillageByTileAndCurrentTileQuery = `
   SELECT
-    (
-      SELECT id
-      FROM villages
-      WHERE tile_id = $source_tile_id
-    ) AS sourceVillageId,
-    tile_id AS currentVillageTile
-  FROM villages
-  WHERE id = $village_id;
-`;
-
-export const selectVillageTileQuery = `
-  SELECT tile_id AS currentVillageTile
-  FROM villages
-  WHERE id = $village_id;
-`;
-
-export const selectStationedVillageByTileAndCurrentVillageQuery = `
-  SELECT
-    cv.tile_id AS currentVillageTile,
-    sv.id AS stationedVillageId
+    COALESCE(sv.id, so.village_id) AS sourceVillageId,
+    st.type AS sourceTileType,
+    cv.id AS currentVillageId,
+    cv.tile_id AS currentTileId
   FROM villages cv
+    LEFT JOIN tiles st ON st.id = $source_tile_id
+    LEFT JOIN villages sv ON sv.tile_id = $source_tile_id
+    LEFT JOIN oasis so ON so.tile_id = $source_tile_id
+  WHERE cv.tile_id = $current_tile_id;
+`;
+
+export const selectStationedVillageByTileAndCurrentTileQuery = `
+  SELECT
+    cv.id AS currentVillageId,
+    cv.tile_id AS currentTileId,
+    st.type AS stationedTileType,
+    COALESCE(sv.id, so.village_id) AS stationedVillageId
+  FROM villages cv
+    LEFT JOIN tiles st ON st.id = $stationed_tile_id
     LEFT JOIN villages sv ON sv.tile_id = $stationed_tile_id
-  WHERE cv.id = $village_id;
+    LEFT JOIN oasis so ON so.tile_id = $stationed_tile_id
+  WHERE cv.tile_id = $current_tile_id;
 `;
 
 export const selectTileCoordinatesQuery = `

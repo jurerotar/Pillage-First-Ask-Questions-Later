@@ -80,7 +80,7 @@ type TileModalProps = {
 
 type TileModalActionsProps = {
   onFoundNewVillage: (tile: OccupiableTile) => void;
-  onReinforceVillage: (tile: OccupiedOccupiableTile) => void;
+  onReinforceVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
 };
 
 type TileModalMarkerProps = {
@@ -303,8 +303,11 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex">
-        {t('Player')} -{' '}
-        <Text variant="link">
+        {t('Player')} -
+        <Text
+          className="ml-1"
+          variant="link"
+        >
           <Link to={`../players/${slug}`}>{name}</Link>
         </Text>
       </div>
@@ -333,6 +336,7 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
 
 type OasisTileModalProps = {
   tile: OasisTile;
+  onReinforceVillage: (tile: OasisTile) => void;
 };
 
 type OasisTileModalAnimalsProps = {
@@ -374,8 +378,9 @@ const OasisTileModalAnimalsSkeleton = () => {
   );
 };
 
-const OasisTileModal = ({ tile }: OasisTileModalProps) => {
+const OasisTileModal = ({ tile, onReinforceVillage }: OasisTileModalProps) => {
   const { t } = useTranslation();
+  const { currentVillage } = useCurrentVillage();
   const { oasisBonuses } = useOasisBonuses(tile.id);
 
   const isOccupiable = isOccupiableOasisTile(tile);
@@ -443,6 +448,19 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
         </Suspense>
       )}
       {isOccupied && <TileModalPlayerInfo tile={tile} />}
+      {isOccupied && tile.owner.id === PLAYER_ID && (
+        <div className="flex flex-col gap-2">
+          <Text as="h3">{t('Actions')}</Text>
+          {tile.id !== currentVillage.tileId && (
+            <Button
+              variant="textLink"
+              onClick={() => onReinforceVillage(tile)}
+            >
+              {t('Reinforce oasis')}
+            </Button>
+          )}
+        </div>
+      )}
     </DialogHeader>
   );
 };
@@ -465,8 +483,7 @@ const FoundNewVillageAction = ({
   const hasOngoingVillageFindEventOnThisTile = troopMovements.some(
     (movement) =>
       movement.type === 'troopMovementFindNewVillage' &&
-      movement.targetVillageCoordinates!.x === tile.coordinates.x &&
-      movement.targetVillageCoordinates!.y === tile.coordinates.y,
+      movement.targetTileId === tile.id,
   );
 
   if (hasOngoingVillageFindEventOnThisTile) {
@@ -515,7 +532,7 @@ const FoundNewVillageAction = ({
 
   return (
     <Button
-      variant="link"
+      variant="textLink"
       onClick={() => onFoundNewVillage(tile)}
     >
       {t('Found new village')}
@@ -601,8 +618,7 @@ const OccupiedOccupiableTileModal = ({
         )}
         {isOwnedByPlayer && tile.id !== currentVillage.tileId && (
           <Button
-            variant="link"
-            size="fit"
+            variant="textLink"
             onClick={() => onReinforceVillage(tile)}
           >
             {t('Reinforce village')}
@@ -634,7 +650,10 @@ export const TileDialog = ({
           mapMarkers={mapMarkers}
           tile={tile}
         />
-        <OasisTileModal tile={tile} />
+        <OasisTileModal
+          tile={tile}
+          onReinforceVillage={onReinforceVillage}
+        />
         <TileModalMarkerDescription
           mapMarkers={mapMarkers}
           tile={tile}

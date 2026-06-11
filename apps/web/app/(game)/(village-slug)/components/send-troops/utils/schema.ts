@@ -14,12 +14,12 @@ export const unitSelectionSchema = z.strictObject({
 });
 
 export const targetSchema = z.strictObject({
-  x: z.coerce
-    .number({ error: 'X coordinate is required' })
-    .int({ error: 'X must be an integer' }),
-  y: z.coerce
-    .number({ error: 'Y coordinate is required' })
-    .int({ error: 'Y must be an integer' }),
+  tileId: z.coerce
+    .number({ error: 'Target tile is required' })
+    .int({ error: 'Target tile must be an integer' })
+    .min(1, { error: 'Target tile is required' }),
+  x: z.number().int().optional(),
+  y: z.number().int().optional(),
 });
 
 export const troopFormRefinementOptions = [

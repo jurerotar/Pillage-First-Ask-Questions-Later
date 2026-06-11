@@ -1,15 +1,9 @@
 import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import {
-  coordinatesRowSchema,
-  troopAmountSchema,
-} from '../http/controllers/schemas/player-schemas';
+import { troopAmountSchema } from '../http/controllers/schemas/player-schemas';
 import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../queries/effect-queries';
-import {
-  selectTileCoordinatesQuery,
-  selectTroopAmountQuery,
-} from '../queries/player-queries';
+import { selectTroopAmountQuery } from '../queries/player-queries';
 import { createEvents } from './create-event';
 import { addTroops, removeTroops } from './troops';
 import { updateVillageResourcesAt } from './village';
@@ -125,19 +119,26 @@ export const returnStationedTroops = (
     type: 'troopMovementReturn',
     villageId: eventVillageId,
     startsAt,
-    originCoordinates: database.selectObject({
-      sql: selectTileCoordinatesQuery,
-      bind: { $tile_id: originTileId },
-      schema: coordinatesRowSchema,
-    })!,
-    targetCoordinates: database.selectObject({
-      sql: selectTileCoordinatesQuery,
-      bind: { $tile_id: targetTileId },
-      schema: coordinatesRowSchema,
-    })!,
+    originTileId,
+    targetTileId,
     originalMovementType: 'troopMovementReturnReinforcements',
     troops: selectedTroops,
   });
+};
+
+export const removeStationedTroops = (
+  database: DbFacade,
+  troops: ReinforcementTroopSelection[],
+  source: Pick<Troop, 'tileId' | 'source'>,
+) => {
+  const selectedTroops = toTroops({
+    troops,
+    tileId: source.tileId,
+    source: source.source,
+  });
+
+  assertTroopsAvailable(database, selectedTroops);
+  removeTroops(database, selectedTroops);
 };
 
 export const hasHero = (troops: ReinforcementTroopSelection[]) => {

@@ -50,7 +50,7 @@ export const TroopSelectionForm = <T extends BaseTroopFormValues>({
   onCancel,
   isSubmitDisabled = false,
   formClassName = 'space-y-6',
-  targetWrapperClassName = 'flex items-end gap-4',
+  targetWrapperClassName = 'flex items-start gap-4',
   showErrorBag = true,
 }: TroopSelectionFormProps<T>) => {
   const { t } = useTranslation();

@@ -69,6 +69,7 @@ import {
   selectAllVillageEventsByTypeQuery,
   selectVillageEventExistsByTypeQuery,
 } from '../queries/event-queries';
+import { selectServerMapSizeQuery } from '../queries/server-queries';
 import { selectIsUnitResearchedQuery } from '../queries/unit-research-queries';
 import {
   selectVillageBuildingLevelQuery,
@@ -1098,7 +1099,7 @@ export const getEventDuration = (
       return calculateAdventureDuration(database, true);
     }
 
-    const { villageId, targetCoordinates, originCoordinates, troops } = event;
+    const { villageId, targetTileId, originTileId, troops } = event;
 
     const effects = database.selectObjects({
       sql: selectUnitSpeedRelevantEffectsQuery,
@@ -1108,10 +1109,16 @@ export const getEventDuration = (
       schema: effectSchema,
     });
 
+    const mapSize = database.selectValue({
+      sql: selectServerMapSizeQuery,
+      schema: z.number(),
+    })!;
+
     return calculateTravelDuration({
       originVillageId: villageId,
-      targetCoordinates,
-      originCoordinates,
+      targetTileId,
+      originTileId,
+      mapSize,
       troops,
       effects,
     });

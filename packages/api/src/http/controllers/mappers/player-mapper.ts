@@ -7,8 +7,8 @@ import {
 } from '@pillage-first/types/dtos/player';
 import type {
   getPlayerVillagesWithPopulationSchema,
-  getSentReinforcementsByVillageSchema,
-  getTroopsByVillageSchema,
+  getSentReinforcementsByTileSchema,
+  getStationedTroopsByTileSchema,
   getVillagesByPlayerSchema,
 } from '../schemas/player-schemas';
 
@@ -39,21 +39,23 @@ export const mapPlayerVillageWithPopulation = (
 };
 
 export const mapVillageTroop = (
-  row: z.infer<typeof getTroopsByVillageSchema>,
+  row: z.infer<typeof getStationedTroopsByTileSchema>,
 ): z.infer<typeof villageTroopDtoSchema> => {
   const dto = {
     unitId: row.unit_id,
     amount: row.amount,
     tileId: row.tile_id,
     source: row.source_tile_id,
+    sourceTileType: row.source_tile_type,
   };
   return villageTroopDtoSchema.parse(dto);
 };
 
 export const mapSentReinforcement = (
-  row: z.infer<typeof getSentReinforcementsByVillageSchema>,
+  row: z.infer<typeof getSentReinforcementsByTileSchema>,
 ): z.infer<typeof sentReinforcementDtoSchema> => {
   const dto = {
+    targetType: row.target_type,
     village: playerVillageDtoSchema.parse({
       id: row.village_id,
       tileId: row.tile_id,
@@ -68,6 +70,7 @@ export const mapSentReinforcement = (
         amount: row.amount,
         tile_id: row.tile_id,
         source_tile_id: row.source_tile_id,
+        source_tile_type: row.source_tile_type,
       }),
     ],
   };
@@ -76,7 +79,7 @@ export const mapSentReinforcement = (
 };
 
 export const mapSentReinforcements = (
-  rows: z.infer<typeof getSentReinforcementsByVillageSchema>[],
+  rows: z.infer<typeof getSentReinforcementsByTileSchema>[],
 ): z.infer<typeof sentReinforcementDtoSchema>[] => {
   const groupedReinforcements = new Map<
     number,
@@ -85,14 +88,14 @@ export const mapSentReinforcements = (
 
   for (const row of rows) {
     const mapped = mapSentReinforcement(row);
-    const existing = groupedReinforcements.get(mapped.village.id);
+    const existing = groupedReinforcements.get(mapped.village.tileId);
 
     if (existing) {
       existing.troops.push(...mapped.troops);
       continue;
     }
 
-    groupedReinforcements.set(mapped.village.id, mapped);
+    groupedReinforcements.set(mapped.village.tileId, mapped);
   }
 
   return [...groupedReinforcements.values()];

@@ -77,8 +77,8 @@ import {
   getPlayerBySlug,
   getPlayerVillageListing,
   getPlayerVillagesWithPopulation,
-  getSentReinforcementsByVillage,
-  getTroopsByVillage,
+  getSentReinforcementsByTile,
+  getStationedTroopsByTile,
   relocateReinforcements,
   relocateSentReinforcements,
   renameVillage,
@@ -233,8 +233,8 @@ export const apiRoutes = [
 
   // Villages
   createRoute(getVillageBySlug),
-  createRoute(getTroopsByVillage),
-  createRoute(getSentReinforcementsByVillage),
+  createRoute(getStationedTroopsByTile),
+  createRoute(getSentReinforcementsByTile),
   createRoute(getVillageEffects),
   createRoute(getVillageEvents),
   createRoute(getVillageEventsByType),

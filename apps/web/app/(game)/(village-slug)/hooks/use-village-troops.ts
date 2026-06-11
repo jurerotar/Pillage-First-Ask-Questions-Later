@@ -18,10 +18,10 @@ import { invalidateQueries } from 'app/utils/react-query';
 
 type SendTroopsArgs = {
   villageId?: Village['id'];
-  originCoordinates?: Village['coordinates'];
+  originTileId?: Village['tileId'];
   type: TroopMovementEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
-  targetCoordinates: GameEvent<'troopMovementReinforcements'>['targetCoordinates'];
+  targetTileId: Village['tileId'];
 };
 
 type RelocateReinforcementsArgs = {
@@ -49,9 +49,9 @@ export const useVillageTroops = () => {
   const { data: villageTroops } = useSuspenseQuery({
     queryKey: [villageTroopsCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await apiClient.get('/villages/:villageId/troops', {
+      const { data } = await apiClient.get('/tiles/:tileId/stationed-troops', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
       });
 
@@ -63,10 +63,10 @@ export const useVillageTroops = () => {
     queryKey: [sentReinforcementsCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await apiClient.get(
-        '/villages/:villageId/sent-reinforcements',
+        '/tiles/:tileId/sent-reinforcements',
         {
           path: {
-            villageId: currentVillage.id,
+            tileId: currentVillage.tileId,
           },
         },
       );
@@ -84,20 +84,20 @@ export const useVillageTroops = () => {
 
   const { mutate: sendTroops } = useMutation({
     mutationFn: async ({
-      targetCoordinates,
+      targetTileId,
       type,
       troops,
       villageId,
-      originCoordinates,
+      originTileId,
     }: SendTroopsArgs) => {
       await apiClient.post('/events', {
         body: {
           villageId: villageId ?? currentVillage.id,
-          originCoordinates: originCoordinates ?? currentVillage.coordinates,
+          originTileId: originTileId ?? currentVillage.tileId,
           type,
-          targetCoordinates,
+          targetTileId,
           troops,
-        } as never,
+        },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
@@ -113,9 +113,9 @@ export const useVillageTroops = () => {
       sourceTileId,
       troops,
     }: RelocateReinforcementsArgs) => {
-      await apiClient.post('/villages/:villageId/relocate-reinforcements', {
+      await apiClient.post('/tiles/:tileId/relocate-reinforcements', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
         body: {
           sourceTileId,
@@ -135,9 +135,9 @@ export const useVillageTroops = () => {
       sourceTileId,
       troops,
     }: RelocateReinforcementsArgs) => {
-      await apiClient.post('/villages/:villageId/return-reinforcements', {
+      await apiClient.post('/tiles/:tileId/return-reinforcements', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
         body: {
           sourceTileId,
@@ -159,9 +159,9 @@ export const useVillageTroops = () => {
       stationedTileId,
       troops,
     }: ReturnSentReinforcementsArgs) => {
-      await apiClient.post('/villages/:villageId/return-sent-reinforcements', {
+      await apiClient.post('/tiles/:tileId/return-sent-reinforcements', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
         body: {
           stationedTileId,
@@ -183,18 +183,15 @@ export const useVillageTroops = () => {
       stationedTileId,
       troops,
     }: RelocateSentReinforcementsArgs) => {
-      await apiClient.post(
-        '/villages/:villageId/relocate-sent-reinforcements',
-        {
-          path: {
-            villageId: currentVillage.id,
-          },
-          body: {
-            stationedTileId,
-            troops,
-          },
+      await apiClient.post('/tiles/:tileId/relocate-sent-reinforcements', {
+        path: {
+          tileId: currentVillage.tileId,
         },
-      );
+        body: {
+          stationedTileId,
+          troops,
+        },
+      });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
