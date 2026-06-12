@@ -1,6 +1,6 @@
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(statistics)/+types/page';
-import { GameWorldOverview } from 'app/(game)/(village-slug)/(statistics)/components/game-world-overview';
 import { PopulationRankings } from 'app/(game)/(village-slug)/(statistics)/components/population-rankings';
 import { VillageRankings } from 'app/(game)/(village-slug)/(statistics)/components/village-rankings';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
@@ -16,6 +16,10 @@ import {
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const tabs = ['population', 'villages', 'overview'];
+
+const GameWorldOverview = lazy(async () => ({
+  default: (await import('./components/game-world-overview')).GameWorldOverview,
+}));
 
 const StatisticsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
@@ -57,7 +61,9 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
           <VillageRankings />
         </TabPanel>
         <TabPanel value="overview">
-          <GameWorldOverview />
+          <Suspense fallback={null}>
+            <GameWorldOverview />
+          </Suspense>
         </TabPanel>
       </Tabs>
     </PageContents>
