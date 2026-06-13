@@ -113,15 +113,14 @@ export const adventureMovementResolver: Resolver<
 export const oasisOccupationMovementResolver: Resolver<
   GameEvent<'troopMovementOasisOccupation'>
 > = (database, args) => {
-  const targetVillageId =
-    database.selectValue({
-      sql: selectPlayerVillageIdByTileIdQuery,
-      bind: { $tile_id: args.targetTileId, $player_id: PLAYER_ID },
-      schema: z.number().nullable(),
-    }) ?? null;
+  const targetVillageId = database.selectValues({
+    sql: selectPlayerVillageIdByTileIdQuery,
+    bind: { $tile_id: args.targetTileId, $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
 
   return {
-    affectedVillageIds: [targetVillageId],
+    affectedVillageIds: [...targetVillageId],
   };
 };
 
@@ -386,15 +385,14 @@ export const returnMovementResolver: Resolver<
     })),
   );
 
-  const targetVillageId =
-    database.selectValue({
-      sql: selectPlayerVillageIdByTileIdQuery,
-      bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
-      schema: z.number().nullable(),
-    }) ?? null;
+  const targetVillageIds = database.selectValues({
+    sql: selectPlayerVillageIdByTileIdQuery,
+    bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
 
   return {
-    affectedVillageIds: [villageId, targetVillageId],
+    affectedVillageIds: [villageId, ...targetVillageIds],
   };
 };
 
@@ -497,15 +495,14 @@ export const attackMovementResolver: Resolver<
     originalMovementType: 'troopMovementAttack',
   });
 
-  const targetVillageId =
-    database.selectValue({
-      sql: selectPlayerVillageIdByTileIdQuery,
-      bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
-      schema: z.number().nullable(),
-    }) ?? null;
+  const targetVillageIds = database.selectValues({
+    sql: selectPlayerVillageIdByTileIdQuery,
+    bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
 
   return {
-    affectedVillageIds: [villageId, targetVillageId],
+    affectedVillageIds: [villageId, ...targetVillageIds],
   };
 };
 
@@ -526,14 +523,13 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
     originalMovementType: 'troopMovementRaid',
   });
 
-  const targetVillageId =
-    database.selectValue({
-      sql: selectPlayerVillageIdByTileIdQuery,
-      bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
-      schema: z.number().nullable(),
-    }) ?? null;
+  const targetVillageIds = database.selectValues({
+    sql: selectPlayerVillageIdByTileIdQuery,
+    bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
 
   return {
-    affectedVillageIds: [villageId, targetVillageId],
+    affectedVillageIds: [villageId, ...targetVillageIds],
   };
 };
