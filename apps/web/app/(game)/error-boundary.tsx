@@ -18,8 +18,14 @@ export const ErrorBoundary = () => {
 
   const isMultipleTabsError = error.name === 'NoModificationAllowedError';
 
+  const isUnsupportedRuntimeFunctionError = error.message
+    .toLowerCase()
+    .includes('is not a function');
+
   const isErrorWithCustomSteps =
-    isDatabaseInitializationError || isMultipleTabsError;
+    isDatabaseInitializationError ||
+    isMultipleTabsError ||
+    isUnsupportedRuntimeFunctionError;
 
   const { message, name, cause, stack } = error;
 
@@ -68,6 +74,15 @@ export const ErrorBoundary = () => {
                     released its lock yet.
                   </p>
                 )}
+
+                {isUnsupportedRuntimeFunctionError && (
+                  <p className="text-foreground">
+                    This error usually means the game tried to use a feature
+                    that your current browser or operating system does not
+                    support. Please update your browser and/or operating system
+                    before trying again.
+                  </p>
+                )}
               </>
             }
             steps={
@@ -105,6 +120,16 @@ export const ErrorBoundary = () => {
                         Refresh this page. This often resolves the issue when
                         the browser has not released the lock yet.
                       </li>
+                    )}
+                    {isUnsupportedRuntimeFunctionError && (
+                      <>
+                        <li>Update your browser to the latest version.</li>
+                        <li>
+                          If your browser is already up to date or cannot be
+                          updated further, update your operating system.
+                        </li>
+                        <li>Restart the browser, then refresh this page.</li>
+                      </>
                     )}
                   </>
                 )}
