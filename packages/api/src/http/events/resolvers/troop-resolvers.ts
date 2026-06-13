@@ -60,4 +60,8 @@ export const troopTrainingEventResolver: Resolver<
   updateVillageResourcesAt(database, villageId, resolvesAt);
   assessTroopCountQuestCompletion(database, resolvesAt);
   assessUnitTroopCountQuestCompletion(database, unitId, resolvesAt);
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };

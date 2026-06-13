@@ -23,6 +23,10 @@ export const animalCageProductionResolver: Resolver<
       $amount: cageAmount,
     },
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };
 
 export const huntersLodgeHuntResolver: Resolver<
@@ -52,4 +56,8 @@ export const huntersLodgeHuntResolver: Resolver<
       source: huntersLodge.sourceTileId,
     },
   ]);
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };

@@ -10,7 +10,10 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
-import { selectVillageIdAndTileIdQuery } from '../../../queries/village-queries';
+import {
+  selectPlayerVillageIdByTileIdQuery,
+  selectVillageIdAndTileIdQuery,
+} from '../../../queries/village-queries';
 import { createEvents } from '../../../utils/create-event';
 import {
   createHeroHealthRegenerationEventByVillageId,
@@ -70,7 +73,9 @@ export const adventureMovementResolver: Resolver<
   if (health === 0) {
     onHeroDeath(database, resolvesAt);
 
-    return;
+    return {
+      affectedVillageIds: [villageId],
+    };
   }
 
   database.exec({
@@ -99,11 +104,26 @@ export const adventureMovementResolver: Resolver<
     originalMovementType: 'troopMovementAdventure',
     troops,
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };
 
 export const oasisOccupationMovementResolver: Resolver<
   GameEvent<'troopMovementOasisOccupation'>
-> = (_database, _args) => {};
+> = (database, args) => {
+  const targetVillageId =
+    database.selectValue({
+      sql: selectPlayerVillageIdByTileIdQuery,
+      bind: { $tile_id: args.targetTileId, $player_id: PLAYER_ID },
+      schema: z.number().nullable(),
+    }) ?? null;
+
+  return {
+    affectedVillageIds: [targetVillageId],
+  };
+};
 
 export const findNewVillageMovementResolver: Resolver<
   GameEvent<'troopMovementFindNewVillage'>
@@ -347,12 +367,16 @@ export const findNewVillageMovementResolver: Resolver<
       $timestamp: Math.trunc(resolvesAt / 1000),
     },
   });
+
+  return {
+    affectedVillageIds: [villageId, newVillageId],
+  };
 };
 
 export const returnMovementResolver: Resolver<
   GameEvent<'troopMovementReturn'>
 > = (database, args) => {
-  const { targetTileId, troops } = args;
+  const { villageId, targetTileId, troops } = args;
 
   addTroops(
     database,
@@ -361,6 +385,17 @@ export const returnMovementResolver: Resolver<
       tileId: targetTileId,
     })),
   );
+
+  const targetVillageId =
+    database.selectValue({
+      sql: selectPlayerVillageIdByTileIdQuery,
+      bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+      schema: z.number().nullable(),
+    }) ?? null;
+
+  return {
+    affectedVillageIds: [villageId, targetVillageId],
+  };
 };
 
 export const relocationMovementResolver: Resolver<
@@ -398,6 +433,10 @@ export const relocationMovementResolver: Resolver<
     targetVillageId,
     resolvesAt,
   );
+
+  return {
+    affectedVillageIds: [villageId, targetVillageId],
+  };
 };
 
 export const reinforcementMovementResolver: Resolver<
@@ -433,6 +472,13 @@ export const reinforcementMovementResolver: Resolver<
       resolvesAt,
     );
   }
+
+  return {
+    affectedVillageIds: [
+      villageId,
+      targetTileType === 'oasis' ? null : targetVillageId,
+    ],
+  };
 };
 
 export const attackMovementResolver: Resolver<
@@ -450,6 +496,17 @@ export const attackMovementResolver: Resolver<
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementAttack',
   });
+
+  const targetVillageId =
+    database.selectValue({
+      sql: selectPlayerVillageIdByTileIdQuery,
+      bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+      schema: z.number().nullable(),
+    }) ?? null;
+
+  return {
+    affectedVillageIds: [villageId, targetVillageId],
+  };
 };
 
 export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
@@ -468,4 +525,15 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementRaid',
   });
+
+  const targetVillageId =
+    database.selectValue({
+      sql: selectPlayerVillageIdByTileIdQuery,
+      bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+      schema: z.number().nullable(),
+    }) ?? null;
+
+  return {
+    affectedVillageIds: [villageId, targetVillageId],
+  };
 };

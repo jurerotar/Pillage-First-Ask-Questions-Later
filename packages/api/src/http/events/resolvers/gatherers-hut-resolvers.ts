@@ -18,4 +18,8 @@ export const gatherersHutGatheringTripResolver: Resolver<
     resolvesAt,
     calculateGatherersHutGatheringResources(sentTroopAmount),
   );
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };

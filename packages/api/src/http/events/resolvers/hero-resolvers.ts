@@ -70,6 +70,10 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
     startsAt: resolvesAt,
     duration,
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };
 
 export const heroHealthRegenerationResolver: Resolver<
@@ -82,29 +86,34 @@ export const heroHealthRegenerationResolver: Resolver<
     bind: { $player_id: PLAYER_ID },
   });
 
-  const { health, healthRegeneration, speed } = database.selectObject({
-    sql: `
+  const { health, healthRegeneration, speed, villageId } =
+    database.selectObject({
+      sql: `
       SELECT
         heroes.health AS health,
+        heroes.village_id AS villageId,
         heroes.health_regeneration AS healthRegeneration,
         servers.speed AS speed
       FROM heroes
       JOIN servers ON 1 = 1
       WHERE heroes.player_id = $player_id;
     `,
-    bind: {
-      $player_id: PLAYER_ID,
-    },
-    schema: z.strictObject({
-      health: z.number(),
-      healthRegeneration: z.number(),
-      speed: z.number(),
-    }),
-  })!;
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+      schema: z.strictObject({
+        health: z.number(),
+        villageId: z.number(),
+        healthRegeneration: z.number(),
+        speed: z.number(),
+      }),
+    })!;
 
   // Don't start an event if hero is at full health
   if (health === 100) {
-    return;
+    return {
+      affectedVillageIds: [villageId],
+    };
   }
 
   const duration = calculateHealthRegenerationEventDuration(
@@ -118,4 +127,8 @@ export const heroHealthRegenerationResolver: Resolver<
     startsAt: resolvesAt,
     duration,
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };

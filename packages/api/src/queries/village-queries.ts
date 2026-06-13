@@ -77,6 +77,15 @@ export const selectVillageIdAndTileIdQuery = `
     t.id = $tile_id;
 `;
 
+export const selectPlayerVillageIdByTileIdQuery = `
+  SELECT v.id AS villageId
+  FROM
+    villages v
+  WHERE
+    v.tile_id = $tile_id
+    AND v.player_id = $player_id;
+`;
+
 export const selectOccupiableOasisInRangeQuery = `
   WITH
     src_village AS (
