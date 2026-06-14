@@ -86,6 +86,15 @@ export const selectVillageIdAndTileIdQuery = `
     t.id = $tile_id;
 `;
 
+export const selectVillageIdByTileIdQuery = `
+  SELECT
+    id as village_id
+  FROM
+    villages
+  WHERE
+    tile_id = $tile_id;
+`;
+
 export const selectPlayerVillageIdByTileIdQuery = `
   SELECT v.id AS villageId
   FROM

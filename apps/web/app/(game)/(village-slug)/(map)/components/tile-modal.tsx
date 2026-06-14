@@ -635,6 +635,7 @@ const OccupiedOccupiableTileModal = ({
 
   const isOwnedByPlayer = playerId === PLAYER_ID;
 
+  // TODO: Make "send troops" enter coordinates automatically
   return (
     <>
       <DialogHeader>
@@ -652,7 +653,15 @@ const OccupiedOccupiableTileModal = ({
       <TileModalPlayerInfo tile={tile} />
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
+        {!isOwnedByPlayer && (
+          <Text variant="link">
+            <Link
+              to={`${getVillageBasePath(currentVillage.slug!)}/village/39?tab=send-troops`}
+            >
+              {t('Send troops to {{villageName}}', { villageName })}
+            </Link>
+          </Text>
+        )}
         {isOwnedByPlayer && (
           <Text variant="link">
             <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>
