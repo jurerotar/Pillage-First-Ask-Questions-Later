@@ -49,6 +49,7 @@ import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
+import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
@@ -80,6 +81,7 @@ import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
+import { reportsSeeder } from '../seeders/reports-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
@@ -206,6 +208,9 @@ export const migrateAndSeed = (
 
     onProgress?.();
 
+    // Reports
+    db.exec({ sql: createReportsTable });
+    reportsSeeder(db);
     // Heroes
     db.exec({ sql: createHeroesTable });
     db.exec({ sql: createHeroSelectableAttributesTable });

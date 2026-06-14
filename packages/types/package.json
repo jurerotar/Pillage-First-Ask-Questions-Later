@@ -63,6 +63,9 @@
     "./dtos/troop-movement": {
       "default": "./src/dtos/troop-movement.ts"
     },
+    "./dtos/report": {
+      "default": "./src/dtos/report.ts"
+    },
     "./api-events": {
       "default": "./src/api-events.ts"
     },

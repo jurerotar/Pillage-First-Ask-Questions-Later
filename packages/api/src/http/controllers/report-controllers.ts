@@ -1,25 +1,23 @@
 import { z } from 'zod';
+import { reportDtoSchema } from '@pillage-first/types/dtos/report';
+import { selectReportsQuery } from '../../queries/report-queries';
 import { createController } from '../controller';
+import { mapReports } from './mappers/reports-mapper';
+import { getReportSchema } from './schemas/report-schemas';
 
-export const getMyReports = createController('/players/:playerId/reports', {
+export const getMyReports = createController('/reports', {
   summary: 'Get my reports',
-  requestParams: {
-    path: z.strictObject({
-      playerId: z.coerce.number(),
-    }),
-  },
-  response: z.array(
-    z.strictObject({
-      id: z.string(),
-      tags: z.array(z.enum(['read', 'archived'])),
-      timestamp: z.number().int(),
-      villageId: z.number().int(),
-    }),
-  ),
-})(() => {
-  return [];
+  response: z.array(reportDtoSchema),
+})(({ database }) => {
+  const rows = database.selectObjects({
+    sql: selectReportsQuery,
+    schema: getReportSchema,
+  });
+
+  return rows.map(mapReports);
 });
 
+// TODO: implement
 export const getUnreadReportCount = createController(
   '/players/:playerId/reports/unread-count',
   {
@@ -35,6 +33,7 @@ export const getUnreadReportCount = createController(
   return 0;
 });
 
+// TODO: implement
 export const updateReport = createController('/reports/:reportId', 'patch', {
   summary: 'Update report',
   requestParams: {
@@ -49,6 +48,7 @@ export const updateReport = createController('/reports/:reportId', 'patch', {
   // no-op for now
 });
 
+// TODO: implement
 export const deleteReport = createController('/reports/:reportId', 'delete', {
   summary: 'Delete report',
   requestParams: {

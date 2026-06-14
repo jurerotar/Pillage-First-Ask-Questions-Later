@@ -1,21 +1,14 @@
-import type { Village } from './village';
+import { z } from 'zod';
 
-export type ReportTag = 'read' | 'archived';
+export const reportTypeSchema = z.enum(['battle', 'adventure', 'trade']);
 
-export type ReportType =
-  | 'attack'
-  | 'raid'
-  | 'defence'
-  | 'scout-attack'
-  | 'scout-defence'
-  | 'adventure'
-  | 'trade';
+export const reportSchema = z.strictObject({
+  id: z.int(),
+  villageId: z.int(),
+  timestamp: z.int(),
+  type: reportTypeSchema,
+  is_read: z.boolean(),
+  is_archived: z.boolean(),
+});
 
-type BaseReport = {
-  id: string;
-  tags: ReportTag[];
-  timestamp: number;
-  villageId: Village['id'];
-};
-
-export type Report = BaseReport;
+export type Report = z.infer<typeof reportSchema>;
