@@ -38,12 +38,12 @@
     "moderndash": "4.0.2",
     "path-to-regexp": "8.4.2",
     "zod": "4.4.3",
-    "zod-openapi": "5.4.6"
+    "zod-openapi": "6.0.0"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260504.1",
+    "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "openapi-typescript": "7.13.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.7"
+    "vitest": "4.1.9"
   }
 }

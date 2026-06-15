@@ -22,15 +22,15 @@
     "type-check": "tsgo"
   },
   "dependencies": {
-    "react": "19.2.5",
-    "react-dom": "19.2.5",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "sqlite-erd": "1.1.0"
   },
   "devDependencies": {
-    "@types/react": "19.2.15",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
-    "@typescript/native-preview": "7.0.0-dev.20260504.1",
+    "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "typescript": "6.0.3",
-    "vite": "8.0.15"
+    "vite": "8.0.16"
   }
 }
