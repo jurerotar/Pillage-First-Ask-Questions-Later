@@ -126,6 +126,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.id],
       ]);
     },
   });
