@@ -1366,6 +1366,100 @@ describe('player-controllers', () => {
     );
   });
 
+  test('returnSentReinforcements should not move wheat consumption when returning from an oasis', async () => {
+    const database = await prepareTestDatabase();
+
+    const sourceVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const stationedTileId = database.selectValue({
+      sql: `
+        SELECT tile_id
+        FROM oasis
+        WHERE tile_id != $source_tile_id
+        ORDER BY tile_id
+        LIMIT 1
+      `,
+      bind: { $source_tile_id: sourceVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        UPDATE oasis
+        SET village_id = $village_id
+        WHERE tile_id = $tile_id
+      `,
+      bind: {
+        $tile_id: stationedTileId,
+        $village_id: sourceVillage.id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          $amount
+        )
+      `,
+      bind: {
+        $tile_id: stationedTileId,
+        $source_tile_id: sourceVillage.tile_id,
+        $amount: 7,
+      },
+    });
+
+    setTroopWheatProductionEffectValue(database, sourceVillage.id, 3);
+
+    returnSentReinforcements(
+      database,
+      createControllerArgs<'/tiles/:tileId/return-sent-reinforcements', 'post'>(
+        {
+          path: { tileId: sourceVillage.tile_id },
+          body: {
+            stationedTileId,
+            troops: [{ unitId: 'LEGIONNAIRE', amount: 4 }],
+          },
+        },
+      ),
+    );
+
+    const stationedAmount = database.selectValue({
+      sql: `
+        SELECT t.amount
+        FROM troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $tile_id
+          AND t.source_tile_id = $source_tile_id
+          AND ui.unit = 'LEGIONNAIRE'
+      `,
+      bind: {
+        $tile_id: stationedTileId,
+        $source_tile_id: sourceVillage.tile_id,
+      },
+      schema: z.number().nullable(),
+    });
+
+    expect(stationedAmount).toBe(3);
+    expect(getTroopWheatProductionEffectValue(database, sourceVillage.id)).toBe(
+      3,
+    );
+  });
+
   test('relocateSentReinforcements should create a reinforcement movement to the new target village', async () => {
     const database = await prepareTestDatabase();
 
@@ -1717,6 +1811,113 @@ describe('player-controllers', () => {
     expect(heroEffectVillageIds.every((id) => id === targetVillage.id)).toBe(
       true,
     );
+  });
+
+  test('relocateSentReinforcements should relocate hero to the stationed village', async () => {
+    const database = await prepareTestDatabase();
+
+    const sourceVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const stationedTileId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM tiles
+        WHERE id != $source_tile_id
+          AND id NOT IN (SELECT tile_id FROM villages)
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $source_tile_id: sourceVillage.tile_id },
+      schema: z.number(),
+    })!;
+
+    const stationedVillageId = database.selectValue({
+      sql: `
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES ($name, $slug, $tile_id, $player_id)
+        RETURNING id
+      `,
+      bind: {
+        $name: 'Hero Stationed Village',
+        $slug: `hero-stationed-${Date.now()}`,
+        $tile_id: stationedTileId,
+        $player_id: playerId,
+      },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO resource_sites (tile_id, wood, clay, iron, wheat, updated_at)
+        VALUES ($tile_id, 750, 750, 750, 750, $updated_at)
+        ON CONFLICT(tile_id) DO NOTHING
+      `,
+      bind: {
+        $tile_id: stationedTileId,
+        $updated_at: Date.now(),
+      },
+    });
+
+    const heroUnitId = database.selectValue({
+      sql: "SELECT id FROM unit_ids WHERE unit = 'HERO'",
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES ($tile_id, $source_tile_id, $unit_id, 1)
+      `,
+      bind: {
+        $tile_id: stationedTileId,
+        $source_tile_id: sourceVillage.tile_id,
+        $unit_id: heroUnitId,
+      },
+    });
+
+    database.exec({
+      sql: `
+        UPDATE heroes
+        SET village_id = $village_id
+        WHERE player_id = $player_id
+      `,
+      bind: {
+        $village_id: sourceVillage.id,
+        $player_id: playerId,
+      },
+    });
+
+    relocateSentReinforcements(
+      database,
+      createControllerArgs<
+        '/tiles/:tileId/relocate-sent-reinforcements',
+        'post'
+      >({
+        path: { tileId: sourceVillage.tile_id },
+        body: {
+          stationedTileId,
+          troops: [{ unitId: 'HERO', amount: 1 }],
+        },
+      }),
+    );
+
+    const heroVillageId = database.selectValue({
+      sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    });
+
+    expect(heroVillageId).toBe(stationedVillageId);
   });
 
   test('getPlayerBySlug should return player details by slug', async () => {

@@ -110,13 +110,14 @@ export const cancelTroopMovement = createController(
       bind: { $event_id: eventId },
       schema: baseEventRowSchema,
     });
-    const movementEvent = mapEventRowToTypedEvent(
-      eventRow!,
-    ) as TroopMovementEvent;
 
-    if (!movementEvent) {
+    if (!eventRow) {
       throw new Error('Movement event not found');
     }
+
+    const movementEvent = mapEventRowToTypedEvent(
+      eventRow,
+    ) as TroopMovementEvent;
 
     if (movementEvent.type === 'troopMovementReturn') {
       throw new Error('Cannot cancel a return movement');
