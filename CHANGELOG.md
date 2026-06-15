@@ -1,3 +1,12 @@
+## Version 0.4.31
+
+#### Jun 15, 2026
+
+* [Feature] **A long awaited feature is here at last!** We added the ability to send reinforcements or relocate troops to
+  villages and oases you own. You may do so either through the map, by clicking on the tile you own, or through the
+  Rally Point's Send Troops tab. Sent reinforcements may also be relocated to target village's garrison troops at any
+  point. Relocating troops allows you to use them from the target village.
+
 ## Version 0.4.30
 
 #### Jun 9, 2026
