@@ -1,7 +1,6 @@
-import type {
-  GameEvent,
-  GameEventType,
-} from '@pillage-first/types/models/game-event';
+import type { QueryKey } from '@tanstack/react-query';
+import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
+import type { GameEventType } from '@pillage-first/types/models/game-event';
 import {
   adventurePointsCacheKey,
   collectableQuestCountCacheKey,
@@ -13,6 +12,7 @@ import {
   heroInventoryCacheKey,
   loyaltyCacheKey,
   questsCacheKey,
+  sentReinforcementsCacheKey,
   tilesCacheKey,
   troopMovementsCacheKey,
   unitImprovementCacheKey,
@@ -21,162 +21,210 @@ import {
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 
-type HandlerFor<K extends GameEventType> = (event: GameEvent<K>) => unknown[][];
+type HandlerFor<K extends GameEventType> = (
+  event: EventApiNotificationEvent<K>,
+) => QueryKey[];
 
 type Handlers = {
   [K in GameEventType]: HandlerFor<K>;
 };
 
 export const cachesToClearOnResolve: Handlers = {
-  buildingScheduledConstruction: ({ villageId }) => {
-    return [
-      [eventsCacheKey, 'buildingScheduledConstruction', villageId],
-      [eventsCacheKey, 'buildingLevelChange', villageId],
-    ];
-  },
-  buildingConstruction: () => {
-    return [[currentVillageCacheKey]];
-  },
-  buildingLevelChange: ({ villageId }) => {
+  buildingScheduledConstruction: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
-      [effectsCacheKey, villageId],
-      [questsCacheKey, villageId],
-      [collectableQuestCountCacheKey, villageId],
-      [eventsHistoryCacheKey, villageId],
-      [eventsCacheKey, 'buildingLevelChange', villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [eventsCacheKey, 'buildingScheduledConstruction', villageId],
+        [eventsCacheKey, 'buildingLevelChange', villageId],
+      ]),
     ];
   },
-  buildingDestruction: ({ villageId }) => {
+  buildingConstruction: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
-      [effectsCacheKey, villageId],
-      [eventsHistoryCacheKey, villageId],
-      [eventsCacheKey, 'buildingDestruction', villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [eventsCacheKey, 'buildingConstruction', villageId],
+        [eventsCacheKey, 'buildingLevelChange', villageId],
+      ]),
     ];
   },
-  troopTraining: ({ villageId }) => {
-    return [
-      [villageTroopsCacheKey, villageId],
-      [effectsCacheKey, villageId],
-      [eventsHistoryCacheKey, villageId],
-      [eventsCacheKey, 'troopTraining', villageId],
-    ];
-  },
-  troopMovementReinforcements: ({ villageId }) => {
-    return [
-      [villageTroopsCacheKey, villageId],
-      [effectsCacheKey, villageId],
-      [currentVillageCacheKey],
-      [troopMovementsCacheKey, villageId],
-    ];
-  },
-  troopMovementRelocation: ({ villageId }) => {
-    return [
-      [villageTroopsCacheKey, villageId],
-      [effectsCacheKey, villageId],
-      [currentVillageCacheKey],
-      [troopMovementsCacheKey, villageId],
-    ];
-  },
-  troopMovementReturn: ({ villageId }) => {
+  buildingLevelChange: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
-      [villageTroopsCacheKey, villageId],
-      [troopMovementsCacheKey, villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [effectsCacheKey, villageId],
+        [questsCacheKey, villageId],
+        [collectableQuestCountCacheKey, villageId],
+        [eventsHistoryCacheKey, villageId],
+        [eventsCacheKey, 'buildingLevelChange', villageId],
+      ]),
+    ];
+  },
+  buildingDestruction: ({ affectedVillageIds }) => {
+    return [
+      [currentVillageCacheKey],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [effectsCacheKey, villageId],
+        [eventsHistoryCacheKey, villageId],
+        [eventsCacheKey, 'buildingDestruction', villageId],
+      ]),
+    ];
+  },
+  troopTraining: ({ affectedVillageIds }) => {
+    return [
+      ...affectedVillageIds.flatMap((villageId) => [
+        [villageTroopsCacheKey, villageId],
+        [effectsCacheKey, villageId],
+        [eventsHistoryCacheKey, villageId],
+        [eventsCacheKey, 'troopTraining', villageId],
+      ]),
+    ];
+  },
+  troopMovementReinforcements: ({ affectedVillageIds }) => {
+    return [
+      [currentVillageCacheKey],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [villageTroopsCacheKey, villageId],
+        [effectsCacheKey, villageId],
+        [troopMovementsCacheKey, villageId],
+        [sentReinforcementsCacheKey, villageId],
+      ]),
+    ];
+  },
+  troopMovementRelocation: ({ affectedVillageIds }) => {
+    return [
+      [currentVillageCacheKey],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [villageTroopsCacheKey, villageId],
+        [effectsCacheKey, villageId],
+        [troopMovementsCacheKey, villageId],
+      ]),
+    ];
+  },
+  troopMovementReturn: ({ affectedVillageIds }) => {
+    return [
       [heroCacheKey],
+      [currentVillageCacheKey],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [villageTroopsCacheKey, villageId],
+        [troopMovementsCacheKey, villageId],
+      ]),
     ];
   },
-  troopMovementFindNewVillage: ({ villageId }) => {
+  troopMovementFindNewVillage: ({ affectedVillageIds }) => {
     return [
+      [currentVillageCacheKey],
       [villageListingCacheKey],
-      [effectsCacheKey, villageId],
-      [currentVillageCacheKey],
       [tilesCacheKey],
-      [troopMovementsCacheKey, villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [effectsCacheKey, villageId],
+        [troopMovementsCacheKey, villageId],
+      ]),
     ];
   },
-  troopMovementAttack: ({ villageId }) => {
+  troopMovementAttack: ({ affectedVillageIds }) => {
     return [
-      [effectsCacheKey, villageId],
       [currentVillageCacheKey],
-      [troopMovementsCacheKey, villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [effectsCacheKey, villageId],
+        [troopMovementsCacheKey, villageId],
+      ]),
     ];
   },
-  troopMovementRaid: ({ villageId }) => {
+  troopMovementRaid: ({ affectedVillageIds }) => {
     return [
-      [effectsCacheKey, villageId],
       [currentVillageCacheKey],
-      [troopMovementsCacheKey, villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [effectsCacheKey, villageId],
+        [troopMovementsCacheKey, villageId],
+      ]),
     ];
   },
   // TODO: Update query keys here
-  troopMovementOasisOccupation: ({ villageId }) => {
+  troopMovementOasisOccupation: ({ affectedVillageIds }) => {
     return [
       [heroCacheKey],
-      [effectsCacheKey, villageId],
-      [currentVillageCacheKey],
       [tilesCacheKey],
-      [troopMovementsCacheKey, villageId],
+      [currentVillageCacheKey],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [effectsCacheKey, villageId],
+        [troopMovementsCacheKey, villageId],
+      ]),
     ];
   },
-  troopMovementAdventure: ({ villageId }) => {
+  troopMovementAdventure: ({ affectedVillageIds }) => {
     return [
       [heroCacheKey],
       [adventurePointsCacheKey],
       [heroInventoryCacheKey],
-      [questsCacheKey, villageId],
-      [effectsCacheKey, villageId],
-      [troopMovementsCacheKey, villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [questsCacheKey, villageId],
+        [effectsCacheKey, villageId],
+        [troopMovementsCacheKey, villageId],
+      ]),
     ];
   },
-  unitResearch: ({ villageId }) => {
+  unitResearch: ({ affectedVillageIds }) => {
     return [
-      [unitResearchCacheKey],
-      [eventsHistoryCacheKey, villageId],
-      [eventsCacheKey, 'unitResearch', villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [unitResearchCacheKey, villageId],
+        [eventsHistoryCacheKey, villageId],
+        [eventsCacheKey, 'unitResearch', villageId],
+      ]),
     ];
   },
-  unitImprovement: ({ villageId }) => {
+  unitImprovement: ({ affectedVillageIds }) => {
     return [
       [unitImprovementCacheKey],
-      [eventsHistoryCacheKey, villageId],
-      [eventsCacheKey, 'unitImprovement', villageId],
+      [eventsCacheKey, 'unitImprovement'],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [eventsHistoryCacheKey, villageId],
+      ]),
     ];
   },
-  animalCageProduction: ({ villageId }) => {
+  animalCageProduction: ({ affectedVillageIds }) => {
     return [
       [heroInventoryCacheKey],
-      [eventsCacheKey, 'animalCageProduction', villageId],
-      [eventsHistoryCacheKey, villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [eventsCacheKey, 'animalCageProduction', villageId],
+        [eventsHistoryCacheKey, villageId],
+      ]),
     ];
   },
-  huntersLodgeHunt: ({ villageId }) => {
+  huntersLodgeHunt: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
-      [villageTroopsCacheKey, villageId],
-      [eventsCacheKey, 'huntersLodgeHunt', villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [villageTroopsCacheKey, villageId],
+        [eventsCacheKey, 'huntersLodgeHunt', villageId],
+      ]),
     ];
   },
-  heroRevival: ({ villageId }) => {
+  heroRevival: ({ affectedVillageIds }) => {
     return [
       [heroCacheKey],
-      [effectsCacheKey, villageId],
-      [eventsCacheKey, 'heroRevival', villageId],
-      [villageTroopsCacheKey, villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [effectsCacheKey, villageId],
+        [eventsCacheKey, 'heroRevival', villageId],
+        [villageTroopsCacheKey, villageId],
+      ]),
     ];
   },
   heroHealthRegeneration: () => {
     return [[heroCacheKey]];
   },
-  loyaltyIncrease: ({ villageId }) => {
-    return [[loyaltyCacheKey, villageId]];
+  loyaltyIncrease: ({ affectedVillageIds }) => {
+    return [
+      ...affectedVillageIds.map((villageId) => [loyaltyCacheKey, villageId]),
+    ];
   },
-  gatherersHutGatheringTrip: ({ villageId }) => {
+  gatherersHutGatheringTrip: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
-      [villageTroopsCacheKey, villageId],
-      [eventsCacheKey, 'gatherersHutGatheringTrip', villageId],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [villageTroopsCacheKey, villageId],
+        [eventsCacheKey, 'gatherersHutGatheringTrip', villageId],
+      ]),
     ];
   },
 };

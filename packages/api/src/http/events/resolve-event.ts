@@ -9,7 +9,7 @@ import {
   mapEventRowToTypedEvent,
 } from '../../utils/zod/event-schemas';
 import { postWorkerMessage } from '../../worker/notification-port';
-import type { Resolver } from './resolver';
+import type { Resolver, ResolverResult } from './resolver';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
@@ -89,17 +89,22 @@ export const resolveEvent = (
 
   try {
     const resolver = gameEventResolvers[event.type];
-    (resolver as (db: DbFacade, ev: GameEvent) => void)(database, event);
+    const { affectedVillageIds } = (
+      resolver as (db: DbFacade, ev: GameEvent) => ResolverResult
+    )(database, event);
 
     postWorkerMessage({
       eventKey: 'event:success',
       ...event,
+      affectedVillageIds,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
     console.error(error);
+
     postWorkerMessage({
       eventKey: 'event:error',
       ...event,
+      affectedVillageIds: [],
     } satisfies EventApiNotificationEvent);
   }
 };

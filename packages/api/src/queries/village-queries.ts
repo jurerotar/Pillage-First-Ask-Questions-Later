@@ -64,6 +64,28 @@ export const selectVillageTileIdQuery = `
     id = $village_id;
 `;
 
+export const selectVillageIdAndTileIdQuery = `
+  SELECT
+    t.id AS tileId,
+    t.type AS tileType,
+    COALESCE(v.id, o.village_id) AS villageId
+  FROM
+    tiles t
+      LEFT JOIN villages v ON v.tile_id = t.id
+      LEFT JOIN oasis o ON o.tile_id = t.id
+  WHERE
+    t.id = $tile_id;
+`;
+
+export const selectPlayerVillageIdByTileIdQuery = `
+  SELECT v.id AS villageId
+  FROM
+    villages v
+  WHERE
+    v.tile_id = $tile_id
+    AND v.player_id = $player_id;
+`;
+
 export const selectOccupiableOasisInRangeQuery = `
   WITH
     src_village AS (

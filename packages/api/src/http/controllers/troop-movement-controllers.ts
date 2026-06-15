@@ -3,12 +3,7 @@ import {
   troopMovementItemDtoSchema,
   troopMovementStatsItemDtoSchema,
 } from '@pillage-first/types/dtos/troop-movement';
-import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
-import {
-  gameEventTypeSchema,
-  type TroopMovementEvent,
-} from '@pillage-first/types/models/game-event';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
+import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
 import {
   deleteEventByIdQuery,
   selectEventByIdQuery,
@@ -30,6 +25,7 @@ import {
 import {
   getVillageTroopMovementStatsRowSchema,
   getVillageTroopMovementsRowSchema,
+  troopMovementValidationBodySchema,
 } from './schemas/troop-movement-schemas';
 
 export const validateTroopMovement = createController(
@@ -37,26 +33,15 @@ export const validateTroopMovement = createController(
   'post',
   {
     summary: 'Validate troop movement',
-    requestBody: z.strictObject({
-      type: gameEventTypeSchema,
-      villageId: z.number(),
-      targetCoordinates: coordinatesSchema,
-      troops: z.array(
-        z.strictObject({
-          unitId: unitIdSchema,
-          amount: z.number(),
-        }),
-      ),
-    }),
+    requestBody: troopMovementValidationBodySchema,
     response: z.strictObject({
       errors: z.array(z.string()),
     }),
   },
 )(({ database, body }) => {
-  const errors = validateTroopMovementLogic(
-    database,
-    body as Partial<TroopMovementEvent>,
-  );
+  const errors = validateTroopMovementLogic(database, {
+    ...body,
+  } as Partial<TroopMovementEvent>);
 
   return { errors };
 });
@@ -125,19 +110,20 @@ export const cancelTroopMovement = createController(
       bind: { $event_id: eventId },
       schema: baseEventRowSchema,
     });
-    const movementEvent = mapEventRowToTypedEvent(
-      eventRow!,
-    ) as TroopMovementEvent;
 
-    if (!movementEvent) {
+    if (!eventRow) {
       throw new Error('Movement event not found');
     }
+
+    const movementEvent = mapEventRowToTypedEvent(
+      eventRow,
+    ) as TroopMovementEvent;
 
     if (movementEvent.type === 'troopMovementReturn') {
       throw new Error('Cannot cancel a return movement');
     }
 
-    const { troops, targetCoordinates, originCoordinates, villageId, type } =
+    const { troops, targetTileId, originTileId, villageId, type } =
       movementEvent;
 
     const now = Date.now();
@@ -160,8 +146,8 @@ export const cancelTroopMovement = createController(
       troops,
       startsAt: now,
       duration,
-      targetCoordinates,
-      originCoordinates,
+      targetTileId: originTileId,
+      originTileId: targetTileId,
       originalMovementType: type,
     });
   });

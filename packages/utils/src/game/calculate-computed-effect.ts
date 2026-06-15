@@ -221,17 +221,6 @@ export function calculateComputedEffect(
     }
   }
 
-  // Some effects act only as modifiers to hardcoded values.
-  // Examples of these effects are things like building duration and training duration.
-  // In these cases, we need only to return the modifier value to apply to our base.
-  const isBaseBuildingValueABaseValue = buildingEffectValues.base.length > 0;
-
-  if (!isBaseBuildingValueABaseValue) {
-    return {
-      total: effectBreakdown.combinedBonusEffectValue * serverEffectValue,
-    };
-  }
-
   let summedHeroEffectBaseValue = 0;
 
   for (const value of heroEffectValues.base) {
@@ -254,6 +243,37 @@ export function calculateComputedEffect(
 
   for (const value of effectBreakdown.troopEffectValues.base) {
     summedTroopEffectBaseValue += value;
+  }
+
+  // Some effects act only as modifiers to hardcoded values.
+  // Examples of these effects are things like building duration and training duration.
+  // In these cases, we need only to return the modifier value to apply to our base.
+  const isBaseBuildingValueABaseValue = buildingEffectValues.base.length > 0;
+
+  if (!isBaseBuildingValueABaseValue) {
+    const total =
+      summedArtifactEffectBaseValue +
+      summedOasisEffectBaseValue +
+      summedTroopEffectBaseValue +
+      summedHeroEffectBaseValue;
+
+    if (hasAnyBaseEffect) {
+      if (effectId === 'wheatProduction') {
+        return {
+          total,
+          population: 0,
+          buildingWheatLimit: 0,
+        };
+      }
+
+      return {
+        total,
+      };
+    }
+
+    return {
+      total: effectBreakdown.combinedBonusEffectValue * serverEffectValue,
+    };
   }
 
   let summedBuildingEffectBasePositiveValue = 0;

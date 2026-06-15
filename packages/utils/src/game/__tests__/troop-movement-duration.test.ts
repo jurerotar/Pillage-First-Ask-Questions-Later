@@ -10,10 +10,13 @@ import {
 import type { Effect } from '@pillage-first/types/models/effect';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
+import { coordinatesToTileId } from '../../map';
 import { calculateTravelDuration } from '../troop-movement-duration';
 
 const originVillageId: Village['id'] = 0;
 const origin: Village['coordinates'] = { x: 0, y: 0 };
+const mapSize = 100;
+const originTileId = coordinatesToTileId(origin, mapSize);
 
 describe(calculateTravelDuration, () => {
   test('uses the slowest unit speed when multiple troops are sent (<= 20 tiles, no effects)', () => {
@@ -38,8 +41,9 @@ describe(calculateTravelDuration, () => {
 
     const ms = calculateTravelDuration({
       originVillageId,
-      originCoordinates: origin,
-      targetCoordinates: target,
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
       troops,
       effects,
     });
@@ -69,8 +73,9 @@ describe(calculateTravelDuration, () => {
 
     const ms = calculateTravelDuration({
       originVillageId,
-      originCoordinates: origin,
-      targetCoordinates: target,
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
       troops,
       effects,
     });
@@ -108,8 +113,9 @@ describe(calculateTravelDuration, () => {
 
     const ms = calculateTravelDuration({
       originVillageId,
-      originCoordinates: origin,
-      targetCoordinates: target,
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
       troops,
       effects,
     });

@@ -1,14 +1,17 @@
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { Effect } from '@pillage-first/types/models/effect';
+import type { Tile } from '@pillage-first/types/models/tile';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
+import { tileIdToCoordinates } from '../map';
 import { calculateDistanceBetweenPoints } from '../math';
 import { calculateComputedEffect } from './calculate-computed-effect';
 
 type CalculateTravelDurationArgs = {
   originVillageId: Village['id'];
-  originCoordinates: Village['coordinates'];
-  targetCoordinates: Village['coordinates'];
+  originTileId: Tile['id'];
+  targetTileId: Tile['id'];
+  mapSize: number;
   troops: Troop[];
   effects: Effect[];
 };
@@ -16,15 +19,16 @@ type CalculateTravelDurationArgs = {
 export const calculateTravelDuration = (args: CalculateTravelDurationArgs) => {
   const {
     originVillageId,
-    originCoordinates,
-    targetCoordinates,
+    originTileId,
+    targetTileId,
+    mapSize,
     troops,
     effects,
   } = args;
 
   const distance = calculateDistanceBetweenPoints(
-    originCoordinates,
-    targetCoordinates,
+    tileIdToCoordinates(originTileId, mapSize),
+    tileIdToCoordinates(targetTileId, mapSize),
   );
 
   const unitSpeeds = troops.map(({ unitId }) => {

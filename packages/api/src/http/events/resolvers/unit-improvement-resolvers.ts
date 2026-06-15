@@ -1,3 +1,5 @@
+import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resolver } from '../resolver';
 
@@ -24,4 +26,14 @@ export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
       $level: level,
     },
   });
+
+  const playerVillageIds = database.selectValues({
+    sql: 'SELECT id FROM villages WHERE player_id = $player_id;',
+    bind: { $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
+
+  return {
+    affectedVillageIds: playerVillageIds,
+  };
 };

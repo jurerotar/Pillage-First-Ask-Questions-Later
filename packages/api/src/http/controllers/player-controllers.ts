@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import {
   playerVillageDtoSchema,
   playerVillageWithPopulationDtoSchema,
+  sentReinforcementDtoSchema,
   villageTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import { playerSchema } from '@pillage-first/types/models/player';
@@ -11,20 +13,44 @@ import {
   selectPlayerBySlugQuery,
   selectPlayerVillageListingQuery,
   selectPlayerVillagesWithPopulationQuery,
-  selectVillageTroopsQuery,
+  selectSentReinforcementsByTileQuery,
+  selectSourceVillageByTileAndCurrentTileQuery,
+  selectStationedTroopsByTileQuery,
+  selectStationedVillageByTileAndCurrentTileQuery,
   updateVillageNameQuery,
 } from '../../queries/player-queries';
+import { relocateHero } from '../../utils/hero';
+import {
+  hasHero,
+  moveStationedTroops,
+  moveTroopWheatConsumption,
+  type ReinforcementTroopSelection,
+  removeStationedTroops,
+  returnStationedTroops,
+} from '../../utils/reinforcements';
 import { createController } from '../controller';
 import {
   mapPlayerVillage,
   mapPlayerVillageWithPopulation,
+  mapSentReinforcements,
   mapVillageTroop,
 } from './mappers/player-mapper';
 import {
   getPlayerVillagesWithPopulationSchema,
-  getTroopsByVillageSchema,
+  getSentReinforcementsByTileSchema,
+  getStationedTroopsByTileSchema,
   getVillagesByPlayerSchema,
+  relocateReinforcementsSchema,
+  relocateSentReinforcementsSchema,
+  returnReinforcementsSchema,
+  returnSentReinforcementsSchema,
+  sourceVillageRowSchema,
+  stationedVillageRowSchema,
 } from './schemas/player-schemas';
+
+const isAnimalTroop = ({ unitId }: ReinforcementTroopSelection) => {
+  return getUnitDefinition(unitId).tribe === 'nature';
+};
 
 export const getMe = createController('/players/me', {
   summary: 'Get current player details',
@@ -79,22 +105,22 @@ export const getPlayerVillagesWithPopulation = createController(
   return rows.map(mapPlayerVillageWithPopulation);
 });
 
-export const getTroopsByVillage = createController(
-  '/villages/:villageId/troops',
+export const getStationedTroopsByTile = createController(
+  '/tiles/:tileId/stationed-troops',
   {
-    summary: 'Get troops by village',
+    summary: 'Get stationed troops by tile',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
+        tileId: z.coerce.number(),
       }),
     },
     response: z.array(villageTroopDtoSchema),
   },
-)(({ database, path: { villageId } }) => {
+)(({ database, path: { tileId } }) => {
   const rows = database.selectObjects({
-    sql: selectVillageTroopsQuery,
-    bind: { $village_id: villageId },
-    schema: getTroopsByVillageSchema,
+    sql: selectStationedTroopsByTileQuery,
+    bind: { $tile_id: tileId },
+    schema: getStationedTroopsByTileSchema,
   });
 
   return rows.map(mapVillageTroop);
@@ -133,4 +159,239 @@ export const getPlayerBySlug = createController('/players/:playerSlug', {
     },
     schema: playerSchema,
   })!;
+});
+
+export const getSentReinforcementsByTile = createController(
+  '/tiles/:tileId/sent-reinforcements',
+  {
+    summary: 'Get sent reinforcements by tile',
+    requestParams: {
+      path: z.strictObject({
+        tileId: z.coerce.number(),
+      }),
+    },
+    response: z.array(sentReinforcementDtoSchema),
+  },
+)(({ database, path: { tileId } }) => {
+  const rows = database.selectObjects({
+    sql: selectSentReinforcementsByTileQuery,
+    bind: { $tile_id: tileId },
+    schema: getSentReinforcementsByTileSchema,
+  });
+
+  return mapSentReinforcements(rows);
+});
+
+export const relocateReinforcements = createController(
+  '/tiles/:tileId/relocate-reinforcements',
+  'post',
+  {
+    summary: 'Relocate reinforcements to the current village',
+    requestParams: {
+      path: z.strictObject({
+        tileId: z.coerce.number(),
+      }),
+    },
+    requestBody: relocateReinforcementsSchema,
+  },
+)(({ database, path: { tileId }, body: { sourceTileId, troops } }) => {
+  database.transaction((db) => {
+    const { currentTileId, currentVillageId, sourceTileType, sourceVillageId } =
+      db.selectObject({
+        sql: selectSourceVillageByTileAndCurrentTileQuery,
+        bind: {
+          $source_tile_id: sourceTileId,
+          $current_tile_id: tileId,
+        },
+        schema: sourceVillageRowSchema,
+      })!;
+
+    if (sourceTileType === 'oasis') {
+      throw new Error('Reinforcements from oases cannot be relocated');
+    }
+
+    if (sourceVillageId === null) {
+      throw new Error('Source village not found');
+    }
+
+    moveStationedTroops(
+      db,
+      troops,
+      { tileId: currentTileId, source: sourceTileId },
+      { tileId: currentTileId, source: currentTileId },
+    );
+
+    if (hasHero(troops)) {
+      relocateHero(db, sourceVillageId, currentVillageId, Date.now());
+    }
+  });
+});
+
+export const returnReinforcements = createController(
+  '/tiles/:tileId/return-reinforcements',
+  'post',
+  {
+    summary: 'Return reinforcements to their source village',
+    requestParams: {
+      path: z.strictObject({
+        tileId: z.coerce.number(),
+      }),
+    },
+    requestBody: returnReinforcementsSchema,
+  },
+)(({ database, path: { tileId }, body: { sourceTileId, troops } }) => {
+  database.transaction((db) => {
+    const { currentTileId, currentVillageId, sourceVillageId } =
+      db.selectObject({
+        sql: selectSourceVillageByTileAndCurrentTileQuery,
+        bind: {
+          $source_tile_id: sourceTileId,
+          $current_tile_id: tileId,
+        },
+        schema: sourceVillageRowSchema,
+      })!;
+
+    const animalTroops = troops.filter(isAnimalTroop);
+    const returningTroops = troops.filter((troop) => !isAnimalTroop(troop));
+
+    if (animalTroops.length > 0) {
+      removeStationedTroops(db, animalTroops, {
+        tileId: currentTileId,
+        source: sourceTileId,
+      });
+    }
+
+    if (returningTroops.length === 0) {
+      return;
+    }
+
+    if (sourceVillageId === null) {
+      throw new Error('Source village not found');
+    }
+
+    const now = Date.now();
+
+    returnStationedTroops(
+      db,
+      sourceVillageId,
+      currentTileId,
+      sourceTileId,
+      sourceTileId,
+      returningTroops,
+      now,
+    );
+
+    moveTroopWheatConsumption(
+      db,
+      returningTroops,
+      currentVillageId,
+      sourceVillageId,
+      now,
+    );
+  });
+});
+
+export const returnSentReinforcements = createController(
+  '/tiles/:tileId/return-sent-reinforcements',
+  'post',
+  {
+    summary: 'Return sent reinforcements to the current village',
+    requestParams: {
+      path: z.strictObject({
+        tileId: z.coerce.number(),
+      }),
+    },
+    requestBody: returnSentReinforcementsSchema,
+  },
+)(({ database, path: { tileId }, body: { stationedTileId, troops } }) => {
+  database.transaction((db) => {
+    const {
+      currentTileId,
+      currentVillageId,
+      stationedTileType,
+      stationedVillageId,
+    } = db.selectObject({
+      sql: selectStationedVillageByTileAndCurrentTileQuery,
+      bind: {
+        $stationed_tile_id: stationedTileId,
+        $current_tile_id: tileId,
+      },
+      schema: stationedVillageRowSchema,
+    })!;
+
+    if (stationedVillageId === null) {
+      throw new Error('Stationed tile not found');
+    }
+
+    const now = Date.now();
+
+    returnStationedTroops(
+      db,
+      currentVillageId,
+      stationedTileId,
+      currentTileId,
+      currentTileId,
+      troops,
+      now,
+    );
+
+    if (stationedTileType !== 'oasis') {
+      moveTroopWheatConsumption(
+        db,
+        troops,
+        stationedVillageId,
+        currentVillageId,
+        now,
+      );
+    }
+  });
+});
+
+export const relocateSentReinforcements = createController(
+  '/tiles/:tileId/relocate-sent-reinforcements',
+  'post',
+  {
+    summary: 'Relocate sent reinforcements to their stationed village',
+    requestParams: {
+      path: z.strictObject({
+        tileId: z.coerce.number(),
+      }),
+    },
+    requestBody: relocateSentReinforcementsSchema,
+  },
+)(({ database, path: { tileId }, body: { stationedTileId, troops } }) => {
+  database.transaction((db) => {
+    const {
+      currentTileId,
+      currentVillageId,
+      stationedTileType,
+      stationedVillageId,
+    } = db.selectObject({
+      sql: selectStationedVillageByTileAndCurrentTileQuery,
+      bind: {
+        $stationed_tile_id: stationedTileId,
+        $current_tile_id: tileId,
+      },
+      schema: stationedVillageRowSchema,
+    })!;
+
+    if (stationedVillageId === null) {
+      throw new Error('Stationed village not found');
+    }
+
+    if (stationedTileType === 'oasis') {
+      throw new Error('Relocations cannot be sent to oases');
+    }
+
+    moveStationedTroops(
+      db,
+      troops,
+      { tileId: stationedTileId, source: currentTileId },
+      { tileId: stationedTileId, source: stationedTileId },
+    );
+
+    if (hasHero(troops)) {
+      relocateHero(db, currentVillageId, stationedVillageId, Date.now());
+    }
+  });
 });

@@ -72,12 +72,12 @@ describe('hero-controllers', () => {
     expect(true).toBe(true);
   });
 
-  test('startHeroAdventure should not duplicate a hero stationed away from its source village', async () => {
+  test('startHeroAdventure should not duplicate a hero stationed in its home village', async () => {
     const database = await prepareTestDatabase();
 
-    const homeTileId = database.selectValue({
+    const homeVillage = database.selectObject({
       sql: `
-        SELECT v.tile_id
+        SELECT v.id, v.tile_id AS tileId
         FROM
           heroes h
             JOIN villages v ON v.id = h.village_id
@@ -85,35 +85,10 @@ describe('hero-controllers', () => {
           h.player_id = $player_id;
       `,
       bind: { $player_id: playerId },
-      schema: z.number(),
-    })!;
-
-    const secondVillageTileId = database.selectValue({
-      sql: `
-        SELECT t.id
-        FROM
-          tiles t
-            LEFT JOIN villages v ON v.tile_id = t.id
-            LEFT JOIN oasis o ON o.tile_id = t.id
-        WHERE
-          v.id IS NULL
-          AND o.id IS NULL
-        LIMIT 1;
-      `,
-      schema: z.number(),
-    })!;
-
-    database.exec({
-      sql: `
-        INSERT INTO villages (name, slug, tile_id, player_id)
-        VALUES ('Second village', 'v-2', $tile_id, $player_id);
-      `,
-      bind: { $tile_id: secondVillageTileId, $player_id: playerId },
-    });
-
-    const secondVillageId = database.selectValue({
-      sql: "SELECT id FROM villages WHERE slug = 'v-2';",
-      schema: z.number(),
+      schema: z.strictObject({
+        id: z.number(),
+        tileId: z.number(),
+      }),
     })!;
 
     database.exec({
@@ -138,8 +113,8 @@ describe('hero-controllers', () => {
         );
       `,
       bind: {
-        $tile_id: secondVillageTileId,
-        $source_tile_id: homeTileId,
+        $tile_id: homeVillage.tileId,
+        $source_tile_id: homeVillage.tileId,
       },
     });
 
@@ -186,7 +161,7 @@ describe('hero-controllers', () => {
         villageId: z.number(),
       }),
     })!;
-    expect(adventureEvent.villageId).toBe(secondVillageId);
+    expect(adventureEvent.villageId).toBe(homeVillage.id);
 
     resolveEvent(database, adventureEvent.id);
 
@@ -218,10 +193,177 @@ describe('hero-controllers', () => {
     expect(heroTroops).toStrictEqual([
       {
         amount: 1,
-        tileId: secondVillageTileId,
-        sourceTileId: homeTileId,
+        tileId: homeVillage.tileId,
+        sourceTileId: homeVillage.tileId,
       },
     ]);
+  });
+
+  test('getHero should report hero as not home while reinforcing another village', async () => {
+    const database = await prepareTestDatabase();
+
+    const homeVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1;
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const reinforcedVillage = database.selectObject({
+      sql: `
+        WITH free_tile AS (
+          SELECT id
+          FROM tiles
+          WHERE id != $home_tile_id
+            AND id NOT IN (SELECT tile_id FROM villages)
+          ORDER BY id
+          LIMIT 1
+        )
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES (
+          'Reinforced Village',
+          'reinforced-village-test',
+          (SELECT id FROM free_tile),
+          $player_id
+        )
+        RETURNING id, tile_id;
+      `,
+      bind: {
+        $home_tile_id: homeVillage.tile_id,
+        $player_id: playerId,
+      },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    database.exec({
+      sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO');",
+    });
+
+    database.exec({
+      sql: `
+        UPDATE heroes
+        SET village_id = $village_id
+        WHERE player_id = $player_id;
+      `,
+      bind: {
+        $village_id: homeVillage.id,
+        $player_id: playerId,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'HERO'),
+          1
+        );
+      `,
+      bind: {
+        $tile_id: reinforcedVillage.tile_id,
+        $source_tile_id: homeVillage.tile_id,
+      },
+    });
+
+    const hero = getHero(
+      database,
+      createControllerArgs<'/players/:playerId/hero'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(hero.villageId).toBe(homeVillage.id);
+    expect(hero.isHeroHome).toBe(false);
+  });
+
+  test('startHeroAdventure should throw while hero is reinforcing another village', async () => {
+    const database = await prepareTestDatabase();
+
+    const homeVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1;
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const reinforcedVillage = database.selectObject({
+      sql: `
+        WITH free_tile AS (
+          SELECT id
+          FROM tiles
+          WHERE id != $home_tile_id
+            AND id NOT IN (SELECT tile_id FROM villages)
+          ORDER BY id
+          LIMIT 1
+        )
+        INSERT INTO villages (name, slug, tile_id, player_id)
+        VALUES (
+          'Reinforced Adventure Village',
+          'reinforced-adventure-village-test',
+          (SELECT id FROM free_tile),
+          $player_id
+        )
+        RETURNING id, tile_id;
+      `,
+      bind: {
+        $home_tile_id: homeVillage.tile_id,
+        $player_id: playerId,
+      },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    database.exec({
+      sql: "DELETE FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO');",
+    });
+
+    database.exec({
+      sql: `
+        UPDATE heroes
+        SET village_id = $village_id, health = 100
+        WHERE player_id = $player_id;
+      `,
+      bind: {
+        $village_id: homeVillage.id,
+        $player_id: playerId,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES (
+          $tile_id,
+          $source_tile_id,
+          (SELECT id FROM unit_ids WHERE unit = 'HERO'),
+          1
+        );
+      `,
+      bind: {
+        $tile_id: reinforcedVillage.tile_id,
+        $source_tile_id: homeVillage.tile_id,
+      },
+    });
+
+    expect(() =>
+      startHeroAdventure(
+        database,
+        createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
+          path: { playerId },
+        }),
+      ),
+    ).toThrow('Hero is not stationed in his home village');
   });
 
   describe(changeHeroAttributes, () => {

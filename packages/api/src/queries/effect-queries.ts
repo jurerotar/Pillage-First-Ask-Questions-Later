@@ -182,3 +182,28 @@ export const updateHeroResourceProductionEffectQuery = `
     )
     AND village_id = $village_id;
 `;
+
+export const updateHeroVillageEffectsByVillageIdQuery = `
+  UPDATE effects
+  SET village_id = $target_village_id
+  WHERE
+    source = 'hero'
+    AND scope = 'village'
+    AND village_id = $current_village_id;
+`;
+
+export const updateVillageWheatProductionByTroopsAndVillageIdEffectQuery = `
+  UPDATE effects
+  SET
+    value = value + $increase_amount
+  WHERE
+    effect_id = (
+      SELECT id
+      FROM
+        effect_ids
+      WHERE
+        effect = 'wheatProduction'
+      )
+    AND source = 'troops'
+    AND village_id = $village_id;
+`;

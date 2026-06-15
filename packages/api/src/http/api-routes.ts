@@ -77,8 +77,13 @@ import {
   getPlayerBySlug,
   getPlayerVillageListing,
   getPlayerVillagesWithPopulation,
-  getTroopsByVillage,
+  getSentReinforcementsByTile,
+  getStationedTroopsByTile,
+  relocateReinforcements,
+  relocateSentReinforcements,
   renameVillage,
+  returnReinforcements,
+  returnSentReinforcements,
 } from './controllers/player-controllers';
 import {
   getPreferences,
@@ -228,11 +233,16 @@ export const apiRoutes = [
 
   // Villages
   createRoute(getVillageBySlug),
-  createRoute(getTroopsByVillage),
+  createRoute(getStationedTroopsByTile),
+  createRoute(getSentReinforcementsByTile),
   createRoute(getVillageEffects),
   createRoute(getVillageEvents),
   createRoute(getVillageEventsByType),
   createRoute(renameVillage),
+  createRoute(relocateReinforcements),
+  createRoute(returnReinforcements),
+  createRoute(relocateSentReinforcements),
+  createRoute(returnSentReinforcements),
   createRoute(occupyOasis),
   createRoute(abandonOasis),
   createRoute(getOccupiableOasisInRange),

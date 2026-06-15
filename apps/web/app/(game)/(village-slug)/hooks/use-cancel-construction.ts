@@ -23,6 +23,7 @@ export const useCancelConstruction = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
+        [eventsCacheKey, 'buildingScheduledConstruction', currentVillage.id],
         [eventsCacheKey, 'buildingLevelChange', currentVillage.id],
         [currentVillageCacheKey, currentVillage.slug],
       ]);

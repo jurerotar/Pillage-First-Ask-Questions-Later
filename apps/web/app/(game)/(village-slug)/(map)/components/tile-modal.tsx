@@ -15,7 +15,6 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from '@pillage-first/types/models/tile';
-import { isFindNewVillageTroopMovementEvent } from '@pillage-first/utils/guards/event';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -33,9 +32,9 @@ import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-tr
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
-import { useEvents } from 'app/(game)/(village-slug)/hooks/use-events';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
@@ -79,6 +78,11 @@ type TileModalProps = {
   tile: Tile;
 };
 
+type TileModalActionsProps = {
+  onFoundNewVillage: (tile: OccupiableTile) => void;
+  onReinforceVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
+};
+
 type TileModalMarkerProps = {
   mapMarkers: MapMarker[];
   createMapMarker: (args: {
@@ -89,7 +93,9 @@ type TileModalMarkerProps = {
   deleteMapMarker: (args: { tileId: number }) => void;
 };
 
-type TileDialogProps = TileModalProps & TileModalMarkerProps;
+type TileDialogProps = TileModalProps &
+  TileModalMarkerProps &
+  TileModalActionsProps;
 
 type MapMarkerFormValues = {
   description: string;
@@ -101,7 +107,7 @@ const TileModalMarkerAction = ({
   mapMarkers,
   createMapMarker,
   deleteMapMarker,
-}: TileDialogProps) => {
+}: TileModalProps & TileModalMarkerProps) => {
   const { t } = useTranslation();
   const marker = mapMarkers.find((marker) => marker.tileId === tile.id);
   const label = marker ? t('Edit map marker') : t('Create map marker');
@@ -297,8 +303,11 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex">
-        {t('Player')} -{' '}
-        <Text variant="link">
+        {t('Player')} -
+        <Text
+          className="ml-1"
+          variant="link"
+        >
           <Link to={`../players/${slug}`}>{name}</Link>
         </Text>
       </div>
@@ -327,6 +336,7 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
 
 type OasisTileModalProps = {
   tile: OasisTile;
+  onReinforceVillage: (tile: OasisTile) => void;
 };
 
 type OasisTileModalAnimalsProps = {
@@ -368,8 +378,9 @@ const OasisTileModalAnimalsSkeleton = () => {
   );
 };
 
-const OasisTileModal = ({ tile }: OasisTileModalProps) => {
+const OasisTileModal = ({ tile, onReinforceVillage }: OasisTileModalProps) => {
   const { t } = useTranslation();
+  const { currentVillage } = useCurrentVillage();
   const { oasisBonuses } = useOasisBonuses(tile.id);
 
   const isOccupiable = isOccupiableOasisTile(tile);
@@ -437,31 +448,43 @@ const OasisTileModal = ({ tile }: OasisTileModalProps) => {
         </Suspense>
       )}
       {isOccupied && <TileModalPlayerInfo tile={tile} />}
+      {isOccupied && tile.owner.id === PLAYER_ID && (
+        <div className="flex flex-col gap-2">
+          <Text as="h3">{t('Actions')}</Text>
+          {tile.id !== currentVillage.tileId && (
+            <Button
+              variant="textLink"
+              onClick={() => onReinforceVillage(tile)}
+            >
+              {t('Reinforce oasis')}
+            </Button>
+          )}
+        </div>
+      )}
     </DialogHeader>
   );
 };
 
 type FoundNewVillageActionProps = {
   tile: OccupiableTile;
+  onFoundNewVillage: (tile: OccupiableTile) => void;
 };
 
-const FoundNewVillageAction = ({ tile }: FoundNewVillageActionProps) => {
+const FoundNewVillageAction = ({
+  tile,
+  onFoundNewVillage,
+}: FoundNewVillageActionProps) => {
   const { t } = useTranslation();
-  const { events } = useEvents();
+  const { troopMovements } = useVillageTroopMovements();
   const tribe = useTribe();
   const { villageTroops } = useVillageTroops();
   const { currentVillage } = useCurrentVillage();
 
-  const hasOngoingVillageFindEventOnThisTile = events.some((event) => {
-    if (isFindNewVillageTroopMovementEvent(event)) {
-      return (
-        tile.coordinates.x === event.targetCoordinates.x &&
-        tile.coordinates.y === event.targetCoordinates.y
-      );
-    }
-
-    return false;
-  });
+  const hasOngoingVillageFindEventOnThisTile = troopMovements.some(
+    (movement) =>
+      movement.type === 'troopMovementFindNewVillage' &&
+      movement.targetTileId === tile.id,
+  );
 
   if (hasOngoingVillageFindEventOnThisTile) {
     return (
@@ -508,21 +531,23 @@ const FoundNewVillageAction = ({ tile }: FoundNewVillageActionProps) => {
   }
 
   return (
-    <Text variant="link">
-      <Link
-        to={`../village/39?tab=send-troops&rally-point-send-troops-tab=found-new-village&x=${tile.coordinates.x}&y=${tile.coordinates.y}`}
-      >
-        {t('Found new village')}
-      </Link>
-    </Text>
+    <Button
+      variant="textLink"
+      onClick={() => onFoundNewVillage(tile)}
+    >
+      {t('Found new village')}
+    </Button>
   );
 };
 
 type OccupiableTileModalProps = {
   tile: OccupiableTile;
-};
+} & Pick<TileModalActionsProps, 'onFoundNewVillage'>;
 
-const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
+const OccupiableTileModal = ({
+  tile,
+  onFoundNewVillage,
+}: OccupiableTileModalProps) => {
   const { t } = useTranslation();
 
   return (
@@ -539,7 +564,10 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
       </DialogHeader>
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        <FoundNewVillageAction tile={tile} />
+        <FoundNewVillageAction
+          tile={tile}
+          onFoundNewVillage={onFoundNewVillage}
+        />
       </div>
     </>
   );
@@ -547,10 +575,11 @@ const OccupiableTileModal = ({ tile }: OccupiableTileModalProps) => {
 
 type OccupiedOccupiableTileModalProps = {
   tile: OccupiedOccupiableTile;
-};
+} & Pick<TileModalActionsProps, 'onReinforceVillage'>;
 
 const OccupiedOccupiableTileModal = ({
   tile,
+  onReinforceVillage,
 }: OccupiedOccupiableTileModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
@@ -587,6 +616,14 @@ const OccupiedOccupiableTileModal = ({
             </Link>
           </Text>
         )}
+        {isOwnedByPlayer && tile.id !== currentVillage.tileId && (
+          <Button
+            variant="textLink"
+            onClick={() => onReinforceVillage(tile)}
+          >
+            {t('Reinforce village')}
+          </Button>
+        )}
       </div>
     </>
   );
@@ -597,6 +634,8 @@ export const TileDialog = ({
   mapMarkers,
   createMapMarker,
   deleteMapMarker,
+  onFoundNewVillage,
+  onReinforceVillage,
 }: TileDialogProps) => {
   if (!tile) {
     return null;
@@ -611,7 +650,10 @@ export const TileDialog = ({
           mapMarkers={mapMarkers}
           tile={tile}
         />
-        <OasisTileModal tile={tile} />
+        <OasisTileModal
+          tile={tile}
+          onReinforceVillage={onReinforceVillage}
+        />
         <TileModalMarkerDescription
           mapMarkers={mapMarkers}
           tile={tile}
@@ -629,7 +671,10 @@ export const TileDialog = ({
           mapMarkers={mapMarkers}
           tile={tile}
         />
-        <OccupiedOccupiableTileModal tile={tile} />
+        <OccupiedOccupiableTileModal
+          tile={tile}
+          onReinforceVillage={onReinforceVillage}
+        />
         <TileModalMarkerDescription
           mapMarkers={mapMarkers}
           tile={tile}
@@ -647,7 +692,10 @@ export const TileDialog = ({
           mapMarkers={mapMarkers}
           tile={tile}
         />
-        <OccupiableTileModal tile={tile} />
+        <OccupiableTileModal
+          tile={tile}
+          onFoundNewVillage={onFoundNewVillage}
+        />
         <TileModalMarkerDescription
           mapMarkers={mapMarkers}
           tile={tile}

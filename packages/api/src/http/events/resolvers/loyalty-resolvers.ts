@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { createLoyaltyIncreaseEvent } from '../../../utils/loyalty';
 import type { Resolver } from '../resolver';
@@ -8,6 +9,19 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
   args,
 ) => {
   const { resolvesAt } = args;
+
+  const affectedIds = database.selectValues({
+    sql: `
+      SELECT DISTINCT v.id AS villageId
+      FROM
+        loyalties l
+          JOIN villages v ON v.tile_id = l.tile_id
+      WHERE
+        v.player_id = $player_id;
+    `,
+    bind: { $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
 
   database.exec({
     sql: `
@@ -46,4 +60,8 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
   if (hasLoyalties) {
     createLoyaltyIncreaseEvent(database, resolvesAt);
   }
+
+  return {
+    affectedVillageIds: affectedIds,
+  };
 };

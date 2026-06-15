@@ -59,15 +59,19 @@ export const getHero = createController('/players/:playerId/hero', {
             FROM
               troops t
                 JOIN unit_ids ui ON t.unit_id = ui.id
-                JOIN villages v ON t.tile_id = v.tile_id
+                JOIN villages v ON v.id = h.village_id
             WHERE
               ui.unit = 'HERO'
-              AND v.player_id = $player_id
+              AND t.tile_id = v.tile_id
+              AND t.source_tile_id = v.tile_id
+              AND t.amount > 0
             ) AS is_home
         FROM
           heroes h
             JOIN
-            hero_selectable_attributes hsa ON h.id = hsa.hero_id;
+            hero_selectable_attributes hsa ON h.id = hsa.hero_id
+        WHERE
+          h.player_id = $player_id;
       `,
     bind: { $player_id: playerId },
     schema: getHeroSchema,
@@ -173,48 +177,61 @@ export const startHeroAdventure = createController(
     },
   },
 )(({ database, path: { playerId } }) => {
-  const { health, tileId, sourceTileId, villageId, x, y } =
-    database.selectObject({
-      sql: `
-        SELECT
-          h.health,
-          t.tile_id as tileId,
-          t.source_tile_id as sourceTileId,
-          v.id as villageId,
-          tl.x,
-          tl.y
-        FROM
-          heroes h
-            JOIN troops t ON 1 = 1
-            JOIN unit_ids ui ON t.unit_id = ui.id
-            JOIN villages v ON v.tile_id = t.tile_id
-              AND v.player_id = h.player_id
-            JOIN tiles tl ON t.tile_id = tl.id
-        WHERE
-          h.player_id = $player_id
-          AND ui.unit = 'HERO'
-        LIMIT 1;
-      `,
-      bind: { $player_id: playerId },
-      schema: z.strictObject({
-        health: z.number(),
-        tileId: z.number(),
-        sourceTileId: z.number(),
-        villageId: z.number(),
-        x: z.number(),
-        y: z.number(),
-      }),
-    })!;
+  const {
+    health,
+    isHeroStationedInOwnVillage,
+    tileId,
+    sourceTileId,
+    villageId,
+  } = database.selectObject({
+    sql: `
+      SELECT
+        h.health,
+        t.tile_id = v.tile_id
+          AND t.source_tile_id = v.tile_id
+          AND t.amount > 0
+          AS isHeroStationedInOwnVillage,
+        t.tile_id AS tileId,
+        t.source_tile_id AS sourceTileId,
+        v.id AS villageId
+      FROM
+        heroes h
+          JOIN unit_ids ui ON ui.unit = 'HERO'
+          JOIN troops t ON t.unit_id = ui.id
+          JOIN villages v ON v.tile_id = t.tile_id
+          AND v.player_id = h.player_id
+      WHERE
+        h.player_id = $player_id
+      LIMIT 1;
+    `,
+    bind: { $player_id: playerId },
+    schema: z.strictObject({
+      health: z.number(),
+      isHeroStationedInOwnVillage: z.coerce.boolean(),
+      tileId: z.number(),
+      sourceTileId: z.number(),
+      villageId: z.number(),
+    }),
+  })!;
 
   if (health <= 0) {
     throw new Error('Hero is dead');
   }
 
+  if (!isHeroStationedInOwnVillage) {
+    throw new Error('Hero is not stationed in his home village');
+  }
+
+  const adventureTargetTileId = database.selectValue({
+    sql: 'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
+    schema: z.number(),
+  })!;
+
   createEvents<'troopMovementAdventure'>(database, {
     type: 'troopMovementAdventure',
     villageId,
-    originCoordinates: { x, y },
-    targetCoordinates: { x: 0, y: 0 },
+    originTileId: tileId,
+    targetTileId: adventureTargetTileId,
     troops: [
       {
         unitId: 'HERO',

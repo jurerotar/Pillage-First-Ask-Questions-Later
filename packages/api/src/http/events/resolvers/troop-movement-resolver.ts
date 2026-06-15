@@ -10,13 +10,18 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
-import { updateHeroEffectsVillageIdQuery } from '../../../queries/effect-queries';
+import {
+  selectPlayerVillageIdByTileIdQuery,
+  selectVillageIdAndTileIdQuery,
+} from '../../../queries/village-queries';
 import { createEvents } from '../../../utils/create-event';
 import {
   createHeroHealthRegenerationEventByVillageId,
   onHeroDeath,
+  relocateHero,
 } from '../../../utils/hero';
 import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
+import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
 import { addTroops } from '../../../utils/troops';
 import { updateVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
@@ -24,7 +29,7 @@ import type { Resolver } from '../resolver';
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
 > = (database, args) => {
-  const { villageId, resolvesAt, originCoordinates, troops } = args;
+  const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
   const { heroId, health } = database.selectObject({
     sql: `
@@ -68,7 +73,9 @@ export const adventureMovementResolver: Resolver<
   if (health === 0) {
     onHeroDeath(database, resolvesAt);
 
-    return;
+    return {
+      affectedVillageIds: [villageId],
+    };
   }
 
   database.exec({
@@ -90,54 +97,72 @@ export const adventureMovementResolver: Resolver<
 
   createEvents<'troopMovementReturn'>(database, {
     villageId,
-    originCoordinates,
+    originTileId: targetTileId,
     startsAt: resolvesAt,
-    targetCoordinates: originCoordinates,
+    targetTileId: originTileId,
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementAdventure',
     troops,
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };
 
 export const oasisOccupationMovementResolver: Resolver<
   GameEvent<'troopMovementOasisOccupation'>
-> = (_database, _args) => {};
+> = (database, args) => {
+  const targetVillageId = database.selectValues({
+    sql: selectPlayerVillageIdByTileIdQuery,
+    bind: { $tile_id: args.targetTileId, $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
+
+  return {
+    affectedVillageIds: [...targetVillageId],
+  };
+};
 
 export const findNewVillageMovementResolver: Resolver<
   GameEvent<'troopMovementFindNewVillage'>
 > = (database, args) => {
-  const {
-    targetCoordinates: { x, y },
-    resolvesAt,
-    villageId,
-  } = args;
-
-  const { id: tileId } = database.selectObject({
-    sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
-    bind: { $x: x, $y: y },
-    schema: z.strictObject({ id: z.number() }),
-  })!;
+  const { targetTileId, resolvesAt, villageId } = args;
 
   // tileId here represents a tile_id where the new village will be founded
-  const { resourceFieldComposition, tribe } = database.selectObject({
+  const {
+    id: tileId,
+    x,
+    y,
+    resourceFieldComposition,
+    tribe,
+  } = database.selectObject({
     sql: `
       SELECT
+        t.id,
+        t.x,
+        t.y,
         rfc.resource_field_composition AS resourceFieldComposition,
         ti.tribe
       FROM
         tiles t
-          JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
+          JOIN resource_field_composition_ids rfc
+               ON t.resource_field_composition_id = rfc.id
           CROSS JOIN players p
-          JOIN tribe_ids ti ON p.tribe_id = ti.id
+          JOIN tribe_ids ti
+               ON p.tribe_id = ti.id
       WHERE
         t.id = $tile_id
         AND p.id = $player_id;
     `,
     bind: {
-      $tile_id: tileId,
+      $tile_id: targetTileId,
       $player_id: PLAYER_ID,
     },
     schema: z.strictObject({
+      id: z.number(),
+      x: z.number(),
+      y: z.number(),
       resourceFieldComposition: resourceFieldCompositionSchema,
       tribe: playableTribeSchema,
     }),
@@ -222,8 +247,10 @@ export const findNewVillageMovementResolver: Resolver<
           VALUES
             ((
                SELECT id
-               FROM effect_ids
-               WHERE effect = $effectName
+               FROM
+                 effect_ids
+               WHERE
+                 effect = $effectName
                ), $value, $type, 'village', 'building', $villageId, $field_id);
         `,
         bind: {
@@ -325,8 +352,10 @@ export const findNewVillageMovementResolver: Resolver<
   // Founding village history
   database.exec({
     sql: `
-      INSERT INTO village_founding_history (village_id, tile_id, x, y, timestamp)
-      VALUES ($village_id, $tile_id, $x, $y, $timestamp);
+      INSERT INTO
+        village_founding_history (village_id, tile_id, x, y, timestamp)
+      VALUES
+        ($village_id, $tile_id, $x, $y, $timestamp);
     `,
     bind: {
       $village_id: newVillageId,
@@ -337,21 +366,16 @@ export const findNewVillageMovementResolver: Resolver<
       $timestamp: Math.trunc(resolvesAt / 1000),
     },
   });
+
+  return {
+    affectedVillageIds: [villageId, newVillageId],
+  };
 };
 
 export const returnMovementResolver: Resolver<
   GameEvent<'troopMovementReturn'>
 > = (database, args) => {
-  const {
-    targetCoordinates: { x, y },
-    troops,
-  } = args;
-
-  const { tileId: targetTileId } = database.selectObject({
-    sql: 'SELECT id AS tileId FROM tiles WHERE x = $x AND y = $y;',
-    bind: { $x: x, $y: y },
-    schema: z.strictObject({ tileId: z.number() }),
-  })!;
+  const { villageId, targetTileId, troops } = args;
 
   addTroops(
     database,
@@ -360,34 +384,32 @@ export const returnMovementResolver: Resolver<
       tileId: targetTileId,
     })),
   );
+
+  const targetVillageIds = database.selectValues({
+    sql: selectPlayerVillageIdByTileIdQuery,
+    bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
+
+  return {
+    affectedVillageIds: [villageId, ...targetVillageIds],
+  };
 };
 
 export const relocationMovementResolver: Resolver<
   GameEvent<'troopMovementRelocation'>
 > = (database, args) => {
-  const {
-    targetCoordinates: { x, y },
-    troops,
-    resolvesAt,
-    villageId,
-  } = args;
+  const { targetTileId, troops, resolvesAt, villageId } = args;
 
-  const { tileId: targetTileId, villageId: targetVillageId } =
-    database.selectObject({
-      sql: `
-        SELECT
-          t.id AS tileId,
-          v.id AS villageId
-        FROM
-          tiles t
-            JOIN villages v ON v.tile_id = t.id
-        WHERE
-          t.x = $x
-          AND t.y = $y;
-      `,
-      bind: { $x: x, $y: y },
-      schema: z.strictObject({ tileId: z.number(), villageId: z.number() }),
-    })!;
+  const { villageId: targetVillageId } = database.selectObject({
+    sql: selectVillageIdAndTileIdQuery,
+    bind: { $tile_id: targetTileId },
+    schema: z.strictObject({
+      tileId: z.number(),
+      tileType: z.enum(['free', 'oasis']),
+      villageId: z.number(),
+    }),
+  })!;
 
   addTroops(
     database,
@@ -398,43 +420,38 @@ export const relocationMovementResolver: Resolver<
     })),
   );
 
-  // If hero is relocated, update effects as well
   if (troops.some(({ unitId }) => unitId === 'HERO')) {
-    // Update resources in both villages, due to effects changing
-    updateVillageResourcesAt(database, villageId, resolvesAt);
-    updateVillageResourcesAt(database, targetVillageId, resolvesAt);
-
-    database.exec({
-      sql: updateHeroEffectsVillageIdQuery,
-      bind: {
-        $player_id: PLAYER_ID,
-        $targetId: targetVillageId,
-      },
-    });
-
-    database.exec({
-      sql: 'UPDATE heroes SET village_id = $targetId WHERE player_id = $player_id;',
-      bind: {
-        $player_id: PLAYER_ID,
-        $targetId: targetVillageId,
-      },
-    });
+    relocateHero(database, villageId, targetVillageId, resolvesAt);
   }
+
+  moveTroopWheatConsumption(
+    database,
+    troops,
+    villageId,
+    targetVillageId,
+    resolvesAt,
+  );
+
+  return {
+    affectedVillageIds: [villageId, targetVillageId],
+  };
 };
 
 export const reinforcementMovementResolver: Resolver<
   GameEvent<'troopMovementReinforcements'>
 > = (database, args) => {
-  const {
-    targetCoordinates: { x, y },
-    troops,
-  } = args;
+  const { targetTileId, troops, resolvesAt, villageId } = args;
 
-  const { tileId: targetTileId } = database.selectObject({
-    sql: 'SELECT id AS tileId FROM tiles WHERE x = $x AND y = $y;',
-    bind: { $x: x, $y: y },
-    schema: z.strictObject({ tileId: z.number() }),
-  })!;
+  const { tileType: targetTileType, villageId: targetVillageId } =
+    database.selectObject({
+      sql: selectVillageIdAndTileIdQuery,
+      bind: { $tile_id: targetTileId },
+      schema: z.strictObject({
+        tileId: z.number(),
+        tileType: z.enum(['free', 'oasis']),
+        villageId: z.number(),
+      }),
+    })!;
 
   addTroops(
     database,
@@ -443,51 +460,76 @@ export const reinforcementMovementResolver: Resolver<
       tileId: targetTileId,
     })),
   );
+
+  if (targetTileType !== 'oasis') {
+    moveTroopWheatConsumption(
+      database,
+      troops,
+      villageId,
+      targetVillageId,
+      resolvesAt,
+    );
+  }
+
+  return {
+    affectedVillageIds: [
+      villageId,
+      targetTileType === 'oasis' ? null : targetVillageId,
+    ],
+  };
 };
 
 export const attackMovementResolver: Resolver<
   GameEvent<'troopMovementAttack'>
 > = (database, args) => {
-  const {
-    villageId,
-    resolvesAt,
-    originCoordinates,
-    targetCoordinates,
-    troops,
-  } = args;
+  const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
     villageId,
     troops,
-    targetCoordinates: originCoordinates,
-    originCoordinates: targetCoordinates,
+    targetTileId: originTileId,
+    originTileId: targetTileId,
     startsAt: resolvesAt,
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementAttack',
   });
+
+  const targetVillageIds = database.selectValues({
+    sql: selectPlayerVillageIdByTileIdQuery,
+    bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
+
+  return {
+    affectedVillageIds: [villageId, ...targetVillageIds],
+  };
 };
 
 export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
   database,
   args,
 ) => {
-  const {
-    villageId,
-    resolvesAt,
-    troops,
-    originCoordinates,
-    targetCoordinates,
-  } = args;
+  const { villageId, resolvesAt, troops, originTileId, targetTileId } = args;
 
   // TODO: Combat
   createEvents<'troopMovementReturn'>(database, {
     villageId,
     troops,
     startsAt: resolvesAt,
-    targetCoordinates: originCoordinates,
-    originCoordinates: targetCoordinates,
+    targetTileId: originTileId,
+    originTileId: targetTileId,
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementRaid',
   });
+
+  const targetVillageIds = database.selectValues({
+    sql: selectPlayerVillageIdByTileIdQuery,
+    bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
+
+  return {
+    affectedVillageIds: [villageId, ...targetVillageIds],
+  };
 };

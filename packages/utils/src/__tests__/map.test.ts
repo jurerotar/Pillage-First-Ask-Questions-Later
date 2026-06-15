@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   calculateGridLayout,
+  coordinatesToTileId,
   decodeGraphicsProperty,
   encodeGraphicsProperty,
   parseResourcesFromRFC,
@@ -126,5 +127,28 @@ describe(tileIdToCoordinates, () => {
     const bottomLeft = tileIdToCoordinates(bottomLeftTileId, mapSize);
     expect(bottomLeft.x).toBe(-halfSize);
     expect(bottomLeft.y).toBe(-halfSize);
+  });
+});
+
+describe(coordinatesToTileId, () => {
+  test('converts coordinates to the center tile id', () => {
+    const mapSize = 10;
+    const { gridSize, halfSize } = calculateGridLayout(mapSize);
+    const centerTileId = halfSize * gridSize + halfSize + 1;
+
+    const result = coordinatesToTileId({ x: 0, y: 0 }, mapSize);
+
+    expect(result).toBe(centerTileId);
+  });
+
+  test('is the inverse of tileIdToCoordinates', () => {
+    const mapSize = 10;
+    const { totalTiles } = calculateGridLayout(mapSize);
+
+    for (const tileId of [1, 42, Math.ceil(totalTiles / 2), totalTiles]) {
+      const coordinates = tileIdToCoordinates(tileId, mapSize);
+
+      expect(coordinatesToTileId(coordinates, mapSize)).toBe(tileId);
+    }
   });
 });

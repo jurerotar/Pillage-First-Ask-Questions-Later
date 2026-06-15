@@ -8,12 +8,16 @@ import { villageMock } from '@pillage-first/mocks/village';
 import type { Effect } from '@pillage-first/types/models/effect';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
+import { coordinatesToTileId } from '@pillage-first/utils/map';
 
 describe(calculateTravelDuration, () => {
+  const mapSize = 100;
+  const originTileId = coordinatesToTileId({ x: 0, y: 0 }, mapSize);
   const defaultArgs = {
     originVillageId: villageMock.id,
-    originCoordinates: { x: 0, y: 0 },
-    targetCoordinates: { x: 10, y: 0 },
+    originTileId,
+    targetTileId: coordinatesToTileId({ x: 10, y: 0 }, mapSize),
+    mapSize,
     // LEGIONNAIRE speed is 6
     troops: [
       { unitId: 'LEGIONNAIRE', amount: 10, source: 1, tileId: 1 },
@@ -69,7 +73,7 @@ describe(calculateTravelDuration, () => {
     // total = 30 / 6 = 5 hours = 18,000,000 ms
     const duration = calculateTravelDuration({
       ...defaultArgs,
-      targetCoordinates: { x: 30, y: 0 },
+      targetTileId: coordinatesToTileId({ x: 30, y: 0 }, mapSize),
     });
 
     expect(duration).toBe(18_000_000);
@@ -84,7 +88,7 @@ describe(calculateTravelDuration, () => {
     // total = 15,000,000 ms
     const duration = calculateTravelDuration({
       ...defaultArgs,
-      targetCoordinates: { x: 30, y: 0 },
+      targetTileId: coordinatesToTileId({ x: 30, y: 0 }, mapSize),
       effects: [unitSpeedAfter20FieldsHeroBonusEffectMock],
     });
 
@@ -96,7 +100,7 @@ describe(calculateTravelDuration, () => {
     // 20 / 6 hours = 12,000,000 ms
     const duration = calculateTravelDuration({
       ...defaultArgs,
-      targetCoordinates: { x: 20, y: 0 },
+      targetTileId: coordinatesToTileId({ x: 20, y: 0 }, mapSize),
     });
 
     expect(duration).toBe(12_000_000);
@@ -111,7 +115,7 @@ describe(calculateTravelDuration, () => {
     // total = 12,060,000 ms
     const duration = calculateTravelDuration({
       ...defaultArgs,
-      targetCoordinates: { x: 21, y: 0 },
+      targetTileId: coordinatesToTileId({ x: 21, y: 0 }, mapSize),
       effects: [unitSpeedAfter20FieldsHugeHeroBonusEffectMock],
     });
 

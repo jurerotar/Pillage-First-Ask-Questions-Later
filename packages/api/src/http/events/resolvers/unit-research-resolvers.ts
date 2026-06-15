@@ -25,4 +25,8 @@ export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = (
       $unit_id: unitId,
     },
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };

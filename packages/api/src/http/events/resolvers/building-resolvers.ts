@@ -94,6 +94,10 @@ export const buildingLevelChangeResolver: Resolver<
   }
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };
 
 export const buildingConstructionResolver: Resolver<
@@ -164,6 +168,10 @@ export const buildingConstructionResolver: Resolver<
     buildingId,
     type: 'buildingLevelChange',
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };
 
 export const buildingDestructionResolver: Resolver<
@@ -227,13 +235,23 @@ export const buildingDestructionResolver: Resolver<
       $value: -population + (isNonDestroyable ? level0Population : 0),
     },
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };
 
 export const buildingScheduledConstructionEventResolver: Resolver<
   GameEvent<'buildingScheduledConstruction'>
 > = (database, args) => {
+  const { villageId } = args;
+
   createEvents<'buildingLevelChange'>(database, {
     ...args,
     type: 'buildingLevelChange',
   });
+
+  return {
+    affectedVillageIds: [villageId],
+  };
 };

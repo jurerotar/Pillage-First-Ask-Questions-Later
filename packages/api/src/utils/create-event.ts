@@ -105,6 +105,8 @@ export const createEvents = <T extends GameEventType>(
   postWorkerMessage({
     eventKey: 'event:created',
     ...events[0],
+    // Creating events doesn't require this, because cache invalidation is already done by the frontend
+    affectedVillageIds: [],
   } satisfies EventApiNotificationEvent);
 
   // Determine if any created events should already be resolved

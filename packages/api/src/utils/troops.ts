@@ -100,18 +100,30 @@ export const validateTroopMovement = (
 ): string[] => {
   const troopMovementEvent = event as TroopMovementEvent;
 
-  if (
-    isAdventureTroopMovementEvent(troopMovementEvent) ||
-    isReturnTroopMovementEvent(troopMovementEvent)
-  ) {
+  const errors: string[] = [];
+
+  if (isReturnTroopMovementEvent(troopMovementEvent)) {
     return [];
   }
 
-  const errors: string[] = [];
+  if (isAdventureTroopMovementEvent(troopMovementEvent)) {
+    const hasAvailableAdventure = database.selectValue({
+      sql: `
+        SELECT
+          available >= 1 AS has_available_adventure
+        FROM
+          hero_adventures
+        LIMIT 1;
+      `,
+      schema: z.coerce.boolean(),
+    });
 
-  const {
-    targetCoordinates: { x, y },
-  } = troopMovementEvent;
+    if (!hasAvailableAdventure) {
+      return ['Hero has no available adventures'];
+    }
+  }
+
+  const { targetTileId } = troopMovementEvent;
 
   const tileExists = database.selectValue({
     sql: `
@@ -122,11 +134,10 @@ export const validateTroopMovement = (
           FROM
             tiles
           WHERE
-            x = $x
-            AND y = $y
-          ) AS tile_exists;
+            id = $target_tile_id
+        ) AS tile_exists;
     `,
-    bind: { $x: x, $y: y },
+    bind: { $target_tile_id: targetTileId },
     schema: z.coerce.boolean(),
   });
 
@@ -149,12 +160,11 @@ export const validateTroopMovement = (
                 LEFT JOIN villages v ON v.tile_id = t.id
                 LEFT JOIN oasis o ON o.tile_id = t.id
             WHERE
-              t.x = $x
-              AND t.y = $y
+              t.id = $target_tile_id
               AND (v.id IS NOT NULL OR o.id IS NOT NULL)
             ) AS is_village_or_oasis;
       `,
-      bind: { $x: x, $y: y },
+      bind: { $target_tile_id: targetTileId },
       schema: z.coerce.boolean(),
     });
 
@@ -177,13 +187,12 @@ export const validateTroopMovement = (
                 LEFT JOIN villages v ON v.tile_id = t.id
                 LEFT JOIN oasis o ON o.tile_id = t.id
             WHERE
-              t.x = $x
-              AND t.y = $y
+              t.id = $target_tile_id
               AND v.id IS NULL
               AND o.id IS NULL
             ) AS is_unoccupied;
       `,
-      bind: { $x: x, $y: y },
+      bind: { $target_tile_id: targetTileId },
       schema: z.coerce.boolean(),
     });
 
@@ -201,11 +210,10 @@ export const validateTroopMovement = (
               events
             WHERE
               type = 'troopMovementFindNewVillage'
-              AND JSON_EXTRACT(meta, '$.targetCoordinates.x') = $x
-              AND JSON_EXTRACT(meta, '$.targetCoordinates.y') = $y
+              AND JSON_EXTRACT(meta, '$.targetTileId') = $target_tile_id
             ) AS is_already_on_the_way;
       `,
-      bind: { $x: x, $y: y },
+      bind: { $target_tile_id: targetTileId },
       schema: z.coerce.boolean(),
     });
 
@@ -233,10 +241,9 @@ export const validateTroopMovement = (
           tiles t
             LEFT JOIN oasis o ON o.tile_id = t.id
         WHERE
-          t.x = $x
-          AND t.y = $y;
+          t.id = $target_tile_id;
       `,
-      bind: { $x: x, $y: y, $village_id: villageId },
+      bind: { $target_tile_id: targetTileId, $village_id: villageId },
       schema: z.strictObject({
         is_oasis: z.coerce.boolean(),
         is_occupied_by_you: z.coerce.boolean(),
@@ -307,36 +314,57 @@ export const validateTroopMovement = (
     const targetVillageInfo = database.selectObject({
       sql: `
         SELECT
-          v.id AS id,
-          v.player_id = $player_id AS is_player_village
+          t.id AS tile_id,
+          t.type AS tile_type,
+          cv.tile_id AS current_village_tile_id,
+          COALESCE(v.id, ov.id) AS owning_village_id,
+          COALESCE(v.player_id, ov.player_id) = $player_id AS is_player_target
         FROM
           tiles t
+            JOIN villages cv ON cv.id = $village_id
             LEFT JOIN villages v ON v.tile_id = t.id
+            LEFT JOIN oasis o ON o.tile_id = t.id
+            LEFT JOIN villages ov ON ov.id = o.village_id
         WHERE
-          t.x = $x
-          AND t.y = $y;
+          t.id = $target_tile_id;
       `,
-      bind: { $x: x, $y: y, $player_id: PLAYER_ID },
+      bind: {
+        $target_tile_id: targetTileId,
+        $village_id: villageId,
+        $player_id: PLAYER_ID,
+      },
       schema: z.strictObject({
-        id: z.number().nullable(),
-        is_player_village: z.coerce.boolean().nullable(),
+        tile_id: z.number(),
+        tile_type: z.enum(['free', 'oasis']),
+        current_village_tile_id: z.number(),
+        owning_village_id: z.number().nullable(),
+        is_player_target: z.coerce.boolean().nullable(),
       }),
     });
 
-    if (targetVillageInfo?.id === null) {
+    if (targetVillageInfo?.owning_village_id === null) {
       errors.push(
-        'Reinforcements and relocations can only be sent to your own villages',
+        'Reinforcements and relocations can only be sent to your own villages or oases',
       );
     } else if (targetVillageInfo) {
-      if (targetVillageInfo.id === villageId) {
-        errors.push('Target village cannot be the current village');
+      if (
+        targetVillageInfo.tile_id === targetVillageInfo.current_village_tile_id
+      ) {
+        errors.push('Target tile cannot be the current village');
       }
 
-      if (!targetVillageInfo.is_player_village) {
-        errors.push('Target village must belong to you');
+      if (!targetVillageInfo.is_player_target) {
+        errors.push('Target tile must belong to you');
+      }
+
+      if (
+        isRelocationTroopMovementEvent(troopMovementEvent) &&
+        targetVillageInfo.tile_type === 'oasis'
+      ) {
+        errors.push('Troops can not be relocated to oasis');
       }
     } else {
-      errors.push('Target village does not exist');
+      errors.push('Target tile does not exist');
     }
   }
 

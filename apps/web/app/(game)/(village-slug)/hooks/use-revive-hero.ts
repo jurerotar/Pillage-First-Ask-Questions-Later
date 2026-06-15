@@ -1,9 +1,6 @@
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
-import {
-  currentVillageCacheKey,
-  eventsCacheKey,
-} from 'app/(game)/constants/query-keys';
+import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useReviveHero = () => {
   const { currentVillage } = useCurrentVillage();
@@ -11,10 +8,7 @@ export const useReviveHero = () => {
 
   const reviveHero = () => {
     createHeroRevivalEvent({
-      cachesToClearImmediately: [
-        [currentVillageCacheKey, currentVillage.slug],
-        [eventsCacheKey, 'heroRevival', currentVillage.id],
-      ],
+      cachesToClearImmediately: [[currentVillageCacheKey, currentVillage.slug]],
     });
   };
 

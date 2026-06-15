@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { FaPen } from 'react-icons/fa6';
 import { LuTrash } from 'react-icons/lu';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { CreateFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/farm-list/create-farm-list-modal';
-import { EditFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/farm-list/edit-farm-list-modal';
+import { CreateFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/farm-list/create-farm-list-modal';
+import { EditFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/farm-list/edit-farm-list-modal';
 import {
   Section,
   SectionContent,

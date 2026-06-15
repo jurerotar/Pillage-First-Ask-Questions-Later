@@ -82,11 +82,11 @@
     "ts-seedrandom": "1.4.1"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260504.1",
+    "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "type-fest": "5.7.0",
     "typescript": "6.0.3",
-    "vite": "8.0.15",
-    "vitest": "4.1.7",
+    "vite": "8.0.16",
+    "vitest": "4.1.9",
     "zod": "4.4.3"
   }
 }

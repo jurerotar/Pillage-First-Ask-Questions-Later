@@ -48,13 +48,12 @@ import {
   isBuildingDowngradeEvent,
   isBuildingEvent,
   isBuildingLevelChangeEvent,
-  isFindNewVillageTroopMovementEvent,
   isGatherersHutGatheringTripEvent,
   isHeroHealthRegenerationEvent,
   isHeroRevivalEvent,
   isHuntersLodgeHuntEvent,
   isLoyaltyIncreaseEvent,
-  isOasisOccupationTroopMovementEvent,
+  isManuallyTriggeredReturnTroopMovementEvent,
   isReturnTroopMovementEvent,
   isScheduledBuildingEvent,
   isTroopMovementEvent,
@@ -70,6 +69,7 @@ import {
   selectAllVillageEventsByTypeQuery,
   selectVillageEventExistsByTypeQuery,
 } from '../queries/event-queries';
+import { selectServerMapSizeQuery } from '../queries/server-queries';
 import { selectIsUnitResearchedQuery } from '../queries/unit-research-queries';
 import {
   selectVillageBuildingLevelQuery,
@@ -525,12 +525,12 @@ export const validateEventCreationPrerequisites = (
           e.type IN ('buildingConstruction', 'buildingLevelChange')
           AND NOT (
             e.type IN ('buildingLevelChange', 'buildingDestruction')
-              AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
-                  CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
-            )
-          AND (
-            -- If player is not Romans, include all building events
-            ti.tribe <> 'romans'
+                  AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
+                      CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
+                )
+              AND (
+                -- If player is not Romans, include all building events
+                ti.tribe <> 'romans'
               -- If Romans, only include events from the same "half" (<=18 or >18)
               OR (
               (e.building_field_id <= 18 AND CAST($building_field_id AS INTEGER) <= 18)
@@ -612,6 +612,33 @@ export const validateEventCreationPrerequisites = (
 
     if (adventurePoints === 0) {
       throw new Error('No adventure points available');
+    }
+
+    const isHeroHome = database.selectValue({
+      sql: `
+        SELECT
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              heroes h
+                JOIN villages v ON v.id = h.village_id
+                JOIN troops t
+                     ON t.tile_id = v.tile_id
+                       AND t.source_tile_id = v.tile_id
+                JOIN unit_ids ui ON ui.id = t.unit_id
+            WHERE
+              h.player_id = $player_id
+              AND ui.unit = 'HERO'
+              AND t.amount > 0
+          ) AS is_hero_home;
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.coerce.boolean(),
+    });
+
+    if (!isHeroHome) {
+      throw new Error('Hero is not stationed in his home village');
     }
 
     return;
@@ -1072,7 +1099,7 @@ export const getEventDuration = (
       return calculateAdventureDuration(database, true);
     }
 
-    const { villageId, targetCoordinates, originCoordinates, troops } = event;
+    const { villageId, targetTileId, originTileId, troops } = event;
 
     const effects = database.selectObjects({
       sql: selectUnitSpeedRelevantEffectsQuery,
@@ -1082,10 +1109,16 @@ export const getEventDuration = (
       schema: effectSchema,
     });
 
+    const mapSize = database.selectValue({
+      sql: selectServerMapSizeQuery,
+      schema: z.number(),
+    })!;
+
     return calculateTravelDuration({
       originVillageId: villageId,
-      targetCoordinates,
-      originCoordinates,
+      targetTileId,
+      originTileId,
+      mapSize,
       troops,
       effects,
     });
@@ -1301,22 +1334,18 @@ export const getEventStartTime = (
     return Date.now();
   }
 
-  if (isAdventureTroopMovementEvent(event)) {
+  if (isTroopMovementEvent(event)) {
+    if (isReturnTroopMovementEvent(event)) {
+      if (isManuallyTriggeredReturnTroopMovementEvent(event)) {
+        return Date.now();
+      }
+
+      const { resolvesAt } = event;
+
+      return resolvesAt;
+    }
+
     return Date.now();
-  }
-
-  if (isFindNewVillageTroopMovementEvent(event)) {
-    return Date.now();
-  }
-
-  if (isOasisOccupationTroopMovementEvent(event)) {
-    return Date.now();
-  }
-
-  if (isReturnTroopMovementEvent(event)) {
-    const { resolvesAt } = event;
-
-    return resolvesAt;
   }
 
   return Date.now();

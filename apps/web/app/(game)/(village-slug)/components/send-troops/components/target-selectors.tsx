@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { Input } from 'app/components/ui/input';
 import {
   Select,
@@ -10,15 +11,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
+import {
+  createTroopFormTargetFromCoordinates,
+  parseOptionalInteger,
+} from '../utils/troop-form';
 
 type TargetFormValues = {
   target: {
+    tileId?: number;
     x?: number;
     y?: number;
   };
 };
 
-export const PlayerVillageSelector = () => {
+type PlayerVillageSelectorProps = {
+  disabled?: boolean;
+  excludedVillageIds?: number[];
+};
+
+export const PlayerVillageSelector = ({
+  disabled = false,
+  excludedVillageIds = [],
+}: PlayerVillageSelectorProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
@@ -26,7 +40,9 @@ export const PlayerVillageSelector = () => {
   const target = watch('target');
 
   const otherVillages = playerVillages.filter(
-    (village) => village.id !== currentVillage.id,
+    (village) =>
+      village.id !== currentVillage.id &&
+      !excludedVillageIds.includes(village.id),
   );
 
   return (
@@ -39,14 +55,23 @@ export const PlayerVillageSelector = () => {
           {t('Village:')}
         </label>
         <Select
-          value={
-            target.x !== undefined && target.y !== undefined
-              ? `${target.x},${target.y}`
-              : ''
-          }
+          disabled={disabled}
+          value={target.tileId?.toString() ?? ''}
           onValueChange={(value) => {
-            const [x, y] = value.split(',').map((v) => Number.parseInt(v, 10));
-            setValue('target', { x, y });
+            const tileId = Number.parseInt(value, 10);
+            const village = otherVillages.find(
+              (candidate) => candidate.tileId === tileId,
+            );
+
+            if (!village) {
+              return;
+            }
+
+            setValue('target', {
+              tileId,
+              x: village.coordinates.x,
+              y: village.coordinates.y,
+            });
           }}
         >
           <SelectTrigger
@@ -59,7 +84,7 @@ export const PlayerVillageSelector = () => {
             {otherVillages.map((village) => (
               <SelectItem
                 key={village.id}
-                value={`${village.coordinates.x},${village.coordinates.y}`}
+                value={village.tileId.toString()}
               >
                 {village.name} ({village.coordinates.x}|{village.coordinates.y})
               </SelectItem>
@@ -71,13 +96,31 @@ export const PlayerVillageSelector = () => {
   );
 };
 
-export const CoordinateSelector = () => {
+type CoordinateSelectorProps = {
+  disabled?: boolean;
+};
+
+export const CoordinateSelector = ({
+  disabled = false,
+}: CoordinateSelectorProps) => {
   const { t } = useTranslation();
   const { watch, setValue } = useFormContext<TargetFormValues>();
+  const { mapSize } = useServer();
   const target = watch('target');
 
   const xValue = target.x ?? '';
   const yValue = target.y ?? '';
+  const updateTarget = (nextTarget: TargetFormValues['target']) => {
+    const targetFromCoordinates = createTroopFormTargetFromCoordinates(
+      nextTarget,
+      mapSize,
+    );
+
+    setValue('target', {
+      ...nextTarget,
+      tileId: targetFromCoordinates.tileId,
+    });
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -92,13 +135,11 @@ export const CoordinateSelector = () => {
           <Input
             id="target-x"
             type="number"
+            disabled={disabled}
             value={xValue}
             onChange={(e) => {
-              const x =
-                e.target.value === ''
-                  ? undefined
-                  : Number.parseInt(e.target.value, 10);
-              setValue('target', { ...target, x });
+              const x = parseOptionalInteger(e.target.value);
+              updateTarget({ ...target, x });
             }}
             className="w-16 h-8 bg-emerald-50/50 dark:bg-emerald-950/20"
           />
@@ -113,13 +154,11 @@ export const CoordinateSelector = () => {
           <Input
             id="target-y"
             type="number"
+            disabled={disabled}
             value={yValue}
             onChange={(e) => {
-              const y =
-                e.target.value === ''
-                  ? undefined
-                  : Number.parseInt(e.target.value, 10);
-              setValue('target', { ...target, y });
+              const y = parseOptionalInteger(e.target.value);
+              updateTarget({ ...target, y });
             }}
             className="w-16 h-8 bg-emerald-50/50 dark:bg-emerald-950/20"
           />

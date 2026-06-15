@@ -17,7 +17,9 @@ import { villageMock } from '@pillage-first/mocks/village';
 import type {
   ArtifactEffect,
   GlobalEffect,
+  HeroEffect,
   OasisEffect,
+  ResourceProductionEffectId,
   TribalEffect,
   VillageBuildingEffect,
   VillageEffect,
@@ -155,6 +157,32 @@ describe('calculateComputedEffect – woodProduction', () => {
         villageId,
       );
       expect(result.total).toBe(225);
+    });
+
+    test.each([
+      ['woodProduction'],
+      ['clayProduction'],
+      ['ironProduction'],
+    ] satisfies [
+      ResourceProductionEffectId,
+    ][])('00018 with no %s building base and hero base 1000 – should return 1000', (effectId) => {
+      const heroBaseEffect: HeroEffect = {
+        villageId,
+        id: effectId,
+        scope: 'village',
+        source: 'hero',
+        value: 1000,
+        type: 'base',
+        sourceSpecifier: null,
+      };
+
+      const result = calculateComputedEffect(
+        effectId,
+        [heroBaseEffect],
+        villageId,
+      );
+
+      expect(result.total).toBe(1000);
     });
   });
 
