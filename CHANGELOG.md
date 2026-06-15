@@ -7,6 +7,8 @@
   Rally Point's Send Troops tab. Sent reinforcements may also be relocated to target village's garrison troops at any
   point. Relocating troops allows you to use them from the target village.
 
+* [BugFix] Fixed a stale resource counter, that would be especially noticeable when switching between villages.
+
 ## Version 0.4.30
 
 #### Jun 9, 2026
