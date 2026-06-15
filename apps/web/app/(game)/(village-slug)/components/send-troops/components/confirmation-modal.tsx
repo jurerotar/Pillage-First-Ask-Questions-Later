@@ -37,6 +37,7 @@ type TroopMovementConfirmationModalProps = {
   tribe: Tribe;
   originTileId?: number;
   backLabel?: string;
+  hideMovementDetails?: boolean;
 };
 
 type TroopMovementConfirmationContentProps = {
@@ -47,6 +48,7 @@ type TroopMovementConfirmationContentProps = {
   tribe: Tribe;
   originTileId?: number;
   backLabel?: string;
+  hideMovementDetails?: boolean;
 };
 
 export const TroopMovementConfirmationContent = ({
@@ -57,6 +59,7 @@ export const TroopMovementConfirmationContent = ({
   tribe,
   originTileId,
   backLabel,
+  hideMovementDetails = false,
 }: TroopMovementConfirmationContentProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
@@ -131,32 +134,40 @@ export const TroopMovementConfirmationContent = ({
           </UnitTable>
         </div>
 
-        <Separator orientation="horizontal" />
+        {!hideMovementDetails && (
+          <>
+            <Separator orientation="horizontal" />
 
-        <div className="space-y-2 dark:border-border">
-          <div className="flex justify-between">
-            <Text className="text-muted-foreground">{t('Target')}:</Text>
-            <Text className="font-medium">
-              ({targetCoordinates.x}|{targetCoordinates.y})
-            </Text>
-          </div>
-          <div className="flex justify-between">
-            <Text className="text-muted-foreground">{t('Distance')}:</Text>
-            <Text className="font-medium">
-              {distance.toFixed(1)} {t('tiles')}
-            </Text>
-          </div>
-          <div className="flex justify-between">
-            <Text className="text-muted-foreground">
-              {t('Travel duration')}:
-            </Text>
-            <Text className="font-medium">{formatTime(travelDuration)}</Text>
-          </div>
-          <div className="flex justify-between">
-            <Text className="text-muted-foreground">{t('Arrival time')}:</Text>
-            <ArrivalTime travelDuration={travelDuration} />
-          </div>
-        </div>
+            <div className="space-y-2 dark:border-border">
+              <div className="flex justify-between">
+                <Text className="text-muted-foreground">{t('Target')}:</Text>
+                <Text className="font-medium">
+                  ({targetCoordinates.x}|{targetCoordinates.y})
+                </Text>
+              </div>
+              <div className="flex justify-between">
+                <Text className="text-muted-foreground">{t('Distance')}:</Text>
+                <Text className="font-medium">
+                  {distance.toFixed(1)} {t('tiles')}
+                </Text>
+              </div>
+              <div className="flex justify-between">
+                <Text className="text-muted-foreground">
+                  {t('Travel duration')}:
+                </Text>
+                <Text className="font-medium">
+                  {formatTime(travelDuration)}
+                </Text>
+              </div>
+              <div className="flex justify-between">
+                <Text className="text-muted-foreground">
+                  {t('Arrival time')}:
+                </Text>
+                <ArrivalTime travelDuration={travelDuration} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       <DialogFooter>

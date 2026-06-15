@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop } from '@pillage-first/types/models/troop';
+import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import {
@@ -51,6 +52,15 @@ export const ReturnReinforcementsModal = ({
     troops,
     targetTileId,
   });
+  const selectedConfirmationUnits =
+    confirmationStepData.current?.units.filter(
+      ({ selected }) => selected > 0,
+    ) ?? [];
+  const isReturningOnlyAnimals =
+    selectedConfirmationUnits.length > 0 &&
+    selectedConfirmationUnits.every(
+      ({ unitId }) => natureUnitIdSchema.safeParse(unitId).success,
+    );
 
   const onSubmit = ({ target, units }: BaseTroopFormValues) => {
     openConfirmationStep({
@@ -125,6 +135,7 @@ export const ReturnReinforcementsModal = ({
             tribe={tribe}
             originTileId={mode === 'outgoing' ? tileId : undefined}
             backLabel={t('Back')}
+            hideMovementDetails={isReturningOnlyAnimals}
           />
         ) : (
           <>
