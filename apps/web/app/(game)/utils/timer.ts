@@ -1,4 +1,3 @@
-let currentTime = Date.now();
 const listeners = new Set<() => void>();
 
 export const subscribeToTimer = (callback: () => void) => {
@@ -9,11 +8,10 @@ export const subscribeToTimer = (callback: () => void) => {
 };
 
 export const getCurrentTime = () => {
-  return currentTime;
+  return Date.now();
 };
 
 setInterval(() => {
-  currentTime = Date.now();
   for (const listener of listeners) {
     listener();
   }
