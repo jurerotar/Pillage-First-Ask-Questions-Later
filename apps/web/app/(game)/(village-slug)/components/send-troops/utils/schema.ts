@@ -61,9 +61,14 @@ export const foundNewVillageFormSchema = baseTroopFormSchema
   )
   .refine(
     (data) => {
-      const totalSettlers = data.units
-        .filter((u) => u.tier === 'settler')
-        .reduce((sum, u) => sum + u.selected, 0);
+      let totalSettlers = 0;
+
+      for (const unit of data.units) {
+        if (unit.tier === 'settler') {
+          totalSettlers += unit.selected;
+        }
+      }
+
       return totalSettlers === 3;
     },
     {

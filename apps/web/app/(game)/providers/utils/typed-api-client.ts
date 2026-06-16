@@ -133,12 +133,11 @@ const buildPath = <TOperation>(
   pathTemplate: string,
   options?: Partial<RequestOptions<TOperation>>,
 ) => {
-  const path = Object.entries(options?.path ?? {}).reduce(
-    (acc, [name, value]) => {
-      return acc.replace(`:${name}`, encodeURIComponent(String(value)));
-    },
-    pathTemplate,
-  );
+  let path = pathTemplate;
+
+  for (const [name, value] of Object.entries(options?.path ?? {})) {
+    path = path.replace(`:${name}`, encodeURIComponent(String(value)));
+  }
 
   if (!options?.query) {
     return path;

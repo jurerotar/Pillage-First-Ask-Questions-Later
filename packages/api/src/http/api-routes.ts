@@ -295,13 +295,15 @@ export const apiRoutes = [
   createRoute(cancelTroopMovement),
 ] as const;
 
-export const paths = apiRoutes.reduce<ZodOpenApiPathsObject>((acc, route) => {
-  acc[route.path] ??= {};
-  acc[route.path][route.controller.method] = route.controller
-    .operation as ZodOpenApiOperationObject;
+const openApiPaths: ZodOpenApiPathsObject = {};
 
-  return acc;
-}, {}) as PathsFromRoutes<typeof apiRoutes>;
+for (const route of apiRoutes) {
+  openApiPaths[route.path] ??= {};
+  openApiPaths[route.path][route.controller.method] = route.controller
+    .operation as ZodOpenApiOperationObject;
+}
+
+export const paths = openApiPaths as PathsFromRoutes<typeof apiRoutes>;
 
 export const compiledApiRoutes = apiRoutes.map((route) => ({
   ...route,

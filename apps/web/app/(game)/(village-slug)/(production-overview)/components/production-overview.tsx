@@ -62,7 +62,13 @@ const partitionEffectsByType = <T extends Effect>(
 };
 
 const sumBonusEffects = (effects: Effect[]): number => {
-  return effects.reduce((acc, effect) => acc + effect.value - 1, 1);
+  let total = 1;
+
+  for (const effect of effects) {
+    total += effect.value - 1;
+  }
+
+  return total;
 };
 
 type ResourceBoosterBenefitsProps = {
@@ -203,17 +209,29 @@ export const ProductionOverview = ({
     value: effect.value * serverEffectValue,
   }));
 
-  const summedBaseEffects = [
-    ...baseBuildingEffectsWithServerModifier,
-    ...baseOasisEffectsWithServerModifier,
-    ...baseArtifactsEffectsWithServerModifier,
-    ...baseHeroEffectsWithServerModifier,
-  ].reduce((acc, effect) => acc + effect.value, 0);
+  let summedBaseEffects = 0;
 
-  const summedAbsoluteBonusEffects = absoluteBonusBuildingEffectValues.reduce(
-    (acc, value) => acc + value,
-    0,
-  );
+  for (const effect of baseBuildingEffectsWithServerModifier) {
+    summedBaseEffects += effect.value;
+  }
+
+  for (const effect of baseOasisEffectsWithServerModifier) {
+    summedBaseEffects += effect.value;
+  }
+
+  for (const effect of baseArtifactsEffectsWithServerModifier) {
+    summedBaseEffects += effect.value;
+  }
+
+  for (const effect of baseHeroEffectsWithServerModifier) {
+    summedBaseEffects += effect.value;
+  }
+
+  let summedAbsoluteBonusEffects = 0;
+
+  for (const value of absoluteBonusBuildingEffectValues) {
+    summedAbsoluteBonusEffects += value;
+  }
 
   const total = summedBaseEffects + summedAbsoluteBonusEffects;
 

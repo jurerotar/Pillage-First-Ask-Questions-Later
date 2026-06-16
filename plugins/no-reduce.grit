@@ -1,0 +1,8 @@
+language js(typescript, jsx)
+
+or {
+  `$receiver.reduce($args)`,
+  `$receiver.reduce<$typeArgs>($args)`
+} as $call where {
+  register_diagnostic(span=$call, message="Avoid .reduce(); use an explicit for...of loop instead.", severity="error")
+}

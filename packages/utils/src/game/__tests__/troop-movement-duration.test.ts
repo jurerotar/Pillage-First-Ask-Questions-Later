@@ -23,12 +23,24 @@ describe(calculateTravelDuration, () => {
     const target: Village['coordinates'] = { x: 10, y: 0 };
 
     const romans = getUnitsByTribe('romans');
-    const slowest = romans.reduce((a, b) =>
-      b.unitSpeed < a.unitSpeed ? b : a,
-    );
-    const fastest = romans.reduce((a, b) =>
-      b.unitSpeed > a.unitSpeed ? b : a,
-    );
+    const [firstRoman, ...remainingRomans] = romans;
+
+    if (!firstRoman) {
+      throw new Error('Expected roman units to exist');
+    }
+
+    let slowest = firstRoman;
+    let fastest = firstRoman;
+
+    for (const roman of remainingRomans) {
+      if (roman.unitSpeed < slowest.unitSpeed) {
+        slowest = roman;
+      }
+
+      if (roman.unitSpeed > fastest.unitSpeed) {
+        fastest = roman;
+      }
+    }
 
     const troops: Troop[] = [
       { unitId: fastest.id, amount: 1, tileId: 0, source: 0 },

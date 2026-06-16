@@ -270,13 +270,14 @@ const HeroNavigationItem = () => {
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
 
+  let selectedAttributeCount = 0;
+
+  for (const attribute of Object.values(hero?.selectableAttributes ?? {})) {
+    selectedAttributeCount += attribute;
+  }
+
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
-  const isLevelUpAvailable =
-    (level + 1) * 4 >
-    Object.values(hero?.selectableAttributes ?? 0).reduce(
-      (total, curr) => total + curr,
-      0,
-    );
+  const isLevelUpAvailable = (level + 1) * 4 > selectedAttributeCount;
 
   return (
     <Link

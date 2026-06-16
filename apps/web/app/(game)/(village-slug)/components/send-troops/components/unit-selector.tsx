@@ -41,20 +41,20 @@ export const UnitSelector = ({
     return new Map(maxUnits.map(({ unitId, amount }) => [unitId, amount]));
   }, [maxUnits]);
 
-  const groupedUnits = units.reduce(
-    (acc, unit, index) => {
-      const groupKey = unit.tier === 'scout' ? 'scout' : unit.category;
-      if (!acc[groupKey]) {
-        acc[groupKey] = [];
-      }
-      acc[groupKey].push({ ...unit, index });
-      return acc;
-    },
-    {} as Record<
+  const groupedUnits: Partial<
+    Record<
       Unit['category'] | 'scout',
       ({ index: number } & (typeof units)[number])[]
-    >,
-  );
+    >
+  > = {};
+
+  for (const [index, unit] of units.entries()) {
+    const groupKey = unit.tier === 'scout' ? 'scout' : unit.category;
+    if (!groupedUnits[groupKey]) {
+      groupedUnits[groupKey] = [];
+    }
+    groupedUnits[groupKey].push({ ...unit, index });
+  }
 
   const handleMaxClick = (
     index: number,

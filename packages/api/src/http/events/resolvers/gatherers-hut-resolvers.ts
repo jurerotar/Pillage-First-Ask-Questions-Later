@@ -8,7 +8,12 @@ export const gatherersHutGatheringTripResolver: Resolver<
   GameEvent<'gatherersHutGatheringTrip'>
 > = (database, args) => {
   const { resolvesAt, troops, villageId } = args;
-  const sentTroopAmount = troops.reduce((sum, troop) => sum + troop.amount, 0);
+
+  let sentTroopAmount = 0;
+
+  for (const troop of troops) {
+    sentTroopAmount += troop.amount;
+  }
 
   addTroops(database, troops);
 

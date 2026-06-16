@@ -72,8 +72,24 @@ export const HeroAttributes = () => {
   const [attributes, setAttributes] = useState(selectableAttributes);
 
   const totalSpentPoints = useMemo(() => {
-    return Object.values(attributes).reduce((total, curr) => total + curr, 0);
+    let total = 0;
+
+    for (const attribute of Object.values(attributes)) {
+      total += attribute;
+    }
+
+    return total;
   }, [attributes]);
+
+  const initialSpentPoints = useMemo(() => {
+    let total = 0;
+
+    for (const attribute of Object.values(selectableAttributes)) {
+      total += attribute;
+    }
+
+    return total;
+  }, [selectableAttributes]);
 
   const isLevelUpAvailable = (level + 1) * 4 > totalSpentPoints;
   const freePoints = (level + 1) * 4 - totalSpentPoints;
@@ -308,10 +324,7 @@ export const HeroAttributes = () => {
               <Button
                 size="fit"
                 className="mt-4"
-                disabled={
-                  totalSpentPoints ===
-                  Object.values(selectableAttributes).reduce((a, b) => a + b, 0)
-                }
+                disabled={totalSpentPoints === initialSpentPoints}
                 onClick={() => updateHeroAttributes(attributes)}
               >
                 {t('Save changes')}
