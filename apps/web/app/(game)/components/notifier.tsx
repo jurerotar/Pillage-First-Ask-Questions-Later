@@ -11,10 +11,12 @@ import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
 import {
   isAdventureTroopMovementEvent,
+  isAnimalCageProductionEvent,
   isBuildingLevelChangeEvent,
   isFindNewVillageTroopMovementEvent,
   isGatherersHutGatheringTripEvent,
   isHeroRevivalEvent,
+  isHuntersLodgeHuntEvent,
   isOasisOccupationTroopMovementEvent,
   isReinforcementsTroopMovementEvent,
   isRelocationTroopMovementEvent,
@@ -323,6 +325,34 @@ const getEventCreatedInfo = (
         'Gathering party of {{count}} troops sent out from {{villageName}}',
         {
           count: troopAmount,
+          villageName,
+        },
+      ),
+    };
+  }
+
+  if (isHuntersLodgeHuntEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
+
+    return {
+      toastTitle: t(
+        'Level {{level}} hunting party sent out from {{villageName}}',
+        {
+          level: event.huntingPartyLevel,
+          villageName,
+        },
+      ),
+    };
+  }
+
+  if (isAnimalCageProductionEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
+
+    return {
+      toastTitle: t(
+        'Added {{count}} animal cages to production queue in {{villageName}}',
+        {
+          count: event.cageAmount,
           villageName,
         },
       ),
