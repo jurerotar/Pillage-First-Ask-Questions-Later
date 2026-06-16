@@ -54,6 +54,7 @@ import {
   isHuntersLodgeHuntEvent,
   isLoyaltyIncreaseEvent,
   isManuallyTriggeredReturnTroopMovementEvent,
+  isResourceTransferEvent,
   isReturnTroopMovementEvent,
   isScheduledBuildingEvent,
   isTroopMovementEvent,
@@ -80,6 +81,14 @@ import {
   getPlayerHeroAdventureStateAt,
   materializeHeroAdventurePointsAt,
 } from './adventures';
+import {
+  getFreeMerchantAmount,
+  getMarketplaceVillage,
+  getMerchantAmount,
+  getMerchantMovementDuration,
+  getTotalResourceAmount,
+  getVillageMerchantStats,
+} from './marketplace';
 import {
   assessQueuedTroopCountByIdQuestCompletion,
   assessQueuedTroopCountQuestCompletion,
@@ -648,6 +657,69 @@ export const validateEventCreationPrerequisites = (
     return;
   }
 
+  if (isResourceTransferEvent(event)) {
+    const { village, merchant } = getVillageMerchantStats(
+      database,
+      event.villageId,
+    );
+    const totalResourceAmount = getTotalResourceAmount(event.resources);
+    const isReturnTransfer = totalResourceAmount === 0;
+
+    const targetVillage = getMarketplaceVillage(
+      database,
+      event.targetVillageId,
+    );
+
+    if (!targetVillage || targetVillage.playerId !== village.playerId) {
+      throw new Error(
+        'Target village does not exist or does not belong to player',
+      );
+    }
+
+    if (targetVillage.tileId !== event.targetTileId) {
+      throw new Error('Target tile does not belong to target village');
+    }
+
+    if (isReturnTransfer) {
+      if (event.targetVillageId !== event.villageId) {
+        throw new Error('Merchant return must target the source village');
+      }
+
+      if (event.targetTileId !== village.tileId) {
+        throw new Error('Merchant return target tile must be source village');
+      }
+
+      if (event.merchantAmount <= 0) {
+        throw new Error('Merchant return must include merchants');
+      }
+
+      return;
+    }
+
+    if (event.targetVillageId === event.villageId) {
+      throw new Error('Target village must be different from source village');
+    }
+
+    if (village.tileId !== event.originTileId) {
+      throw new Error('Origin tile does not belong to source village');
+    }
+
+    const merchantAmount = getMerchantAmount(
+      event.resources,
+      merchant.merchantCapacity,
+    );
+
+    if (event.merchantAmount !== merchantAmount) {
+      throw new Error('Invalid merchant amount');
+    }
+
+    if (merchantAmount > getFreeMerchantAmount(database, event.villageId)) {
+      throw new Error('Not enough free merchants');
+    }
+
+    return;
+  }
+
   if (isTroopMovementEvent(event)) {
     const errors = validateTroopMovement(database, event);
 
@@ -864,6 +936,12 @@ export const getEventCost = (
     const { level } = calculateHeroLevel(experience);
 
     return calculateHeroRevivalCost(tribe, level);
+  }
+
+  if (isResourceTransferEvent(event)) {
+    const { wood, clay, iron, wheat } = event.resources;
+
+    return [wood, clay, iron, wheat];
   }
 
   return [0, 0, 0, 0];
@@ -1135,6 +1213,17 @@ export const getEventDuration = (
     });
   }
 
+  if (isResourceTransferEvent(event)) {
+    const { merchant } = getVillageMerchantStats(database, event.villageId);
+
+    return getMerchantMovementDuration(
+      database,
+      event.originTileId,
+      event.targetTileId,
+      merchant.merchantSpeed,
+    );
+  }
+
   if (isHeroRevivalEvent(event)) {
     const isInstantHeroReviveEnabled = database.selectValue({
       sql: 'SELECT is_instant_hero_revive_enabled FROM developer_settings',
@@ -1354,6 +1443,14 @@ export const getEventStartTime = (
       const { resolvesAt } = event;
 
       return resolvesAt;
+    }
+
+    return Date.now();
+  }
+
+  if (isResourceTransferEvent(event)) {
+    if (getTotalResourceAmount(event.resources) === 0) {
+      return event.resolvesAt ?? Date.now();
     }
 
     return Date.now();

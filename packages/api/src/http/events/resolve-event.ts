@@ -26,6 +26,7 @@ import {
   huntersLodgeHuntResolver,
 } from './resolvers/hunters-lodge-resolvers';
 import { loyaltyIncreaseResolver } from './resolvers/loyalty-resolvers';
+import { resourceTransferResolver } from './resolvers/marketplace-resolvers';
 import {
   adventureMovementResolver,
   attackMovementResolver,
@@ -66,6 +67,7 @@ const gameEventResolvers = {
   animalCageProduction: animalCageProductionResolver,
   huntersLodgeHunt: huntersLodgeHuntResolver,
   gatherersHutGatheringTrip: gatherersHutGatheringTripResolver,
+  resourceTransfer: resourceTransferResolver,
 } satisfies GameEventResolverMap;
 
 export const resolveEvent = (

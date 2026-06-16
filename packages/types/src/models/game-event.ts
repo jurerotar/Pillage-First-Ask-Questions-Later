@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
 import type { TroopTrainingDurationEffectId } from './effect';
+import type { Resources } from './resource';
 import type { Tile } from './tile';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
@@ -70,6 +71,14 @@ type BaseTroopMovementEvent = {
   targetTileId: Tile['id'];
 };
 
+type BaseMerchantMovementEvent = {
+  originTileId: Tile['id'];
+  targetTileId: Tile['id'];
+  targetVillageId: Village['id'];
+  resources: Resources;
+  merchantAmount: number;
+};
+
 export type TroopMovementEventType = Extract<
   GameEventType,
   | 'troopMovementReinforcements'
@@ -110,6 +119,7 @@ export const gameEventTypeSchema = z.enum([
   'heroRevival',
   'heroHealthRegeneration',
   'loyaltyIncrease',
+  'resourceTransfer',
 ]);
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;
@@ -137,6 +147,7 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   heroRevival: VillageGameEvent;
   heroHealthRegeneration: GlobalGameEvent;
   loyaltyIncrease: GlobalGameEvent;
+  resourceTransfer: BaseMerchantMovementEvent & VillageGameEvent;
 }[T];
 
 export type TroopMovementEvent =
