@@ -272,6 +272,8 @@
   "Game worlds": "Game worlds",
   "Gameplay": "Gameplay",
   "Gathering expedition": "Gathering expedition",
+  "Gathering party of {{count}} troops sent out from {{villageName}}_one": "Gathering party of {{count}} troops sent out from {{villageName}}",
+  "Gathering party of {{count}} troops sent out from {{villageName}}_other": "Gathering party of {{count}} troops sent out from {{villageName}}",
   "gathering-expedition": "Gathering expedition",
   "General": "General",
   "General statistics for this game world.": "General statistics for this game world.",

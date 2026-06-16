@@ -7,11 +7,13 @@ import type {
   EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
+import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
 import {
   isAdventureTroopMovementEvent,
   isBuildingLevelChangeEvent,
   isFindNewVillageTroopMovementEvent,
+  isGatherersHutGatheringTripEvent,
   isHeroRevivalEvent,
   isOasisOccupationTroopMovementEvent,
   isReinforcementsTroopMovementEvent,
@@ -50,6 +52,16 @@ const getTileCoordinates = (
   tileId: number,
   mapSize: Server['configuration']['mapSize'],
 ) => tileIdToCoordinates(tileId, mapSize);
+
+const getTroopAmount = (troops: Troop[]) => {
+  let troopAmount = 0;
+
+  for (const troop of troops) {
+    troopAmount += troop.amount;
+  }
+
+  return troopAmount;
+};
 
 const getEventResolvedInfo = (
   event: EventApiNotificationEvent,
@@ -297,6 +309,21 @@ const getEventCreatedInfo = (
           villageName,
           x,
           y,
+        },
+      ),
+    };
+  }
+
+  if (isGatherersHutGatheringTripEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const troopAmount = getTroopAmount(event.troops);
+
+    return {
+      toastTitle: t(
+        'Gathering party of {{count}} troops sent out from {{villageName}}',
+        {
+          count: troopAmount,
+          villageName,
         },
       ),
     };
