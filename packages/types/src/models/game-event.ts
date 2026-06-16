@@ -166,10 +166,12 @@ export type BuildingEvent =
   | GameEvent<'buildingLevelChange'>
   | GameEvent<'buildingConstruction'>;
 
+type TypedGameEvent<T extends GameEventType> = Omit<
+  BaseGameEvent,
+  'type' | 'villageId'
+> & {
+  type: T;
+} & GameEventTypeToEventArgsMap<T>;
+
 export type GameEvent<T extends GameEventType | undefined = undefined> =
-  T extends undefined
-    ? BaseGameEvent
-    : Omit<BaseGameEvent, 'type' | 'villageId'> & {
-        type: T;
-        // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
-      } & GameEventTypeToEventArgsMap<T>;
+  T extends GameEventType ? TypedGameEvent<T> : BaseGameEvent;
