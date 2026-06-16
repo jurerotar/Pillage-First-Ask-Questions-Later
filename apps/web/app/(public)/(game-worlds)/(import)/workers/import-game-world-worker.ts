@@ -7,6 +7,7 @@ import {
   type Server,
   serverDbSchema,
 } from '@pillage-first/types/models/server';
+import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 
 export type ImportGameWorldWorkerPayload = {
   databaseBuffer: ArrayBuffer;
@@ -41,9 +42,16 @@ globalThis.addEventListener(
       const id = crypto.randomUUID();
       const slug = `s-${id.slice(0, 4)}`;
 
-      opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+      const opfsSahPoolOptions = {
         directory: `/pillage-first-ask-questions-later/${slug}`,
-      });
+        forceReinitIfPreviouslyFailed: true,
+      };
+
+      const initializedSqlite3 = sqlite3;
+
+      opfsSahPool = await retryWhenFileSystemLocked(() =>
+        initializedSqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions),
+      );
 
       const mainDbPath = `/${slug}.sqlite3`;
 

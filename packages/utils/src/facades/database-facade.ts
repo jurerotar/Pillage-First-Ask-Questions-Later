@@ -1,11 +1,11 @@
 /** biome-ignore-all lint/suspicious/noConsole: We're using debug statements to test query performance in development */
-import type {
-  BindableValue,
-  OpfsSAHPoolDatabase,
-  SqlValue,
-} from '@sqlite.org/sqlite-wasm';
-import type { SnakeCase } from 'type-fest';
+import type { OpfsSAHPoolDatabase, SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
+import type {
+  ExecArgs,
+  ExecQueryArgs,
+  SelectArgs,
+} from './database-query-types';
 
 const createPreparedStatementCache = (): Map<
   string,
@@ -14,35 +14,28 @@ const createPreparedStatementCache = (): Map<
   return new Map<string, ReturnType<OpfsSAHPoolDatabase['prepare']>>();
 };
 
-type ExecArgs = {
-  sql: string;
-  bind?: Record<SnakeCase<string>, BindableValue>;
-};
-
-type SelectArgs<T extends z.ZodType> = {
-  sql: string;
-  bind?: Record<SnakeCase<string>, BindableValue>;
-  schema: T;
-};
-
 export type DbFacade = {
-  exec: (args: ExecArgs) => void;
+  exec: <const Sql extends string>(args: ExecQueryArgs<Sql>) => void;
 
   /** returns a single *value* validated against `schema`. undefined if not found */
-  selectValue: <T extends z.ZodType>(
-    args: SelectArgs<T>,
+  selectValue: <T extends z.ZodType, const Sql extends string>(
+    args: SelectArgs<T, Sql>,
   ) => z.infer<T> | undefined;
 
   /** returns an array of values validated against `schema` (empty array if nothing found) */
-  selectValues: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
+  selectValues: <T extends z.ZodType, const Sql extends string>(
+    args: SelectArgs<T, Sql>,
+  ) => z.infer<T>[];
 
   /** single row object validated against schema (use a z.strictObject(...) schema) */
-  selectObject: <T extends z.ZodType>(
-    args: SelectArgs<T>,
+  selectObject: <T extends z.ZodType, const Sql extends string>(
+    args: SelectArgs<T, Sql>,
   ) => z.infer<T> | undefined;
 
   /** many row objects validated against schema */
-  selectObjects: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
+  selectObjects: <T extends z.ZodType, const Sql extends string>(
+    args: SelectArgs<T, Sql>,
+  ) => z.infer<T>[];
 
   prepare: ({
     sql,

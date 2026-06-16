@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { FaPen } from 'react-icons/fa6';
 import { LuTrash } from 'react-icons/lu';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { CreateFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/farm-list/create-farm-list-modal';
-import { EditFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/farm-list/edit-farm-list-modal';
+import { CreateFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/farm-list/create-farm-list-modal';
+import { EditFarmListModal } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/farm-list/edit-farm-list-modal';
 import {
   Section,
   SectionContent,
@@ -89,7 +89,7 @@ export const RallyPointFarmList = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8"
+                          className="size-8"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -101,7 +101,7 @@ export const RallyPointFarmList = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();

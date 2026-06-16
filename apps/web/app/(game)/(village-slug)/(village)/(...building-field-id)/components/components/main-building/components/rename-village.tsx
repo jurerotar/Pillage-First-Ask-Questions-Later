@@ -4,6 +4,7 @@ import { t } from 'i18next';
 import { use, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { z } from 'zod';
 import {
   Section,
@@ -65,6 +66,7 @@ export const RenameVillage = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [[villageListingCacheKey]]);
+      toast.success(t('Village renamed'));
     },
   });
 

@@ -171,7 +171,7 @@ const ConstructionQueueContent = () => {
   ];
 
   return (
-    <aside className="fixed left-0 bottom-26 lg:bottom-14 transition-all">
+    <aside className="fixed left-0 bottom-safe-offset-26 lg:bottom-14 transition-all">
       <ul
         ref={containerRef}
         className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center transition-all"

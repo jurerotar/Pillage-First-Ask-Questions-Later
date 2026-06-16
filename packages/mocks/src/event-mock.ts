@@ -45,6 +45,7 @@ export const createBuildingDestructionEventMock = (
     buildingId: 'MAIN_BUILDING',
     buildingFieldId: 19,
     previousLevel: 1,
+    level: 0,
     ...overrides,
   });
 };
@@ -53,8 +54,8 @@ export const createTroopMovementAdventureEventMock = (
   overrides: Partial<GameEvent<'troopMovementAdventure'>> = {},
 ): GameEvent<'troopMovementAdventure'> => {
   return createGameEventMock('troopMovementAdventure', {
-    originCoordinates: villageMock.coordinates,
-    targetCoordinates: { x: 1, y: 1 },
+    originTileId: 1,
+    targetTileId: 1,
     troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     ...overrides,
   });
@@ -64,8 +65,8 @@ export const createTroopMovementRelocationEventMock = (
   overrides: Partial<GameEvent<'troopMovementRelocation'>> = {},
 ): GameEvent<'troopMovementRelocation'> => {
   return createGameEventMock('troopMovementRelocation', {
-    originCoordinates: villageMock.coordinates,
-    targetCoordinates: { x: 1, y: 1 },
+    originTileId: 1,
+    targetTileId: 1,
     troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
     ...overrides,
   });
@@ -75,8 +76,8 @@ export const createTroopMovementFindNewVillageEventMock = (
   overrides: Partial<GameEvent<'troopMovementFindNewVillage'>> = {},
 ): GameEvent<'troopMovementFindNewVillage'> => {
   return createGameEventMock('troopMovementFindNewVillage', {
-    originCoordinates: villageMock.coordinates,
-    targetCoordinates: { x: 1, y: 1 },
+    originTileId: 1,
+    targetTileId: 1,
     troops: [],
     ...overrides,
   });
@@ -86,8 +87,8 @@ export const createTroopMovementAttackEventMock = (
   overrides: Partial<GameEvent<'troopMovementAttack'>> = {},
 ): GameEvent<'troopMovementAttack'> => {
   return createGameEventMock('troopMovementAttack', {
-    originCoordinates: villageMock.coordinates,
-    targetCoordinates: { x: 1, y: 1 },
+    originTileId: 1,
+    targetTileId: 1,
     troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
     ...overrides,
   });
@@ -97,18 +98,9 @@ export const createTroopMovementRaidEventMock = (
   overrides: Partial<GameEvent<'troopMovementRaid'>> = {},
 ): GameEvent<'troopMovementRaid'> => {
   return createGameEventMock('troopMovementRaid', {
-    originCoordinates: villageMock.coordinates,
-    targetCoordinates: { x: 1, y: 1 },
+    originTileId: 1,
+    targetTileId: 1,
     troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
-    ...overrides,
-  });
-};
-
-export const createAdventurePointIncreaseEventMock = (
-  overrides: Partial<GameEvent<'adventurePointIncrease'>> = {},
-): GameEvent<'adventurePointIncrease'> => {
-  return createGameEventMock('adventurePointIncrease', {
-    villageId: null,
     ...overrides,
   });
 };

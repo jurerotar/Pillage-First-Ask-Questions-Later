@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import type {
@@ -7,9 +7,10 @@ import type {
   EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
+import type { Village } from '@pillage-first/types/models/village';
 import {
   isAdventureTroopMovementEvent,
-  isBuildingLevelUpEvent,
+  isBuildingLevelChangeEvent,
   isFindNewVillageTroopMovementEvent,
   isHeroRevivalEvent,
   isOasisOccupationTroopMovementEvent,
@@ -19,6 +20,8 @@ import {
   isUnitImprovementEvent,
   isUnitResearchEvent,
 } from '@pillage-first/utils/guards/event';
+import { tileIdToCoordinates } from '@pillage-first/utils/map';
+import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
@@ -33,6 +36,8 @@ import {
 type NotificationFactoryArgs = {
   t: TFunction;
   serverName: string;
+  mapSize: Server['configuration']['mapSize'];
+  playerVillagesMap: Map<Village['id'], Village['name']>;
 };
 
 type NotificationInfo = {
@@ -41,21 +46,28 @@ type NotificationInfo = {
   body?: string;
 };
 
+const getTileCoordinates = (
+  tileId: number,
+  mapSize: Server['configuration']['mapSize'],
+) => tileIdToCoordinates(tileId, mapSize);
+
 const getEventResolvedInfo = (
   event: EventApiNotificationEvent,
-  { t, serverName }: NotificationFactoryArgs,
+  { t, serverName, mapSize, playerVillagesMap }: NotificationFactoryArgs,
 ): NotificationInfo | undefined => {
-  if (isBuildingLevelUpEvent(event)) {
+  if (isBuildingLevelChangeEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
     const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
     const { level, previousLevel } = event;
     const isDowngradeEvent = level < previousLevel;
 
     const toastTitle = t(
       isDowngradeEvent
-        ? '{{buildingName}} downgraded'
-        : '{{buildingName}} upgraded',
+        ? '{{buildingName}} downgraded in {{villageName}}'
+        : '{{buildingName}} upgraded in {{villageName}}',
       {
         buildingName,
+        villageName,
       },
     );
 
@@ -64,21 +76,24 @@ const getEventResolvedInfo = (
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
       body: t(
         isDowngradeEvent
-          ? '{{buildingName}} was downgraded to level {{level}}'
-          : '{{buildingName}} was upgraded to level {{level}}',
+          ? '{{buildingName}} was downgraded to level {{level}} in {{villageName}}'
+          : '{{buildingName}} was upgraded to level {{level}} in {{villageName}}',
         {
           buildingName,
           level,
+          villageName,
         },
       ),
     };
   }
 
   if (isUnitResearchEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
     const unitName = t(`UNITS.${event.unitId}.NAME`);
 
-    const toastTitle = t('{{unitName}} researched', {
+    const toastTitle = t('{{unitName}} researched in {{villageName}}', {
       unitName,
+      villageName,
     });
 
     return {
@@ -88,50 +103,66 @@ const getEventResolvedInfo = (
   }
 
   if (isUnitImprovementEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
     const unitName = t(`UNITS.${event.unitId}.NAME`);
     const { level } = event;
 
-    const toastTitle = t('{{unitName}} upgraded', {
+    const toastTitle = t('{{unitName}} upgraded in {{villageName}}', {
       unitName,
+      villageName,
     });
 
     return {
       toastTitle,
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
-      body: t('{{unitName}} was upgraded to level {{level}}', {
-        unitName,
-        level,
-      }),
+      body: t(
+        '{{unitName}} was upgraded to level {{level}} in {{villageName}}',
+        {
+          unitName,
+          level,
+          villageName,
+        },
+      ),
     };
   }
 
   if (isRelocationTroopMovementEvent(event)) {
-    const { targetCoordinates } = event;
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     const toastTitle = t('Relocation finished');
 
     return {
       toastTitle,
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
-      body: t('Troops relocated to village at coordinates ({{x}}|{{y}})', {
-        x: targetCoordinates.x,
-        y: targetCoordinates.y,
-      }),
+      body: t(
+        'Troops relocated to coordinates ({{x}}|{{y}}) from {{villageName}}',
+        {
+          villageName,
+          x,
+          y,
+        },
+      ),
     };
   }
 
   if (isFindNewVillageTroopMovementEvent(event)) {
-    const { targetCoordinates } = event;
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     const toastTitle = t('New village founded');
 
     return {
       toastTitle,
       notificationTitle: `${toastTitle} | Pillage First! - ${serverName}`,
-      body: t('Settlers found a new village at coordinates ({{x}}|{{y}})', {
-        x: targetCoordinates.x,
-        y: targetCoordinates.y,
-      }),
+      body: t(
+        'Settlers from {{villageName}} found a new village at coordinates ({{x}}|{{y}})',
+        {
+          villageName,
+          x,
+          y,
+        },
+      ),
     };
   }
 
@@ -140,9 +171,10 @@ const getEventResolvedInfo = (
 
 const getEventCreatedInfo = (
   event: EventApiNotificationEvent,
-  { t }: NotificationFactoryArgs,
+  { t, mapSize, playerVillagesMap }: NotificationFactoryArgs,
 ): NotificationInfo | undefined => {
-  if (isBuildingLevelUpEvent(event)) {
+  if (isBuildingLevelChangeEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
     const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
     const { level, previousLevel } = event;
     const isDowngradeEvent = level < previousLevel;
@@ -150,111 +182,140 @@ const getEventCreatedInfo = (
     return {
       toastTitle: t(
         isDowngradeEvent
-          ? '{{buildingName}} level {{level}} downgrade started'
-          : '{{buildingName}} level {{level}} upgrade started',
+          ? '{{buildingName}} level {{level}} downgrade started in {{villageName}}'
+          : '{{buildingName}} level {{level}} upgrade started in {{villageName}}',
         {
           buildingName,
           level,
+          villageName,
         },
       ),
     };
   }
 
   if (isUnitResearchEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
     const unitName = t(`UNITS.${event.unitId}.NAME`);
 
     return {
-      toastTitle: t('{{unitName}} research started', {
+      toastTitle: t('{{unitName}} research started in {{villageName}}', {
         unitName,
+        villageName,
       }),
     };
   }
 
   if (isUnitImprovementEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
     const unitName = t(`UNITS.${event.unitId}.NAME`);
     const { level } = event;
 
     return {
-      toastTitle: t('{{unitName}} level {{level}} upgrade started', {
-        unitName,
-        level,
-      }),
+      toastTitle: t(
+        '{{unitName}} level {{level}} upgrade started in {{villageName}}',
+        {
+          unitName,
+          level,
+          villageName,
+        },
+      ),
     };
   }
 
   if (isAdventureTroopMovementEvent(event)) {
-    return { toastTitle: t('Hero sent on adventure') };
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    return {
+      toastTitle: t('Hero sent on adventure from {{villageName}}', {
+        villageName,
+      }),
+    };
   }
 
   if (isHeroRevivalEvent(event)) {
-    return { toastTitle: t('Hero revival started') };
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    return {
+      toastTitle: t('Hero revival started in {{villageName}}', { villageName }),
+    };
   }
 
   if (isReinforcementsTroopMovementEvent(event)) {
-    const { targetCoordinates } = event;
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     return {
       toastTitle: t(
-        'Reinforcements sent to village at coordinates ({{x}}|{{y}})',
+        'Reinforcements sent to coordinates ({{x}}|{{y}}) from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
+          villageName,
+          x,
+          y,
         },
       ),
     };
   }
 
   if (isRelocationTroopMovementEvent(event)) {
-    const { targetCoordinates } = event;
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     return {
       toastTitle: t(
-        'Relocation of troops to village at coordinates ({{x}}|{{y}}) has started',
+        'Relocation of troops to coordinates ({{x}}|{{y}}) has started from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
+          villageName,
+          x,
+          y,
         },
       ),
     };
   }
 
   if (isFindNewVillageTroopMovementEvent(event)) {
-    const { targetCoordinates } = event;
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     return {
       toastTitle: t(
-        'Settlers sent to found a new village at coordinates ({{x}}|{{y}})',
+        'Settlers sent to found a new village at coordinates ({{x}}|{{y}}) from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
+          villageName,
+          x,
+          y,
         },
       ),
     };
   }
 
   if (isOasisOccupationTroopMovementEvent(event)) {
-    const { targetCoordinates } = event;
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const { x, y } = getTileCoordinates(event.targetTileId, mapSize);
 
     return {
       toastTitle: t(
-        'Troops sent to occupy oasis at coordinates ({{x}}|{{y}})',
+        'Troops sent to occupy oasis at coordinates ({{x}}|{{y}}) from {{villageName}}',
         {
-          x: targetCoordinates.x,
-          y: targetCoordinates.y,
+          villageName,
+          x,
+          y,
         },
       ),
     };
   }
 
   if (isTroopTrainingEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
     const unitName = t(`UNITS.${event.unitId}.NAME`);
     const { amount } = event;
 
     return {
-      toastTitle: t('Added {{count}} {{unitName}} to training queue', {
-        count: amount,
-        unitName,
-      }),
+      toastTitle: t(
+        'Added {{count}} {{unitName}} to training queue in {{villageName}}',
+        {
+          count: amount,
+          unitName,
+          villageName,
+        },
+      ),
     };
   }
 
@@ -267,23 +328,28 @@ type NotifierProps = {
 
 export const Notifier = ({ serverSlug }: NotifierProps) => {
   const { t } = useTranslation();
-  const { apiWorker } = useApiWorker(serverSlug);
+  const { subscribeToApiWorkerNotifications } = useApiWorker(serverSlug);
   const { preferences } = usePreferences();
   const notificationPermission = useNotificationPermission();
   const isTabFocused = useTabFocus();
-  const { server } = useServer();
+  const { server, mapSize } = useServer();
+  const { playerVillages } = usePlayerVillageListing();
+
+  const playerVillagesMap = useMemo(() => {
+    return new Map<Village['id'], Village['name']>(
+      playerVillages.map(({ id, name }) => [id, name]),
+    );
+  }, [playerVillages]);
 
   useEffect(() => {
-    if (!apiWorker) {
-      return;
-    }
-
     const handleMessage = async (event: MessageEvent<ApiNotificationEvent>) => {
       if (isEventCreatedNotificationMessageEvent(event)) {
         const { data } = event;
         const info = getEventCreatedInfo(data, {
           t,
           serverName: server.name,
+          mapSize,
+          playerVillagesMap,
         });
 
         if (info) {
@@ -314,6 +380,8 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       const info = getEventResolvedInfo(data, {
         t,
         serverName: server.name,
+        mapSize,
+        playerVillagesMap,
       });
 
       if (!info) {
@@ -329,7 +397,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       }
 
       const shouldShowNotification =
-        (isBuildingLevelUpEvent(data) &&
+        (isBuildingLevelChangeEvent(data) &&
           preferences.shouldShowNotificationsOnBuildingUpgradeCompletion) ||
         (isUnitImprovementEvent(data) &&
           preferences.shouldShowNotificationsOnUnitUpgradeCompletion) ||
@@ -339,16 +407,21 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
       if (shouldShowNotification && notificationTitle) {
         const registration = await navigator.serviceWorker.ready;
 
-        registration.showNotification(notificationTitle, { body });
+        await registration.showNotification(notificationTitle, { body });
       }
     };
 
-    apiWorker.addEventListener('message', handleMessage);
-
-    return () => {
-      apiWorker.removeEventListener('message', handleMessage);
-    };
-  }, [apiWorker, t, notificationPermission, isTabFocused, server, preferences]);
+    return subscribeToApiWorkerNotifications(handleMessage);
+  }, [
+    t,
+    notificationPermission,
+    isTabFocused,
+    server,
+    mapSize,
+    preferences,
+    playerVillagesMap,
+    subscribeToApiWorkerNotifications,
+  ]);
 
   return null;
 };

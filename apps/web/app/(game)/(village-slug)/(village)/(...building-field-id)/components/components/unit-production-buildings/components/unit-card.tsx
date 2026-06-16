@@ -296,7 +296,7 @@ export const UnitResearch = () => {
 
     createUnitResearchEvent({
       unitId,
-      cachesToClearImmediately: [currentVillageCacheKey],
+      cachesToClearImmediately: [[currentVillageCacheKey, currentVillage.slug]],
     });
   };
 
@@ -422,7 +422,7 @@ export const UnitImprovement = () => {
     createUnitImprovementEvent({
       unitId,
       level: unitVirtualLevel + 1,
-      cachesToClearImmediately: [currentVillageCacheKey],
+      cachesToClearImmediately: [[currentVillageCacheKey, currentVillage.slug]],
     });
   };
 
@@ -550,6 +550,7 @@ export const UnitCost = () => {
 
 export const UnitRecruitment = () => {
   const { t } = useTranslation();
+  const { currentVillage } = useCurrentVillage();
   const { unitId, durationEffect, buildingId } = use(UnitCardContext);
   const { developerSettings } = useDeveloperSettings();
   const currentResources = use(CurrentVillageStateContext);
@@ -610,7 +611,7 @@ export const UnitRecruitment = () => {
       amount,
       unitId,
       durationEffectId: durationEffect!,
-      cachesToClearImmediately: [currentVillageCacheKey],
+      cachesToClearImmediately: [[currentVillageCacheKey, currentVillage.slug]],
     });
   };
 

@@ -2,26 +2,37 @@ import { useWindowEvent } from '@mantine/hooks';
 import {
   lazy,
   Suspense,
+  type UIEvent,
   use,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from 'react-router';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import {
-  FixedSizeGrid,
-  FixedSizeList,
-  type GridOnScrollProps,
+  Grid,
+  type GridImperativeAPI,
+  List,
+  type ListImperativeAPI,
 } from 'react-window';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { Tile } from '@pillage-first/types/models/tile';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
 import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
-import { MapRulerCell } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
+import {
+  MapRulerCell,
+  MapRulerGridCell,
+} from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
+import {
+  type MapSendTroopsAction,
+  MapSendTroopsModal,
+} from 'app/(game)/(village-slug)/(map)/components/map-send-troops-modal';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import { useMapMarkers } from 'app/(game)/(village-slug)/(map)/hooks/use-map-markers';
 import {
@@ -33,6 +44,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
+import { PageContents } from 'app/components/page-contents';
 import { Tooltip } from 'app/components/tooltip';
 import { Dialog } from 'app/components/ui/dialog';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -47,15 +59,22 @@ const TileDialog = lazy(async () => ({
 
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
+const DRAG_CLICK_THRESHOLD = 3;
 
 const MapPageContents = () => {
   const [searchParams] = useSearchParams();
   const {
     isOpen: isTileModalOpened,
     openModal,
-    toggleModal,
+    closeModal: closeTileModal,
     modalArgs,
   } = useDialog<Tile>();
+  const {
+    isOpen: isSendTroopsModalOpen,
+    openModal: openSendTroopsModal,
+    closeModal: closeSendTroopsModal,
+    modalArgs: sendTroopsModalArgs,
+  } = useDialog<MapSendTroopsAction>();
   const { map } = useMap();
   const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
@@ -72,14 +91,13 @@ const MapPageContents = () => {
   const startingX = Number.parseInt(searchParams.get('x') ?? `${x}`, 10);
   const startingY = Number.parseInt(searchParams.get('y') ?? `${y}`, 10);
 
-  const mapRef = useRef<HTMLDivElement>(null);
+  const [mapGrid, setMapGrid] = useState<GridImperativeAPI | null>(null);
 
-  const setMapRef = useCallback((node: HTMLDivElement | null) => {
-    mapRef.current = node;
-  }, []);
-
-  const leftMapRulerRef = useRef<FixedSizeList>(null);
-  const bottomMapRulerRef = useRef<FixedSizeList>(null);
+  const [leftMapRuler, setLeftMapRuler] = useState<ListImperativeAPI | null>(
+    null,
+  );
+  const [bottomMapRuler, setBottomMapRuler] =
+    useState<GridImperativeAPI | null>(null);
 
   /**
    * List of individual contributions
@@ -95,6 +113,10 @@ const MapPageContents = () => {
   const mapHeight = isWiderThanLg ? height - 80 : height - 218;
 
   const isScrolling = useRef<boolean>(false);
+  const [isDragScrolling, setIsDragScrolling] = useState<boolean>(false);
+  const didDragScroll = useRef<boolean>(false);
+  const dragScrollFrame = useRef<number | null>(null);
+  const pendingDragScroll = useRef<Coordinates | null>(null);
   const currentCenterTile = useRef<Coordinates>({
     x: startingX,
     y: startingY,
@@ -116,6 +138,11 @@ const MapPageContents = () => {
       createMapMarker,
       deleteMapMarker,
       onClick: (tileId: number) => {
+        if (didDragScroll.current) {
+          didDragScroll.current = false;
+          return;
+        }
+
         const tile = map[tileId - 1];
 
         openModal(tile);
@@ -134,9 +161,16 @@ const MapPageContents = () => {
     deleteMapMarker,
   ]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: We need to re-attach handlers on tile-size change, because map remounts
+  const openMapSendTroopsModal = useCallback(
+    (action: MapSendTroopsAction) => {
+      closeTileModal();
+      openSendTroopsModal(action);
+    },
+    [closeTileModal, openSendTroopsModal],
+  );
+
   useEffect(() => {
-    const node = mapRef.current;
+    const node = mapGrid?.element;
     if (!node) {
       return;
     }
@@ -152,8 +186,11 @@ const MapPageContents = () => {
         x: clientX,
         y: clientY,
       };
+      pendingDragScroll.current = null;
+      didDragScroll.current = false;
 
       isScrolling.current = true;
+      setIsDragScrolling(true);
     };
 
     node.addEventListener('mousedown', handleMouseDown, {
@@ -164,29 +201,80 @@ const MapPageContents = () => {
     return () => {
       controller.abort();
     };
-  }, [tileSize]);
+  }, [mapGrid]);
 
   useWindowEvent('mousemove', ({ clientX, clientY }) => {
-    if (!isScrolling.current || !mapRef.current) {
+    const node = mapGrid?.element;
+
+    if (!isScrolling.current || !node) {
       return;
     }
 
     const deltaX = clientX - mouseDownPosition.current.x;
     const deltaY = clientY - mouseDownPosition.current.y;
 
-    const currentX = mapRef.current.scrollLeft;
-    const currentY = mapRef.current.scrollTop;
+    if (
+      Math.abs(deltaX) > DRAG_CLICK_THRESHOLD ||
+      Math.abs(deltaY) > DRAG_CLICK_THRESHOLD
+    ) {
+      didDragScroll.current = true;
+    }
 
     mouseDownPosition.current = {
       x: clientX,
       y: clientY,
     };
 
-    mapRef.current.scrollTo(currentX - deltaX, currentY - deltaY);
+    const currentScroll = pendingDragScroll.current ?? {
+      x: node.scrollLeft,
+      y: node.scrollTop,
+    };
+
+    pendingDragScroll.current = {
+      x: currentScroll.x - deltaX,
+      y: currentScroll.y - deltaY,
+    };
+
+    if (dragScrollFrame.current !== null) {
+      return;
+    }
+
+    dragScrollFrame.current = window.requestAnimationFrame(() => {
+      dragScrollFrame.current = null;
+
+      const nextScroll = pendingDragScroll.current;
+      if (!nextScroll) {
+        return;
+      }
+
+      pendingDragScroll.current = null;
+      node.scrollLeft = nextScroll.x;
+      node.scrollTop = nextScroll.y;
+      syncRulers(nextScroll.x, nextScroll.y);
+    });
   });
 
   useWindowEvent('mouseup', () => {
+    const node = mapGrid?.element;
+
+    if (node && pendingDragScroll.current) {
+      node.scrollLeft = pendingDragScroll.current.x;
+      node.scrollTop = pendingDragScroll.current.y;
+      syncRulers(pendingDragScroll.current.x, pendingDragScroll.current.y);
+      pendingDragScroll.current = null;
+    }
+
+    if (dragScrollFrame.current !== null) {
+      window.cancelAnimationFrame(dragScrollFrame.current);
+      dragScrollFrame.current = null;
+    }
+
     isScrolling.current = false;
+    setIsDragScrolling(false);
+
+    if (node) {
+      updateCurrentCenterTile(node.scrollLeft, node.scrollTop);
+    }
   });
 
   const scrollLeft = (tileX: number) => {
@@ -200,26 +288,66 @@ const MapPageContents = () => {
   const offsetX = scrollLeft(currentCenterTile.current.x);
   const offsetY = scrollTop(currentCenterTile.current.y);
 
-  const onScroll = useCallback(
-    ({ scrollTop, scrollLeft }: GridOnScrollProps) => {
-      if (bottomMapRulerRef.current) {
-        bottomMapRulerRef.current.scrollTo(scrollLeft);
-      }
-      if (leftMapRulerRef.current) {
-        leftMapRulerRef.current.scrollTo(scrollTop);
-      }
+  const syncScroll = useCallback(
+    (scrollX: number, scrollY: number, behavior: ScrollBehavior = 'auto') => {
+      mapGrid?.element?.scrollTo({
+        left: scrollX,
+        top: scrollY,
+        behavior,
+      });
+      leftMapRuler?.element?.scrollTo({
+        top: scrollY,
+        behavior,
+      });
+      bottomMapRuler?.element?.scrollTo({
+        left: scrollX,
+        behavior,
+      });
+    },
+    [bottomMapRuler, leftMapRuler, mapGrid],
+  );
 
-      currentCenterTile.current.x = Math.round(
-        (scrollLeft + width / 2) / tileSize - gridSize / 2,
-      );
-      currentCenterTile.current.y = Math.round(
-        gridSize / 2 - (scrollTop + mapHeight / 2) / tileSize,
-      );
+  const syncRulers = useCallback(
+    (scrollX: number, scrollY: number) => {
+      bottomMapRuler?.element?.scrollTo({
+        left: scrollX,
+      });
+      leftMapRuler?.element?.scrollTo({
+        top: scrollY,
+      });
+    },
+    [bottomMapRuler, leftMapRuler],
+  );
+
+  const updateCurrentCenterTile = useCallback(
+    (scrollX: number, scrollY: number) => {
+      currentCenterTile.current.x =
+        (scrollX + width / 2) / tileSize - gridSize / 2;
+      currentCenterTile.current.y =
+        gridSize / 2 - (scrollY + mapHeight / 2) / tileSize;
     },
     [tileSize, gridSize, width, mapHeight],
   );
 
+  const onScroll = useCallback(
+    (event: UIEvent<HTMLDivElement>) => {
+      const { scrollTop, scrollLeft } = event.currentTarget;
+
+      if (isScrolling.current) {
+        return;
+      }
+
+      syncRulers(scrollLeft, scrollTop);
+      updateCurrentCenterTile(scrollLeft, scrollTop);
+    },
+    [syncRulers, updateCurrentCenterTile],
+  );
+
   const isInitialRender = useRef<boolean>(true);
+
+  useLayoutEffect(() => {
+    syncScroll(offsetX, offsetY);
+  }, [offsetX, offsetY, syncScroll]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: We intentionally only want to react on location.key and nothing else
   useEffect(() => {
@@ -231,21 +359,7 @@ const MapPageContents = () => {
     const scrollX = scrollLeft(startingX);
     const scrollY = scrollTop(startingY);
 
-    if (mapRef.current) {
-      mapRef.current.scrollTo({
-        left: scrollX,
-        top: scrollY,
-        behavior: 'smooth',
-      });
-    }
-
-    if (leftMapRulerRef.current) {
-      leftMapRulerRef.current.scrollTo(scrollY);
-    }
-
-    if (bottomMapRulerRef.current) {
-      bottomMapRulerRef.current.scrollTo(scrollX);
-    }
+    syncScroll(scrollX, scrollY, 'smooth');
 
     currentCenterTile.current = { x: startingX, y: startingY };
   }, [location.key]);
@@ -267,26 +381,53 @@ const MapPageContents = () => {
       }
 
       const tile = map[tileId - 1];
+      const mapMarker = mapMarkers.find((marker) => marker.tileId === tileId);
 
       return (
         <Suspense fallback={null}>
-          <TileTooltip tile={tile} />
+          <TileTooltip
+            mapMarker={mapMarker}
+            tile={tile}
+          />
         </Suspense>
       );
     },
-    [map],
+    [map, mapMarkers],
   );
 
   return (
     <main className="relative overflow-x-hidden overflow-y-hidden scrollbar-hidden">
       <Dialog
         open={isTileModalOpened}
-        onOpenChange={toggleModal}
+        onOpenChange={(open) => !open && closeTileModal()}
       >
         <Suspense fallback={null}>
-          <TileDialog tile={modalArgs.current!} />
+          <TileDialog
+            createMapMarker={createMapMarker}
+            deleteMapMarker={deleteMapMarker}
+            mapMarkers={mapMarkers}
+            tile={modalArgs.current!}
+            onFoundNewVillage={(tile) => {
+              openMapSendTroopsModal({
+                mode: 'found-new-village',
+                targetTileId: tile.id,
+              });
+            }}
+            onReinforceVillage={(tile) => {
+              openMapSendTroopsModal({
+                mode: 'reinforcement',
+                isRelocationEnabled: tile.type !== 'oasis',
+                targetTileId: tile.id,
+              });
+            }}
+          />
         </Suspense>
       </Dialog>
+      <MapSendTroopsModal
+        action={sendTroopsModalArgs.current}
+        isOpen={isSendTroopsModalOpen}
+        onClose={closeSendTroopsModal}
+      />
       <Tooltip
         anchorSelect="[data-tile-id]"
         closeEvents={{
@@ -295,62 +436,65 @@ const MapPageContents = () => {
         hidden={
           !isWiderThanLg ||
           !mapFilters.shouldShowTileTooltips ||
-          isTileModalOpened
+          isTileModalOpened ||
+          isDragScrolling
         }
         render={renderTooltip}
       />
-      <FixedSizeGrid
+      <Grid
         key={tileSize}
         className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
-        outerRef={setMapRef}
+        gridRef={setMapGrid}
         columnCount={gridSize}
         columnWidth={tileSize}
         rowCount={gridSize}
         rowHeight={tileSize}
-        height={mapHeight}
-        width={width}
-        itemData={fixedGridData}
-        initialScrollLeft={offsetX}
-        initialScrollTop={offsetY}
+        style={{
+          height: mapHeight,
+          width,
+        }}
+        cellComponent={Cell}
+        cellProps={fixedGridData}
         onScroll={onScroll}
-      >
-        {Cell}
-      </FixedSizeGrid>
+        overscanCount={isDragScrolling ? 0 : 1}
+      />
       {/* Y-axis ruler */}
-      <div className="absolute left-0 top-0 select-none pointer-events-none">
-        <FixedSizeList
+      <div className="absolute left-0 top-0 non-selectable pointer-events-none">
+        <List
           className="scrollbar-hidden will-change-scroll"
-          ref={leftMapRulerRef}
-          itemSize={tileSize}
-          height={mapHeight}
-          itemCount={gridSize}
-          width={RULER_SIZE}
-          initialScrollOffset={offsetY}
-          layout="vertical"
-          itemData={{
+          listRef={setLeftMapRuler}
+          rowHeight={tileSize}
+          rowCount={gridSize}
+          style={{
+            height: mapHeight,
+            width: RULER_SIZE,
+          }}
+          rowComponent={MapRulerCell}
+          rowProps={{
             layout: 'vertical',
           }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
+          overscanCount={1}
+        />
       </div>
       {/* X-axis ruler */}
-      <div className="absolute bottom-0 left-0 select-none pointer-events-none">
-        <FixedSizeList
+      <div className="absolute bottom-0 left-0 non-selectable pointer-events-none">
+        <Grid
           className="scrollbar-hidden will-change-scroll"
-          ref={bottomMapRulerRef}
-          itemSize={tileSize}
-          height={RULER_SIZE}
-          itemCount={gridSize}
-          width={width - RULER_SIZE}
-          initialScrollOffset={offsetX}
-          layout="horizontal"
-          itemData={{
+          gridRef={setBottomMapRuler}
+          columnWidth={tileSize}
+          columnCount={gridSize}
+          rowHeight={RULER_SIZE}
+          rowCount={1}
+          style={{
+            height: RULER_SIZE,
+            width: width - RULER_SIZE,
+          }}
+          cellComponent={MapRulerGridCell}
+          cellProps={{
             layout: 'horizontal',
           }}
-        >
-          {MapRulerCell}
-        </FixedSizeList>
+          overscanCount={1}
+        />
       </div>
       <MapControls />
     </main>
@@ -365,12 +509,12 @@ const MapPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Map')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <MapProvider>
         <MapPageContents />
       </MapProvider>
-    </>
+    </PageContents>
   );
 };
 

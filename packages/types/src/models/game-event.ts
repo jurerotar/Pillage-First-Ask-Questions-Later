@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
-import type { Coordinates } from './coordinates';
 import type { TroopTrainingDurationEffectId } from './effect';
+import type { Tile } from './tile';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
 import type { Village } from './village';
@@ -33,8 +33,7 @@ type BaseBuildingEvent = {
 
 type BuildingLevelChangeEvent = BaseBuildingEvent;
 type BuildingScheduledConstructionEvent = BaseBuildingEvent;
-
-type BuildingDestructionEvent = Omit<BaseBuildingEvent, 'level'>;
+type BuildingDestructionEvent = BaseBuildingEvent;
 
 type UnitResearchEvent = {
   unitId: Unit['id'];
@@ -43,6 +42,18 @@ type UnitResearchEvent = {
 type UnitImprovementEvent = {
   unitId: Unit['id'];
   level: number;
+};
+
+type AnimalCageProductionEvent = {
+  cageAmount: number;
+};
+
+type HuntersLodgeHuntEvent = {
+  huntingPartyLevel: number;
+};
+
+type GatherersHutGatheringTripEvent = {
+  troops: Troop[];
 };
 
 type BaseUnitTrainingEvent = {
@@ -55,8 +66,8 @@ type BaseUnitTrainingEvent = {
 
 type BaseTroopMovementEvent = {
   troops: Troop[];
-  originCoordinates: Coordinates;
-  targetCoordinates: Coordinates;
+  originTileId: Tile['id'];
+  targetTileId: Tile['id'];
 };
 
 export type TroopMovementEventType = Extract<
@@ -72,7 +83,9 @@ export type TroopMovementEventType = Extract<
 >;
 
 export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
-  originalMovementType: TroopMovementEventType;
+  originalMovementType:
+    | TroopMovementEventType
+    | 'troopMovementReturnReinforcements';
 };
 
 export const gameEventTypeSchema = z.enum([
@@ -91,7 +104,9 @@ export const gameEventTypeSchema = z.enum([
   'troopMovementAdventure',
   'unitResearch',
   'unitImprovement',
-  'adventurePointIncrease',
+  'animalCageProduction',
+  'huntersLodgeHunt',
+  'gatherersHutGatheringTrip',
   'heroRevival',
   'heroHealthRegeneration',
   'loyaltyIncrease',
@@ -108,6 +123,9 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopTraining: BaseUnitTrainingEvent & VillageGameEvent;
   unitResearch: UnitResearchEvent & VillageGameEvent;
   unitImprovement: UnitImprovementEvent & VillageGameEvent;
+  animalCageProduction: AnimalCageProductionEvent & VillageGameEvent;
+  huntersLodgeHunt: HuntersLodgeHuntEvent & VillageGameEvent;
+  gatherersHutGatheringTrip: GatherersHutGatheringTripEvent & VillageGameEvent;
   troopMovementReinforcements: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementRelocation: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementReturn: ReturnTroopMovementEvent & VillageGameEvent;
@@ -116,7 +134,6 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   troopMovementRaid: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementOasisOccupation: BaseTroopMovementEvent & VillageGameEvent;
   troopMovementAdventure: BaseTroopMovementEvent & VillageGameEvent;
-  adventurePointIncrease: GlobalGameEvent;
   heroRevival: VillageGameEvent;
   heroHealthRegeneration: GlobalGameEvent;
   loyaltyIncrease: GlobalGameEvent;
@@ -133,6 +150,7 @@ export type TroopMovementEvent =
   | GameEvent<'troopMovementAdventure'>;
 
 export type BuildingEvent =
+  | GameEvent<'buildingDestruction'>
   | GameEvent<'buildingScheduledConstruction'>
   | GameEvent<'buildingLevelChange'>
   | GameEvent<'buildingConstruction'>;

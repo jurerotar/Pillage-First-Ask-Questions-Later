@@ -229,15 +229,15 @@ source (e.g. actual backend for an online app), without having to touch rest of 
 
 ### Important files
 
-- [`api-worker.ts`](/packages/api/src/api-worker.ts)
-- [`api-routes.ts`](/packages/api/src/routes/api-routes.ts)
+- [`api-worker.ts`](/packages/api/src/worker/api-worker.ts)
+- [`api-routes.ts`](/packages/api/src/http/api-routes.ts)
 - [`api-provider.tsx`](/apps/web/app/(game)/providers/api-provider.tsx)
 
 ### How would a multiplayer integration look like?
 
-Frontend expects a RESTful API and a WebSocket server. The list of expected routes is found in `api-routes.ts`. Request
-parameters and responses
-are found in `/packages/api` package. To integrate your own backend, you need to implement the API routes (e.g.,
+Frontend expects a RESTful API and a WebSocket server. The list of expected routes is found in `src/http/api-routes.ts`.
+Request parameters and responses are defined in the composed OpenAPI contract under `src/contracts/paths`. To integrate
+your own backend, you need to implement the API routes (e.g.,
 fetching game state,
 interacting with events) and WebSocket support. Once these routes are live, provide a `fetcher` function in the
 `api-provider.tsx`. This

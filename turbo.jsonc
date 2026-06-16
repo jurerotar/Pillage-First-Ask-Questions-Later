@@ -1,6 +1,8 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": ["package.json", "tsconfig.json", ".editorconfig", "biome.json", ".oxlintrc.json"],
+  "cacheMaxAge": "7d",
+  "cacheMaxSize": "10GB",
   "tasks": {
     "swagger": {
       "persistent": true,

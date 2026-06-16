@@ -7,12 +7,13 @@ import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 export const BuildingConstructionViewModeToggle = () => {
   const { t } = useTranslation();
   const { preferences, updatePreference } = usePreferences();
+  const viewMode = preferences.buildingConstructionViewMode;
 
   return (
     <ToggleGroup
       variant="outline"
       type="single"
-      value={preferences.buildingConstructionViewMode}
+      value={viewMode}
       onValueChange={(value: BuildingConstructionViewMode) => {
         updatePreference({
           preferenceName: 'buildingConstructionViewMode',
@@ -25,6 +26,7 @@ export const BuildingConstructionViewModeToggle = () => {
         aria-label={t('Detailed view')}
         data-tooltip-id="general-tooltip"
         data-tooltip-content={t('Detailed view')}
+        disabled={viewMode === 'detailed'}
       >
         <AiOutlineExpandAlt />
       </ToggleGroupItem>
@@ -33,6 +35,7 @@ export const BuildingConstructionViewModeToggle = () => {
         aria-label={t('Compact view')}
         data-tooltip-id="general-tooltip"
         data-tooltip-content={t('Compact view')}
+        disabled={viewMode === 'compact'}
       >
         <AiOutlineShrink />
       </ToggleGroupItem>

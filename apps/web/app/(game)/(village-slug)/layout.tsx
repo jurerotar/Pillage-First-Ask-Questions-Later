@@ -80,20 +80,6 @@ import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
 import { useDialog } from 'app/hooks/use-dialog';
 
-const closeGameWorld = (apiWorker: Worker): void => {
-  const handler = ({ data }: MessageEvent) => {
-    const { type } = data;
-
-    if (type === 'WORKER_CLOSE_SUCCESS') {
-      apiWorker.removeEventListener('message', handler);
-      apiWorker.terminate();
-    }
-  };
-
-  apiWorker.addEventListener('message', handler);
-  apiWorker.postMessage({ type: 'WORKER_CLOSE' });
-};
-
 const TOOLTIP_DELAY_SHOW = 500;
 
 type CounterProps = {
@@ -127,59 +113,39 @@ const QuestsCounter = () => {
   return <Counter counter={collectableQuestCount} />;
 };
 
-type NavigationSideItemProps = Partial<NavLinkProps> & {
+type NavigationSideItemProps = ComponentProps<'span'> & {
   counter?: ReactNode;
-  onClick?: () => void;
 };
 
 const NavigationSideItem = ({
   children,
+  className,
   counter,
   ...rest
 }: PropsWithChildren<NavigationSideItemProps>) => {
-  const content = (
-    <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
-      {children}
-    </span>
-  );
-
-  const { to, ...restWithoutTo } = rest;
-
-  const commonProps = {
-    'data-tooltip-id': 'general-tooltip' as const,
-    'data-tooltip-delay-show': TOOLTIP_DELAY_SHOW,
-    'data-tooltip-class-name': 'hidden lg:flex',
-    tabIndex: 0,
-    className: clsx(
-      'bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60',
-      'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-[#f1f1f1] dark:border-border relative',
-      'transition-transform active:scale-95 active:shadow-inner',
-      'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
-      'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
-      'lg:dark:from-[#404040] lg:dark:to-[#303030] lg:dark:hover:from-[#4a4a4a] lg:dark:hover:to-[#3a3a3a]',
-    ),
-    ...restWithoutTo,
-  };
-
   return (
-    <div className="relative">
+    <span className="relative inline-flex">
       {counter}
-      {to ? (
-        <NavLink
-          {...(commonProps as NavLinkProps)}
-          to={to}
-        >
-          {content}
-        </NavLink>
-      ) : (
-        <button
-          type="button"
-          {...(commonProps as ComponentProps<'button'>)}
-        >
-          {content}
-        </button>
-      )}
-    </div>
+      <span
+        data-tooltip-id="general-tooltip"
+        data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
+        data-tooltip-class-name="hidden lg:flex"
+        className={clsx(
+          'bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60',
+          'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-[#f1f1f1] dark:border-border relative',
+          'transition-transform active:scale-95 active:shadow-inner',
+          'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
+          'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
+          'lg:dark:from-[#404040] lg:dark:to-[#303030] lg:dark:hover:from-[#4a4a4a] lg:dark:hover:to-[#3a3a3a]',
+          className,
+        )}
+        {...rest}
+      >
+        <span className="lg:size-10 lg:bg-background lg:rounded-full flex items-center justify-center">
+          {children}
+        </span>
+      </span>
+    </span>
   );
 };
 
@@ -435,18 +401,21 @@ const QuestsNavigationItem = () => {
   const { t } = useTranslation();
 
   return (
-    <NavigationSideItem
+    <Link
       to="quests"
       aria-label={t('Quests')}
-      data-tooltip-content={t('Quests')}
-      counter={
-        <Suspense fallback={null}>
-          <QuestsCounter />
-        </Suspense>
-      }
     >
-      <LuBookMarked className="text-2xl" />
-    </NavigationSideItem>
+      <NavigationSideItem
+        data-tooltip-content={t('Quests')}
+        counter={
+          <Suspense fallback={null}>
+            <QuestsCounter />
+          </Suspense>
+        }
+      >
+        <LuBookMarked className="text-2xl" />
+      </NavigationSideItem>
+    </Link>
   );
 };
 
@@ -454,18 +423,21 @@ const AdventuresNavigationItem = () => {
   const { t } = useTranslation();
 
   return (
-    <NavigationSideItem
+    <Link
       to="hero?tab=adventures"
       aria-label={t('Adventures')}
-      data-tooltip-content={t('Adventures')}
-      counter={
-        <Suspense fallback={null}>
-          <AdventurePointsCounter />
-        </Suspense>
-      }
     >
-      <PiPathBold className="text-2xl" />
-    </NavigationSideItem>
+      <NavigationSideItem
+        data-tooltip-content={t('Adventures')}
+        counter={
+          <Suspense fallback={null}>
+            <AdventurePointsCounter />
+          </Suspense>
+        }
+      >
+        <PiPathBold className="text-2xl" />
+      </NavigationSideItem>
+    </Link>
   );
 };
 
@@ -473,18 +445,21 @@ const ReportsNavigationItem = () => {
   const { t } = useTranslation();
 
   return (
-    <NavigationSideItem
+    <Link
       to="reports"
       aria-label={t('Reports')}
-      data-tooltip-content={t('Reports')}
-      counter={
-        <Suspense fallback={null}>
-          <ReportsCounter />
-        </Suspense>
-      }
     >
-      <LuScrollText className="text-2xl" />
-    </NavigationSideItem>
+      <NavigationSideItem
+        data-tooltip-content={t('Reports')}
+        counter={
+          <Suspense fallback={null}>
+            <ReportsCounter />
+          </Suspense>
+        }
+      >
+        <LuScrollText className="text-2xl" />
+      </NavigationSideItem>
+    </Link>
   );
 };
 
@@ -602,7 +577,7 @@ type TopNavigationProps = {
 
 const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
   const { t } = useTranslation();
-  const { apiWorker } = use(ApiContext);
+  const { closeApiWorker } = use(ApiContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { preferences } = usePreferences();
 
@@ -682,7 +657,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
                   <Link
                     to="/game-worlds"
                     onClick={() => {
-                      closeGameWorld(apiWorker);
+                      void closeApiWorker();
                     }}
                   >
                     <DesktopTopRowItem
@@ -729,13 +704,14 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
                   <AdventuresNavigationItem />
                 </li>
                 <li>
-                  <NavigationSideItem
+                  <Link
                     to="hero?tab=auctions"
                     aria-label={t('Auctions')}
-                    data-tooltip-content={t('Auctions')}
                   >
-                    <RiAuctionLine className="text-xl" />
-                  </NavigationSideItem>
+                    <NavigationSideItem data-tooltip-content={t('Auctions')}>
+                      <RiAuctionLine className="text-xl" />
+                    </NavigationSideItem>
+                  </Link>
                 </li>
               </ul>
             </nav>
@@ -767,7 +743,7 @@ const MobileBottomNavigation = ({
   onDeveloperToolsToggle,
 }: MobileBottomNavigationProps) => {
   const { t } = useTranslation();
-  const { apiWorker } = use(ApiContext);
+  const { closeApiWorker } = use(ApiContext);
   const { preferences } = usePreferences();
 
   const container = useRef<HTMLDivElement>(null);
@@ -787,36 +763,42 @@ const MobileBottomNavigation = ({
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>
-            <NavigationSideItem
+            <Link
               target="_blank"
               to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
               aria-label="GitHub"
               title="GitHub"
             >
-              <FaGithub className="text-2xl text-[#24292e] dark:text-white" />
-            </NavigationSideItem>
+              <NavigationSideItem>
+                <FaGithub className="text-2xl text-[#24292e] dark:text-white" />
+              </NavigationSideItem>
+            </Link>
           </li>
           <li>
-            <NavigationSideItem
+            <Link
               target="_blank"
               to="https://discord.com/invite/Ep7NKVXUZA"
               aria-label="Discord"
               title="Discord"
             >
-              <FaDiscord className="text-2xl text-[#7289da]" />
-            </NavigationSideItem>
+              <NavigationSideItem>
+                <FaDiscord className="text-2xl text-[#7289da]" />
+              </NavigationSideItem>
+            </Link>
           </li>
           <li>
             <Separator orientation="vertical" />
           </li>
           <li>
-            <NavigationSideItem
+            <Link
               to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
               aria-label={t('Event log')}
               title={t('Event log')}
             >
-              <MdEventNote className="text-2xl" />
-            </NavigationSideItem>
+              <NavigationSideItem>
+                <MdEventNote className="text-2xl" />
+              </NavigationSideItem>
+            </Link>
           </li>
           <li>
             <AdventuresNavigationItem />
@@ -844,47 +826,56 @@ const MobileBottomNavigation = ({
             <ReportsNavigationItem />
           </li>
           <li>
-            <NavigationSideItem
+            <Link
               to="statistics"
               aria-label={t('Statistics')}
               title={t('Statistics')}
             >
-              <GoGraph className="text-2xl" />
-            </NavigationSideItem>
+              <NavigationSideItem>
+                <GoGraph className="text-2xl" />
+              </NavigationSideItem>
+            </Link>
           </li>
           <li>
-            <NavigationSideItem
+            <Link
               to="preferences"
               aria-label={t('Preferences')}
               title={t('Preferences')}
             >
-              <MdSettings className="text-2xl" />
-            </NavigationSideItem>
+              <NavigationSideItem>
+                <MdSettings className="text-2xl" />
+              </NavigationSideItem>
+            </Link>
           </li>
           <li>
             <Separator orientation="vertical" />
           </li>
           {preferences.isDeveloperToolsConsoleEnabled && (
             <li>
-              <NavigationSideItem
+              <button
+                type="button"
                 aria-label={t('Developer tools')}
                 onClick={onDeveloperToolsToggle}
               >
-                <DeveloperToolsButton className="text-purple-600 border-purple-500 size-6" />
-              </NavigationSideItem>
+                <NavigationSideItem>
+                  <DeveloperToolsButton className="text-purple-600 border-purple-500 size-6" />
+                </NavigationSideItem>
+              </button>
             </li>
           )}
           <li>
-            <NavigationSideItem
+            <Link
               to="/game-worlds"
               onClick={() => {
-                closeGameWorld(apiWorker);
+                void closeApiWorker();
               }}
               aria-label={t('Logout')}
               title={t('Logout')}
             >
-              <RxExit className="text-2xl text-red-500" />
-            </NavigationSideItem>
+              <NavigationSideItem>
+                <RxExit className="text-2xl text-red-500" />
+              </NavigationSideItem>
+            </Link>
           </li>
         </ul>
       </nav>

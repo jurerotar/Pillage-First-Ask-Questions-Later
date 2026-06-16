@@ -1,4 +1,8 @@
 import type { SAHPoolUtil, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
+import {
+  isFileSystemLockError,
+  retryWhenFileSystemLocked,
+} from '@pillage-first/utils/opfs-lock-retry';
 
 export type ShareServerWorkerPayload = {
   serverSlug: string;
@@ -23,9 +27,16 @@ globalThis.addEventListener(
 
       sqlite3 ??= await sqlite3InitModule();
 
-      opfsSahPool = await sqlite3.installOpfsSAHPoolVfs({
+      const opfsSahPoolOptions = {
         directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-      });
+        forceReinitIfPreviouslyFailed: true,
+      };
+
+      const initializedSqlite3 = sqlite3;
+
+      opfsSahPool = await retryWhenFileSystemLocked(() =>
+        initializedSqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions),
+      );
 
       const fileName = `/${serverSlug}.sqlite3`;
       if (!opfsSahPool.getFileNames().includes(fileName)) {
@@ -46,11 +57,7 @@ globalThis.addEventListener(
       console.error('[ShareServerWorker] Export failed:', error);
       let message = 'Failed to prepare game world for sharing.';
 
-      if (
-        error instanceof Error &&
-        (error.name === 'NoModificationAllowedError' ||
-          error.message.includes('NoModificationAllowedError'))
-      ) {
+      if (isFileSystemLockError(error)) {
         message =
           'The game world is already open on this device. Please close it before reattempting.';
       }

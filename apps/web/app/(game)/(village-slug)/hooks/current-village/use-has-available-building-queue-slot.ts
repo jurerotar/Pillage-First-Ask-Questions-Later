@@ -10,7 +10,7 @@ export const useHasAvailableBuildingQueueSlot = (
   buildingFieldId: BuildingField['id'],
 ) => {
   const { t } = useTranslation();
-  const { getBuildingEventQueue, buildingDowngradeEvents } = use(
+  const { getBuildingEventQueue, downgradedBuildingByFieldId } = use(
     CurrentVillageBuildingQueueContext,
   );
 
@@ -25,10 +25,7 @@ export const useHasAvailableBuildingQueueSlot = (
     errorBag.push(t('Building construction queue is full.'));
   }
 
-  const downgradedBuilding = buildingDowngradeEvents.find(
-    ({ buildingFieldId: eventBuildingFieldId }) =>
-      eventBuildingFieldId === buildingFieldId,
-  );
+  const downgradedBuilding = downgradedBuildingByFieldId.get(buildingFieldId);
 
   if (downgradedBuilding) {
     const { buildingId } = downgradedBuilding;

@@ -12,8 +12,11 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 
 type CurrentVillageBuildingQueueContextReturn = {
   buildingEvents: BuildingEvent[];
+  buildingEventByFieldId: Map<BuildingField['id'], BuildingEvent>;
+  buildingUpgradeEventCountByFieldId: Map<BuildingField['id'], number>;
   buildingUpgradeEvents: BuildingEvent[];
   buildingDowngradeEvents: BuildingEvent[];
+  downgradedBuildingByFieldId: Map<BuildingField['id'], BuildingEvent>;
   getBuildingEventQueue: (
     buildingFieldId: BuildingField['id'],
   ) => BuildingEvent[];
@@ -29,6 +32,8 @@ export const CurrentVillageBuildingQueueContextProvider = ({
 }: PropsWithChildren) => {
   const tribe = useTribe();
 
+  const { eventsByType: currentVillageBuildingDestructionEvents } =
+    useEventsByType('buildingDestruction');
   const { eventsByType: currentVillageBuildingLevelChangeEvents } =
     useEventsByType('buildingLevelChange');
   const { eventsByType: currentVillageBuildingScheduledConstructionEvents } =
@@ -36,12 +41,14 @@ export const CurrentVillageBuildingQueueContextProvider = ({
 
   const buildingEvents = useMemo(() => {
     return [
+      ...currentVillageBuildingDestructionEvents,
       ...currentVillageBuildingLevelChangeEvents,
       ...currentVillageBuildingScheduledConstructionEvents,
     ].toSorted((a, b) => a.startsAt + a.duration - (b.startsAt + b.duration));
   }, [
     currentVillageBuildingLevelChangeEvents,
     currentVillageBuildingScheduledConstructionEvents,
+    currentVillageBuildingDestructionEvents,
   ]);
 
   const [buildingUpgradeEvents, buildingDowngradeEvents] = useMemo(() => {
@@ -50,6 +57,32 @@ export const CurrentVillageBuildingQueueContextProvider = ({
       ({ previousLevel, level }) => level > previousLevel,
     );
   }, [buildingEvents]);
+
+  const buildingEventByFieldId = useMemo(() => {
+    return new Map(
+      buildingEvents.map((event) => [event.buildingFieldId, event]),
+    );
+  }, [buildingEvents]);
+
+  const buildingUpgradeEventCountByFieldId = useMemo(() => {
+    const eventCountByFieldId = new Map<BuildingField['id'], number>();
+
+    for (const event of buildingUpgradeEvents) {
+      const { buildingFieldId } = event;
+      eventCountByFieldId.set(
+        buildingFieldId,
+        (eventCountByFieldId.get(buildingFieldId) ?? 0) + 1,
+      );
+    }
+
+    return eventCountByFieldId;
+  }, [buildingUpgradeEvents]);
+
+  const downgradedBuildingByFieldId = useMemo(() => {
+    return new Map(
+      buildingDowngradeEvents.map((event) => [event.buildingFieldId, event]),
+    );
+  }, [buildingDowngradeEvents]);
 
   const buildingEventQueues = useMemo(() => {
     const [resourceQueue, villageQueue] = partition<BuildingEvent>(
@@ -79,13 +112,19 @@ export const CurrentVillageBuildingQueueContextProvider = ({
   const value = useMemo(
     () => ({
       buildingEvents,
+      buildingEventByFieldId,
+      buildingUpgradeEventCountByFieldId,
       buildingUpgradeEvents,
+      downgradedBuildingByFieldId,
       getBuildingEventQueue,
       buildingDowngradeEvents,
     }),
     [
       buildingEvents,
+      buildingEventByFieldId,
       buildingDowngradeEvents,
+      buildingUpgradeEventCountByFieldId,
+      downgradedBuildingByFieldId,
       getBuildingEventQueue,
       buildingUpgradeEvents,
     ],

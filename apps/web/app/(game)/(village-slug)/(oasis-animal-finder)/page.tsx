@@ -21,6 +21,7 @@ import { oasisAnimalFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -130,7 +131,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Oasis animal finder')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -425,7 +426,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
           </div>
         </SectionContent>
       </Section>
-    </>
+    </PageContents>
   );
 };
 

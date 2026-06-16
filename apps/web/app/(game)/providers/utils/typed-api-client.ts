@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import { paths } from '@pillage-first/api/open-api';
+import type { paths } from '@pillage-first/api/open-api';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
 type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
@@ -121,43 +121,13 @@ type RequestOptions<TOperation> = PathParamOptions<TOperation> &
   QueryParamOptions<TOperation> &
   BodyOptions<TOperation>;
 
-const getResponseSchema = <
-  TMethod extends HttpMethod,
-  TPath extends PathForMethod<TMethod>,
->(
-  method: TMethod,
-  pathTemplate: TPath,
-) => {
-  const operation = (
-    paths[pathTemplate] as Partial<Record<HttpMethod, { responses?: unknown }>>
-  )[method];
-
-  if (!operation) {
-    return null;
-  }
-
-  const responses = (operation.responses ?? {}) as Record<string, unknown>;
-  const successResponse =
-    responses['200'] ?? responses['201'] ?? responses['204'] ?? null;
-
-  if (!successResponse) {
-    return null;
-  }
-
-  const schema = (
-    successResponse as {
-      content?: {
-        'application/json'?: {
-          schema?: unknown;
-        };
-      };
-    }
-  ).content?.['application/json']?.schema;
-
-  return schema && typeof schema === 'object' && 'parse' in schema
-    ? (schema as z.ZodType)
-    : null;
-};
+type HasRequiredOptions<TOperation> = [PathParamsFor<TOperation>] extends [
+  never,
+]
+  ? [BodyFor<TOperation>] extends [never]
+    ? false
+    : true
+  : true;
 
 const buildPath = <TOperation>(
   pathTemplate: string,
@@ -204,50 +174,53 @@ export const createTypedApiClient = (fetcher: Fetcher) => {
   const request = async <
     TMethod extends HttpMethod,
     TPath extends PathForMethod<TMethod>,
+    TOperation extends Operation<TPath, TMethod> = Operation<TPath, TMethod>,
   >(
     method: TMethod,
     pathTemplate: TPath,
-    options?: RequestOptions<Operation<TPath, TMethod>>,
-  ): Promise<{ data: SuccessResponseFor<Operation<TPath, TMethod>> }> => {
-    const url = buildPath<Operation<TPath, TMethod>>(pathTemplate, options);
+    ...[options]: HasRequiredOptions<TOperation> extends true
+      ? [RequestOptions<TOperation>]
+      : [RequestOptions<TOperation>?]
+  ): Promise<{ data: SuccessResponseFor<TOperation> }> => {
+    const url = buildPath<TOperation>(pathTemplate, options);
 
     const { data } = await fetcher<
-      SuccessResponseFor<Operation<TPath, TMethod>>,
-      BodyFor<Operation<TPath, TMethod>>
+      SuccessResponseFor<TOperation>,
+      BodyFor<TOperation>
     >(url, {
       method: method.toUpperCase(),
       body: options?.body,
     });
 
-    const responseSchema = getResponseSchema(method, pathTemplate);
-
-    if (!responseSchema) {
-      return { data };
-    }
-
     return {
-      data: responseSchema.parse(data) as SuccessResponseFor<
-        Operation<TPath, TMethod>
-      >,
+      data,
     };
   };
 
   return {
     get: <TPath extends PathForMethod<'get'>>(
       pathTemplate: TPath,
-      options?: RequestOptions<Operation<TPath, 'get'>>,
-    ) => request<'get', TPath>('get', pathTemplate, options),
+      ...args: HasRequiredOptions<Operation<TPath, 'get'>> extends true
+        ? [RequestOptions<Operation<TPath, 'get'>>]
+        : [RequestOptions<Operation<TPath, 'get'>>?]
+    ) => request<'get', TPath>('get', pathTemplate, ...args),
     post: <TPath extends PathForMethod<'post'>>(
       pathTemplate: TPath,
-      options?: RequestOptions<Operation<TPath, 'post'>>,
-    ) => request<'post', TPath>('post', pathTemplate, options),
+      ...args: HasRequiredOptions<Operation<TPath, 'post'>> extends true
+        ? [RequestOptions<Operation<TPath, 'post'>>]
+        : [RequestOptions<Operation<TPath, 'post'>>?]
+    ) => request<'post', TPath>('post', pathTemplate, ...args),
     patch: <TPath extends PathForMethod<'patch'>>(
       pathTemplate: TPath,
-      options?: RequestOptions<Operation<TPath, 'patch'>>,
-    ) => request<'patch', TPath>('patch', pathTemplate, options),
+      ...args: HasRequiredOptions<Operation<TPath, 'patch'>> extends true
+        ? [RequestOptions<Operation<TPath, 'patch'>>]
+        : [RequestOptions<Operation<TPath, 'patch'>>?]
+    ) => request<'patch', TPath>('patch', pathTemplate, ...args),
     delete: <TPath extends PathForMethod<'delete'>>(
       pathTemplate: TPath,
-      options?: RequestOptions<Operation<TPath, 'delete'>>,
-    ) => request<'delete', TPath>('delete', pathTemplate, options),
+      ...args: HasRequiredOptions<Operation<TPath, 'delete'>> extends true
+        ? [RequestOptions<Operation<TPath, 'delete'>>]
+        : [RequestOptions<Operation<TPath, 'delete'>>?]
+    ) => request<'delete', TPath>('delete', pathTemplate, ...args),
   };
 };

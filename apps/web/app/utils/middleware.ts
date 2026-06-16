@@ -30,16 +30,13 @@ export const isGameWorldLocked = async (
 export const doesGameWorldExist = async (
   serverSlug: string,
 ): Promise<boolean> => {
-  const root = await navigator.storage.getDirectory();
-  const rootHandle = await root.getDirectoryHandle(
-    'pillage-first-ask-questions-later',
-    {
-      create: true,
-    },
-  );
-
   try {
-    await rootHandle.getFileHandle(`${serverSlug}.json`);
+    const root = await navigator.storage.getDirectory();
+    const rootHandle = await root.getDirectoryHandle(
+      'pillage-first-ask-questions-later',
+    );
+
+    await rootHandle.getDirectoryHandle(serverSlug);
     return true;
   } catch {
     return false;

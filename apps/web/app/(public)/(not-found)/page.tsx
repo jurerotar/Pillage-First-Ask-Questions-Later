@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -16,7 +17,7 @@ const NotFoundPage = () => {
   const title = t('{{title}} | Pillage First!', { title: 'Page not found' });
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
@@ -54,7 +55,7 @@ const NotFoundPage = () => {
           </div>
         </main>
       </div>
-    </>
+    </PageContents>
   );
 };
 

@@ -503,6 +503,16 @@
       "NAME_other": "Clay Pits",
       "DESCRIPTION": "Clay is produced here. By increasing its level, you increase the production of clay. Clay pit can be extended to level 20. Clay production can additionally be increased by occupying clay oasis."
     },
+    "GATHERERS_HUT": {
+      "NAME": "Gatherer's Hut",
+      "NAME_other": "Gatherer's Huts",
+      "DESCRIPTION": "The Gatherer's Hut organizes gathering expeditions. Your idle units may join these expeditions and collect resources for your village. Higher levels of Gatherer's Hut allow more units to join the expedition."
+    },
+    "HUNTERS_LODGE": {
+      "NAME": "Hunter's Lodge",
+      "NAME_other": "Hunter's Lodges",
+      "DESCRIPTION": "The Hunter's Lodge organizes hunting parties in nearby oasis. Captured animals are brought back to your village to serve as reinforcements. Higher levels of this building allow hunters to capture stronger animals. Hunters also manufacture traps you can use with your Hero to capture animals yourself."
+    },
     "EMBASSY": {
       "NAME": "Embassy",
       "NAME_other": "Embassies",
@@ -1056,6 +1066,8 @@
     "offensiveMovementOutgoing": "Offensive movement (outgoing)",
     "offensiveMovementIncoming": "Offensive movement (incoming)",
     "adventure": "Adventure",
+    "huntingParty": "Hunting party",
+    "gatheringTrip": "Gathering trip",
     "positiveChange": "Increase",
     "negativeChange": "Decrease",
     "merchantSpeed": "Merchant speed",

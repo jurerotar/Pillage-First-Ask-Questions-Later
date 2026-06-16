@@ -1,7 +1,18 @@
-import type { CSSProperties } from 'react';
 import { use } from 'react';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 import { CookieContext } from 'app/providers/cookie-provider';
+
+type ToasterStyle = NonNullable<ToasterProps['style']> & {
+  '--normal-bg': string;
+  '--normal-text': string;
+  '--normal-border': string;
+};
+
+const toasterStyle: ToasterStyle = {
+  '--normal-bg': 'var(--popover)',
+  '--normal-text': 'var(--popover-foreground)',
+  '--normal-border': 'var(--border)',
+};
 
 export const Toaster = (props: ToasterProps) => {
   const { uiColorScheme } = use(CookieContext);
@@ -10,13 +21,7 @@ export const Toaster = (props: ToasterProps) => {
     <Sonner
       className="toaster group"
       theme={uiColorScheme}
-      style={
-        {
-          '--normal-bg': 'var(--popover)',
-          '--normal-text': 'var(--popover-foreground)',
-          '--normal-border': 'var(--border)',
-        } as CSSProperties
-      }
+      style={toasterStyle}
       {...props}
     />
   );

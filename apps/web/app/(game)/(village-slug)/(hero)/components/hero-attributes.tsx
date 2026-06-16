@@ -47,6 +47,7 @@ export const HeroAttributes = () => {
   const heroHomeVillage = playerVillages.find(({ id }) => {
     return hero.villageId === id;
   })!;
+  const isHeroHomeVillageCurrent = currentVillage.id === hero.villageId;
 
   const isEgyptian = tribe === 'egyptians';
   const sharedProductionPerPoint = isEgyptian ? 12 : 9;
@@ -121,11 +122,11 @@ export const HeroAttributes = () => {
           <div className="inline-flex gap-2 items-center font-medium">
             <FaHome className="size-6" />
             <span>
-              {currentVillage.id === hero.id &&
+              {isHeroHomeVillageCurrent &&
                 t(
                   "Your hero's home village is set to the current village. Should your hero die, it can only be revived from here.",
                 )}
-              {currentVillage.id !== hero.id && (
+              {!isHeroHomeVillageCurrent && (
                 <Trans>
                   Your hero's home village is set to{' '}
                   <Text

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { CreateNewGameWorldForm } from 'app/(public)/(game-worlds)/(create)/components/create-new-game-world-form';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
@@ -20,7 +21,7 @@ const CreateNewGameWorldPage = () => {
   });
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
@@ -72,7 +73,7 @@ const CreateNewGameWorldPage = () => {
           </div>
         </main>
       </div>
-    </>
+    </PageContents>
   );
 };
 

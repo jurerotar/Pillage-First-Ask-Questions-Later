@@ -1,17 +1,18 @@
 import { clsx } from 'clsx';
+import { memo, use } from 'react';
 import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/utils/buildings';
 import type { BuildingField as BuildingFieldType } from '@pillage-first/types/models/building-field';
 import { EmptyBuildingField } from 'app/(game)/(village-slug)/(village)/components/empty-building-field';
 import { OccupiedBuildingField } from 'app/(game)/(village-slug)/(village)/components/occupied-building-field';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { VillageMapContext } from 'app/(game)/(village-slug)/(village)/providers/village-map-context';
 import buildingFieldStyles from './building-field.module.scss';
 
 type BuildingFieldProps = {
   buildingFieldId: BuildingFieldType['id'];
 };
 
-export const BuildingField = ({ buildingFieldId }: BuildingFieldProps) => {
-  const { currentVillage } = useCurrentVillage();
+export const BuildingField = memo(({ buildingFieldId }: BuildingFieldProps) => {
+  const { currentVillage } = use(VillageMapContext);
 
   const buildingField = getBuildingFieldByBuildingFieldId(
     currentVillage,
@@ -35,4 +36,4 @@ export const BuildingField = ({ buildingFieldId }: BuildingFieldProps) => {
       )}
     </div>
   );
-};
+});

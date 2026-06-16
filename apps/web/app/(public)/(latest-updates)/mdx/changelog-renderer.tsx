@@ -1,19 +1,17 @@
-import rehypeRaw from 'rehype-raw';
-import rehypeStringify from 'rehype-stringify';
-import { remark } from 'remark';
-import remarkRehype from 'remark-rehype';
+import type { ReactNode } from 'react';
 import { Alert } from 'app/components/ui/alert';
+import {
+  type ChangelogEntry,
+  groupOrder,
+  makeSectionId,
+  parseChangelog as parseChangelogFromMarkdown,
+} from 'app/utils/changelog';
 import changelogRaw from '../../../../../../CHANGELOG.md?raw';
 import { BugFixesBlock } from './components/bug-fixes-block';
+import { CopyReleaseButton } from './components/copy-release-button';
 import { FeaturesBlock } from './components/features-block';
 import { PerformanceBlock } from './components/performance-block';
 import { TechnicalImprovementBlock } from './components/technical-improvement-block';
-
-type Release = {
-  version: string;
-  date: string;
-  groups: Record<string, string[]>;
-};
 
 const tagToBlock = {
   Feature: FeaturesBlock,
@@ -22,103 +20,51 @@ const tagToBlock = {
   TechnicalImprovement: TechnicalImprovementBlock,
 };
 
-const markdownProcessor = remark()
-  .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeRaw)
-  .use(rehypeStringify);
+const inlineMarkdownPattern =
+  /(<br\s*\/?>)|\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)]\(([^)]+)\)/gi;
 
-const renderInlineMarkdown = (text: string): string => {
-  const html = markdownProcessor.processSync(text).toString().trim();
+const renderInlineMarkdown = (text: string): ReactNode[] => {
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  let key = 0;
 
-  if (html.startsWith('<p>') && html.endsWith('</p>')) {
-    return html.slice(3, -4);
+  for (const match of text.matchAll(inlineMarkdownPattern)) {
+    if (match.index === undefined) {
+      continue;
+    }
+
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[1]) {
+      nodes.push(<br key={key++} />);
+    } else if (match[2]) {
+      nodes.push(<strong key={key++}>{match[2]}</strong>);
+    } else if (match[3]) {
+      nodes.push(<code key={key++}>{match[3]}</code>);
+    } else if (match[4] && match[5]) {
+      nodes.push(
+        <a
+          key={key++}
+          href={match[5]}
+        >
+          {match[4]}
+        </a>,
+      );
+    }
+
+    lastIndex = match.index + match[0].length;
   }
 
-  return html;
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex));
+  }
+
+  return nodes;
 };
 
-const parseChangelog = (raw: unknown): Release[] => {
-  if (typeof raw !== 'string') {
-    return [];
-  }
-
-  const markdown = raw;
-
-  const releases: Release[] = [];
-  const lines = markdown.split(/\r?\n/);
-
-  let currentRelease: Release | null = null;
-  let lastItemTag: string | null = null;
-
-  for (const line of lines) {
-    const versionMatch = line.match(/^##\s+(.*)$/);
-    if (versionMatch) {
-      if (currentRelease) {
-        releases.push(currentRelease);
-      }
-
-      currentRelease = {
-        version: versionMatch[1],
-        date: '',
-        groups: {},
-      };
-      lastItemTag = null;
-      continue;
-    }
-
-    if (!currentRelease) {
-      continue;
-    }
-
-    const dateMatch = line.match(/^####\s+(.*)$/);
-    if (dateMatch) {
-      currentRelease.date = dateMatch[1];
-      lastItemTag = null;
-      continue;
-    }
-
-    const itemMatch = line.match(/^\*\s+\[([^\]]+)]\s+(.*)$/);
-    if (itemMatch) {
-      const tag = itemMatch[1].trim();
-      const text = itemMatch[2].trim();
-
-      if (!currentRelease.groups[tag]) {
-        currentRelease.groups[tag] = [];
-      }
-
-      currentRelease.groups[tag].push(text);
-      lastItemTag = tag;
-      continue;
-    }
-
-    const continuationMatch = line.match(/^\s{2,}(\S.*)$/);
-    if (continuationMatch && lastItemTag) {
-      const items = currentRelease.groups[lastItemTag];
-
-      if (items?.length) {
-        const continuationText = continuationMatch[1].trim();
-        items[items.length - 1] =
-          `${items[items.length - 1]} ${continuationText}`;
-      }
-    }
-  }
-
-  if (currentRelease) {
-    releases.push(currentRelease);
-  }
-
-  return releases;
-};
-
-const releases = parseChangelog(changelogRaw);
-
-const groupOrder = [
-  'Breaking',
-  'Feature',
-  'BugFix',
-  'Performance',
-  'TechnicalImprovement',
-];
+const releases = parseChangelogFromMarkdown(changelogRaw);
 
 export const ChangelogRenderer = () => {
   if (!releases.length) {
@@ -128,9 +74,22 @@ export const ChangelogRenderer = () => {
   return (
     <>
       {releases.map((release) => (
-        <section key={release.version}>
-          <h2>{release.version}</h2>
-          {release.date ? <h4>{release.date}</h4> : null}
+        <section
+          key={release.version}
+          id={makeSectionId(release.version)}
+          style={{ position: 'relative' }}
+        >
+          {import.meta.env.DEV && (
+            <CopyReleaseButton text={buildReleaseMarkdown(release)} />
+          )}
+          <h2>Version {release.version}</h2>
+          <h4>
+            {release.date.toLocaleDateString('en-US', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </h4>
 
           {groupOrder.map((tag) => {
             const items = release.groups[tag] ?? [];
@@ -158,13 +117,7 @@ export const ChangelogRenderer = () => {
               <Block key={tag}>
                 <ul>
                   {items.map((item) => (
-                    <li
-                      key={item}
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: it's fine here
-                      dangerouslySetInnerHTML={{
-                        __html: renderInlineMarkdown(item),
-                      }}
-                    />
+                    <li key={item}>{renderInlineMarkdown(item)}</li>
                   ))}
                 </ul>
               </Block>
@@ -174,4 +127,77 @@ export const ChangelogRenderer = () => {
       ))}
     </>
   );
+};
+
+const buildReleaseMarkdown = (release: ChangelogEntry): string => {
+  const lines: string[] = [];
+
+  lines.push(`Version ${release.version} released`);
+
+  lines.push(
+    release.date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+  );
+
+  lines.push('');
+
+  const groupTitle: Record<(typeof groupOrder)[number], string> = {
+    Breaking: 'Breaking changes',
+    Feature: 'Features',
+    BugFix: 'Bug fixes',
+    Performance: 'Performance',
+    TechnicalImprovement: 'Technical improvements',
+  } as const;
+
+  for (const tag of groupOrder) {
+    const items = release.groups[tag] ?? [];
+    if (!items.length) {
+      continue;
+    }
+
+    lines.push(`**${groupTitle[tag]}**`);
+    lines.push('');
+
+    const listItems = tag === 'Breaking' ? [items[0]] : items;
+    for (const item of listItems) {
+      lines.push(`* ${item}`);
+    }
+
+    lines.push('');
+  }
+
+  const known = new Set<string>(groupOrder as readonly string[]);
+  const unknownTags = Object.keys(release.groups)
+    .filter((k) => !known.has(k) && (release.groups[k]?.length ?? 0) > 0)
+    .sort();
+
+  for (const tag of unknownTags) {
+    const items = release.groups[tag] ?? [];
+    lines.push(`**${tag}**`);
+    lines.push('');
+    for (const item of items) {
+      lines.push(`* ${item}`);
+    }
+    lines.push('');
+  }
+
+  lines.push('');
+  lines.push('Links:');
+  lines.push('');
+  lines.push('* [Try it out at pillagefirst.com](https://pillagefirst.com)');
+  lines.push(
+    '* [Star us on GitHub](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later)',
+  );
+  lines.push(
+    '* [Join the community on Discord](https://discord.gg/Ep7NKVXUZA)',
+  );
+
+  while (lines.length && lines[lines.length - 1] === '') {
+    lines.pop();
+  }
+
+  return lines.join('\n');
 };

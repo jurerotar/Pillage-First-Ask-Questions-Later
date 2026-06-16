@@ -26,6 +26,7 @@ import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { oasisBonusFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -272,7 +273,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
   const { currentPageItems, page, resultsPerPage } = pagination;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -624,7 +625,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
           </div>
         </SectionContent>
       </Section>
-    </>
+    </PageContents>
   );
 };
 

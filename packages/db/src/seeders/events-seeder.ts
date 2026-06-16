@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { calculateAdventurePointIncreaseEventDuration } from '@pillage-first/game-assets/utils/adventures';
 import { calculateHealthRegenerationEventDuration } from '@pillage-first/game-assets/utils/hero';
 import { calculateLoyaltyIncreaseEventDuration } from '@pillage-first/game-assets/utils/loyalty';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
@@ -16,17 +15,6 @@ export const eventsSeeder = (database: DbFacade, server: Server): void => {
     GameEvent['villageId'] | null,
     string | null,
   ][] = [];
-
-  eventsToInsert.push([
-    'adventurePointIncrease',
-    server.createdAt,
-    calculateAdventurePointIncreaseEventDuration(
-      server.createdAt,
-      server.configuration.speed,
-    ),
-    null,
-    null,
-  ]);
 
   const heroHealthRegeneration = database.selectValue({
     sql: 'SELECT health_regeneration FROM heroes WHERE player_id = $player_id;',

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
@@ -17,7 +18,7 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Report - {{playerSlug}}', { reportId })} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -38,7 +39,7 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
       <Alert variant="warning">
         {t('This page is still under development')}
       </Alert>
-    </>
+    </PageContents>
   );
 };
 

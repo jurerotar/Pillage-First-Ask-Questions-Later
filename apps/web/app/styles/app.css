@@ -215,6 +215,13 @@
   display: none; /* Chrome, Safari, Edge */
 }
 
+.non-selectable {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 a,
 button {
   &:hover {

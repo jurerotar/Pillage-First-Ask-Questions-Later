@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
 import { ServerCard } from 'app/(public)/(game-worlds)/(index)/components/server-card';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
@@ -21,7 +22,7 @@ const MyGameWorldsPage = () => {
   const title = t('{{title}} | Pillage First!', { title: 'Game worlds' });
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
@@ -70,7 +71,7 @@ const MyGameWorldsPage = () => {
           </div>
         </main>
       </div>
-    </>
+    </PageContents>
   );
 };
 

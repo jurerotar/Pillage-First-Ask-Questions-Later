@@ -31,7 +31,7 @@ const TroopListContent = () => {
   );
 
   return (
-    <aside className="fixed right-0 bottom-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs transition-all">
+    <aside className="fixed right-0 bottom-safe-offset-26 lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs transition-all">
       <div
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer transition-colors"

@@ -35,8 +35,13 @@ import {
 import { GrDocumentMissing } from 'react-icons/gr';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
 import { LiaCoinsSolid } from 'react-icons/lia';
-import { LuClock, LuMapPin, LuShield, LuSword, LuSwords } from 'react-icons/lu';
-import { PiKeyhole, PiPath, PiWarehouseBold } from 'react-icons/pi';
+import { LuClock, LuShield, LuSword, LuSwords } from 'react-icons/lu';
+import {
+  PiFlagPennantFill,
+  PiKeyhole,
+  PiPath,
+  PiWarehouseBold,
+} from 'react-icons/pi';
 import { RxCross2 } from 'react-icons/rx';
 import { SiArtifacthub } from 'react-icons/si';
 import { SlChemistry } from 'react-icons/sl';
@@ -142,7 +147,9 @@ type TroopMovementType =
   | 'offensiveMovementOutgoing'
   | 'offensiveMovementIncoming'
   | 'adventure'
-  | 'findNewVillage';
+  | 'findNewVillage'
+  | 'huntingParty'
+  | 'gatheringTrip';
 
 type UnitIconType =
   | 'hero'
@@ -217,7 +224,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   mapWheatFieldIconToggle: (props) => icons.wheat(props),
   mapTileTooltipToggle: (props) => <TbTooltip {...props} />,
   mapTreasureIconToggle: (props) => <SiArtifacthub {...props} />,
-  mapMarker: (props) => <LuMapPin {...props} />,
+  mapMarker: (props) => <PiFlagPennantFill {...props} />,
 
   // Map treasures
   treasureTileItem: (props) => <LuSword {...props} />,
@@ -645,6 +652,21 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <GiPointyHat
       {...props}
       className={clsx('text-blue-500', props.className)}
+    />
+  ),
+  huntingParty: (props) => (
+    <GiWolfTrap
+      {...props}
+      className={clsx('text-orange-600 dark:text-orange-500', props.className)}
+    />
+  ),
+  gatheringTrip: (props) => (
+    <GiSwapBag
+      {...props}
+      className={clsx(
+        'text-emerald-600 dark:text-emerald-500',
+        props.className,
+      )}
     />
   ),
 

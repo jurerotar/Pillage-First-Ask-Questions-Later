@@ -16,15 +16,26 @@ export const isBuildingDestructionEvent = (
   return event.type === 'buildingDestruction';
 };
 
-export const isBuildingLevelUpEvent = (
+export const isBuildingLevelChangeEvent = (
   event: GameEvent,
 ): event is GameEvent<'buildingLevelChange'> => {
   return event.type === 'buildingLevelChange';
 };
 
+export const isBuildingDowngradeEvent = (
+  event: GameEvent,
+): event is GameEvent<'buildingLevelChange'> => {
+  return (
+    (isBuildingLevelChangeEvent(event) && event.previousLevel > event.level) ||
+    isBuildingDestructionEvent(event)
+  );
+};
+
 const buildingEventTypes = new Set<GameEventType>([
   'buildingConstruction',
   'buildingLevelChange',
+  'buildingDestruction',
+  'buildingScheduledConstruction',
 ]);
 
 export const isBuildingEvent = (
@@ -66,6 +77,17 @@ export const isReturnTroopMovementEvent = (
   event: GameEvent,
 ): event is GameEvent<'troopMovementReturn'> => {
   return event.type === 'troopMovementReturn';
+};
+
+// If event.originalMovementType is undefined, it means that we're dealing with a troop reinforcement return situation.
+// Other events fill `originalMovementType` property.
+export const isManuallyTriggeredReturnTroopMovementEvent = (
+  event: GameEvent,
+): event is GameEvent<'troopMovementReturn'> => {
+  return (
+    isReturnTroopMovementEvent(event) &&
+    event.originalMovementType === 'troopMovementReturnReinforcements'
+  );
 };
 
 export const isFindNewVillageTroopMovementEvent = (
@@ -122,10 +144,22 @@ export const isTroopTrainingEvent = (
   return event.type === 'troopTraining';
 };
 
-export const isAdventurePointIncreaseEvent = (
+export const isAnimalCageProductionEvent = (
   event: GameEvent,
-): event is GameEvent<'adventurePointIncrease'> => {
-  return event.type === 'adventurePointIncrease';
+): event is GameEvent<'animalCageProduction'> => {
+  return event.type === 'animalCageProduction';
+};
+
+export const isHuntersLodgeHuntEvent = (
+  event: GameEvent,
+): event is GameEvent<'huntersLodgeHunt'> => {
+  return event.type === 'huntersLodgeHunt';
+};
+
+export const isGatherersHutGatheringTripEvent = (
+  event: GameEvent,
+): event is GameEvent<'gatherersHutGatheringTrip'> => {
+  return event.type === 'gatherersHutGatheringTrip';
 };
 
 export const isHeroRevivalEvent = (

@@ -1,5 +1,6 @@
-import { use, useEffect, useState } from 'react';
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaRedditAlien, FaRss } from 'react-icons/fa';
 import { FaDiscord, FaGithub } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import type { UIColorScheme } from '@pillage-first/types/models/preferences';
@@ -12,17 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
+import { useClientHydration } from 'app/hooks/use-client-hydration';
 import { CookieContext } from 'app/providers/cookie-provider';
 import { setCookie, UI_COLOR_SCHEME_COOKIE_NAME } from 'app/utils/device';
 
 export const Footer = () => {
   const { t } = useTranslation('public');
   const { uiColorScheme } = use(CookieContext);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useClientHydration();
 
   return (
     <footer className="border-t mt-4 pb-safe">
@@ -110,13 +108,13 @@ export const Footer = () => {
               as="span"
               className="font-medium uppercase text-xs text-muted-foreground"
             >
-              {t('Community')}
+              {t('Community & support')}
             </Text>
             <ul className="flex flex-wrap gap-2">
               <li>
                 <a
                   href="https://discord.gg/Ep7NKVXUZA"
-                  rel="noopener nofollow"
+                  rel="noopener noreferrer nofollow"
                   target="_blank"
                   className="flex items-center justify-center gap-2 rounded-full bg-[#5865F2] shadow-md p-2 hover:opacity-80 transition-opacity"
                   aria-label="Discord"
@@ -126,13 +124,35 @@ export const Footer = () => {
               </li>
               <li>
                 <a
+                  href="https://www.reddit.com/r/PillageFirst/"
+                  rel="noopener noreferrer nofollow"
+                  target="_blank"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#ff5700] shadow-md p-2 hover:opacity-80 transition-opacity"
+                  aria-label="Reddit"
+                >
+                  <FaRedditAlien className="text-2xl md:text-3xl text-white" />
+                </a>
+              </li>
+              <li>
+                <a
                   href="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-                  rel="noopener nofollow"
+                  rel="noopener noreferrer nofollow"
                   target="_blank"
                   className="flex items-center justify-center gap-2 rounded-full bg-[#24292e] shadow-md p-2 hover:opacity-80 transition-opacity"
                   aria-label="GitHub"
                 >
                   <FaGithub className="text-2xl md:text-3xl text-white" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://pillagefirst.com/rss.xml"
+                  rel="noopener noreferrer nofollow"
+                  target="_blank"
+                  className="flex items-center justify-center gap-2 rounded-full bg-[#f26522] shadow-md p-2 hover:opacity-80 transition-opacity"
+                  aria-label="RSS"
+                >
+                  <FaRss className="text-2xl md:text-3xl text-white" />
                 </a>
               </li>
             </ul>
@@ -167,8 +187,8 @@ export const Footer = () => {
         </div>
       </div>
 
-      <div className="border-t">
-        <div className="max-w-7xl mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
+      <div className="">
+        <div className="max-w-7xl border-t mx-auto flex flex-col gap-2 py-4 md:py-6 md:flex-row md:items-center md:justify-between px-2">
           <p className="text-xs text-muted-foreground">
             {t('Not affiliated with Travian Games GmbH.')}
           </p>

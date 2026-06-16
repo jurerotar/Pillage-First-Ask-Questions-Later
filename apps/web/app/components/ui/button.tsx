@@ -22,6 +22,8 @@ export const buttonVariants = cva(
         discord:
           'bg-[#5865F2] text-white shadow-xs hover:bg-[#4752C4] focus-visible:ring-[#5865F2]/20 border-none',
         link: 'text-green-700 underline-offset-4 hover:underline p-0 w-fit',
+        textLink:
+          'text-link font-medium leading-6 underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',
@@ -31,6 +33,13 @@ export const buttonVariants = cva(
         fit: 'px-4 py-2 w-fit',
       },
     },
+    compoundVariants: [
+      {
+        variant: 'textLink',
+        className:
+          'h-auto !text-base w-fit !no-underline !px-0 !py-0 has-[>svg]:px-0',
+      },
+    ],
     defaultVariants: {
       variant: 'default',
       size: 'default',

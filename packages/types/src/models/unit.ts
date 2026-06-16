@@ -223,8 +223,7 @@ type ScoutUnitId =
   | HunScoutUnitId
   | EgyptianScoutUnitId
   | SpartanScoutUnitId
-  | NatarScoutUnitId
-  | 'BAT';
+  | NatarScoutUnitId;
 
 type SiegeUnitId =
   | RomanSiegeUnitId

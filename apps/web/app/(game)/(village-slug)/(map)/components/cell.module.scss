@@ -188,6 +188,39 @@ $variants-by-resource-and-group: (
   }
 }
 
+.map-marker {
+  --left: 0;
+  --bottom: 0;
+  --scale: 1;
+
+  position: absolute;
+  user-select: none;
+  z-index: 20;
+  left: var(--left);
+  bottom: var(--bottom);
+  transform: scale(var(--scale));
+
+  &-magnification {
+    &-2 {
+      --left: -0.40rem;
+      --bottom: -0.40rem;
+      --scale: 0.50;
+    }
+
+    &-3 {
+      --left: -0.20rem;
+      --bottom: -0.20rem;
+      --scale: 0.75;
+    }
+
+    &-5 {
+      --left: 0.25rem;
+      --bottom: 0.25rem;
+      --scale: 1.25;
+    }
+  }
+}
+
 .troop-movements {
   --top: 0;
   --left: 0;

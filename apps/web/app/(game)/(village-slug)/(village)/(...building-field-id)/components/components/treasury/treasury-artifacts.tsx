@@ -68,82 +68,86 @@ export const TreasuryArtifacts = () => {
       </SectionContent>
       <section className="flex flex-col gap-2">
         <Text as="h2">{t('Artifact in this village')}</Text>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>{t('Name')}</TableHeaderCell>
-              <TableHeaderCell>{t('Description')}</TableHeaderCell>
-              <TableHeaderCell>{t('Actions')}</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              {/*{hasCurrentVillageArtifact && (*/}
-              {/*  <>*/}
-              {/*    <TableCell>*/}
-              {/*      {t(`ITEMS.${currentVillageArtifactId}.NAME`)}*/}
-              {/*    </TableCell>*/}
-              {/*    <TableCell>*/}
-              {/*      {t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}*/}
-              {/*    </TableCell>*/}
-              {/*    <TableCell>/</TableCell>*/}
-              {/*  </>*/}
-              {/*)}*/}
-              {!hasCurrentVillageArtifact && (
-                <>
-                  <TableCell
-                    className="text-left"
-                    colSpan={hasAvailableArtifacts ? 2 : 3}
-                  >
-                    {hasAvailableArtifacts
-                      ? t(
-                          'This village does not host an artifact. Select an artifact to assign.',
-                        )
-                      : t(
-                          'This village does not host an artifact. Capture one first from the list bellow.',
-                        )}
-                  </TableCell>
-                  {hasAvailableArtifacts && (
-                    <TableCell className="text-left">TODO</TableCell>
-                  )}
-                </>
-              )}
-            </TableRow>
-          </TableBody>
-        </Table>
+        <div className="overflow-x-scroll scrollbar-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHeaderCell>{t('Name')}</TableHeaderCell>
+                <TableHeaderCell>{t('Description')}</TableHeaderCell>
+                <TableHeaderCell>{t('Actions')}</TableHeaderCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                {/*{hasCurrentVillageArtifact && (*/}
+                {/*  <>*/}
+                {/*    <TableCell>*/}
+                {/*      {t(`ITEMS.${currentVillageArtifactId}.NAME`)}*/}
+                {/*    </TableCell>*/}
+                {/*    <TableCell>*/}
+                {/*      {t(`ITEMS.${currentVillageArtifactId}.DESCRIPTION`)}*/}
+                {/*    </TableCell>*/}
+                {/*    <TableCell>/</TableCell>*/}
+                {/*  </>*/}
+                {/*)}*/}
+                {!hasCurrentVillageArtifact && (
+                  <>
+                    <TableCell
+                      className="text-left"
+                      colSpan={hasAvailableArtifacts ? 2 : 3}
+                    >
+                      {hasAvailableArtifacts
+                        ? t(
+                            'This village does not host an artifact. Select an artifact to assign.',
+                          )
+                        : t(
+                            'This village does not host an artifact. Capture one first from the list bellow.',
+                          )}
+                    </TableCell>
+                    {hasAvailableArtifacts && (
+                      <TableCell className="text-left">TODO</TableCell>
+                    )}
+                  </>
+                )}
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
       </section>
 
       <section className="flex flex-col gap-2">
         <Text as="h2">{t('Unoccupied artifacts')}</Text>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>{t('Name')}</TableHeaderCell>
-              <TableHeaderCell>{t('Description')}</TableHeaderCell>
-              <TableHeaderCell>{t('Distance')}</TableHeaderCell>
-              <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {artifactsAroundCurrentVillage.length === 0 && (
+        <div className="overflow-x-scroll scrollbar-hidden">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell
-                  className="text-left"
-                  colSpan={3}
-                >
-                  {t('There are no more artifacts to conquer.')}
-                </TableCell>
+                <TableHeaderCell>{t('Name')}</TableHeaderCell>
+                <TableHeaderCell>{t('Description')}</TableHeaderCell>
+                <TableHeaderCell>{t('Distance')}</TableHeaderCell>
+                <TableHeaderCell>{t('Coordinates')}</TableHeaderCell>
               </TableRow>
-            )}
-            {artifactsAroundCurrentVillage.length > 0 &&
-              artifactsAroundCurrentVillage.map((item) => (
-                <UnoccupiedArtifactRow
-                  key={item.id}
-                  item={item}
-                />
-              ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {artifactsAroundCurrentVillage.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    className="text-left"
+                    colSpan={3}
+                  >
+                    {t('There are no more artifacts to conquer.')}
+                  </TableCell>
+                </TableRow>
+              )}
+              {artifactsAroundCurrentVillage.length > 0 &&
+                artifactsAroundCurrentVillage.map((item) => (
+                  <UnoccupiedArtifactRow
+                    key={item.id}
+                    item={item}
+                  />
+                ))}
+            </TableBody>
+          </Table>
+        </div>
       </section>
     </Section>
   );
