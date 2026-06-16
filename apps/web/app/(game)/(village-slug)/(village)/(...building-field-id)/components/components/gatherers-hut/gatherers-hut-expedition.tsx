@@ -8,7 +8,6 @@ import {
   calculateGatherersHutGatheringResources,
   calculateGatherersHutPartySize,
 } from '@pillage-first/game-assets/utils/gatherers-hut';
-import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { formatNumber } from '@pillage-first/utils/format';
@@ -37,11 +36,6 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
-import {
-  UnitTable,
-  UnitTableRow,
-  UnitTableUnitIcons,
-} from 'app/(game)/components/unit-table';
 import {
   currentVillageCacheKey,
   villageTroopsCacheKey,
@@ -94,8 +88,6 @@ const ActiveGatheringPartyTable = ({
   events,
 }: ActiveGatheringPartyTableProps) => {
   const { t } = useTranslation();
-  const tribe = useTribe();
-  const tribeUnits = getUnitsByTribeWithHero(tribe);
 
   return (
     <div className="scrollbar-hidden overflow-x-scroll">
@@ -103,7 +95,6 @@ const ActiveGatheringPartyTable = ({
         <TableHeader>
           <TableRow>
             <TableHeaderCell>{t('Party')}</TableHeaderCell>
-            <TableHeaderCell>{t('Troops')}</TableHeaderCell>
             <TableHeaderCell>{t('Expected resources')}</TableHeaderCell>
             <TableHeaderCell>{t('Returns in')}</TableHeaderCell>
           </TableRow>
@@ -124,18 +115,6 @@ const ActiveGatheringPartyTable = ({
             return (
               <TableRow key={event.id}>
                 <TableCell>{formatNumber(troopAmount)}</TableCell>
-                <TableCell>
-                  <UnitTable tribe={tribe}>
-                    <UnitTableUnitIcons />
-                    <UnitTableRow
-                      label={t('Troops')}
-                      troops={tribeUnits.map(({ id }) => ({
-                        unitId: id,
-                        amount: troopsByUnitId.get(id) ?? 0,
-                      }))}
-                    />
-                  </UnitTable>
-                </TableCell>
                 <TableCell>
                   <span className="inline-flex gap-2">
                     <Resources
@@ -324,6 +303,12 @@ export const GatherersHutExpedition = () => {
     isGatheringExpeditionActive ||
     selectedTroopAmount <= 0 ||
     selectedTroopAmount > maxPartySize;
+  const errorBag = [
+    ...getFormErrorBag(form.formState.errors),
+    ...(isGatheringExpeditionActive
+      ? [t('A gathering party is already active')]
+      : []),
+  ];
 
   const getGatheringDuration = (startsAt: number) => {
     if (developerSettings.isInstantUnitTravelEnabled) {
@@ -402,14 +387,19 @@ export const GatherersHutExpedition = () => {
         </Text>
       </SectionContent>
       <SectionContent>
-        {isGatheringExpeditionActive ? (
-          <ActiveGatheringPartyTable events={eventsByType} />
-        ) : (
-          <>
-            <Form {...form}>
-              <form
+        <div className="flex flex-col gap-6">
+          {isGatheringExpeditionActive && (
+            <ActiveGatheringPartyTable events={eventsByType} />
+          )}
+
+          <Form {...form}>
+            <form
+              className="space-y-6"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            >
+              <fieldset
                 className="space-y-6"
-                onSubmit={form.handleSubmit(handleSubmit)}
+                disabled={isGatheringExpeditionActive}
               >
                 <UnitSelector
                   disabledUnitTiers={['hero']}
@@ -436,21 +426,21 @@ export const GatherersHutExpedition = () => {
                     {t('Start')}
                   </Button>
                 </div>
+              </fieldset>
 
-                <ErrorBag errorBag={getFormErrorBag(form.formState.errors)} />
-              </form>
-            </Form>
+              <ErrorBag errorBag={errorBag} />
+            </form>
+          </Form>
 
-            {confirmationData.current ? (
-              <GatheringExpeditionConfirmationModal
-                isOpen={isConfirmationStepOpen}
-                onClose={closeConfirmationStep}
-                onConfirm={handleConfirm}
-                formData={confirmationData.current}
-              />
-            ) : null}
-          </>
-        )}
+          {confirmationData.current ? (
+            <GatheringExpeditionConfirmationModal
+              isOpen={isConfirmationStepOpen}
+              onClose={closeConfirmationStep}
+              onConfirm={handleConfirm}
+              formData={confirmationData.current}
+            />
+          ) : null}
+        </div>
       </SectionContent>
     </Section>
   );
