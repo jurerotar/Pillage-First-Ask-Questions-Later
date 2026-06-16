@@ -1,10 +1,6 @@
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../../../queries/effect-queries';
-import {
-  assessTroopCountQuestCompletion,
-  assessUnitTroopCountQuestCompletion,
-} from '../../../utils/quests';
 import { updateVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
@@ -58,8 +54,6 @@ export const troopTrainingEventResolver: Resolver<
   });
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
-  assessTroopCountQuestCompletion(database, resolvesAt);
-  assessUnitTroopCountQuestCompletion(database, unitId, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],

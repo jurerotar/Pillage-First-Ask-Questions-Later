@@ -32,19 +32,19 @@ describe('questsSeeder', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('global quests include troopCount, adventureCount, killCount, unitKillCount', () => {
-    const troopCount = database.selectValue({
+  test('global quests include queuedTroopCount, adventureCount, killCount, unitKillCount', () => {
+    const queuedTroopCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
         FROM
           quests
         WHERE
           village_id IS NULL
-          AND quest_id LIKE 'troopCount-%';
+          AND quest_id LIKE 'queuedTroopCount-%';
       `,
       schema: z.number(),
     });
-    expect(troopCount).toBeGreaterThan(0);
+    expect(queuedTroopCount).toBeGreaterThan(0);
 
     const adventureCount = database.selectValue({
       sql: `
@@ -86,7 +86,7 @@ describe('questsSeeder', () => {
     expect(unitKillCount).toBeGreaterThan(0);
   });
 
-  test('unitTroopCount quests exist and only for the player tribe units', () => {
+  test('queuedTroopCountById quests exist and only for the player tribe units', () => {
     const tribe = database.selectValue({
       sql: `
         SELECT ti.tribe
@@ -100,19 +100,19 @@ describe('questsSeeder', () => {
       schema: tribeSchema,
     })!;
 
-    const unitTroopCountQuests = database.selectValues({
+    const queuedTroopCountByIdQuests = database.selectValues({
       sql: `
         SELECT quest_id
         FROM
           quests
         WHERE
           village_id IS NULL
-          AND quest_id LIKE 'unitTroopCount-%';
+          AND quest_id LIKE 'queuedTroopCountById-%';
       `,
       schema: z.string(),
     });
 
-    expect(unitTroopCountQuests.length).toBeGreaterThan(0);
+    expect(queuedTroopCountByIdQuests.length).toBeGreaterThan(0);
 
     const unitsByTribe = getUnitsByTribe(tribe).filter(
       ({ id }) => !['SETTLER', 'CHIEF'].includes(id),
@@ -121,7 +121,7 @@ describe('questsSeeder', () => {
     const allowedUnitIds = unitsByTribe.map(({ id }) => id);
     const allowed = new Set<UnitId>(allowedUnitIds);
 
-    for (const qid of unitTroopCountQuests) {
+    for (const qid of queuedTroopCountByIdQuests) {
       const [_, unitId] = qid.split('-');
       expect(allowed.has(unitId as UnitId)).toBe(true);
     }

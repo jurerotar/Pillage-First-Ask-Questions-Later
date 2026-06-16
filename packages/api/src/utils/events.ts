@@ -80,6 +80,10 @@ import {
   getPlayerHeroAdventureStateAt,
   materializeHeroAdventurePointsAt,
 } from './adventures';
+import {
+  assessQueuedTroopCountByIdQuestCompletion,
+  assessQueuedTroopCountQuestCompletion,
+} from './quests';
 import { removeTroops, validateTroopMovement } from './troops';
 import { calculateVillageResourcesAt } from './village';
 import { apiEffectSchema } from './zod/effect-schemas';
@@ -724,6 +728,13 @@ export const runEventCreationSideEffects = (
 
   if (isGatherersHutGatheringTripEvent(event)) {
     removeTroops(database, event.troops);
+  }
+
+  if (isTroopTrainingEvent(event)) {
+    const now = Date.now();
+
+    assessQueuedTroopCountQuestCompletion(database, now);
+    assessQueuedTroopCountByIdQuestCompletion(database, event.unitId, now);
   }
 };
 

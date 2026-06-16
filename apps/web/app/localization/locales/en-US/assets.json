@@ -854,12 +854,12 @@
       "DESCRIPTION_other": "Send your hero on {{count}} adventures.",
       "GROUP": "Adventures"
     },
-    "TROOP-COUNT": {
+    "QUEUED-TROOP-COUNT": {
       "NAME": "Train {{count}} units of any kind",
-      "DESCRIPTION": "Begin training of {{count}} units of any kind.",
+      "DESCRIPTION": "Begin training of {{count}} units of any kind in total.",
       "GROUP": "Train units"
     },
-    "UNIT-TROOP-COUNT": {
+    "QUEUED-TROOP-COUNT-BY-ID": {
       "NAME": "Train {{count}} {{asset}}",
       "DESCRIPTION": "Begin training of at least {{count}} {{asset}} in total.",
       "GROUP": "Train units"

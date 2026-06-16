@@ -5,6 +5,11 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 import { migrateTo } from './migrate-db';
 
+const queuedTroopCountQuestThresholds = [
+  10, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000,
+  150_000, 200_000, 300_000, 500_000, 750_000, 1_000_000,
+];
+
 // This function should only contain db upgrades between app's minor version bumps. At that point, these DB changes
 // should already be part of the new schema, so contents of this function should be deleted
 export const upgradeDb = (database: DbFacade): void => {
@@ -257,6 +262,179 @@ export const upgradeDb = (database: DbFacade): void => {
     } catch {
       // Column already exists on newer databases.
     }
+  });
+
+  migrateTo('0.4.32', database, (db) => {
+    const queuedTroopCount =
+      db.selectValue({
+        sql: `
+          SELECT
+            (
+              SELECT COALESCE(SUM(uth.amount), 0)
+              FROM
+                unit_training_history uth
+                JOIN villages v ON uth.village_id = v.id
+              WHERE
+                v.player_id = $player_id
+            )
+            +
+            (
+              SELECT COUNT(*)
+              FROM
+                events e
+                JOIN villages v ON e.village_id = v.id
+              WHERE
+                e.type = 'troopTraining'
+                AND v.player_id = $player_id
+            ) AS queued_troop_count;
+        `,
+        bind: { $player_id: PLAYER_ID },
+        schema: z.number(),
+      }) ?? 0;
+
+    const completedAt = Date.now();
+
+    db.transaction((tx) => {
+      for (const threshold of queuedTroopCountQuestThresholds) {
+        tx.exec({
+          sql: `
+            INSERT INTO quests (quest_id, completed_at, collected_at, village_id)
+            SELECT
+              $new_quest_id,
+              CASE
+                WHEN old.completed_at IS NOT NULL THEN old.completed_at
+                WHEN $queued_troop_count >= $threshold THEN $completed_at
+                ELSE NULL
+              END,
+              CASE
+                WHEN old.completed_at IS NOT NULL THEN old.collected_at
+                ELSE NULL
+              END,
+              NULL
+            FROM
+              (SELECT 1) seed
+                LEFT JOIN quests old ON old.quest_id = $old_quest_id
+                  AND old.village_id IS NULL;
+          `,
+          bind: {
+            $new_quest_id: `queuedTroopCount-${threshold}`,
+            $old_quest_id: `troopCount-${threshold}`,
+            $queued_troop_count: queuedTroopCount,
+            $threshold: threshold,
+            $completed_at: completedAt,
+          },
+        });
+      }
+
+      tx.exec({
+        sql: `
+          DELETE
+          FROM
+            quests
+          WHERE
+            village_id IS NULL
+            AND quest_id LIKE 'troopCount-%'
+            AND substr(quest_id, length('troopCount-') + 1) GLOB '[0-9]*';
+        `,
+      });
+    });
+  });
+
+  migrateTo('0.4.33', database, (db) => {
+    const legacyQuests = db.selectObjects({
+      sql: `
+        SELECT quest_id, completed_at, collected_at
+        FROM
+          quests
+        WHERE
+          village_id IS NULL
+          AND quest_id LIKE 'unitTroopCount-%';
+      `,
+      schema: z.strictObject({
+        quest_id: z.string(),
+        completed_at: z.number().nullable(),
+        collected_at: z.number().nullable(),
+      }),
+    });
+
+    const completedAt = Date.now();
+
+    db.transaction((tx) => {
+      for (const legacyQuest of legacyQuests) {
+        const [, unitId, thresholdText] = legacyQuest.quest_id.split('-');
+        const threshold = Number.parseInt(thresholdText, 10);
+
+        if (!unitId || !Number.isInteger(threshold)) {
+          continue;
+        }
+
+        const queuedTroopCountById =
+          tx.selectValue({
+            sql: `
+              SELECT
+                (
+                  SELECT COALESCE(SUM(uth.amount), 0)
+                  FROM
+                    unit_training_history uth
+                    JOIN unit_ids ui ON uth.unit_id = ui.id
+                    JOIN villages v ON uth.village_id = v.id
+                  WHERE
+                    v.player_id = $player_id
+                    AND ui.unit = $unit_id
+                )
+                +
+                (
+                  SELECT COUNT(*)
+                  FROM
+                    events e
+                    JOIN villages v ON e.village_id = v.id
+                  WHERE
+                    e.type = 'troopTraining'
+                    AND v.player_id = $player_id
+                    AND JSON_EXTRACT(e.meta, '$.unitId') = $unit_id
+                ) AS queued_troop_count_by_id;
+            `,
+            bind: {
+              $player_id: PLAYER_ID,
+              $unit_id: unitId,
+            },
+            schema: z.number(),
+          }) ?? 0;
+
+        tx.exec({
+          sql: `
+            INSERT INTO quests (quest_id, completed_at, collected_at, village_id)
+            VALUES (
+              $new_quest_id,
+              $completed_at,
+              $collected_at,
+              NULL
+            );
+          `,
+          bind: {
+            $new_quest_id: `queuedTroopCountById-${unitId}-${threshold}`,
+            $completed_at:
+              legacyQuest.completed_at ??
+              (queuedTroopCountById >= threshold ? completedAt : null),
+            $collected_at:
+              legacyQuest.completed_at !== null
+                ? legacyQuest.collected_at
+                : null,
+          },
+        });
+      }
+
+      tx.exec({
+        sql: `
+          DELETE
+          FROM
+            quests
+          WHERE
+            village_id IS NULL
+            AND quest_id LIKE 'unitTroopCount-%';
+        `,
+      });
+    });
   });
 
   // If all migrations passed, bump it to current version

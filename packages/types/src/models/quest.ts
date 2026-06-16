@@ -36,13 +36,13 @@ export type AdventureCountQuestRequirement = {
   count: number;
 };
 
-export type TroopCountQuestRequirement = {
-  type: 'troop-count';
+export type QueuedTroopCountQuestRequirement = {
+  type: 'queued-troop-count';
   count: number;
 };
 
-export type UnitTroopCountQuestRequirement = {
-  type: 'unit-troop-count';
+export type QueuedTroopCountByIdQuestRequirement = {
+  type: 'queued-troop-count-by-id';
   count: number;
 };
 
@@ -61,8 +61,8 @@ export type QuestRequirement =
   | AdventureCountQuestRequirement
   | KillCountQuestRequirement
   | UnitKillCountQuestRequirement
-  | TroopCountQuestRequirement
-  | UnitTroopCountQuestRequirement;
+  | QueuedTroopCountQuestRequirement
+  | QueuedTroopCountByIdQuestRequirement;
 
 type VillageQuestId =
   | `${Matcher}-${Building['id']}-${number}`
@@ -70,8 +70,8 @@ type VillageQuestId =
 
 type GlobalQuestId =
   | `adventureCount-${number}`
-  | `troopCount-${number}`
-  | `unitTroopCount-${Unit['id']}-${number}`
+  | `queuedTroopCount-${number}`
+  | `queuedTroopCountById-${Unit['id']}-${number}`
   | `killCount-${number}`
   | `unitKillCount-${Unit['id']}-${number}`;
 

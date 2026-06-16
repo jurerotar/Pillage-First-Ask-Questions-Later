@@ -37,7 +37,7 @@ export const assessAdventureCountQuestCompletion = (
   });
 };
 
-export const assessTroopCountQuestCompletion = (
+export const assessQueuedTroopCountQuestCompletion = (
   database: DbFacade,
   timestamp: number,
 ): void => {
@@ -48,18 +48,30 @@ export const assessTroopCountQuestCompletion = (
         completed_at = $completed_at
       WHERE
         completed_at IS NULL
-        AND quest_id LIKE 'troopCount-%'
-        AND substr(quest_id, length('troopCount-') + 1) GLOB '[0-9]*'
+        AND village_id IS NULL
+        AND quest_id LIKE 'queuedTroopCount-%'
+        AND substr(quest_id, length('queuedTroopCount-') + 1) GLOB '[0-9]*'
         AND (
-          SELECT COALESCE(SUM(amount), 0)
-          FROM troops t
-          JOIN villages v ON t.tile_id = v.tile_id
-          WHERE v.player_id = $player_id
+          (
+            SELECT COALESCE(SUM(uth.amount), 0)
+            FROM unit_training_history uth
+            JOIN villages v ON uth.village_id = v.id
+            WHERE v.player_id = $player_id
+          )
+          +
+          (
+            SELECT COUNT(*)
+            FROM events e
+            JOIN villages v ON e.village_id = v.id
+            WHERE
+              e.type = 'troopTraining'
+              AND v.player_id = $player_id
+          )
         ) >= CAST (
         substr(
         quest_id
         , LENGTH (
-        'troopCount-') + 1) AS INTEGER);
+        'queuedTroopCount-') + 1) AS INTEGER);
     `,
     bind: {
       $completed_at: timestamp,
@@ -68,7 +80,7 @@ export const assessTroopCountQuestCompletion = (
   });
 };
 
-export const assessUnitTroopCountQuestCompletion = (
+export const assessQueuedTroopCountByIdQuestCompletion = (
   database: DbFacade,
   unitId: Unit['id'],
   timestamp: number,
@@ -80,19 +92,33 @@ export const assessUnitTroopCountQuestCompletion = (
         completed_at = $completed_at
       WHERE
         completed_at IS NULL
-        AND quest_id LIKE 'unitTroopCount-' || $unit_id || '-%'
-        AND substr(quest_id, length('unitTroopCount-' || $unit_id || '-') + 1) GLOB '[0-9]*'
+        AND village_id IS NULL
+        AND quest_id LIKE 'queuedTroopCountById-' || $unit_id || '-%'
+        AND substr(quest_id, length('queuedTroopCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
         AND (
-          SELECT COALESCE(SUM(t.amount), 0)
-          FROM troops t
-          JOIN unit_ids ui ON t.unit_id = ui.id
-          JOIN villages v ON t.tile_id = v.tile_id
-          WHERE v.player_id = $player_id
-            AND ui.unit = $unit_id
+          (
+            SELECT COALESCE(SUM(uth.amount), 0)
+            FROM unit_training_history uth
+            JOIN unit_ids ui ON uth.unit_id = ui.id
+            JOIN villages v ON uth.village_id = v.id
+            WHERE
+              v.player_id = $player_id
+              AND ui.unit = $unit_id
+          )
+          +
+          (
+            SELECT COUNT(*)
+            FROM events e
+            JOIN villages v ON e.village_id = v.id
+            WHERE
+              e.type = 'troopTraining'
+              AND v.player_id = $player_id
+              AND JSON_EXTRACT(e.meta, '$.unitId') = $unit_id
+          )
         ) >= CAST (
         substr(
         quest_id
-        , length('unitTroopCount-' || $unit_id || '-') + 1) AS INTEGER);
+        , length('queuedTroopCountById-' || $unit_id || '-') + 1) AS INTEGER);
     `,
     bind: {
       $completed_at: timestamp,

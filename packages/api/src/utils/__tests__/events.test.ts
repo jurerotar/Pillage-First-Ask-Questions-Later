@@ -1853,6 +1853,78 @@ describe('events utils', () => {
   });
 
   describe(createEvents, () => {
+    test('troopTraining - should complete queued troop count quests when units are queued', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const now = 1_234_000;
+
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+
+      setDevFlag(database, 'is_free_unit_training_enabled', 1);
+      setDevFlag(database, 'is_instant_unit_training_enabled', 1);
+
+      database.exec({
+        sql: `
+          INSERT INTO building_fields (village_id, field_id, building_id, level)
+          VALUES (
+            $village_id,
+            19,
+            (SELECT id FROM building_ids WHERE building = 'BARRACKS'),
+            1
+          )
+          ON CONFLICT(village_id, field_id) DO UPDATE SET
+            building_id = excluded.building_id,
+            level = excluded.level;
+        `,
+        bind: {
+          $village_id: villageId,
+        },
+      });
+
+      const initialQuest = database.selectObject({
+        sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCount-10';",
+        schema: z.strictObject({ completed_at: z.number().nullable() }),
+      })!;
+      expect(initialQuest.completed_at).toBe(null);
+
+      const initialUnitQuest = database.selectObject({
+        sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCountById-PHALANX-10';",
+        schema: z.strictObject({ completed_at: z.number().nullable() }),
+      })!;
+      expect(initialUnitQuest.completed_at).toBe(null);
+
+      createEvents<'troopTraining'>(database, {
+        type: 'troopTraining',
+        villageId,
+        unitId: 'PHALANX',
+        amount: 10,
+        buildingId: 'BARRACKS',
+        batchId: 'queued-quest-test',
+        durationEffectId: 'barracksTrainingDuration',
+      });
+
+      const completedQuest = database.selectObject({
+        sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCount-10';",
+        schema: z.strictObject({ completed_at: z.number().nullable() }),
+      })!;
+      expect(completedQuest.completed_at).toBe(now);
+
+      const completedUnitQuest = database.selectObject({
+        sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCountById-PHALANX-10';",
+        schema: z.strictObject({ completed_at: z.number().nullable() }),
+      })!;
+      expect(completedUnitQuest.completed_at).toBe(now);
+
+      const otherUnitQuest = database.selectObject({
+        sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCountById-SWORDSMAN-10';",
+        schema: z.strictObject({ completed_at: z.number().nullable() }),
+      })!;
+      expect(otherUnitQuest.completed_at).toBe(null);
+
+      vi.useRealTimers();
+    });
+
     test('huntersLodgeHunt - should subtract resources and persist calculated duration', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);

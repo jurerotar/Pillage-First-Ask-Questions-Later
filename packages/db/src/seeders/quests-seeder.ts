@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
-  createUnitTroopCountQuests,
+  createQueuedTroopCountByIdQuests,
   globalQuests,
   newVillageQuestsFactory,
 } from '@pillage-first/game-assets/quests';
@@ -54,13 +54,14 @@ export const questsSeeder = (database: DbFacade): void => {
     playerResourceFieldComposition,
   );
 
-  const tribeUnitTroopCountQuests = createUnitTroopCountQuests(playerTribe);
+  const queuedTroopCountByIdQuests =
+    createQueuedTroopCountByIdQuests(playerTribe);
 
   for (const { id } of villageQuests) {
     questsToSeed.push([id, null, null, playerStartingVillageId]);
   }
 
-  const seedableGlobalQuests = [...globalQuests, ...tribeUnitTroopCountQuests];
+  const seedableGlobalQuests = [...globalQuests, ...queuedTroopCountByIdQuests];
 
   for (const { id } of seedableGlobalQuests) {
     questsToSeed.push([id, null, null, null]);

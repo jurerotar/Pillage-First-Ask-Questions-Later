@@ -62,29 +62,14 @@ describe(troopTrainingEventResolver, () => {
 
     expect(effect).toBeDefined();
 
-    // Verify quest completion
-    const quest = database.selectObject({
-      sql: "SELECT completed_at FROM quests WHERE quest_id = 'troopCount-10';",
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
-    });
-    // It should NOT be completed yet as we only trained 1 troop (and total is < 10)
-    expect(quest?.completed_at).toBe(null);
-
-    // Now train enough to complete the quest
     for (let i = 0; i < 9; i += 1) {
       troopTrainingEventResolver(database, {
         ...mockEvent,
         id: 1000 + i,
-        amount: 1, // This is now ignored but good for documentation in test
+        amount: 1, // This is ignored by the resolver; each event resolves one troop.
         resolvesAt: 1200,
       });
     }
-
-    const completedQuest = database.selectObject({
-      sql: "SELECT completed_at FROM quests WHERE quest_id = 'troopCount-10';",
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
-    });
-    expect(completedQuest?.completed_at).toBe(1200);
 
     // Verify history table (Trigger should have fired on event deletion)
     // In this test, we are calling the resolver directly, which DOES NOT delete the event from the database.
