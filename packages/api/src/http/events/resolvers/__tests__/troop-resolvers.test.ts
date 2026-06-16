@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
 import type { Unit } from '@pillage-first/types/models/unit';
+import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
 import { troopTrainingEventResolver } from '../troop-resolvers';
 
 describe(troopTrainingEventResolver, () => {
@@ -41,6 +42,11 @@ describe(troopTrainingEventResolver, () => {
 
     expect(troop.amount).toBeGreaterThanOrEqual(1);
 
+    const wheatEffectId = database.selectValue({
+      sql: selectWheatProductionEffectIdQuery,
+      schema: z.number(),
+    })!;
+
     // Verify wheat consumption effect
     const effect = database.selectObject({
       sql: `
@@ -48,9 +54,9 @@ describe(troopTrainingEventResolver, () => {
         FROM effects
         WHERE village_id = $village_id
           AND source = 'troops'
-          AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction');
+          AND effect_id = $effect_id;
       `,
-      bind: { $village_id: villageId },
+      bind: { $effect_id: wheatEffectId, $village_id: villageId },
       schema: z.strictObject({ value: z.number() }),
     })!;
 

@@ -6,6 +6,7 @@ import {
 import { specialFieldIds } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import {
+  insertEffectByEffectNameQuery,
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../../queries/effect-queries';
@@ -132,16 +133,13 @@ export const buildingConstructionResolver: Resolver<
 
   for (const { effectId, valuesPerLevel, type } of effects) {
     database.exec({
-      sql: `
-        INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-        SELECT ei.id, $value, $type, 'village', 'building', $village_id, $source_specifier
-        FROM effect_ids ei
-        WHERE ei.effect = $effect_id;
-      `,
+      sql: insertEffectByEffectNameQuery,
       bind: {
-        $effect_id: effectId,
+        $effect_name: effectId,
         $value: valuesPerLevel[0],
         $type: type,
+        $scope: 'village',
+        $source: 'building',
         $village_id: villageId,
         $source_specifier: buildingFieldId,
       },

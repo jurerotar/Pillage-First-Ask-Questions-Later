@@ -73,6 +73,34 @@ export const selectUnitSpeedRelevantEffectsQuery = `
     AND (e.scope IN ('global', 'server') OR e.village_id = $village_id);
 `;
 
+export const selectWheatProductionEffectIdQuery = `
+  SELECT id FROM effect_ids WHERE effect = 'wheatProduction';
+`;
+
+export const insertEffectQuery = `
+  INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+  VALUES ($effect_id, $value, $type, $scope, $source, $village_id, $source_specifier);
+`;
+
+export const insertEffectByEffectNameQuery = `
+  INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+  VALUES (
+    (
+      SELECT id
+      FROM
+        effect_ids
+      WHERE
+        effect = $effect_name
+    ),
+    $value,
+    $type,
+    $scope,
+    $source,
+    $village_id,
+    $source_specifier
+  );
+`;
+
 export const updatePopulationEffectQuery = `
   UPDATE effects
   SET

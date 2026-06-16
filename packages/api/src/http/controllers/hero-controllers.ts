@@ -8,6 +8,7 @@ import {
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
+import { insertEffectByEffectNameQuery } from '../../queries/effect-queries';
 import { getPlayerHeroAdventureStateAt } from '../../utils/adventures';
 import { createEvents } from '../../utils/create-event';
 import { updateHeroResourceProductionEffects } from '../../utils/hero';
@@ -528,26 +529,16 @@ export const equipHeroItem = createController(
 
       for (const effect of itemDef.effects) {
         database.exec({
-          sql: `
-            INSERT INTO
-              effects (effect_id, value, type, scope, source, village_id, source_specifier)
-            VALUES
-              ((
-                 SELECT id
-                 FROM
-                   effect_ids
-                 WHERE
-                   effect = $effectId
-                 ), $value, $type, $scope, 'hero', $village_id, $itemId)
-          `,
+          sql: insertEffectByEffectNameQuery,
           bind: {
-            $effectId: effect.id,
+            $effect_name: effect.id,
             $value: effect.value,
             $type: effect.type,
             $scope: effect.scope,
+            $source: 'hero',
             $village_id:
               effect.scope === 'village' ? (villageId ?? null) : null,
-            $itemId: itemId,
+            $source_specifier: itemId,
           },
         });
       }

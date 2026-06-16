@@ -12,6 +12,7 @@ import {
 import { effectSchema } from '@pillage-first/types/models/effect';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
@@ -48,6 +49,11 @@ const setTroopWheatProductionEffectValue = (
   villageId: number,
   value: number,
 ) => {
+  const wheatEffectId = database.selectValue({
+    sql: selectWheatProductionEffectIdQuery,
+    schema: z.number(),
+  })!;
+
   database.exec({
     sql: `
       UPDATE effects
@@ -55,13 +61,13 @@ const setTroopWheatProductionEffectValue = (
       WHERE
         village_id = $village_id
         AND source = 'troops'
-        AND effect_id = (
-          SELECT id
-          FROM effect_ids
-          WHERE effect = 'wheatProduction'
-        );
+        AND effect_id = $effect_id;
     `,
-    bind: { $village_id: villageId, $value: value },
+    bind: {
+      $effect_id: wheatEffectId,
+      $village_id: villageId,
+      $value: value,
+    },
   });
 };
 
@@ -674,9 +680,7 @@ describe(findNewVillageMovementResolver, () => {
     const resolvesAt = 2000;
 
     // Set initial troop consumption for source village to 3 (3 settlers)
-    database.exec({
-      sql: "UPDATE effects SET value = 3 WHERE village_id = 1 AND source = 'troops' AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction');",
-    });
+    setTroopWheatProductionEffectValue(database, 1, 3);
 
     const mockEvent = createTroopMovementFindNewVillageEventMock({
       id: 1,
