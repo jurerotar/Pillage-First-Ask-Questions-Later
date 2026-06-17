@@ -24,6 +24,7 @@ export const SendResourcesModal = ({
     >
       <DialogContent>
         <SendResourcesForm
+          isDialogContent
           onCancel={onClose}
           onSuccess={() => {
             onSuccess?.();

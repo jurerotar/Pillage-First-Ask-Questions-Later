@@ -302,7 +302,7 @@ describe('marketplace-controllers', () => {
     database.exec({
       sql: `
         INSERT INTO events (type, starts_at, duration, village_id, meta)
-        VALUES ('resourceTransfer', $now, 10_000, $village_id, $meta);
+        VALUES ('resourceTransfer', $now, 10000, $village_id, $meta);
       `,
       bind: {
         $now: NOW,
@@ -331,6 +331,75 @@ describe('marketplace-controllers', () => {
         ),
       ),
     ).toThrow('Not enough free merchants');
+  });
+
+  test('transferResources should not count incoming merchants as occupied', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(
+      database,
+      'Incoming Merchant Target',
+    );
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tileId, {
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ('resourceTransfer', $now, 10000, $village_id, $meta);
+      `,
+      bind: {
+        $now: NOW,
+        $village_id: targetVillage.id,
+        $meta: JSON.stringify({
+          originTileId: targetVillage.tileId,
+          targetTileId: sourceVillage.tileId,
+          targetVillageId: sourceVillage.id,
+          resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
+          merchantAmount: 1,
+        }),
+      },
+    });
+
+    expect(() =>
+      transferResources(
+        database,
+        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
+          {
+            path: { villageId: sourceVillage.id },
+            body: {
+              targetVillageId: targetVillage.id,
+              resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
+            },
+          },
+        ),
+      ),
+    ).not.toThrow();
+
+    const outgoingTransferCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM events
+        WHERE type = 'resourceTransfer'
+          AND village_id = $village_id;
+      `,
+      bind: {
+        $village_id: sourceVillage.id,
+      },
+      schema: z.number(),
+    });
+
+    expect(outgoingTransferCount).toBe(1);
   });
 
   test('transferResources should reject when source village does not have enough resources', async () => {

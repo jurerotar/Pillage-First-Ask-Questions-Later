@@ -3,6 +3,8 @@ import { formatNumber } from '@pillage-first/utils/format';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
+  Dialog,
+  DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -16,6 +18,7 @@ import { TargetVillageSelector } from './target-village-selector';
 
 type SendResourcesFormProps = {
   initialTargetVillage?: VillageOption;
+  isDialogContent?: boolean;
   isTargetVillageSelectorDisabled?: boolean;
   onCancel?: () => void;
   onSuccess?: () => void;
@@ -24,6 +27,7 @@ type SendResourcesFormProps = {
 
 export const SendResourcesForm = ({
   initialTargetVillage,
+  isDialogContent = false,
   isTargetVillageSelectorDisabled = false,
   onCancel,
   onSuccess,
@@ -50,11 +54,19 @@ export const SendResourcesForm = ({
     totalCapacity,
   } = useSendResourcesForm({ initialTargetVillage, onSuccess });
 
-  if (isConfirmationOpen) {
+  const confirmResourceTransfer = () => {
+    onConfirm();
+
+    if (isDialogContent) {
+      onCancel?.();
+    }
+  };
+
+  if (isDialogContent && isConfirmationOpen) {
     return (
       <ResourceTransferConfirmationContent
         onBack={closeConfirmationStep}
-        onConfirm={() => onConfirm()}
+        onConfirm={confirmResourceTransfer}
         targetVillage={targetVillage}
         resources={selectedResources}
         duration={duration}
@@ -67,9 +79,13 @@ export const SendResourcesForm = ({
   return (
     <>
       {title ? (
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
+        isDialogContent ? (
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+          </DialogHeader>
+        ) : (
+          <Text as="h2">{title}</Text>
+        )
       ) : null}
 
       <Form {...form}>
@@ -77,12 +93,10 @@ export const SendResourcesForm = ({
           className="space-y-4"
           onSubmit={form.handleSubmit(onFormSubmit)}
         >
-          <div className="flex flex-col gap-2">
-            <Text className="font-medium">
-              {t('Free merchants')}: {formatNumber(availableMerchantAmount)} /{' '}
-              {formatNumber(marketplaceLevel)}
-            </Text>
-          </div>
+          <Text className="font-medium">
+            {t('Free merchants')}: {formatNumber(availableMerchantAmount)} /{' '}
+            {formatNumber(marketplaceLevel)}
+          </Text>
 
           <ResourceSelector
             availableResources={currentVillage.resources}
@@ -115,6 +129,25 @@ export const SendResourcesForm = ({
           </DialogFooter>
         </form>
       </Form>
+
+      {!isDialogContent && (
+        <Dialog
+          open={isConfirmationOpen}
+          onOpenChange={(open) => !open && closeConfirmationStep()}
+        >
+          <DialogContent>
+            <ResourceTransferConfirmationContent
+              onBack={closeConfirmationStep}
+              onConfirm={confirmResourceTransfer}
+              targetVillage={targetVillage}
+              resources={selectedResources}
+              duration={duration}
+              merchantAmount={merchantAmount}
+              isPending={isPending}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

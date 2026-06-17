@@ -15,6 +15,10 @@ export const useMarketplaceMerchants = () => {
   let usedMerchantAmount = 0;
 
   for (const event of resourceTransferEvents) {
+    if (event.villageId !== currentVillage.id) {
+      continue;
+    }
+
     usedMerchantAmount += event.merchantAmount;
   }
 
