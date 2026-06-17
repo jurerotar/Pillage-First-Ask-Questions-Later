@@ -1,6 +1,15 @@
-import { Dialog, DialogContent } from 'app/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from 'app/components/ui/dialog';
+import { useSendResourcesForm } from '../hooks/use-send-resources-form';
 import type { VillageOption } from '../utils/villages';
-import { SendResourcesForm } from './send-resources-form';
+import {
+  SendResourcesConfirmationStep,
+  SendResourcesFormContent,
+} from './send-resources-form';
 
 type SendResourcesModalProps = {
   initialTargetVillage?: VillageOption;
@@ -12,26 +21,46 @@ type SendResourcesModalProps = {
 };
 
 export const SendResourcesModal = ({
+  initialTargetVillage,
   isOpen,
+  isTargetVillageSelectorDisabled = false,
   onClose,
   onSuccess,
-  ...props
+  title,
 }: SendResourcesModalProps) => {
+  const formState = useSendResourcesForm({
+    initialTargetVillage,
+    onSuccess: () => {
+      onSuccess?.();
+      onClose();
+    },
+  });
+
   return (
     <Dialog
       open={isOpen}
       onOpenChange={(open) => !open && onClose()}
     >
       <DialogContent>
-        <SendResourcesForm
-          isDialogContent
-          onCancel={onClose}
-          onSuccess={() => {
-            onSuccess?.();
-            onClose();
-          }}
-          {...props}
-        />
+        {formState.isConfirmationOpen ? (
+          <SendResourcesConfirmationStep
+            formState={formState}
+            onConfirm={onClose}
+          />
+        ) : (
+          <SendResourcesFormContent
+            formState={formState}
+            header={
+              title ? (
+                <DialogHeader>
+                  <DialogTitle>{title}</DialogTitle>
+                </DialogHeader>
+              ) : null
+            }
+            isTargetVillageSelectorDisabled={isTargetVillageSelectorDisabled}
+            onCancel={onClose}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
