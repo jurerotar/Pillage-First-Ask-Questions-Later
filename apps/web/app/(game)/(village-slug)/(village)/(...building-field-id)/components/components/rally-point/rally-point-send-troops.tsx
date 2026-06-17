@@ -4,13 +4,13 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { AttackRaidForm } from 'app/(game)/(village-slug)/components/send-troops/attack-raid-form';
 import { FoundNewVillageForm } from 'app/(game)/(village-slug)/components/send-troops/found-new-village-form';
 import { ReinforcementRelocationForm } from 'app/(game)/(village-slug)/components/send-troops/reinforcement-relocation-form';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { AttackRaidForm } from 'app/(game)/(village-slug)/components/send-troops/attack-raid-form';
 
 // import { OasisOccupationForm } from './send-troops/oasis-occupation-form';
 

@@ -6,9 +6,11 @@ import { SendTroopsModalContent } from 'app/(game)/(village-slug)/components/sen
 import { useFoundNewVillageTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-found-new-village-troop-form';
 import { useReinforcementRelocationTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-reinforcement-relocation-troop-form';
 import { Dialog, DialogContent } from 'app/components/ui/dialog';
+import { AttackOrRaidActionSelector } from '../../components/send-troops/components/attack-or-raid-action-selector';
+import { useAttackOrRaidForm } from '../../components/send-troops/hooks/use-attack-or-raid-form';
 
 export type MapSendTroopsAction = {
-  mode: 'found-new-village' | 'reinforcement';
+  mode: 'found-new-village' | 'reinforcement' | 'attack-or-raid';
   isRelocationEnabled?: boolean;
   targetTileId: Tile['id'];
 };
@@ -68,6 +70,65 @@ const FoundNewVillageModal = ({
             maxUnits={maxUnits}
             targetSelector="coordinates"
             isTargetSelectorDisabled
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+type AttackOrRaidModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  targetTileId: Tile['id'];
+};
+
+const AttackOrRaidModal = ({
+  isOpen,
+  onClose,
+  targetTileId,
+}: AttackOrRaidModalProps) => {
+  const { t } = useTranslation();
+  const {
+    closeConfirmationStep,
+    form,
+    formData,
+    isConfirmationStepOpen,
+    onConfirm,
+    onFormSubmit,
+    tribe,
+  } = useAttackOrRaidForm({
+    action: 'attack',
+    targetTileId,
+    onSuccess: onClose,
+  });
+  const confirmationTitle =
+    formData.current?.action === 'attack' ? t('Attack') : t('Raid');
+
+  return (
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+    >
+      <DialogContent>
+        {isConfirmationStepOpen && formData.current ? (
+          <TroopMovementConfirmationContent
+            onBack={closeConfirmationStep}
+            onConfirm={onConfirm}
+            formData={formData.current}
+            title={confirmationTitle}
+            tribe={tribe}
+            backLabel={t('Back')}
+          />
+        ) : (
+          <SendTroopsModalContent
+            onClose={onClose}
+            onSubmit={onFormSubmit}
+            title={t('Attack or raid')}
+            form={form}
+            targetSelector="coordinates"
+            isTargetSelectorDisabled
+            extraContent={<AttackOrRaidActionSelector />}
           />
         )}
       </DialogContent>
@@ -160,6 +221,17 @@ export const MapSendTroopsModal = ({
   if (action.mode === 'found-new-village') {
     return (
       <FoundNewVillageModal
+        key={key}
+        isOpen={isOpen}
+        onClose={onClose}
+        targetTileId={action.targetTileId}
+      />
+    );
+  }
+
+  if (action.mode === 'attack-or-raid') {
+    return (
+      <AttackOrRaidModal
         key={key}
         isOpen={isOpen}
         onClose={onClose}
