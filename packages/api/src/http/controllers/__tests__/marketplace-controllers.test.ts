@@ -148,6 +148,12 @@ const getVillageResources = (database: DbFacade, tileId: number) =>
     }),
   })!;
 
+const getResourceTransferCount = (database: DbFacade) =>
+  database.selectValue({
+    sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
+    schema: z.number(),
+  })!;
+
 describe('marketplace-controllers', () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -280,6 +286,49 @@ describe('marketplace-controllers', () => {
         ),
       ),
     ).toThrow('Not enough free merchants');
+  });
+
+  test('transferResources should reject when the source village has no marketplace', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(
+      database,
+      'No Marketplace Target',
+    );
+
+    setVillageResources(database, sourceVillage.tileId, {
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
+
+    expect(() =>
+      transferResources(
+        database,
+        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
+          {
+            path: { villageId: sourceVillage.id },
+            body: {
+              targetVillageId: targetVillage.id,
+              resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
+            },
+          },
+        ),
+      ),
+    ).toThrow('Not enough free merchants');
+
+    expect(getResourceTransferCount(database)).toBe(0);
+    expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
   });
 
   test('transferResources should count merchants already on the way', async () => {
@@ -433,6 +482,58 @@ describe('marketplace-controllers', () => {
         ),
       ),
     ).toThrow('Not enough resources');
+
+    expect(getResourceTransferCount(database)).toBe(0);
+    expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
+      wood: 10,
+      clay: 10,
+      iron: 10,
+      wheat: 10,
+    });
+  });
+
+  test('transferResources should reject missing target villages before creating events', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const missingVillageId = database.selectValue({
+      sql: 'SELECT MAX(id) + 1 FROM villages;',
+      schema: z.number(),
+    })!;
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tileId, {
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
+
+    expect(() =>
+      transferResources(
+        database,
+        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
+          {
+            path: { villageId: sourceVillage.id },
+            body: {
+              targetVillageId: missingVillageId,
+              resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
+            },
+          },
+        ),
+      ),
+    ).toThrow('Target village does not exist');
+
+    expect(getResourceTransferCount(database)).toBe(0);
+    expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
+      wood: 100,
+      clay: 100,
+      iron: 100,
+      wheat: 100,
+    });
   });
 
   test('transferResources should reject target villages not owned by the player', async () => {

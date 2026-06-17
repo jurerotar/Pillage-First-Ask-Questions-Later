@@ -111,17 +111,23 @@ describe('event-controllers', () => {
       }),
     })!;
     const targetVillage = createPlayerVillage(database, 'Target Village');
+    const unrelatedVillage = createPlayerVillage(
+      database,
+      'Unrelated Target Village',
+    );
 
     database.exec({
       sql: `
         INSERT INTO events (type, starts_at, duration, village_id, meta)
         VALUES
           ('resourceTransfer', $outgoing_starts_at, 100, $source_village_id, $outgoing_meta),
-          ('resourceTransfer', $incoming_starts_at, 100, $target_village_id, $incoming_meta);
+          ('resourceTransfer', $incoming_starts_at, 100, $target_village_id, $incoming_meta),
+          ('resourceTransfer', $unrelated_starts_at, 100, $target_village_id, $unrelated_meta);
       `,
       bind: {
         $outgoing_starts_at: 1_000,
         $incoming_starts_at: 2_000,
+        $unrelated_starts_at: 500,
         $source_village_id: sourceVillage.id,
         $target_village_id: targetVillage.id,
         $outgoing_meta: JSON.stringify({
@@ -136,6 +142,13 @@ describe('event-controllers', () => {
           targetTileId: sourceVillage.tileId,
           targetVillageId: sourceVillage.id,
           resources: { wood: 10, clay: 25, iron: 50, wheat: 100 },
+          merchantAmount: 1,
+        }),
+        $unrelated_meta: JSON.stringify({
+          originTileId: targetVillage.tileId,
+          targetTileId: unrelatedVillage.tileId,
+          targetVillageId: unrelatedVillage.id,
+          resources: { wood: 1, clay: 1, iron: 1, wheat: 1 },
           merchantAmount: 1,
         }),
       },
