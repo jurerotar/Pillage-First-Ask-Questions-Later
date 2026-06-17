@@ -85,7 +85,11 @@ export const resolveEvent = (
     `,
     bind: { $id: eventId },
     schema: baseEventRowSchema,
-  })!;
+  });
+
+  if (!eventRow) {
+    return;
+  }
 
   const event = mapEventRowToTypedEvent(eventRow);
 

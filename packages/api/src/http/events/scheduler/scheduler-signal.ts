@@ -18,6 +18,12 @@ export const registerKickCallback = (callback: () => void): void => {
   kickCallback = callback;
 };
 
+/** @internal only for testing */
+export const resetSchedulerSignalForTesting = (): void => {
+  needsRescanFlag = false;
+  kickCallback = null;
+};
+
 export const triggerKick = (): void => {
   markNeedsRescan();
   kickCallback?.();

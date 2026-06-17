@@ -18,17 +18,19 @@ export const createSchedulerDataSource = (
   return {
     getPastEventIds: (now: number) => {
       return database.selectValues({
-        sql: 'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at;',
+        sql: 'SELECT id FROM events WHERE resolves_at <= $now ORDER BY resolves_at, id;',
         bind: { $now: now },
         schema: getPastEventIdsSchema,
       });
     },
     getNextEvent: (now: number) => {
-      return database.selectObject({
-        sql: selectNextEventQuery,
-        bind: { $now: now },
-        schema: getNextEventSchema,
-      })!;
+      return (
+        database.selectObject({
+          sql: selectNextEventQuery,
+          bind: { $now: now },
+          schema: getNextEventSchema,
+        }) ?? null
+      );
     },
     resolveEvent: (id: GameEvent['id']) => {
       database.transaction((tx) => {
