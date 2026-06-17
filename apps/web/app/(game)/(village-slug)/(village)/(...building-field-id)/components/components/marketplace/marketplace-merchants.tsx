@@ -5,21 +5,17 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
-import { SendResourcesForm } from './components/send-resources-form';
 
-export const MarketplaceSendResources = () => {
+export const MarketplaceMerchants = () => {
   const { t } = useTranslation();
 
   return (
     <Section>
       <SectionContent>
-        <Bookmark tab="send-resources" />
-        <Text as="h2">{t('Send resources')}</Text>
-        <Text>{t('Transfer resources between your villages.')}</Text>
+        <Bookmark tab="merchants" />
+        <Text as="h2">{t('Merchant overview')}</Text>
       </SectionContent>
-      <SectionContent>
-        <SendResourcesForm />
-      </SectionContent>
+      <SectionContent />
     </Section>
   );
 };
