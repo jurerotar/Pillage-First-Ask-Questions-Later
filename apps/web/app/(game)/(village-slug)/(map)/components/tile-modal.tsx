@@ -29,6 +29,7 @@ import {
 } from '@pillage-first/utils/math';
 import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-troops';
+import { useMarketplaceMerchants } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/marketplace/hooks/use-marketplace-merchants';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
@@ -81,6 +82,7 @@ type TileModalProps = {
 type TileModalActionsProps = {
   onFoundNewVillage: (tile: OccupiableTile) => void;
   onReinforceVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
+  onSendResources: (tile: OccupiedOccupiableTile) => void;
 };
 
 type TileModalMarkerProps = {
@@ -575,11 +577,53 @@ const OccupiableTileModal = ({
 
 type OccupiedOccupiableTileModalProps = {
   tile: OccupiedOccupiableTile;
-} & Pick<TileModalActionsProps, 'onReinforceVillage'>;
+} & Pick<TileModalActionsProps, 'onReinforceVillage' | 'onSendResources'>;
+
+type SendResourcesActionProps = {
+  tile: OccupiedOccupiableTile;
+  onSendResources: (tile: OccupiedOccupiableTile) => void;
+};
+
+const SendResourcesAction = ({
+  tile,
+  onSendResources,
+}: SendResourcesActionProps) => {
+  const { t } = useTranslation();
+  const { marketplaceLevel, availableMerchantAmount } =
+    useMarketplaceMerchants();
+
+  if (marketplaceLevel <= 0) {
+    return (
+      <Text className="text-gray-500">
+        {t(
+          'You need a Marketplace of level 1 or higher before you can send resources',
+        )}
+      </Text>
+    );
+  }
+
+  if (availableMerchantAmount <= 0) {
+    return (
+      <Text className="text-gray-500">
+        {t('You need at least 1 free merchant before you can send resources')}
+      </Text>
+    );
+  }
+
+  return (
+    <Button
+      variant="textLink"
+      onClick={() => onSendResources(tile)}
+    >
+      {t('Send resources')}
+    </Button>
+  );
+};
 
 const OccupiedOccupiableTileModal = ({
   tile,
   onReinforceVillage,
+  onSendResources,
 }: OccupiedOccupiableTileModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
@@ -609,7 +653,7 @@ const OccupiedOccupiableTileModal = ({
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
         {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
-        {isOwnedByPlayer && tile.id !== currentVillage.id && (
+        {isOwnedByPlayer && tile.id !== currentVillage.tileId && (
           <Text variant="link">
             <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>
               {t('Enter {{villageName}}', { villageName })}
@@ -624,6 +668,12 @@ const OccupiedOccupiableTileModal = ({
             {t('Reinforce village')}
           </Button>
         )}
+        {isOwnedByPlayer && tile.id !== currentVillage.tileId && (
+          <SendResourcesAction
+            tile={tile}
+            onSendResources={onSendResources}
+          />
+        )}
       </div>
     </>
   );
@@ -636,6 +686,7 @@ export const TileDialog = ({
   deleteMapMarker,
   onFoundNewVillage,
   onReinforceVillage,
+  onSendResources,
 }: TileDialogProps) => {
   if (!tile) {
     return null;
@@ -674,6 +725,7 @@ export const TileDialog = ({
         <OccupiedOccupiableTileModal
           tile={tile}
           onReinforceVillage={onReinforceVillage}
+          onSendResources={onSendResources}
         />
         <TileModalMarkerDescription
           mapMarkers={mapMarkers}
