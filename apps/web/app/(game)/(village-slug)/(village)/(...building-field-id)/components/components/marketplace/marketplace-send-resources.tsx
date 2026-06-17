@@ -15,7 +15,7 @@ export const MarketplaceSendResources = () => {
       <SectionContent>
         <Bookmark tab="trade" />
         <Text as="h2">{t('Send resources')}</Text>
-        <Text>{t('Send resources between your villages.')}</Text>
+        <Text>{t('Transfer resources between your villages.')}</Text>
       </SectionContent>
       <SectionContent>
         <SendResourcesForm />

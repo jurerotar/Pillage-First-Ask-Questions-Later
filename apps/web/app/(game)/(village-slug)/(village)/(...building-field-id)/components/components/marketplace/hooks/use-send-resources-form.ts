@@ -1,9 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { use, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import type { Resource } from '@pillage-first/types/models/resource';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
@@ -12,6 +11,7 @@ import {
   eventsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { invalidateQueries } from 'app/utils/react-query';
 import {
   emptyResources,
   getMerchantAmount,
@@ -34,7 +34,6 @@ export const useSendResourcesForm = ({
 }: UseSendResourcesFormOptions = {}) => {
   const { t } = useTranslation();
   const { apiClient } = use(ApiContext);
-  const queryClient = useQueryClient();
   const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
   const { mapSize, serverSpeed } = useServer();
@@ -129,7 +128,7 @@ export const useSendResourcesForm = ({
         },
       });
     },
-    onSuccess: async () => {
+    onSuccess: async (_, __, ___, context) => {
       form.reset({
         resources: emptyResources,
         targetVillageId: initialTargetVillage?.id,
@@ -137,13 +136,9 @@ export const useSendResourcesForm = ({
       setIsConfirmationOpen(false);
       toast.success(t('Resource transfer started'));
 
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: [currentVillageCacheKey],
-        }),
-        queryClient.invalidateQueries({
-          queryKey: [eventsCacheKey, 'resourceTransfer', currentVillage.id],
-        }),
+      await invalidateQueries(context, [
+        [currentVillageCacheKey],
+        [eventsCacheKey, 'resourceTransfer', currentVillage.id],
       ]);
 
       onSuccess?.();
@@ -152,27 +147,6 @@ export const useSendResourcesForm = ({
       toast.error(t('Resource transfer could not be started'));
     },
   });
-
-  const setResourceAmount = (resource: Resource, value: number) => {
-    form.setValue(`resources.${resource}`, value);
-  };
-
-  const incrementResourceAmount = (resource: Resource, maxAmount: number) => {
-    setResourceAmount(
-      resource,
-      Math.min(
-        selectedResources[resource] + merchant.merchantCapacity,
-        maxAmount,
-      ),
-    );
-  };
-
-  const decrementResourceAmount = (resource: Resource) => {
-    setResourceAmount(
-      resource,
-      Math.max(0, selectedResources[resource] - merchant.merchantCapacity),
-    );
-  };
 
   const onFormSubmit = () => {
     if (!canSubmit) {
@@ -187,10 +161,8 @@ export const useSendResourcesForm = ({
     canSubmit,
     closeConfirmationStep: () => setIsConfirmationOpen(false),
     currentVillage,
-    decrementResourceAmount,
     duration,
     form,
-    incrementResourceAmount,
     isConfirmationOpen,
     isPending,
     marketplaceLevel,
@@ -202,6 +174,5 @@ export const useSendResourcesForm = ({
     targetVillage,
     targetVillages,
     totalCapacity,
-    totalSelectedResources,
   };
 };
