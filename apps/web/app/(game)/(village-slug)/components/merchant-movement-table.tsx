@@ -53,14 +53,17 @@ const MerchantMovementTableSection = ({
   emptyMessage,
   currentVillageId,
   mapSize,
+  hideResources = false,
 }: {
   title: string;
   events: MerchantMovementEvent[];
   emptyMessage: string;
   currentVillageId: number;
   mapSize: number;
+  hideResources?: boolean;
 }) => {
   const { t } = useTranslation();
+  const columnCount = hideResources ? 4 : 5;
 
   return (
     <div className="space-y-2">
@@ -76,7 +79,9 @@ const MerchantMovementTableSection = ({
             <TableRow>
               <TableHeaderCell>{t('Origin')}</TableHeaderCell>
               <TableHeaderCell>{t('Destination')}</TableHeaderCell>
-              <TableHeaderCell>{t('Resources')}</TableHeaderCell>
+              {!hideResources && (
+                <TableHeaderCell>{t('Resources')}</TableHeaderCell>
+              )}
               <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
               <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
             </TableRow>
@@ -100,11 +105,15 @@ const MerchantMovementTableSection = ({
                       mapSize={mapSize}
                     />
                   </TableCell>
-                  <TableCell>
-                    <span className="flex flex-wrap gap-2">
-                      <Resources resources={getResourceList(event.resources)} />
-                    </span>
-                  </TableCell>
+                  {!hideResources && (
+                    <TableCell>
+                      <span className="flex flex-wrap gap-2">
+                        <Resources
+                          resources={getResourceList(event.resources)}
+                        />
+                      </span>
+                    </TableCell>
+                  )}
                   <TableCell>
                     {didOriginateFromCurrentVillage
                       ? formatNumber(event.merchantAmount)
@@ -118,7 +127,7 @@ const MerchantMovementTableSection = ({
             })}
             {events.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5}>{emptyMessage}</TableCell>
+                <TableCell colSpan={columnCount}>{emptyMessage}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -142,7 +151,16 @@ export const MerchantMovementTable = () => {
     );
   });
   const outgoingMerchantEvents = resourceTransferEvents.filter((event) => {
-    return event.villageId === currentVillage.id;
+    return (
+      event.villageId === currentVillage.id &&
+      getResourceTotal(event.resources) > 0
+    );
+  });
+  const returningMerchantEvents = resourceTransferEvents.filter((event) => {
+    return (
+      event.villageId === currentVillage.id &&
+      getResourceTotal(event.resources) === 0
+    );
   });
 
   return (
@@ -160,6 +178,14 @@ export const MerchantMovementTable = () => {
         emptyMessage={t('No outgoing merchants are currently on the way')}
         currentVillageId={currentVillage.id}
         mapSize={mapSize}
+      />
+      <MerchantMovementTableSection
+        title={t('Returning merchants')}
+        events={returningMerchantEvents}
+        emptyMessage={t('No merchants are currently returning')}
+        currentVillageId={currentVillage.id}
+        mapSize={mapSize}
+        hideResources
       />
     </div>
   );

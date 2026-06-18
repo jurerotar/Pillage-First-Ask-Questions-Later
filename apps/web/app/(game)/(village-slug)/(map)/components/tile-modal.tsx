@@ -653,10 +653,10 @@ const OccupiedOccupiableTileModal = ({
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
         {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
-        {isOwnedByPlayer && tile.id !== currentVillage.tileId && (
+        {isOwnedByPlayer && (
           <Text variant="link">
             <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>
-              {t('Enter {{villageName}}', { villageName })}
+              {t('Enter village')}
             </Link>
           </Text>
         )}
