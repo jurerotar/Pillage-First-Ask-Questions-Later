@@ -14,6 +14,7 @@ import {
   deleteUnitImprovementEventsFromLevelQuery,
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
+  selectAllVillageResourceTransferEventsQuery,
   selectEventByIdQuery,
   selectEventsByTypeQuery,
   selectTroopMovementEventsQuery,
@@ -114,6 +115,18 @@ export const getVillageEventsByType = createController(
       sql: selectEventsByTypeQuery,
       bind: {
         $type: eventType,
+      },
+      schema: baseEventRowSchema,
+    });
+
+    return rows.map(mapEventRowToTypedEvent);
+  }
+
+  if (eventType === 'resourceTransfer') {
+    const rows = database.selectObjects({
+      sql: selectAllVillageResourceTransferEventsQuery,
+      bind: {
+        $village_id: villageId,
       },
       schema: baseEventRowSchema,
     });

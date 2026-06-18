@@ -36,6 +36,17 @@ export const selectAllVillageEventsByTypeQuery = `
   ORDER BY resolves_at;
 `;
 
+export const selectAllVillageResourceTransferEventsQuery = `
+  SELECT id, type, starts_at, duration, resolves_at, meta, village_id
+  FROM events
+  WHERE type = 'resourceTransfer'
+    AND (
+      village_id = $village_id
+      OR JSON_EXTRACT(meta, '$.targetVillageId') = $village_id
+    )
+  ORDER BY resolves_at;
+`;
+
 export const selectEventsByTypeQuery = `
   SELECT id, type, starts_at, duration, resolves_at, meta, village_id
   FROM

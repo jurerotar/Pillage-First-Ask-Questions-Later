@@ -2,6 +2,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import {
   markNeedsRescan,
   registerKickCallback,
+  resetSchedulerSignalForTesting,
   takeNeedsRescan,
 } from './scheduler-signal';
 
@@ -12,17 +13,31 @@ export type SchedulerDataSource = {
 };
 
 let scheduledTimeout: ReturnType<typeof globalThis.setTimeout> | null = null;
+let pendingKickTimeout: ReturnType<typeof globalThis.setTimeout> | null = null;
 let schedulingInProgress = false;
 let shutdownController = new AbortController();
 
-/** @internal only for testing */
-export const resetSchedulerForTesting = (): void => {
+const clearScheduledTimeout = (): void => {
   if (scheduledTimeout !== null) {
     globalThis.clearTimeout(scheduledTimeout);
     scheduledTimeout = null;
   }
+};
+
+const clearPendingKickTimeout = (): void => {
+  if (pendingKickTimeout !== null) {
+    globalThis.clearTimeout(pendingKickTimeout);
+    pendingKickTimeout = null;
+  }
+};
+
+/** @internal only for testing */
+export const resetSchedulerForTesting = (): void => {
+  clearScheduledTimeout();
+  clearPendingKickTimeout();
   schedulingInProgress = false;
   shutdownController = new AbortController();
+  resetSchedulerSignalForTesting();
 };
 
 export const cancelScheduling = (): void => {
@@ -30,10 +45,8 @@ export const cancelScheduling = (): void => {
     shutdownController.abort();
   }
 
-  if (scheduledTimeout !== null) {
-    globalThis.clearTimeout(scheduledTimeout);
-    scheduledTimeout = null;
-  }
+  clearScheduledTimeout();
+  clearPendingKickTimeout();
 };
 
 export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
@@ -42,10 +55,8 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
     return;
   }
 
-  if (scheduledTimeout !== null) {
-    globalThis.clearTimeout(scheduledTimeout);
-    scheduledTimeout = null;
-  }
+  clearScheduledTimeout();
+  clearPendingKickTimeout();
 
   // If another schedule run is in progress, request a rescan and return.
   if (schedulingInProgress) {
@@ -109,7 +120,12 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
         return;
       }
 
-      dataSource.resolveEvent(next.id);
+      try {
+        dataSource.resolveEvent(next.id);
+      } catch (error) {
+        console.error(error);
+      }
+
       scheduleNextEvent(dataSource);
     }, delay);
   } finally {
@@ -136,18 +152,17 @@ export const kickSchedulerNow = (dataSource: SchedulerDataSource): void => {
   }
 
   // If a timeout is currently scheduled, clear it so we don't wait for the old firing.
-  if (scheduledTimeout !== null) {
-    try {
-      globalThis.clearTimeout(scheduledTimeout);
-    } catch {
-      // ignore (some runtimes might differ)
-    }
-    scheduledTimeout = null;
+  clearScheduledTimeout();
+
+  if (pendingKickTimeout !== null) {
+    return;
   }
 
   // Call scheduleNextEvent asynchronously to avoid reentrancy with the caller's DB transaction.
   // Using setTimeout 0 gives the runtime a tick to let a committed transaction flush.
-  globalThis.setTimeout(() => {
+  pendingKickTimeout = globalThis.setTimeout(() => {
+    pendingKickTimeout = null;
+
     // Defensive: do nothing if shutdown happened meanwhile
     if (shutdownController.signal.aborted) {
       return;

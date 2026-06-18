@@ -69,6 +69,7 @@ import {
   getMapFilters,
   updateMapFilter,
 } from './controllers/map-filters-controllers';
+import { transferResources } from './controllers/marketplace-controllers';
 import { getOasesWithAnimals } from './controllers/oasis-animal-finder-controllers';
 import { getTilesWithBonuses } from './controllers/oasis-bonus-finder-controllers';
 import { abandonOasis, occupyOasis } from './controllers/oasis-controllers';
@@ -248,6 +249,7 @@ export const apiRoutes = [
   createRoute(getOccupiableOasisInRange),
   createRoute(rearrangeBuildingFields),
   createRoute(getResearchedUnits),
+  createRoute(transferResources),
 
   // Map Filters
   createRoute(getMapFilters),

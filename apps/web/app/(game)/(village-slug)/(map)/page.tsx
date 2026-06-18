@@ -30,6 +30,10 @@ import {
   MapRulerGridCell,
 } from 'app/(game)/(village-slug)/(map)/components/map-ruler-cell';
 import {
+  type MapSendResourcesAction,
+  MapSendResourcesModal,
+} from 'app/(game)/(village-slug)/(map)/components/map-send-resources-modal';
+import {
   type MapSendTroopsAction,
   MapSendTroopsModal,
 } from 'app/(game)/(village-slug)/(map)/components/map-send-troops-modal';
@@ -75,6 +79,12 @@ const MapPageContents = () => {
     closeModal: closeSendTroopsModal,
     modalArgs: sendTroopsModalArgs,
   } = useDialog<MapSendTroopsAction>();
+  const {
+    isOpen: isSendResourcesModalOpen,
+    openModal: openSendResourcesModal,
+    closeModal: closeSendResourcesModal,
+    modalArgs: sendResourcesModalArgs,
+  } = useDialog<MapSendResourcesAction>();
   const { map } = useMap();
   const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
@@ -167,6 +177,14 @@ const MapPageContents = () => {
       openSendTroopsModal(action);
     },
     [closeTileModal, openSendTroopsModal],
+  );
+
+  const openMapSendResourcesModal = useCallback(
+    (action: MapSendResourcesAction) => {
+      closeTileModal();
+      openSendResourcesModal(action);
+    },
+    [closeTileModal, openSendResourcesModal],
   );
 
   useEffect(() => {
@@ -420,6 +438,16 @@ const MapPageContents = () => {
                 targetTileId: tile.id,
               });
             }}
+            onSendResources={(tile) => {
+              openMapSendResourcesModal({
+                targetVillage: {
+                  id: tile.ownerVillage.id,
+                  tileId: tile.id,
+                  coordinates: tile.coordinates,
+                  name: tile.ownerVillage.name,
+                },
+              });
+            }}
           />
         </Suspense>
       </Dialog>
@@ -427,6 +455,11 @@ const MapPageContents = () => {
         action={sendTroopsModalArgs.current}
         isOpen={isSendTroopsModalOpen}
         onClose={closeSendTroopsModal}
+      />
+      <MapSendResourcesModal
+        action={sendResourcesModalArgs.current}
+        isOpen={isSendResourcesModalOpen}
+        onClose={closeSendResourcesModal}
       />
       <Tooltip
         anchorSelect="[data-tile-id]"

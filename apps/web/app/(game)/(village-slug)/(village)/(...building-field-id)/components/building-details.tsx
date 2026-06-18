@@ -129,6 +129,16 @@ const TownHallCelebrations = lazyWithRetry(async () => ({
     .TownHallCelebrations,
 }));
 
+const MarketplaceMerchants = lazyWithRetry(async () => ({
+  default: (await import('./components/marketplace/marketplace-merchants'))
+    .MarketplaceMerchants,
+}));
+
+const MarketplaceSendResources = lazyWithRetry(async () => ({
+  default: (await import('./components/marketplace/marketplace-send-resources'))
+    .MarketplaceSendResources,
+}));
+
 const MarketplaceBuy = lazyWithRetry(async () => ({
   default: (await import('./components/marketplace/marketplace-trade'))
     .MarketplaceTrade,
@@ -219,6 +229,8 @@ const buildingDetailsTabMap = new Map<
   [
     'MARKETPLACE',
     new Map([
+      ['merchants', MarketplaceMerchants],
+      ['send-resources', MarketplaceSendResources],
       ['trade', MarketplaceBuy],
       ['trade-routes', MarketplaceTradeRoutes],
     ]),
@@ -247,6 +259,8 @@ const buildingDetailsTabMap = new Map<
 // t('farm-list')
 // t('simulator')
 // t('artifacts')
+// t('merchants')
+// t('send-resources')
 // t('trade')
 // t('trade-routes')
 // t('unit-research')

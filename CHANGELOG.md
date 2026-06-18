@@ -1,3 +1,10 @@
+## Version 0.4.33
+
+#### Jun 18, 2026
+
+* [Feature] Added the ability to transfer resources between villages. You require a Marketplace of at least level 1. You
+  may transfer resources through the Marketplace view or through the map directly.
+
 ## Version 0.4.32
 
 #### Jun 16, 2026
@@ -10,8 +17,7 @@
 #### Jun 15, 2026
 
 * [Feature] **A long awaited feature is here at last!** We added the ability to send reinforcements or relocate troops
-  to
-  villages and oases you own. You may do so either through the map, by clicking on the tile you own, or through the
+  to villages and oases you own. You may do so either through the map, by clicking on the tile you own, or through the
   Rally Point's Send Troops tab. Sent reinforcements may also be relocated to target village's garrison troops at any
   point. Relocating troops allows you to use them from the target village.
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.32",
+  "version": "0.4.33",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -28,7 +28,7 @@
     "@playwright/test": "1.61.0",
     "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "lefthook": "2.1.9",
-    "oxlint": "1.69.0",
+    "oxlint": "1.70.0",
     "oxlint-tsgolint": "0.23.0",
     "playwright": "1.61.0",
     "sharp": "0.35.1",
@@ -63,8 +63,8 @@
     }
   },
   "allowScripts": {
-    "@swc/core@1.15.41": true,
-    "sharp@0.34.5": true,
+    "@swc/core": true,
+    "sharp": true,
     "@parcel/watcher": false,
     "@scarf/scarf": false,
     "core-js-pure": false,

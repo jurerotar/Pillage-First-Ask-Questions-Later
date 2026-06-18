@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
 import type { TroopTrainingDurationEffectId } from './effect';
+import type { Resources } from './resource';
 import type { Tile } from './tile';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
@@ -70,6 +71,14 @@ type BaseTroopMovementEvent = {
   targetTileId: Tile['id'];
 };
 
+type BaseMerchantMovementEvent = {
+  originTileId: Tile['id'];
+  targetTileId: Tile['id'];
+  targetVillageId: Village['id'];
+  resources: Resources;
+  merchantAmount: number;
+};
+
 export type TroopMovementEventType = Extract<
   GameEventType,
   | 'troopMovementReinforcements'
@@ -110,6 +119,7 @@ export const gameEventTypeSchema = z.enum([
   'heroRevival',
   'heroHealthRegeneration',
   'loyaltyIncrease',
+  'resourceTransfer',
 ]);
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;
@@ -137,6 +147,7 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   heroRevival: VillageGameEvent;
   heroHealthRegeneration: GlobalGameEvent;
   loyaltyIncrease: GlobalGameEvent;
+  resourceTransfer: BaseMerchantMovementEvent & VillageGameEvent;
 }[T];
 
 export type TroopMovementEvent =
@@ -155,10 +166,12 @@ export type BuildingEvent =
   | GameEvent<'buildingLevelChange'>
   | GameEvent<'buildingConstruction'>;
 
+type TypedGameEvent<T extends GameEventType> = Omit<
+  BaseGameEvent,
+  'type' | 'villageId'
+> & {
+  type: T;
+} & GameEventTypeToEventArgsMap<T>;
+
 export type GameEvent<T extends GameEventType | undefined = undefined> =
-  T extends undefined
-    ? BaseGameEvent
-    : Omit<BaseGameEvent, 'type' | 'villageId'> & {
-        type: T;
-        // @ts-expect-error - undefined is triggering the TS compiler even though we check for it, tsc is dumb
-      } & GameEventTypeToEventArgsMap<T>;
+  T extends GameEventType ? TypedGameEvent<T> : BaseGameEvent;

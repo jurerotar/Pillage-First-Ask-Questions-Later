@@ -63,7 +63,7 @@ export const MarketplaceTrade = () => {
                   'Show only trades offering {{resource}}',
                   { resource: t('wood') },
                 )}
-                value="attack"
+                value="wood"
               >
                 <GiWoodPile className="size-4" />
               </ToggleGroupItem>
@@ -74,7 +74,7 @@ export const MarketplaceTrade = () => {
                   'Show only trades offering {{resource}}',
                   { resource: t('clay') },
                 )}
-                value="raid"
+                value="clay"
               >
                 <GiStoneBlock className="size-4" />
               </ToggleGroupItem>
@@ -85,7 +85,7 @@ export const MarketplaceTrade = () => {
                   'Show only trades offering {{resource}}',
                   { resource: t('iron') },
                 )}
-                value="defence"
+                value="iron"
               >
                 <GiMetalBar className="size-4" />
               </ToggleGroupItem>
@@ -96,7 +96,7 @@ export const MarketplaceTrade = () => {
                   'Show only trades offering {{resource}}',
                   { resource: t('wheat') },
                 )}
-                value="scout-attack"
+                value="wheat"
               >
                 <LuWheat className="size-4" />
               </ToggleGroupItem>
@@ -117,7 +117,7 @@ export const MarketplaceTrade = () => {
                   'Show only trades buying {{resource}}',
                   { resource: t('wood') },
                 )}
-                value="attack"
+                value="wood"
               >
                 <GiWoodPile className="size-4" />
               </ToggleGroupItem>
@@ -128,7 +128,7 @@ export const MarketplaceTrade = () => {
                   'Show only trades buying {{resource}}',
                   { resource: t('clay') },
                 )}
-                value="raid"
+                value="clay"
               >
                 <GiStoneBlock className="size-4" />
               </ToggleGroupItem>
@@ -139,7 +139,7 @@ export const MarketplaceTrade = () => {
                   'Show only trades buying {{resource}}',
                   { resource: t('iron') },
                 )}
-                value="defence"
+                value="iron"
               >
                 <GiMetalBar className="size-4" />
               </ToggleGroupItem>
@@ -150,7 +150,7 @@ export const MarketplaceTrade = () => {
                   'Show only trades buying {{resource}}',
                   { resource: t('wheat') },
                 )}
-                value="scout-attack"
+                value="wheat"
               >
                 <LuWheat className="size-4" />
               </ToggleGroupItem>
