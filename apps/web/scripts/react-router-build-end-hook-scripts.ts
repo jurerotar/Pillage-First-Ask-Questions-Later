@@ -6,14 +6,14 @@ import { load } from 'cheerio';
 import { REACT_ICONS_SPRITE_URL_PLACEHOLDER } from 'react-icons-sprite';
 import { matchRoutes, type RouteObject } from 'react-router';
 import type { Config } from '@react-router/dev/config';
+import changelog from '../../../CHANGELOG.md?raw';
 import {
   buildItemsFromChangelog,
   parseChangelog,
   toAtomXml,
   toRssXml,
-} from 'app/utils/changelog';
-import { getGameRoutePaths } from 'app/utils/react-router';
-import changelog from '../../../CHANGELOG.md?raw';
+} from '../app/utils/changelog';
+import { getGameRoutePaths } from '../app/utils/react-router';
 
 type BrowserManifestRoute = {
   id: string;
