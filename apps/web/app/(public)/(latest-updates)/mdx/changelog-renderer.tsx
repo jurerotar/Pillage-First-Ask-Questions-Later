@@ -1,7 +1,4 @@
-import rehypeRaw from 'rehype-raw';
-import rehypeStringify from 'rehype-stringify';
-import { remark } from 'remark';
-import remarkRehype from 'remark-rehype';
+import type { ReactNode } from 'react';
 import { Alert } from 'app/components/ui/alert';
 import {
   type ChangelogEntry,
@@ -23,19 +20,48 @@ const tagToBlock = {
   TechnicalImprovement: TechnicalImprovementBlock,
 };
 
-const markdownProcessor = remark()
-  .use(remarkRehype, { allowDangerousHtml: true })
-  .use(rehypeRaw)
-  .use(rehypeStringify);
+const inlineMarkdownPattern =
+  /(<br\s*\/?>)|\*\*([^*]+)\*\*|`([^`]+)`|\[([^\]]+)]\(([^)]+)\)/gi;
 
-const renderInlineMarkdown = (text: string): string => {
-  const html = markdownProcessor.processSync(text).toString().trim();
+const renderInlineMarkdown = (text: string): ReactNode[] => {
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  let key = 0;
 
-  if (html.startsWith('<p>') && html.endsWith('</p>')) {
-    return html.slice(3, -4);
+  for (const match of text.matchAll(inlineMarkdownPattern)) {
+    if (match.index === undefined) {
+      continue;
+    }
+
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+
+    if (match[1]) {
+      nodes.push(<br key={key++} />);
+    } else if (match[2]) {
+      nodes.push(<strong key={key++}>{match[2]}</strong>);
+    } else if (match[3]) {
+      nodes.push(<code key={key++}>{match[3]}</code>);
+    } else if (match[4] && match[5]) {
+      nodes.push(
+        <a
+          key={key++}
+          href={match[5]}
+        >
+          {match[4]}
+        </a>,
+      );
+    }
+
+    lastIndex = match.index + match[0].length;
   }
 
-  return html;
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex));
+  }
+
+  return nodes;
 };
 
 const releases = parseChangelogFromMarkdown(changelogRaw);
@@ -91,13 +117,7 @@ export const ChangelogRenderer = () => {
               <Block key={tag}>
                 <ul>
                   {items.map((item) => (
-                    <li
-                      key={item}
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: it's fine here
-                      dangerouslySetInnerHTML={{
-                        __html: renderInlineMarkdown(item),
-                      }}
-                    />
+                    <li key={item}>{renderInlineMarkdown(item)}</li>
                   ))}
                 </ul>
               </Block>

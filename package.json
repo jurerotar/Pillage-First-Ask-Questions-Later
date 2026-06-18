@@ -1,14 +1,14 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.21",
+  "version": "0.4.33",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "author": "Jure Rotar <hello@jurerotar.com>",
   "repository": "github:jurerotar/Pillage-First-Ask-Questions-Later",
   "bugs": "https://github.com/jurerotar/Pillage-First-Ask-Questions-Later/issues",
-  "packageManager": "npm@11.12.1",
+  "packageManager": "npm@11.16.0",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -22,28 +22,28 @@
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.15",
-    "@commitlint/cli": "21.0.0",
-    "@commitlint/config-conventional": "21.0.0",
-    "@playwright/test": "1.59.1",
-    "@typescript/native-preview": "7.0.0-dev.20260504.1",
-    "lefthook": "2.1.6",
-    "oxlint": "1.63.0",
-    "oxlint-tsgolint": "0.22.1",
-    "playwright": "1.59.1",
-    "sharp": "0.34.5",
-    "turbo": "2.9.12",
+    "@biomejs/biome": "2.5.0",
+    "@commitlint/cli": "21.0.2",
+    "@commitlint/config-conventional": "21.0.2",
+    "@playwright/test": "1.61.0",
+    "@typescript/native-preview": "7.0.0-dev.20260615.1",
+    "lefthook": "2.1.9",
+    "oxlint": "1.70.0",
+    "oxlint-tsgolint": "0.23.0",
+    "playwright": "1.61.0",
+    "sharp": "0.35.1",
+    "turbo": "2.9.18",
     "typescript": "6.0.3"
   },
   "overrides": {
     "vite-plugin-devtools-json": {
-      "vite": "^8.0.0"
+      "vite": "8.0.16"
     },
     "vite-plugin-pwa": {
-      "vite": "^8.0.0"
+      "vite": "8.0.16"
     },
     "openapi-typescript": {
-      "typescript": "^6.0.0"
+      "typescript": "6.0.3"
     }
   },
   "engines": {
@@ -61,5 +61,16 @@
         0
       ]
     }
+  },
+  "allowScripts": {
+    "@swc/core": true,
+    "sharp": true,
+    "@parcel/watcher": false,
+    "@scarf/scarf": false,
+    "core-js-pure": false,
+    "esbuild": false,
+    "lefthook": false,
+    "@tree-sitter-grammars/tree-sitter-yaml": false,
+    "tree-sitter-json": false
   }
 }

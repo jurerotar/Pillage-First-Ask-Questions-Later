@@ -85,6 +85,8 @@ export const buildingIdSchema = z
     'TOWN_HALL',
     'EMBASSY',
     'TREASURY',
+    'GATHERERS_HUT',
+    'HUNTERS_LODGE',
   ])
   .meta({ id: 'BuildingId' });
 

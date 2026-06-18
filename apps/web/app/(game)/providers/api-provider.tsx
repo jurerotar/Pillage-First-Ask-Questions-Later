@@ -8,7 +8,6 @@ import {
 } from 'react';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
-import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
@@ -21,6 +20,7 @@ type ApiProviderProps = {
 
 type ApiContextReturn = {
   apiWorker: Worker;
+  closeApiWorker: () => Promise<void>;
   apiClient: ReturnType<typeof createTypedApiClient>;
 };
 
@@ -33,7 +33,8 @@ export const ApiProvider = ({
   serverSlug,
 }: PropsWithChildren<ApiProviderProps>) => {
   const queryClient = useQueryClient();
-  const { apiWorker } = useApiWorker(serverSlug);
+  const { apiWorker, closeApiWorker, subscribeToApiWorkerNotifications } =
+    useApiWorker(serverSlug);
 
   useEffect(() => {
     if (!apiWorker) {
@@ -82,21 +83,12 @@ export const ApiProvider = ({
           makeDebouncedInvalidator(keyId, queryKey);
         debounced();
       }
-
-      // also debounce invalidation of the global events cache key
-      const eventsKeyId = JSON.stringify(eventsCacheKey);
-
-      const evResolvedKey = [eventsCacheKey];
-      const evDebounced =
-        debouncedInvalidators.get(eventsKeyId) ??
-        makeDebouncedInvalidator(eventsKeyId, evResolvedKey);
-      evDebounced();
     };
 
-    apiWorker.addEventListener('message', handleMessage);
+    const unsubscribe = subscribeToApiWorkerNotifications(handleMessage);
 
     return () => {
-      apiWorker.removeEventListener('message', handleMessage);
+      unsubscribe();
 
       // Attempt to cancel pending debounced calls
       for (const debounced of debouncedInvalidators.values()) {
@@ -106,16 +98,17 @@ export const ApiProvider = ({
       }
       debouncedInvalidators.clear();
     };
-  }, [apiWorker, queryClient]);
+  }, [queryClient, subscribeToApiWorkerNotifications, apiWorker]);
 
   const value: ApiContextReturn = useMemo(() => {
     const fetcher = createWorkerFetcher(apiWorker);
 
     return {
       apiWorker,
+      closeApiWorker,
       apiClient: createTypedApiClient(fetcher),
     };
-  }, [apiWorker]);
+  }, [apiWorker, closeApiWorker]);
 
   return <ApiContext value={value}>{children}</ApiContext>;
 };

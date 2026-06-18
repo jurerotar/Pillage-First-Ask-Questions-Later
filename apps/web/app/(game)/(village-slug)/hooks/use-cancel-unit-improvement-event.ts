@@ -4,6 +4,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import {
   currentVillageCacheKey,
   eventsCacheKey,
+  unitImprovementCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -21,8 +22,9 @@ export const useCancelUnitImprovement = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [eventsCacheKey],
+        [eventsCacheKey, 'unitImprovement'],
         [currentVillageCacheKey],
+        [unitImprovementCacheKey],
       ]);
     },
   });

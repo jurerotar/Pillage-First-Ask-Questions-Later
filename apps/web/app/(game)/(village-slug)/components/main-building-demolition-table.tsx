@@ -43,7 +43,7 @@ export const MainBuildingDemolitionTable = () => {
   };
 
   return (
-    <>
+    <div className="overflow-x-scroll scrollbar-hidden">
       <Table>
         <TableHeader>
           <TableRow>
@@ -116,6 +116,6 @@ export const MainBuildingDemolitionTable = () => {
           </DialogContent>
         </Dialog>
       )}
-    </>
+    </div>
   );
 };

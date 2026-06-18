@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import { paths } from '@pillage-first/api/open-api';
+import type { paths } from '@pillage-first/api/open-api';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
 type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
@@ -129,54 +129,15 @@ type HasRequiredOptions<TOperation> = [PathParamsFor<TOperation>] extends [
     : true
   : true;
 
-const getResponseSchema = <
-  TMethod extends HttpMethod,
-  TPath extends PathForMethod<TMethod>,
->(
-  method: TMethod,
-  pathTemplate: TPath,
-) => {
-  const operation = (
-    paths[pathTemplate] as Partial<Record<HttpMethod, { responses?: unknown }>>
-  )[method];
-
-  if (!operation) {
-    return null;
-  }
-
-  const responses = (operation.responses ?? {}) as Record<string, unknown>;
-  const successResponse =
-    responses['200'] ?? responses['201'] ?? responses['204'] ?? null;
-
-  if (!successResponse) {
-    return null;
-  }
-
-  const schema = (
-    successResponse as {
-      content?: {
-        'application/json'?: {
-          schema?: unknown;
-        };
-      };
-    }
-  ).content?.['application/json']?.schema;
-
-  return schema && typeof schema === 'object' && 'parse' in schema
-    ? (schema as z.ZodType)
-    : null;
-};
-
 const buildPath = <TOperation>(
   pathTemplate: string,
   options?: Partial<RequestOptions<TOperation>>,
 ) => {
-  const path = Object.entries(options?.path ?? {}).reduce(
-    (acc, [name, value]) => {
-      return acc.replace(`:${name}`, encodeURIComponent(String(value)));
-    },
-    pathTemplate,
-  );
+  let path = pathTemplate;
+
+  for (const [name, value] of Object.entries(options?.path ?? {})) {
+    path = path.replace(`:${name}`, encodeURIComponent(String(value)));
+  }
 
   if (!options?.query) {
     return path;
@@ -230,14 +191,8 @@ export const createTypedApiClient = (fetcher: Fetcher) => {
       body: options?.body,
     });
 
-    const responseSchema = getResponseSchema(method, pathTemplate);
-
-    if (!responseSchema) {
-      return { data };
-    }
-
     return {
-      data: responseSchema.parse(data) as SuccessResponseFor<TOperation>,
+      data,
     };
   };
 

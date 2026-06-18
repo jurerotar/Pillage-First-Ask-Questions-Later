@@ -5,6 +5,7 @@ import { HeroAdventures } from 'app/(game)/(village-slug)/(hero)/components/hero
 import { HeroAttributes } from 'app/(game)/(village-slug)/(hero)/components/hero-attributes';
 import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-inventory';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -27,7 +28,7 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Hero')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -69,7 +70,7 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
           <Auctions />
         </TabPanel>
       </Tabs>
-    </>
+    </PageContents>
   );
 };
 

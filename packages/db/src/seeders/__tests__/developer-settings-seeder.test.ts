@@ -17,7 +17,8 @@ describe('developerSettingsSeeder', () => {
           is_free_building_construction_enabled,
           is_free_unit_training_enabled,
           is_free_unit_improvement_enabled,
-          is_free_unit_research_enabled
+          is_free_unit_research_enabled,
+          is_free_hunting_parties_enabled
         FROM
           developer_settings
         LIMIT 1;
@@ -32,6 +33,7 @@ describe('developerSettingsSeeder', () => {
         is_free_unit_training_enabled: z.number(),
         is_free_unit_improvement_enabled: z.number(),
         is_free_unit_research_enabled: z.number(),
+        is_free_hunting_parties_enabled: z.number(),
       }),
     })!;
 
@@ -45,5 +47,6 @@ describe('developerSettingsSeeder', () => {
     expect(settings.is_free_unit_training_enabled).toBe(0);
     expect(settings.is_free_unit_improvement_enabled).toBe(0);
     expect(settings.is_free_unit_research_enabled).toBe(0);
+    expect(settings.is_free_hunting_parties_enabled).toBe(0);
   });
 });

@@ -1,6 +1,7 @@
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { Resource } from '@pillage-first/types/models/resource';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
+import { calculateDistanceBetweenPoints } from './math';
 
 export const parseResourcesFromRFC = (
   resourceFieldComposition: ResourceFieldComposition,
@@ -118,4 +119,26 @@ export const tileIdToCoordinates = (
     x,
     y,
   };
+};
+
+export const coordinatesToTileId = (
+  coordinates: Coordinates,
+  mapSize: number,
+): number => {
+  const { gridSize, halfSize } = calculateGridLayout(mapSize);
+  const col = coordinates.x + halfSize;
+  const row = halfSize - coordinates.y;
+
+  return row * gridSize + col + 1;
+};
+
+export const calculateDistanceBetweenTiles = (
+  originTileId: number,
+  targetTileId: number,
+  mapSize: number,
+): number => {
+  return calculateDistanceBetweenPoints(
+    tileIdToCoordinates(originTileId, mapSize),
+    tileIdToCoordinates(targetTileId, mapSize),
+  );
 };

@@ -1,3 +1,4 @@
+import { faro } from '@grafana/faro-web-sdk';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { memo, Suspense, use, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,11 +10,13 @@ import {
   type ShouldRevalidateFunction,
 } from 'react-router';
 import type { ToasterProps } from 'sonner';
+import type { Server } from '@pillage-first/types/models/server';
 import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
 import { ApiProvider } from 'app/(game)/providers/api-provider';
+import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { HeadLinks } from 'app/components/head-links';
 import { Spinner } from 'app/components/ui/spinner';
 import { Toaster } from 'app/components/ui/toaster';
@@ -21,6 +24,36 @@ import { loadAppTranslations } from 'app/localization/loaders/app';
 import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
 
 export { ErrorBoundary } from 'app/(game)/error-boundary';
+
+const addGameWorldAttributesToFaro = (serverSlug: string): void => {
+  const getGameWorldListing = (): Server[] => {
+    try {
+      return JSON.parse(
+        window.localStorage.getItem(availableServerCacheKey) ?? '[]',
+      );
+    } catch {
+      return [];
+    }
+  };
+
+  const gameWorld = getGameWorldListing().find(({ slug }) => {
+    return slug === serverSlug;
+  });
+
+  if (!gameWorld) {
+    return;
+  }
+
+  const session = faro.api.getSession();
+
+  faro.api.setSession({
+    ...session,
+    attributes: {
+      ...session?.attributes,
+      gameWorld: JSON.stringify(gameWorld),
+    },
+  });
+};
 
 export const clientLoader = async ({
   context,
@@ -37,6 +70,8 @@ export const clientLoader = async ({
 
   const { sessionContext } = sessionModule;
   const { sessionId } = context.get(sessionContext);
+
+  addGameWorldAttributesToFaro(serverSlug);
 
   return {
     sessionId,

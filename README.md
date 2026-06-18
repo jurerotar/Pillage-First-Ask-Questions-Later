@@ -49,8 +49,7 @@ Remember: pillage first, ask questions later! ⚔️🔥
 
 ### Important links
 
-- [pillagefirst.com](https://pillagefirst.com) - Stable build, major changes releasing every couple of weeks
-- [develop--pillagefirst.netlify.app](https://develop--pillagefirst.netlify.app) - Development build, contains latest features, but may be unstable
+- [pillagefirst.com](https://pillagefirst.com) - Stable build
 - [pillagefirst.com/frequently-asked-questions](https://pillagefirst.com/frequently-asked-questions) - Frequently asked questions
 - [pillagefirst.com/get-involved](https://pillagefirst.com/get-involved) - Get involved with the project
 

@@ -1,4 +1,5 @@
 import type { GameEvent, GameEventType } from './models/game-event';
+import type { Village } from './models/village';
 
 type EventKey =
   | 'event:database-initialization-success'
@@ -25,4 +26,5 @@ export type EventApiNotificationEvent<
   T extends GameEventType | undefined = undefined,
 > = GameEvent<T> & {
   eventKey: EventKey;
+  affectedVillageIds: (Village['id'] | null)[];
 };

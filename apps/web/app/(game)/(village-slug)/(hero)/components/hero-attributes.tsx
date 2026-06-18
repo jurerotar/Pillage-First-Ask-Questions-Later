@@ -47,6 +47,7 @@ export const HeroAttributes = () => {
   const heroHomeVillage = playerVillages.find(({ id }) => {
     return hero.villageId === id;
   })!;
+  const isHeroHomeVillageCurrent = currentVillage.id === hero.villageId;
 
   const isEgyptian = tribe === 'egyptians';
   const sharedProductionPerPoint = isEgyptian ? 12 : 9;
@@ -71,8 +72,24 @@ export const HeroAttributes = () => {
   const [attributes, setAttributes] = useState(selectableAttributes);
 
   const totalSpentPoints = useMemo(() => {
-    return Object.values(attributes).reduce((total, curr) => total + curr, 0);
+    let total = 0;
+
+    for (const attribute of Object.values(attributes)) {
+      total += attribute;
+    }
+
+    return total;
   }, [attributes]);
+
+  const initialSpentPoints = useMemo(() => {
+    let total = 0;
+
+    for (const attribute of Object.values(selectableAttributes)) {
+      total += attribute;
+    }
+
+    return total;
+  }, [selectableAttributes]);
 
   const isLevelUpAvailable = (level + 1) * 4 > totalSpentPoints;
   const freePoints = (level + 1) * 4 - totalSpentPoints;
@@ -121,11 +138,11 @@ export const HeroAttributes = () => {
           <div className="inline-flex gap-2 items-center font-medium">
             <FaHome className="size-6" />
             <span>
-              {currentVillage.id === hero.id &&
+              {isHeroHomeVillageCurrent &&
                 t(
                   "Your hero's home village is set to the current village. Should your hero die, it can only be revived from here.",
                 )}
-              {currentVillage.id !== hero.id && (
+              {!isHeroHomeVillageCurrent && (
                 <Trans>
                   Your hero's home village is set to{' '}
                   <Text
@@ -307,10 +324,7 @@ export const HeroAttributes = () => {
               <Button
                 size="fit"
                 className="mt-4"
-                disabled={
-                  totalSpentPoints ===
-                  Object.values(selectableAttributes).reduce((a, b) => a + b, 0)
-                }
+                disabled={totalSpentPoints === initialSpentPoints}
                 onClick={() => updateHeroAttributes(attributes)}
               >
                 {t('Save changes')}

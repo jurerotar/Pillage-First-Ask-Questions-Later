@@ -21,8 +21,9 @@ export const formatTime = (milliseconds: number): string => {
 export const formatFutureTimestamp = (
   futureTimestamp: number,
   locale: string,
+  currentTimestamp: number,
 ) => {
-  const now = new Date();
+  const now = new Date(currentTimestamp);
   const future = new Date(futureTimestamp);
 
   const isToday =

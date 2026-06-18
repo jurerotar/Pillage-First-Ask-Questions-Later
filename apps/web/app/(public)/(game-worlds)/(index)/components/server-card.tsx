@@ -1,5 +1,11 @@
-import { use } from 'react';
-import { FaDownload, FaSpinner, FaTrash } from 'react-icons/fa6';
+import { use, useState } from 'react';
+import {
+  FaDownload,
+  FaEllipsisVertical,
+  FaSpinner,
+  FaTrash,
+} from 'react-icons/fa6';
+import { IoCopyOutline } from 'react-icons/io5';
 import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
@@ -9,6 +15,11 @@ import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Badge } from 'app/components/ui/badge';
 import { Button } from 'app/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
 import { CookieContext } from 'app/providers/cookie-provider';
 import { daysSince } from 'app/utils/time';
 
@@ -18,14 +29,20 @@ type ServerCardProps = {
 
 export const ServerCard = ({ server }: ServerCardProps) => {
   const { locale } = use(CookieContext);
+  const [isActionsOpen, setIsActionsOpen] = useState(false);
   const {
     exportGameWorld,
     isExportGameWorldPending,
+    duplicateGameWorld,
+    isDuplicateGameWorldPending,
     deleteGameWorld,
     isDeleteGameWorldPending,
   } = useGameWorldActions();
 
-  const isActionPending = isExportGameWorldPending || isDeleteGameWorldPending;
+  const isActionPending =
+    isExportGameWorldPending ||
+    isDuplicateGameWorldPending ||
+    isDeleteGameWorldPending;
 
   const appVersion = env.VERSION;
 
@@ -44,40 +61,89 @@ export const ServerCard = ({ server }: ServerCardProps) => {
       key={server.id}
       className="relative flex flex-col w-full md:w-auto md:min-w-100 gap-2 rounded-xs border border-border bg-transparent p-2 px-4 shadow-lg"
     >
-      <div className="absolute right-2 top-2 inline-flex gap-2 items-center">
-        <Button
-          data-tooltip-id="public-tooltip"
-          data-tooltip-content={
-            isExportGameWorldPending ? 'Exporting server...' : 'Export server'
-          }
-          variant="outline"
-          disabled={isActionPending}
-          aria-busy={isExportGameWorldPending}
-          onClick={() => exportGameWorld({ server })}
+      <Popover
+        open={isActionsOpen}
+        onOpenChange={setIsActionsOpen}
+      >
+        <PopoverTrigger asChild>
+          <Button
+            aria-label="Game world actions"
+            aria-busy={isActionPending}
+            className="absolute right-2 top-2 rounded-full border-border/70 bg-background/80 shadow-sm backdrop-blur-sm"
+            disabled={isActionPending}
+            size="icon"
+            variant="outline"
+          >
+            {isActionPending ? (
+              <FaSpinner className="animate-spin" />
+            ) : (
+              <FaEllipsisVertical />
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="end"
+          className="rounded-lg p-1 shadow-xl"
+          side="bottom"
         >
-          {isExportGameWorldPending ? (
-            <FaSpinner className="text-gray-400 animate-spin" />
-          ) : (
-            <FaDownload className="text-gray-400" />
-          )}
-        </Button>
-        <Button
-          data-tooltip-id="public-tooltip"
-          data-tooltip-content={
-            isDeleteGameWorldPending ? 'Deleting server...' : 'Delete server'
-          }
-          variant="outline"
-          disabled={isActionPending}
-          aria-busy={isDeleteGameWorldPending}
-          onClick={() => deleteGameWorld({ server })}
-        >
-          {isDeleteGameWorldPending ? (
-            <FaSpinner className="text-red-500 animate-spin" />
-          ) : (
-            <FaTrash className="text-red-500" />
-          )}
-        </Button>
-      </div>
+          <div className="flex flex-col">
+            <Button
+              className="h-8 justify-start gap-2 px-2 text-xs"
+              disabled={isActionPending}
+              variant="ghost"
+              onClick={() => {
+                setIsActionsOpen(false);
+                void exportGameWorld({ server });
+              }}
+            >
+              {isExportGameWorldPending ? (
+                <FaSpinner className="text-gray-400 animate-spin size-3.5" />
+              ) : (
+                <FaDownload className="text-gray-400 size-3.5" />
+              )}
+              {isExportGameWorldPending
+                ? 'Exporting game world...'
+                : 'Export game world'}
+            </Button>
+            <Button
+              className="h-8 justify-start gap-2 px-2 text-xs"
+              disabled={isActionPending}
+              variant="ghost"
+              onClick={() => {
+                setIsActionsOpen(false);
+                void duplicateGameWorld({ server });
+              }}
+            >
+              {isDuplicateGameWorldPending ? (
+                <FaSpinner className="text-gray-400 animate-spin size-3.5" />
+              ) : (
+                <IoCopyOutline className="text-gray-400 size-3.5" />
+              )}
+              {isDuplicateGameWorldPending
+                ? 'Duplicating game world...'
+                : 'Duplicate game world'}
+            </Button>
+            <Button
+              className="h-8 justify-start gap-2 px-2 text-xs text-red-500 hover:text-red-500"
+              disabled={isActionPending}
+              variant="ghost"
+              onClick={() => {
+                setIsActionsOpen(false);
+                void deleteGameWorld({ server });
+              }}
+            >
+              {isDeleteGameWorldPending ? (
+                <FaSpinner className="animate-spin size-3.5" />
+              ) : (
+                <FaTrash className="size-3.5" />
+              )}
+              {isDeleteGameWorldPending
+                ? 'Deleting game world...'
+                : 'Delete game world'}
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
       <Text as="h2">{server.name}</Text>
       <div className="flex gap-2 flex-wrap">
         <Badge variant="successive">{server.configuration.speed}x</Badge>

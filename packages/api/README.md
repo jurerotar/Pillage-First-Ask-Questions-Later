@@ -4,20 +4,35 @@ This package contains worker-api, event scheduler and "backend" controllers. Ple
 
 ## Registering new controllers
 
-1. Create a controller using `createController` in `src/controllers`.
-2. Register the controller in `src/routes/api-routes.ts`.
-3. Manually add the endpoint and its Zod schema to the OpenAPI spec in `src/open-api.ts`.
-   - Controller `path`, `query`, and `body` params are automatically typed via Zod by matching the path and method in `src/open-api.ts`.
-4. View the OpenAPI spec through the `swagger-ui` app in `apps/swagger-ui`.
+1. Create a controller using `createController` in `src/http/controllers`.
+   - Define the route path, method, request params, request body, and `response` schema in the `createController` call.
+   - Controller `path`, `query`, and `body` params are inferred from those colocated Zod schemas.
+   - The controller return type is inferred from the success response schema.
+   - Omit `response`/`responses` for no-content endpoints; they generate a `204` response.
+2. Register the controller in `src/http/api-routes.ts`.
+3. View the generated OpenAPI spec through the `swagger-ui` app in `apps/swagger-ui`.
 
 ### Example
 
 ```typescript
-// src/controllers/my-controller.ts
+// src/http/controllers/my-controller.ts
 export const getMyData = createController(
   '/my-path/:id',
-)(({ database, path }) => {
-  const { id } = path; // id is typed as string/number based on open-api.ts
+  {
+    summary: 'Get my data',
+    requestParams: {
+      path: z.strictObject({
+        id: z.coerce.number(),
+      }),
+    },
+    requestBody: z.strictObject({
+      enabled: z.boolean(),
+    }),
+    response: myDataSchema,
+  },
+)(({ database, body, path }) => {
+  const { id } = path; // id is typed from the colocated path schema
+  const { enabled } = body; // body is typed from requestBody
   // ...
 });
 ```

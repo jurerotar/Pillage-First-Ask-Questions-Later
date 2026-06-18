@@ -7,6 +7,7 @@ import { SectionContent } from 'app/(game)/(village-slug)/components/building-la
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
+import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -35,7 +36,7 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
   const title = `${t('Quests')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
-    <>
+    <PageContents>
       <title>{title}</title>
       <Breadcrumb>
         <BreadcrumbList>
@@ -89,7 +90,7 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
           </SectionContent>
         </TabPanel>
       </Tabs>
-    </>
+    </PageContents>
   );
 };
 

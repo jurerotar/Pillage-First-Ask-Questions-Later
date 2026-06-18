@@ -1,0 +1,99 @@
+import type { BindableValue } from '@sqlite.org/sqlite-wasm';
+import { z } from 'zod';
+import { oasisByAnimalsSearchResultItemDtoSchema } from '@pillage-first/types/dtos/oasis-search';
+import type { NatureUnitId } from '@pillage-first/types/models/unit';
+import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
+import { createController } from '../controller';
+import { mapOasisWithAnimalsRowToDto } from './mappers/oasis-finder-mapper';
+import { getOasesWithAnimalsRowSchema } from './schemas/oasis-animal-finder-schemas';
+
+export const getOasesWithAnimals = createController(
+  '/search/oases/by-animals',
+  'post',
+  {
+    summary: 'Find oasis tiles with specific nature troop amounts',
+    requestBody: z.strictObject({
+      x: z.number(),
+      y: z.number(),
+      animalFilters: z.array(
+        z.strictObject({
+          animal: natureUnitIdSchema,
+          amount: z.number().min(1),
+        }),
+      ),
+    }),
+    response: z.array(oasisByAnimalsSearchResultItemDtoSchema),
+  },
+)(({ database, body }) => {
+  const { x, y, animalFilters } = body;
+
+  const sqlBindings: Record<string, BindableValue> = {};
+
+  const uniqueFilters = new Map<NatureUnitId, number>();
+  for (const { animal, amount } of animalFilters) {
+    uniqueFilters.set(animal, Math.max(uniqueFilters.get(animal) ?? 0, amount));
+  }
+
+  const filterClauses: string[] = [];
+  for (const [index, [animal, amount]] of [
+    ...uniqueFilters.entries(),
+  ].entries()) {
+    sqlBindings[`$animal_${index}`] = animal;
+    sqlBindings[`$amount_${index}`] = amount;
+
+    filterClauses.push(`
+        EXISTS (
+          SELECT 1
+          FROM troops tr
+          JOIN unit_ids ui ON ui.id = tr.unit_id
+          WHERE tr.tile_id = t.id
+            AND ui.unit = $animal_${index}
+          GROUP BY tr.tile_id
+          HAVING SUM(tr.amount) >= $amount_${index}
+        )
+      `);
+  }
+
+  const rows = database.selectObjects({
+    sql: `
+        SELECT
+          t.id AS tile_id,
+          t.x AS coordinates_x,
+          t.y AS coordinates_y,
+          (
+            SELECT JSON_GROUP_ARRAY(JSON_OBJECT('resource', o.resource, 'bonus', o.bonus))
+            FROM
+              oasis o
+            WHERE
+              o.tile_id = t.id
+            ) AS bonuses_json,
+          (
+            SELECT JSON_GROUP_ARRAY(JSON_OBJECT('unitId', ui.unit, 'amount', tt.amount))
+            FROM
+              (
+                SELECT tr.unit_id, SUM(tr.amount) AS amount
+                FROM
+                  troops tr
+                WHERE
+                  tr.tile_id = t.id
+                GROUP BY tr.unit_id
+                ) tt
+                JOIN unit_ids ui ON ui.id = tt.unit_id
+            ) AS animals_json,
+          ((t.x - $tile_x) * (t.x - $tile_x) + (t.y - $tile_y) * (t.y - $tile_y)) AS distance_squared
+        FROM
+          tiles t
+        WHERE
+          t.type = 'oasis'
+          ${filterClauses.length > 0 ? `AND ${filterClauses.join(' AND ')}` : ''}
+        ORDER BY distance_squared ASC;
+      `,
+    bind: {
+      ...sqlBindings,
+      $tile_x: x,
+      $tile_y: y,
+    },
+    schema: getOasesWithAnimalsRowSchema,
+  });
+  return rows.map(mapOasisWithAnimalsRowToDto);
+});

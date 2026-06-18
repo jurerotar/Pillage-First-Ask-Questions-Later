@@ -54,6 +54,23 @@ const MainBuildingVillageManagement = lazyWithRetry(async () => ({
   ).MainBuildingVillageManagement,
 }));
 
+const GatherersHutExpedition = lazyWithRetry(async () => ({
+  default: (await import('./components/gatherers-hut/gatherers-hut-expedition'))
+    .GatherersHutExpedition,
+}));
+
+const HuntersLodgeHuntingParty = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/hunters-lodge/hunters-lodge-hunting-party')
+  ).HuntersLodgeHuntingParty,
+}));
+
+const HuntersLodgeAnimalCages = lazyWithRetry(async () => ({
+  default: (
+    await import('./components/hunters-lodge/hunters-lodge-animal-cages')
+  ).HuntersLodgeAnimalCages,
+}));
+
 const RallyPointTroopMovements = lazyWithRetry(async () => ({
   default: (
     await import('./components/rally-point/rally-point-troop-movements')
@@ -110,6 +127,16 @@ const EmbassyRelations = lazyWithRetry(async () => ({
 const TownHallCelebrations = lazyWithRetry(async () => ({
   default: (await import('./components/town-hall/town-hall-celebrations'))
     .TownHallCelebrations,
+}));
+
+const MarketplaceMerchants = lazyWithRetry(async () => ({
+  default: (await import('./components/marketplace/marketplace-merchants'))
+    .MarketplaceMerchants,
+}));
+
+const MarketplaceSendResources = lazyWithRetry(async () => ({
+  default: (await import('./components/marketplace/marketplace-send-resources'))
+    .MarketplaceSendResources,
 }));
 
 const MarketplaceBuy = lazyWithRetry(async () => ({
@@ -189,8 +216,21 @@ const buildingDetailsTabMap = new Map<
   ['EMBASSY', new Map([['relations', EmbassyRelations]])],
   ['TOWN_HALL', new Map([['celebrations', TownHallCelebrations]])],
   [
+    'GATHERERS_HUT',
+    new Map([['gathering-expedition', GatherersHutExpedition]]),
+  ],
+  [
+    'HUNTERS_LODGE',
+    new Map([
+      ['hunting-party', HuntersLodgeHuntingParty],
+      ['animal-cages', HuntersLodgeAnimalCages],
+    ]),
+  ],
+  [
     'MARKETPLACE',
     new Map([
+      ['merchants', MarketplaceMerchants],
+      ['send-resources', MarketplaceSendResources],
       ['trade', MarketplaceBuy],
       ['trade-routes', MarketplaceTradeRoutes],
     ]),
@@ -219,6 +259,8 @@ const buildingDetailsTabMap = new Map<
 // t('farm-list')
 // t('simulator')
 // t('artifacts')
+// t('merchants')
+// t('send-resources')
 // t('trade')
 // t('trade-routes')
 // t('unit-research')
@@ -228,6 +270,9 @@ const buildingDetailsTabMap = new Map<
 // t('celebrations')
 // t('relations')
 // t('train')
+// t('animal-cages')
+// t('hunting-party')
+// t('gathering-expedition')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();

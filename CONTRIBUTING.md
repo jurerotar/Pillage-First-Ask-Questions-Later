@@ -94,6 +94,10 @@ modify related code.
 Before starting, please read through the [architecture documentation](./docs/ARCHITECTURE.md) to gain an understanding
 on how the app works.
 
+Due to an increase in drive-by, AI-generated pull requests, please discuss and agree on your proposed contribution
+before opening a pull request by either opening an issue or discussing your proposed changes in the Discord server. Pull
+requests that were not agreed upon in advance will be automatically closed.
+
 Run `turbo run dev` at the root of the repository to start a development server, and the app will be available on
 `http://localhost:5173`. A link to it will also be posted to your terminal.
 

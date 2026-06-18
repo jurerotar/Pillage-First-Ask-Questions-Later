@@ -1,7 +1,6 @@
 import { MDXProvider } from '@mdx-js/react';
 import { type ComponentProps, use } from 'react';
 import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
-import type { Route } from '@react-router/types/app/(public)/+types/layout';
 import { DesktopNavigation } from 'app/(public)/components/desktop-navigation';
 import { Footer } from 'app/(public)/components/footer';
 import { MobileNavigation } from 'app/(public)/components/mobile-navigation';
@@ -9,22 +8,7 @@ import { HeadLinks } from 'app/components/head-links';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import { Toaster } from 'app/components/ui/toaster';
-import { type AvailableLocale, i18n, locales } from 'app/localization/i18n';
 import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
-
-export const loader = async ({ params }: Route.LoaderArgs) => {
-  let { locale = 'en-US' } = params;
-
-  if (!locales.includes(locale as AvailableLocale)) {
-    locale = 'en-US';
-  }
-
-  await i18n.changeLanguage(locale);
-
-  return {
-    locale,
-  };
-};
 
 const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   h1: (props) => (
@@ -85,17 +69,12 @@ const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   ),
 };
 
-const LayoutContent = ({
-  loaderData,
-}: {
-  loaderData: Route.ComponentProps['loaderData'];
-}) => {
-  const { locale } = loaderData;
+const LayoutContent = () => {
   const { uiColorScheme } = use(CookieContext);
 
   return (
     <html
-      lang={locale}
+      lang="en-US"
       className={uiColorScheme === 'dark' ? 'dark' : ''}
     >
       <head>
@@ -118,10 +97,10 @@ const LayoutContent = ({
   );
 };
 
-export const Layout = ({ loaderData }: Route.ComponentProps) => {
+export const Layout = () => {
   return (
     <CookieProvider>
-      <LayoutContent loaderData={loaderData} />
+      <LayoutContent />
     </CookieProvider>
   );
 };

@@ -79,6 +79,17 @@ export const isReturnTroopMovementEvent = (
   return event.type === 'troopMovementReturn';
 };
 
+// If event.originalMovementType is undefined, it means that we're dealing with a troop reinforcement return situation.
+// Other events fill `originalMovementType` property.
+export const isManuallyTriggeredReturnTroopMovementEvent = (
+  event: GameEvent,
+): event is GameEvent<'troopMovementReturn'> => {
+  return (
+    isReturnTroopMovementEvent(event) &&
+    event.originalMovementType === 'troopMovementReturnReinforcements'
+  );
+};
+
 export const isFindNewVillageTroopMovementEvent = (
   event: GameEvent,
 ): event is GameEvent<'troopMovementFindNewVillage'> => {
@@ -133,10 +144,22 @@ export const isTroopTrainingEvent = (
   return event.type === 'troopTraining';
 };
 
-export const isAdventurePointIncreaseEvent = (
+export const isAnimalCageProductionEvent = (
   event: GameEvent,
-): event is GameEvent<'adventurePointIncrease'> => {
-  return event.type === 'adventurePointIncrease';
+): event is GameEvent<'animalCageProduction'> => {
+  return event.type === 'animalCageProduction';
+};
+
+export const isHuntersLodgeHuntEvent = (
+  event: GameEvent,
+): event is GameEvent<'huntersLodgeHunt'> => {
+  return event.type === 'huntersLodgeHunt';
+};
+
+export const isGatherersHutGatheringTripEvent = (
+  event: GameEvent,
+): event is GameEvent<'gatherersHutGatheringTrip'> => {
+  return event.type === 'gatherersHutGatheringTrip';
 };
 
 export const isHeroRevivalEvent = (
@@ -155,4 +178,10 @@ export const isLoyaltyIncreaseEvent = (
   event: GameEvent,
 ): event is GameEvent<'loyaltyIncrease'> => {
   return event.type === 'loyaltyIncrease';
+};
+
+export const isResourceTransferEvent = (
+  event: GameEvent,
+): event is GameEvent<'resourceTransfer'> => {
+  return event.type === 'resourceTransfer';
 };

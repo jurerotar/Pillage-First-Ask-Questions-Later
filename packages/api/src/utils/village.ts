@@ -2,7 +2,8 @@ import { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
-import { selectAllRelevantEffectsQuery } from './queries/effect-queries';
+import { selectAllRelevantEffectsQuery } from '../queries/effect-queries';
+import { updateResourceSiteResourcesByVillageIdQuery } from '../queries/village-queries';
 import { apiEffectSchema } from './zod/effect-schemas';
 
 export const demolishBuilding = (
@@ -238,21 +239,7 @@ export const updateVillageResourcesAt = (
   }
 
   database.exec({
-    sql: `
-      UPDATE resource_sites
-      SET
-        wood = $wood,
-        clay = $clay,
-        iron = $iron,
-        wheat = $wheat,
-        updated_at = $updated_at
-      WHERE
-        tile_id = (
-          SELECT tile_id
-          FROM villages
-          WHERE id = $village_id
-          );
-    `,
+    sql: updateResourceSiteResourcesByVillageIdQuery,
     bind: {
       $village_id: villageId,
       $wood: currentWood,
@@ -287,30 +274,14 @@ export const addVillageResourcesAt = (
   const newWheat = Math.min(currentWheat + addWheat, granaryCapacity);
 
   database.exec({
-    sql: `
-      UPDATE resource_sites
-      SET
-        wood = $wood,
-        clay = $clay,
-        iron = $iron,
-        wheat = $wheat,
-        updated_at = $ts
-      WHERE
-        tile_id = (
-          SELECT tile_id
-          FROM
-            villages
-          WHERE
-            id = $village_id
-          );
-    `,
+    sql: updateResourceSiteResourcesByVillageIdQuery,
     bind: {
       $village_id: villageId,
       $wood: newWood,
       $clay: newClay,
       $iron: newIron,
       $wheat: newWheat,
-      $ts: timestamp,
+      $updated_at: timestamp,
     },
   });
 };
@@ -332,30 +303,14 @@ export const subtractVillageResourcesAt = (
   const newWheat = Math.max(currentWheat - subWheat, 0);
 
   database.exec({
-    sql: `
-      UPDATE resource_sites
-      SET
-        wood = $wood,
-        clay = $clay,
-        iron = $iron,
-        wheat = $wheat,
-        updated_at = $ts
-      WHERE
-        tile_id = (
-          SELECT tile_id
-          FROM
-            villages
-          WHERE
-            id = $village_id
-          );
-    `,
+    sql: updateResourceSiteResourcesByVillageIdQuery,
     bind: {
       $village_id: villageId,
       $wood: newWood,
       $clay: newClay,
       $iron: newIron,
       $wheat: newWheat,
-      $ts: timestamp,
+      $updated_at: timestamp,
     },
   });
 };

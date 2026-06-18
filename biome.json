@@ -10,6 +10,7 @@
     "ignoreUnknown": true,
     "includes": ["**"]
   },
+  "plugins": ["./plugins/no-reduce.grit"],
   "assist": {
     "actions": {
       "source": {
@@ -63,7 +64,18 @@
         "noUnusedTemplateLiteral": "error",
         "useNumberNamespace": "error",
         "noInferrableTypes": "error",
-        "noUselessElse": "error"
+        "noUselessElse": "error",
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["**/*.ts", "**/*.tsx", "*.ts", "*.tsx"],
+                "message": "Do not use .ts/.tsx extensions in imports."
+              }
+            ]
+          }
+        }
       }
     }
   },

@@ -8,32 +8,35 @@ import {
 
 export default [
   // Public routes
-  ...prefix(':locale?', [
-    layout('(public)/layout.tsx', [
-      index('(public)/(index)/page.tsx'),
-      route('get-involved', '(public)/(get-involved)/page.tsx'),
-      route(
-        'frequently-asked-questions',
-        '(public)/(frequently-asked-questions)/page.tsx',
-      ),
-      route('latest-updates', '(public)/(latest-updates)/page.tsx'),
-      ...prefix('game-worlds', [
-        index('(public)/(game-worlds)/(index)/page.tsx'),
-        route('create', '(public)/(game-worlds)/(create)/page.tsx'),
-        route('import', '(public)/(game-worlds)/(import)/page.tsx'),
-      ]),
-      // Design system
-      ...prefix('design-system', [
-        ...prefix('icons', [
-          index('(design-system)/(icons)/page.tsx'),
-          route(
-            'color-picker',
-            '(design-system)/(icons)/(color-picker)/page.tsx',
-          ),
-        ]),
-      ]),
-      route('*', '(public)/(not-found)/page.tsx'),
+  layout('(public)/layout.tsx', [
+    index('(public)/(index)/page.tsx'),
+    route('get-involved', '(public)/(get-involved)/page.tsx'),
+    route(
+      'frequently-asked-questions',
+      '(public)/(frequently-asked-questions)/page.tsx',
+    ),
+    route('latest-updates', '(public)/(latest-updates)/page.tsx'),
+    ...prefix('game-worlds', [
+      index('(public)/(game-worlds)/(index)/page.tsx'),
+      route('create', '(public)/(game-worlds)/(create)/page.tsx'),
+      route('import', '(public)/(game-worlds)/(import)/page.tsx'),
     ]),
+    // Design system
+    ...prefix('design-system', [
+      ...prefix('icons', [
+        index('(design-system)/(icons)/page.tsx'),
+        route(
+          'color-picker',
+          '(design-system)/(icons)/(color-picker)/page.tsx',
+        ),
+      ]),
+    ]),
+    route('not-found', '(public)/(not-found)/page.tsx', {
+      id: 'public-not-found-page',
+    }),
+    route('*', '(public)/(not-found)/page.tsx', {
+      id: 'public-not-found-catch-all',
+    }),
   ]),
   // Game routes
   ...prefix('game', [
@@ -110,5 +113,4 @@ export default [
       ]),
     ]),
   ]),
-  route('__spa-preload', '(internal)/(spa-preload)/page.tsx'),
 ] satisfies RouteConfigEntry[];

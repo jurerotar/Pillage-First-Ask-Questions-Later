@@ -2,19 +2,17 @@ import { use, useCallback } from 'react';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village.ts';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import {
-  currentVillageCacheKey,
-  eventsCacheKey,
-} from 'app/(game)/constants/query-keys';
+import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 
 export const useBuildingActions = (
   buildingId: Building['id'],
   buildingFieldId: BuildingField['id'],
 ) => {
   const { currentVillage } = useCurrentVillage();
+  const { slug: currentVillageSlug } = currentVillage;
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const { virtualLevel } = useBuildingVirtualLevel(buildingFieldId);
   const { createEvent: createBuildingScheduledConstructionEvent } =
@@ -41,13 +39,13 @@ export const useBuildingActions = (
       buildingId,
       level: 1,
       previousLevel: 0,
-      cachesToClearImmediately: [[currentVillageCacheKey, currentVillage.slug]],
+      cachesToClearImmediately: [[currentVillageCacheKey, currentVillageSlug]],
     });
   }, [
     createBuildingConstructionEvent,
     buildingFieldId,
     buildingId,
-    currentVillage,
+    currentVillageSlug,
   ]);
 
   const upgradeBuilding = useCallback(() => {
@@ -56,7 +54,7 @@ export const useBuildingActions = (
       buildingId,
       level: virtualLevel + 1,
       previousLevel: virtualLevel,
-      cachesToClearImmediately: [[currentVillageCacheKey, currentVillage.slug]],
+      cachesToClearImmediately: [[currentVillageCacheKey, currentVillageSlug]],
     };
 
     if (hasCurrentVillageBuildingEvents) {
@@ -72,7 +70,7 @@ export const useBuildingActions = (
     hasCurrentVillageBuildingEvents,
     createBuildingScheduledConstructionEvent,
     createBuildingLevelChangeEvent,
-    currentVillage,
+    currentVillageSlug,
   ]);
 
   const downgradeBuilding = useCallback(
@@ -94,17 +92,13 @@ export const useBuildingActions = (
       buildingId,
       previousLevel: virtualLevel,
       level: 0,
-      cachesToClearImmediately: [
-        [eventsCacheKey, 'buildingDestruction', currentVillage.id],
-        [eventsCacheKey, 'buildingLevelChange', currentVillage.id],
-      ],
+      cachesToClearImmediately: [],
     });
   }, [
     createBuildingDestructionEvent,
     buildingFieldId,
     buildingId,
     virtualLevel,
-    currentVillage,
   ]);
 
   return {

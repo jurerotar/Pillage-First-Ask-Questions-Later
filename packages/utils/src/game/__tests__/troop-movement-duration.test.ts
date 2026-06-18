@@ -10,22 +10,37 @@ import {
 import type { Effect } from '@pillage-first/types/models/effect';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
+import { coordinatesToTileId } from '../../map';
 import { calculateTravelDuration } from '../troop-movement-duration';
 
 const originVillageId: Village['id'] = 0;
 const origin: Village['coordinates'] = { x: 0, y: 0 };
+const mapSize = 100;
+const originTileId = coordinatesToTileId(origin, mapSize);
 
 describe(calculateTravelDuration, () => {
   test('uses the slowest unit speed when multiple troops are sent (<= 20 tiles, no effects)', () => {
     const target: Village['coordinates'] = { x: 10, y: 0 };
 
     const romans = getUnitsByTribe('romans');
-    const slowest = romans.reduce((a, b) =>
-      b.unitSpeed < a.unitSpeed ? b : a,
-    );
-    const fastest = romans.reduce((a, b) =>
-      b.unitSpeed > a.unitSpeed ? b : a,
-    );
+    const [firstRoman, ...remainingRomans] = romans;
+
+    if (!firstRoman) {
+      throw new Error('Expected roman units to exist');
+    }
+
+    let slowest = firstRoman;
+    let fastest = firstRoman;
+
+    for (const roman of remainingRomans) {
+      if (roman.unitSpeed < slowest.unitSpeed) {
+        slowest = roman;
+      }
+
+      if (roman.unitSpeed > fastest.unitSpeed) {
+        fastest = roman;
+      }
+    }
 
     const troops: Troop[] = [
       { unitId: fastest.id, amount: 1, tileId: 0, source: 0 },
@@ -38,8 +53,9 @@ describe(calculateTravelDuration, () => {
 
     const ms = calculateTravelDuration({
       originVillageId,
-      originCoordinates: origin,
-      targetCoordinates: target,
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
       troops,
       effects,
     });
@@ -69,8 +85,9 @@ describe(calculateTravelDuration, () => {
 
     const ms = calculateTravelDuration({
       originVillageId,
-      originCoordinates: origin,
-      targetCoordinates: target,
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
       troops,
       effects,
     });
@@ -108,8 +125,9 @@ describe(calculateTravelDuration, () => {
 
     const ms = calculateTravelDuration({
       originVillageId,
-      originCoordinates: origin,
-      targetCoordinates: target,
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
       troops,
       effects,
     });
