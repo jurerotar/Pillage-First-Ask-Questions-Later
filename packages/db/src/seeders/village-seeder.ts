@@ -128,11 +128,9 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
   };
 
   // Player village (fixed)
-  const { id: playerStartingTileId } = database.selectObject({
+  const playerStartingTileId = database.selectValue({
     sql: 'SELECT id FROM tiles WHERE x = 0 AND y = 0;',
-    schema: z.strictObject({
-      id: z.number(),
-    }),
+    schema: z.number(),
   })!;
 
   database.exec({

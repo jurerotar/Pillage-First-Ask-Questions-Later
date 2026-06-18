@@ -967,11 +967,9 @@ export const getEventDuration = (
     }
 
     if (isBuildingDowngradeEvent(event)) {
-      const { speed } = database.selectObject({
+      const speed = database.selectValue({
         sql: 'SELECT speed FROM servers LIMIT 1;',
-        schema: z.strictObject({
-          speed: speedSchema,
-        }),
+        schema: speedSchema,
       })!;
 
       return calculateBuildingDestructionDuration(
@@ -1110,11 +1108,9 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { speed } = database.selectObject({
+    const speed = database.selectValue({
       sql: 'SELECT speed FROM servers LIMIT 1;',
-      schema: z.strictObject({
-        speed: speedSchema,
-      }),
+      schema: speedSchema,
     })!;
 
     return (ANIMAL_CAGE_BASE_DURATION * event.cageAmount) / speed;
@@ -1130,11 +1126,9 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { speed } = database.selectObject({
+    const speed = database.selectValue({
       sql: 'SELECT speed FROM servers LIMIT 1;',
-      schema: z.strictObject({
-        speed: speedSchema,
-      }),
+      schema: speedSchema,
     })!;
 
     return calculateHuntersLodgeHuntDuration(event.huntingPartyLevel, speed);
