@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resources as ResourcesType } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { tileIdToCoordinates } from '@pillage-first/utils/map';
@@ -44,41 +45,49 @@ const TileMapLink = ({
   );
 };
 
-export const MerchantMovementTable = () => {
+type MerchantMovementEvent = GameEvent<'resourceTransfer'>;
+
+const MerchantMovementTableSection = ({
+  title,
+  events,
+  emptyMessage,
+  currentVillageId,
+  mapSize,
+}: {
+  title: string;
+  events: MerchantMovementEvent[];
+  emptyMessage: string;
+  currentVillageId: number;
+  mapSize: number;
+}) => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { eventsByType: resourceTransferEvents, hasEvents } =
-    useEventsByType('resourceTransfer');
-  const { mapSize } = useServer();
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHeaderCell>{t('Direction')}</TableHeaderCell>
-            <TableHeaderCell>{t('Origin')}</TableHeaderCell>
-            <TableHeaderCell>{t('Destination')}</TableHeaderCell>
-            <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-            <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
-            <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {hasEvents &&
-            resourceTransferEvents.map((event) => {
-              const isReturnMovement = getResourceTotal(event.resources) === 0;
+    <div className="space-y-2">
+      <Text
+        as="h3"
+        className="font-medium"
+      >
+        {title}
+      </Text>
+      <div className="overflow-x-scroll scrollbar-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell>{t('Origin')}</TableHeaderCell>
+              <TableHeaderCell>{t('Destination')}</TableHeaderCell>
+              <TableHeaderCell>{t('Resources')}</TableHeaderCell>
+              <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
+              <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {events.map((event) => {
               const didOriginateFromCurrentVillage =
-                event.villageId === currentVillage.id;
-              const direction = isReturnMovement
-                ? t('Returning')
-                : event.targetVillageId === currentVillage.id
-                  ? t('Incoming')
-                  : t('Outgoing');
+                event.villageId === currentVillageId;
 
               return (
                 <TableRow key={event.id}>
-                  <TableCell>{direction}</TableCell>
                   <TableCell>
                     <TileMapLink
                       tileId={event.originTileId}
@@ -107,17 +116,51 @@ export const MerchantMovementTable = () => {
                 </TableRow>
               );
             })}
-          {!hasEvents && (
-            <TableRow>
-              <TableCell colSpan={6}>
-                {t(
-                  'No merchant movements are currently taking place in this village',
-                )}
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            {events.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5}>{emptyMessage}</TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+export const MerchantMovementTable = () => {
+  const { t } = useTranslation();
+  const { currentVillage } = useCurrentVillage();
+  const { eventsByType: resourceTransferEvents } =
+    useEventsByType('resourceTransfer');
+  const { mapSize } = useServer();
+
+  const incomingMerchantEvents = resourceTransferEvents.filter((event) => {
+    return (
+      event.targetVillageId === currentVillage.id &&
+      getResourceTotal(event.resources) > 0
+    );
+  });
+  const outgoingMerchantEvents = resourceTransferEvents.filter((event) => {
+    return event.villageId === currentVillage.id;
+  });
+
+  return (
+    <div className="space-y-4">
+      <MerchantMovementTableSection
+        title={t('Incoming merchants')}
+        events={incomingMerchantEvents}
+        emptyMessage={t('No incoming merchants are currently on the way')}
+        currentVillageId={currentVillage.id}
+        mapSize={mapSize}
+      />
+      <MerchantMovementTableSection
+        title={t('Outgoing merchants')}
+        events={outgoingMerchantEvents}
+        emptyMessage={t('No outgoing merchants are currently on the way')}
+        currentVillageId={currentVillage.id}
+        mapSize={mapSize}
+      />
     </div>
   );
 };
