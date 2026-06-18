@@ -54,6 +54,7 @@ const MerchantMovementTableSection = ({
   currentVillageId,
   mapSize,
   hideResources = false,
+  hideMerchants = false,
 }: {
   title: string;
   events: MerchantMovementEvent[];
@@ -61,9 +62,10 @@ const MerchantMovementTableSection = ({
   currentVillageId: number;
   mapSize: number;
   hideResources?: boolean;
+  hideMerchants?: boolean;
 }) => {
   const { t } = useTranslation();
-  const columnCount = hideResources ? 4 : 5;
+  const columnCount = 5 - Number(hideResources) - Number(hideMerchants);
 
   return (
     <div className="space-y-2">
@@ -82,7 +84,9 @@ const MerchantMovementTableSection = ({
               {!hideResources && (
                 <TableHeaderCell>{t('Resources')}</TableHeaderCell>
               )}
-              <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
+              {!hideMerchants && (
+                <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
+              )}
               <TableHeaderCell>{t('Remaining time')}</TableHeaderCell>
             </TableRow>
           </TableHeader>
@@ -107,18 +111,20 @@ const MerchantMovementTableSection = ({
                   </TableCell>
                   {!hideResources && (
                     <TableCell>
-                      <span className="flex flex-wrap gap-2">
+                      <span className="grid grid-cols-4 lg:grid-cols-2 justify-items-center gap-2">
                         <Resources
                           resources={getResourceList(event.resources)}
                         />
                       </span>
                     </TableCell>
                   )}
-                  <TableCell>
-                    {didOriginateFromCurrentVillage
-                      ? formatNumber(event.merchantAmount)
-                      : '/'}
-                  </TableCell>
+                  {!hideMerchants && (
+                    <TableCell>
+                      {didOriginateFromCurrentVillage
+                        ? formatNumber(event.merchantAmount)
+                        : '/'}
+                    </TableCell>
+                  )}
                   <TableCell>
                     <Countdown endsAt={event.resolvesAt} />
                   </TableCell>
@@ -171,6 +177,7 @@ export const MerchantMovementTable = () => {
         emptyMessage={t('No incoming merchants are currently on the way')}
         currentVillageId={currentVillage.id}
         mapSize={mapSize}
+        hideMerchants
       />
       <MerchantMovementTableSection
         title={t('Outgoing merchants')}
