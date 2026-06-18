@@ -12,10 +12,10 @@ describe(unitImprovementResolver, () => {
     const villageId = 1;
 
     // Get player_id from village
-    const { playerId } = database.selectObject({
+    const playerId = database.selectValue({
       sql: 'SELECT player_id AS playerId FROM villages WHERE id = $village_id;',
       bind: { $village_id: villageId },
-      schema: z.strictObject({ playerId: z.number() }),
+      schema: z.number(),
     })!;
 
     // Ensure a row exists for unitId

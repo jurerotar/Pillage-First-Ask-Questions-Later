@@ -259,10 +259,10 @@ describe(relocationMovementResolver, () => {
     const initialVillageId = 1;
     const targetVillageId = 2;
 
-    const { tileId: targetTileId } = database.selectObject({
+    const targetTileId = database.selectValue({
       sql: 'SELECT tile_id AS tileId FROM villages WHERE id = $targetVillageId;',
       bind: { $targetVillageId: targetVillageId },
-      schema: z.strictObject({ tileId: z.number() }),
+      schema: z.number(),
     })!;
 
     const mockEvent = createTroopMovementRelocationEventMock({
