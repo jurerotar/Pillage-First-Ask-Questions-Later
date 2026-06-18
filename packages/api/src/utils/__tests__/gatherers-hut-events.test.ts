@@ -362,6 +362,35 @@ describe('gatherers hut events', () => {
     vi.useRealTimers();
   });
 
+  test('gatherersHutGatheringTrip - should lock duration to completed trip count', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const villageTileId = getVillageTileId(database, villageId);
+
+    const event = createGameEventMock('gatherersHutGatheringTrip', {
+      villageId,
+      startsAt: 1_000_000,
+      troops: [
+        {
+          unitId: 'PHALANX',
+          amount: 1,
+          tileId: villageTileId,
+          source: villageTileId,
+        },
+      ],
+    });
+
+    const retriedEvent = createGameEventMock('gatherersHutGatheringTrip', {
+      villageId,
+      startsAt: 2_000_000,
+      troops: event.troops,
+    });
+
+    expect(getEventDuration(database, retriedEvent)).toBe(
+      getEventDuration(database, event),
+    );
+  });
+
   test('gatherersHutGatheringTrip - should return zero duration if instant unit travel enabled', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;

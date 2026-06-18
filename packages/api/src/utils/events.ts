@@ -1144,11 +1144,36 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { seed, speed } = database.selectObject({
-      sql: 'SELECT seed, speed FROM servers LIMIT 1;',
+    const { completedGatheringTripCount, seed, speed } = database.selectObject({
+      sql: `
+        SELECT
+          (
+            SELECT seed
+            FROM
+              servers
+            LIMIT 1
+          ) AS seed,
+          (
+            SELECT speed
+            FROM
+              servers
+            LIMIT 1
+          ) AS speed,
+          COALESCE((
+            SELECT completed
+            FROM
+              gatherers_hut_expeditions
+            WHERE
+              village_id = $village_id
+          ), 0) AS completedGatheringTripCount;
+      `,
+      bind: {
+        $village_id: event.villageId,
+      },
       schema: z.strictObject({
         seed: z.string(),
         speed: speedSchema,
+        completedGatheringTripCount: z.number(),
       }),
     })!;
 
@@ -1156,7 +1181,7 @@ export const getEventDuration = (
       seed,
       speed,
       event.villageId,
-      event.startsAt ?? Date.now(),
+      completedGatheringTripCount,
     );
   }
 

@@ -180,6 +180,16 @@ describe('gatherers hut resolvers', () => {
       wheat: 112,
     });
 
+    const completedGatheringTripCount = database.selectValue({
+      sql: 'SELECT completed FROM gatherers_hut_expeditions WHERE village_id = $village_id;',
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    })!;
+
+    expect(completedGatheringTripCount).toBe(1);
+
     vi.useRealTimers();
   });
 });

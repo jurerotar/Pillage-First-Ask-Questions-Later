@@ -33,6 +33,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import { useGatherersHutExpeditions } from 'app/(game)/(village-slug)/hooks/use-gatherers-hut-expeditions';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
@@ -212,6 +213,7 @@ export const GatherersHutExpedition = () => {
   const { currentVillage } = useCurrentVillage();
   const { server, serverSpeed } = useServer();
   const { developerSettings } = useDeveloperSettings();
+  const { completed } = useGatherersHutExpeditions();
   const { buildingField } = use(BuildingFieldContext);
   const { getDeployableTroops } = useVillageTroops();
   const { eventsByType } = useEventsByType('gatherersHutGatheringTrip');
@@ -310,7 +312,7 @@ export const GatherersHutExpedition = () => {
       : []),
   ];
 
-  const getGatheringDuration = (startsAt: number) => {
+  const getGatheringDuration = () => {
     if (developerSettings.isInstantUnitTravelEnabled) {
       return 0;
     }
@@ -320,7 +322,7 @@ export const GatherersHutExpedition = () => {
         server.seed,
         serverSpeed,
         currentVillage.id,
-        startsAt,
+        completed,
       ),
     );
   };
@@ -339,8 +341,7 @@ export const GatherersHutExpedition = () => {
   const handleSubmit = (data: GatheringExpeditionFormValues) => {
     const troops = getSelectedTroops(data);
     const troopAmount = getSelectedTroopAmount(data.units);
-    const startsAt = Date.now();
-    const duration = getGatheringDuration(startsAt);
+    const duration = getGatheringDuration();
 
     openConfirmationStep({
       ...data,
@@ -384,6 +385,15 @@ export const GatherersHutExpedition = () => {
           {t(
             "Send idle troops from this village to gather resources. The Gatherer's Hut level controls how many troops can join the expedition.",
           )}
+          <br />
+          {completed === 0
+            ? t('This village has not completed any gathering expeditions yet.')
+            : t(
+                'This village has already completed {{count}} gathering expeditions.',
+                {
+                  count: completed,
+                },
+              )}
         </Text>
       </SectionContent>
       <SectionContent>

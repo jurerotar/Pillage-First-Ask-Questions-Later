@@ -22,9 +22,11 @@ export const calculateGatherersHutGatheringDuration = (
   seed: string,
   serverSpeed: number,
   villageId: number,
-  timestamp: number,
+  completedGatheringTripCount: number,
 ): number => {
-  const gatheringPrng = prngMulberry32(`${seed}${villageId}${timestamp}`);
+  const gatheringPrng = prngMulberry32(
+    `${seed}${villageId}${completedGatheringTripCount}`,
+  );
 
   return (
     (seededRandomIntFromInterval(gatheringPrng, 48, 72) * 60_000) / serverSpeed
