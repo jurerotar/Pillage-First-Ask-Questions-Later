@@ -2,6 +2,10 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
+  insertEffectQuery,
+  selectWheatProductionEffectIdQuery,
+} from '../../../queries/effect-queries';
+import {
   addMapMarker,
   getMapMarkers,
   getTileOasisBonuses,
@@ -23,7 +27,7 @@ describe('map-controllers', () => {
     })!;
 
     const wheatEffectId = database.selectValue({
-      sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction'",
+      sql: selectWheatProductionEffectIdQuery,
       schema: z.number(),
     })!;
 
@@ -87,10 +91,7 @@ describe('map-controllers', () => {
 
     for (const effect of effects) {
       database.exec({
-        sql: `
-          INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-          VALUES ($effect_id, $value, $type, $scope, $source, $village_id, $source_specifier)
-        `,
+        sql: insertEffectQuery,
         bind: {
           $effect_id: wheatEffectId,
           $value: effect.value,

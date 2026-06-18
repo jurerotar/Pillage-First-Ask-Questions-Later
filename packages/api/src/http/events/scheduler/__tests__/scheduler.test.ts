@@ -236,6 +236,36 @@ describe('scheduler', () => {
     // When the second one runs, it sees schedulingInProgress = true, calls markNeedsRescan() and returns.
     // When the first one finishes, it checks takeNeedsRescan() in finally and runs again if needed.
 
-    expect(mockDataSource.getPastEventIds).toHaveBeenCalled();
+    expect(mockDataSource.getPastEventIds).toHaveBeenCalledTimes(1);
+  });
+
+  test('continues scheduling after a timer-fired event throws', () => {
+    using context = setupSchedulerTest();
+    const { mockDataSource } = context;
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    mockDataSource.getPastEventIds.mockReturnValue([]);
+    mockDataSource.getNextEvent
+      .mockReturnValueOnce({ id: 1, resolvesAt: 2000 })
+      .mockReturnValueOnce({ id: 2, resolvesAt: 3000 })
+      .mockReturnValue(null);
+    mockDataSource.resolveEvent
+      .mockImplementationOnce(() => {
+        throw new Error('Database error');
+      })
+      .mockImplementation(() => {});
+
+    scheduleNextEvent(mockDataSource);
+
+    vi.advanceTimersByTime(1000);
+
+    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(1);
+    expect(consoleError).toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1000);
+
+    expect(mockDataSource.resolveEvent).toHaveBeenCalledWith(2);
   });
 });

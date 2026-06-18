@@ -179,3 +179,9 @@ export const isLoyaltyIncreaseEvent = (
 ): event is GameEvent<'loyaltyIncrease'> => {
   return event.type === 'loyaltyIncrease';
 };
+
+export const isResourceTransferEvent = (
+  event: GameEvent,
+): event is GameEvent<'resourceTransfer'> => {
+  return event.type === 'resourceTransfer';
+};

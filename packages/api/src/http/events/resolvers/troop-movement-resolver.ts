@@ -11,6 +11,12 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import {
+  insertEffectByEffectNameQuery,
+  insertEffectQuery,
+  selectWheatProductionEffectIdQuery,
+  updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+} from '../../../queries/effect-queries';
+import {
   selectPlayerVillageIdByTileIdQuery,
   selectVillageIdAndTileIdQuery,
 } from '../../../queries/village-queries';
@@ -217,7 +223,7 @@ export const findNewVillageMovementResolver: Resolver<
   );
 
   const wheatProductionEffectId = database.selectValue({
-    sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction';",
+    sql: selectWheatProductionEffectIdQuery,
     schema: z.number(),
   })!;
 
@@ -241,24 +247,15 @@ export const findNewVillageMovementResolver: Resolver<
 
     for (const effect of building.effects) {
       database.exec({
-        sql: `
-          INSERT INTO
-            effects (effect_id, value, type, scope, source, village_id, source_specifier)
-          VALUES
-            ((
-               SELECT id
-               FROM
-                 effect_ids
-               WHERE
-                 effect = $effectName
-               ), $value, $type, 'village', 'building', $villageId, $field_id);
-        `,
+        sql: insertEffectByEffectNameQuery,
         bind: {
-          $effectName: effect.effectId,
+          $effect_name: effect.effectId,
           $value: effect.valuesPerLevel[level],
           $type: effect.type,
-          $villageId: newVillageId,
-          $field_id: field_id,
+          $scope: 'village',
+          $source: 'building',
+          $village_id: newVillageId,
+          $source_specifier: field_id,
         },
       });
     }
@@ -302,48 +299,38 @@ export const findNewVillageMovementResolver: Resolver<
 
   // Population effect
   database.exec({
-    sql: `
-      INSERT INTO
-        effects (effect_id, value, type, scope, source, village_id, source_specifier)
-      VALUES
-        ($effectId, $value, 'base', 'village', 'building', $villageId, 0);
-    `,
+    sql: insertEffectQuery,
     bind: {
-      $effectId: wheatProductionEffectId,
+      $effect_id: wheatProductionEffectId,
       $value: -3,
-      $villageId: newVillageId,
+      $type: 'base',
+      $scope: 'village',
+      $source: 'building',
+      $village_id: newVillageId,
+      $source_specifier: 0,
     },
   });
 
   // Troop wheat consumption effect
   database.exec({
-    sql: `
-      INSERT INTO
-        effects (effect_id, value, type, scope, source, village_id, source_specifier)
-      VALUES
-        ($effectId, $value, 'base', 'village', 'troops', $villageId, 0);
-    `,
+    sql: insertEffectQuery,
     bind: {
-      $effectId: wheatProductionEffectId,
+      $effect_id: wheatProductionEffectId,
       $value: 0,
-      $villageId: newVillageId,
+      $type: 'base',
+      $scope: 'village',
+      $source: 'troops',
+      $village_id: newVillageId,
+      $source_specifier: 0,
     },
   });
 
   // Reduce troop consumption in the source village by 3 (since 3 settlers are consumed)
   database.exec({
-    sql: `
-      UPDATE effects
-      SET
-        value = value - 3
-      WHERE
-        effect_id = $effectId
-        AND source = 'troops'
-        AND village_id = $villageId;
-    `,
+    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
     bind: {
-      $effectId: wheatProductionEffectId,
-      $villageId: villageId,
+      $increase_amount: -3,
+      $village_id: villageId,
     },
   });
 

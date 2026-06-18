@@ -4,6 +4,10 @@ import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
+  insertEffectQuery,
+  selectWheatProductionEffectIdQuery,
+} from '../../../queries/effect-queries';
+import {
   getMe,
   getPlayerBySlug,
   getPlayerVillageListing,
@@ -44,6 +48,11 @@ describe('player-controllers', () => {
     villageId: number,
     value: number,
   ) => {
+    const wheatEffectId = database.selectValue({
+      sql: selectWheatProductionEffectIdQuery,
+      schema: z.number(),
+    })!;
+
     database.exec({
       sql: `
         DELETE
@@ -51,23 +60,22 @@ describe('player-controllers', () => {
         WHERE
           village_id = $village_id
           AND source = 'troops'
-          AND effect_id = (
-            SELECT id
-            FROM effect_ids
-            WHERE effect = 'wheatProduction'
-          );
+          AND effect_id = $effect_id;
       `,
-      bind: { $village_id: villageId },
+      bind: { $village_id: villageId, $effect_id: wheatEffectId },
     });
 
     database.exec({
-      sql: `
-        INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-        SELECT id, $value, 'base', 'village', 'troops', $village_id, NULL
-        FROM effect_ids
-        WHERE effect = 'wheatProduction';
-      `,
-      bind: { $village_id: villageId, $value: value },
+      sql: insertEffectQuery,
+      bind: {
+        $effect_id: wheatEffectId,
+        $value: value,
+        $type: 'base',
+        $scope: 'village',
+        $source: 'troops',
+        $village_id: villageId,
+        $source_specifier: null,
+      },
     });
   };
 
@@ -109,7 +117,7 @@ describe('player-controllers', () => {
     })!;
 
     const wheatEffectId = database.selectValue({
-      sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction'",
+      sql: selectWheatProductionEffectIdQuery,
       schema: z.number(),
     })!;
 
@@ -139,10 +147,7 @@ describe('player-controllers', () => {
 
     for (const effect of effects) {
       database.exec({
-        sql: `
-          INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-          VALUES ($effect_id, $value, $type, $scope, $source, $village_id, $source_specifier)
-        `,
+        sql: insertEffectQuery,
         bind: {
           $effect_id: wheatEffectId,
           $value: effect.value,
@@ -1749,19 +1754,20 @@ describe('player-controllers', () => {
     });
 
     const wheatEffectId = database.selectValue({
-      sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction'",
+      sql: selectWheatProductionEffectIdQuery,
       schema: z.number(),
     })!;
 
     database.exec({
-      sql: `
-        INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
-        VALUES ($effect_id, $value, 'base', 'village', 'hero', $village_id, 0)
-      `,
+      sql: insertEffectQuery,
       bind: {
         $effect_id: wheatEffectId,
         $value: 1,
+        $type: 'base',
+        $scope: 'village',
+        $source: 'hero',
         $village_id: sourceVillageId,
+        $source_specifier: 0,
       },
     });
 

@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
+import { insertEffectByEffectNameQuery } from '../../queries/effect-queries';
 import { selectTileOasisBonusesQuery } from '../../queries/map-queries';
 import {
   abandonOasisQuery,
   deleteOasisEffectsQuery,
-  insertOasisProductionEffectQuery,
   occupyOasisQuery,
 } from '../../queries/oasis-queries';
 import { returnOasisReinforcements } from '../../utils/oasis';
@@ -43,9 +43,9 @@ export const occupyOasis = createController(
       const value = bonus === 25 ? 1.25 : 1.5;
 
       db.exec({
-        sql: insertOasisProductionEffectQuery,
+        sql: insertEffectByEffectNameQuery,
         bind: {
-          $effect_id: effectId,
+          $effect_name: effectId,
           $value: value,
           $type: 'bonus',
           $scope: 'village',

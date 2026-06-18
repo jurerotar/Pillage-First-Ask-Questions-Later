@@ -40,19 +40,7 @@ const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
 ]);
 
 export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
-  if (questId.startsWith('troopCount')) {
-    const cnt = questId.split('-').at(1)!;
-    const count = Number.parseInt(cnt, 10);
-
-    return [
-      {
-        type: 'resources',
-        amount: count * 10,
-      },
-    ];
-  }
-
-  if (questId.startsWith('unitTroopCount')) {
+  if (questId.startsWith('queuedTroopCountById')) {
     const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
 
@@ -60,6 +48,18 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
       {
         type: 'resources',
         amount: count * 100,
+      },
+    ];
+  }
+
+  if (questId.startsWith('queuedTroopCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'resources',
+        amount: count * 10,
       },
     ];
   }
@@ -134,25 +134,25 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
 export const getQuestRequirements = (
   questId: Quest['id'],
 ): QuestRequirement[] => {
-  if (questId.startsWith('troopCount')) {
-    const cnt = questId.split('-').at(1)!;
-    const count = Number.parseInt(cnt, 10);
-
-    return [
-      {
-        type: 'troop-count',
-        count,
-      },
-    ];
-  }
-
-  if (questId.startsWith('unitTroopCount')) {
+  if (questId.startsWith('queuedTroopCountById')) {
     const cnt = questId.split('-').at(2)!;
     const count = Number.parseInt(cnt, 10);
 
     return [
       {
-        type: 'unit-troop-count',
+        type: 'queued-troop-count-by-id',
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('queuedTroopCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'queued-troop-count',
         count,
       },
     ];

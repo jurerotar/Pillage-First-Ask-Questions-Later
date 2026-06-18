@@ -112,13 +112,11 @@ export const createEvents = <T extends GameEventType>(
   // Determine if any created events should already be resolved
   const createdImmediate = newResolvesAt.some((r) => r <= now);
 
-  if (createdImmediate) {
-    // immediate -> we want scheduler to process RIGHT AWAY
-    triggerKick();
-  }
-
-  // if earliestNewResolvesAt < currentNext.resolvesAt -> kick now:
-  if (!currentNext || earliestNewResolvesAt < currentNext.resolvesAt) {
+  if (
+    createdImmediate ||
+    !currentNext ||
+    earliestNewResolvesAt < currentNext.resolvesAt
+  ) {
     triggerKick();
   }
 };

@@ -1,12 +1,14 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/utils/units';
 import {
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
   createUnitImprovementEventMock,
 } from '@pillage-first/mocks/event';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectEventByIdQuery } from '../../../queries/event-queries';
 import { updateResourceSiteResourcesByVillageIdQuery } from '../../../queries/village-queries';
 import { insertEvents } from '../../../utils/events';
@@ -18,6 +20,40 @@ import {
   getVillageEventsByType,
 } from '../event-controllers';
 import { createControllerArgs } from './utils/controller-args';
+
+const createPlayerVillage = (database: DbFacade, name: string) => {
+  const tileId = database.selectValue({
+    sql: `
+      SELECT id
+      FROM tiles
+      WHERE type = 'free'
+        AND id NOT IN (SELECT tile_id FROM villages)
+      ORDER BY id
+      LIMIT 1;
+    `,
+    schema: z.number(),
+  })!;
+
+  const villageId = database.selectValue({
+    sql: `
+      INSERT INTO villages (name, slug, tile_id, player_id)
+      VALUES ($name, $slug, $tile_id, $player_id)
+      RETURNING id;
+    `,
+    bind: {
+      $name: name,
+      $slug: `${name.toLowerCase().replaceAll(' ', '-')}-${tileId}`,
+      $tile_id: tileId,
+      $player_id: PLAYER_ID,
+    },
+    schema: z.number(),
+  })!;
+
+  return {
+    id: villageId,
+    tileId,
+  };
+};
 
 describe('event-controllers', () => {
   test('getVillageEvents should return events for a village', async () => {
@@ -54,6 +90,89 @@ describe('event-controllers', () => {
     );
 
     expect(true).toBe(true);
+  });
+
+  test('getVillageEventsByType should return outgoing and incoming resource transfer events', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+
+    const sourceVillage = database.selectObject({
+      sql: `
+        SELECT id, tile_id AS tileId
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1;
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.strictObject({
+        id: z.number(),
+        tileId: z.number(),
+      }),
+    })!;
+    const targetVillage = createPlayerVillage(database, 'Target Village');
+    const unrelatedVillage = createPlayerVillage(
+      database,
+      'Unrelated Target Village',
+    );
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES
+          ('resourceTransfer', $outgoing_starts_at, 100, $source_village_id, $outgoing_meta),
+          ('resourceTransfer', $incoming_starts_at, 100, $target_village_id, $incoming_meta),
+          ('resourceTransfer', $unrelated_starts_at, 100, $target_village_id, $unrelated_meta);
+      `,
+      bind: {
+        $outgoing_starts_at: 1_000,
+        $incoming_starts_at: 2_000,
+        $unrelated_starts_at: 500,
+        $source_village_id: sourceVillage.id,
+        $target_village_id: targetVillage.id,
+        $outgoing_meta: JSON.stringify({
+          originTileId: sourceVillage.tileId,
+          targetTileId: targetVillage.tileId,
+          targetVillageId: targetVillage.id,
+          resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
+          merchantAmount: 1,
+        }),
+        $incoming_meta: JSON.stringify({
+          originTileId: targetVillage.tileId,
+          targetTileId: sourceVillage.tileId,
+          targetVillageId: sourceVillage.id,
+          resources: { wood: 10, clay: 25, iron: 50, wheat: 100 },
+          merchantAmount: 1,
+        }),
+        $unrelated_meta: JSON.stringify({
+          originTileId: targetVillage.tileId,
+          targetTileId: unrelatedVillage.tileId,
+          targetVillageId: unrelatedVillage.id,
+          resources: { wood: 1, clay: 1, iron: 1, wheat: 1 },
+          merchantAmount: 1,
+        }),
+      },
+    });
+
+    const events = getVillageEventsByType(
+      database,
+      createControllerArgs<'/villages/:villageId/events/:eventType'>({
+        path: { villageId: sourceVillage.id, eventType: 'resourceTransfer' },
+      }),
+    );
+
+    expect(events).toStrictEqual([
+      expect.objectContaining({
+        type: 'resourceTransfer',
+        villageId: sourceVillage.id,
+        targetVillageId: targetVillage.id,
+      }),
+      expect.objectContaining({
+        type: 'resourceTransfer',
+        villageId: targetVillage.id,
+        targetVillageId: sourceVillage.id,
+      }),
+    ]);
   });
 
   test('cancelConstructionEvent should refund resources based on completion %', async () => {

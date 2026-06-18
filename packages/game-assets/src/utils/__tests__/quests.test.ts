@@ -3,11 +3,20 @@ import { getQuestRequirements, getQuestRewards } from '../quests';
 
 describe('quest utils', () => {
   describe(getQuestRequirements, () => {
-    test('troopCount requirement parsed correctly', () => {
-      const reqs = getQuestRequirements('troopCount-5');
+    test('queuedTroopCount requirement parsed correctly', () => {
+      const reqs = getQuestRequirements('queuedTroopCount-5');
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
-        type: 'troop-count',
+        type: 'queued-troop-count',
+        count: 5,
+      });
+    });
+
+    test('queuedTroopCountById requirement parsed correctly', () => {
+      const reqs = getQuestRequirements('queuedTroopCountById-LEGIONNAIRE-5');
+      expect(reqs).toHaveLength(1);
+      expect(reqs[0]).toStrictEqual({
+        type: 'queued-troop-count-by-id',
         count: 5,
       });
     });
@@ -45,12 +54,21 @@ describe('quest utils', () => {
   });
 
   describe(getQuestRewards, () => {
-    test('troopCount rewards produce resources = count * 10', () => {
-      const rewards = getQuestRewards('troopCount-5');
+    test('queuedTroopCount rewards produce resources = count * 10', () => {
+      const rewards = getQuestRewards('queuedTroopCount-5');
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'resources',
         amount: 5 * 10,
+      });
+    });
+
+    test('queuedTroopCountById rewards produce resources = count * 100', () => {
+      const rewards = getQuestRewards('queuedTroopCountById-LEGIONNAIRE-5');
+      expect(rewards).toHaveLength(1);
+      expect(rewards[0]).toStrictEqual({
+        type: 'resources',
+        amount: 5 * 100,
       });
     });
 

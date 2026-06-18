@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { insertEffectQuery } from '../../../queries/effect-queries';
 import { resolveEvent } from '../../events/resolve-event';
 import {
   changeHeroAttributes,
@@ -706,12 +707,22 @@ describe('hero-controllers', () => {
       });
 
       // Seed effects
+      const effectId = database.selectValue({
+        sql: 'SELECT id FROM effect_ids LIMIT 1',
+        schema: z.number(),
+      })!;
+
       database.exec({
-        sql: `
-          INSERT INTO effects (effect_id, value, type, scope, source, source_specifier)
-          VALUES ((SELECT id FROM effect_ids LIMIT 1), 1, 'bonus', 'global', 'hero', $itemId)
-        `,
-        bind: { $itemId: itemId },
+        sql: insertEffectQuery,
+        bind: {
+          $effect_id: effectId,
+          $value: 1,
+          $type: 'bonus',
+          $scope: 'global',
+          $source: 'hero',
+          $village_id: null,
+          $source_specifier: itemId,
+        },
       });
 
       unequipHeroItem(

@@ -8,6 +8,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { MainBuildingDemolitionTable } from 'app/(game)/(village-slug)/components/main-building-demolition-table';
+import { MerchantMovementTable } from 'app/(game)/(village-slug)/components/merchant-movement-table';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 import { VillageConstructionTable } from 'app/(game)/(village-slug)/components/village-construction-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -166,9 +167,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
               'You need to build the {{buildingName}} before you can dispatch merchants.',
               { buildingName: marketplaceName },
             )}
-          <Alert variant="warning">
-            {t('This section is still under development')}
-          </Alert>
+          {doesMarketplaceExist && <MerchantMovementTable />}
         </SectionContent>
         {tribe === 'teutons' && (
           <>

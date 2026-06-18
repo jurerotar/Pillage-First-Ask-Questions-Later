@@ -1,14 +1,3 @@
-export const insertOasisProductionEffectQuery = `
-  INSERT INTO
-    effects (effect_id, value, type, scope, source, village_id, source_specifier)
-  VALUES
-    ((
-       SELECT id
-       FROM effect_ids
-       WHERE effect = $effect_id
-       ), $value, $type, $scope, $source, $village_id, $source_specifier);
-`;
-
 export const occupyOasisQuery = `
   UPDATE oasis
   SET

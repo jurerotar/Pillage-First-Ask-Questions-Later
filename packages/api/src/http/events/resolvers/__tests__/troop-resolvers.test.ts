@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
 import type { Unit } from '@pillage-first/types/models/unit';
+import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
 import { troopTrainingEventResolver } from '../troop-resolvers';
 
 describe(troopTrainingEventResolver, () => {
@@ -41,6 +42,11 @@ describe(troopTrainingEventResolver, () => {
 
     expect(troop.amount).toBeGreaterThanOrEqual(1);
 
+    const wheatEffectId = database.selectValue({
+      sql: selectWheatProductionEffectIdQuery,
+      schema: z.number(),
+    })!;
+
     // Verify wheat consumption effect
     const effect = database.selectObject({
       sql: `
@@ -48,37 +54,22 @@ describe(troopTrainingEventResolver, () => {
         FROM effects
         WHERE village_id = $village_id
           AND source = 'troops'
-          AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction');
+          AND effect_id = $effect_id;
       `,
-      bind: { $village_id: villageId },
+      bind: { $effect_id: wheatEffectId, $village_id: villageId },
       schema: z.strictObject({ value: z.number() }),
     })!;
 
     expect(effect).toBeDefined();
 
-    // Verify quest completion
-    const quest = database.selectObject({
-      sql: "SELECT completed_at FROM quests WHERE quest_id = 'troopCount-10';",
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
-    });
-    // It should NOT be completed yet as we only trained 1 troop (and total is < 10)
-    expect(quest?.completed_at).toBe(null);
-
-    // Now train enough to complete the quest
     for (let i = 0; i < 9; i += 1) {
       troopTrainingEventResolver(database, {
         ...mockEvent,
         id: 1000 + i,
-        amount: 1, // This is now ignored but good for documentation in test
+        amount: 1, // This is ignored by the resolver; each event resolves one troop.
         resolvesAt: 1200,
       });
     }
-
-    const completedQuest = database.selectObject({
-      sql: "SELECT completed_at FROM quests WHERE quest_id = 'troopCount-10';",
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
-    });
-    expect(completedQuest?.completed_at).toBe(1200);
 
     // Verify history table (Trigger should have fired on event deletion)
     // In this test, we are calling the resolver directly, which DOES NOT delete the event from the database.

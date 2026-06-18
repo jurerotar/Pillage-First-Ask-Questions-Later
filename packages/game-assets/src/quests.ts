@@ -21,21 +21,21 @@ type GlobalQuestDefinition = {
   scope: 'global';
 };
 
-const createTroopCountQuest = (count: number): GlobalQuestDefinition => {
+const createQueuedTroopCountQuest = (count: number): GlobalQuestDefinition => {
   return {
-    id: `troopCount-${count}`,
+    id: `queuedTroopCount-${count}`,
     scope: 'global',
   };
 };
 
-const createTroopCountQuests = (): GlobalQuestDefinition[] => {
+const createQueuedTroopCountQuests = (): GlobalQuestDefinition[] => {
   const troopCounts = [
     10, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000,
     150_000, 200_000, 300_000, 500_000, 750_000, 1_000_000,
   ];
 
   return troopCounts.flatMap((troopCount) => {
-    return createTroopCountQuest(troopCount);
+    return createQueuedTroopCountQuest(troopCount);
   });
 };
 
@@ -102,17 +102,17 @@ const createUnitKillCountQuests = (): GlobalQuestDefinition[] => {
     });
 };
 
-const createUnitTroopCountQuest = (
+const createQueuedTroopCountByIdQuest = (
   unitId: Unit['id'],
   count: number,
 ): GlobalQuestDefinition => {
   return {
-    id: `unitTroopCount-${unitId}-${count}`,
+    id: `queuedTroopCountById-${unitId}-${count}`,
     scope: 'global',
   };
 };
 
-export const createUnitTroopCountQuests = (
+export const createQueuedTroopCountByIdQuests = (
   tribe: PlayableTribe,
 ): GlobalQuestDefinition[] => {
   const troopCounts = [
@@ -126,7 +126,7 @@ export const createUnitTroopCountQuests = (
 
   return unitsByTribe.flatMap(({ id }) => {
     return troopCounts.flatMap((troopCount) => {
-      return createUnitTroopCountQuest(id, troopCount);
+      return createQueuedTroopCountByIdQuest(id, troopCount);
     });
   });
 };
@@ -144,7 +144,7 @@ export const createBuildingQuest = (
 
 export const globalQuests: GlobalQuestDefinition[] = [
   ...createAdventureCountQuests(),
-  ...createTroopCountQuests(),
+  ...createQueuedTroopCountQuests(),
   ...createUnitKillCountQuests(),
   ...createKillCountQuests(),
 ];
