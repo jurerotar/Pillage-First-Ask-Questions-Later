@@ -1,3 +1,10 @@
+## Version 0.4.34
+
+#### Jun 19, 2026
+
+* [BugFix] Improved internal data structures to prevent event execution happening with stale data, which was observed
+  to (potentially) happen in some cases.
+
 ## Version 0.4.33
 
 #### Jun 18, 2026
