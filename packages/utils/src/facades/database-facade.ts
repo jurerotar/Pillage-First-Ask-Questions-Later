@@ -7,11 +7,10 @@ import type {
   SelectArgs,
 } from './database-query-types';
 
-const createPreparedStatementCache = (): Map<
-  string,
-  ReturnType<OpfsSAHPoolDatabase['prepare']>
-> => {
-  return new Map<string, ReturnType<OpfsSAHPoolDatabase['prepare']>>();
+type PreparedStatement = ReturnType<OpfsSAHPoolDatabase['prepare']>;
+
+const createPreparedStatementCache = (): Map<string, PreparedStatement> => {
+  return new Map<string, PreparedStatement>();
 };
 
 export type DbFacade = {
@@ -44,15 +43,20 @@ export type DbFacade = {
   close: () => void;
 };
 
+type RunStatementArgs<Result> = {
+  sql: string;
+  bind?: ExecQueryArgs['bind'];
+  operation: string;
+  execute: (statement: PreparedStatement) => Result;
+};
+
 export const createDbFacade = (
   database: OpfsSAHPoolDatabase,
   debug = false,
 ): DbFacade => {
   const preparedStatementCache = createPreparedStatementCache();
 
-  const getStatement = (
-    sql: string,
-  ): ReturnType<OpfsSAHPoolDatabase['prepare']> => {
+  const getStatement = (sql: string): PreparedStatement => {
     const statement = preparedStatementCache.get(sql);
 
     if (!statement) {
@@ -65,39 +69,53 @@ export const createDbFacade = (
     return statement;
   };
 
+  const runStatement = <Result>({
+    sql,
+    bind,
+    operation,
+    execute,
+  }: RunStatementArgs<Result>): Result => {
+    const t0 = performance.now();
+    const statement = getStatement(sql);
+    if (bind) {
+      statement.bind(bind);
+    }
+
+    const result = execute(statement);
+    const t1 = performance.now();
+
+    if (debug) {
+      console.log(
+        `DbFacade.${operation} — ${sql} took ${(t1 - t0).toFixed(3)} ms`,
+      );
+    }
+
+    return result;
+  };
+
   const facade: DbFacade = {
     exec: ({ sql, bind }): void => {
-      const t0 = performance.now();
-      const statement = getStatement(sql);
-      if (bind) {
-        statement.bind(bind);
-      }
-
-      statement.stepReset();
-      const t1 = performance.now();
-      if (debug) {
-        console.log(`DbFacade.exec — ${sql} took ${(t1 - t0).toFixed(3)} ms`);
-      }
+      runStatement({
+        sql,
+        bind,
+        operation: 'exec',
+        execute: (statement) => statement.stepReset(),
+      });
     },
 
     selectValue: ({ sql, bind, schema }) => {
-      const t0 = performance.now();
-      const statement = getStatement(sql);
-      if (bind) {
-        statement.bind(bind);
-      }
-      statement.step();
-      const row = statement.get([]);
-      statement.reset();
+      const row = runStatement({
+        sql,
+        bind,
+        operation: 'selectValue',
+        execute: (statement) => {
+          statement.step();
+          const row = statement.get([]);
+          statement.reset();
 
-      const t1 = performance.now();
-      if (debug) {
-        console.log(
-          `DbFacade.selectValue — sql=${sql} took ${(t1 - t0).toFixed(
-            3,
-          )} ms; resultPresent=${Array.isArray(row) ? row.length > 0 : !!row}`,
-        );
-      }
+          return row;
+        },
+      });
 
       const data = row.at(0);
 
@@ -109,102 +127,80 @@ export const createDbFacade = (
     },
 
     selectValues: ({ sql, bind, schema }) => {
-      const t0 = performance.now();
-      const statement = getStatement(sql);
-      if (bind) {
-        statement.bind(bind);
-      }
+      const values = runStatement({
+        sql,
+        bind,
+        operation: 'selectValues',
+        execute: (statement) => {
+          const values: SqlValue[] = [];
 
-      const values: SqlValue[] = [];
+          while (statement.step()) {
+            const row = statement.get([]);
+            values.push(row.at(0)!);
+          }
 
-      while (statement.step()) {
-        const row = statement.get([]);
-        values.push(row.at(0)!);
-      }
+          statement.reset();
 
-      statement.reset();
-
-      const t1 = performance.now();
-      if (debug) {
-        console.log(
-          `DbFacade.selectValues — sql=${sql} took ${(t1 - t0).toFixed(
-            3,
-          )} ms; rows=${values.length}`,
-        );
-      }
+          return values;
+        },
+      });
 
       return z.array(schema).parse(values);
     },
 
     selectObject: ({ sql, bind, schema }) => {
-      const t0 = performance.now();
-      const statement = getStatement(sql);
-      if (bind) {
-        statement.bind(bind);
-      }
-      const isDataAvailable = statement.step();
+      const row = runStatement({
+        sql,
+        bind,
+        operation: 'selectObject',
+        execute: (statement) => {
+          const isDataAvailable = statement.step();
 
-      if (isDataAvailable) {
-        const row = statement.get({});
-        statement.reset();
-        const t1 = performance.now();
-        if (debug) {
-          console.log(
-            `DbFacade.selectObject — sql=${sql} took ${(t1 - t0).toFixed(
-              3,
-            )} ms; present=true`,
-          );
-        }
+          if (isDataAvailable) {
+            const row = statement.get({});
+            statement.reset();
 
+            return row;
+          }
+
+          statement.reset();
+
+          return;
+        },
+      });
+
+      if (row !== undefined) {
         return schema.parse(row);
-      }
-
-      statement.reset();
-      const t1 = performance.now();
-      if (debug) {
-        console.log(
-          `DbFacade.selectObject — sql=${sql} took ${(t1 - t0).toFixed(
-            3,
-          )} ms; present=false`,
-        );
       }
 
       return;
     },
 
     selectObjects: ({ sql, bind, schema }) => {
-      const t0 = performance.now();
-      const statement = getStatement(sql);
-      if (bind) {
-        statement.bind(bind);
-      }
-      const rows: ReturnType<OpfsSAHPoolDatabase['selectObjects']> = [];
-      while (statement.step()) {
-        rows.push(statement.get({}));
-      }
-      statement.reset();
-      const t1 = performance.now();
-      if (debug) {
-        console.log(
-          `DbFacade.selectObjects — sql=${sql} took ${(t1 - t0).toFixed(
-            3,
-          )} ms; rows=${rows.length}`,
-        );
-      }
+      const rows = runStatement({
+        sql,
+        bind,
+        operation: 'selectObjects',
+        execute: (statement) => {
+          const rows: ReturnType<OpfsSAHPoolDatabase['selectObjects']> = [];
+          while (statement.step()) {
+            rows.push(statement.get({}));
+          }
+          statement.reset();
+
+          return rows;
+        },
+      });
 
       return z.array(schema).parse(rows);
     },
 
     prepare: ({ sql }) => {
-      const t0 = performance.now();
-      const statement = getStatement(sql);
-      const t1 = performance.now();
-      if (debug) {
-        console.log(
-          `DbFacade.prepare — sql=${sql} took ${(t1 - t0).toFixed(3)} ms`,
-        );
-      }
-      return statement;
+      return runStatement({
+        sql,
+        operation: 'prepare',
+        execute: (statement) => statement,
+      });
     },
 
     transaction: (callback: (db: DbFacade) => void): void => {
