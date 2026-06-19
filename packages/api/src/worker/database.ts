@@ -52,12 +52,12 @@ export const openWorkerDatabase = async (
     sql: `
       PRAGMA foreign_keys = ON;        -- keep referential integrity
       PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
-      PRAGMA journal_mode = OFF;       -- fastest; no rollback journal
-      PRAGMA synchronous = OFF;        -- don't wait for OS to flush (fast, risky)
+      PRAGMA journal_mode = WAL;       -- write-ahead-log
       PRAGMA temp_store = MEMORY;      -- temp tables + indices kept in RAM
       PRAGMA cache_size = -20000;      -- negative = KB, so -20000 => 20 MB cache
       PRAGMA secure_delete = OFF;      -- faster deletes (don't overwrite freed pages)
-      PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
+      PRAGMA synchronous = OFF;        -- fastest; risks losing recent writes on crash
+      PRAGMA wal_autocheckpoint = 1000;
     `,
   });
 

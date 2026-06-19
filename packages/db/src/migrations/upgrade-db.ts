@@ -437,6 +437,54 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
+  migrateTo('0.4.34', database, (db) => {
+    db.exec({
+      sql: `
+        INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+        SELECT
+          ui.id,
+          1,
+          v.tile_id,
+          v.tile_id
+        FROM
+          heroes h
+            JOIN villages v ON v.id = h.village_id
+            JOIN unit_ids ui ON ui.unit = 'HERO'
+        WHERE
+          h.health > 0
+          AND NOT EXISTS
+          (
+            SELECT 1
+            FROM
+              troops t
+                JOIN unit_ids tui ON tui.id = t.unit_id
+            WHERE
+              tui.unit = 'HERO'
+          )
+          AND NOT EXISTS
+          (
+            SELECT 1
+            FROM
+              events e
+                JOIN json_each(e.meta, '$.troops') troop
+            WHERE
+              e.type IN (
+                'troopMovementReinforcements',
+                'troopMovementRelocation',
+                'troopMovementReturn',
+                'troopMovementFindNewVillage',
+                'troopMovementAttack',
+                'troopMovementRaid',
+                'troopMovementOasisOccupation',
+                'troopMovementAdventure'
+              )
+              AND JSON_EXTRACT(troop.value, '$.unitId') = 'HERO'
+          )
+        ON CONFLICT(unit_id, tile_id, source_tile_id) DO NOTHING;
+      `,
+    });
+  });
+
   // If all migrations passed, bump it to current version
   database.exec({
     sql: `PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};`,
