@@ -449,7 +449,7 @@ fix: building downgrade fixes
 
 * [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented
   2
-  separate changes in regard to a database. The first one reduced overall database size by around 10–30%, depending
+  separate changes in regard to a database. The first one reduced overall database size by around 10-30%, depending
   on game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This
   results
   in faster game world creation, as well as better performance while in the game!
