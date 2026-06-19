@@ -25,7 +25,6 @@ const setupSchedulerTest = () => {
     mockDataSource,
     [Symbol.dispose]: () => {
       cancelScheduling();
-      vi.restoreAllMocks();
       vi.useRealTimers();
     },
   };
@@ -242,7 +241,7 @@ describe('scheduler', () => {
   test('continues scheduling after a timer-fired event throws', () => {
     using context = setupSchedulerTest();
     const { mockDataSource } = context;
-    const consoleError = vi
+    using consoleError = vi
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 

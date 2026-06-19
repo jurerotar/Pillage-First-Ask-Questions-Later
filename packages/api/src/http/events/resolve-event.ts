@@ -112,5 +112,7 @@ export const resolveEvent = (
       ...event,
       affectedVillageIds: [],
     } satisfies EventApiNotificationEvent);
+
+    throw error;
   }
 };
