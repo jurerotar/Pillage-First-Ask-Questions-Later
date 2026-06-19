@@ -109,4 +109,54 @@ describe('database facade', () => {
     expect(firstValue).toStrictEqual({ leftValue: 1, rightValue: 2 });
     expect(secondValue).toBeUndefined();
   });
+
+  test('prepared statements clear bindings after stepReset', async () => {
+    const database = await prepareTestDatabase();
+
+    database.exec({
+      sql: `
+        CREATE TEMP TABLE facade_prepare_binding_test (
+          left_value INTEGER,
+          right_value INTEGER
+        );
+      `,
+    });
+
+    const statement = database.prepare({
+      sql: `
+        INSERT INTO facade_prepare_binding_test (left_value, right_value)
+        SELECT $left_value, $right_value
+        WHERE $right_value IS NOT NULL;
+      `,
+    });
+
+    statement
+      .bind({
+        $left_value: 1,
+        $right_value: 2,
+      })
+      .stepReset();
+
+    statement
+      .bind({
+        $left_value: 3,
+      })
+      .stepReset();
+
+    const rows = database.selectObjects({
+      sql: `
+        SELECT
+          left_value AS leftValue,
+          right_value AS rightValue
+        FROM
+          facade_prepare_binding_test;
+      `,
+      schema: z.strictObject({
+        leftValue: z.number(),
+        rightValue: z.number(),
+      }),
+    });
+
+    expect(rows).toStrictEqual([{ leftValue: 1, rightValue: 2 }]);
+  });
 });

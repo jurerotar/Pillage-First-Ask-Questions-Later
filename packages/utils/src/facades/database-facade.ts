@@ -13,6 +13,24 @@ const createPreparedStatementCache = (): Map<string, PreparedStatement> => {
   return new Map<string, PreparedStatement>();
 };
 
+const clearBindingsAfterExecution = (
+  statement: PreparedStatement,
+): PreparedStatement => {
+  const reset = statement.reset.bind(statement);
+  const stepReset = statement.stepReset.bind(statement);
+
+  statement.reset = (() => reset(true)) as PreparedStatement['reset'];
+  statement.stepReset = (() => {
+    try {
+      return stepReset();
+    } finally {
+      reset(true);
+    }
+  }) as PreparedStatement['stepReset'];
+
+  return statement;
+};
+
 export type DbFacade = {
   exec: <const Sql extends string>(args: ExecQueryArgs<Sql>) => void;
 
@@ -60,7 +78,9 @@ export const createDbFacade = (
     const statement = preparedStatementCache.get(sql);
 
     if (!statement) {
-      const preparedStatement = database.prepare(sql);
+      const preparedStatement = clearBindingsAfterExecution(
+        database.prepare(sql),
+      );
       preparedStatementCache.set(sql, preparedStatement);
 
       return preparedStatement;
