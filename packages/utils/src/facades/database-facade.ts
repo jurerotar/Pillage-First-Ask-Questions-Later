@@ -77,20 +77,27 @@ export const createDbFacade = (
   }: RunStatementArgs<Result>): Result => {
     const t0 = performance.now();
     const statement = getStatement(sql);
+
+    statement.reset(true);
+
     if (bind) {
       statement.bind(bind);
     }
 
-    const result = execute(statement);
-    const t1 = performance.now();
+    try {
+      const result = execute(statement);
+      const t1 = performance.now();
 
-    if (debug) {
-      console.log(
-        `DbFacade.${operation} — ${sql} took ${(t1 - t0).toFixed(3)} ms`,
-      );
+      if (debug) {
+        console.log(
+          `DbFacade.${operation} — ${sql} took ${(t1 - t0).toFixed(3)} ms`,
+        );
+      }
+
+      return result;
+    } finally {
+      statement.reset(true);
     }
-
-    return result;
   };
 
   const facade: DbFacade = {
@@ -109,7 +116,14 @@ export const createDbFacade = (
         bind,
         operation: 'selectValue',
         execute: (statement) => {
-          statement.step();
+          const isDataAvailable = statement.step();
+
+          if (!isDataAvailable) {
+            statement.reset();
+
+            return [];
+          }
+
           const row = statement.get([]);
           statement.reset();
 
