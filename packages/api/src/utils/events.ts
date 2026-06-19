@@ -101,15 +101,17 @@ import {
   mapEventRowToTypedEvent,
 } from './zod/event-schemas';
 
+const nonMetaEventProperties = new Set([
+  'id',
+  'type',
+  'startsAt',
+  'duration',
+  'resolvesAt',
+  'villageId',
+]);
+
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
-  const requiredEventProperties = new Set([
-    'type',
-    'startsAt',
-    'duration',
-    'villageId',
-  ]);
-  // We add + 1 for the `meta` column
-  const amountOfColumnsToInsert = requiredEventProperties.size + 1;
+  const amountOfColumnsToInsert = 5;
 
   const sqlTemplate = `
     INSERT INTO
@@ -139,7 +141,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
 
     let metaObj: Record<string, SqlValue> | undefined;
     for (const property in event) {
-      if (requiredEventProperties.has(property)) {
+      if (nonMetaEventProperties.has(property)) {
         continue;
       }
 
