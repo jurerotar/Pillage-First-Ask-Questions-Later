@@ -18,7 +18,9 @@ describe('developerSettingsSeeder', () => {
           is_free_unit_training_enabled,
           is_free_unit_improvement_enabled,
           is_free_unit_research_enabled,
-          is_free_hunting_parties_enabled
+          is_free_hunting_parties_enabled,
+          is_instant_hero_revive_enabled,
+          is_free_hero_revive_enabled
         FROM
           developer_settings
         LIMIT 1;
@@ -34,6 +36,8 @@ describe('developerSettingsSeeder', () => {
         is_free_unit_improvement_enabled: z.number(),
         is_free_unit_research_enabled: z.number(),
         is_free_hunting_parties_enabled: z.number(),
+        is_instant_hero_revive_enabled: z.number(),
+        is_free_hero_revive_enabled: z.number(),
       }),
     })!;
 
@@ -48,5 +52,7 @@ describe('developerSettingsSeeder', () => {
     expect(settings.is_free_unit_improvement_enabled).toBe(0);
     expect(settings.is_free_unit_research_enabled).toBe(0);
     expect(settings.is_free_hunting_parties_enabled).toBe(0);
+    expect(settings.is_instant_hero_revive_enabled).toBe(0);
+    expect(settings.is_free_hero_revive_enabled).toBe(0);
   });
 });
