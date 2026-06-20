@@ -91,6 +91,7 @@ const AttackOrRaidModal = ({
   const { t } = useTranslation();
   const {
     closeConfirmationStep,
+    disabledUnitTiers,
     form,
     formData,
     isConfirmationStepOpen,
@@ -126,6 +127,7 @@ const AttackOrRaidModal = ({
             onSubmit={onFormSubmit}
             title={t('Attack or raid')}
             form={form}
+            disabledUnitTiers={disabledUnitTiers}
             targetSelector="coordinates"
             isTargetSelectorDisabled
             extraContent={<AttackOrRaidActionSelector />}

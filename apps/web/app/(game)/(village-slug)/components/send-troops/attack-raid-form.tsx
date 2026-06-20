@@ -19,6 +19,7 @@ import {
 import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
 import { TroopMovementConfirmationModal } from './components/confirmation-modal';
 import { TroopSelectionForm } from './components/troop-selection-form';
+import { disabledAttackOrRaidUnitTiers } from './hooks/use-attack-or-raid-form';
 import { useTroopMovementForm } from './hooks/use-troop-movement-form';
 import { baseTroopFormSchema } from './utils/schema';
 
@@ -113,6 +114,7 @@ export const AttackRaidForm = () => {
           form={form}
           onSubmit={onFormSubmit}
           targetSelector="coordinates"
+          disabledUnitTiers={disabledAttackOrRaidUnitTiers}
           extraTargetContent={<AttackRaidActionSelector />}
           actions={<Button type="submit">{t('Confirm')}</Button>}
         />

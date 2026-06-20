@@ -4,7 +4,7 @@ import type { z } from 'zod';
 import type { Tile } from '@pillage-first/types/models/tile';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { attackOrRaidFormSchema } from '../utils/schema';
+import { attackOrRaidFormSchema, type UnitSelection } from '../utils/schema';
 import { createTroopFormTargetFromTileId } from '../utils/troop-form';
 import { useTroopMovementForm } from './use-troop-movement-form';
 
@@ -17,6 +17,14 @@ type UseAttackOrRaidFormOptions = {
   targetTileId?: Tile['id'];
   onSuccess?: () => void;
 };
+
+export const disabledAttackOrRaidUnitTiers = [
+  'scout',
+  'siege-ram',
+  'siege-catapult',
+  'administration',
+  'hero',
+] as const satisfies UnitSelection['tier'][];
 
 export const useAttackOrRaidForm = ({
   action = 'attack',
@@ -53,6 +61,7 @@ export const useAttackOrRaidForm = ({
 
   return {
     ...troopMovementForm,
+    disabledUnitTiers: [...disabledAttackOrRaidUnitTiers],
     tribe,
   };
 };

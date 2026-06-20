@@ -578,7 +578,10 @@ const OccupiableTileModal = ({
 
 type OccupiedOccupiableTileModalProps = {
   tile: OccupiedOccupiableTile;
-} & Pick<TileModalActionsProps, 'onReinforceVillage' | 'onSendResources' | 'onAttackOrRaidVillage'>;
+} & Pick<
+  TileModalActionsProps,
+  'onReinforceVillage' | 'onSendResources' | 'onAttackOrRaidVillage'
+>;
 
 type SendResourcesActionProps = {
   tile: OccupiedOccupiableTile;
