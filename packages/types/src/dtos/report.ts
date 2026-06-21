@@ -3,9 +3,11 @@ import { reportTypeSchema } from '../models/report';
 
 export const reportDtoSchema = z.strictObject({
   id: z.int(),
+  playerId: z.int(),
   villageId: z.int(),
   timestamp: z.int(),
+  subject: z.string(),
   type: reportTypeSchema,
-  is_read: z.boolean(),
-  is_archived: z.boolean(),
+  isRead: z.boolean(),
+  isArchived: z.boolean(),
 });

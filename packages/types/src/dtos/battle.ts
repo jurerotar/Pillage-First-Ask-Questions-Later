@@ -1,0 +1,38 @@
+import { z } from 'zod';
+import { battleStatisticsSchema, lootSchema } from '../models/battle';
+import { coordinatesSchema } from '../models/coordinates';
+import { tribeSchema } from '../models/tribe';
+import { unitIdSchema } from '../models/unit';
+
+export const battleUnitDtoSchema = z.strictObject({
+  battleParticipantId: z.int(),
+  unitId: unitIdSchema,
+  amountBefore: z.int(),
+  amountAfter: z.int(),
+});
+
+export const battleParticipantDtoSchema = z.strictObject({
+  id: z.int(),
+  role: z.enum(['attacker', 'defender']),
+  tribe: tribeSchema,
+  isReinforcement: z.boolean(),
+  units: z.array(battleUnitDtoSchema),
+});
+
+export const battleDtoSchema = z.strictObject({
+  reportId: z.int(),
+  attackingPlayerName: z.string(),
+  attackingPlayerSlug: z.string(),
+  defendingPlayerName: z.string(),
+  defendingPlayerSlug: z.string(),
+  originVillageName: z.string(),
+  originVillageCoordinates: coordinatesSchema,
+  targetVillageName: z.string(),
+  targetVillageCoordinates: coordinatesSchema,
+  loot: lootSchema,
+  totalCarryCapacity: z.int(),
+  didAttackerWin: z.boolean(),
+  attackStatistics: battleStatisticsSchema,
+  defenceStatistics: battleStatisticsSchema,
+  participants: z.array(battleParticipantDtoSchema),
+});

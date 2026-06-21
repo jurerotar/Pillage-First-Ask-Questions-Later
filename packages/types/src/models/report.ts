@@ -4,11 +4,13 @@ export const reportTypeSchema = z.enum(['battle', 'adventure', 'trade']);
 
 export const reportSchema = z.strictObject({
   id: z.int(),
+  playerId: z.int(),
   villageId: z.int(),
   timestamp: z.int(),
+  subject: z.string(),
   type: reportTypeSchema,
-  is_read: z.boolean(),
-  is_archived: z.boolean(),
+  isRead: z.boolean(),
+  isArchived: z.boolean(),
 });
 
-export type Report = z.infer<typeof reportSchema>;
+export type BaseReport = z.infer<typeof reportSchema>;

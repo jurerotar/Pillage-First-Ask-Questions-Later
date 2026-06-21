@@ -1,13 +1,15 @@
 import { z } from 'zod';
 import { reportTypeSchema } from '@pillage-first/types/models/report';
 
-export const getReportSchema = z
+export const getReportsByPlayerRowSchema = z
   .strictObject({
-    id: z.number(),
-    village_id: z.number(),
-    timestamp: z.number(),
+    id: z.int(),
+    player_id: z.int(),
+    village_id: z.int(),
+    timestamp: z.int(),
+    subject: z.string(),
     type: reportTypeSchema,
-    is_read: z.number(),
-    is_archived: z.number(),
+    is_read: z.int(),
+    is_archived: z.int(),
   })
-  .meta({ id: 'GetReportRow' });
+  .meta({ id: 'GetReportsByPlayerRow' });

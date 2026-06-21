@@ -1,17 +1,19 @@
 import type { z } from 'zod';
 import type { reportDtoSchema } from '@pillage-first/types/dtos/report';
-import type { getReportSchema } from '../schemas/report-schemas';
+import type { getReportsByPlayerRowSchema } from '../schemas/report-schemas';
 
 export const mapReports = (
-  row: z.infer<typeof getReportSchema>,
+  row: z.infer<typeof getReportsByPlayerRowSchema>,
 ): z.infer<typeof reportDtoSchema> => {
   const dto = {
     id: row.id,
+    playerId: row.player_id,
     villageId: row.village_id,
     timestamp: row.timestamp,
+    subject: row.subject,
     type: row.type,
-    is_read: Boolean(row.is_read),
-    is_archived: Boolean(row.is_archived),
+    isRead: Boolean(row.is_read),
+    isArchived: Boolean(row.is_archived),
   };
 
   return dto;

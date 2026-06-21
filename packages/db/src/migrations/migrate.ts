@@ -9,6 +9,9 @@ import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
+import createBattleParticipantsTable from '../schemas/battle-participants-schema.sql?raw';
+import createBattleUnitsTable from '../schemas/battle-units-schema.sql?raw';
+import createBattlesTable from '../schemas/battles-schema.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
 import createBuildingFieldsTable from '../schemas/building-fields-schema.sql?raw';
 import createDeveloperSettingsTable from '../schemas/developer-settings-schema.sql?raw';
@@ -81,7 +84,6 @@ import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
-import { reportsSeeder } from '../seeders/reports-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
@@ -210,7 +212,11 @@ export const migrateAndSeed = (
 
     // Reports
     db.exec({ sql: createReportsTable });
-    reportsSeeder(db);
+
+    db.exec({ sql: createBattlesTable });
+    db.exec({ sql: createBattleParticipantsTable });
+    db.exec({ sql: createBattleUnitsTable });
+
     // Heroes
     db.exec({ sql: createHeroesTable });
     db.exec({ sql: createHeroSelectableAttributesTable });

@@ -1,20 +1,90 @@
 import { z } from 'zod';
+import { battleDtoSchema } from '@pillage-first/types/dtos/battle';
 import { reportDtoSchema } from '@pillage-first/types/dtos/report';
-import { selectReportsQuery } from '../../queries/report-queries';
+import {
+  selectBattleByReportQuery,
+  selectBattleParticipantsByReportQuery,
+  selectBattleUnitsByReportQuery,
+} from '../../queries/battle-queries';
+import { selectReportsByPlayerQuery } from '../../queries/report-queries';
 import { createController } from '../controller';
+import {
+  mapBattle,
+  mapBattleParticipants,
+  mapBattleUnits,
+} from './mappers/battle-mapper';
 import { mapReports } from './mappers/reports-mapper';
-import { getReportSchema } from './schemas/report-schemas';
+import {
+  getBattleByReportRowSchema,
+  getBattleParticipantsByReportRowSchema,
+  getBattleUnitsByReportRowSchema,
+} from './schemas/battle-schemas';
+import { getReportsByPlayerRowSchema } from './schemas/report-schemas';
 
-export const getMyReports = createController('/reports', {
+export const getMyReports = createController('/reports/:playerId', {
   summary: 'Get my reports',
+  requestParams: {
+    path: z.strictObject({
+      playerId: z.coerce.number(),
+    }),
+  },
   response: z.array(reportDtoSchema),
-})(({ database }) => {
+})(({ database, path: { playerId } }) => {
   const rows = database.selectObjects({
-    sql: selectReportsQuery,
-    schema: getReportSchema,
+    sql: selectReportsByPlayerQuery,
+    bind: { $player_id: playerId },
+    schema: getReportsByPlayerRowSchema,
   });
 
   return rows.map(mapReports);
+});
+
+export const getBattleByReport = createController('/reports/battle/:reportId', {
+  summary: 'Get battle by report',
+  requestParams: {
+    path: z.strictObject({
+      reportId: z.coerce.number(),
+    }),
+  },
+  response: battleDtoSchema,
+})(({ database, path: { reportId } }) => {
+  const battle = mapBattle(
+    database.selectObject({
+      sql: selectBattleByReportQuery,
+      bind: { $report_id: reportId },
+      schema: getBattleByReportRowSchema,
+    }),
+  );
+
+  const participants = database
+    .selectObjects({
+      sql: selectBattleParticipantsByReportQuery,
+      bind: { $report_id: reportId },
+      schema: getBattleParticipantsByReportRowSchema,
+    })
+    .map(mapBattleParticipants);
+
+  const units = database
+    .selectObjects({
+      sql: selectBattleUnitsByReportQuery,
+      bind: { $report_id: reportId },
+      schema: getBattleUnitsByReportRowSchema,
+    })
+    .map(mapBattleUnits);
+
+  battle.participants = participants;
+
+  const participantsIdMap = new Map();
+  for (const participant of participants) {
+    participantsIdMap.set(participant.id, participant);
+  }
+
+  for (const unit of units) {
+    const participant = participantsIdMap.get(unit.battleParticipantId);
+    participant.units.push(unit);
+  }
+
+  return battle;
 });
 
 // TODO: implement
