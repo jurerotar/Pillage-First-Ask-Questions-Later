@@ -13,6 +13,7 @@ import {
   heroCacheKey,
   heroInventoryCacheKey,
   heroLoadoutCacheKey,
+  troopMovementsCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -162,6 +163,21 @@ export const useDeveloperSettings = () => {
     },
   });
 
+  const { mutate: sendRandomRaid } = useMutation<void>({
+    mutationFn: async () => {
+      await apiClient.patch('/developer-settings/:villageId/send-random-raid', {
+        path: {
+          villageId: currentVillage.id,
+        },
+      });
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [troopMovementsCacheKey, currentVillage.id],
+      ]);
+    },
+  });
+
   return {
     developerSettings,
     updateDeveloperSetting,
@@ -170,5 +186,6 @@ export const useDeveloperSettings = () => {
     levelUpHero,
     incrementHeroAdventurePoints,
     killHero,
+    sendRandomRaid,
   };
 };

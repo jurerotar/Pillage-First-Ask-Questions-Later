@@ -96,6 +96,7 @@ export const DeveloperToolsConsole = ({
     levelUpHero,
     incrementHeroAdventurePoints,
     killHero,
+    sendRandomRaid,
   } = useDeveloperSettings();
   const { hero, isHeroAlive, isHeroHome } = useHero();
 
@@ -422,6 +423,20 @@ export const DeveloperToolsConsole = ({
                   errorBag={['Hero must be at home and alive to be killed']}
                 />
               )}
+            </div>
+          </SectionContent>
+
+          <Separator orientation="horizontal" />
+
+          <SectionContent>
+            <Text as="h3">{t('Attack me')}</Text>
+            <div className="flex flex-col gap-1 items-start">
+              <Button
+                variant="destructive"
+                onClick={() => sendRandomRaid()}
+              >
+                {t('Send random raid against current village')}
+              </Button>
             </div>
           </SectionContent>
         </Section>

@@ -1,10 +1,17 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
+import { getUnitsByTribe } from '@pillage-first/game-assets/utils/units';
 import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
-import type { GameEventType } from '@pillage-first/types/models/game-event';
+import type {
+  GameEventType,
+  TroopMovementEventType,
+} from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
+import type { Troop } from '@pillage-first/types/models/troop';
 import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
+import { createEvents } from '../../utils/create-event';
 import { onHeroDeath } from '../../utils/hero';
 import {
   addVillageResourcesAt,
@@ -12,6 +19,7 @@ import {
 } from '../../utils/village';
 import { createController } from '../controller';
 import { triggerKick } from '../events/scheduler/scheduler-signal';
+import { normalizeCreateEventBody } from './event-controllers';
 import { mapDeveloperSettingsRowToDto } from './mappers/developer-tools-mapper';
 import { getDeveloperSettingsRowSchema } from './schemas/developer-tools-schemas';
 
@@ -333,4 +341,88 @@ export const killHero = createController(
   });
 
   onHeroDeath(database, now);
+});
+
+export const sendRandomRaid = createController(
+  '/developer-settings/:villageId/send-random-raid',
+  'patch',
+  {
+    summary: 'Sends a random attack against current village',
+    requestParams: {
+      path: z.strictObject({
+        villageId: z.coerce.number(),
+      }),
+    },
+  },
+)(({ database, path: { villageId: targetVillageId } }) => {
+  const targetTileId = database.selectValue({
+    sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
+    bind: {
+      $village_id: targetVillageId,
+    },
+    schema: z.number(),
+  })!;
+
+  const randomVillage = database.selectObject({
+    sql: `
+      SELECT
+        v.id as village_id,
+        v.tile_id,
+        tribe as tribe_id
+      FROM
+        villages v
+        join players p on v.player_id = p.id
+        join tribe_ids t on p.tribe_id = t.id
+      WHERE
+        v.player_id = (
+          SELECT
+            p.id
+          FROM
+            faction_reputation r
+            JOIN players p on r.target_faction_id = p.faction_id
+          WHERE
+            reputation <= 39000
+          ORDER BY
+            RANDOM()
+          LIMIT
+            1
+        )
+      ORDER BY
+        RANDOM()
+      LIMIT
+        1`,
+    schema: z.strictObject({
+      village_id: z.int(),
+      tile_id: z.int(),
+      tribe_id: tribeSchema,
+    }),
+  })!;
+
+  const originVillageId = randomVillage.village_id;
+  const originTileId = randomVillage.tile_id;
+  const type: TroopMovementEventType = 'troopMovementRaid';
+
+  const tribeUnits = getUnitsByTribe(randomVillage.tribe_id);
+  const troops: Troop[] = [];
+  for (const u of tribeUnits) {
+    const shouldAdd = tribeUnits.indexOf(u) === 0 ? true : Math.random() < 0.25;
+    if (shouldAdd) {
+      troops.push({
+        unitId: u.id,
+        amount: Math.round(Math.random() * 500),
+        source: originTileId,
+        tileId: targetTileId,
+      });
+    }
+  }
+
+  const event = {
+    villageId: originVillageId,
+    originTileId,
+    targetTileId,
+    type,
+    troops,
+  };
+
+  createEvents(database, normalizeCreateEventBody(event) as never);
 });

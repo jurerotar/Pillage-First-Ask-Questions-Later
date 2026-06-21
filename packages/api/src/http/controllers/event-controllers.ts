@@ -41,7 +41,7 @@ const troopMovementTypes = new Set([
   'troopMovementAdventure',
 ]);
 
-const normalizeCreateEventBody = (
+export const normalizeCreateEventBody = (
   body: z.infer<typeof createEventDtoSchema>,
 ) => {
   const eventBody = { ...body } as Record<string, unknown>;
