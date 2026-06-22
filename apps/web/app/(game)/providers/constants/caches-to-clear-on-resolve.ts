@@ -238,4 +238,13 @@ export const cachesToClearOnResolve: Handlers = {
       ]),
     ];
   },
+  tradeRoute: ({ affectedVillageIds }) => {
+    return [
+      [currentVillageCacheKey],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [eventsCacheKey, 'resourceTransfer', villageId],
+        [eventsCacheKey, 'tradeRoute', villageId],
+      ]),
+    ];
+  },
 };

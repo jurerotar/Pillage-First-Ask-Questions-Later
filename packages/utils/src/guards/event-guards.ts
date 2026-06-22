@@ -185,3 +185,9 @@ export const isResourceTransferEvent = (
 ): event is GameEvent<'resourceTransfer'> => {
   return event.type === 'resourceTransfer';
 };
+
+export const isTradeRouteEvent = (
+  event: GameEvent,
+): event is GameEvent<'tradeRoute'> => {
+  return event.type === 'tradeRoute';
+};

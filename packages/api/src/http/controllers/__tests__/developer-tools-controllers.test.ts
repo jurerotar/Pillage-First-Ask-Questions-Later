@@ -14,11 +14,18 @@ import {
 } from '@pillage-first/mocks/event';
 import { insertEvents } from '../../../utils/events';
 import {
+  cancelScheduling,
+  resetSchedulerForTesting,
+  scheduleNextEvent,
+} from '../../events/scheduler/scheduler';
+import { createSchedulerDataSource } from '../../events/scheduler/scheduler-data-source';
+import {
   incrementHeroAdventurePoints,
   levelUpHero,
   spawnHeroItem,
   updateDeveloperSettings,
 } from '../developer-tools-controllers';
+import { startHeroAdventure } from '../hero-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('developer-tools-controllers', () => {
@@ -274,6 +281,119 @@ describe('developer-tools-controllers', () => {
       expect(
         events.find((e) => e.type === 'gatherersHutGatheringTrip')?.duration,
       ).toBe(0);
+    });
+
+    test('should instantly resolve adventure returns created after enabling instant unit travel', async () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(1_000_000);
+      resetSchedulerForTesting();
+
+      try {
+        const database = await prepareTestDatabase();
+
+        const homeVillage = database.selectObject({
+          sql: `
+            SELECT v.id, v.tile_id AS tileId
+            FROM
+              heroes h
+                JOIN villages v ON v.id = h.village_id
+            WHERE
+              h.player_id = $player_id;
+          `,
+          bind: { $player_id: playerId },
+          schema: z.strictObject({
+            id: z.number(),
+            tileId: z.number(),
+          }),
+        })!;
+
+        database.exec({
+          sql: `
+            UPDATE hero_adventures
+            SET available = 1
+            WHERE hero_id = (
+              SELECT id
+              FROM heroes
+              WHERE player_id = $player_id
+            );
+          `,
+          bind: { $player_id: playerId },
+        });
+
+        startHeroAdventure(
+          database,
+          createControllerArgs<'/players/:playerId/hero/adventures', 'post'>({
+            path: { playerId },
+          }),
+        );
+
+        updateDeveloperSettings(
+          database,
+          createControllerArgs<
+            '/developer-settings/:developerSettingName',
+            'patch'
+          >({
+            path: { developerSettingName: 'isInstantUnitTravelEnabled' },
+            body: { value: true },
+          }),
+        );
+
+        scheduleNextEvent(createSchedulerDataSource(database));
+
+        const pendingMovements = database.selectObjects({
+          sql: `
+            SELECT type, starts_at AS startsAt, duration, resolves_at AS resolvesAt
+            FROM events
+            WHERE type IN (
+              'troopMovementReinforcements',
+              'troopMovementRelocation',
+              'troopMovementReturn',
+              'troopMovementFindNewVillage',
+              'troopMovementAttack',
+              'troopMovementRaid',
+              'troopMovementOasisOccupation',
+              'troopMovementAdventure'
+            );
+          `,
+          schema: z.strictObject({
+            type: z.string(),
+            startsAt: z.number(),
+            duration: z.number(),
+            resolvesAt: z.number(),
+          }),
+        });
+
+        const heroTroops = database.selectObjects({
+          sql: `
+            SELECT
+              t.amount,
+              t.tile_id AS tileId,
+              t.source_tile_id AS sourceTileId
+            FROM
+              troops t
+                JOIN unit_ids ui ON ui.id = t.unit_id
+            WHERE
+              ui.unit = 'HERO';
+          `,
+          schema: z.strictObject({
+            amount: z.number(),
+            tileId: z.number(),
+            sourceTileId: z.number(),
+          }),
+        });
+
+        expect(pendingMovements).toStrictEqual([]);
+        expect(heroTroops).toStrictEqual([
+          {
+            amount: 1,
+            tileId: homeVillage.tileId,
+            sourceTileId: homeVillage.tileId,
+          },
+        ]);
+      } finally {
+        cancelScheduling();
+        vi.useRealTimers();
+      }
     });
   });
 

@@ -26,7 +26,10 @@ import {
   huntersLodgeHuntResolver,
 } from './resolvers/hunters-lodge-resolvers';
 import { loyaltyIncreaseResolver } from './resolvers/loyalty-resolvers';
-import { resourceTransferResolver } from './resolvers/marketplace-resolvers';
+import {
+  resourceTransferResolver,
+  tradeRouteResolver,
+} from './resolvers/marketplace-resolvers';
 import {
   adventureMovementResolver,
   attackMovementResolver,
@@ -68,6 +71,7 @@ const gameEventResolvers = {
   huntersLodgeHunt: huntersLodgeHuntResolver,
   gatherersHutGatheringTrip: gatherersHutGatheringTripResolver,
   resourceTransfer: resourceTransferResolver,
+  tradeRoute: tradeRouteResolver,
 } satisfies GameEventResolverMap;
 
 export const resolveEvent = (
@@ -112,5 +116,7 @@ export const resolveEvent = (
       ...event,
       affectedVillageIds: [],
     } satisfies EventApiNotificationEvent);
+
+    throw error;
   }
 };

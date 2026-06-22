@@ -106,6 +106,28 @@ const setVillageResources = (
   });
 };
 
+const setMarketplaceLevel = (
+  database: Awaited<ReturnType<typeof prepareTestDatabase>>,
+  villageId: number,
+  level: number,
+) => {
+  database.exec({
+    sql: `
+      INSERT INTO building_fields (village_id, field_id, building_id, level)
+      SELECT $village_id, 32, id, $level
+      FROM building_ids
+      WHERE building = 'MARKETPLACE'
+      ON CONFLICT(village_id, field_id) DO UPDATE SET
+        building_id = EXCLUDED.building_id,
+        level = EXCLUDED.level;
+    `,
+    bind: {
+      $village_id: villageId,
+      $level: level,
+    },
+  });
+};
+
 const getVillageResources = (
   database: Awaited<ReturnType<typeof prepareTestDatabase>>,
   tileId: number,
@@ -124,7 +146,7 @@ const getVillageResources = (
 const insertMarketplaceEvent = (
   database: Awaited<ReturnType<typeof prepareTestDatabase>>,
   args: {
-    type: 'resourceTransfer';
+    type: 'resourceTransfer' | 'tradeRoute';
     villageId: number;
     targetVillageId: number;
     originTileId: number;
@@ -132,6 +154,7 @@ const insertMarketplaceEvent = (
     startsAt: number;
     duration: number;
     merchantAmount: number;
+    interval?: number;
     resources?: { wood: number; clay: number; iron: number; wheat: number };
   },
 ) =>
@@ -157,6 +180,7 @@ const insertMarketplaceEvent = (
           wheat: 10,
         },
         merchantAmount: args.merchantAmount,
+        ...(args.interval === undefined ? {} : { interval: args.interval }),
       }),
     },
     schema: z.number(),
@@ -296,5 +320,139 @@ describe('marketplace resolvers', () => {
         schema: z.number(),
       }),
     ).toBe(0);
+  });
+
+  test('tradeRoute should create a transfer and schedule the next route trigger', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(database, 'Trade Route Target');
+    const interval = 6 * 60 * 60 * 1000;
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tile_id, {
+      wood: 500,
+      clay: 500,
+      iron: 500,
+      wheat: 500,
+    });
+
+    const eventId = insertMarketplaceEvent(database, {
+      type: 'tradeRoute',
+      villageId: sourceVillage.id,
+      targetVillageId: targetVillage.id,
+      originTileId: sourceVillage.tile_id,
+      targetTileId: targetVillage.tileId,
+      startsAt: NOW,
+      duration: 0,
+      merchantAmount: 1,
+      interval,
+      resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
+    });
+
+    resolveEvent(database, eventId);
+
+    const eventCounts = database.selectObjects({
+      sql: `
+        SELECT type, COUNT(*) AS count
+        FROM events
+        GROUP BY type
+        ORDER BY type;
+      `,
+      schema: z.strictObject({
+        type: z.string(),
+        count: z.number(),
+      }),
+    });
+    const nextTradeRoute = database.selectObject({
+      sql: `
+        SELECT starts_at, duration, village_id, JSON_EXTRACT(meta, '$.interval') AS interval
+        FROM events
+        WHERE type = 'tradeRoute';
+      `,
+      schema: z.strictObject({
+        starts_at: z.number(),
+        duration: z.number(),
+        village_id: z.number(),
+        interval: z.number(),
+      }),
+    })!;
+
+    expect(eventCounts).toStrictEqual([
+      { type: 'resourceTransfer', count: 1 },
+      { type: 'tradeRoute', count: 1 },
+    ]);
+    expect(nextTradeRoute).toStrictEqual({
+      starts_at: NOW + interval,
+      duration: 0,
+      village_id: sourceVillage.id,
+      interval,
+    });
+    expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
+      wood: 400,
+      clay: 450,
+      iron: 475,
+      wheat: 490,
+    });
+  });
+
+  test('tradeRoute should schedule the next route when the transfer cannot start', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(
+      database,
+      'Failed Trade Route Target',
+    );
+    const interval = 12 * 60 * 60 * 1000;
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tile_id, {
+      wood: 0,
+      clay: 0,
+      iron: 0,
+      wheat: 0,
+    });
+
+    const eventId = insertMarketplaceEvent(database, {
+      type: 'tradeRoute',
+      villageId: sourceVillage.id,
+      targetVillageId: targetVillage.id,
+      originTileId: sourceVillage.tile_id,
+      targetTileId: targetVillage.tileId,
+      startsAt: NOW,
+      duration: 0,
+      merchantAmount: 1,
+      interval,
+      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+    });
+
+    resolveEvent(database, eventId);
+
+    expect(
+      database.selectValue({
+        sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
+        schema: z.number(),
+      }),
+    ).toBe(0);
+
+    const nextTradeRouteStartsAt = database.selectValue({
+      sql: "SELECT starts_at FROM events WHERE type = 'tradeRoute';",
+      schema: z.number(),
+    });
+
+    expect(nextTradeRouteStartsAt).toBe(NOW + interval);
+    expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
+      wood: 0,
+      clay: 0,
+      iron: 0,
+      wheat: 0,
+    });
   });
 });

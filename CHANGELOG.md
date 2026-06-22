@@ -1,3 +1,17 @@
+## Version 0.4.35
+
+#### Jun 22, 2026
+
+* [Feature] Added **Trade routes** functionality. You may now schedule periodic resource transfers between your
+  villages. You may schedule as many trade routes as you wish. Trade routes persist through demolishing the Marketplace.
+
+## Version 0.4.34
+
+#### Jun 19, 2026
+
+* [BugFix] Improved internal data structures to prevent event execution happening with stale data, which was observed
+  to (potentially) happen in some cases.
+
 ## Version 0.4.33
 
 #### Jun 18, 2026
@@ -442,7 +456,7 @@ fix: building downgrade fixes
 
 * [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented
   2
-  separate changes in regard to a database. The first one reduced overall database size by around 10–30%, depending
+  separate changes in regard to a database. The first one reduced overall database size by around 10-30%, depending
   on game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This
   results
   in faster game world creation, as well as better performance while in the game!
