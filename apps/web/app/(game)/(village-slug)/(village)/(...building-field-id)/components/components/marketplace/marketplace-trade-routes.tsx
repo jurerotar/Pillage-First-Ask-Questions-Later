@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { use, useMemo, useState } from 'react';
 import { type UseFormReturn, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { toast } from 'sonner';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { formatNumber } from '@pillage-first/utils/format';
@@ -282,8 +283,8 @@ const ActiveTradeRoutes = ({
   const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
 
-  const villageNameById = useMemo(() => {
-    return new Map(playerVillages.map((village) => [village.id, village.name]));
+  const villageById = useMemo(() => {
+    return new Map(playerVillages.map((village) => [village.id, village]));
   }, [playerVillages]);
   const routesByTargetVillage = useMemo(() => {
     const groups = new Map<number, GameEvent<'tradeRoute'>[]>();
@@ -296,9 +297,10 @@ const ActiveTradeRoutes = ({
 
     return Array.from(groups, ([targetVillageId, villageRoutes]) => ({
       targetVillageId,
+      village: villageById.get(targetVillageId)!,
       villageRoutes,
     }));
-  }, [routes]);
+  }, [routes, villageById]);
 
   const { mutate: deleteTradeRoute, isPending } = useMutation({
     mutationFn: async (eventId: number) => {
@@ -348,68 +350,81 @@ const ActiveTradeRoutes = ({
 
   return (
     <div className="space-y-6">
-      {routesByTargetVillage.map(({ targetVillageId, villageRoutes }) => (
-        <div
-          key={targetVillageId}
-          className="space-y-3"
-        >
-          <Text className="font-medium">
-            {villageNameById.get(targetVillageId) ?? t('Unknown village')}
-          </Text>
-          <div className="overflow-x-scroll scrollbar-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHeaderCell>{t('Resources')}</TableHeaderCell>
-                  <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
-                  <TableHeaderCell>{t('Interval')}</TableHeaderCell>
-                  <TableHeaderCell>{t('Next transfer')}</TableHeaderCell>
-                  <TableHeaderCell>{t('Actions')}</TableHeaderCell>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {villageRoutes.map((route) => (
-                  <TableRow key={route.id}>
-                    <TableCell>
-                      <span className="grid grid-cols-4 lg:grid-cols-2 justify-items-center gap-2">
-                        <Resources
-                          resources={getResourceList(route.resources)}
-                        />
-                      </span>
-                    </TableCell>
-                    <TableCell>{formatNumber(route.merchantAmount)}</TableCell>
-                    <TableCell>{formatTime(route.interval)}</TableCell>
-                    <TableCell>
-                      <Countdown endsAt={route.resolvesAt} />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onEdit(route)}
-                        >
-                          {t('Edit')}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={isPending}
-                          onClick={() => deleteTradeRoute(route.id)}
-                        >
-                          {t('Cancel')}
-                        </Button>
-                      </div>
-                    </TableCell>
+      {routesByTargetVillage.map(
+        ({ targetVillageId, village, villageRoutes }) => (
+          <div
+            key={targetVillageId}
+            className="space-y-3"
+          >
+            <Text
+              variant="link"
+              className="font-medium"
+            >
+              <Link
+                to={`../map?x=${village.coordinates.x}&y=${village.coordinates.y}`}
+              >
+                {village.name} ({village.coordinates.x} |{' '}
+                {village.coordinates.y})
+              </Link>
+            </Text>
+
+            <div className="overflow-x-scroll scrollbar-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHeaderCell>{t('Resources')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Merchants')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Interval')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Next transfer')}</TableHeaderCell>
+                    <TableHeaderCell>{t('Actions')}</TableHeaderCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {villageRoutes.map((route) => (
+                    <TableRow key={route.id}>
+                      <TableCell>
+                        <span className="grid grid-cols-4 lg:grid-cols-2 justify-items-center gap-2">
+                          <Resources
+                            resources={getResourceList(route.resources)}
+                          />
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {formatNumber(route.merchantAmount)}
+                      </TableCell>
+                      <TableCell>{formatTime(route.interval)}</TableCell>
+                      <TableCell>
+                        <Countdown endsAt={route.resolvesAt} />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onEdit(route)}
+                          >
+                            {t('Edit')}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isPending}
+                            onClick={() => deleteTradeRoute(route.id)}
+                          >
+                            {t('Cancel')}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        </div>
-      ))}
+        ),
+      )}
     </div>
   );
 };
