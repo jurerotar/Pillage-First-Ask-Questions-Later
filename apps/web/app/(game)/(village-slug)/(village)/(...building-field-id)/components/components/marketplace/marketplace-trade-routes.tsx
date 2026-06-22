@@ -105,7 +105,6 @@ const MarketplaceTradeRouteForm = ({
   capacityResources,
   form,
   isSubmitting,
-  marketplaceLevel,
   merchant,
   onCancel,
   onSubmit,
@@ -147,12 +146,6 @@ const MarketplaceTradeRouteForm = ({
           }
         })}
       >
-        <Text className="font-medium">
-          {t('Merchant capacity')}: {formatNumber(totalCapacity)} (
-          {formatNumber(marketplaceLevel)} x{' '}
-          {formatNumber(merchant.merchantCapacity)})
-        </Text>
-
         <ResourceSelector
           availableLabel={t('Capacity')}
           availableResources={capacityResources}
