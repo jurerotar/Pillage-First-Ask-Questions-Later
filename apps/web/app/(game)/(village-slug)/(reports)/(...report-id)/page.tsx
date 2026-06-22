@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import type { BaseReport } from '@pillage-first/types/models/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
@@ -11,12 +12,32 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
+import { useReports } from '../../hooks/use-reports';
+import BattleReport from './components/battle-report';
 
 const ReportPage = ({ params }: Route.ComponentProps) => {
   const { reportId, villageSlug, serverSlug } = params;
   const { t } = useTranslation();
 
-  const title = `${t('Report - {{playerSlug}}', { reportId })} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+  const { reports } = useReports();
+  const report = reports.find((r) => r.id.toString() === reportId);
+
+  const renderReport = (report: BaseReport) => {
+    switch (report.type) {
+      case 'battle':
+        return <BattleReport report={report} />;
+      default:
+        return (
+          <Alert variant="warning">
+            {t('Unsupported report type: {{reportType}}', {
+              reportType: report.type,
+            })}
+          </Alert>
+        );
+    }
+  };
+
+  const title = `${t('Report - {{reportId}}', { reportId })}  | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
     <PageContents>
@@ -42,10 +63,8 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
       >
         <Text>{t('Review the selected in-game report.')}</Text>
       </InformationPopover>
-      <Text as="h1">{t('Player')}</Text>
-      <Alert variant="warning">
-        {t('This page is still under development')}
-      </Alert>
+      {!report && <Text as="h1">Report not found</Text>}
+      {report && renderReport(report)}
     </PageContents>
   );
 };

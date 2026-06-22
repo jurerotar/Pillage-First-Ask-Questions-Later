@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { ReportFilters } from 'app/(game)/(village-slug)/(reports)/components/components/report-filters';
 import { useReportFilters } from 'app/(game)/(village-slug)/(reports)/hooks/use-report-filters';
 import {
@@ -48,40 +49,42 @@ export const Reports = () => {
         onChange={onReportFiltersChange}
       />
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHeaderCell>{t('Id')}</TableHeaderCell>
-            <TableHeaderCell>{t('Type')}</TableHeaderCell>
-            <TableHeaderCell>{t('Subject')}</TableHeaderCell>
-            <TableHeaderCell>{t('Date')}</TableHeaderCell>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {pagination.currentPageItems.map((report) => (
-            <TableRow key={report.id}>
-              <TableCell>
-                <span className="inline-flex justify-center">{report.id}</span>
-              </TableCell>
-              <TableCell>{report.type}</TableCell>
-              <TableCell />
-              <TableCell>
-                {new Date(report.timestamp * 1000).toLocaleString()}
-              </TableCell>
-            </TableRow>
-          ))}
-          {reports.length === 0 && (
+      <div className="overflow-x-scroll scrollbar-hidden">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell
-                colSpan="3"
-                className="text-center py-8"
-              >
-                {t('No reports found yet.')}
-              </TableCell>
+              <TableHeaderCell>{t('Type')}</TableHeaderCell>
+              <TableHeaderCell>{t('Subject')}</TableHeaderCell>
+              <TableHeaderCell>{t('Date')}</TableHeaderCell>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {pagination.currentPageItems.map((report) => (
+              <TableRow key={report.id}>
+                <TableCell>{report.type}</TableCell>
+                <TableCell>
+                  <Link to={`../reports/${report.id}`}>
+                    <Text variant="link">{report.subject}</Text>
+                  </Link>
+                </TableCell>
+                <TableCell>
+                  {new Date(report.timestamp).toLocaleString()}
+                </TableCell>
+              </TableRow>
+            ))}
+            {reports.length === 0 && (
+              <TableRow>
+                <TableCell
+                  colSpan={3}
+                  className="text-center py-8"
+                >
+                  {t('No reports found yet.')}
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
       <div className="flex w-full justify-end">
         <Pagination
           {...pagination}

@@ -22,7 +22,6 @@ export const getBattleParticipantsByReportRowSchema = z
 
 export const getBattleByReportRowSchema = z
   .strictObject({
-    report_id: z.int(),
     attacking_player_name: z.string(),
     attacking_player_slug: z.string(),
     defending_player_name: z.string(),

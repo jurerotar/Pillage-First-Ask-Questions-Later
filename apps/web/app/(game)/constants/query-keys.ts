@@ -8,6 +8,7 @@ export const preferencesCacheKey = 'preferences';
 export const questsCacheKey = 'quests';
 export const collectableQuestCountCacheKey = 'collectable-quests';
 export const reportsCacheKey = 'reports';
+export const battleCacheKey = 'battle';
 export const reputationsCacheKey = 'reputations';
 export const unitImprovementCacheKey = 'unit-improvement';
 export const unitResearchCacheKey = 'unit-research';

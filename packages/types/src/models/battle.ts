@@ -15,14 +15,12 @@ export const battleStatisticsSchema = z.strictObject({
 export const battleUnitSchema = z.strictObject({
   battleParticipantId: z.int(),
   unitId: unitIdSchema,
-  reportId: z.int(),
   amountBefore: z.int(),
   amountAfter: z.int(),
 });
 
 export const battleParticipantSchema = z.strictObject({
   id: z.int(),
-  reportId: z.number(),
   role: z.enum(['attacker', 'defender']),
   tribe: tribeSchema,
   isReinforcement: z.boolean(),
@@ -30,7 +28,6 @@ export const battleParticipantSchema = z.strictObject({
 });
 
 export const battleTypeSchema = z.strictObject({
-  reportId: z.int(),
   attackingPlayerName: z.string(),
   attackingPlayerSlug: z.string(),
   defendingPlayerName: z.string(),

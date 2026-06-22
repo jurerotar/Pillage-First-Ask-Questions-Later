@@ -20,7 +20,6 @@ export const battleParticipantDtoSchema = z.strictObject({
 });
 
 export const battleDtoSchema = z.strictObject({
-  reportId: z.int(),
   attackingPlayerName: z.string(),
   attackingPlayerSlug: z.string(),
   defendingPlayerName: z.string(),

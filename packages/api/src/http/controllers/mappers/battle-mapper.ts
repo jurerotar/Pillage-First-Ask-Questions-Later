@@ -76,7 +76,6 @@ export const mapBattle = (
   };
 
   const dto = {
-    reportId: row.report_id,
     attackingPlayerName: row.attacking_player_name,
     attackingPlayerSlug: row.attacking_player_slug,
     defendingPlayerName: row.defending_player_name,
