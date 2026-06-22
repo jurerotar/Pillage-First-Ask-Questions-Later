@@ -1,3 +1,10 @@
+## Version 0.4.35
+
+#### Jun 22, 2026
+
+* [Feature] Added **Trade routes** functionality. You may now schedule periodic resource transfers between your
+  villages. You may schedule as many trade routes as you wish. Trade routes persist through demolishing the Marketplace.
+
 ## Version 0.4.34
 
 #### Jun 19, 2026
