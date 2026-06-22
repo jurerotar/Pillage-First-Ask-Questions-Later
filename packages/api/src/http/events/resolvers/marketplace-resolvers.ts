@@ -50,3 +50,50 @@ export const resourceTransferResolver: Resolver<
     affectedVillageIds: [villageId, targetVillageId],
   };
 };
+
+export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
+  database,
+  event,
+) => {
+  const {
+    villageId,
+    targetVillageId,
+    originTileId,
+    targetTileId,
+    resources,
+    merchantAmount,
+    resolvesAt,
+    interval,
+  } = event;
+
+  try {
+    createEvents<'resourceTransfer'>(database, {
+      type: 'resourceTransfer',
+      villageId,
+      targetVillageId,
+      originTileId,
+      targetTileId,
+      resources,
+      merchantAmount,
+      startsAt: resolvesAt,
+    });
+  } catch {
+    // A route miss is expected when resources or free merchants are unavailable.
+  }
+
+  createEvents<'tradeRoute'>(database, {
+    type: 'tradeRoute',
+    villageId,
+    targetVillageId,
+    originTileId,
+    targetTileId,
+    resources,
+    merchantAmount,
+    interval,
+    startsAt: resolvesAt + interval,
+  });
+
+  return {
+    affectedVillageIds: [villageId, targetVillageId],
+  };
+};

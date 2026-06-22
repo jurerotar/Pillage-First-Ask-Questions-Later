@@ -18,6 +18,7 @@ import {
 import type { MarketplaceSendResourcesFormValues } from '../utils/schema';
 
 type ResourceSelectorProps = {
+  availableLabel?: string;
   availableResources: ResourcesType;
   merchantCapacity: number;
   selectedResources: ResourcesType;
@@ -25,6 +26,7 @@ type ResourceSelectorProps = {
 };
 
 export const ResourceSelector = ({
+  availableLabel,
   availableResources,
   merchantCapacity,
   selectedResources,
@@ -32,6 +34,7 @@ export const ResourceSelector = ({
 }: ResourceSelectorProps) => {
   const { t } = useTranslation();
   const form = useFormContext<MarketplaceSendResourcesFormValues>();
+  const resolvedAvailableLabel = availableLabel ?? t('Available');
 
   const setResourceAmount = (resource: Resource, value: number) => {
     form.setValue(`resources.${resource}`, value);
@@ -126,7 +129,8 @@ export const ResourceSelector = ({
                   </Button>
                 </div>
                 <Text className="text-xs text-muted-foreground">
-                  {t('Available')}: {formatNumber(availableResources[resource])}
+                  {resolvedAvailableLabel}:{' '}
+                  {formatNumber(availableResources[resource])}
                 </Text>
               </FormItem>
             )}

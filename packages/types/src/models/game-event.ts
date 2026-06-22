@@ -79,6 +79,10 @@ type BaseMerchantMovementEvent = {
   merchantAmount: number;
 };
 
+type TradeRouteEvent = BaseMerchantMovementEvent & {
+  interval: number;
+};
+
 export type TroopMovementEventType = Extract<
   GameEventType,
   | 'troopMovementReinforcements'
@@ -120,6 +124,7 @@ export const gameEventTypeSchema = z.enum([
   'heroHealthRegeneration',
   'loyaltyIncrease',
   'resourceTransfer',
+  'tradeRoute',
 ]);
 
 export type GameEventType = z.infer<typeof gameEventTypeSchema>;
@@ -148,6 +153,7 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   heroHealthRegeneration: GlobalGameEvent;
   loyaltyIncrease: GlobalGameEvent;
   resourceTransfer: BaseMerchantMovementEvent & VillageGameEvent;
+  tradeRoute: TradeRouteEvent & VillageGameEvent;
 }[T];
 
 export type TroopMovementEvent =
