@@ -1,7 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { calculateGatherersHutPartySize } from '@pillage-first/game-assets/utils/gatherers-hut';
+import {
+  calculateGatherersHutPartySize,
+  GATHERERS_HUT_RESOURCES_PER_UNIT,
+} from '@pillage-first/game-assets/utils/gatherers-hut';
 import { createGameEventMock } from '@pillage-first/mocks/event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createEvents } from '../create-event';
@@ -90,16 +93,24 @@ const setIdleTroops = (
 };
 
 describe('gatherers hut events', () => {
-  test('party size increases non-linearly from 5 to 500', () => {
-    expect(calculateGatherersHutPartySize(1)).toBe(5);
-    expect(calculateGatherersHutPartySize(20)).toBe(500);
+  test('party size follows the gatherers hut growth curve', () => {
+    expect(GATHERERS_HUT_RESOURCES_PER_UNIT).toBe(4);
 
-    const earlyIncrease =
-      calculateGatherersHutPartySize(2) - calculateGatherersHutPartySize(1);
-    const lateIncrease =
-      calculateGatherersHutPartySize(20) - calculateGatherersHutPartySize(19);
+    const targetPartySizes = [
+      14, 17, 19, 23, 27, 32, 38, 46, 55, 67, 81, 98, 120, 147, 180, 220, 271,
+      334, 412, 508,
+    ];
+    const generatedPartySizes = Array.from({ length: 20 }, (_, index) =>
+      calculateGatherersHutPartySize(index + 1),
+    );
 
-    expect(lateIncrease).toBeGreaterThan(earlyIncrease);
+    expect(generatedPartySizes[0]).toBe(targetPartySizes[0]);
+    expect(generatedPartySizes.at(-1)).toBe(targetPartySizes.at(-1));
+    expect(
+      generatedPartySizes.every((partySize, index) => {
+        return Math.abs(partySize - targetPartySizes[index]) <= 1;
+      }),
+    ).toBe(true);
   });
 
   test("gatherersHutGatheringTrip - should throw if Gatherer's Hut does not exist", async () => {
@@ -131,7 +142,7 @@ describe('gatherers hut events', () => {
     const villageTileId = getVillageTileId(database, villageId);
 
     setGatherersHutLevel(database, villageId, 1);
-    setIdleTroops(database, 'PHALANX', 6, villageTileId);
+    setIdleTroops(database, 'PHALANX', 15, villageTileId);
 
     expect(() =>
       validateEventCreationPrerequisites(
@@ -141,7 +152,7 @@ describe('gatherers hut events', () => {
           troops: [
             {
               unitId: 'PHALANX',
-              amount: 6,
+              amount: 15,
               tileId: villageTileId,
               source: villageTileId,
             },
