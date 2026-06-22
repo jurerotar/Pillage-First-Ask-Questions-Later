@@ -174,10 +174,10 @@ describe('gatherers hut resolvers', () => {
 
     expect(troopsAfterReturn).toBe(10);
     expect(resources).toStrictEqual({
-      wood: 113,
-      clay: 113,
-      iron: 112,
-      wheat: 112,
+      wood: 105,
+      clay: 105,
+      iron: 105,
+      wheat: 105,
     });
 
     const completedGatheringTripCount = database.selectValue({
