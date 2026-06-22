@@ -47,6 +47,7 @@ import {
 } from 'app/(game)/(village-slug)/components/developer-tools-console';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { TroopList } from 'app/(game)/(village-slug)/components/troop-list';
 import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movements';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -533,10 +534,14 @@ const VillageSelect = () => {
   const { getNewVillageUrl } = useGameNavigation();
   const { playerVillages } = usePlayerVillageListing();
   const { currentVillage } = useCurrentVillage();
+  const { x: currentVillageX, y: currentVillageY } = currentVillage.coordinates;
+  const currentVillageLabel = `${currentVillage.name} (${currentVillageX}|${currentVillageY})`;
 
   return (
     <Select
-      onValueChange={(value) => navigate(getNewVillageUrl(value))}
+      onValueChange={(value) => {
+        void navigate(getNewVillageUrl(value));
+      }}
       value={currentVillage.slug}
     >
       <SelectTrigger
@@ -544,24 +549,35 @@ const VillageSelect = () => {
         aria-label={t('Village select')}
         className="flex flex-1"
       >
-        <SelectValue />
+        <SelectValue>{currentVillageLabel}</SelectValue>
       </SelectTrigger>
       <SelectContent>
         {playerVillages.map(
           ({ slug, name, id, coordinates, resourceFieldComposition }) => {
             const { x, y } = coordinates;
             const formattedId = `${x}|${y}`;
-            const parsedRFC = parseResourcesFromRFC(
-              resourceFieldComposition,
-            ).join('-');
+            const resources = parseResourcesFromRFC(resourceFieldComposition);
+            const textValue = `${name} (${formattedId}) | ${resources.join('-')}`;
 
             return (
               <SelectItem
                 key={id}
+                textValue={textValue}
                 value={slug}
               >
-                <Text className="text-xs sm:text-sm">
-                  {name} ({formattedId}) | {parsedRFC}
+                <Text
+                  as="span"
+                  className="flex min-w-0 flex-col gap-0.5 text-xs sm:text-sm"
+                >
+                  <span className="truncate font-medium">
+                    {name} ({formattedId})
+                  </span>
+                  <span className="inline-flex gap-2 text-muted-foreground">
+                    <Resources
+                      iconClassName="size-3.5"
+                      resources={resources}
+                    />
+                  </span>
                 </Text>
               </SelectItem>
             );
