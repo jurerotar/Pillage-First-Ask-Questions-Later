@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { calculateCulturePointsDifference } from '@pillage-first/game-assets/utils/buildings';
 import {
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
@@ -14,6 +16,41 @@ import {
 } from '../building-resolvers';
 
 describe('building resolvers', () => {
+  const resetCulturePointsProduction = (
+    database: Awaited<ReturnType<typeof prepareTestDatabase>>,
+  ) => {
+    database.exec({
+      sql: `
+        UPDATE players
+        SET
+          culture_points_production = 0
+        WHERE
+          id = $player_id;
+      `,
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+    });
+  };
+
+  const getCulturePointsProduction = (
+    database: Awaited<ReturnType<typeof prepareTestDatabase>>,
+  ) => {
+    return database.selectValue({
+      sql: `
+        SELECT culture_points_production
+        FROM
+          players
+        WHERE
+          id = $player_id;
+      `,
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+      schema: z.number(),
+    });
+  };
+
   describe(buildingConstructionResolver, () => {
     test('should construct a building', async () => {
       const database = await prepareTestDatabase();
@@ -252,6 +289,105 @@ describe('building resolvers', () => {
       expect(effectValue2).toBeCloseTo(0.9091, 4);
     });
 
+    test('should update shared culture points production', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = 1;
+      const buildingFieldId = 38;
+      const buildingId: Building['id'] = 'MAIN_BUILDING';
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 1
+          WHERE village_id = $village_id
+            AND field_id = $field_id;
+        `,
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
+      });
+      resetCulturePointsProduction(database);
+
+      buildingLevelChangeResolver(
+        database,
+        createBuildingLevelChangeEventMock({
+          id: 12,
+          startsAt: 3000,
+          duration: 500,
+          villageId,
+          buildingFieldId,
+          buildingId,
+          level: 2,
+          previousLevel: 1,
+        }),
+      );
+
+      expect(getCulturePointsProduction(database)).toBe(
+        calculateCulturePointsDifference(buildingId, 1, 2),
+      );
+    });
+
+    test('should accumulate culture points before updating production', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = 1;
+      const buildingFieldId = 38;
+      const buildingId: Building['id'] = 'MAIN_BUILDING';
+      const startsAt = 1000;
+      const resolvesAt = startsAt + 86_400_000;
+
+      database.exec({
+        sql: `
+          UPDATE building_fields
+          SET level = 1
+          WHERE village_id = $village_id
+            AND field_id = $field_id;
+        `,
+        bind: { $village_id: villageId, $field_id: buildingFieldId },
+      });
+
+      database.exec({
+        sql: `
+          UPDATE players
+          SET
+            culture_points = 10,
+            culture_points_production = 24,
+            culture_points_updated_at = $starts_at
+          WHERE
+            id = $player_id;
+        `,
+        bind: { $player_id: PLAYER_ID, $starts_at: startsAt },
+      });
+
+      buildingLevelChangeResolver(
+        database,
+        createBuildingLevelChangeEventMock({
+          id: 14,
+          startsAt,
+          duration: resolvesAt - startsAt,
+          resolvesAt,
+          villageId,
+          buildingFieldId,
+          buildingId,
+          level: 2,
+          previousLevel: 1,
+        }),
+      );
+
+      const player = database.selectObject({
+        sql: `
+          SELECT culture_points, culture_points_updated_at
+          FROM players
+          WHERE id = $player_id;
+        `,
+        bind: { $player_id: PLAYER_ID },
+        schema: z.strictObject({
+          culture_points: z.number(),
+          culture_points_updated_at: z.number(),
+        }),
+      })!;
+
+      expect(player.culture_points).toBe(34);
+      expect(player.culture_points_updated_at).toBe(resolvesAt);
+    });
+
     test('should downgrade building level', async () => {
       const database = await prepareTestDatabase();
       const villageId = 1;
@@ -435,6 +571,53 @@ describe('building resolvers', () => {
       })!;
 
       expect(populationEffect.value).toBe(12);
+    });
+
+    test('should reduce shared culture points production on demolition', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = 1;
+      const buildingFieldId = 19;
+      const buildingId: Building['id'] = 'BARRACKS';
+      const previousLevel = 5;
+
+      database.exec({
+        sql: `
+          INSERT INTO
+            building_fields (village_id, field_id, building_id, level)
+          VALUES
+            ($village_id, $field_id, (
+              SELECT id
+              FROM
+                building_ids
+              WHERE
+                building = $buildingId
+              ), $level);
+        `,
+        bind: {
+          $village_id: villageId,
+          $field_id: buildingFieldId,
+          $buildingId: buildingId,
+          $level: previousLevel,
+        },
+      });
+      resetCulturePointsProduction(database);
+
+      buildingDestructionResolver(
+        database,
+        createBuildingDestructionEventMock({
+          id: 13,
+          startsAt: 4000,
+          duration: 500,
+          villageId,
+          buildingFieldId,
+          buildingId,
+          previousLevel,
+        }),
+      );
+
+      expect(getCulturePointsProduction(database)).toBe(
+        calculateCulturePointsDifference(buildingId, previousLevel, 0),
+      );
     });
 
     test('should reset a non-destroyable building to level 0', async () => {

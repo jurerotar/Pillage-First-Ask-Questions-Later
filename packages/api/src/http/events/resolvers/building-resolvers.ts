@@ -1,4 +1,6 @@
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  calculateCulturePointsDifference,
   calculatePopulationDifference,
   getBuildingDataForLevel,
   getBuildingDefinition,
@@ -10,7 +12,9 @@ import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../../queries/effect-queries';
+import { updatePlayerCulturePointsProductionQuery } from '../../../queries/player-queries';
 import { createEvents } from '../../../utils/create-event';
+import { updatePlayerCulturePointsAt } from '../../../utils/culture-points';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
 import {
   demolishBuilding,
@@ -66,6 +70,24 @@ export const buildingLevelChangeResolver: Resolver<
     });
   }
 
+  const culturePointsDifference = calculateCulturePointsDifference(
+    buildingId,
+    previousLevel,
+    level,
+  );
+
+  if (culturePointsDifference !== 0) {
+    updatePlayerCulturePointsAt(database, resolvesAt);
+
+    database.exec({
+      sql: updatePlayerCulturePointsProductionQuery,
+      bind: {
+        $player_id: PLAYER_ID,
+        $value: culturePointsDifference,
+      },
+    });
+  }
+
   // Update effects
   const { effects } = getBuildingDefinition(buildingId);
 
@@ -111,6 +133,7 @@ export const buildingConstructionResolver: Resolver<
     level,
     previousLevel,
     startsAt,
+    resolvesAt,
   } = args;
 
   // Create building field
@@ -147,7 +170,7 @@ export const buildingConstructionResolver: Resolver<
   }
 
   // Update population effect
-  const { population } = getBuildingDataForLevel(buildingId, 0);
+  const { culturePoints, population } = getBuildingDataForLevel(buildingId, 0);
 
   database.exec({
     sql: updatePopulationEffectQuery,
@@ -156,6 +179,18 @@ export const buildingConstructionResolver: Resolver<
       $value: population,
     },
   });
+
+  if (culturePoints !== 0) {
+    updatePlayerCulturePointsAt(database, resolvesAt);
+
+    database.exec({
+      sql: updatePlayerCulturePointsProductionQuery,
+      bind: {
+        $player_id: PLAYER_ID,
+        $value: culturePoints,
+      },
+    });
+  }
 
   createEvents<'buildingLevelChange'>(database, {
     villageId,
@@ -175,7 +210,8 @@ export const buildingConstructionResolver: Resolver<
 export const buildingDestructionResolver: Resolver<
   GameEvent<'buildingDestruction'>
 > = (database, args) => {
-  const { buildingFieldId, villageId, buildingId, previousLevel } = args;
+  const { buildingFieldId, villageId, buildingId, previousLevel, resolvesAt } =
+    args;
 
   // Remove building field
   demolishBuilding(database, villageId, buildingFieldId);
@@ -220,11 +256,27 @@ export const buildingDestructionResolver: Resolver<
   }
 
   // Reduce population
-  const { population } = getBuildingDataForLevel(buildingId, previousLevel);
-  const { population: level0Population } = getBuildingDataForLevel(
+  const { culturePoints, population } = getBuildingDataForLevel(
     buildingId,
-    0,
+    previousLevel,
   );
+  const { culturePoints: level0CulturePoints, population: level0Population } =
+    getBuildingDataForLevel(buildingId, 0);
+
+  const culturePointsDifference =
+    -culturePoints + (isNonDestroyable ? level0CulturePoints : 0);
+
+  if (culturePointsDifference !== 0) {
+    updatePlayerCulturePointsAt(database, resolvesAt);
+
+    database.exec({
+      sql: updatePlayerCulturePointsProductionQuery,
+      bind: {
+        $player_id: PLAYER_ID,
+        $value: culturePointsDifference,
+      },
+    });
+  }
 
   database.exec({
     sql: updatePopulationEffectQuery,

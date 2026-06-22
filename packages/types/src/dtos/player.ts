@@ -1,7 +1,14 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
+import { playerSchema } from '../models/player';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
 import { unitIdSchema } from '../models/unit';
+
+export const currentPlayerDtoSchema = playerSchema.extend({
+  culturePoints: z.number(),
+  culturePointsProduction: z.number(),
+  culturePointsUpdatedAt: z.number(),
+});
 
 export const playerVillageDtoSchema = z.strictObject({
   id: z.number(),

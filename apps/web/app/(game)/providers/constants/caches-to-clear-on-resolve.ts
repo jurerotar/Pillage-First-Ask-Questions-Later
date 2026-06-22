@@ -11,6 +11,7 @@ import {
   heroCacheKey,
   heroInventoryCacheKey,
   loyaltyCacheKey,
+  playersCacheKey,
   questsCacheKey,
   sentReinforcementsCacheKey,
   tilesCacheKey,
@@ -42,6 +43,7 @@ export const cachesToClearOnResolve: Handlers = {
   buildingConstruction: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [playersCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [eventsCacheKey, 'buildingConstruction', villageId],
         [eventsCacheKey, 'buildingLevelChange', villageId],
@@ -51,6 +53,7 @@ export const cachesToClearOnResolve: Handlers = {
   buildingLevelChange: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [playersCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [questsCacheKey, villageId],
@@ -63,6 +66,7 @@ export const cachesToClearOnResolve: Handlers = {
   buildingDestruction: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [playersCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [eventsHistoryCacheKey, villageId],

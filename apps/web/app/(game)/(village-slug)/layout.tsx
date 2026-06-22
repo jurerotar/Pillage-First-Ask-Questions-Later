@@ -150,7 +150,11 @@ const NavigationSideItem = ({
 };
 
 const DesktopPopulation = () => {
-  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+  const {
+    accumulatedCulturePoints,
+    culturePointsProduction,
+    computedWheatProductionEffect,
+  } = use(CurrentVillageStateContext);
 
   const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
@@ -172,6 +176,18 @@ const DesktopPopulation = () => {
         />
         <span className="text-foreground text-sm">
           {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
+        </span>
+      </div>
+      <div className="flex gap-2 justify-center items-center rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1">
+        <Icon
+          type="culturePoints"
+          className="min-w-4"
+        />
+        <span className="text-foreground text-sm">
+          {formatNumber(accumulatedCulturePoints)}
+        </span>
+        <span className="text-muted-foreground text-xs">
+          +{formatNumber(culturePointsProduction)}/d
         </span>
       </div>
     </div>
@@ -228,7 +244,9 @@ const EventLogDesktopItem = () => {
 
 const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
-  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+  const { accumulatedCulturePoints, computedWheatProductionEffect } = use(
+    CurrentVillageStateContext,
+  );
 
   const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
@@ -258,6 +276,15 @@ const VillageOverviewMobileItem = () => {
         />
         <span className="text-foreground text-2xs">
           {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
+        </span>
+      </span>
+      <span className="inline-flex items-center justify-between bg-background dark:bg-muted px-0.5 absolute -bottom-1 -right-3 h-4 w-9 rounded-full border border-[#f1f1f1] dark:border-border shadow-md">
+        <Icon
+          type="culturePoints"
+          className="size-3"
+        />
+        <span className="text-foreground text-2xs">
+          {formatNumber(accumulatedCulturePoints)}
         </span>
       </span>
     </Link>

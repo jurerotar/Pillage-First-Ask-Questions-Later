@@ -3,6 +3,9 @@ export const selectPlayerByIdQuery = `
     p.id,
     p.name,
     p.slug,
+    p.culture_points AS culturePoints,
+    p.culture_points_production AS culturePointsProduction,
+    p.culture_points_updated_at AS culturePointsUpdatedAt,
     ti.tribe,
     fi.faction AS faction
   FROM
@@ -79,6 +82,25 @@ export const updateVillageNameQuery = `
     name = $name
   WHERE
     id = $village_id;
+`;
+
+export const updatePlayerCulturePointsProductionQuery = `
+  UPDATE players
+  SET
+    culture_points_production = culture_points_production + $value
+  WHERE
+    id = $player_id;
+`;
+
+export const updatePlayerCulturePointsAtQuery = `
+  UPDATE players
+  SET
+    culture_points = culture_points + (
+      culture_points_production * MAX(0, $timestamp - culture_points_updated_at) / 86400000.0
+    ),
+    culture_points_updated_at = MAX(culture_points_updated_at, $timestamp)
+  WHERE
+    id = $player_id;
 `;
 
 export const selectPlayerBySlugQuery = `

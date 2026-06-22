@@ -202,7 +202,6 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   }
 
   const wheatProductionEffectId = effectIds.get('wheatProduction')!;
-
   database.exec({
     sql: `
       INSERT INTO
@@ -245,6 +244,32 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
     `,
     bind: {
       $wheat_production_effect_id: wheatProductionEffectId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      UPDATE players
+      SET
+        culture_points_production = (
+          SELECT COALESCE(SUM(bd.culture_points), 0)
+          FROM
+            building_fields bf
+              JOIN building_ids bi ON bi.id = bf.building_id
+              JOIN building_data bd ON bd.building_id = bi.building AND bd.level = bf.level
+          WHERE
+            bd.culture_points IS NOT NULL
+            AND bf.village_id IN (
+              SELECT id
+              FROM villages
+              WHERE player_id = players.id
+            )
+        )
+      WHERE
+        id = $player_id;
+    `,
+    bind: {
+      $player_id: PLAYER_ID,
     },
   });
 

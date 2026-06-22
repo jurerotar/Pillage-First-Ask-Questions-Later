@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import {
+  currentPlayerDtoSchema,
   playerVillageDtoSchema,
   playerVillageWithPopulationDtoSchema,
   sentReinforcementDtoSchema,
@@ -54,12 +55,12 @@ const isAnimalTroop = ({ unitId }: ReinforcementTroopSelection) => {
 
 export const getMe = createController('/players/me', {
   summary: 'Get current player details',
-  response: playerSchema,
+  response: currentPlayerDtoSchema,
 })(({ database }) => {
   return database.selectObject({
     sql: selectPlayerByIdQuery,
     bind: { $player_id: PLAYER_ID },
-    schema: playerSchema,
+    schema: currentPlayerDtoSchema,
   })!;
 });
 

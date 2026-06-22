@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { buildings } from '@pillage-first/game-assets/buildings';
-import { calculateTotalPopulationForLevel } from '@pillage-first/game-assets/utils/buildings';
+import {
+  calculateTotalCulturePointsForLevel,
+  calculateTotalPopulationForLevel,
+} from '@pillage-first/game-assets/utils/buildings';
 import {
   type Effect,
   effectIdSchema,
@@ -30,6 +33,10 @@ export const buildingDataSeeder = (database: DbFacade): void => {
   for (const building of buildings) {
     for (let level = 0; level <= building.maxLevel; level += 1) {
       const population = calculateTotalPopulationForLevel(building.id, level);
+      const culturePoints = calculateTotalCulturePointsForLevel(
+        building.id,
+        level,
+      );
 
       // Add population (negative wheat production)
       buildingDataToInsert.push([
@@ -39,6 +46,7 @@ export const buildingDataSeeder = (database: DbFacade): void => {
         -population,
         'base',
         population,
+        culturePoints,
       ]);
 
       // Add other building effects
@@ -50,6 +58,7 @@ export const buildingDataSeeder = (database: DbFacade): void => {
           valuesPerLevel[level],
           type,
           null,
+          null,
         ]);
       }
     }
@@ -58,7 +67,15 @@ export const buildingDataSeeder = (database: DbFacade): void => {
   batchInsert(
     database,
     'building_data',
-    ['building_id', 'level', 'effect_id', 'value', 'type', 'population'],
+    [
+      'building_id',
+      'level',
+      'effect_id',
+      'value',
+      'type',
+      'population',
+      'culture_points',
+    ],
     buildingDataToInsert,
   );
 };

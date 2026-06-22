@@ -139,6 +139,23 @@ export const calculatePopulationDifference = (
   return nextPopulation - currentPopulation;
 };
 
+export const calculateCulturePointsDifference = (
+  buildingId: Building['id'],
+  currentLevel: number,
+  nextLevel: number,
+): number => {
+  const { culturePoints: currentCulturePoints } = getBuildingDataForLevel(
+    buildingId,
+    currentLevel,
+  );
+  const { culturePoints: nextCulturePoints } = getBuildingDataForLevel(
+    buildingId,
+    nextLevel,
+  );
+
+  return nextCulturePoints - currentCulturePoints;
+};
+
 export const getBuildingFieldByBuildingFieldId = (
   currentVillage: Village,
   buildingFieldId: BuildingField['id'],

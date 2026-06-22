@@ -6,6 +6,7 @@ CREATE TEMPORARY TABLE building_data
   value REAL NOT NULL,
   type TEXT NOT NULL,
   population INTEGER,
+  culture_points INTEGER,
   PRIMARY KEY (building_id, level, effect_id, type, value)
 ) STRICT;
 

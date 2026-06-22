@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  calculateTotalCulturePointsForLevel,
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
@@ -97,6 +99,47 @@ describe('effectsSeeder', () => {
     for (const [villageId, population] of villagePopulations) {
       expect(effectValues.get(villageId)).toBe(-population);
     }
+  });
+
+  test('has player culture_points_production matching player villages', () => {
+    const buildingFields = database.selectObjects({
+      sql: `
+        SELECT bi.building AS building_id, bf.level
+        FROM
+          building_fields bf
+            JOIN villages v ON v.id = bf.village_id
+            JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE
+          v.player_id = $player_id;
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.strictObject({
+        building_id: buildingIdSchema,
+        level: z.number(),
+      }),
+    });
+
+    let expectedCulturePointsProduction = 0;
+    for (const { building_id, level } of buildingFields) {
+      expectedCulturePointsProduction += calculateTotalCulturePointsForLevel(
+        building_id,
+        level,
+      );
+    }
+
+    const culturePointsProduction = database.selectValue({
+      sql: `
+        SELECT culture_points_production
+        FROM
+          players
+        WHERE
+          id = $player_id;
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.number(),
+    })!;
+
+    expect(culturePointsProduction).toBe(expectedCulturePointsProduction);
   });
 
   test('has troops-based wheatProduction matching troop wheat consumption (source_specifier IS NULL)', () => {

@@ -82,9 +82,15 @@ describe('player-controllers', () => {
   test('getMe should return current player details', async () => {
     const database = await prepareTestDatabase();
 
-    getMe(database, createControllerArgs<'/players/me'>({}));
+    const result = getMe(database, createControllerArgs<'/players/me'>({}));
 
-    expect(true).toBe(true);
+    expect(result).toEqual(
+      expect.objectContaining({
+        culturePoints: expect.any(Number),
+        culturePointsProduction: expect.any(Number),
+        culturePointsUpdatedAt: expect.any(Number),
+      }),
+    );
   });
 
   test('getPlayerVillageListing should return village listing for a player', async () => {

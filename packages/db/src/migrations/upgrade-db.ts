@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { calculateTotalCulturePointsForLevel } from '@pillage-first/game-assets/utils/buildings';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
@@ -9,6 +11,121 @@ const queuedTroopCountQuestThresholds = [
   10, 50, 100, 200, 500, 1000, 2000, 5000, 10_000, 20_000, 50_000, 100_000,
   150_000, 200_000, 300_000, 500_000, 750_000, 1_000_000,
 ];
+
+const ensureCulturePointsStorage = (database: DbFacade): void => {
+  try {
+    database.exec({
+      sql: `
+        ALTER TABLE players
+          ADD COLUMN culture_points REAL NOT NULL DEFAULT 0;
+      `,
+    });
+  } catch {
+    // Column already exists on newer databases.
+  }
+
+  try {
+    database.exec({
+      sql: `
+        ALTER TABLE players
+          ADD COLUMN culture_points_updated_at INTEGER NOT NULL DEFAULT 0;
+      `,
+    });
+  } catch {
+    // Column already exists on newer databases.
+  }
+
+  try {
+    database.exec({
+      sql: `
+        ALTER TABLE players
+          ADD COLUMN culture_points_production REAL NOT NULL DEFAULT 0;
+      `,
+    });
+  } catch {
+    // Column already exists on newer databases.
+  }
+
+  const serverCreatedAt =
+    database.selectValue({
+      sql: 'SELECT created_at FROM servers LIMIT 1;',
+      schema: z.number(),
+    }) ?? Date.now();
+
+  database.exec({
+    sql: `
+      UPDATE players
+      SET
+        culture_points_updated_at = $server_created_at
+      WHERE
+        culture_points_updated_at = 0;
+    `,
+    bind: {
+      $server_created_at: serverCreatedAt,
+    },
+  });
+};
+
+const ensureCulturePointsProduction = (database: DbFacade): void => {
+  const buildingFields = database.selectObjects({
+    sql: `
+      SELECT bi.building AS building_id, bf.level
+      FROM
+        building_fields bf
+          JOIN villages v ON v.id = bf.village_id
+          JOIN building_ids bi ON bi.id = bf.building_id
+      WHERE
+        v.player_id = $player_id;
+    `,
+    bind: {
+      $player_id: PLAYER_ID,
+    },
+    schema: z.strictObject({
+      building_id: buildingIdSchema,
+      level: z.number(),
+    }),
+  });
+
+  let culturePointsProduction = 0;
+  for (const { building_id, level } of buildingFields) {
+    culturePointsProduction += calculateTotalCulturePointsForLevel(
+      building_id,
+      level,
+    );
+  }
+
+  database.exec({
+    sql: `
+      UPDATE players
+      SET
+        culture_points_production = $value
+      WHERE
+        id = $player_id;
+    `,
+    bind: {
+      $player_id: PLAYER_ID,
+      $value: culturePointsProduction,
+    },
+  });
+
+  database.exec({
+    sql: `
+      DELETE FROM effects
+      WHERE effect_id IN (
+        SELECT id
+        FROM effect_ids
+        WHERE effect = 'culturePointsProduction'
+      );
+    `,
+  });
+
+  database.exec({
+    sql: `
+      DELETE FROM effect_ids
+      WHERE effect = 'culturePointsProduction';
+    `,
+  });
+};
 
 // This function should only contain db upgrades between app's minor version bumps. At that point, these DB changes
 // should already be part of the new schema, so contents of this function should be deleted
@@ -484,6 +601,9 @@ export const upgradeDb = (database: DbFacade): void => {
       `,
     });
   });
+
+  ensureCulturePointsStorage(database);
+  ensureCulturePointsProduction(database);
 
   // If all migrations passed, bump it to current version
   database.exec({
