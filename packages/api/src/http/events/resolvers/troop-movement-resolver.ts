@@ -1,10 +1,5 @@
 import { z } from 'zod';
 import { buildingMap } from '@pillage-first/game-assets/buildings';
-import {
-  type CombatTroop,
-  type DefenseModifiers,
-  resolveCombat,
-} from '@pillage-first/game-assets/combat/combat-engine';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
@@ -15,20 +10,16 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
-
 import {
   insertEffectByEffectNameQuery,
   insertEffectQuery,
   selectWheatProductionEffectIdQuery,
-  updateHeroEffectsVillageIdQuery,
   updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
 } from '../../../queries/effect-queries';
 import {
   selectPlayerVillageIdByTileIdQuery,
   selectVillageIdAndTileIdQuery,
-  selectVillageIdByTileIdQuery,
 } from '../../../queries/village-queries';
-import type { Troop } from '@pillage-first/types/models/troop';
 import { createEvents } from '../../../utils/create-event';
 import {
   createHeroHealthRegenerationEventByVillageId,
@@ -37,17 +28,13 @@ import {
 } from '../../../utils/hero';
 import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
 import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
-import { addTroops, removeTroops } from '../../../utils/troops';
+import { addTroops } from '../../../utils/troops';
 import {
   addVillageResourcesAt,
-  calculateVillageResourcesAt,
-  subtractVillageResourcesAt,
   updateVillageResourcesAt,
 } from '../../../utils/village';
-import { mapVillageTroop } from '../../controllers/mappers/player-mapper';
-import { getStationedTroopsByTileSchema, getTroopsByVillageSchema } from '../../controllers/schemas/player-schemas';
 import type { Resolver } from '../resolver';
-import { selectStationedTroopsByTileQuery } from '../../../queries/player-queries';
+import { resolveBattle } from './battle-resolver';
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
@@ -126,6 +113,7 @@ export const adventureMovementResolver: Resolver<
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementAdventure',
     troops,
+    loot: [0, 0, 0, 0],
   });
 
   return {
@@ -390,10 +378,11 @@ export const findNewVillageMovementResolver: Resolver<
 export const returnMovementResolver: Resolver<
   GameEvent<'troopMovementReturn'>
 > = (database, args) => {
-
   const { villageId, targetTileId, troops, resolvesAt, loot } = args;
 
-  addVillageResourcesAt(database, villageId, resolvesAt, loot);
+  if (loot.some((r) => r > 0)) {
+    addVillageResourcesAt(database, villageId, resolvesAt, loot);
+  }
 
   addTroops(
     database,
@@ -516,131 +505,15 @@ export const attackMovementResolver: Resolver<
 > = (database, args) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
-  const targetVillageId = database.selectValue({
-    sql: selectVillageIdByTileIdQuery,
-    bind: { $tile_id: targetTileId },
-    schema: z.number(),
+  return resolveBattle({
+    database,
+    originVillageId: villageId,
+    resolvesAt,
+    originTileId,
+    targetTileId,
+    troops,
+    isRaid: false,
   });
-
-  if (!targetVillageId){
-    // TODO: Handle destroyed city (targetVillageId == null)
-    // Maybe add a custom report or something
-
-    // TODO: Return troops
-
-    return { affectedVillageIds: [
-      villageId
-    ]};
-  }
-
-  const attackerCombatTroops: CombatTroop[] = troops.map((t) => ({
-    troop: t,
-    unitId: t.unitId,
-    amount: t.amount,
-    // TODO: Retrieve correct value
-    smithyLevel: 0,
-  }));
-
-
-  const defenderTroops = database
-    .selectObjects({
-      sql: selectStationedTroopsByTileQuery,
-      bind: { $tile_id: targetTileId },
-      schema: getStationedTroopsByTileSchema,
-    })
-    .map(mapVillageTroop);
-  const defenderCombatTroops: CombatTroop[] = defenderTroops.map((t) => ({
-    troop: t,
-    unitId: t.unitId,
-    amount: t.amount,
-    // TODO: Retrieve correct value
-    smithyLevel: 0,
-  }));
-
-  // Defence modifiers
-  // TODO: Retrieve correct values
-  const modifiers: DefenseModifiers = {
-    palaceLevel: 0,
-    wallDurability: 10,
-    wallLevel: 0,
-    wallType: 'ROMAN_WALL',
-  };
-
-  // Defender resources
-  const calculatedDefenderResources = calculateVillageResourcesAt(
-    database,
-    targetVillageId,
-    Date.now(),
-  );
-  const defenderResources: [number, number, number, number] = [
-    calculatedDefenderResources.currentWood,
-    calculatedDefenderResources.currentClay,
-    calculatedDefenderResources.currentIron,
-    calculatedDefenderResources.currentWheat,
-  ];
-
-  // is raid
-  const isRaid = false;
-
-  // console.log("Attacking troops: ",attackerCombatTroops);
-  // console.log("Defending troops: ",defenderCombatTroops);
-  // console.log("Defending Village ID: ",targetVillageId);
-  // console.log("Defense modifiers: ",modifiers);
-  // console.log("Resources: ",defenderResources);
-  // console.log("Is raid: ",isRaid);
-
-  const result = resolveCombat(
-    attackerCombatTroops,
-    defenderCombatTroops,
-    modifiers,
-    defenderResources,
-    isRaid,
-  );
-
-  // console.log("-------");
-  // console.log("Result: ", result);
-
-  subtractVillageResourcesAt(
-    database,
-    targetVillageId,
-    Date.now(),
-    result.loot,
-  );
-
-  const attackerSurvivedTroops: Troop[] = result.attackerSurvivors.map((s) => ({
-    unitId: s.unitId,
-    amount: s.amount,
-    tileId: s.troop.tileId,
-    source: s.troop.source,
-  }));
-
-  const defenderDeseasedTroops: Troop[] = result.defenderLosses.map((l) => ({
-    unitId: l.unitId,
-    amount: l.amount,
-    tileId: l.troop.tileId,
-    source: l.troop.source,
-  }));
-  removeTroops(database, defenderDeseasedTroops);
-
-  // TODO: Create report
-
-  if (result.attackerWins) {
-    createEvents<'troopMovementReturn'>(database, {
-      villageId,
-      troops: attackerSurvivedTroops,
-      targetTileId: originTileId,
-      originTileId: targetTileId,
-      startsAt: resolvesAt,
-      type: 'troopMovementReturn',
-      originalMovementType: 'troopMovementAttack',
-      loot: result.loot,
-    });
-  }
-
-
-  return {
-    affectedVillageIds: [villageId, targetVillageId],
-  };
 };
 
 export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
@@ -649,24 +522,13 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
 ) => {
   const { villageId, resolvesAt, troops, originTileId, targetTileId } = args;
 
-  // TODO: Combat
-  createEvents<'troopMovementReturn'>(database, {
-    villageId,
+  return resolveBattle({
+    database,
+    originVillageId: villageId,
+    resolvesAt,
+    originTileId,
+    targetTileId,
     troops,
-    startsAt: resolvesAt,
-    targetTileId: originTileId,
-    originTileId: targetTileId,
-    type: 'troopMovementReturn',
-    originalMovementType: 'troopMovementRaid',
+    isRaid: true,
   });
-
-  const targetVillageIds = database.selectValues({
-    sql: selectPlayerVillageIdByTileIdQuery,
-    bind: { $tile_id: targetTileId, $player_id: PLAYER_ID },
-    schema: z.number(),
-  });
-
-  return {
-    affectedVillageIds: [villageId, ...targetVillageIds],
-  };
 };

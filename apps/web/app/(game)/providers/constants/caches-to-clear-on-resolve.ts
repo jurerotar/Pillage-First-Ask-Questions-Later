@@ -13,6 +13,7 @@ import {
   heroInventoryCacheKey,
   loyaltyCacheKey,
   questsCacheKey,
+  reportsCacheKey,
   sentReinforcementsCacheKey,
   tilesCacheKey,
   trapperCagesCacheKey,
@@ -139,6 +140,8 @@ export const cachesToClearOnResolve: Handlers = {
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
+        [villageTroopsCacheKey, villageId],
+        [reportsCacheKey],
       ]),
     ];
   },

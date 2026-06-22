@@ -10,12 +10,18 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export type CreateNewReport = Omit<BaseReport, 'id'>;
 
-export type CreateNewBattleType = Omit<BattleType, 'participants'>;
+export type CreateNewBattleType = Omit<BattleType, 'participants'> & {
+  reportId: BaseReport['id'];
+};
 
 export type CreateNewBattleParticipant = Omit<
   BattleParticipant,
   'id' | 'units' | 'tribe'
-> & { tribeId: number; source: number };
+> & { reportId: BaseReport['id']; tribeId: number; source: number };
+
+export type CreateNewBattleUnit = BattleUnit & {
+  reportId: BaseReport['id'];
+};
 
 export const insertReport = (
   database: DbFacade,
@@ -174,7 +180,7 @@ export const insertBattleParticipant = (
 
 export const insertBattleUnits = (
   database: DbFacade,
-  units: BattleUnit[],
+  units: CreateNewBattleUnit[],
 ): void => {
   const requiredEventProperties = new Set([
     'battleParticipantId',

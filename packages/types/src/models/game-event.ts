@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Loot } from './battle';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
 import type { TroopTrainingDurationEffectId } from './effect';
@@ -103,7 +104,7 @@ export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
   originalMovementType:
     | TroopMovementEventType
     | 'troopMovementReturnReinforcements';
-  loot: number[];
+  loot: Loot;
 };
 
 export const gameEventTypeSchema = z.enum([

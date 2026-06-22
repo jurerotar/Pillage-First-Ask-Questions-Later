@@ -21,34 +21,58 @@ export type WallType =
   | 'HUN_WALL'
   | 'SPARTAN_WALL';
 
-export type DefenseModifiers = {
+export type DefenceModifiers = {
   wallType: WallType | null;
   wallLevel: number;
   wallDurability: number;
   palaceLevel: number;
 };
 
+export type CombatTroopResult = {
+  troop: Troop;
+  unitId: UnitId;
+  amountBefore: number;
+  amountLost: number;
+  amountAfter: number;
+};
+
 export type CombatResult = {
   attackerWins: boolean;
-  attackerSurvivors: { troop: Troop; unitId: UnitId; amount: number }[];
-  defenderSurvivors: { troop: Troop; unitId: UnitId; amount: number }[];
-  attackerLosses: { troop: Troop; unitId: UnitId; amount: number }[];
-  defenderLosses: { troop: Troop; unitId: UnitId; amount: number }[];
+  attackerTroops: CombatTroopResult[];
+  defenderTroops: CombatTroopResult[];
+  attackerSurvivors: CombatTroop[];
+  defenderSurvivors: CombatTroop[];
+  attackerLosses: CombatTroop[];
+  defenderLosses: CombatTroop[];
+  attackerTotalPoints: number;
+  defenderTotalPoints: number;
   wallDamage: number;
+  totalCarryCapacity: number;
   loot: [number, number, number, number];
 };
+
+// ───────────────────────────────────────────────────────────────
+// Mappers
+// ───────────────────────────────────────────────────────────────
+
+export const combatTroopToTroop = (t: CombatTroop): Troop => ({
+  unitId: t.unitId,
+  amount: t.amount,
+  tileId: t.troop.tileId,
+  source: t.troop.source,
+});
 
 // ───────────────────────────────────────────────────────────────
 // Constants
 // ───────────────────────────────────────────────────────────────
 
-/** Empty village always provides 10 base defense points */
-const BASE_VILLAGE_DEFENSE = 10;
+/** Empty village always provides 10 base defence points */
+const BASE_VILLAGE_DEFENCE = 10;
 
 /** A lone attacker with < 83 offense always dies */
 const LONE_ATTACKER_DEATH_THRESHOLD = 83;
 
-/** Wall defense bonus base per tribe: wallBonus = base^level */
+/** Wall defence bonus base per tribe: wallBonus = base^level */
 const WALL_BONUS_BASE: Record<WallType, number> = {
   ROMAN_WALL: 1.03,
   GAUL_WALL: 1.025,
@@ -154,14 +178,14 @@ export const calculateInfantryCavalryRatio = (
 };
 
 // ───────────────────────────────────────────────────────────────
-// Defense Calculation
+// Defence Calculation
 // ───────────────────────────────────────────────────────────────
 
 /**
- * Calculate total defense points for a defending army.
+ * Calculate total defence points for a defending army.
  * Uses the weighted infantry/cavalry ratio from the attacker's composition.
  */
-export const calculateTotalDefensePoints = (
+export const calculateTotalDefencePoints = (
   defenderTroops: CombatTroop[],
   infantryRatio: number,
   cavalryRatio: number,
@@ -185,23 +209,23 @@ export const calculateTotalDefensePoints = (
       troop.smithyLevel,
     );
 
-    const weightedDefense =
+    const weightedDefence =
       infantryRatio * improvedInfDef + cavalryRatio * improvedCavDef;
-    total += weightedDefense * troop.amount;
+    total += weightedDefence * troop.amount;
   }
 
   return total;
 };
 
 // ───────────────────────────────────────────────────────────────
-// Wall & Palace Defense
+// Wall & Palace Defence
 // ───────────────────────────────────────────────────────────────
 
 /**
- * Wall defense bonus multiplier: base^level
+ * Wall defence bonus multiplier: base^level
  * E.g. Roman city wall lvl 15: 1.03^15 ≈ 1.558
  */
-export const calculateWallDefenseBonus = (
+export const calculateWallDefenceBonus = (
   wallType: WallType | null,
   level: number,
 ): number => {
@@ -213,10 +237,10 @@ export const calculateWallDefenseBonus = (
 };
 
 /**
- * Palace/Residence defense contribution: 2 * level^2
- * Returns absolute defense points (applied to both infantry and cavalry).
+ * Palace/Residence defence contribution: 2 * level^2
+ * Returns absolute defence points (applied to both infantry and cavalry).
  */
-export const calculatePalaceDefense = (level: number): number => {
+export const calculatePalaceDefence = (level: number): number => {
   if (level <= 0) {
     return 0;
   }
@@ -319,7 +343,6 @@ export const calculateLoot = (
   const canTake = Math.min(carryCapacity, totalAvailable);
 
   // First pass: try equal share
-  const _sharePerResource = canTake / 4;
   const loot: [number, number, number, number] = [0, 0, 0, 0];
   let remaining = canTake;
 
@@ -381,29 +404,10 @@ export const calculateWallDamage = (
 export const resolveCombat = (
   attackerTroops: CombatTroop[],
   defenderTroops: CombatTroop[],
-  modifiers: DefenseModifiers,
+  modifiers: DefenceModifiers,
   defenderResources: [number, number, number, number],
   isRaid: boolean,
 ): CombatResult => {
-  // ─── Early return: no defenders means instant win, no casualties ───
-  const hasDefenders =
-    defenderTroops.length > 0 && defenderTroops.some((t) => t.amount > 0);
-
-  if (!hasDefenders) {
-    const carryCapacity = calculateTotalCarryCapacity(attackerTroops);
-    const loot = calculateLoot(defenderResources, carryCapacity);
-
-    return {
-      attackerWins: true,
-      attackerSurvivors: attackerTroops.map((t) => ({ ...t })),
-      attackerLosses: [],
-      defenderSurvivors: [],
-      defenderLosses: [],
-      loot,
-      wallDamage: 0,
-    };
-  }
-
   // ─── Step 1: Calculate offense ───
   const totalOffense = calculateTotalOffensePoints(attackerTroops);
 
@@ -411,38 +415,45 @@ export const resolveCombat = (
   const [infantryRatio, cavalryRatio] =
     calculateInfantryCavalryRatio(attackerTroops);
 
-  // ─── Step 3: Calculate raw defense ───
-  let troopDefense = calculateTotalDefensePoints(
+  // ─── Step 3: Calculate raw defence ───
+  let troopDefence = calculateTotalDefencePoints(
     defenderTroops,
     infantryRatio,
     cavalryRatio,
   );
 
-  // ─── Step 4: Add base village defense ───
-  const baseAndPalaceDefense =
-    BASE_VILLAGE_DEFENSE + calculatePalaceDefense(modifiers.palaceLevel);
+  // ─── Step 4: Add base village defence ───
+  const baseAndPalaceDefence =
+    BASE_VILLAGE_DEFENCE + calculatePalaceDefence(modifiers.palaceLevel);
 
-  // ─── Step 5: Apply wall bonus to troops + base defense ───
-  const wallBonus = calculateWallDefenseBonus(
+  // ─── Step 5: Apply wall bonus to troops + base defence ───
+  const wallBonus = calculateWallDefenceBonus(
     modifiers.wallType,
     modifiers.wallLevel,
   );
 
-  // Wall bonus applies to troops AND base+palace defense
-  troopDefense *= wallBonus;
-  const totalDefense = troopDefense + baseAndPalaceDefense * wallBonus;
+  // Wall bonus applies to troops AND base+palace defence
+  troopDefence *= wallBonus;
+  const totalDefence = troopDefence + baseAndPalaceDefence * wallBonus;
 
   // ─── Step 6: Determine winner ───
-  const attackerWins = totalOffense >= totalDefense;
+  const attackerWins = totalOffense >= totalDefence;
 
   // ─── Step 7: Total unit count for K calculation ───
-  const attackerCount = attackerTroops.reduce((s, t) => s + t.amount, 0);
-  const defenderCount = defenderTroops.reduce((s, t) => s + t.amount, 0);
+  const countTroops = (troops: CombatTroop[]) => {
+    let count = 0;
+    for (const { amount } of troops) {
+      count += amount;
+    }
+    return count;
+  };
+  const attackerCount = countTroops(attackerTroops);
+  const defenderCount = countTroops(defenderTroops);
   const totalUnitCount = attackerCount + defenderCount;
 
   // ─── Step 8: Calculate casualty percentages ───
-  const winnerPoints = attackerWins ? totalOffense : totalDefense;
-  const loserPoints = attackerWins ? totalDefense : totalOffense;
+  const winnerPoints = attackerWins ? totalOffense : totalDefence;
+  const loserPoints = attackerWins ? totalDefence : totalOffense;
 
   const winnerCasualtyPercent = calculateWinnerCasualtyPercent(
     loserPoints,
@@ -473,6 +484,8 @@ export const resolveCombat = (
   const attackerSurvivors: CombatResult['attackerSurvivors'] = [];
   const attackerLosses: CombatResult['attackerLosses'] = [];
 
+  const attackerTroopsResult: CombatResult['defenderTroops'] = [];
+
   for (const troop of attackerTroops) {
     let lost: number;
     if (forceAttackerDeath) {
@@ -482,11 +495,20 @@ export const resolveCombat = (
     }
     const survived = troop.amount - lost;
 
+    attackerTroopsResult.push({
+      troop: troop.troop,
+      unitId: troop.unitId,
+      amountBefore: troop.amount,
+      amountLost: lost,
+      amountAfter: survived,
+    });
+
     if (survived > 0) {
       attackerSurvivors.push({
         troop: troop.troop,
         unitId: troop.unitId,
         amount: survived,
+        smithyLevel: troop.smithyLevel,
       });
     }
     if (lost > 0) {
@@ -494,6 +516,7 @@ export const resolveCombat = (
         troop: troop.troop,
         unitId: troop.unitId,
         amount: lost,
+        smithyLevel: troop.smithyLevel,
       });
     }
   }
@@ -501,15 +524,26 @@ export const resolveCombat = (
   const defenderSurvivors: CombatResult['defenderSurvivors'] = [];
   const defenderLosses: CombatResult['defenderLosses'] = [];
 
+  const defenderTroopsResult: CombatResult['defenderTroops'] = [];
+
   for (const troop of defenderTroops) {
     const lost = Math.round(troop.amount * defenderCasualtyPercent);
     const survived = troop.amount - lost;
+
+    defenderTroopsResult.push({
+      troop: troop.troop,
+      unitId: troop.unitId,
+      amountBefore: troop.amount,
+      amountLost: lost,
+      amountAfter: survived,
+    });
 
     if (survived > 0) {
       defenderSurvivors.push({
         troop: troop.troop,
         unitId: troop.unitId,
         amount: survived,
+        smithyLevel: troop.smithyLevel,
       });
     }
     if (lost > 0) {
@@ -517,6 +551,7 @@ export const resolveCombat = (
         troop: troop.troop,
         unitId: troop.unitId,
         amount: lost,
+        smithyLevel: troop.smithyLevel,
       });
     }
   }
@@ -552,11 +587,16 @@ export const resolveCombat = (
 
   return {
     attackerWins: attackerWins && !forceAttackerDeath,
+    attackerTroops: attackerTroopsResult,
+    defenderTroops: defenderTroopsResult,
     attackerSurvivors,
     defenderSurvivors,
     attackerLosses,
     defenderLosses,
+    attackerTotalPoints: Math.round(totalOffense),
+    defenderTotalPoints: Math.round(totalDefence),
     wallDamage,
+    totalCarryCapacity: carryCapacity,
     loot,
   };
 };
