@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { getTrapperCageStats } from '../trapper-controllers';
 import {
   getOccupiableOasisInRange,
   getVillageBySlug,
@@ -44,6 +45,41 @@ describe('village-controllers', () => {
     );
 
     expect(true).toBe(true);
+  });
+
+  test('getTrapperCageStats should return village cage totals', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id FROM villages LIMIT 1',
+      schema: z.strictObject({ id: z.number() }),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO trapper_cages (village_id, unit_id)
+        VALUES
+          ($village_id, NULL),
+          ($village_id, NULL),
+          ($village_id, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'));
+      `,
+      bind: {
+        $village_id: village.id,
+      },
+    });
+
+    const stats = getTrapperCageStats(
+      database,
+      createControllerArgs<'/villages/:villageId/trapper-cages'>({
+        path: { villageId: village.id },
+      }),
+    );
+
+    expect(stats).toStrictEqual({
+      total: 3,
+      free: 2,
+      occupied: 1,
+    });
   });
 
   describe(rearrangeBuildingFields, () => {

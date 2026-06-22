@@ -6,6 +6,7 @@ import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from '../indexes/players-indexes.sql?raw';
 import createResourceSitesIndexes from '../indexes/resource-sites-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
+import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
@@ -45,6 +46,7 @@ import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
+import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
 import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
@@ -209,6 +211,10 @@ export const migrateAndSeed = (
     db.exec({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
     db.exec({ sql: createBuildingFieldsIndexes });
+
+    // Trapper cages
+    db.exec({ sql: createTrapperCagesTable });
+    db.exec({ sql: createTrapperCagesIndexes });
 
     // Troops
     db.exec({ sql: createTroopsTable });

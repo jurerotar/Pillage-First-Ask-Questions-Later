@@ -150,6 +150,12 @@ export const isAnimalCageProductionEvent = (
   return event.type === 'animalCageProduction';
 };
 
+export const isTrapperCageProductionEvent = (
+  event: GameEvent,
+): event is GameEvent<'trapperCageProduction'> => {
+  return event.type === 'trapperCageProduction';
+};
+
 export const isHuntersLodgeHuntEvent = (
   event: GameEvent,
 ): event is GameEvent<'huntersLodgeHunt'> => {

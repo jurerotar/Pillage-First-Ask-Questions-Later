@@ -71,6 +71,10 @@ const HuntersLodgeAnimalCages = lazyWithRetry(async () => ({
   ).HuntersLodgeAnimalCages,
 }));
 
+const TrapperCages = lazyWithRetry(async () => ({
+  default: (await import('./components/trapper/trapper-cages')).TrapperCages,
+}));
+
 const RallyPointTroopMovements = lazyWithRetry(async () => ({
   default: (
     await import('./components/rally-point/rally-point-troop-movements')
@@ -226,6 +230,7 @@ const buildingDetailsTabMap = new Map<
       ['animal-cages', HuntersLodgeAnimalCages],
     ]),
   ],
+  ['TRAPPER', new Map([['cages', TrapperCages]])],
   [
     'MARKETPLACE',
     new Map([
@@ -273,6 +278,7 @@ const buildingDetailsTabMap = new Map<
 // t('animal-cages')
 // t('hunting-party')
 // t('gathering-expedition')
+// t('cages')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
