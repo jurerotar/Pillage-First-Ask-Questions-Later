@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createEvents } from '../../utils/create-event';
+import { validateEventCreationPrerequisites } from '../../utils/events';
 import {
   getMarketplaceVillage,
   getMerchantAmount,
@@ -109,6 +110,88 @@ export const createTradeRoute = createController(
         startsAt: getNextTradeRouteStartsAt(startHour),
       });
     });
+  },
+);
+
+export const updateTradeRoute = createController(
+  '/villages/:villageId/trade-routes/:eventId',
+  'patch',
+  {
+    summary: 'Update a marketplace trade route',
+    requestParams: {
+      path: z.strictObject({
+        villageId: z.coerce.number(),
+        eventId: z.coerce.number(),
+      }),
+    },
+    requestBody: createTradeRouteBodySchema,
+  },
+)(
+  ({
+    database,
+    path: { villageId, eventId },
+    body: { targetVillageId, resources, startHour, intervalHours },
+  }) => {
+    database.transaction((db) => {
+      const { village, merchant } = getVillageMerchantStats(db, villageId);
+      const targetVillage = getMarketplaceVillage(db, targetVillageId);
+
+      if (!targetVillage) {
+        throw new Error('Target village does not exist');
+      }
+
+      const merchantAmount = getMerchantAmount(
+        resources,
+        merchant.merchantCapacity,
+      );
+      const startsAt = getNextTradeRouteStartsAt(startHour);
+      const interval = intervalHours * HOUR_IN_MILLISECONDS;
+      const nextTradeRoute = {
+        type: 'tradeRoute',
+        villageId,
+        targetVillageId,
+        originTileId: village.tileId,
+        targetTileId: targetVillage.tileId,
+        resources,
+        merchantAmount,
+        interval,
+      } as const;
+
+      validateEventCreationPrerequisites(db, nextTradeRoute as never);
+
+      const updatedRows = db.selectValue({
+        sql: `
+          UPDATE events
+          SET
+            starts_at = $starts_at,
+            meta = $meta
+          WHERE id = $event_id
+            AND village_id = $village_id
+            AND type = 'tradeRoute'
+          RETURNING changes();
+        `,
+        bind: {
+          $event_id: eventId,
+          $village_id: villageId,
+          $starts_at: startsAt,
+          $meta: JSON.stringify({
+            targetVillageId,
+            originTileId: village.tileId,
+            targetTileId: targetVillage.tileId,
+            resources,
+            merchantAmount,
+            interval,
+          }),
+        },
+        schema: z.number(),
+      });
+
+      if (updatedRows !== 1) {
+        throw new Error('Trade route does not exist');
+      }
+    });
+
+    triggerKick();
   },
 );
 

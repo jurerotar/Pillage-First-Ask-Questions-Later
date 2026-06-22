@@ -73,6 +73,7 @@ import {
   createTradeRoute,
   deleteTradeRoute,
   transferResources,
+  updateTradeRoute,
 } from './controllers/marketplace-controllers';
 import { getOasesWithAnimals } from './controllers/oasis-animal-finder-controllers';
 import { getTilesWithBonuses } from './controllers/oasis-bonus-finder-controllers';
@@ -255,6 +256,7 @@ export const apiRoutes = [
   createRoute(getResearchedUnits),
   createRoute(transferResources),
   createRoute(createTradeRoute),
+  createRoute(updateTradeRoute),
   createRoute(deleteTradeRoute),
 
   // Map Filters

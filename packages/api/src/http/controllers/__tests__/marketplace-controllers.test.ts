@@ -9,6 +9,7 @@ import {
   createTradeRoute,
   deleteTradeRoute,
   transferResources,
+  updateTradeRoute,
 } from '../marketplace-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -726,5 +727,125 @@ describe('marketplace-controllers', () => {
         schema: z.number(),
       }),
     ).toBe(0);
+  });
+
+  test('updateTradeRoute should replace the scheduled trade route event payload', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const firstTargetVillage = createPlayerVillage(
+      database,
+      'Original Route Target',
+    );
+    const updatedTargetVillage = createPlayerVillage(
+      database,
+      'Updated Route Target',
+    );
+    const startHour = (new Date(NOW).getHours() + 2) % 24;
+
+    setMarketplaceLevel(database, sourceVillage.id, 2);
+
+    const eventId = database.selectValue({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES ('tradeRoute', $starts_at, 0, $village_id, $meta)
+        RETURNING id;
+      `,
+      bind: {
+        $starts_at: NOW,
+        $village_id: sourceVillage.id,
+        $meta: JSON.stringify({
+          targetVillageId: firstTargetVillage.id,
+          originTileId: sourceVillage.tileId,
+          targetTileId: firstTargetVillage.tileId,
+          resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
+          merchantAmount: 1,
+          interval: 60 * 60 * 1000,
+        }),
+      },
+      schema: z.number(),
+    })!;
+
+    updateTradeRoute(
+      database,
+      createControllerArgs<
+        '/villages/:villageId/trade-routes/:eventId',
+        'patch'
+      >({
+        path: {
+          villageId: sourceVillage.id,
+          eventId,
+        },
+        body: {
+          targetVillageId: updatedTargetVillage.id,
+          startHour,
+          intervalHours: 12,
+          resources: {
+            wood: 100,
+            clay: 50,
+            iron: 25,
+            wheat: 10,
+          },
+        },
+      }),
+    );
+
+    const route = database.selectObject({
+      sql: `
+        SELECT
+          starts_at,
+          duration,
+          village_id,
+          JSON_EXTRACT(meta, '$.targetVillageId') AS target_village_id,
+          JSON_EXTRACT(meta, '$.originTileId') AS origin_tile_id,
+          JSON_EXTRACT(meta, '$.targetTileId') AS target_tile_id,
+          JSON_EXTRACT(meta, '$.resources.wood') AS wood,
+          JSON_EXTRACT(meta, '$.resources.clay') AS clay,
+          JSON_EXTRACT(meta, '$.resources.iron') AS iron,
+          JSON_EXTRACT(meta, '$.resources.wheat') AS wheat,
+          JSON_EXTRACT(meta, '$.merchantAmount') AS merchant_amount,
+          JSON_EXTRACT(meta, '$.interval') AS interval
+        FROM events
+        WHERE type = 'tradeRoute';
+      `,
+      schema: z.strictObject({
+        starts_at: z.number(),
+        duration: z.number(),
+        village_id: z.number(),
+        target_village_id: z.number(),
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
+        wood: z.number(),
+        clay: z.number(),
+        iron: z.number(),
+        wheat: z.number(),
+        merchant_amount: z.number(),
+        interval: z.number(),
+      }),
+    })!;
+
+    expect(route).toStrictEqual({
+      starts_at: getNextStartAtForHour(NOW, startHour),
+      duration: 0,
+      village_id: sourceVillage.id,
+      target_village_id: updatedTargetVillage.id,
+      origin_tile_id: sourceVillage.tileId,
+      target_tile_id: updatedTargetVillage.tileId,
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+      merchant_amount: 1,
+      interval: 12 * 60 * 60 * 1000,
+    });
+    expect(
+      database.selectValue({
+        sql: "SELECT COUNT(*) FROM events WHERE type = 'tradeRoute';",
+        schema: z.number(),
+      }),
+    ).toBe(1);
   });
 });
