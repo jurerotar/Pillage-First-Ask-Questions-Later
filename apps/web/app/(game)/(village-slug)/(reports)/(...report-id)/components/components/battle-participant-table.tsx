@@ -20,12 +20,19 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 
-const playerHeader = (
-  playerName: string,
-  playerSlug: string,
-  villageName: string,
-  coordinates: Coordinates,
-) => (
+type PlayerHeaderProps = {
+  playerName: string;
+  playerSlug: string;
+  villageName: string;
+  coordinates: Coordinates;
+};
+
+const PlayerHeader = ({
+  playerName,
+  playerSlug,
+  villageName,
+  coordinates,
+}: PlayerHeaderProps) => (
   <div>
     <Link
       to={`../players/${playerSlug}`}
@@ -102,19 +109,21 @@ export const BattleParticipantTable = ({
               colSpan={100}
               className="text-left"
             >
-              {participant.role === 'attacker'
-                ? playerHeader(
-                    battle.attackingPlayerName,
-                    battle.attackingPlayerSlug,
-                    battle.originVillageName,
-                    battle.originVillageCoordinates,
-                  )
-                : playerHeader(
-                    battle.defendingPlayerName,
-                    battle.defendingPlayerSlug,
-                    battle.targetVillageName,
-                    battle.targetVillageCoordinates,
-                  )}
+              {participant.role === 'attacker' ? (
+                <PlayerHeader
+                  playerName={battle.attackingPlayerName}
+                  playerSlug={battle.attackingPlayerSlug}
+                  villageName={battle.originVillageName}
+                  coordinates={battle.originVillageCoordinates}
+                />
+              ) : (
+                <PlayerHeader
+                  playerName={battle.defendingPlayerName}
+                  playerSlug={battle.defendingPlayerSlug}
+                  villageName={battle.targetVillageName}
+                  coordinates={battle.targetVillageCoordinates}
+                />
+              )}
             </TableHeaderCell>
           </TableRow>
         )}

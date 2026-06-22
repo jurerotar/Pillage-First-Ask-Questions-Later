@@ -14,13 +14,21 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 
-const statisticsRow = (
-  name: string,
-  attackerIcon: IconType,
-  defenderIcon: IconType,
-  attackerValue: number,
-  defenderValue: number,
-) => (
+type StatisticsRowProps = {
+  name: string;
+  attackerIcon: IconType;
+  defenderIcon: IconType;
+  attackerValue: number;
+  defenderValue: number;
+};
+
+const StatisticsRow = ({
+  name,
+  attackerIcon,
+  defenderIcon,
+  attackerValue,
+  defenderValue,
+}: StatisticsRowProps) => (
   <TableRow>
     <TableCell className="text-center">{name}</TableCell>
     <TableCell className="text-center">
@@ -71,37 +79,37 @@ export const BattleStatistics = ({
             <TableCell className="text-left">{t('Defender')}</TableCell>
           </TableRow>
 
-          {statisticsRow(
-            t('Combat strength'),
-            'attack',
-            'defence',
-            Math.round(battle.attackStatistics.points),
-            Math.round(battle.defenceStatistics.points),
-          )}
+          <StatisticsRow
+            name={t('Combat strength')}
+            attackerIcon="attack"
+            defenderIcon="defence"
+            attackerValue={Math.round(battle.attackStatistics.points)}
+            defenderValue={Math.round(battle.defenceStatistics.points)}
+          />
 
-          {statisticsRow(
-            t('Supply before'),
-            'wheat',
-            'wheat',
-            Math.round(battle.attackStatistics.supplyBefore),
-            Math.round(battle.defenceStatistics.supplyBefore),
-          )}
+          <StatisticsRow
+            name={t('Supply before')}
+            attackerIcon="wheat"
+            defenderIcon="wheat"
+            attackerValue={Math.round(battle.attackStatistics.supplyBefore)}
+            defenderValue={Math.round(battle.defenceStatistics.supplyBefore)}
+          />
 
-          {statisticsRow(
-            t('Supply lost'),
-            'freeCrop',
-            'freeCrop',
-            Math.round(battle.attackStatistics.supplyLost),
-            Math.round(battle.defenceStatistics.supplyLost),
-          )}
+          <StatisticsRow
+            name={t('Supply lost')}
+            attackerIcon="freeCrop"
+            defenderIcon="freeCrop"
+            attackerValue={Math.round(battle.attackStatistics.supplyLost)}
+            defenderValue={Math.round(battle.defenceStatistics.supplyLost)}
+          />
 
-          {statisticsRow(
-            t('Resources lost'),
-            'unitCarryCapacity',
-            'unitCarryCapacity',
-            Math.round(battle.attackStatistics.resourcesLost),
-            Math.round(battle.defenceStatistics.resourcesLost),
-          )}
+          <StatisticsRow
+            name={t('Resources lost')}
+            attackerIcon="unitCarryCapacity"
+            defenderIcon="unitCarryCapacity"
+            attackerValue={Math.round(battle.attackStatistics.resourcesLost)}
+            defenderValue={Math.round(battle.defenceStatistics.resourcesLost)}
+          />
         </TableBody>
       </Table>
     </div>
