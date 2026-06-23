@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from 'react';
-import type { BaseReport } from '@pillage-first/types/models/report';
+import type { z } from 'zod';
+import type { battleReportSchema } from '@pillage-first/types/models/report';
 import {
   Section,
   SectionContent,
@@ -9,15 +10,13 @@ import { Separator } from 'app/components/ui/separator';
 import { BattleLoot } from './components/battle-loot';
 import { BattleParticipantTable } from './components/battle-participant-table';
 import { BattleStatistics } from './components/battle-statistics';
-import { useBattle } from './hooks/use-battle';
 
 type BattleReportProps = {
-  report: BaseReport;
+  report: z.infer<typeof battleReportSchema>;
 };
 
 const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
-  const { battle } = useBattle(report.id);
-
+  const battle = report.battle;
   return (
     <Section>
       <SectionContent>

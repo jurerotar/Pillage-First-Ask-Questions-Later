@@ -103,8 +103,8 @@ import {
 } from './controllers/quest-controllers';
 import {
   deleteReport,
-  getBattleByReport,
   getMyReports,
+  getReport,
   getUnreadReportCount,
   updateReport,
 } from './controllers/report-controllers';
@@ -278,11 +278,10 @@ export const apiRoutes = [
 
   // Reports
   createRoute(getMyReports),
+  createRoute(getReport),
   createRoute(updateReport),
   createRoute(deleteReport),
   createRoute(getUnreadReportCount),
-
-  createRoute(getBattleByReport),
 
   // Bonus Finder
   createRoute(getTilesWithBonuses),

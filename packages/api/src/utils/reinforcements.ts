@@ -123,6 +123,7 @@ export const returnStationedTroops = (
     targetTileId,
     originalMovementType: 'troopMovementReturnReinforcements',
     troops: selectedTroops,
+    loot: [0, 0, 0, 0],
   });
 };
 

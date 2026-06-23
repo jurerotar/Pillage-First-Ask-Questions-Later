@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { BaseReport } from '@pillage-first/types/models/report';
+import type { GameReport } from '@pillage-first/types/models/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
@@ -12,30 +12,36 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
-import { useReports } from '../../hooks/use-reports';
+import { useReport } from '../../hooks/use-report';
 import BattleReport from './components/battle-report';
 
-const ReportPage = ({ params }: Route.ComponentProps) => {
-  const { reportId, villageSlug, serverSlug } = params;
+type RenderReportParams = {
+  report: GameReport;
+};
+
+const RenderReport = ({ report }: RenderReportParams) => {
   const { t } = useTranslation();
 
-  const { reports } = useReports();
-  const report = reports.find((r) => r.id.toString() === reportId);
+  switch (report.type) {
+    case 'battle':
+      return <BattleReport report={report} />;
+    default:
+      return (
+        <Alert variant="warning">
+          {t('Unsupported report type: {{reportType}}', {
+            reportType: report.type,
+          })}
+        </Alert>
+      );
+  }
+};
 
-  const renderReport = (report: BaseReport) => {
-    switch (report.type) {
-      case 'battle':
-        return <BattleReport report={report} />;
-      default:
-        return (
-          <Alert variant="warning">
-            {t('Unsupported report type: {{reportType}}', {
-              reportType: report.type,
-            })}
-          </Alert>
-        );
-    }
-  };
+const ReportPage = ({ params }: Route.ComponentProps) => {
+  const { reportId: reportIdParam, villageSlug, serverSlug } = params;
+  const { t } = useTranslation();
+
+  const reportId = Number.parseInt(reportIdParam, 10);
+  const { report } = useReport(reportId);
 
   const title = `${t('Report - {{reportId}}', { reportId })}  | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -64,7 +70,7 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
         <Text>{t('Review the selected in-game report.')}</Text>
       </InformationPopover>
       {!report && <Text as="h1">Report not found</Text>}
-      {report && renderReport(report)}
+      {report && <RenderReport report={report} />}
     </PageContents>
   );
 };

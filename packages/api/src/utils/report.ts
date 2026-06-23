@@ -5,10 +5,28 @@ import type {
   BattleType,
   BattleUnit,
 } from '@pillage-first/types/models/battle';
-import type { BaseReport } from '@pillage-first/types/models/report';
+import type {
+  BaseReport,
+  GameReport,
+} from '@pillage-first/types/models/report';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import {
+  mapBattle,
+  mapBattleParticipants,
+  mapBattleUnits,
+} from '../http/controllers/mappers/battle-mapper';
+import {
+  getBattleByReportRowSchema,
+  getBattleParticipantsByReportRowSchema,
+  getBattleUnitsByReportRowSchema,
+} from '../http/controllers/schemas/battle-schemas';
+import {
+  selectBattleByReportQuery,
+  selectBattleParticipantsByReportQuery,
+  selectBattleUnitsByReportQuery,
+} from '../queries/battle-queries';
 
-export type CreateNewReport = Omit<BaseReport, 'id'>;
+export type CreateNewReport = Omit<GameReport, 'id' | 'battle'>;
 
 export type CreateNewBattleType = Omit<BattleType, 'participants'> & {
   reportId: BaseReport['id'];
@@ -231,4 +249,47 @@ export const insertBattleUnits = (
 
   const stmt = database.prepare({ sql });
   stmt.bind(params).stepReset();
+};
+
+export const getBattle = (
+  database: DbFacade,
+  reportId: BaseReport['id'],
+): BattleType => {
+  const battle = mapBattle(
+    database.selectObject({
+      sql: selectBattleByReportQuery,
+      bind: { $report_id: reportId },
+      schema: getBattleByReportRowSchema,
+    })!,
+  );
+
+  const participants = database
+    .selectObjects({
+      sql: selectBattleParticipantsByReportQuery,
+      bind: { $report_id: reportId },
+      schema: getBattleParticipantsByReportRowSchema,
+    })
+    .map(mapBattleParticipants);
+
+  const units = database
+    .selectObjects({
+      sql: selectBattleUnitsByReportQuery,
+      bind: { $report_id: reportId },
+      schema: getBattleUnitsByReportRowSchema,
+    })
+    .map(mapBattleUnits);
+
+  battle.participants = participants;
+
+  const participantsIdMap = new Map();
+  for (const participant of participants) {
+    participantsIdMap.set(participant.id, participant);
+  }
+
+  for (const unit of units) {
+    const participant = participantsIdMap.get(unit.battleParticipantId);
+    participant.units.push(unit);
+  }
+
+  return battle;
 };

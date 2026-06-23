@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type { Loot } from '@pillage-first/types/models/battle';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
@@ -256,7 +255,7 @@ export const addVillageResourcesAt = (
   database: DbFacade,
   villageId: number,
   timestamp: number,
-  resourcesToAdd: Loot,
+  resourcesToAdd: number[],
 ): void => {
   const {
     currentWood,

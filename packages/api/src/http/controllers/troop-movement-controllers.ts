@@ -149,6 +149,7 @@ export const cancelTroopMovement = createController(
       targetTileId: originTileId,
       originTileId: targetTileId,
       originalMovementType: type,
+      loot: [0, 0, 0, 0],
     });
   });
 

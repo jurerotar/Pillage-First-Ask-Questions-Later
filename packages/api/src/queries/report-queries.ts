@@ -5,11 +5,11 @@ export const selectReportsByPlayerQuery = `
   ORDER BY timestamp DESC;
 `;
 
-export const selectReportByPlayerAndReportQuery = `
+export const selectReportByIdQuery = `
   SELECT *
   FROM reports r
   WHERE
-    r.player_id = $player_id and r.id = $report_id;
+    r.id = $report_id;
 `;
 
 export const selectTribeByTileQuery = `
