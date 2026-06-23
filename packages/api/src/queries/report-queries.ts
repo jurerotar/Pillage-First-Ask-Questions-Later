@@ -18,3 +18,16 @@ export const selectTribeByTileQuery = `
   WHERE
   id = (SELECT player_id FROM villages WHERE tile_id = $tile_id);
 `;
+
+export const updateReportQuery = `
+  UPDATE reports
+  SET
+    is_read = COALESCE($is_read, is_read),
+    is_archived = COALESCE($is_archived, is_archived)
+  WHERE
+    id = $report_id;
+`;
+
+export const getUnreadReportCountQuery = `
+SELECT COUNT() FROM reports WHERE is_read = 0 AND player_id = $player_id
+`;

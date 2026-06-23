@@ -4,8 +4,10 @@ import {
   reportDtoSchema,
 } from '@pillage-first/types/dtos/report';
 import {
+  getUnreadReportCountQuery,
   selectReportByIdQuery,
   selectReportsByPlayerQuery,
+  updateReportQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
 import { mapReport, mapReports } from './mappers/reports-mapper';
@@ -51,7 +53,6 @@ export const getReport = createController('/report/:reportId', {
   return null;
 });
 
-// TODO: implement
 export const getUnreadReportCount = createController(
   '/players/:playerId/reports/unread-count',
   {
@@ -61,25 +62,40 @@ export const getUnreadReportCount = createController(
         playerId: z.coerce.number(),
       }),
     },
-    response: z.number().int(),
+    response: z.int(),
   },
-)(() => {
-  return 0;
+)(({ database, path: { playerId } }) => {
+  return database.selectValue({
+    sql: getUnreadReportCountQuery,
+    bind: {
+      $player_id: playerId,
+    },
+    schema: z.int(),
+  });
 });
 
-// TODO: implement
 export const updateReport = createController('/reports/:reportId', 'patch', {
   summary: 'Update report',
   requestParams: {
     path: z.strictObject({
-      reportId: z.string(),
+      reportId: z.coerce.number(),
     }),
   },
   requestBody: z.strictObject({
-    tag: z.enum(['read', 'archived']),
+    isRead: z.boolean().optional(),
+    isArchived: z.boolean().optional(),
+    // TODO: Deal with tags
+    tag: z.enum(['read', 'archived']).optional(),
   }),
-})(() => {
-  // no-op for now
+})(({ database, path: { reportId }, body }) => {
+  database.exec({
+    sql: updateReportQuery,
+    bind: {
+      $report_id: reportId,
+      $is_read: body.isRead,
+      $is_archived: body.isArchived,
+    },
+  });
 });
 
 // TODO: implement

@@ -1,7 +1,12 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { reportsCacheKey } from 'app/(game)/constants/query-keys';
+import type { BaseReport } from '@pillage-first/types/models/report';
+import {
+  reportsCacheKey,
+  unreadReportsCountCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { invalidateQueries } from 'app/utils/react-query';
 import { useMe } from './use-me';
 
 export const useReports = () => {
@@ -17,6 +22,47 @@ export const useReports = () => {
         },
       });
       return data;
+    },
+  });
+
+  const { data: unreadReportCount } = useSuspenseQuery({
+    queryKey: [unreadReportsCountCacheKey, player.id],
+    queryFn: async () => {
+      // TODO: decide on a cohesive naming scheme
+      const { data } = await apiClient.get(
+        '/players/:playerId/reports/unread-count',
+        {
+          path: {
+            playerId: player.id,
+          },
+        },
+      );
+      return data;
+    },
+  });
+
+  const { mutate: updateReport } = useMutation<
+    void,
+    Error,
+    {
+      reportId: BaseReport['id'];
+      body: {
+        isRead?: boolean;
+        isArchived?: boolean;
+      };
+    }
+  >({
+    mutationFn: async ({ reportId, body }) => {
+      await apiClient.patch('/reports/:reportId', {
+        path: { reportId },
+        body,
+      });
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [reportsCacheKey],
+        [unreadReportsCountCacheKey, player.id],
+      ]);
     },
   });
 
@@ -47,6 +93,8 @@ export const useReports = () => {
 
   return {
     reports,
+    unreadReportCount,
+    updateReport,
     // tagReport,
     // deleteReport,
   };

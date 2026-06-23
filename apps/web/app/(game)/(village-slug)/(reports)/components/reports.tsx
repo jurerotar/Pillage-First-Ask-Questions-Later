@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import type { BaseReport } from '@pillage-first/types/models/report';
 import { ReportFilters } from 'app/(game)/(village-slug)/(reports)/components/components/report-filters';
 import { useReportFilters } from 'app/(game)/(village-slug)/(reports)/hooks/use-report-filters';
 import {
@@ -29,8 +30,14 @@ export const Reports = () => {
     handlePageChange,
   } = useReportFilters();
 
-  const { reports } = useReports();
+  const { reports, updateReport } = useReports();
   const pagination = usePagination(reports, 20, page);
+
+  const markAsRead = (report: BaseReport) => {
+    if (!report.isRead) {
+      updateReport({ reportId: report.id, body: { isRead: true } });
+    }
+  };
 
   return (
     <Section>
@@ -63,8 +70,19 @@ export const Reports = () => {
               <TableRow key={report.id}>
                 <TableCell>{report.type}</TableCell>
                 <TableCell>
-                  <Link to={`../reports/${report.id}`}>
-                    <Text variant="link">{report.subject}</Text>
+                  <Link
+                    onClick={() => markAsRead(report)}
+                    to={`../reports/${report.id}`}
+                  >
+                    <Text
+                      className={
+                        report.isRead
+                          ? 'text-gray-700 font-normal'
+                          : 'text-link font-medium'
+                      }
+                    >
+                      {report.subject}
+                    </Text>
                   </Link>
                 </TableCell>
                 <TableCell>
