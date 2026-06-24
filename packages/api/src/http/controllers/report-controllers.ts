@@ -4,6 +4,7 @@ import {
   reportDtoSchema,
 } from '@pillage-first/types/dtos/report';
 import {
+  deleteReportQuery,
   getUnreadReportCountQuery,
   selectReportByIdQuery,
   selectReportsByPlayerQuery,
@@ -74,38 +75,38 @@ export const getUnreadReportCount = createController(
   });
 });
 
-export const updateReport = createController('/reports/:reportId', 'patch', {
-  summary: 'Update report',
-  requestParams: {
-    path: z.strictObject({
-      reportId: z.coerce.number(),
-    }),
-  },
+export const updateReports = createController('/reports', 'patch', {
+  summary: 'Update reports',
   requestBody: z.strictObject({
+    reportIds: z.array(z.int()),
     isRead: z.boolean().optional(),
     isArchived: z.boolean().optional(),
     // TODO: Deal with tags
     tag: z.enum(['read', 'archived']).optional(),
   }),
-})(({ database, path: { reportId }, body }) => {
-  database.exec({
-    sql: updateReportQuery,
-    bind: {
-      $report_id: reportId,
-      $is_read: body.isRead,
-      $is_archived: body.isArchived,
-    },
-  });
+})(({ database, body: { reportIds, isRead, isArchived } }) => {
+  for (const reportId of reportIds) {
+    database.exec({
+      sql: updateReportQuery,
+      bind: {
+        $report_id: reportId,
+        $is_read: isRead,
+        $is_archived: isArchived,
+      },
+    });
+  }
 });
 
-// TODO: implement
-export const deleteReport = createController('/reports/:reportId', 'delete', {
+export const deleteReports = createController('/reports', 'delete', {
   summary: 'Delete report',
-  requestParams: {
-    path: z.strictObject({
-      reportId: z.string(),
-    }),
-  },
-})(() => {
-  // no-op for now
+  requestBody: z.array(z.number()),
+})(({ database, body }) => {
+  for (const reportId of body) {
+    database.exec({
+      sql: deleteReportQuery,
+      bind: {
+        $report_id: reportId,
+      },
+    });
+  }
 });

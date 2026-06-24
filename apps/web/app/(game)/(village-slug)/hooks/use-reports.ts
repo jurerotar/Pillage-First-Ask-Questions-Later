@@ -37,21 +37,34 @@ export const useReports = () => {
     },
   });
 
-  const { mutate: updateReport } = useMutation<
+  const { mutate: updateReports } = useMutation<
     void,
     Error,
     {
-      reportId: BaseReport['id'];
-      body: {
-        isRead?: boolean;
-        isArchived?: boolean;
-      };
+      reportIds: BaseReport['id'][];
+      isRead?: boolean;
+      isArchived?: boolean;
     }
   >({
-    mutationFn: async ({ reportId, body }) => {
-      await apiClient.patch('/reports/:reportId', {
-        path: { reportId },
-        body,
+    mutationFn: async (body) => {
+      await apiClient.patch('/reports', { body });
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [reportsCacheKey],
+        [unreadReportsCountCacheKey],
+      ]);
+    },
+  });
+
+  const { mutate: deleteReports } = useMutation<
+    void,
+    Error,
+    { reportIds: BaseReport['id'][] }
+  >({
+    mutationFn: async ({ reportIds }) => {
+      await apiClient.delete('/reports', {
+        body: reportIds,
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
@@ -62,36 +75,10 @@ export const useReports = () => {
     },
   });
 
-  // const { mutate: tagReport } = useMutation<
-  //   void,
-  //   Error,
-  //   { reportId: Report['id']; tag: ReportTag }
-  // >({
-  //   mutationFn: async ({ reportId, tag }) => {
-  //     await apiClient.patch('/reports/:reportId', {
-  //       path: { reportId },
-  //       body: { tag },
-  //     });
-  //   },
-  // });
-
-  // const { mutate: deleteReport } = useMutation<
-  //   void,
-  //   Error,
-  //   { reportId: Report['id'] }
-  // >({
-  //   mutationFn: async ({ reportId }) => {
-  //     await apiClient.delete('/reports/:reportId', {
-  //       path: { reportId },
-  //     });
-  //   },
-  // });
-
   return {
     reports,
     unreadReportCount,
-    updateReport,
-    // tagReport,
-    // deleteReport,
+    updateReports,
+    deleteReports,
   };
 };

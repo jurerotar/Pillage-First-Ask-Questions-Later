@@ -31,3 +31,7 @@ export const updateReportQuery = `
 export const getUnreadReportCountQuery = `
 SELECT COUNT() FROM reports WHERE is_read = 0 AND player_id = $player_id
 `;
+
+export const deleteReportQuery = `
+  DELETE FROM reports WHERE id = $report_id
+`;

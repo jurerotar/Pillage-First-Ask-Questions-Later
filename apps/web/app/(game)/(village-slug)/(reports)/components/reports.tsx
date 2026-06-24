@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { BaseReport } from '@pillage-first/types/models/report';
@@ -9,7 +10,10 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { InformationPopover } from 'app/(game)/components/information-popover';
+import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
+import { Checkbox } from 'app/components/ui/checkbox';
 import { Pagination } from 'app/components/ui/pagination';
 import {
   Table,
@@ -30,13 +34,49 @@ export const Reports = () => {
     handlePageChange,
   } = useReportFilters();
 
-  const { reports, updateReport } = useReports();
+  const { reports, updateReports, deleteReports } = useReports();
   const pagination = usePagination(reports, 20, page);
+
+  const [selected, setSelected] = useState<BaseReport['id'][]>([]);
+  const toggleSelected = (reportId: BaseReport['id']) => {
+    setSelected((prev) =>
+      prev.includes(reportId)
+        ? prev.filter((x) => x !== reportId)
+        : [...prev, reportId],
+    );
+  };
+
+  const toggleSelectedAll = () => {
+    if (selected.length === pagination.currentPageItems.length) {
+      setSelected([]);
+    } else {
+      const allIds = [];
+      for (const report of pagination.currentPageItems) {
+        allIds.push(report.id);
+      }
+      setSelected(allIds);
+    }
+  };
 
   const markAsRead = (report: BaseReport) => {
     if (!report.isRead) {
-      updateReport({ reportId: report.id, body: { isRead: true } });
+      updateReports({ reportIds: [report.id], isRead: true });
     }
+  };
+
+  const markSelectedAsRead = () => {
+    updateReports({ reportIds: selected, isRead: true });
+    setSelected([]);
+  };
+
+  const markSelectedAsArchived = () => {
+    updateReports({ reportIds: selected, isArchived: true });
+    setSelected([]);
+  };
+
+  const deleteSelected = () => {
+    deleteReports({ reportIds: selected });
+    setSelected([]);
   };
 
   return (
@@ -55,12 +95,19 @@ export const Reports = () => {
         reportFilters={reportFilters}
         onChange={onReportFiltersChange}
       />
-
       <div className="overflow-x-scroll scrollbar-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>{t('Type')}</TableHeaderCell>
+              <TableHeaderCell>
+                {' '}
+                <Checkbox
+                  checked={
+                    selected.length === pagination.currentPageItems.length
+                  }
+                  onCheckedChange={toggleSelectedAll}
+                />
+              </TableHeaderCell>
               <TableHeaderCell>{t('Subject')}</TableHeaderCell>
               <TableHeaderCell>{t('Date')}</TableHeaderCell>
             </TableRow>
@@ -68,8 +115,15 @@ export const Reports = () => {
           <TableBody>
             {pagination.currentPageItems.map((report) => (
               <TableRow key={report.id}>
-                <TableCell>{report.type}</TableCell>
                 <TableCell>
+                  {' '}
+                  <Checkbox
+                    checked={selected.includes(report.id)}
+                    onCheckedChange={() => toggleSelected(report.id)}
+                  />
+                </TableCell>
+                <TableCell className="flex gap-3 items-center">
+                  <Icon type="attackerNoLoss" />
                   <Link
                     onClick={() => markAsRead(report)}
                     to={`../reports/${report.id}`}
@@ -84,6 +138,7 @@ export const Reports = () => {
                       {report.subject}
                     </Text>
                   </Link>
+                  {report.isArchived && <Icon type="hero" />}
                 </TableCell>
                 <TableCell>
                   {new Date(report.timestamp).toLocaleString()}
@@ -103,7 +158,27 @@ export const Reports = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex w-full justify-end">
+      <div className="flex w-full justify-between">
+        <div className="flex gap-3">
+          <Button
+            disabled={selected.length === 0}
+            onClick={deleteSelected}
+          >
+            {t('Delete')}
+          </Button>
+          <Button
+            disabled={selected.length === 0}
+            onClick={markSelectedAsRead}
+          >
+            {t('Mark as read')}
+          </Button>
+          <Button
+            disabled={selected.length === 0}
+            onClick={markSelectedAsArchived}
+          >
+            {t('Mark as archived')}
+          </Button>
+        </div>
         <Pagination
           {...pagination}
           setPage={handlePageChange}
