@@ -207,6 +207,17 @@ export const findNewVillageMovementResolver: Resolver<
     schema: z.number(),
   })!;
 
+  database.exec({
+    sql: `
+      INSERT INTO gatherers_hut_expeditions (village_id, completed)
+      VALUES ($village_id, 0)
+      ON CONFLICT(village_id) DO NOTHING;
+    `,
+    bind: {
+      $village_id: newVillageId,
+    },
+  });
+
   const buildingIdRows = database.selectObjects({
     sql: 'SELECT id, building FROM building_ids',
     schema: z.strictObject({ id: z.number(), building: buildingIdSchema }),

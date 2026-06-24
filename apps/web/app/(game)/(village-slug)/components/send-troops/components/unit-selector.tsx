@@ -19,11 +19,13 @@ const displayGroups: (Unit['category'] | 'scout')[] = [
 type UnitSelectorProps = {
   disabledUnitTiers?: Unit['tier'][];
   maxUnits?: { unitId: Unit['id']; amount: number }[];
+  maxTotalUnits?: number;
 };
 
 export const UnitSelector = ({
   disabledUnitTiers = [],
   maxUnits = [],
+  maxTotalUnits,
 }: UnitSelectorProps) => {
   const { control, setValue, watch } = useFormContext<{
     units: {
@@ -40,6 +42,12 @@ export const UnitSelector = ({
   const maxAmountByUnitId = useMemo(() => {
     return new Map(maxUnits.map(({ unitId, amount }) => [unitId, amount]));
   }, [maxUnits]);
+
+  let totalSelectedAmount = 0;
+
+  for (const unit of units) {
+    totalSelectedAmount += unit.selected;
+  }
 
   const groupedUnits: Partial<
     Record<
@@ -61,8 +69,16 @@ export const UnitSelector = ({
     available: number,
     unitId: Unit['id'],
   ) => {
+    const unit = units[index];
+    const maxTotalAmount =
+      maxTotalUnits === undefined
+        ? available
+        : maxTotalUnits - totalSelectedAmount + (unit?.selected ?? 0);
     const maxAmount = maxAmountByUnitId.get(unitId) ?? available;
-    setValue(`units.${index}.selected`, Math.min(available, maxAmount));
+    setValue(
+      `units.${index}.selected`,
+      Math.max(0, Math.min(available, maxAmount, maxTotalAmount)),
+    );
   };
 
   return (
@@ -80,10 +96,22 @@ export const UnitSelector = ({
                 {categoryUnits.map((unit) => {
                   const isTierDisabled = disabledUnitTiers.includes(unit.tier);
                   const isAvailable = unit.available > 0;
-                  const isDisabled = isTierDisabled || !isAvailable;
-
+                  const maxTotalAmount =
+                    maxTotalUnits === undefined
+                      ? unit.available
+                      : maxTotalUnits - totalSelectedAmount + unit.selected;
                   const maxAmount =
                     maxAmountByUnitId.get(unit.unitId) ?? unit.available;
+                  const maxSelectableAmount = Math.max(
+                    0,
+                    Math.min(unit.available, maxAmount, maxTotalAmount),
+                  );
+                  const isPartyFull =
+                    maxTotalUnits !== undefined &&
+                    maxSelectableAmount <= 0 &&
+                    unit.selected <= 0;
+                  const isDisabled =
+                    isTierDisabled || !isAvailable || isPartyFull;
 
                   return (
                     <div
@@ -136,17 +164,19 @@ export const UnitSelector = ({
                                 id={`unit-${unit.unitId}`}
                                 type="number"
                                 min={0}
-                                max={Math.min(unit.available, maxAmount)}
+                                max={maxSelectableAmount}
                                 disabled={isDisabled}
                                 className="px-1 text-left w-full bg-emerald-50/50 dark:bg-emerald-950/20"
                                 onChange={(e) =>
                                   field.onChange(
                                     e.target.value === ''
                                       ? 0
-                                      : Math.min(
-                                          Number.parseInt(e.target.value, 10),
-                                          unit.available,
-                                          maxAmount,
+                                      : Math.max(
+                                          0,
+                                          Math.min(
+                                            Number.parseInt(e.target.value, 10),
+                                            maxSelectableAmount,
+                                          ),
                                         ),
                                   )
                                 }

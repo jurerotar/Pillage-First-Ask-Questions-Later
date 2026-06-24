@@ -489,6 +489,37 @@ export const upgradeDb = (database: DbFacade): void => {
   });
 
   migrateTo('0.4.36', database, (db) => {
+    db.exec({
+      sql: `
+        CREATE TABLE IF NOT EXISTS gatherers_hut_expeditions
+        (
+          village_id INTEGER PRIMARY KEY,
+          completed INTEGER NOT NULL DEFAULT 0 CHECK (completed >= 0),
+
+          FOREIGN KEY (village_id) REFERENCES villages (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        ) STRICT;
+      `,
+    });
+
+    db.exec({
+      sql: `
+        INSERT INTO gatherers_hut_expeditions (village_id, completed)
+        SELECT id, 0
+        FROM
+          villages
+        WHERE
+          player_id = $player_id
+        ON CONFLICT(village_id) DO NOTHING;
+      `,
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+    });
+  });
+
+  migrateTo('0.4.37', database, (db) => {
     try {
       db.exec({ sql: createTrapperCagesTable });
       db.exec({ sql: createTrapperCagesIndexes });

@@ -7,12 +7,16 @@ import type {
   EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
+import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
 import {
   isAdventureTroopMovementEvent,
+  isAnimalCageProductionEvent,
   isBuildingLevelChangeEvent,
   isFindNewVillageTroopMovementEvent,
+  isGatherersHutGatheringTripEvent,
   isHeroRevivalEvent,
+  isHuntersLodgeHuntEvent,
   isOasisOccupationTroopMovementEvent,
   isReinforcementsTroopMovementEvent,
   isRelocationTroopMovementEvent,
@@ -50,6 +54,16 @@ const getTileCoordinates = (
   tileId: number,
   mapSize: Server['configuration']['mapSize'],
 ) => tileIdToCoordinates(tileId, mapSize);
+
+const getTroopAmount = (troops: Troop[]) => {
+  let troopAmount = 0;
+
+  for (const troop of troops) {
+    troopAmount += troop.amount;
+  }
+
+  return troopAmount;
+};
 
 const getEventResolvedInfo = (
   event: EventApiNotificationEvent,
@@ -297,6 +311,49 @@ const getEventCreatedInfo = (
           villageName,
           x,
           y,
+        },
+      ),
+    };
+  }
+
+  if (isGatherersHutGatheringTripEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const troopAmount = getTroopAmount(event.troops);
+
+    return {
+      toastTitle: t(
+        'Gathering party of {{count}} troops sent out from {{villageName}}',
+        {
+          count: troopAmount,
+          villageName,
+        },
+      ),
+    };
+  }
+
+  if (isHuntersLodgeHuntEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
+
+    return {
+      toastTitle: t(
+        'Level {{level}} hunting party sent out from {{villageName}}',
+        {
+          level: event.huntingPartyLevel,
+          villageName,
+        },
+      ),
+    };
+  }
+
+  if (isAnimalCageProductionEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
+
+    return {
+      toastTitle: t(
+        'Added {{count}} animal cages to production queue in {{villageName}}',
+        {
+          count: event.cageAmount,
+          villageName,
         },
       ),
     };

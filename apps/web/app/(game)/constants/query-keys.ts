@@ -17,6 +17,7 @@ export const eventsCacheKey = 'events';
 export const mapMarkersCacheKey = 'map-markers';
 export const artifactsInVicinityCacheKey = 'artifacts-in-vicinity';
 export const adventurePointsCacheKey = 'adventure-points';
+export const gatherersHutExpeditionsCacheKey = 'gatherers-hut-expeditions';
 export const bookmarksCacheKey = 'bookmarks';
 export const developerSettingsCacheKey = 'developer-settings';
 export const eventsHistoryCacheKey = 'events-history';

@@ -1,20 +1,29 @@
 import { prngMulberry32 } from 'ts-seedrandom';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
 
-export const GATHERERS_HUT_MIN_PARTY_SIZE = 5;
-export const GATHERERS_HUT_MAX_PARTY_SIZE = 500;
-export const GATHERERS_HUT_RESOURCES_PER_UNIT = 10;
+export const GATHERERS_HUT_RESOURCES_PER_UNIT = 4;
+export const GATHERERS_HUT_MIN_LEVEL = 1;
+export const GATHERERS_HUT_MAX_LEVEL = 20;
+export const GATHERERS_HUT_MIN_PARTY_SIZE = 14;
+export const GATHERERS_HUT_MAX_PARTY_SIZE = 508;
+const GATHERERS_HUT_PARTY_SIZE_GROWTH_EXPONENT = 1.114;
 
 export const calculateGatherersHutPartySize = (
   gatherersHutLevel: number,
 ): number => {
-  const normalizedLevel = Math.min(20, Math.max(1, gatherersHutLevel));
-  const progress = (normalizedLevel - 1) / 19;
+  const normalizedLevel = Math.min(
+    GATHERERS_HUT_MAX_LEVEL,
+    Math.max(1, Math.trunc(gatherersHutLevel)),
+  );
+  const progress =
+    (normalizedLevel - GATHERERS_HUT_MIN_LEVEL) /
+    (GATHERERS_HUT_MAX_LEVEL - GATHERERS_HUT_MIN_LEVEL);
+  const shapedProgress = progress ** GATHERERS_HUT_PARTY_SIZE_GROWTH_EXPONENT;
 
   return Math.round(
-    GATHERERS_HUT_MIN_PARTY_SIZE +
-      (GATHERERS_HUT_MAX_PARTY_SIZE - GATHERERS_HUT_MIN_PARTY_SIZE) *
-        progress ** 2,
+    GATHERERS_HUT_MIN_PARTY_SIZE *
+      (GATHERERS_HUT_MAX_PARTY_SIZE / GATHERERS_HUT_MIN_PARTY_SIZE) **
+        shapedProgress,
   );
 };
 
@@ -22,9 +31,11 @@ export const calculateGatherersHutGatheringDuration = (
   seed: string,
   serverSpeed: number,
   villageId: number,
-  timestamp: number,
+  completedGatheringTripCount: number,
 ): number => {
-  const gatheringPrng = prngMulberry32(`${seed}${villageId}${timestamp}`);
+  const gatheringPrng = prngMulberry32(
+    `${seed}${villageId}${completedGatheringTripCount}`,
+  );
 
   return (
     (seededRandomIntFromInterval(gatheringPrng, 48, 72) * 60_000) / serverSpeed

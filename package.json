@@ -22,25 +22,25 @@
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.0",
-    "@commitlint/cli": "21.0.2",
-    "@commitlint/config-conventional": "21.0.2",
-    "@playwright/test": "1.61.0",
+    "@biomejs/biome": "2.5.1",
+    "@commitlint/cli": "21.1.0",
+    "@commitlint/config-conventional": "21.1.0",
+    "@playwright/test": "1.61.1",
     "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "lefthook": "2.1.9",
-    "oxlint": "1.70.0",
+    "oxlint": "1.71.0",
     "oxlint-tsgolint": "0.23.0",
-    "playwright": "1.61.0",
-    "sharp": "0.35.1",
-    "turbo": "2.9.18",
+    "playwright": "1.61.1",
+    "sharp": "0.35.2",
+    "turbo": "2.10.0",
     "typescript": "6.0.3"
   },
   "overrides": {
     "vite-plugin-devtools-json": {
-      "vite": "8.0.16"
+      "vite": "8.1.0"
     },
     "vite-plugin-pwa": {
-      "vite": "8.0.16"
+      "vite": "8.1.0"
     },
     "openapi-typescript": {
       "typescript": "6.0.3"
