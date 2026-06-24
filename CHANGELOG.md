@@ -1,3 +1,11 @@
+## Version 0.4.36
+
+#### Jun 24, 2026
+
+* [Feature] Added **Gatherer's Hut** building. Gatherer's Hut enables you to send your idle troops on to gathering
+  expeditions, where they collect resources. Each unit sent carries 4 resources. Gathering expeditions are meant as a
+  low-risk, although lower-reward alternative to raiding.
+
 ## Version 0.4.35
 
 #### Jun 22, 2026
