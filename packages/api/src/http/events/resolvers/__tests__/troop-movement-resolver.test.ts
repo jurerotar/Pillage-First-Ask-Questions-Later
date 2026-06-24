@@ -707,6 +707,16 @@ describe(findNewVillageMovementResolver, () => {
     expect(newVillage.name).toBe('New village');
     expect(newVillage.slug).toBe('v-2'); // 2nd village for player
 
+    const gatheringExpeditionState = database.selectObject({
+      sql: 'SELECT completed FROM gatherers_hut_expeditions WHERE village_id = $village_id;',
+      bind: { $village_id: newVillage.id },
+      schema: z.strictObject({
+        completed: z.number(),
+      }),
+    })!;
+
+    expect(gatheringExpeditionState.completed).toBe(0);
+
     // Verify building fields
     const buildingFields = database.selectObjects({
       sql: 'SELECT field_id, building_id, level FROM building_fields WHERE village_id = $village_id;',

@@ -20,6 +20,7 @@ type TroopSelectionFormProps<T extends BaseTroopFormValues> = {
   title?: string;
   disabledUnitTiers?: UnitSelection['tier'][];
   maxUnits?: { unitId: UnitSelection['unitId']; amount: number }[];
+  maxTotalUnits?: number;
   targetSelector?: 'coordinates' | 'playerVillage' | null;
   isTargetSelectorDisabled?: boolean;
   excludedVillageIds?: number[];
@@ -40,6 +41,7 @@ export const TroopSelectionForm = <T extends BaseTroopFormValues>({
   title,
   disabledUnitTiers,
   maxUnits,
+  maxTotalUnits,
   targetSelector = null,
   isTargetSelectorDisabled = false,
   excludedVillageIds,
@@ -70,6 +72,7 @@ export const TroopSelectionForm = <T extends BaseTroopFormValues>({
           <UnitSelector
             disabledUnitTiers={disabledUnitTiers}
             maxUnits={maxUnits}
+            maxTotalUnits={maxTotalUnits}
           />
 
           {targetSelector || extraTargetContent ? (

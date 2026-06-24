@@ -90,6 +90,9 @@
     "./models/game-event": {
       "default": "./src/models/game-event.ts"
     },
+    "./models/gatherers-hut-expeditions": {
+      "default": "./src/models/gatherers-hut-expeditions.ts"
+    },
     "./models/hero": {
       "default": "./src/models/hero.ts"
     },

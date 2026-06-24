@@ -16,6 +16,7 @@ import createEventsTable from '../schemas/events-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
+import createGatherersHutExpeditionsTable from '../schemas/gatherers-hut-expeditions-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
 import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.sql?raw';
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
@@ -60,6 +61,7 @@ import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
+import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expeditions-seeder';
 import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
@@ -176,6 +178,10 @@ export const migrateAndSeed = (
     db.exec({ sql: createVillagesTable });
     villageSeeder(db, server);
     occupiedOasisSeeder(db, server);
+
+    // Gatherers Hut expeditions
+    db.exec({ sql: createGatherersHutExpeditionsTable });
+    gatherersHutExpeditionsSeeder(db);
 
     onProgress?.();
 

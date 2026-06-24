@@ -24,6 +24,18 @@ export const gatherersHutGatheringTripResolver: Resolver<
     calculateGatherersHutGatheringResources(sentTroopAmount),
   );
 
+  database.exec({
+    sql: `
+      INSERT INTO gatherers_hut_expeditions (village_id, completed)
+      VALUES ($village_id, 1)
+      ON CONFLICT(village_id) DO UPDATE SET
+        completed = completed + 1;
+    `,
+    bind: {
+      $village_id: villageId,
+    },
+  });
+
   return {
     affectedVillageIds: [villageId],
   };

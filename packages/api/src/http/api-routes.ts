@@ -122,6 +122,7 @@ import {
 import { getUnitImprovements } from './controllers/unit-improvement-controllers';
 import { getResearchedUnits } from './controllers/unit-research-controllers';
 import {
+  getGatherersHutExpeditions,
   getOccupiableOasisInRange,
   getVillageBySlug,
   rearrangeBuildingFields,
@@ -239,6 +240,7 @@ export const apiRoutes = [
 
   // Villages
   createRoute(getVillageBySlug),
+  createRoute(getGatherersHutExpeditions),
   createRoute(getStationedTroopsByTile),
   createRoute(getSentReinforcementsByTile),
   createRoute(getVillageEffects),

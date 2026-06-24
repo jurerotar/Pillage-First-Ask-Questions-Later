@@ -8,6 +8,7 @@ import {
   effectsCacheKey,
   eventsCacheKey,
   eventsHistoryCacheKey,
+  gatherersHutExpeditionsCacheKey,
   heroCacheKey,
   heroInventoryCacheKey,
   loyaltyCacheKey,
@@ -224,6 +225,7 @@ export const cachesToClearOnResolve: Handlers = {
       ...affectedVillageIds.flatMap((villageId) => [
         [villageTroopsCacheKey, villageId],
         [eventsCacheKey, 'gatherersHutGatheringTrip', villageId],
+        [gatherersHutExpeditionsCacheKey, villageId],
       ]),
     ];
   },
