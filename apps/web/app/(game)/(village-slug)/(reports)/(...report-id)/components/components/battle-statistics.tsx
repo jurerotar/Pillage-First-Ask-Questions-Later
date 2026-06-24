@@ -1,3 +1,4 @@
+import { clsx } from 'clsx';
 import type { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BattleType } from '@pillage-first/types/models/battle';
@@ -20,6 +21,7 @@ type StatisticsRowProps = {
   defenderIcon: IconType;
   attackerValue: number;
   defenderValue: number;
+  showDefendingUnits: boolean;
 };
 
 const StatisticsRow = ({
@@ -28,6 +30,7 @@ const StatisticsRow = ({
   defenderIcon,
   attackerValue,
   defenderValue,
+  showDefendingUnits,
 }: StatisticsRowProps) => (
   <TableRow>
     <TableCell className="text-center">{name}</TableCell>
@@ -40,13 +43,17 @@ const StatisticsRow = ({
         <div className="my-auto">{formatNumber(attackerValue)}</div>
       </div>
     </TableCell>
-    <TableCell className="text-center">
+    <TableCell
+      className={clsx('text-center', showDefendingUnits ? '' : 'text-gray-700')}
+    >
       <div className="flex">
         <Icon
           type={defenderIcon}
           className="size-6 lg:size-6 m-2 "
         />
-        <div className="my-auto">{formatNumber(defenderValue)}</div>
+        <div className="my-auto">
+          {showDefendingUnits ? formatNumber(defenderValue) : '?'}
+        </div>
       </div>
     </TableCell>
   </TableRow>
@@ -54,10 +61,12 @@ const StatisticsRow = ({
 
 type BattleStatisticsProps = {
   battle: BattleType;
+  showDefendingUnits: boolean;
 };
 
 export const BattleStatistics = ({
   battle,
+  showDefendingUnits,
 }: PropsWithChildren<BattleStatisticsProps>) => {
   const { t } = useTranslation();
 
@@ -85,6 +94,7 @@ export const BattleStatistics = ({
             defenderIcon="defence"
             attackerValue={Math.round(battle.attackStatistics.points)}
             defenderValue={Math.round(battle.defenceStatistics.points)}
+            showDefendingUnits={showDefendingUnits}
           />
 
           <StatisticsRow
@@ -93,6 +103,7 @@ export const BattleStatistics = ({
             defenderIcon="wheat"
             attackerValue={Math.round(battle.attackStatistics.supplyBefore)}
             defenderValue={Math.round(battle.defenceStatistics.supplyBefore)}
+            showDefendingUnits={showDefendingUnits}
           />
 
           <StatisticsRow
@@ -101,6 +112,7 @@ export const BattleStatistics = ({
             defenderIcon="freeCrop"
             attackerValue={Math.round(battle.attackStatistics.supplyLost)}
             defenderValue={Math.round(battle.defenceStatistics.supplyLost)}
+            showDefendingUnits={showDefendingUnits}
           />
 
           <StatisticsRow
@@ -109,6 +121,7 @@ export const BattleStatistics = ({
             defenderIcon="unitCarryCapacity"
             attackerValue={Math.round(battle.attackStatistics.resourcesLost)}
             defenderValue={Math.round(battle.defenceStatistics.resourcesLost)}
+            showDefendingUnits={showDefendingUnits}
           />
         </TableBody>
       </Table>

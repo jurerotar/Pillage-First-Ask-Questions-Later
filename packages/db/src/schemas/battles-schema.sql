@@ -18,6 +18,7 @@ CREATE TABLE battles
   total_carry_capacity INTEGER NOT NULL,
   -- boolean
   did_attacker_win INTEGER NOT NULL,
+  can_attacker_see_full_report INTEGER NOT NULL,
   attacker_points INTEGER NOT NULL,
   attacker_supply_before INTEGER NOT NULL,
   attacker_supply_lost INTEGER NOT NULL,

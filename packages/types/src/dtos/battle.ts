@@ -31,6 +31,7 @@ export const battleDtoSchema = z.strictObject({
   loot: lootSchema,
   totalCarryCapacity: z.int(),
   didAttackerWin: z.boolean(),
+  canAttackerSeeFullReport: z.boolean(),
   attackStatistics: battleStatisticsSchema,
   defenceStatistics: battleStatisticsSchema,
   participants: z.array(battleParticipantDtoSchema),

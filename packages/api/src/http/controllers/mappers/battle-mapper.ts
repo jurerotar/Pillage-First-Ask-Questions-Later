@@ -87,6 +87,7 @@ export const mapBattle = (
     loot,
     totalCarryCapacity: row.total_carry_capacity,
     didAttackerWin: Boolean(row.did_attacker_win),
+    canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
     attackStatistics,
     defenceStatistics,
     participants: [],

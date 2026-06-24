@@ -17,6 +17,12 @@ type BattleReportProps = {
 
 const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
   const battle = report.battle;
+
+  const showDefendingUnits =
+    battle.attackingPlayerSlug === 'player'
+      ? battle.canAttackerSeeFullReport
+      : true;
+
   return (
     <Section>
       <SectionContent>
@@ -25,11 +31,20 @@ const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
 
         <div className="overflow-x-scroll scrollbar-hidden">
           {battle.participants.map((participant) => {
+            if (
+              participant.role === 'defender' &&
+              participant.isReinforcement &&
+              !showDefendingUnits
+            ) {
+              return <></>;
+            }
+
             return (
               <div key={participant.id}>
                 <BattleParticipantTable
                   battle={battle}
                   participant={participant}
+                  showDefendingUnits={showDefendingUnits}
                 />
                 {participant.role === 'attacker' && (
                   <BattleLoot
@@ -47,7 +62,10 @@ const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
           className="mb-2 sm:mb-4"
         />
 
-        <BattleStatistics battle={battle} />
+        <BattleStatistics
+          battle={battle}
+          showDefendingUnits={showDefendingUnits}
+        />
       </SectionContent>
     </Section>
   );

@@ -38,6 +38,7 @@ export const getBattleByReportRowSchema = z
     loot_wheat: z.int(),
     total_carry_capacity: z.int(),
     did_attacker_win: z.int(),
+    can_attacker_see_full_report: z.int(),
     attacker_points: z.int(),
     attacker_supply_before: z.int(),
     attacker_supply_lost: z.int(),

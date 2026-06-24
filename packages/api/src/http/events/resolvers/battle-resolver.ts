@@ -466,6 +466,7 @@ const addBattleReport = ({
     loot: result.loot,
     totalCarryCapacity: result.totalCarryCapacity,
     didAttackerWin: result.attackerWins,
+    canAttackerSeeFullReport: result.canAttackerSeeFullReport,
     attackStatistics,
     defenceStatistics,
   };

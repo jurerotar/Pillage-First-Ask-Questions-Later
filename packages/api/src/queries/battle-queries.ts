@@ -70,6 +70,7 @@ export const selectBattleByReportQuery = `
     loot_wheat,
     total_carry_capacity,
     did_attacker_win,
+    can_attacker_see_full_report,
     attacker_points,
     attacker_supply_before,
     attacker_supply_lost,

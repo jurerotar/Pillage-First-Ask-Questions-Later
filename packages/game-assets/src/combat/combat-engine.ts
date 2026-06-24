@@ -38,6 +38,7 @@ export type CombatTroopResult = {
 
 export type CombatResult = {
   attackerWins: boolean;
+  canAttackerSeeFullReport: boolean;
   attackerTroops: CombatTroopResult[];
   defenderTroops: CombatTroopResult[];
   attackerSurvivors: CombatTroop[];
@@ -585,8 +586,13 @@ export const resolveCombat = (
   const carryCapacity = calculateTotalCarryCapacity(attackerSurvivors);
   const loot = calculateLoot(defenderResources, carryCapacity);
 
+  // ─── Step 13: Meta ───
+  const canAttackerSeeFullReport =
+    attackerSurvivors.length > 0 || defenderCasualtyPercent > 0.25;
+
   return {
     attackerWins: attackerWins && !forceAttackerDeath,
+    canAttackerSeeFullReport,
     attackerTroops: attackerTroopsResult,
     defenderTroops: defenderTroopsResult,
     attackerSurvivors,
