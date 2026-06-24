@@ -26,17 +26,13 @@ export const useReports = () => {
   });
 
   const { data: unreadReportCount } = useSuspenseQuery({
-    queryKey: [unreadReportsCountCacheKey, player.id],
+    queryKey: [unreadReportsCountCacheKey],
     queryFn: async () => {
-      // TODO: decide on a cohesive naming scheme
-      const { data } = await apiClient.get(
-        '/players/:playerId/reports/unread-count',
-        {
-          path: {
-            playerId: player.id,
-          },
+      const { data } = await apiClient.get('/reports/:playerId/unread-count', {
+        path: {
+          playerId: player.id,
         },
-      );
+      });
       return data;
     },
   });
@@ -61,7 +57,7 @@ export const useReports = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [reportsCacheKey],
-        [unreadReportsCountCacheKey, player.id],
+        [unreadReportsCountCacheKey],
       ]);
     },
   });

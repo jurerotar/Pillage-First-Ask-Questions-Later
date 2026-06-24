@@ -20,6 +20,7 @@ import {
   troopMovementsCacheKey,
   unitImprovementCacheKey,
   unitResearchCacheKey,
+  unreadReportsCountCacheKey,
   villageListingCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
@@ -128,20 +129,24 @@ export const cachesToClearOnResolve: Handlers = {
   troopMovementAttack: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [unreadReportsCountCacheKey],
+      [reportsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
+        [villageTroopsCacheKey, villageId],
       ]),
     ];
   },
   troopMovementRaid: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [unreadReportsCountCacheKey],
+      [reportsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
         [villageTroopsCacheKey, villageId],
-        [reportsCacheKey],
       ]),
     ];
   },

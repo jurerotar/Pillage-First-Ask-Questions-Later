@@ -54,7 +54,7 @@ export const getReport = createController('/report/:reportId', {
 });
 
 export const getUnreadReportCount = createController(
-  '/players/:playerId/reports/unread-count',
+  '/reports/:playerId/unread-count',
   {
     summary: 'Get unread reports count',
     requestParams: {
