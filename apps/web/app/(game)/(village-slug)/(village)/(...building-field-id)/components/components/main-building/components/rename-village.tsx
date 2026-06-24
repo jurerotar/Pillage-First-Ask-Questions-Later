@@ -11,7 +11,10 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { villageListingCacheKey } from 'app/(game)/constants/query-keys';
+import {
+  currentVillageCacheKey,
+  villageListingCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -44,10 +47,11 @@ export const RenameVillage = () => {
       name: currentVillage.name,
     },
   });
+  const { reset } = form;
 
   useEffect(() => {
-    form.reset({ name: currentVillage.name });
-  }, [currentVillage.name, form.reset]);
+    reset({ name: currentVillage.name });
+  }, [currentVillage.name, reset]);
 
   const { mutate: renameVillage } = useMutation<
     void,
@@ -65,7 +69,10 @@ export const RenameVillage = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[villageListingCacheKey]]);
+      await invalidateQueries(context, [
+        [currentVillageCacheKey, currentVillage.slug],
+        [villageListingCacheKey],
+      ]);
       toast.success(t('Village renamed'));
     },
   });
