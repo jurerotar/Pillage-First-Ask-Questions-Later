@@ -4,6 +4,8 @@
 
 * [Feature] Added **Trade routes** functionality. You may now schedule periodic resource transfers between your
   villages. You may schedule as many trade routes as you wish. Trade routes persist through demolishing the Marketplace.
+* [BugFix] Fixed long village names breaking mobile navigation alignment. Village navigation now also shows resource
+  layout of the village.
 
 ## Version 0.4.34
 
@@ -631,4 +633,3 @@ fix: building downgrade fixes
   allowed to construct, we have to run a bunch of checks. While these checks are not that slow individually, we had to
   run these checks multiple times for each building, which added up quickly. We've now reworked this to make it more
   efficient. You should be seeing faster page renders, especially on mid/lower-end devices.
-

@@ -55,12 +55,15 @@ type BuildingCardProps = {
 const unfinishedBuildings = new Set<Building['id']>([
   'HORSE_DRINKING_TROUGH',
   'RESIDENCE',
+  'HOSPITAL',
+  'CRANNY',
   'RALLY_POINT',
   'TOWN_HALL',
   'EMBASSY',
   'COMMAND_CENTER',
   'TRAPPER',
   'MARKETPLACE',
+  'TRADE_OFFICE',
 ]);
 
 export const BuildingCard = ({
