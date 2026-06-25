@@ -1,6 +1,6 @@
 CREATE TABLE battle_participants
 (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER PRIMARY KEY,
   report_id INTEGER NOT NULL,
   -- 'attacker' or 'defender'
   role TEXT NOT NULL,
