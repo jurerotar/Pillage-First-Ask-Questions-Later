@@ -27,8 +27,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@grafana/faro-react": "2.7.1",
-    "@grafana/faro-web-sdk": "2.7.1",
+    "@grafana/faro-react": "2.8.0",
+    "@grafana/faro-web-sdk": "2.8.0",
     "@hookform/resolvers": "5.4.0",
     "@mantine/hooks": "9.4.0",
     "@mdx-js/react": "3.1.1",
@@ -45,7 +45,7 @@
     "@tanstack/react-query": "5.101.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
-    "i18next": "26.3.2",
+    "i18next": "26.3.3",
     "isbot": "5.1.44",
     "moderndash": "4.0.2",
     "peerjs": "1.5.5",
@@ -78,7 +78,7 @@
     "cheerio": "1.2.0",
     "happy-dom": "20.10.6",
     "i18next-cli": "1.64.2",
-    "knip": "6.20.0",
+    "knip": "6.21.0",
     "rollup-plugin-visualizer": "7.0.1",
     "sass": "1.101.0",
     "tailwindcss": "4.3.1",

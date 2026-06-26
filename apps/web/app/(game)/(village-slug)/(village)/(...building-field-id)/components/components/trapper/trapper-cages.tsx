@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -24,11 +23,7 @@ import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-develo
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import {
-  currentVillageCacheKey,
-  trapperCagesCacheKey,
-} from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -44,6 +39,7 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { formatTime } from 'app/utils/time';
+import { useTrapperCageStats } from './use-trapper-cage-stats';
 
 const TrapperCageProductionQueue = () => {
   const { t } = useTranslation();
@@ -89,31 +85,6 @@ const TrapperCageProductionQueue = () => {
       </Table>
     </div>
   );
-};
-
-const useTrapperCageStats = () => {
-  const { apiClient } = use(ApiContext);
-  const { currentVillage } = useCurrentVillage();
-
-  const { data: trapperCageStats } = useSuspenseQuery({
-    queryKey: [trapperCagesCacheKey, currentVillage.id],
-    queryFn: async () => {
-      const { data } = await apiClient.get(
-        '/villages/:villageId/trapper-cages',
-        {
-          path: {
-            villageId: currentVillage.id,
-          },
-        },
-      );
-
-      return data;
-    },
-  });
-
-  return {
-    trapperCageStats,
-  };
 };
 
 export const TrapperCages = () => {
