@@ -37,6 +37,12 @@ export const ApiProvider = ({
     useApiWorker(serverSlug);
 
   useEffect(() => {
+    return () => {
+      void closeApiWorker();
+    };
+  }, [closeApiWorker]);
+
+  useEffect(() => {
     if (!apiWorker) {
       return;
     }

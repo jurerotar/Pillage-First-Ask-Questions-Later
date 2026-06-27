@@ -23,6 +23,8 @@ const createApiWorkerHandle = (
 ): ApiWorkerHandle => {
   let subscriberCount = 0;
   let isClosed = false;
+  // Multiple UI paths can request shutdown during navigation/unmount; only send one close request to the worker.
+  let closePromise: Promise<void> | null = null;
 
   const subscribeToApiWorkerNotifications = (
     listener: WorkerNotificationListener,
@@ -46,7 +48,12 @@ const createApiWorkerHandle = (
   };
 
   const closeApiWorker = () => {
-    return new Promise<void>((resolve) => {
+    if (isClosed) {
+      return Promise.resolve();
+    }
+
+    // Reuse the in-flight close so duplicate callers wait for the same database/OPFS cleanup.
+    closePromise ??= new Promise<void>((resolve) => {
       const handleClose = ({ data }: MessageEvent) => {
         if (data?.type !== 'WORKER_CLOSE_SUCCESS') {
           return;
@@ -63,6 +70,8 @@ const createApiWorkerHandle = (
       notificationPort.addEventListener('message', handleClose);
       worker.postMessage({ type: 'WORKER_CLOSE' });
     });
+
+    return closePromise;
   };
 
   return {
