@@ -433,8 +433,7 @@ const addBattleReport = ({
     timestamp: resolvesAt,
     subject,
     type: 'battle',
-    isRead: false,
-    isArchived: false,
+    tags: [],
   };
 
   const reportId = insertReport(database, report);

@@ -3,12 +3,14 @@ import {
   baseReportDtoSchema,
   reportDtoSchema,
 } from '@pillage-first/types/dtos/report';
+import { reportTagSchema } from '@pillage-first/types/models/report';
 import {
   deleteReportQuery,
+  deleteReportTagQuery,
   getUnreadReportCountQuery,
-  selectReportByIdQuery,
-  selectReportsByPlayerQuery,
-  updateReportQuery,
+  insertReportTagQuery,
+  selectReportQuery,
+  selectReportsQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
 import { mapReport, mapReports } from './mappers/reports-mapper';
@@ -24,31 +26,32 @@ export const getMyReports = createController('/reports/:playerId', {
   response: z.array(baseReportDtoSchema),
 })(({ database, path: { playerId } }) => {
   const rows = database.selectObjects({
-    sql: selectReportsByPlayerQuery,
+    sql: selectReportsQuery,
     bind: { $player_id: playerId },
     schema: getReportsRowSchema,
   });
 
-  return rows.map(mapReports);
+  return mapReports(rows);
 });
 
-export const getReport = createController('/report/:reportId', {
+export const getReport = createController('/report/:playerId/:reportId', {
   summary: 'Get report by id',
   requestParams: {
     path: z.strictObject({
+      playerId: z.coerce.number(),
       reportId: z.coerce.number(),
     }),
   },
   response: reportDtoSchema.nullable(),
-})(({ database, path: { reportId } }) => {
-  const row = database.selectObject({
-    sql: selectReportByIdQuery,
-    bind: { $report_id: reportId },
+})(({ database, path: { playerId, reportId } }) => {
+  const rows = database.selectObjects({
+    sql: selectReportQuery,
+    bind: { $player_id: playerId, $report_id: reportId },
     schema: getReportsRowSchema,
   });
 
-  if (row) {
-    return mapReport(database, row);
+  if (rows.length > 0) {
+    return mapReport(database, rows);
   }
 
   return null;
@@ -79,21 +82,34 @@ export const updateReports = createController('/reports', 'patch', {
   summary: 'Update reports',
   requestBody: z.strictObject({
     reportIds: z.array(z.int()),
-    isRead: z.boolean().optional(),
-    isArchived: z.boolean().optional(),
-    // TODO: Deal with tags
-    tag: z.enum(['read', 'archived']).optional(),
+    addTags: z.array(reportTagSchema).optional(),
+    removeTags: z.array(reportTagSchema).optional(),
   }),
-})(({ database, body: { reportIds, isRead, isArchived } }) => {
+})(({ database, body: { reportIds, addTags, removeTags } }) => {
   for (const reportId of reportIds) {
-    database.exec({
-      sql: updateReportQuery,
-      bind: {
-        $report_id: reportId,
-        $is_read: isRead,
-        $is_archived: isArchived,
-      },
-    });
+    if (addTags) {
+      for (const tag of addTags) {
+        database.exec({
+          sql: insertReportTagQuery,
+          bind: {
+            $report_id: reportId,
+            $tag: tag,
+          },
+        });
+      }
+    }
+
+    if (removeTags) {
+      for (const tag of removeTags) {
+        database.exec({
+          sql: deleteReportTagQuery,
+          bind: {
+            $report_id: reportId,
+            $tag: tag,
+          },
+        });
+      }
+    }
   }
 });
 

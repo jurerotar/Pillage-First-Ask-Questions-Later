@@ -6,8 +6,6 @@ CREATE TABLE reports
   timestamp INTEGER NOT NULL,
   subject TEXT NOT NULL,
   type TEXT NOT NULL,
-  is_read INTEGER NOT NULL DEFAULT FALSE,
-  is_archived INTEGER NOT NULL DEFAULT FALSE,
 
   FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE
   FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE

@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import type { BaseReport } from '@pillage-first/types/models/report';
+import type { BaseReport, ReportTag } from '@pillage-first/types/models/report';
 import {
   reportsCacheKey,
   unreadReportsCountCacheKey,
@@ -42,8 +42,8 @@ export const useReports = () => {
     Error,
     {
       reportIds: BaseReport['id'][];
-      isRead?: boolean;
-      isArchived?: boolean;
+      addTags?: ReportTag[];
+      removeTags?: ReportTag[];
     }
   >({
     mutationFn: async (body) => {

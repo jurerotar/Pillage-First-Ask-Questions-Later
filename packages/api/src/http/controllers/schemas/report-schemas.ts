@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { reportTypeSchema } from '@pillage-first/types/models/report';
+import {
+  reportTagSchema,
+  reportTypeSchema,
+} from '@pillage-first/types/models/report';
 
 export const getReportsRowSchema = z
   .strictObject({
@@ -9,7 +12,6 @@ export const getReportsRowSchema = z
     timestamp: z.int(),
     subject: z.string(),
     type: reportTypeSchema,
-    is_read: z.int(),
-    is_archived: z.int(),
+    tag: reportTagSchema.nullable(),
   })
   .meta({ id: 'GetReportsRow' });

@@ -38,6 +38,7 @@ import createEffectScopeIdsTable from '../schemas/lookup-tables/effect-scope-ids
 import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-ids-schema.sql?raw';
 import createEffectTypeIdsTable from '../schemas/lookup-tables/effect-type-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
+import createReportTagIdsTable from '../schemas/lookup-tables/report-tag-ids-schema.sql?raw';
 import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
 import createResourceIdsTable from '../schemas/lookup-tables/resource-ids-schema.sql?raw';
 import createTileTypeIdsTable from '../schemas/lookup-tables/tile-type-ids-schema.sql?raw';
@@ -52,6 +53,7 @@ import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
+import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
@@ -84,6 +86,7 @@ import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
+import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
@@ -212,6 +215,10 @@ export const migrateAndSeed = (
 
     // Reports
     db.exec({ sql: createReportsTable });
+    db.exec({ sql: createReportTagIdsTable });
+    reportTagIdsSeeder(db);
+
+    db.exec({ sql: createReportTagsTable });
 
     db.exec({ sql: createBattlesTable });
     db.exec({ sql: createBattleParticipantsTable });

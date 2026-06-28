@@ -59,18 +59,18 @@ export const Reports = () => {
   };
 
   const markAsRead = (report: BaseReport) => {
-    if (!report.isRead) {
-      updateReports({ reportIds: [report.id], isRead: true });
+    if (!report.tags.includes('READ')) {
+      updateReports({ reportIds: [report.id], addTags: ['READ'] });
     }
   };
 
   const markSelectedAsRead = () => {
-    updateReports({ reportIds: selected, isRead: true });
+    updateReports({ reportIds: selected, addTags: ['READ'] });
     setSelected([]);
   };
 
   const markSelectedAsArchived = () => {
-    updateReports({ reportIds: selected, isArchived: true });
+    updateReports({ reportIds: selected, addTags: ['ARCHIVED'] });
     setSelected([]);
   };
 
@@ -103,6 +103,7 @@ export const Reports = () => {
                 {' '}
                 <Checkbox
                   checked={
+                    selected.length > 0 &&
                     selected.length === pagination.currentPageItems.length
                   }
                   onCheckedChange={toggleSelectedAll}
@@ -130,7 +131,7 @@ export const Reports = () => {
                   >
                     <Text
                       className={
-                        report.isRead
+                        report.tags.includes('READ')
                           ? 'text-gray-700 font-normal'
                           : 'text-link font-medium'
                       }
@@ -138,7 +139,7 @@ export const Reports = () => {
                       {report.subject}
                     </Text>
                   </Link>
-                  {report.isArchived && <Icon type="hero" />}
+                  {report.tags.includes('ARCHIVED') && <Icon type="hero" />}
                 </TableCell>
                 <TableCell>
                   {new Date(report.timestamp).toLocaleString()}

@@ -48,16 +48,14 @@ export const insertReport = (
   const reportId = database.selectValue({
     sql: `
       INSERT INTO
-        reports (player_id, village_id, timestamp, subject, type, is_read, is_archived)
+        reports (player_id, village_id, timestamp, subject, type)
       VALUES
         (
           $player_id,
           $village_id,
           $timestamp,
           $subject,
-          $type,
-          $is_read,
-          $is_archived
+          $type
         )
       RETURNING id;
 `,
@@ -67,8 +65,6 @@ export const insertReport = (
       $timestamp: report.timestamp,
       $subject: report.subject,
       $type: report.type,
-      $is_read: report.isRead ? 1 : 0,
-      $is_archived: report.isArchived ? 1 : 0,
     },
     schema: z.int(),
   })!;
