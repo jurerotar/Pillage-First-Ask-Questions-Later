@@ -211,11 +211,9 @@ describe(loyaltyIncreaseResolver, () => {
       }),
     );
 
-    const { starts_at } = database.selectObject({
+    const starts_at = database.selectValue({
       sql: "SELECT starts_at FROM events WHERE type = 'loyaltyIncrease'",
-      schema: z.strictObject({
-        starts_at: z.number(),
-      }),
+      schema: z.number(),
     })!;
 
     expect(starts_at).toBe(resolvesAt);

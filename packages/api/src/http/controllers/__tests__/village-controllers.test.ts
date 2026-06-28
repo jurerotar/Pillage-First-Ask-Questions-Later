@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
+  getGatherersHutExpeditions,
   getOccupiableOasisInRange,
   getVillageBySlug,
   rearrangeBuildingFields,
@@ -44,6 +45,24 @@ describe('village-controllers', () => {
     );
 
     expect(true).toBe(true);
+  });
+
+  test('getGatherersHutExpeditions should return completed expedition count', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id FROM villages LIMIT 1',
+      schema: z.strictObject({ id: z.number() }),
+    })!;
+
+    const result = getGatherersHutExpeditions(
+      database,
+      createControllerArgs<'/villages/:villageId/gatherers-hut/expeditions'>({
+        path: { villageId: village.id },
+      }),
+    );
+
+    expect(result.completed).toBe(0);
   });
 
   describe(rearrangeBuildingFields, () => {

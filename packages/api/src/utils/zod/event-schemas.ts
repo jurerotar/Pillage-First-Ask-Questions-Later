@@ -18,11 +18,11 @@ export const mapEventRowToTypedEvent = (
   row: z.infer<typeof baseEventRowSchema>,
 ) =>
   ({
+    ...(row.meta !== null ? JSON.parse(row.meta) : {}),
     id: row.id,
     type: row.type,
     startsAt: row.starts_at,
     duration: row.duration,
     resolvesAt: row.resolves_at,
     villageId: row.village_id,
-    ...(row.meta !== null ? JSON.parse(row.meta) : {}),
   }) as GameEvent;

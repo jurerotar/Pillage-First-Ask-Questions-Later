@@ -1,3 +1,27 @@
+## Version 0.4.36
+
+#### Jun 24, 2026
+
+* [Feature] Added **Gatherer's Hut** building. Gatherer's Hut enables you to send your idle troops on to gathering
+  expeditions, where they collect resources. Each unit sent carries 4 resources. Gathering expeditions are meant as a
+  low-risk, although lower-reward alternative to raiding.
+
+## Version 0.4.35
+
+#### Jun 22, 2026
+
+* [Feature] Added **Trade routes** functionality. You may now schedule periodic resource transfers between your
+  villages. You may schedule as many trade routes as you wish. Trade routes persist through demolishing the Marketplace.
+* [BugFix] Fixed long village names breaking mobile navigation alignment. Village navigation now also shows resource
+  layout of the village.
+
+## Version 0.4.34
+
+#### Jun 19, 2026
+
+* [BugFix] Improved internal data structures to prevent event execution happening with stale data, which was observed
+  to (potentially) happen in some cases.
+
 ## Version 0.4.33
 
 #### Jun 18, 2026
@@ -442,7 +466,7 @@ fix: building downgrade fixes
 
 * [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented
   2
-  separate changes in regard to a database. The first one reduced overall database size by around 10–30%, depending
+  separate changes in regard to a database. The first one reduced overall database size by around 10-30%, depending
   on game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This
   results
   in faster game world creation, as well as better performance while in the game!
@@ -617,4 +641,3 @@ fix: building downgrade fixes
   allowed to construct, we have to run a bunch of checks. While these checks are not that slow individually, we had to
   run these checks multiple times for each building, which added up quickly. We've now reworked this to make it more
   efficient. You should be seeing faster page renders, especially on mid/lower-end devices.
-

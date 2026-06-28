@@ -7,6 +7,8 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { GatherersHutGatheringExpeditionTable } from 'app/(game)/(village-slug)/components/gatherers-hut-gathering-expedition-table';
+import { HuntersLodgeHuntingPartyTable } from 'app/(game)/(village-slug)/components/hunters-lodge-hunting-party-table';
 import { MainBuildingDemolitionTable } from 'app/(game)/(village-slug)/components/main-building-demolition-table';
 import { MerchantMovementTable } from 'app/(game)/(village-slug)/components/merchant-movement-table';
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
@@ -37,6 +39,8 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
     doesSmithyExist,
     doesMarketplaceExist,
     doesBreweryExist,
+    doesHuntersLodgeExist,
+    doesGatherersHutExist,
     isMainBuildingAboveLevel10,
   ] = useMemo(() => {
     const fields = currentVillage.buildingFields;
@@ -45,6 +49,8 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
     let hasSmithyBuilding = false;
     let hasMarketplaceBuilding = false;
     let hasBreweryBuilding = false;
+    let hasHuntersLodgeBuilding = false;
+    let hasGatherersHutBuilding = false;
     let hasMainBuildingAboveLevel10 = false;
 
     for (const field of fields) {
@@ -67,6 +73,14 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           hasBreweryBuilding = true;
           break;
         }
+        case 'HUNTERS_LODGE': {
+          hasHuntersLodgeBuilding = true;
+          break;
+        }
+        case 'GATHERERS_HUT': {
+          hasGatherersHutBuilding = true;
+          break;
+        }
         case 'MAIN_BUILDING': {
           hasMainBuildingAboveLevel10 = field.level >= 10;
           break;
@@ -79,6 +93,8 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
       hasSmithyBuilding,
       hasMarketplaceBuilding,
       hasBreweryBuilding,
+      hasHuntersLodgeBuilding,
+      hasGatherersHutBuilding,
       hasMainBuildingAboveLevel10,
     ];
   }, [currentVillage.buildingFields]);
@@ -88,6 +104,8 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
   const smithyName = t('BUILDINGS.SMITHY.NAME');
   const marketplaceName = t('BUILDINGS.MARKETPLACE.NAME');
   const breweryName = t('BUILDINGS.BREWERY.NAME');
+  const huntersLodgeName = t('BUILDINGS.HUNTERS_LODGE.NAME');
+  const gatherersHutName = t('BUILDINGS.GATHERERS_HUT.NAME');
 
   const title = `${t('Overview')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -107,7 +125,7 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
         <Text as="h1">{t('Village overview')}</Text>
         <Text>
           {t(
-            'Village overview allows you to track construction queue, active troop training, smithy and academy queues, monitor merchant availability and movements and track ongoing celebrations.',
+            'Village overview allows you to track construction queue, active troop training, smithy and academy queues, monitor merchant availability and movements, hunting parties, gathering expeditions and ongoing celebrations.',
           )}
         </Text>
         <SectionContent>
@@ -138,6 +156,26 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           <TroopTrainingQueue buildingId="GREAT_STABLE" />
           <Separator orientation="horizontal" />
           <TroopTrainingQueue buildingId="RESIDENCE" />
+        </SectionContent>
+        <Separator orientation="horizontal" />
+        <SectionContent>
+          <Text as="h2">{huntersLodgeName}</Text>
+          {!doesHuntersLodgeExist &&
+            t(
+              'You need to build the {{buildingName}} before you can start hunting parties.',
+              { buildingName: huntersLodgeName },
+            )}
+          {doesHuntersLodgeExist && <HuntersLodgeHuntingPartyTable />}
+        </SectionContent>
+        <Separator orientation="horizontal" />
+        <SectionContent>
+          <Text as="h2">{gatherersHutName}</Text>
+          {!doesGatherersHutExist &&
+            t(
+              'You need to build the {{buildingName}} before you can start gathering expeditions.',
+              { buildingName: gatherersHutName },
+            )}
+          {doesGatherersHutExist && <GatherersHutGatheringExpeditionTable />}
         </SectionContent>
         <Separator orientation="horizontal" />
         <SectionContent>

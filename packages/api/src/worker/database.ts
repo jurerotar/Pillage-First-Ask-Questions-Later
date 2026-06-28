@@ -1,5 +1,6 @@
 import type {
   OpfsSAHPoolDatabase,
+  SAHPoolUtil,
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
@@ -17,7 +18,22 @@ import {
 } from '@pillage-first/utils/version';
 
 let sqlite3: Sqlite3Static | null = null;
+let opfsSahPool: SAHPoolUtil | null = null;
 let database: OpfsSAHPoolDatabase | null = null;
+
+const releaseWorkerDatabase = (dbFacade?: DbFacade): void => {
+  try {
+    dbFacade?.close();
+  } finally {
+    try {
+      database?.close();
+    } finally {
+      database = null;
+      opfsSahPool?.pauseVfs();
+      opfsSahPool = null;
+    }
+  }
+};
 
 export const openWorkerDatabase = async (
   serverSlug: string,
@@ -35,56 +51,61 @@ export const openWorkerDatabase = async (
     forceReinitIfPreviouslyFailed: true,
   };
 
-  const initializedOpfsSahPool = await retryWhenFileSystemLocked(() =>
+  opfsSahPool = await retryWhenFileSystemLocked(() =>
     sqlite3!.installOpfsSAHPoolVfs(opfsSahPoolOptions),
   );
 
-  // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
-  if (initializedOpfsSahPool.getFileCount() === 0) {
-    throw new OutdatedDatabaseSchemaError();
-  }
+  let dbFacade: DbFacade | undefined;
 
-  database = new initializedOpfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
+  try {
+    // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
+    if (opfsSahPool.getFileCount() === 0) {
+      throw new OutdatedDatabaseSchemaError();
+    }
 
-  const dbFacade = createDbFacade(database, false);
+    database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-  dbFacade.exec({
-    sql: `
+    dbFacade = createDbFacade(database, false);
+
+    dbFacade.exec({
+      sql: `
       PRAGMA foreign_keys = ON;        -- keep referential integrity
       PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization
-      PRAGMA journal_mode = OFF;       -- fastest; no rollback journal
-      PRAGMA synchronous = OFF;        -- don't wait for OS to flush (fast, risky)
+      PRAGMA journal_mode = WAL;       -- write-ahead-log
       PRAGMA temp_store = MEMORY;      -- temp tables + indices kept in RAM
       PRAGMA cache_size = -20000;      -- negative = KB, so -20000 => 20 MB cache
       PRAGMA secure_delete = OFF;      -- faster deletes (don't overwrite freed pages)
-      PRAGMA wal_autocheckpoint = 0;   -- no WAL checkpointing (noop unless WAL used)
+      PRAGMA synchronous = OFF;        -- fastest; risks losing recent writes on crash
+      PRAGMA wal_autocheckpoint = 1000;
     `,
-  });
+    });
 
-  const version = dbFacade.selectValue({
-    sql: 'PRAGMA user_version',
-    schema: z.number().nullable(),
-  });
+    const version = dbFacade.selectValue({
+      sql: 'PRAGMA user_version',
+      schema: z.number().nullable(),
+    });
 
-  // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
-  if (!version) {
-    throw new OutdatedDatabaseSchemaError();
+    // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
+    if (!version) {
+      throw new OutdatedDatabaseSchemaError();
+    }
+
+    const [, dbMinor] = parseDatabaseUserVersion(version);
+    const [, appMinor] = parseAppVersion(env.VERSION);
+
+    if (dbMinor !== appMinor) {
+      throw new OutdatedDatabaseSchemaError();
+    }
+
+    upgradeDb(dbFacade);
+
+    return dbFacade;
+  } catch (error) {
+    releaseWorkerDatabase(dbFacade);
+    throw error;
   }
-
-  const [, dbMinor] = parseDatabaseUserVersion(version);
-  const [, appMinor] = parseAppVersion(env.VERSION);
-
-  if (dbMinor !== appMinor) {
-    throw new OutdatedDatabaseSchemaError();
-  }
-
-  upgradeDb(dbFacade);
-
-  return dbFacade;
 };
 
 export const closeWorkerDatabase = (dbFacade: DbFacade): void => {
-  dbFacade.close();
-  database?.close();
-  database = null;
+  releaseWorkerDatabase(dbFacade);
 };

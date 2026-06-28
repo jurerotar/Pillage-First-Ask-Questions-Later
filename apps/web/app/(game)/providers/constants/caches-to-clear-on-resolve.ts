@@ -8,6 +8,7 @@ import {
   effectsCacheKey,
   eventsCacheKey,
   eventsHistoryCacheKey,
+  gatherersHutExpeditionsCacheKey,
   heroCacheKey,
   heroInventoryCacheKey,
   loyaltyCacheKey,
@@ -224,6 +225,7 @@ export const cachesToClearOnResolve: Handlers = {
       ...affectedVillageIds.flatMap((villageId) => [
         [villageTroopsCacheKey, villageId],
         [eventsCacheKey, 'gatherersHutGatheringTrip', villageId],
+        [gatherersHutExpeditionsCacheKey, villageId],
       ]),
     ];
   },
@@ -233,6 +235,15 @@ export const cachesToClearOnResolve: Handlers = {
       ...affectedVillageIds.flatMap((villageId) => [
         [eventsHistoryCacheKey, villageId],
         [eventsCacheKey, 'resourceTransfer', villageId],
+      ]),
+    ];
+  },
+  tradeRoute: ({ affectedVillageIds }) => {
+    return [
+      [currentVillageCacheKey],
+      ...affectedVillageIds.flatMap((villageId) => [
+        [eventsCacheKey, 'resourceTransfer', villageId],
+        [eventsCacheKey, 'tradeRoute', villageId],
       ]),
     ];
   },

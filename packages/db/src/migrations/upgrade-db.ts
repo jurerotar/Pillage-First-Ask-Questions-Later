@@ -437,6 +437,85 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
+  migrateTo('0.4.34', database, (db) => {
+    db.exec({
+      sql: `
+        INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+        SELECT
+          ui.id,
+          1,
+          v.tile_id,
+          v.tile_id
+        FROM
+          heroes h
+            JOIN villages v ON v.id = h.village_id
+            JOIN unit_ids ui ON ui.unit = 'HERO'
+        WHERE
+          h.health > 0
+          AND NOT EXISTS
+          (
+            SELECT 1
+            FROM
+              troops t
+                JOIN unit_ids tui ON tui.id = t.unit_id
+            WHERE
+              tui.unit = 'HERO'
+          )
+          AND NOT EXISTS
+          (
+            SELECT 1
+            FROM
+              events e
+                JOIN json_each(e.meta, '$.troops') troop
+            WHERE
+              e.type IN (
+                'troopMovementReinforcements',
+                'troopMovementRelocation',
+                'troopMovementReturn',
+                'troopMovementFindNewVillage',
+                'troopMovementAttack',
+                'troopMovementRaid',
+                'troopMovementOasisOccupation',
+                'troopMovementAdventure'
+              )
+              AND JSON_EXTRACT(troop.value, '$.unitId') = 'HERO'
+          )
+        ON CONFLICT(unit_id, tile_id, source_tile_id) DO NOTHING;
+      `,
+    });
+  });
+
+  migrateTo('0.4.36', database, (db) => {
+    db.exec({
+      sql: `
+        CREATE TABLE IF NOT EXISTS gatherers_hut_expeditions
+        (
+          village_id INTEGER PRIMARY KEY,
+          completed INTEGER NOT NULL DEFAULT 0 CHECK (completed >= 0),
+
+          FOREIGN KEY (village_id) REFERENCES villages (id)
+            ON DELETE CASCADE
+            ON UPDATE CASCADE
+        ) STRICT;
+      `,
+    });
+
+    db.exec({
+      sql: `
+        INSERT INTO gatherers_hut_expeditions (village_id, completed)
+        SELECT id, 0
+        FROM
+          villages
+        WHERE
+          player_id = $player_id
+        ON CONFLICT(village_id) DO NOTHING;
+      `,
+      bind: {
+        $player_id: PLAYER_ID,
+      },
+    });
+  });
+
   // If all migrations passed, bump it to current version
   database.exec({
     sql: `PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};`,

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { occupiableOasisDtoSchema } from '@pillage-first/types/dtos/oasis';
 import { villageBySlugDtoSchema } from '@pillage-first/types/dtos/village';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { gatherersHutExpeditionsSchema } from '@pillage-first/types/models/gatherers-hut-expeditions';
 import {
   createRearrangeSourceFieldsTableQuery,
   deleteRearrangedBuildingFieldsQuery,
@@ -60,6 +61,39 @@ export const getOccupiableOasisInRange = createController(
     schema: getOccupiableOasisInRangeRowSchema,
   });
   return rows.map(mapOccupiableOasisRowToDto);
+});
+
+export const getGatherersHutExpeditions = createController(
+  '/villages/:villageId/gatherers-hut/expeditions',
+  {
+    summary: 'Get Gatherers Hut expeditions',
+    requestParams: {
+      path: z.strictObject({
+        villageId: z.coerce.number(),
+      }),
+    },
+    response: gatherersHutExpeditionsSchema,
+  },
+)(({ database, path: { villageId } }) => {
+  const completed = database.selectValue({
+    sql: `
+        SELECT COALESCE((
+          SELECT completed
+          FROM
+            gatherers_hut_expeditions
+          WHERE
+            village_id = $village_id
+        ), 0);
+      `,
+    bind: {
+      $village_id: villageId,
+    },
+    schema: z.number(),
+  })!;
+
+  return gatherersHutExpeditionsSchema.parse({
+    completed,
+  });
 });
 
 export const rearrangeBuildingFields = createController(

@@ -207,6 +207,17 @@ export const findNewVillageMovementResolver: Resolver<
     schema: z.number(),
   })!;
 
+  database.exec({
+    sql: `
+      INSERT INTO gatherers_hut_expeditions (village_id, completed)
+      VALUES ($village_id, 0)
+      ON CONFLICT(village_id) DO NOTHING;
+    `,
+    bind: {
+      $village_id: newVillageId,
+    },
+  });
+
   const buildingIdRows = database.selectObjects({
     sql: 'SELECT id, building FROM building_ids',
     schema: z.strictObject({ id: z.number(), building: buildingIdSchema }),
@@ -388,14 +399,19 @@ export const relocationMovementResolver: Resolver<
 > = (database, args) => {
   const { targetTileId, troops, resolvesAt, villageId } = args;
 
-  const { villageId: targetVillageId } = database.selectObject({
-    sql: selectVillageIdAndTileIdQuery,
+  const targetVillageId = database.selectValue({
+    sql: `
+      SELECT
+        COALESCE(v.id, o.village_id)
+      FROM
+        tiles t
+          LEFT JOIN villages v ON v.tile_id = t.id
+          LEFT JOIN oasis o ON o.tile_id = t.id
+      WHERE
+        t.id = $tile_id;
+    `,
     bind: { $tile_id: targetTileId },
-    schema: z.strictObject({
-      tileId: z.number(),
-      tileType: z.enum(['free', 'oasis']),
-      villageId: z.number(),
-    }),
+    schema: z.number(),
   })!;
 
   addTroops(

@@ -18,12 +18,13 @@ export const useFilters = <T extends string>({
 
   const onFiltersChange = (newFilters: T[]) => {
     setSearchParams((prev) => {
-      prev.delete(paramName);
+      const next = new URLSearchParams(prev);
+      next.delete(paramName);
       for (const filter of newFilters) {
-        prev.append(paramName, filter);
+        next.append(paramName, filter);
       }
-      prev.set('page', '1');
-      return prev;
+      next.set('page', '1');
+      return next;
     });
   };
 
@@ -31,9 +32,10 @@ export const useFilters = <T extends string>({
 
   const handlePageChange = (newPage: number | ((prev: number) => number)) => {
     setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
       const nextP = typeof newPage === 'function' ? newPage(page) : newPage;
-      prev.set('page', nextP.toString());
-      return prev;
+      next.set('page', nextP.toString());
+      return next;
     });
   };
 

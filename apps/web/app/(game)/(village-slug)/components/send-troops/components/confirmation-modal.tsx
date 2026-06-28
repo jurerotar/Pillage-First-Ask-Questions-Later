@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { createContext, type PropsWithChildren, use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
@@ -25,8 +25,26 @@ import {
 } from 'app/components/ui/dialog';
 import { Separator } from 'app/components/ui/separator';
 import { formatTime } from 'app/utils/time';
-import type { BaseTroopFormValues } from '../utils/schema';
+import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
 import { ArrivalTime } from './arrival-time';
+
+type TroopConfirmationFormData = {
+  units: UnitSelection[];
+};
+
+type TroopConfirmationContextState = {
+  onBack: () => void;
+  onConfirm: () => void;
+  formData: TroopConfirmationFormData;
+  title: string;
+  tribe: Tribe;
+  backLabel?: string;
+};
+
+export const TroopConfirmationContext =
+  createContext<TroopConfirmationContextState>(
+    {} as TroopConfirmationContextState,
+  );
 
 type TroopMovementConfirmationModalProps = {
   isOpen: boolean;
@@ -40,6 +58,15 @@ type TroopMovementConfirmationModalProps = {
   hideMovementDetails?: boolean;
 };
 
+type TroopConfirmationContentProps = PropsWithChildren<{
+  onBack: () => void;
+  onConfirm: () => void;
+  formData: TroopConfirmationFormData;
+  title: string;
+  tribe: Tribe;
+  backLabel?: string;
+}>;
+
 type TroopMovementConfirmationContentProps = {
   onBack: () => void;
   onConfirm: () => void;
@@ -51,16 +78,94 @@ type TroopMovementConfirmationContentProps = {
   hideMovementDetails?: boolean;
 };
 
-export const TroopMovementConfirmationContent = ({
+export const TroopConfirmationContent = ({
   onBack,
   onConfirm,
   formData,
   title,
   tribe,
-  originTileId,
   backLabel,
-  hideMovementDetails = false,
-}: TroopMovementConfirmationContentProps) => {
+  children,
+}: TroopConfirmationContentProps) => {
+  const value = useMemo(
+    () => ({
+      onBack,
+      onConfirm,
+      formData,
+      title,
+      tribe,
+      backLabel,
+    }),
+    [backLabel, formData, onBack, onConfirm, title, tribe],
+  );
+
+  return (
+    <TroopConfirmationContext value={value}>
+      {children}
+    </TroopConfirmationContext>
+  );
+};
+
+export const TroopConfirmationHeader = () => {
+  const { title } = use(TroopConfirmationContext);
+
+  return (
+    <DialogHeader>
+      <DialogTitle>{title}</DialogTitle>
+    </DialogHeader>
+  );
+};
+
+type TroopConfirmationUnitTableProps = {
+  label?: string;
+};
+
+export const TroopConfirmationUnitTable = ({
+  label,
+}: TroopConfirmationUnitTableProps) => {
+  const { t } = useTranslation();
+  const { formData, tribe } = use(TroopConfirmationContext);
+
+  return (
+    <UnitTable tribe={tribe}>
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={label ?? t('Troops')}
+        troops={formData.units.map(({ unitId, selected }) => ({
+          unitId,
+          amount: selected,
+        }))}
+      />
+    </UnitTable>
+  );
+};
+
+export const TroopConfirmationFooter = () => {
+  const { t } = useTranslation();
+  const { onBack, onConfirm, backLabel } = use(TroopConfirmationContext);
+
+  return (
+    <DialogFooter>
+      <Button
+        variant="outline"
+        onClick={onBack}
+      >
+        {backLabel ?? t('Cancel')}
+      </Button>
+      <Button onClick={onConfirm}>{t('Confirm')}</Button>
+    </DialogFooter>
+  );
+};
+
+type TroopConfirmationMovementDetailsProps = {
+  formData: BaseTroopFormValues;
+  originTileId?: number;
+};
+
+export const TroopConfirmationMovementDetails = ({
+  formData,
+  originTileId,
+}: TroopConfirmationMovementDetailsProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
@@ -115,71 +220,70 @@ export const TroopMovementConfirmationContent = ({
   }, [formData.target.tileId, formData.target.x, formData.target.y, mapSize]);
 
   return (
-    <>
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
-      </DialogHeader>
+    <div className="space-y-2 dark:border-border">
+      <div className="flex justify-between">
+        <Text className="text-muted-foreground">{t('Target')}:</Text>
+        <Text className="font-medium">
+          ({targetCoordinates.x}|{targetCoordinates.y})
+        </Text>
+      </div>
+      <div className="flex justify-between">
+        <Text className="text-muted-foreground">{t('Distance')}:</Text>
+        <Text className="font-medium">
+          {distance.toFixed(1)} {t('tiles')}
+        </Text>
+      </div>
+      <div className="flex justify-between">
+        <Text className="text-muted-foreground">{t('Travel duration')}:</Text>
+        <Text className="font-medium">{formatTime(travelDuration)}</Text>
+      </div>
+      <div className="flex justify-between">
+        <Text className="text-muted-foreground">{t('Arrival time')}:</Text>
+        <ArrivalTime travelDuration={travelDuration} />
+      </div>
+    </div>
+  );
+};
+
+export const TroopMovementConfirmationContent = ({
+  onBack,
+  onConfirm,
+  formData,
+  title,
+  tribe,
+  originTileId,
+  backLabel,
+  hideMovementDetails = false,
+}: TroopMovementConfirmationContentProps) => {
+  return (
+    <TroopConfirmationContent
+      onBack={onBack}
+      onConfirm={onConfirm}
+      formData={formData}
+      title={title}
+      tribe={tribe}
+      backLabel={backLabel}
+    >
+      <TroopConfirmationHeader />
 
       <div className="space-y-2">
         <div className="flex flex-col gap-4">
-          <UnitTable tribe={tribe}>
-            <UnitTableUnitIcons />
-            <UnitTableRow
-              label={t('Troops')}
-              troops={formData.units.map(({ unitId, selected }) => ({
-                unitId,
-                amount: selected,
-              }))}
-            />
-          </UnitTable>
+          <TroopConfirmationUnitTable />
         </div>
 
         {!hideMovementDetails && (
           <>
             <Separator orientation="horizontal" />
-
-            <div className="space-y-2 dark:border-border">
-              <div className="flex justify-between">
-                <Text className="text-muted-foreground">{t('Target')}:</Text>
-                <Text className="font-medium">
-                  ({targetCoordinates.x}|{targetCoordinates.y})
-                </Text>
-              </div>
-              <div className="flex justify-between">
-                <Text className="text-muted-foreground">{t('Distance')}:</Text>
-                <Text className="font-medium">
-                  {distance.toFixed(1)} {t('tiles')}
-                </Text>
-              </div>
-              <div className="flex justify-between">
-                <Text className="text-muted-foreground">
-                  {t('Travel duration')}:
-                </Text>
-                <Text className="font-medium">
-                  {formatTime(travelDuration)}
-                </Text>
-              </div>
-              <div className="flex justify-between">
-                <Text className="text-muted-foreground">
-                  {t('Arrival time')}:
-                </Text>
-                <ArrivalTime travelDuration={travelDuration} />
-              </div>
-            </div>
+            <TroopConfirmationMovementDetails
+              formData={formData}
+              originTileId={originTileId}
+            />
           </>
         )}
       </div>
 
-      <DialogFooter>
-        <Button
-          variant="outline"
-          onClick={onBack}
-        >
-          {backLabel ?? t('Cancel')}
-        </Button>
-        <Button onClick={onConfirm}>{t('Confirm')}</Button>
-      </DialogFooter>
-    </>
+      <TroopConfirmationFooter />
+    </TroopConfirmationContent>
   );
 };
 

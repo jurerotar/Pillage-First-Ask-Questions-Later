@@ -9,3 +9,8 @@ export const transferResourcesBodySchema = z.strictObject({
     wheat: z.number().int().min(0),
   }),
 });
+
+export const createTradeRouteBodySchema = transferResourcesBodySchema.extend({
+  startHour: z.number().int().min(0).max(23),
+  intervalHours: z.number().int().positive(),
+});

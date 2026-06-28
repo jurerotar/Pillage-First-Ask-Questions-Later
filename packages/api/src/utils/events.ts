@@ -57,6 +57,7 @@ import {
   isResourceTransferEvent,
   isReturnTroopMovementEvent,
   isScheduledBuildingEvent,
+  isTradeRouteEvent,
   isTroopMovementEvent,
   isTroopTrainingEvent,
   isUnitImprovementEvent,
@@ -101,15 +102,17 @@ import {
   mapEventRowToTypedEvent,
 } from './zod/event-schemas';
 
+const nonMetaEventProperties = new Set([
+  'id',
+  'type',
+  'startsAt',
+  'duration',
+  'resolvesAt',
+  'villageId',
+]);
+
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
-  const requiredEventProperties = new Set([
-    'type',
-    'startsAt',
-    'duration',
-    'villageId',
-  ]);
-  // We add + 1 for the `meta` column
-  const amountOfColumnsToInsert = requiredEventProperties.size + 1;
+  const amountOfColumnsToInsert = 5;
 
   const sqlTemplate = `
     INSERT INTO
@@ -139,7 +142,7 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
 
     let metaObj: Record<string, SqlValue> | undefined;
     for (const property in event) {
-      if (requiredEventProperties.has(property)) {
+      if (nonMetaEventProperties.has(property)) {
         continue;
       }
 
@@ -720,6 +723,54 @@ export const validateEventCreationPrerequisites = (
     return;
   }
 
+  if (isTradeRouteEvent(event)) {
+    const { village, merchant } = getVillageMerchantStats(
+      database,
+      event.villageId,
+    );
+    const targetVillage = getMarketplaceVillage(
+      database,
+      event.targetVillageId,
+    );
+
+    if (!targetVillage || targetVillage.playerId !== village.playerId) {
+      throw new Error(
+        'Target village does not exist or does not belong to player',
+      );
+    }
+
+    if (event.targetVillageId === event.villageId) {
+      throw new Error('Target village must be different from source village');
+    }
+
+    if (village.tileId !== event.originTileId) {
+      throw new Error('Origin tile does not belong to source village');
+    }
+
+    if (targetVillage.tileId !== event.targetTileId) {
+      throw new Error('Target tile does not belong to target village');
+    }
+
+    if (getTotalResourceAmount(event.resources) <= 0) {
+      throw new Error('Trade route must include resources');
+    }
+
+    if (!Number.isFinite(event.interval) || event.interval <= 0) {
+      throw new Error('Trade route interval must be positive');
+    }
+
+    const merchantAmount = getMerchantAmount(
+      event.resources,
+      merchant.merchantCapacity,
+    );
+
+    if (event.merchantAmount !== merchantAmount) {
+      throw new Error('Invalid merchant amount');
+    }
+
+    return;
+  }
+
   if (isTroopMovementEvent(event)) {
     const errors = validateTroopMovement(database, event);
 
@@ -944,6 +995,10 @@ export const getEventCost = (
     return [wood, clay, iron, wheat];
   }
 
+  if (isTradeRouteEvent(event)) {
+    return [0, 0, 0, 0];
+  }
+
   return [0, 0, 0, 0];
 };
 
@@ -967,11 +1022,9 @@ export const getEventDuration = (
     }
 
     if (isBuildingDowngradeEvent(event)) {
-      const { speed } = database.selectObject({
+      const speed = database.selectValue({
         sql: 'SELECT speed FROM servers LIMIT 1;',
-        schema: z.strictObject({
-          speed: speedSchema,
-        }),
+        schema: speedSchema,
       })!;
 
       return calculateBuildingDestructionDuration(
@@ -1110,11 +1163,9 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { speed } = database.selectObject({
+    const speed = database.selectValue({
       sql: 'SELECT speed FROM servers LIMIT 1;',
-      schema: z.strictObject({
-        speed: speedSchema,
-      }),
+      schema: speedSchema,
     })!;
 
     return (ANIMAL_CAGE_BASE_DURATION * event.cageAmount) / speed;
@@ -1130,11 +1181,9 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { speed } = database.selectObject({
+    const speed = database.selectValue({
       sql: 'SELECT speed FROM servers LIMIT 1;',
-      schema: z.strictObject({
-        speed: speedSchema,
-      }),
+      schema: speedSchema,
     })!;
 
     return calculateHuntersLodgeHuntDuration(event.huntingPartyLevel, speed);
@@ -1150,11 +1199,36 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { seed, speed } = database.selectObject({
-      sql: 'SELECT seed, speed FROM servers LIMIT 1;',
+    const { completedGatheringTripCount, seed, speed } = database.selectObject({
+      sql: `
+        SELECT
+          (
+            SELECT seed
+            FROM
+              servers
+            LIMIT 1
+          ) AS seed,
+          (
+            SELECT speed
+            FROM
+              servers
+            LIMIT 1
+          ) AS speed,
+          COALESCE((
+            SELECT completed
+            FROM
+              gatherers_hut_expeditions
+            WHERE
+              village_id = $village_id
+          ), 0) AS completedGatheringTripCount;
+      `,
+      bind: {
+        $village_id: event.villageId,
+      },
       schema: z.strictObject({
         seed: z.string(),
         speed: speedSchema,
+        completedGatheringTripCount: z.number(),
       }),
     })!;
 
@@ -1162,7 +1236,7 @@ export const getEventDuration = (
       seed,
       speed,
       event.villageId,
-      event.startsAt ?? Date.now(),
+      completedGatheringTripCount,
     );
   }
 
@@ -1222,6 +1296,10 @@ export const getEventDuration = (
       event.targetTileId,
       merchant.merchantSpeed,
     );
+  }
+
+  if (isTradeRouteEvent(event)) {
+    return 0;
   }
 
   if (isHeroRevivalEvent(event)) {
@@ -1454,6 +1532,10 @@ export const getEventStartTime = (
     }
 
     return Date.now();
+  }
+
+  if (isTradeRouteEvent(event)) {
+    return event.startsAt ?? Date.now();
   }
 
   return Date.now();
