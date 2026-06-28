@@ -7,7 +7,6 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
 import { Separator } from 'app/components/ui/separator';
-import { BattleLoot } from './components/battle-loot';
 import { BattleParticipantTable } from './components/battle-participant-table';
 import { BattleStatistics } from './components/battle-statistics';
 
@@ -40,18 +39,15 @@ const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
             }
 
             return (
-              <div key={participant.id}>
+              <div
+                className="my-4"
+                key={participant.id}
+              >
                 <BattleParticipantTable
                   battle={battle}
                   participant={participant}
                   showDefendingUnits={showDefendingUnits}
                 />
-                {participant.role === 'attacker' && (
-                  <BattleLoot
-                    loot={battle.loot}
-                    totalCarryCapacity={battle.totalCarryCapacity}
-                  />
-                )}
               </div>
             );
           })}

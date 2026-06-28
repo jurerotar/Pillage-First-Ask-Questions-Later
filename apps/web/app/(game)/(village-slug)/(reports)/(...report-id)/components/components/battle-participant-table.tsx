@@ -1,179 +1,20 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-import { getUnitsByTribe } from '@pillage-first/game-assets/utils/units';
+import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import type {
   BattleParticipant,
   BattleType,
 } from '@pillage-first/types/models/battle';
-import type { Coordinates } from '@pillage-first/types/models/coordinates';
-import { NPC_ONLY_TRIBES } from '@pillage-first/types/models/tribe';
-import type { Unit } from '@pillage-first/types/models/unit';
-import { Icon } from 'app/components/icon';
-import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
-import { Text } from 'app/components/text';
+import type { TroopLike } from '@pillage-first/types/models/troop';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHeaderCell,
-  TableRow,
-} from 'app/components/ui/table';
-
-type BattleReportUnit = {
-  unitId: Unit['id'];
-  amountBefore: number;
-  amountAfter: number;
-};
-
-type PlayerHeaderProps = {
-  playerName: string;
-  playerSlug: string;
-  villageName: string;
-  coordinates: Coordinates;
-};
-
-const PlayerHeader = ({
-  playerName,
-  playerSlug,
-  villageName,
-  coordinates,
-}: PlayerHeaderProps) => (
-  <div>
-    <Link
-      to={`../players/${playerSlug}`}
-      className="text-link font-medium"
-    >
-      {playerName}
-    </Link>{' '}
-    from village{' '}
-    <Link
-      to={`../map?x=${coordinates.x}&y=${coordinates.y}`}
-      className="text-link font-medium"
-    >
-      {villageName}
-    </Link>
-  </div>
-);
-
-type RevealedTroopsTableBodyArgs = {
-  orderedUnits: BattleReportUnit[];
-};
-
-const RevealedTroopsTableBody = ({
-  orderedUnits,
-}: RevealedTroopsTableBodyArgs) => {
-  const { t } = useTranslation();
-
-  return (
-    <TableBody>
-      <TableRow>
-        <TableCell className="text-center" />
-        {orderedUnits.map((unit) => {
-          return (
-            <TableCell
-              className="text-center"
-              key={unit.unitId}
-            >
-              <Icon
-                type={unitIdToUnitIconMapper(unit.unitId)}
-                className="size-4 lg:size-6 m-auto"
-              />
-            </TableCell>
-          );
-        })}
-      </TableRow>
-
-      <TableRow>
-        <TableCell className="text-center">{t('Initial')}</TableCell>
-        {orderedUnits.map((unit) => {
-          return (
-            <TableCell
-              className="text-center"
-              key={unit.unitId}
-            >
-              {unit.amountBefore}
-            </TableCell>
-          );
-        })}
-      </TableRow>
-
-      <TableRow>
-        <TableCell className="text-center">{t('Casualties')}</TableCell>
-        {orderedUnits.map((unit) => {
-          return (
-            <TableCell
-              className="text-center text-red-500"
-              key={unit.unitId}
-            >
-              {unit.amountBefore - unit.amountAfter}
-            </TableCell>
-          );
-        })}
-      </TableRow>
-
-      <TableRow>
-        <TableCell className="text-center">{t('Remaining')}</TableCell>
-        {orderedUnits.map((unit) => {
-          return (
-            <TableCell
-              className="text-center text-green-700"
-              key={unit.unitId}
-            >
-              {unit.amountAfter}
-            </TableCell>
-          );
-        })}
-      </TableRow>
-    </TableBody>
-  );
-};
-
-type HiddenTroopsTableBodyArgs = {
-  orderedUnits: BattleReportUnit[];
-};
-
-const HiddenTroopsTableBody = ({ orderedUnits }: HiddenTroopsTableBodyArgs) => {
-  const { t } = useTranslation();
-
-  return (
-    <TableBody>
-      <TableRow>
-        <TableCell className="text-center" />
-        {orderedUnits.map((unit) => {
-          return (
-            <TableCell
-              className="text-center"
-              key={unit.unitId}
-            >
-              <Icon
-                type={unitIdToUnitIconMapper(unit.unitId)}
-                className="size-4 lg:size-6 m-auto"
-              />
-            </TableCell>
-          );
-        })}
-      </TableRow>
-
-      <TableRow>
-        <TableCell className="text-center text-gray-700">
-          {t('Troops')}
-        </TableCell>
-        {orderedUnits.map((unit) => {
-          return (
-            <TableCell
-              className="text-center text-gray-700"
-              key={unit.unitId}
-            >
-              ?
-            </TableCell>
-          );
-        })}
-      </TableRow>
-    </TableBody>
-  );
-};
+  UnitTable,
+  UnitTableHiddenRow,
+  UnitTableLoot,
+  UnitTablePlayer,
+  UnitTableRow,
+  UnitTableTitle,
+  UnitTableUnitIcons,
+} from 'app/(game)/components/unit-table';
 
 type BattleParticipantTableProps = {
   battle: BattleType;
@@ -186,84 +27,91 @@ export const BattleParticipantTable = ({
   participant,
   showDefendingUnits,
 }: BattleParticipantTableProps) => {
-  const orderedUnits: BattleReportUnit[] = useMemo(() => {
-    const result = getUnitsByTribe(participant.tribe).map((u) => {
-      const existingUnit = participant.units.find((i) => i.unitId === u.id);
+  const { t } = useTranslation();
 
-      if (existingUnit) {
-        return existingUnit;
-      }
-      return {
-        unitId: u.id,
-        amountBefore: 0,
-        amountAfter: 0,
-      };
-    });
-
-    const tribeIsNpcOnly = (NPC_ONLY_TRIBES as readonly string[]).includes(
+  const { troopsBefore, troopsAfter, troopsLost } = useMemo(() => {
+    const troopsBefore: TroopLike[] = sortTroops(
       participant.tribe,
+      participant.units.map((troop) => ({
+        unitId: troop.unitId,
+        amount: troop.amountBefore,
+      })),
     );
-    const lastUnit = result.at(-1);
-    const lastUnitIsHero = lastUnit ? lastUnit.unitId === 'HERO' : false;
+    const troopsAfter: TroopLike[] = sortTroops(
+      participant.tribe,
+      participant.units.map((troop) => ({
+        unitId: troop.unitId,
+        amount: troop.amountAfter,
+      })),
+    );
+    const troopsLost: TroopLike[] = sortTroops(
+      participant.tribe,
+      participant.units.map((troop) => ({
+        unitId: troop.unitId,
+        amount: troop.amountBefore - troop.amountAfter,
+      })),
+    );
 
-    if (!tribeIsNpcOnly && !lastUnitIsHero) {
-      result.push({
-        unitId: 'HERO',
-        amountBefore: 0,
-        amountAfter: 0,
-      });
-    }
-
-    return result;
+    return {
+      troopsBefore,
+      troopsAfter,
+      troopsLost,
+    };
   }, [participant]);
 
   return (
-    <Table className="mb-2 sm:mb-4">
-      <TableHeader>
-        <TableRow>
-          <TableHeaderCell
-            colSpan={100}
-            className="text-left"
-          >
-            <Text className="capitalize">{participant.role}</Text>
-          </TableHeaderCell>
-        </TableRow>
-        {!participant.isReinforcement && (
-          <TableRow>
-            <TableHeaderCell
-              colSpan={100}
-              className="text-left"
-            >
-              {participant.role === 'attacker' ? (
-                <PlayerHeader
-                  playerName={battle.attackingPlayerName}
-                  playerSlug={battle.attackingPlayerSlug}
-                  villageName={battle.originVillageName}
-                  coordinates={battle.originVillageCoordinates}
-                />
-              ) : (
-                <PlayerHeader
-                  playerName={battle.defendingPlayerName}
-                  playerSlug={battle.defendingPlayerSlug}
-                  villageName={battle.targetVillageName}
-                  coordinates={battle.targetVillageCoordinates}
-                />
-              )}
-            </TableHeaderCell>
-          </TableRow>
-        )}
-      </TableHeader>
+    <UnitTable tribe={participant.tribe}>
+      <UnitTableTitle>{participant.role}</UnitTableTitle>
 
       {participant.role === 'attacker' && (
-        <RevealedTroopsTableBody orderedUnits={orderedUnits} />
+        <UnitTablePlayer
+          playerName={battle.attackingPlayerName}
+          playerSlug={battle.attackingPlayerSlug}
+          villageName={battle.originVillageName}
+          coordinates={battle.originVillageCoordinates}
+        />
+      )}
+      {participant.role === 'defender' && !participant.isReinforcement && (
+        <UnitTablePlayer
+          playerName={battle.defendingPlayerName}
+          playerSlug={battle.defendingPlayerSlug}
+          villageName={battle.targetVillageName}
+          coordinates={battle.targetVillageCoordinates}
+        />
       )}
 
+      <UnitTableUnitIcons />
       {participant.role === 'defender' && !showDefendingUnits && (
-        <HiddenTroopsTableBody orderedUnits={orderedUnits} />
+        <UnitTableHiddenRow
+          label={t('Troops')}
+          troops={troopsBefore}
+        />
       )}
-      {participant.role === 'defender' && showDefendingUnits && (
-        <RevealedTroopsTableBody orderedUnits={orderedUnits} />
+      {(participant.role === 'attacker' || showDefendingUnits) && (
+        <>
+          <UnitTableRow
+            label={t('Initial')}
+            troops={troopsBefore}
+          />
+          <UnitTableRow
+            label={t('Casualties')}
+            troops={troopsLost}
+            textColor="text-red-500"
+          />
+          <UnitTableRow
+            label={t('Remaining')}
+            troops={troopsAfter}
+            textColor="text-green-700"
+          />
+        </>
       )}
-    </Table>
+
+      {participant.role === 'attacker' && (
+        <UnitTableLoot
+          loot={battle.loot}
+          totalCarryCapacity={battle.totalCarryCapacity}
+        />
+      )}
+    </UnitTable>
   );
 };

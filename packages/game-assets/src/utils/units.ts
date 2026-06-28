@@ -1,5 +1,5 @@
 import type { Resource, Resources } from '@pillage-first/types/models/resource';
-import type { Tribe } from '@pillage-first/types/models/tribe';
+import { NPC_ONLY_TRIBES, type Tribe } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import {
   egyptianUnits,
@@ -47,7 +47,11 @@ export const getUnitsByTribe = (tribe: Tribe): Unit[] => {
 };
 
 export const getUnitsByTribeWithHero = (tribe: Tribe): Unit[] => {
-  return [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
+  const units = getUnitsByTribe(tribe);
+  if ((NPC_ONLY_TRIBES as readonly string[]).includes(tribe)) {
+    return units;
+  }
+  return [...units, getUnitDefinition('HERO')];
 };
 
 export const getSettlerUnitIdByTribe = (tribe: Tribe): Unit['id'] => {

@@ -1,4 +1,5 @@
 {
+  " from village ": " from village ",
   "... with {{units}} awaiting training": "... with {{units}} awaiting training",
   "{{amount}} clay": "{{amount}} clay",
   "{{amount}} iron": "{{amount}} iron",
@@ -385,6 +386,7 @@
   "Locale": "Locale",
   "Localization": "Localization",
   "Logout": "Logout",
+  "Loot": "Loot",
   "loyalty": "Loyalty",
   "Loyalty": "Loyalty",
   "Loyalty automatically increases over time when a Residence exists in the village.": "Loyalty automatically increases over time when a Residence exists in the village.",

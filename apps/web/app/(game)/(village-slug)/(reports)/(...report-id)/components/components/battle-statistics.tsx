@@ -81,7 +81,7 @@ export const BattleStatistics = ({
           </TableRow>
         </TableHeader>
 
-        <TableBody>
+        <TableBody className="text-sm">
           <TableRow>
             <TableCell className="text-center" />
             <TableCell className="text-left">{t('Attacker')}</TableCell>
