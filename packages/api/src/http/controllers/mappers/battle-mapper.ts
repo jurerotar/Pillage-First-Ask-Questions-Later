@@ -4,10 +4,8 @@ import type {
   battleParticipantDtoSchema,
   battleUnitDtoSchema,
 } from '@pillage-first/types/dtos/battle';
-import type {
-  BattleStatistics,
-  Loot,
-} from '@pillage-first/types/models/battle';
+import type { BattleStatistics } from '@pillage-first/types/models/battle';
+import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type {
   getBattleByReportRowSchema,
   getBattleParticipantsByReportRowSchema,
@@ -54,7 +52,7 @@ export const mapBattle = (
     y: row.target_village_y,
   };
 
-  const loot: Loot = [
+  const loot: ResourceBundle = [
     row.loot_wood,
     row.loot_clay,
     row.loot_iron,

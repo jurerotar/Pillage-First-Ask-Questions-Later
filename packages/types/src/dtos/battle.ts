@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { battleStatisticsSchema, lootSchema } from '../models/battle';
+import { battleStatisticsSchema } from '../models/battle';
 import { coordinatesSchema } from '../models/coordinates';
+import { resourceBundleSchema } from '../models/resource';
 import { tribeSchema } from '../models/tribe';
 import { unitIdSchema } from '../models/unit';
 
@@ -28,7 +29,7 @@ export const battleDtoSchema = z.strictObject({
   originVillageCoordinates: coordinatesSchema,
   targetVillageName: z.string(),
   targetVillageCoordinates: coordinatesSchema,
-  loot: lootSchema,
+  loot: resourceBundleSchema,
   totalCarryCapacity: z.int(),
   didAttackerWin: z.boolean(),
   canAttackerSeeFullReport: z.boolean(),

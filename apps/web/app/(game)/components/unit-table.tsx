@@ -9,8 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
 import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units';
-import type { Loot } from '@pillage-first/types/models/battle';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
+import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { TroopLike } from '@pillage-first/types/models/troop';
 import { formatNumber } from '@pillage-first/utils/format';
@@ -197,7 +197,7 @@ export const UnitTableHiddenRow = ({
 };
 
 type UnitTableLootProps = {
-  loot: Loot;
+  loot: ResourceBundle;
   totalCarryCapacity: number;
 };
 

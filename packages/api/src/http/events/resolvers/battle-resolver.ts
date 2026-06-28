@@ -10,11 +10,9 @@ import {
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { unitsMap } from '@pillage-first/game-assets/units';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
-import type {
-  BattleParticipant,
-  Loot,
-} from '@pillage-first/types/models/battle';
+import type { BattleParticipant } from '@pillage-first/types/models/battle';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
+import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Tile } from '@pillage-first/types/models/tile';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -93,7 +91,7 @@ type PrepareBattleResult = {
   attackerCombatTroops: CombatTroop[];
   defenderCombatTroops: CombatTroop[];
   modifiers: DefenceModifiers;
-  defenderResources: Loot;
+  defenderResources: ResourceBundle;
 
   originVillageName: string;
   originPlayerId: number;

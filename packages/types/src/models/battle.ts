@@ -1,9 +1,8 @@
 import { z } from 'zod';
 import { coordinatesSchema } from './coordinates';
+import { resourceBundleSchema } from './resource';
 import { tribeSchema } from './tribe';
 import { unitIdSchema } from './unit';
-
-export const lootSchema = z.tuple([z.int(), z.int(), z.int(), z.int()]);
 
 export const battleStatisticsSchema = z.strictObject({
   points: z.int(),
@@ -36,7 +35,7 @@ export const battleTypeSchema = z.strictObject({
   originVillageCoordinates: coordinatesSchema,
   targetVillageName: z.string(),
   targetVillageCoordinates: coordinatesSchema,
-  loot: lootSchema,
+  loot: resourceBundleSchema,
   totalCarryCapacity: z.int(),
   didAttackerWin: z.boolean(),
   canAttackerSeeFullReport: z.boolean(),
@@ -45,7 +44,6 @@ export const battleTypeSchema = z.strictObject({
   participants: z.array(battleParticipantSchema),
 });
 
-export type Loot = z.infer<typeof lootSchema>;
 export type BattleStatistics = z.infer<typeof battleStatisticsSchema>;
 export type BattleUnit = z.infer<typeof battleUnitSchema>;
 export type BattleParticipant = z.infer<typeof battleParticipantSchema>;
