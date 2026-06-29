@@ -1,5 +1,6 @@
 import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
+import { unitsMap } from '@pillage-first/game-assets/units';
 import type {
   BattleParticipant,
   BattleType,
@@ -28,8 +29,13 @@ import {
 
 export type CreateNewReport = Omit<GameReport, 'id' | 'battle'>;
 
-export type CreateNewBattleType = Omit<BattleType, 'participants'> & {
+export type CreateNewBattleType = Omit<
+  BattleType,
+  'participants' | 'attackStatistics' | 'defenceStatistics' | 'didAttackerWin'
+> & {
   reportId: BaseReport['id'];
+  attackStatisticPoints: number;
+  defenceStatisticPoints: number;
 };
 
 export type CreateNewBattleParticipant = Omit<
@@ -96,16 +102,9 @@ export const insertBattle = (
           loot_iron,
           loot_wheat,
           total_carry_capacity,
-          did_attacker_win,
           can_attacker_see_full_report,
           attacker_points,
-          attacker_supply_before,
-          attacker_supply_lost,
-          attacker_resources_lost,
-          defender_points,
-          defender_supply_before,
-          defender_supply_lost,
-          defender_resources_lost
+          defender_points
         )
       VALUES
         (
@@ -125,16 +124,9 @@ export const insertBattle = (
           $loot_iron,
           $loot_wheat,
           $total_carry_capacity,
-          $did_attacker_win,
           $can_attacker_see_full_report,
           $attacker_points,
-          $attacker_supply_before,
-          $attacker_supply_lost,
-          $attacker_resources_lost,
-          $defender_points,
-          $defender_supply_before,
-          $defender_supply_lost,
-          $defender_resources_lost
+          $defender_points
         );
 `,
     bind: {
@@ -154,16 +146,9 @@ export const insertBattle = (
       $loot_iron: battle.loot[2],
       $loot_wheat: battle.loot[3],
       $total_carry_capacity: battle.totalCarryCapacity,
-      $did_attacker_win: battle.didAttackerWin,
       $can_attacker_see_full_report: battle.canAttackerSeeFullReport,
-      $attacker_points: battle.attackStatistics.points,
-      $attacker_supply_before: battle.attackStatistics.supplyBefore,
-      $attacker_supply_lost: battle.attackStatistics.supplyLost,
-      $attacker_resources_lost: battle.attackStatistics.resourcesLost,
-      $defender_points: battle.defenceStatistics.points,
-      $defender_supply_before: battle.defenceStatistics.supplyBefore,
-      $defender_supply_lost: battle.defenceStatistics.supplyLost,
-      $defender_resources_lost: battle.defenceStatistics.resourcesLost,
+      $attacker_points: battle.attackStatisticPoints,
+      $defender_points: battle.defenceStatisticPoints,
     },
   });
 };
@@ -290,5 +275,55 @@ export const getBattle = (
     participant.units.push(unit);
   }
 
+  hydrateBattle(battle);
+
   return battle;
+};
+
+const hydrateBattle = (battle: BattleType) => {
+  // TODO Hydrate from village ID
+  // Using attacking village ID get: player name, slug, village name and village coordinates
+  // Using defending village ID get: player name, slug, village name and village coordinates
+
+  battle.didAttackerWin =
+    battle.attackStatistics.points > battle.defenceStatistics.points;
+
+  let attackerSupplyBefore = 0;
+  let attackerSupplyLost = 0;
+  let attackerResourcesLost = 0;
+  let defenderSupplyBefore = 0;
+  let defenderSupplyLost = 0;
+  let defenderResourcesLost = 0;
+
+  for (const participant of battle.participants) {
+    for (const { unitId, amountBefore, amountAfter } of participant.units) {
+      const unit = unitsMap.get(unitId);
+      if (unit) {
+        let totalResourceCost = 0;
+        for (const resourceCost of unit.baseRecruitmentCost) {
+          totalResourceCost += resourceCost;
+        }
+
+        const amountLost = amountBefore - amountAfter;
+        const resourcesLost = totalResourceCost * amountLost;
+
+        if (participant.role === 'attacker') {
+          attackerSupplyBefore += amountBefore;
+          attackerSupplyLost += amountLost;
+          attackerResourcesLost += resourcesLost;
+        } else {
+          defenderSupplyBefore += amountBefore;
+          defenderSupplyLost += amountLost;
+          defenderResourcesLost += resourcesLost;
+        }
+      }
+    }
+  }
+
+  battle.attackStatistics.supplyBefore = attackerSupplyBefore;
+  battle.attackStatistics.supplyLost = attackerSupplyLost;
+  battle.attackStatistics.resourcesLost = attackerResourcesLost;
+  battle.defenceStatistics.supplyBefore = defenderSupplyBefore;
+  battle.defenceStatistics.supplyLost = defenderSupplyLost;
+  battle.defenceStatistics.resourcesLost = defenderResourcesLost;
 };

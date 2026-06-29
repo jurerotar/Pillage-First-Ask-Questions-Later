@@ -61,16 +61,16 @@ export const mapBattle = (
 
   const attackStatistics: BattleStatistics = {
     points: row.attacker_points,
-    supplyBefore: row.attacker_supply_before,
-    supplyLost: row.attacker_supply_lost,
-    resourcesLost: row.attacker_resources_lost,
+    supplyBefore: 0,
+    supplyLost: 0,
+    resourcesLost: 0,
   };
 
   const defenceStatistics: BattleStatistics = {
     points: row.defender_points,
-    supplyBefore: row.defender_supply_before,
-    supplyLost: row.defender_supply_lost,
-    resourcesLost: row.defender_resources_lost,
+    supplyBefore: 0,
+    supplyLost: 0,
+    resourcesLost: 0,
   };
 
   const dto = {
@@ -84,7 +84,7 @@ export const mapBattle = (
     targetVillageCoordinates,
     loot,
     totalCarryCapacity: row.total_carry_capacity,
-    didAttackerWin: Boolean(row.did_attacker_win),
+    didAttackerWin: false,
     canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
     attackStatistics,
     defenceStatistics,

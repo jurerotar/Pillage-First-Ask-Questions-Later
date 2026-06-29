@@ -8,7 +8,6 @@ import {
   resolveCombat,
 } from '@pillage-first/game-assets/combat/combat-engine';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { unitsMap } from '@pillage-first/game-assets/units';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { BattleParticipant } from '@pillage-first/types/models/battle';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
@@ -52,31 +51,6 @@ const improvementSchema = z.strictObject({
 });
 
 type Improvement = z.infer<typeof improvementSchema>;
-
-const calculateTroopStatistics = (troops: CombatTroopResult[]) => {
-  let supplyBefore = 0;
-  let supplyLost = 0;
-  let resourcesLost = 0;
-  for (const { unitId, amountBefore, amountLost } of troops) {
-    const unit = unitsMap.get(unitId);
-    if (unit) {
-      supplyBefore += amountBefore * unit.unitWheatConsumption;
-      supplyLost += amountLost * unit.unitWheatConsumption;
-
-      let totalResourceCost = 0;
-      for (const resourceCost of unit.baseRecruitmentCost) {
-        totalResourceCost += resourceCost;
-      }
-      resourcesLost += totalResourceCost * amountLost;
-    }
-  }
-
-  return {
-    supplyBefore,
-    supplyLost,
-    resourcesLost,
-  };
-};
 
 type PrepareBattleArgs = {
   database: DbFacade;
@@ -440,16 +414,6 @@ const addBattleReport = ({
   // │ Generate battle │
   // └─────────────────┘
 
-  const attackStatistics = {
-    points: result.attackerTotalPoints,
-    ...calculateTroopStatistics(result.attackerTroops),
-  };
-
-  const defenceStatistics = {
-    points: result.defenderTotalPoints,
-    ...calculateTroopStatistics(result.defenderTroops),
-  };
-
   const battle: CreateNewBattleType = {
     reportId,
     attackingPlayerName: originPlayerName,
@@ -462,10 +426,9 @@ const addBattleReport = ({
     targetVillageCoordinates: targetCoordinates,
     loot: result.loot,
     totalCarryCapacity: result.totalCarryCapacity,
-    didAttackerWin: result.attackerWins,
     canAttackerSeeFullReport: result.canAttackerSeeFullReport,
-    attackStatistics,
-    defenceStatistics,
+    attackStatisticPoints: result.attackerTotalPoints,
+    defenceStatisticPoints: result.defenderTotalPoints,
   };
 
   insertBattle(database, battle);

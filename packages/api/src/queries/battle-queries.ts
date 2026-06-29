@@ -69,16 +69,9 @@ export const selectBattleByReportQuery = `
     loot_iron,
     loot_wheat,
     total_carry_capacity,
-    did_attacker_win,
     can_attacker_see_full_report,
     attacker_points,
-    attacker_supply_before,
-    attacker_supply_lost,
-    attacker_resources_lost,
-    defender_points,
-    defender_supply_before,
-    defender_supply_lost,
-    defender_resources_lost
+    defender_points
   FROM
     battles
   WHERE

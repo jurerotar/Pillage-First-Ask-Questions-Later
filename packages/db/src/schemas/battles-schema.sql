@@ -17,16 +17,9 @@ CREATE TABLE battles
   loot_wheat INTEGER NOT NULL,
   total_carry_capacity INTEGER NOT NULL,
   -- boolean
-  did_attacker_win INTEGER NOT NULL,
   can_attacker_see_full_report INTEGER NOT NULL,
   attacker_points INTEGER NOT NULL,
-  attacker_supply_before INTEGER NOT NULL,
-  attacker_supply_lost INTEGER NOT NULL,
-  attacker_resources_lost INTEGER NOT NULL,
   defender_points INTEGER NOT NULL,
-  defender_supply_before INTEGER NOT NULL,
-  defender_supply_lost INTEGER NOT NULL,
-  defender_resources_lost INTEGER NOT NULL,
 
   FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE
 ) STRICT;
