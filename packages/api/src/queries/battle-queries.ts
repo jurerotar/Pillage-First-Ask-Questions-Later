@@ -54,21 +54,12 @@ export const selectBattleParticipantsByReportQuery = `
 
 export const selectBattleByReportQuery = `
   SELECT
-    attacking_player_name,
-    attacking_player_slug,
-    defending_player_name,
-    defending_player_slug,
-    origin_village_name,
-    origin_village_x,
-    origin_village_y,
-    target_village_name,
-    target_village_x,
-    target_village_y,
+    attacking_village_id,
+    defending_village_id,
     loot_wood,
     loot_clay,
     loot_iron,
     loot_wheat,
-    total_carry_capacity,
     can_attacker_see_full_report,
     attacker_points,
     defender_points

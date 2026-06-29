@@ -19,6 +19,7 @@ import {
 import {
   getBattleByReportRowSchema,
   getBattleParticipantsByReportRowSchema,
+  getBattlePlayerInformationRowSchema,
   getBattleUnitsByReportRowSchema,
 } from '../http/controllers/schemas/battle-schemas';
 import {
@@ -26,14 +27,29 @@ import {
   selectBattleParticipantsByReportQuery,
   selectBattleUnitsByReportQuery,
 } from '../queries/battle-queries';
+import { selectBattlePlayerInformationQuery } from '../queries/report-queries';
 
 export type CreateNewReport = Omit<GameReport, 'id' | 'battle'>;
 
 export type CreateNewBattleType = Omit<
   BattleType,
-  'participants' | 'attackStatistics' | 'defenceStatistics' | 'didAttackerWin'
+  | 'attackingPlayerName'
+  | 'attackingPlayerSlug'
+  | 'originVillageName'
+  | 'originVillageCoordinates'
+  | 'defendingPlayerName'
+  | 'defendingPlayerSlug'
+  | 'targetVillageName'
+  | 'targetVillageCoordinates'
+  | 'attackStatistics'
+  | 'defenceStatistics'
+  | 'didAttackerWin'
+  | 'totalCarryCapacity'
+  | 'participants'
 > & {
   reportId: BaseReport['id'];
+  attackingVillageId: number;
+  defendingVillageId: number;
   attackStatisticPoints: number;
   defenceStatisticPoints: number;
 };
@@ -87,21 +103,12 @@ export const insertBattle = (
       INSERT INTO
         battles (
           report_id,
-          attacking_player_name,
-          attacking_player_slug,
-          defending_player_name,
-          defending_player_slug,
-          origin_village_name,
-          origin_village_x,
-          origin_village_y,
-          target_village_name,
-          target_village_x,
-          target_village_y,
+          attacking_village_id,
+          defending_village_id,
           loot_wood,
           loot_clay,
           loot_iron,
           loot_wheat,
-          total_carry_capacity,
           can_attacker_see_full_report,
           attacker_points,
           defender_points
@@ -109,21 +116,12 @@ export const insertBattle = (
       VALUES
         (
           $report_id,
-          $attacking_player_name,
-          $attacking_player_slug,
-          $defending_player_name,
-          $defending_player_slug,
-          $origin_village_name,
-          $origin_village_x,
-          $origin_village_y,
-          $target_village_name,
-          $target_village_x,
-          $target_village_y,
+          $attacking_village_id,
+          $defending_village_id,
           $loot_wood,
           $loot_clay,
           $loot_iron,
           $loot_wheat,
-          $total_carry_capacity,
           $can_attacker_see_full_report,
           $attacker_points,
           $defender_points
@@ -131,21 +129,12 @@ export const insertBattle = (
 `,
     bind: {
       $report_id: battle.reportId,
-      $attacking_player_name: battle.attackingPlayerName,
-      $attacking_player_slug: battle.attackingPlayerSlug,
-      $defending_player_name: battle.defendingPlayerName,
-      $defending_player_slug: battle.defendingPlayerSlug,
-      $origin_village_name: battle.originVillageName,
-      $origin_village_x: battle.originVillageCoordinates.x,
-      $origin_village_y: battle.originVillageCoordinates.y,
-      $target_village_name: battle.targetVillageName,
-      $target_village_x: battle.targetVillageCoordinates.x,
-      $target_village_y: battle.targetVillageCoordinates.y,
+      $attacking_village_id: battle.attackingVillageId,
+      $defending_village_id: battle.defendingVillageId,
       $loot_wood: battle.loot[0],
       $loot_clay: battle.loot[1],
       $loot_iron: battle.loot[2],
       $loot_wheat: battle.loot[3],
-      $total_carry_capacity: battle.totalCarryCapacity,
       $can_attacker_see_full_report: battle.canAttackerSeeFullReport,
       $attacker_points: battle.attackStatisticPoints,
       $defender_points: battle.defenceStatisticPoints,
@@ -275,18 +264,53 @@ export const getBattle = (
     participant.units.push(unit);
   }
 
-  hydrateBattle(battle);
+  hydrateBattle(database, battle);
 
   return battle;
 };
 
-const hydrateBattle = (battle: BattleType) => {
-  // TODO Hydrate from village ID
-  // Using attacking village ID get: player name, slug, village name and village coordinates
-  // Using defending village ID get: player name, slug, village name and village coordinates
+const hydrateBattle = (database: DbFacade, battle: BattleType) => {
+  // ┌────────────────────┐
+  // │ Player information │
+  // └────────────────────┘
 
-  battle.didAttackerWin =
-    battle.attackStatistics.points > battle.defenceStatistics.points;
+  const {
+    player_name: attackingPlayerName,
+    player_slug: attackingPlayerSlug,
+    village_name: originVillageName,
+    x: originVillageX,
+    y: originVillageY,
+  } = database.selectObject({
+    sql: selectBattlePlayerInformationQuery,
+    bind: { $village_id: battle.attackingVillageId },
+    schema: getBattlePlayerInformationRowSchema,
+  })!;
+
+  const {
+    player_name: defendingPlayerName,
+    player_slug: defendingPlayerSlug,
+    village_name: targetVillageName,
+    x: targetVillageX,
+    y: targetVillageY,
+  } = database.selectObject({
+    sql: selectBattlePlayerInformationQuery,
+    bind: { $village_id: battle.defendingVillageId },
+    schema: getBattlePlayerInformationRowSchema,
+  })!;
+
+  battle.attackingPlayerName = attackingPlayerName;
+  battle.attackingPlayerSlug = attackingPlayerSlug;
+  battle.originVillageName = originVillageName;
+  battle.originVillageCoordinates = { x: originVillageX, y: originVillageY };
+
+  battle.defendingPlayerName = defendingPlayerName;
+  battle.defendingPlayerSlug = defendingPlayerSlug;
+  battle.targetVillageName = targetVillageName;
+  battle.targetVillageCoordinates = { x: targetVillageX, y: targetVillageY };
+
+  // ┌───────────────────┐
+  // │ Player statistics │
+  // └───────────────────┘
 
   let attackerSupplyBefore = 0;
   let attackerSupplyLost = 0;
@@ -326,4 +350,23 @@ const hydrateBattle = (battle: BattleType) => {
   battle.defenceStatistics.supplyBefore = defenderSupplyBefore;
   battle.defenceStatistics.supplyLost = defenderSupplyLost;
   battle.defenceStatistics.resourcesLost = defenderResourcesLost;
+
+  // ┌───────────────────────────┐
+  // │ Carry capacity and winner │
+  // └───────────────────────────┘
+
+  const attacker = battle.participants.find((p) => p.role === 'attacker')!;
+  let totalCarryCapacity = 0;
+  for (const { unitId, amountAfter } of attacker.units) {
+    const unit = unitsMap.get(unitId);
+    if (!unit) {
+      continue;
+    }
+    totalCarryCapacity += unit.unitCarryCapacity * amountAfter;
+  }
+
+  battle.totalCarryCapacity = totalCarryCapacity;
+
+  battle.didAttackerWin =
+    battle.attackStatistics.points > battle.defenceStatistics.points;
 };

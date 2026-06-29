@@ -378,15 +378,10 @@ const addBattleReport = ({
   originTileId,
   originVillageName,
   originPlayerId,
-  originPlayerName,
-  originPlayerSlug,
-  originCoordinates,
 
   targetVillageId,
   targetTileId,
   targetVillageName,
-  targetPlayerName,
-  targetPlayerSlug,
   targetCoordinates,
 }: AddBattleReportArgs) => {
   // ┌─────────────────┐
@@ -416,16 +411,9 @@ const addBattleReport = ({
 
   const battle: CreateNewBattleType = {
     reportId,
-    attackingPlayerName: originPlayerName,
-    attackingPlayerSlug: originPlayerSlug,
-    defendingPlayerName: targetPlayerName,
-    defendingPlayerSlug: targetPlayerSlug,
-    originVillageName,
-    originVillageCoordinates: originCoordinates,
-    targetVillageName,
-    targetVillageCoordinates: targetCoordinates,
+    attackingVillageId: originVillageId,
+    defendingVillageId: targetVillageId,
     loot: result.loot,
-    totalCarryCapacity: result.totalCarryCapacity,
     canAttackerSeeFullReport: result.canAttackerSeeFullReport,
     attackStatisticPoints: result.attackerTotalPoints,
     defenceStatisticPoints: result.defenderTotalPoints,

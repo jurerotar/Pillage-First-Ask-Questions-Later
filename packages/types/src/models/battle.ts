@@ -27,6 +27,8 @@ export const battleParticipantSchema = z.strictObject({
 });
 
 export const battleTypeSchema = z.strictObject({
+  attackingVillageId: z.int(),
+  defendingVillageId: z.int(),
   attackingPlayerName: z.string(),
   attackingPlayerSlug: z.string(),
   defendingPlayerName: z.string(),

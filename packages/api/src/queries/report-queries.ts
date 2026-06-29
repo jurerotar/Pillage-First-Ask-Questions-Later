@@ -42,6 +42,21 @@ export const selectTribeByTileQuery = `
   id = (SELECT player_id FROM villages WHERE tile_id = $tile_id);
 `;
 
+export const selectBattlePlayerInformationQuery = `
+  SELECT
+    p.name AS player_name,
+    p.slug AS player_slug,
+    v.name AS village_name,
+    t.x,
+    t.y
+  FROM
+    villages v
+    JOIN players p ON v.player_id = p.id
+    JOIN tiles t ON v.tile_id = t.id
+  WHERE
+    v.id = $village_id
+`;
+
 export const getUnreadReportCountQuery = `
 SELECT
   COUNT(*)

@@ -42,16 +42,6 @@ export const mapBattleParticipants = (
 export const mapBattle = (
   row: z.infer<typeof getBattleByReportRowSchema>,
 ): z.infer<typeof battleDtoSchema> => {
-  const originVillageCoordinates = {
-    x: row.origin_village_x,
-    y: row.origin_village_y,
-  };
-
-  const targetVillageCoordinates = {
-    x: row.target_village_x,
-    y: row.target_village_y,
-  };
-
   const loot: ResourceBundle = [
     row.loot_wood,
     row.loot_clay,
@@ -74,16 +64,18 @@ export const mapBattle = (
   };
 
   const dto = {
-    attackingPlayerName: row.attacking_player_name,
-    attackingPlayerSlug: row.attacking_player_slug,
-    defendingPlayerName: row.defending_player_name,
-    defendingPlayerSlug: row.defending_player_slug,
-    originVillageName: row.origin_village_name,
-    originVillageCoordinates,
-    targetVillageName: row.target_village_name,
-    targetVillageCoordinates,
+    attackingVillageId: row.attacking_village_id,
+    defendingVillageId: row.defending_village_id,
+    attackingPlayerName: '',
+    attackingPlayerSlug: '',
+    defendingPlayerName: '',
+    defendingPlayerSlug: '',
+    originVillageName: '',
+    originVillageCoordinates: { x: 0, y: 0 },
+    targetVillageName: '',
+    targetVillageCoordinates: { x: 0, y: 0 },
     loot,
-    totalCarryCapacity: row.total_carry_capacity,
+    totalCarryCapacity: 0,
     didAttackerWin: false,
     canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
     attackStatistics,

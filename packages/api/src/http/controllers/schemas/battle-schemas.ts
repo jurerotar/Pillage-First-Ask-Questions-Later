@@ -20,23 +20,24 @@ export const getBattleParticipantsByReportRowSchema = z
   })
   .meta({ id: 'GetBattleParticipantsByReportRow' });
 
+export const getBattlePlayerInformationRowSchema = z
+  .strictObject({
+    player_name: z.string().default('Unknown'),
+    player_slug: z.string().default('Unknown'),
+    village_name: z.string().default('Unknown'),
+    x: z.int().default(0),
+    y: z.int().default(0),
+  })
+  .meta({ id: 'GetBattlePlayerInformationRow' });
+
 export const getBattleByReportRowSchema = z
   .strictObject({
-    attacking_player_name: z.string(),
-    attacking_player_slug: z.string(),
-    defending_player_name: z.string(),
-    defending_player_slug: z.string(),
-    origin_village_name: z.string(),
-    origin_village_x: z.int(),
-    origin_village_y: z.int(),
-    target_village_name: z.string(),
-    target_village_x: z.int(),
-    target_village_y: z.int(),
+    attacking_village_id: z.int(),
+    defending_village_id: z.int(),
     loot_wood: z.int(),
     loot_clay: z.int(),
     loot_iron: z.int(),
     loot_wheat: z.int(),
-    total_carry_capacity: z.int(),
     can_attacker_see_full_report: z.int(),
     attacker_points: z.int(),
     defender_points: z.int(),
