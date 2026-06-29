@@ -158,8 +158,13 @@ const prepareBattle = ({
     })
     .map(mapVillageTroop);
 
-  const attackerCombatTroops = troops.map(mapTroopToCombatTroop);
-  const defenderCombatTroops = defenderTroops.map(mapTroopToCombatTroop);
+  // TODO: Reintroduce hero
+  const attackerCombatTroops = troops
+    .map(mapTroopToCombatTroop)
+    .filter((t) => t.unitId !== 'HERO');
+  const defenderCombatTroops = defenderTroops
+    .map(mapTroopToCombatTroop)
+    .filter((t) => t.unitId !== 'HERO');
 
   const improvementsPerSourceMap: Map<Tile['id'], Improvement[]> = new Map();
   participatingSources.forEach((source) => {
