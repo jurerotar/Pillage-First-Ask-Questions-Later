@@ -25,6 +25,7 @@ export const initFaro = async () => {
       release: env.COMMIT_REF,
       environment: env.MODE,
     },
+    ignoreErrors: [/^Script error\./],
     instrumentations: [
       ...getWebInstrumentations({
         captureConsole: true,
