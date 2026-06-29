@@ -39,6 +39,9 @@
     "./errors": {
       "default": "./src/errors.ts"
     },
+    "./fenwick-tree": {
+      "default": "./src/fenwick-tree.ts"
+    },
     "./opfs-lock-retry": {
       "default": "./src/opfs-lock-retry.ts"
     },

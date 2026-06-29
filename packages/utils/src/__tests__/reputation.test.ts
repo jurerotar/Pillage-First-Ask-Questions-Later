@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { reputationLevels } from '@pillage-first/game-assets/reputation';
 import { getReputationLevel } from '../reputation';
 
-describe('getReputationLevel', () => {
+describe(getReputationLevel, () => {
   const entries = [...reputationLevels.entries()]; // ordered: highest -> lowest
 
   test('returns "player" for null value', () => {

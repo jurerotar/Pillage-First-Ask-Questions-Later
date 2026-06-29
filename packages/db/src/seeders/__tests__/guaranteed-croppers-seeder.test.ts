@@ -4,7 +4,7 @@ import { prepareTestDatabase } from '../../';
 
 const database = await prepareTestDatabase();
 
-const checkCropperCount = (rfc: string, minCount: number) => {
+const getCropperCount = (rfc: string) => {
   const goodCroppersCount = database.selectObjects({
     sql: `
       SELECT
@@ -31,19 +31,19 @@ const checkCropperCount = (rfc: string, minCount: number) => {
     schema: z.strictObject({ id: z.number() }),
   });
 
-  expect(goodCroppersCount.length).toBeGreaterThanOrEqual(minCount);
+  return goodCroppersCount.length;
 };
 
 describe('guaranteedCroppersSeeder', () => {
   test('seeds at least 4 00018 tiles with 150% wheat bonus', () => {
-    checkCropperCount('00018', 4);
+    expect(getCropperCount('00018')).toBeGreaterThanOrEqual(4);
   });
 
   test('seeds at least 12 11115 tiles with 150% wheat bonus', () => {
-    checkCropperCount('11115', 12);
+    expect(getCropperCount('11115')).toBeGreaterThanOrEqual(12);
   });
 
   test('seeds at least 20 3339 tiles with 150% wheat bonus', () => {
-    checkCropperCount('3339', 20);
+    expect(getCropperCount('3339')).toBeGreaterThanOrEqual(20);
   });
 });

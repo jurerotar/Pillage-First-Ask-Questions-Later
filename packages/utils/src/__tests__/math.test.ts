@@ -17,7 +17,7 @@ describe('math utils', () => {
       const p1 = { x: -1, y: -1 };
       const p2 = { x: 2, y: 2 };
       // sqrt((2 - -1)^2 + (2 - -1)^2) = sqrt(3^2 + 3^2) = sqrt(18) ≈ 4.24264
-      expect(calculateDistanceBetweenPoints(p1, p2)).toBeCloseTo(4.242_64);
+      expect(calculateDistanceBetweenPoints(p1, p2)).toBeCloseTo(4.24264);
     });
   });
 

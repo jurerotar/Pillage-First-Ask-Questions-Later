@@ -13,6 +13,7 @@ import { effectSchema } from '@pillage-first/types/models/effect';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
+import { removeTroops } from '../../../../utils/troops';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
@@ -258,6 +259,7 @@ describe(relocationMovementResolver, () => {
 
     const initialVillageId = 1;
     const targetVillageId = 2;
+    const sourceTileId = getVillageTileId(database, initialVillageId);
 
     const targetTileId = database.selectValue({
       sql: 'SELECT tile_id AS tileId FROM villages WHERE id = $targetVillageId;',
@@ -271,9 +273,17 @@ describe(relocationMovementResolver, () => {
       duration: 500,
       villageId: initialVillageId,
       targetTileId,
-      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+      troops: [
+        {
+          unitId: 'HERO',
+          amount: 1,
+          tileId: sourceTileId,
+          source: sourceTileId,
+        },
+      ],
     });
 
+    removeTroops(database, mockEvent.troops);
     relocationMovementResolver(database, mockEvent);
 
     // Verify hero village_id update

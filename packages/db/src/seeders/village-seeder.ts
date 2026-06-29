@@ -1,4 +1,4 @@
-import { prngMulberry32 } from 'ts-seedrandom';
+import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
@@ -8,6 +8,7 @@ import {
 import type { Server } from '@pillage-first/types/models/server';
 import type { VillageSize } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { FenwickTree } from '@pillage-first/utils/fenwick-tree';
 import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
@@ -21,71 +22,20 @@ type OccupiableField = {
   y: number;
 };
 
-/** Fenwick / Binary Indexed Tree for prefix sums */
-class Fenwick {
-  n: number;
-  bit: Float64Array;
+type VillageInsertRow = [
+  name: string,
+  slug: null,
+  tileId: number,
+  playerId: number,
+];
 
-  constructor(arrOrLen: number | number[]) {
-    if (typeof arrOrLen === 'number') {
-      this.n = arrOrLen;
-      this.bit = new Float64Array(this.n + 1);
-    } else {
-      this.n = arrOrLen.length;
-      this.bit = new Float64Array(this.n + 1);
-      for (let i = 0; i < this.n; i += 1) {
-        this.add(i, arrOrLen[i]);
-      }
-    }
-  }
+const occupiableFieldSchema = z.strictObject({
+  id: z.number(),
+  x: z.number(),
+  y: z.number(),
+});
 
-  // add val at index i
-  add(i: number, val: number) {
-    let idx = i + 1;
-    while (idx <= this.n) {
-      this.bit[idx] += val;
-      idx += idx & -idx;
-    }
-  }
-
-  // prefix sum [0..i]
-  sum(i: number) {
-    let idx = i + 1;
-    let s = 0;
-    while (idx > 0) {
-      s += this.bit[idx];
-      idx -= idx & -idx;
-    }
-    return s;
-  }
-
-  total() {
-    return this.sum(this.n - 1);
-  }
-
-  // find the smallest index such that prefix sum > value (value in [0, total) )
-  // returns index in [0, n-1]
-  findByPrefix(value: number) {
-    let idx = 0;
-    let bitMask = 1;
-    // compute the largest power of two <= n
-    while (bitMask << 1 <= this.n) {
-      bitMask <<= 1;
-    }
-    let t = value;
-    for (; bitMask !== 0; bitMask >>= 1) {
-      const next = idx + bitMask;
-      if (next <= this.n && this.bit[next] <= t) {
-        t -= this.bit[next];
-        idx = next;
-      }
-    }
-    // idx is index of largest prefix sum <= value, so result is idx (0-based)
-    return Math.min(this.n - 1, idx); // idx is already 0-based offset representation
-  }
-}
-
-const baseVillageRadius: Record<VillageSize, number> = {
+const baseVillageRadius = {
   xxs: 0,
   xs: 1,
   sm: 1,
@@ -95,25 +45,38 @@ const baseVillageRadius: Record<VillageSize, number> = {
   '2xl': 5,
   '3xl': 6,
   '4xl': 7,
-};
+} as const satisfies Record<VillageSize, number>;
 
-const villageSizeToAmountOfSupportingVillagesMap = new Map<VillageSize, number>(
-  [
-    ['xxs', 0],
-    ['xs', 0],
-    ['sm', 1],
-    ['md', 2],
-    ['lg', 4],
-    ['xl', 7],
-    ['2xl', 9],
-    ['3xl', 10],
-    ['4xl', 13],
-  ],
-);
+const supportingVillageCountBySize = {
+  xxs: 0,
+  xs: 0,
+  sm: 1,
+  md: 2,
+  lg: 4,
+  xl: 7,
+  '2xl': 9,
+  '3xl': 10,
+  '4xl': 13,
+} as const satisfies Record<VillageSize, number>;
 
 const computeScaledRadius = (base: number, mapSize: number) => {
   const scale = Math.max(1, Math.round(mapSize / 200));
   return Math.max(0, Math.round(base * scale));
+};
+
+const coordKey = ({ x, y }: Pick<OccupiableField, 'x' | 'y'>): string => {
+  return `${x}-${y}`;
+};
+
+const coordKeyFromCoordinates = (x: number, y: number): string => {
+  return `${x}-${y}`;
+};
+
+const shuffleInPlace = (prng: PRNGFunction, values: unknown[]): void => {
+  for (let i = values.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(prng() * (i + 1));
+    [values[i], values[j]] = [values[j], values[i]];
+  }
 };
 
 export const villageSeeder = (database: DbFacade, server: Server): void => {
@@ -171,11 +134,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
         t.type = 'free'
         AND NOT (t.x = 0 AND t.y = 0);
     `,
-    schema: z.strictObject({
-      id: z.number(),
-      x: z.number(),
-      y: z.number(),
-    }),
+    schema: occupiableFieldSchema,
   });
 
   // keep arrays static for indexing
@@ -193,21 +152,12 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
   }
 
   // Fenwick for weighted sampling
-  const fenwick = new Fenwick([...weights]);
+  const fenwick = new FenwickTree(weights);
 
   // active indices array (for uniform picks) and index->pos map for O(1) removal
   const activeIndices: number[] = Array.from({ length: n }, (_, i) => i);
 
-  // just to keep seededRandomArrayElement reference used (safe)
-  seededRandomArrayElement(prng, [0]);
-
-  // shuffle activeIndices seeded
-  for (let i = activeIndices.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(prng() * (i + 1));
-    const tmp = activeIndices[i];
-    activeIndices[i] = activeIndices[j];
-    activeIndices[j] = tmp;
-  }
+  shuffleInPlace(prng, activeIndices);
 
   const indexToActivePos = new Int32Array(n).fill(-1);
 
@@ -219,7 +169,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
   const coordToIndex = new Map<string, number>();
 
   for (let i = 0; i < n; i += 1) {
-    coordToIndex.set(`${fields[i].x}-${fields[i].y}`, i);
+    coordToIndex.set(coordKey(fields[i]), i);
   }
 
   const removeIndex = (index: number) => {
@@ -249,7 +199,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
     }
 
     // remove coord map too
-    coordToIndex.delete(`${fields[index].x}-${fields[index].y}`);
+    coordToIndex.delete(coordKey(fields[index]));
     return true;
   };
 
@@ -276,13 +226,8 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
     }
 
     const r = prng() * total;
-    // Fenwick.findByPrefix returns index of prefix <= r; small tweak:
-    // We need the first index with cumulative sum > r.
-    // Our findByPrefix returns the largest prefix sum <= r so use +1, and clamp.
     let idx = fenwick.findByPrefix(r);
-    // if exact boundary we want idx (works). But if findByPrefix returns i where prefix<=r,
-    // we should use next index if prefix == r and r != 0. Safer to just scan a bit forward.
-    // Ensure idx is active; if not (edge cases) fallback to small linear probe.
+    // Ensure idx is active; if not (edge cases), fallback to a small linear probe.
     // But most builds return an active index.
     // If idx is removed, try next active via indexToActivePos checks.
     if (indexToActivePos[idx] === -1) {
@@ -346,8 +291,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
       server.configuration.mapSize,
     );
 
-    const maxConfigured =
-      villageSizeToAmountOfSupportingVillagesMap.get(villageSize) ?? 0;
+    const maxConfigured = supportingVillageCountBySize[villageSize];
     const desiredExtra =
       maxConfigured > 0
         ? seededRandomIntFromInterval(prng, 0, maxConfigured)
@@ -370,13 +314,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
           offsets.push([dx, dy]);
         }
       }
-      // shuffle offsets seeded
-      for (let i = offsets.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(prng() * (i + 1));
-        const tmp = offsets[i];
-        offsets[i] = offsets[j];
-        offsets[j] = tmp;
-      }
+      shuffleInPlace(prng, offsets);
 
       for (const [dx, dy] of offsets) {
         if (need === 0) {
@@ -384,11 +322,10 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
         }
         const nx = startingTile.x + dx;
         const ny = startingTile.y + dy;
-        const key = `${nx}-${ny}`;
-        if (!coordToIndex.has(key)) {
+        const idx = coordToIndex.get(coordKeyFromCoordinates(nx, ny));
+        if (idx === undefined) {
           continue;
         }
-        const idx = coordToIndex.get(key)!;
         // claim it
         removeIndex(idx);
         playerToOccupiedFields.push([playerId, fields[idx]]);
@@ -435,12 +372,17 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
   }
 
   // convert to rows & insert
-  const rows = playerToOccupiedFields.map(([playerId, { id: tileId }]) => {
-    const adjective = seededRandomArrayElement(prng, npcVillageNameAdjectives);
-    const noun = seededRandomArrayElement(prng, npcVillageNameNouns);
-    const name = `${adjective}${noun}`;
-    return [name, null, tileId, playerId];
-  });
+  const rows: VillageInsertRow[] = playerToOccupiedFields.map(
+    ([playerId, { id: tileId }]) => {
+      const adjective = seededRandomArrayElement(
+        prng,
+        npcVillageNameAdjectives,
+      );
+      const noun = seededRandomArrayElement(prng, npcVillageNameNouns);
+      const name = `${adjective}${noun}`;
+      return [name, null, tileId, playerId];
+    },
+  );
 
   batchInsert(
     database,

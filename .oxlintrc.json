@@ -77,6 +77,7 @@
     "typescript/strict-boolean-expressions": "off",
     "typescript/no-unnecessary-type-arguments": "off",
     "typescript/consistent-return": "off",
+    "typescript/prefer-readonly-parameter-types": "off",
     "typescript/consistent-type-definitions": [
       "error",
       "type"
@@ -92,6 +93,7 @@
     "unicorn/no-await-expression-member": "off",
     "unicorn/require-post-message-target-origin": "off",
     "unicorn/prefer-string-slice": "off",
+    "unicorn/max-nested-calls": "off",
     "import/default": "off",
     "import/no-relative-parent-imports": "off",
     "import/prefer-default-export": "off",
@@ -107,24 +109,31 @@
       "never",
       {
         "ignorePackages": true,
-        "css": "always",
-        "sql": "always",
-        "mdx": "always",
-        "scss": "always",
-        "json": "always"
+        "pattern": {
+          "css": "always",
+          "sql": "always",
+          "mdx": "always",
+          "scss": "always",
+          "json": "always"
+        }
       }
     ],
     "vitest/prefer-called-once": "off",
+    "vitest/valid-title": "off",
     "vitest/no-importing-vitest-globals": "off",
     "vitest/require-test-timeout": "off",
     "vitest/prefer-to-be-truthy": "off",
     "vitest/prefer-to-be-falsy": "off",
+    "vitest/max-expects": "off",
+    "vitest/prefer-expect-assertions": "off",
+    "vitest/consistent-test-it": ["error", {"fn": "test"}],
     "jest/valid-expect": "off",
     "jest/valid-title": "off",
     "jest/require-hook": "off",
     "jest/max-expects": "off",
     "jest/prefer-to-be": "off",
     "jest/require-to-throw-message": "off",
+    "jest/prefer-expect-assertions": "off",
     "jest/prefer-called-with": "off",
     "jest/prefer-lowercase-title": "warn",
     "jest/no-conditional-in-test": "off",

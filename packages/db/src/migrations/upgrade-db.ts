@@ -134,12 +134,12 @@ export const upgradeDb = (database: DbFacade): void => {
     const shouldRecreateBuildingIds = newBuildingIdsCount !== 2;
 
     if (shouldRecreateBuildingIds) {
-      database.exec({
+      db.exec({
         sql: 'PRAGMA foreign_keys = OFF;',
       });
 
       try {
-        database.transaction((db) => {
+        db.transaction((db) => {
           db.exec({
             sql: 'DROP TABLE IF EXISTS building_ids;',
           });
@@ -228,7 +228,7 @@ export const upgradeDb = (database: DbFacade): void => {
           });
         });
       } finally {
-        database.exec({
+        db.exec({
           sql: 'PRAGMA foreign_keys = ON;',
         });
       }
