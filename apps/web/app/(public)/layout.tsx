@@ -1,6 +1,8 @@
 import { MDXProvider } from '@mdx-js/react';
 import { type ComponentProps, use } from 'react';
 import { Links, Outlet, Scripts, ScrollRestoration } from 'react-router';
+import type { Route } from '@react-router/types/app/(public)/+types/layout';
+import { closeAllApiWorkers } from 'app/(game)/providers/utils/api-worker-manager';
 import { DesktopNavigation } from 'app/(public)/components/desktop-navigation';
 import { Footer } from 'app/(public)/components/footer';
 import { MobileNavigation } from 'app/(public)/components/mobile-navigation';
@@ -68,6 +70,10 @@ const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
     />
   ),
 };
+
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  closeAllApiWorkers,
+];
 
 const LayoutContent = () => {
   const { uiColorScheme } = use(CookieContext);

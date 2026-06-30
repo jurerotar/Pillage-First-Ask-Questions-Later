@@ -20,7 +20,6 @@ type ApiProviderProps = {
 
 type ApiContextReturn = {
   apiWorker: Worker;
-  closeApiWorker: () => Promise<void>;
   apiClient: ReturnType<typeof createTypedApiClient>;
 };
 
@@ -33,14 +32,8 @@ export const ApiProvider = ({
   serverSlug,
 }: PropsWithChildren<ApiProviderProps>) => {
   const queryClient = useQueryClient();
-  const { apiWorker, closeApiWorker, subscribeToApiWorkerNotifications } =
+  const { apiWorker, subscribeToApiWorkerNotifications } =
     useApiWorker(serverSlug);
-
-  useEffect(() => {
-    return () => {
-      void closeApiWorker();
-    };
-  }, [closeApiWorker]);
 
   useEffect(() => {
     if (!apiWorker) {
@@ -111,10 +104,9 @@ export const ApiProvider = ({
 
     return {
       apiWorker,
-      closeApiWorker,
       apiClient: createTypedApiClient(fetcher),
     };
-  }, [apiWorker, closeApiWorker]);
+  }, [apiWorker]);
 
   return <ApiContext value={value}>{children}</ApiContext>;
 };

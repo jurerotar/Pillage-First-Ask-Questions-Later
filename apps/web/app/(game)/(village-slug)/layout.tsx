@@ -66,7 +66,6 @@ import {
   CurrentVillageStateProvider,
 } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
-import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
@@ -594,7 +593,6 @@ type TopNavigationProps = {
 
 const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
   const { t } = useTranslation();
-  const { closeApiWorker } = use(ApiContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { preferences } = usePreferences();
 
@@ -671,12 +669,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/game-worlds"
-                    onClick={() => {
-                      void closeApiWorker();
-                    }}
-                  >
+                  <Link to="/game-worlds">
                     <DesktopTopRowItem
                       aria-label={t('Logout')}
                       data-tooltip-content={t('Logout')}
@@ -760,7 +753,6 @@ const MobileBottomNavigation = ({
   onDeveloperToolsToggle,
 }: MobileBottomNavigationProps) => {
   const { t } = useTranslation();
-  const { closeApiWorker } = use(ApiContext);
   const { preferences } = usePreferences();
 
   const container = useRef<HTMLDivElement>(null);
@@ -883,9 +875,6 @@ const MobileBottomNavigation = ({
           <li>
             <Link
               to="/game-worlds"
-              onClick={() => {
-                void closeApiWorker();
-              }}
               aria-label={t('Logout')}
               title={t('Logout')}
             >
