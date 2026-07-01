@@ -7,7 +7,6 @@ import { defineConfig as defineViteConfig, mergeConfig } from 'vite';
 import devtoolsJson from 'vite-plugin-devtools-json';
 import { type ManifestOptions, VitePWA } from 'vite-plugin-pwa';
 import { defineConfig as defineVitestConfig } from 'vitest/config';
-import zodCompiler from 'zod-compiler/vite';
 import { reactRouter } from '@react-router/dev/vite';
 import repoPackageJson from '../../package.json' with { type: 'json' };
 import packageJson from './package.json' with { type: 'json' };
@@ -67,7 +66,6 @@ const viteConfig = defineViteConfig({
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
     !isInTestMode && tailwindcss(),
-    !isInTestMode && zodCompiler(),
     !isInTestMode &&
       VitePWA({
         registerType: 'autoUpdate',

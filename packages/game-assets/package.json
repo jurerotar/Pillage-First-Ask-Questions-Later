@@ -85,7 +85,7 @@
   },
   "dependencies": {
     "@pillage-first/utils": "*",
-    "ts-seedrandom": "1.5.0"
+    "ts-seedrandom": "1.6.0"
   },
   "devDependencies": {
     "@typescript/native-preview": "7.0.0-dev.20260615.1",

@@ -1,3 +1,10 @@
+## Version 0.4.37
+
+#### Jul 1, 2026
+
+* [BugFix] Fixed an issue where relocating buildings would cause building effects to be incorrectly calculated.
+* [BugFix] Fixed an issue where hero regeneration rate wasn't correctly updated for faster game worlds.
+
 ## Version 0.4.36
 
 #### Jun 24, 2026

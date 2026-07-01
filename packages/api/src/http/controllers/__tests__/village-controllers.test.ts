@@ -135,6 +135,89 @@ describe('village-controllers', () => {
       expect(JSON.parse(event!.meta).buildingFieldId).toBe(fieldId2);
     });
 
+    test('should move building effects when rearranging occupied building fields', async () => {
+      const database = await prepareTestDatabase();
+
+      const village = database.selectObject({
+        sql: 'SELECT id FROM villages LIMIT 1',
+        schema: z.strictObject({ id: z.number() }),
+      })!;
+      const villageId = village.id;
+
+      database.exec({
+        sql: `
+          INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
+          VALUES
+            ($v, 19, (SELECT id FROM building_ids WHERE building = 'WAREHOUSE'), 3),
+            ($v, 20, (SELECT id FROM building_ids WHERE building = 'BARRACKS'), 2);
+        `,
+        bind: { $v: villageId },
+      });
+
+      database.exec({
+        sql: `
+          DELETE
+          FROM effects
+          WHERE
+            village_id = $v
+            AND source = 'building'
+            AND source_specifier IN (19, 20);
+        `,
+        bind: { $v: villageId },
+      });
+
+      database.exec({
+        sql: `
+          INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
+          VALUES
+            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 1500, 'base', 'village', 'building', $v, 19),
+            ((SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration'), 0.9091, 'bonus', 'village', 'building', $v, 20);
+        `,
+        bind: { $v: villageId },
+      });
+
+      rearrangeBuildingFields(
+        database,
+        createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
+          path: { villageId },
+          body: [
+            { buildingFieldId: 19, buildingId: 'BARRACKS' },
+            { buildingFieldId: 20, buildingId: 'WAREHOUSE' },
+          ],
+        }),
+      );
+
+      const effects = database.selectObjects({
+        sql: `
+          SELECT ei.effect, e.source_specifier
+          FROM effects e
+          JOIN effect_ids ei ON ei.id = e.effect_id
+          WHERE
+            e.village_id = $v
+            AND e.source = 'building'
+            AND e.source_specifier IN (19, 20)
+            AND ei.effect IN ('warehouseCapacity', 'barracksTrainingDuration')
+          ORDER BY ei.effect;
+        `,
+        bind: { $v: villageId },
+        schema: z.strictObject({
+          effect: z.string(),
+          source_specifier: z.number(),
+        }),
+      });
+
+      expect(effects).toEqual([
+        {
+          effect: 'barracksTrainingDuration',
+          source_specifier: 19,
+        },
+        {
+          effect: 'warehouseCapacity',
+          source_specifier: 20,
+        },
+      ]);
+    });
+
     test('should update building field ids for all rearrangeable building event types', async () => {
       const database = await prepareTestDatabase();
 

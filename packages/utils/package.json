@@ -82,13 +82,13 @@
   },
   "dependencies": {
     "@pillage-first/types": "*",
-    "ts-seedrandom": "1.5.0"
+    "ts-seedrandom": "1.6.0"
   },
   "devDependencies": {
     "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "type-fest": "5.7.0",
     "typescript": "6.0.3",
-    "vite": "8.1.0",
+    "vite": "8.1.2",
     "vitest": "4.1.9",
     "zod": "4.4.3"
   }

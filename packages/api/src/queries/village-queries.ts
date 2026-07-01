@@ -255,3 +255,61 @@ export const updateRearrangedBuildingFieldEventsQuery = `
     AND JSON_EXTRACT(meta, '$.buildingId') = ur.building_text
     AND ur.building_text IS NOT NULL;
 `;
+
+export const updateRearrangedBuildingFieldEffectsQuery = `
+  WITH updates_raw(field_id, building_text) AS (
+    SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+    FROM JSON_EACH($updates)
+  ),
+  updates AS (
+    SELECT ur.field_id, bi.id AS building_id
+    FROM updates_raw ur
+    LEFT JOIN building_ids bi ON bi.building = ur.building_text
+    WHERE ur.field_id BETWEEN 19 AND 38
+  ),
+  moved_fields AS (
+    SELECT
+      COALESCE(
+        (
+          SELECT sf.field_id
+          FROM temp_rearrange_source_fields sf
+          WHERE sf.building_id = u.building_id
+            AND EXISTS (
+              SELECT 1
+              FROM updates source_update
+              WHERE source_update.field_id = sf.field_id
+                AND (
+                  source_update.building_id IS NULL
+                  OR source_update.building_id <> sf.building_id
+                )
+            )
+          LIMIT 1
+        ),
+        (
+          SELECT sf.field_id
+          FROM temp_rearrange_source_fields sf
+          WHERE sf.field_id = u.field_id
+            AND sf.building_id = u.building_id
+          LIMIT 1
+        )
+      ) AS source_field_id,
+      u.field_id AS target_field_id
+    FROM updates u
+    WHERE u.building_id IS NOT NULL
+  )
+  UPDATE effects
+  SET source_specifier = (
+    SELECT mf.target_field_id
+    FROM moved_fields mf
+    WHERE mf.source_field_id = effects.source_specifier
+  )
+  WHERE
+    village_id = $village_id
+    AND scope = 'village'
+    AND source = 'building'
+    AND source_specifier IN (
+      SELECT source_field_id
+      FROM moved_fields
+      WHERE source_field_id IS NOT NULL
+    );
+`;
