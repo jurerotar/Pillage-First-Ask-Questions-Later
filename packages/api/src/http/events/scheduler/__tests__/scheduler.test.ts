@@ -133,6 +133,25 @@ describe('scheduler', () => {
     expect(mockDataSource.resolveEvent).not.toHaveBeenCalled();
   });
 
+  test('cancelScheduling clears registered kick callback', () => {
+    using context = setupSchedulerTest();
+    const { mockDataSource } = context;
+
+    mockDataSource.getPastEventIds.mockReturnValue([]);
+    mockDataSource.getNextEvent.mockReturnValue(null);
+
+    initScheduler(mockDataSource);
+    cancelScheduling();
+    vi.clearAllMocks();
+
+    triggerKick();
+    vi.advanceTimersByTime(0);
+
+    expect(mockDataSource.getPastEventIds).not.toHaveBeenCalled();
+    expect(mockDataSource.getNextEvent).not.toHaveBeenCalled();
+    expect(mockDataSource.resolveEvent).not.toHaveBeenCalled();
+  });
+
   test('handles re-entrancy via schedulingInProgress', () => {
     using context = setupSchedulerTest();
     const { mockDataSource } = context;

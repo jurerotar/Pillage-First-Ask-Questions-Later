@@ -18,10 +18,14 @@ export const registerKickCallback = (callback: () => void): void => {
   kickCallback = callback;
 };
 
+export const clearKickCallback = (): void => {
+  kickCallback = null;
+};
+
 /** @internal only for testing */
 export const resetSchedulerSignalForTesting = (): void => {
   needsRescanFlag = false;
-  kickCallback = null;
+  clearKickCallback();
 };
 
 export const triggerKick = (): void => {
