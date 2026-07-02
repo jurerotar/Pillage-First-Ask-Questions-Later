@@ -4,6 +4,9 @@
 
 * [BugFix] Fixed an issue where relocating buildings would cause building effects to be incorrectly calculated.
 * [BugFix] Fixed an issue where hero regeneration rate wasn't correctly updated for faster game worlds.
+* [Performance] Reduced web worker memory usage during game world imports by roughly 50%.
+* [Performance] Improved Resources & Village view's building fields render timing by ~ 3.4%
+* [Performance] Improved controller route matching performance by roughly 45-50%.
 
 ## Version 0.4.36
 
