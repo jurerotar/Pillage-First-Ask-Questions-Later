@@ -120,8 +120,8 @@ without the body length check.
 
 `pre-push`: Lint and format is validated before push.
 
-These hooks are managed automatically via `lefthook`. You can find the configuration in [
-`lefthook.yml`](./lefthook.yml).
+These hooks are managed via `lefthook`. After installing dependencies, run `npx lefthook install` from the repository
+root to install them. You can find the configuration in [`lefthook.yml`](./lefthook.yml).
 
 ## 6. Localization
 
@@ -146,4 +146,3 @@ You may run these checks locally.
 
 The project is hosted on **Netlify**, with separate environments for `master` and `develop` branches and additional
 builds per branch and PRs. Posting a pull-request will automatically create a new live deployment.
-
