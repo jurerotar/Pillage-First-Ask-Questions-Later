@@ -48,7 +48,7 @@ const ImportGameWorld = () => {
       const result = await workerFactory<
         ImportGameWorldWorkerPayload,
         ImportGameWorldWorkerResponse
-      >(ImportGameWorldWorker, payload);
+      >(ImportGameWorldWorker, payload, [payload.databaseBuffer]);
 
       if (!result.resolved) {
         throw new Error(result.error || 'Failed to import game world.');

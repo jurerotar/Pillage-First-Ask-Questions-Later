@@ -2,7 +2,7 @@ import Peer, { type DataConnection } from 'peerjs';
 import { useCallback, useEffect, useRef } from 'react';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
-import ShareServerWorker from 'app/(public)/workers/share-server-worker?worker&url';
+import ShareGameWorldWorker from 'app/(public)/workers/share-game-world-worker?worker&url';
 import { getDeviceId } from 'app/utils/device';
 import { workerFactory } from 'app/utils/workers';
 
@@ -29,25 +29,34 @@ type Message =
   | { type: 'REQUEST_WORLD'; serverSlug: string }
   | { type: 'error'; message: string };
 
-type ShareServerInput = { serverSlug: string };
-
-type ShareServerOutput =
+type ShareGameWorldOutput =
   | { type: 'database'; databaseBuffer: ArrayBuffer }
   | { type: 'error'; message: string };
 
 const withReconnect = (fn: () => void, delay = 5000) => {
   let cancelled = false;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   const retry = () => {
-    if (!cancelled) {
-      setTimeout(fn, delay);
+    if (cancelled) {
+      return;
     }
+
+    timeoutId = setTimeout(() => {
+      if (!cancelled) {
+        fn();
+      }
+    }, delay);
   };
 
   return {
     retry,
     cancel: () => {
       cancelled = true;
+
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
     },
   };
 };
@@ -58,6 +67,7 @@ export const WebRTCAdvertiser = () => {
   const peerRef = useRef<Peer | null>(null);
   const registryPeerRef = useRef<Peer | null>(null);
   const registryConnectionRef = useRef<DataConnection | null>(null);
+  const reconnectCancelRef = useRef<(() => void) | null>(null);
   const activePeersRef = useRef<ActivePeers | null>(null);
   const registryConnectionsRef = useRef<RegistryConnections | null>(null);
 
@@ -137,9 +147,8 @@ export const WebRTCAdvertiser = () => {
         });
       };
 
+      reconnectCancelRef.current = cancel;
       announce();
-
-      return cancel;
     });
 
     peer.on('connection', (conn) => {
@@ -149,10 +158,12 @@ export const WebRTCAdvertiser = () => {
           conn.send(createAnnounceMessage(peer.id));
         } else if (message.type === 'REQUEST_WORLD') {
           try {
-            const result = await workerFactory<
-              ShareServerInput,
-              ShareServerOutput
-            >(ShareServerWorker, { serverSlug: message.serverSlug });
+            const workerUrl = new URL(ShareGameWorldWorker, import.meta.url);
+            workerUrl.searchParams.set('server-slug', message.serverSlug);
+
+            const result = await workerFactory<void, ShareGameWorldOutput>(
+              workerUrl,
+            );
 
             if (result.type === 'database') {
               conn.send(result.databaseBuffer);
@@ -230,8 +241,22 @@ export const WebRTCAdvertiser = () => {
     });
 
     return () => {
+      reconnectCancelRef.current?.();
+      reconnectCancelRef.current = null;
+      registryConnectionRef.current?.close();
+      registryConnectionRef.current = null;
+
+      for (const conn of registryConnectionsRef.current!) {
+        conn.close();
+      }
+
+      registryConnectionsRef.current!.clear();
+      activePeersRef.current!.clear();
+      connections.clear();
       peerRef.current?.destroy();
+      peerRef.current = null;
       registryPeerRef.current?.destroy();
+      registryPeerRef.current = null;
     };
   }, [createAnnounceMessage, buildAvailableWorldsList]);
 
