@@ -98,8 +98,8 @@ const Counter = ({ counter }: CounterProps) => {
 };
 
 const ReportsCounter = () => {
-  const { unreadReportCount } = useReports();
-  return <Counter counter={unreadReportCount} />;
+  const { reports } = useReports('unread');
+  return <Counter counter={reports.length} />;
 };
 
 const AdventurePointsCounter = () => {

@@ -7,7 +7,6 @@ import { reportTagSchema } from '@pillage-first/types/models/report';
 import {
   deleteReportQuery,
   deleteReportTagQuery,
-  getUnreadReportCountQuery,
   insertReportTagQuery,
   selectReportQuery,
 } from '../../queries/report-queries';
@@ -131,27 +130,6 @@ export const getReport = createController('/report/:playerId/:reportId', {
   }
 
   return null;
-});
-
-export const getUnreadReportCount = createController(
-  '/reports/unread-count/:playerId',
-  {
-    summary: 'Get unread reports count',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-      }),
-    },
-    response: z.int(),
-  },
-)(({ database, path: { playerId } }) => {
-  return database.selectValue({
-    sql: getUnreadReportCountQuery,
-    bind: {
-      $player_id: playerId,
-    },
-    schema: z.int(),
-  });
 });
 
 export const updateReports = createController('/reports', 'patch', {

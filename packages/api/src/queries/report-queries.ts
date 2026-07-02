@@ -57,25 +57,6 @@ export const selectBattlePlayerInformationQuery = `
     v.id = $village_id
 `;
 
-export const getUnreadReportCountQuery = `
-SELECT
-  COUNT(*)
-FROM
-  reports r
-WHERE
-  r.player_id = $player_id
-  AND NOT EXISTS (
-    SELECT
-      1
-    FROM
-      report_tags rt
-      JOIN report_tag_ids rti ON rt.report_tag_id = rti.id
-    WHERE
-      rt.report_id = r.id
-      AND rti.tag = 'READ'
-  );
-`;
-
 export const deleteReportQuery = `
   DELETE FROM reports WHERE id = $report_id
 `;

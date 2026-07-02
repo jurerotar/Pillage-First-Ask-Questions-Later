@@ -105,7 +105,6 @@ import {
   deleteReports,
   getReport,
   getReports,
-  getUnreadReportCount,
   updateReports,
 } from './controllers/report-controllers';
 import { getReputations } from './controllers/reputation-controllers';
@@ -281,7 +280,6 @@ export const apiRoutes = [
   createRoute(getReport),
   createRoute(updateReports),
   createRoute(deleteReports),
-  createRoute(getUnreadReportCount),
 
   // Bonus Finder
   createRoute(getTilesWithBonuses),

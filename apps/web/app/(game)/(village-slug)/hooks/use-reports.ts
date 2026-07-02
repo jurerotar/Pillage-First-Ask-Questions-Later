@@ -6,10 +6,7 @@ import type {
   ReportType,
 } from '@pillage-first/types/models/report';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  reportsCacheKey,
-  unreadReportsCountCacheKey,
-} from 'app/(game)/constants/query-keys';
+import { reportsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 import { useMe } from './use-me';
@@ -42,18 +39,6 @@ export const useReports = (
     },
   });
 
-  const { data: unreadReportCount } = useSuspenseQuery({
-    queryKey: [unreadReportsCountCacheKey],
-    queryFn: async () => {
-      const { data } = await apiClient.get('/reports/:playerId/unread-count', {
-        path: {
-          playerId: player.id,
-        },
-      });
-      return data;
-    },
-  });
-
   const { mutate: updateReports } = useMutation<
     void,
     Error,
@@ -67,10 +52,7 @@ export const useReports = (
       await apiClient.patch('/reports', { body });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [
-        [reportsCacheKey],
-        [unreadReportsCountCacheKey],
-      ]);
+      await invalidateQueries(context, [[reportsCacheKey]]);
     },
   });
 
@@ -85,16 +67,12 @@ export const useReports = (
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [
-        [reportsCacheKey],
-        [unreadReportsCountCacheKey],
-      ]);
+      await invalidateQueries(context, [[reportsCacheKey]]);
     },
   });
 
   return {
     reports,
-    unreadReportCount,
     updateReports,
     deleteReports,
   };
