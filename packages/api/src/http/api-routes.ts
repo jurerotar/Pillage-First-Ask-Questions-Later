@@ -103,8 +103,8 @@ import {
 } from './controllers/quest-controllers';
 import {
   deleteReports,
-  getMyReports,
   getReport,
+  getReports,
   getUnreadReportCount,
   updateReports,
 } from './controllers/report-controllers';
@@ -277,7 +277,7 @@ export const apiRoutes = [
   createRoute(updateBookmark),
 
   // Reports
-  createRoute(getMyReports),
+  createRoute(getReports),
   createRoute(getReport),
   createRoute(updateReports),
   createRoute(deleteReports),
