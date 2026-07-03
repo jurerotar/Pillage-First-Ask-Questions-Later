@@ -93,6 +93,11 @@ export const ReportsList = ({
     setSelected([]);
   };
 
+  const markSelectedAsUnread = () => {
+    updateReports({ reportIds: selected, removeTags: ['READ'] });
+    setSelected([]);
+  };
+
   const markSelectedAsArchived = () => {
     updateReports({ reportIds: selected, addTags: ['ARCHIVED'] });
     setSelected([]);
@@ -208,7 +213,7 @@ export const ReportsList = ({
         </Table>
       </div>
       <div className="flex w-full justify-between">
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
           <Button
             disabled={selected.length === 0}
             onClick={deleteSelected}
@@ -219,8 +224,16 @@ export const ReportsList = ({
             disabled={selected.length === 0}
             onClick={markSelectedAsRead}
           >
-            {t('Mark as read')}
+            {t('Read')}
           </Button>
+          {scope !== 'unread' && (
+            <Button
+              disabled={selected.length === 0}
+              onClick={markSelectedAsUnread}
+            >
+              {t('Unread')}
+            </Button>
+          )}
 
           {scope !== 'archived' && (
             <Button
