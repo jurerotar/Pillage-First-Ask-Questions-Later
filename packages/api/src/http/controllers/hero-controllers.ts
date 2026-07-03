@@ -536,8 +536,7 @@ export const equipHeroItem = createController(
             $type: effect.type,
             $scope: effect.scope,
             $source: 'hero',
-            $village_id:
-              effect.scope === 'village' ? (villageId ?? null) : null,
+            $village_id: effect.scope === 'local' ? (villageId ?? null) : null,
             $source_specifier: itemId,
           },
         });

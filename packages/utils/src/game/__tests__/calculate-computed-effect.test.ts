@@ -169,7 +169,7 @@ describe('calculateComputedEffect – woodProduction', () => {
       const heroBaseEffect: HeroEffect = {
         villageId,
         id: effectId,
-        scope: 'village',
+        scope: 'local',
         source: 'hero',
         value: 1000,
         type: 'base',
@@ -380,7 +380,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 25,
         type: 'base',
         source: 'troops',
-        scope: 'village',
+        scope: 'local',
         villageId,
         sourceSpecifier: null,
       };
@@ -407,7 +407,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 10,
         type: 'base',
         source: 'artifact',
-        scope: 'village',
+        scope: 'local',
         villageId,
         sourceSpecifier: null,
       };
@@ -416,7 +416,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 1.1,
         type: 'bonus',
         source: 'artifact',
-        scope: 'village',
+        scope: 'local',
         villageId,
         sourceSpecifier: null,
       };
@@ -445,7 +445,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 15,
         type: 'base',
         source: 'oasis',
-        scope: 'village',
+        scope: 'local',
         villageId,
         sourceSpecifier: null,
       };
@@ -454,7 +454,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 1.2,
         type: 'bonus',
         source: 'oasis',
-        scope: 'village',
+        scope: 'local',
         villageId,
         sourceSpecifier: null,
       };
@@ -483,7 +483,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         type: 'bonus',
         source: 'building',
         buildingId: 'WATERWORKS',
-        scope: 'village',
+        scope: 'local',
         villageId,
         sourceSpecifier: null,
       };
@@ -529,7 +529,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 5,
         type: 'base',
         source: 'troops',
-        scope: 'village',
+        scope: 'local',
         villageId,
         sourceSpecifier: 0,
       };
@@ -550,7 +550,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 200,
         type: 'base',
         source: 'building',
-        scope: 'village',
+        scope: 'local',
         villageId: 15,
         sourceSpecifier: null,
       };
@@ -571,7 +571,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 0.9,
         type: 'bonus',
         source: 'building',
-        scope: 'village',
+        scope: 'local',
         villageId,
         sourceSpecifier: null,
       };

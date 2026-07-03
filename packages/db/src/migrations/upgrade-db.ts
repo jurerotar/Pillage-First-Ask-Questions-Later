@@ -602,6 +602,16 @@ export const upgradeDb = (database: DbFacade): void => {
           op.value > 0;
       `,
     });
+
+    db.exec({
+      sql: `
+        UPDATE effects
+        SET
+          scope = 'local'
+        WHERE
+          scope = 'village';
+      `,
+    });
   });
 
   // If all migrations passed, bump it to current version

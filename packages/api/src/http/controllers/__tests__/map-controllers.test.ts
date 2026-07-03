@@ -39,11 +39,11 @@ describe('map-controllers', () => {
 
     // 3. Seed various effects
     const effects = [
-      // Correct population effect: type='base', scope='village', source='building', source_specifier=0
+      // Correct population effect: type='base', scope='local', source='building', source_specifier=0
       {
         value: -100,
         type: 'base',
-        scope: 'village',
+        scope: 'local',
         source: 'building',
         source_specifier: 0,
       },
@@ -51,7 +51,7 @@ describe('map-controllers', () => {
       {
         value: -50,
         type: 'base',
-        scope: 'village',
+        scope: 'local',
         source: 'building',
         source_specifier: 0,
       },
@@ -59,7 +59,7 @@ describe('map-controllers', () => {
       {
         value: 20,
         type: 'base',
-        scope: 'village',
+        scope: 'local',
         source: 'troops',
         source_specifier: null,
       },
@@ -67,7 +67,7 @@ describe('map-controllers', () => {
       {
         value: 1.25,
         type: 'bonus',
-        scope: 'village',
+        scope: 'local',
         source: 'oasis',
         source_specifier: 123,
       },
@@ -75,7 +75,7 @@ describe('map-controllers', () => {
       {
         value: 10,
         type: 'base',
-        scope: 'village',
+        scope: 'local',
         source: 'building',
         source_specifier: 1,
       }, // field_id 1
@@ -83,7 +83,7 @@ describe('map-controllers', () => {
       {
         value: -10,
         type: 'bonus',
-        scope: 'village',
+        scope: 'local',
         source: 'building',
         source_specifier: 0,
       },

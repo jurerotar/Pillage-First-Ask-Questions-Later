@@ -16,7 +16,7 @@ export const selectAllRelevantEffectsQuery = `
       LEFT JOIN effect_ids AS ei
                 ON ei.id = e.effect_id
       LEFT JOIN building_fields AS bf
-                ON e.scope = 'village'
+                ON e.scope = 'local'
                   AND bf.village_id = e.village_id
                   AND bf.field_id = e.source_specifier
       LEFT JOIN building_ids AS bi
@@ -45,7 +45,7 @@ export const selectAllRelevantEffectsByIdQuery = `
       LEFT JOIN effect_ids AS ei
                 ON ei.id = e.effect_id
       LEFT JOIN building_fields AS bf
-                ON e.scope = 'village'
+                ON e.scope = 'local'
                   AND bf.village_id = e.village_id
                   AND bf.field_id = e.source_specifier
       LEFT JOIN building_ids AS bi
@@ -110,7 +110,7 @@ export const updatePopulationEffectQuery = `
     effects.effect_id = ei.id
     AND ei.effect = 'wheatProduction'
     AND type = 'base'
-    AND scope = 'village'
+    AND scope = 'local'
     AND source = 'building'
     AND village_id = $village_id
     AND source_specifier = 0;
@@ -126,7 +126,7 @@ export const updateBuildingEffectQuery = `
     AND ei.effect = $effect_id
     AND village_id = $village_id
     AND type = $type
-    AND scope = 'village'
+    AND scope = 'local'
     AND source = 'building'
     AND source_specifier = $source_specifier;
 `;
@@ -158,7 +158,7 @@ export const insertHeroEffectsQuery = `
       ELSE 9 * hsa.resource_production
     END,
     'base',
-    'village',
+    'local',
     'hero',
     0
   FROM
@@ -216,7 +216,7 @@ export const updateHeroVillageEffectsByVillageIdQuery = `
   SET village_id = $target_village_id
   WHERE
     source = 'hero'
-    AND scope = 'village'
+    AND scope = 'local'
     AND village_id = $current_village_id;
 `;
 

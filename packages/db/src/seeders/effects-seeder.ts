@@ -10,7 +10,7 @@ import {
 } from '@pillage-first/types/models/effect';
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { isVillageEffect } from '@pillage-first/utils/guards/effect';
+import { isLocalEffect } from '@pillage-first/utils/guards/effect';
 import { batchInsert } from '../utils/batch-insert';
 
 const heroEffectsFactory = (
@@ -47,7 +47,7 @@ const heroEffectsFactory = (
 
   return heroEffects.map((effect) => ({
     ...effect,
-    scope: 'village',
+    scope: 'local',
     source: 'hero',
     villageId,
     sourceSpecifier: 0,
@@ -189,7 +189,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   ];
 
   for (const effect of staticEffects) {
-    const villageId = isVillageEffect(effect) ? effect.villageId : null;
+    const villageId = isLocalEffect(effect) ? effect.villageId : null;
     effectsToInsert.push([
       effectIds.get(effect.id)!,
       effect.value,
@@ -212,7 +212,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         bd.effect_id,
         bd.value,
         bd.type,
-        'village',
+        'local',
         'building',
         bf.village_id,
         bf.field_id
@@ -230,7 +230,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         $wheat_production_effect_id,
         SUM(bd.value),
         'base',
-        'village',
+        'local',
         'building',
         bf.village_id,
         0
@@ -256,7 +256,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         $wheat_production_effect_id,
         SUM(tr.amount * ud.wheat_consumption),
         'base',
-        'village',
+        'local',
         'troops',
         v.id,
         NULL
@@ -313,7 +313,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         ei.id,
         op.value,
         'base',
-        'village',
+        'local',
         'oasis',
         NULL,
         op.tile_id

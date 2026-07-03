@@ -81,7 +81,7 @@ describe('effectsSeeder', () => {
         WHERE
           effect_id = $effect_id
           AND type = 'base'
-          AND scope = 'village'
+          AND scope = 'local'
           AND source = 'building'
           AND source_specifier = 0;
       `,
@@ -138,7 +138,7 @@ describe('effectsSeeder', () => {
         WHERE
           effect_id = $effect_id
           AND type = 'base'
-          AND scope = 'village'
+          AND scope = 'local'
           AND source = 'troops'
           AND source_specifier IS NULL;
       `,
@@ -200,7 +200,7 @@ describe('effectsSeeder', () => {
             JOIN effect_ids ei ON ei.id = e.effect_id
         WHERE
           e.type = 'base'
-          AND e.scope = 'village'
+          AND e.scope = 'local'
           AND e.source = 'oasis'
           AND e.village_id IS NULL;
       `,

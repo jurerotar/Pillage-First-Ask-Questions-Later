@@ -170,8 +170,8 @@ describe('village-controllers', () => {
         sql: `
           INSERT INTO effects (effect_id, value, type, scope, source, village_id, source_specifier)
           VALUES
-            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 1500, 'base', 'village', 'building', $v, 19),
-            ((SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration'), 0.9091, 'bonus', 'village', 'building', $v, 20);
+            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 1500, 'base', 'local', 'building', $v, 19),
+            ((SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration'), 0.9091, 'bonus', 'local', 'building', $v, 20);
         `,
         bind: { $v: villageId },
       });

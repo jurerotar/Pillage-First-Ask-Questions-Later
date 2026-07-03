@@ -71,7 +71,7 @@ describe('player-controllers', () => {
         $effect_id: wheatEffectId,
         $value: value,
         $type: 'base',
-        $scope: 'village',
+        $scope: 'local',
         $source: 'troops',
         $village_id: villageId,
         $source_specifier: null,
@@ -132,14 +132,14 @@ describe('player-controllers', () => {
       {
         value: -400,
         type: 'base',
-        scope: 'village',
+        scope: 'local',
         source: 'building',
         source_specifier: 0,
       },
       {
         value: 150,
         type: 'base',
-        scope: 'village',
+        scope: 'local',
         source: 'troops',
         source_specifier: null,
       },
@@ -1764,7 +1764,7 @@ describe('player-controllers', () => {
         $effect_id: wheatEffectId,
         $value: 1,
         $type: 'base',
-        $scope: 'village',
+        $scope: 'local',
         $source: 'hero',
         $village_id: sourceVillageId,
         $source_specifier: 0,
@@ -1777,7 +1777,7 @@ describe('player-controllers', () => {
         SET village_id = $village_id
         WHERE
           source = 'hero'
-          AND scope = 'village'
+          AND scope = 'local'
       `,
       bind: {
         $village_id: sourceVillageId,
@@ -1807,7 +1807,7 @@ describe('player-controllers', () => {
         FROM effects
         WHERE
           source = 'hero'
-          AND scope = 'village'
+          AND scope = 'local'
       `,
       schema: z.number(),
     });
