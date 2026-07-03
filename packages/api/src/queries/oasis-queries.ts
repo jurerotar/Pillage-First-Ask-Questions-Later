@@ -11,7 +11,7 @@ export const deleteOasisEffectsQuery = `
   FROM
     effects
   WHERE
-    source = 'oasis'
+    source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
     AND village_id = $village_id
     AND source_specifier = $source_specifier;
 `;

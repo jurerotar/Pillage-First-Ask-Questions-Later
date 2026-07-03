@@ -305,8 +305,8 @@ export const updateRearrangedBuildingFieldEffectsQuery = `
   )
   WHERE
     village_id = $village_id
-    AND scope = 'local'
-    AND source = 'building'
+    AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+    AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
     AND source_specifier IN (
       SELECT source_field_id
       FROM moved_fields

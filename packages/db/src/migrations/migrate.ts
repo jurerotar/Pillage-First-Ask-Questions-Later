@@ -30,6 +30,9 @@ import createVillageFoundingHistoryTable from '../schemas/history-tables/village
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
+import createEffectScopeIdsTable from '../schemas/lookup-tables/effect-scope-ids-schema.sql?raw';
+import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-ids-schema.sql?raw';
+import createEffectTypeIdsTable from '../schemas/lookup-tables/effect-type-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
 import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
 import createTribeIdsTable from '../schemas/lookup-tables/tribe-ids-schema.sql?raw';
@@ -56,6 +59,7 @@ import { buildingDataSeeder } from '../seeders/building-data-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { developerSettingsSeeder } from '../seeders/developer-settings-seeder';
+import { effectAttributeIdsSeeder } from '../seeders/effect-attribute-ids-seeder';
 import { effectIdsSeeder } from '../seeders/effect-ids-seeder';
 import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
@@ -110,6 +114,11 @@ export const migrateAndSeed = (
 
     db.exec({ sql: createEffectIdsTable });
     effectIdsSeeder(db);
+
+    db.exec({ sql: createEffectTypeIdsTable });
+    db.exec({ sql: createEffectScopeIdsTable });
+    db.exec({ sql: createEffectSourceIdsTable });
+    effectAttributeIdsSeeder(db);
 
     db.exec({ sql: createUnitDataTable });
     unitDataSeeder(db);

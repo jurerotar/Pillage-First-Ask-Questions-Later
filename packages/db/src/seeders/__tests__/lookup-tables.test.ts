@@ -2,7 +2,12 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { units } from '@pillage-first/game-assets/units';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
-import { effectIdSchema } from '@pillage-first/types/models/effect';
+import {
+  effectIdSchema,
+  effectScopeSchema,
+  effectSourceSchema,
+  effectTypeSchema,
+} from '@pillage-first/types/models/effect';
 import { factionSchema } from '@pillage-first/types/models/faction';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -60,5 +65,35 @@ describe('lookupTablesSeeder', () => {
 
     expect(effectIds).toStrictEqual([...effectIdSchema.options].sort());
     expect(wheatProductionId).toBe(1);
+  });
+
+  test('effect attribute lookup tables contain every modeled value with stable ids', () => {
+    const effectTypes = database.selectValues({
+      sql: 'SELECT type FROM effect_type_ids ORDER BY type;',
+      schema: effectTypeSchema,
+    });
+    const effectScopes = database.selectValues({
+      sql: 'SELECT scope FROM effect_scope_ids ORDER BY scope;',
+      schema: effectScopeSchema,
+    });
+    const effectSources = database.selectValues({
+      sql: 'SELECT source FROM effect_source_ids ORDER BY source;',
+      schema: effectSourceSchema,
+    });
+
+    const localScopeId = database.selectValue({
+      sql: "SELECT id FROM effect_scope_ids WHERE scope = 'local';",
+      schema: z.number(),
+    });
+    const buildingSourceId = database.selectValue({
+      sql: "SELECT id FROM effect_source_ids WHERE source = 'building';",
+      schema: z.number(),
+    });
+
+    expect(effectTypes).toStrictEqual([...effectTypeSchema.options].sort());
+    expect(effectScopes).toStrictEqual([...effectScopeSchema.options].sort());
+    expect(effectSources).toStrictEqual([...effectSourceSchema.options].sort());
+    expect(localScopeId).toBe(2);
+    expect(buildingSourceId).toBe(1);
   });
 });

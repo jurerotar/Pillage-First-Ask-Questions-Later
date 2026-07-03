@@ -63,9 +63,9 @@ export const selectMapTilesQuery = `
         effects e
           JOIN wheat_id w ON e.effect_id = w.wid
       WHERE
-        e.type = 'base'
-        AND e.scope = 'local'
-        AND e.source = 'building'
+        e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
+        AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+        AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
         AND e.source_specifier = 0
       GROUP BY e.village_id
     ),

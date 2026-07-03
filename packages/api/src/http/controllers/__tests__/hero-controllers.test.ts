@@ -422,7 +422,7 @@ describe('hero-controllers', () => {
           SELECT ei.effect, e.value
           FROM effects e
           JOIN effect_ids ei ON e.effect_id = ei.id
-          WHERE e.source = 'hero' AND e.source_specifier = 0
+          WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
         schema: z.strictObject({ effect: z.string(), value: z.number() }),
       });
@@ -567,7 +567,7 @@ describe('hero-controllers', () => {
 
       // Verify effects added
       const effects = database.selectObjects({
-        sql: "SELECT effect_id FROM effects WHERE source = 'hero' AND source_specifier = $itemId",
+        sql: "SELECT effect_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND source_specifier = $itemId",
         bind: { $itemId: itemId },
         schema: z.strictObject({ effect_id: z.number() }),
       });
@@ -737,7 +737,7 @@ describe('hero-controllers', () => {
 
       // Verify effects removed
       const effects = database.selectObjects({
-        sql: "SELECT effect_id FROM effects WHERE source = 'hero' AND source_specifier = $itemId",
+        sql: "SELECT effect_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND source_specifier = $itemId",
         bind: { $itemId: itemId },
         schema: z.strictObject({ effect_id: z.number() }),
       });
@@ -923,7 +923,7 @@ describe('hero-controllers', () => {
           SELECT ei.effect, e.value
           FROM effects e
           JOIN effect_ids ei ON e.effect_id = ei.id
-          WHERE e.source = 'hero' AND e.source_specifier = 0
+          WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
         schema: z.strictObject({ effect: z.string(), value: z.number() }),
       });
@@ -988,7 +988,7 @@ describe('hero-controllers', () => {
           SELECT ei.effect, e.value
           FROM effects e
           JOIN effect_ids ei ON e.effect_id = ei.id
-          WHERE e.source = 'hero' AND e.source_specifier = 0
+          WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
         schema: z.strictObject({ effect: z.string(), value: z.number() }),
       });
@@ -1033,7 +1033,7 @@ describe('hero-controllers', () => {
           SELECT ei.effect, e.value
           FROM effects e
           JOIN effect_ids ei ON e.effect_id = ei.id
-          WHERE e.source = 'hero' AND e.source_specifier = 0
+          WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
         schema: z.strictObject({ effect: z.string(), value: z.number() }),
       });
@@ -1071,7 +1071,7 @@ describe('hero-controllers', () => {
           SELECT ei.effect, e.value
           FROM effects e
           JOIN effect_ids ei ON e.effect_id = ei.id
-          WHERE e.source = 'hero' AND e.source_specifier = 0
+          WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
         schema: z.strictObject({ effect: z.string(), value: z.number() }),
       });

@@ -80,9 +80,9 @@ describe('effectsSeeder', () => {
           effects
         WHERE
           effect_id = $effect_id
-          AND type = 'base'
-          AND scope = 'local'
-          AND source = 'building'
+          AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
+          AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+          AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
           AND source_specifier = 0;
       `,
       bind: { $effect_id: wheatEffectId },
@@ -137,9 +137,9 @@ describe('effectsSeeder', () => {
           effects
         WHERE
           effect_id = $effect_id
-          AND type = 'base'
-          AND scope = 'local'
-          AND source = 'troops'
+          AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
+          AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+          AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND source_specifier IS NULL;
       `,
       bind: { $effect_id: wheatEffectId },
@@ -163,13 +163,13 @@ describe('effectsSeeder', () => {
     })!;
 
     const oasisBaseEffects = database.selectValue({
-      sql: "SELECT COUNT(*) FROM effects WHERE source = 'oasis' AND type = 'base';",
+      sql: "SELECT COUNT(*) FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis') AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'base');",
       schema: z.number(),
     });
     expect(oasisBaseEffects).toBe(oasisTileCount * 4);
 
     const oasisEffects = database.selectValue({
-      sql: "SELECT COUNT(*) FROM effects WHERE source = 'oasis' AND type = 'bonus';",
+      sql: "SELECT COUNT(*) FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis') AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'bonus');",
       schema: z.number(),
     });
     expect(oasisEffects).toBe(0);
@@ -199,9 +199,9 @@ describe('effectsSeeder', () => {
           effects e
             JOIN effect_ids ei ON ei.id = e.effect_id
         WHERE
-          e.type = 'base'
-          AND e.scope = 'local'
-          AND e.source = 'oasis'
+          e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
+          AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
           AND e.village_id IS NULL;
       `,
       schema: z.strictObject({
@@ -245,7 +245,7 @@ describe('effectsSeeder', () => {
 
   test('all effects have a non-zero value', () => {
     const zeroEffects = database.selectValue({
-      sql: "SELECT COUNT(*) FROM effects WHERE value = 0 AND source != 'building';",
+      sql: 'SELECT COUNT(*) FROM effects WHERE value = 0 AND source_id != 1;',
       schema: z.number(),
     });
     expect(zeroEffects).toBe(0);
