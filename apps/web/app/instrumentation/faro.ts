@@ -28,7 +28,7 @@ export const initFaro = async () => {
     ignoreErrors: [/^Script error\./],
     instrumentations: [
       ...getWebInstrumentations({
-        captureConsole: true,
+        captureConsole: false,
         enablePerformanceInstrumentation: true,
       }),
       new ReactIntegration(),

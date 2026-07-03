@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import type { Server } from '@pillage-first/types/models/server';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import ShareGameWorldWorker from 'app/(public)/workers/share-game-world-worker?worker&url';
+import { reportError } from 'app/instrumentation/report-error';
 import { getDeviceId } from 'app/utils/device';
 import { workerFactory } from 'app/utils/workers';
 
@@ -171,7 +172,10 @@ export const WebRTCAdvertiser = () => {
               conn.send({ type: 'error', message: result.message });
             }
           } catch (error) {
-            console.error('[WebRTCAdvertiser] Failed to share world:', error);
+            reportError(error, 'Failed to share world', {
+              serverSlug: message.serverSlug,
+              source: 'WebRTCAdvertiser',
+            });
             conn.send({ type: 'error', message: 'Failed to share world.' });
           }
         }

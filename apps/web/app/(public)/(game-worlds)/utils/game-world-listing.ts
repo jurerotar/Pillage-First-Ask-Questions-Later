@@ -1,6 +1,7 @@
 import type { Server } from '@pillage-first/types/models/server';
 import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
+import { reportError } from 'app/instrumentation/report-error';
 
 const gameWorldOpfsDirectory = 'pillage-first-ask-questions-later';
 
@@ -61,7 +62,10 @@ export const removeUnlistedGameWorldDirectories = async (
         });
       });
     } catch (error) {
-      console.error('Failed to remove unlisted game world directory', error);
+      reportError(error, 'Failed to remove unlisted game world directory', {
+        directoryName,
+        source: 'gameWorldListing',
+      });
     }
   }
 };
