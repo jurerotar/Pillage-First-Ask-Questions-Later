@@ -1,3 +1,9 @@
+## Version 0.4.38
+
+#### Jul 3, 2026
+
+* [BugFix] Fixed oasis resources calculation ahead of upcoming attacking and raiding feature.
+
 ## Version 0.4.37
 
 #### Jul 1, 2026

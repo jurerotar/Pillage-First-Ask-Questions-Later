@@ -156,6 +156,93 @@ describe('effectsSeeder', () => {
     }
   });
 
+  test('seeds oasis base production effects without oasis bonus effects', () => {
+    const oasisTileCount = database.selectValue({
+      sql: 'SELECT COUNT(DISTINCT tile_id) FROM oasis;',
+      schema: z.number(),
+    })!;
+
+    const oasisBaseEffects = database.selectValue({
+      sql: "SELECT COUNT(*) FROM effects WHERE source = 'oasis' AND type = 'base';",
+      schema: z.number(),
+    });
+    expect(oasisBaseEffects).toBe(oasisTileCount * 4);
+
+    const oasisEffects = database.selectValue({
+      sql: "SELECT COUNT(*) FROM effects WHERE source = 'oasis' AND type = 'bonus';",
+      schema: z.number(),
+    });
+    expect(oasisEffects).toBe(0);
+  });
+
+  test('oasis base production effects match oasis type', () => {
+    const oasisBonuses = database.selectObjects({
+      sql: `
+        SELECT tile_id, resource, bonus
+        FROM
+          oasis;
+      `,
+      schema: z.strictObject({
+        tile_id: z.number(),
+        resource: z.enum(['wood', 'clay', 'iron', 'wheat']),
+        bonus: z.number(),
+      }),
+    });
+
+    const oasisEffects = database.selectObjects({
+      sql: `
+        SELECT
+          e.source_specifier AS tile_id,
+          ei.effect,
+          e.value
+        FROM
+          effects e
+            JOIN effect_ids ei ON ei.id = e.effect_id
+        WHERE
+          e.type = 'base'
+          AND e.scope = 'village'
+          AND e.source = 'oasis'
+          AND e.village_id IS NULL;
+      `,
+      schema: z.strictObject({
+        tile_id: z.number(),
+        effect: z.enum([
+          'woodProduction',
+          'clayProduction',
+          'ironProduction',
+          'wheatProduction',
+        ]),
+        value: z.number(),
+      }),
+    });
+
+    const bonusesByTile = new Map<number, Map<string, number>>();
+    for (const { tile_id, resource, bonus } of oasisBonuses) {
+      const bonuses = bonusesByTile.get(tile_id) ?? new Map<string, number>();
+      bonuses.set(resource, bonus);
+      bonusesByTile.set(tile_id, bonuses);
+    }
+
+    const effectsByTileAndEffect = new Map<string, number>();
+    for (const { tile_id, effect, value } of oasisEffects) {
+      effectsByTileAndEffect.set(`${tile_id}-${effect}`, value);
+    }
+
+    const resources = ['wood', 'clay', 'iron', 'wheat'] as const;
+
+    for (const [tileId, bonuses] of bonusesByTile) {
+      for (const resource of resources) {
+        const bonus = bonuses.get(resource);
+        const expectedValue = bonus === 50 ? 80 : bonus === 25 ? 40 : 10;
+        const actualValue = effectsByTileAndEffect.get(
+          `${tileId}-${resource}Production`,
+        );
+
+        expect(actualValue).toBe(expectedValue);
+      }
+    }
+  });
+
   test('all effects have a non-zero value', () => {
     const zeroEffects = database.selectValue({
       sql: "SELECT COUNT(*) FROM effects WHERE value = 0 AND source != 'building';",

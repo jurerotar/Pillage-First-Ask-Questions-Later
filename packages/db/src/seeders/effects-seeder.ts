@@ -275,21 +275,53 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
 
   database.exec({
     sql: `
-      INSERT INTO
+      WITH
+        resource_effects(resource, effect) AS (
+          VALUES
+            ('wood', 'woodProduction'),
+            ('clay', 'clayProduction'),
+            ('iron', 'ironProduction'),
+            ('wheat', 'wheatProduction')
+          ),
+
+        oasis_production AS (
+          SELECT
+            tiles.tile_id,
+            re.effect,
+            CASE
+              WHEN MAX(o.bonus) = 50 THEN 80
+              WHEN MAX(o.bonus) = 25 THEN 40
+              ELSE 10
+              END AS value
+          FROM
+            (
+              SELECT DISTINCT tile_id
+              FROM oasis
+              ) tiles
+              CROSS JOIN resource_effects re
+              LEFT JOIN oasis o ON o.tile_id = tiles.tile_id
+              AND o.resource = re.resource
+          GROUP BY
+            tiles.tile_id,
+            re.effect
+          )
+
+      INSERT
+      INTO
         effects (effect_id, value, type, scope, source, village_id, source_specifier)
       SELECT
         ei.id,
-        CASE WHEN o.bonus = 25 THEN 1.25 ELSE 1.5 END,
-        'bonus',
+        op.value,
+        'base',
         'village',
         'oasis',
-        o.village_id,
-        o.tile_id
+        NULL,
+        op.tile_id
       FROM
-        oasis o
-          JOIN effect_ids ei ON ei.effect = o.resource || 'Production'
+        oasis_production op
+          JOIN effect_ids ei ON ei.effect = op.effect
       WHERE
-        o.village_id IS NOT NULL;
+        op.value > 0;
     `,
   });
 
