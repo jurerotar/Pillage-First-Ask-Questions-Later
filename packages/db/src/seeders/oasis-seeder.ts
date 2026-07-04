@@ -11,8 +11,13 @@ export const oasisSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
   const oasisTiles = database.selectObjects({
-    sql: 'SELECT id, oasis_graphics FROM tiles WHERE type = $type;',
-    bind: { $type: 'oasis' },
+    sql: `
+      SELECT id, oasis_graphics
+      FROM
+        tiles
+      WHERE
+        type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis');
+    `,
     schema: z.strictObject({
       id: z.number(),
       oasis_graphics: z.number(),

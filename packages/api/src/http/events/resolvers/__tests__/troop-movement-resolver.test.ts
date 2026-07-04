@@ -678,7 +678,7 @@ describe(findNewVillageMovementResolver, () => {
 
     // Pick a free tile that is not (0,0)
     const targetTile = database.selectObject({
-      sql: "SELECT id, x, y, resource_field_composition_id FROM tiles WHERE type = 'free' AND NOT (x = 0 AND y = 0) LIMIT 1;",
+      sql: "SELECT id, x, y, resource_field_composition_id FROM tiles WHERE type_id = (SELECT id FROM tile_type_ids WHERE type = 'free') AND NOT (x = 0 AND y = 0) LIMIT 1;",
       schema: z.strictObject({
         id: z.number(),
         x: z.number(),

@@ -64,10 +64,11 @@ export const selectStationedTroopsByTileQuery = `
     t.amount,
     t.tile_id,
     t.source_tile_id,
-    source_t.type AS source_tile_type
+    source_tt.type AS source_tile_type
   FROM
     troops t
       LEFT JOIN tiles source_t ON source_t.id = t.source_tile_id
+      LEFT JOIN tile_type_ids source_tt ON source_tt.id = source_t.type_id
       JOIN unit_ids ui ON ui.id = t.unit_id
   WHERE
     t.tile_id = $tile_id;
@@ -117,13 +118,15 @@ export const selectSentReinforcementsByTileQuery = `
     ui.unit AS unit_id,
     tr.amount,
     tr.source_tile_id,
-    source_t.type AS source_tile_type
+    source_tt.type AS source_tile_type
   FROM
     troops tr
       JOIN tiles t
            ON t.id = tr.tile_id
       LEFT JOIN tiles source_t
            ON source_t.id = tr.source_tile_id
+      LEFT JOIN tile_type_ids source_tt
+           ON source_tt.id = source_t.type_id
       LEFT JOIN villages v
            ON v.tile_id = tr.tile_id
       LEFT JOIN oasis o
@@ -151,11 +154,12 @@ export const selectSentReinforcementsByTileQuery = `
 export const selectSourceVillageByTileAndCurrentTileQuery = `
   SELECT
     COALESCE(sv.id, so.village_id) AS sourceVillageId,
-    st.type AS sourceTileType,
+    stt.type AS sourceTileType,
     cv.id AS currentVillageId,
     cv.tile_id AS currentTileId
   FROM villages cv
     LEFT JOIN tiles st ON st.id = $source_tile_id
+    LEFT JOIN tile_type_ids stt ON stt.id = st.type_id
     LEFT JOIN villages sv ON sv.tile_id = $source_tile_id
     LEFT JOIN oasis so ON so.tile_id = $source_tile_id
   WHERE cv.tile_id = $current_tile_id;
@@ -165,10 +169,11 @@ export const selectStationedVillageByTileAndCurrentTileQuery = `
   SELECT
     cv.id AS currentVillageId,
     cv.tile_id AS currentTileId,
-    st.type AS stationedTileType,
+    stt.type AS stationedTileType,
     COALESCE(sv.id, so.village_id) AS stationedVillageId
   FROM villages cv
     LEFT JOIN tiles st ON st.id = $stationed_tile_id
+    LEFT JOIN tile_type_ids stt ON stt.id = st.type_id
     LEFT JOIN villages sv ON sv.tile_id = $stationed_tile_id
     LEFT JOIN oasis so ON so.tile_id = $stationed_tile_id
   WHERE cv.tile_id = $current_tile_id;

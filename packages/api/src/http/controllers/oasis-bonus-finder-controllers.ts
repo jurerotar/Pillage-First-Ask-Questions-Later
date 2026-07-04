@@ -124,7 +124,7 @@ export const getTilesWithBonuses = createController(
                JOIN tiles t ON t.x BETWEEN ot.x - 3 AND ot.x + 3 AND t.y BETWEEN ot.y - 3 AND ot.y + 3
                LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
         WHERE (${bonusConditions})
-          AND t.type = 'free'
+          AND t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
           AND (
             ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN ('3339', '11115', '00018'))
               OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)
@@ -136,7 +136,7 @@ export const getTilesWithBonuses = createController(
         SELECT t.id, t.x, t.y, rfc.resource_field_composition
         FROM tiles t
                LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-        WHERE t.type = 'free'
+        WHERE t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
           AND (
             ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN ('3339', '11115', '00018'))
               OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)

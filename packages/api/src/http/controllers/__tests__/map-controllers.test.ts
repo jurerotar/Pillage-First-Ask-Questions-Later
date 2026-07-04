@@ -123,7 +123,7 @@ describe('map-controllers', () => {
       sql: `
         SELECT t.id AS tile_id
         FROM tiles t
-        WHERE t.type = 'oasis'
+        WHERE t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis')
         AND (
           SELECT MAX(o.village_id)
           FROM oasis o

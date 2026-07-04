@@ -35,6 +35,7 @@ import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-i
 import createEffectTypeIdsTable from '../schemas/lookup-tables/effect-type-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
 import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
+import createTileTypeIdsTable from '../schemas/lookup-tables/tile-type-ids-schema.sql?raw';
 import createTribeIdsTable from '../schemas/lookup-tables/tribe-ids-schema.sql?raw';
 import createUnitDataTable from '../schemas/lookup-tables/unit-data-schema.sql?raw';
 import createUnitIdsTable from '../schemas/lookup-tables/unit-ids-schema.sql?raw';
@@ -79,6 +80,7 @@ import { questsSeeder } from '../seeders/quests-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
 import { serverSeeder } from '../seeders/server-seeder';
+import { tileTypeIdsSeeder } from '../seeders/tile-type-ids-seeder';
 import { tilesSeeder } from '../seeders/tiles-seeder';
 import { tribeIdsSeeder } from '../seeders/tribe-ids-seeder';
 import { troopSeeder } from '../seeders/troop-seeder';
@@ -128,6 +130,9 @@ export const migrateAndSeed = (
 
     db.exec({ sql: createResourceFieldCompositionIdsTable });
     resourceFieldCompositionIdsSeeder(db);
+
+    db.exec({ sql: createTileTypeIdsTable });
+    tileTypeIdsSeeder(db);
 
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });

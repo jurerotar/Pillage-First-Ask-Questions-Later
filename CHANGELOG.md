@@ -3,6 +3,11 @@
 #### Jul 3, 2026
 
 * [BugFix] Fixed oasis resources calculation ahead of upcoming attacking and raiding feature.
+* [Performance] Reworked `effects` table. This is our largest table that contains village/oasis properties. This rework
+  reduced size of `effects` table by around 40% (which amounts to around 800KB in practice) and improved execution speed
+  of most common queries by around 20-25%.
+* [Performance] Reworked `tiles` table. This minor change reduced our total database size by around 4% and improvement
+  execution speed of map-related queries by around 1-2%.
 
 ## Version 0.4.37
 

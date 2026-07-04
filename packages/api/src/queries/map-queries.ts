@@ -89,7 +89,7 @@ export const selectMapTilesQuery = `
     t.id AS id,
     t.x AS coordinates_x,
     t.y AS coordinates_y,
-    t.type AS type,
+    tt.type AS type,
     rfc.resource_field_composition AS rfc,
     t.oasis_graphics AS oasis_graphics,
     COALESCE(v.id, v_owner.id) AS village_id,
@@ -102,28 +102,29 @@ export const selectMapTilesQuery = `
     fi.faction AS player_faction,
 
     CASE
-      WHEN t.type = 'free' AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0)
-      WHEN t.type = 'oasis' AND v_owner.id IS NOT NULL THEN COALESCE(ew_owner.wheat_production_sum, 0)
+      WHEN tt.type = 'free' AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0)
+      WHEN tt.type = 'oasis' AND v_owner.id IS NOT NULL THEN COALESCE(ew_owner.wheat_production_sum, 0)
     END AS population,
 
     CASE
-      WHEN t.type = 'free' THEN wi.item_id
+      WHEN tt.type = 'free' THEN wi.item_id
     END AS item_id,
 
     CASE
-      WHEN t.type = 'oasis' THEN 1
+      WHEN tt.type = 'oasis' THEN 1
       ELSE 0
     END AS oasis_is_occupiable
 
   FROM
     tiles t
+      JOIN tile_type_ids tt ON tt.id = t.type_id
       LEFT JOIN villages v ON v.tile_id = t.id
       LEFT JOIN (
         SELECT tile_id, MAX(village_id) AS village_id
         FROM
           oasis
         GROUP BY tile_id
-      ) o ON o.tile_id = t.id AND t.type = 'oasis'
+      ) o ON o.tile_id = t.id AND tt.type = 'oasis'
       LEFT JOIN villages v_owner ON v_owner.id = o.village_id
       LEFT JOIN players p ON p.id = COALESCE(v.player_id, v_owner.player_id)
       LEFT JOIN tribe_ids ti ON p.tribe_id = ti.id

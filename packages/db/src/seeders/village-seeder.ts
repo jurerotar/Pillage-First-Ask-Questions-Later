@@ -131,7 +131,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
       FROM
         tiles AS t
       WHERE
-        t.type = 'free'
+        t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
         AND NOT (t.x = 0 AND t.y = 0);
     `,
     schema: occupiableFieldSchema,

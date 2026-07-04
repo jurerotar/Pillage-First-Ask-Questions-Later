@@ -315,12 +315,13 @@ export const validateTroopMovement = (
       sql: `
         SELECT
           t.id AS tile_id,
-          t.type AS tile_type,
+          tt.type AS tile_type,
           cv.tile_id AS current_village_tile_id,
           COALESCE(v.id, ov.id) AS owning_village_id,
           COALESCE(v.player_id, ov.player_id) = $player_id AS is_player_target
         FROM
           tiles t
+            JOIN tile_type_ids tt ON tt.id = t.type_id
             JOIN villages cv ON cv.id = $village_id
             LEFT JOIN villages v ON v.tile_id = t.id
             LEFT JOIN oasis o ON o.tile_id = t.id

@@ -519,9 +519,14 @@ export const upgradeDb = (database: DbFacade): void => {
   });
 
   migrateTo('0.4.38', database, (db) => {
-    db.transaction((tx) => {
-      tx.exec({
-        sql: `
+    db.exec({
+      sql: 'PRAGMA foreign_keys = OFF;',
+    });
+
+    try {
+      db.transaction((tx) => {
+        tx.exec({
+          sql: `
           DELETE
           FROM
             effects
@@ -538,13 +543,13 @@ export const upgradeDb = (database: DbFacade): void => {
                 AND villages.player_id != $player_id
               );
         `,
-        bind: {
-          $player_id: PLAYER_ID,
-        },
-      });
+          bind: {
+            $player_id: PLAYER_ID,
+          },
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           DELETE
           FROM
             effects
@@ -554,10 +559,10 @@ export const upgradeDb = (database: DbFacade): void => {
             AND scope = 'village'
             AND village_id IS NULL;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           WITH
             resource_effects(resource, effect) AS (
               VALUES
@@ -607,30 +612,30 @@ export const upgradeDb = (database: DbFacade): void => {
           WHERE
             op.value > 0;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           UPDATE effects
           SET
             scope = 'local'
           WHERE
             scope = 'village';
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           CREATE TABLE IF NOT EXISTS effect_type_ids
           (
             id INTEGER PRIMARY KEY,
             type TEXT NOT NULL UNIQUE
           );
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           INSERT OR IGNORE INTO
             effect_type_ids (id, type)
           VALUES
@@ -638,20 +643,20 @@ export const upgradeDb = (database: DbFacade): void => {
             (2, 'bonus'        ),
             (3, 'bonus-booster');
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           CREATE TABLE IF NOT EXISTS effect_scope_ids
           (
             id INTEGER PRIMARY KEY,
             scope TEXT NOT NULL UNIQUE
           );
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           INSERT OR IGNORE INTO
             effect_scope_ids (id, scope)
           VALUES
@@ -659,20 +664,20 @@ export const upgradeDb = (database: DbFacade): void => {
             (2, 'local' ),
             (3, 'server');
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           CREATE TABLE IF NOT EXISTS effect_source_ids
           (
             id INTEGER PRIMARY KEY,
             source TEXT NOT NULL UNIQUE
           );
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           INSERT OR IGNORE INTO
             effect_source_ids (id, source)
           VALUES
@@ -684,34 +689,131 @@ export const upgradeDb = (database: DbFacade): void => {
             (6, 'server'  ),
             (7, 'troops'  );
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
+            CREATE TABLE IF NOT EXISTS tile_type_ids
+            (
+              id INTEGER PRIMARY KEY,
+              type TEXT NOT NULL UNIQUE
+            );
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            INSERT OR IGNORE INTO
+              tile_type_ids (id, type)
+            VALUES
+              (1, 'free' ),
+              (2, 'oasis');
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE INDEX IF NOT EXISTS idx_tile_type_ids_type ON tile_type_ids (type);
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            DROP INDEX IF EXISTS idx_tiles_rfc_id;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            DROP INDEX IF EXISTS idx_tiles_type_xy;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE TABLE tiles_new
+            (
+              id INTEGER PRIMARY KEY,
+              x INTEGER NOT NULL,
+              y INTEGER NOT NULL,
+              type_id INTEGER NOT NULL,
+              resource_field_composition_id INTEGER,
+              oasis_graphics INTEGER,
+
+              FOREIGN KEY (type_id) REFERENCES tile_type_ids (id),
+              FOREIGN KEY (resource_field_composition_id) REFERENCES resource_field_composition_ids (id)
+            );
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            INSERT INTO
+              tiles_new (id, x, y, type_id, resource_field_composition_id, oasis_graphics)
+            SELECT
+              t.id,
+              t.x,
+              t.y,
+              tti.id,
+              t.resource_field_composition_id,
+              t.oasis_graphics
+            FROM
+              tiles t
+                JOIN tile_type_ids tti ON tti.type = t.type;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            DROP TABLE tiles;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            ALTER TABLE tiles_new
+              RENAME TO tiles;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE INDEX idx_tiles_rfc_id ON tiles (resource_field_composition_id);
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE INDEX idx_tiles_type_xy ON tiles (type_id, x, y);
+          `,
+        });
+
+        tx.exec({
+          sql: `
           DROP INDEX IF EXISTS idx_effects_effect_id;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           DROP INDEX IF EXISTS idx_effects_village_id;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           DROP INDEX IF EXISTS idx_effects_village_effect_scope_spec;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           DROP INDEX IF EXISTS idx_effects_wheat_effect_village_value;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           CREATE TABLE effects_new
           (
             id INTEGER PRIMARY KEY,
@@ -730,10 +832,10 @@ export const upgradeDb = (database: DbFacade): void => {
             FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE ON UPDATE CASCADE
           );
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           INSERT INTO
             effects_new (id, effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
           SELECT
@@ -751,49 +853,54 @@ export const upgradeDb = (database: DbFacade): void => {
               JOIN effect_scope_ids esc ON esc.scope = e.scope
               JOIN effect_source_ids eso ON eso.source = e.source;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           DROP TABLE effects;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           ALTER TABLE effects_new
             RENAME TO effects;
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           CREATE INDEX idx_effects_effect_id ON effects (effect_id);
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           CREATE INDEX idx_effects_village_id ON effects (village_id);
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
           CREATE INDEX idx_effects_village_effect_scope_spec
             ON effects (effect_id, village_id, scope_id, source_specifier);
         `,
-      });
+        });
 
-      tx.exec({
-        sql: `
+        tx.exec({
+          sql: `
         -- SQLite partial-index predicates cannot contain subqueries. scope_id = 2 is the stable id for 'local'.
         CREATE INDEX IF NOT EXISTS idx_effects_wheat_effect_village_value
           ON effects(effect_id, village_id, value)
           WHERE scope_id = 2 AND source_specifier = 0 AND effect_id = 1;
       `,
+        });
       });
-    });
+    } finally {
+      db.exec({
+        sql: 'PRAGMA foreign_keys = ON;',
+      });
+    }
   });
 
   // If all migrations passed, bump it to current version

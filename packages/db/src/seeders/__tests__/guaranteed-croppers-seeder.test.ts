@@ -18,7 +18,7 @@ const getCropperCount = (rfc: string) => {
       WHERE
         o.resource = 'wheat'
         AND o.bonus = 50
-        AND t.type = 'free'
+        AND t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
         AND rfc_id.resource_field_composition = $rfc
       GROUP BY
         t.id

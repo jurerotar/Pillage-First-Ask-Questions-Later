@@ -84,7 +84,7 @@ export const getOasesWithAnimals = createController(
         FROM
           tiles t
         WHERE
-          t.type = 'oasis'
+          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis')
           ${filterClauses.length > 0 ? `AND ${filterClauses.join(' AND ')}` : ''}
         ORDER BY distance_squared ASC;
       `,

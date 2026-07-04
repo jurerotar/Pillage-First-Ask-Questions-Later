@@ -67,10 +67,11 @@ export const selectVillageTileIdQuery = `
 export const selectVillageIdAndTileIdQuery = `
   SELECT
     t.id AS tileId,
-    t.type AS tileType,
+    tt.type AS tileType,
     COALESCE(v.id, o.village_id) AS villageId
   FROM
     tiles t
+      JOIN tile_type_ids tt ON tt.id = t.type_id
       LEFT JOIN villages v ON v.tile_id = t.id
       LEFT JOIN oasis o ON o.tile_id = t.id
   WHERE
@@ -108,10 +109,11 @@ export const selectOccupiableOasisInRangeQuery = `
         MAX(o.village_id) AS occupying_village_id
       FROM
         tiles ot
+          JOIN tile_type_ids ott ON ott.id = ot.type_id
           JOIN src_village sv ON 1 = 1
           JOIN oasis o ON o.tile_id = ot.id
       WHERE
-        ot.type = 'oasis'
+        ott.type = 'oasis'
         AND ot.x BETWEEN sv.vx - $radius AND sv.vx + $radius
         AND ot.y BETWEEN sv.vy - $radius AND sv.vy + $radius
       GROUP BY ot.id

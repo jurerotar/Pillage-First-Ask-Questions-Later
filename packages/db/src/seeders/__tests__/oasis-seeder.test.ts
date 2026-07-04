@@ -14,7 +14,7 @@ describe('oasisSeeder', () => {
           oasis o
             JOIN tiles t ON o.tile_id = t.id
         WHERE
-          t.type != 'oasis';
+          t.type_id != (SELECT id FROM tile_type_ids WHERE type = 'oasis');
       `,
       schema: z.number(),
     });
@@ -96,7 +96,7 @@ describe('oasisSeeder', () => {
                 JOIN tiles ot ON ot.id = o.tile_id
             WHERE
               rfc.resource_field_composition = '00018'
-              AND t.type = 'free'
+              AND t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
               AND ot.x BETWEEN t.x - 3 AND t.x + 3
               AND ot.y BETWEEN t.y - 3 AND t.y + 3
             GROUP BY t.id
@@ -124,7 +124,7 @@ describe('oasisSeeder', () => {
                 JOIN tiles ot ON ot.id = o.tile_id
             WHERE
               rfc.resource_field_composition = '11115'
-              AND t.type = 'free'
+              AND t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
               AND ot.x BETWEEN t.x - 3 AND t.x + 3
               AND ot.y BETWEEN t.y - 3 AND t.y + 3
             GROUP BY t.id
@@ -152,7 +152,7 @@ describe('oasisSeeder', () => {
                 JOIN tiles ot ON ot.id = o.tile_id
             WHERE
               rfc.resource_field_composition = '3339'
-              AND t.type = 'free'
+              AND t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
               AND ot.x BETWEEN t.x - 3 AND t.x + 3
               AND ot.y BETWEEN t.y - 3 AND t.y + 3
             GROUP BY t.id
@@ -180,7 +180,7 @@ describe('oasisSeeder', () => {
       sql: `
         SELECT COUNT(DISTINCT t.id)
         FROM tiles t
-        WHERE t.type = 'oasis' AND NOT EXISTS (SELECT 1 FROM oasis o WHERE o.tile_id = t.id);
+        WHERE t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis') AND NOT EXISTS (SELECT 1 FROM oasis o WHERE o.tile_id = t.id);
       `,
       schema: z.number(),
     });

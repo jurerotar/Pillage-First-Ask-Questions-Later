@@ -9,6 +9,7 @@ import {
   effectTypeSchema,
 } from '@pillage-first/types/models/effect';
 import { factionSchema } from '@pillage-first/types/models/faction';
+import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../';
@@ -95,5 +96,25 @@ describe('lookupTablesSeeder', () => {
     expect(effectSources).toStrictEqual([...effectSourceSchema.options].sort());
     expect(localScopeId).toBe(2);
     expect(buildingSourceId).toBe(1);
+  });
+
+  test('tile_type_ids contains every modeled tile type with stable ids', () => {
+    const tileTypes = database.selectValues({
+      sql: 'SELECT type FROM tile_type_ids ORDER BY type;',
+      schema: tileTypeSchema,
+    });
+
+    const freeTypeId = database.selectValue({
+      sql: "SELECT id FROM tile_type_ids WHERE type = 'free';",
+      schema: z.number(),
+    });
+    const oasisTypeId = database.selectValue({
+      sql: "SELECT id FROM tile_type_ids WHERE type = 'oasis';",
+      schema: z.number(),
+    });
+
+    expect(tileTypes).toStrictEqual([...tileTypeSchema.options].sort());
+    expect(freeTypeId).toBe(1);
+    expect(oasisTypeId).toBe(2);
   });
 });
