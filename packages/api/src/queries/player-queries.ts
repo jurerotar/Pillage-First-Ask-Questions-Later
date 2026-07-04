@@ -101,7 +101,10 @@ export const selectPlayerBySlugQuery = `
 
 export const selectSentReinforcementsByTileQuery = `
   SELECT
-    COALESCE(v.id, ov.id) AS village_id,
+    CASE
+      WHEN v.id IS NOT NULL THEN v.id
+      ELSE ov.id
+    END AS village_id,
     CASE
       WHEN v.id IS NOT NULL THEN 'village'
       ELSE 'oasis'
@@ -109,12 +112,18 @@ export const selectSentReinforcementsByTileQuery = `
     tr.tile_id,
     t.x AS coordinates_x,
     t.y AS coordinates_y,
-    COALESCE(v.name, 'Oasis') AS name,
-    COALESCE(v.slug, ov.slug) AS slug,
-    COALESCE(
-    rfc.resource_field_composition,
-      owner_rfc.resource_field_composition
-    ) AS resource_field_composition,
+    CASE
+      WHEN v.id IS NOT NULL THEN v.name
+      ELSE 'Oasis'
+    END AS name,
+    CASE
+      WHEN v.id IS NOT NULL THEN v.slug
+      ELSE ov.slug
+    END AS slug,
+    CASE
+      WHEN v.id IS NOT NULL THEN rfc.resource_field_composition
+      ELSE owner_rfc.resource_field_composition
+    END AS resource_field_composition,
     ui.unit AS unit_id,
     tr.amount,
     tr.source_tile_id,
@@ -129,10 +138,14 @@ export const selectSentReinforcementsByTileQuery = `
            ON source_tt.id = source_t.type_id
       LEFT JOIN villages v
            ON v.tile_id = tr.tile_id
-      LEFT JOIN oasis o
-           ON o.tile_id = tr.tile_id
       LEFT JOIN villages ov
-           ON ov.id = o.village_id
+           ON ov.id = (
+             SELECT MAX(o.village_id)
+             FROM
+               oasis o
+             WHERE
+               o.tile_id = tr.tile_id
+           )
       LEFT JOIN resource_field_composition_ids rfc
                 ON t.resource_field_composition_id = rfc.id
       LEFT JOIN tiles owner_t
@@ -144,7 +157,7 @@ export const selectSentReinforcementsByTileQuery = `
   WHERE
     tr.source_tile_id = $tile_id
     AND tr.tile_id != $tile_id
-    AND COALESCE(v.id, ov.id) IS NOT NULL
+    AND (v.id IS NOT NULL OR ov.id IS NOT NULL)
   ORDER BY
     name,
     tr.tile_id,
@@ -153,7 +166,16 @@ export const selectSentReinforcementsByTileQuery = `
 
 export const selectSourceVillageByTileAndCurrentTileQuery = `
   SELECT
-    COALESCE(sv.id, so.village_id) AS sourceVillageId,
+    CASE
+      WHEN stt.type = 'free' THEN sv.id
+      WHEN stt.type = 'oasis' THEN (
+        SELECT MAX(so.village_id)
+        FROM
+          oasis so
+        WHERE
+          so.tile_id = $source_tile_id
+      )
+    END AS sourceVillageId,
     stt.type AS sourceTileType,
     cv.id AS currentVillageId,
     cv.tile_id AS currentTileId
@@ -161,7 +183,6 @@ export const selectSourceVillageByTileAndCurrentTileQuery = `
     LEFT JOIN tiles st ON st.id = $source_tile_id
     LEFT JOIN tile_type_ids stt ON stt.id = st.type_id
     LEFT JOIN villages sv ON sv.tile_id = $source_tile_id
-    LEFT JOIN oasis so ON so.tile_id = $source_tile_id
   WHERE cv.tile_id = $current_tile_id;
 `;
 
@@ -170,12 +191,20 @@ export const selectStationedVillageByTileAndCurrentTileQuery = `
     cv.id AS currentVillageId,
     cv.tile_id AS currentTileId,
     stt.type AS stationedTileType,
-    COALESCE(sv.id, so.village_id) AS stationedVillageId
+    CASE
+      WHEN stt.type = 'free' THEN sv.id
+      WHEN stt.type = 'oasis' THEN (
+        SELECT MAX(so.village_id)
+        FROM
+          oasis so
+        WHERE
+          so.tile_id = $stationed_tile_id
+      )
+    END AS stationedVillageId
   FROM villages cv
     LEFT JOIN tiles st ON st.id = $stationed_tile_id
     LEFT JOIN tile_type_ids stt ON stt.id = st.type_id
     LEFT JOIN villages sv ON sv.tile_id = $stationed_tile_id
-    LEFT JOIN oasis so ON so.tile_id = $stationed_tile_id
   WHERE cv.tile_id = $current_tile_id;
 `;
 
