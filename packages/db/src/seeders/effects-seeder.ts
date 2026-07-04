@@ -343,7 +343,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
               ) tiles
               CROSS JOIN resource_effects re
               LEFT JOIN oasis o ON o.tile_id = tiles.tile_id
-              AND o.resource = re.resource
+              AND o.resource_id = (SELECT id FROM resource_ids WHERE resource = re.resource)
           GROUP BY
             tiles.tile_id,
             re.effect

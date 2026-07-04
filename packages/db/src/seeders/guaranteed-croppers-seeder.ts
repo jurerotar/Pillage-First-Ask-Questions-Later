@@ -61,7 +61,7 @@ export const guaranteedCroppersSeeder = (
         oasis o
           JOIN tiles ot ON ot.id = o.tile_id
       WHERE
-        o.resource = 'wheat'
+        o.resource_id = (SELECT id FROM resource_ids WHERE resource = 'wheat')
         AND o.bonus = 50
       ORDER BY
         ot.id;

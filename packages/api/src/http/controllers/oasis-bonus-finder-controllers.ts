@@ -108,7 +108,10 @@ export const getTilesWithBonuses = createController(
 
   if (hasRequiredOases) {
     const bonusConditions = allRequiredBonuses
-      .map((_, i) => `(o.resource = $ro_r${i} AND o.bonus = $ro_b${i})`)
+      .map(
+        (_, i) =>
+          `(o.resource_id = (SELECT id FROM resource_ids WHERE resource = $ro_r${i}) AND o.bonus = $ro_b${i})`,
+      )
       .join(' OR ');
 
     for (const [i, b] of allRequiredBonuses.entries()) {
@@ -184,7 +187,7 @@ export const getTilesWithBonuses = createController(
           JOIN tiles ot ON ot.id = o.tile_id
           WHERE ot.x BETWEEN c.x - 3 AND c.x + 3
             AND ot.y BETWEEN c.y - 3 AND c.y + 3
-            AND o.resource = $r${idx}
+            AND o.resource_id = (SELECT id FROM resource_ids WHERE resource = $r${idx})
             AND o.bonus = $b${idx}
           GROUP BY o.tile_id
         )
@@ -205,11 +208,11 @@ export const getTilesWithBonuses = createController(
         WHERE ot.x BETWEEN c.x - 3 AND c.x + 3
           AND ot.y BETWEEN c.y - 3 AND c.y + 3
           AND (
-            (o.resource = $r${idx}   AND o.bonus = $b${idx})
-            OR (o.resource = $r${idx}_2 AND o.bonus = $b${idx}_2)
+            (o.resource_id = (SELECT id FROM resource_ids WHERE resource = $r${idx}) AND o.bonus = $b${idx})
+            OR (o.resource_id = (SELECT id FROM resource_ids WHERE resource = $r${idx}_2) AND o.bonus = $b${idx}_2)
           )
         GROUP BY o.tile_id
-        HAVING COUNT(DISTINCT (o.resource || '-' || o.bonus)) = 2
+        HAVING COUNT(DISTINCT (o.resource_id || '-' || o.bonus)) = 2
       )
     `;
   };

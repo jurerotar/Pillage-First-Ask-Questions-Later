@@ -170,12 +170,13 @@ export const selectTileTroopsQuery = `
 
 export const selectTileOasisBonusesQuery = `
   SELECT
-    resource,
-    bonus
+    ri.resource,
+    o.bonus
   FROM
-    oasis
+    oasis o
+      JOIN resource_ids ri ON ri.id = o.resource_id
   WHERE
-    tile_id = $tile_id;
+    o.tile_id = $tile_id;
 `;
 
 export const selectTileWorldItemQuery = `

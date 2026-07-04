@@ -178,9 +178,10 @@ describe('effectsSeeder', () => {
   test('oasis base production effects match oasis type', () => {
     const oasisBonuses = database.selectObjects({
       sql: `
-        SELECT tile_id, resource, bonus
+        SELECT o.tile_id, ri.resource, o.bonus
         FROM
-          oasis;
+          oasis o
+            JOIN resource_ids ri ON ri.id = o.resource_id;
       `,
       schema: z.strictObject({
         tile_id: z.number(),

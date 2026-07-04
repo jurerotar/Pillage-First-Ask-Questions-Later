@@ -23,7 +23,12 @@ describe('oasisSeeder', () => {
 
   test('oasis bonus values are only 25 or 50 and resource strings are lowercase', () => {
     const rows = database.selectObjects({
-      sql: 'SELECT resource, bonus FROM oasis;',
+      sql: `
+        SELECT ri.resource, o.bonus
+        FROM
+          oasis o
+            JOIN resource_ids ri ON ri.id = o.resource_id;
+      `,
       schema: z.strictObject({
         resource: resourceSchema,
         bonus: z.number(),
@@ -42,12 +47,13 @@ describe('oasisSeeder', () => {
       sql: `
         SELECT COUNT(*)
         FROM
-          oasis
+          oasis o
+            JOIN resource_ids ri ON ri.id = o.resource_id
         GROUP BY
           tile_id
         HAVING
-          SUM(CASE WHEN resource = 'wheat' THEN 1 ELSE 0 END) >= 1
-          AND SUM(CASE WHEN resource != 'wheat' THEN 1 ELSE 0 END) >= 1;
+          SUM(CASE WHEN ri.resource = 'wheat' THEN 1 ELSE 0 END) >= 1
+          AND SUM(CASE WHEN ri.resource != 'wheat' THEN 1 ELSE 0 END) >= 1;
       `,
       schema: z.number(),
     });
@@ -60,12 +66,13 @@ describe('oasisSeeder', () => {
       sql: `
         SELECT COUNT(*)
         FROM
-          oasis
+          oasis o
+            JOIN resource_ids ri ON ri.id = o.resource_id
         GROUP BY
           tile_id
         HAVING
-          SUM(CASE WHEN resource = 'wheat' THEN 1 ELSE 0 END) = 0
-          AND SUM(CASE WHEN resource != 'wheat' THEN 1 ELSE 0 END) >= 1;
+          SUM(CASE WHEN ri.resource = 'wheat' THEN 1 ELSE 0 END) = 0
+          AND SUM(CASE WHEN ri.resource != 'wheat' THEN 1 ELSE 0 END) >= 1;
       `,
       schema: z.number(),
     });
@@ -92,7 +99,7 @@ describe('oasisSeeder', () => {
             FROM
               tiles t
                 JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-                JOIN oasis o ON o.resource = 'wheat' AND o.bonus = 50
+                JOIN oasis o ON o.resource_id = (SELECT id FROM resource_ids WHERE resource = 'wheat') AND o.bonus = 50
                 JOIN tiles ot ON ot.id = o.tile_id
             WHERE
               rfc.resource_field_composition = '00018'
@@ -120,7 +127,7 @@ describe('oasisSeeder', () => {
             FROM
               tiles t
                 JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-                JOIN oasis o ON o.resource = 'wheat' AND o.bonus = 50
+                JOIN oasis o ON o.resource_id = (SELECT id FROM resource_ids WHERE resource = 'wheat') AND o.bonus = 50
                 JOIN tiles ot ON ot.id = o.tile_id
             WHERE
               rfc.resource_field_composition = '11115'
@@ -148,7 +155,7 @@ describe('oasisSeeder', () => {
             FROM
               tiles t
                 JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-                JOIN oasis o ON o.resource = 'wheat' AND o.bonus = 50
+                JOIN oasis o ON o.resource_id = (SELECT id FROM resource_ids WHERE resource = 'wheat') AND o.bonus = 50
                 JOIN tiles ot ON ot.id = o.tile_id
             WHERE
               rfc.resource_field_composition = '3339'

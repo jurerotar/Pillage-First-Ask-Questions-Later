@@ -758,9 +758,10 @@ export const troopSeeder = (database: DbFacade, server: Server): void => {
     sql: `
       SELECT
         o.tile_id AS tile_id,
-        GROUP_CONCAT(o.resource) AS resources
+        GROUP_CONCAT(ri.resource) AS resources
       FROM
         oasis o
+          JOIN resource_ids ri ON ri.id = o.resource_id
       GROUP BY
         o.tile_id
       HAVING

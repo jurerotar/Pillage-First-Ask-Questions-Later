@@ -9,6 +9,7 @@ import {
   effectTypeSchema,
 } from '@pillage-first/types/models/effect';
 import { factionSchema } from '@pillage-first/types/models/faction';
+import { resourceSchema } from '@pillage-first/types/models/resource';
 import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -116,5 +117,25 @@ describe('lookupTablesSeeder', () => {
     expect(tileTypes).toStrictEqual([...tileTypeSchema.options].sort());
     expect(freeTypeId).toBe(1);
     expect(oasisTypeId).toBe(2);
+  });
+
+  test('resource_ids contains every modeled resource with stable ids', () => {
+    const resources = database.selectValues({
+      sql: 'SELECT resource FROM resource_ids ORDER BY resource;',
+      schema: resourceSchema,
+    });
+
+    const woodId = database.selectValue({
+      sql: "SELECT id FROM resource_ids WHERE resource = 'wood';",
+      schema: z.number(),
+    });
+    const wheatId = database.selectValue({
+      sql: "SELECT id FROM resource_ids WHERE resource = 'wheat';",
+      schema: z.number(),
+    });
+
+    expect(resources).toStrictEqual([...resourceSchema.options].sort());
+    expect(woodId).toBe(1);
+    expect(wheatId).toBe(4);
   });
 });

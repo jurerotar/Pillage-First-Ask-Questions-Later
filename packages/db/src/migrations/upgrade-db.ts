@@ -678,8 +678,8 @@ export const upgradeDb = (database: DbFacade): void => {
 
         tx.exec({
           sql: `
-          INSERT OR IGNORE INTO
-            effect_source_ids (id, source)
+            INSERT OR IGNORE INTO
+              effect_source_ids (id, source)
           VALUES
             (1, 'building'),
             (2, 'hero'    ),
@@ -689,6 +689,34 @@ export const upgradeDb = (database: DbFacade): void => {
             (6, 'server'  ),
             (7, 'troops'  );
         `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE TABLE IF NOT EXISTS resource_ids
+            (
+              id INTEGER PRIMARY KEY,
+              resource TEXT NOT NULL UNIQUE
+            );
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            INSERT OR IGNORE INTO
+              resource_ids (id, resource)
+            VALUES
+              (1, 'wood' ),
+              (2, 'clay' ),
+              (3, 'iron' ),
+              (4, 'wheat');
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE INDEX IF NOT EXISTS idx_resource_ids_resource ON resource_ids (resource);
+          `,
         });
 
         tx.exec({
@@ -785,6 +813,88 @@ export const upgradeDb = (database: DbFacade): void => {
         tx.exec({
           sql: `
             CREATE INDEX idx_tiles_type_xy ON tiles (type_id, x, y);
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            DROP INDEX IF EXISTS idx_oasis_tile_id;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            DROP INDEX IF EXISTS idx_oasis_village_id;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            DROP INDEX IF EXISTS idx_oasis_resource_bonus;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE TABLE oasis_new
+            (
+              id INTEGER PRIMARY KEY,
+              tile_id INTEGER NOT NULL,
+              village_id INTEGER,
+              resource_id INTEGER NOT NULL,
+              bonus INTEGER NOT NULL,
+
+              FOREIGN KEY (tile_id) REFERENCES tiles (id) ON DELETE CASCADE,
+              FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE,
+              FOREIGN KEY (resource_id) REFERENCES resource_ids (id)
+            );
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            INSERT INTO
+              oasis_new (id, tile_id, village_id, resource_id, bonus)
+            SELECT
+              o.id,
+              o.tile_id,
+              o.village_id,
+              ri.id,
+              o.bonus
+            FROM
+              oasis o
+                JOIN resource_ids ri ON ri.resource = o.resource;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            DROP TABLE oasis;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            ALTER TABLE oasis_new
+              RENAME TO oasis;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE INDEX idx_oasis_tile_id ON oasis (tile_id);
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE INDEX idx_oasis_village_id ON oasis (village_id);
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            CREATE INDEX idx_oasis_resource_bonus ON oasis (resource_id, bonus);
           `,
         });
 
