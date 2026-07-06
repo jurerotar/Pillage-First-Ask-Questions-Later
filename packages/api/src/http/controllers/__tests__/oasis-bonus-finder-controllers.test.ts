@@ -52,9 +52,10 @@ const searchOasisBonuses = (database: TestDatabase, body: SearchBody) => {
 const getOasisBonusKeysByTileId = (database: TestDatabase) => {
   const oasisBonusRows = database.selectObjects({
     sql: `
-      SELECT tile_id, resource, bonus
-      FROM oasis
-      ORDER BY tile_id;
+      SELECT o.tile_id, ri.resource, o.bonus
+      FROM oasis o
+             JOIN resource_ids ri ON ri.id = o.resource_id
+      ORDER BY o.tile_id;
     `,
     schema: oasisBonusRowSchema,
   });
