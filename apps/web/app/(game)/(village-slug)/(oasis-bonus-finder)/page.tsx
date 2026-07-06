@@ -206,8 +206,10 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
 
   const { coordinates } = currentVillage;
 
-  const x = Number.parseInt(searchParams.get('x')!, 10) ?? coordinates.x;
-  const y = Number.parseInt(searchParams.get('y')!, 10) ?? coordinates.y;
+  const searchParamX = Number.parseInt(searchParams.get('x') ?? '', 10);
+  const searchParamY = Number.parseInt(searchParams.get('y') ?? '', 10);
+  const x = Number.isNaN(searchParamX) ? coordinates.x : searchParamX;
+  const y = Number.isNaN(searchParamY) ? coordinates.y : searchParamY;
   const resourceFieldComposition = (searchParams.get('rfc') ??
     'any-cropper') as (typeof RFCFieldValues)[number];
   const firstOasisBonus = (searchParams.get('first-bonus') ??
@@ -239,21 +241,25 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
   } = useQuery({
     queryKey: [
       oasisBonusFinderCacheKey,
+      x,
+      y,
       resourceFieldComposition,
       firstOasisBonus,
       secondOasisBonus,
       thirdOasisBonus,
     ],
     queryFn: async () => {
+      const values = form.getValues();
+
       const { data } = await apiClient.post('/search/oases/by-bonus', {
         body: {
-          x,
-          y,
-          resourceFieldComposition,
+          x: values.origin.x,
+          y: values.origin.y,
+          resourceFieldComposition: values.resourceFieldComposition,
           bonuses: {
-            firstOasis: parseOasisBonus(firstOasisBonus),
-            secondOasis: parseOasisBonus(secondOasisBonus),
-            thirdOasis: parseOasisBonus(thirdOasisBonus),
+            firstOasis: parseOasisBonus(values.firstOasisBonus),
+            secondOasis: parseOasisBonus(values.secondOasisBonus),
+            thirdOasis: parseOasisBonus(values.thirdOasisBonus),
           },
         },
       });
@@ -553,6 +559,9 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                     <Text>{t('Coordinates')}</Text>
                   </TableHeaderCell>
                   <TableHeaderCell>
+                    <Text>{t('Owner village')}</Text>
+                  </TableHeaderCell>
+                  <TableHeaderCell>
                     <Text>{t('Distance')}</Text>
                   </TableHeaderCell>
                 </TableRow>
@@ -562,7 +571,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   <TableRow>
                     <TableCell
                       className="text-left"
-                      colSpan={4}
+                      colSpan={5}
                     >
                       <Text>{t('Define your criteria and click search.')}</Text>
                     </TableCell>
@@ -575,6 +584,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                         tileId,
                         coordinates,
                         resourceFieldComposition,
+                        oasisOwners,
                         distance,
                       },
                       index,
@@ -582,6 +592,17 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                       const resources = parseResourcesFromRFC(
                         resourceFieldComposition,
                       );
+                      const ownerVillages = [
+                        ...new Map(
+                          oasisOwners
+                            .map(({ ownerVillage }) => ownerVillage)
+                            .filter((ownerVillage) => ownerVillage !== null)
+                            .map((ownerVillage) => [
+                              ownerVillage.id,
+                              ownerVillage,
+                            ]),
+                        ).values(),
+                      ];
 
                       return (
                         <TableRow key={tileId}>
@@ -609,6 +630,29 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                                 ({coordinates.x} | {coordinates.y})
                               </Link>
                             </Text>
+                          </TableCell>
+                          <TableCell>
+                            {ownerVillages.length === 0 && <Text>/</Text>}
+                            {ownerVillages.length > 0 && (
+                              <div className="flex flex-col gap-1">
+                                {ownerVillages.map((ownerVillage) => (
+                                  <Text
+                                    key={ownerVillage.id}
+                                    variant="link"
+                                  >
+                                    <Link
+                                      to={
+                                        ownerVillage.slug === null
+                                          ? `../map?x=${ownerVillage.coordinates.x}&y=${ownerVillage.coordinates.y}`
+                                          : `/game/${serverSlug}/${ownerVillage.slug}/resources`
+                                      }
+                                    >
+                                      {ownerVillage.name}
+                                    </Link>
+                                  </Text>
+                                ))}
+                              </div>
+                            )}
                           </TableCell>
                           <TableCell>
                             <Text>{distance}</Text>

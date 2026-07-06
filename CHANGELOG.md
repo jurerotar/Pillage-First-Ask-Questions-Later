@@ -1,6 +1,6 @@
-## Version 0.4.38
+## Version 0.4.39
 
-#### Jul 3, 2026
+#### Jul 7, 2026
 
 * [BugFix] Fixed oasis resources calculation ahead of upcoming attacking and raiding feature.
 * [Performance] Reworked `effects` table. This is our largest table that contains village/oasis properties. This rework
@@ -10,6 +10,16 @@
   execution speed of map-related queries by around 1-2%.
 * [Performance] Reworked `oasis` table. This minor change reduced our total database size by around 1.5% (45KB in practice) and improved
   execution speed of oasis-related queries around 15%-70%.
+
+## Version 0.4.38
+
+#### Jul 6, 2026
+
+* [BugFix] Fixed an issue where current resource amount wasn't accurately represented when attempting to send resources
+  through the marketplace.
+* [Feature] Added the ability to preview which tiles are already occupied in Oasis Bonus Finder.
+* [Performance] Improved search performance of Oasis Bonus Finder by 20-45%, depending on the amount of search filters
+  used.
 
 ## Version 0.4.37
 
