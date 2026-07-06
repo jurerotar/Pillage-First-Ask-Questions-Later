@@ -30,10 +30,20 @@ export const getBattlePlayerInformationRowSchema = z
   })
   .meta({ id: 'GetBattlePlayerInformationRow' });
 
+export const getBattleOasisInformationRowSchema = z
+  .strictObject({
+    player_name: z.string().nullable(),
+    player_slug: z.string().nullable(),
+    x: z.int(),
+    y: z.int(),
+  })
+  .meta({ id: 'GetBattleOasisInformationRow' });
+
 export const getBattleByReportRowSchema = z
   .strictObject({
     attacking_village_id: z.int(),
-    defending_village_id: z.int(),
+    defending_village_id: z.int().nullable(),
+    defending_oasis_id: z.int().nullable(),
     loot_wood: z.int(),
     loot_clay: z.int(),
     loot_iron: z.int(),
@@ -42,4 +52,9 @@ export const getBattleByReportRowSchema = z
     attacker_points: z.int(),
     defender_points: z.int(),
   })
+  .refine(
+    ({ defending_village_id, defending_oasis_id }) =>
+      defending_village_id != null || defending_oasis_id != null,
+    'Either the defending village or oasis ID must be defined',
+  )
   .meta({ id: 'GetBattleByReportRow' });

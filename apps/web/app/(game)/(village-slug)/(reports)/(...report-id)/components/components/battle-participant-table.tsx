@@ -67,16 +67,16 @@ export const BattleParticipantTable = ({
         <UnitTablePlayer
           playerName={battle.attackingPlayerName}
           playerSlug={battle.attackingPlayerSlug}
-          villageName={battle.originVillageName}
-          coordinates={battle.originVillageCoordinates}
+          tileName={battle.originName}
+          coordinates={battle.originCoordinates}
         />
       )}
       {participant.role === 'defender' && !participant.isReinforcement && (
         <UnitTablePlayer
           playerName={battle.defendingPlayerName}
           playerSlug={battle.defendingPlayerSlug}
-          villageName={battle.targetVillageName}
-          coordinates={battle.targetVillageCoordinates}
+          tileName={battle.targetName}
+          coordinates={battle.targetCoordinates}
         />
       )}
 

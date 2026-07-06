@@ -81,7 +81,7 @@ type TileModalProps = {
 
 type TileModalActionsProps = {
   onFoundNewVillage: (tile: OccupiableTile) => void;
-  onAttackOrRaidVillage: (tile: OccupiedOccupiableTile) => void;
+  onAttackOrRaidVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
   onReinforceVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
   onSendResources: (tile: OccupiedOccupiableTile) => void;
 };
@@ -340,6 +340,7 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
 type OasisTileModalProps = {
   tile: OasisTile;
   onReinforceVillage: (tile: OasisTile) => void;
+  onAttackOrRaidVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
 };
 
 type OasisTileModalAnimalsProps = {
@@ -381,7 +382,11 @@ const OasisTileModalAnimalsSkeleton = () => {
   );
 };
 
-const OasisTileModal = ({ tile, onReinforceVillage }: OasisTileModalProps) => {
+const OasisTileModal = ({
+  tile,
+  onReinforceVillage,
+  onAttackOrRaidVillage,
+}: OasisTileModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { oasisBonuses } = useOasisBonuses(tile.id);
@@ -463,6 +468,14 @@ const OasisTileModal = ({ tile, onReinforceVillage }: OasisTileModalProps) => {
             </Button>
           )}
         </div>
+      )}
+      {(!isOccupied || tile.owner.id !== PLAYER_ID) && (
+        <Button
+          variant="textLink"
+          onClick={() => onAttackOrRaidVillage(tile)}
+        >
+          {t('Attack or raid')}
+        </Button>
       )}
     </DialogHeader>
   );
@@ -717,6 +730,7 @@ export const TileDialog = ({
         <OasisTileModal
           tile={tile}
           onReinforceVillage={onReinforceVillage}
+          onAttackOrRaidVillage={onAttackOrRaidVillage}
         />
         <TileModalMarkerDescription
           mapMarkers={mapMarkers}

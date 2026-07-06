@@ -42,6 +42,12 @@ export const selectTribeByTileQuery = `
   id = (SELECT player_id FROM villages WHERE tile_id = $tile_id);
 `;
 
+export const selectNatureTribeIdQuery = `
+  SELECT id
+  FROM tribe_ids
+  WHERE tribe = 'nature'
+`;
+
 export const selectBattlePlayerInformationQuery = `
   SELECT
     p.name AS player_name,
@@ -55,6 +61,21 @@ export const selectBattlePlayerInformationQuery = `
     JOIN tiles t ON v.tile_id = t.id
   WHERE
     v.id = $village_id
+`;
+
+export const selectBattleOasisInformationQuery = `
+  SELECT
+    p.name AS player_name,
+    p.slug AS player_slug,
+    x,
+    y
+  FROM
+    oasis o
+    JOIN tiles t ON o.tile_id = t.id
+    LEFT JOIN villages v ON o.village_id = v.id
+    LEFT JOIN players p ON v.player_id = p.id
+  WHERE
+    o.id = $oasis_id
 `;
 
 export const deleteReportQuery = `

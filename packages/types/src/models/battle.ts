@@ -26,25 +26,32 @@ export const battleParticipantSchema = z.strictObject({
   units: z.array(battleUnitSchema),
 });
 
-export const battleTypeSchema = z.strictObject({
-  attackingVillageId: z.int(),
-  defendingVillageId: z.int(),
-  attackingPlayerName: z.string(),
-  attackingPlayerSlug: z.string(),
-  defendingPlayerName: z.string(),
-  defendingPlayerSlug: z.string(),
-  originVillageName: z.string(),
-  originVillageCoordinates: coordinatesSchema,
-  targetVillageName: z.string(),
-  targetVillageCoordinates: coordinatesSchema,
-  loot: resourceBundleSchema,
-  totalCarryCapacity: z.int(),
-  didAttackerWin: z.boolean(),
-  canAttackerSeeFullReport: z.boolean(),
-  attackStatistics: battleStatisticsSchema,
-  defenceStatistics: battleStatisticsSchema,
-  participants: z.array(battleParticipantSchema),
-});
+export const battleTypeSchema = z
+  .strictObject({
+    attackingVillageId: z.int(),
+    defendingVillageId: z.int().optional(),
+    defendingOasisId: z.int().optional(),
+    attackingPlayerName: z.string(),
+    attackingPlayerSlug: z.string(),
+    defendingPlayerName: z.string(),
+    defendingPlayerSlug: z.string().optional(),
+    originName: z.string(),
+    originCoordinates: coordinatesSchema,
+    targetName: z.string(),
+    targetCoordinates: coordinatesSchema,
+    loot: resourceBundleSchema,
+    totalCarryCapacity: z.int(),
+    didAttackerWin: z.boolean(),
+    canAttackerSeeFullReport: z.boolean(),
+    attackStatistics: battleStatisticsSchema,
+    defenceStatistics: battleStatisticsSchema,
+    participants: z.array(battleParticipantSchema),
+  })
+  .refine(
+    ({ defendingVillageId, defendingOasisId }) =>
+      defendingVillageId != null || defendingOasisId != null,
+    'Either the defending village or oasis ID must be defined',
+  );
 
 export type BattleStatistics = z.infer<typeof battleStatisticsSchema>;
 export type BattleUnit = z.infer<typeof battleUnitSchema>;

@@ -14,6 +14,22 @@ export const selectBattleParticipantInfoByVillageQuery = `
     t.id = $tile_id
 `;
 
+export const selectBattleParticipantInfoByOasisQuery = `
+  SELECT
+    p.name AS player_name,
+    p.slug AS player_slug,
+    t.x,
+    t.y
+  FROM
+    tiles t
+    JOIN oasis o ON t.id = o.tile_id
+    LEFT JOIN villages v ON o.village_id = v.id
+    LEFT JOIN players p ON v.player_id = p.id
+  WHERE
+    o.id = $oasis_id
+  LIMIT 1
+`;
+
 export const selectUnitImprovementByTileQuery = `
   SELECT
     ui.unit as unit_id,
@@ -56,6 +72,7 @@ export const selectBattleByReportQuery = `
   SELECT
     attacking_village_id,
     defending_village_id,
+    defending_oasis_id,
     loot_wood,
     loot_clay,
     loot_iron,

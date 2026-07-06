@@ -62,15 +62,15 @@ export const UnitTableTitle = ({ children }: PropsWithChildren) => {
 
 type UnitTablePlayerProps = {
   playerName: string;
-  playerSlug: string;
-  villageName: string;
+  playerSlug?: string;
+  tileName: string;
   coordinates: Coordinates;
 };
 
 export const UnitTablePlayer = ({
   playerName,
   playerSlug,
-  villageName,
+  tileName,
   coordinates,
 }: UnitTablePlayerProps) => {
   const { t } = useTranslation();
@@ -82,18 +82,21 @@ export const UnitTablePlayer = ({
           colSpan={12}
           className="p-2 text-left font-medium"
         >
-          <Link
-            to={`../players/${playerSlug}`}
-            className="text-link"
-          >
-            {playerName}
-          </Link>
+          {playerSlug && (
+            <Link
+              to={`../players/${playerSlug}`}
+              className="text-link"
+            >
+              {playerName}
+            </Link>
+          )}
+          {!playerSlug && <span className="text-gray-600">{playerName}</span>}
           {t(' from village ')}
           <Link
             to={`../map?x=${coordinates.x}&y=${coordinates.y}`}
             className="text-link"
           >
-            {villageName}
+            {tileName}
           </Link>
         </th>
       </tr>

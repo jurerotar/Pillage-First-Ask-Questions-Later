@@ -1,3 +1,12 @@
+export const selectOasisIdByTileIdQuery = `
+  SELECT
+    id as oasis_id
+  FROM
+    oasis
+  WHERE
+    tile_id = $tile_id;
+`;
+
 export const occupyOasisQuery = `
   UPDATE oasis
   SET

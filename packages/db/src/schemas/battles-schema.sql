@@ -2,7 +2,8 @@ CREATE TABLE battles
 (
   report_id INTEGER PRIMARY KEY,
   attacking_village_id INTEGER NOT NULL,
-  defending_village_id INTEGER NOT NULL,
+  defending_village_id INTEGER,
+  defending_oasis_id INTEGER,
   loot_wood INTEGER NOT NULL,
   loot_clay INTEGER NOT NULL,
   loot_iron INTEGER NOT NULL,
