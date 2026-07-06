@@ -1,3 +1,13 @@
+## Version 0.4.38
+
+#### Jul 6, 2026
+
+* [BugFix] Fixed an issue where current resource amount wasn't accurately represented when attempting to send resources
+  through the marketplace.
+* [Feature] Added the ability to preview which tiles are already occupied in Oasis Bonus Finder.
+* [Performance] Improved search performance of Oasis Bonus Finder by 20-45%, depending on the amount of search filters
+  used.
+
 ## Version 0.4.37
 
 #### Jul 1, 2026

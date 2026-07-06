@@ -7,6 +7,7 @@ export const getTilesWithBonusesRowSchema = z
     coordinates_x: z.number(),
     coordinates_y: z.number(),
     resource_field_composition: resourceFieldCompositionSchema,
+    oasis_owners_json: z.string(),
     distance_squared: z.number(),
   })
   .meta({ id: 'GetTilesWithBonusesRow' });

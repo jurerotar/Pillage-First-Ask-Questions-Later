@@ -1,11 +1,18 @@
 import { z } from 'zod';
-import { oasisByBonusSearchResultItemDtoSchema } from '@pillage-first/types/dtos/oasis-search';
+import {
+  oasisByBonusSearchResultItemDtoSchema,
+  oasisOwnerDtoSchema,
+} from '@pillage-first/types/dtos/oasis-search';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { roundToNDecimalPoints } from '@pillage-first/utils/math';
 import { createController } from '../controller';
 import { getTilesWithBonusesRowSchema } from './schemas/oasis-bonus-finder-schemas';
+
+const CROPPER_RESOURCE_FIELD_COMPOSITIONS = ['3339', '11115', '00018'];
+const CROPPER_RESOURCE_FIELD_COMPOSITIONS_SQL =
+  CROPPER_RESOURCE_FIELD_COMPOSITIONS.map((rfc) => `'${rfc}'`).join(', ');
 
 const createSqlBindings = (slot: OasisBonus[]) => {
   if (slot.length === 0) {
@@ -34,6 +41,32 @@ type OasisBonus = {
   resource: Resource;
 };
 
+const oasisBonusSchema = z.strictObject({
+  bonus: z.union([z.literal(25), z.literal(50)]),
+  resource: resourceSchema,
+});
+
+const oasisBonusSlotSchema = z.array(oasisBonusSchema).max(2);
+
+const ownedOasisRowSchema = z.strictObject({
+  oasis_tile_id: z.number(),
+  oasis_x: z.number(),
+  oasis_y: z.number(),
+  owner_village_id: z.number(),
+  owner_village_name: z.string(),
+  owner_village_slug: z.string().nullable(),
+  owner_village_x: z.number(),
+  owner_village_y: z.number(),
+});
+
+type OasisOwnerDto = z.infer<typeof oasisOwnerDtoSchema>;
+
+const dedupeOasisOwners = (oasisOwners: OasisOwnerDto[]) => {
+  return [
+    ...new Map(oasisOwners.map((owner) => [owner.oasisTileId, owner])).values(),
+  ];
+};
+
 export const getTilesWithBonuses = createController(
   '/search/oases/by-bonus',
   'post',
@@ -46,24 +79,9 @@ export const getTilesWithBonuses = createController(
         z.literal('any-cropper'),
       ),
       bonuses: z.strictObject({
-        firstOasis: z.array(
-          z.strictObject({
-            bonus: z.union([z.literal(25), z.literal(50)]),
-            resource: resourceSchema,
-          }),
-        ),
-        secondOasis: z.array(
-          z.strictObject({
-            bonus: z.union([z.literal(25), z.literal(50)]),
-            resource: resourceSchema,
-          }),
-        ),
-        thirdOasis: z.array(
-          z.strictObject({
-            bonus: z.union([z.literal(25), z.literal(50)]),
-            resource: resourceSchema,
-          }),
-        ),
+        firstOasis: oasisBonusSlotSchema,
+        secondOasis: oasisBonusSlotSchema,
+        thirdOasis: oasisBonusSlotSchema,
       }),
     }),
     response: z.array(oasisByBonusSearchResultItemDtoSchema),
@@ -75,6 +93,7 @@ export const getTilesWithBonuses = createController(
   const s1 = createSqlBindings(firstOasis);
   const s2 = createSqlBindings(secondOasis);
   const s3 = createSqlBindings(thirdOasis);
+  const requestedOasisSlots = [firstOasis, secondOasis, thirdOasis];
 
   const sqlBindings: Record<string, number | string> = {
     $tile_x: x,
@@ -82,21 +101,24 @@ export const getTilesWithBonuses = createController(
     $rfc_param: resourceFieldComposition,
   };
 
-  const allRequiredBonuses: { resource: string; bonus: number }[] = [];
-  for (const slot of [firstOasis, secondOasis, thirdOasis]) {
-    for (const b of slot) {
-      if (
-        !allRequiredBonuses.some(
-          (existing) =>
-            existing.resource === b.resource && existing.bonus === b.bonus,
-        )
-      ) {
-        allRequiredBonuses.push(b);
+  const hasRequiredOases = requestedOasisSlots.some((slot) => {
+    return slot.length > 0;
+  });
+
+  const requiredBonuses = (() => {
+    if (!hasRequiredOases) {
+      return [];
+    }
+
+    const allRequiredBonuses = new Map<string, OasisBonus>();
+    for (const slot of requestedOasisSlots) {
+      for (const bonus of slot) {
+        allRequiredBonuses.set(`${bonus.resource}-${bonus.bonus}`, bonus);
       }
     }
-  }
 
-  const hasRequiredOases = allRequiredBonuses.length > 0;
+    return [...allRequiredBonuses.values()];
+  })();
 
   const sqlParts: string[] = [];
 
@@ -107,11 +129,11 @@ export const getTilesWithBonuses = createController(
         ),`);
 
   if (hasRequiredOases) {
-    const bonusConditions = allRequiredBonuses
+    const bonusConditions = requiredBonuses
       .map((_, i) => `(o.resource = $ro_r${i} AND o.bonus = $ro_b${i})`)
       .join(' OR ');
 
-    for (const [i, b] of allRequiredBonuses.entries()) {
+    for (const [i, b] of requiredBonuses.entries()) {
       sqlBindings[`$ro_r${i}`] = b.resource;
       sqlBindings[`$ro_b${i}`] = b.bonus;
     }
@@ -126,7 +148,7 @@ export const getTilesWithBonuses = createController(
         WHERE (${bonusConditions})
           AND t.type = 'free'
           AND (
-            ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN ('3339', '11115', '00018'))
+            ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN (${CROPPER_RESOURCE_FIELD_COMPOSITIONS_SQL}))
               OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)
             )
         )`);
@@ -138,22 +160,11 @@ export const getTilesWithBonuses = createController(
                LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
         WHERE t.type = 'free'
           AND (
-            ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN ('3339', '11115', '00018'))
+            ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN (${CROPPER_RESOURCE_FIELD_COMPOSITIONS_SQL}))
               OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)
             )
         )`);
   }
-
-  sqlParts.push(`
-    SELECT
-      c.id AS tile_id,
-      c.x AS coordinates_x,
-      c.y AS coordinates_y,
-      c.resource_field_composition AS resource_field_composition,
-      ((c.x - sv.column1) * (c.x - sv.column1) + (c.y - sv.column2) * (c.y - sv.column2)) AS distance_squared
-    FROM candidates c
-           CROSS JOIN src_village sv
-  `);
 
   const slots: {
     idx: number;
@@ -170,78 +181,163 @@ export const getTilesWithBonuses = createController(
     slots.push({ idx: 3, slot: s3 });
   }
 
-  const buildDerived = (
+  for (const { idx, slot } of slots) {
+    sqlBindings[`$r${idx}`] = slot.r1;
+    sqlBindings[`$b${idx}`] = slot.b1;
+
+    if (slot.count === 2) {
+      sqlBindings[`$r${idx}_2`] = slot.r1_2!;
+      sqlBindings[`$b${idx}_2`] = slot.b1_2!;
+    }
+  }
+
+  const buildSlotMatchCte = (
     idx: number,
     slot: NonNullable<ReturnType<typeof createSqlBindings>>,
   ) => {
     if (slot.count === 1) {
-      sqlBindings[`$r${idx}`] = slot.r1;
-      sqlBindings[`$b${idx}`] = slot.b1;
       return `
-        (
-          SELECT o.tile_id AS oasis_tile
-          FROM oasis o
-          JOIN tiles ot ON ot.id = o.tile_id
-          WHERE ot.x BETWEEN c.x - 3 AND c.x + 3
+        s${idx}_matches AS (
+          SELECT c.id AS candidate_tile, o.tile_id AS oasis_tile
+          FROM candidates c
+          JOIN tiles ot ON ot.x BETWEEN c.x - 3 AND c.x + 3
             AND ot.y BETWEEN c.y - 3 AND c.y + 3
-            AND o.resource = $r${idx}
+          JOIN oasis o ON o.tile_id = ot.id
+          WHERE o.resource = $r${idx}
             AND o.bonus = $b${idx}
-          GROUP BY o.tile_id
+          GROUP BY c.id, o.tile_id
         )
       `;
     }
 
-    // Two bonuses on the same oasis
-    sqlBindings[`$r${idx}`] = slot.r1;
-    sqlBindings[`$b${idx}`] = slot.b1;
-    sqlBindings[`$r${idx}_2`] = slot.r1_2!;
-    sqlBindings[`$b${idx}_2`] = slot.b1_2!;
-
     return `
-      (
-        SELECT o.tile_id AS oasis_tile
-        FROM oasis o
-        JOIN tiles ot ON ot.id = o.tile_id
-        WHERE ot.x BETWEEN c.x - 3 AND c.x + 3
-          AND ot.y BETWEEN c.y - 3 AND c.y + 3
-          AND (
+        s${idx}_matches AS (
+          SELECT c.id AS candidate_tile, o.tile_id AS oasis_tile
+          FROM candidates c
+          JOIN tiles ot ON ot.x BETWEEN c.x - 3 AND c.x + 3
+            AND ot.y BETWEEN c.y - 3 AND c.y + 3
+          JOIN oasis o ON o.tile_id = ot.id
+          WHERE (
             (o.resource = $r${idx}   AND o.bonus = $b${idx})
             OR (o.resource = $r${idx}_2 AND o.bonus = $b${idx}_2)
           )
-        GROUP BY o.tile_id
-        HAVING COUNT(DISTINCT (o.resource || '-' || o.bonus)) = 2
-      )
+          GROUP BY c.id, o.tile_id
+          HAVING COUNT(DISTINCT (o.resource || '-' || o.bonus)) = 2
+        )
     `;
   };
+
+  if (slots.length > 0) {
+    sqlParts.push(
+      `,
+      ${slots.map(({ idx, slot }) => buildSlotMatchCte(idx, slot)).join(',')}`,
+    );
+
+    const candidateOasisMatchesSelect = slots
+      .map(
+        ({ idx }) => `SELECT candidate_tile, oasis_tile FROM s${idx}_matches`,
+      )
+      .join('\nUNION ALL\n');
+
+    sqlParts.push(`
+      ,
+      candidate_oasis_matches AS (
+        SELECT DISTINCT candidate_tile, oasis_tile
+        FROM (
+          ${candidateOasisMatchesSelect}
+        )
+      ),
+      candidate_oasis_owners AS (
+        SELECT
+          m.candidate_tile,
+          m.oasis_tile,
+          ov.id AS owner_village_id,
+          ov.name AS owner_village_name,
+          ov.slug AS owner_village_slug,
+          vt.x AS owner_village_x,
+          vt.y AS owner_village_y
+        FROM candidate_oasis_matches m
+        JOIN oasis oo ON oo.tile_id = m.oasis_tile
+        LEFT JOIN villages ov ON ov.id = oo.village_id
+        LEFT JOIN tiles vt ON vt.id = ov.tile_id
+      )`);
+  }
+
+  const buildOasisOwnersJsonSelect = () => {
+    if (slots.length === 0) {
+      return `'[]' AS oasis_owners_json`;
+    }
+
+    return `
+      (
+        SELECT COALESCE(
+          JSON_GROUP_ARRAY(
+            JSON_OBJECT(
+              'oasisTileId', matched.oasis_tile,
+              'ownerVillage', JSON(
+                CASE
+                  WHEN matched.owner_village_id IS NULL THEN 'null'
+                  ELSE JSON_OBJECT(
+                    'id', matched.owner_village_id,
+                    'name', matched.owner_village_name,
+                    'slug', matched.owner_village_slug,
+                    'coordinates', JSON_OBJECT(
+                      'x', matched.owner_village_x,
+                      'y', matched.owner_village_y
+                    )
+                  )
+                END
+              )
+            )
+          ),
+          '[]'
+        )
+        FROM (
+          SELECT
+            oasis_tile,
+            owner_village_id,
+            owner_village_name,
+            owner_village_slug,
+            owner_village_x,
+            owner_village_y
+          FROM candidate_oasis_owners
+          WHERE candidate_tile = c.id
+          ORDER BY oasis_tile
+        ) matched
+      ) AS oasis_owners_json`;
+  };
+
+  sqlParts.push(`
+    SELECT
+      c.id AS tile_id,
+      c.x AS coordinates_x,
+      c.y AS coordinates_y,
+      c.resource_field_composition AS resource_field_composition,
+      ${buildOasisOwnersJsonSelect()},
+      ((c.x - sv.column1) * (c.x - sv.column1) + (c.y - sv.column2) * (c.y - sv.column2)) AS distance_squared
+    FROM candidates c
+           CROSS JOIN src_village sv
+  `);
 
   const whereClauses: string[] = [];
 
   if (slots.length === 1) {
-    // Single-slot fast path
-    const d = buildDerived(slots[0].idx, slots[0].slot);
     whereClauses.push(
-      `EXISTS (SELECT 1 FROM ${d} AS s1 WHERE s1.oasis_tile IS NOT NULL)`,
+      `EXISTS (SELECT 1 FROM s${slots[0].idx}_matches WHERE candidate_tile = c.id)`,
     );
   } else if (slots.length > 1) {
-    // Multi-slot: build derived subqueries and join with pairwise inequality in ON clauses
-    const derived = slots.map(({ idx, slot }, i) => ({
-      alias: `s${i + 1}`,
-      sql: buildDerived(idx, slot),
-    }));
-    // Build FROM ... JOIN ... ON conditions with pairwise inequality
-    let joinSql = `FROM ${derived[0].sql} AS ${derived[0].alias}\n`;
-    for (let i = 1; i < derived.length; i += 1) {
-      const right = derived[i].alias;
-      // Pairwise inequality for the last alias against all previous ones
-      const onConditions: string[] = [];
+    let joinSql = `FROM s${slots[0].idx}_matches AS s1\n`;
+    for (let i = 1; i < slots.length; i += 1) {
+      const right = `s${i + 1}`;
+      const onConditions = [`${right}.candidate_tile = s1.candidate_tile`];
       for (let j = 0; j < i; j += 1) {
-        onConditions.push(
-          `${right}.oasis_tile <> ${derived[j].alias}.oasis_tile`,
-        );
+        onConditions.push(`${right}.oasis_tile <> s${j + 1}.oasis_tile`);
       }
-      joinSql += `JOIN ${derived[i].sql} AS ${right} ON (${onConditions.join(' AND ')})\n`;
+      joinSql += `JOIN s${slots[i].idx}_matches AS ${right} ON (${onConditions.join(' AND ')})\n`;
     }
-    whereClauses.push(`EXISTS (SELECT 1\n${joinSql} )`);
+    whereClauses.push(
+      `EXISTS (SELECT 1\n${joinSql} WHERE s1.candidate_tile = c.id)`,
+    );
   }
 
   if (whereClauses.length > 0) {
@@ -262,12 +358,93 @@ export const getTilesWithBonuses = createController(
     schema: getTilesWithBonusesRowSchema,
   });
 
-  return rows.map((row) =>
-    oasisByBonusSearchResultItemDtoSchema.parse({
+  const ownedOases =
+    slots.length === 0
+      ? database.selectObjects({
+          sql: `
+            SELECT
+              o.tile_id AS oasis_tile_id,
+              ot.x AS oasis_x,
+              ot.y AS oasis_y,
+              ov.id AS owner_village_id,
+              ov.name AS owner_village_name,
+              ov.slug AS owner_village_slug,
+              vt.x AS owner_village_x,
+              vt.y AS owner_village_y
+            FROM oasis o
+            JOIN tiles ot ON ot.id = o.tile_id
+            JOIN villages ov ON ov.id = o.village_id
+            JOIN tiles vt ON vt.id = ov.tile_id
+            WHERE o.village_id IS NOT NULL
+            ORDER BY o.tile_id;
+          `,
+          schema: ownedOasisRowSchema,
+        })
+      : [];
+
+  const ownedOasesByCoordinates = new Map<string, typeof ownedOases>();
+  for (const oasis of ownedOases) {
+    const key = `${oasis.oasis_x},${oasis.oasis_y}`;
+    const existingOases = ownedOasesByCoordinates.get(key);
+
+    if (existingOases) {
+      existingOases.push(oasis);
+    } else {
+      ownedOasesByCoordinates.set(key, [oasis]);
+    }
+  }
+
+  return rows.map((row) => {
+    const oasisOwners =
+      slots.length === 0
+        ? dedupeOasisOwners(
+            (() => {
+              const nearbyOwnedOases: typeof ownedOases = [];
+
+              for (
+                let oasisX = row.coordinates_x - 3;
+                oasisX <= row.coordinates_x + 3;
+                oasisX += 1
+              ) {
+                for (
+                  let oasisY = row.coordinates_y - 3;
+                  oasisY <= row.coordinates_y + 3;
+                  oasisY += 1
+                ) {
+                  const oases =
+                    ownedOasesByCoordinates.get(`${oasisX},${oasisY}`) ?? [];
+                  nearbyOwnedOases.push(...oases);
+                }
+              }
+
+              return nearbyOwnedOases;
+            })()
+              .sort((a, b) => a.oasis_tile_id - b.oasis_tile_id)
+              .map((oasis) => ({
+                oasisTileId: oasis.oasis_tile_id,
+                ownerVillage: {
+                  id: oasis.owner_village_id,
+                  name: oasis.owner_village_name,
+                  slug: oasis.owner_village_slug,
+                  coordinates: {
+                    x: oasis.owner_village_x,
+                    y: oasis.owner_village_y,
+                  },
+                },
+              })),
+          )
+        : dedupeOasisOwners(
+            z
+              .array(oasisOwnerDtoSchema)
+              .parse(JSON.parse(row.oasis_owners_json)),
+          );
+
+    return oasisByBonusSearchResultItemDtoSchema.parse({
       tileId: row.tile_id,
       coordinates: { x: row.coordinates_x, y: row.coordinates_y },
       resourceFieldComposition: row.resource_field_composition,
+      oasisOwners,
       distance: roundToNDecimalPoints(Math.sqrt(row.distance_squared), 2),
-    }),
-  );
+    });
+  });
 });
