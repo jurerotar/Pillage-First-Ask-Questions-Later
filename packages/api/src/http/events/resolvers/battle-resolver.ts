@@ -295,6 +295,7 @@ type ApplyBattleResultArgs = {
   isRaid: boolean;
   originVillageId: Village['id'];
   targetVillageId?: Village['id'];
+  targetOasisId?: OasisTile['id'];
   originTileId: number;
   targetTileId: number;
   result: CombatResult;
@@ -306,6 +307,7 @@ const applyBattleResult = ({
   isRaid,
   originVillageId,
   targetVillageId,
+  targetOasisId,
   originTileId,
   targetTileId,
   result,
@@ -351,13 +353,28 @@ const applyBattleResult = ({
     result.attackerLosses,
     originVillageId,
   );
+
   if (targetVillageId != null) {
     reduceWheatConsumptionOfDeceasedTroops(
       result.defenderLosses,
       targetVillageId,
     );
+  } else if (targetOasisId != null) {
+    const deceasedSourceMap = new Map<Tile['id'], CombatTroop[]>();
+    for (const troop of result.defenderLosses) {
+      const source = troop.troop.source;
+      let troops = deceasedSourceMap.get(source);
+      if (!troops) {
+        troops = [];
+        deceasedSourceMap.set(source, troops);
+      }
+      troops.push(troop);
+    }
+
+    for (const [source, troops] of deceasedSourceMap) {
+      reduceWheatConsumptionOfDeceasedTroops(troops, source);
+    }
   }
-  // TODO: Handle wheat consumption in oasis
 
   // ┌─────────────────────────────────┐
   // │ Remove deceased defender troops │
@@ -657,13 +674,17 @@ export const resolveBattle = ({
     isRaid,
     originVillageId,
     targetVillageId,
+    targetOasisId,
     originTileId,
     targetTileId,
     result,
   });
 
+  // TODO: Revisit method of determining player involvement
   const playerVillageId =
-    originPlayerId === PLAYER_ID ? originVillageId : targetVillageId;
+    originPlayerId === PLAYER_ID
+      ? originVillageId
+      : (targetVillageId ?? targetOasisId);
 
   if (playerVillageId != null) {
     addBattleReport({
