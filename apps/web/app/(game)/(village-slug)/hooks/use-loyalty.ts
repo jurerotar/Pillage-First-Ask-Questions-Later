@@ -13,7 +13,7 @@ export const useLoyalty = () => {
     queryFn: async () => {
       const { data } = await apiClient.get('/tiles/:tileId/loyalty', {
         path: {
-          tileId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
       });
 
