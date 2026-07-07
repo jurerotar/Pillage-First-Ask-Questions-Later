@@ -57,7 +57,7 @@ export type ResourceProductionEffectId = Extract<
 >;
 
 export const effectScopeSchema = z
-  .enum(['global', 'village', 'server'])
+  .enum(['global', 'local', 'server'])
   .meta({ id: 'EffectScope' });
 export const effectSourceSchema = z
   .enum(['hero', 'oasis', 'artifact', 'building', 'tribe', 'server', 'troops'])
@@ -96,7 +96,7 @@ export type TribalEffect = Omit<GlobalEffect, 'source'> & {
 };
 
 export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
-  scope: 'village';
+  scope: 'local';
   source: 'building' | 'oasis' | 'server' | 'troops' | 'hero';
   villageId: Village['id'];
 };

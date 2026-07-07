@@ -6,6 +6,7 @@ import {
   resourceFieldCompositionSchema,
 } from '@pillage-first/types/models/resource-field-composition';
 import type { Server } from '@pillage-first/types/models/server';
+import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   calculateGridLayout,
@@ -321,18 +322,37 @@ export const tilesSeeder = (database: DbFacade, server: Server): void => {
     rfcRows.map((t) => [t.resource_field_composition, t.id]),
   );
 
+  const tileTypeRows = database.selectObjects({
+    sql: 'SELECT type, id FROM tile_type_ids;',
+    schema: z.strictObject({
+      type: tileTypeSchema,
+      id: z.number(),
+    }),
+  });
+
+  const tileTypeIds = Object.fromEntries(
+    tileTypeRows.map((t) => [t.type, t.id]),
+  );
+
   const rows = tilesWithSingleOasisAndFreeTileTypes.map((tile) => {
     const { id, x, y, type, resource_field_composition, oasis_graphics } = tile;
 
     const rfcId = type === 'free' ? rfcs[resource_field_composition!] : null;
 
-    return [id, x, y, type, rfcId, oasis_graphics];
+    return [id, x, y, tileTypeIds[type], rfcId, oasis_graphics];
   });
 
   batchInsert(
     database,
     'tiles',
-    ['id', 'x', 'y', 'type', 'resource_field_composition_id', 'oasis_graphics'],
+    [
+      'id',
+      'x',
+      'y',
+      'type_id',
+      'resource_field_composition_id',
+      'oasis_graphics',
+    ],
     rows,
   );
 };

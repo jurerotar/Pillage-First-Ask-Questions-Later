@@ -235,11 +235,22 @@ export const validateTroopMovement = (
     const oasisStatus = database.selectObject({
       sql: `
         SELECT
-          o.id IS NOT NULL AS is_oasis,
-          o.village_id = $village_id AS is_occupied_by_you
+          EXISTS (
+            SELECT 1
+            FROM
+              oasis o
+            WHERE
+              o.tile_id = t.id
+          ) AS is_oasis,
+          (
+            SELECT MAX(o.village_id)
+            FROM
+              oasis o
+            WHERE
+              o.tile_id = t.id
+          ) = $village_id AS is_occupied_by_you
         FROM
           tiles t
-            LEFT JOIN oasis o ON o.tile_id = t.id
         WHERE
           t.id = $target_tile_id;
       `,
@@ -261,7 +272,7 @@ export const validateTroopMovement = (
         sql: `
           SELECT
             (
-              SELECT COUNT(*)
+              SELECT COUNT(DISTINCT tile_id)
               FROM
                 oasis
               WHERE
@@ -315,16 +326,28 @@ export const validateTroopMovement = (
       sql: `
         SELECT
           t.id AS tile_id,
-          t.type AS tile_type,
+          tt.type AS tile_type,
           cv.tile_id AS current_village_tile_id,
-          COALESCE(v.id, ov.id) AS owning_village_id,
-          COALESCE(v.player_id, ov.player_id) = $player_id AS is_player_target
+          CASE
+            WHEN tt.type = 'free' THEN v.id
+            WHEN tt.type = 'oasis' THEN ov.id
+          END AS owning_village_id,
+          CASE
+            WHEN tt.type = 'free' THEN v.player_id
+            WHEN tt.type = 'oasis' THEN ov.player_id
+          END = $player_id AS is_player_target
         FROM
           tiles t
+            JOIN tile_type_ids tt ON tt.id = t.type_id
             JOIN villages cv ON cv.id = $village_id
             LEFT JOIN villages v ON v.tile_id = t.id
-            LEFT JOIN oasis o ON o.tile_id = t.id
-            LEFT JOIN villages ov ON ov.id = o.village_id
+            LEFT JOIN villages ov ON ov.id = (
+              SELECT MAX(o.village_id)
+              FROM
+                oasis o
+              WHERE
+                o.tile_id = t.id
+            )
         WHERE
           t.id = $target_tile_id;
       `,

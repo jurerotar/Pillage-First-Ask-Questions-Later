@@ -11,7 +11,7 @@ export const deleteOasisEffectsQuery = `
   FROM
     effects
   WHERE
-    source = 'oasis'
+    source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
     AND village_id = $village_id
     AND source_specifier = $source_specifier;
 `;
@@ -24,13 +24,19 @@ export const selectOasisReinforcementsToReturnQuery = `
     sv.id AS source_village_id
   FROM
     troops t
-      JOIN oasis o ON o.tile_id = t.tile_id
-        AND o.village_id = $village_id
       JOIN unit_ids ui ON ui.id = t.unit_id
       LEFT JOIN villages sv ON sv.tile_id = t.source_tile_id
   WHERE
     t.tile_id = $oasis_tile_id
     AND t.source_tile_id != $oasis_tile_id
+    AND EXISTS (
+      SELECT 1
+      FROM
+        oasis o
+      WHERE
+        o.tile_id = t.tile_id
+        AND o.village_id = $village_id
+    )
   ORDER BY
     t.source_tile_id,
     ui.id;

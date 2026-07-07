@@ -13,7 +13,7 @@ describe('troopSeeder', () => {
         FROM
           tiles t
         WHERE
-          t.type = 'oasis'
+          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis')
           AND (
             SELECT MAX(o.village_id)
             FROM
@@ -47,7 +47,7 @@ describe('troopSeeder', () => {
             JOIN tiles t ON t.id = tr.tile_id
             JOIN unit_ids ui ON ui.id = tr.unit_id
         WHERE
-          t.type = 'oasis'
+          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis')
           AND (
             SELECT MAX(o.village_id)
             FROM

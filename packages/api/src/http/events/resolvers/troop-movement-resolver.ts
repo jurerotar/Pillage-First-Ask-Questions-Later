@@ -263,7 +263,7 @@ export const findNewVillageMovementResolver: Resolver<
           $effect_name: effect.effectId,
           $value: effect.valuesPerLevel[level],
           $type: effect.type,
-          $scope: 'village',
+          $scope: 'local',
           $source: 'building',
           $village_id: newVillageId,
           $source_specifier: field_id,
@@ -315,7 +315,7 @@ export const findNewVillageMovementResolver: Resolver<
       $effect_id: wheatProductionEffectId,
       $value: -3,
       $type: 'base',
-      $scope: 'village',
+      $scope: 'local',
       $source: 'building',
       $village_id: newVillageId,
       $source_specifier: 0,
@@ -329,7 +329,7 @@ export const findNewVillageMovementResolver: Resolver<
       $effect_id: wheatProductionEffectId,
       $value: 0,
       $type: 'base',
-      $scope: 'village',
+      $scope: 'local',
       $source: 'troops',
       $village_id: newVillageId,
       $source_specifier: 0,
@@ -402,11 +402,20 @@ export const relocationMovementResolver: Resolver<
   const targetVillageId = database.selectValue({
     sql: `
       SELECT
-        COALESCE(v.id, o.village_id)
+        CASE
+          WHEN tt.type = 'free' THEN v.id
+          WHEN tt.type = 'oasis' THEN (
+            SELECT MAX(o.village_id)
+            FROM
+              oasis o
+            WHERE
+              o.tile_id = t.id
+          )
+        END
       FROM
         tiles t
+          JOIN tile_type_ids tt ON tt.id = t.type_id
           LEFT JOIN villages v ON v.tile_id = t.id
-          LEFT JOIN oasis o ON o.tile_id = t.id
       WHERE
         t.id = $tile_id;
     `,

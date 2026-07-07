@@ -38,7 +38,7 @@ const getTroopWheatProductionEffectValue = (
         JOIN effect_ids ei ON e.effect_id = ei.id
       WHERE
         e.village_id = $village_id
-        AND e.source = 'troops'
+        AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
         AND ei.effect = 'wheatProduction';
     `,
     bind: { $village_id: villageId },
@@ -61,7 +61,7 @@ const setTroopWheatProductionEffectValue = (
       SET value = $value
       WHERE
         village_id = $village_id
-        AND source = 'troops'
+        AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
         AND effect_id = $effect_id;
     `,
     bind: {
@@ -244,12 +244,12 @@ describe(adventureMovementResolver, () => {
     expect(regenerationEvent).toBeUndefined();
 
     // Check if hero effects were removed
-    const effects = database.selectObjects({
-      sql: "SELECT * FROM effects WHERE village_id = (SELECT village_id FROM heroes WHERE id = $hero_id) AND source = 'hero';",
+    const effectsCount = database.selectValue({
+      sql: "SELECT COUNT(*) FROM effects WHERE village_id = (SELECT village_id FROM heroes WHERE id = $hero_id) AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       bind: { $hero_id: heroId },
-      schema: effectSchema,
+      schema: z.number(),
     });
-    expect(effects).toHaveLength(0);
+    expect(effectsCount).toBe(0);
   });
 });
 
@@ -296,7 +296,7 @@ describe(relocationMovementResolver, () => {
 
     // Verify hero effects village_id update
     const effectsVillageIds = database.selectObjects({
-      sql: "SELECT village_id FROM effects WHERE source = 'hero';",
+      sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       schema: z.strictObject({ village_id: z.number() }),
     });
 
@@ -408,12 +408,12 @@ describe(reinforcementMovementResolver, () => {
     });
 
     database.exec({
-      sql: "UPDATE effects SET village_id = $village_id WHERE source = 'hero';",
+      sql: "UPDATE effects SET village_id = $village_id WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       bind: { $village_id: sourceVillageId },
     });
 
     const sourceHeroEffectsBefore = database.selectObjects({
-      sql: "SELECT village_id FROM effects WHERE source = 'hero' AND village_id = $village_id;",
+      sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
       bind: { $village_id: sourceVillageId },
       schema: z.strictObject({ village_id: z.number() }),
     });
@@ -439,13 +439,13 @@ describe(reinforcementMovementResolver, () => {
     reinforcementMovementResolver(database, mockEvent);
 
     const sourceHeroEffectsAfter = database.selectObjects({
-      sql: "SELECT village_id FROM effects WHERE source = 'hero' AND village_id = $village_id;",
+      sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
       bind: { $village_id: sourceVillageId },
       schema: z.strictObject({ village_id: z.number() }),
     });
 
     const targetHeroEffectsAfter = database.selectObjects({
-      sql: "SELECT village_id FROM effects WHERE source = 'hero' AND village_id = $village_id;",
+      sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
       bind: { $village_id: targetVillageId },
       schema: z.strictObject({ village_id: z.number() }),
     });
@@ -678,7 +678,7 @@ describe(findNewVillageMovementResolver, () => {
 
     // Pick a free tile that is not (0,0)
     const targetTile = database.selectObject({
-      sql: "SELECT id, x, y, resource_field_composition_id FROM tiles WHERE type = 'free' AND NOT (x = 0 AND y = 0) LIMIT 1;",
+      sql: "SELECT id, x, y, resource_field_composition_id FROM tiles WHERE type_id = (SELECT id FROM tile_type_ids WHERE type = 'free') AND NOT (x = 0 AND y = 0) LIMIT 1;",
       schema: z.strictObject({
         id: z.number(),
         x: z.number(),
@@ -782,7 +782,25 @@ describe(findNewVillageMovementResolver, () => {
 
     // Check building wheat consumption (population)
     const buildingWheatEffects = database.selectObjects({
-      sql: "SELECT ei.effect AS id, e.value, e.type, e.scope, e.source, e.village_id AS villageId, e.source_specifier AS sourceSpecifier FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $villageId AND e.source = 'building' AND ei.effect = 'wheatProduction';",
+      sql: `
+        SELECT
+          ei.effect AS id,
+          e.value,
+          et.type,
+          es.scope,
+          eso.source,
+          e.village_id AS villageId,
+          e.source_specifier AS sourceSpecifier
+        FROM effects e
+          JOIN effect_ids ei ON e.effect_id = ei.id
+          JOIN effect_type_ids et ON et.id = e.type_id
+          JOIN effect_scope_ids es ON es.id = e.scope_id
+          JOIN effect_source_ids eso ON eso.id = e.source_id
+        WHERE
+          e.village_id = $villageId
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
+          AND ei.effect = 'wheatProduction';
+      `,
       bind: { $villageId: newVillage.id },
       schema: effectSchema,
     });
@@ -797,7 +815,25 @@ describe(findNewVillageMovementResolver, () => {
 
     // Verify troop consumption (should be 0 since no troops were at the tile)
     const troopWheatEffects = database.selectObjects({
-      sql: "SELECT ei.effect AS id, e.value, e.type, e.scope, e.source, e.village_id AS villageId, e.source_specifier AS sourceSpecifier FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $villageId AND e.source = 'troops' AND ei.effect = 'wheatProduction';",
+      sql: `
+        SELECT
+          ei.effect AS id,
+          e.value,
+          et.type,
+          es.scope,
+          eso.source,
+          e.village_id AS villageId,
+          e.source_specifier AS sourceSpecifier
+        FROM effects e
+          JOIN effect_ids ei ON e.effect_id = ei.id
+          JOIN effect_type_ids et ON et.id = e.type_id
+          JOIN effect_scope_ids es ON es.id = e.scope_id
+          JOIN effect_source_ids eso ON eso.id = e.source_id
+        WHERE
+          e.village_id = $villageId
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
+          AND ei.effect = 'wheatProduction';
+      `,
       bind: { $villageId: newVillage.id },
       schema: effectSchema,
     });
@@ -807,7 +843,7 @@ describe(findNewVillageMovementResolver, () => {
 
     // Verify troop consumption in source village
     const sourceTroopWheatEffects = database.selectObjects({
-      sql: "SELECT e.value FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = 1 AND e.source = 'troops' AND ei.effect = 'wheatProduction';",
+      sql: "SELECT e.value FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = 1 AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops') AND ei.effect = 'wheatProduction';",
       schema: z.strictObject({ value: z.number() }),
     });
     // Assuming initial value was 3 (for 3 settlers)

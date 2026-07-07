@@ -130,7 +130,10 @@ export const getTilesWithBonuses = createController(
 
   if (hasRequiredOases) {
     const bonusConditions = requiredBonuses
-      .map((_, i) => `(o.resource = $ro_r${i} AND o.bonus = $ro_b${i})`)
+      .map(
+        (_, i) =>
+          `(o.resource_id = (SELECT id FROM resource_ids WHERE resource = $ro_r${i}) AND o.bonus = $ro_b${i})`,
+      )
       .join(' OR ');
 
     for (const [i, b] of requiredBonuses.entries()) {
@@ -146,7 +149,7 @@ export const getTilesWithBonuses = createController(
                JOIN tiles t ON t.x BETWEEN ot.x - 3 AND ot.x + 3 AND t.y BETWEEN ot.y - 3 AND ot.y + 3
                LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
         WHERE (${bonusConditions})
-          AND t.type = 'free'
+          AND t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
           AND (
             ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN (${CROPPER_RESOURCE_FIELD_COMPOSITIONS_SQL}))
               OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)
@@ -158,7 +161,7 @@ export const getTilesWithBonuses = createController(
         SELECT t.id, t.x, t.y, rfc.resource_field_composition
         FROM tiles t
                LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-        WHERE t.type = 'free'
+        WHERE t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
           AND (
             ($rfc_param = 'any-cropper' AND rfc.resource_field_composition IN (${CROPPER_RESOURCE_FIELD_COMPOSITIONS_SQL}))
               OR ($rfc_param <> 'any-cropper' AND rfc.resource_field_composition = $rfc_param)
@@ -203,7 +206,7 @@ export const getTilesWithBonuses = createController(
           JOIN tiles ot ON ot.x BETWEEN c.x - 3 AND c.x + 3
             AND ot.y BETWEEN c.y - 3 AND c.y + 3
           JOIN oasis o ON o.tile_id = ot.id
-          WHERE o.resource = $r${idx}
+          WHERE o.resource_id = (SELECT id FROM resource_ids WHERE resource = $r${idx})
             AND o.bonus = $b${idx}
           GROUP BY c.id, o.tile_id
         )
@@ -218,11 +221,11 @@ export const getTilesWithBonuses = createController(
             AND ot.y BETWEEN c.y - 3 AND c.y + 3
           JOIN oasis o ON o.tile_id = ot.id
           WHERE (
-            (o.resource = $r${idx}   AND o.bonus = $b${idx})
-            OR (o.resource = $r${idx}_2 AND o.bonus = $b${idx}_2)
+            (o.resource_id = (SELECT id FROM resource_ids WHERE resource = $r${idx}) AND o.bonus = $b${idx})
+            OR (o.resource_id = (SELECT id FROM resource_ids WHERE resource = $r${idx}_2) AND o.bonus = $b${idx}_2)
           )
           GROUP BY c.id, o.tile_id
-          HAVING COUNT(DISTINCT (o.resource || '-' || o.bonus)) = 2
+          HAVING COUNT(DISTINCT (o.resource_id || '-' || o.bonus)) = 2
         )
     `;
   };

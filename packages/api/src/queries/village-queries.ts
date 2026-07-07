@@ -67,12 +67,21 @@ export const selectVillageTileIdQuery = `
 export const selectVillageIdAndTileIdQuery = `
   SELECT
     t.id AS tileId,
-    t.type AS tileType,
-    COALESCE(v.id, o.village_id) AS villageId
+    tt.type AS tileType,
+    CASE
+      WHEN tt.type = 'free' THEN v.id
+      WHEN tt.type = 'oasis' THEN (
+        SELECT MAX(o.village_id)
+        FROM
+          oasis o
+        WHERE
+          o.tile_id = t.id
+      )
+    END AS villageId
   FROM
     tiles t
+      JOIN tile_type_ids tt ON tt.id = t.type_id
       LEFT JOIN villages v ON v.tile_id = t.id
-      LEFT JOIN oasis o ON o.tile_id = t.id
   WHERE
     t.id = $tile_id;
 `;
@@ -108,10 +117,11 @@ export const selectOccupiableOasisInRangeQuery = `
         MAX(o.village_id) AS occupying_village_id
       FROM
         tiles ot
+          JOIN tile_type_ids ott ON ott.id = ot.type_id
           JOIN src_village sv ON 1 = 1
           JOIN oasis o ON o.tile_id = ot.id
       WHERE
-        ot.type = 'oasis'
+        ott.type = 'oasis'
         AND ot.x BETWEEN sv.vx - $radius AND sv.vx + $radius
         AND ot.y BETWEEN sv.vy - $radius AND sv.vy + $radius
       GROUP BY ot.id
@@ -305,8 +315,8 @@ export const updateRearrangedBuildingFieldEffectsQuery = `
   )
   WHERE
     village_id = $village_id
-    AND scope = 'village'
-    AND source = 'building'
+    AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+    AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
     AND source_specifier IN (
       SELECT source_field_id
       FROM moved_fields

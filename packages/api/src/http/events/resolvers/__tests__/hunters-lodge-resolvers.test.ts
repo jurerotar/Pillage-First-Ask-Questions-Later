@@ -149,7 +149,7 @@ describe('hunters lodge resolvers', () => {
             JOIN effect_ids ei ON ei.id = e.effect_id
         WHERE
           e.village_id = $village_id
-          AND e.source = 'troops'
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
       bind: {
@@ -208,7 +208,7 @@ describe('hunters lodge resolvers', () => {
             JOIN effect_ids ei ON ei.id = e.effect_id
         WHERE
           e.village_id = $village_id
-          AND e.source = 'troops'
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
       bind: {
