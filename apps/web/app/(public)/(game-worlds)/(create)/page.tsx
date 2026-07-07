@@ -40,7 +40,12 @@ const CreateNewGameWorldPage = () => {
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
-          <Text as="h1">{t('Create a new game world')}</Text>
+          <Text
+            as="h1"
+            className="text-3xl font-bold leading-tight lg:text-5xl"
+          >
+            {t('Create a new game world')}
+          </Text>
           <Text>
             Creating a new game world will generate a game state and store it in
             your browser's persistent memory. You can safely close the tab or

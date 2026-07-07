@@ -41,7 +41,12 @@ const MyGameWorldsPage = () => {
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
-          <Text as="h1">{t('Your game worlds')}</Text>
+          <Text
+            as="h1"
+            className="text-3xl font-bold leading-tight lg:text-5xl"
+          >
+            {t('Your game worlds')}
+          </Text>
           <Text>
             Your current game worlds are listed below. To prevent data
             corruptions, each game world may only be opened in a single browser

@@ -255,7 +255,12 @@ const MotivationSection = () => {
           <div className="prose text-foreground">
             <Motivation />
           </div>
-          <DiscordButton>Help shape the game</DiscordButton>
+          <div className="flex flex-wrap gap-2">
+            <DiscordButton>Help shape the game</DiscordButton>
+            <Link to="/get-involved">
+              <Button variant="outline">Get involved</Button>
+            </Link>
+          </div>
         </div>
       </div>
     </section>
@@ -351,10 +356,10 @@ const OpenSourceSection = () => {
         <div className="w-full mt-16 relative">
           <FaGithub
             className="
-              absolute -right-20 -top-60 md:-right-4 md:-top-8
+              absolute -right-40 -top-80 md:-right-20 md:top-10 lg:-right-4 lg:top-4
               text-[#101411] dark:text-foreground
               opacity-40 md:opacity-80
-              size-80 md:size-100 lg:size-120
+              size-100 md:size-130 lg:size-150
             "
             aria-hidden
           />
@@ -373,7 +378,7 @@ const HomePage = () => {
           <section className="flex flex-col flex-1 gap-4 justify-center">
             <Text
               as="h1"
-              className="text-xl sm:text-2xl"
+              className="text-3xl font-bold leading-tight lg:text-5xl"
             >
               <b>Pillage First! (Ask Questions Later)</b>
             </Text>
