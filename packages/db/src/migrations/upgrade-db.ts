@@ -518,7 +518,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.38', database, (db) => {
+  migrateTo('0.4.39', database, (db) => {
     db.exec({
       sql: 'PRAGMA foreign_keys = OFF;',
     });
