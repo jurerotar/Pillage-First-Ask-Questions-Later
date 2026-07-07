@@ -378,7 +378,7 @@ const HomePage = () => {
           <section className="flex flex-col flex-1 gap-4 justify-center">
             <Text
               as="h1"
-              className="text-3xl font-bold leading-tight lg:text-5xl"
+              className="text-3xl font-medium leading-tight lg:text-5xl"
             >
               <b>Pillage First! (Ask Questions Later)</b>
             </Text>

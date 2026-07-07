@@ -34,7 +34,7 @@ const LatestUpdatesPage = () => {
         <main className="flex flex-col gap-4">
           <Text
             as="h1"
-            className="text-3xl font-bold leading-tight lg:text-5xl"
+            className="text-3xl font-medium leading-tight lg:text-5xl"
           >
             {t('Latest updates')}
           </Text>

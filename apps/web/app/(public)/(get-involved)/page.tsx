@@ -106,7 +106,7 @@ const GetInvolvedPage = () => {
             <div className="flex flex-col gap-3">
               <Text
                 as="h1"
-                className="text-3xl font-bold leading-tight lg:text-5xl"
+                className="text-3xl font-medium leading-tight lg:text-5xl"
               >
                 Help build Pillage First!
               </Text>
