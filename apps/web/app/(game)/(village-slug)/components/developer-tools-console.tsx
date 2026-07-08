@@ -156,7 +156,7 @@ export const DeveloperToolsConsole = ({
       'Buildings are constructed instantly without waiting.',
     ),
     isInstantUnitTrainingEnabled: t(
-      'Units and animal cages are produced instantly in buildings.',
+      'Units, Trapper cages and animal cages are produced instantly in buildings.',
     ),
     isInstantUnitImprovementEnabled: t(
       'Units are improved instantly in the smithy.',
@@ -171,7 +171,7 @@ export const DeveloperToolsConsole = ({
       'Buildings do not cost any resources to construct.',
     ),
     isFreeUnitTrainingEnabled: t(
-      'Units and animal cages do not cost any resources to produce.',
+      'Units, Trapper cages and animal cages do not cost any resources to produce.',
     ),
     isFreeUnitImprovementEnabled: t(
       'Units do not cost any resources to improve.',
