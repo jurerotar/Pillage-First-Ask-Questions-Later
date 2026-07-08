@@ -17,6 +17,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -344,8 +345,14 @@ export const BuildingDetails = () => {
             <Section>
               <SectionContent>
                 <Bookmark tab="default" />
+                <InformationPopover
+                  ariaLabel={t('Building information')}
+                  className="right-12"
+                >
+                  <Text>{t(`BUILDINGS.${buildingId}.DESCRIPTION`)}</Text>
+                </InformationPopover>
                 <Text as="h2">
-                  {t('{{buildingName}} overview', {
+                  {t('Overview', {
                     buildingName: t(`BUILDINGS.${buildingId}.NAME`),
                   })}
                 </Text>

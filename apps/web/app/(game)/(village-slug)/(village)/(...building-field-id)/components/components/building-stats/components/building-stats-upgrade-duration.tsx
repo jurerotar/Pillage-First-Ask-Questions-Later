@@ -9,6 +9,7 @@ import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...bu
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
   Select,
@@ -52,12 +53,14 @@ export const BuildingStatsUpgradeDuration = () => {
 
   return (
     <SectionContent>
+      <InformationPopover ariaLabel={t('Upgrade duration')}>
+        <Text>
+          {t(
+            'This section displays the time required to upgrade a building at each level, with consideration of the level of your Main Building, artifacts and any other building duration reduction effects.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h2">{t('Upgrade duration')}</Text>
-      <Text>
-        {t(
-          'This section displays the time required to upgrade a building at each level, with consideration of the level of your Main Building, artifacts and any other building duration reduction effects.',
-        )}
-      </Text>
       <div className="flex gap-4 items-center">
         <Text className="font-medium">{t('Main building level')}:</Text>
         <Select

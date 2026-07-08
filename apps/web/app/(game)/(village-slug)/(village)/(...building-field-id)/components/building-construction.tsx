@@ -12,12 +12,10 @@ import {
   BuildingRequirements,
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
-import { BuildingConstructionViewModeToggle } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-construction-view-mode-toggle';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { Text } from 'app/components/text';
 import {
@@ -33,12 +31,10 @@ const tabs = ['infrastructure', 'military', 'resources'];
 
 type BuildingCategoryPanelProps = {
   buildingCategory: Building['category'];
-  isCompact: boolean;
 };
 
 const BuildingCategoryPanel = ({
   buildingCategory,
-  isCompact,
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
   const tribe = useTribe();
@@ -115,9 +111,9 @@ const BuildingCategoryPanel = ({
                 building.id,
               )}
             >
-              <BuildingOverview isCompact={isCompact} />
+              <BuildingOverview />
               <BuildingUnfinishedNotice />
-              {!isCompact && <BuildingBenefits />}
+              <BuildingBenefits />
               <BuildingCost />
               <BuildingActions />
               <BuildingRequirements />
@@ -132,15 +128,12 @@ const BuildingCategoryPanel = ({
 export const BuildingConstruction = () => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
-  const { preferences } = usePreferences();
 
   const { tabIndex, navigateToTab } = useTabParam(
     tabs,
     'building-construction-tab',
     tabs[0],
   );
-
-  const isCompact = preferences.buildingConstructionViewMode === 'compact';
 
   const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
 
@@ -171,49 +164,31 @@ export const BuildingConstruction = () => {
         </TabList>
         <TabPanel value="infrastructure">
           <SectionContent>
-            <div className="flex justify-between items-center">
-              <Text as="h2">{t('Infrastructure buildings')}</Text>
-              <BuildingConstructionViewModeToggle />
-            </div>
+            <Text as="h2">{t('Infrastructure buildings')}</Text>
             <Text>
               {t(
                 'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
               )}
             </Text>
-            <BuildingCategoryPanel
-              buildingCategory="infrastructure"
-              isCompact={isCompact}
-            />
+            <BuildingCategoryPanel buildingCategory="infrastructure" />
           </SectionContent>
         </TabPanel>
         <TabPanel value="military">
           <SectionContent>
-            <div className="flex justify-between items-center">
-              <Text as="h2">{t('Military buildings')}</Text>
-              <BuildingConstructionViewModeToggle />
-            </div>
+            <Text as="h2">{t('Military buildings')}</Text>
             <Text>
               {t(
                 'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
               )}
             </Text>
-            <BuildingCategoryPanel
-              buildingCategory="military"
-              isCompact={isCompact}
-            />
+            <BuildingCategoryPanel buildingCategory="military" />
           </SectionContent>
         </TabPanel>
         <TabPanel value="resources">
           <SectionContent>
-            <div className="flex justify-between items-center">
-              <Text as="h2">{t('Resource buildings')}</Text>
-              <BuildingConstructionViewModeToggle />
-            </div>
+            <Text as="h2">{t('Resource buildings')}</Text>
             <Text>{t('Buildings focused on improving village economy.')}</Text>
-            <BuildingCategoryPanel
-              buildingCategory="resource-booster"
-              isCompact={isCompact}
-            />
+            <BuildingCategoryPanel buildingCategory="resource-booster" />
           </SectionContent>
         </TabPanel>
       </Tabs>

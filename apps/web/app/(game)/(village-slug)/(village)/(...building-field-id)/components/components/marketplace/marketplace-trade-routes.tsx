@@ -16,6 +16,7 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Text } from 'app/components/text';
@@ -524,12 +525,17 @@ export const MarketplaceTradeRoutes = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="trade-routes" />
+        <InformationPopover
+          ariaLabel={t('Trade routes')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Trade routes')}</Text>
-        <Text>
-          {t(
-            'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <MarketplaceTradeRouteForm

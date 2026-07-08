@@ -4,6 +4,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 
@@ -14,12 +15,17 @@ export const HospitalTroopTraining = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="train" />
+        <InformationPopover
+          ariaLabel={t('Train')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'The Hospital allows you to treat wounded troops so they can rejoin your army. This helps you recover faster after major battles. Healing troops is not cheaper than training new ones, the resource cost is the same, but healing takes half the time of normal training.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Train')}</Text>
-        <Text>
-          {t(
-            'The Hospital allows you to treat wounded troops so they can rejoin your army. This helps you recover faster after major battles. Healing troops is not cheaper than training new ones, the resource cost is the same, but healing takes half the time of normal training.',
-          )}
-        </Text>
         <Text as="h3">{t('Wounded Troops')}</Text>
         <Text>
           {t(

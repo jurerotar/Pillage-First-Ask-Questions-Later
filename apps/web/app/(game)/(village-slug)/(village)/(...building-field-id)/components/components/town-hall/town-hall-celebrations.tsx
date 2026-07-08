@@ -5,6 +5,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
@@ -22,12 +23,17 @@ export const TownHallCelebrations = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="celebrations" />
+        <InformationPopover
+          ariaLabel={t('Celebrations')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'The Town Hall allows you to hold celebrations, which instantly grant Culture Points. Upgrading the Town Hall reduces the cooldown time between celebrations, allowing you to generate Culture Points more frequently.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Celebrations')}</Text>
-        <Text>
-          {t(
-            'The Town Hall allows you to hold celebrations, which instantly grant Culture Points. Upgrading the Town Hall reduces the cooldown time between celebrations, allowing you to generate Culture Points more frequently.',
-          )}
-        </Text>
         <Text as="h3">{t('Celebration Limits')}</Text>
         <Text>
           {t(

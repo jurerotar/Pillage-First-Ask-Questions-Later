@@ -14,6 +14,7 @@ import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import {
@@ -94,13 +95,15 @@ export const BuildingStatsUpgradeCost = () => {
 
   return (
     <section className="flex flex-col gap-2">
-      <div className="flex flex-col gap-2">
+      <div className="relative flex flex-col gap-2">
+        <InformationPopover ariaLabel={t('Upgrade cost')}>
+          <Text>
+            {t(
+              'This section displays the resource costs required to upgrade a building at each level. It includes a breakdown of wood, clay, iron, and wheat needed for each level from 1 upward.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Upgrade cost')}</Text>
-        <Text>
-          {t(
-            'This section displays the resource costs required to upgrade a building at each level. It includes a breakdown of wood, clay, iron, and wheat needed for each level from 1 upward.',
-          )}
-        </Text>
         <div className="overflow-x-scroll scrollbar-hidden">
           <Table>
             <TableHeader>
@@ -162,13 +165,15 @@ export const BuildingStatsUpgradeCost = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="relative flex flex-col gap-2">
+        <InformationPopover ariaLabel={t('Upgrade benefits')}>
+          <Text>
+            {t(
+              'This section displays the benefits gained from upgrading a building at each level. It includes a breakdown of population, culture points, and other effects needed for each level from 1 upward.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Upgrade benefits')}</Text>
-        <Text>
-          {t(
-            'This section displays the benefits gained from upgrading a building at each level. It includes a breakdown of population, culture points, and other effects needed for each level from 1 upward.',
-          )}
-        </Text>
         <div className="overflow-x-scroll scrollbar-hidden">
           <Table>
             <TableHeader>

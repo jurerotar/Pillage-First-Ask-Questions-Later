@@ -91,12 +91,10 @@ export const BuildingCard = ({
 
 type BuildingOverviewProps = {
   shouldShowTitle?: boolean;
-  isCompact?: boolean;
 };
 
 export const BuildingOverview = ({
   shouldShowTitle = true,
-  isCompact = false,
 }: BuildingOverviewProps) => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
@@ -117,11 +115,6 @@ export const BuildingOverview = ({
           className="inline-flex"
         >
           {t(`BUILDINGS.${building.id}.NAME`)}
-        </Text>
-      )}
-      {!isCompact && (
-        <Text data-testid="building-overview-building-description">
-          {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
         </Text>
       )}
       {(isUpgrading || isDowngrading) && (
@@ -350,7 +343,7 @@ export const BuildingBenefits = () => {
   }, [shouldCombineEffects, cumulativeEffects]);
 
   return (
-    <section className="flex flex-col gap-2 pt-2 justify-center border-t border-border">
+    <section className="flex flex-col gap-2 justify-center">
       <Text as="h3">
         {isMaxLevel
           ? t('Benefits')

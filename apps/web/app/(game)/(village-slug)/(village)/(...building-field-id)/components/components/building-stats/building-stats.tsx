@@ -7,6 +7,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
@@ -20,12 +21,17 @@ export const BuildingStats = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="upgrade-cost" />
+        <InformationPopover
+          ariaLabel={t('Upgrade details')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'This section provides detailed information about building upgrades, including the resource costs and the time required to reach each level. Use the tabs below to explore how upgrades impact both your economy and strategy.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Upgrade details')}</Text>
-        <Text>
-          {t(
-            'This section provides detailed information about building upgrades, including the resource costs and the time required to reach each level. Use the tabs below to explore how upgrades impact both your economy and strategy.',
-          )}
-        </Text>
       </SectionContent>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}

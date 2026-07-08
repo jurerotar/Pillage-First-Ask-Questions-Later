@@ -4,6 +4,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { SendResourcesForm } from './components/send-resources-form';
 
@@ -14,8 +15,13 @@ export const MarketplaceSendResources = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="send-resources" />
+        <InformationPopover
+          ariaLabel={t('Send resources')}
+          className="right-12"
+        >
+          <Text>{t('Transfer resources between your villages.')}</Text>
+        </InformationPopover>
         <Text as="h2">{t('Send resources')}</Text>
-        <Text>{t('Transfer resources between your villages.')}</Text>
       </SectionContent>
       <SectionContent>
         <SendResourcesForm />

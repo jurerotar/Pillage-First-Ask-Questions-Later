@@ -5,6 +5,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
@@ -22,12 +23,17 @@ export const BreweryCelebration = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="celebration" />
+        <InformationPopover
+          ariaLabel={t('Celebration')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'Tasty mead is brewed in the brewery and later quaffed by the soldiers during their celebrations. These drinks make your soldiers braver and stronger when attacking others. Different brews served cause different effects on your troops.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Celebration')}</Text>
-        <Text>
-          {t(
-            'Tasty mead is brewed in the brewery and later quaffed by the soldiers during their celebrations. These drinks make your soldiers braver and stronger when attacking others. Different brews served cause different effects on your troops.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <Tabs
@@ -43,12 +49,14 @@ export const BreweryCelebration = () => {
           </TabList>
           <TabPanel value="brew-of-war">
             <SectionContent>
+              <InformationPopover ariaLabel={t('Brew of war')}>
+                <Text>
+                  {t(
+                    'A potent blend brewed for berserk fury. Your warriors march with unmatched aggression, gaining +20% attack power. But in their drunken rage, catapult no longer aim accurately and chiefs lose 50% of their persuasive edge',
+                  )}
+                </Text>
+              </InformationPopover>
               <Text as="h2">{t('Brew of war')}</Text>
-              <Text>
-                {t(
-                  'A potent blend brewed for berserk fury. Your warriors march with unmatched aggression, gaining +20% attack power. But in their drunken rage, catapult no longer aim accurately and chiefs lose 50% of their persuasive edge',
-                )}
-              </Text>
               <Text className="font-medium">{t('Effects')}:</Text>
               <ul className="list-disc pl-4">
                 <li>
@@ -65,12 +73,14 @@ export const BreweryCelebration = () => {
           </TabPanel>
           <TabPanel value="brew-of-siege">
             <SectionContent>
+              <InformationPopover ariaLabel={t('Brew of siege')}>
+                <Text>
+                  {t(
+                    'A strong ale that stirs courage without clouding aim. Your armies gain a solid +10% attack, while siege weapons remain steady. Chiefs, however, still stumble over their words, reducing their effectiveness by 50%.',
+                  )}
+                </Text>
+              </InformationPopover>
               <Text as="h2">{t('Brew of siege')}</Text>
-              <Text>
-                {t(
-                  'A strong ale that stirs courage without clouding aim. Your armies gain a solid +10% attack, while siege weapons remain steady. Chiefs, however, still stumble over their words, reducing their effectiveness by 50%.',
-                )}
-              </Text>
               <Text className="font-medium">{t('Effects')}:</Text>
               <ul className="list-disc pl-4">
                 <li>
@@ -89,12 +99,14 @@ export const BreweryCelebration = () => {
           </TabPanel>
           <TabPanel value="brew-of-conquer">
             <SectionContent>
+              <InformationPopover ariaLabel={t('Brew of conquer')}>
+                <Text>
+                  {t(
+                    'A refined brew favored by chieftains. Grants a modest +5% attack boost, sharpens tongues for loyalty speeches, but leaves catapult operators too cheerful to aim straight.',
+                  )}
+                </Text>
+              </InformationPopover>
               <Text as="h2">{t('Brew of conquer')}</Text>
-              <Text>
-                {t(
-                  'A refined brew favored by chieftains. Grants a modest +5% attack boost, sharpens tongues for loyalty speeches, but leaves catapult operators too cheerful to aim straight.',
-                )}
-              </Text>
               <Text className="font-medium">{t('Effects')}:</Text>
               <ul className="list-disc pl-4">
                 <li>

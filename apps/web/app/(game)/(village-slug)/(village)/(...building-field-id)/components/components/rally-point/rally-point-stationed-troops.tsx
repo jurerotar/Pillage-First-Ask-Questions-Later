@@ -8,6 +8,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
@@ -24,12 +25,17 @@ export const RallyPointStationedTroops = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="stationed-troops" />
+        <InformationPopover
+          ariaLabel={t('Stationed troops')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'Troops stationed in this village, either as deployable troops or as reinforcements.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Stationed troops')}</Text>
-        <Text>
-          {t(
-            'Troops stationed in this village, either as deployable troops or as reinforcements.',
-          )}
-        </Text>
       </SectionContent>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}

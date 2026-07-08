@@ -17,6 +17,7 @@ import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -125,12 +126,14 @@ export const HeroAttributes = () => {
     <div className="flex flex-col gap-4">
       <Section>
         <SectionContent>
+          <InformationPopover ariaLabel={t('Attributes')}>
+            <Text>
+              {t(
+                'Your hero can be used to attack or defend your villages and also to help you with the production of resources. You can improve your hero by gaining experience and leveling up, which will give you ability points to spend on different attributes.',
+              )}
+            </Text>
+          </InformationPopover>
           <Text as="h2">{t('Attributes')}</Text>
-          <Text>
-            {t(
-              'Your hero can be used to attack or defend your villages and also to help you with the production of resources. You can improve your hero by gaining experience and leveling up, which will give you ability points to spend on different attributes.',
-            )}
-          </Text>
         </SectionContent>
         <SectionContent>
           <div className="inline-flex gap-2 items-center font-medium">
@@ -333,12 +336,14 @@ export const HeroAttributes = () => {
               </Button>
             </SectionContent>
             <SectionContent>
+              <InformationPopover ariaLabel={t('Resource production')}>
+                <Text>
+                  {t(
+                    'Your hero can produce a specific resource or a shared amount of all resources. Shared production means your hero will produce an equal amount of wood, clay, iron, and wheat.',
+                  )}
+                </Text>
+              </InformationPopover>
               <Text as="h2">{t('Resource production')}</Text>
-              <Text>
-                {t(
-                  'Your hero can produce a specific resource or a shared amount of all resources. Shared production means your hero will produce an equal amount of wood, clay, iron, and wheat.',
-                )}
-              </Text>
               <div className="flex flex-col gap-2 mt-2">
                 <Text className="text-xs font-medium text-muted-foreground uppercase">
                   {t('Select resource to produce')}

@@ -23,6 +23,7 @@ import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-develo
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -160,12 +161,17 @@ export const TrapperCages = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="cages" />
+        <InformationPopover
+          ariaLabel={t('Trapper cages')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'Trapper cages are village traps. Free cages can capture incoming enemy troops; occupied cages keep one captured unit each until it is released or freed.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Trapper cages')}</Text>
-        <Text>
-          {t(
-            'Trapper cages are village traps. Free cages can capture incoming enemy troops; occupied cages keep one captured unit each until it is released or freed.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <Text as="h2">{t('Current cages')}</Text>

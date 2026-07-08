@@ -7,6 +7,7 @@ import { SectionContent } from 'app/(game)/(village-slug)/components/building-la
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -47,12 +48,17 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Quests')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Quests')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'This is a categorized overview of available quests. Quests are divided into village-specific and global tasks, each with multiple levels to complete. Rewards vary from resources, hero experience, troops and hero items. Reward is added immediately on collection.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{t('Quests')}</Text>
-      <Text>
-        {t(
-          'This is a categorized overview of available quests. Quests are divided into village-specific and global tasks, each with multiple levels to complete. Rewards vary from resources, hero experience, troops and hero items. Reward is added immediately on collection.',
-        )}
-      </Text>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}
         onValueChange={(value) => {
@@ -65,27 +71,35 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
         </TabList>
         <TabPanel value="default">
           <SectionContent>
+            <InformationPopover
+              ariaLabel={t('Quests for village "{{villageName}}"', {
+                villageName: currentVillage.name,
+              })}
+            >
+              <Text>
+                {t(
+                  'These quests are tied to the current village and can only be progressed in current village.',
+                )}
+              </Text>
+            </InformationPopover>
             <Text as="h2">
               {t('Quests for village "{{villageName}}"', {
                 villageName: currentVillage.name,
               })}
-            </Text>
-            <Text>
-              {t(
-                'These quests are tied to the current village and can only be progressed in current village.',
-              )}
             </Text>
             <QuestList quests={villageQuests} />
           </SectionContent>
         </TabPanel>
         <TabPanel value="global">
           <SectionContent>
+            <InformationPopover ariaLabel={t('Global quests')}>
+              <Text>
+                {t(
+                  'These quests are not tied to any village and are progress in all villages.',
+                )}
+              </Text>
+            </InformationPopover>
             <Text as="h2">{t('Global quests')}</Text>
-            <Text>
-              {t(
-                'These quests are not tied to any village and are progress in all villages.',
-              )}
-            </Text>
             <QuestList quests={globalQuests} />
           </SectionContent>
         </TabPanel>

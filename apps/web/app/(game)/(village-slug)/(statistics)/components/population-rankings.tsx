@@ -6,6 +6,7 @@ import { usePlayerRankings } from 'app/(game)/(village-slug)/(statistics)/compon
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Pagination } from 'app/components/ui/pagination';
 import {
@@ -42,12 +43,14 @@ export const PopulationRankings = () => {
 
   return (
     <Section>
+      <InformationPopover ariaLabel={t('Population rankings')}>
+        <Text>
+          {t(
+            'A paginated list of player sorted by total population of all their villages.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h2">{t('Population rankings')}</Text>
-      <Text>
-        {t(
-          'A paginated list of player sorted by total population of all their villages.',
-        )}
-      </Text>
       <div className="overflow-x-scroll scrollbar-hidden">
         <Table>
           <TableHeader>

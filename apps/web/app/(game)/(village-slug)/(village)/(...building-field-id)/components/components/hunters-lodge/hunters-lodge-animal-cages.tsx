@@ -21,6 +21,7 @@ import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-develo
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -139,12 +140,17 @@ export const HuntersLodgeAnimalCages = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="animal-cages" />
+        <InformationPopover
+          ariaLabel={t('Animal cages')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'Animal cages are used by your Hero to capture animals from oasis. A full batch is delivered to your hero inventory when production finishes.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Animal cages')}</Text>
-        <Text>
-          {t(
-            'Animal cages are used by your Hero to capture animals from oasis. A full batch is delivered to your hero inventory when production finishes.',
-          )}
-        </Text>
         <Alert variant="warning">
           {t(
             'Hero inventory is not yet implemented. You will not be able to use your cages until then.',

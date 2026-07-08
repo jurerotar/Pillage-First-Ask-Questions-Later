@@ -11,6 +11,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useFarmLists } from 'app/(game)/(village-slug)/hooks/use-farm-lists';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { useDialog } from 'app/hooks/use-dialog';
@@ -50,12 +51,17 @@ export const RallyPointFarmList = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="farm-list" />
+        <InformationPopover
+          ariaLabel={t('Farm List')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'The Farm List allows you to manage and send multiple raids quickly and efficiently, saving time and improving resource farming. Each farm list belong to a village and holds up to 100 targets.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Farm List')}</Text>
-        <Text>
-          {t(
-            'The Farm List allows you to manage and send multiple raids quickly and efficiently, saving time and improving resource farming. Each farm list belong to a village and holds up to 100 targets.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <Text className="font-medium">

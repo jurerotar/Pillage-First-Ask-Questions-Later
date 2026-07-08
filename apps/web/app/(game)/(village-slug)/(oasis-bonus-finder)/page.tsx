@@ -23,6 +23,7 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { oasisBonusFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
@@ -292,12 +293,17 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Oasis bonus finder')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Oasis bonus finder')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'Search for villages that offer your desired resources and oasis bonuses.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{t('Oasis bonus finder')}</Text>
-      <Text>
-        {t(
-          'Search for villages that offer your desired resources and oasis bonuses.',
-        )}
-      </Text>
       <Section>
         <SectionContent>
           <Form {...form}>

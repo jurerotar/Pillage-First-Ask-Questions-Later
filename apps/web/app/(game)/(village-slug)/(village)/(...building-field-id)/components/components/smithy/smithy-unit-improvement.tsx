@@ -14,6 +14,7 @@ import {
 import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smithy-improvement-table';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 
 export const SmithyUnitImprovement = () => {
@@ -33,12 +34,17 @@ export const SmithyUnitImprovement = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="unit-improvement" />
+        <InformationPopover
+          ariaLabel={t('Improve units')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'The smithy improves the attack and defence values of troops by 1.5% per upgrade. Only researched units can be improved. Upgrades are limited by current smithy level, up to max level of 20. If you choose to demolish your smithy, you will not lose the upgrades to your troops. Each smithy can only work on 1 upgrade at the time, but multiple smithies may work on multiple level upgrades for the same unit at the same time.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Improve units')}</Text>
-        <Text>
-          {t(
-            'The smithy improves the attack and defence values of troops by 1.5% per upgrade. Only researched units can be improved. Upgrades are limited by current smithy level, up to max level of 20. If you choose to demolish your smithy, you will not lose the upgrades to your troops. Each smithy can only work on 1 upgrade at the time, but multiple smithies may work on multiple level upgrades for the same unit at the same time.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <SmithyImprovementTable />

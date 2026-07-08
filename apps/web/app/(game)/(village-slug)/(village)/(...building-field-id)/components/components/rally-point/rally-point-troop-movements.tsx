@@ -8,6 +8,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Pagination } from 'app/components/ui/pagination';
@@ -28,12 +29,17 @@ export const RallyPointTroopMovements = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="troop-movements" />
+        <InformationPopover
+          ariaLabel={t('Troop movements')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'This is a view of troop movements related to this village. You may toggle different types through filters below.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Troop movements')}</Text>
-        <Text>
-          {t(
-            'This is a view of troop movements related to this village. You may toggle different types through filters below.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <TroopMovementFilters

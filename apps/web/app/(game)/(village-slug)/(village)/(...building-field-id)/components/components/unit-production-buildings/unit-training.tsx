@@ -20,6 +20,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
@@ -59,12 +60,17 @@ export const UnitTraining = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="train" />
+        <InformationPopover
+          ariaLabel={t('Train units')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              'Select the type and number of units to train. Once queued, units will be trained one at a time, in the order you queued them in.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Train units')}</Text>
-        <Text>
-          {t(
-            'Select the type and number of units to train. Once queued, units will be trained one at a time, in the order you queued them in.',
-          )}
-        </Text>
       </SectionContent>
       <TroopTrainingTable buildingId={buildingId} />
       <Tabs

@@ -12,6 +12,7 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { useOccupiableOasisInRange } from 'app/(game)/(village-slug)/hooks/use-occupiable-oasis-in-range';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -281,12 +282,17 @@ export const HerosMansionOasis = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="oasis" />
+        <InformationPopover
+          ariaLabel={t('Oasis management')}
+          className="right-12"
+        >
+          <Text>
+            {t(
+              "A village can occupy an oasis if it attacks the oasis and subdues all the animals that are present. The attack must also include a hero, who must survive the attack. The oasis will only be captured if there is a level 10, 15 or 20 hero's mansion built in the attacking village, and can still have an empty oasis slot (1 on level 10, 2 on level 15 and 3 on level 20).",
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Oasis management')}</Text>
-        <Text>
-          {t(
-            "A village can occupy an oasis if it attacks the oasis and subdues all the animals that are present. The attack must also include a hero, who must survive the attack. The oasis will only be captured if there is a level 10, 15 or 20 hero's mansion built in the attacking village, and can still have an empty oasis slot (1 on level 10, 2 on level 15 and 3 on level 20).",
-          )}
-        </Text>
       </SectionContent>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}
@@ -304,12 +310,14 @@ export const HerosMansionOasis = () => {
         </TabList>
         <TabPanel value="occupied-oasis">
           <SectionContent>
+            <InformationPopover ariaLabel={t('Occupied oasis')}>
+              <Text>
+                {t(
+                  'Occupied oasis provide a resource production bonus of either 25% or 50% to one or multiple resources. If you choose to abandon an oasis, the abandoned oasis will start to regenerate animals.',
+                )}
+              </Text>
+            </InformationPopover>
             <Text as="h2">{t('Occupied oasis')}</Text>
-            <Text>
-              {t(
-                'Occupied oasis provide a resource production bonus of either 25% or 50% to one or multiple resources. If you choose to abandon an oasis, the abandoned oasis will start to regenerate animals.',
-              )}
-            </Text>
             <div className="overflow-x-scroll scrollbar-hidden">
               <Table>
                 <TableHeader>
@@ -360,12 +368,14 @@ export const HerosMansionOasis = () => {
         </TabPanel>
         <TabPanel value="oasis-within-reach">
           <SectionContent>
+            <InformationPopover ariaLabel={t('Oasis within reach')}>
+              <Text>
+                {t(
+                  'For an oasis to be occupiable, it has to be in a radius of 3 squares around your village. To successfully occupy an oasis, you have to have an empty oasis slot available.',
+                )}
+              </Text>
+            </InformationPopover>
             <Text as="h2">{t('Oasis within reach')}</Text>
-            <Text>
-              {t(
-                'For an oasis to be occupiable, it has to be in a radius of 3 squares around your village. To successfully occupy an oasis, you have to have an empty oasis slot available.',
-              )}
-            </Text>
             <div className="overflow-x-scroll scrollbar-hidden">
               <Table>
                 <TableHeader>
