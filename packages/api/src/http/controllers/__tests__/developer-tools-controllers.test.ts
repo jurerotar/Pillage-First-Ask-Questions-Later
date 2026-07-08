@@ -138,6 +138,12 @@ describe('developer-tools-controllers', () => {
           villageId: 1,
           cageAmount: 3,
         }),
+        createGameEventMock('trapperCageProduction', {
+          startsAt: now + 3000,
+          duration: 7000,
+          villageId: 1,
+          cageAmount: 4,
+        }),
       ]);
 
       updateDeveloperSettings(
@@ -155,7 +161,11 @@ describe('developer-tools-controllers', () => {
         sql: `
           SELECT type, duration
           FROM events
-          WHERE type IN ('troopTraining', 'animalCageProduction')
+          WHERE type IN (
+            'troopTraining',
+            'animalCageProduction',
+            'trapperCageProduction'
+          )
         `,
         schema: z.strictObject({ type: z.string(), duration: z.number() }),
       });
@@ -163,6 +173,9 @@ describe('developer-tools-controllers', () => {
       expect(events.find((e) => e.type === 'troopTraining')?.duration).toBe(0);
       expect(
         events.find((e) => e.type === 'animalCageProduction')?.duration,
+      ).toBe(0);
+      expect(
+        events.find((e) => e.type === 'trapperCageProduction')?.duration,
       ).toBe(0);
     });
 

@@ -16,6 +16,10 @@ import {
   ANIMAL_CAGE_COST,
 } from '@pillage-first/game-assets/utils/hunters-lodge';
 import {
+  TRAPPER_CAGE_BASE_DURATION,
+  TRAPPER_CAGE_COST,
+} from '@pillage-first/game-assets/utils/trapper';
+import {
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
@@ -1519,6 +1523,17 @@ describe('events utils', () => {
       expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
     });
 
+    test('trapperCageProduction - should return zero cost if free unit training enabled', async () => {
+      const database = await prepareTestDatabase();
+      setDevFlag(database, 'is_free_unit_training_enabled', 1);
+
+      const event = createGameEventMock('trapperCageProduction', {
+        cageAmount: 2,
+      });
+
+      expect(getEventCost(database, event)).toStrictEqual([0, 0, 0, 0]);
+    });
+
     test('animalCageProduction - should return cost for the full cage batch', async () => {
       const database = await prepareTestDatabase();
 
@@ -1528,6 +1543,18 @@ describe('events utils', () => {
 
       expect(getEventCost(database, event)).toStrictEqual(
         ANIMAL_CAGE_COST.map((cost) => cost * 2),
+      );
+    });
+
+    test('trapperCageProduction - should return cost for the full cage batch', async () => {
+      const database = await prepareTestDatabase();
+
+      const event = createGameEventMock('trapperCageProduction', {
+        cageAmount: 2,
+      });
+
+      expect(getEventCost(database, event)).toStrictEqual(
+        TRAPPER_CAGE_COST.map((cost) => cost * 2),
       );
     });
 
@@ -1698,6 +1725,17 @@ describe('events utils', () => {
       expect(getEventDuration(database, event)).toBe(0);
     });
 
+    test('trapperCageProduction - should return 0 if instant unit training enabled', async () => {
+      const database = await prepareTestDatabase();
+      setDevFlag(database, 'is_instant_unit_training_enabled', 1);
+
+      const event = createGameEventMock('trapperCageProduction', {
+        cageAmount: 3,
+      });
+
+      expect(getEventDuration(database, event)).toBe(0);
+    });
+
     test('buildingLevelUp - should apply effects and return a positive duration', async () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_instant_building_construction_enabled', 0);
@@ -1752,6 +1790,22 @@ describe('events utils', () => {
 
       expect(getEventDuration(database, event)).toBe(
         (ANIMAL_CAGE_BASE_DURATION * 3) / 2,
+      );
+    });
+
+    test('trapperCageProduction - should return batch duration based on server speed', async () => {
+      const database = await prepareTestDatabase();
+      database.exec({
+        sql: 'UPDATE servers SET speed = $speed',
+        bind: { $speed: 2 },
+      });
+
+      const event = createGameEventMock('trapperCageProduction', {
+        cageAmount: 3,
+      });
+
+      expect(getEventDuration(database, event)).toBe(
+        (TRAPPER_CAGE_BASE_DURATION * 3) / 2,
       );
     });
 
