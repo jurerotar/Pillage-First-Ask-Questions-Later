@@ -67,7 +67,7 @@ describe(calculateTravelDuration, () => {
     const target: Village['coordinates'] = { x: 20, y: 0 };
 
     const romans = getUnitsByTribe('romans');
-    const unit = romans[0];
+    const [unit] = romans;
 
     const troops: Troop[] = [
       {
@@ -99,7 +99,7 @@ describe(calculateTravelDuration, () => {
     const target: Village['coordinates'] = { x: 50, y: 0 };
 
     const romans = getUnitsByTribe('romans');
-    const unit = romans[0];
+    const [unit] = romans;
 
     const troops: Troop[] = [
       {

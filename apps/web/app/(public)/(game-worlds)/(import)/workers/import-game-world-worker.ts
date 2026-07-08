@@ -86,7 +86,11 @@ globalThis.addEventListener(
       } satisfies ImportGameWorldWorkerResponse);
     } finally {
       database?.close();
+      database = null;
+
       opfsSahPool?.pauseVfs();
+      opfsSahPool = null;
+
       globalThis.close();
     }
   },

@@ -1,5 +1,6 @@
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import {
+  clearKickCallback,
   markNeedsRescan,
   registerKickCallback,
   resetSchedulerSignalForTesting,
@@ -47,6 +48,7 @@ export const cancelScheduling = (): void => {
 
   clearScheduledTimeout();
   clearPendingKickTimeout();
+  clearKickCallback();
 };
 
 export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {

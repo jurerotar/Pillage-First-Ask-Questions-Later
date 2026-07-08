@@ -10,6 +10,7 @@ import {
   insertRearrangedBuildingFieldsQuery,
   selectOccupiableOasisInRangeQuery,
   selectVillageBySlugQuery,
+  updateRearrangedBuildingFieldEffectsQuery,
   updateRearrangedBuildingFieldEventsQuery,
 } from '../../queries/village-queries';
 import { createController } from '../controller';
@@ -142,11 +143,16 @@ export const rearrangeBuildingFields = createController(
       },
     });
 
+    // Keep building effects attached to the field that now contains their source building.
     database.exec({
-      sql: dropRearrangeSourceFieldsTableQuery,
+      sql: updateRearrangedBuildingFieldEffectsQuery,
+      bind: {
+        $village_id: villageId,
+        $updates: JSON.stringify(updates),
+      },
     });
 
-    // 2. Update events
+    // Update events
     // We only update events of types that have buildingFieldId and buildingId in meta
     database.exec({
       sql: updateRearrangedBuildingFieldEventsQuery,
@@ -154,6 +160,10 @@ export const rearrangeBuildingFields = createController(
         $village_id: villageId,
         $updates: JSON.stringify(updates),
       },
+    });
+
+    database.exec({
+      sql: dropRearrangeSourceFieldsTableQuery,
     });
   });
 });

@@ -3,7 +3,6 @@ import { type AnchorHTMLAttributes, use, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
-import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField as BuildingFieldType } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
@@ -17,38 +16,25 @@ import { BuildingUpgradeStatusContext } from 'app/(game)/(village-slug)/provider
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 import { useLongPress } from 'app/hooks/use-long-press';
 
-const transformBuildingIdIntoCssClass = (
-  buildingId: Building['id'],
-): string => {
-  return buildingId.toLowerCase().replaceAll('_', '-');
-};
+const occupiedBuildingFieldClassName =
+  'relative size-10 lg:size-16 rounded-full non-selectable focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border';
 
-type DynamicCellClassesArgs = {
-  buildingField: BuildingFieldType;
+const noop = () => {};
+
+type ResourceBuildingClassesArgs = {
+  buildingFieldId: BuildingFieldType['id'];
   resourceFieldComposition: ResourceFieldComposition;
 };
 
-const dynamicCellClasses = ({
-  buildingField,
+const getResourceBuildingClasses = ({
+  buildingFieldId,
   resourceFieldComposition,
-}: DynamicCellClassesArgs): string => {
-  const { buildingId, id } = buildingField;
-  const isResourceField = id <= 18;
-
-  if (isResourceField) {
-    return clsx(
-      buildingFieldStyles.building,
-      `rfc-${resourceFieldComposition}`,
-      buildingFieldStyles['building-resource'],
-      buildingFieldStyles[`building-resource-${id}`],
-    );
-  }
-
-  const buildingIdToCssClass = transformBuildingIdIntoCssClass(buildingId);
-
+}: ResourceBuildingClassesArgs): string => {
   return clsx(
     buildingFieldStyles.building,
-    buildingFieldStyles[`building-village-${buildingIdToCssClass}`],
+    `rfc-${resourceFieldComposition}`,
+    buildingFieldStyles['building-resource'],
+    buildingFieldStyles[`building-resource-${buildingFieldId}`],
   );
 };
 
@@ -177,7 +163,7 @@ const OccupiedBuildingFieldContent = ({
   currentBuildingFieldBuildingEvent,
   tab,
   isHovered = false,
-  onUpgrade = () => {},
+  onUpgrade = noop,
   ...props
 }: OccupiedBuildingFieldContentProps) => {
   const { t } = useTranslation();
@@ -194,14 +180,13 @@ const OccupiedBuildingFieldContent = ({
       }}
       aria-label={t(`BUILDINGS.${buildingId}.NAME`)}
       data-building-field-id={buildingFieldId}
-      tabIndex={0}
       className={clsx(
         buildingFieldId <= 18 &&
-          dynamicCellClasses({
-            buildingField,
+          getResourceBuildingClasses({
+            buildingFieldId,
             resourceFieldComposition: currentVillage.resourceFieldComposition,
           }),
-        'relative size-10 lg:size-16 rounded-full non-selectable focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border',
+        occupiedBuildingFieldClassName,
       )}
       {...props}
     >

@@ -6,12 +6,9 @@ import { document as apiDocument } from '@pillage-first/api/open-api';
 
 // Replaced colon-prefixed path parameters (e.g., `:playerId`) with curly brace-enclosed parameters (e.g., `{playerId}`) to comply with OpenAPI specifications.
 const spec = JSON.parse(
-  JSON.stringify(apiDocument).replaceAll(
-    /"\/([^"]*):([^"/]+)([^"]*)"/g,
-    (match) => {
-      return match.replaceAll(/:([a-zA-Z0-9_]+)/g, '{$1}');
-    },
-  ),
+  JSON.stringify(apiDocument).replaceAll(/"\/[^"]*:[^"/]+[^"]*"/gu, (match) => {
+    return match.replaceAll(/:(?<parameter>[a-zA-Z0-9_]+)/gu, '{$<parameter>}');
+  }),
 );
 
 const rootElement = document.querySelector('#swagger-ui');

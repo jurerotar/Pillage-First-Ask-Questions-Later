@@ -23,7 +23,12 @@ describe('tilesSeeder', () => {
 
   test('every tile should be of type free or oasis', () => {
     const types = database.selectValues({
-      sql: 'SELECT type FROM tiles;',
+      sql: `
+        SELECT tt.type
+        FROM
+          tiles t
+            JOIN tile_type_ids tt ON tt.id = t.type_id;
+      `,
       schema: tileTypeSchema,
     });
 
@@ -43,7 +48,7 @@ describe('tilesSeeder', () => {
             JOIN resource_field_composition_ids AS rfc
                  ON t.resource_field_composition_id = rfc.id
         WHERE
-          t.type = 'free';
+          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free');
       `,
       schema: z.strictObject({
         resource_field_composition: resourceFieldCompositionSchema,
@@ -65,7 +70,7 @@ describe('tilesSeeder', () => {
             LEFT JOIN resource_field_composition_ids AS rfc
                       ON t.resource_field_composition_id = rfc.id
         WHERE
-          t.type = 'oasis';
+          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis');
       `,
       schema: z.strictObject({
         resource_field_composition: z.null(),
@@ -83,7 +88,7 @@ describe('tilesSeeder', () => {
         FROM
           tiles
         WHERE
-          type = 'oasis';
+          type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis');
       `,
       schema: z.strictObject({
         id: z.number(),
@@ -131,11 +136,12 @@ describe('tilesSeeder', () => {
     const center = database.selectObject({
       sql: `
         SELECT
-          t.type,
+          tt.type,
           rfc.resource_field_composition AS resource_field_composition,
           t.oasis_graphics
         FROM
           tiles t
+            JOIN tile_type_ids tt ON tt.id = t.type_id
             LEFT JOIN resource_field_composition_ids rfc
                       ON t.resource_field_composition_id = rfc.id
         WHERE

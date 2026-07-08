@@ -61,9 +61,10 @@ export const getOasesWithAnimals = createController(
           t.x AS coordinates_x,
           t.y AS coordinates_y,
           (
-            SELECT JSON_GROUP_ARRAY(JSON_OBJECT('resource', o.resource, 'bonus', o.bonus))
+            SELECT JSON_GROUP_ARRAY(JSON_OBJECT('resource', ri.resource, 'bonus', o.bonus))
             FROM
               oasis o
+                JOIN resource_ids ri ON ri.id = o.resource_id
             WHERE
               o.tile_id = t.id
             ) AS bonuses_json,
@@ -84,7 +85,7 @@ export const getOasesWithAnimals = createController(
         FROM
           tiles t
         WHERE
-          t.type = 'oasis'
+          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis')
           ${filterClauses.length > 0 ? `AND ${filterClauses.join(' AND ')}` : ''}
         ORDER BY distance_squared ASC;
       `,

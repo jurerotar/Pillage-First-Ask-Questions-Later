@@ -1,5 +1,6 @@
 import type { SAHPoolUtil, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
 import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
+import { toTransferableArrayBuffer } from 'app/(public)/workers/utils/array-buffer';
 
 const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
 
@@ -35,7 +36,7 @@ try {
 
   const exportedDb = await opfsSahPool.exportFile(`/${serverSlug}.sqlite3`);
 
-  const buffer: ArrayBuffer = exportedDb.buffer as ArrayBuffer;
+  const buffer = toTransferableArrayBuffer(exportedDb);
 
   globalThis.postMessage(
     {
@@ -51,4 +52,7 @@ try {
   } satisfies ExportServerWorkerReturn);
 } finally {
   opfsSahPool?.pauseVfs();
+  opfsSahPool = null;
+
+  globalThis.close();
 }

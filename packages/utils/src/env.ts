@@ -1,26 +1,28 @@
 /// <reference types="vite/client" />
 
-type ImportMetaEnv = {
-  readonly VERSION: string;
-  readonly GRAPHICS_VERSION: string;
-  readonly VITE_FARO_INGEST_ENDPOINT: string;
-  // Injected by Netlify, not available during dev
-  readonly URL: string;
-  readonly DEPLOY_URL: string;
-  readonly DEPLOY_PRIME_URL: string;
-  readonly COMMIT_REF: string;
-  readonly HEAD: string;
-};
+declare global {
+  interface ImportMetaEnv {
+    readonly VERSION: string;
+    readonly GRAPHICS_VERSION: string;
+    readonly VITE_FARO_INGEST_ENDPOINT: string;
+    // Injected by Netlify, not available during dev
+    readonly URL: string;
+    readonly DEPLOY_URL: string;
+    readonly DEPLOY_PRIME_URL: string;
+    readonly COMMIT_REF: string;
+    readonly HEAD: string;
+  }
 
-export type ImportMeta = {
-  readonly env: ImportMetaEnv;
-};
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
 
-export type ViteTypeOptions = {
-  // By adding this line, you can make the type of ImportMetaEnv strict
-  // to disallow unknown keys.
-  strictImportMetaEnv: unknown;
-};
+  interface ViteTypeOptions {
+    // By adding this line, you can make the type of ImportMetaEnv strict
+    // to disallow unknown keys.
+    strictImportMetaEnv: unknown;
+  }
+}
 
 export const env = {
   PROD: import.meta.env.PROD,

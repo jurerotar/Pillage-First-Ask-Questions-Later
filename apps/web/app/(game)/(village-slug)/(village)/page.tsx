@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
-import { getBuildingFieldByBuildingFieldId } from '@pillage-first/game-assets/utils/buildings';
+import type { BuildingField as BuildingFieldType } from '@pillage-first/types/models/building-field';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
 import { VillageMapContext } from 'app/(game)/(village-slug)/(village)/providers/village-map-context';
@@ -34,6 +34,16 @@ const VillagePage = (props: Route.ComponentProps) => {
   const { currentVillage } = useCurrentVillage();
   const { bookmarks } = useBookmarks();
   const { preferences } = usePreferences();
+  const buildingFieldById = useMemo(
+    () =>
+      new Map<BuildingFieldType['id'], BuildingFieldType>(
+        currentVillage.buildingFields.map((buildingField) => [
+          buildingField.id,
+          buildingField,
+        ]),
+      ),
+    [currentVillage.buildingFields],
+  );
 
   const isResourcesPageOpen = matches.some(
     (match) => match?.id === 'resources-page',
@@ -51,12 +61,8 @@ const VillagePage = (props: Route.ComponentProps) => {
         return null;
       }
 
-      const buildingFieldId = Number(id)!;
-
-      const buildingField = getBuildingFieldByBuildingFieldId(
-        currentVillage,
-        buildingFieldId,
-      );
+      const buildingFieldId = Number(id);
+      const buildingField = buildingFieldById.get(buildingFieldId);
 
       if (!buildingField) {
         return t('Building site');
@@ -64,7 +70,7 @@ const VillagePage = (props: Route.ComponentProps) => {
 
       return <BuildingFieldTooltip buildingField={buildingField} />;
     },
-    [currentVillage, t],
+    [buildingFieldById, t],
   );
 
   useEffect(() => {
@@ -112,6 +118,7 @@ const VillagePage = (props: Route.ComponentProps) => {
           <div className="relative aspect-16/10 scrollbar-hidden min-w-[460px] max-w-5xl w-full">
             {buildingFieldIds.map((buildingFieldId) => (
               <BuildingField
+                buildingField={buildingFieldById.get(buildingFieldId) ?? null}
                 buildingFieldId={buildingFieldId}
                 key={buildingFieldId}
               />

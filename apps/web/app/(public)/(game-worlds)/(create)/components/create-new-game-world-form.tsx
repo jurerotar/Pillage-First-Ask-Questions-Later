@@ -41,6 +41,7 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { Switch } from 'app/components/ui/switch';
+import { reportError } from 'app/instrumentation/report-error';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -137,13 +138,18 @@ export const CreateNewGameWorldForm = () => {
             channel.port1.close();
             resolve(data.migrationDuration);
           } else if (data.type === 'error') {
-            console.error(
-              `Game world seeding failed. Message: ${data.message}`,
-            );
+            const error = new Error(data.message);
+            if (data.stack) {
+              error.stack = data.stack;
+            }
+
+            reportError(error, 'Game world seeding failed', {
+              source: 'CreateNewGameWorldForm',
+            });
 
             worker.terminate();
             channel.port1.close();
-            reject(new Error(data.message));
+            reject(error);
           }
         };
 

@@ -10,9 +10,9 @@ import {
   isArtifactEffect,
   isBuildingEffect,
   isHeroEffect,
+  isLocalEffect,
   isOasisEffect,
   isServerEffect,
-  isVillageEffect,
 } from '../effect-guards';
 
 describe('effect guards', () => {
@@ -21,9 +21,9 @@ describe('effect guards', () => {
     expect(isServerEffect(woodProductionBaseEffectMock)).toBe(false);
   });
 
-  test('should identify village effects', () => {
-    expect(isVillageEffect(woodProductionBaseEffectMock)).toBe(true);
-    expect(isVillageEffect(woodProductionServerEffectMock)).toBe(false);
+  test('should identify local effects', () => {
+    expect(isLocalEffect(woodProductionBaseEffectMock)).toBe(true);
+    expect(isLocalEffect(woodProductionServerEffectMock)).toBe(false);
   });
 
   test('should identify building effects', () => {

@@ -48,7 +48,7 @@ const ImportGameWorld = () => {
       const result = await workerFactory<
         ImportGameWorldWorkerPayload,
         ImportGameWorldWorkerResponse
-      >(ImportGameWorldWorker, payload);
+      >(ImportGameWorldWorker, payload, [payload.databaseBuffer]);
 
       if (!result.resolved) {
         throw new Error(result.error || 'Failed to import game world.');
@@ -87,7 +87,12 @@ const ImportGameWorld = () => {
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
-          <Text as="h1">{t('Import existing game world')}</Text>
+          <Text
+            as="h1"
+            className="text-3xl font-medium leading-tight lg:text-5xl"
+          >
+            {t('Import existing game world')}
+          </Text>
           <Text>
             If you have an existing game state file, you may attempt to import
             it here. If import is successful, you'll be automatically redirected

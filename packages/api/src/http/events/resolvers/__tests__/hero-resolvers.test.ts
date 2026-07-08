@@ -17,7 +17,7 @@ describe('hero-resolvers', () => {
     database.exec({ sql: 'UPDATE heroes SET health = 0;' });
 
     database.exec({
-      sql: "DELETE FROM effects WHERE source = 'hero' AND village_id = (SELECT village_id FROM heroes LIMIT 1);",
+      sql: "DELETE FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = (SELECT village_id FROM heroes LIMIT 1);",
     });
 
     heroRevivalResolver(
@@ -38,7 +38,7 @@ describe('hero-resolvers', () => {
     expect(health).toBe(100);
 
     const effects = database.selectObjects({
-      sql: "SELECT ei.effect FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $village_id AND e.source = 'hero';",
+      sql: "SELECT ei.effect FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $village_id AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       bind: { $village_id: villageId },
       schema: z.strictObject({ effect: z.string() }),
     });

@@ -44,7 +44,7 @@ const createPlayerVillage = (database: DbFacade, name: string) => {
     sql: `
       SELECT id
       FROM tiles
-      WHERE type = 'free'
+      WHERE type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
         AND id NOT IN (SELECT tile_id FROM villages)
       ORDER BY id
       LIMIT 1;

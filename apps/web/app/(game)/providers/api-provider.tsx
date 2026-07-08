@@ -13,6 +13,7 @@ import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 import { createTypedApiClient } from 'app/(game)/providers/utils/typed-api-client';
 import { createWorkerFetcher } from 'app/(game)/providers/utils/worker-fetch';
+import { reportError } from 'app/instrumentation/report-error';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];
@@ -20,7 +21,6 @@ type ApiProviderProps = {
 
 type ApiContextReturn = {
   apiWorker: Worker;
-  closeApiWorker: () => Promise<void>;
   apiClient: ReturnType<typeof createTypedApiClient>;
 };
 
@@ -33,7 +33,7 @@ export const ApiProvider = ({
   serverSlug,
 }: PropsWithChildren<ApiProviderProps>) => {
   const queryClient = useQueryClient();
-  const { apiWorker, closeApiWorker, subscribeToApiWorkerNotifications } =
+  const { apiWorker, subscribeToApiWorkerNotifications } =
     useApiWorker(serverSlug);
 
   useEffect(() => {
@@ -54,7 +54,10 @@ export const ApiProvider = ({
             queryKey: resolvedKey,
           });
         } catch (error) {
-          console.error('Failed to invalidate query', resolvedKey, error);
+          reportError(error, 'Failed to invalidate query', {
+            queryKey: JSON.stringify(resolvedKey),
+            source: 'ApiProvider',
+          });
         }
       };
 
@@ -105,10 +108,9 @@ export const ApiProvider = ({
 
     return {
       apiWorker,
-      closeApiWorker,
       apiClient: createTypedApiClient(fetcher),
     };
-  }, [apiWorker, closeApiWorker]);
+  }, [apiWorker]);
 
   return <ApiContext value={value}>{children}</ApiContext>;
 };

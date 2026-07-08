@@ -53,7 +53,7 @@ describe(troopTrainingEventResolver, () => {
         SELECT value
         FROM effects
         WHERE village_id = $village_id
-          AND source = 'troops'
+          AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND effect_id = $effect_id;
       `,
       bind: { $effect_id: wheatEffectId, $village_id: villageId },

@@ -53,6 +53,7 @@ import {
   TbTooltip,
 } from 'react-icons/tb';
 import { TiMinus, TiPlus } from 'react-icons/ti';
+import type { CamelCase } from 'type-fest';
 import {
   PillageFirstCatapult,
   PillageFirstCavalryDefence,
@@ -76,7 +77,6 @@ import type {
   TeutonUnitId,
   Unit,
 } from '@pillage-first/types/models/unit';
-import type { UpperCaseToCamelCase } from 'app/utils/typescript';
 import styles from './icons.module.scss';
 
 type UncategorizedIconType =
@@ -125,19 +125,19 @@ type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
 
 type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
 
-type RomanTroopIconType = UpperCaseToCamelCase<RomanUnitId>;
+type RomanTroopIconType = CamelCase<RomanUnitId>;
 
-type GaulTroopIconType = UpperCaseToCamelCase<GaulUnitId>;
+type GaulTroopIconType = CamelCase<GaulUnitId>;
 
-type TeutonTroopIconType = UpperCaseToCamelCase<TeutonUnitId>;
+type TeutonTroopIconType = CamelCase<TeutonUnitId>;
 
-type HunTroopIconType = UpperCaseToCamelCase<HunUnitId>;
+type HunTroopIconType = CamelCase<HunUnitId>;
 
-type EgyptianTroopIconType = UpperCaseToCamelCase<EgyptianUnitId>;
+type EgyptianTroopIconType = CamelCase<EgyptianUnitId>;
 
-type NatarTroopIconType = UpperCaseToCamelCase<NatarUnitId>;
+type NatarTroopIconType = CamelCase<NatarUnitId>;
 
-type NatureTroopIconType = UpperCaseToCamelCase<NatureUnitId>;
+type NatureTroopIconType = CamelCase<NatureUnitId>;
 
 type UnitAttributeType = 'unitSpeed';
 

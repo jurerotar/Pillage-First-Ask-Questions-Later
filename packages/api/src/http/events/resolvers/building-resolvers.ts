@@ -138,7 +138,7 @@ export const buildingConstructionResolver: Resolver<
         $effect_name: effectId,
         $value: valuesPerLevel[0],
         $type: type,
-        $scope: 'village',
+        $scope: 'local',
         $source: 'building',
         $village_id: villageId,
         $source_specifier: buildingFieldId,

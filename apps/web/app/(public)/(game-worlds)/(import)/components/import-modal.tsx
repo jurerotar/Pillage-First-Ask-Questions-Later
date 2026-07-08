@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from 'app/components/ui/dialog';
 import { Spinner } from 'app/components/ui/spinner';
+import { reportError } from 'app/instrumentation/report-error';
 import { getDeviceId } from 'app/utils/device';
 
 const BROADCAST_CHANNEL = 'pillage-first-ask-questions-later';
@@ -92,14 +93,20 @@ export const ImportModal = ({
       });
 
       conn.on('error', (err) => {
-        console.error('[ImportModal] Discovery connection error:', err);
+        reportError(err, 'Import discovery connection failed', {
+          phase: 'discoveryConnection',
+          source: 'ImportModal',
+        });
         toast.error('Failed to discover devices.');
         setIsDiscoveryLoading(false);
       });
     });
 
     peer.on('error', (err) => {
-      console.error('[ImportModal] Peer error:', err);
+      reportError(err, 'Import peer failed', {
+        phase: 'peer',
+        source: 'ImportModal',
+      });
       setIsDiscoveryLoading(false);
     });
 
@@ -158,7 +165,10 @@ export const ImportModal = ({
           await onImport(buffer as ArrayBuffer);
           onOpenChange(false);
         } catch (err) {
-          console.error('[ImportModal] Failed to import database buffer:', err);
+          reportError(err, 'Failed to import database buffer', {
+            phase: 'importDatabaseBuffer',
+            source: 'ImportModal',
+          });
           toast.error('Failed to import game world.');
         } finally {
           setIsImporting(false);
@@ -183,7 +193,10 @@ export const ImportModal = ({
     };
 
     const handleError = (err: { message: string }) => {
-      console.error('[ImportModal] Connection error:', err);
+      reportError(err, 'Import connection failed', {
+        phase: 'connection',
+        source: 'ImportModal',
+      });
       toast.error('Failed to connect to device', {
         id: toastId,
         description: err.message,

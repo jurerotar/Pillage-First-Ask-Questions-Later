@@ -67,12 +67,21 @@ export const selectVillageTileIdQuery = `
 export const selectVillageIdAndTileIdQuery = `
   SELECT
     t.id AS tileId,
-    t.type AS tileType,
-    COALESCE(v.id, o.village_id) AS villageId
+    tt.type AS tileType,
+    CASE
+      WHEN tt.type = 'free' THEN v.id
+      WHEN tt.type = 'oasis' THEN (
+        SELECT MAX(o.village_id)
+        FROM
+          oasis o
+        WHERE
+          o.tile_id = t.id
+      )
+    END AS villageId
   FROM
     tiles t
+      JOIN tile_type_ids tt ON tt.id = t.type_id
       LEFT JOIN villages v ON v.tile_id = t.id
-      LEFT JOIN oasis o ON o.tile_id = t.id
   WHERE
     t.id = $tile_id;
 `;
@@ -108,10 +117,11 @@ export const selectOccupiableOasisInRangeQuery = `
         MAX(o.village_id) AS occupying_village_id
       FROM
         tiles ot
+          JOIN tile_type_ids ott ON ott.id = ot.type_id
           JOIN src_village sv ON 1 = 1
           JOIN oasis o ON o.tile_id = ot.id
       WHERE
-        ot.type = 'oasis'
+        ott.type = 'oasis'
         AND ot.x BETWEEN sv.vx - $radius AND sv.vx + $radius
         AND ot.y BETWEEN sv.vy - $radius AND sv.vy + $radius
       GROUP BY ot.id
@@ -254,4 +264,62 @@ export const updateRearrangedBuildingFieldEventsQuery = `
     AND events.type IN ('buildingScheduledConstruction', 'buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
     AND JSON_EXTRACT(meta, '$.buildingId') = ur.building_text
     AND ur.building_text IS NOT NULL;
+`;
+
+export const updateRearrangedBuildingFieldEffectsQuery = `
+  WITH updates_raw(field_id, building_text) AS (
+    SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+    FROM JSON_EACH($updates)
+  ),
+  updates AS (
+    SELECT ur.field_id, bi.id AS building_id
+    FROM updates_raw ur
+    LEFT JOIN building_ids bi ON bi.building = ur.building_text
+    WHERE ur.field_id BETWEEN 19 AND 38
+  ),
+  moved_fields AS (
+    SELECT
+      COALESCE(
+        (
+          SELECT sf.field_id
+          FROM temp_rearrange_source_fields sf
+          WHERE sf.building_id = u.building_id
+            AND EXISTS (
+              SELECT 1
+              FROM updates source_update
+              WHERE source_update.field_id = sf.field_id
+                AND (
+                  source_update.building_id IS NULL
+                  OR source_update.building_id <> sf.building_id
+                )
+            )
+          LIMIT 1
+        ),
+        (
+          SELECT sf.field_id
+          FROM temp_rearrange_source_fields sf
+          WHERE sf.field_id = u.field_id
+            AND sf.building_id = u.building_id
+          LIMIT 1
+        )
+      ) AS source_field_id,
+      u.field_id AS target_field_id
+    FROM updates u
+    WHERE u.building_id IS NOT NULL
+  )
+  UPDATE effects
+  SET source_specifier = (
+    SELECT mf.target_field_id
+    FROM moved_fields mf
+    WHERE mf.source_field_id = effects.source_specifier
+  )
+  WHERE
+    village_id = $village_id
+    AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+    AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
+    AND source_specifier IN (
+      SELECT source_field_id
+      FROM moved_fields
+      WHERE source_field_id IS NOT NULL
+    );
 `;

@@ -7,10 +7,36 @@ import {
 } from './controller';
 
 const routesByMethodCache = new Map<string, typeof compiledApiRoutes>();
+const routeCandidatesCache = new Map<
+  string,
+  Map<string, typeof compiledApiRoutes>
+>();
 
 type RouteRequestParamsConfig = Record<string, unknown> & {
   requestParams?: ControllerOperationConfig['requestParams'];
   requestBody?: ControllerOperationConfig['requestBody'];
+};
+
+const getFirstPathSegment = (path: string) => {
+  const startIndex = path.startsWith('/') ? 1 : 0;
+  const endIndex = path.indexOf('/', startIndex);
+
+  return endIndex === -1
+    ? path.slice(startIndex)
+    : path.slice(startIndex, endIndex);
+};
+
+const isRouteCandidateForFirstSegment = (
+  routePath: string,
+  firstSegment: string,
+) => {
+  const routeFirstSegment = getFirstPathSegment(routePath);
+
+  return (
+    routeFirstSegment.startsWith(':') ||
+    routeFirstSegment.startsWith('*') ||
+    routeFirstSegment === firstSegment
+  );
 };
 
 const getRoutesForMethod = (method: string) => {
@@ -25,17 +51,40 @@ const getRoutesForMethod = (method: string) => {
   return cached;
 };
 
+const getRouteCandidates = (method: string, path: string) => {
+  const routesForMethod = getRoutesForMethod(method);
+  const firstSegment = getFirstPathSegment(path);
+  let candidatesByFirstSegment = routeCandidatesCache.get(method);
+
+  if (!candidatesByFirstSegment) {
+    candidatesByFirstSegment = new Map();
+    routeCandidatesCache.set(method, candidatesByFirstSegment);
+  }
+
+  let candidates = candidatesByFirstSegment.get(firstSegment);
+
+  if (!candidates) {
+    candidates = routesForMethod.filter((route) =>
+      isRouteCandidateForFirstSegment(route.path, firstSegment),
+    );
+    candidatesByFirstSegment.set(firstSegment, candidates);
+  }
+
+  return candidates;
+};
+
 export const matchRoute = (url: string, method: string, body?: unknown) => {
-  const [urlPath, queryString] = url.split('?');
-  const rawQuery = Object.fromEntries(new URLSearchParams(queryString));
+  const queryIndex = url.indexOf('?');
+  const urlPath = queryIndex === -1 ? url : url.slice(0, queryIndex);
+  const queryString = queryIndex === -1 ? undefined : url.slice(queryIndex + 1);
   const normalizedMethod = method.toUpperCase();
 
   // Replace only leading `/me` (either end or followed by slash), preserves trailing slash if present.
   const path = urlPath.replace(/^\/me(?=\/|$)/, `/players/${PLAYER_ID}`);
 
-  const routesForMethod = getRoutesForMethod(normalizedMethod);
+  const routeCandidates = getRouteCandidates(normalizedMethod, path);
 
-  for (const route of routesForMethod) {
+  for (const route of routeCandidates) {
     const result = route.matcher(path) as
       | false
       | { path: string; params: Record<string, string> };
@@ -49,6 +98,9 @@ export const matchRoute = (url: string, method: string, body?: unknown) => {
     const routeConfig = route.controller.operation as RouteRequestParamsConfig;
 
     const requestParams = routeConfig?.requestParams;
+    const rawQuery = queryString
+      ? Object.fromEntries(new URLSearchParams(queryString))
+      : {};
 
     const pathParams = requestParams?.path
       ? requestParams.path.parse(rawPathParams)
