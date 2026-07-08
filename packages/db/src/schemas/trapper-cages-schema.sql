@@ -1,0 +1,13 @@
+CREATE TABLE trapper_cages
+(
+  id INTEGER PRIMARY KEY,
+  village_id INTEGER NOT NULL,
+  unit_id INTEGER,
+
+  FOREIGN KEY (village_id) REFERENCES villages (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  FOREIGN KEY (unit_id) REFERENCES unit_ids (id)
+    ON DELETE SET NULL
+    ON UPDATE CASCADE
+) STRICT;

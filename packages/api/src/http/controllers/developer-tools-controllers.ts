@@ -85,7 +85,11 @@ export const updateDeveloperSettings = createController(
         break;
       }
       case 'isInstantUnitTrainingEnabled': {
-        eventTypes = ['troopTraining', 'animalCageProduction'];
+        eventTypes = [
+          'troopTraining',
+          'animalCageProduction',
+          'trapperCageProduction',
+        ];
         break;
       }
       case 'isInstantUnitImprovementEnabled': {

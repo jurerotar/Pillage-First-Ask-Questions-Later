@@ -3,6 +3,9 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
+import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
+import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { migrateTo } from './migrate-db';
 
 const queuedTroopCountQuestThresholds = [
@@ -1011,6 +1014,17 @@ export const upgradeDb = (database: DbFacade): void => {
         sql: 'PRAGMA foreign_keys = ON;',
       });
     }
+  });
+
+  migrateTo('0.4.40', database, (db) => {
+    try {
+      db.exec({ sql: createTrapperCagesTable });
+      db.exec({ sql: createTrapperCagesIndexes });
+    } catch {
+      // Table already exists on newer databases.
+    }
+
+    setupGlobalWriteTriggers(db);
   });
 
   // If all migrations passed, bump it to current version

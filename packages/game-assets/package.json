@@ -63,6 +63,9 @@
     "./utils/hunters-lodge": {
       "default": "./src/utils/hunters-lodge.ts"
     },
+    "./utils/trapper": {
+      "default": "./src/utils/trapper.ts"
+    },
     "./utils/gatherers-hut": {
       "default": "./src/utils/gatherers-hut.ts"
     },

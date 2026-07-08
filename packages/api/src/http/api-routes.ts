@@ -113,6 +113,7 @@ import {
   getPlayerRankings,
   getVillageRankings,
 } from './controllers/statistics-controllers';
+import { getTrapperCageStats } from './controllers/trapper-controllers';
 import {
   cancelTroopMovement,
   getVillageTroopMovementStats,
@@ -305,6 +306,9 @@ export const apiRoutes = [
   createRoute(getVillageTroopMovementStats),
   createRoute(validateTroopMovement),
   createRoute(cancelTroopMovement),
+
+  // Trapper
+  createRoute(getTrapperCageStats),
 ] as const;
 
 const openApiPaths: ZodOpenApiPathsObject = {};

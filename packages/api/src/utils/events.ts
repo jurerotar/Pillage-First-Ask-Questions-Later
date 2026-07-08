@@ -25,6 +25,11 @@ import {
 } from '@pillage-first/game-assets/utils/hunters-lodge';
 import { calculateLoyaltyIncreaseEventDuration } from '@pillage-first/game-assets/utils/loyalty';
 import {
+  calculateTrapperCapacity,
+  TRAPPER_CAGE_BASE_DURATION,
+  TRAPPER_CAGE_COST,
+} from '@pillage-first/game-assets/utils/trapper';
+import {
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
@@ -58,6 +63,7 @@ import {
   isReturnTroopMovementEvent,
   isScheduledBuildingEvent,
   isTradeRouteEvent,
+  isTrapperCageProductionEvent,
   isTroopMovementEvent,
   isTroopTrainingEvent,
   isUnitImprovementEvent,
@@ -347,6 +353,64 @@ export const validateEventCreationPrerequisites = (
       if (hasOngoingHunt) {
         throw new Error("Hunter's Lodge is busy");
       }
+    }
+
+    return;
+  }
+
+  if (isTrapperCageProductionEvent(event)) {
+    const { villageId, cageAmount } = event;
+
+    if (cageAmount <= 0) {
+      throw new Error('Trapper cage amount must be positive');
+    }
+
+    const trapperLevel =
+      database.selectValue({
+        sql: selectVillageBuildingLevelQuery,
+        bind: {
+          $village_id: villageId,
+          $building_id: 'TRAPPER',
+        },
+        schema: z.number().nullable(),
+      }) ?? 0;
+
+    if (trapperLevel <= 0) {
+      throw new Error('Trapper does not exist');
+    }
+
+    const currentCageAmount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM trapper_cages
+        WHERE village_id = $village_id;
+      `,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    })!;
+
+    const queuedCageAmount =
+      database.selectValue({
+        sql: `
+          SELECT COALESCE(SUM(CAST(JSON_EXTRACT(meta, '$.cageAmount') AS INTEGER)), 0)
+          FROM
+            events
+          WHERE
+            village_id = $village_id
+            AND type = 'trapperCageProduction';
+        `,
+        bind: {
+          $village_id: villageId,
+        },
+        schema: z.number(),
+      }) ?? 0;
+
+    const capacity = calculateTrapperCapacity(trapperLevel);
+
+    if (currentCageAmount + queuedCageAmount + cageAmount > capacity) {
+      throw new Error('Trapper cage capacity exceeded');
     }
 
     return;
@@ -944,6 +1008,19 @@ export const getEventCost = (
     return ANIMAL_CAGE_COST.map((cost) => cost * event.cageAmount);
   }
 
+  if (isTrapperCageProductionEvent(event)) {
+    const isFreeUnitTrainingEnabled = database.selectValue({
+      sql: 'SELECT is_free_unit_training_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isFreeUnitTrainingEnabled) {
+      return [0, 0, 0, 0];
+    }
+
+    return TRAPPER_CAGE_COST.map((cost) => cost * event.cageAmount);
+  }
+
   if (isHuntersLodgeHuntEvent(event)) {
     const isFreeHuntingPartiesEnabled = database.selectValue({
       sql: 'SELECT is_free_hunting_parties_enabled FROM developer_settings',
@@ -1169,6 +1246,24 @@ export const getEventDuration = (
     })!;
 
     return (ANIMAL_CAGE_BASE_DURATION * event.cageAmount) / speed;
+  }
+
+  if (isTrapperCageProductionEvent(event)) {
+    const isInstantUnitTrainingEnabled = database.selectValue({
+      sql: 'SELECT is_instant_unit_training_enabled FROM developer_settings',
+      schema: z.coerce.boolean(),
+    });
+
+    if (isInstantUnitTrainingEnabled) {
+      return 0;
+    }
+
+    const speed = database.selectValue({
+      sql: 'SELECT speed FROM servers LIMIT 1;',
+      schema: speedSchema,
+    })!;
+
+    return (TRAPPER_CAGE_BASE_DURATION * event.cageAmount) / speed;
   }
 
   if (isHuntersLodgeHuntEvent(event)) {
@@ -1422,6 +1517,27 @@ export const getEventStartTime = (
         WHERE
           village_id = $village_id
           AND type = 'animalCageProduction';
+      `,
+      bind: {
+        $village_id: villageId,
+        $now: now,
+      },
+      schema: z.number(),
+    })!;
+  }
+
+  if (isTrapperCageProductionEvent(event)) {
+    const { villageId } = event;
+    const now = Date.now();
+
+    return database.selectValue({
+      sql: `
+        SELECT COALESCE(MAX(resolves_at), $now) AS resolves_at
+        FROM
+          events
+        WHERE
+          village_id = $village_id
+          AND type = 'trapperCageProduction';
       `,
       bind: {
         $village_id: villageId,

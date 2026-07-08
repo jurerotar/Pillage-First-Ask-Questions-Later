@@ -1,3 +1,9 @@
+## Version 0.4.40
+
+#### Jul 8, 2026
+
+* [Feature] Added the ability to create Gaul traps.
+
 ## Version 0.4.39
 
 #### Jul 7, 2026
