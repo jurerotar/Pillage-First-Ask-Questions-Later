@@ -23,10 +23,7 @@ export const TownHallCelebrations = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="celebrations" />
-        <InformationPopover
-          ariaLabel={t('Celebrations')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Celebrations')}>
           <Text>
             {t(
               'The Town Hall allows you to hold celebrations, which instantly grant Culture Points. Upgrading the Town Hall reduces the cooldown time between celebrations, allowing you to generate Culture Points more frequently.',

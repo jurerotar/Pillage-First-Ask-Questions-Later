@@ -15,7 +15,6 @@ import { SmithyImprovementTable } from 'app/(game)/(village-slug)/components/smi
 import { VillageConstructionTable } from 'app/(game)/(village-slug)/components/village-construction-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -122,18 +121,8 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Village overview')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <Text as="h1">{t('Village overview')}</Text>
       <Section>
-        <InformationPopover
-          ariaLabel={t('Village overview')}
-          className="top-2 right-2"
-        >
-          <Text>
-            {t(
-              'Village overview allows you to track construction queue, active troop training, smithy and academy queues, monitor merchant availability and movements, hunting parties, gathering expeditions and ongoing celebrations.',
-            )}
-          </Text>
-        </InformationPopover>
-        <Text as="h1">{t('Village overview')}</Text>
         <SectionContent>
           <Text as="h2">{t('Construction')}</Text>
           <VillageConstructionTable />

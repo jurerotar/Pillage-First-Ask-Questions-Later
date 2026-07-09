@@ -17,7 +17,6 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -32,15 +31,15 @@ import { lazyWithRetry } from 'app/utils/imports';
 
 const BuildingTabFallback = () => {
   return (
-    <Section>
-      <SectionContent>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         <Skeleton className="flex w-60 h-6" />
         <Skeleton className="flex w-full h-16" />
-      </SectionContent>
-      <SectionContent>
+      </div>
+      <div className="flex flex-col gap-2">
         <Skeleton className="flex w-full h-30" />
-      </SectionContent>
-    </Section>
+      </div>
+    </div>
   );
 };
 
@@ -345,12 +344,6 @@ export const BuildingDetails = () => {
             <Section>
               <SectionContent>
                 <Bookmark tab="default" />
-                <InformationPopover
-                  ariaLabel={t('Building information')}
-                  className="right-12"
-                >
-                  <Text>{t(`BUILDINGS.${buildingId}.DESCRIPTION`)}</Text>
-                </InformationPopover>
                 <Text as="h2">
                   {t('Overview', {
                     buildingName: t(`BUILDINGS.${buildingId}.NAME`),

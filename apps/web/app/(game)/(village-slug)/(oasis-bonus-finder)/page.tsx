@@ -670,6 +670,8 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
               </TableBody>
             </Table>
           </div>
+        </SectionContent>
+        <SectionContent>
           <div className="flex w-full justify-end">
             <Pagination {...pagination} />
           </div>

@@ -140,10 +140,7 @@ export const HuntersLodgeAnimalCages = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="animal-cages" />
-        <InformationPopover
-          ariaLabel={t('Animal cages')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Animal cages')}>
           <Text>
             {t(
               'Animal cages are used by your Hero to capture animals from oasis. A full batch is delivered to your hero inventory when production finishes.',

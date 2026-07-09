@@ -525,10 +525,7 @@ export const MarketplaceTradeRoutes = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="trade-routes" />
-        <InformationPopover
-          ariaLabel={t('Trade routes')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Trade routes')}>
           <Text>
             {t(
               'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time.',

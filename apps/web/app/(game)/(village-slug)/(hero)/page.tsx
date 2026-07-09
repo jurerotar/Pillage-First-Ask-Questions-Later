@@ -5,7 +5,6 @@ import { HeroAdventures } from 'app/(game)/(village-slug)/(hero)/components/hero
 import { HeroAttributes } from 'app/(game)/(village-slug)/(hero)/components/hero-attributes';
 import { HeroInventory } from 'app/(game)/(village-slug)/(hero)/components/hero-inventory';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -40,16 +39,6 @@ const HeroPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Hero')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <InformationPopover
-        ariaLabel={t('Hero')}
-        className="top-2 right-2"
-      >
-        <Text>
-          {t(
-            'The Hero is your strongest unit. It can be improved and equipped with powerful items. The Hero does not need to be researched or trained and is available from the start. The hero can attack or defend like other units, but is the only one who can go on adventures for loot and conquer oases for bonus resources.',
-          )}
-        </Text>
-      </InformationPopover>
       <Text as="h1">{t('Hero')}</Text>
       <Tabs
         value={tabs[tabIndex] ?? 'default'}

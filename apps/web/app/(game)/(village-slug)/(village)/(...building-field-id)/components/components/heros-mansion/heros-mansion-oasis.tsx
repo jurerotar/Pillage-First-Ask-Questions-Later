@@ -282,10 +282,7 @@ export const HerosMansionOasis = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="oasis" />
-        <InformationPopover
-          ariaLabel={t('Oasis management')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Oasis management')}>
           <Text>
             {t(
               "A village can occupy an oasis if it attacks the oasis and subdues all the animals that are present. The attack must also include a hero, who must survive the attack. The oasis will only be captured if there is a level 10, 15 or 20 hero's mansion built in the attacking village, and can still have an empty oasis slot (1 on level 10, 2 on level 15 and 3 on level 20).",

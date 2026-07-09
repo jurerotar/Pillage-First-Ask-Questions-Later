@@ -23,10 +23,7 @@ export const BreweryCelebration = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="celebration" />
-        <InformationPopover
-          ariaLabel={t('Celebration')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Celebration')}>
           <Text>
             {t(
               'Tasty mead is brewed in the brewery and later quaffed by the soldiers during their celebrations. These drinks make your soldiers braver and stronger when attacking others. Different brews served cause different effects on your troops.',

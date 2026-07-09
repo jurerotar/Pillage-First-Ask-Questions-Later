@@ -3,7 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { partition } from '@pillage-first/utils/array';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(quests)/+types/page';
 import { QuestList } from 'app/(game)/(village-slug)/(quests)/components/quest-list';
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useQuests } from 'app/(game)/(village-slug)/hooks/use-quests';
@@ -48,16 +51,6 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Quests')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <InformationPopover
-        ariaLabel={t('Quests')}
-        className="top-2 right-2"
-      >
-        <Text>
-          {t(
-            'This is a categorized overview of available quests. Quests are divided into village-specific and global tasks, each with multiple levels to complete. Rewards vary from resources, hero experience, troops and hero items. Reward is added immediately on collection.',
-          )}
-        </Text>
-      </InformationPopover>
       <Text as="h1">{t('Quests')}</Text>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}
@@ -70,38 +63,46 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
           <Tab value="global">{t('Global')}</Tab>
         </TabList>
         <TabPanel value="default">
-          <SectionContent>
-            <InformationPopover
-              ariaLabel={t('Quests for village "{{villageName}}"', {
-                villageName: currentVillage.name,
-              })}
-            >
-              <Text>
-                {t(
-                  'These quests are tied to the current village and can only be progressed in current village.',
-                )}
+          <Section>
+            <SectionContent>
+              <InformationPopover
+                ariaLabel={t('Quests for village "{{villageName}}"', {
+                  villageName: currentVillage.name,
+                })}
+              >
+                <Text>
+                  {t(
+                    'These quests are tied to the current village and can only be progressed in current village.',
+                  )}
+                </Text>
+              </InformationPopover>
+              <Text as="h2">
+                {t('Quests for village "{{villageName}}"', {
+                  villageName: currentVillage.name,
+                })}
               </Text>
-            </InformationPopover>
-            <Text as="h2">
-              {t('Quests for village "{{villageName}}"', {
-                villageName: currentVillage.name,
-              })}
-            </Text>
-            <QuestList quests={villageQuests} />
-          </SectionContent>
+            </SectionContent>
+            <SectionContent>
+              <QuestList quests={villageQuests} />
+            </SectionContent>
+          </Section>
         </TabPanel>
         <TabPanel value="global">
-          <SectionContent>
-            <InformationPopover ariaLabel={t('Global quests')}>
-              <Text>
-                {t(
-                  'These quests are not tied to any village and are progress in all villages.',
-                )}
-              </Text>
-            </InformationPopover>
-            <Text as="h2">{t('Global quests')}</Text>
-            <QuestList quests={globalQuests} />
-          </SectionContent>
+          <Section>
+            <SectionContent>
+              <InformationPopover ariaLabel={t('Global quests')}>
+                <Text>
+                  {t(
+                    'These quests are not tied to any village and are progress in all villages.',
+                  )}
+                </Text>
+              </InformationPopover>
+              <Text as="h2">{t('Global quests')}</Text>
+            </SectionContent>
+            <SectionContent>
+              <QuestList quests={globalQuests} />
+            </SectionContent>
+          </Section>
         </TabPanel>
       </Tabs>
     </PageContents>

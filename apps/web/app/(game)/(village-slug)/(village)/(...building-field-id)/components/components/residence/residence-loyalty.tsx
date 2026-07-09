@@ -18,10 +18,7 @@ export const ResidenceLoyalty = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="loyalty" />
-        <InformationPopover
-          ariaLabel={t('Loyalty')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Loyalty')}>
           <Text>
             {t(
               "Loyalty determines how firmly a village belongs to your realm. Every village begins with 100% loyalty. When loyalty drops to 0%, the village will switch allegiance and become part of the attacker's realm.",

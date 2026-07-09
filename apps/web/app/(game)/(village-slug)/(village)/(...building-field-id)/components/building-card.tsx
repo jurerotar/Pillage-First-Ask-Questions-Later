@@ -28,6 +28,7 @@ import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/villag
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -71,6 +72,7 @@ export const BuildingCard = ({
   buildingConstructionReadinessAssessment,
   children,
 }: PropsWithChildren<BuildingCardProps>) => {
+  const { t } = useTranslation();
   const building = getBuildingDefinition(buildingId);
 
   const value = useMemo(
@@ -84,7 +86,12 @@ export const BuildingCard = ({
 
   return (
     <BuildingCardContext value={value}>
-      <article className="flex flex-col gap-2">{children}</article>
+      <article className="flex flex-col gap-2">
+        <InformationPopover ariaLabel={t(`BUILDINGS.${building.id}.NAME`)}>
+          <Text>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</Text>
+        </InformationPopover>
+        {children}
+      </article>
     </BuildingCardContext>
   );
 };
@@ -108,7 +115,7 @@ export const BuildingOverview = ({
   );
 
   return (
-    <section data-testid="building-overview-title-section">
+    <section>
       {shouldShowTitle && (
         <Text
           as="h2"
@@ -118,10 +125,7 @@ export const BuildingOverview = ({
         </Text>
       )}
       {(isUpgrading || isDowngrading) && (
-        <span
-          data-testid="building-overview-currently-upgrading-span"
-          className="inline-flex text-warning mt-2"
-        >
+        <span className="inline-flex text-warning mt-2">
           {t(
             isUpgrading
               ? 'Currently upgrading to level {{level}}'
@@ -133,10 +137,7 @@ export const BuildingOverview = ({
         </span>
       )}
       {isActualMaxLevel && (
-        <span
-          data-testid="building-overview-max-level"
-          className="inline-flex text-green-600 mt-2"
-        >
+        <span className="inline-flex text-green-600 mt-2">
           {t('{{building}} is fully upgraded', {
             building: t(`BUILDINGS.${building.id}.NAME`),
           })}
@@ -167,10 +168,7 @@ export const BuildingCost = () => {
 
   return (
     <>
-      <section
-        data-testid="building-overview-costs-section"
-        className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border"
-      >
+      <section className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border">
         <Text as="h3">
           {doesBuildingExist
             ? t('Cost to upgrade to level {{level}}', {

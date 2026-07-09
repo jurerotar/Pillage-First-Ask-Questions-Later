@@ -51,10 +51,7 @@ export const RallyPointFarmList = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="farm-list" />
-        <InformationPopover
-          ariaLabel={t('Farm List')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Farm List')}>
           <Text>
             {t(
               'The Farm List allows you to manage and send multiple raids quickly and efficiently, saving time and improving resource farming. Each farm list belong to a village and holds up to 100 targets.',

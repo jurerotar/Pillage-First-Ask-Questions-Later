@@ -1,9 +1,12 @@
 import { clsx } from 'clsx';
 import type { ReactNode } from 'react';
-import { FaCircleInfo } from 'react-icons/fa6';
+import { FaCircleInfo, FaXmark } from 'react-icons/fa6';
+import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
   Popover,
+  PopoverArrow,
+  PopoverClose,
   PopoverContent,
   PopoverTrigger,
 } from 'app/components/ui/popover';
@@ -38,6 +41,25 @@ export const InformationPopover = ({
         className={clsx('w-80 max-w-[calc(100vw-2rem)] p-3', contentClassName)}
         side="bottom"
       >
+        <PopoverArrow />
+        <div className="flex items-start justify-between gap-2">
+          <Text
+            as="h4"
+            className="text-xl font-medium"
+          >
+            {ariaLabel}
+          </Text>
+          <PopoverClose asChild>
+            <Button
+              aria-label="Close information popover"
+              className="-mt-1 -mr-1"
+              size="icon"
+              variant="ghost"
+            >
+              <FaXmark className="size-4" />
+            </Button>
+          </PopoverClose>
+        </div>
         {children}
       </PopoverContent>
     </Popover>

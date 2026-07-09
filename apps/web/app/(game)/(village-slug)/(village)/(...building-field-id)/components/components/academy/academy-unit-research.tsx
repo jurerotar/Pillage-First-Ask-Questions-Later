@@ -27,10 +27,7 @@ export const AcademyUnitResearch = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="unit-research" />
-        <InformationPopover
-          ariaLabel={t('Unit research')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Unit research')}>
           <Text>
             {t(
               'To be able to train stronger units, you will need to do research in your academy. The more this building is upgraded, the more you will have access to advanced research.',

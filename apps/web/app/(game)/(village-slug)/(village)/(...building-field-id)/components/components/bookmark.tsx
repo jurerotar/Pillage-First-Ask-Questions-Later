@@ -19,7 +19,7 @@ export const Bookmark = ({ tab }: BookmarkProps) => {
   return (
     <Button
       variant="outline"
-      className="absolute top-0 right-0"
+      className="absolute top-0 right-12"
       disabled={isSelected}
       onClick={() => updateBookmark({ buildingId, tab })}
     >

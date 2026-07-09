@@ -15,10 +15,7 @@ export const HospitalTroopTraining = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="train" />
-        <InformationPopover
-          ariaLabel={t('Train')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Train')}>
           <Text>
             {t(
               'The Hospital allows you to treat wounded troops so they can rejoin your army. This helps you recover faster after major battles. Healing troops is not cheaper than training new ones, the resource cost is the same, but healing takes half the time of normal training.',

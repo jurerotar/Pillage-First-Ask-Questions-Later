@@ -29,10 +29,7 @@ export const RallyPointTroopMovements = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="troop-movements" />
-        <InformationPopover
-          ariaLabel={t('Troop movements')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Troop movements')}>
           <Text>
             {t(
               'This is a view of troop movements related to this village. You may toggle different types through filters below.',

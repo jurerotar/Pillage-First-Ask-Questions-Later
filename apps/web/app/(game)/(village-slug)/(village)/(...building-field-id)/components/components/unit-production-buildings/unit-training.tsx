@@ -60,10 +60,7 @@ export const UnitTraining = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="train" />
-        <InformationPopover
-          ariaLabel={t('Train units')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Train units')}>
           <Text>
             {t(
               'Select the type and number of units to train. Once queued, units will be trained one at a time, in the order you queued them in.',

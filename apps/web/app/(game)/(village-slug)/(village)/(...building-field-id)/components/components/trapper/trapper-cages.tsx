@@ -161,10 +161,7 @@ export const TrapperCages = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="cages" />
-        <InformationPopover
-          ariaLabel={t('Trapper cages')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Trapper cages')}>
           <Text>
             {t(
               'Trapper cages are village traps. Free cages can capture incoming enemy troops; occupied cages keep one captured unit each until it is released or freed.',

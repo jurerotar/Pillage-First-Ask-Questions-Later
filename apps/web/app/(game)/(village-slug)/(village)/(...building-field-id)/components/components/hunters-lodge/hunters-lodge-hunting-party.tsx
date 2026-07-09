@@ -200,10 +200,7 @@ export const HuntersLodgeHuntingParty = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="hunting-party" />
-        <InformationPopover
-          ariaLabel={t('Hunting party')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Hunting party')}>
           <Text>
             {t(
               "Hunters periodically set out from your village. A successful hunt captures one eligible animal and brings it back to this village. By upgrading Hunter's Lodge, you can start capturing stronger animals.",

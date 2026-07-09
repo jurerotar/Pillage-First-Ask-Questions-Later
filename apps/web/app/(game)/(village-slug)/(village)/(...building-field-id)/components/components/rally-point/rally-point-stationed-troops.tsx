@@ -25,10 +25,7 @@ export const RallyPointStationedTroops = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="stationed-troops" />
-        <InformationPopover
-          ariaLabel={t('Stationed troops')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Stationed troops')}>
           <Text>
             {t(
               'Troops stationed in this village, either as deployable troops or as reinforcements.',

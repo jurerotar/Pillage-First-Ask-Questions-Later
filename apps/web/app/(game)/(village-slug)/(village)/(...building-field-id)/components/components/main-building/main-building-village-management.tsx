@@ -29,10 +29,7 @@ export const MainBuildingVillageManagement = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="village-management" />
-        <InformationPopover
-          ariaLabel={t('Village management')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Village management')}>
           <Text>
             {t(
               'The main building is the administrative center of your village. From here, you can rename your village and manage its infrastructure. If needed, you can also demolish existing buildings to make room for new development or restructure your layout.',

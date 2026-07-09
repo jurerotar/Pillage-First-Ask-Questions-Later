@@ -147,10 +147,7 @@ export const BuildingActions = () => {
     }
 
     return (
-      <section
-        data-testid="building-actions-section"
-        className="flex flex-col gap-2 pt-2 border-t border-border"
-      >
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
         <Text as="h3">{t('Available actions')}</Text>
         <BuildingCardActionsConstruction
           buildingId={buildingId}
@@ -165,10 +162,7 @@ export const BuildingActions = () => {
   }
 
   return (
-    <section
-      data-testid="building-actions-section"
-      className="flex flex-col gap-2 pt-2 border-t border-border"
-    >
+    <section className="flex flex-col gap-2 pt-2 border-t border-border">
       <Text as="h3">{t('Available actions')}</Text>
       <BuildingCardActionsUpgrade
         buildingLevel={virtualLevel}

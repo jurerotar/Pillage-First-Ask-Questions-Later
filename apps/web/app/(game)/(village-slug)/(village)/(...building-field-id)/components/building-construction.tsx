@@ -14,9 +14,13 @@ import {
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -100,7 +104,7 @@ const BuildingCategoryPanel = ({
 
   return (
     <SectionContent>
-      {hasNoAvailableBuildings && <p>{t('No buildings available')}</p>}
+      {hasNoAvailableBuildings && <Text>{t('No buildings available')}</Text>}
       {!hasNoAvailableBuildings && (
         <section className="flex flex-col gap-2 *:border *:border-border *:p-2">
           {sortedAvailableBuildings.map((building: Building) => (
@@ -163,33 +167,53 @@ export const BuildingConstruction = () => {
           <Tab value="resources">{t('Resources')}</Tab>
         </TabList>
         <TabPanel value="infrastructure">
-          <SectionContent>
-            <Text as="h2">{t('Infrastructure buildings')}</Text>
-            <Text>
-              {t(
-                'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
-              )}
-            </Text>
-            <BuildingCategoryPanel buildingCategory="infrastructure" />
-          </SectionContent>
+          <Section>
+            <SectionContent>
+              <InformationPopover ariaLabel={t('Infrastructure buildings')}>
+                <Text>
+                  {t(
+                    'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
+                  )}
+                </Text>
+              </InformationPopover>
+              <Text as="h2">{t('Infrastructure buildings')}</Text>
+            </SectionContent>
+            <SectionContent>
+              <BuildingCategoryPanel buildingCategory="infrastructure" />
+            </SectionContent>
+          </Section>
         </TabPanel>
         <TabPanel value="military">
-          <SectionContent>
-            <Text as="h2">{t('Military buildings')}</Text>
-            <Text>
-              {t(
-                'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
-              )}
-            </Text>
-            <BuildingCategoryPanel buildingCategory="military" />
-          </SectionContent>
+          <Section>
+            <SectionContent>
+              <InformationPopover ariaLabel={t('Military buildings')}>
+                <Text>
+                  {t(
+                    'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
+                  )}
+                </Text>
+              </InformationPopover>
+              <Text as="h2">{t('Military buildings')}</Text>
+            </SectionContent>
+            <SectionContent>
+              <BuildingCategoryPanel buildingCategory="military" />
+            </SectionContent>
+          </Section>
         </TabPanel>
         <TabPanel value="resources">
-          <SectionContent>
-            <Text as="h2">{t('Resource buildings')}</Text>
-            <Text>{t('Buildings focused on improving village economy.')}</Text>
-            <BuildingCategoryPanel buildingCategory="resource-booster" />
-          </SectionContent>
+          <Section>
+            <SectionContent>
+              <InformationPopover ariaLabel={t('Resource buildings')}>
+                <Text>
+                  {t('Buildings focused on improving village economy.')}
+                </Text>
+              </InformationPopover>
+              <Text as="h2">{t('Resource buildings')}</Text>
+            </SectionContent>
+            <SectionContent>
+              <BuildingCategoryPanel buildingCategory="resource-booster" />
+            </SectionContent>
+          </Section>
         </TabPanel>
       </Tabs>
     </>

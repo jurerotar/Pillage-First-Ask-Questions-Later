@@ -381,10 +381,7 @@ export const GatherersHutExpedition = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="gathering-expedition" />
-        <InformationPopover
-          ariaLabel={t('Gathering expedition')}
-          className="right-12"
-        >
+        <InformationPopover ariaLabel={t('Gathering expedition')}>
           <Text>
             {t(
               "Send idle troops from this village to gather resources. The Gatherer's Hut level controls how many troops can join the expedition.",
