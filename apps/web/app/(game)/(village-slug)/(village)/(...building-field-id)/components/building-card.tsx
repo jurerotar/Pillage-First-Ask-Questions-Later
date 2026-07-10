@@ -14,7 +14,6 @@ import {
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
-import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { Effect } from '@pillage-first/types/models/effect';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
@@ -217,7 +216,6 @@ const increasingPercentageBuildingEffects = new Set<Effect['id']>([
 type BuildingBenefitProps = {
   effect: CalculatedCumulativeEffect;
   isMaxLevel: boolean;
-  buildingFieldId: BuildingField['id'];
 };
 
 const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
@@ -393,7 +391,6 @@ export const BuildingBenefits = () => {
             key={effect.effectId}
             effect={effect}
             isMaxLevel={isMaxLevel}
-            buildingFieldId={buildingFieldId}
           />
         ))}
       </div>
