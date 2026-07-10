@@ -7,7 +7,6 @@ import type {
   TribeBuildingRequirement,
 } from '@pillage-first/types/models/building';
 import type { Tribe } from '@pillage-first/types/models/tribe';
-import type { BuildingContextReturn } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 
 export type AssessedBuildingRequirement = BuildingRequirement & {
   fulfilled: boolean;
@@ -18,27 +17,28 @@ export type AssessBuildingConstructionReadinessReturn = {
   assessedRequirements: AssessedBuildingRequirement[];
 };
 
-export type AssessBuildingConstructionReadinessArgs = {
+type BuildingRequirementAssessmentContext = {
   tribe: Tribe;
-  buildingId: Building['id'];
-  maxLevelByBuildingId: BuildingContextReturn['maxLevelByBuildingId'];
-  buildingIdsInQueue: BuildingContextReturn['buildingIdsInQueue'];
+  maxLevelByBuildingId: ReadonlyMap<Building['id'], number>;
+  buildingIdsInQueue: ReadonlySet<Building['id']>;
 };
 
-type AssessFunctionArgs<T extends BuildingRequirement> =
-  AssessBuildingConstructionReadinessArgs & {
-    requirement: T;
-    building: Building;
+type AssessBuildingRequirementsArgs = BuildingRequirementAssessmentContext & {
+  building: Building;
+};
+
+export type AssessBuildingConstructionReadinessArgs =
+  BuildingRequirementAssessmentContext & {
+    buildingId: Building['id'];
   };
 
 const assessBuildingLevelRequirement = (
-  args: AssessFunctionArgs<BuildingLevelBuildingRequirement>,
+  requirement: BuildingLevelBuildingRequirement,
+  maxLevelByBuildingId: BuildingRequirementAssessmentContext['maxLevelByBuildingId'],
 ): boolean => {
-  const { requirement, maxLevelByBuildingId } = args;
-
   const buildingMaxLevel = maxLevelByBuildingId.get(requirement.buildingId);
 
-  if (!buildingMaxLevel) {
+  if (buildingMaxLevel === undefined) {
     return false;
   }
 
@@ -46,76 +46,73 @@ const assessBuildingLevelRequirement = (
 };
 
 const assessBuildingAmountRequirement = (
-  args: AssessFunctionArgs<AmountBuildingRequirement>,
+  building: Building,
+  requirement: AmountBuildingRequirement,
+  maxLevelByBuildingId: BuildingRequirementAssessmentContext['maxLevelByBuildingId'],
+  buildingIdsInQueue: BuildingRequirementAssessmentContext['buildingIdsInQueue'],
 ): boolean => {
-  const {
-    building,
-    requirement,
-    buildingIdsInQueue,
-    maxLevelByBuildingId,
-    buildingId,
-  } = args;
+  const sameBuildingMaxLevel = maxLevelByBuildingId.get(building.id);
+  const hasExistingInstance = sameBuildingMaxLevel !== undefined;
+  const hasPendingInstance = buildingIdsInQueue.has(building.id);
+  const hasMaxLevelInstance = sameBuildingMaxLevel === building.maxLevel;
+  const canBuildFirstInstance = !hasExistingInstance && !hasPendingInstance;
+  const canBuildAdditionalInstance =
+    canBuildFirstInstance || hasMaxLevelInstance;
 
-  const sameBuildingMaxLevel = maxLevelByBuildingId.get(buildingId);
-  const hasSameBuilding = sameBuildingMaxLevel !== undefined;
-  const buildingExistsInQueue = buildingIdsInQueue.has(buildingId);
-
-  // If a building is not unique, we only check if we currently have a max level building of same id or if the building does not yet exist or isn't being constructed
   if (requirement.amount > 1) {
-    return !hasSameBuilding && !buildingExistsInQueue
-      ? true
-      : sameBuildingMaxLevel === building.maxLevel;
+    return canBuildAdditionalInstance;
   }
 
-  // If we have an amount restriction, we need to check whether building already stands or is currently being constructed
-  return !(hasSameBuilding || buildingExistsInQueue);
+  return canBuildFirstInstance;
 };
 
 const assessTribeRequirement = (
-  args: AssessFunctionArgs<TribeBuildingRequirement>,
+  requirement: TribeBuildingRequirement,
+  tribe: Tribe,
 ): boolean => {
-  const { requirement, tribe } = args;
   return requirement.tribe === tribe;
 };
 
-export const assessBuildingConstructionReadiness = (
-  args: AssessBuildingConstructionReadinessArgs,
-): AssessBuildingConstructionReadinessReturn => {
-  const { buildingId } = args;
+const assessRequirement = (
+  building: Building,
+  requirement: BuildingRequirement,
+  tribe: Tribe,
+  maxLevelByBuildingId: BuildingRequirementAssessmentContext['maxLevelByBuildingId'],
+  buildingIdsInQueue: BuildingRequirementAssessmentContext['buildingIdsInQueue'],
+): boolean => {
+  switch (requirement.type) {
+    case 'building': {
+      return assessBuildingLevelRequirement(requirement, maxLevelByBuildingId);
+    }
+    case 'tribe': {
+      return assessTribeRequirement(requirement, tribe);
+    }
+    case 'amount': {
+      return assessBuildingAmountRequirement(
+        building,
+        requirement,
+        maxLevelByBuildingId,
+        buildingIdsInQueue,
+      );
+    }
+  }
+};
 
-  const building = getBuildingDefinition(buildingId);
+export const assessBuildingRequirements = (
+  args: AssessBuildingRequirementsArgs,
+): AssessBuildingConstructionReadinessReturn => {
+  const { building, tribe, maxLevelByBuildingId, buildingIdsInQueue } = args;
   const { buildingRequirements } = building;
 
   const assessedRequirements: AssessedBuildingRequirement[] =
     buildingRequirements.map((requirement) => {
-      let fulfilled = false;
-
-      switch (requirement.type) {
-        case 'building': {
-          fulfilled = assessBuildingLevelRequirement({
-            ...args,
-            requirement,
-            building,
-          });
-          break;
-        }
-        case 'tribe': {
-          fulfilled = assessTribeRequirement({
-            ...args,
-            requirement,
-            building,
-          });
-          break;
-        }
-        case 'amount': {
-          fulfilled = assessBuildingAmountRequirement({
-            ...args,
-            requirement,
-            building,
-          });
-          break;
-        }
-      }
+      const fulfilled = assessRequirement(
+        building,
+        requirement,
+        tribe,
+        maxLevelByBuildingId,
+        buildingIdsInQueue,
+      );
 
       return {
         ...requirement,
@@ -123,13 +120,21 @@ export const assessBuildingConstructionReadiness = (
       };
     });
 
-  const canBuild =
-    assessedRequirements.length > 0
-      ? assessedRequirements.every(({ fulfilled }) => fulfilled)
-      : true;
+  const canBuild = assessedRequirements.every(({ fulfilled }) => fulfilled);
 
   return {
     canBuild,
     assessedRequirements,
   };
+};
+
+export const assessBuildingConstructionReadiness = (
+  args: AssessBuildingConstructionReadinessArgs,
+): AssessBuildingConstructionReadinessReturn => {
+  return assessBuildingRequirements({
+    tribe: args.tribe,
+    maxLevelByBuildingId: args.maxLevelByBuildingId,
+    buildingIdsInQueue: args.buildingIdsInQueue,
+    building: getBuildingDefinition(args.buildingId),
+  });
 };
