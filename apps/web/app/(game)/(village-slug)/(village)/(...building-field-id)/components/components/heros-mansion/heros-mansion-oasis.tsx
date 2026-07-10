@@ -10,6 +10,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { useLoyalty } from 'app/(game)/(village-slug)/hooks/use-loyalty';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { useOccupiableOasisInRange } from 'app/(game)/(village-slug)/hooks/use-occupiable-oasis-in-range';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
@@ -44,7 +45,7 @@ const UnoccupiedOasisSlot = ({
     <TableRow>
       <TableCell
         className="text-left"
-        colSpan={3}
+        colSpan={4}
       >
         <Text>
           {heroMansionLevel >= heroMansionLevelRequirement
@@ -72,6 +73,8 @@ type OccupiedOasisSlotProps = {
 const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
   const { t } = useTranslation();
   const { abandonOasis } = useOccupiableOasisInRange();
+  // TODO Change to tileId
+  const { loyalty } = useLoyalty(occupiedOasis.oasis.id);
 
   const { x, y } = occupiedOasis.oasis.coordinates;
 
@@ -100,6 +103,9 @@ const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
             {bonus}%
           </span>
         ))}
+      </TableCell>
+      <TableCell className="whitespace-nowrap">
+        <Text>{loyalty}%</Text>
       </TableCell>
       <TableCell>
         <Button
@@ -325,6 +331,9 @@ export const HerosMansionOasis = () => {
                     </TableHeaderCell>
                     <TableHeaderCell>
                       <Text>{t('Resources')}</Text>
+                    </TableHeaderCell>
+                    <TableHeaderCell>
+                      <Text>{t('Loyalty')}</Text>
                     </TableHeaderCell>
                     <TableHeaderCell>
                       <Text>{t('Actions')}</Text>
