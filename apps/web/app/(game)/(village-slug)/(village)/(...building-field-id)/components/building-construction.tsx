@@ -106,22 +106,26 @@ const BuildingCategoryPanel = ({
     <SectionContent>
       {hasNoAvailableBuildings && <Text>{t('No buildings available')}</Text>}
       {!hasNoAvailableBuildings && (
-        <section className="flex flex-col gap-2 *:border *:border-border *:p-2">
+        <section className="flex flex-col gap-2">
           {sortedAvailableBuildings.map((building: Building) => (
-            <BuildingCard
+            <div
               key={building.id}
-              buildingId={building.id}
-              buildingConstructionReadinessAssessment={assessments.get(
-                building.id,
-              )}
+              className="p-2 border border-border"
             >
-              <BuildingOverview />
-              <BuildingUnfinishedNotice />
-              <BuildingBenefits />
-              <BuildingCost />
-              <BuildingActions />
-              <BuildingRequirements />
-            </BuildingCard>
+              <BuildingCard
+                buildingId={building.id}
+                buildingConstructionReadinessAssessment={assessments.get(
+                  building.id,
+                )}
+              >
+                <BuildingOverview />
+                <BuildingUnfinishedNotice />
+                <BuildingBenefits />
+                <BuildingCost />
+                <BuildingActions />
+                <BuildingRequirements />
+              </BuildingCard>
+            </div>
           ))}
         </section>
       )}

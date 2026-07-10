@@ -344,13 +344,8 @@ export const BuildingDetails = () => {
             <Section>
               <SectionContent>
                 <Bookmark tab="default" />
-                <Text as="h2">
-                  {t('Overview', {
-                    buildingName: t(`BUILDINGS.${buildingId}.NAME`),
-                  })}
-                </Text>
                 <BuildingCard buildingId={buildingId}>
-                  <BuildingOverview shouldShowTitle={false} />
+                  <BuildingOverview />
                   <BuildingUnfinishedNotice />
                   <BuildingBenefits />
                   <BuildingCost />

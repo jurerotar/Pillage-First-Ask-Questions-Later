@@ -48,15 +48,19 @@ export const SmithyUnitImprovement = () => {
       </SectionContent>
       <SectionContent>
         {upgradableUnits.map(({ id }) => (
-          <UnitCard
-            buildingId="BARRACKS"
-            unitId={id}
+          <div
             key={id}
+            className="p-2 border border-border"
           >
-            <UnitOverview />
-            <UnitAttributes />
-            <UnitImprovement />
-          </UnitCard>
+            <UnitCard
+              buildingId="BARRACKS"
+              unitId={id}
+            >
+              <UnitOverview />
+              <UnitAttributes />
+              <UnitImprovement />
+            </UnitCard>
+          </div>
         ))}
       </SectionContent>
     </Section>

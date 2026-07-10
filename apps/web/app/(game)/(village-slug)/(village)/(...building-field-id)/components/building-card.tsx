@@ -86,7 +86,7 @@ export const BuildingCard = ({
 
   return (
     <BuildingCardContext value={value}>
-      <article className="flex flex-col gap-2">
+      <article className="flex flex-col gap-2 relative [&>section:nth-of-type(2)]:!pt-0 [&>section:nth-of-type(2)]:!border-t-0">
         <InformationPopover ariaLabel={t(`BUILDINGS.${building.id}.NAME`)}>
           <Text>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</Text>
         </InformationPopover>
@@ -96,13 +96,7 @@ export const BuildingCard = ({
   );
 };
 
-type BuildingOverviewProps = {
-  shouldShowTitle?: boolean;
-};
-
-export const BuildingOverview = ({
-  shouldShowTitle = true,
-}: BuildingOverviewProps) => {
+export const BuildingOverview = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { buildingFieldId } = use(BuildingFieldContext);
@@ -116,14 +110,12 @@ export const BuildingOverview = ({
 
   return (
     <section>
-      {shouldShowTitle && (
-        <Text
-          as="h2"
-          className="inline-flex"
-        >
-          {t(`BUILDINGS.${building.id}.NAME`)}
-        </Text>
-      )}
+      <Text
+        as="h2"
+        className="inline-flex"
+      >
+        {t(`BUILDINGS.${building.id}.NAME`)}
+      </Text>
       {(isUpgrading || isDowngrading) && (
         <span className="inline-flex text-warning mt-2">
           {t(

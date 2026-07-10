@@ -36,6 +36,7 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
@@ -59,17 +60,12 @@ type UnitCardProps = {
   unitId: Unit['id'];
   buildingId: TroopTrainingBuildingId;
   durationEffect?: TroopTrainingDurationEffectId;
-  showOuterBorder?: boolean;
 };
 
 export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
-  const {
-    unitId,
-    buildingId,
-    durationEffect,
-    children,
-    showOuterBorder = true,
-  } = props;
+  const { unitId, buildingId, durationEffect, children } = props;
+
+  const { t } = useTranslation();
 
   const value = useMemo(() => {
     return {
@@ -81,12 +77,10 @@ export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
 
   return (
     <UnitCardContext value={value}>
-      <article
-        className={clsx(
-          'flex flex-col gap-2 p-2',
-          showOuterBorder && 'border border-border',
-        )}
-      >
+      <article className="flex flex-col gap-2 relative [&>section:nth-of-type(2)]:!pt-0 [&>section:nth-of-type(2)]:!border-t-0">
+        <InformationPopover ariaLabel={t(`UNITS.${unitId}.NAME`)}>
+          <Text>{t(`UNITS.${unitId}.DESCRIPTION`)}</Text>
+        </InformationPopover>
         {children}
       </article>
     </UnitCardContext>
@@ -106,7 +100,6 @@ export const UnitOverview = () => {
         />
         <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
       </div>
-      <Text>{t(`UNITS.${unitId}.DESCRIPTION`)}</Text>
     </section>
   );
 };

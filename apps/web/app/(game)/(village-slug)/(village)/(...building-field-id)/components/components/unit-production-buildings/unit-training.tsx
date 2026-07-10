@@ -100,7 +100,6 @@ export const UnitTraining = () => {
             <UnitCard
               unitId={id}
               buildingId={buildingId}
-              showOuterBorder={false}
               durationEffect={durationEffect}
             >
               <UnitOverview />

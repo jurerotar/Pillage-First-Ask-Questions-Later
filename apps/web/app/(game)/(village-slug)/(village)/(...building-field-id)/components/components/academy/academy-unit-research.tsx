@@ -50,16 +50,18 @@ export const AcademyUnitResearch = () => {
 
             return (
               <li key={id}>
-                <UnitCard
-                  unitId={id}
-                  buildingId="BARRACKS"
-                >
-                  <UnitOverview />
-                  {!isResearched && <UnitCost />}
+                <div className="p-2 border border-border">
+                  <UnitCard
+                    unitId={id}
+                    buildingId="BARRACKS"
+                  >
+                    <UnitOverview />
+                    {!isResearched && <UnitCost />}
 
-                  <UnitResearch />
-                  {!isResearched && !canResearch && <UnitRequirements />}
-                </UnitCard>
+                    <UnitResearch />
+                    {!isResearched && !canResearch && <UnitRequirements />}
+                  </UnitCard>
+                </div>
               </li>
             );
           })}
