@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import type {
   ApiNotificationEvent,
   EventApiNotificationEvent,
@@ -9,6 +10,7 @@ import type {
 import type { Server } from '@pillage-first/types/models/server';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Village } from '@pillage-first/types/models/village';
+import { formatNumber } from '@pillage-first/utils/format';
 import {
   isAdventureTroopMovementEvent,
   isAnimalCageProductionEvent,
@@ -63,6 +65,21 @@ const getTroopAmount = (troops: Troop[]) => {
   }
 
   return troopAmount;
+};
+
+const getGatheredResourcesText = (
+  troopAmount: number,
+  t: TFunction,
+): string => {
+  const [wood, clay, iron, wheat] =
+    calculateGatherersHutGatheringResources(troopAmount);
+
+  return [
+    t('{{amount}} wood', { amount: formatNumber(wood) }),
+    t('{{amount}} clay', { amount: formatNumber(clay) }),
+    t('{{amount}} iron', { amount: formatNumber(iron) }),
+    t('{{amount}} wheat', { amount: formatNumber(wheat) }),
+  ].join(', ');
 };
 
 const getEventResolvedInfo = (
@@ -177,6 +194,34 @@ const getEventResolvedInfo = (
           y,
         },
       ),
+    };
+  }
+
+  if (isGatherersHutGatheringTripEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
+    const troopAmount = getTroopAmount(event.troops);
+
+    return {
+      toastTitle: t('Gathering expedition returned to {{villageName}}', {
+        villageName,
+      }),
+      body: t('{{resources}} gathered by {{count}} troops', {
+        count: troopAmount,
+        resources: getGatheredResourcesText(troopAmount, t),
+      }),
+    };
+  }
+
+  if (isHuntersLodgeHuntEvent(event)) {
+    const villageName = playerVillagesMap.get(event.villageId)!;
+
+    return {
+      toastTitle: t('Hunting party returned to {{villageName}}', {
+        villageName,
+      }),
+      body: t('Hunting party returned with captured animals.', {
+        level: event.huntingPartyLevel,
+      }),
     };
   }
 

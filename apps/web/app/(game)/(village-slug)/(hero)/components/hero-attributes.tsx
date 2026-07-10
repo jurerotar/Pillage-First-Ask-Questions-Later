@@ -140,7 +140,7 @@ export const HeroAttributes = () => {
           <Text>{t('Your hero is level {{level}}.', { level })}</Text>
         </div>
         <div className="inline-flex gap-2 items-center font-medium">
-          <FaHome className="size-6" />
+          <FaHome className="size-6 min-w-6" />
           <span>
             {isHeroHomeVillageCurrent &&
               t(
