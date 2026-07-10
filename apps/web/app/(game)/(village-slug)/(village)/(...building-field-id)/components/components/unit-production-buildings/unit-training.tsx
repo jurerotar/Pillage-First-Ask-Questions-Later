@@ -1,11 +1,10 @@
 import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
-import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
-import type { Unit } from '@pillage-first/types/models/unit';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { useUnits } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/hooks/use-units';
 import {
+  troopTrainingBuildingConfigMap,
   UnitAttributes,
   UnitCard,
   UnitCost,
@@ -26,18 +25,6 @@ import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
-const buildingIdToTroopTrainingEffectAndCategoryMap = new Map<
-  TroopTrainingBuildingId,
-  [TroopTrainingDurationEffectId, Unit['category']]
->([
-  ['BARRACKS', ['barracksTrainingDuration', 'infantry']],
-  ['STABLE', ['stableTrainingDuration', 'cavalry']],
-  ['WORKSHOP', ['workshopTrainingDuration', 'siege']],
-  ['GREAT_BARRACKS', ['greatBarracksTrainingDuration', 'infantry']],
-  ['GREAT_STABLE', ['greatStableTrainingDuration', 'cavalry']],
-  ['RESIDENCE', ['residenceTrainingDuration', 'administration']],
-]);
-
 export const UnitTraining = () => {
   const { t } = useTranslation();
   const { getTribeUnitsByCategory } = useUnits();
@@ -45,8 +32,7 @@ export const UnitTraining = () => {
 
   const buildingId = buildingField!.buildingId as TroopTrainingBuildingId;
 
-  const [durationEffect, category] =
-    buildingIdToTroopTrainingEffectAndCategoryMap.get(buildingId)!;
+  const { category } = troopTrainingBuildingConfigMap.get(buildingId)!;
 
   const units = getTribeUnitsByCategory(category);
   const tabs = useMemo(() => units.map((unit) => unit.id), [units]);
@@ -97,11 +83,7 @@ export const UnitTraining = () => {
             key={id}
             value={id}
           >
-            <UnitCard
-              unitId={id}
-              buildingId={buildingId}
-              durationEffect={durationEffect}
-            >
+            <UnitCard unitId={id}>
               <UnitOverview />
               <UnitAttributes />
               <UnitCost />

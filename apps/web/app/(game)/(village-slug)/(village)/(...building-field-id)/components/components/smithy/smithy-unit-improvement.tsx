@@ -52,10 +52,7 @@ export const SmithyUnitImprovement = () => {
             key={id}
             className="p-2 border border-border"
           >
-            <UnitCard
-              buildingId="BARRACKS"
-              unitId={id}
-            >
+            <UnitCard unitId={id}>
               <UnitOverview />
               <UnitAttributes />
               <UnitImprovement />

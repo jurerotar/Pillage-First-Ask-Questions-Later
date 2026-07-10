@@ -51,10 +51,7 @@ export const AcademyUnitResearch = () => {
             return (
               <li key={id}>
                 <div className="p-2 border border-border">
-                  <UnitCard
-                    unitId={id}
-                    buildingId="BARRACKS"
-                  >
+                  <UnitCard unitId={id}>
                     <UnitOverview />
                     {!isResearched && <UnitCost />}
 
