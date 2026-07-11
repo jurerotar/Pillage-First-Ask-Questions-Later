@@ -35,16 +35,26 @@ const findMatchingBuildingField = (
   buildingId: Building['id'],
   preferredBuildingFieldId: BuildingField['id'],
 ): BuildingField | undefined => {
-  return (
-    buildingFields.find(
-      (buildingField) =>
-        buildingField.id === preferredBuildingFieldId &&
-        buildingField.buildingId === buildingId,
-    ) ??
-    buildingFields.find(
-      (buildingField) => buildingField.buildingId === buildingId,
-    )
-  );
+  let firstMatchingBuildingField: BuildingField | undefined;
+
+  for (const buildingField of buildingFields) {
+    if (buildingField.buildingId !== buildingId) {
+      continue;
+    }
+
+    if (buildingField.id === preferredBuildingFieldId) {
+      return buildingField;
+    }
+
+    if (
+      firstMatchingBuildingField === undefined ||
+      buildingField.id < firstMatchingBuildingField.id
+    ) {
+      firstMatchingBuildingField = buildingField;
+    }
+  }
+
+  return firstMatchingBuildingField;
 };
 
 const getBuildingFieldView = (buildingFieldId: BuildingField['id']) => {
