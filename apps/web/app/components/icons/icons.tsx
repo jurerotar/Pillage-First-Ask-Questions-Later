@@ -136,7 +136,7 @@ type HunTroopIconType = CamelCase<HunUnitId>;
 
 type EgyptianTroopIconType = CamelCase<EgyptianUnitId>;
 
-type SpartanTroopIconType = UpperCaseToCamelCase<SpartanUnitId>;
+type SpartanTroopIconType = CamelCase<SpartanUnitId>;
 
 type NatarTroopIconType = CamelCase<NatarUnitId>;
 

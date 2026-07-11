@@ -1,4 +1,4 @@
-$harness: white;
+$horse-metal: #b8b8b8;
 
 @mixin horseIconColorSet(
   $base,
@@ -18,6 +18,7 @@ $harness: white;
   $mouth-line,
   $nose,
   $nose-detail,
+  $harness-rope: white,
 ) {
   & :global(#PillageFirstHorse-base) {
     fill: $base;
@@ -88,30 +89,38 @@ $harness: white;
   }
 
   & :global(#PillageFirstHorse-harness-body-straps) {
-    fill: $harness;
+    fill: $harness-rope;
   }
 
-  & :global(#PillageFirstHorse-harness-brow-strap) {
-    fill: $harness;
+  & :global(#PillageFirstHorse-harness-brow-strap_1_) {
+    fill: $harness-rope;
   }
 
-  & :global(#PillageFirstHorse-harness-face-strap) {
-    fill: $harness;
-  }
-
-  & :global(#PillageFirstHorse-harness-neck-ring-fill) {
-    fill: $harness;
-  }
-
-  & :global(#PillageFirstHorse-harness-neck-ring) {
-    fill: $harness;
+  & :global(#PillageFirstHorse-harness-face-strap_1_) {
+    fill: $harness-rope;
   }
 
   & :global(#PillageFirstHorse-harness-nose-buckle) {
-    fill: $harness;
+    fill: $harness-rope;
   }
 
   & :global(#PillageFirstHorse-harness-nose-ring) {
-    stroke: $harness;
+    fill: none;
+    stroke: $horse-metal;
+    stroke-width: 8;
+  }
+
+  & :global(#PillageFirstHorse-harness-nose-ring_1_) {
+    fill: none;
+    stroke: $horse-metal;
+    stroke-width: 8;
+  }
+
+  & :global(#PillageFirstHorse-harness-brow-ring-top-detail) {
+    fill: $horse-metal;
+  }
+
+  & :global(#PillageFirstHorse-harness-brow-ring-bottom-detail) {
+    fill: $horse-metal;
   }
 }

@@ -46,7 +46,8 @@ type HorsePartKey =
   | 'maneFront'
   | 'mouthLine'
   | 'nose'
-  | 'noseDetail';
+  | 'noseDetail'
+  | 'harnessRope';
 type HorseColorSet = Record<HorsePartKey, string>;
 type HorseColorsByClass = Record<string, HorseColorSet>;
 type UpdateHorseColorSet = (className: string, colors: HorseColorSet) => void;
@@ -127,6 +128,11 @@ const horseParts: {
     label: 'Nose detail',
     cssVariable: '--nose-detail-color',
   },
+  {
+    key: 'harnessRope',
+    label: 'Harness rope',
+    cssVariable: '--harness-rope-color',
+  },
 ];
 const horsePartByKey = Object.fromEntries(
   horseParts.map((part) => [part.key, part]),
@@ -181,6 +187,11 @@ const horseColorControls: HorseColorControl[] = [
     label: 'Nose detail',
     partKeys: ['noseDetail'],
   },
+  {
+    key: 'harnessRope',
+    label: 'Harness ropes',
+    partKeys: ['harnessRope'],
+  },
 ];
 const joinedHorsePartGroups: HorsePartKey[][] = [
   ['eyeLidBottom', 'eyeLidMiddle', 'eyeLidTop', 'eyeLidTopDetail'],
@@ -205,6 +216,7 @@ const defaultHorseColors: HorseColorSet = {
   mouthLine: '#2E2521',
   nose: '#2E2521',
   noseDetail: '#40332D',
+  harnessRope: '#FFFFFF',
 };
 
 const normalizeHorseColorSet = (colors: HorseColorSet): HorseColorSet => {
@@ -327,6 +339,23 @@ const mergeHorseColorSet = (
   return normalizeHorseColorSet(colors);
 };
 
+const normalizePersistedCavalryColors = (
+  persistedColors: Record<string, unknown>,
+): HorseColorsByClass => {
+  return Object.fromEntries(
+    cavalryUnits.map((unit) => {
+      const className = toClassName(unit.id);
+      const fallbackColors =
+        initialHorseColorsByClass[className] ?? defaultHorseColors;
+
+      return [
+        className,
+        mergeHorseColorSet(persistedColors[className], fallbackColors),
+      ];
+    }),
+  );
+};
+
 const getStoredCavalryColors = (): HorseColorsByClass => {
   if (typeof window === 'undefined') {
     return initialCavalryColors;
@@ -345,18 +374,7 @@ const getStoredCavalryColors = (): HorseColorsByClass => {
       return initialCavalryColors;
     }
 
-    return Object.fromEntries(
-      cavalryUnits.map((unit) => {
-        const className = toClassName(unit.id);
-        const fallbackColors =
-          initialHorseColorsByClass[className] ?? defaultHorseColors;
-
-        return [
-          className,
-          mergeHorseColorSet(parsedColors[className], fallbackColors),
-        ];
-      }),
-    );
+    return normalizePersistedCavalryColors(parsedColors);
   } catch {
     return initialCavalryColors;
   }
@@ -375,6 +393,40 @@ const storeCavalryColors = (colorsByClass: HorseColorsByClass) => {
   } catch {
     // Persistence is best-effort for this design-system tool.
   }
+};
+
+const getLocalStorageExport = (colorsByClass: HorseColorsByClass) => {
+  return JSON.stringify(
+    {
+      [horseColorsStorageKey]: JSON.stringify(colorsByClass),
+    },
+    null,
+    2,
+  );
+};
+
+const parseLocalStorageImport = (
+  importedStorage: string,
+): HorseColorsByClass => {
+  const parsedImport: unknown = JSON.parse(importedStorage);
+
+  if (!isRecord(parsedImport)) {
+    throw new Error('Color import must be a JSON object.');
+  }
+
+  const exportedStorageValue = parsedImport[horseColorsStorageKey];
+
+  if (typeof exportedStorageValue === 'string') {
+    const parsedStorageValue: unknown = JSON.parse(exportedStorageValue);
+
+    if (!isRecord(parsedStorageValue)) {
+      throw new Error('Saved color value must be a JSON object.');
+    }
+
+    return normalizePersistedCavalryColors(parsedStorageValue);
+  }
+
+  return normalizePersistedCavalryColors(parsedImport);
 };
 
 const getHorseStyle = (colors: HorseColorSet) => {
@@ -566,6 +618,7 @@ const CavalryUnitColorCard = memo(
 const CavalryColorPicker = () => {
   const [colorsByClass, setColorsByClass] =
     useState<HorseColorsByClass>(initialCavalryColors);
+  const [storageStatus, setStorageStatus] = useState<string | null>(null);
   const hasMountedRef = useRef(false);
 
   useEffect(() => {
@@ -598,21 +651,81 @@ const CavalryColorPicker = () => {
     await navigator.clipboard.writeText(getClassesSource(colorsByClass));
   };
 
+  const copyLocalStorageExport = async () => {
+    try {
+      storeCavalryColors(colorsByClass);
+      await navigator.clipboard.writeText(getLocalStorageExport(colorsByClass));
+      setStorageStatus('Copied localStorage export to clipboard.');
+    } catch {
+      setStorageStatus('Could not copy localStorage export.');
+    }
+  };
+
+  const overwriteLocalStorage = () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const importedStorage = window.prompt(
+      `Paste the ${horseColorsStorageKey} localStorage export:`,
+    );
+
+    if (importedStorage === null) {
+      return;
+    }
+
+    try {
+      const nextColorsByClass = parseLocalStorageImport(importedStorage);
+
+      window.localStorage.setItem(
+        horseColorsStorageKey,
+        JSON.stringify(nextColorsByClass),
+      );
+      setColorsByClass(nextColorsByClass);
+      setStorageStatus('Overwrote localStorage colors from import.');
+    } catch {
+      setStorageStatus('Import failed. Paste a valid color picker export.');
+    }
+  };
+
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
           <h1 className="text-2xl font-semibold">Cavalry icon colors</h1>
           <p className="text-sm text-muted-foreground">
             Units are grouped by tribe and seeded from icons.module.scss.
           </p>
         </div>
-        <Button
-          size="fit"
-          onClick={copyClasses}
-        >
-          Copy classes
-        </Button>
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <div className="flex flex-wrap gap-2 sm:justify-end">
+            <Button
+              size="fit"
+              variant="outline"
+              onClick={copyLocalStorageExport}
+            >
+              Copy localStorage
+            </Button>
+            <Button
+              size="fit"
+              variant="outline"
+              onClick={overwriteLocalStorage}
+            >
+              Overwrite localStorage
+            </Button>
+            <Button
+              size="fit"
+              onClick={copyClasses}
+            >
+              Copy classes
+            </Button>
+          </div>
+          {storageStatus !== null && (
+            <p className="max-w-md text-xs text-muted-foreground sm:text-right">
+              {storageStatus}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-8">
