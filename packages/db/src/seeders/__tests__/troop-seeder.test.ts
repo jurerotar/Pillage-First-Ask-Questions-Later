@@ -9,26 +9,16 @@ describe('troopSeeder', () => {
   test('unoccupied oasis tiles have troops', () => {
     const withoutTroops = database.selectValue({
       sql: `
+        WITH unoccupied_oases AS (
+          SELECT tile_id
+          FROM oasis
+          GROUP BY tile_id
+          HAVING MAX(village_id) IS NULL
+        )
         SELECT COUNT(*)
-        FROM
-          tiles t
-        WHERE
-          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis')
-          AND (
-            SELECT MAX(o.village_id)
-            FROM
-              oasis o
-            WHERE
-              o.tile_id = t.id
-            ) IS NULL
-          AND NOT EXISTS
-          (
-            SELECT 1
-            FROM
-              troops tr
-            WHERE
-              tr.tile_id = t.id
-            );
+        FROM unoccupied_oases u
+        LEFT JOIN troops tr ON tr.tile_id = u.tile_id
+        WHERE tr.tile_id IS NULL;
       `,
       schema: z.number(),
     });
@@ -41,21 +31,18 @@ describe('troopSeeder', () => {
 
     const invalid = database.selectValue({
       sql: `
+        WITH unoccupied_oases AS (
+          SELECT tile_id
+          FROM oasis
+          GROUP BY tile_id
+          HAVING MAX(village_id) IS NULL
+        )
         SELECT COUNT(*)
-        FROM
-          troops tr
-            JOIN tiles t ON t.id = tr.tile_id
-            JOIN unit_ids ui ON ui.id = tr.unit_id
+        FROM troops tr
+        JOIN unoccupied_oases u ON u.tile_id = tr.tile_id
+        JOIN unit_ids ui ON ui.id = tr.unit_id
         WHERE
-          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis')
-          AND (
-            SELECT MAX(o.village_id)
-            FROM
-              oasis o
-            WHERE
-              o.tile_id = t.id
-            ) IS NULL
-          AND ui.unit NOT IN (${placeholders});
+          ui.unit NOT IN (${placeholders});
       `,
       schema: z.number(),
     });

@@ -33,7 +33,7 @@ describe('oasis-animal-finder-controllers', () => {
     expect(lowThreshold.length).toBeGreaterThan(0);
     expect(highThreshold.length).toBeLessThanOrEqual(lowThreshold.length);
 
-    const first = lowThreshold[0]!;
+    const first = lowThreshold[0];
 
     expect(first.bonuses.length).toBeGreaterThan(0);
     expect(first.animals.length).toBeGreaterThan(0);

@@ -1,3 +1,11 @@
+## Version 0.4.42
+
+#### Jul 11, 2026
+
+* [Feature] When switching villages with a building details view open, the app now attempts to open the same building,
+  even if it occupies a different position in the new village. Previously, it would always open the building at the same
+  position, regardless of which building was actually there.
+
 ## Version 0.4.41
 
 #### Jul 11, 2026

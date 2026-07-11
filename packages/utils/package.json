@@ -78,17 +78,16 @@
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
     "test": "vitest",
-    "type-check": "tsgo"
+    "type-check": "tsc"
   },
   "dependencies": {
     "@pillage-first/types": "*",
     "ts-seedrandom": "1.6.0"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "type-fest": "5.8.0",
-    "typescript": "6.0.3",
-    "vite": "8.1.3",
+    "typescript": "7.0.2",
+    "vite": "8.1.4",
     "vitest": "4.1.10",
     "zod": "4.4.3"
   }

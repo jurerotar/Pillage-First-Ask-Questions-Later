@@ -1,6 +1,5 @@
-import { describe, expect, expectTypeOf, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { resourceSchema } from '@pillage-first/types/models/resource';
 import { prepareTestDatabase } from '../../';
 
 const database = await prepareTestDatabase();
@@ -22,24 +21,20 @@ describe('oasisSeeder', () => {
   });
 
   test('oasis bonus values are only 25 or 50 and resource strings are lowercase', () => {
-    const rows = database.selectObjects({
+    const invalidRows = database.selectValue({
       sql: `
-        SELECT ri.resource, o.bonus
+        SELECT COUNT(*)
         FROM
           oasis o
-            JOIN resource_ids ri ON ri.id = o.resource_id;
+            JOIN resource_ids ri ON ri.id = o.resource_id
+        WHERE
+          o.bonus NOT IN (25, 50)
+          OR ri.resource != LOWER(ri.resource);
       `,
-      schema: z.strictObject({
-        resource: resourceSchema,
-        bonus: z.number(),
-      }),
+      schema: z.number(),
     });
 
-    for (const r of rows) {
-      expectTypeOf(typeof r.resource).toBeString();
-      expect(r.resource).toBe(r.resource.toLowerCase());
-      expect([25, 50]).toContain(r.bonus);
-    }
+    expect(invalidRows).toBe(0);
   });
 
   test('there is at least one oasis that has BOTH its resource bonus and a separate wheat bonus (composite)', () => {
