@@ -8,6 +8,8 @@ import {
   deleteRearrangedBuildingFieldsQuery,
   dropRearrangeSourceFieldsTableQuery,
   insertRearrangedBuildingFieldsQuery,
+  selectDuplicateRearrangeSourceFieldCountQuery,
+  selectInvalidRearrangeSourceFieldCountQuery,
   selectOccupiableOasisInRangeQuery,
   selectVillageBySlugQuery,
   updateRearrangedBuildingFieldEffectsQuery,
@@ -111,6 +113,7 @@ export const rearrangeBuildingFields = createController(
       z.strictObject({
         buildingFieldId: z.number(),
         buildingId: buildingIdSchema.nullable(),
+        sourceBuildingFieldId: z.number().nullable(),
       }),
     ),
   },
@@ -126,6 +129,30 @@ export const rearrangeBuildingFields = createController(
         $village_id: villageId,
       },
     });
+
+    const invalidSourceFieldCount = database.selectValue({
+      sql: selectInvalidRearrangeSourceFieldCountQuery,
+      bind: {
+        $updates: JSON.stringify(updates),
+      },
+      schema: z.number(),
+    })!;
+
+    if (invalidSourceFieldCount > 0) {
+      throw new Error('Invalid rearranged building source field');
+    }
+
+    const duplicateSourceFieldCount = database.selectValue({
+      sql: selectDuplicateRearrangeSourceFieldCountQuery,
+      bind: {
+        $updates: JSON.stringify(updates),
+      },
+      schema: z.number(),
+    })!;
+
+    if (duplicateSourceFieldCount > 0) {
+      throw new Error('Duplicate rearranged building source field');
+    }
 
     database.exec({
       sql: deleteRearrangedBuildingFieldsQuery,

@@ -219,10 +219,10 @@ describe('hunters lodge resolvers', () => {
 
     expect(caughtAnimals).toHaveLength(1);
     expect(getHunterLodgeCatchableAnimals(1)).toContain(
-      caughtAnimals[0]!.unitId,
+      caughtAnimals[0].unitId,
     );
-    expect(caughtAnimals[0]!.amount).toBe(1);
-    expect(caughtAnimals[0]!.sourceTileId).toBe(firstOasisTileId);
+    expect(caughtAnimals[0].amount).toBe(1);
+    expect(caughtAnimals[0].sourceTileId).toBe(firstOasisTileId);
     expect(wheatProductionFromTroopsAfter).toBe(
       wheatProductionFromTroopsBefore,
     );

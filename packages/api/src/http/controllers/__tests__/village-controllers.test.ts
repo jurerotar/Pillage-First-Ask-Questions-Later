@@ -142,8 +142,16 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: fieldId1, buildingId: 'BARRACKS' },
-            { buildingFieldId: fieldId2, buildingId: 'MAIN_BUILDING' },
+            {
+              buildingFieldId: fieldId1,
+              buildingId: 'BARRACKS',
+              sourceBuildingFieldId: fieldId2,
+            },
+            {
+              buildingFieldId: fieldId2,
+              buildingId: 'MAIN_BUILDING',
+              sourceBuildingFieldId: fieldId1,
+            },
           ],
         }),
       );
@@ -217,8 +225,16 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: 19, buildingId: 'BARRACKS' },
-            { buildingFieldId: 20, buildingId: 'WAREHOUSE' },
+            {
+              buildingFieldId: 19,
+              buildingId: 'BARRACKS',
+              sourceBuildingFieldId: 20,
+            },
+            {
+              buildingFieldId: 20,
+              buildingId: 'WAREHOUSE',
+              sourceBuildingFieldId: 19,
+            },
           ],
         }),
       );
@@ -297,8 +313,16 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: 19, buildingId: null },
-            { buildingFieldId: 25, buildingId: 'MAIN_BUILDING' },
+            {
+              buildingFieldId: 19,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 25,
+              buildingId: 'MAIN_BUILDING',
+              sourceBuildingFieldId: 19,
+            },
           ],
         }),
       );
@@ -331,8 +355,8 @@ describe('village-controllers', () => {
         sql: 'SELECT id FROM villages ORDER BY id LIMIT 2',
         schema: z.strictObject({ id: z.number() }),
       });
-      const villageId = villages[0]!.id;
-      const otherVillageId = villages[1]!.id;
+      const villageId = villages[0].id;
+      const otherVillageId = villages[1].id;
       const eventStartsAt = 223_456_789;
 
       database.exec({
@@ -400,9 +424,21 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: 19, buildingId: null },
-            { buildingFieldId: 20, buildingId: null },
-            { buildingFieldId: 25, buildingId: 'MAIN_BUILDING' },
+            {
+              buildingFieldId: 19,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 20,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 25,
+              buildingId: 'MAIN_BUILDING',
+              sourceBuildingFieldId: 19,
+            },
           ],
         }),
       );
@@ -421,11 +457,11 @@ describe('village-controllers', () => {
       });
 
       expect(events).toHaveLength(eventsToInsert.length);
-      expect(JSON.parse(events[0]!.meta).buildingFieldId).toBe(19);
-      expect(JSON.parse(events[1]!.meta).buildingFieldId).toBe(19);
-      expect(events[1]!.villageId).toBe(otherVillageId);
-      expect(JSON.parse(events[2]!.meta).buildingFieldId).toBe(20);
-      expect(JSON.parse(events[3]!.meta).buildingFieldId).toBe(21);
+      expect(JSON.parse(events[0].meta).buildingFieldId).toBe(19);
+      expect(JSON.parse(events[1].meta).buildingFieldId).toBe(19);
+      expect(events[1].villageId).toBe(otherVillageId);
+      expect(JSON.parse(events[2].meta).buildingFieldId).toBe(20);
+      expect(JSON.parse(events[3].meta).buildingFieldId).toBe(21);
     });
 
     test('should move building to empty field', async () => {
@@ -449,8 +485,16 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: fieldId1, buildingId: null },
-            { buildingFieldId: fieldId2, buildingId: 'MAIN_BUILDING' },
+            {
+              buildingFieldId: fieldId1,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: fieldId2,
+              buildingId: 'MAIN_BUILDING',
+              sourceBuildingFieldId: fieldId1,
+            },
           ],
         }),
       );
@@ -490,8 +534,16 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: 39, buildingId: null },
-            { buildingFieldId: 19, buildingId: 'MAIN_BUILDING' },
+            {
+              buildingFieldId: 39,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 19,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
           ],
         }),
       );
@@ -532,8 +584,16 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: 21, buildingId: null },
-            { buildingFieldId: 20, buildingId: 'BARRACKS' },
+            {
+              buildingFieldId: 21,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 20,
+              buildingId: 'BARRACKS',
+              sourceBuildingFieldId: 20,
+            },
           ],
         }),
       );
@@ -605,9 +665,21 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: 18, buildingId: 'CLAY_PIT' },
-            { buildingFieldId: 39, buildingId: null },
-            { buildingFieldId: 40, buildingId: 'RALLY_POINT' },
+            {
+              buildingFieldId: 18,
+              buildingId: 'CLAY_PIT',
+              sourceBuildingFieldId: 18,
+            },
+            {
+              buildingFieldId: 39,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 40,
+              buildingId: 'RALLY_POINT',
+              sourceBuildingFieldId: 40,
+            },
           ],
         }),
       );
@@ -662,8 +734,16 @@ describe('village-controllers', () => {
         createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
           path: { villageId },
           body: [
-            { buildingFieldId: 19, buildingId: null },
-            { buildingFieldId: 38, buildingId: 'MAIN_BUILDING' },
+            {
+              buildingFieldId: 19,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 38,
+              buildingId: 'MAIN_BUILDING',
+              sourceBuildingFieldId: 19,
+            },
           ],
         }),
       );
@@ -686,6 +766,312 @@ describe('village-controllers', () => {
       expect(field19).toBeUndefined();
       expect(field38.building_id).toBe('MAIN_BUILDING');
       expect(field38.level).toBe(13);
+    });
+
+    test('should preserve levels when rearranging multiple buildings of the same type', async () => {
+      const database = await prepareTestDatabase();
+
+      const village = database.selectObject({
+        sql: 'SELECT id FROM villages LIMIT 1',
+        schema: z.strictObject({ id: z.number() }),
+      })!;
+      const villageId = village.id;
+      const eventStartsAt = 345_678_901;
+
+      database.exec({
+        sql: `
+          INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
+          VALUES
+            ($v, 19, (SELECT id FROM building_ids WHERE building = 'GRANARY'), 4),
+            ($v, 20, (SELECT id FROM building_ids WHERE building = 'GRANARY'), 11),
+            ($v, 21, (SELECT id FROM building_ids WHERE building = 'WAREHOUSE'), 6);
+        `,
+        bind: { $v: villageId },
+      });
+
+      database.exec({
+        sql: "INSERT INTO events (type, starts_at, duration, village_id, meta) VALUES ('buildingLevelChange', $starts_at, 100, $v, $meta)",
+        bind: {
+          $v: villageId,
+          $starts_at: eventStartsAt,
+          $meta: JSON.stringify({
+            buildingFieldId: 20,
+            buildingId: 'GRANARY',
+            level: 12,
+            previousLevel: 11,
+          }),
+        },
+      });
+
+      rearrangeBuildingFields(
+        database,
+        createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
+          path: { villageId },
+          body: [
+            {
+              buildingFieldId: 19,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 20,
+              buildingId: 'WAREHOUSE',
+              sourceBuildingFieldId: 21,
+            },
+            {
+              buildingFieldId: 21,
+              buildingId: 'GRANARY',
+              sourceBuildingFieldId: 20,
+            },
+            {
+              buildingFieldId: 22,
+              buildingId: 'GRANARY',
+              sourceBuildingFieldId: 19,
+            },
+          ],
+        }),
+      );
+
+      const fields = database.selectObjects({
+        sql: `
+          SELECT bf.field_id, bi.building AS building_id, bf.level
+          FROM building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE bf.village_id = $v AND bf.field_id IN (19, 20, 21, 22)
+          ORDER BY bf.field_id;
+        `,
+        bind: { $v: villageId },
+        schema: z.strictObject({
+          field_id: z.number(),
+          building_id: buildingIdSchema,
+          level: z.number(),
+        }),
+      });
+
+      expect(fields).toEqual([
+        {
+          field_id: 20,
+          building_id: 'WAREHOUSE',
+          level: 6,
+        },
+        {
+          field_id: 21,
+          building_id: 'GRANARY',
+          level: 11,
+        },
+        {
+          field_id: 22,
+          building_id: 'GRANARY',
+          level: 4,
+        },
+      ]);
+
+      const event = database.selectObject({
+        sql: 'SELECT meta FROM events WHERE village_id = $v AND starts_at = $starts_at',
+        bind: { $v: villageId, $starts_at: eventStartsAt },
+        schema: z.strictObject({ meta: z.string() }),
+      })!;
+
+      expect(JSON.parse(event.meta)).toMatchObject({
+        buildingFieldId: 21,
+        buildingId: 'GRANARY',
+      });
+    });
+
+    test('should preserve effects when rearranging multiple buildings of the same type', async () => {
+      const database = await prepareTestDatabase();
+
+      const village = database.selectObject({
+        sql: 'SELECT id FROM villages LIMIT 1',
+        schema: z.strictObject({ id: z.number() }),
+      })!;
+      const villageId = village.id;
+
+      database.exec({
+        sql: `
+          INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
+          VALUES
+            ($v, 19, (SELECT id FROM building_ids WHERE building = 'GRANARY'), 4),
+            ($v, 20, (SELECT id FROM building_ids WHERE building = 'GRANARY'), 11),
+            ($v, 21, (SELECT id FROM building_ids WHERE building = 'WAREHOUSE'), 6);
+        `,
+        bind: { $v: villageId },
+      });
+
+      database.exec({
+        sql: `
+          DELETE
+          FROM effects
+          WHERE
+            village_id = $v
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
+            AND source_specifier IN (19, 20, 21, 22);
+        `,
+        bind: { $v: villageId },
+      });
+
+      database.exec({
+        sql: `
+          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+          VALUES
+            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 4000, 1, 2, 1, $v, 19),
+            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 11000, 1, 2, 1, $v, 20),
+            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 6000, 1, 2, 1, $v, 21);
+        `,
+        bind: { $v: villageId },
+      });
+
+      rearrangeBuildingFields(
+        database,
+        createControllerArgs<'/villages/:villageId/building-fields', 'patch'>({
+          path: { villageId },
+          body: [
+            {
+              buildingFieldId: 19,
+              buildingId: null,
+              sourceBuildingFieldId: null,
+            },
+            {
+              buildingFieldId: 20,
+              buildingId: 'WAREHOUSE',
+              sourceBuildingFieldId: 21,
+            },
+            {
+              buildingFieldId: 21,
+              buildingId: 'GRANARY',
+              sourceBuildingFieldId: 20,
+            },
+            {
+              buildingFieldId: 22,
+              buildingId: 'GRANARY',
+              sourceBuildingFieldId: 19,
+            },
+          ],
+        }),
+      );
+
+      const effects = database.selectObjects({
+        sql: `
+          SELECT ei.effect, e.value, e.source_specifier
+          FROM effects e
+          JOIN effect_ids ei ON ei.id = e.effect_id
+          WHERE
+            e.village_id = $v
+            AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
+            AND e.source_specifier IN (20, 21, 22)
+            AND e.value IN (4000, 6000, 11000)
+          ORDER BY e.value;
+        `,
+        bind: { $v: villageId },
+        schema: z.strictObject({
+          effect: z.string(),
+          value: z.number(),
+          source_specifier: z.number(),
+        }),
+      });
+
+      expect(effects).toEqual([
+        {
+          effect: 'granaryCapacity',
+          value: 4000,
+          source_specifier: 22,
+        },
+        {
+          effect: 'warehouseCapacity',
+          value: 6000,
+          source_specifier: 20,
+        },
+        {
+          effect: 'granaryCapacity',
+          value: 11000,
+          source_specifier: 21,
+        },
+      ]);
+    });
+
+    test('should reject source field that does not match the target building', async () => {
+      const database = await prepareTestDatabase();
+
+      const village = database.selectObject({
+        sql: 'SELECT id FROM villages LIMIT 1',
+        schema: z.strictObject({ id: z.number() }),
+      })!;
+      const villageId = village.id;
+
+      database.exec({
+        sql: `
+          INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
+          VALUES
+            ($v, 19, (SELECT id FROM building_ids WHERE building = 'GRANARY'), 4),
+            ($v, 20, (SELECT id FROM building_ids WHERE building = 'WAREHOUSE'), 6);
+        `,
+        bind: { $v: villageId },
+      });
+
+      expect(() =>
+        rearrangeBuildingFields(
+          database,
+          createControllerArgs<'/villages/:villageId/building-fields', 'patch'>(
+            {
+              path: { villageId },
+              body: [
+                {
+                  buildingFieldId: 19,
+                  buildingId: null,
+                  sourceBuildingFieldId: null,
+                },
+                {
+                  buildingFieldId: 21,
+                  buildingId: 'GRANARY',
+                  sourceBuildingFieldId: 20,
+                },
+              ],
+            },
+          ),
+        ),
+      ).toThrow('Invalid rearranged building source field');
+    });
+
+    test('should reject duplicate source fields', async () => {
+      const database = await prepareTestDatabase();
+
+      const village = database.selectObject({
+        sql: 'SELECT id FROM villages LIMIT 1',
+        schema: z.strictObject({ id: z.number() }),
+      })!;
+      const villageId = village.id;
+
+      database.exec({
+        sql: `
+          INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level)
+          VALUES
+            ($v, 19, (SELECT id FROM building_ids WHERE building = 'GRANARY'), 4);
+        `,
+        bind: { $v: villageId },
+      });
+
+      expect(() =>
+        rearrangeBuildingFields(
+          database,
+          createControllerArgs<'/villages/:villageId/building-fields', 'patch'>(
+            {
+              path: { villageId },
+              body: [
+                {
+                  buildingFieldId: 20,
+                  buildingId: 'GRANARY',
+                  sourceBuildingFieldId: 19,
+                },
+                {
+                  buildingFieldId: 21,
+                  buildingId: 'GRANARY',
+                  sourceBuildingFieldId: 19,
+                },
+              ],
+            },
+          ),
+        ),
+      ).toThrow('Duplicate rearranged building source field');
     });
   });
 });

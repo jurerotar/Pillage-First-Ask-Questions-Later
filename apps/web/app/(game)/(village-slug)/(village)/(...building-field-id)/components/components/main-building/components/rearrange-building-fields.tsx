@@ -17,9 +17,13 @@ import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 
 type RearrangeableBuildingFieldId = BuildingField['id'];
+type BuildingFieldSlot = {
+  buildingId: Building['id'];
+  sourceBuildingFieldId: BuildingField['id'];
+} | null;
 type BuildingFieldSlots = Record<
   RearrangeableBuildingFieldId,
-  Building['id'] | null
+  BuildingFieldSlot
 >;
 
 const villageViewBuildingFieldIds = Array.from(
@@ -37,7 +41,15 @@ const getBuildingFieldSlots = (
         ({ id }) => id === buildingFieldId,
       );
 
-      return [buildingFieldId, buildingField?.buildingId ?? null];
+      return [
+        buildingFieldId,
+        buildingField
+          ? {
+              buildingId: buildingField.buildingId,
+              sourceBuildingFieldId: buildingField.id,
+            }
+          : null,
+      ];
     }),
   ) as BuildingFieldSlots;
 };
@@ -52,7 +64,10 @@ const areBuildingFieldSlotsEqual = (
 ) => {
   return villageViewBuildingFieldIds.every(
     (buildingFieldId) =>
-      firstSlots[buildingFieldId] === secondSlots[buildingFieldId],
+      firstSlots[buildingFieldId]?.buildingId ===
+        secondSlots[buildingFieldId]?.buildingId &&
+      firstSlots[buildingFieldId]?.sourceBuildingFieldId ===
+        secondSlots[buildingFieldId]?.sourceBuildingFieldId,
   );
 };
 
@@ -101,7 +116,9 @@ export const RearrangeBuildingFields = () => {
     await rearrangeBuildingFieldsAsync(
       villageViewBuildingFieldIds.map((buildingFieldId) => ({
         buildingFieldId,
-        buildingId: slots[buildingFieldId],
+        buildingId: slots[buildingFieldId]?.buildingId ?? null,
+        sourceBuildingFieldId:
+          slots[buildingFieldId]?.sourceBuildingFieldId ?? null,
       })),
     );
   };
@@ -264,7 +281,8 @@ export const RearrangeBuildingFields = () => {
       <SectionContent>
         <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden non-selectable non-selectable">
           {villageViewBuildingFieldIds.map((buildingFieldId) => {
-            const buildingId = buildingFieldSlots[buildingFieldId];
+            const buildingId =
+              buildingFieldSlots[buildingFieldId]?.buildingId ?? null;
             const isLocked = isLockedBuildingField(buildingFieldId);
             const isDragged = draggedBuildingFieldId === buildingFieldId;
             const isDragOver = dragOverBuildingFieldId === buildingFieldId;

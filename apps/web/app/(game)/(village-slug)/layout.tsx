@@ -33,7 +33,6 @@ import {
   type NavLinkProps,
   Outlet,
   type ShouldRevalidateFunction,
-  useNavigate,
 } from 'react-router';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { Resource } from '@pillage-first/types/models/resource';
@@ -53,7 +52,7 @@ import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movem
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useVillageSwitchNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-village-switch-navigation';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
@@ -529,8 +528,7 @@ const ResourceCounters = () => {
 
 const VillageSelect = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { getNewVillageUrl } = useGameNavigation();
+  const { navigateToVillage } = useVillageSwitchNavigation();
   const { playerVillages } = usePlayerVillageListing();
   const { currentVillage } = useCurrentVillage();
   const { x: currentVillageX, y: currentVillageY } = currentVillage.coordinates;
@@ -539,7 +537,7 @@ const VillageSelect = () => {
   return (
     <Select
       onValueChange={(value) => {
-        void navigate(getNewVillageUrl(value));
+        void navigateToVillage(value);
       }}
       value={currentVillage.slug}
     >
