@@ -6,6 +6,7 @@ import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from '../indexes/players-indexes.sql?raw';
 import createResourceSitesIndexes from '../indexes/resource-sites-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
+import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
@@ -30,8 +31,13 @@ import createVillageFoundingHistoryTable from '../schemas/history-tables/village
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
+import createEffectScopeIdsTable from '../schemas/lookup-tables/effect-scope-ids-schema.sql?raw';
+import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-ids-schema.sql?raw';
+import createEffectTypeIdsTable from '../schemas/lookup-tables/effect-type-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
 import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
+import createResourceIdsTable from '../schemas/lookup-tables/resource-ids-schema.sql?raw';
+import createTileTypeIdsTable from '../schemas/lookup-tables/tile-type-ids-schema.sql?raw';
 import createTribeIdsTable from '../schemas/lookup-tables/tribe-ids-schema.sql?raw';
 import createUnitDataTable from '../schemas/lookup-tables/unit-data-schema.sql?raw';
 import createUnitIdsTable from '../schemas/lookup-tables/unit-ids-schema.sql?raw';
@@ -46,6 +52,7 @@ import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
+import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
 import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
@@ -56,6 +63,7 @@ import { buildingDataSeeder } from '../seeders/building-data-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { developerSettingsSeeder } from '../seeders/developer-settings-seeder';
+import { effectAttributeIdsSeeder } from '../seeders/effect-attribute-ids-seeder';
 import { effectIdsSeeder } from '../seeders/effect-ids-seeder';
 import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
@@ -73,8 +81,10 @@ import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
+import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
 import { serverSeeder } from '../seeders/server-seeder';
+import { tileTypeIdsSeeder } from '../seeders/tile-type-ids-seeder';
 import { tilesSeeder } from '../seeders/tiles-seeder';
 import { tribeIdsSeeder } from '../seeders/tribe-ids-seeder';
 import { troopSeeder } from '../seeders/troop-seeder';
@@ -111,6 +121,11 @@ export const migrateAndSeed = (
     db.exec({ sql: createEffectIdsTable });
     effectIdsSeeder(db);
 
+    db.exec({ sql: createEffectTypeIdsTable });
+    db.exec({ sql: createEffectScopeIdsTable });
+    db.exec({ sql: createEffectSourceIdsTable });
+    effectAttributeIdsSeeder(db);
+
     db.exec({ sql: createUnitDataTable });
     unitDataSeeder(db);
 
@@ -119,6 +134,12 @@ export const migrateAndSeed = (
 
     db.exec({ sql: createResourceFieldCompositionIdsTable });
     resourceFieldCompositionIdsSeeder(db);
+
+    db.exec({ sql: createResourceIdsTable });
+    resourceIdsSeeder(db);
+
+    db.exec({ sql: createTileTypeIdsTable });
+    tileTypeIdsSeeder(db);
 
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });
@@ -215,6 +236,10 @@ export const migrateAndSeed = (
     db.exec({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
     db.exec({ sql: createBuildingFieldsIndexes });
+
+    // Trapper cages
+    db.exec({ sql: createTrapperCagesTable });
+    db.exec({ sql: createTrapperCagesIndexes });
 
     // Troops
     db.exec({ sql: createTroopsTable });

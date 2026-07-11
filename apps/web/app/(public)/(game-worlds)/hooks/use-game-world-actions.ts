@@ -64,7 +64,7 @@ const importGameWorldDatabase = async (
   const result = await workerFactory<
     ImportGameWorldWorkerPayload,
     ImportGameWorldWorkerResponse
-  >(ImportGameWorldWorker, payload);
+  >(ImportGameWorldWorker, payload, [payload.databaseBuffer]);
 
   if (!result.resolved) {
     throw new Error(result.error || 'Failed to import game world.');
@@ -76,41 +76,23 @@ const importGameWorldDatabase = async (
 const deleteServerData = async (server: Server) => {
   const rootHandle = await getRootHandle();
 
-  let sawLockedError = false;
-
   try {
     await retryWhenFileSystemLocked(async () => {
       await rootHandle.removeEntry(server.slug, {
         recursive: true,
       });
     });
+
+    const servers = getAvailableServers();
+    setAvailableServers(servers.filter(({ id }) => id !== server.id));
   } catch (error) {
     if (isFileSystemLockError(error)) {
-      sawLockedError = true;
+      toast.error("Server couldn't be deleted", {
+        description:
+          "The game world can only be deleted if there's no current open instance of it.",
+      });
     }
   }
-
-  try {
-    const legacy_jsonFileName = `${server.slug}.json`;
-    await retryWhenFileSystemLocked(async () => {
-      await rootHandle.removeEntry(legacy_jsonFileName);
-    });
-  } catch (error) {
-    if (isFileSystemLockError(error)) {
-      sawLockedError = true;
-    }
-  }
-
-  if (sawLockedError) {
-    toast.error("Server couldn't be deleted", {
-      description:
-        "The game world can only be deleted if there's no current open instance of it.",
-    });
-    return;
-  }
-
-  const servers = getAvailableServers();
-  setAvailableServers(servers.filter(({ id }) => id !== server.id));
 };
 
 export const useGameWorldActions = () => {

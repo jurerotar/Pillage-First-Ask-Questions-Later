@@ -49,6 +49,10 @@ type AnimalCageProductionEvent = {
   cageAmount: number;
 };
 
+type TrapperCageProductionEvent = {
+  cageAmount: number;
+};
+
 type HuntersLodgeHuntEvent = {
   huntingPartyLevel: number;
 };
@@ -118,6 +122,7 @@ export const gameEventTypeSchema = z.enum([
   'unitResearch',
   'unitImprovement',
   'animalCageProduction',
+  'trapperCageProduction',
   'huntersLodgeHunt',
   'gatherersHutGatheringTrip',
   'heroRevival',
@@ -139,6 +144,7 @@ export type GameEventTypeToEventArgsMap<T extends GameEventType> = {
   unitResearch: UnitResearchEvent & VillageGameEvent;
   unitImprovement: UnitImprovementEvent & VillageGameEvent;
   animalCageProduction: AnimalCageProductionEvent & VillageGameEvent;
+  trapperCageProduction: TrapperCageProductionEvent & VillageGameEvent;
   huntersLodgeHunt: HuntersLodgeHuntEvent & VillageGameEvent;
   gatherersHutGatheringTrip: GatherersHutGatheringTripEvent & VillageGameEvent;
   troopMovementReinforcements: BaseTroopMovementEvent & VillageGameEvent;

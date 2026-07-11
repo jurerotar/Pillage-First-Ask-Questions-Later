@@ -11,7 +11,7 @@ const villageId = villageMock.id;
 
 export const woodProductionBaseEffectMock: VillageBuildingEffect = {
   villageId,
-  scope: 'village',
+  scope: 'local',
   source: 'building',
   value: 100,
   id: 'woodProduction',
@@ -22,7 +22,7 @@ export const woodProductionBaseEffectMock: VillageBuildingEffect = {
 
 export const woodProductionBonusEffectMock: VillageBuildingEffect = {
   villageId,
-  scope: 'village',
+  scope: 'local',
   source: 'building',
   value: 1.25,
   id: 'woodProduction',
@@ -33,7 +33,7 @@ export const woodProductionBonusEffectMock: VillageBuildingEffect = {
 
 export const woodProductionBonusBoosterEffectMock: VillageBuildingEffect = {
   villageId,
-  scope: 'village',
+  scope: 'local',
   source: 'building',
   value: 2,
   id: 'woodProduction',
@@ -54,7 +54,7 @@ export const woodProductionServerEffectMock: ServerEffect = {
 export const woodProductionHeroBaseEffectMock: HeroEffect = {
   villageId,
   id: 'woodProduction',
-  scope: 'village',
+  scope: 'local',
   source: 'hero',
   value: 10,
   type: 'base',
@@ -64,7 +64,7 @@ export const woodProductionHeroBaseEffectMock: HeroEffect = {
 export const woodProductionHeroBonusEffectMock: HeroEffect = {
   villageId,
   id: 'woodProduction',
-  scope: 'village',
+  scope: 'local',
   source: 'hero',
   value: 2,
   type: 'bonus',
@@ -74,7 +74,7 @@ export const woodProductionHeroBonusEffectMock: HeroEffect = {
 export const woodProductionArtifactEffectMock: ArtifactEffect = {
   villageId,
   id: 'woodProduction',
-  scope: 'village',
+  scope: 'local',
   source: 'artifact',
   value: 1.1,
   type: 'bonus',
@@ -84,7 +84,7 @@ export const woodProductionArtifactEffectMock: ArtifactEffect = {
 export const woodProductionOasisEffectMock: OasisEffect = {
   villageId,
   id: 'woodProduction',
-  scope: 'village',
+  scope: 'local',
   source: 'oasis',
   value: 1.25,
   type: 'bonus',
@@ -93,7 +93,7 @@ export const woodProductionOasisEffectMock: OasisEffect = {
 
 export const wheatProductionBaseEffectMock: VillageBuildingEffect = {
   villageId,
-  scope: 'village',
+  scope: 'local',
   source: 'building',
   value: 100,
   id: 'wheatProduction',
@@ -104,7 +104,7 @@ export const wheatProductionBaseEffectMock: VillageBuildingEffect = {
 
 export const wheatProductionBonusEffectMock: VillageBuildingEffect = {
   villageId,
-  scope: 'village',
+  scope: 'local',
   source: 'building',
   value: 1.25,
   id: 'wheatProduction',
@@ -115,7 +115,7 @@ export const wheatProductionBonusEffectMock: VillageBuildingEffect = {
 
 export const wheatProductionBonusBoosterEffectMock: VillageBuildingEffect = {
   villageId,
-  scope: 'village',
+  scope: 'local',
   source: 'building',
   value: 2,
   id: 'wheatProduction',
@@ -127,7 +127,7 @@ export const wheatProductionBonusBoosterEffectMock: VillageBuildingEffect = {
 export const wheatProductionHeroBaseEffectMock: HeroEffect = {
   villageId,
   id: 'wheatProduction',
-  scope: 'village',
+  scope: 'local',
   source: 'hero',
   value: 10,
   type: 'base',
@@ -137,7 +137,7 @@ export const wheatProductionHeroBaseEffectMock: HeroEffect = {
 export const wheatProductionHeroBonusEffectMock: HeroEffect = {
   villageId,
   id: 'wheatProduction',
-  scope: 'village',
+  scope: 'local',
   source: 'hero',
   value: 2,
   type: 'bonus',
@@ -156,7 +156,7 @@ export const wheatProductionServerEffectMock: ServerEffect = {
 export const unitSpeedHeroBonusEffectMock: HeroEffect = {
   villageId,
   id: 'unitSpeed',
-  scope: 'village',
+  scope: 'local',
   source: 'hero',
   value: 2,
   type: 'bonus',
@@ -166,7 +166,7 @@ export const unitSpeedHeroBonusEffectMock: HeroEffect = {
 export const unitSpeedAfter20FieldsHeroBonusEffectMock: HeroEffect = {
   villageId,
   id: 'unitSpeedAfter20Fields',
-  scope: 'village',
+  scope: 'local',
   source: 'hero',
   value: 2,
   type: 'bonus',
@@ -176,7 +176,7 @@ export const unitSpeedAfter20FieldsHeroBonusEffectMock: HeroEffect = {
 export const unitSpeedAfter20FieldsHugeHeroBonusEffectMock: HeroEffect = {
   villageId,
   id: 'unitSpeedAfter20Fields',
-  scope: 'village',
+  scope: 'local',
   source: 'hero',
   value: 10,
   type: 'bonus',

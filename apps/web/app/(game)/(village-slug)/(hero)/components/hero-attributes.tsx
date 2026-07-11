@@ -68,6 +68,8 @@ export const HeroAttributes = () => {
   } = stats;
 
   const { level, percentToNextLevel } = calculateHeroLevel(experience);
+  const gameWorldSpeed = server.configuration.speed;
+  const effectiveHealthRegeneration = healthRegeneration * gameWorldSpeed;
 
   const [attributes, setAttributes] = useState(selectableAttributes);
 
@@ -203,7 +205,7 @@ export const HeroAttributes = () => {
                 {t('Health regeneration')}
               </Text>
               <Text className="font-medium">
-                {healthRegeneration}% / {t('day')}
+                {effectiveHealthRegeneration}% / {t('day')}
               </Text>
             </div>
             <div className="flex flex-col">
@@ -358,35 +360,35 @@ export const HeroAttributes = () => {
                       <Icon type="wheat" /> +
                       {selectableAttributes.resourceProduction *
                         sharedProductionPerPoint *
-                        server.configuration.speed}{' '}
+                        gameWorldSpeed}{' '}
                       / h
                     </SelectItem>
                     <SelectItem value="wood">
                       <Icon type="wood" /> +
                       {selectableAttributes.resourceProduction *
                         focusedProductionPerPoint *
-                        server.configuration.speed}{' '}
+                        gameWorldSpeed}{' '}
                       / h
                     </SelectItem>
                     <SelectItem value="clay">
                       <Icon type="clay" /> +
                       {selectableAttributes.resourceProduction *
                         focusedProductionPerPoint *
-                        server.configuration.speed}{' '}
+                        gameWorldSpeed}{' '}
                       / h
                     </SelectItem>
                     <SelectItem value="iron">
                       <Icon type="iron" /> +
                       {selectableAttributes.resourceProduction *
                         focusedProductionPerPoint *
-                        server.configuration.speed}{' '}
+                        gameWorldSpeed}{' '}
                       / h
                     </SelectItem>
                     <SelectItem value="wheat">
                       <Icon type="wheat" /> +
                       {selectableAttributes.resourceProduction *
                         focusedProductionPerPoint *
-                        server.configuration.speed}{' '}
+                        gameWorldSpeed}{' '}
                       / h
                     </SelectItem>
                   </SelectContent>

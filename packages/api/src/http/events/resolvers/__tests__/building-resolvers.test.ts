@@ -55,7 +55,7 @@ describe('building resolvers', () => {
             effects
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
@@ -109,7 +109,7 @@ describe('building resolvers', () => {
             value = 0
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
@@ -154,7 +154,7 @@ describe('building resolvers', () => {
             effects
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
@@ -271,7 +271,7 @@ describe('building resolvers', () => {
             value = 0
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
@@ -317,7 +317,7 @@ describe('building resolvers', () => {
             effects
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
@@ -371,7 +371,7 @@ describe('building resolvers', () => {
             value = 0
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
@@ -420,7 +420,7 @@ describe('building resolvers', () => {
             effects
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
@@ -456,7 +456,7 @@ describe('building resolvers', () => {
             value = 0
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id
@@ -500,7 +500,7 @@ describe('building resolvers', () => {
             effects
           WHERE
             village_id = $village_id
-            AND source = 'building'
+            AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier = 0
             AND effect_id = (
               SELECT id

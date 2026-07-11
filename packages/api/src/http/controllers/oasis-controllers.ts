@@ -48,7 +48,7 @@ export const occupyOasis = createController(
           $effect_name: effectId,
           $value: value,
           $type: 'bonus',
-          $scope: 'village',
+          $scope: 'local',
           $source: 'oasis',
           $village_id: villageId,
           $source_specifier: oasisId,

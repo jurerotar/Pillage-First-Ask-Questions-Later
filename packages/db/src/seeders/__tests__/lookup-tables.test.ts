@@ -2,8 +2,15 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { units } from '@pillage-first/game-assets/units';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
-import { effectIdSchema } from '@pillage-first/types/models/effect';
+import {
+  effectIdSchema,
+  effectScopeSchema,
+  effectSourceSchema,
+  effectTypeSchema,
+} from '@pillage-first/types/models/effect';
 import { factionSchema } from '@pillage-first/types/models/faction';
+import { resourceSchema } from '@pillage-first/types/models/resource';
+import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../';
@@ -60,5 +67,75 @@ describe('lookupTablesSeeder', () => {
 
     expect(effectIds).toStrictEqual([...effectIdSchema.options].sort());
     expect(wheatProductionId).toBe(1);
+  });
+
+  test('effect attribute lookup tables contain every modeled value with stable ids', () => {
+    const effectTypes = database.selectValues({
+      sql: 'SELECT type FROM effect_type_ids ORDER BY type;',
+      schema: effectTypeSchema,
+    });
+    const effectScopes = database.selectValues({
+      sql: 'SELECT scope FROM effect_scope_ids ORDER BY scope;',
+      schema: effectScopeSchema,
+    });
+    const effectSources = database.selectValues({
+      sql: 'SELECT source FROM effect_source_ids ORDER BY source;',
+      schema: effectSourceSchema,
+    });
+
+    const localScopeId = database.selectValue({
+      sql: "SELECT id FROM effect_scope_ids WHERE scope = 'local';",
+      schema: z.number(),
+    });
+    const buildingSourceId = database.selectValue({
+      sql: "SELECT id FROM effect_source_ids WHERE source = 'building';",
+      schema: z.number(),
+    });
+
+    expect(effectTypes).toStrictEqual([...effectTypeSchema.options].sort());
+    expect(effectScopes).toStrictEqual([...effectScopeSchema.options].sort());
+    expect(effectSources).toStrictEqual([...effectSourceSchema.options].sort());
+    expect(localScopeId).toBe(2);
+    expect(buildingSourceId).toBe(1);
+  });
+
+  test('tile_type_ids contains every modeled tile type with stable ids', () => {
+    const tileTypes = database.selectValues({
+      sql: 'SELECT type FROM tile_type_ids ORDER BY type;',
+      schema: tileTypeSchema,
+    });
+
+    const freeTypeId = database.selectValue({
+      sql: "SELECT id FROM tile_type_ids WHERE type = 'free';",
+      schema: z.number(),
+    });
+    const oasisTypeId = database.selectValue({
+      sql: "SELECT id FROM tile_type_ids WHERE type = 'oasis';",
+      schema: z.number(),
+    });
+
+    expect(tileTypes).toStrictEqual([...tileTypeSchema.options].sort());
+    expect(freeTypeId).toBe(1);
+    expect(oasisTypeId).toBe(2);
+  });
+
+  test('resource_ids contains every modeled resource with stable ids', () => {
+    const resources = database.selectValues({
+      sql: 'SELECT resource FROM resource_ids ORDER BY resource;',
+      schema: resourceSchema,
+    });
+
+    const woodId = database.selectValue({
+      sql: "SELECT id FROM resource_ids WHERE resource = 'wood';",
+      schema: z.number(),
+    });
+    const wheatId = database.selectValue({
+      sql: "SELECT id FROM resource_ids WHERE resource = 'wheat';",
+      schema: z.number(),
+    });
+
+    expect(resources).toStrictEqual([...resourceSchema.options].sort());
+    expect(woodId).toBe(1);
+    expect(wheatId).toBe(4);
   });
 });

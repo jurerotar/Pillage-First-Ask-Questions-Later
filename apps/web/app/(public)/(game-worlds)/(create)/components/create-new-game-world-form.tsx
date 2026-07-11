@@ -40,7 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { Switch } from 'app/components/ui/switch';
+import { reportError } from 'app/instrumentation/report-error';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -137,13 +137,18 @@ export const CreateNewGameWorldForm = () => {
             channel.port1.close();
             resolve(data.migrationDuration);
           } else if (data.type === 'error') {
-            console.error(
-              `Game world seeding failed. Message: ${data.message}`,
-            );
+            const error = new Error(data.message);
+            if (data.stack) {
+              error.stack = data.stack;
+            }
+
+            reportError(error, 'Game world seeding failed', {
+              source: 'CreateNewGameWorldForm',
+            });
 
             worker.terminate();
             channel.port1.close();
-            reject(new Error(data.message));
+            reject(error);
           }
         };
 
@@ -366,52 +371,52 @@ export const CreateNewGameWorldForm = () => {
                 </div>
               </div>
             </div>
-            <details>
-              <summary className="py-2 underline hover:cursor-pointer">
-                Advanced options
-              </summary>
-              <div className="space-y-4 px-2">
-                <div className="flex flex-col">
-                  <Text
-                    className="text-lg"
-                    as="h3"
-                  >
-                    Advanced gameplay options
-                  </Text>
-                  <Text>These options can be updated in-game at any time.</Text>
-                </div>
-                <FormField
-                  control={form.control}
-                  name="gameplay.areOfflineNpcAttacksEnabled"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex">
-                        <div className="flex flex-4 gap-1 flex-col">
-                          <FormLabel className="text-base">
-                            Offline attacks (in development)
-                          </FormLabel>
-                          <Text>
-                            By keeping this option enabled, enemies may send
-                            attacks while you're offline.
-                          </Text>
-                        </div>
-                        <div className="flex flex-1 justify-end items-center">
-                          <FormControl>
-                            <Switch
-                              disabled
-                              checked={field.value}
-                              onCheckedChange={(v: boolean) =>
-                                field.onChange(v)
-                              }
-                            />
-                          </FormControl>
-                        </div>
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </details>
+            {/*<details>*/}
+            {/*  <summary className="py-2 underline hover:cursor-pointer">*/}
+            {/*    Advanced options*/}
+            {/*  </summary>*/}
+            {/*  <div className="space-y-4 px-2">*/}
+            {/*    <div className="flex flex-col">*/}
+            {/*      <Text*/}
+            {/*        className="text-lg"*/}
+            {/*        as="h3"*/}
+            {/*      >*/}
+            {/*        Advanced gameplay options*/}
+            {/*      </Text>*/}
+            {/*      <Text>These options can be updated in-game at any time.</Text>*/}
+            {/*    </div>*/}
+            {/*    <FormField*/}
+            {/*      control={form.control}*/}
+            {/*      name="gameplay.areOfflineNpcAttacksEnabled"*/}
+            {/*      render={({ field }) => (*/}
+            {/*        <FormItem>*/}
+            {/*          <div className="flex">*/}
+            {/*            <div className="flex flex-4 gap-1 flex-col">*/}
+            {/*              <FormLabel className="text-base">*/}
+            {/*                Offline attacks (in development)*/}
+            {/*              </FormLabel>*/}
+            {/*              <Text>*/}
+            {/*                By keeping this option enabled, enemies may send*/}
+            {/*                attacks while you're offline.*/}
+            {/*              </Text>*/}
+            {/*            </div>*/}
+            {/*            <div className="flex flex-1 justify-end items-center">*/}
+            {/*              <FormControl>*/}
+            {/*                <Switch*/}
+            {/*                  disabled*/}
+            {/*                  checked={field.value}*/}
+            {/*                  onCheckedChange={(v: boolean) =>*/}
+            {/*                    field.onChange(v)*/}
+            {/*                  }*/}
+            {/*                />*/}
+            {/*              </FormControl>*/}
+            {/*            </div>*/}
+            {/*          </div>*/}
+            {/*        </FormItem>*/}
+            {/*      )}*/}
+            {/*    />*/}
+            {/*  </div>*/}
+            {/*</details>*/}
             {isError && <Alert variant="error">{error.message}</Alert>}
             <div className="flex justify-end">
               <Button

@@ -36,7 +36,13 @@ export const occupiedOasisSeeder = (
   });
 
   const occupiableOasis = database.selectObjects({
-    sql: "SELECT tiles.id, x, y FROM tiles WHERE type = 'oasis';",
+    sql: `
+      SELECT tiles.id, x, y
+      FROM
+        tiles
+      WHERE
+        type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis');
+    `,
     schema,
   });
 

@@ -35,7 +35,7 @@ export const guaranteedCroppersSeeder = (
         tiles t
           JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
       WHERE
-        t.type = 'free'
+        t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
       ORDER BY
         t.id;
     `,
@@ -61,7 +61,7 @@ export const guaranteedCroppersSeeder = (
         oasis o
           JOIN tiles ot ON ot.id = o.tile_id
       WHERE
-        o.resource = 'wheat'
+        o.resource_id = (SELECT id FROM resource_ids WHERE resource = 'wheat')
         AND o.bonus = 50
       ORDER BY
         ot.id;

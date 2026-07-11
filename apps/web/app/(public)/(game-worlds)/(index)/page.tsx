@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
+import type { Route } from '@react-router/types/app/(public)/(game-worlds)/(index)/+types/page';
 import { ServerCard } from 'app/(public)/(game-worlds)/(index)/components/server-card';
+import { removeUnlistedGameWorldDirectoriesMiddleware } from 'app/(public)/(game-worlds)/(index)/middleware/remove-unlisted-game-world-directories-middleware';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
@@ -14,6 +16,10 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
+
+export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
+  removeUnlistedGameWorldDirectoriesMiddleware,
+];
 
 const MyGameWorldsPage = () => {
   const { t } = useTranslation('public');
@@ -35,7 +41,12 @@ const MyGameWorldsPage = () => {
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
-          <Text as="h1">{t('Your game worlds')}</Text>
+          <Text
+            as="h1"
+            className="text-3xl font-medium leading-tight lg:text-5xl"
+          >
+            {t('Your game worlds')}
+          </Text>
           <Text>
             Your current game worlds are listed below. To prevent data
             corruptions, each game world may only be opened in a single browser

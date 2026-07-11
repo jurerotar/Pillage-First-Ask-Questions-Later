@@ -21,17 +21,13 @@ const publicPagesToPrerender = [
 const reactRouterConfig: Config = {
   ssr: false,
   subResourceIntegrity: false,
+  splitRouteModules: 'enforce',
   prerender: {
     concurrency: 1,
     paths: publicPagesToPrerender,
   },
   future: {
-    v8_middleware: true,
     unstable_optimizeDeps: true,
-    v8_viteEnvironmentApi: true,
-    v8_splitRouteModules: 'enforce',
-    v8_passThroughRequests: true,
-    v8_trailingSlashAwareDataRequests: true,
   },
   buildEnd: async (args) => {
     await createSPAPagesWithPreloads(args);

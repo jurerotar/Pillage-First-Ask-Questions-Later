@@ -15,6 +15,7 @@ import {
   questsCacheKey,
   sentReinforcementsCacheKey,
   tilesCacheKey,
+  trapperCagesCacheKey,
   troopMovementsCacheKey,
   unitImprovementCacheKey,
   unitResearchCacheKey,
@@ -188,6 +189,15 @@ export const cachesToClearOnResolve: Handlers = {
       [heroInventoryCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [eventsCacheKey, 'animalCageProduction', villageId],
+        [eventsHistoryCacheKey, villageId],
+      ]),
+    ];
+  },
+  trapperCageProduction: ({ affectedVillageIds }) => {
+    return [
+      ...affectedVillageIds.flatMap((villageId) => [
+        [trapperCagesCacheKey, villageId],
+        [eventsCacheKey, 'trapperCageProduction', villageId],
         [eventsHistoryCacheKey, villageId],
       ]),
     ];

@@ -8,8 +8,11 @@ import {
   deleteRearrangedBuildingFieldsQuery,
   dropRearrangeSourceFieldsTableQuery,
   insertRearrangedBuildingFieldsQuery,
+  selectDuplicateRearrangeSourceFieldCountQuery,
+  selectInvalidRearrangeSourceFieldCountQuery,
   selectOccupiableOasisInRangeQuery,
   selectVillageBySlugQuery,
+  updateRearrangedBuildingFieldEffectsQuery,
   updateRearrangedBuildingFieldEventsQuery,
 } from '../../queries/village-queries';
 import { createController } from '../controller';
@@ -110,6 +113,7 @@ export const rearrangeBuildingFields = createController(
       z.strictObject({
         buildingFieldId: z.number(),
         buildingId: buildingIdSchema.nullable(),
+        sourceBuildingFieldId: z.number().nullable(),
       }),
     ),
   },
@@ -125,6 +129,30 @@ export const rearrangeBuildingFields = createController(
         $village_id: villageId,
       },
     });
+
+    const invalidSourceFieldCount = database.selectValue({
+      sql: selectInvalidRearrangeSourceFieldCountQuery,
+      bind: {
+        $updates: JSON.stringify(updates),
+      },
+      schema: z.number(),
+    })!;
+
+    if (invalidSourceFieldCount > 0) {
+      throw new Error('Invalid rearranged building source field');
+    }
+
+    const duplicateSourceFieldCount = database.selectValue({
+      sql: selectDuplicateRearrangeSourceFieldCountQuery,
+      bind: {
+        $updates: JSON.stringify(updates),
+      },
+      schema: z.number(),
+    })!;
+
+    if (duplicateSourceFieldCount > 0) {
+      throw new Error('Duplicate rearranged building source field');
+    }
 
     database.exec({
       sql: deleteRearrangedBuildingFieldsQuery,
@@ -142,11 +170,16 @@ export const rearrangeBuildingFields = createController(
       },
     });
 
+    // Keep building effects attached to the field that now contains their source building.
     database.exec({
-      sql: dropRearrangeSourceFieldsTableQuery,
+      sql: updateRearrangedBuildingFieldEffectsQuery,
+      bind: {
+        $village_id: villageId,
+        $updates: JSON.stringify(updates),
+      },
     });
 
-    // 2. Update events
+    // Update events
     // We only update events of types that have buildingFieldId and buildingId in meta
     database.exec({
       sql: updateRearrangedBuildingFieldEventsQuery,
@@ -154,6 +187,10 @@ export const rearrangeBuildingFields = createController(
         $village_id: villageId,
         $updates: JSON.stringify(updates),
       },
+    });
+
+    database.exec({
+      sql: dropRearrangeSourceFieldsTableQuery,
     });
   });
 });

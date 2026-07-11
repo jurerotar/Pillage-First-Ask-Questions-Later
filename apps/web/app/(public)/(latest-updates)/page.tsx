@@ -32,7 +32,12 @@ const LatestUpdatesPage = () => {
           </BreadcrumbList>
         </Breadcrumb>
         <main className="flex flex-col gap-4">
-          <Text as="h1">{t('Latest updates')}</Text>
+          <Text
+            as="h1"
+            className="text-3xl font-medium leading-tight lg:text-5xl"
+          >
+            {t('Latest updates')}
+          </Text>
           <Text>{t('All the latest news and updates about the project.')}</Text>
           <div className={styles.changelog}>
             <LatestUpdatesMdx />

@@ -36,7 +36,7 @@ describe('player-controllers', () => {
           JOIN effect_ids ei ON e.effect_id = ei.id
         WHERE
           e.village_id = $village_id
-          AND e.source = 'troops'
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
       bind: { $village_id: villageId },
@@ -59,7 +59,7 @@ describe('player-controllers', () => {
         FROM effects
         WHERE
           village_id = $village_id
-          AND source = 'troops'
+          AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND effect_id = $effect_id;
       `,
       bind: { $village_id: villageId, $effect_id: wheatEffectId },
@@ -71,7 +71,7 @@ describe('player-controllers', () => {
         $effect_id: wheatEffectId,
         $value: value,
         $type: 'base',
-        $scope: 'village',
+        $scope: 'local',
         $source: 'troops',
         $village_id: villageId,
         $source_specifier: null,
@@ -132,14 +132,14 @@ describe('player-controllers', () => {
       {
         value: -400,
         type: 'base',
-        scope: 'village',
+        scope: 'local',
         source: 'building',
         source_specifier: 0,
       },
       {
         value: 150,
         type: 'base',
-        scope: 'village',
+        scope: 'local',
         source: 'troops',
         source_specifier: null,
       },
@@ -1764,7 +1764,7 @@ describe('player-controllers', () => {
         $effect_id: wheatEffectId,
         $value: 1,
         $type: 'base',
-        $scope: 'village',
+        $scope: 'local',
         $source: 'hero',
         $village_id: sourceVillageId,
         $source_specifier: 0,
@@ -1776,8 +1776,8 @@ describe('player-controllers', () => {
         UPDATE effects
         SET village_id = $village_id
         WHERE
-          source = 'hero'
-          AND scope = 'village'
+          source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')
+          AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
       `,
       bind: {
         $village_id: sourceVillageId,
@@ -1806,8 +1806,8 @@ describe('player-controllers', () => {
         SELECT village_id
         FROM effects
         WHERE
-          source = 'hero'
-          AND scope = 'village'
+          source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')
+          AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
       `,
       schema: z.number(),
     });

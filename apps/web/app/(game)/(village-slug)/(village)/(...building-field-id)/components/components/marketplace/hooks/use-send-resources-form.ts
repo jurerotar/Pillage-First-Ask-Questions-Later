@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import {
   currentVillageCacheKey,
   eventsCacheKey,
@@ -35,6 +36,7 @@ export const useSendResourcesForm = ({
   const { t } = useTranslation();
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
+  const currentVillageState = use(CurrentVillageStateContext);
   const { playerVillages } = usePlayerVillageListing();
   const { mapSize, serverSpeed } = useServer();
   const { merchant, marketplaceLevel, availableMerchantAmount } =
@@ -76,6 +78,21 @@ export const useSendResourcesForm = ({
     return targetVillages.find((village) => village.id === targetVillageId);
   }, [targetVillageId, targetVillages]);
 
+  const availableResources = useMemo(
+    () => ({
+      wood: currentVillageState.wood,
+      clay: currentVillageState.clay,
+      iron: currentVillageState.iron,
+      wheat: currentVillageState.wheat,
+    }),
+    [
+      currentVillageState.wood,
+      currentVillageState.clay,
+      currentVillageState.iron,
+      currentVillageState.wheat,
+    ],
+  );
+
   const totalCapacity = availableMerchantAmount * merchant.merchantCapacity;
   const totalSelectedResources = getTotalResources(selectedResources);
   const merchantAmount = getMerchantAmount(
@@ -104,8 +121,7 @@ export const useSendResourcesForm = ({
   ]);
 
   const hasEnoughResources = resourceTypes.every(
-    (resource) =>
-      selectedResources[resource] <= currentVillage.resources[resource],
+    (resource) => selectedResources[resource] <= availableResources[resource],
   );
   const hasEnoughCapacity = totalSelectedResources <= totalCapacity;
   const canSubmit =
@@ -157,6 +173,7 @@ export const useSendResourcesForm = ({
   };
 
   return {
+    availableResources,
     availableMerchantAmount,
     canSubmit,
     closeConfirmationStep: () => setIsConfirmationOpen(false),

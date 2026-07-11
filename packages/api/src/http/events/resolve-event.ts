@@ -30,6 +30,7 @@ import {
   resourceTransferResolver,
   tradeRouteResolver,
 } from './resolvers/marketplace-resolvers';
+import { trapperCageProductionResolver } from './resolvers/trapper-resolvers';
 import {
   adventureMovementResolver,
   attackMovementResolver,
@@ -68,6 +69,7 @@ const gameEventResolvers = {
   unitResearch: unitResearchResolver,
   unitImprovement: unitImprovementResolver,
   animalCageProduction: animalCageProductionResolver,
+  trapperCageProduction: trapperCageProductionResolver,
   huntersLodgeHunt: huntersLodgeHuntResolver,
   gatherersHutGatheringTrip: gatherersHutGatheringTripResolver,
   resourceTransfer: resourceTransferResolver,

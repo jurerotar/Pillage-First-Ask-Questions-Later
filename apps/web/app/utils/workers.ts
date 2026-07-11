@@ -1,12 +1,13 @@
 export const workerFactory = async <TPayload = void, TReturn = void>(
   workerUrl: string | URL,
   payload?: TPayload,
+  transfer: Transferable[] = [],
 ): Promise<TReturn> => {
   return new Promise<TReturn>((resolve, reject) => {
     const worker: Worker = new Worker(workerUrl, { type: 'module' });
 
-    if (payload) {
-      worker.postMessage(payload);
+    if (payload !== undefined) {
+      worker.postMessage(payload, transfer);
     }
 
     const handleMessage = (event: MessageEvent<TReturn>) => {

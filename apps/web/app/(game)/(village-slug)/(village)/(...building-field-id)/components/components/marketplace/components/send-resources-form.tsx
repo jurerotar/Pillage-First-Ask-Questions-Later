@@ -37,8 +37,8 @@ export const SendResourcesFormContent = ({
   const { t } = useTranslation();
   const {
     availableMerchantAmount,
+    availableResources,
     canSubmit,
-    currentVillage,
     form,
     marketplaceLevel,
     merchant,
@@ -63,7 +63,7 @@ export const SendResourcesFormContent = ({
           </Text>
 
           <ResourceSelector
-            availableResources={currentVillage.resources}
+            availableResources={availableResources}
             merchantCapacity={merchant.merchantCapacity}
             selectedResources={selectedResources}
             totalCapacity={totalCapacity}

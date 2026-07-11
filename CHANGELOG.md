@@ -1,3 +1,51 @@
+## Version 0.4.41
+
+#### Jul 11, 2026
+
+* [BugFix] Fixed an issue where rearranging a building, which you have multiple instances of, would sometimes cause the
+  incorrect building to be rearranged.
+
+## Version 0.4.40
+
+#### Jul 8, 2026
+
+* [Feature] Added the ability to create Gaul traps.
+
+## Version 0.4.39
+
+#### Jul 7, 2026
+
+* [BugFix] Fixed oasis resources calculation ahead of upcoming attacking and raiding feature.
+* [Performance] Reworked `effects` table. This is our largest table that contains village/oasis properties. This rework
+  reduced size of `effects` table by around 40% (which amounts to around 800KB in practice) and improved execution speed
+  of most common queries by around 20-25%.
+* [Performance] Reworked `tiles` table. This minor change reduced our total database size by around 4% (150KB in
+  practice) and improved
+  execution speed of map-related queries by around 1-2%.
+* [Performance] Reworked `oasis` table. This minor change reduced our total database size by around 1.5% (45KB in
+  practice) and improved
+  execution speed of oasis-related queries around 15%-70%.
+
+## Version 0.4.38
+
+#### Jul 6, 2026
+
+* [BugFix] Fixed an issue where current resource amount wasn't accurately represented when attempting to send resources
+  through the marketplace.
+* [Feature] Added the ability to preview which tiles are already occupied in Oasis Bonus Finder.
+* [Performance] Improved search performance of Oasis Bonus Finder by 20-45%, depending on the amount of search filters
+  used.
+
+## Version 0.4.37
+
+#### Jul 1, 2026
+
+* [BugFix] Fixed an issue where relocating buildings would cause building effects to be incorrectly calculated.
+* [BugFix] Fixed an issue where hero regeneration rate wasn't correctly updated for faster game worlds.
+* [Performance] Reduced web worker memory usage during game world imports by roughly 50%.
+* [Performance] Improved Resources & Village view's building fields render timing by ~ 3.4%
+* [Performance] Improved controller route matching performance by roughly 45-50%.
+
 ## Version 0.4.36
 
 #### Jun 24, 2026
