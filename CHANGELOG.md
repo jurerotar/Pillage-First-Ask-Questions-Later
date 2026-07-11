@@ -1,3 +1,10 @@
+## Version 0.4.41
+
+#### Jul 11, 2026
+
+* [BugFix] Fixed an issue where rearranging a building, which you have multiple instances of, would sometimes cause the
+  incorrect building to be rearranged.
+
 ## Version 0.4.40
 
 #### Jul 8, 2026
@@ -12,9 +19,11 @@
 * [Performance] Reworked `effects` table. This is our largest table that contains village/oasis properties. This rework
   reduced size of `effects` table by around 40% (which amounts to around 800KB in practice) and improved execution speed
   of most common queries by around 20-25%.
-* [Performance] Reworked `tiles` table. This minor change reduced our total database size by around 4% (150KB in practice) and improved
+* [Performance] Reworked `tiles` table. This minor change reduced our total database size by around 4% (150KB in
+  practice) and improved
   execution speed of map-related queries by around 1-2%.
-* [Performance] Reworked `oasis` table. This minor change reduced our total database size by around 1.5% (45KB in practice) and improved
+* [Performance] Reworked `oasis` table. This minor change reduced our total database size by around 1.5% (45KB in
+  practice) and improved
   execution speed of oasis-related queries around 15%-70%.
 
 ## Version 0.4.38

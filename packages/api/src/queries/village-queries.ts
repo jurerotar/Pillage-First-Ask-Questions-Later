@@ -179,9 +179,65 @@ export const createRearrangeSourceFieldsTableQuery = `
     AND bf.building_id IS NOT NULL;
 `;
 
+export const selectInvalidRearrangeSourceFieldCountQuery = `
+  WITH updates_raw(field_id, building_text, source_field_id) AS (
+    SELECT
+      CAST(value ->> '$.buildingFieldId' AS INTEGER),
+      value ->> '$.buildingId',
+      CAST(value ->> '$.sourceBuildingFieldId' AS INTEGER)
+    FROM JSON_EACH($updates)
+  ),
+  updates AS (
+    SELECT ur.field_id, bi.id AS building_id, ur.source_field_id
+    FROM updates_raw ur
+    LEFT JOIN building_ids bi ON bi.building = ur.building_text
+    WHERE ur.field_id BETWEEN 19 AND 38
+  )
+  SELECT COUNT(*)
+  FROM updates u
+  LEFT JOIN temp_rearrange_source_fields sf
+    ON sf.field_id = u.source_field_id
+    AND sf.building_id = u.building_id
+  WHERE
+    u.building_id IS NOT NULL
+    AND (
+      u.source_field_id IS NULL
+      OR sf.field_id IS NULL
+    );
+`;
+
+export const selectDuplicateRearrangeSourceFieldCountQuery = `
+  WITH updates_raw(field_id, building_text, source_field_id) AS (
+    SELECT
+      CAST(value ->> '$.buildingFieldId' AS INTEGER),
+      value ->> '$.buildingId',
+      CAST(value ->> '$.sourceBuildingFieldId' AS INTEGER)
+    FROM JSON_EACH($updates)
+  ),
+  updates AS (
+    SELECT ur.field_id, bi.id AS building_id, ur.source_field_id
+    FROM updates_raw ur
+    LEFT JOIN building_ids bi ON bi.building = ur.building_text
+    WHERE ur.field_id BETWEEN 19 AND 38
+  )
+  SELECT COUNT(*)
+  FROM (
+    SELECT u.source_field_id
+    FROM updates u
+    WHERE
+      u.building_id IS NOT NULL
+      AND u.source_field_id IS NOT NULL
+    GROUP BY u.source_field_id
+    HAVING COUNT(*) > 1
+  );
+`;
+
 export const deleteRearrangedBuildingFieldsQuery = `
-  WITH updates_raw(field_id, building_text) AS (
-    SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+  WITH updates_raw(field_id, building_text, source_field_id) AS (
+    SELECT
+      CAST(value ->> '$.buildingFieldId' AS INTEGER),
+      value ->> '$.buildingId',
+      CAST(value ->> '$.sourceBuildingFieldId' AS INTEGER)
     FROM JSON_EACH($updates)
   ),
   updates AS (
@@ -202,12 +258,15 @@ export const deleteRearrangedBuildingFieldsQuery = `
 `;
 
 export const insertRearrangedBuildingFieldsQuery = `
-  WITH updates_raw(field_id, building_text) AS (
-    SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+  WITH updates_raw(field_id, building_text, source_field_id) AS (
+    SELECT
+      CAST(value ->> '$.buildingFieldId' AS INTEGER),
+      value ->> '$.buildingId',
+      CAST(value ->> '$.sourceBuildingFieldId' AS INTEGER)
     FROM JSON_EACH($updates)
   ),
   updates AS (
-    SELECT ur.field_id, bi.id AS building_id
+    SELECT ur.field_id, bi.id AS building_id, ur.source_field_id
     FROM updates_raw ur
     LEFT JOIN building_ids bi ON bi.building = ur.building_text
     WHERE ur.field_id BETWEEN 19 AND 38
@@ -217,6 +276,13 @@ export const insertRearrangedBuildingFieldsQuery = `
       u.field_id,
       u.building_id,
       COALESCE(
+        (
+          SELECT sf.level
+          FROM temp_rearrange_source_fields sf
+          WHERE sf.field_id = u.source_field_id
+            AND sf.building_id = u.building_id
+          LIMIT 1
+        ),
         (
           SELECT sf.level
           FROM temp_rearrange_source_fields sf
@@ -250,8 +316,11 @@ export const insertRearrangedBuildingFieldsQuery = `
 `;
 
 export const updateRearrangedBuildingFieldEventsQuery = `
-  WITH updates_raw(field_id, building_text) AS (
-    SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+  WITH updates_raw(field_id, building_text, source_field_id) AS (
+    SELECT
+      CAST(value ->> '$.buildingFieldId' AS INTEGER),
+      value ->> '$.buildingId',
+      CAST(value ->> '$.sourceBuildingFieldId' AS INTEGER)
     FROM JSON_EACH($updates)
     WHERE CAST(value ->> '$.buildingFieldId' AS INTEGER) BETWEEN 19 AND 38
   )
@@ -263,16 +332,26 @@ export const updateRearrangedBuildingFieldEventsQuery = `
     events.village_id = $village_id
     AND events.type IN ('buildingScheduledConstruction', 'buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
     AND JSON_EXTRACT(meta, '$.buildingId') = ur.building_text
+    AND (
+      (
+        ur.source_field_id IS NOT NULL
+        AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) = ur.source_field_id
+      )
+      OR ur.source_field_id IS NULL
+    )
     AND ur.building_text IS NOT NULL;
 `;
 
 export const updateRearrangedBuildingFieldEffectsQuery = `
-  WITH updates_raw(field_id, building_text) AS (
-    SELECT CAST(value ->> '$.buildingFieldId' AS INTEGER), value ->> '$.buildingId'
+  WITH updates_raw(field_id, building_text, source_field_id) AS (
+    SELECT
+      CAST(value ->> '$.buildingFieldId' AS INTEGER),
+      value ->> '$.buildingId',
+      CAST(value ->> '$.sourceBuildingFieldId' AS INTEGER)
     FROM JSON_EACH($updates)
   ),
   updates AS (
-    SELECT ur.field_id, bi.id AS building_id
+    SELECT ur.field_id, bi.id AS building_id, ur.source_field_id
     FROM updates_raw ur
     LEFT JOIN building_ids bi ON bi.building = ur.building_text
     WHERE ur.field_id BETWEEN 19 AND 38
@@ -280,6 +359,13 @@ export const updateRearrangedBuildingFieldEffectsQuery = `
   moved_fields AS (
     SELECT
       COALESCE(
+        (
+          SELECT sf.field_id
+          FROM temp_rearrange_source_fields sf
+          WHERE sf.field_id = u.source_field_id
+            AND sf.building_id = u.building_id
+          LIMIT 1
+        ),
         (
           SELECT sf.field_id
           FROM temp_rearrange_source_fields sf

@@ -13,6 +13,7 @@ import { invalidateQueries } from 'app/utils/react-query';
 type RearrangeBuildingField = {
   buildingFieldId: BuildingField['id'];
   buildingId: Building['id'] | null;
+  sourceBuildingFieldId: BuildingField['id'] | null;
 };
 
 const swappableBuildingFieldIds = new Set(
@@ -36,6 +37,7 @@ export const useRearrangeBuildingFields = () => {
         .map((buildingField) => ({
           buildingFieldId: buildingField.buildingFieldId,
           buildingId: buildingField.buildingId,
+          sourceBuildingFieldId: buildingField.sourceBuildingFieldId,
         }));
 
       await apiClient.patch('/villages/:villageId/building-fields', {
