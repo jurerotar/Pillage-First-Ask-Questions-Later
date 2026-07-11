@@ -44,13 +44,12 @@
     "lint/oxlint": "oxlint --type-aware --fix",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
-    "type-check": "tsgo"
+    "type-check": "tsc"
   },
   "dependencies": {
     "@pillage-first/types": "*"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260615.1",
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   }
 }
