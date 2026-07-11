@@ -1,4 +1,3 @@
-import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import type {
   AmountBuildingRequirement,
   Building,
@@ -12,7 +11,7 @@ export type AssessedBuildingRequirement = BuildingRequirement & {
   fulfilled: boolean;
 };
 
-export type AssessBuildingConstructionReadinessReturn = {
+export type AssessBuildingRequirementsReturn = {
   canBuild: boolean;
   assessedRequirements: AssessedBuildingRequirement[];
 };
@@ -23,13 +22,9 @@ type BuildingRequirementAssessmentContext = {
   buildingIdsInQueue: ReadonlySet<Building['id']>;
 };
 
-type AssessBuildingRequirementsArgs = BuildingRequirementAssessmentContext & {
-  building: Building;
-};
-
-export type AssessBuildingConstructionReadinessArgs =
+export type AssessBuildingRequirementsArgs =
   BuildingRequirementAssessmentContext & {
-    buildingId: Building['id'];
+    building: Building;
   };
 
 const assessBuildingLevelRequirement = (
@@ -100,7 +95,7 @@ const assessRequirement = (
 
 export const assessBuildingRequirements = (
   args: AssessBuildingRequirementsArgs,
-): AssessBuildingConstructionReadinessReturn => {
+): AssessBuildingRequirementsReturn => {
   const { building, tribe, maxLevelByBuildingId, buildingIdsInQueue } = args;
   const { buildingRequirements } = building;
 
@@ -126,15 +121,4 @@ export const assessBuildingRequirements = (
     canBuild,
     assessedRequirements,
   };
-};
-
-export const assessBuildingConstructionReadiness = (
-  args: AssessBuildingConstructionReadinessArgs,
-): AssessBuildingConstructionReadinessReturn => {
-  return assessBuildingRequirements({
-    tribe: args.tribe,
-    maxLevelByBuildingId: args.maxLevelByBuildingId,
-    buildingIdsInQueue: args.buildingIdsInQueue,
-    building: getBuildingDefinition(args.buildingId),
-  });
 };

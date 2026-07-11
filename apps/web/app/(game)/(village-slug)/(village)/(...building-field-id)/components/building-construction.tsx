@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import { partition } from '@pillage-first/utils/array';
+import { assessBuildingRequirements } from '@pillage-first/utils/game/building-requirements';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import {
   BuildingBenefits,
@@ -13,7 +14,6 @@ import {
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
 import {
   Section,
   SectionContent,
@@ -52,12 +52,12 @@ const BuildingCategoryPanel = ({
   const assessments = useMemo(() => {
     return new Map<
       Building['id'],
-      ReturnType<typeof assessBuildingConstructionReadiness>
+      ReturnType<typeof assessBuildingRequirements>
     >(
       buildingsByCategory.map((building) => [
         building.id,
-        assessBuildingConstructionReadiness({
-          buildingId: building.id,
+        assessBuildingRequirements({
+          building,
           tribe,
           maxLevelByBuildingId,
           buildingIdsInQueue,

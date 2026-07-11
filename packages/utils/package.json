@@ -54,6 +54,9 @@
     "./game/calculate-current-resources": {
       "default": "./src/game/calculate-current-resources.ts"
     },
+    "./game/building-requirements": {
+      "default": "./src/game/building-requirements.ts"
+    },
     "./guards/effect": {
       "default": "./src/guards/effect-guards.ts"
     },

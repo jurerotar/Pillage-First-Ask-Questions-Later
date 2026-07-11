@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import {
   villageWithBarracksRequirementsMetBuildingFieldsMock,
   villageWithWorkshopRequirementsMetBuildingFieldsMock,
@@ -14,11 +15,11 @@ import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Village } from '@pillage-first/types/models/village';
 import {
-  type AssessBuildingConstructionReadinessArgs,
-  type AssessBuildingConstructionReadinessReturn,
+  type AssessBuildingRequirementsArgs,
+  type AssessBuildingRequirementsReturn,
   type AssessedBuildingRequirement,
-  assessBuildingConstructionReadiness,
-} from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
+  assessBuildingRequirements,
+} from '@pillage-first/utils/game/building-requirements';
 
 const buildingConstructionEventMock = createBuildingConstructionEventMock({
   buildingId: 'CRANNY',
@@ -53,16 +54,15 @@ const toIdsInQueue = (events: BuildingEvent[]) => {
   return set;
 };
 
-const defaultArgs: Omit<AssessBuildingConstructionReadinessArgs, 'buildingId'> =
-  {
-    tribe,
-    maxLevelByBuildingId: toMaxLevelMap(currentVillage.buildingFields),
-    buildingIdsInQueue: toIdsInQueue(currentVillageBuildingEvents),
-  };
+const defaultArgs: Omit<AssessBuildingRequirementsArgs, 'building'> = {
+  tribe,
+  maxLevelByBuildingId: toMaxLevelMap(currentVillage.buildingFields),
+  buildingIdsInQueue: toIdsInQueue(currentVillageBuildingEvents),
+};
 
 const getAssessedRequirementByType = (
   requirementType: BuildingRequirement['type'],
-  assessedReadiness: AssessBuildingConstructionReadinessReturn,
+  assessedReadiness: AssessBuildingRequirementsReturn,
 ): AssessedBuildingRequirement => {
   return assessedReadiness.assessedRequirements.find(
     ({ type }) => type === requirementType,
@@ -71,7 +71,7 @@ const getAssessedRequirementByType = (
 
 const getAssessedRequirementsByType = (
   requirementType: BuildingRequirement['type'],
-  assessedReadiness: AssessBuildingConstructionReadinessReturn,
+  assessedReadiness: AssessBuildingRequirementsReturn,
 ): AssessedBuildingRequirement[] => {
   return assessedReadiness.assessedRequirements.filter(
     ({ type }) => type === requirementType,
@@ -82,132 +82,132 @@ describe('building-requirements', () => {
   describe('tribe requirement', () => {
     describe('non-playable tribe can not build any of the playable tribe specific buildings', () => {
       test('natars can not build trapper', () => {
-        const args: AssessBuildingConstructionReadinessArgs = {
+        const args: AssessBuildingRequirementsArgs = {
           ...defaultArgs,
           tribe: 'natars',
-          buildingId: 'TRAPPER',
+          building: getBuildingDefinition('TRAPPER'),
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
-          assessBuildingConstructionReadiness({ ...args }),
+          assessBuildingRequirements({ ...args }),
         );
         expect(fulfilled).toBe(false);
       });
 
       test('natars can not build brewery', () => {
-        const args: AssessBuildingConstructionReadinessArgs = {
+        const args: AssessBuildingRequirementsArgs = {
           ...defaultArgs,
           tribe: 'natars',
-          buildingId: 'BREWERY',
+          building: getBuildingDefinition('BREWERY'),
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
-          assessBuildingConstructionReadiness(args),
+          assessBuildingRequirements(args),
         );
         expect(fulfilled).toBe(false);
       });
 
       test('natars can not build horse drinking trough', () => {
-        const args: AssessBuildingConstructionReadinessArgs = {
+        const args: AssessBuildingRequirementsArgs = {
           ...defaultArgs,
           tribe: 'natars',
-          buildingId: 'HORSE_DRINKING_TROUGH',
+          building: getBuildingDefinition('HORSE_DRINKING_TROUGH'),
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
-          assessBuildingConstructionReadiness(args),
+          assessBuildingRequirements(args),
         );
         expect(fulfilled).toBe(false);
       });
 
       test('natars can not build trapper', () => {
-        const args: AssessBuildingConstructionReadinessArgs = {
+        const args: AssessBuildingRequirementsArgs = {
           ...defaultArgs,
           tribe: 'natars',
-          buildingId: 'TRAPPER',
+          building: getBuildingDefinition('TRAPPER'),
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
-          assessBuildingConstructionReadiness(args),
+          assessBuildingRequirements(args),
         );
         expect(fulfilled).toBe(false);
       });
 
       test('natars can not build waterworks', () => {
-        const args: AssessBuildingConstructionReadinessArgs = {
+        const args: AssessBuildingRequirementsArgs = {
           ...defaultArgs,
           tribe: 'natars',
-          buildingId: 'WATERWORKS',
+          building: getBuildingDefinition('WATERWORKS'),
         };
         const { fulfilled } = getAssessedRequirementByType(
           'tribe',
-          assessBuildingConstructionReadiness(args),
+          assessBuildingRequirements(args),
         );
         expect(fulfilled).toBe(false);
       });
     });
 
     test('gauls may build trapper', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         tribe: 'gauls',
-        buildingId: 'TRAPPER',
+        building: getBuildingDefinition('TRAPPER'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
-        assessBuildingConstructionReadiness({ ...args }),
+        assessBuildingRequirements({ ...args }),
       );
       expect(fulfilled).toBe(true);
     });
 
     test('teutons may build brewery', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         tribe: 'teutons',
-        buildingId: 'BREWERY',
+        building: getBuildingDefinition('BREWERY'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
 
     test('romans may build horse drinking trough', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         tribe: 'romans',
-        buildingId: 'HORSE_DRINKING_TROUGH',
+        building: getBuildingDefinition('HORSE_DRINKING_TROUGH'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
 
     // test('huns may build command center', () => {
-    //   const args: AssessBuildingConstructionReadinessArgs = {
+    //   const args: AssessBuildingRequirementsArgs = {
     //     ...defaultArgs,
     //     tribe: 'huns',
-    //     buildingId: 'COMMAND_CENTER',
+    //     building: getBuildingDefinition('COMMAND_CENTER'),
     //   };
     //   const { fulfilled } = getAssessedRequirementByType(
     //     'tribe',
-    //     assessBuildingConstructionReadiness(args),
+    //     assessBuildingRequirements(args),
     //   );
     //   expect(fulfilled).toBe(true);
     // });
 
     test('egyptians may build waterworks', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         tribe: 'egyptians',
-        buildingId: 'WATERWORKS',
+        building: getBuildingDefinition('WATERWORKS'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'tribe',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
@@ -215,117 +215,121 @@ describe('building-requirements', () => {
 
   describe('amount requirement', () => {
     test('can build a granary', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
-        buildingId: 'GRANARY',
+        building: getBuildingDefinition('GRANARY'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
 
     test("can't build a second main building", () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
-        buildingId: 'MAIN_BUILDING',
+        building: getBuildingDefinition('MAIN_BUILDING'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(false);
     });
 
     test("can't build a palisade", () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
           { buildingId: 'GAUL_WALL', id: 40, level: 0 },
         ]),
-        buildingId: 'GAUL_WALL',
+        building: getBuildingDefinition('GAUL_WALL'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(false);
     });
 
     test("can't build a second main building even if first is max level", () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
-          { buildingId: 'MAIN_BUILDING', id: 1, level: 20 },
+          {
+            buildingId: 'MAIN_BUILDING',
+            id: 1,
+            level: 20,
+          },
         ]),
-        buildingId: 'MAIN_BUILDING',
+        building: getBuildingDefinition('MAIN_BUILDING'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(false);
     });
 
     test('can build a second cranny if first one is max level', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
           { buildingId: 'CRANNY', id: 1, level: 10 },
         ]),
-        buildingId: 'CRANNY',
+        building: getBuildingDefinition('CRANNY'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
 
     test('can build a third cranny if one is max level, even if other is not max level', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
           { buildingId: 'CRANNY', id: 1, level: 1 },
           { buildingId: 'CRANNY', id: 2, level: 10 },
         ]),
-        buildingId: 'CRANNY',
+        building: getBuildingDefinition('CRANNY'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
 
     test("can't build a cranny if one is already in building queue", () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         buildingIdsInQueue: toIdsInQueue([buildingConstructionEventMock]),
-        buildingId: 'CRANNY',
+        building: getBuildingDefinition('CRANNY'),
       };
 
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(false);
     });
 
     test('can build a third cranny even if one is already in building queue, if you have a max level one', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
           { buildingId: 'CRANNY', id: 2, level: 10 },
         ]),
         buildingIdsInQueue: toIdsInQueue([buildingConstructionEventMock]),
-        buildingId: 'CRANNY',
+        building: getBuildingDefinition('CRANNY'),
       };
 
       const { fulfilled } = getAssessedRequirementByType(
         'amount',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
@@ -333,74 +337,74 @@ describe('building-requirements', () => {
 
   describe('building level requirement', () => {
     test('can not build barracks immediately as a new village', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
-        buildingId: 'BARRACKS',
+        building: getBuildingDefinition('BARRACKS'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'building',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(false);
     });
 
     test('can build barracks once main building is upgraded', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap(
           villageWithBarracksRequirementsMetBuildingFieldsMock,
         ),
-        buildingId: 'BARRACKS',
+        building: getBuildingDefinition('BARRACKS'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'building',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
 
     test('can build workshop with academy and main building at lvl 10', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap(
           villageWithWorkshopRequirementsMetBuildingFieldsMock,
         ),
-        buildingId: 'WORKSHOP',
+        building: getBuildingDefinition('WORKSHOP'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'building',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
 
     // Testing this to make sure your buildings can be higher level than required
     test('can build stable with academy and main building at lvl 10', () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap(
           villageWithWorkshopRequirementsMetBuildingFieldsMock,
         ),
-        buildingId: 'STABLE',
+        building: getBuildingDefinition('STABLE'),
       };
       const { fulfilled } = getAssessedRequirementByType(
         'building',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       );
       expect(fulfilled).toBe(true);
     });
 
     test("can not build brickyard with clay pit lvl 10 if it's missing main building", () => {
-      const args: AssessBuildingConstructionReadinessArgs = {
+      const args: AssessBuildingRequirementsArgs = {
         ...defaultArgs,
         maxLevelByBuildingId: toMaxLevelMap([
           { buildingId: 'CLAY_PIT', id: 1, level: 10 },
         ]),
-        buildingId: 'BRICKYARD',
+        building: getBuildingDefinition('BRICKYARD'),
       };
       const canBuild = getAssessedRequirementsByType(
         'building',
-        assessBuildingConstructionReadiness(args),
+        assessBuildingRequirements(args),
       ).every(({ fulfilled }) => fulfilled);
       expect(canBuild).toBe(false);
     });

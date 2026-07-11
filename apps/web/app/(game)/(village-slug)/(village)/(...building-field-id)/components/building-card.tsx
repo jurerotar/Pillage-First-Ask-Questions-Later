@@ -16,12 +16,12 @@ import {
 import type { Building } from '@pillage-first/types/models/building';
 import type { Effect } from '@pillage-first/types/models/effect';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import type {
   AssessedBuildingRequirement,
-  assessBuildingConstructionReadiness,
-} from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
+  assessBuildingRequirements,
+} from '@pillage-first/utils/game/building-requirements';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -37,7 +37,7 @@ type BuildingCardContextState = {
   buildingId: Building['id'];
   building: Building;
   buildingConstructionReadinessAssessment?: ReturnType<
-    typeof assessBuildingConstructionReadiness
+    typeof assessBuildingRequirements
   >;
 };
 
@@ -48,7 +48,7 @@ export const BuildingCardContext = createContext<BuildingCardContextState>(
 type BuildingCardProps = {
   buildingId: Building['id'];
   buildingConstructionReadinessAssessment?: ReturnType<
-    typeof assessBuildingConstructionReadiness
+    typeof assessBuildingRequirements
   >;
 };
 
