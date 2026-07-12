@@ -13,6 +13,7 @@ import type { Troop } from '@pillage-first/types/models/troop';
 import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
 import { createEvents } from '../../utils/create-event';
 import { onHeroDeath } from '../../utils/hero';
+import { adjustLoyalty, createLoyaltyIncreaseEvent } from '../../utils/loyalty';
 import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,
@@ -425,4 +426,23 @@ export const sendRandomRaid = createController(
   };
 
   createEvents(database, normalizeCreateEventBody(event) as never);
+});
+
+export const adjustVillageLoyalty = createController(
+  '/developer-settings/:tileId/adjustLoyalty',
+  'patch',
+  {
+    summary: 'Increase village loyalty',
+    requestParams: {
+      path: z.strictObject({
+        tileId: z.coerce.number(),
+      }),
+    },
+    requestBody: z.strictObject({
+      amount: z.number(),
+    }),
+  },
+)(({ database, path: { tileId }, body: { amount } }) => {
+  adjustLoyalty(database, tileId, amount);
+  createLoyaltyIncreaseEvent(database);
 });

@@ -9,6 +9,7 @@ import {
   updateBookmark,
 } from './controllers/bookmark-controllers';
 import {
+  adjustVillageLoyalty,
   getDeveloperSettings,
   incrementHeroAdventurePoints,
   killHero,
@@ -180,6 +181,7 @@ export const apiRoutes = [
   createRoute(incrementHeroAdventurePoints),
   createRoute(killHero),
   createRoute(sendRandomRaid),
+  createRoute(adjustVillageLoyalty),
 
   // Auctions
   // createRoute(getAuctions),

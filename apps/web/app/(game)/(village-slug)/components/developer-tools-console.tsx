@@ -35,6 +35,7 @@ import {
 } from 'app/components/ui/select';
 import { Separator } from 'app/components/ui/separator';
 import { Switch } from 'app/components/ui/switch';
+import { useLoyalty } from '../hooks/use-loyalty';
 
 export const DeveloperToolsButton = ({
   className,
@@ -97,8 +98,10 @@ export const DeveloperToolsConsole = ({
     incrementHeroAdventurePoints,
     killHero,
     sendRandomRaid,
+    adjustLoyalty,
   } = useDeveloperSettings();
   const { hero, isHeroAlive, isHeroHome } = useHero();
+  const { loyalty } = useLoyalty();
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [amount, setAmount] = useState(1);
@@ -436,6 +439,29 @@ export const DeveloperToolsConsole = ({
                 onClick={() => sendRandomRaid()}
               >
                 {t('Send random raid against current village')}
+              </Button>
+            </div>
+          </SectionContent>
+
+          <Separator orientation="horizontal" />
+
+          <SectionContent>
+            <Text as="h3">{t('Adjust village loyalty')}</Text>
+            <Text>
+              {t('Curent loyalty')}: {loyalty}%
+            </Text>
+            <div className="flex gap-1 items-start">
+              <Button
+                variant="destructive"
+                onClick={() => adjustLoyalty({ amount: -10 })}
+              >
+                -10
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => adjustLoyalty({ amount: 10 })}
+              >
+                +10
               </Button>
             </div>
           </SectionContent>
