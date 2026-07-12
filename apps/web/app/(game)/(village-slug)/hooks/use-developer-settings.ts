@@ -3,6 +3,7 @@ import { use } from 'react';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
+import type { Tile } from '@pillage-first/types/models/tile';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider';
@@ -39,6 +40,10 @@ type SpawnHeroItemArgs = {
 
 type AdjustLoyaltyArgs = {
   amount: number;
+};
+
+type SendRandomRaidArgs = {
+  tileId: Tile['id'];
 };
 
 export const useDeveloperSettings = () => {
@@ -168,11 +173,15 @@ export const useDeveloperSettings = () => {
     },
   });
 
-  const { mutate: sendRandomRaid } = useMutation<void>({
-    mutationFn: async () => {
-      await apiClient.patch('/developer-settings/:villageId/send-random-raid', {
+  const { mutate: sendRandomRaid } = useMutation<
+    void,
+    Error,
+    SendRandomRaidArgs
+  >({
+    mutationFn: async ({ tileId }) => {
+      await apiClient.post('/developer-settings/send-random-raid/:tileId', {
         path: {
-          villageId: currentVillage.id,
+          tileId: tileId,
         },
       });
     },

@@ -36,6 +36,7 @@ import {
 import { Separator } from 'app/components/ui/separator';
 import { Switch } from 'app/components/ui/switch';
 import { useLoyalty } from '../hooks/use-loyalty';
+import { useOccupiableOasisInRange } from '../hooks/use-occupiable-oasis-in-range';
 
 export const DeveloperToolsButton = ({
   className,
@@ -102,6 +103,13 @@ export const DeveloperToolsConsole = ({
   } = useDeveloperSettings();
   const { hero, isHeroAlive, isHeroHome } = useHero();
   const { loyalty } = useLoyalty();
+  const { occupiableOasisInRange } = useOccupiableOasisInRange();
+
+  const oasisOccupiedByCurrentVillage = occupiableOasisInRange.filter(
+    ({ village }) => {
+      return village?.id === currentVillage.id;
+    },
+  );
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [amount, setAmount] = useState(1);
@@ -432,14 +440,25 @@ export const DeveloperToolsConsole = ({
           <Separator orientation="horizontal" />
 
           <SectionContent>
-            <Text as="h3">{t('Attack me')}</Text>
+            <Text as="h3">{t('Send random raid against:')}</Text>
             <div className="flex flex-col gap-1 items-start">
               <Button
                 variant="destructive"
-                onClick={() => sendRandomRaid()}
+                onClick={() =>
+                  sendRandomRaid({ tileId: currentVillage.tileId })
+                }
               >
-                {t('Send random raid against current village')}
+                {t('Current village')}
               </Button>
+              {oasisOccupiedByCurrentVillage.map(({ oasis }) => (
+                <Button
+                  variant="destructive"
+                  onClick={() => sendRandomRaid({ tileId: oasis.id })}
+                  key={oasis.id}
+                >
+                  {t('Occupied oasis ({{x}}|{{y}})', oasis.coordinates)}
+                </Button>
+              ))}
             </div>
           </SectionContent>
 

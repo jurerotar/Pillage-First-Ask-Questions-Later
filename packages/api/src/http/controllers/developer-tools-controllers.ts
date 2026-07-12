@@ -345,25 +345,17 @@ export const killHero = createController(
 });
 
 export const sendRandomRaid = createController(
-  '/developer-settings/:villageId/send-random-raid',
-  'patch',
+  '/developer-settings/send-random-raid/:tileId',
+  'post',
   {
-    summary: 'Sends a random attack against current village',
+    summary: 'Sends a random attack against an oasis or village',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
+        tileId: z.coerce.number(),
       }),
     },
   },
-)(({ database, path: { villageId: targetVillageId } }) => {
-  const targetTileId = database.selectValue({
-    sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
-    bind: {
-      $village_id: targetVillageId,
-    },
-    schema: z.number(),
-  })!;
-
+)(({ database, path: { tileId: targetTileId } }) => {
   const randomVillage = database.selectObject({
     sql: `
       SELECT

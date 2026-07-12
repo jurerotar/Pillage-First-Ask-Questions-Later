@@ -73,7 +73,7 @@ type OccupiedOasisSlotProps = {
 const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
   const { t } = useTranslation();
   const { abandonOasis } = useOccupiableOasisInRange();
-  // TODO Change to tileId
+  // TODO Change 'id' to 'tileId'
   const { loyalty } = useLoyalty(occupiedOasis.oasis.id);
 
   const { x, y } = occupiedOasis.oasis.coordinates;

@@ -35,7 +35,7 @@ const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
               participant.isReinforcement &&
               !showDefendingUnits
             ) {
-              return <></>;
+              return null;
             }
 
             return (
