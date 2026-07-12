@@ -18,6 +18,8 @@ export const selectBattleParticipantInfoByOasisQuery = `
   SELECT
     p.name AS player_name,
     p.slug AS player_slug,
+  	v.id as village_id,
+  	v.name as village_name,
     t.x,
     t.y
   FROM

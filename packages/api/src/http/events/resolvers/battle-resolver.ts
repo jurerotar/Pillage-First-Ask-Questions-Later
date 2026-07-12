@@ -10,7 +10,7 @@ import {
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { BattleParticipant } from '@pillage-first/types/models/battle';
-import type { Coordinates } from '@pillage-first/types/models/coordinates';
+import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { OasisTile, Tile } from '@pillage-first/types/models/tile';
 import type { Troop } from '@pillage-first/types/models/troop';
@@ -32,6 +32,12 @@ import {
 import { selectVillageIdByTileIdQuery } from '../../../queries/village-queries';
 import { createEvents } from '../../../utils/create-event';
 import {
+  adjustLoyalty,
+  createLoyaltyIncreaseEvent,
+  getLoyalty,
+} from '../../../utils/loyalty';
+import { abandonOccupiedOasis } from '../../../utils/oasis';
+import {
   type CreateNewBattleParticipant,
   type CreateNewBattleType,
   type CreateNewBattleUnit,
@@ -50,6 +56,42 @@ import { mapVillageTroop } from '../../controllers/mappers/player-mapper';
 import { getStationedTroopsByTileSchema } from '../../controllers/schemas/player-schemas';
 import type { ResolverResult } from '../resolver';
 
+const battleOriginSchema = z.strictObject({
+  tileId: z.int(),
+  playerId: z.int(),
+  playerName: z.string(),
+  playerSlug: z.string(),
+  villageId: z.int(),
+  villageName: z.string(),
+  coordinates: coordinatesSchema,
+});
+
+const baseBattleTargetSchema = z.strictObject({
+  tileId: z.int(),
+  playerName: z.string(),
+  coordinates: coordinatesSchema,
+});
+
+const battleTargetSchema = z.discriminatedUnion('type', [
+  baseBattleTargetSchema.extend({
+    type: z.literal('village'),
+    villageId: z.int(),
+    villageName: z.string(),
+    playerSlug: z.string(),
+  }),
+  baseBattleTargetSchema.extend({
+    type: z.literal('oasis'),
+    oasisId: z.int(),
+    oasisName: z.string(),
+    villageId: z.int().optional(),
+    villageName: z.string().optional(),
+    playerSlug: z.string().optional(),
+  }),
+]);
+
+type BattleOrigin = z.infer<typeof battleOriginSchema>;
+type BattleTarget = z.infer<typeof battleTargetSchema>;
+
 const improvementSchema = z.strictObject({
   unitId: unitIdSchema,
   level: z.int(),
@@ -60,9 +102,10 @@ type Improvement = z.infer<typeof improvementSchema>;
 type PrepareBattleArgs = {
   database: DbFacade;
   resolvesAt: number;
+  originVillageId: Village['id'];
+  originTileId: number;
   targetVillageId?: Village['id'];
   targetOasisId?: OasisTile['id'];
-  originTileId: number;
   targetTileId: number;
   troops: Troop[];
 };
@@ -73,27 +116,50 @@ type PrepareBattleResult = {
   modifiers: DefenceModifiers;
   defenderResources: ResourceBundle;
 
-  originVillageName: string;
-  originPlayerId: number;
-  originPlayerName: string;
-  originPlayerSlug: string;
-  originCoordinates: Coordinates;
-
-  targetName: string;
-  targetPlayerName: string;
-  targetPlayerSlug?: string;
-  targetCoordinates: Coordinates;
+  origin: BattleOrigin;
+  target: BattleTarget;
 };
 
 const prepareBattle = ({
   database,
   resolvesAt,
+  originVillageId,
+  originTileId,
   targetVillageId,
   targetOasisId,
-  originTileId,
   targetTileId,
   troops,
 }: PrepareBattleArgs): PrepareBattleResult => {
+  // ┌────────────────────────────────┐
+  // │ Target tile (village or oasis) │
+  // └────────────────────────────────┘
+
+  var target!: BattleTarget;
+  if (targetVillageId != null) {
+    target = {
+      type: 'village',
+      tileId: targetTileId,
+      villageId: targetVillageId,
+      villageName: '',
+      playerName: '',
+      playerSlug: '',
+      coordinates: { x: 0, y: 0 },
+    };
+  } else if (targetOasisId != null) {
+    target = {
+      type: 'oasis',
+      tileId: targetTileId,
+      oasisId: targetOasisId,
+      oasisName: '',
+      playerName: '',
+      coordinates: { x: 0, y: 0 },
+    };
+  } else {
+    throw new Error(
+      'Either targetVillageId or targetOasisId must be non-null.',
+    );
+  }
+
   // ┌───────────────────────────┐
   // │ Basic village information │
   // └───────────────────────────┘
@@ -118,13 +184,17 @@ const prepareBattle = ({
     }),
   })!;
 
-  var targetName = '';
-  var targetPlayerName = 'Nature';
-  var targetPlayerSlug: string | undefined;
-  var targetX = 0;
-  var targetY = 0;
+  var origin: BattleOrigin = {
+    tileId: originTileId,
+    playerId: originPlayerId,
+    playerName: originPlayerName,
+    playerSlug: originPlayerSlug,
+    villageId: originVillageId,
+    villageName: originVillageName,
+    coordinates: { x: originX, y: originY },
+  };
 
-  if (targetVillageId != null) {
+  if (target.type === 'village') {
     const { village_name, player_name, player_slug, x, y } =
       database.selectObject({
         sql: selectBattleParticipantInfoByVillageQuery,
@@ -138,27 +208,35 @@ const prepareBattle = ({
           y: z.int(),
         }),
       })!;
-    targetName = village_name;
-    targetPlayerName = player_name;
-    targetPlayerSlug = player_slug;
-    targetX = x;
-    targetY = y;
+
+    target.villageName = village_name;
+    target.playerName = player_name;
+    target.playerSlug = player_slug;
+    target.coordinates.x = x;
+    target.coordinates.y = y;
   } else {
-    const { player_name, player_slug, x, y } = database.selectObject({
-      sql: selectBattleParticipantInfoByOasisQuery,
-      bind: { $oasis_id: targetOasisId },
-      schema: z.strictObject({
-        player_name: z.string().nullable(),
-        player_slug: z.string().nullable(),
-        x: z.int(),
-        y: z.int(),
-      }),
-    })!;
-    targetName = player_slug != null ? 'Occupied oasis' : 'Unoccupied oasis';
-    targetPlayerName = player_name ?? 'Nature';
-    targetPlayerSlug = player_slug ?? undefined;
-    targetX = x;
-    targetY = y;
+    const { player_name, player_slug, village_id, village_name, x, y } =
+      database.selectObject({
+        sql: selectBattleParticipantInfoByOasisQuery,
+        bind: { $oasis_id: targetOasisId },
+        schema: z.strictObject({
+          player_name: z.string().nullable(),
+          player_slug: z.string().nullable(),
+          village_id: z.int().nullable(),
+          village_name: z.string().nullable(),
+          x: z.int(),
+          y: z.int(),
+        }),
+      })!;
+
+    target.oasisName =
+      village_id != null ? 'Occupied oasis' : 'Unoccupied oasis';
+    target.playerName = player_name ?? 'Nature';
+    target.playerSlug = player_slug ?? undefined;
+    target.villageId = village_id ?? undefined;
+    target.villageName = village_name ?? undefined;
+    target.coordinates.x = x;
+    target.coordinates.y = y;
   }
 
   // ┌────────────────────────────────┐
@@ -247,10 +325,10 @@ const prepareBattle = ({
 
   var defenderResources: [number, number, number, number];
 
-  if (targetVillageId != null) {
+  if (target.type === 'village') {
     const calculatedDefenderResources = calculateVillageResourcesAt(
       database,
-      targetVillageId,
+      target.villageId,
       resolvesAt,
     );
     defenderResources = [
@@ -270,22 +348,8 @@ const prepareBattle = ({
     modifiers,
     defenderResources,
 
-    originVillageName,
-    originPlayerId,
-    originPlayerName,
-    originPlayerSlug,
-    originCoordinates: {
-      x: originX,
-      y: originY,
-    },
-
-    targetName,
-    targetPlayerName,
-    targetPlayerSlug,
-    targetCoordinates: {
-      x: targetX,
-      y: targetY,
-    },
+    origin,
+    target,
   };
 };
 
@@ -293,11 +357,8 @@ type ApplyBattleResultArgs = {
   database: DbFacade;
   resolvesAt: number;
   isRaid: boolean;
-  originVillageId: Village['id'];
-  targetVillageId?: Village['id'];
-  targetOasisId?: OasisTile['id'];
-  originTileId: number;
-  targetTileId: number;
+  origin: BattleOrigin;
+  target: BattleTarget;
   result: CombatResult;
 };
 
@@ -305,21 +366,18 @@ const applyBattleResult = ({
   database,
   resolvesAt,
   isRaid,
-  originVillageId,
-  targetVillageId,
-  targetOasisId,
-  originTileId,
-  targetTileId,
+  origin,
+  target,
   result,
 }: ApplyBattleResultArgs) => {
   // ┌───────────────────────────┐
   // │ Remove loot from defender │
   // └───────────────────────────┘
 
-  if (targetVillageId != null) {
+  if (target.type === 'village') {
     subtractVillageResourcesAt(
       database,
-      targetVillageId,
+      target.villageId,
       resolvesAt,
       result.loot,
     );
@@ -351,15 +409,15 @@ const applyBattleResult = ({
 
   reduceWheatConsumptionOfDeceasedTroops(
     result.attackerLosses,
-    originVillageId,
+    origin.villageId,
   );
 
-  if (targetVillageId != null) {
+  if (target.type === 'village') {
     reduceWheatConsumptionOfDeceasedTroops(
       result.defenderLosses,
-      targetVillageId,
+      target.villageId,
     );
-  } else if (targetOasisId != null) {
+  } else {
     const deceasedSourceMap = new Map<Tile['id'], CombatTroop[]>();
     for (const troop of result.defenderLosses) {
       const source = troop.troop.source;
@@ -397,10 +455,10 @@ const applyBattleResult = ({
       : 'troopMovementAttack';
 
     createEvents<'troopMovementReturn'>(database, {
-      villageId: originVillageId,
+      villageId: origin.villageId,
       troops: returningTroops,
-      targetTileId: originTileId,
-      originTileId: targetTileId,
+      targetTileId: origin.tileId,
+      originTileId: target.tileId,
       startsAt: resolvesAt,
       type: 'troopMovementReturn',
       originalMovementType,
@@ -417,21 +475,8 @@ type AddBattleReportArgs = {
 
   playerVillageId: Village['id'];
 
-  originVillageId: Village['id'];
-  originTileId: number;
-  originVillageName: string;
-  originPlayerId: number;
-  originPlayerName: string;
-  originPlayerSlug: string;
-  originCoordinates: Coordinates;
-
-  targetVillageId?: Village['id'];
-  targetOasisId?: OasisTile['id'];
-  targetTileId: number;
-  targetName: string;
-  targetPlayerName: string;
-  targetPlayerSlug?: string;
-  targetCoordinates: Coordinates;
+  origin: BattleOrigin;
+  target: BattleTarget;
 };
 
 const addBattleReport = ({
@@ -442,22 +487,17 @@ const addBattleReport = ({
 
   playerVillageId,
 
-  originVillageId,
-  originTileId,
-  originVillageName,
-
-  targetVillageId,
-  targetOasisId,
-  targetTileId,
-  targetName,
-  targetCoordinates,
+  origin,
+  target,
 }: AddBattleReportArgs) => {
   // ┌─────────────────┐
   // │ Generate report │
   // └─────────────────┘
 
   const subjectType = isRaid ? 'raids' : 'attacks';
-  const subject = `${originVillageName} ${subjectType} ${targetName} (${targetCoordinates.x}|${targetCoordinates.y})`;
+  const targetName =
+    target.type === 'village' ? target.villageName : target.oasisName;
+  const subject = `${origin.villageName} ${subjectType} ${targetName} (${target.coordinates.x}|${target.coordinates.y})`;
 
   const report: CreateNewReport = {
     playerId: PLAYER_ID,
@@ -476,9 +516,10 @@ const addBattleReport = ({
 
   const battle: CreateNewBattleType = {
     reportId,
-    attackingVillageId: originVillageId,
-    defendingVillageId: targetVillageId,
-    defendingOasisId: targetOasisId,
+    attackingVillageId: origin.villageId,
+    defendingVillageId:
+      target.type === 'village' ? target.villageId : undefined,
+    defendingOasisId: target.type === 'oasis' ? target.oasisId : undefined,
     loot: result.loot,
     canAttackerSeeFullReport: result.canAttackerSeeFullReport,
     attackStatisticPoints: result.attackerTotalPoints,
@@ -494,7 +535,7 @@ const addBattleReport = ({
   const createDefendingParticipants = (
     defendingTroops: CombatTroopResult[],
   ): CreateNewBattleParticipant[] => {
-    const participatingSources: Troop['source'][] = [targetTileId];
+    const participatingSources: Troop['source'][] = [target.tileId];
 
     for (const { troop } of defendingTroops) {
       if (!participatingSources.includes(troop.source)) {
@@ -517,7 +558,7 @@ const addBattleReport = ({
         })!;
       }
 
-      const isReinforcement = source !== targetTileId;
+      const isReinforcement = source !== target.tileId;
 
       participants.push({
         reportId,
@@ -533,7 +574,7 @@ const addBattleReport = ({
 
   const originTribeId = database.selectValue({
     sql: selectTribeByTileQuery,
-    bind: { $tile_id: originTileId },
+    bind: { $tile_id: origin.tileId },
     schema: z.int(),
   })!;
 
@@ -542,7 +583,7 @@ const addBattleReport = ({
     role: 'attacker',
     tribeId: originTribeId,
     isReinforcement: false,
-    source: originTileId,
+    source: origin.tileId,
   };
 
   const participants = [
@@ -635,22 +676,15 @@ export const resolveBattle = ({
     modifiers,
     defenderResources,
 
-    originVillageName,
-    originPlayerId,
-    originPlayerName,
-    originPlayerSlug,
-    originCoordinates,
-
-    targetName,
-    targetPlayerName,
-    targetPlayerSlug,
-    targetCoordinates,
+    origin,
+    target,
   } = prepareBattle({
     database,
     resolvesAt,
+    originVillageId,
+    originTileId,
     targetVillageId,
     targetOasisId,
-    originTileId,
     targetTileId,
     troops,
   });
@@ -672,17 +706,14 @@ export const resolveBattle = ({
     database,
     resolvesAt,
     isRaid,
-    originVillageId,
-    targetVillageId,
-    targetOasisId,
-    originTileId,
-    targetTileId,
+    origin,
+    target,
     result,
   });
 
   // TODO: Revisit method of determining player involvement
   const playerVillageId =
-    originPlayerId === PLAYER_ID
+    origin.playerId === PLAYER_ID
       ? originVillageId
       : (targetVillageId ?? targetOasisId);
 
@@ -695,28 +726,15 @@ export const resolveBattle = ({
 
       playerVillageId,
 
-      originVillageId,
-      originTileId,
-      originVillageName,
-      originPlayerId,
-      originPlayerName,
-      originPlayerSlug,
-      originCoordinates,
-
-      targetVillageId,
-      targetOasisId,
-      targetTileId,
-      targetName,
-      targetPlayerName,
-      targetPlayerSlug,
-      targetCoordinates,
+      origin,
+      target,
     });
   }
 
   return {
     affectedVillageIds: [
       originVillageId,
-      ...(targetVillageId != null ? [targetVillageId] : []),
+      ...(target.villageId != null ? [target.villageId] : []),
     ],
   };
 };
