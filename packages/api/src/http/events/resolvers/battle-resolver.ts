@@ -442,6 +442,42 @@ const applyBattleResult = ({
     result.defenderLosses.map(combatTroopToTroop);
   removeTroops(database, defenderDeceasedTroops);
 
+  // ┌────────────────┐
+  // │ Reduce loyalty │
+  // └────────────────┘
+
+  if (
+    target.type === 'oasis' &&
+    !isRaid &&
+    result.attackerWins &&
+    target.villageId != null
+  ) {
+    // Loyalty reduction is based on number of oasis belonging to target village
+    // 1 oasis: 3 attacks (34%)
+    // 2 oases: 2 attacks (50%)
+    // 3 oases: 1 attack (100%)
+
+    const numberOfOases = database.selectValue({
+      sql: 'SELECT COUNT(DISTINCT tile_id) FROM oasis WHERE village_id = $village_id',
+      bind: {
+        $village_id: target.villageId,
+      },
+      schema: z.int(),
+    })!;
+
+    const loyaltyReduction =
+      numberOfOases === 3 ? 100 : numberOfOases === 2 ? 50 : 34;
+
+    adjustLoyalty(database, target.tileId, -loyaltyReduction);
+    createLoyaltyIncreaseEvent(database, resolvesAt);
+
+    const newLoyalty = getLoyalty(database, target.tileId);
+
+    if (newLoyalty != null && newLoyalty <= 0) {
+      abandonOccupiedOasis(database, target.villageId, target.tileId);
+    }
+  }
+
   // ┌──────────────────────────────────┐
   // │ Return surviving attacker troops │
   // └──────────────────────────────────┘

@@ -12,6 +12,7 @@ import {
   heroCacheKey,
   heroInventoryCacheKey,
   loyaltyCacheKey,
+  occupiableOasisInRangeCacheKey,
   questsCacheKey,
   reportsCacheKey,
   sentReinforcementsCacheKey,
@@ -129,10 +130,13 @@ export const cachesToClearOnResolve: Handlers = {
     return [
       [currentVillageCacheKey],
       [reportsCacheKey],
+      [loyaltyCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
         [villageTroopsCacheKey, villageId],
+        [occupiableOasisInRangeCacheKey, villageId],
+        [effectsCacheKey, villageId],
       ]),
     ];
   },
@@ -140,10 +144,13 @@ export const cachesToClearOnResolve: Handlers = {
     return [
       [currentVillageCacheKey],
       [reportsCacheKey],
+      [loyaltyCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
         [villageTroopsCacheKey, villageId],
+        [occupiableOasisInRangeCacheKey, villageId],
+        [effectsCacheKey, villageId],
       ]),
     ];
   },

@@ -30,6 +30,7 @@ export const playerCacheKey = 'player-info';
 export const playerVillagesCacheKey = 'player-villages';
 export const oasisBonusFinderCacheKey = 'oasis-bonus-finder';
 export const oasisAnimalFinderCacheKey = 'oasis-animal-finder';
+export const occupiableOasisInRangeCacheKey = 'occupiable-oasis-in-range';
 export const loyaltyCacheKey = 'loyalty';
 export const playerRankingsCacheKey = 'player-rankings';
 export const villageRankingsCacheKey = 'village-rankings';
