@@ -25,6 +25,14 @@ export const deleteOasisEffectsQuery = `
     AND source_specifier = $source_specifier;
 `;
 
+export const deleteOasisLoyaltyQuery = `
+  DELETE
+  FROM
+    loyalties
+  WHERE
+    tile_id = $tile_id;
+`;
+
 export const selectOasisReinforcementsToReturnQuery = `
   SELECT
     ui.unit AS unit_id,
