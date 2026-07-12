@@ -14,7 +14,7 @@ import {
   incrementHeroAdventurePoints,
   killHero,
   levelUpHero,
-  sendRandomRaid,
+  sendRandomAttack,
   spawnHeroItem,
   updateDeveloperSettings,
   updateVillageResources,
@@ -180,7 +180,7 @@ export const apiRoutes = [
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
   createRoute(killHero),
-  createRoute(sendRandomRaid),
+  createRoute(sendRandomAttack),
   createRoute(adjustVillageLoyalty),
 
   // Auctions

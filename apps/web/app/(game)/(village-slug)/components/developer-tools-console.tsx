@@ -98,7 +98,7 @@ export const DeveloperToolsConsole = ({
     levelUpHero,
     incrementHeroAdventurePoints,
     killHero,
-    sendRandomRaid,
+    sendRandomAttack,
     adjustLoyalty,
   } = useDeveloperSettings();
   const { hero, isHeroAlive, isHeroHome } = useHero();
@@ -440,12 +440,12 @@ export const DeveloperToolsConsole = ({
           <Separator orientation="horizontal" />
 
           <SectionContent>
-            <Text as="h3">{t('Send random raid against:')}</Text>
+            <Text as="h3">{t('Send random attack against:')}</Text>
             <div className="flex flex-col gap-1 items-start">
               <Button
                 variant="destructive"
                 onClick={() =>
-                  sendRandomRaid({ tileId: currentVillage.tileId })
+                  sendRandomAttack({ tileId: currentVillage.tileId })
                 }
               >
                 {t('Current village')}
@@ -453,7 +453,7 @@ export const DeveloperToolsConsole = ({
               {oasisOccupiedByCurrentVillage.map(({ oasis }) => (
                 <Button
                   variant="destructive"
-                  onClick={() => sendRandomRaid({ tileId: oasis.id })}
+                  onClick={() => sendRandomAttack({ tileId: oasis.id })}
                   key={oasis.id}
                 >
                   {t('Occupied oasis ({{x}}|{{y}})', oasis.coordinates)}

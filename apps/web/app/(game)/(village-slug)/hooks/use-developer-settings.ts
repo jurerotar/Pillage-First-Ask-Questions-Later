@@ -42,7 +42,7 @@ type AdjustLoyaltyArgs = {
   amount: number;
 };
 
-type SendRandomRaidArgs = {
+type SendRandomAttackArgs = {
   tileId: Tile['id'];
 };
 
@@ -173,13 +173,13 @@ export const useDeveloperSettings = () => {
     },
   });
 
-  const { mutate: sendRandomRaid } = useMutation<
+  const { mutate: sendRandomAttack } = useMutation<
     void,
     Error,
-    SendRandomRaidArgs
+    SendRandomAttackArgs
   >({
     mutationFn: async ({ tileId }) => {
-      await apiClient.post('/developer-settings/send-random-raid/:tileId', {
+      await apiClient.post('/developer-settings/send-random-attack/:tileId', {
         path: {
           tileId: tileId,
         },
@@ -218,7 +218,7 @@ export const useDeveloperSettings = () => {
     levelUpHero,
     incrementHeroAdventurePoints,
     killHero,
-    sendRandomRaid,
+    sendRandomAttack,
     adjustLoyalty,
   };
 };

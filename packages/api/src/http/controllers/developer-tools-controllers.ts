@@ -344,8 +344,8 @@ export const killHero = createController(
   onHeroDeath(database, now);
 });
 
-export const sendRandomRaid = createController(
-  '/developer-settings/send-random-raid/:tileId',
+export const sendRandomAttack = createController(
+  '/developer-settings/send-random-attack/:tileId',
   'post',
   {
     summary: 'Sends a random attack against an oasis or village',
@@ -393,7 +393,7 @@ export const sendRandomRaid = createController(
 
   const originVillageId = randomVillage.village_id;
   const originTileId = randomVillage.tile_id;
-  const type: TroopMovementEventType = 'troopMovementRaid';
+  const type: TroopMovementEventType = 'troopMovementAttack';
 
   const tribeUnits = getUnitsByTribe(randomVillage.tribe_id);
   const troops: Troop[] = [];
