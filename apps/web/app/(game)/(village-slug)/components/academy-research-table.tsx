@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import {
@@ -18,7 +19,7 @@ export const AcademyResearchTable = () => {
   } = useEventsByType('unitResearch');
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -53,6 +54,6 @@ export const AcademyResearchTable = () => {
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };

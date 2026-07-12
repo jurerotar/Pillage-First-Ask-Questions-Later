@@ -1,6 +1,7 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IoIosArrowRoundForward } from 'react-icons/io';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCancelDemolition } from 'app/(game)/(village-slug)/hooks/use-cancel-demolition';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
@@ -43,7 +44,7 @@ export const MainBuildingDemolitionTable = () => {
   };
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -116,6 +117,6 @@ export const MainBuildingDemolitionTable = () => {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+    </OverflowContainer>
   );
 };

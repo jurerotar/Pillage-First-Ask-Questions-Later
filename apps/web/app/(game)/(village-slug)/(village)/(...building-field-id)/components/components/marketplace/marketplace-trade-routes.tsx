@@ -8,6 +8,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -319,7 +320,7 @@ const ActiveTradeRoutes = ({
 
   if (routes.length === 0) {
     return (
-      <div className="overflow-x-scroll scrollbar-hidden">
+      <OverflowContainer>
         <Table>
           <TableHeader>
             <TableRow>
@@ -338,7 +339,7 @@ const ActiveTradeRoutes = ({
             </TableRow>
           </TableBody>
         </Table>
-      </div>
+      </OverflowContainer>
     );
   }
 
@@ -362,7 +363,7 @@ const ActiveTradeRoutes = ({
               </Link>
             </Text>
 
-            <div className="overflow-x-scroll scrollbar-hidden">
+            <OverflowContainer>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -415,7 +416,7 @@ const ActiveTradeRoutes = ({
                   ))}
                 </TableBody>
               </Table>
-            </div>
+            </OverflowContainer>
           </div>
         ),
       )}

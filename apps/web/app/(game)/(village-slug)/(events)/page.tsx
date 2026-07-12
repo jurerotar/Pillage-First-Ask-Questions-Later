@@ -9,6 +9,7 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)
 import { EventFilters } from 'app/(game)/(village-slug)/(events)/components/event-filters';
 import { useEventFilters } from 'app/(game)/(village-slug)/(events)/hooks/use-event-filters';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -126,7 +127,7 @@ const EventsList = ({
 
   return (
     <Section>
-      <div className="overflow-x-scroll scrollbar-hidden">
+      <OverflowContainer>
         <Table>
           <TableHeader>
             <TableRow>
@@ -171,7 +172,7 @@ const EventsList = ({
             )}
           </TableBody>
         </Table>
-      </div>
+      </OverflowContainer>
       <div className="flex w-full justify-end">
         <Pagination
           {...pagination}

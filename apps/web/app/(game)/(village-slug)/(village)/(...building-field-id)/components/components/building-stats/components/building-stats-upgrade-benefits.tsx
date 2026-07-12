@@ -12,6 +12,7 @@ import type { Effect } from '@pillage-first/types/models/effect';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -109,7 +110,7 @@ export const BuildingStatsUpgradeBenefits = () => {
         <Text as="h2">{t('Upgrade benefits')}</Text>
       </SectionContent>
       <SectionContent>
-        <div className="overflow-x-scroll scrollbar-hidden">
+        <OverflowContainer>
           <Table>
             <TableHeader>
               <TableRow>
@@ -217,7 +218,7 @@ export const BuildingStatsUpgradeBenefits = () => {
               })}
             </TableBody>
           </Table>
-        </div>
+        </OverflowContainer>
       </SectionContent>
     </Section>
   );

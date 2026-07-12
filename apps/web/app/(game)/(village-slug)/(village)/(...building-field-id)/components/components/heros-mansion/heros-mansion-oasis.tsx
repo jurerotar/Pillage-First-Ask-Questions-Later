@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -315,7 +316,7 @@ export const HerosMansionOasis = () => {
               </Text>
             </InformationPopover>
             <Text as="h2">{t('Occupied oasis')}</Text>
-            <div className="overflow-x-scroll scrollbar-hidden">
+            <OverflowContainer>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -360,7 +361,7 @@ export const HerosMansionOasis = () => {
                   )}
                 </TableBody>
               </Table>
-            </div>
+            </OverflowContainer>
           </SectionContent>
         </TabPanel>
         <TabPanel value="oasis-within-reach">
@@ -373,7 +374,7 @@ export const HerosMansionOasis = () => {
               </Text>
             </InformationPopover>
             <Text as="h2">{t('Oasis within reach')}</Text>
-            <div className="overflow-x-scroll scrollbar-hidden">
+            <OverflowContainer>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -404,7 +405,7 @@ export const HerosMansionOasis = () => {
                   ))}
                 </TableBody>
               </Table>
-            </div>
+            </OverflowContainer>
           </SectionContent>
         </TabPanel>
       </Tabs>

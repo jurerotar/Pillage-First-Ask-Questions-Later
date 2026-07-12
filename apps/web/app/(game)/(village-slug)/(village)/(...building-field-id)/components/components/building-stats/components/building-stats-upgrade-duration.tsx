@@ -7,6 +7,7 @@ import {
 } from '@pillage-first/game-assets/utils/buildings';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -98,7 +99,7 @@ export const BuildingStatsUpgradeDuration = () => {
         </div>
       </SectionContent>
       <SectionContent>
-        <div className="overflow-x-scroll scrollbar-hidden">
+        <OverflowContainer>
           <Table>
             <TableHeader>
               <TableRow>
@@ -135,7 +136,7 @@ export const BuildingStatsUpgradeDuration = () => {
               )}
             </TableBody>
           </Table>
-        </div>
+        </OverflowContainer>
       </SectionContent>
     </Section>
   );

@@ -23,3 +23,7 @@ export const SectionContent = ({
     </div>
   );
 };
+
+export const OverflowContainer = ({ children }: PropsWithChildren) => {
+  return <div className="overflow-x-scroll scrollbar-hidden">{children}</div>;
+};

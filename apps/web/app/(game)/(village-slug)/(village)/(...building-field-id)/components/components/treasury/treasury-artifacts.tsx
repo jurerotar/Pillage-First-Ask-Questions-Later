@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -68,9 +69,9 @@ export const TreasuryArtifacts = () => {
         </InformationPopover>
         <Text as="h2">{t('Artifacts')}</Text>
       </SectionContent>
-      <section className="flex flex-col gap-2">
+      <SectionContent>
         <Text as="h2">{t('Artifact in this village')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
+        <OverflowContainer>
           <Table>
             <TableHeader>
               <TableRow>
@@ -114,12 +115,12 @@ export const TreasuryArtifacts = () => {
               </TableRow>
             </TableBody>
           </Table>
-        </div>
-      </section>
+        </OverflowContainer>
+      </SectionContent>
 
-      <section className="flex flex-col gap-2">
+      <SectionContent>
         <Text as="h2">{t('Unoccupied artifacts')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
+        <OverflowContainer>
           <Table>
             <TableHeader>
               <TableRow>
@@ -149,8 +150,8 @@ export const TreasuryArtifacts = () => {
                 ))}
             </TableBody>
           </Table>
-        </div>
-      </section>
+        </OverflowContainer>
+      </SectionContent>
     </Section>
   );
 };

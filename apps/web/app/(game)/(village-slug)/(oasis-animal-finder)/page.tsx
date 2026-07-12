@@ -11,6 +11,7 @@ import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -334,7 +335,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
             </Text>
           )}
 
-          <div className="overflow-x-scroll scrollbar-hidden">
+          <OverflowContainer>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -425,7 +426,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
                   )}
               </TableBody>
             </Table>
-          </div>
+          </OverflowContainer>
         </SectionContent>
         <SectionContent>
           <div className="flex w-full justify-end">
