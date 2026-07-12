@@ -7,6 +7,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useArtifactsAroundCurrentVillage } from 'app/(game)/(village-slug)/hooks/use-artifacts-around-current-village';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -58,13 +59,14 @@ export const TreasuryArtifacts = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="artifacts" />
+        <InformationPopover ariaLabel={t('Artifacts')}>
+          <Text>
+            {t(
+              'Artifacts are powerful items created by the ancient Natars. Once activated, they provide strong advantages such as reduced crop consumption or increased troop speed.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Artifacts')}</Text>
-        <Text>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
-          ad autem distinctio nesciunt officia quas qui similique. Aperiam atque
-          et excepturi fugiat labore quidem sed sit tempore totam voluptas.
-          Iure!
-        </Text>
       </SectionContent>
       <section className="flex flex-col gap-2">
         <Text as="h2">{t('Artifact in this village')}</Text>

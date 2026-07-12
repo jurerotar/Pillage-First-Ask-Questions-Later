@@ -4,6 +4,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 
@@ -14,13 +15,14 @@ export const EmbassyRelations = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="relations" />
+        <InformationPopover ariaLabel={t('Relations')}>
+          <Text>
+            {t(
+              'Relations show the alliances, confederacies, and diplomatic standings connected to your village or alliance.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Relations')}</Text>
-        <Text>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
-          ad autem distinctio nesciunt officia quas qui similique. Aperiam atque
-          et excepturi fugiat labore quidem sed sit tempore totam voluptas.
-          Iure!
-        </Text>
       </SectionContent>
       <SectionContent>
         <Alert variant="warning">
