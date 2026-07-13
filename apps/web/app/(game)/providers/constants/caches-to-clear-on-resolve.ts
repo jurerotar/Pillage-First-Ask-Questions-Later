@@ -131,6 +131,7 @@ export const cachesToClearOnResolve: Handlers = {
       [currentVillageCacheKey],
       [reportsCacheKey],
       [loyaltyCacheKey],
+      [tilesCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
@@ -144,12 +145,10 @@ export const cachesToClearOnResolve: Handlers = {
     return [
       [currentVillageCacheKey],
       [reportsCacheKey],
-      [loyaltyCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
         [villageTroopsCacheKey, villageId],
-        [occupiableOasisInRangeCacheKey, villageId],
         [effectsCacheKey, villageId],
       ]),
     ];
