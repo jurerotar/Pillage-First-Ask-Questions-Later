@@ -15,6 +15,9 @@
     ".": {
       "default": "./src/worker/api-worker.ts"
     },
+    "./api-routes": {
+      "default": "./src/http/api-routes.ts"
+    },
     "./open-api": {
       "default": "./src/open-api.ts"
     }
