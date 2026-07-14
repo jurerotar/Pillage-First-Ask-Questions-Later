@@ -1,12 +1,18 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import type { ITooltip as ReactTooltipProps } from 'react-tooltip';
 import type { BuildingField as BuildingFieldType } from '@pillage-first/types/models/building-field';
+import {
+  type ResourceFieldComposition,
+  resourceFieldCompositionSchema,
+} from '@pillage-first/types/models/resource-field-composition';
+import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(village)/+types/page';
 import { BuildingField } from 'app/(game)/(village-slug)/(village)/components/building-field';
 import { VillageMapContext } from 'app/(game)/(village-slug)/(village)/providers/village-map-context';
 import { BuildingFieldTooltip } from 'app/(game)/(village-slug)/components/building-field-tooltip';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useBookmarks } from 'app/(game)/(village-slug)/hooks/use-bookmarks';
@@ -14,6 +20,13 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 import layoutStyles from 'app/(game)/(village-slug)/layout.module.scss';
 import { PageContents } from 'app/components/page-contents';
 import { Tooltip } from 'app/components/tooltip';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from 'app/components/ui/select';
 
 const resourceViewBuildingFieldIds = Array.from(
   { length: 18 },
@@ -23,6 +36,7 @@ const villageViewBuildingFieldIds = Array.from(
   { length: 22 },
   (_, i) => i + 19,
 );
+const resourceFieldCompositions = resourceFieldCompositionSchema.options;
 
 const VillagePage = (props: Route.ComponentProps) => {
   const { params, matches } = props;
@@ -34,6 +48,16 @@ const VillagePage = (props: Route.ComponentProps) => {
   const { currentVillage } = useCurrentVillage();
   const { bookmarks } = useBookmarks();
   const { preferences } = usePreferences();
+  const [
+    selectedResourceFieldComposition,
+    setSelectedResourceFieldComposition,
+  ] = useState<{
+    villageId: number;
+    value: ResourceFieldComposition;
+  }>({
+    villageId: currentVillage.id,
+    value: currentVillage.resourceFieldComposition,
+  });
   const buildingFieldById = useMemo(
     () =>
       new Map<BuildingFieldType['id'], BuildingFieldType>(
@@ -81,17 +105,21 @@ const VillagePage = (props: Route.ComponentProps) => {
       document.body.classList.remove(className);
     };
   }, [isVillagePageOpen]);
-
   const title = `${isResourcesPageOpen ? t('Resources') : t('Village')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
   const buildingFieldIds = isResourcesPageOpen
     ? resourceViewBuildingFieldIds
     : villageViewBuildingFieldIds;
+  const resourceFieldComposition =
+    selectedResourceFieldComposition.villageId === currentVillage.id
+      ? selectedResourceFieldComposition.value
+      : currentVillage.resourceFieldComposition;
 
   const villageMapContextValue = useMemo(
     () => ({
       bookmarks,
       currentVillage,
       isWiderThanLg,
+      resourceFieldComposition,
       shouldShowBuildingNames: preferences.shouldShowBuildingNames,
     }),
     [
@@ -99,6 +127,7 @@ const VillagePage = (props: Route.ComponentProps) => {
       currentVillage,
       isWiderThanLg,
       preferences.shouldShowBuildingNames,
+      resourceFieldComposition,
     ],
   );
 
@@ -114,6 +143,42 @@ const VillagePage = (props: Route.ComponentProps) => {
         render={renderTooltip}
       />
       <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
+        <div className="z-10 mb-4 flex w-full max-w-5xl justify-center px-4">
+          <div className="flex flex-col gap-2 text-sm font-medium">
+            <span id="resource-field-composition-label">
+              {t('Resource field composition')}
+            </span>
+            <Select
+              value={resourceFieldComposition}
+              onValueChange={(value) => {
+                setSelectedResourceFieldComposition({
+                  villageId: currentVillage.id,
+                  value: value as ResourceFieldComposition,
+                });
+              }}
+            >
+              <SelectTrigger
+                aria-labelledby="resource-field-composition-label"
+                className="w-52 bg-background/90 backdrop-blur"
+              >
+                <SelectValue placeholder={t('Select resource composition')} />
+              </SelectTrigger>
+              <SelectContent>
+                {resourceFieldCompositions.map((rfc) => (
+                  <SelectItem
+                    key={rfc}
+                    value={rfc}
+                  >
+                    <Resources
+                      iconClassName="size-4"
+                      resources={parseResourcesFromRFC(rfc)}
+                    />
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <VillageMapContext value={villageMapContextValue}>
           <div className="relative aspect-16/10 scrollbar-hidden min-w-[460px] max-w-5xl w-full">
             {buildingFieldIds.map((buildingFieldId) => (

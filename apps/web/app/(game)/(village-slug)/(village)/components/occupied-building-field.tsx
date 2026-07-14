@@ -167,7 +167,8 @@ const OccupiedBuildingFieldContent = ({
   ...props
 }: OccupiedBuildingFieldContentProps) => {
   const { t } = useTranslation();
-  const { currentVillage, shouldShowBuildingNames } = use(VillageMapContext);
+  const { resourceFieldComposition, shouldShowBuildingNames } =
+    use(VillageMapContext);
 
   const { id: buildingFieldId, buildingId } = buildingField;
   const hasEvent = !!currentBuildingFieldBuildingEvent;
@@ -184,7 +185,7 @@ const OccupiedBuildingFieldContent = ({
         buildingFieldId <= 18 &&
           getResourceBuildingClasses({
             buildingFieldId,
-            resourceFieldComposition: currentVillage.resourceFieldComposition,
+            resourceFieldComposition,
           }),
         occupiedBuildingFieldClassName,
       )}
