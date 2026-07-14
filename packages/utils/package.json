@@ -45,6 +45,9 @@
     "./opfs-lock-retry": {
       "default": "./src/opfs-lock-retry.ts"
     },
+    "./types": {
+      "default": "./src/types.ts"
+    },
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },
@@ -88,7 +91,6 @@
     "ts-seedrandom": "1.6.0"
   },
   "devDependencies": {
-    "type-fest": "5.8.0",
     "typescript": "7.0.2",
     "vite": "8.1.4",
     "vitest": "4.1.10",

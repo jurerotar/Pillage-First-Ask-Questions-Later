@@ -53,7 +53,6 @@ import {
   TbTooltip,
 } from 'react-icons/tb';
 import { TiMinus, TiPlus } from 'react-icons/ti';
-import type { CamelCase } from 'type-fest';
 import {
   PillageFirstCatapult,
   PillageFirstCavalryDefence,
@@ -77,6 +76,7 @@ import type {
   TeutonUnitId,
   Unit,
 } from '@pillage-first/types/models/unit';
+import type { CamelCase } from '@pillage-first/utils/types';
 import styles from './icons.module.scss';
 
 type UncategorizedIconType =

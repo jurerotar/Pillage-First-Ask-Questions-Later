@@ -1,6 +1,6 @@
 import type { BindableValue } from '@sqlite.org/sqlite-wasm';
-import type { SnakeCase } from 'type-fest';
 import type { z } from 'zod';
+import type { SnakeCase } from '../types';
 
 type LowercaseLetter =
   | 'a'
