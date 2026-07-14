@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { clsx } from 'clsx';
 import { randomInt } from 'moderndash';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -93,6 +93,7 @@ export const CreateNewGameWorldForm = () => {
   const navigate = useNavigate();
   const { createGameWorld, deleteGameWorld } = useGameWorldActions();
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
+  const generationOverviewRef = useRef<HTMLDivElement>(null);
 
   const steps = [
     t('Generating map tiles...'),
@@ -101,6 +102,11 @@ export const CreateNewGameWorldForm = () => {
     t('Generating villages...'),
     t('Finalizing world generation...'),
   ];
+  const completedStepCount = Math.min(
+    Math.max(currentStepIndex, 0),
+    steps.length,
+  );
+  const generationProgress = (completedStepCount / steps.length) * 100;
 
   const {
     mutate: createServer,
@@ -212,6 +218,19 @@ export const CreateNewGameWorldForm = () => {
     form.setValue('seed', generateSeed());
     form.setValue('name', `${adjective}${noun}`);
   }, [form]);
+
+  useEffect(() => {
+    if (!isPending) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      generationOverviewRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    });
+  }, [isPending]);
 
   return (
     <div className="relative">
@@ -432,12 +451,36 @@ export const CreateNewGameWorldForm = () => {
       </div>
       {isPending && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-xs z-10 rounded-md">
-          <div className="flex flex-col gap-4 p-6 shadow-2xl rounded-lg border border-border bg-background max-w-sm w-full mx-4">
+          <div
+            ref={generationOverviewRef}
+            className="flex flex-col gap-4 p-6 shadow-2xl rounded-lg border border-border bg-background max-w-sm w-full mx-4"
+          >
+            <div className="space-y-1">
+              <Text
+                as="h2"
+                className="text-lg font-bold"
+              >
+                {t('Creating your world')}
+              </Text>
+              <Text className="text-sm text-muted-foreground">
+                {t('Laying roads, marking oases, and settling villages.')}
+              </Text>
+            </div>
+
             <div className="flex flex-col relative">
               <div
                 className="absolute left-1.5 top-2 bottom-2 w-0.5 bg-muted-foreground/20"
                 aria-hidden="true"
               />
+              <div
+                className="absolute left-1.5 top-2 bottom-2 w-0.5 overflow-hidden rounded-full"
+                aria-hidden="true"
+              >
+                <div
+                  className="w-full rounded-full bg-success transition-all duration-500"
+                  style={{ height: `${generationProgress}%` }}
+                />
+              </div>
               {steps.map((step, index) => {
                 const isCompleted = index < currentStepIndex;
                 const isCurrent = index === currentStepIndex;
