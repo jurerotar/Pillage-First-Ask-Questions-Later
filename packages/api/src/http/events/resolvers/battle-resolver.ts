@@ -121,6 +121,32 @@ type PrepareBattleResult = {
   target: BattleTarget;
 };
 
+const getBattleResultTag = (
+  prefix: 'ATTACKER' | 'DEFENDER',
+  survivors: CombatTroop[],
+  losses: CombatTroop[],
+) => {
+  let lossesCount = 0;
+  for (const { amount } of losses) {
+    lossesCount += amount;
+  }
+
+  if (lossesCount === 0) {
+    return `${prefix}_NO_LOSS`;
+  }
+
+  let survivorCount = 0;
+  for (const { amount } of survivors) {
+    survivorCount += amount;
+  }
+
+  if (survivorCount === 0) {
+    return `${prefix}_FULL_LOSS`;
+  }
+
+  return `${prefix}_SOME_LOSS`;
+};
+
 const prepareBattle = ({
   database,
   resolvesAt,
@@ -423,6 +449,7 @@ const applyBattleResult = ({
     origin.villageId,
   );
 
+  // TODO FIX: wheat consumption didn't fall when I lost units in my oasis
   if (target.type === 'village') {
     reduceWheatConsumptionOfDeceasedTroops(
       result.defenderLosses,
@@ -546,13 +573,26 @@ const addBattleReport = ({
     target.type === 'village' ? target.villageName : target.oasisName;
   const subject = `${origin.villageName} ${subjectType} ${targetName} (${target.coordinates.x}|${target.coordinates.y})`;
 
+  const resultTag =
+    origin.villageId === playerVillageId
+      ? getBattleResultTag(
+          'ATTACKER',
+          result.attackerSurvivors,
+          result.attackerLosses,
+        )
+      : getBattleResultTag(
+          'DEFENDER',
+          result.defenderSurvivors,
+          result.defenderLosses,
+        );
+
   const report: CreateNewReport = {
     playerId: PLAYER_ID,
     villageId: playerVillageId,
     timestamp: resolvesAt,
     subject,
     type: 'battle',
-    tags: [],
+    tags: [resultTag],
   };
 
   const reportId = insertReport(database, report);

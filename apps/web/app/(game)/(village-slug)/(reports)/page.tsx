@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type {
-  BaseReport,
-  ReportType,
+import {
+  type BaseReport,
+  type ReportTag,
+  type ReportType,
+  reportBattleResultTags,
 } from '@pillage-first/types/models/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/+types/page';
 import { ReportFilters } from 'app/(game)/(village-slug)/(reports)/components/report-filters';
@@ -39,6 +41,26 @@ import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { usePagination } from '../hooks/use-pagination';
 import { useReports } from '../hooks/use-reports';
 import { useReportFilters } from './hooks/use-report-filters';
+
+const ReportTagIcon = (tags: ReportTag[]) => {
+  const resultTag = tags.find((t) => reportBattleResultTags.includes(t));
+  switch (resultTag) {
+    case 'ATTACKER_NO_LOSS':
+      return <Icon type="attackerNoLoss" />;
+    case 'ATTACKER_SOME_LOSS':
+      return <Icon type="attackerSomeLoss" />;
+    case 'ATTACKER_FULL_LOSS':
+      return <Icon type="attackerFullLoss" />;
+    case 'DEFENDER_NO_LOSS':
+      return <Icon type="defenderNoLoss" />;
+    case 'DEFENDER_SOME_LOSS':
+      return <Icon type="defenderSomeLoss" />;
+    case 'DEFENDER_FULL_LOSS':
+      return <Icon type="defenderFullLoss" />;
+    default:
+      return null;
+  }
+};
 
 type ReportsListProps = {
   scope: 'village' | 'unread' | 'archived' | 'global';
@@ -180,7 +202,7 @@ export const ReportsList = ({
                   />
                 </TableCell>
                 <TableCell className="flex gap-3 items-center">
-                  <Icon type="attackerNoLoss" />
+                  {ReportTagIcon(report.tags)}
                   <Link
                     onClick={() => markAsRead(report)}
                     to={`../reports/${report.id}`}

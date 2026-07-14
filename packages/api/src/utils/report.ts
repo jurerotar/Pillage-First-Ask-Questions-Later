@@ -93,6 +93,23 @@ export const insertReport = (
     schema: z.int(),
   })!;
 
+  var valueRows = [];
+  for (let i = 0; i < report.tags.length; i += 1) {
+    const tag = report.tags[i];
+    const frontComma = i === 0 ? '' : ',';
+    valueRows.push(
+      `${frontComma}(${reportId}, (SELECT id FROM report_tag_ids WHERE tag = '${tag}'))`,
+    );
+  }
+
+  database.exec({
+    sql: `
+      INSERT INTO
+        report_tags (report_id, report_tag_id)
+      VALUES
+        ${valueRows}`,
+  });
+
   return reportId;
 };
 

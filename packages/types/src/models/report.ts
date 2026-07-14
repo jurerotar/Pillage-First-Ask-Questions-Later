@@ -3,7 +3,21 @@ import { battleTypeSchema } from './battle';
 
 export const reportTypeSchema = z.enum(['battle', 'adventure', 'trade']);
 
-export const reportTagSchema = z.enum(['READ', 'ARCHIVED']);
+export const reportBattleResultTags = [
+  'ATTACKER_NO_LOSS',
+  'ATTACKER_SOME_LOSS',
+  'ATTACKER_FULL_LOSS',
+  'DEFENDER_NO_LOSS',
+  'DEFENDER_SOME_LOSS',
+  'DEFENDER_FULL_LOSS',
+];
+
+export const reportStateTags = ['READ', 'ARCHIVED'];
+
+export const reportTagSchema = z.enum([
+  ...reportBattleResultTags,
+  ...reportStateTags,
+]);
 
 export const baseReportSchema = z.strictObject({
   id: z.int(),

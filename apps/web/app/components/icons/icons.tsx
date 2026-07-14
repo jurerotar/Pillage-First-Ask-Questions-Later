@@ -237,7 +237,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   attackerNoLoss: (props) => (
     <LuSwords
       {...props}
-      className={clsx('text-red-500', props.className)}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
     />
   ),
   attackerSomeLoss: (props) => (
@@ -246,7 +246,12 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
       className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
     />
   ),
-  attackerFullLoss: (props) => icons.missingIcon(props),
+  attackerFullLoss: (props) => (
+    <LuSwords
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
   defenderNoLoss: (props) => (
     <LuShield
       {...props}
