@@ -2,10 +2,10 @@
 
 #### Jul 14, 2026
 
-* [Feature] This version includes a reworked UI. Page & section descriptions have now been removed the page and instead
-  added to **information popovers**. This reduces the length of the pages, allowing for faster navigation between them.
-  Information popovers are available as page, section or block level elements, so you may encounter more than one on a
-  given page.
+* [Feature] This version includes a reworked UI. Page & section descriptions have now been removed from the page and
+  instead added to **information popovers**. This reduces the length of the pages, reducing the amount of scrolling
+  required and enabling faster navigation through the pages. Information popovers are available as page, section or
+  block level elements, so you may encounter more than one on a given page.
 
 ## Version 0.4.42
 
