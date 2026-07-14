@@ -12,6 +12,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 
@@ -270,10 +271,12 @@ export const RearrangeBuildingFields = () => {
   return (
     <Section>
       <SectionContent>
+        <InformationPopover ariaLabel={t('Rearrange buildings')}>
+          <Text>
+            {t('Drag buildings between available village building sites.')}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Rearrange buildings')}</Text>
-        <Text>
-          {t('Drag buildings between available village building sites.')}
-        </Text>
       </SectionContent>
       <SectionContent>
         <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden non-selectable non-selectable">

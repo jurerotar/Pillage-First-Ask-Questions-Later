@@ -11,6 +11,7 @@ import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units'
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { TroopLike } from '@pillage-first/types/models/troop';
 import { formatNumber } from '@pillage-first/utils/format';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
@@ -31,11 +32,11 @@ type UnitTableProps = {
 export const UnitTable = ({ tribe, children }: UnitTableProps) => {
   return (
     <UnitTableContext.Provider value={{ tribe }}>
-      <div className="overflow-x-scroll scrollbar-hidden">
+      <OverflowContainer>
         <table className="w-full border-collapse border overflow-hidden dark:border-border text-left">
           {children}
         </table>
-      </div>
+      </OverflowContainer>
     </UnitTableContext.Provider>
   );
 };

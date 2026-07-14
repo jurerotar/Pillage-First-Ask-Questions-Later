@@ -17,6 +17,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -31,15 +32,15 @@ import { lazyWithRetry } from 'app/utils/imports';
 
 const BuildingTabFallback = () => {
   return (
-    <Section>
-      <SectionContent>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         <Skeleton className="flex w-60 h-6" />
         <Skeleton className="flex w-full h-16" />
-      </SectionContent>
-      <SectionContent>
+      </div>
+      <div className="flex flex-col gap-2">
         <Skeleton className="flex w-full h-30" />
-      </SectionContent>
-    </Section>
+      </div>
+    </div>
   );
 };
 
@@ -317,6 +318,16 @@ export const BuildingDetails = () => {
           <BreadcrumbItem>{t(`BUILDINGS.${buildingId}.NAME`)}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Building details')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            "Review this building's current level, benefits, upgrade costs, available actions and building-specific management tabs.",
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">
         {t(`BUILDINGS.${buildingId}.NAME`)} -{' '}
         {t('level {{level}}', { level: actualLevel })}
@@ -344,13 +355,8 @@ export const BuildingDetails = () => {
             <Section>
               <SectionContent>
                 <Bookmark tab="default" />
-                <Text as="h2">
-                  {t('{{buildingName}} overview', {
-                    buildingName: t(`BUILDINGS.${buildingId}.NAME`),
-                  })}
-                </Text>
                 <BuildingCard buildingId={buildingId}>
-                  <BuildingOverview shouldShowTitle={false} />
+                  <BuildingOverview />
                   <BuildingUnfinishedNotice />
                   <BuildingBenefits />
                   <BuildingCost />

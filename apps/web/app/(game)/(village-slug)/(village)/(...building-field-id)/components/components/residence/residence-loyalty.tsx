@@ -5,6 +5,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useLoyalty } from 'app/(game)/(village-slug)/hooks/use-loyalty';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { ResidenceLoyaltyCountdown } from './residence-loyalty-countdown';
@@ -17,12 +18,14 @@ export const ResidenceLoyalty = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="loyalty" />
+        <InformationPopover ariaLabel={t('Loyalty')}>
+          <Text>
+            {t(
+              "Loyalty determines how firmly a village belongs to your realm. Every village begins with 100% loyalty. When loyalty drops to 0%, the village will switch allegiance and become part of the attacker's realm.",
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Loyalty')}</Text>
-        <Text>
-          {t(
-            "Loyalty determines how firmly a village belongs to your realm. Every village begins with 100% loyalty. When loyalty drops to 0%, the village will switch allegiance and become part of the attacker's realm.",
-          )}
-        </Text>
         <Text as="h3">{t('How Loyalty Works')}</Text>
         <Text>
           {t(

@@ -6,6 +6,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Pagination } from 'app/components/ui/pagination';
@@ -24,12 +25,14 @@ export const ArchivedReports = () => {
   return (
     <Section>
       <SectionContent>
+        <InformationPopover ariaLabel={t('Archived reports')}>
+          <Text>
+            {t(
+              'This is a categorized view of archived reports. These reports are not deleted once a limit is reached and you can have an unlimited amount of them. You can toggle different types of reports by using report filters below.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Archived reports')}</Text>
-        <Text>
-          {t(
-            'This is a categorized view of archived reports. These reports are not deleted once a limit is reached and you can have an unlimited amount of them. You can toggle different types of reports by using report filters below.',
-          )}
-        </Text>
       </SectionContent>
       <ReportFilters
         reportFilters={reportFilters}

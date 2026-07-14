@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import { partition } from '@pillage-first/utils/array';
+import { assessBuildingRequirements } from '@pillage-first/utils/game/building-requirements';
 import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import {
   BuildingBenefits,
@@ -12,13 +13,14 @@ import {
   BuildingRequirements,
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
-import { BuildingConstructionViewModeToggle } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-construction-view-mode-toggle';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import { assessBuildingConstructionReadiness } from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
-import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  Section,
+  SectionContent,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
   Breadcrumb,
@@ -33,12 +35,10 @@ const tabs = ['infrastructure', 'military', 'resources'];
 
 type BuildingCategoryPanelProps = {
   buildingCategory: Building['category'];
-  isCompact: boolean;
 };
 
 const BuildingCategoryPanel = ({
   buildingCategory,
-  isCompact,
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
   const tribe = useTribe();
@@ -52,12 +52,12 @@ const BuildingCategoryPanel = ({
   const assessments = useMemo(() => {
     return new Map<
       Building['id'],
-      ReturnType<typeof assessBuildingConstructionReadiness>
+      ReturnType<typeof assessBuildingRequirements>
     >(
       buildingsByCategory.map((building) => [
         building.id,
-        assessBuildingConstructionReadiness({
-          buildingId: building.id,
+        assessBuildingRequirements({
+          building,
           tribe,
           maxLevelByBuildingId,
           buildingIdsInQueue,
@@ -104,24 +104,28 @@ const BuildingCategoryPanel = ({
 
   return (
     <SectionContent>
-      {hasNoAvailableBuildings && <p>{t('No buildings available')}</p>}
+      {hasNoAvailableBuildings && <Text>{t('No buildings available')}</Text>}
       {!hasNoAvailableBuildings && (
-        <section className="flex flex-col gap-2 *:border *:border-border *:p-2">
+        <section className="flex flex-col gap-2">
           {sortedAvailableBuildings.map((building: Building) => (
-            <BuildingCard
+            <div
               key={building.id}
-              buildingId={building.id}
-              buildingConstructionReadinessAssessment={assessments.get(
-                building.id,
-              )}
+              className="p-2 border border-border"
             >
-              <BuildingOverview isCompact={isCompact} />
-              <BuildingUnfinishedNotice />
-              {!isCompact && <BuildingBenefits />}
-              <BuildingCost />
-              <BuildingActions />
-              <BuildingRequirements />
-            </BuildingCard>
+              <BuildingCard
+                buildingId={building.id}
+                buildingConstructionReadinessAssessment={assessments.get(
+                  building.id,
+                )}
+              >
+                <BuildingOverview />
+                <BuildingUnfinishedNotice />
+                <BuildingBenefits />
+                <BuildingCost />
+                <BuildingActions />
+                <BuildingRequirements />
+              </BuildingCard>
+            </div>
           ))}
         </section>
       )}
@@ -132,15 +136,12 @@ const BuildingCategoryPanel = ({
 export const BuildingConstruction = () => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
-  const { preferences } = usePreferences();
 
   const { tabIndex, navigateToTab } = useTabParam(
     tabs,
     'building-construction-tab',
     tabs[0],
   );
-
-  const isCompact = preferences.buildingConstructionViewMode === 'compact';
 
   const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
 
@@ -155,6 +156,16 @@ export const BuildingConstruction = () => {
           <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Construct new building')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'Choose an infrastructure, military or resource building to construct on this empty building field.',
+          )}
+        </Text>
+      </InformationPopover>
       <div className="flex justify-between items-center">
         <Text as="h1">{t('Construct new building')}</Text>
       </div>
@@ -170,51 +181,53 @@ export const BuildingConstruction = () => {
           <Tab value="resources">{t('Resources')}</Tab>
         </TabList>
         <TabPanel value="infrastructure">
-          <SectionContent>
-            <div className="flex justify-between items-center">
+          <Section>
+            <SectionContent>
+              <InformationPopover ariaLabel={t('Infrastructure buildings')}>
+                <Text>
+                  {t(
+                    'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
+                  )}
+                </Text>
+              </InformationPopover>
               <Text as="h2">{t('Infrastructure buildings')}</Text>
-              <BuildingConstructionViewModeToggle />
-            </div>
-            <Text>
-              {t(
-                'Buildings focused on providing village services, growth and utility. They generally support administration and logistics rather than producing raw resources.',
-              )}
-            </Text>
-            <BuildingCategoryPanel
-              buildingCategory="infrastructure"
-              isCompact={isCompact}
-            />
-          </SectionContent>
+            </SectionContent>
+            <SectionContent>
+              <BuildingCategoryPanel buildingCategory="infrastructure" />
+            </SectionContent>
+          </Section>
         </TabPanel>
         <TabPanel value="military">
-          <SectionContent>
-            <div className="flex justify-between items-center">
+          <Section>
+            <SectionContent>
+              <InformationPopover ariaLabel={t('Military buildings')}>
+                <Text>
+                  {t(
+                    'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
+                  )}
+                </Text>
+              </InformationPopover>
               <Text as="h2">{t('Military buildings')}</Text>
-              <BuildingConstructionViewModeToggle />
-            </div>
-            <Text>
-              {t(
-                'Buildings focused on raising, upgrading and supporting armed forces and village defense. This category covers training, unit production, upgrades and defensive capabilities that increase a village’s combat effectiveness.',
-              )}
-            </Text>
-            <BuildingCategoryPanel
-              buildingCategory="military"
-              isCompact={isCompact}
-            />
-          </SectionContent>
+            </SectionContent>
+            <SectionContent>
+              <BuildingCategoryPanel buildingCategory="military" />
+            </SectionContent>
+          </Section>
         </TabPanel>
         <TabPanel value="resources">
-          <SectionContent>
-            <div className="flex justify-between items-center">
+          <Section>
+            <SectionContent>
+              <InformationPopover ariaLabel={t('Resource buildings')}>
+                <Text>
+                  {t('Buildings focused on improving village economy.')}
+                </Text>
+              </InformationPopover>
               <Text as="h2">{t('Resource buildings')}</Text>
-              <BuildingConstructionViewModeToggle />
-            </div>
-            <Text>{t('Buildings focused on improving village economy.')}</Text>
-            <BuildingCategoryPanel
-              buildingCategory="resource-booster"
-              isCompact={isCompact}
-            />
-          </SectionContent>
+            </SectionContent>
+            <SectionContent>
+              <BuildingCategoryPanel buildingCategory="resource-booster" />
+            </SectionContent>
+          </Section>
         </TabPanel>
       </Tabs>
     </>

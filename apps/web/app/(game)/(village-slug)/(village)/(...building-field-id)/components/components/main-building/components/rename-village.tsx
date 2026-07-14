@@ -11,6 +11,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import {
   currentVillageCacheKey,
   villageListingCacheKey,
@@ -84,10 +85,12 @@ export const RenameVillage = () => {
   return (
     <Section>
       <SectionContent>
+        <InformationPopover ariaLabel={t('Rename village')}>
+          <Text>
+            {t('Rename current village. Name cannot exceed 30 characters.')}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Rename village')}</Text>
-        <Text>
-          {t('Rename current village. Name cannot exceed 30 characters.')}
-        </Text>
       </SectionContent>
       <SectionContent>
         <Form {...form}>

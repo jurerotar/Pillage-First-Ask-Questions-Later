@@ -15,6 +15,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 
 export const AcademyUnitResearch = () => {
@@ -26,12 +27,14 @@ export const AcademyUnitResearch = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="unit-research" />
+        <InformationPopover ariaLabel={t('Unit research')}>
+          <Text>
+            {t(
+              'To be able to train stronger units, you will need to do research in your academy. The more this building is upgraded, the more you will have access to advanced research.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Unit research')}</Text>
-        <Text>
-          {t(
-            'To be able to train stronger units, you will need to do research in your academy. The more this building is upgraded, the more you will have access to advanced research.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <AcademyResearchTable />
@@ -47,16 +50,15 @@ export const AcademyUnitResearch = () => {
 
             return (
               <li key={id}>
-                <UnitCard
-                  unitId={id}
-                  buildingId="BARRACKS"
-                >
-                  <UnitOverview />
-                  {!isResearched && <UnitCost />}
+                <div className="p-2 border border-border">
+                  <UnitCard unitId={id}>
+                    <UnitOverview />
+                    {!isResearched && <UnitCost />}
 
-                  <UnitResearch />
-                  {!isResearched && !canResearch && <UnitRequirements />}
-                </UnitCard>
+                    <UnitResearch />
+                    {!isResearched && !canResearch && <UnitRequirements />}
+                  </UnitCard>
+                </div>
               </li>
             );
           })}

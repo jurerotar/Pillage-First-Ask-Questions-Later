@@ -5,23 +5,16 @@ const uiColorSchemeSchema = z
   .meta({ id: 'UIColorScheme' });
 const timeOfDaySchema = z.enum(['day', 'night']).meta({ id: 'TimeOfDay' });
 const skinVariantSchema = z.enum(['default']).meta({ id: 'SkinVariant' });
-const buildingConstructionViewModeSchema = z
-  .enum(['detailed', 'compact'])
-  .meta({ id: 'BuildingConstructionViewMode' });
 
 export type UIColorScheme = z.infer<typeof uiColorSchemeSchema>;
 export type TimeOfDay = z.infer<typeof timeOfDaySchema>;
 export type SkinVariant = z.infer<typeof skinVariantSchema>;
-export type BuildingConstructionViewMode = z.infer<
-  typeof buildingConstructionViewModeSchema
->;
 
 export const preferencesSchema = z
   .strictObject({
     isAccessibilityModeEnabled: z.boolean(),
     isReducedMotionModeEnabled: z.boolean(),
     shouldShowBuildingNames: z.boolean(),
-    buildingConstructionViewMode: buildingConstructionViewModeSchema,
     isAutomaticNavigationAfterBuildingLevelChangeEnabled: z.boolean(),
     isAutomaticNavigationAfterUnitResearchEnabled: z.boolean(),
     isAutomaticNavigationAfterUnitUpgradeEnabled: z.boolean(),

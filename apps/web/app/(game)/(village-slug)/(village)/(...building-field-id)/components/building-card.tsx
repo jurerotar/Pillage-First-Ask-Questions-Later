@@ -14,20 +14,20 @@ import {
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
-import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { Effect } from '@pillage-first/types/models/effect';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import type {
   AssessedBuildingRequirement,
-  assessBuildingConstructionReadiness,
-} from 'app/(game)/(village-slug)/(village)/utils/building-requirements';
+  assessBuildingRequirements,
+} from '@pillage-first/utils/game/building-requirements';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -37,7 +37,7 @@ type BuildingCardContextState = {
   buildingId: Building['id'];
   building: Building;
   buildingConstructionReadinessAssessment?: ReturnType<
-    typeof assessBuildingConstructionReadiness
+    typeof assessBuildingRequirements
   >;
 };
 
@@ -48,7 +48,7 @@ export const BuildingCardContext = createContext<BuildingCardContextState>(
 type BuildingCardProps = {
   buildingId: Building['id'];
   buildingConstructionReadinessAssessment?: ReturnType<
-    typeof assessBuildingConstructionReadiness
+    typeof assessBuildingRequirements
   >;
 };
 
@@ -71,6 +71,7 @@ export const BuildingCard = ({
   buildingConstructionReadinessAssessment,
   children,
 }: PropsWithChildren<BuildingCardProps>) => {
+  const { t } = useTranslation();
   const building = getBuildingDefinition(buildingId);
 
   const value = useMemo(
@@ -84,20 +85,17 @@ export const BuildingCard = ({
 
   return (
     <BuildingCardContext value={value}>
-      <article className="flex flex-col gap-2">{children}</article>
+      <article className="flex flex-col gap-2 relative [&>section:nth-of-type(2)]:!pt-0 [&>section:nth-of-type(2)]:!border-t-0">
+        <InformationPopover ariaLabel={t(`BUILDINGS.${building.id}.NAME`)}>
+          <Text>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</Text>
+        </InformationPopover>
+        {children}
+      </article>
     </BuildingCardContext>
   );
 };
 
-type BuildingOverviewProps = {
-  shouldShowTitle?: boolean;
-  isCompact?: boolean;
-};
-
-export const BuildingOverview = ({
-  shouldShowTitle = true,
-  isCompact = false,
-}: BuildingOverviewProps) => {
+export const BuildingOverview = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { buildingFieldId } = use(BuildingFieldContext);
@@ -110,25 +108,15 @@ export const BuildingOverview = ({
   );
 
   return (
-    <section data-testid="building-overview-title-section">
-      {shouldShowTitle && (
-        <Text
-          as="h2"
-          className="inline-flex"
-        >
-          {t(`BUILDINGS.${building.id}.NAME`)}
-        </Text>
-      )}
-      {!isCompact && (
-        <Text data-testid="building-overview-building-description">
-          {t(`BUILDINGS.${building.id}.DESCRIPTION`)}
-        </Text>
-      )}
+    <section>
+      <Text
+        as="h2"
+        className="inline-flex"
+      >
+        {t(`BUILDINGS.${building.id}.NAME`)}
+      </Text>
       {(isUpgrading || isDowngrading) && (
-        <span
-          data-testid="building-overview-currently-upgrading-span"
-          className="inline-flex text-warning mt-2"
-        >
+        <span className="inline-flex text-warning mt-2">
           {t(
             isUpgrading
               ? 'Currently upgrading to level {{level}}'
@@ -140,10 +128,7 @@ export const BuildingOverview = ({
         </span>
       )}
       {isActualMaxLevel && (
-        <span
-          data-testid="building-overview-max-level"
-          className="inline-flex text-green-600 mt-2"
-        >
+        <span className="inline-flex text-green-600 mt-2">
           {t('{{building}} is fully upgraded', {
             building: t(`BUILDINGS.${building.id}.NAME`),
           })}
@@ -174,10 +159,7 @@ export const BuildingCost = () => {
 
   return (
     <>
-      <section
-        data-testid="building-overview-costs-section"
-        className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border"
-      >
+      <section className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border">
         <Text as="h3">
           {doesBuildingExist
             ? t('Cost to upgrade to level {{level}}', {
@@ -234,7 +216,6 @@ const increasingPercentageBuildingEffects = new Set<Effect['id']>([
 type BuildingBenefitProps = {
   effect: CalculatedCumulativeEffect;
   isMaxLevel: boolean;
-  buildingFieldId: BuildingField['id'];
 };
 
 const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
@@ -350,7 +331,7 @@ export const BuildingBenefits = () => {
   }, [shouldCombineEffects, cumulativeEffects]);
 
   return (
-    <section className="flex flex-col gap-2 pt-2 justify-center border-t border-border">
+    <section className="flex flex-col gap-2 justify-center">
       <Text as="h3">
         {isMaxLevel
           ? t('Benefits')
@@ -410,7 +391,6 @@ export const BuildingBenefits = () => {
             key={effect.effectId}
             effect={effect}
             isMaxLevel={isMaxLevel}
-            buildingFieldId={buildingFieldId}
           />
         ))}
       </div>

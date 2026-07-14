@@ -23,6 +23,7 @@ import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-develo
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -160,12 +161,14 @@ export const TrapperCages = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="cages" />
+        <InformationPopover ariaLabel={t('Trapper cages')}>
+          <Text>
+            {t(
+              'Trapper cages are village traps. Free cages can capture incoming enemy troops; occupied cages keep one captured unit each until it is released or freed.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Trapper cages')}</Text>
-        <Text>
-          {t(
-            'Trapper cages are village traps. Free cages can capture incoming enemy troops; occupied cages keep one captured unit each until it is released or freed.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <Text as="h2">{t('Current cages')}</Text>
@@ -192,96 +195,102 @@ export const TrapperCages = () => {
         <TrapperCageProductionQueue />
       </SectionContent>
       <SectionContent>
-        <article className="flex flex-col gap-2 p-2 border border-border">
-          <section>
-            <div className="inline-flex gap-2 items-center font-semibold">
-              <Icon
-                className="size-6"
-                type="trapperCapacity"
-              />
-              <Text as="h2">{t('Trapper cage')}</Text>
-            </div>
-            <Text>
-              {t(
-                'A hidden trap slot that can hold one captured enemy unit after a failed raid or attack.',
-              )}
-            </Text>
-          </section>
-          <section className="flex flex-col gap-2 pt-2 border-t border-border">
-            <Text as="h3">{t('Cost and production duration')}</Text>
-            <div className="flex gap-2 items-start justify-start flex-wrap">
-              <Resources resources={individualCageCost} />
-              <div className="flex gap-1 items-center">
+        <div className="p-2 border border-border">
+          <article className="flex flex-col gap-2 relative">
+            <InformationPopover ariaLabel={t('Trapper cage')}>
+              <Text>
+                {t(
+                  'A hidden trap slot that can hold one captured enemy unit after a failed raid or attack.',
+                )}
+              </Text>
+            </InformationPopover>
+            <section>
+              <div className="inline-flex gap-2 items-center font-semibold">
                 <Icon
-                  className="size-5"
+                  className="size-6"
                   type="trapperCapacity"
                 />
-                {formatTime(durationPerCage)}
+                <Text as="h2">{t('Trapper cage')}</Text>
               </div>
-            </div>
-          </section>
-          <section className="pt-2 flex flex-col gap-2 border-t border-border">
-            <Text as="h3">{t('Build cages')}</Text>
-            <div className="flex items-start gap-2 justify-start flex-wrap">
-              <Resources resources={totalCost} />
-              <div className="flex gap-1 items-center">
-                <Icon
-                  className="size-5"
-                  type="trapperCapacity"
-                />
-                {formatTime(totalDuration)}
+            </section>
+            <section className="flex flex-col gap-2">
+              <Text as="h3">{t('Cost and production duration')}</Text>
+              <div className="flex gap-2 items-start justify-start flex-wrap">
+                <Resources resources={individualCageCost} />
+                <div className="flex gap-1 items-center">
+                  <Icon
+                    className="size-5"
+                    type="trapperCapacity"
+                  />
+                  {formatTime(durationPerCage)}
+                </div>
               </div>
-            </div>
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="flex flex-col gap-2"
-            >
-              <div className="flex items-center gap-2">
-                <Slider
-                  min={0}
-                  max={maxCages}
-                  value={[amount]}
-                  disabled={maxCages === 0}
-                  onValueChange={([val]) => setValue('amount', val)}
-                />
-                <div className="flex w-30">
-                  <Input
-                    type="number"
+            </section>
+            <section className="pt-2 flex flex-col gap-2 border-t border-border">
+              <Text as="h3">{t('Build cages')}</Text>
+              <div className="flex items-start gap-2 justify-start flex-wrap">
+                <Resources resources={totalCost} />
+                <div className="flex gap-1 items-center">
+                  <Icon
+                    className="size-5"
+                    type="trapperCapacity"
+                  />
+                  {formatTime(totalDuration)}
+                </div>
+              </div>
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-2"
+              >
+                <div className="flex items-center gap-2">
+                  <Slider
                     min={0}
                     max={maxCages}
-                    {...register('amount', { valueAsNumber: true })}
-                    value={amount}
+                    value={[amount]}
                     disabled={maxCages === 0}
-                    onChange={(e) => setValue('amount', Number(e.target.value))}
+                    onValueChange={([val]) => setValue('amount', val)}
                   />
+                  <div className="flex w-30">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={maxCages}
+                      {...register('amount', { valueAsNumber: true })}
+                      value={amount}
+                      disabled={maxCages === 0}
+                      onChange={(e) =>
+                        setValue('amount', Number(e.target.value))
+                      }
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="fit"
+                    className="px-1.5 py-1 h-full"
+                    disabled={maxCages === 0}
+                    onClick={() => setValue('amount', maxCages)}
+                  >
+                    ({maxCages})
+                  </Button>
                 </div>
                 <Button
-                  type="button"
-                  variant="outline"
                   size="fit"
-                  className="px-1.5 py-1 h-full"
-                  disabled={maxCages === 0}
-                  onClick={() => setValue('amount', maxCages)}
+                  type="submit"
+                  disabled={
+                    maxCages === 0 ||
+                    amount === 0 ||
+                    amount > maxCages ||
+                    remainingCapacity === 0
+                  }
                 >
-                  ({maxCages})
+                  {buttonLabel}
                 </Button>
-              </div>
-              <Button
-                size="fit"
-                type="submit"
-                disabled={
-                  maxCages === 0 ||
-                  amount === 0 ||
-                  amount > maxCages ||
-                  remainingCapacity === 0
-                }
-              >
-                {buttonLabel}
-              </Button>
-            </form>
-            <ErrorBag errorBag={errorBag} />
-          </section>
-        </article>
+              </form>
+              <ErrorBag errorBag={errorBag} />
+            </section>
+          </article>
+        </div>
       </SectionContent>
     </Section>
   );

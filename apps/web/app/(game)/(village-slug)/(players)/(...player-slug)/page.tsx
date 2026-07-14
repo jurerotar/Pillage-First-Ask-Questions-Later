@@ -5,7 +5,9 @@ import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(players)/(...player-slug)/+types/page';
 import { usePlayer } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player';
 import { usePlayerVillages } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player-villages';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -65,6 +67,16 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('{{playerName}}', { playerName: player.name })}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            "Review the player's tribe, faction, population, village count and village list.",
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{player.name}</Text>
 
       <table className="w-80">
@@ -119,7 +131,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
       </table>
 
       <div className="flex flex-col justify-center gap-2">
-        <div className="overflow-x-scroll scrollbar-hidden">
+        <OverflowContainer>
           <Table>
             <TableHeader>
               <TableRow>
@@ -186,7 +198,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
               )}
             </TableBody>
           </Table>
-        </div>
+        </OverflowContainer>
       </div>
     </PageContents>
   );

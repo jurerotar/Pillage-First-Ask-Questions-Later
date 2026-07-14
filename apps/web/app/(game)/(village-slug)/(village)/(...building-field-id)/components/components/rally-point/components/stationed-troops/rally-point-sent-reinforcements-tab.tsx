@@ -14,6 +14,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import {
   UnitTable,
   UnitTableRow,
@@ -88,12 +89,14 @@ export const RallyPointSentReinforcementsTab = () => {
   return (
     <Section>
       <SectionContent>
+        <InformationPopover ariaLabel={t('Sent reinforcements')}>
+          <Text>
+            {t(
+              'These are your troops currently stationed as reinforcements in other villages.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Sent reinforcements')}</Text>
-        <Text>
-          {t(
-            'These are your troops currently stationed as reinforcements in other villages.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         {sentReinforcementEntries.length === 0 ? (

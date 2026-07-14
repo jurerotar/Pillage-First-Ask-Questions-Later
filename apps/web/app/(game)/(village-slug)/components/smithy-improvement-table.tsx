@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -69,7 +70,7 @@ export const SmithyImprovementTable = () => {
   );
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -152,6 +153,6 @@ export const SmithyImprovementTable = () => {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+    </OverflowContainer>
   );
 };

@@ -1,7 +1,6 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
-  BuildingConstructionViewMode,
   SkinVariant,
   TimeOfDay,
   UIColorScheme,
@@ -260,38 +259,6 @@ export const GeneralPreferences = () => {
               }
               checked={preferences.shouldShowBuildingNames}
             />
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Building construction view')}
-            </span>
-            <span>
-              {t(
-                'Choose between a detailed list and a compact one with fewer details.',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Select
-              value={preferences.buildingConstructionViewMode}
-              onValueChange={(value: BuildingConstructionViewMode) => {
-                updatePreference({
-                  preferenceName: 'buildingConstructionViewMode',
-                  value,
-                });
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="detailed">{t('Detailed')}</SelectItem>
-                <SelectItem value="compact">{t('Compact')}</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </SectionContent>

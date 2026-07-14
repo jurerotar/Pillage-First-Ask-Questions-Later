@@ -4,6 +4,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 
@@ -14,13 +15,14 @@ export const ResidenceExpansion = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="expansion" />
+        <InformationPopover ariaLabel={t('Expansion')}>
+          <Text>
+            {t(
+              "Expansion tracks this village's settlers, administrators, and available expansion slots for founding or conquering additional villages.",
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Expansion')}</Text>
-        <Text>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusantium
-          ad autem distinctio nesciunt officia quas qui similique. Aperiam atque
-          et excepturi fugiat labore quidem sed sit tempore totam voluptas.
-          Iure!
-        </Text>
       </SectionContent>
       <SectionContent>
         <Alert variant="warning">

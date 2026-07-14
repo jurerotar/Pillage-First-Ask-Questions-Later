@@ -6,6 +6,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Pagination } from 'app/components/ui/pagination';
@@ -24,12 +25,14 @@ export const CurrentVillageReports = () => {
   return (
     <Section>
       <SectionContent>
+        <InformationPopover ariaLabel={t('Current village reports')}>
+          <Text>
+            {t(
+              'This is a categorized view of in-game reports for current village. You can toggle different types of reports by using report filters below.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Current village reports')}</Text>
-        <Text>
-          {t(
-            'This is a categorized view of in-game reports for current village. You can toggle different types of reports by using report filters below.',
-          )}
-        </Text>
       </SectionContent>
       <ReportFilters
         reportFilters={reportFilters}

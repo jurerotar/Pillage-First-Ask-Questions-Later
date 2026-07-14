@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { type PropsWithChildren, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaBookBookmark } from 'react-icons/fa6';
 import { LuAnvil, LuConstruction, LuFlag } from 'react-icons/lu';
@@ -9,6 +9,7 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)
 import { EventFilters } from 'app/(game)/(village-slug)/(events)/components/event-filters';
 import { useEventFilters } from 'app/(game)/(village-slug)/(events)/hooks/use-event-filters';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -20,6 +21,7 @@ import {
 } from 'app/(game)/(village-slug)/hooks/use-events-history';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -76,9 +78,8 @@ const EventsList = ({
   page,
   eventFilters,
   handlePageChange,
-}: EventsListProps) => {
+}: PropsWithChildren<EventsListProps>) => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
   const { playerVillages } = usePlayerVillageListing();
   const { events } = useEventsHistory(scope, eventFilters);
   const pagination = usePagination(events, 20, page);
@@ -126,26 +127,7 @@ const EventsList = ({
 
   return (
     <Section>
-      <SectionContent>
-        <Text as="h2">
-          {scope === 'village'
-            ? t('Latest events in {{villageName}}', {
-                villageName: currentVillage.name,
-              })
-            : t('Latest events in your kingdom')}
-        </Text>
-        <Text>
-          {scope === 'village'
-            ? t(
-                'This is a categorized view of latest building construction, unit research and unit improvement events in village "{{villageName}}". You may toggle different types through filters above.',
-                { villageName: currentVillage.name },
-              )
-            : t(
-                'This is a categorized view of all latest building construction, unit research and unit improvement events. You may toggle different types through filters above.',
-              )}
-        </Text>
-      </SectionContent>
-      <div className="overflow-x-scroll scrollbar-hidden">
+      <OverflowContainer>
         <Table>
           <TableHeader>
             <TableRow>
@@ -190,7 +172,7 @@ const EventsList = ({
             )}
           </TableBody>
         </Table>
-      </div>
+      </OverflowContainer>
       <div className="flex w-full justify-end">
         <Pagination
           {...pagination}
@@ -207,6 +189,7 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
+  const { currentVillage } = useCurrentVillage();
   const { tabIndex, navigateToTab } = useTabParam(tabs);
   const {
     filters: eventFilters,
@@ -229,10 +212,19 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Event log')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-
+      <InformationPopover
+        ariaLabel={t('Event log')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'Review categorized building construction, unit training, research, improvement and village founding events for the current village or all villages. You can toggle event types through filters.',
+          )}
+        </Text>
+      </InformationPopover>
+      <Text as="h1">{t('Event log')}</Text>
       <Section>
         <SectionContent>
-          <Text as="h1">{t('Event log')}</Text>
           <EventFilters
             eventFilters={eventFilters}
             onChange={onEventFiltersChange}
@@ -250,6 +242,25 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
             <TabPanel value="village">
               <Section>
                 <SectionContent>
+                  <Text as="h2">
+                    {t('Latest events in {{villageName}}', {
+                      villageName: currentVillage.name,
+                    })}
+                  </Text>
+                  <InformationPopover
+                    ariaLabel={t('Latest events in {{villageName}}', {
+                      villageName: currentVillage.name,
+                    })}
+                  >
+                    <Text>
+                      {t(
+                        'This is a categorized view of latest building construction, unit research and unit improvement events in village "{{villageName}}". You may toggle different types through filters above.',
+                        { villageName: currentVillage.name },
+                      )}
+                    </Text>
+                  </InformationPopover>
+                </SectionContent>
+                <SectionContent>
                   <EventsList
                     scope="village"
                     page={page}
@@ -261,6 +272,18 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
             </TabPanel>
             <TabPanel value="global">
               <Section>
+                <SectionContent>
+                  <Text as="h2">{t('Latest events in your kingdom')}</Text>
+                  <InformationPopover
+                    ariaLabel={t('Latest events in your kingdom')}
+                  >
+                    <Text>
+                      {t(
+                        'This is a categorized view of all latest building construction, unit research and unit improvement events. You may toggle different types through filters above.',
+                      )}
+                    </Text>
+                  </InformationPopover>
+                </SectionContent>
                 <SectionContent>
                   <EventsList
                     scope="global"

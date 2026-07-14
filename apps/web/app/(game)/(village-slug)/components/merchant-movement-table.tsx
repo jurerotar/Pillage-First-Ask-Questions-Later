@@ -4,6 +4,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Resources as ResourcesType } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { tileIdToCoordinates } from '@pillage-first/utils/map';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
@@ -75,7 +76,7 @@ const MerchantMovementTableSection = ({
       >
         {title}
       </Text>
-      <div className="overflow-x-scroll scrollbar-hidden">
+      <OverflowContainer>
         <Table>
           <TableHeader>
             <TableRow>
@@ -138,7 +139,7 @@ const MerchantMovementTableSection = ({
             )}
           </TableBody>
         </Table>
-      </div>
+      </OverflowContainer>
     </div>
   );
 };

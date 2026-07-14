@@ -11,12 +11,14 @@ import { natureUnitIdSchema } from '@pillage-first/types/models/unit';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { oasisAnimalFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Icon } from 'app/components/icon';
@@ -144,8 +146,13 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Oasis animal finder')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Oasis animal finder')}
+        className="top-2 right-2"
+      >
+        <Text>{t('Search for oasis tiles with specific nature troops.')}</Text>
+      </InformationPopover>
       <Text as="h1">{t('Oasis animal finder')}</Text>
-      <Text>{t('Search for oasis tiles with specific nature troops.')}</Text>
       <Section>
         <SectionContent>
           <Form {...form}>
@@ -328,7 +335,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
             </Text>
           )}
 
-          <div className="overflow-x-scroll scrollbar-hidden">
+          <OverflowContainer>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -419,8 +426,9 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
                   )}
               </TableBody>
             </Table>
-          </div>
-
+          </OverflowContainer>
+        </SectionContent>
+        <SectionContent>
           <div className="flex w-full justify-end">
             <Pagination {...pagination} />
           </div>

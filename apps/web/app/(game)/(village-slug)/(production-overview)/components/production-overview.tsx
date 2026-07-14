@@ -15,6 +15,7 @@ import {
 } from '@pillage-first/utils/guards/effect';
 import { tileIdToCoordinates } from '@pillage-first/utils/map';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -251,7 +252,7 @@ export const ProductionOverview = ({
     <Section>
       <SectionContent>
         <Text as="h2">{t('Production bonuses')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
+        <OverflowContainer>
           <Table>
             <TableHeader>
               <TableRow>
@@ -352,12 +353,12 @@ export const ProductionOverview = ({
               )}
             </TableBody>
           </Table>
-        </div>
+        </OverflowContainer>
       </SectionContent>
 
       <SectionContent>
         <Text as="h2">{t('Base production')}</Text>
-        <div className="overflow-x-scroll scrollbar-hidden">
+        <OverflowContainer>
           <Table>
             <TableHeader>
               <TableRow>
@@ -496,7 +497,7 @@ export const ProductionOverview = ({
               </TableRow>
             </TableBody>
           </Table>
-        </div>
+        </OverflowContainer>
       </SectionContent>
     </Section>
   );

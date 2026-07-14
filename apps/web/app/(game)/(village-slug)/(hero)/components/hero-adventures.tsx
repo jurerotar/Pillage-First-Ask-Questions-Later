@@ -10,6 +10,7 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { formatTime } from 'app/utils/time';
@@ -35,12 +36,18 @@ export const HeroAdventures = () => {
   return (
     <Section>
       <SectionContent>
-        <Text as="h2">{t('Adventure')}</Text>
+        <InformationPopover
+          ariaLabel={t('Adventures')}
+          className="right-0"
+        >
+          <Text>
+            {t(
+              'Your hero is always keen to explore, and will be happy to share his findings with you if you give him the order to go on an adventure.',
+            )}
+          </Text>
+        </InformationPopover>
+        <Text as="h2">{t('Adventures')}</Text>
         <Text>
-          {t(
-            'Your hero is always keen to explore, and will be happy to share his findings with you if you give him the order to go on an adventure.',
-          )}
-          <br />
           {completed === 0
             ? t('Your hero has not completed any adventures yet.')
             : t('Your hero has already completed {{count}} adventures.', {

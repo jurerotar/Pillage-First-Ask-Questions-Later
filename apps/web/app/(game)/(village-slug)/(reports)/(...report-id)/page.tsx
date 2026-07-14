@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -35,6 +36,12 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Report - {{reportId}}', { reportId })}
+        className="top-2 right-2"
+      >
+        <Text>{t('Review the selected in-game report.')}</Text>
+      </InformationPopover>
       <Text as="h1">{t('Player')}</Text>
       <Alert variant="warning">
         {t('This page is still under development')}
