@@ -16,6 +16,7 @@ export const selectBattleParticipantInfoByVillageQuery = `
 
 export const selectBattleParticipantInfoByOasisQuery = `
   SELECT
+    p.id AS player_id,
     p.name AS player_name,
     p.slug AS player_slug,
   	v.id as village_id,

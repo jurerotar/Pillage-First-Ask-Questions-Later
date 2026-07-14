@@ -68,6 +68,7 @@ const battleOriginSchema = z.strictObject({
 
 const baseBattleTargetSchema = z.strictObject({
   tileId: z.int(),
+  playerId: z.int().optional(),
   playerName: z.string(),
   coordinates: coordinatesSchema,
 });
@@ -195,7 +196,7 @@ const prepareBattle = ({
   };
 
   if (target.type === 'village') {
-    const { village_name, player_name, player_slug, x, y } =
+    const { village_name, player_id, player_name, player_slug, x, y } =
       database.selectObject({
         sql: selectBattleParticipantInfoByVillageQuery,
         bind: { $tile_id: targetTileId },
@@ -210,27 +211,37 @@ const prepareBattle = ({
       })!;
 
     target.villageName = village_name;
+    target.playerId = player_id;
     target.playerName = player_name;
     target.playerSlug = player_slug;
     target.coordinates.x = x;
     target.coordinates.y = y;
   } else {
-    const { player_name, player_slug, village_id, village_name, x, y } =
-      database.selectObject({
-        sql: selectBattleParticipantInfoByOasisQuery,
-        bind: { $oasis_id: targetOasisId },
-        schema: z.strictObject({
-          player_name: z.string().nullable(),
-          player_slug: z.string().nullable(),
-          village_id: z.int().nullable(),
-          village_name: z.string().nullable(),
-          x: z.int(),
-          y: z.int(),
-        }),
-      })!;
+    const {
+      player_id,
+      player_name,
+      player_slug,
+      village_id,
+      village_name,
+      x,
+      y,
+    } = database.selectObject({
+      sql: selectBattleParticipantInfoByOasisQuery,
+      bind: { $oasis_id: targetOasisId },
+      schema: z.strictObject({
+        player_id: z.int().nullable(),
+        player_name: z.string().nullable(),
+        player_slug: z.string().nullable(),
+        village_id: z.int().nullable(),
+        village_name: z.string().nullable(),
+        x: z.int(),
+        y: z.int(),
+      }),
+    })!;
 
     target.oasisName =
       village_id != null ? 'Occupied oasis' : 'Unoccupied oasis';
+    target.playerId = player_id ?? undefined;
     target.playerName = player_name ?? 'Nature';
     target.playerSlug = player_slug ?? undefined;
     target.villageId = village_id ?? undefined;
@@ -747,11 +758,12 @@ export const resolveBattle = ({
     result,
   });
 
-  // TODO: Revisit method of determining player involvement
   const playerVillageId =
     origin.playerId === PLAYER_ID
       ? originVillageId
-      : (targetVillageId ?? targetOasisId);
+      : target.playerId === PLAYER_ID
+        ? target.villageId
+        : null;
 
   if (playerVillageId != null) {
     addBattleReport({
