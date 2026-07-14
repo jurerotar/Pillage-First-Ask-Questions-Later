@@ -212,6 +212,16 @@ const EventsPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Event log')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Event log')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'Review categorized building construction, unit training, research, improvement and village founding events for the current village or all villages. You can toggle event types through filters.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{t('Event log')}</Text>
       <Section>
         <SectionContent>

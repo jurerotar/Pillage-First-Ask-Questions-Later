@@ -6,6 +6,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -40,6 +41,16 @@ const ProductionOverviewPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Production overview')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Production overview')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'Review how base production, bonuses, oasis effects, hero bonuses and artifacts contribute to each resource.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{t('Production overview')}</Text>
       <Section>
         <SectionContent>

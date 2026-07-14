@@ -51,6 +51,16 @@ const QuestsPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Quests')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Quests')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'This is a categorized overview of available quests. Quests are divided into village-specific and global tasks, each with multiple levels to complete. Rewards vary from resources, hero experience, troops and hero items. Reward is added immediately on collection.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{t('Quests')}</Text>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}

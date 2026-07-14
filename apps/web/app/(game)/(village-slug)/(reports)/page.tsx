@@ -4,6 +4,7 @@ import { ArchivedReports } from 'app/(game)/(village-slug)/(reports)/components/
 import { CurrentVillageReports } from 'app/(game)/(village-slug)/(reports)/components/current-village-reports';
 import { Reports } from 'app/(game)/(village-slug)/(reports)/components/reports';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -38,6 +39,16 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Reports')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Reports')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'Review categorized in-game reports across all villages, archived reports and the current village.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{t('Reports')}</Text>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}

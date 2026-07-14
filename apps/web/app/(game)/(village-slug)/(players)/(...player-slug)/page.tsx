@@ -7,6 +7,7 @@ import { usePlayer } from 'app/(game)/(village-slug)/(players)/(...player-slug)/
 import { usePlayerVillages } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player-villages';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -66,6 +67,16 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('{{playerName}}', { playerName: player.name })}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            "Review the player's tribe, faction, population, village count and village list.",
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{player.name}</Text>
 
       <table className="w-80">

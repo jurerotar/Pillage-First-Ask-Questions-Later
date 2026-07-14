@@ -156,6 +156,16 @@ export const BuildingConstruction = () => {
           <BreadcrumbItem>{t('Construct new building')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Construct new building')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'Choose an infrastructure, military or resource building to construct on this empty building field.',
+          )}
+        </Text>
+      </InformationPopover>
       <div className="flex justify-between items-center">
         <Text as="h1">{t('Construct new building')}</Text>
       </div>

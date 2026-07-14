@@ -128,7 +128,7 @@ export const HeroAttributes = () => {
         <InformationPopover ariaLabel={t('Attributes')}>
           <Text>
             {t(
-              'The Hero is your strongest unit. It can be improved and equipped with powerful items. The Hero does not need to be researched or trained and is available from the start. The hero can attack or defend like other units, but is the only one who can go on adventures for loot and conquer oases for bonus resources. You can improve your hero by gaining experience and leveling up, which will give you ability points to spend on different attributes.',
+              'You can improve your hero by gaining experience and leveling up, which will give you ability points to spend on different attributes.',
             )}
           </Text>
         </InformationPopover>

@@ -3,6 +3,7 @@ import type { Route } from '@react-router/types/app/(game)/(village-slug)/(prefe
 import { GeneralPreferences } from 'app/(game)/(village-slug)/(preferences)/components/general-preferences';
 import { NotificationPreferences } from 'app/(game)/(village-slug)/(preferences)/components/notification-preferences';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -37,6 +38,16 @@ const PreferencesPage = ({ params }: Route.ComponentProps) => {
           <BreadcrumbItem>{t('Preferences')}</BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
+      <InformationPopover
+        ariaLabel={t('Preferences')}
+        className="top-2 right-2"
+      >
+        <Text>
+          {t(
+            'Adjust gameplay, appearance, localization, accessibility, display, notification and navigation preferences.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h1">{t('Preferences')}</Text>
       <Tabs
         value={tabs[tabIndex] ?? 'default'}
