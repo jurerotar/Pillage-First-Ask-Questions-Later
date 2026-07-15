@@ -157,9 +157,9 @@ const prepareBattle = ({
   targetTileId,
   troops,
 }: PrepareBattleArgs): PrepareBattleResult => {
-  // ┌────────────────────────────────┐
-  // │ Target tile (village or oasis) │
-  // └────────────────────────────────┘
+  // ┌───────────────────────────┐
+  // │ Target (village or oasis) │
+  // └───────────────────────────┘
 
   var target!: BattleTarget;
   if (targetVillageId != null) {
@@ -186,40 +186,6 @@ const prepareBattle = ({
       'Either targetVillageId or targetOasisId must be non-null.',
     );
   }
-
-  // ┌───────────────────────────┐
-  // │ Basic village information │
-  // └───────────────────────────┘
-
-  const {
-    village_name: originVillageName,
-    player_id: originPlayerId,
-    player_name: originPlayerName,
-    player_slug: originPlayerSlug,
-    x: originX,
-    y: originY,
-  } = database.selectObject({
-    sql: selectBattleParticipantInfoByVillageQuery,
-    bind: { $tile_id: originTileId },
-    schema: z.strictObject({
-      village_name: z.string(),
-      player_id: z.int(),
-      player_name: z.string(),
-      player_slug: z.string(),
-      x: z.int(),
-      y: z.int(),
-    }),
-  })!;
-
-  var origin: BattleOrigin = {
-    tileId: originTileId,
-    playerId: originPlayerId,
-    playerName: originPlayerName,
-    playerSlug: originPlayerSlug,
-    villageId: originVillageId,
-    villageName: originVillageName,
-    coordinates: { x: originX, y: originY },
-  };
 
   if (target.type === 'village') {
     const { village_name, player_id, player_name, player_slug, x, y } =
@@ -275,6 +241,40 @@ const prepareBattle = ({
     target.coordinates.x = x;
     target.coordinates.y = y;
   }
+
+  // ┌──────────────────┐
+  // │ Origin (village) │
+  // └──────────────────┘
+
+  const {
+    village_name: originVillageName,
+    player_id: originPlayerId,
+    player_name: originPlayerName,
+    player_slug: originPlayerSlug,
+    x: originX,
+    y: originY,
+  } = database.selectObject({
+    sql: selectBattleParticipantInfoByVillageQuery,
+    bind: { $tile_id: originTileId },
+    schema: z.strictObject({
+      village_name: z.string(),
+      player_id: z.int(),
+      player_name: z.string(),
+      player_slug: z.string(),
+      x: z.int(),
+      y: z.int(),
+    }),
+  })!;
+
+  var origin: BattleOrigin = {
+    tileId: originTileId,
+    playerId: originPlayerId,
+    playerName: originPlayerName,
+    playerSlug: originPlayerSlug,
+    villageId: originVillageId,
+    villageName: originVillageName,
+    coordinates: { x: originX, y: originY },
+  };
 
   // ┌────────────────────────────────┐
   // │ Combat troops and smithy level │
