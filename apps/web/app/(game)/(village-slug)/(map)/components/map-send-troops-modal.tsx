@@ -125,7 +125,7 @@ const AttackOrRaidModal = ({
           <SendTroopsModalContent
             onClose={onClose}
             onSubmit={onFormSubmit}
-            title={t('Attack or raid')}
+            title={t('Send troops')}
             form={form}
             disabledUnitTiers={disabledUnitTiers}
             targetSelector="coordinates"
