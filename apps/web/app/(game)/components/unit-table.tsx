@@ -114,7 +114,7 @@ export const UnitTableUnitIcons = () => {
         <th className="border-r dark:border-border w-16" />
         {tribeUnits.map((unitDef, index) => (
           <th
-            key={`icon-${unitDef.id}`}
+            key={unitDef.id}
             className={clsx(
               'p-2 text-center',
               index !== tribeUnits.length - 1 && 'border-r dark:border-border',
@@ -152,9 +152,9 @@ export const UnitTableRow = ({
         </td>
         {troops.map(({ unitId, amount }, index) => (
           <td
-            key={`amount-${unitId}`}
+            key={unitId}
             className={clsx(
-              'h-7  text-center',
+              'h-7 text-center',
               index !== troops.length - 1 && 'border-r dark:border-border',
             )}
           >
@@ -185,9 +185,9 @@ export const UnitTableHiddenRow = ({
         </td>
         {troops.map(({ unitId }, index) => (
           <td
-            key={`amount-${unitId}`}
+            key={unitId}
             className={clsx(
-              'h-7  text-center',
+              'h-7 text-center',
               index !== troops.length - 1 && 'border-r dark:border-border',
             )}
           >
@@ -211,6 +211,7 @@ export const UnitTableLoot = ({
   const { t } = useTranslation();
 
   let totalLoot = 0;
+
   for (const resource of loot) {
     totalLoot += resource;
   }
@@ -230,15 +231,15 @@ export const UnitTableLoot = ({
               resources={loot}
               iconClassName="size-4"
             />
-            (
-            <span className="text-sm font-medium whitespace-nowrap">
-              {totalLoot} / {totalCarryCapacity}
-            </span>
-            <Icon
-              className="size-4"
-              type="unitCarryCapacity"
-            />
-            )
+            <div className="inline-flex gap-1 items-center">
+              <Icon
+                className="size-4"
+                type="unitCarryCapacity"
+              />
+              <span className="text-sm font-medium whitespace-nowrap">
+                ({totalLoot} / {totalCarryCapacity})
+              </span>
+            </div>
           </div>
         </td>
       </tr>
