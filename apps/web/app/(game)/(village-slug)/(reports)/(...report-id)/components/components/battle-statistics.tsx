@@ -1,5 +1,4 @@
 import { clsx } from 'clsx';
-import type { PropsWithChildren } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BattleType } from '@pillage-first/types/models/battle';
 import { formatNumber } from '@pillage-first/utils/format';
@@ -33,28 +32,24 @@ const StatisticsRow = ({
   showDefendingUnits,
 }: StatisticsRowProps) => (
   <TableRow>
-    <TableCell className="text-center">{name}</TableCell>
-    <TableCell className="text-center">
-      <div className="flex">
+    <TableCell className="text-left">{name}</TableCell>
+    <TableCell className="text-left">
+      <span className="inline-flex gap-2 items-center text-left">
         <Icon
           type={attackerIcon}
-          className="size-6 lg:size-6 m-2 "
+          className="size-5"
         />
-        <div className="my-auto">{formatNumber(attackerValue)}</div>
-      </div>
+        {formatNumber(attackerValue)}
+      </span>
     </TableCell>
-    <TableCell
-      className={clsx('text-center', showDefendingUnits ? '' : 'text-gray-700')}
-    >
-      <div className="flex">
+    <TableCell className={clsx('text-left')}>
+      <span className="inline-flex gap-2 items-center">
         <Icon
           type={defenderIcon}
-          className="size-6 lg:size-6 m-2 "
+          className="size-5"
         />
-        <div className="my-auto">
-          {showDefendingUnits ? formatNumber(defenderValue) : '?'}
-        </div>
-      </div>
+        {showDefendingUnits ? formatNumber(defenderValue) : '?'}
+      </span>
     </TableCell>
   </TableRow>
 );
@@ -67,7 +62,7 @@ type BattleStatisticsProps = {
 export const BattleStatistics = ({
   battle,
   showDefendingUnits,
-}: PropsWithChildren<BattleStatisticsProps>) => {
+}: BattleStatisticsProps) => {
   const { t } = useTranslation();
 
   return (
@@ -75,15 +70,18 @@ export const BattleStatistics = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHeaderCell className="text-left col-span-full">
+            <TableHeaderCell
+              colSpan={3}
+              className="text-left col-span-full"
+            >
               <Text>{t('Statistics')}</Text>
             </TableHeaderCell>
           </TableRow>
         </TableHeader>
 
-        <TableBody className="text-sm">
+        <TableBody>
           <TableRow>
-            <TableCell className="text-center" />
+            <TableCell />
             <TableCell className="text-left">{t('Attacker')}</TableCell>
             <TableCell className="text-left">{t('Defender')}</TableCell>
           </TableRow>
