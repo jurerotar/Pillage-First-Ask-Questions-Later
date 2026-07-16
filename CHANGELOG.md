@@ -1,3 +1,10 @@
+## Version 0.4.44
+
+#### Jul 16, 2026
+
+* [Feature] Production overview page will now properly display negative wheat production caused by population and
+  troops.
+
 ## Version 0.4.43
 
 #### Jul 14, 2026
