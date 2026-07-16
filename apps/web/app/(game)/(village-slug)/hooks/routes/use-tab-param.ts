@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router';
 
 export const useTabParam = (
-  tabs: string[],
+  tabs: readonly string[],
   queryParam = 'tab',
   defaultValue = tabs[0],
 ) => {

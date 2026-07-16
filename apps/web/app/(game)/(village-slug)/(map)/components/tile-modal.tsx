@@ -474,7 +474,7 @@ const OasisTileModal = ({
           variant="textLink"
           onClick={() => onAttackOrRaidVillage(tile)}
         >
-          {t('Attack or raid')}
+          {t('Send troops')}
         </Button>
       )}
     </DialogHeader>
@@ -675,7 +675,7 @@ const OccupiedOccupiableTileModal = ({
             variant="textLink"
             onClick={() => onAttackOrRaidVillage(tile)}
           >
-            {t('Attack or raid')}
+            {t('Send troops')}
           </Button>
         )}
         {isOwnedByPlayer && (

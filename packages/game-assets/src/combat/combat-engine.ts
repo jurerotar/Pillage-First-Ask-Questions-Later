@@ -1,6 +1,6 @@
-import type { Troop } from '@pillage-first/types/models/troop';
+import type { Troop, TroopLike } from '@pillage-first/types/models/troop';
 import type { UnitId } from '@pillage-first/types/models/unit';
-import { unitsMap } from '../units';
+import { getUnitDefinition } from '../utils/units';
 
 // ───────────────────────────────────────────────────────────────
 // Types
@@ -125,10 +125,8 @@ export const calculateSmithyUpgrade = (
 export const calculateTotalOffensePoints = (troops: CombatTroop[]): number => {
   let total = 0;
   for (const troop of troops) {
-    const unit = unitsMap.get(troop.unitId);
-    if (!unit) {
-      continue;
-    }
+    const unit = getUnitDefinition(troop.unitId);
+
     const improved = calculateSmithyUpgrade(
       unit.attack,
       unit.unitWheatConsumption,
@@ -151,10 +149,8 @@ export const calculateInfantryCavalryRatio = (
   let cavalryOffense = 0;
 
   for (const troop of troops) {
-    const unit = unitsMap.get(troop.unitId);
-    if (!unit) {
-      continue;
-    }
+    const unit = getUnitDefinition(troop.unitId);
+
     const improved = calculateSmithyUpgrade(
       unit.attack,
       unit.unitWheatConsumption,
@@ -194,10 +190,7 @@ export const calculateTotalDefencePoints = (
   let total = 0;
 
   for (const troop of defenderTroops) {
-    const unit = unitsMap.get(troop.unitId);
-    if (!unit) {
-      continue;
-    }
+    const unit = getUnitDefinition(troop.unitId);
 
     const improvedInfDef = calculateSmithyUpgrade(
       unit.infantryDefence,
@@ -304,15 +297,11 @@ export const calculateWinnerCasualtyPercent = (
 /**
  * Compute total carry capacity of surviving attackers.
  */
-export const calculateTotalCarryCapacity = (
-  troops: { unitId: UnitId; amount: number }[],
-): number => {
+export const calculateTotalCarryCapacity = (troops: TroopLike[]): number => {
   let total = 0;
   for (const troop of troops) {
-    const unit = unitsMap.get(troop.unitId);
-    if (!unit) {
-      continue;
-    }
+    const unit = getUnitDefinition(troop.unitId);
+
     total += unit.unitCarryCapacity * troop.amount;
   }
   return total;
