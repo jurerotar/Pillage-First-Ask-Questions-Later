@@ -90,8 +90,8 @@ export const BattleStatistics = ({
             name={t('Combat strength')}
             attackerIcon="attack"
             defenderIcon="defence"
-            attackerValue={Math.round(battle.attackStatistics.points)}
-            defenderValue={Math.round(battle.defenceStatistics.points)}
+            attackerValue={Math.round(battle.statistics.attacker.points)}
+            defenderValue={Math.round(battle.statistics.defender.points)}
             showDefendingUnits={showDefendingUnits}
           />
 
@@ -99,8 +99,8 @@ export const BattleStatistics = ({
             name={t('Supply before')}
             attackerIcon="wheat"
             defenderIcon="wheat"
-            attackerValue={Math.round(battle.attackStatistics.supplyBefore)}
-            defenderValue={Math.round(battle.defenceStatistics.supplyBefore)}
+            attackerValue={Math.round(battle.statistics.attacker.supplyBefore)}
+            defenderValue={Math.round(battle.statistics.defender.supplyBefore)}
             showDefendingUnits={showDefendingUnits}
           />
 
@@ -108,8 +108,8 @@ export const BattleStatistics = ({
             name={t('Supply lost')}
             attackerIcon="freeCrop"
             defenderIcon="freeCrop"
-            attackerValue={Math.round(battle.attackStatistics.supplyLost)}
-            defenderValue={Math.round(battle.defenceStatistics.supplyLost)}
+            attackerValue={Math.round(battle.statistics.attacker.supplyLost)}
+            defenderValue={Math.round(battle.statistics.defender.supplyLost)}
             showDefendingUnits={showDefendingUnits}
           />
 
@@ -117,8 +117,8 @@ export const BattleStatistics = ({
             name={t('Resources lost')}
             attackerIcon="unitCarryCapacity"
             defenderIcon="unitCarryCapacity"
-            attackerValue={Math.round(battle.attackStatistics.resourcesLost)}
-            defenderValue={Math.round(battle.defenceStatistics.resourcesLost)}
+            attackerValue={Math.round(battle.statistics.attacker.resourcesLost)}
+            defenderValue={Math.round(battle.statistics.defender.resourcesLost)}
             showDefendingUnits={showDefendingUnits}
           />
         </TableBody>

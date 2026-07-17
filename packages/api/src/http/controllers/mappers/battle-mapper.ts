@@ -1,20 +1,35 @@
 import type { z } from 'zod';
-import type {
-  battleDtoSchema,
-  battleParticipantDtoSchema,
-  battleUnitDtoSchema,
-} from '@pillage-first/types/dtos/battle';
+import type { battleDtoSchema } from '@pillage-first/types/dtos/battle';
 import type { BattleStatistics } from '@pillage-first/types/models/battle';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
+import type { Tribe } from '@pillage-first/types/models/tribe';
+import type { UnitId } from '@pillage-first/types/models/unit';
 import type {
   getBattleByReportRowSchema,
   getBattleParticipantsByReportRowSchema,
   getBattleUnitsByReportRowSchema,
 } from '../schemas/battle-schemas';
 
+export type MappedBattleUnit = {
+  battleParticipantId: number;
+  unitId: UnitId;
+  amountBefore: number;
+  amountAfter: number;
+};
+
+export type MappedBattleParticipant = {
+  id: number;
+  playerId: number | null;
+  tileId: number;
+  role: 'attacker' | 'defender';
+  tribe: Tribe;
+  isReinforcement: boolean;
+  units: Omit<MappedBattleUnit, 'battleParticipantId'>[];
+};
+
 export const mapBattleUnits = (
   row: z.infer<typeof getBattleUnitsByReportRowSchema>,
-): z.infer<typeof battleUnitDtoSchema> => {
+): MappedBattleUnit => {
   const dto = {
     battleParticipantId: row.battle_participant_id,
     unitId: row.unit_id,
@@ -27,7 +42,7 @@ export const mapBattleUnits = (
 
 export const mapBattleParticipants = (
   row: z.infer<typeof getBattleParticipantsByReportRowSchema>,
-): z.infer<typeof battleParticipantDtoSchema> => {
+): MappedBattleParticipant => {
   const dto = {
     id: row.id,
     playerId: row.player_id,
@@ -67,24 +82,36 @@ export const mapBattle = (
 
   const dto = {
     id: row.id,
-    originTileId: row.origin_tile_id,
-    targetTileId: row.target_tile_id,
-    isRaid: Boolean(row.is_raid),
-    attackingPlayerName: '',
-    attackingPlayerSlug: '',
-    defendingPlayerName: '',
-    defendingPlayerSlug: undefined,
-    originName: '',
-    originCoordinates: { x: 0, y: 0 },
-    targetName: '',
-    targetCoordinates: { x: 0, y: 0 },
-    loot,
-    totalCarryCapacity: 0,
-    didAttackerWin: false,
-    canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
-    attackStatistics,
-    defenceStatistics,
-    participants: [],
+    attacker: {
+      player: { id: null, name: '', slug: undefined },
+      village: {
+        tileId: row.origin_tile_id,
+        name: '',
+        coordinates: { x: 0, y: 0 },
+      },
+      troops: { id: 0, tribe: 'romans' as const, units: [] },
+    },
+    defender: {
+      player: { id: null, name: '', slug: undefined },
+      village: {
+        tileId: row.target_tile_id,
+        name: '',
+        coordinates: { x: 0, y: 0 },
+      },
+      troops: { id: 0, tribe: 'romans' as const, units: [] },
+      reinforcements: [],
+    },
+    outcome: {
+      isRaid: Boolean(row.is_raid),
+      loot,
+      totalCarryCapacity: 0,
+      didAttackerWin: false,
+      canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
+    },
+    statistics: {
+      attacker: attackStatistics,
+      defender: defenceStatistics,
+    },
   };
 
   return dto;

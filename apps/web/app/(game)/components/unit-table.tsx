@@ -65,6 +65,7 @@ type UnitTablePlayerProps = {
   playerSlug?: string;
   tileName: string;
   coordinates: Coordinates;
+  sourceLabel?: string;
 };
 
 export const UnitTablePlayer = ({
@@ -72,8 +73,10 @@ export const UnitTablePlayer = ({
   playerSlug,
   tileName,
   coordinates,
+  sourceLabel,
 }: UnitTablePlayerProps) => {
   const { t } = useTranslation();
+  const resolvedSourceLabel = sourceLabel ?? t(' from village ');
 
   return (
     <thead className="bg-muted border-b dark:border-border font-medium">
@@ -91,7 +94,7 @@ export const UnitTablePlayer = ({
             </Link>
           )}
           {!playerSlug && <span className="text-gray-600">{playerName}</span>}
-          {t(' from village ')}
+          {resolvedSourceLabel}
           <Link
             to={`../map?x=${coordinates.x}&y=${coordinates.y}`}
             className="text-link"

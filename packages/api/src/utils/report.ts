@@ -2,7 +2,7 @@ import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import { unitsMap } from '@pillage-first/game-assets/units';
 import type {
-  BattleParticipant,
+  BattleCombatant,
   BattleType,
   BattleUnit,
 } from '@pillage-first/types/models/battle';
@@ -13,6 +13,7 @@ import type {
 } from '@pillage-first/types/models/report';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
+  type MappedBattleParticipant,
   mapBattle,
   mapBattleParticipants,
   mapBattleUnits,
@@ -41,33 +42,28 @@ export type CreateNewReport = Omit<
 
 export type CreateNewBattleType = Omit<
   BattleType,
-  | 'id'
-  | 'attackingPlayerName'
-  | 'attackingPlayerSlug'
-  | 'defendingPlayerName'
-  | 'defendingPlayerSlug'
-  | 'originName'
-  | 'originCoordinates'
-  | 'targetName'
-  | 'targetCoordinates'
-  | 'totalCarryCapacity'
-  | 'didAttackerWin'
-  | 'attackStatistics'
-  | 'defenceStatistics'
-  | 'participants'
+  'id' | 'attacker' | 'defender' | 'outcome' | 'statistics'
 > & {
   reportId: BaseReport['id'];
   combatResultId: CombatResultId;
+  originTileId: number;
+  targetTileId: number;
+  isRaid: boolean;
+  loot: [number, number, number, number];
+  canAttackerSeeFullReport: boolean;
   attackStatisticPoints: number;
   defenceStatisticPoints: number;
 };
 
-export type CreateNewBattleParticipant = Omit<
-  BattleParticipant,
-  'id' | 'units' | 'role' | 'tribe' | 'isReinforcement'
-> & { battleId: BattleType['id'] };
+export type CreateNewBattleParticipant = {
+  battleId: BattleType['id'];
+  playerId: number | null;
+  tileId: number;
+};
 
-export type CreateNewBattleUnit = BattleUnit;
+export type CreateNewBattleUnit = BattleUnit & {
+  battleParticipantId: number;
+};
 
 export const insertReport = (
   database: DbFacade,
@@ -293,8 +289,6 @@ export const getBattle = (
     })
     .map(mapBattleUnits);
 
-  battle.participants = participants;
-
   const participantsIdMap = new Map();
   for (const participant of participants) {
     participantsIdMap.set(participant.id, participant);
@@ -302,83 +296,160 @@ export const getBattle = (
 
   for (const unit of units) {
     const participant = participantsIdMap.get(unit.battleParticipantId);
-    participant.units.push(unit);
+    const { battleParticipantId: _, ...battleUnit } = unit;
+    participant.units.push(battleUnit);
   }
 
-  hydrateBattle(database, battle);
+  hydrateBattle(database, battle, participants);
 
   return battle;
 };
 
-const hydrateBattle = (database: DbFacade, battle: BattleType) => {
-  // ┌────────────────────┐
-  // │ Player information │
-  // └────────────────────┘
+const createBattleCombatant = ({
+  participant,
+  playerName,
+  playerSlug,
+  villageName,
+  x,
+  y,
+}: {
+  participant: MappedBattleParticipant;
+  playerName: string;
+  playerSlug?: string;
+  villageName: string;
+  x: number;
+  y: number;
+}): BattleCombatant => {
+  return {
+    player: {
+      id: participant.playerId,
+      name: playerName,
+      slug: playerSlug,
+    },
+    village: {
+      tileId: participant.tileId,
+      name: villageName,
+      coordinates: { x, y },
+    },
+    troops: {
+      id: participant.id,
+      tribe: participant.tribe,
+      units: participant.units,
+    },
+  };
+};
 
+const hydrateVillageCombatant = (
+  database: DbFacade,
+  participant: MappedBattleParticipant,
+): BattleCombatant => {
   const {
-    player_name: attackingPlayerName,
-    player_slug: attackingPlayerSlug,
-    village_name: originVillageName,
-    x: originVillageX,
-    y: originVillageY,
+    player_name: playerName,
+    player_slug: playerSlug,
+    village_name: villageName,
+    x,
+    y,
   } = database.selectObject({
     sql: selectBattlePlayerInformationQuery,
-    bind: { $tile_id: battle.originTileId },
+    bind: { $tile_id: participant.tileId },
     schema: getBattlePlayerInformationRowSchema,
   })!;
 
-  battle.attackingPlayerName = attackingPlayerName;
-  battle.attackingPlayerSlug = attackingPlayerSlug;
-  battle.originName = originVillageName;
-  battle.originCoordinates = { x: originVillageX, y: originVillageY };
+  return createBattleCombatant({
+    participant,
+    playerName,
+    playerSlug,
+    villageName,
+    x,
+    y,
+  });
+};
 
+const hydrateTargetCombatant = (
+  database: DbFacade,
+  participant: MappedBattleParticipant,
+): BattleCombatant => {
   const targetVillage = database.selectObject({
     sql: selectBattlePlayerInformationQuery,
-    bind: { $tile_id: battle.targetTileId },
+    bind: { $tile_id: participant.tileId },
     schema: getBattlePlayerInformationRowSchema,
   });
 
   if (targetVillage !== undefined) {
     const {
-      player_name: defendingPlayerName,
-      player_slug: defendingPlayerSlug,
-      village_name: targetVillageName,
-      x: targetVillageX,
-      y: targetVillageY,
+      player_name: playerName,
+      player_slug: playerSlug,
+      village_name: villageName,
+      x,
+      y,
     } = targetVillage;
 
-    battle.defendingPlayerName = defendingPlayerName;
-    battle.defendingPlayerSlug = defendingPlayerSlug;
-    battle.targetName = targetVillageName;
-    battle.targetCoordinates = { x: targetVillageX, y: targetVillageY };
-  } else {
-    const targetOasis = database.selectObject({
-      sql: selectBattleOasisInformationQuery,
-      bind: { $tile_id: battle.targetTileId },
-      schema: getBattleOasisInformationRowSchema,
+    return createBattleCombatant({
+      participant,
+      playerName,
+      playerSlug,
+      villageName,
+      x,
+      y,
     });
-
-    if (targetOasis === undefined) {
-      throw new Error(`Battle target tile ${battle.targetTileId} not found`);
-    }
-
-    const {
-      player_name: defendingPlayerName,
-      player_slug: defendingPlayerSlug,
-      x: targetX,
-      y: targetY,
-    } = targetOasis;
-
-    const targetName =
-      defendingPlayerSlug != null
-        ? `Occupied oasis (${targetX}|${targetY})`
-        : `Unoccupied oasis (${targetX}|${targetY})`;
-
-    battle.defendingPlayerName = defendingPlayerName ?? 'Nature';
-    battle.defendingPlayerSlug = defendingPlayerSlug ?? undefined;
-    battle.targetName = targetName;
-    battle.targetCoordinates = { x: targetX, y: targetY };
   }
+
+  const targetOasis = database.selectObject({
+    sql: selectBattleOasisInformationQuery,
+    bind: { $tile_id: participant.tileId },
+    schema: getBattleOasisInformationRowSchema,
+  });
+
+  if (targetOasis === undefined) {
+    throw new Error(`Battle target tile ${participant.tileId} not found`);
+  }
+
+  const {
+    player_name: playerName,
+    player_slug: playerSlug,
+    x,
+    y,
+  } = targetOasis;
+
+  const villageName =
+    playerSlug != null
+      ? `Occupied oasis (${x}|${y})`
+      : `Unoccupied oasis (${x}|${y})`;
+
+  return createBattleCombatant({
+    participant,
+    playerName: playerName ?? 'Nature',
+    playerSlug: playerSlug ?? undefined,
+    villageName,
+    x,
+    y,
+  });
+};
+
+const hydrateBattle = (
+  database: DbFacade,
+  battle: BattleType,
+  participants: MappedBattleParticipant[],
+) => {
+  // ┌────────────────────┐
+  // │ Player information │
+  // └────────────────────┘
+
+  const attackerParticipant = participants.find((p) => p.role === 'attacker')!;
+  const defenderParticipant = participants.find(
+    (p) => p.role === 'defender' && !p.isReinforcement,
+  )!;
+  const reinforcementParticipants = participants.filter(
+    (p) => p.role === 'defender' && p.isReinforcement,
+  );
+
+  battle.attacker = hydrateVillageCombatant(database, attackerParticipant);
+  battle.defender = {
+    ...hydrateTargetCombatant(database, defenderParticipant),
+    reinforcements: reinforcementParticipants.map((p) =>
+      hydrateVillageCombatant(database, p),
+    ),
+  };
 
   // ┌───────────────────┐
   // │ Player statistics │
@@ -391,8 +462,15 @@ const hydrateBattle = (database: DbFacade, battle: BattleType) => {
   let defenderSupplyLost = 0;
   let defenderResourcesLost = 0;
 
-  for (const participant of battle.participants) {
-    for (const { unitId, amountBefore, amountAfter } of participant.units) {
+  const combatants = [
+    battle.attacker,
+    battle.defender,
+    ...battle.defender.reinforcements,
+  ];
+
+  for (const combatant of combatants) {
+    for (const { unitId, amountBefore, amountAfter } of combatant.troops
+      .units) {
       const unit = unitsMap.get(unitId);
       if (unit) {
         let totalResourceCost = 0;
@@ -403,7 +481,7 @@ const hydrateBattle = (database: DbFacade, battle: BattleType) => {
         const amountLost = amountBefore - amountAfter;
         const resourcesLost = totalResourceCost * amountLost;
 
-        if (participant.role === 'attacker') {
+        if (combatant === battle.attacker) {
           attackerSupplyBefore += amountBefore;
           attackerSupplyLost += amountLost;
           attackerResourcesLost += resourcesLost;
@@ -416,20 +494,19 @@ const hydrateBattle = (database: DbFacade, battle: BattleType) => {
     }
   }
 
-  battle.attackStatistics.supplyBefore = attackerSupplyBefore;
-  battle.attackStatistics.supplyLost = attackerSupplyLost;
-  battle.attackStatistics.resourcesLost = attackerResourcesLost;
-  battle.defenceStatistics.supplyBefore = defenderSupplyBefore;
-  battle.defenceStatistics.supplyLost = defenderSupplyLost;
-  battle.defenceStatistics.resourcesLost = defenderResourcesLost;
+  battle.statistics.attacker.supplyBefore = attackerSupplyBefore;
+  battle.statistics.attacker.supplyLost = attackerSupplyLost;
+  battle.statistics.attacker.resourcesLost = attackerResourcesLost;
+  battle.statistics.defender.supplyBefore = defenderSupplyBefore;
+  battle.statistics.defender.supplyLost = defenderSupplyLost;
+  battle.statistics.defender.resourcesLost = defenderResourcesLost;
 
   // ┌───────────────────────────┐
   // │ Carry capacity and winner │
   // └───────────────────────────┘
 
-  const attacker = battle.participants.find((p) => p.role === 'attacker')!;
   let totalCarryCapacity = 0;
-  for (const { unitId, amountAfter } of attacker.units) {
+  for (const { unitId, amountAfter } of battle.attacker.troops.units) {
     const unit = unitsMap.get(unitId);
     if (!unit) {
       continue;
@@ -437,8 +514,8 @@ const hydrateBattle = (database: DbFacade, battle: BattleType) => {
     totalCarryCapacity += unit.unitCarryCapacity * amountAfter;
   }
 
-  battle.totalCarryCapacity = totalCarryCapacity;
+  battle.outcome.totalCarryCapacity = totalCarryCapacity;
 
-  battle.didAttackerWin =
-    battle.attackStatistics.points > battle.defenceStatistics.points;
+  battle.outcome.didAttackerWin =
+    battle.statistics.attacker.points > battle.statistics.defender.points;
 };

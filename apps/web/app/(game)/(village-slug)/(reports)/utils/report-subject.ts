@@ -6,10 +6,19 @@ import type {
 export const getReportSubject = (report: BaseReport | GameReport): string => {
   if (report.type === 'battle') {
     const battle = 'battle' in report ? report.battle : report.battleSummary;
-    const subjectType = battle.isRaid ? 'raids' : 'attacks';
-    const { x, y } = battle.targetCoordinates;
+    const summary =
+      'attacker' in battle
+        ? {
+            isRaid: battle.outcome.isRaid,
+            originName: battle.attacker.village.name,
+            targetName: battle.defender.village.name,
+            targetCoordinates: battle.defender.village.coordinates,
+          }
+        : battle;
+    const subjectType = summary.isRaid ? 'raids' : 'attacks';
+    const { x, y } = summary.targetCoordinates;
 
-    return `${battle.originName} ${subjectType} ${battle.targetName} (${x}|${y})`;
+    return `${summary.originName} ${subjectType} ${summary.targetName} (${x}|${y})`;
   }
 
   return '';

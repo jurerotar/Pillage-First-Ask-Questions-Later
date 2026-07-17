@@ -91,6 +91,7 @@ import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
 import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
 import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
+import { reportsSeeder } from '../seeders/reports-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
@@ -233,6 +234,7 @@ export const migrateAndSeed = (
     db.exec({ sql: createBattlesTable });
     db.exec({ sql: createBattleParticipantsTable });
     db.exec({ sql: createBattleUnitsTable });
+    reportsSeeder(db, server);
 
     // Heroes
     db.exec({ sql: createHeroesTable });
