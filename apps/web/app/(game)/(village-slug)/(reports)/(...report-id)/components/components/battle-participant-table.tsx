@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import type {
-  BattleParticipant,
+  BattleCombatant,
   BattleType,
 } from '@pillage-first/types/models/battle';
 import type { TroopLike } from '@pillage-first/types/models/troop';
@@ -18,35 +18,37 @@ import {
 
 type BattleParticipantTableProps = {
   battle: BattleType;
-  participant: BattleParticipant;
+  combatant: BattleCombatant;
+  role: 'attacker' | 'defender' | 'reinforcement';
   showDefendingUnits: boolean;
 };
 
 export const BattleParticipantTable = ({
   battle,
-  participant,
+  combatant,
+  role,
   showDefendingUnits,
 }: BattleParticipantTableProps) => {
   const { t } = useTranslation();
 
   const { troopsBefore, troopsAfter, troopsLost } = useMemo(() => {
     const troopsBefore: TroopLike[] = sortTroops(
-      participant.tribe,
-      participant.units.map((troop) => ({
+      combatant.troops.tribe,
+      combatant.troops.units.map((troop) => ({
         unitId: troop.unitId,
         amount: troop.amountBefore,
       })),
     );
     const troopsAfter: TroopLike[] = sortTroops(
-      participant.tribe,
-      participant.units.map((troop) => ({
+      combatant.troops.tribe,
+      combatant.troops.units.map((troop) => ({
         unitId: troop.unitId,
         amount: troop.amountAfter,
       })),
     );
     const troopsLost: TroopLike[] = sortTroops(
-      participant.tribe,
-      participant.units.map((troop) => ({
+      combatant.troops.tribe,
+      combatant.troops.units.map((troop) => ({
         unitId: troop.unitId,
         amount: troop.amountBefore - troop.amountAfter,
       })),
@@ -57,37 +59,30 @@ export const BattleParticipantTable = ({
       troopsAfter,
       troopsLost,
     };
-  }, [participant]);
+  }, [combatant]);
 
   return (
-    <UnitTable tribe={participant.tribe}>
-      <UnitTableTitle>{participant.role}</UnitTableTitle>
+    <UnitTable tribe={combatant.troops.tribe}>
+      <UnitTableTitle>{role}</UnitTableTitle>
 
-      {participant.role === 'attacker' && (
-        <UnitTablePlayer
-          playerName={battle.attackingPlayerName}
-          playerSlug={battle.attackingPlayerSlug}
-          tileName={battle.originName}
-          coordinates={battle.originCoordinates}
-        />
-      )}
-      {participant.role === 'defender' && !participant.isReinforcement && (
-        <UnitTablePlayer
-          playerName={battle.defendingPlayerName}
-          playerSlug={battle.defendingPlayerSlug}
-          tileName={battle.targetName}
-          coordinates={battle.targetCoordinates}
-        />
-      )}
+      <UnitTablePlayer
+        playerName={combatant.player.name}
+        playerSlug={combatant.player.slug}
+        tileName={combatant.village.name}
+        coordinates={combatant.village.coordinates}
+        sourceLabel={
+          combatant.troops.tribe === 'nature' ? t(' from ') : undefined
+        }
+      />
 
       <UnitTableUnitIcons />
-      {participant.role === 'defender' && !showDefendingUnits && (
+      {role !== 'attacker' && !showDefendingUnits && (
         <UnitTableHiddenRow
           label={t('Troops')}
           troops={troopsBefore}
         />
       )}
-      {(participant.role === 'attacker' || showDefendingUnits) && (
+      {(role === 'attacker' || showDefendingUnits) && (
         <>
           <UnitTableRow
             label={t('Initial')}
@@ -106,10 +101,10 @@ export const BattleParticipantTable = ({
         </>
       )}
 
-      {participant.role === 'attacker' && (
+      {role === 'attacker' && (
         <UnitTableLoot
-          loot={battle.loot}
-          totalCarryCapacity={battle.totalCarryCapacity}
+          loot={battle.outcome.loot}
+          totalCarryCapacity={battle.outcome.totalCarryCapacity}
         />
       )}
     </UnitTable>

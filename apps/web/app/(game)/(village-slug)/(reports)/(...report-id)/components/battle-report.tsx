@@ -19,9 +19,17 @@ const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
   const battle = report.battle;
 
   const showDefendingUnits =
-    battle.attackingPlayerSlug === 'player'
-      ? battle.canAttackerSeeFullReport
+    battle.attacker.player.slug === 'player'
+      ? battle.outcome.canAttackerSeeFullReport
       : true;
+  const combatants = [
+    { combatant: battle.attacker, role: 'attacker' as const },
+    { combatant: battle.defender, role: 'defender' as const },
+    ...battle.defender.reinforcements.map((combatant) => ({
+      combatant,
+      role: 'reinforcement' as const,
+    })),
+  ];
 
   return (
     <Section>
@@ -30,23 +38,20 @@ const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
         <span>{new Date(report.timestamp).toLocaleString()}</span>
 
         <div className="overflow-x-scroll scrollbar-hidden">
-          {battle.participants.map((participant) => {
-            if (
-              participant.role === 'defender' &&
-              participant.isReinforcement &&
-              !showDefendingUnits
-            ) {
+          {combatants.map(({ combatant, role }) => {
+            if (role === 'reinforcement' && !showDefendingUnits) {
               return null;
             }
 
             return (
               <div
                 className="my-4"
-                key={participant.id}
+                key={combatant.troops.id}
               >
                 <BattleParticipantTable
                   battle={battle}
-                  participant={participant}
+                  combatant={combatant}
+                  role={role}
                   showDefendingUnits={showDefendingUnits}
                 />
               </div>

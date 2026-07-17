@@ -9,7 +9,6 @@ import {
 } from '@pillage-first/game-assets/combat/combat-engine';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
-import type { BattleParticipant } from '@pillage-first/types/models/battle';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import type { CombatResultId } from '@pillage-first/types/models/report';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
@@ -655,10 +654,7 @@ const addBattleReport = ({
     ...createDefendingParticipants(result.defenderTroops),
   ];
 
-  const participantSourceToIdMap = new Map<
-    Tile['id'],
-    BattleParticipant['id']
-  >();
+  const participantSourceToIdMap = new Map<Tile['id'], number>();
   for (const participant of participants) {
     const participantId = insertBattleParticipant(database, participant);
     participantSourceToIdMap.set(participant.tileId, participantId);

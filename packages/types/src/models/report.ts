@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { battleSummarySchema, battleTypeSchema } from './battle';
+import { battleSchema, battleSummarySchema } from './battle';
 
 export const reportTypeSchema = z.enum(['battle', 'adventure', 'trade']);
 
@@ -30,7 +30,7 @@ export const baseReportSchema = z.strictObject({
 export const battleReportSchema = baseReportSchema.extend({
   type: z.literal('battle'),
   combatResultId: combatResultIdSchema,
-  battle: battleTypeSchema,
+  battle: battleSchema,
 });
 
 export const gameReportSchema = z
