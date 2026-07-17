@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { battleTypeSchema } from './battle';
+import { battleSummarySchema, battleTypeSchema } from './battle';
 
 export const reportTypeSchema = z.enum(['battle', 'adventure', 'trade']);
 
@@ -21,7 +21,8 @@ export const baseReportSchema = z.strictObject({
   playerId: z.int(),
   villageId: z.int(),
   timestamp: z.int(),
-  subject: z.string(),
+  type: reportTypeSchema,
+  battleSummary: battleSummarySchema,
   combatResultId: combatResultIdSchema.nullable(),
   tags: z.array(reportTagSchema),
 });

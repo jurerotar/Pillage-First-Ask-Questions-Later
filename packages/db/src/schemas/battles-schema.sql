@@ -4,6 +4,8 @@ CREATE TABLE battles
   report_id INTEGER NOT NULL UNIQUE,
   origin_tile_id INTEGER NOT NULL,
   target_tile_id INTEGER NOT NULL,
+  -- boolean
+  is_raid INTEGER NOT NULL,
   loot_wood INTEGER NOT NULL,
   loot_clay INTEGER NOT NULL,
   loot_iron INTEGER NOT NULL,

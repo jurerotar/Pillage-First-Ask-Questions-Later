@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { battleStatisticsSchema } from '../models/battle';
+import { battleStatisticsSchema, battleSummarySchema } from '../models/battle';
 import { coordinatesSchema } from '../models/coordinates';
 import { resourceBundleSchema } from '../models/resource';
 import { tribeSchema } from '../models/tribe';
@@ -20,10 +20,13 @@ export const battleParticipantDtoSchema = z.strictObject({
   units: z.array(battleUnitDtoSchema),
 });
 
+export const battleSummaryDtoSchema = battleSummarySchema;
+
 export const battleDtoSchema = z.strictObject({
   id: z.int(),
   originTileId: z.int(),
   targetTileId: z.int(),
+  isRaid: z.boolean(),
   attackingPlayerName: z.string(),
   attackingPlayerSlug: z.string(),
   defendingPlayerName: z.string(),

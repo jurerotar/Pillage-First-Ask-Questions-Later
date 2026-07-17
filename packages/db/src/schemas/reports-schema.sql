@@ -4,7 +4,6 @@ CREATE TABLE reports
   player_id INTEGER NOT NULL,
   village_id INTEGER NOT NULL,
   timestamp INTEGER NOT NULL,
-  subject TEXT NOT NULL,
   type TEXT NOT NULL,
   combat_result_id INTEGER,
 

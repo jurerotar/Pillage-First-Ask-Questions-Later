@@ -44,6 +44,7 @@ export const getBattleByReportRowSchema = z
     id: z.int(),
     origin_tile_id: z.int(),
     target_tile_id: z.int(),
+    is_raid: z.int(),
     loot_wood: z.int(),
     loot_clay: z.int(),
     loot_iron: z.int(),

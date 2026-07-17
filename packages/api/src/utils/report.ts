@@ -33,7 +33,10 @@ import {
   selectBattlePlayerInformationQuery,
 } from '../queries/report-queries';
 
-export type CreateNewReport = Omit<GameReport, 'id' | 'battle'>;
+export type CreateNewReport = Omit<
+  GameReport,
+  'id' | 'battle' | 'battleSummary'
+>;
 
 export type CreateNewBattleType = Omit<
   BattleType,
@@ -73,13 +76,12 @@ export const insertReport = (
   const reportId = database.selectValue({
     sql: `
       INSERT INTO
-        reports (player_id, village_id, timestamp, subject, type, combat_result_id)
+        reports (player_id, village_id, timestamp, type, combat_result_id)
       VALUES
         (
           $player_id,
           $village_id,
           $timestamp,
-          $subject,
           $type,
           (
             SELECT
@@ -96,7 +98,6 @@ export const insertReport = (
       $player_id: report.playerId,
       $village_id: report.villageId,
       $timestamp: report.timestamp,
-      $subject: report.subject,
       $type: report.type,
       $combat_result_id: report.combatResultId,
     },
@@ -138,6 +139,7 @@ export const insertBattle = (
           report_id,
           origin_tile_id,
           target_tile_id,
+          is_raid,
           loot_wood,
           loot_clay,
           loot_iron,
@@ -151,6 +153,7 @@ export const insertBattle = (
           $report_id,
           $origin_tile_id,
           $target_tile_id,
+          $is_raid,
           $loot_wood,
           $loot_clay,
           $loot_iron,
@@ -164,6 +167,7 @@ export const insertBattle = (
       $report_id: battle.reportId,
       $origin_tile_id: battle.originTileId,
       $target_tile_id: battle.targetTileId,
+      $is_raid: battle.isRaid,
       $loot_wood: battle.loot[0],
       $loot_clay: battle.loot[1],
       $loot_iron: battle.loot[2],

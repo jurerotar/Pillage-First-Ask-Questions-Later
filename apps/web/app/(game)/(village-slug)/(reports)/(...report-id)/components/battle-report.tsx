@@ -7,6 +7,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
 import { Separator } from 'app/components/ui/separator';
+import { getReportSubject } from '../../utils/report-subject';
 import { BattleParticipantTable } from './components/battle-participant-table';
 import { BattleStatistics } from './components/battle-statistics';
 
@@ -25,7 +26,7 @@ const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
   return (
     <Section>
       <SectionContent>
-        <Text as="h1">{report.subject}</Text>
+        <Text as="h1">{getReportSubject(report)}</Text>
         <span>{new Date(report.timestamp).toLocaleString()}</span>
 
         <div className="overflow-x-scroll scrollbar-hidden">

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { battleTypeSchema } from '../models/battle';
+import { battleSummarySchema, battleTypeSchema } from '../models/battle';
 import {
   combatResultIdSchema,
   reportTagSchema,
@@ -11,7 +11,7 @@ export const baseReportDtoSchema = z.strictObject({
   playerId: z.int(),
   villageId: z.int(),
   timestamp: z.int(),
-  subject: z.string(),
+  battleSummary: battleSummarySchema,
   type: reportTypeSchema,
   combatResultId: combatResultIdSchema.nullable(),
   tags: z.array(reportTagSchema),
@@ -23,7 +23,7 @@ export const reportDtoSchema = z.discriminatedUnion('type', [
     playerId: z.int(),
     villageId: z.int(),
     timestamp: z.int(),
-    subject: z.string(),
+    battleSummary: battleSummarySchema,
     type: z.literal('battle'),
     combatResultId: combatResultIdSchema,
     tags: z.array(reportTagSchema),

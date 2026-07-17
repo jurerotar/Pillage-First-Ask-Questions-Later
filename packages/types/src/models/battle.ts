@@ -26,10 +26,18 @@ export const battleParticipantSchema = z.strictObject({
   units: z.array(battleUnitSchema),
 });
 
+export const battleSummarySchema = z.strictObject({
+  isRaid: z.boolean(),
+  originName: z.string(),
+  targetName: z.string(),
+  targetCoordinates: coordinatesSchema,
+});
+
 export const battleTypeSchema = z.strictObject({
   id: z.int(),
   originTileId: z.int(),
   targetTileId: z.int(),
+  isRaid: z.boolean(),
   attackingPlayerName: z.string(),
   attackingPlayerSlug: z.string(),
   defendingPlayerName: z.string(),
@@ -50,4 +58,5 @@ export const battleTypeSchema = z.strictObject({
 export type BattleStatistics = z.infer<typeof battleStatisticsSchema>;
 export type BattleUnit = z.infer<typeof battleUnitSchema>;
 export type BattleParticipant = z.infer<typeof battleParticipantSchema>;
+export type BattleSummary = z.infer<typeof battleSummarySchema>;
 export type BattleType = z.infer<typeof battleTypeSchema>;

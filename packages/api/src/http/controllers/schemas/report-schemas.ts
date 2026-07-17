@@ -11,9 +11,13 @@ export const getReportsRowSchema = z
     player_id: z.int(),
     village_id: z.int(),
     timestamp: z.int(),
-    subject: z.string(),
     type: reportTypeSchema,
     combat_result_id: combatResultIdSchema.nullable(),
+    battle_is_raid: z.int(),
+    battle_origin_name: z.string(),
+    battle_target_name: z.string(),
+    battle_target_x: z.int(),
+    battle_target_y: z.int(),
     tag: reportTagSchema.nullable(),
   })
   .meta({ id: 'GetReportsRow' });
