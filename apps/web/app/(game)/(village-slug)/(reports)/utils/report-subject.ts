@@ -1,9 +1,9 @@
-import type {
-  BaseReport,
-  GameReport,
-} from '@pillage-first/types/models/report';
+import type { BaseReportDto } from '@pillage-first/types/dtos/report';
+import type { GameReport } from '@pillage-first/types/models/report';
 
-export const getReportSubject = (report: BaseReport | GameReport): string => {
+export const getReportSubject = (
+  report: BaseReportDto | GameReport,
+): string => {
   if (report.type === 'battle') {
     const battle = 'battle' in report ? report.battle : report.battleSummary;
     const summary =

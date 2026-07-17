@@ -21,7 +21,7 @@ describe('reportsSeeder', () => {
     expect(reportCount).toBe(100);
   });
 
-  test('every seeded report has one battle with real tiles and combat result', () => {
+  test('every seeded report has one battle with real tiles and battle result', () => {
     const invalidBattleCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -29,14 +29,14 @@ describe('reportsSeeder', () => {
         LEFT JOIN battles b ON b.report_id = r.id
         LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
         LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
-        LEFT JOIN combat_result_ids cri ON b.combat_result_id = cri.id
+        LEFT JOIN battle_result_ids bri ON b.battle_result_id = bri.id
         WHERE
           r.player_id = $player_id
           AND (
             b.id IS NULL
             OR origin_t.id IS NULL
             OR target_t.id IS NULL
-            OR cri.id IS NULL
+            OR bri.id IS NULL
           );
       `,
       bind: { $player_id: PLAYER_ID },

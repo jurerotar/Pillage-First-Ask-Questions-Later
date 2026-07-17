@@ -1,8 +1,5 @@
-import type {
-  BaseReport,
-  ReportTag,
-  ReportType,
-} from '@pillage-first/types/models/report';
+import type { BaseReportDto } from '@pillage-first/types/dtos/report';
+import type { ReportTag, ReportType } from '@pillage-first/types/models/report';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
@@ -52,9 +49,9 @@ export const ReportsList = ({
     clearSelectedReports();
   };
 
-  const markAsRead = (report: BaseReport) => {
-    if (!report.tags.includes('READ')) {
-      updateReports({ reportIds: [report.id], addTags: ['READ'] });
+  const markAsRead = (report: BaseReportDto) => {
+    if (!report.tags.includes('read')) {
+      updateReports({ reportIds: [report.id], addTags: ['read'] });
     }
   };
 
@@ -83,11 +80,11 @@ export const ReportsList = ({
           scope={scope}
           disabled={!hasSelectedReports}
           onDelete={deleteSelectedReports}
-          onMarkAsRead={() => updateSelectedReports({ addTags: ['READ'] })}
-          onMarkAsUnread={() => updateSelectedReports({ removeTags: ['READ'] })}
-          onArchive={() => updateSelectedReports({ addTags: ['ARCHIVED'] })}
+          onMarkAsRead={() => updateSelectedReports({ addTags: ['read'] })}
+          onMarkAsUnread={() => updateSelectedReports({ removeTags: ['read'] })}
+          onArchive={() => updateSelectedReports({ addTags: ['archived'] })}
           onUnarchive={() =>
-            updateSelectedReports({ removeTags: ['ARCHIVED'] })
+            updateSelectedReports({ removeTags: ['archived'] })
           }
         />
         <Pagination

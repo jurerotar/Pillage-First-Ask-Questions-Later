@@ -3,18 +3,16 @@ import { battleSchema, battleSummarySchema } from './battle';
 
 export const reportTypeSchema = z.enum(['battle', 'adventure', 'trade']);
 
-export const combatResultIdSchema = z.enum([
-  'ATTACKER_NO_LOSS',
-  'ATTACKER_SOME_LOSS',
-  'ATTACKER_FULL_LOSS',
-  'DEFENDER_NO_LOSS',
-  'DEFENDER_SOME_LOSS',
-  'DEFENDER_FULL_LOSS',
-] as const);
+export const battleResultIdSchema = z.enum([
+  'attackerNoLoss',
+  'attackerSomeLoss',
+  'attackerFullLoss',
+  'defenderNoLoss',
+  'defenderSomeLoss',
+  'defenderFullLoss',
+]);
 
-export const reportStateTags = ['READ', 'ARCHIVED'] as const;
-
-export const reportTagSchema = z.enum(reportStateTags);
+export const reportTagSchema = z.enum(['read', 'archived']);
 
 export const baseReportSchema = z.strictObject({
   id: z.int(),
@@ -22,24 +20,38 @@ export const baseReportSchema = z.strictObject({
   villageId: z.int(),
   timestamp: z.int(),
   type: reportTypeSchema,
-  battleSummary: battleSummarySchema,
-  combatResultId: combatResultIdSchema.nullable(),
   tags: z.array(reportTagSchema),
 });
 
 export const battleReportSchema = baseReportSchema.extend({
   type: z.literal('battle'),
-  combatResultId: combatResultIdSchema,
+  battleSummary: battleSummarySchema,
+  battleResultId: battleResultIdSchema,
   battle: battleSchema,
 });
 
+export const adventureReportSchema = baseReportSchema.extend({
+  type: z.literal('adventure'),
+});
+
+export const tradeReportSchema = baseReportSchema.extend({
+  type: z.literal('trade'),
+});
+
 export const gameReportSchema = z
-  .discriminatedUnion('type', [battleReportSchema])
+  .discriminatedUnion('type', [
+    battleReportSchema,
+    adventureReportSchema,
+    tradeReportSchema,
+  ])
   .meta({ id: 'GameReport' });
 
 export type ReportType = z.infer<typeof reportTypeSchema>;
 export type ReportTag = z.infer<typeof reportTagSchema>;
-export type CombatResultId = z.infer<typeof combatResultIdSchema>;
+export type BattleResultId = z.infer<typeof battleResultIdSchema>;
 
 export type BaseReport = z.infer<typeof baseReportSchema>;
+export type BattleReport = z.infer<typeof battleReportSchema>;
+export type AdventureReport = z.infer<typeof adventureReportSchema>;
+export type TradeReport = z.infer<typeof tradeReportSchema>;
 export type GameReport = z.infer<typeof gameReportSchema>;

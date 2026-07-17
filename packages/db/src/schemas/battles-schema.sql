@@ -4,7 +4,7 @@ CREATE TABLE battles
   report_id INTEGER NOT NULL UNIQUE,
   origin_tile_id INTEGER NOT NULL,
   target_tile_id INTEGER NOT NULL,
-  combat_result_id INTEGER NOT NULL,
+  battle_result_id INTEGER NOT NULL,
   -- boolean
   is_raid INTEGER NOT NULL CHECK (is_raid IN (0, 1)),
   loot_wood INTEGER NOT NULL CHECK (loot_wood >= 0),
@@ -19,5 +19,5 @@ CREATE TABLE battles
   FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,
   FOREIGN KEY (origin_tile_id) REFERENCES tiles (id),
   FOREIGN KEY (target_tile_id) REFERENCES tiles (id),
-  FOREIGN KEY (combat_result_id) REFERENCES combat_result_ids (id)
+  FOREIGN KEY (battle_result_id) REFERENCES battle_result_ids (id)
 ) STRICT;

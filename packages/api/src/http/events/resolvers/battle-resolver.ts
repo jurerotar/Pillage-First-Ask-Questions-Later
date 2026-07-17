@@ -10,7 +10,7 @@ import {
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
-import type { CombatResultId } from '@pillage-first/types/models/report';
+import type { BattleResultId } from '@pillage-first/types/models/report';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { OasisTile, Tile } from '@pillage-first/types/models/tile';
 import type { Troop } from '@pillage-first/types/models/troop';
@@ -118,18 +118,18 @@ type PrepareBattleResult = {
   target: BattleTarget;
 };
 
-const getCombatResultId = (
-  prefix: 'ATTACKER' | 'DEFENDER',
+const getBattleResultId = (
+  role: 'attacker' | 'defender',
   survivors: CombatTroop[],
   losses: CombatTroop[],
-): CombatResultId => {
+): BattleResultId => {
   let lossesCount = 0;
   for (const { amount } of losses) {
     lossesCount += amount;
   }
 
   if (lossesCount === 0) {
-    return `${prefix}_NO_LOSS` as CombatResultId;
+    return role === 'attacker' ? 'attackerNoLoss' : 'defenderNoLoss';
   }
 
   let survivorCount = 0;
@@ -138,10 +138,10 @@ const getCombatResultId = (
   }
 
   if (survivorCount === 0) {
-    return `${prefix}_FULL_LOSS` as CombatResultId;
+    return role === 'attacker' ? 'attackerFullLoss' : 'defenderFullLoss';
   }
 
-  return `${prefix}_SOME_LOSS` as CombatResultId;
+  return role === 'attacker' ? 'attackerSomeLoss' : 'defenderSomeLoss';
 };
 
 const prepareBattle = ({
@@ -565,15 +565,15 @@ const addBattleReport = ({
   // │ Generate report │
   // └─────────────────┘
 
-  const combatResultId =
+  const battleResultId =
     origin.villageId === playerVillageId
-      ? getCombatResultId(
-          'ATTACKER',
+      ? getBattleResultId(
+          'attacker',
           result.attackerSurvivors,
           result.attackerLosses,
         )
-      : getCombatResultId(
-          'DEFENDER',
+      : getBattleResultId(
+          'defender',
           result.defenderSurvivors,
           result.defenderLosses,
         );
@@ -594,7 +594,7 @@ const addBattleReport = ({
 
   const battle: CreateNewBattleType = {
     reportId,
-    combatResultId,
+    battleResultId,
     originTileId: origin.tileId,
     targetTileId: target.tileId,
     isRaid,
