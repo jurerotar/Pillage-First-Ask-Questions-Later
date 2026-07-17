@@ -5,7 +5,7 @@ export const selectReportsQuery = `
     r.village_id,
     r.timestamp,
     rty.report_type AS type,
-    cri.combat_result AS combat_result_id,
+    bri.battle_result AS battle_result_id,
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
     CASE
@@ -26,7 +26,7 @@ export const selectReportsQuery = `
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
-    LEFT JOIN combat_result_ids cri ON b.combat_result_id = cri.id
+    LEFT JOIN battle_result_ids bri ON b.battle_result_id = bri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
@@ -42,7 +42,7 @@ export const selectReportsQuery = `
           JOIN report_tag_ids rti ON rt.report_tag_id = rti.id
         WHERE
           rt.report_id = r.id
-          AND rti.tag = 'READ'
+          AND rti.tag = 'read'
       )
     )
     AND (
@@ -55,7 +55,7 @@ export const selectReportsQuery = `
           JOIN report_tag_ids rti ON rt.report_tag_id = rti.id
         WHERE
           rt.report_id = r.id
-          AND rti.tag = 'ARCHIVED'
+          AND rti.tag = 'archived'
       )
     )
     AND (
@@ -75,7 +75,7 @@ export const selectReportQuery = `
     r.village_id,
     r.timestamp,
     rty.report_type AS type,
-    cri.combat_result AS combat_result_id,
+    bri.battle_result AS battle_result_id,
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
     CASE
@@ -96,7 +96,7 @@ export const selectReportQuery = `
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
-    LEFT JOIN combat_result_ids cri ON b.combat_result_id = cri.id
+    LEFT JOIN battle_result_ids bri ON b.battle_result_id = bri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE

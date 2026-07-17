@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import type { BaseReportDto } from '@pillage-first/types/dtos/report';
 import type { BaseReport } from '@pillage-first/types/models/report';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -13,16 +14,16 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { getReportSubject } from '../utils/report-subject';
-import { CombatResultIcon } from './combat-result-icon';
+import { BattleResultIcon } from './battle-result-icon';
 
 type ReportsTableProps = {
-  reports: BaseReport[];
+  reports: BaseReportDto[];
   hasReports: boolean;
   selectedReportIds: BaseReport['id'][];
   allVisibleReportsSelected: boolean;
   onToggleReport: (reportId: BaseReport['id']) => void;
   onToggleVisibleReports: () => void;
-  onOpenReport: (report: BaseReport) => void;
+  onOpenReport: (report: BaseReportDto) => void;
 };
 
 export const ReportsTable = ({
@@ -61,14 +62,18 @@ export const ReportsTable = ({
                 />
               </TableCell>
               <TableCell className="flex gap-3 items-center">
-                <CombatResultIcon combatResultId={report.combatResultId} />
+                <BattleResultIcon
+                  battleResultId={
+                    report.type === 'battle' ? report.battleResultId : null
+                  }
+                />
                 <Link
                   onClick={() => onOpenReport(report)}
                   to={`../reports/${report.id}`}
                 >
                   <Text
                     className={
-                      report.tags.includes('READ')
+                      report.tags.includes('read')
                         ? 'text-gray-700 font-normal'
                         : 'text-link font-medium'
                     }
@@ -76,7 +81,7 @@ export const ReportsTable = ({
                     {getReportSubject(report)}
                   </Text>
                 </Link>
-                {report.tags.includes('ARCHIVED') && <Icon type="hero" />}
+                {report.tags.includes('archived') && <Icon type="hero" />}
               </TableCell>
               <TableCell>
                 {new Date(report.timestamp).toLocaleString()}

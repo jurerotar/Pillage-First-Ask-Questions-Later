@@ -8,8 +8,7 @@ import type {
 } from '@pillage-first/types/models/battle';
 import type {
   BaseReport,
-  CombatResultId,
-  GameReport,
+  BattleResultId,
 } from '@pillage-first/types/models/report';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -35,9 +34,9 @@ import {
   selectBattlePlayerInformationQuery,
 } from '../queries/report-queries';
 
-export type CreateNewReport = Omit<
-  GameReport,
-  'id' | 'battle' | 'battleSummary' | 'combatResultId'
+export type CreateNewReport = Pick<
+  BaseReport,
+  'playerId' | 'villageId' | 'timestamp' | 'type' | 'tags'
 >;
 
 export type CreateNewBattleType = Omit<
@@ -45,7 +44,7 @@ export type CreateNewBattleType = Omit<
   'id' | 'attacker' | 'defender' | 'outcome' | 'statistics'
 > & {
   reportId: BaseReport['id'];
-  combatResultId: CombatResultId;
+  battleResultId: BattleResultId;
   originTileId: number;
   targetTileId: number;
   isRaid: boolean;
@@ -133,7 +132,7 @@ export const insertBattle = (
           report_id,
           origin_tile_id,
           target_tile_id,
-          combat_result_id,
+          battle_result_id,
           is_raid,
           loot_wood,
           loot_clay,
@@ -152,9 +151,9 @@ export const insertBattle = (
             SELECT
               id
             FROM
-              combat_result_ids
+              battle_result_ids
             WHERE
-              combat_result = $combat_result_id
+              battle_result = $battle_result_id
           ),
           $is_raid,
           $loot_wood,
@@ -171,7 +170,7 @@ export const insertBattle = (
       $report_id: battle.reportId,
       $origin_tile_id: battle.originTileId,
       $target_tile_id: battle.targetTileId,
-      $combat_result_id: battle.combatResultId,
+      $battle_result_id: battle.battleResultId,
       $is_raid: battle.isRaid,
       $loot_wood: battle.loot[0],
       $loot_clay: battle.loot[1],

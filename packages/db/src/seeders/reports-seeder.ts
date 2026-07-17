@@ -2,7 +2,7 @@ import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type {
-  CombatResultId,
+  BattleResultId,
   ReportTag,
 } from '@pillage-first/types/models/report';
 import type { Server } from '@pillage-first/types/models/server';
@@ -43,17 +43,17 @@ const unitIdsByTribe = {
   nature: ['RAT', 'SPIDER', 'WILD_BOAR'],
 } as const satisfies Record<Tribe, readonly UnitId[]>;
 
-const combatResultsByPlayerRole = {
-  attacker: ['ATTACKER_NO_LOSS', 'ATTACKER_SOME_LOSS', 'ATTACKER_FULL_LOSS'],
-  defender: ['DEFENDER_NO_LOSS', 'DEFENDER_SOME_LOSS', 'DEFENDER_FULL_LOSS'],
-} as const satisfies Record<string, readonly CombatResultId[]>;
+const battleResultsByPlayerRole = {
+  attacker: ['attackerNoLoss', 'attackerSomeLoss', 'attackerFullLoss'],
+  defender: ['defenderNoLoss', 'defenderSomeLoss', 'defenderFullLoss'],
+} as const satisfies Record<string, readonly BattleResultId[]>;
 
-const resultToLossMode = (combatResult: CombatResultId): LossMode => {
-  if (combatResult.endsWith('NO_LOSS')) {
+const resultToLossMode = (battleResult: BattleResultId): LossMode => {
+  if (battleResult.endsWith('NoLoss')) {
     return 'none';
   }
 
-  if (combatResult.endsWith('FULL_LOSS')) {
+  if (battleResult.endsWith('FullLoss')) {
     return 'full';
   }
 
@@ -172,22 +172,22 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
     'battle',
   );
   const tagIds = new Map<ReportTag, number>([
-    ['READ', selectLookupId(database, 'report_tag_ids', 'tag', 'READ')],
-    ['ARCHIVED', selectLookupId(database, 'report_tag_ids', 'tag', 'ARCHIVED')],
+    ['read', selectLookupId(database, 'report_tag_ids', 'tag', 'read')],
+    ['archived', selectLookupId(database, 'report_tag_ids', 'tag', 'archived')],
   ]);
 
-  const combatResultIds = new Map<CombatResultId, number>();
-  for (const combatResult of [
-    ...combatResultsByPlayerRole.attacker,
-    ...combatResultsByPlayerRole.defender,
+  const battleResultIds = new Map<BattleResultId, number>();
+  for (const battleResult of [
+    ...battleResultsByPlayerRole.attacker,
+    ...battleResultsByPlayerRole.defender,
   ]) {
-    combatResultIds.set(
-      combatResult,
+    battleResultIds.set(
+      battleResult,
       selectLookupId(
         database,
-        'combat_result_ids',
-        'combat_result',
-        combatResult,
+        'battle_result_ids',
+        'battle_result',
+        battleResult,
       ),
     );
   }
@@ -287,12 +287,12 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
 
   for (let i = 0; i < REPORT_COUNT; i += 1) {
     const isPlayerAttacker = i % 2 === 0;
-    const playerCombatResults = isPlayerAttacker
-      ? combatResultsByPlayerRole.attacker
-      : combatResultsByPlayerRole.defender;
-    const combatResult = playerCombatResults[i % playerCombatResults.length];
+    const playerBattleResults = isPlayerAttacker
+      ? battleResultsByPlayerRole.attacker
+      : battleResultsByPlayerRole.defender;
+    const battleResult = playerBattleResults[i % playerBattleResults.length];
 
-    const playerLossMode = resultToLossMode(combatResult);
+    const playerLossMode = resultToLossMode(battleResult);
     const opponentMode = opponentLossMode(playerLossMode);
     const attackerLossMode = isPlayerAttacker ? playerLossMode : opponentMode;
     const defenderLossMode = isPlayerAttacker ? opponentMode : playerLossMode;
@@ -342,7 +342,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
           report_id,
           origin_tile_id,
           target_tile_id,
-          combat_result_id,
+          battle_result_id,
           is_raid,
           loot_wood,
           loot_clay,
@@ -356,7 +356,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
           $report_id,
           $origin_tile_id,
           $target_tile_id,
-          $combat_result_id,
+          $battle_result_id,
           $is_raid,
           $loot_wood,
           $loot_clay,
@@ -372,7 +372,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
         $report_id: reportId,
         $origin_tile_id: origin.tileId,
         $target_tile_id: target.tileId,
-        $combat_result_id: combatResultIds.get(combatResult)!,
+        $battle_result_id: battleResultIds.get(battleResult)!,
         $is_raid: i % 4 === 0 ? 1 : 0,
         $loot_wood: loot[0],
         $loot_clay: loot[1],
@@ -467,11 +467,11 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
     }
 
     if (i % 2 === 0) {
-      reportTagRows.push([reportId, tagIds.get('READ')!]);
+      reportTagRows.push([reportId, tagIds.get('read')!]);
     }
 
     if (i % 10 === 0) {
-      reportTagRows.push([reportId, tagIds.get('ARCHIVED')!]);
+      reportTagRows.push([reportId, tagIds.get('archived')!]);
     }
   }
 
