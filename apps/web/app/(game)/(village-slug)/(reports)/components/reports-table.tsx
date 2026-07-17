@@ -12,6 +12,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
+import { getReportSubject } from '../utils/report-subject';
 import { CombatResultIcon } from './combat-result-icon';
 
 type ReportsTableProps = {
@@ -72,7 +73,7 @@ export const ReportsTable = ({
                         : 'text-link font-medium'
                     }
                   >
-                    {report.subject}
+                    {getReportSubject(report)}
                   </Text>
                 </Link>
                 {report.tags.includes('ARCHIVED') && <Icon type="hero" />}

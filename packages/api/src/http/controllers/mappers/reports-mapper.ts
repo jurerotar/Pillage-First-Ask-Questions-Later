@@ -21,8 +21,16 @@ export const mapReports = (
         playerId: row.player_id,
         villageId: row.village_id,
         timestamp: row.timestamp,
-        subject: row.subject,
         type: row.type,
+        battleSummary: {
+          isRaid: Boolean(row.battle_is_raid),
+          originName: row.battle_origin_name,
+          targetName: row.battle_target_name,
+          targetCoordinates: {
+            x: row.battle_target_x,
+            y: row.battle_target_y,
+          },
+        },
         combatResultId: row.combat_result_id,
         tags: [],
       };
@@ -55,7 +63,15 @@ export const mapReport = (
     playerId: row.player_id,
     villageId: row.village_id,
     timestamp: row.timestamp,
-    subject: row.subject,
+    battleSummary: {
+      isRaid: Boolean(row.battle_is_raid),
+      originName: row.battle_origin_name,
+      targetName: row.battle_target_name,
+      targetCoordinates: {
+        x: row.battle_target_x,
+        y: row.battle_target_y,
+      },
+    },
     combatResultId: row.combat_result_id,
     tags,
   };

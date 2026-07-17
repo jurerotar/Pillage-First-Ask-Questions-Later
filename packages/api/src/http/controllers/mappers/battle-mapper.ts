@@ -67,6 +67,7 @@ export const mapBattle = (
     id: row.id,
     originTileId: row.origin_tile_id,
     targetTileId: row.target_tile_id,
+    isRaid: Boolean(row.is_raid),
     attackingPlayerName: '',
     attackingPlayerSlug: '',
     defendingPlayerName: '',

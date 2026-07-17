@@ -76,6 +76,7 @@ export const selectBattleByReportQuery = `
     id,
     origin_tile_id,
     target_tile_id,
+    is_raid,
     loot_wood,
     loot_clay,
     loot_iron,

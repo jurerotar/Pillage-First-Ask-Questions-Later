@@ -83,12 +83,27 @@ export const getReports = createController(
     r.player_id,
     r.village_id,
     r.timestamp,
-    r.subject,
     r.type,
     cri.combat_result AS combat_result_id,
+    b.is_raid AS battle_is_raid,
+    origin_v.name AS battle_origin_name,
+    CASE
+      WHEN target_v.id IS NOT NULL THEN target_v.name
+      WHEN target_o.id IS NOT NULL AND target_o.village_id IS NOT NULL THEN 'Occupied oasis'
+      WHEN target_o.id IS NOT NULL THEN 'Unoccupied oasis'
+      ELSE ''
+      END AS battle_target_name,
+    target_t.x AS battle_target_x,
+    target_t.y AS battle_target_y,
     tag
   FROM
     reports r
+    LEFT JOIN battles b ON r.id = b.report_id
+    LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
+    LEFT JOIN villages origin_v ON origin_t.id = origin_v.tile_id
+    LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
+    LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
+    LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
     LEFT JOIN combat_result_ids cri ON r.combat_result_id = cri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id

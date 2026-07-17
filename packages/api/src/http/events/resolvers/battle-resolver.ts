@@ -569,11 +569,6 @@ const addBattleReport = ({
   // │ Generate report │
   // └─────────────────┘
 
-  const subjectType = isRaid ? 'raids' : 'attacks';
-  const targetName =
-    target.type === 'village' ? target.villageName : target.oasisName;
-  const subject = `${origin.villageName} ${subjectType} ${targetName} (${target.coordinates.x}|${target.coordinates.y})`;
-
   const combatResultId =
     origin.villageId === playerVillageId
       ? getCombatResultId(
@@ -591,7 +586,6 @@ const addBattleReport = ({
     playerId: PLAYER_ID,
     villageId: playerVillageId,
     timestamp: resolvesAt,
-    subject,
     type: 'battle',
     combatResultId,
     tags: [],
@@ -607,6 +601,7 @@ const addBattleReport = ({
     reportId,
     originTileId: origin.tileId,
     targetTileId: target.tileId,
+    isRaid,
     loot: result.loot,
     canAttackerSeeFullReport: result.canAttackerSeeFullReport,
     attackStatisticPoints: result.attackerTotalPoints,
