@@ -30,6 +30,8 @@ export const mapBattleParticipants = (
 ): z.infer<typeof battleParticipantDtoSchema> => {
   const dto = {
     id: row.id,
+    playerId: row.player_id,
+    tileId: row.tile_id,
     role: row.role,
     tribe: row.tribe,
     isReinforcement: Boolean(row.is_reinforcement),

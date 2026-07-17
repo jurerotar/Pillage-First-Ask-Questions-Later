@@ -21,15 +21,12 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   selectBattleParticipantInfoByOasisQuery,
   selectBattleParticipantInfoByVillageQuery,
+  selectPlayerIdByVillageTileQuery,
   selectUnitImprovementByTileQuery,
 } from '../../../queries/battle-queries';
 import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../../../queries/effect-queries';
 import { selectOasisIdByTileIdQuery } from '../../../queries/oasis-queries';
 import { selectStationedTroopsByTileQuery } from '../../../queries/player-queries';
-import {
-  selectNatureTribeIdQuery,
-  selectTribeByTileQuery,
-} from '../../../queries/report-queries';
 import { selectVillageIdByTileIdQuery } from '../../../queries/village-queries';
 import { createEvents } from '../../../utils/create-event';
 import {
@@ -608,7 +605,7 @@ const addBattleReport = ({
     defenceStatisticPoints: result.defenderTotalPoints,
   };
 
-  insertBattle(database, battle);
+  const battleId = insertBattle(database, battle);
 
   // ┌──────────────────────────────┐
   // │ Generate battle participants │
@@ -628,44 +625,29 @@ const addBattleReport = ({
     const participants: CreateNewBattleParticipant[] = [];
 
     for (const source of participatingSources) {
-      let tribeId = database.selectValue({
-        sql: selectTribeByTileQuery,
-        bind: { $tile_id: source },
-        schema: z.int(),
-      });
-      if (tribeId == null) {
-        tribeId = database.selectValue({
-          sql: selectNatureTribeIdQuery,
-          schema: z.int(),
-        })!;
-      }
-
-      const isReinforcement = source !== target.tileId;
+      const playerId =
+        source === target.tileId
+          ? (target.playerId ?? null)
+          : (database.selectValue({
+              sql: selectPlayerIdByVillageTileQuery,
+              bind: { $tile_id: source },
+              schema: z.int(),
+            }) ?? null);
 
       participants.push({
-        reportId,
-        role: 'defender',
-        tribeId,
-        isReinforcement,
-        source,
+        battleId,
+        playerId,
+        tileId: source,
       });
     }
 
     return participants;
   };
 
-  const originTribeId = database.selectValue({
-    sql: selectTribeByTileQuery,
-    bind: { $tile_id: origin.tileId },
-    schema: z.int(),
-  })!;
-
   const attackerParticipant: CreateNewBattleParticipant = {
-    reportId,
-    role: 'attacker',
-    tribeId: originTribeId,
-    isReinforcement: false,
-    source: origin.tileId,
+    battleId,
+    playerId: origin.playerId,
+    tileId: origin.tileId,
   };
 
   const participants = [
@@ -679,26 +661,39 @@ const addBattleReport = ({
   >();
   for (const participant of participants) {
     const participantId = insertBattleParticipant(database, participant);
-    participantSourceToIdMap.set(participant.source, participantId);
+    participantSourceToIdMap.set(participant.tileId, participantId);
   }
 
   // ┌───────────────────────┐
   // │ Generate battle units │
   // └───────────────────────┘
 
-  const allTroops = result.attackerTroops.concat(result.defenderTroops);
-  const units: CreateNewBattleUnit[] = allTroops.map(
-    ({ troop, unitId, amountBefore, amountAfter }) => {
-      const battleParticipantId = participantSourceToIdMap.get(troop.source)!;
+  const attackerParticipantId = participantSourceToIdMap.get(origin.tileId)!;
+  const targetParticipantId = participantSourceToIdMap.get(target.tileId)!;
+
+  const attackerUnits: CreateNewBattleUnit[] = result.attackerTroops.map(
+    ({ unitId, amountBefore, amountAfter }) => {
       return {
-        battleParticipantId,
+        battleParticipantId: attackerParticipantId,
         unitId,
-        reportId,
         amountBefore,
         amountAfter,
       };
     },
   );
+  const defenderUnits: CreateNewBattleUnit[] = result.defenderTroops.map(
+    ({ troop, unitId, amountBefore, amountAfter }) => {
+      return {
+        battleParticipantId:
+          participantSourceToIdMap.get(troop.source) ?? targetParticipantId,
+        unitId,
+        amountBefore,
+        amountAfter,
+      };
+    },
+  );
+
+  const units = [...attackerUnits, ...defenderUnits];
 
   insertBattleUnits(database, units);
 };

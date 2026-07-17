@@ -62,12 +62,10 @@ export type CreateNewBattleType = Omit<
 
 export type CreateNewBattleParticipant = Omit<
   BattleParticipant,
-  'id' | 'units' | 'tribe'
-> & { reportId: BaseReport['id']; tribeId: number; source: number };
+  'id' | 'units' | 'role' | 'tribe' | 'isReinforcement'
+> & { battleId: BattleType['id'] };
 
-export type CreateNewBattleUnit = BattleUnit & {
-  reportId: BaseReport['id'];
-};
+export type CreateNewBattleUnit = BattleUnit;
 
 export const insertReport = (
   database: DbFacade,
@@ -76,13 +74,20 @@ export const insertReport = (
   const reportId = database.selectValue({
     sql: `
       INSERT INTO
-        reports (player_id, village_id, timestamp, type, combat_result_id)
+        reports (player_id, village_id, timestamp, type_id, combat_result_id)
       VALUES
         (
           $player_id,
           $village_id,
           $timestamp,
-          $type,
+          (
+            SELECT
+              id
+            FROM
+              report_type_ids
+            WHERE
+              report_type = $type
+          ),
           (
             SELECT
               id
@@ -131,8 +136,8 @@ export const insertReport = (
 export const insertBattle = (
   database: DbFacade,
   battle: CreateNewBattleType,
-): void => {
-  database.exec({
+): number => {
+  return database.selectValue({
     sql: `
       INSERT INTO
         battles (
@@ -161,7 +166,8 @@ export const insertBattle = (
           $can_attacker_see_full_report,
           $attacker_points,
           $defender_points
-        );
+        )
+      RETURNING id;
     `,
     bind: {
       $report_id: battle.reportId,
@@ -176,7 +182,8 @@ export const insertBattle = (
       $attacker_points: battle.attackStatisticPoints,
       $defender_points: battle.defenceStatisticPoints,
     },
-  });
+    schema: z.int(),
+  })!;
 };
 
 export const insertBattleParticipant = (
@@ -186,21 +193,19 @@ export const insertBattleParticipant = (
   return database.selectValue({
     sql: `
       INSERT INTO
-        battle_participants (report_id, role, tribe_id, is_reinforcement)
+        battle_participants (battle_id, player_id, tile_id)
       VALUES
         (
-          $report_id,
-          $role,
-          $tribe_id,
-          $is_reinforcement
+          $battle_id,
+          $player_id,
+          $tile_id
         )
       RETURNING id;
 `,
     bind: {
-      $report_id: participant.reportId,
-      $role: participant.role,
-      $tribe_id: participant.tribeId,
-      $is_reinforcement: participant.isReinforcement,
+      $battle_id: participant.battleId,
+      $player_id: participant.playerId,
+      $tile_id: participant.tileId,
     },
     schema: z.int(),
   })!;
@@ -213,7 +218,6 @@ export const insertBattleUnits = (
   const requiredEventProperties = new Set([
     'battleParticipantId',
     'unitId',
-    'reportId',
     'amountBefore',
     'amountAfter',
   ]);
@@ -221,9 +225,8 @@ export const insertBattleUnits = (
 
   const sqlTemplate = `
     INSERT INTO
-      battle_units (report_id, battle_participant_id, unit_id, amount_before, amount_after)
+      battle_units (battle_participant_id, unit_id, amount_before, amount_after)
     VALUES (
-      ?,
       ?,
       (SELECT id FROM unit_ids WHERE unit = ?),
       ?,
@@ -232,7 +235,6 @@ export const insertBattleUnits = (
 
   const valueTemplate = `
     ,(
-      ?,
       ?,
       (SELECT id FROM unit_ids WHERE unit = ?),
       ?,
@@ -250,11 +252,10 @@ export const insertBattleUnits = (
     const unit = units[i];
     const base = i * amountOfColumnsToInsert;
 
-    params[base] = unit.reportId;
-    params[base + 1] = unit.battleParticipantId;
-    params[base + 2] = unit.unitId;
-    params[base + 3] = unit.amountBefore;
-    params[base + 4] = unit.amountAfter;
+    params[base] = unit.battleParticipantId;
+    params[base + 1] = unit.unitId;
+    params[base + 2] = unit.amountBefore;
+    params[base + 3] = unit.amountAfter;
   }
 
   const stmt = database.prepare({ sql });

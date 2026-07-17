@@ -40,6 +40,7 @@ import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-i
 import createEffectTypeIdsTable from '../schemas/lookup-tables/effect-type-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
 import createReportTagIdsTable from '../schemas/lookup-tables/report-tag-ids-schema.sql?raw';
+import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
 import createResourceIdsTable from '../schemas/lookup-tables/resource-ids-schema.sql?raw';
 import createTileTypeIdsTable from '../schemas/lookup-tables/tile-type-ids-schema.sql?raw';
@@ -89,6 +90,7 @@ import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
 import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
+import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
@@ -221,6 +223,9 @@ export const migrateAndSeed = (
 
     db.exec({ sql: createReportTagIdsTable });
     reportTagIdsSeeder(db);
+
+    db.exec({ sql: createReportTypeIdsTable });
+    reportTypeIdsSeeder(db);
 
     db.exec({ sql: createReportsTable });
     db.exec({ sql: createReportTagsTable });

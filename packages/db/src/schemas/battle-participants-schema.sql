@@ -1,12 +1,11 @@
 CREATE TABLE battle_participants
 (
   id INTEGER PRIMARY KEY,
-  report_id INTEGER NOT NULL,
-  -- 'attacker' or 'defender'
-  role TEXT NOT NULL,
-  tribe_id INTEGER NOT NULL,
-  -- boolean
-  is_reinforcement INTEGER NOT NULL,
+  battle_id INTEGER NOT NULL,
+  player_id INTEGER,
+  tile_id INTEGER NOT NULL,
 
-  FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE
+  FOREIGN KEY (battle_id) REFERENCES battles (id) ON DELETE CASCADE,
+  FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE,
+  FOREIGN KEY (tile_id) REFERENCES tiles (id)
 ) STRICT;
