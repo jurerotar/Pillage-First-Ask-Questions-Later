@@ -73,9 +73,9 @@ export const selectBattleParticipantsByReportQuery = `
 
 export const selectBattleByReportQuery = `
   SELECT
-    attacking_village_id,
-    defending_village_id,
-    defending_oasis_id,
+    id,
+    origin_tile_id,
+    target_tile_id,
     loot_wood,
     loot_clay,
     loot_iron,

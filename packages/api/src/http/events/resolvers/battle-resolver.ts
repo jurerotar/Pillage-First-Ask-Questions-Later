@@ -605,10 +605,8 @@ const addBattleReport = ({
 
   const battle: CreateNewBattleType = {
     reportId,
-    attackingVillageId: origin.villageId,
-    defendingVillageId:
-      target.type === 'village' ? target.villageId : undefined,
-    defendingOasisId: target.type === 'oasis' ? target.oasisId : undefined,
+    originTileId: origin.tileId,
+    targetTileId: target.tileId,
     loot: result.loot,
     canAttackerSeeFullReport: result.canAttackerSeeFullReport,
     attackStatisticPoints: result.attackerTotalPoints,

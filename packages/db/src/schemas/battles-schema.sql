@@ -1,9 +1,9 @@
 CREATE TABLE battles
 (
-  report_id INTEGER PRIMARY KEY,
-  attacking_village_id INTEGER NOT NULL,
-  defending_village_id INTEGER,
-  defending_oasis_id INTEGER,
+  id INTEGER PRIMARY KEY,
+  report_id INTEGER NOT NULL UNIQUE,
+  origin_tile_id INTEGER NOT NULL,
+  target_tile_id INTEGER NOT NULL,
   loot_wood INTEGER NOT NULL,
   loot_clay INTEGER NOT NULL,
   loot_iron INTEGER NOT NULL,
@@ -13,5 +13,7 @@ CREATE TABLE battles
   attacker_points INTEGER NOT NULL,
   defender_points INTEGER NOT NULL,
 
-  FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE
+  FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,
+  FOREIGN KEY (origin_tile_id) REFERENCES tiles (id),
+  FOREIGN KEY (target_tile_id) REFERENCES tiles (id)
 ) STRICT;
