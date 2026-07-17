@@ -11,6 +11,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { BattleParticipant } from '@pillage-first/types/models/battle';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
+import type { CombatResultId } from '@pillage-first/types/models/report';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { OasisTile, Tile } from '@pillage-first/types/models/tile';
 import type { Troop } from '@pillage-first/types/models/troop';
@@ -121,18 +122,18 @@ type PrepareBattleResult = {
   target: BattleTarget;
 };
 
-const getBattleResultTag = (
+const getCombatResultId = (
   prefix: 'ATTACKER' | 'DEFENDER',
   survivors: CombatTroop[],
   losses: CombatTroop[],
-) => {
+): CombatResultId => {
   let lossesCount = 0;
   for (const { amount } of losses) {
     lossesCount += amount;
   }
 
   if (lossesCount === 0) {
-    return `${prefix}_NO_LOSS`;
+    return `${prefix}_NO_LOSS` as CombatResultId;
   }
 
   let survivorCount = 0;
@@ -141,10 +142,10 @@ const getBattleResultTag = (
   }
 
   if (survivorCount === 0) {
-    return `${prefix}_FULL_LOSS`;
+    return `${prefix}_FULL_LOSS` as CombatResultId;
   }
 
-  return `${prefix}_SOME_LOSS`;
+  return `${prefix}_SOME_LOSS` as CombatResultId;
 };
 
 const prepareBattle = ({
@@ -573,14 +574,14 @@ const addBattleReport = ({
     target.type === 'village' ? target.villageName : target.oasisName;
   const subject = `${origin.villageName} ${subjectType} ${targetName} (${target.coordinates.x}|${target.coordinates.y})`;
 
-  const resultTag =
+  const combatResultId =
     origin.villageId === playerVillageId
-      ? getBattleResultTag(
+      ? getCombatResultId(
           'ATTACKER',
           result.attackerSurvivors,
           result.attackerLosses,
         )
-      : getBattleResultTag(
+      : getCombatResultId(
           'DEFENDER',
           result.defenderSurvivors,
           result.defenderLosses,
@@ -592,7 +593,8 @@ const addBattleReport = ({
     timestamp: resolvesAt,
     subject,
     type: 'battle',
-    tags: [resultTag],
+    combatResultId,
+    tags: [],
   };
 
   const reportId = insertReport(database, report);

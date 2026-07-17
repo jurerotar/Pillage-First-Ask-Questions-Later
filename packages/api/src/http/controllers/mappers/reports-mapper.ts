@@ -23,6 +23,7 @@ export const mapReports = (
         timestamp: row.timestamp,
         subject: row.subject,
         type: row.type,
+        combatResultId: row.combat_result_id,
         tags: [],
       };
 
@@ -55,6 +56,7 @@ export const mapReport = (
     villageId: row.village_id,
     timestamp: row.timestamp,
     subject: row.subject,
+    combatResultId: row.combat_result_id,
     tags,
   };
 

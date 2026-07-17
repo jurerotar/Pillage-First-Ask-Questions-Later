@@ -6,9 +6,11 @@ export const selectReportsQuery = `
     r.timestamp,
     r.subject,
     r.type,
+    cri.combat_result AS combat_result_id,
     tag
   FROM
     reports r
+    LEFT JOIN combat_result_ids cri ON r.combat_result_id = cri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
@@ -25,9 +27,11 @@ export const selectReportQuery = `
     r.timestamp,
     r.subject,
     r.type,
+    cri.combat_result AS combat_result_id,
     tag
   FROM
     reports r
+    LEFT JOIN combat_result_ids cri ON r.combat_result_id = cri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  combatResultIdSchema,
   reportTagSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
@@ -12,6 +13,7 @@ export const getReportsRowSchema = z
     timestamp: z.int(),
     subject: z.string(),
     type: reportTypeSchema,
+    combat_result_id: combatResultIdSchema.nullable(),
     tag: reportTagSchema.nullable(),
   })
   .meta({ id: 'GetReportsRow' });

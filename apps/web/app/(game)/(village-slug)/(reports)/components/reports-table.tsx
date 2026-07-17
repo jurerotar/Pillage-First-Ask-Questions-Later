@@ -12,7 +12,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { ReportTagIcon } from './report-tag-icon';
+import { CombatResultIcon } from './combat-result-icon';
 
 type ReportsTableProps = {
   reports: BaseReport[];
@@ -60,7 +60,7 @@ export const ReportsTable = ({
                 />
               </TableCell>
               <TableCell className="flex gap-3 items-center">
-                <ReportTagIcon tags={report.tags} />
+                <CombatResultIcon combatResultId={report.combatResultId} />
                 <Link
                   onClick={() => onOpenReport(report)}
                   to={`../reports/${report.id}`}
