@@ -70,9 +70,6 @@ export const BattleParticipantTable = ({
         playerSlug={combatant.player.slug}
         tileName={combatant.village.name}
         coordinates={combatant.village.coordinates}
-        sourceLabel={
-          combatant.troops.tribe === 'nature' ? t(' from ') : undefined
-        }
       />
 
       <UnitTableUnitIcons />
