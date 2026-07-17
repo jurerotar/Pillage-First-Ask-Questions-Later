@@ -9,6 +9,7 @@ import {
   effectTypeSchema,
 } from '@pillage-first/types/models/effect';
 import { factionSchema } from '@pillage-first/types/models/faction';
+import { reportTypeSchema } from '@pillage-first/types/models/report';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
@@ -117,6 +118,15 @@ describe('lookupTablesSeeder', () => {
     expect(tileTypes).toStrictEqual([...tileTypeSchema.options].sort());
     expect(freeTypeId).toBe(1);
     expect(oasisTypeId).toBe(2);
+  });
+
+  test('report_type_ids contains every modeled report type exactly once', () => {
+    const reportTypes = database.selectValues({
+      sql: 'SELECT report_type FROM report_type_ids ORDER BY report_type;',
+      schema: reportTypeSchema,
+    });
+
+    expect(reportTypes).toStrictEqual([...reportTypeSchema.options].sort());
   });
 
   test('resource_ids contains every modeled resource with stable ids', () => {

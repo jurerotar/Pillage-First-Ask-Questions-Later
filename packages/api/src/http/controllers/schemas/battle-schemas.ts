@@ -14,6 +14,8 @@ export const getBattleUnitsByReportRowSchema = z
 export const getBattleParticipantsByReportRowSchema = z
   .strictObject({
     id: z.int(),
+    player_id: z.int().nullable(),
+    tile_id: z.int(),
     role: z.enum(['attacker', 'defender']),
     tribe: tribeSchema,
     is_reinforcement: z.int(),

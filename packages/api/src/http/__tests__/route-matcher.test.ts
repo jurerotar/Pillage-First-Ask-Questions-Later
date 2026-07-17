@@ -72,4 +72,13 @@ describe(matchRoute, () => {
 
     expect(result.url).toBe(url);
   });
+
+  test('preserves repeated query params as arrays', () => {
+    const result = matchRoute(
+      '/players/1/reports/1?scope=global&types=adventure&types=battle&types=trade',
+      'GET',
+    );
+
+    expect(result.query.types).toStrictEqual(['adventure', 'battle', 'trade']);
+  });
 });

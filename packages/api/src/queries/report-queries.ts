@@ -4,7 +4,7 @@ export const selectReportsQuery = `
     r.player_id,
     r.village_id,
     r.timestamp,
-    r.type,
+    rty.report_type AS type,
     cri.combat_result AS combat_result_id,
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
@@ -19,6 +19,7 @@ export const selectReportsQuery = `
     tag
   FROM
     reports r
+    JOIN report_type_ids rty ON r.type_id = rty.id
     LEFT JOIN battles b ON r.id = b.report_id
     LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
     LEFT JOIN villages origin_v ON origin_t.id = origin_v.tile_id
@@ -30,6 +31,39 @@ export const selectReportsQuery = `
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
     r.player_id = $player_id
+    AND ($scope != 'village' OR r.village_id = $village_id)
+    AND (
+      $scope != 'unread'
+      OR NOT EXISTS (
+        SELECT
+          1
+        FROM
+          report_tags rt
+          JOIN report_tag_ids rti ON rt.report_tag_id = rti.id
+        WHERE
+          rt.report_id = r.id
+          AND rti.tag = 'READ'
+      )
+    )
+    AND (
+      $scope != 'archived'
+      OR EXISTS (
+        SELECT
+          1
+        FROM
+          report_tags rt
+          JOIN report_tag_ids rti ON rt.report_tag_id = rti.id
+        WHERE
+          rt.report_id = r.id
+          AND rti.tag = 'ARCHIVED'
+      )
+    )
+    AND (
+      $type_count = 0
+      OR ($include_battle = 1 AND rty.report_type = 'battle')
+      OR ($include_adventure = 1 AND rty.report_type = 'adventure')
+      OR ($include_trade = 1 AND rty.report_type = 'trade')
+    )
   ORDER BY
     timestamp DESC;
 `;
@@ -40,7 +74,7 @@ export const selectReportQuery = `
     r.player_id,
     r.village_id,
     r.timestamp,
-    r.type,
+    rty.report_type AS type,
     cri.combat_result AS combat_result_id,
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
@@ -55,6 +89,7 @@ export const selectReportQuery = `
     tag
   FROM
     reports r
+    JOIN report_type_ids rty ON r.type_id = rty.id
     LEFT JOIN battles b ON r.id = b.report_id
     LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
     LEFT JOIN villages origin_v ON origin_t.id = origin_v.tile_id
@@ -67,19 +102,6 @@ export const selectReportQuery = `
   WHERE
     r.id = $report_id AND
     r.player_id = $player_id;
-`;
-
-export const selectTribeByTileQuery = `
-  SELECT tribe_id
-  FROM players
-  WHERE
-  id = (SELECT player_id FROM villages WHERE tile_id = $tile_id);
-`;
-
-export const selectNatureTribeIdQuery = `
-  SELECT id
-  FROM tribe_ids
-  WHERE tribe = 'nature'
 `;
 
 export const selectBattlePlayerInformationQuery = `

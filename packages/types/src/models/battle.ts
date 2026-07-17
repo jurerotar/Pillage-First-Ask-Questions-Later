@@ -20,6 +20,8 @@ export const battleUnitSchema = z.strictObject({
 
 export const battleParticipantSchema = z.strictObject({
   id: z.int(),
+  playerId: z.int().nullable(),
+  tileId: z.int(),
   role: z.enum(['attacker', 'defender']),
   tribe: tribeSchema,
   isReinforcement: z.boolean(),
