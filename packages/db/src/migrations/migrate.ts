@@ -33,6 +33,7 @@ import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-train
 import createVillageFoundingHistoryTable from '../schemas/history-tables/village-founding-history-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
+import createCombatResultIdsTable from '../schemas/lookup-tables/combat-result-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
 import createEffectScopeIdsTable from '../schemas/lookup-tables/effect-scope-ids-schema.sql?raw';
 import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-ids-schema.sql?raw';
@@ -68,6 +69,7 @@ import { bookmarksSeeder } from '../seeders/bookmarks-seeder';
 import { buildingDataSeeder } from '../seeders/building-data-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
+import { combatResultIdsSeeder } from '../seeders/combat-result-ids-seeder';
 import { developerSettingsSeeder } from '../seeders/developer-settings-seeder';
 import { effectAttributeIdsSeeder } from '../seeders/effect-attribute-ids-seeder';
 import { effectIdsSeeder } from '../seeders/effect-ids-seeder';
@@ -214,10 +216,13 @@ export const migrateAndSeed = (
     onProgress?.();
 
     // Reports
-    db.exec({ sql: createReportsTable });
+    db.exec({ sql: createCombatResultIdsTable });
+    combatResultIdsSeeder(db);
+
     db.exec({ sql: createReportTagIdsTable });
     reportTagIdsSeeder(db);
 
+    db.exec({ sql: createReportsTable });
     db.exec({ sql: createReportTagsTable });
 
     db.exec({ sql: createBattlesTable });

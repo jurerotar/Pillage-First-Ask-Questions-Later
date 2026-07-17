@@ -72,14 +72,22 @@ export const insertReport = (
   const reportId = database.selectValue({
     sql: `
       INSERT INTO
-        reports (player_id, village_id, timestamp, subject, type)
+        reports (player_id, village_id, timestamp, subject, type, combat_result_id)
       VALUES
         (
           $player_id,
           $village_id,
           $timestamp,
           $subject,
-          $type
+          $type,
+          (
+            SELECT
+              id
+            FROM
+              combat_result_ids
+            WHERE
+              combat_result = $combat_result_id
+          )
         )
       RETURNING id;
 `,
@@ -89,9 +97,14 @@ export const insertReport = (
       $timestamp: report.timestamp,
       $subject: report.subject,
       $type: report.type,
+      $combat_result_id: report.combatResultId,
     },
     schema: z.int(),
   })!;
+
+  if (report.tags.length === 0) {
+    return reportId;
+  }
 
   var valueRows = [];
   for (let i = 0; i < report.tags.length; i += 1) {
