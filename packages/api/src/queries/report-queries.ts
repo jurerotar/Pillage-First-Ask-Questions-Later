@@ -26,7 +26,7 @@ export const selectReportsQuery = `
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
-    LEFT JOIN combat_result_ids cri ON r.combat_result_id = cri.id
+    LEFT JOIN combat_result_ids cri ON b.combat_result_id = cri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
@@ -96,7 +96,7 @@ export const selectReportQuery = `
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
-    LEFT JOIN combat_result_ids cri ON r.combat_result_id = cri.id
+    LEFT JOIN combat_result_ids cri ON b.combat_result_id = cri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
