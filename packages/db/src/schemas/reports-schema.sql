@@ -5,10 +5,8 @@ CREATE TABLE reports
   village_id INTEGER NOT NULL,
   timestamp INTEGER NOT NULL,
   type_id INTEGER NOT NULL,
-  combat_result_id INTEGER,
 
   FOREIGN KEY (player_id) REFERENCES players (id) ON DELETE CASCADE,
   FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE,
-  FOREIGN KEY (type_id) REFERENCES report_type_ids (id),
-  FOREIGN KEY (combat_result_id) REFERENCES combat_result_ids (id)
+  FOREIGN KEY (type_id) REFERENCES report_type_ids (id)
 ) STRICT;
