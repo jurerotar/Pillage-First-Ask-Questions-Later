@@ -64,7 +64,7 @@ export const selectBattlePlayerInformationQuery = `
     JOIN players p ON v.player_id = p.id
     JOIN tiles t ON v.tile_id = t.id
   WHERE
-    v.id = $village_id
+    t.id = $tile_id
 `;
 
 export const selectBattleOasisInformationQuery = `
@@ -79,7 +79,7 @@ export const selectBattleOasisInformationQuery = `
     LEFT JOIN villages v ON o.village_id = v.id
     LEFT JOIN players p ON v.player_id = p.id
   WHERE
-    o.id = $oasis_id
+    o.tile_id = $tile_id
 `;
 
 export const deleteReportQuery = `

@@ -37,6 +37,7 @@ export type CreateNewReport = Omit<GameReport, 'id' | 'battle'>;
 
 export type CreateNewBattleType = Omit<
   BattleType,
+  | 'id'
   | 'attackingPlayerName'
   | 'attackingPlayerSlug'
   | 'defendingPlayerName'
@@ -135,9 +136,8 @@ export const insertBattle = (
       INSERT INTO
         battles (
           report_id,
-          attacking_village_id,
-          defending_village_id,
-          defending_oasis_id,
+          origin_tile_id,
+          target_tile_id,
           loot_wood,
           loot_clay,
           loot_iron,
@@ -149,9 +149,8 @@ export const insertBattle = (
       VALUES
         (
           $report_id,
-          $attacking_village_id,
-          $defending_village_id,
-          $defending_oasis_id,
+          $origin_tile_id,
+          $target_tile_id,
           $loot_wood,
           $loot_clay,
           $loot_iron,
@@ -160,12 +159,11 @@ export const insertBattle = (
           $attacker_points,
           $defender_points
         );
-`,
+    `,
     bind: {
       $report_id: battle.reportId,
-      $attacking_village_id: battle.attackingVillageId,
-      $defending_village_id: battle.defendingVillageId,
-      $defending_oasis_id: battle.defendingOasisId,
+      $origin_tile_id: battle.originTileId,
+      $target_tile_id: battle.targetTileId,
       $loot_wood: battle.loot[0],
       $loot_clay: battle.loot[1],
       $loot_iron: battle.loot[2],
@@ -317,7 +315,7 @@ const hydrateBattle = (database: DbFacade, battle: BattleType) => {
     y: originVillageY,
   } = database.selectObject({
     sql: selectBattlePlayerInformationQuery,
-    bind: { $village_id: battle.attackingVillageId },
+    bind: { $tile_id: battle.originTileId },
     schema: getBattlePlayerInformationRowSchema,
   })!;
 
@@ -326,34 +324,42 @@ const hydrateBattle = (database: DbFacade, battle: BattleType) => {
   battle.originName = originVillageName;
   battle.originCoordinates = { x: originVillageX, y: originVillageY };
 
-  if (battle.defendingVillageId != null) {
+  const targetVillage = database.selectObject({
+    sql: selectBattlePlayerInformationQuery,
+    bind: { $tile_id: battle.targetTileId },
+    schema: getBattlePlayerInformationRowSchema,
+  });
+
+  if (targetVillage !== undefined) {
     const {
       player_name: defendingPlayerName,
       player_slug: defendingPlayerSlug,
       village_name: targetVillageName,
       x: targetVillageX,
       y: targetVillageY,
-    } = database.selectObject({
-      sql: selectBattlePlayerInformationQuery,
-      bind: { $village_id: battle.defendingVillageId },
-      schema: getBattlePlayerInformationRowSchema,
-    })!;
+    } = targetVillage;
 
     battle.defendingPlayerName = defendingPlayerName;
     battle.defendingPlayerSlug = defendingPlayerSlug;
     battle.targetName = targetVillageName;
     battle.targetCoordinates = { x: targetVillageX, y: targetVillageY };
-  } else if (battle.defendingOasisId != null) {
+  } else {
+    const targetOasis = database.selectObject({
+      sql: selectBattleOasisInformationQuery,
+      bind: { $tile_id: battle.targetTileId },
+      schema: getBattleOasisInformationRowSchema,
+    });
+
+    if (targetOasis === undefined) {
+      throw new Error(`Battle target tile ${battle.targetTileId} not found`);
+    }
+
     const {
       player_name: defendingPlayerName,
       player_slug: defendingPlayerSlug,
       x: targetX,
       y: targetY,
-    } = database.selectObject({
-      sql: selectBattleOasisInformationQuery,
-      bind: { $oasis_id: battle.defendingOasisId },
-      schema: getBattleOasisInformationRowSchema,
-    })!;
+    } = targetOasis;
 
     const targetName =
       defendingPlayerSlug != null

@@ -64,9 +64,9 @@ export const mapBattle = (
   };
 
   const dto = {
-    attackingVillageId: row.attacking_village_id,
-    defendingVillageId: row.defending_village_id ?? undefined,
-    defendingOasisId: row.defending_oasis_id ?? undefined,
+    id: row.id,
+    originTileId: row.origin_tile_id,
+    targetTileId: row.target_tile_id,
     attackingPlayerName: '',
     attackingPlayerSlug: '',
     defendingPlayerName: '',
