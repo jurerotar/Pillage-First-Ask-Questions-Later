@@ -31,7 +31,6 @@ import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-im
 import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
 import createVillageFoundingHistoryTable from '../schemas/history-tables/village-founding-history-schema.sql?raw';
-import createBattleResultIdsTable from '../schemas/lookup-tables/battle-result-ids-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
@@ -39,6 +38,7 @@ import createEffectScopeIdsTable from '../schemas/lookup-tables/effect-scope-ids
 import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-ids-schema.sql?raw';
 import createEffectTypeIdsTable from '../schemas/lookup-tables/effect-type-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
+import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTagIdsTable from '../schemas/lookup-tables/report-tag-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
@@ -66,7 +66,6 @@ import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?
 import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
 import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
-import { battleResultIdsSeeder } from '../seeders/battle-result-ids-seeder';
 import { bookmarksSeeder } from '../seeders/bookmarks-seeder';
 import { buildingDataSeeder } from '../seeders/building-data-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
@@ -89,6 +88,7 @@ import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
+import { reportOutcomeIdsSeeder } from '../seeders/report-outcome-ids-seeder';
 import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
 import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
 import { reportsSeeder } from '../seeders/reports-seeder';
@@ -219,8 +219,8 @@ export const migrateAndSeed = (
     onProgress?.();
 
     // Reports
-    db.exec({ sql: createBattleResultIdsTable });
-    battleResultIdsSeeder(db);
+    db.exec({ sql: createReportOutcomeIdsTable });
+    reportOutcomeIdsSeeder(db);
 
     db.exec({ sql: createReportTagIdsTable });
     reportTagIdsSeeder(db);

@@ -12,6 +12,19 @@ export const battleResultIdSchema = z.enum([
   'defenderFullLoss',
 ]);
 
+export const reportOutcomeSchema = z.enum([
+  ...battleResultIdSchema.options,
+  'scoutAttackerNoLoss',
+  'scoutAttackerSomeLoss',
+  'scoutAttackerFullLoss',
+  'scoutDefenderNoLoss',
+  'scoutDefenderSomeLoss',
+  'scoutDefenderFullLoss',
+  'outgoingMerchantsArrived',
+  'incomingMerchantsArrived',
+  'heroAdventure',
+]);
+
 export const reportTagSchema = z.enum(['read', 'archived']);
 
 export const baseReportSchema = z.strictObject({
@@ -20,13 +33,13 @@ export const baseReportSchema = z.strictObject({
   villageId: z.int(),
   timestamp: z.int(),
   type: reportTypeSchema,
+  outcome: reportOutcomeSchema,
   tags: z.array(reportTagSchema),
 });
 
 export const battleReportSchema = baseReportSchema.extend({
   type: z.literal('battle'),
   battleSummary: battleSummarySchema,
-  battleResultId: battleResultIdSchema,
   battle: battleSchema,
 });
 
@@ -49,6 +62,7 @@ export const gameReportSchema = z
 export type ReportType = z.infer<typeof reportTypeSchema>;
 export type ReportTag = z.infer<typeof reportTagSchema>;
 export type BattleResultId = z.infer<typeof battleResultIdSchema>;
+export type ReportOutcome = z.infer<typeof reportOutcomeSchema>;
 
 export type BaseReport = z.infer<typeof baseReportSchema>;
 export type BattleReport = z.infer<typeof battleReportSchema>;

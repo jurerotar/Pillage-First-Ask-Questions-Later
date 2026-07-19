@@ -36,21 +36,12 @@ const getBattleSummary = (
   };
 };
 
-const getBattleResultId = (
-  row: ReportRow,
-): Exclude<ReportRow['battle_result_id'], null> => {
-  if (row.battle_result_id === null) {
-    throw new Error(`Battle report ${row.id} is missing battle result`);
-  }
-
-  return row.battle_result_id;
-};
-
 const mapBaseReportProperties = (row: ReportRow) => ({
   id: row.id,
   playerId: row.player_id,
   villageId: row.village_id,
   timestamp: row.timestamp,
+  outcome: row.outcome,
   tags: [],
 });
 
@@ -62,7 +53,6 @@ const mapReportListItem = (row: ReportRow): ReportListDto => {
       ...baseReport,
       type: 'battle',
       battleSummary: getBattleSummary(row),
-      battleResultId: getBattleResultId(row),
     };
   }
 
@@ -115,7 +105,6 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
       ...baseReport,
       type: 'battle',
       battleSummary: getBattleSummary(row),
-      battleResultId: getBattleResultId(row),
       battle: getBattle(database, row.id),
     });
   }

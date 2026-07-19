@@ -6,7 +6,6 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
-import { Separator } from 'app/components/ui/separator';
 import { getReportSubject } from '../../utils/report-subject';
 import { BattleParticipantTable } from './components/battle-participant-table';
 import { BattleStatistics } from './components/battle-statistics';
@@ -18,10 +17,8 @@ type BattleReportProps = {
 const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
   const battle = report.battle;
 
-  const showDefendingUnits =
-    battle.attacker.player.slug === 'player'
-      ? battle.outcome.canAttackerSeeFullReport
-      : true;
+  const showDefendingUnits = battle.outcome.canAttackerSeeFullReport;
+
   const combatants = [
     { combatant: battle.attacker, role: 'attacker' as const },
     { combatant: battle.defender, role: 'defender' as const },
@@ -36,33 +33,23 @@ const BattleReport = ({ report }: PropsWithChildren<BattleReportProps>) => {
       <SectionContent>
         <Text as="h1">{getReportSubject(report)}</Text>
         <span>{new Date(report.timestamp).toLocaleString()}</span>
+      </SectionContent>
+      <SectionContent>
+        {combatants.map(({ combatant, role }) => {
+          if (role === 'reinforcement' && !showDefendingUnits) {
+            return null;
+          }
 
-        <div className="overflow-x-scroll scrollbar-hidden">
-          {combatants.map(({ combatant, role }) => {
-            if (role === 'reinforcement' && !showDefendingUnits) {
-              return null;
-            }
-
-            return (
-              <div
-                className="my-4"
-                key={combatant.troops.id}
-              >
-                <BattleParticipantTable
-                  battle={battle}
-                  combatant={combatant}
-                  role={role}
-                  showDefendingUnits={showDefendingUnits}
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        <Separator
-          orientation="horizontal"
-          className="mb-2 sm:mb-4"
-        />
+          return (
+            <BattleParticipantTable
+              key={combatant.troops.id}
+              battle={battle}
+              combatant={combatant}
+              role={role}
+              showDefendingUnits={showDefendingUnits}
+            />
+          );
+        })}
 
         <BattleStatistics
           battle={battle}
