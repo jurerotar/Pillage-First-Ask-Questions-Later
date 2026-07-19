@@ -5,7 +5,7 @@ export const selectReportsQuery = `
     r.village_id,
     r.timestamp,
     rty.report_type AS type,
-    bri.battle_result AS battle_result_id,
+    roi.report_outcome AS outcome,
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
     CASE
@@ -20,13 +20,13 @@ export const selectReportsQuery = `
   FROM
     reports r
     JOIN report_type_ids rty ON r.type_id = rty.id
+    JOIN report_outcome_ids roi ON r.report_outcome_id = roi.id
     LEFT JOIN battles b ON r.id = b.report_id
     LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
     LEFT JOIN villages origin_v ON origin_t.id = origin_v.tile_id
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
-    LEFT JOIN battle_result_ids bri ON b.battle_result_id = bri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
@@ -75,7 +75,7 @@ export const selectReportQuery = `
     r.village_id,
     r.timestamp,
     rty.report_type AS type,
-    bri.battle_result AS battle_result_id,
+    roi.report_outcome AS outcome,
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
     CASE
@@ -90,13 +90,13 @@ export const selectReportQuery = `
   FROM
     reports r
     JOIN report_type_ids rty ON r.type_id = rty.id
+    JOIN report_outcome_ids roi ON r.report_outcome_id = roi.id
     LEFT JOIN battles b ON r.id = b.report_id
     LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
     LEFT JOIN villages origin_v ON origin_t.id = origin_v.tile_id
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
-    LEFT JOIN battle_result_ids bri ON b.battle_result_id = bri.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE

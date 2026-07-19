@@ -90,7 +90,16 @@ type ReportIconType =
   | 'attackerFullLoss'
   | 'defenderNoLoss'
   | 'defenderSomeLoss'
-  | 'defenderFullLoss';
+  | 'defenderFullLoss'
+  | 'scoutAttackerNoLoss'
+  | 'scoutAttackerSomeLoss'
+  | 'scoutAttackerFullLoss'
+  | 'scoutDefenderNoLoss'
+  | 'scoutDefenderSomeLoss'
+  | 'scoutDefenderFullLoss'
+  | 'outgoingMerchantsArrived'
+  | 'incomingMerchantsArrived'
+  | 'heroAdventure';
 
 type MapControlsIconType =
   | 'mapMagnificationIncrease'
@@ -270,6 +279,55 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
       className={clsx('text-red-500', props.className)}
     />
   ),
+  scoutAttackerNoLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
+    />
+  ),
+  scoutAttackerSomeLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+    />
+  ),
+  scoutAttackerFullLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
+  scoutDefenderNoLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
+    />
+  ),
+  scoutDefenderSomeLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+    />
+  ),
+  scoutDefenderFullLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
+  outgoingMerchantsArrived: (props) => (
+    <FaHandshakeAngle
+      {...props}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+    />
+  ),
+  incomingMerchantsArrived: (props) => (
+    <FaHandshakeAngle
+      {...props}
+      className={clsx('text-green-600 dark:text-green-500', props.className)}
+    />
+  ),
+  heroAdventure: (props) => icons.adventure(props),
 
   // Effects
 

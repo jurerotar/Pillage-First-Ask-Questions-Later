@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type {
   BattleResultId,
+  ReportOutcome,
   ReportTag,
 } from '@pillage-first/types/models/report';
 import type { Server } from '@pillage-first/types/models/server';
@@ -176,17 +177,17 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
     ['archived', selectLookupId(database, 'report_tag_ids', 'tag', 'archived')],
   ]);
 
-  const battleResultIds = new Map<BattleResultId, number>();
+  const reportOutcomeIds = new Map<ReportOutcome, number>();
   for (const battleResult of [
     ...battleResultsByPlayerRole.attacker,
     ...battleResultsByPlayerRole.defender,
   ]) {
-    battleResultIds.set(
+    reportOutcomeIds.set(
       battleResult,
       selectLookupId(
         database,
-        'battle_result_ids',
-        'battle_result',
+        'report_outcome_ids',
+        'report_outcome',
         battleResult,
       ),
     );
@@ -314,8 +315,20 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
 
     const reportId = database.selectValue({
       sql: `
-        INSERT INTO reports (player_id, village_id, timestamp, type_id)
-        VALUES ($player_id, $village_id, $timestamp, $type_id)
+        INSERT INTO reports (
+          player_id,
+          village_id,
+          timestamp,
+          type_id,
+          report_outcome_id
+        )
+        VALUES (
+          $player_id,
+          $village_id,
+          $timestamp,
+          $type_id,
+          $report_outcome_id
+        )
         RETURNING id;
       `,
       bind: {
@@ -323,6 +336,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
         $village_id: playerVillage.id,
         $timestamp: server.createdAt + (i + 1) * 15 * 60 * 1000,
         $type_id: battleTypeId,
+        $report_outcome_id: reportOutcomeIds.get(battleResult)!,
       },
       schema: z.number(),
     })!;
@@ -342,7 +356,6 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
           report_id,
           origin_tile_id,
           target_tile_id,
-          battle_result_id,
           is_raid,
           loot_wood,
           loot_clay,
@@ -356,7 +369,6 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
           $report_id,
           $origin_tile_id,
           $target_tile_id,
-          $battle_result_id,
           $is_raid,
           $loot_wood,
           $loot_clay,
@@ -372,7 +384,6 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
         $report_id: reportId,
         $origin_tile_id: origin.tileId,
         $target_tile_id: target.tileId,
-        $battle_result_id: battleResultIds.get(battleResult)!,
         $is_raid: i % 4 === 0 ? 1 : 0,
         $loot_wood: loot[0],
         $loot_clay: loot[1],

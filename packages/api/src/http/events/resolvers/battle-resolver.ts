@@ -583,6 +583,7 @@ const addBattleReport = ({
     villageId: playerVillageId,
     timestamp: resolvesAt,
     type: 'battle',
+    outcome: battleResultId,
     tags: [],
   };
 
@@ -594,7 +595,6 @@ const addBattleReport = ({
 
   const battle: CreateNewBattleType = {
     reportId,
-    battleResultId,
     originTileId: origin.tileId,
     targetTileId: target.tileId,
     isRaid,

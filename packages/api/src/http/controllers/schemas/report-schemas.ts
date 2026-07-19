@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import {
-  battleResultIdSchema,
+  reportOutcomeSchema,
   reportTagSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
@@ -12,7 +12,7 @@ export const getReportsRowSchema = z
     village_id: z.int(),
     timestamp: z.int(),
     type: reportTypeSchema,
-    battle_result_id: battleResultIdSchema.nullable(),
+    outcome: reportOutcomeSchema,
     battle_is_raid: z.int().nullable(),
     battle_origin_name: z.string().nullable(),
     battle_target_name: z.string().nullable(),

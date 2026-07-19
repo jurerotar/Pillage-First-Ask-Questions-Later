@@ -14,7 +14,7 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { getReportSubject } from '../utils/report-subject';
-import { BattleResultIcon } from './battle-result-icon';
+import { ReportOutcomeIcon } from './report-outcome-icon';
 
 type ReportsTableProps = {
   reports: BaseReportDto[];
@@ -61,12 +61,8 @@ export const ReportsTable = ({
                   onCheckedChange={() => onToggleReport(report.id)}
                 />
               </TableCell>
-              <TableCell className="flex gap-3 items-center">
-                <BattleResultIcon
-                  battleResultId={
-                    report.type === 'battle' ? report.battleResultId : null
-                  }
-                />
+              <TableCell className="flex gap-2 items-center">
+                <ReportOutcomeIcon outcome={report.outcome} />
                 <Link
                   onClick={() => onOpenReport(report)}
                   to={`../reports/${report.id}`}

@@ -6,10 +6,7 @@ import type {
   BattleType,
   BattleUnit,
 } from '@pillage-first/types/models/battle';
-import type {
-  BaseReport,
-  BattleResultId,
-} from '@pillage-first/types/models/report';
+import type { BaseReport } from '@pillage-first/types/models/report';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   type MappedBattleParticipant,
@@ -36,7 +33,7 @@ import {
 
 export type CreateNewReport = Pick<
   BaseReport,
-  'playerId' | 'villageId' | 'timestamp' | 'type' | 'tags'
+  'playerId' | 'villageId' | 'timestamp' | 'type' | 'outcome' | 'tags'
 >;
 
 export type CreateNewBattleType = Omit<
@@ -44,7 +41,6 @@ export type CreateNewBattleType = Omit<
   'id' | 'attacker' | 'defender' | 'outcome' | 'statistics'
 > & {
   reportId: BaseReport['id'];
-  battleResultId: BattleResultId;
   originTileId: number;
   targetTileId: number;
   isRaid: boolean;
@@ -71,7 +67,13 @@ export const insertReport = (
   const reportId = database.selectValue({
     sql: `
       INSERT INTO
-        reports (player_id, village_id, timestamp, type_id)
+        reports (
+          player_id,
+          village_id,
+          timestamp,
+          type_id,
+          report_outcome_id
+        )
       VALUES
         (
           $player_id,
@@ -84,6 +86,14 @@ export const insertReport = (
               report_type_ids
             WHERE
               report_type = $type
+          ),
+          (
+            SELECT
+              id
+            FROM
+              report_outcome_ids
+            WHERE
+              report_outcome = $outcome
           )
         )
       RETURNING id;
@@ -93,6 +103,7 @@ export const insertReport = (
       $village_id: report.villageId,
       $timestamp: report.timestamp,
       $type: report.type,
+      $outcome: report.outcome,
     },
     schema: z.int(),
   })!;
@@ -132,7 +143,6 @@ export const insertBattle = (
           report_id,
           origin_tile_id,
           target_tile_id,
-          battle_result_id,
           is_raid,
           loot_wood,
           loot_clay,
@@ -147,14 +157,6 @@ export const insertBattle = (
           $report_id,
           $origin_tile_id,
           $target_tile_id,
-          (
-            SELECT
-              id
-            FROM
-              battle_result_ids
-            WHERE
-              battle_result = $battle_result_id
-          ),
           $is_raid,
           $loot_wood,
           $loot_clay,
@@ -170,7 +172,6 @@ export const insertBattle = (
       $report_id: battle.reportId,
       $origin_tile_id: battle.originTileId,
       $target_tile_id: battle.targetTileId,
-      $battle_result_id: battle.battleResultId,
       $is_raid: battle.isRaid,
       $loot_wood: battle.loot[0],
       $loot_clay: battle.loot[1],
