@@ -2,7 +2,7 @@ import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import { unitsMap } from '@pillage-first/game-assets/units';
 import type {
-  BattleCombatant,
+  BattleParticipant,
   BattleType,
   BattleUnit,
 } from '@pillage-first/types/models/battle';
@@ -319,7 +319,7 @@ const createBattleCombatant = ({
   villageName: string;
   x: number;
   y: number;
-}): BattleCombatant => {
+}): BattleParticipant => {
   return {
     player: {
       id: participant.playerId,
@@ -342,7 +342,7 @@ const createBattleCombatant = ({
 const hydrateVillageCombatant = (
   database: DbFacade,
   participant: MappedBattleParticipant,
-): BattleCombatant => {
+): BattleParticipant => {
   const {
     player_name: playerName,
     player_slug: playerSlug,
@@ -368,7 +368,7 @@ const hydrateVillageCombatant = (
 const hydrateTargetCombatant = (
   database: DbFacade,
   participant: MappedBattleParticipant,
-): BattleCombatant => {
+): BattleParticipant => {
   const targetVillage = database.selectObject({
     sql: selectBattlePlayerInformationQuery,
     bind: { $tile_id: participant.tileId },
@@ -412,9 +412,7 @@ const hydrateTargetCombatant = (
   } = targetOasis;
 
   const villageName =
-    playerSlug != null
-      ? `Occupied oasis (${x}|${y})`
-      : `Unoccupied oasis (${x}|${y})`;
+    playerSlug != null ? 'Occupied oasis' : 'Unoccupied oasis';
 
   return createBattleCombatant({
     participant,
@@ -431,10 +429,6 @@ const hydrateBattle = (
   battle: BattleType,
   participants: MappedBattleParticipant[],
 ) => {
-  // ┌────────────────────┐
-  // │ Player information │
-  // └────────────────────┘
-
   const attackerParticipant = participants.find((p) => p.role === 'attacker')!;
   const defenderParticipant = participants.find(
     (p) => p.role === 'defender' && !p.isReinforcement,
@@ -450,10 +444,6 @@ const hydrateBattle = (
       hydrateVillageCombatant(database, p),
     ),
   };
-
-  // ┌───────────────────┐
-  // │ Player statistics │
-  // └───────────────────┘
 
   let attackerSupplyBefore = 0;
   let attackerSupplyLost = 0;
@@ -500,10 +490,6 @@ const hydrateBattle = (
   battle.statistics.defender.supplyBefore = defenderSupplyBefore;
   battle.statistics.defender.supplyLost = defenderSupplyLost;
   battle.statistics.defender.resourcesLost = defenderResourcesLost;
-
-  // ┌───────────────────────────┐
-  // │ Carry capacity and winner │
-  // └───────────────────────────┘
 
   let totalCarryCapacity = 0;
   for (const { unitId, amountAfter } of battle.attacker.troops.units) {

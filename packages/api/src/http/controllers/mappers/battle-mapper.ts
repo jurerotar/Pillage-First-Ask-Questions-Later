@@ -1,6 +1,8 @@
 import type { z } from 'zod';
-import type { battleDtoSchema } from '@pillage-first/types/dtos/battle';
-import type { BattleStatistics } from '@pillage-first/types/models/battle';
+import type {
+  BattleStatistics,
+  battleSchema,
+} from '@pillage-first/types/models/battle';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
@@ -30,20 +32,18 @@ export type MappedBattleParticipant = {
 export const mapBattleUnits = (
   row: z.infer<typeof getBattleUnitsByReportRowSchema>,
 ): MappedBattleUnit => {
-  const dto = {
+  return {
     battleParticipantId: row.battle_participant_id,
     unitId: row.unit_id,
     amountBefore: row.amount_before,
     amountAfter: row.amount_after,
   };
-
-  return dto;
 };
 
 export const mapBattleParticipants = (
   row: z.infer<typeof getBattleParticipantsByReportRowSchema>,
 ): MappedBattleParticipant => {
-  const dto = {
+  return {
     id: row.id,
     playerId: row.player_id,
     tileId: row.tile_id,
@@ -52,13 +52,11 @@ export const mapBattleParticipants = (
     isReinforcement: Boolean(row.is_reinforcement),
     units: [],
   };
-
-  return dto;
 };
 
 export const mapBattle = (
   row: z.infer<typeof getBattleByReportRowSchema>,
-): z.infer<typeof battleDtoSchema> => {
+): z.infer<typeof battleSchema> => {
   const loot: ResourceBundle = [
     row.loot_wood,
     row.loot_clay,
@@ -80,7 +78,7 @@ export const mapBattle = (
     resourcesLost: 0,
   };
 
-  const dto = {
+  return {
     id: row.id,
     attacker: {
       player: { id: null, name: '', slug: undefined },
@@ -113,6 +111,4 @@ export const mapBattle = (
       defender: defenceStatistics,
     },
   };
-
-  return dto;
 };
