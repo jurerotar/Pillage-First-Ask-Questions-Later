@@ -51,13 +51,13 @@ export const tradeReportSchema = baseReportSchema.extend({
   type: z.literal('trade'),
 });
 
-export const gameReportSchema = z
+export const reportSchema = z
   .discriminatedUnion('type', [
     battleReportSchema,
     adventureReportSchema,
     tradeReportSchema,
   ])
-  .meta({ id: 'GameReport' });
+  .meta({ id: 'Report' });
 
 export type ReportType = z.infer<typeof reportTypeSchema>;
 export type ReportTag = z.infer<typeof reportTagSchema>;
@@ -65,7 +65,4 @@ export type BattleResultId = z.infer<typeof battleResultIdSchema>;
 export type ReportOutcome = z.infer<typeof reportOutcomeSchema>;
 
 export type BaseReport = z.infer<typeof baseReportSchema>;
-export type BattleReport = z.infer<typeof battleReportSchema>;
-export type AdventureReport = z.infer<typeof adventureReportSchema>;
-export type TradeReport = z.infer<typeof tradeReportSchema>;
-export type GameReport = z.infer<typeof gameReportSchema>;
+export type Report = z.infer<typeof reportSchema>;

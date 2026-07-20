@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
-import type { BaseReportDto } from '@pillage-first/types/dtos/report';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import type { BaseReport } from '@pillage-first/types/models/report';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -17,13 +17,13 @@ import { getReportSubject } from '../utils/report-subject';
 import { ReportOutcomeIcon } from './report-outcome-icon';
 
 type ReportsTableProps = {
-  reports: BaseReportDto[];
+  reports: ReportListingDto[];
   hasReports: boolean;
   selectedReportIds: BaseReport['id'][];
   allVisibleReportsSelected: boolean;
   onToggleReport: (reportId: BaseReport['id']) => void;
   onToggleVisibleReports: () => void;
-  onOpenReport: (report: BaseReportDto) => void;
+  onOpenReport: (report: ReportListingDto) => void;
 };
 
 export const ReportsTable = ({

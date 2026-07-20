@@ -11,8 +11,10 @@ import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 import { useMe } from './use-me';
 
+export type ReportScope = 'global' | 'unread' | 'archived' | 'village';
+
 export const useReports = (
-  scope: 'global' | 'unread' | 'archived' | 'village' = 'global',
+  scope: ReportScope = 'global',
   types: ReportType[] = [],
 ) => {
   const { apiClient } = use(ApiContext);

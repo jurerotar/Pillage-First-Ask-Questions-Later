@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { GameReport } from '@pillage-first/types/models/report';
+import type { Report } from '@pillage-first/types/models/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
@@ -16,7 +16,7 @@ import { useReport } from '../../hooks/use-report';
 import BattleReport from './components/battle-report';
 
 type RenderReportParams = {
-  report: GameReport;
+  report: Report;
 };
 
 const RenderReport = ({ report }: RenderReportParams) => {

@@ -1,15 +1,16 @@
-import type { BaseReportDto } from '@pillage-first/types/dtos/report';
-import type { ReportTag, ReportType } from '@pillage-first/types/models/report';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
+import type { ReportType } from '@pillage-first/types/models/report';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
-import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
+import {
+  type ReportScope,
+  useReports,
+} from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Pagination } from 'app/components/ui/pagination';
 import { useReportSelection } from '../hooks/use-report-selection';
 import { ReportsListActions } from './reports-list-actions';
 import { ReportsListHeader } from './reports-list-header';
 import { ReportsTable } from './reports-table';
-import type { ReportScope } from './reports-tabs';
 
 const REPORTS_PER_PAGE = 20;
 
@@ -26,7 +27,6 @@ export const ReportsList = ({
   reportFilters,
   handlePageChange,
 }: ReportsListProps) => {
-  const { currentVillage } = useCurrentVillage();
   const { reports, updateReports, deleteReports } = useReports(
     scope,
     reportFilters,
@@ -34,38 +34,21 @@ export const ReportsList = ({
   const pagination = usePagination(reports, REPORTS_PER_PAGE, page);
   const {
     selectedReportIds,
-    hasSelectedReports,
     allVisibleReportsSelected,
     toggleSelectedReport,
     toggleVisibleReports,
     clearSelectedReports,
   } = useReportSelection(pagination.currentPageItems);
 
-  const updateSelectedReports = (tags: {
-    addTags?: ReportTag[];
-    removeTags?: ReportTag[];
-  }) => {
-    updateReports({ reportIds: selectedReportIds, ...tags });
-    clearSelectedReports();
-  };
-
-  const markAsRead = (report: BaseReportDto) => {
+  const markAsRead = (report: ReportListingDto) => {
     if (!report.tags.includes('read')) {
       updateReports({ reportIds: [report.id], addTags: ['read'] });
     }
   };
 
-  const deleteSelectedReports = () => {
-    deleteReports({ reportIds: selectedReportIds });
-    clearSelectedReports();
-  };
-
   return (
     <Section>
-      <ReportsListHeader
-        scope={scope}
-        villageName={currentVillage.name}
-      />
+      <ReportsListHeader scope={scope} />
       <ReportsTable
         reports={pagination.currentPageItems}
         hasReports={reports.length > 0}
@@ -78,14 +61,10 @@ export const ReportsList = ({
       <div className="flex w-full justify-between">
         <ReportsListActions
           scope={scope}
-          disabled={!hasSelectedReports}
-          onDelete={deleteSelectedReports}
-          onMarkAsRead={() => updateSelectedReports({ addTags: ['read'] })}
-          onMarkAsUnread={() => updateSelectedReports({ removeTags: ['read'] })}
-          onArchive={() => updateSelectedReports({ addTags: ['archived'] })}
-          onUnarchive={() =>
-            updateSelectedReports({ removeTags: ['archived'] })
-          }
+          selectedReportIds={selectedReportIds}
+          updateReports={updateReports}
+          deleteReports={deleteReports}
+          clearSelectedReports={clearSelectedReports}
         />
         <Pagination
           {...pagination}
