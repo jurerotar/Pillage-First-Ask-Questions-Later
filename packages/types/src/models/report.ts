@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { battleSchema } from './battle';
 import { coordinatesSchema } from './coordinates';
 import { resourceBundleSchema } from './resource';
+import { tribeSchema } from './tribe';
+import { unitIdSchema } from './unit';
 
 export const reportTypeSchema = z.enum([
   'battle',
@@ -85,15 +87,19 @@ export const tradeReportSchema = baseReportSchema.extend({
 });
 
 export const movementReportSummarySchema = z.strictObject({
+  originPlayerName: z.string(),
+  originPlayerSlug: z.string(),
   originName: z.string(),
   originCoordinates: coordinatesSchema,
+  targetPlayerName: z.string().nullable(),
+  targetPlayerSlug: z.string().nullable(),
   targetName: z.string(),
   targetCoordinates: coordinatesSchema,
   movementType: z.enum(['reinforcement', 'relocation']),
 });
 
 export const movementReportUnitSchema = z.strictObject({
-  unitId: z.string(),
+  unitId: unitIdSchema,
   amount: z.int(),
 });
 
@@ -102,6 +108,7 @@ export const movementReportSchema = baseReportSchema.extend({
   summary: movementReportSummarySchema,
   movement: z.strictObject({
     id: z.int(),
+    tribe: tribeSchema,
     originTileId: z.int(),
     targetTileId: z.int(),
     movementType: z.enum(['reinforcement', 'relocation']),

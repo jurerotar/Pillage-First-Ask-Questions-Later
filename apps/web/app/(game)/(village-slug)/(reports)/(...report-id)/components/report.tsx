@@ -1,10 +1,12 @@
 import { createContext, type PropsWithChildren, use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import type { BattleParticipant } from '@pillage-first/types/models/battle';
 import type {
   BattleReport,
   Report as ReportType,
+  TroopMovementReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
@@ -16,6 +18,7 @@ import {
   UnitTableRow,
   UnitTableTitle,
   UnitTableUnitIcons,
+  UnitTableWheatConsumption,
 } from 'app/(game)/components/unit-table';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icons';
@@ -60,11 +63,12 @@ export const Report = ({
 };
 
 export const ReportHeader = () => {
+  const { t } = useTranslation();
   const { report } = use(ReportContext);
 
   return (
     <div className="flex flex-col gap-2">
-      <Text as="h1">{getReportSubject(report)}</Text>
+      <Text as="h1">{getReportSubject(report, t)}</Text>
       <Text
         as="span"
         className="text-foreground-muted"
@@ -271,5 +275,85 @@ export const BattleStatisticsTable = () => {
         </TableBody>
       </Table>
     </div>
+  );
+};
+
+export const MovementReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as TroopMovementReport;
+  const { movement } = report;
+
+  const troops = useMemo(
+    () => sortTroops(movement.tribe, movement.units),
+    [movement.tribe, movement.units],
+  );
+
+  const title =
+    movement.movementType === 'reinforcement'
+      ? t('Reinforcement')
+      : t('Relocation');
+
+  const {
+    originPlayerName,
+    originPlayerSlug,
+    originName,
+    originCoordinates,
+    targetPlayerName,
+    targetPlayerSlug,
+    targetName,
+    targetCoordinates,
+  } = report.summary;
+
+  return (
+    <UnitTable tribe={movement.tribe}>
+      <UnitTableTitle>{title}</UnitTableTitle>
+      <thead className="bg-muted border-b dark:border-border font-medium">
+        <tr>
+          <th
+            colSpan={12}
+            className="p-2 text-left font-medium"
+          >
+            <Link
+              to={`../players/${originPlayerSlug}`}
+              className="text-link"
+            >
+              {originPlayerName}
+            </Link>{' '}
+            {t('from')}{' '}
+            <Link
+              to={`../map?x=${originCoordinates.x}&y=${originCoordinates.y}`}
+              className="text-link"
+            >
+              {originName} ({originCoordinates.x}|{originCoordinates.y})
+            </Link>{' '}
+            {t('to')}{' '}
+            {targetPlayerName && targetPlayerSlug && (
+              <>
+                <Link
+                  to={`../players/${targetPlayerSlug}`}
+                  className="text-link"
+                >
+                  {targetPlayerName}
+                </Link>{' '}
+              </>
+            )}
+            {t('from')}{' '}
+            <Link
+              to={`../map?x=${targetCoordinates.x}&y=${targetCoordinates.y}`}
+              className="text-link"
+            >
+              {targetName} ({targetCoordinates.x}|{targetCoordinates.y})
+            </Link>
+          </th>
+        </tr>
+      </thead>
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={t('Troops')}
+        troops={troops}
+      />
+      <UnitTableWheatConsumption troops={troops} />
+    </UnitTable>
   );
 };

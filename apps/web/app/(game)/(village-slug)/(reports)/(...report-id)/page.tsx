@@ -20,6 +20,7 @@ import { useReport } from '../../hooks/use-report';
 import {
   BattleParticipantTable,
   BattleStatisticsTable,
+  MovementReportTable,
   Report,
   ReportHeader,
 } from './components/report';
@@ -84,7 +85,7 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
           )}
           {isAdventureReport(report) && <></>}
           {isTradeReport(report) && <></>}
-          {isMovementReport(report) && <></>}
+          {isMovementReport(report) && <MovementReportTable />}
         </Report>
       )}
     </PageContents>

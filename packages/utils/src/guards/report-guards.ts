@@ -1,27 +1,28 @@
-import type {
-  AdventureReport,
-  BattleReport,
-  Report,
-  TradeReport,
-  TroopMovementReport,
-} from '@pillage-first/types/models/report';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
+import type { Report } from '@pillage-first/types/models/report';
 
-export const isBattleReport = (report: Report): report is BattleReport => {
+type ReportLike = Report | ReportListingDto;
+
+export const isBattleReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'battle' }> => {
   return report.type === 'battle';
 };
 
-export const isAdventureReport = (
-  report: Report,
-): report is AdventureReport => {
+export const isAdventureReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'adventure' }> => {
   return report.type === 'adventure';
 };
 
-export const isTradeReport = (report: Report): report is TradeReport => {
+export const isTradeReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'trade' }> => {
   return report.type === 'trade';
 };
 
-export const isMovementReport = (
-  report: Report,
-): report is TroopMovementReport => {
+export const isMovementReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'movement' }> => {
   return report.type === 'movement';
 };
