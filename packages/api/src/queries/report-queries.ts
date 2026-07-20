@@ -8,6 +8,8 @@ export const selectReportsQuery = `
     roi.report_outcome AS outcome,
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
+    origin_t.x AS battle_origin_x,
+    origin_t.y AS battle_origin_y,
     CASE
       WHEN target_v.id IS NOT NULL THEN target_v.name
       WHEN target_o.id IS NOT NULL AND target_o.village_id IS NOT NULL THEN 'Occupied oasis'
@@ -78,6 +80,8 @@ export const selectReportQuery = `
     roi.report_outcome AS outcome,
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
+    origin_t.x AS battle_origin_x,
+    origin_t.y AS battle_origin_y,
     CASE
       WHEN target_v.id IS NOT NULL THEN target_v.name
       WHEN target_o.id IS NOT NULL AND target_o.village_id IS NOT NULL THEN 'Occupied oasis'

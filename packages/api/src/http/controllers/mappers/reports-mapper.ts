@@ -1,5 +1,9 @@
 import type { z } from 'zod';
 import type { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
+import type {
+  BattleReportSummary,
+  Report,
+} from '@pillage-first/types/models/report';
 import { reportSchema } from '@pillage-first/types/models/report';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { getBattle } from '../../../utils/report';
@@ -7,30 +11,27 @@ import type { getReportsRowSchema } from '../schemas/report-schemas';
 
 type ReportRow = z.infer<typeof getReportsRowSchema>;
 type ReportListingDto = z.infer<typeof reportListingDtoSchema>;
-type BattleReportListingDto = Extract<ReportListingDto, { type: 'battle' }>;
-type ReportDto = z.infer<typeof reportSchema>;
+type ReportDto = Report;
 
-const getBattleSummary = (
-  row: ReportRow,
-): BattleReportListingDto['battleSummary'] => {
+const getReportSummary = (row: ReportRow): BattleReportSummary => {
   if (
     row.battle_is_raid === null ||
     row.battle_origin_name === null ||
+    row.battle_origin_x === null ||
+    row.battle_origin_y === null ||
     row.battle_target_name === null ||
     row.battle_target_x === null ||
     row.battle_target_y === null
   ) {
-    throw new Error(`Battle report ${row.id} is missing battle summary data`);
+    throw new Error(`Battle report ${row.id} is missing summary data`);
   }
 
   return {
-    isRaid: Boolean(row.battle_is_raid),
     originName: row.battle_origin_name,
+    originCoordinates: { x: row.battle_origin_x, y: row.battle_origin_y },
     targetName: row.battle_target_name,
-    targetCoordinates: {
-      x: row.battle_target_x,
-      y: row.battle_target_y,
-    },
+    targetCoordinates: { x: row.battle_target_x, y: row.battle_target_y },
+    movementType: row.battle_is_raid ? 'raid' : 'attack',
   };
 };
 
@@ -50,13 +51,14 @@ const mapReportListItem = (row: ReportRow): ReportListingDto => {
     return {
       ...baseReport,
       type: 'battle',
-      battleSummary: getBattleSummary(row),
+      summary: getReportSummary(row),
     };
   }
 
   return {
     ...baseReport,
     type: row.type,
+    summary: null,
   };
 };
 
@@ -99,16 +101,21 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
   };
 
   if (row.type === 'battle') {
-    return reportSchema.parse({
+    const report = reportSchema.parse({
       ...baseReport,
       type: 'battle',
-      battleSummary: getBattleSummary(row),
+      summary: getReportSummary(row),
       battle: getBattle(database, row.id),
     });
+
+    return report;
   }
 
-  return reportSchema.parse({
+  const report = reportSchema.parse({
     ...baseReport,
     type: row.type,
+    summary: null,
   });
+
+  return report;
 };

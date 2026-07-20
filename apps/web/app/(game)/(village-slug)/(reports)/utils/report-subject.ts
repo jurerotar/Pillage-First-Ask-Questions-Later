@@ -6,9 +6,9 @@ export const getReportSubject = (report: ReportListingDto | Report): string => {
     return '';
   }
 
-  const { isRaid, originName, targetName, targetCoordinates } =
-    report.battleSummary;
+  const { movementType, originName, targetName, targetCoordinates } =
+    report.summary;
   const { x, y } = targetCoordinates;
 
-  return `${originName} ${isRaid ? 'raids' : 'attacks'} ${targetName} (${x}|${y})`;
+  return `${originName} ${movementType === 'raid' ? 'raids' : 'attacks'} ${targetName} (${x}|${y})`;
 };
