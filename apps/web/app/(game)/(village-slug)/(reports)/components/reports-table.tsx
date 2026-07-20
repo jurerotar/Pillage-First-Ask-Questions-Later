@@ -14,7 +14,6 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 import { getReportSubject } from '../utils/report-subject';
-import { ReportOutcomeIcon } from './report-outcome-icon';
 
 type ReportsTableProps = {
   reports: ReportListingDto[];
@@ -62,7 +61,7 @@ export const ReportsTable = ({
                 />
               </TableCell>
               <TableCell className="flex gap-2 items-center">
-                <ReportOutcomeIcon outcome={report.outcome} />
+                <Icon type={report.outcome} />
                 <Link
                   onClick={() => onOpenReport(report)}
                   to={`../reports/${report.id}`}
@@ -86,7 +85,10 @@ export const ReportsTable = ({
           ))}
           {!hasReports && (
             <TableRow>
-              <TableCell className="text-center py-8">
+              <TableCell
+                colSpan={3}
+                className="text-center py-8"
+              >
                 {t('No reports found yet.')}
               </TableCell>
             </TableRow>

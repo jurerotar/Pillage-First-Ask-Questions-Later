@@ -126,3 +126,7 @@ export type ReportOutcome = z.infer<typeof reportOutcomeSchema>;
 export type BattleReportSummary = z.infer<typeof battleReportSummarySchema>;
 export type BaseReport = z.infer<typeof baseReportSchema>;
 export type Report = z.infer<typeof reportSchema>;
+export type BattleReport = z.infer<typeof battleReportSchema>;
+export type AdventureReport = z.infer<typeof adventureReportSchema>;
+export type TroopMovementReport = z.infer<typeof movementReportSchema>;
+export type TradeReport = z.infer<typeof tradeReportSchema>;

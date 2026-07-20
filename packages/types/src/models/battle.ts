@@ -35,14 +35,14 @@ export const battleVillageSchema = z.strictObject({
   coordinates: coordinatesSchema,
 });
 
-export const battleCombatantSchema = z.strictObject({
+export const battleParticipantSchema = z.strictObject({
   player: battlePlayerSchema,
   village: battleVillageSchema,
   troops: battleTroopsSchema,
 });
 
-export const battleDefenderSchema = battleCombatantSchema.extend({
-  reinforcements: z.array(battleCombatantSchema),
+export const battleDefenderSchema = battleParticipantSchema.extend({
+  reinforcements: z.array(battleParticipantSchema),
 });
 
 export const battleOutcomeSchema = z.strictObject({
@@ -62,7 +62,7 @@ export const battleSummarySchema = z.strictObject({
 
 export const battleSchema = z.strictObject({
   id: z.int(),
-  attacker: battleCombatantSchema,
+  attacker: battleParticipantSchema,
   defender: battleDefenderSchema,
   outcome: battleOutcomeSchema,
   statistics: z.strictObject({
@@ -76,7 +76,7 @@ export type BattleUnit = z.infer<typeof battleUnitSchema>;
 export type BattleTroops = z.infer<typeof battleTroopsSchema>;
 export type BattlePlayer = z.infer<typeof battlePlayerSchema>;
 export type BattleVillage = z.infer<typeof battleVillageSchema>;
-export type BattleCombatant = z.infer<typeof battleCombatantSchema>;
+export type BattleParticipant = z.infer<typeof battleParticipantSchema>;
 export type BattleDefender = z.infer<typeof battleDefenderSchema>;
 export type BattleOutcome = z.infer<typeof battleOutcomeSchema>;
 export type BattleSummary = z.infer<typeof battleSummarySchema>;

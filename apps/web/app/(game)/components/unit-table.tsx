@@ -90,7 +90,9 @@ export const UnitTablePlayer = ({
               {playerName}
             </Link>
           )}
-          {!playerSlug && <span className="text-gray-600">{playerName}</span>}
+          {!playerSlug && (
+            <span className="text-muted-foreground">{playerName}</span>
+          )}
           {t(' from ')}
           <Link
             to={`../map?x=${coordinates.x}&y=${coordinates.y}`}
