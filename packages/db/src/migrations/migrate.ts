@@ -52,6 +52,8 @@ import createLoyaltiesTable from '../schemas/loyalties-schema.sql?raw';
 import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
 import createMetaTable from '../schemas/meta-schema.sql?raw';
+import createMovementReportUnitsTable from '../schemas/movement-report-units-schema.sql?raw';
+import createMovementReportsTable from '../schemas/movement-reports-schema.sql?raw';
 import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
@@ -231,6 +233,8 @@ export const migrateAndSeed = (
 
     db.exec({ sql: createReportsTable });
     db.exec({ sql: createHeroAdventureReportsTable });
+    db.exec({ sql: createMovementReportsTable });
+    db.exec({ sql: createMovementReportUnitsTable });
     db.exec({ sql: createReportTagsTable });
 
     db.exec({ sql: createBattlesTable });

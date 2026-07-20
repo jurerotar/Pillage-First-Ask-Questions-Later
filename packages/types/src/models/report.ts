@@ -2,7 +2,12 @@ import { z } from 'zod';
 import { battleSchema } from './battle';
 import { coordinatesSchema } from './coordinates';
 
-export const reportTypeSchema = z.enum(['battle', 'adventure', 'trade']);
+export const reportTypeSchema = z.enum([
+  'battle',
+  'adventure',
+  'trade',
+  'movement',
+]);
 
 export const battleResultIdSchema = z.enum([
   'attackerNoLoss',
@@ -24,6 +29,7 @@ export const reportOutcomeSchema = z.enum([
   'outgoingMerchantsArrived',
   'incomingMerchantsArrived',
   'heroAdventure',
+  'troopMovement',
 ]);
 
 export const reportTagSchema = z.enum(['read', 'archived']);
@@ -66,11 +72,37 @@ export const tradeReportSchema = baseReportSchema.extend({
   summary: z.null(),
 });
 
+export const movementReportSummarySchema = z.strictObject({
+  originName: z.string(),
+  originCoordinates: coordinatesSchema,
+  targetName: z.string(),
+  targetCoordinates: coordinatesSchema,
+  movementType: z.enum(['reinforcement', 'relocation']),
+});
+
+export const movementReportUnitSchema = z.strictObject({
+  unitId: z.string(),
+  amount: z.int(),
+});
+
+export const movementReportSchema = baseReportSchema.extend({
+  type: z.literal('movement'),
+  summary: movementReportSummarySchema,
+  movement: z.strictObject({
+    id: z.int(),
+    originTileId: z.int(),
+    targetTileId: z.int(),
+    movementType: z.enum(['reinforcement', 'relocation']),
+    units: z.array(movementReportUnitSchema),
+  }),
+});
+
 export const reportSchema = z
   .discriminatedUnion('type', [
     battleReportSchema,
     adventureReportSchema,
     tradeReportSchema,
+    movementReportSchema,
   ])
   .meta({ id: 'Report' });
 

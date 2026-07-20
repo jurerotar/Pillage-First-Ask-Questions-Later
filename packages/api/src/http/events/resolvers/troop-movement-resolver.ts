@@ -10,6 +10,7 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   insertEffectByEffectNameQuery,
   insertEffectQuery,
@@ -36,6 +37,73 @@ import {
 } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 import { resolveBattle } from './battle-resolver';
+
+const insertMovementReport = (
+  database: DbFacade,
+  {
+    villageId,
+    resolvesAt,
+    originTileId,
+    targetTileId,
+    movementType,
+    troops,
+  }: Pick<
+    GameEvent<'troopMovementRelocation'>,
+    'villageId' | 'resolvesAt' | 'originTileId' | 'targetTileId' | 'troops'
+  > & { movementType: 'reinforcement' | 'relocation' },
+) => {
+  const resolvedOriginTileId =
+    originTileId ??
+    database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+      bind: { $village_id: villageId },
+      schema: z.int(),
+    })!;
+
+  const reportId = insertReport(database, {
+    playerId: PLAYER_ID,
+    villageId,
+    timestamp: resolvesAt,
+    type: 'movement',
+    outcome: 'troopMovement',
+    tags: [],
+  });
+
+  const movementReportId = database.selectValue({
+    sql: `
+      INSERT INTO movement_reports (
+        report_id, origin_tile_id, target_tile_id, movement_type
+      ) VALUES (
+        $report_id, $origin_tile_id, $target_tile_id, $movement_type
+      ) RETURNING id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $origin_tile_id: resolvedOriginTileId,
+      $target_tile_id: targetTileId,
+      $movement_type: movementType,
+    },
+    schema: z.int(),
+  })!;
+
+  for (const troop of troops) {
+    database.exec({
+      sql: `
+        INSERT INTO movement_report_units (movement_report_id, unit_id, amount)
+        VALUES (
+          $movement_report_id,
+          (SELECT id FROM unit_ids WHERE unit = $unit_id),
+          $amount
+        );
+      `,
+      bind: {
+        $movement_report_id: movementReportId,
+        $unit_id: troop.unitId,
+        $amount: troop.amount,
+      },
+    });
+  }
+};
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
@@ -478,6 +546,11 @@ export const relocationMovementResolver: Resolver<
     schema: z.number(),
   })!;
 
+  insertMovementReport(database, {
+    ...args,
+    movementType: 'relocation',
+  });
+
   addTroops(
     database,
     troops.map((troop) => ({
@@ -519,6 +592,11 @@ export const reinforcementMovementResolver: Resolver<
         villageId: z.number(),
       }),
     })!;
+
+  insertMovementReport(database, {
+    ...args,
+    movementType: 'reinforcement',
+  });
 
   addTroops(
     database,

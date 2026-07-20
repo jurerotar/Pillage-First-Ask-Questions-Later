@@ -22,6 +22,20 @@ export const selectReportsQuery = `
     ar.item_id,
     ar.health_before,
     ar.health_after,
+    mr.id AS movement_id,
+    mr.movement_type,
+    mr.origin_tile_id AS movement_origin_tile_id,
+    mr.target_tile_id AS movement_target_tile_id,
+    movement_origin_v.name AS movement_origin_name,
+    movement_origin_t.x AS movement_origin_x,
+    movement_origin_t.y AS movement_origin_y,
+    CASE
+      WHEN movement_target_v.id IS NOT NULL THEN movement_target_v.name
+      WHEN movement_target_o.id IS NOT NULL THEN 'Oasis'
+      ELSE NULL
+      END AS movement_target_name,
+    movement_target_t.x AS movement_target_x,
+    movement_target_t.y AS movement_target_y,
     tag
   FROM
     reports r
@@ -34,6 +48,12 @@ export const selectReportsQuery = `
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
     LEFT JOIN hero_adventure_reports ar ON r.id = ar.report_id
+    LEFT JOIN movement_reports mr ON r.id = mr.report_id
+    LEFT JOIN tiles movement_origin_t ON mr.origin_tile_id = movement_origin_t.id
+    LEFT JOIN villages movement_origin_v ON movement_origin_t.id = movement_origin_v.tile_id
+    LEFT JOIN tiles movement_target_t ON mr.target_tile_id = movement_target_t.id
+    LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
+    LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
@@ -70,6 +90,7 @@ export const selectReportsQuery = `
       OR ($include_battle = 1 AND rty.report_type = 'battle')
       OR ($include_adventure = 1 AND rty.report_type = 'adventure')
       OR ($include_trade = 1 AND rty.report_type = 'trade')
+      OR ($include_movement = 1 AND rty.report_type = 'movement')
     )
   ORDER BY
     timestamp DESC;
@@ -99,6 +120,20 @@ export const selectReportQuery = `
     ar.item_id,
     ar.health_before,
     ar.health_after,
+    mr.id AS movement_id,
+    mr.movement_type,
+    mr.origin_tile_id AS movement_origin_tile_id,
+    mr.target_tile_id AS movement_target_tile_id,
+    movement_origin_v.name AS movement_origin_name,
+    movement_origin_t.x AS movement_origin_x,
+    movement_origin_t.y AS movement_origin_y,
+    CASE
+      WHEN movement_target_v.id IS NOT NULL THEN movement_target_v.name
+      WHEN movement_target_o.id IS NOT NULL THEN 'Oasis'
+      ELSE NULL
+      END AS movement_target_name,
+    movement_target_t.x AS movement_target_x,
+    movement_target_t.y AS movement_target_y,
     tag
   FROM
     reports r
@@ -111,6 +146,12 @@ export const selectReportQuery = `
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
     LEFT JOIN hero_adventure_reports ar ON r.id = ar.report_id
+    LEFT JOIN movement_reports mr ON r.id = mr.report_id
+    LEFT JOIN tiles movement_origin_t ON mr.origin_tile_id = movement_origin_t.id
+    LEFT JOIN villages movement_origin_v ON movement_origin_t.id = movement_origin_v.tile_id
+    LEFT JOIN tiles movement_target_t ON mr.target_tile_id = movement_target_t.id
+    LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
+    LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
