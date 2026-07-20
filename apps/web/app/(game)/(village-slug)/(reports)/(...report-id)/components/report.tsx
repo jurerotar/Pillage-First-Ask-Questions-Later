@@ -83,7 +83,7 @@ type BattleParticipantTableProps = {
 
 export const BattleParticipantTable = ({
   participant,
-  role,
+  participantRole,
 }: BattleParticipantTableProps) => {
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext)!;
@@ -127,7 +127,7 @@ export const BattleParticipantTable = ({
 
   return (
     <UnitTable tribe={troops.tribe}>
-      <UnitTableTitle>{role}</UnitTableTitle>
+      <UnitTableTitle>{participantRole}</UnitTableTitle>
       <UnitTablePlayer
         playerName={player.name}
         playerSlug={player.slug}
@@ -136,7 +136,7 @@ export const BattleParticipantTable = ({
       />
       <UnitTableUnitIcons />
 
-      {role !== 'attacker' && !showDefendingUnits ? (
+      {participantRole !== 'attacker' && !showDefendingUnits ? (
         <UnitTableHiddenRow
           label={t('Troops')}
           troops={troopsBefore}
@@ -145,7 +145,7 @@ export const BattleParticipantTable = ({
         <>
           <UnitTableRow
             label={t('Initial')}
-            troops={troopsAfter}
+            troops={troopsBefore}
           />
           <UnitTableRow
             label={t('Casualties')}
