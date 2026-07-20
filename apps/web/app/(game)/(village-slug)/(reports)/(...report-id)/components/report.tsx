@@ -89,8 +89,8 @@ export const BattleParticipantTable = ({
   const { report: _report } = use(ReportContext)!;
 
   const report = _report as BattleReport;
-  const { battle } = report;
-  const showDefendingUnits = battle.outcome.canAttackerSeeFullReport;
+  const { canAttackerSeeFullReport, loot, totalCarryCapacity } =
+    report.battle.outcome;
   const { troops, player, village } = participant;
 
   const { troopsBefore, troopsAfter, troopsLost } = useMemo(() => {
@@ -138,7 +138,7 @@ export const BattleParticipantTable = ({
       />
       <UnitTableUnitIcons />
 
-      {participantRole !== 'attacker' && !showDefendingUnits ? (
+      {participantRole !== 'attacker' && !canAttackerSeeFullReport ? (
         <UnitTableHiddenRow
           label={t('Troops')}
           troops={troopsBefore}
@@ -162,10 +162,12 @@ export const BattleParticipantTable = ({
         </>
       )}
 
-      <UnitTableLoot
-        loot={battle.outcome.loot}
-        totalCarryCapacity={battle.outcome.totalCarryCapacity}
-      />
+      {participantRole === 'attacker' && (
+        <UnitTableLoot
+          loot={loot}
+          totalCarryCapacity={totalCarryCapacity}
+        />
+      )}
     </UnitTable>
   );
 };
