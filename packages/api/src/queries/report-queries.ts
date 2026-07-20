@@ -36,6 +36,19 @@ export const selectReportsQuery = `
       END AS movement_target_name,
     movement_target_t.x AS movement_target_x,
     movement_target_t.y AS movement_target_y,
+    tr.id AS trade_id,
+    tr.origin_tile_id AS trade_origin_tile_id,
+    tr.target_tile_id AS trade_target_tile_id,
+    trade_origin_v.name AS trade_origin_name,
+    trade_origin_t.x AS trade_origin_x,
+    trade_origin_t.y AS trade_origin_y,
+    trade_target_v.name AS trade_target_name,
+    trade_target_t.x AS trade_target_x,
+    trade_target_t.y AS trade_target_y,
+    tr.wood AS trade_wood,
+    tr.clay AS trade_clay,
+    tr.iron AS trade_iron,
+    tr.wheat AS trade_wheat,
     tag
   FROM
     reports r
@@ -54,6 +67,11 @@ export const selectReportsQuery = `
     LEFT JOIN tiles movement_target_t ON mr.target_tile_id = movement_target_t.id
     LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
     LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
+    LEFT JOIN trading_reports tr ON r.id = tr.report_id
+    LEFT JOIN tiles trade_origin_t ON tr.origin_tile_id = trade_origin_t.id
+    LEFT JOIN villages trade_origin_v ON trade_origin_t.id = trade_origin_v.tile_id
+    LEFT JOIN tiles trade_target_t ON tr.target_tile_id = trade_target_t.id
+    LEFT JOIN villages trade_target_v ON trade_target_t.id = trade_target_v.tile_id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
@@ -134,6 +152,19 @@ export const selectReportQuery = `
       END AS movement_target_name,
     movement_target_t.x AS movement_target_x,
     movement_target_t.y AS movement_target_y,
+    tr.id AS trade_id,
+    tr.origin_tile_id AS trade_origin_tile_id,
+    tr.target_tile_id AS trade_target_tile_id,
+    trade_origin_v.name AS trade_origin_name,
+    trade_origin_t.x AS trade_origin_x,
+    trade_origin_t.y AS trade_origin_y,
+    trade_target_v.name AS trade_target_name,
+    trade_target_t.x AS trade_target_x,
+    trade_target_t.y AS trade_target_y,
+    tr.wood AS trade_wood,
+    tr.clay AS trade_clay,
+    tr.iron AS trade_iron,
+    tr.wheat AS trade_wheat,
     tag
   FROM
     reports r
@@ -152,6 +183,11 @@ export const selectReportQuery = `
     LEFT JOIN tiles movement_target_t ON mr.target_tile_id = movement_target_t.id
     LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
     LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
+    LEFT JOIN trading_reports tr ON r.id = tr.report_id
+    LEFT JOIN tiles trade_origin_t ON tr.origin_tile_id = trade_origin_t.id
+    LEFT JOIN villages trade_origin_v ON trade_origin_t.id = trade_origin_v.tile_id
+    LEFT JOIN tiles trade_target_t ON tr.target_tile_id = trade_target_t.id
+    LEFT JOIN villages trade_target_v ON trade_target_t.id = trade_target_v.tile_id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE

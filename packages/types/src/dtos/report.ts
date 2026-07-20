@@ -17,10 +17,14 @@ export const adventureReportSummaryDtoSchema = adventureReportSchema.omit({
   healthAfter: true,
 });
 
+export const tradeReportSummaryDtoSchema = tradeReportSchema.omit({
+  trade: true,
+});
+
 export const reportListingDtoSchema = z.discriminatedUnion('type', [
   battleReportSummaryDtoSchema,
   adventureReportSummaryDtoSchema,
-  tradeReportSchema,
+  tradeReportSummaryDtoSchema,
   movementReportSchema.omit({ movement: true }),
 ]);
 
