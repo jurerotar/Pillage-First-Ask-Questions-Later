@@ -514,8 +514,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
       bind: {
         $player_id: PLAYER_ID,
         $village_id: playerVillage.id,
-        $timestamp:
-          server.createdAt + (REPORT_COUNT + index + 1) * 15 * 60 * 1000,
+        $timestamp: server.createdAt + (index + 1) * 3 * 15 * 60 * 1000,
         $type_id: reportTypeIds.get(type)!,
         $report_outcome_id: reportOutcomeIds.get(outcome)!,
       },

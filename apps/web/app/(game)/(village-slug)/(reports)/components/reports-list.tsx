@@ -9,7 +9,6 @@ import {
 import { Pagination } from 'app/components/ui/pagination';
 import { useReportSelection } from '../hooks/use-report-selection';
 import { ReportsListActions } from './reports-list-actions';
-import { ReportsListHeader } from './reports-list-header';
 import { ReportsTable } from './reports-table';
 
 const REPORTS_PER_PAGE = 20;
@@ -48,7 +47,6 @@ export const ReportsList = ({
 
   return (
     <Section>
-      <ReportsListHeader scope={scope} />
       <ReportsTable
         reports={pagination.currentPageItems}
         hasReports={reports.length > 0}

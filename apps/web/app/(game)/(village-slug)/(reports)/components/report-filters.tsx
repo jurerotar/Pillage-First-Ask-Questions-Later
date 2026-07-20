@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { LuScale, LuSword } from 'react-icons/lu';
-import { PiPathBold } from 'react-icons/pi';
+import { PiPathBold, PiSignpostBold } from 'react-icons/pi';
 import type { ReportType } from '@pillage-first/types/models/report';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Text } from 'app/components/text';
@@ -27,6 +27,13 @@ export const ReportFilters = ({
         variant="outline"
         size="sm"
       >
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
+          data-tooltip-content={t('Toggle movement reports')}
+          value="movement"
+        >
+          <PiSignpostBold className="size-4" />
+        </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle battle reports')}
