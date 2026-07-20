@@ -16,6 +16,7 @@ CREATE TABLE report_outcome_ids
         'scoutDefenderFullLoss',
         'outgoingMerchantsArrived',
         'incomingMerchantsArrived',
-        'heroAdventure'
+        'heroAdventure',
+        'troopMovement'
     ))
 ) STRICT;

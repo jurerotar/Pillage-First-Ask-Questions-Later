@@ -53,6 +53,7 @@ export const getReports = createController(
       $include_battle: reportTypes.includes('battle') ? 1 : 0,
       $include_adventure: reportTypes.includes('adventure') ? 1 : 0,
       $include_trade: reportTypes.includes('trade') ? 1 : 0,
+      $include_movement: reportTypes.includes('movement') ? 1 : 0,
     },
     schema: getReportsRowSchema,
   });

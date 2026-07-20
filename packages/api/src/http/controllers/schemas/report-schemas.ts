@@ -24,6 +24,16 @@ export const getReportsRowSchema = z
     item_id: z.int().nullable(),
     health_before: z.number().nullable(),
     health_after: z.number().nullable(),
+    movement_id: z.int().nullable(),
+    movement_type: z.enum(['reinforcement', 'relocation']).nullable(),
+    movement_origin_tile_id: z.int().nullable(),
+    movement_target_tile_id: z.int().nullable(),
+    movement_origin_name: z.string().nullable(),
+    movement_origin_x: z.int().nullable(),
+    movement_origin_y: z.int().nullable(),
+    movement_target_name: z.string().nullable(),
+    movement_target_x: z.int().nullable(),
+    movement_target_y: z.int().nullable(),
     tag: reportTagSchema.nullable(),
   })
   .meta({ id: 'GetReportsRow' });

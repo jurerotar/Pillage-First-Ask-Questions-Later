@@ -99,7 +99,8 @@ type ReportIconType =
   | 'scoutDefenderFullLoss'
   | 'outgoingMerchantsArrived'
   | 'incomingMerchantsArrived'
-  | 'heroAdventure';
+  | 'heroAdventure'
+  | 'troopMovement';
 
 type MapControlsIconType =
   | 'mapMagnificationIncrease'
@@ -328,6 +329,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     />
   ),
   heroAdventure: (props) => icons.adventure(props),
+  troopMovement: (props) => icons.attack(props),
 
   // Effects
 

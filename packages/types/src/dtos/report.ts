@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   adventureReportSchema,
   battleReportSchema,
+  movementReportSchema,
   tradeReportSchema,
 } from '../models/report';
 
@@ -20,6 +21,7 @@ export const reportListingDtoSchema = z.discriminatedUnion('type', [
   battleReportSummaryDtoSchema,
   adventureReportSummaryDtoSchema,
   tradeReportSchema,
+  movementReportSchema.omit({ movement: true }),
 ]);
 
 export type ReportListingDto = z.infer<typeof reportListingDtoSchema>;

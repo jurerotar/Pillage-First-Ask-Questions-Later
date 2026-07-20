@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
 import type {
   BattleReportSummary,
@@ -35,6 +35,34 @@ const getReportSummary = (row: ReportRow): BattleReportSummary => {
   };
 };
 
+const getMovementSummary = (row: ReportRow) => {
+  if (
+    row.movement_type === null ||
+    row.movement_origin_name === null ||
+    row.movement_origin_x === null ||
+    row.movement_origin_y === null ||
+    row.movement_target_name === null ||
+    row.movement_target_x === null ||
+    row.movement_target_y === null
+  ) {
+    throw new Error(`Movement report ${row.id} is missing summary data`);
+  }
+
+  return {
+    originName: row.movement_origin_name,
+    originCoordinates: {
+      x: row.movement_origin_x,
+      y: row.movement_origin_y,
+    },
+    targetName: row.movement_target_name,
+    targetCoordinates: {
+      x: row.movement_target_x,
+      y: row.movement_target_y,
+    },
+    movementType: row.movement_type,
+  };
+};
+
 const mapBaseReportProperties = (row: ReportRow) => ({
   id: row.id,
   playerId: row.player_id,
@@ -52,6 +80,14 @@ const mapReportListItem = (row: ReportRow): ReportListingDto => {
       ...baseReport,
       type: 'battle',
       summary: getReportSummary(row),
+    };
+  }
+
+  if (row.type === 'movement') {
+    return {
+      ...baseReport,
+      type: 'movement',
+      summary: getMovementSummary(row),
     };
   }
 
@@ -128,6 +164,41 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
       itemId: row.item_id,
       healthBefore: row.health_before,
       healthAfter: row.health_after,
+    });
+  }
+
+  if (row.type === 'movement') {
+    if (
+      row.movement_id === null ||
+      row.movement_type === null ||
+      row.movement_origin_tile_id === null ||
+      row.movement_target_tile_id === null
+    ) {
+      throw new Error(`Movement report ${row.id} is missing movement data`);
+    }
+
+    const units = database.selectObjects({
+      sql: `
+        SELECT ui.unit AS unitId, mru.amount
+        FROM movement_report_units mru
+        JOIN unit_ids ui ON mru.unit_id = ui.id
+        WHERE mru.movement_report_id = $movement_report_id;
+      `,
+      bind: { $movement_report_id: row.movement_id },
+      schema: z.strictObject({ unitId: z.string(), amount: z.int() }),
+    });
+
+    return reportSchema.parse({
+      ...baseReport,
+      type: 'movement',
+      summary: getMovementSummary(row),
+      movement: {
+        id: row.movement_id,
+        originTileId: row.movement_origin_tile_id,
+        targetTileId: row.movement_target_tile_id,
+        movementType: row.movement_type,
+        units,
+      },
     });
   }
 
