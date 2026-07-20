@@ -401,7 +401,8 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
         $loot_clay: loot[1],
         $loot_iron: loot[2],
         $loot_wheat: loot[3],
-        $can_attacker_see_full_report: attackerLossMode === 'full' ? 0 : 1,
+        $can_attacker_see_full_report:
+          !isPlayerAttacker || attackerLossMode !== 'full' ? 1 : 0,
         $attacker_points: attackerWon
           ? seededRandomIntFromInterval(prng, 120, 260)
           : seededRandomIntFromInterval(prng, 30, 120),
@@ -457,10 +458,17 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
       ),
     );
 
-    if (target.playerId !== null && i % 5 === 0) {
-      const reinforcementVillage = villages.find(
-        (v) => v.playerId === target.playerId && v.tileId !== target.tileId,
+    // Seed a predictable selection of battles with a separate defending force.
+    // A reinforcement is identified by its source tile being different from both
+    // the attacking and defending tiles, just like a participant in a real battle.
+    if (i % 5 === 0) {
+      const reinforcementCandidates = npcVillages.filter(
+        (v) => v.tileId !== origin.tileId && v.tileId !== target.tileId,
       );
+      const reinforcementVillage =
+        reinforcementCandidates.length > 0
+          ? seededRandomArrayElement(prng, reinforcementCandidates)
+          : undefined;
 
       if (reinforcementVillage) {
         const reinforcementParticipantId = database.selectValue({

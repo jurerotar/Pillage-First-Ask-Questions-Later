@@ -124,4 +124,71 @@ describe('reportsSeeder', () => {
     expect(battleCountWithParticipants).toBe(100);
     expect(battleCountWithUnits).toBe(100);
   });
+
+  test('seeded battle troop counts are internally consistent', () => {
+    const invalidUnitCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM battle_units
+        WHERE
+          amount_before < 0
+          OR amount_after < 0
+          OR amount_after > amount_before;
+      `,
+      schema: z.number(),
+    });
+
+    expect(invalidUnitCount).toBe(0);
+  });
+
+  test('some seeded battles include reinforcements', () => {
+    const reinforcedBattleCount = database.selectValue({
+      sql: `
+        SELECT COUNT(DISTINCT b.id)
+        FROM battles b
+        JOIN battle_participants bp ON bp.battle_id = b.id
+        WHERE
+          bp.tile_id != b.origin_tile_id
+          AND bp.tile_id != b.target_tile_id;
+      `,
+      schema: z.number(),
+    });
+
+    expect(reinforcedBattleCount).toBeGreaterThan(0);
+  });
+
+  test('defender reports always show the full battle', () => {
+    const hiddenDefenderReportCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM reports r
+        JOIN battles b ON b.report_id = r.id
+        JOIN villages target_v ON target_v.tile_id = b.target_tile_id
+        WHERE
+          r.player_id = $player_id
+          AND target_v.player_id = $player_id
+          AND b.can_attacker_see_full_report = 0;
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.number(),
+    });
+
+    const hiddenAttackerReportCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM reports r
+        JOIN battles b ON b.report_id = r.id
+        JOIN villages origin_v ON origin_v.tile_id = b.origin_tile_id
+        WHERE
+          r.player_id = $player_id
+          AND origin_v.player_id = $player_id
+          AND b.can_attacker_see_full_report = 0;
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.number(),
+    });
+
+    expect(hiddenDefenderReportCount).toBe(0);
+    expect(hiddenAttackerReportCount).toBeGreaterThan(0);
+  });
 });
