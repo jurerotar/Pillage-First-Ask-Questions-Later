@@ -127,7 +127,9 @@ export const BattleParticipantTable = ({
 
   return (
     <UnitTable tribe={troops.tribe}>
-      <UnitTableTitle>{participantRole}</UnitTableTitle>
+      <UnitTableTitle>
+        {participantRole === 'attacker' ? t('Attacker') : t('Defender')}
+      </UnitTableTitle>
       <UnitTablePlayer
         playerName={player.name}
         playerSlug={player.slug}
