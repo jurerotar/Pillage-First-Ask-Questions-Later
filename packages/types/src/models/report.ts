@@ -55,6 +55,10 @@ export const battleReportSchema = baseReportSchema.extend({
 export const adventureReportSchema = baseReportSchema.extend({
   type: z.literal('adventure'),
   summary: z.null(),
+  adventureId: z.int(),
+  itemId: z.int().nullable(),
+  healthBefore: z.number(),
+  healthAfter: z.number(),
 });
 
 export const tradeReportSchema = baseReportSchema.extend({

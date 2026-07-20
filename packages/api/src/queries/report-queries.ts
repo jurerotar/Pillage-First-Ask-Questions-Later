@@ -18,6 +18,10 @@ export const selectReportsQuery = `
       END AS battle_target_name,
     target_t.x AS battle_target_x,
     target_t.y AS battle_target_y,
+    ar.adventure_id,
+    ar.item_id,
+    ar.health_before,
+    ar.health_after,
     tag
   FROM
     reports r
@@ -29,6 +33,7 @@ export const selectReportsQuery = `
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
+    LEFT JOIN hero_adventure_reports ar ON r.id = ar.report_id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
@@ -90,6 +95,10 @@ export const selectReportQuery = `
       END AS battle_target_name,
     target_t.x AS battle_target_x,
     target_t.y AS battle_target_y,
+    ar.adventure_id,
+    ar.item_id,
+    ar.health_before,
+    ar.health_after,
     tag
   FROM
     reports r
@@ -101,6 +110,7 @@ export const selectReportQuery = `
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
+    LEFT JOIN hero_adventure_reports ar ON r.id = ar.report_id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
