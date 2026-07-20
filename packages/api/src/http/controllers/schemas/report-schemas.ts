@@ -15,6 +15,8 @@ export const getReportsRowSchema = z
     outcome: reportOutcomeSchema,
     battle_is_raid: z.int().nullable(),
     battle_origin_name: z.string().nullable(),
+    battle_origin_x: z.int().nullable(),
+    battle_origin_y: z.int().nullable(),
     battle_target_name: z.string().nullable(),
     battle_target_x: z.int().nullable(),
     battle_target_y: z.int().nullable(),

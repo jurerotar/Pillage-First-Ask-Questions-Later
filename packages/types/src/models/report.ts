@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { battleSchema, battleSummarySchema } from './battle';
+import { battleSchema } from './battle';
+import { coordinatesSchema } from './coordinates';
 
 export const reportTypeSchema = z.enum(['battle', 'adventure', 'trade']);
 
@@ -37,18 +38,28 @@ export const baseReportSchema = z.strictObject({
   tags: z.array(reportTagSchema),
 });
 
+export const battleReportSummarySchema = z.strictObject({
+  originName: z.string(),
+  originCoordinates: coordinatesSchema,
+  targetName: z.string(),
+  targetCoordinates: coordinatesSchema,
+  movementType: z.enum(['raid', 'attack']),
+});
+
 export const battleReportSchema = baseReportSchema.extend({
   type: z.literal('battle'),
-  battleSummary: battleSummarySchema,
+  summary: battleReportSummarySchema,
   battle: battleSchema,
 });
 
 export const adventureReportSchema = baseReportSchema.extend({
   type: z.literal('adventure'),
+  summary: z.null(),
 });
 
 export const tradeReportSchema = baseReportSchema.extend({
   type: z.literal('trade'),
+  summary: z.null(),
 });
 
 export const reportSchema = z
@@ -64,5 +75,6 @@ export type ReportTag = z.infer<typeof reportTagSchema>;
 export type BattleResultId = z.infer<typeof battleResultIdSchema>;
 export type ReportOutcome = z.infer<typeof reportOutcomeSchema>;
 
+export type BattleReportSummary = z.infer<typeof battleReportSummarySchema>;
 export type BaseReport = z.infer<typeof baseReportSchema>;
 export type Report = z.infer<typeof reportSchema>;
