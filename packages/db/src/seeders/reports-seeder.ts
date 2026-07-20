@@ -5,6 +5,7 @@ import type {
   BattleResultId,
   ReportOutcome,
   ReportTag,
+  ReportType,
 } from '@pillage-first/types/models/report';
 import type { Server } from '@pillage-first/types/models/server';
 import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';
@@ -17,6 +18,7 @@ import {
 import { batchInsert } from '../utils/batch-insert';
 
 const REPORT_COUNT = 100;
+const NON_BATTLE_REPORT_COUNT = 10;
 
 type VillageRow = {
   id: number;
@@ -166,11 +168,11 @@ const selectBattleTarget = (
 export const reportsSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(`${server.seed}:reports`);
 
-  const battleTypeId = selectLookupId(
-    database,
-    'report_type_ids',
-    'report_type',
-    'battle',
+  const reportTypeIds = new Map<ReportType, number>(
+    (['battle', 'adventure', 'trade', 'movement'] as const).map((type) => [
+      type,
+      selectLookupId(database, 'report_type_ids', 'report_type', type),
+    ]),
   );
   const tagIds = new Map<ReportTag, number>([
     ['read', selectLookupId(database, 'report_tag_ids', 'tag', 'read')],
@@ -190,6 +192,16 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
         'report_outcome',
         battleResult,
       ),
+    );
+  }
+  for (const outcome of [
+    'heroAdventure',
+    'troopMovement',
+    'incomingMerchantsArrived',
+  ] as const) {
+    reportOutcomeIds.set(
+      outcome,
+      selectLookupId(database, 'report_outcome_ids', 'report_outcome', outcome),
     );
   }
 
@@ -335,7 +347,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
         $player_id: PLAYER_ID,
         $village_id: playerVillage.id,
         $timestamp: server.createdAt + (i + 1) * 15 * 60 * 1000,
-        $type_id: battleTypeId,
+        $type_id: reportTypeIds.get('battle')!,
         $report_outcome_id: reportOutcomeIds.get(battleResult)!,
       },
       schema: z.number(),
@@ -484,6 +496,116 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
     if (i % 10 === 0) {
       reportTagRows.push([reportId, tagIds.get('archived')!]);
     }
+  }
+
+  const insertBaseReport = (
+    index: number,
+    type: ReportType,
+    outcome: ReportOutcome,
+  ) =>
+    database.selectValue({
+      sql: `
+        INSERT INTO reports (
+          player_id, village_id, timestamp, type_id, report_outcome_id
+        ) VALUES (
+          $player_id, $village_id, $timestamp, $type_id, $report_outcome_id
+        ) RETURNING id;
+      `,
+      bind: {
+        $player_id: PLAYER_ID,
+        $village_id: playerVillage.id,
+        $timestamp:
+          server.createdAt + (REPORT_COUNT + index + 1) * 15 * 60 * 1000,
+        $type_id: reportTypeIds.get(type)!,
+        $report_outcome_id: reportOutcomeIds.get(outcome)!,
+      },
+      schema: z.number(),
+    })!;
+
+  const movementUnitId = unitLookupIds.get(
+    unitIdsByTribe[playerVillage.tribe][0],
+  )!;
+
+  for (let i = 0; i < NON_BATTLE_REPORT_COUNT; i += 1) {
+    const adventureReportId = insertBaseReport(
+      i * 3,
+      'adventure',
+      'heroAdventure',
+    );
+    database.exec({
+      sql: `
+        INSERT INTO hero_adventure_reports (
+          report_id, adventure_id, item_id, health_before, health_after
+        ) VALUES (
+          $report_id, $adventure_id, $item_id, $health_before, $health_after
+        );
+      `,
+      bind: {
+        $report_id: adventureReportId,
+        $adventure_id: i + 1,
+        $item_id: i % 2 === 0 ? null : 1,
+        $health_before: 100,
+        $health_after: seededRandomIntFromInterval(prng, 70, 95),
+      },
+    });
+
+    const movementReportId = insertBaseReport(
+      i * 3 + 1,
+      'movement',
+      'troopMovement',
+    );
+    const movementId = database.selectValue({
+      sql: `
+        INSERT INTO movement_reports (
+          report_id, origin_tile_id, target_tile_id, movement_type
+        ) VALUES (
+          $report_id, $origin_tile_id, $target_tile_id, $movement_type
+        ) RETURNING id;
+      `,
+      bind: {
+        $report_id: movementReportId,
+        $origin_tile_id: playerVillage.tileId,
+        $target_tile_id: npcVillages[i % npcVillages.length].tileId,
+        $movement_type: i % 2 === 0 ? 'reinforcement' : 'relocation',
+      },
+      schema: z.number(),
+    })!;
+    database.exec({
+      sql: `
+        INSERT INTO movement_report_units (movement_report_id, unit_id, amount)
+        VALUES ($movement_report_id, $unit_id, $amount);
+      `,
+      bind: {
+        $movement_report_id: movementId,
+        $unit_id: movementUnitId,
+        $amount: seededRandomIntFromInterval(prng, 10, 100),
+      },
+    });
+
+    const tradeReportId = insertBaseReport(
+      i * 3 + 2,
+      'trade',
+      'incomingMerchantsArrived',
+    );
+    database.exec({
+      sql: `
+        INSERT INTO trading_reports (
+          report_id, origin_tile_id, target_tile_id, wood, clay, iron, wheat
+        ) VALUES (
+          $report_id, $origin_tile_id, $target_tile_id,
+          $wood, $clay, $iron, $wheat
+        );
+      `,
+      bind: {
+        $report_id: tradeReportId,
+        $origin_tile_id: npcVillages[i % npcVillages.length].tileId,
+        $target_tile_id: playerVillage.tileId,
+        $wood: seededRandomIntFromInterval(prng, 100, 1000),
+        $clay: seededRandomIntFromInterval(prng, 100, 1000),
+        $iron: seededRandomIntFromInterval(prng, 100, 1000),
+        $wheat: seededRandomIntFromInterval(prng, 100, 1000),
+      },
+    });
   }
 
   batchInsert(
