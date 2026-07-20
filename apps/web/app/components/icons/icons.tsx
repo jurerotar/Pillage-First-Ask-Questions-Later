@@ -50,6 +50,7 @@ import {
   TbBorderCorners,
   TbBrandSpeedtest,
   TbLaurelWreath,
+  TbShieldPlus,
   TbTooltip,
 } from 'react-icons/tb';
 import { TiMinus, TiPlus } from 'react-icons/ti';
@@ -329,7 +330,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     />
   ),
   heroAdventure: (props) => icons.adventure(props),
-  troopMovement: (props) => icons.attack(props),
+  troopMovement: (props) => <TbShieldPlus {...props} />,
 
   // Effects
 
