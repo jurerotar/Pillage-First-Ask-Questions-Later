@@ -28,6 +28,7 @@ import {
 } from '../../../utils/hero';
 import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
 import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
+import { insertReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import {
   addVillageResourcesAt,
@@ -41,7 +42,31 @@ export const adventureMovementResolver: Resolver<
 > = (database, args) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
-  const { heroId, health } = database.selectObject({
+  const { heroId, healthBefore, adventureId } = database.selectObject({
+    sql: `
+      SELECT
+        h.id AS heroId,
+        h.health AS healthBefore,
+        ha.completed + 1 AS adventureId
+      FROM
+        heroes h
+        JOIN hero_adventures ha ON h.id = ha.hero_id
+      WHERE
+        h.player_id = (
+          SELECT player_id
+          FROM villages
+          WHERE id = $village_id
+        );
+    `,
+    bind: { $village_id: villageId },
+    schema: z.strictObject({
+      heroId: z.number(),
+      healthBefore: z.number(),
+      adventureId: z.int(),
+    }),
+  })!;
+
+  const healthAfter = database.selectValue({
     sql: `
       UPDATE heroes
       SET
@@ -59,28 +84,51 @@ export const adventureMovementResolver: Resolver<
                      ) * 10
             ELSE 0
             END
-      WHERE
-        player_id = (
-          SELECT player_id
-          FROM
-            villages
-          WHERE
-            id = $village_id
-          )
-      RETURNING
-        id AS heroId,
-        health
+      WHERE id = $hero_id
+      RETURNING health
     `,
-    bind: {
-      $village_id: villageId,
-    },
-    schema: z.strictObject({
-      heroId: z.number(),
-      health: z.number(),
-    }),
+    bind: { $hero_id: heroId },
+    schema: z.number(),
   })!;
 
-  if (health === 0) {
+  const reportId = insertReport(database, {
+    playerId: PLAYER_ID,
+    villageId,
+    timestamp: resolvesAt,
+    type: 'adventure',
+    outcome: 'heroAdventure',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO
+        hero_adventure_reports (
+          report_id,
+          adventure_id,
+          item_id,
+          health_before,
+          health_after
+        )
+      VALUES
+        (
+          $report_id,
+          $adventure_id,
+          $item_id,
+          $health_before,
+          $health_after
+        );
+    `,
+    bind: {
+      $report_id: reportId,
+      $adventure_id: adventureId,
+      $item_id: null,
+      $health_before: healthBefore,
+      $health_after: healthAfter,
+    },
+  });
+
+  if (healthAfter === 0) {
     onHeroDeath(database, resolvesAt);
 
     return {
@@ -90,14 +138,12 @@ export const adventureMovementResolver: Resolver<
 
   database.exec({
     sql: 'UPDATE hero_adventures SET completed = completed + 1 WHERE hero_id = $hero_id;',
-    bind: {
-      $hero_id: heroId,
-    },
+    bind: { $hero_id: heroId },
   });
 
   assessAdventureCountQuestCompletion(database, resolvesAt);
 
-  if (health < 100) {
+  if (healthAfter < 100) {
     createHeroHealthRegenerationEventByVillageId(
       database,
       villageId,

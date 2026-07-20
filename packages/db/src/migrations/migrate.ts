@@ -21,6 +21,7 @@ import createFactionReputationTable from '../schemas/faction-reputation-schema.s
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
 import createGatherersHutExpeditionsTable from '../schemas/gatherers-hut-expeditions-schema.sql?raw';
+import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
 import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.sql?raw';
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
@@ -229,6 +230,7 @@ export const migrateAndSeed = (
     reportTypeIdsSeeder(db);
 
     db.exec({ sql: createReportsTable });
+    db.exec({ sql: createHeroAdventureReportsTable });
     db.exec({ sql: createReportTagsTable });
 
     db.exec({ sql: createBattlesTable });

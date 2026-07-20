@@ -20,6 +20,10 @@ export const getReportsRowSchema = z
     battle_target_name: z.string().nullable(),
     battle_target_x: z.int().nullable(),
     battle_target_y: z.int().nullable(),
+    adventure_id: z.int().nullable(),
+    item_id: z.int().nullable(),
+    health_before: z.number().nullable(),
+    health_after: z.number().nullable(),
     tag: reportTagSchema.nullable(),
   })
   .meta({ id: 'GetReportsRow' });

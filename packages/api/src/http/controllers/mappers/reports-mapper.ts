@@ -111,6 +111,26 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
     return report;
   }
 
+  if (row.type === 'adventure') {
+    if (
+      row.adventure_id === null ||
+      row.health_before === null ||
+      row.health_after === null
+    ) {
+      throw new Error(`Adventure report ${row.id} is missing adventure data`);
+    }
+
+    return reportSchema.parse({
+      ...baseReport,
+      type: 'adventure',
+      summary: null,
+      adventureId: row.adventure_id,
+      itemId: row.item_id,
+      healthBefore: row.health_before,
+      healthAfter: row.health_after,
+    });
+  }
+
   const report = reportSchema.parse({
     ...baseReport,
     type: row.type,
