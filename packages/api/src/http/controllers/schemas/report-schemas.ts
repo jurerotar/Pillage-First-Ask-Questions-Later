@@ -4,6 +4,7 @@ import {
   reportTagSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 
 export const getReportsRowSchema = z
   .strictObject({
@@ -26,11 +27,16 @@ export const getReportsRowSchema = z
     health_after: z.number().nullable(),
     movement_id: z.int().nullable(),
     movement_type: z.enum(['reinforcement', 'relocation']).nullable(),
+    movement_tribe: tribeSchema.nullable(),
     movement_origin_tile_id: z.int().nullable(),
     movement_target_tile_id: z.int().nullable(),
+    movement_origin_player_name: z.string().nullable(),
+    movement_origin_player_slug: z.string().nullable(),
     movement_origin_name: z.string().nullable(),
     movement_origin_x: z.int().nullable(),
     movement_origin_y: z.int().nullable(),
+    movement_target_player_name: z.string().nullable(),
+    movement_target_player_slug: z.string().nullable(),
     movement_target_name: z.string().nullable(),
     movement_target_x: z.int().nullable(),
     movement_target_y: z.int().nullable(),

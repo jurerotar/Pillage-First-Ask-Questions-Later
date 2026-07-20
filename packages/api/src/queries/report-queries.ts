@@ -24,11 +24,16 @@ export const selectReportsQuery = `
     ar.health_after,
     mr.id AS movement_id,
     mr.movement_type,
+    movement_origin_tribe.tribe AS movement_tribe,
     mr.origin_tile_id AS movement_origin_tile_id,
     mr.target_tile_id AS movement_target_tile_id,
+    movement_origin_p.name AS movement_origin_player_name,
+    movement_origin_p.slug AS movement_origin_player_slug,
     movement_origin_v.name AS movement_origin_name,
     movement_origin_t.x AS movement_origin_x,
     movement_origin_t.y AS movement_origin_y,
+    movement_target_p.name AS movement_target_player_name,
+    movement_target_p.slug AS movement_target_player_slug,
     CASE
       WHEN movement_target_v.id IS NOT NULL THEN movement_target_v.name
       WHEN movement_target_o.id IS NOT NULL THEN 'Oasis'
@@ -64,8 +69,11 @@ export const selectReportsQuery = `
     LEFT JOIN movement_reports mr ON r.id = mr.report_id
     LEFT JOIN tiles movement_origin_t ON mr.origin_tile_id = movement_origin_t.id
     LEFT JOIN villages movement_origin_v ON movement_origin_t.id = movement_origin_v.tile_id
+    LEFT JOIN players movement_origin_p ON movement_origin_v.player_id = movement_origin_p.id
+    LEFT JOIN tribe_ids movement_origin_tribe ON movement_origin_p.tribe_id = movement_origin_tribe.id
     LEFT JOIN tiles movement_target_t ON mr.target_tile_id = movement_target_t.id
     LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
+    LEFT JOIN players movement_target_p ON movement_target_v.player_id = movement_target_p.id
     LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
     LEFT JOIN trading_reports tr ON r.id = tr.report_id
     LEFT JOIN tiles trade_origin_t ON tr.origin_tile_id = trade_origin_t.id
@@ -140,11 +148,16 @@ export const selectReportQuery = `
     ar.health_after,
     mr.id AS movement_id,
     mr.movement_type,
+    movement_origin_tribe.tribe AS movement_tribe,
     mr.origin_tile_id AS movement_origin_tile_id,
     mr.target_tile_id AS movement_target_tile_id,
+    movement_origin_p.name AS movement_origin_player_name,
+    movement_origin_p.slug AS movement_origin_player_slug,
     movement_origin_v.name AS movement_origin_name,
     movement_origin_t.x AS movement_origin_x,
     movement_origin_t.y AS movement_origin_y,
+    movement_target_p.name AS movement_target_player_name,
+    movement_target_p.slug AS movement_target_player_slug,
     CASE
       WHEN movement_target_v.id IS NOT NULL THEN movement_target_v.name
       WHEN movement_target_o.id IS NOT NULL THEN 'Oasis'
@@ -180,8 +193,11 @@ export const selectReportQuery = `
     LEFT JOIN movement_reports mr ON r.id = mr.report_id
     LEFT JOIN tiles movement_origin_t ON mr.origin_tile_id = movement_origin_t.id
     LEFT JOIN villages movement_origin_v ON movement_origin_t.id = movement_origin_v.tile_id
+    LEFT JOIN players movement_origin_p ON movement_origin_v.player_id = movement_origin_p.id
+    LEFT JOIN tribe_ids movement_origin_tribe ON movement_origin_p.tribe_id = movement_origin_tribe.id
     LEFT JOIN tiles movement_target_t ON mr.target_tile_id = movement_target_t.id
     LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
+    LEFT JOIN players movement_target_p ON movement_target_v.player_id = movement_target_p.id
     LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
     LEFT JOIN trading_reports tr ON r.id = tr.report_id
     LEFT JOIN tiles trade_origin_t ON tr.origin_tile_id = trade_origin_t.id

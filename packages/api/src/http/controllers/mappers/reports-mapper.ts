@@ -5,6 +5,7 @@ import type {
   Report,
 } from '@pillage-first/types/models/report';
 import { reportSchema } from '@pillage-first/types/models/report';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { getBattle } from '../../../utils/report';
 import type { getReportsRowSchema } from '../schemas/report-schemas';
@@ -38,6 +39,8 @@ const getReportSummary = (row: ReportRow): BattleReportSummary => {
 const getMovementSummary = (row: ReportRow) => {
   if (
     row.movement_type === null ||
+    row.movement_origin_player_name === null ||
+    row.movement_origin_player_slug === null ||
     row.movement_origin_name === null ||
     row.movement_origin_x === null ||
     row.movement_origin_y === null ||
@@ -49,11 +52,15 @@ const getMovementSummary = (row: ReportRow) => {
   }
 
   return {
+    originPlayerName: row.movement_origin_player_name,
+    originPlayerSlug: row.movement_origin_player_slug,
     originName: row.movement_origin_name,
     originCoordinates: {
       x: row.movement_origin_x,
       y: row.movement_origin_y,
     },
+    targetPlayerName: row.movement_target_player_name,
+    targetPlayerSlug: row.movement_target_player_slug,
     targetName: row.movement_target_name,
     targetCoordinates: {
       x: row.movement_target_x,
@@ -199,6 +206,7 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
     if (
       row.movement_id === null ||
       row.movement_type === null ||
+      row.movement_tribe === null ||
       row.movement_origin_tile_id === null ||
       row.movement_target_tile_id === null
     ) {
@@ -213,7 +221,7 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
         WHERE mru.movement_report_id = $movement_report_id;
       `,
       bind: { $movement_report_id: row.movement_id },
-      schema: z.strictObject({ unitId: z.string(), amount: z.int() }),
+      schema: z.strictObject({ unitId: unitIdSchema, amount: z.int() }),
     });
 
     return reportSchema.parse({
@@ -222,6 +230,7 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
       summary: getMovementSummary(row),
       movement: {
         id: row.movement_id,
+        tribe: row.movement_tribe,
         originTileId: row.movement_origin_tile_id,
         targetTileId: row.movement_target_tile_id,
         movementType: row.movement_type,

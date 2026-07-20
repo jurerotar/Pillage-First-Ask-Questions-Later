@@ -73,7 +73,7 @@ export const ReportsTable = ({
                         : 'text-link font-medium'
                     }
                   >
-                    {getReportSubject(report)}
+                    {getReportSubject(report, t)}
                   </Text>
                 </Link>
                 {report.tags.includes('archived') && <Icon type="hero" />}
