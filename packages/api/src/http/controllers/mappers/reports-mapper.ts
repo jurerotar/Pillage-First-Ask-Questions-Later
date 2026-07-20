@@ -1,20 +1,18 @@
 import type { z } from 'zod';
-import {
-  type baseReportDtoSchema,
-  reportDtoSchema,
-} from '@pillage-first/types/dtos/report';
+import type { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
+import { reportSchema } from '@pillage-first/types/models/report';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { getBattle } from '../../../utils/report';
 import type { getReportsRowSchema } from '../schemas/report-schemas';
 
 type ReportRow = z.infer<typeof getReportsRowSchema>;
-type ReportListDto = z.infer<typeof baseReportDtoSchema>;
-type BattleReportListDto = Extract<ReportListDto, { type: 'battle' }>;
-type ReportDto = z.infer<typeof reportDtoSchema>;
+type ReportListingDto = z.infer<typeof reportListingDtoSchema>;
+type BattleReportListingDto = Extract<ReportListingDto, { type: 'battle' }>;
+type ReportDto = z.infer<typeof reportSchema>;
 
 const getBattleSummary = (
   row: ReportRow,
-): BattleReportListDto['battleSummary'] => {
+): BattleReportListingDto['battleSummary'] => {
   if (
     row.battle_is_raid === null ||
     row.battle_origin_name === null ||
@@ -45,7 +43,7 @@ const mapBaseReportProperties = (row: ReportRow) => ({
   tags: [],
 });
 
-const mapReportListItem = (row: ReportRow): ReportListDto => {
+const mapReportListItem = (row: ReportRow): ReportListingDto => {
   const baseReport = mapBaseReportProperties(row);
 
   if (row.type === 'battle') {
@@ -62,8 +60,8 @@ const mapReportListItem = (row: ReportRow): ReportListDto => {
   };
 };
 
-export const mapReports = (rows: ReportRow[]): ReportListDto[] => {
-  const reportMap = new Map<number, ReportListDto>();
+export const mapReports = (rows: ReportRow[]): ReportListingDto[] => {
+  const reportMap = new Map<number, ReportListingDto>();
 
   for (const row of rows) {
     let report = reportMap.get(row.id);
@@ -101,7 +99,7 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
   };
 
   if (row.type === 'battle') {
-    return reportDtoSchema.parse({
+    return reportSchema.parse({
       ...baseReport,
       type: 'battle',
       battleSummary: getBattleSummary(row),
@@ -109,7 +107,7 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
     });
   }
 
-  return reportDtoSchema.parse({
+  return reportSchema.parse({
     ...baseReport,
     type: row.type,
   });

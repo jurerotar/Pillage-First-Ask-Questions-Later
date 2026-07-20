@@ -1,9 +1,7 @@
 import { z } from 'zod';
+import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
 import {
-  baseReportDtoSchema,
-  reportDtoSchema,
-} from '@pillage-first/types/dtos/report';
-import {
+  reportSchema,
   reportTagSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
@@ -35,7 +33,7 @@ export const getReports = createController(
         types: z.array(reportTypeSchema).or(reportTypeSchema).optional(),
       }),
     },
-    response: z.array(baseReportDtoSchema),
+    response: z.array(reportListingDtoSchema),
   },
 )(({ database, path: { playerId, villageId }, query }) => {
   const scope = query.scope ?? 'global';
@@ -70,7 +68,7 @@ export const getReport = createController('/report/:playerId/:reportId', {
       reportId: z.coerce.number(),
     }),
   },
-  response: reportDtoSchema.nullable(),
+  response: reportSchema.nullable(),
 })(({ database, path: { playerId, reportId } }) => {
   const rows = database.selectObjects({
     sql: selectReportQuery,

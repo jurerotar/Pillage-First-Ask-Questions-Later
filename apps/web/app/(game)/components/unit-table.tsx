@@ -96,7 +96,7 @@ export const UnitTablePlayer = ({
             to={`../map?x=${coordinates.x}&y=${coordinates.y}`}
             className="text-link"
           >
-            {tileName}
+            {tileName} ({coordinates.x}|{coordinates.y})
           </Link>
         </th>
       </tr>
