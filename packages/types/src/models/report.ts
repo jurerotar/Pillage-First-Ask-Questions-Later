@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { battleSchema } from './battle';
 import { coordinatesSchema } from './coordinates';
+import { resourceBundleSchema } from './resource';
 
 export const reportTypeSchema = z.enum([
   'battle',
@@ -69,7 +70,18 @@ export const adventureReportSchema = baseReportSchema.extend({
 
 export const tradeReportSchema = baseReportSchema.extend({
   type: z.literal('trade'),
-  summary: z.null(),
+  summary: z.strictObject({
+    originName: z.string(),
+    originCoordinates: coordinatesSchema,
+    targetName: z.string(),
+    targetCoordinates: coordinatesSchema,
+  }),
+  trade: z.strictObject({
+    id: z.int(),
+    originTileId: z.int(),
+    targetTileId: z.int(),
+    resources: resourceBundleSchema,
+  }),
 });
 
 export const movementReportSummarySchema = z.strictObject({

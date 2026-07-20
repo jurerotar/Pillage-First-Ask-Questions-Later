@@ -63,6 +63,7 @@ import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
+import createTradingReportsTable from '../schemas/trading-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
@@ -111,6 +112,7 @@ import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
+import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 
 export const migrateAndSeed = (
   database: DbFacade,
@@ -235,6 +237,8 @@ export const migrateAndSeed = (
     db.exec({ sql: createHeroAdventureReportsTable });
     db.exec({ sql: createMovementReportsTable });
     db.exec({ sql: createMovementReportUnitsTable });
+    db.exec({ sql: createTradingReportsTable });
+    db.exec({ sql: createReportDeleteTriggers });
     db.exec({ sql: createReportTagsTable });
 
     db.exec({ sql: createBattlesTable });

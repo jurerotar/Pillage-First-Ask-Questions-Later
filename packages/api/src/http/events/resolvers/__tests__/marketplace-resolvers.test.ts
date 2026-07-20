@@ -228,6 +228,59 @@ describe('marketplace resolvers', () => {
       wheat: 210,
     });
 
+    const tradeReport = database.selectObject({
+      sql: `
+        SELECT
+          r.id AS report_id,
+          r.village_id,
+          r.timestamp,
+          tr.origin_tile_id,
+          tr.target_tile_id,
+          tr.wood,
+          tr.clay,
+          tr.iron,
+          tr.wheat
+        FROM reports r
+        JOIN trading_reports tr ON r.id = tr.report_id
+        WHERE r.village_id = $village_id;
+      `,
+      bind: { $village_id: targetVillage.id },
+      schema: z.strictObject({
+        report_id: z.number(),
+        village_id: z.number(),
+        timestamp: z.number(),
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
+        wood: z.number(),
+        clay: z.number(),
+        iron: z.number(),
+        wheat: z.number(),
+      }),
+    })!;
+
+    expect(tradeReport).toMatchObject({
+      village_id: targetVillage.id,
+      timestamp: resolvesAt,
+      origin_tile_id: sourceVillage.tile_id,
+      target_tile_id: targetVillage.tileId,
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+    });
+
+    database.exec({
+      sql: 'DELETE FROM reports WHERE id = $report_id;',
+      bind: { $report_id: tradeReport.report_id },
+    });
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM trading_reports WHERE report_id = $report_id;',
+        bind: { $report_id: tradeReport.report_id },
+        schema: z.number(),
+      }),
+    ).toBe(0);
+
     const transferCount = database.selectValue({
       sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
       schema: z.number(),

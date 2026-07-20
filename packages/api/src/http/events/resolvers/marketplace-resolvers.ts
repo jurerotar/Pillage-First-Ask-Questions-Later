@@ -1,6 +1,9 @@
+import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { createEvents } from '../../../utils/create-event';
 import { getTotalResourceAmount } from '../../../utils/marketplace';
+import { insertReport } from '../../../utils/report';
 import { addVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
@@ -29,6 +32,62 @@ export const resourceTransferResolver: Resolver<
     resources.iron,
     resources.wheat,
   ]);
+
+  const isPlayerVillage = database.selectValue({
+    sql: `
+      SELECT EXISTS(
+        SELECT 1 FROM villages
+        WHERE id = $village_id AND player_id = $player_id
+      );
+    `,
+    bind: {
+      $village_id: targetVillageId,
+      $player_id: PLAYER_ID,
+    },
+    schema: z.number(),
+  });
+
+  if (isPlayerVillage) {
+    const reportId = insertReport(database, {
+      playerId: PLAYER_ID,
+      villageId: targetVillageId,
+      timestamp: resolvesAt,
+      type: 'trade',
+      outcome: 'incomingMerchantsArrived',
+      tags: [],
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO trading_reports (
+          report_id,
+          origin_tile_id,
+          target_tile_id,
+          wood,
+          clay,
+          iron,
+          wheat
+        ) VALUES (
+          $report_id,
+          $origin_tile_id,
+          $target_tile_id,
+          $wood,
+          $clay,
+          $iron,
+          $wheat
+        );
+      `,
+      bind: {
+        $report_id: reportId,
+        $origin_tile_id: originTileId,
+        $target_tile_id: targetTileId,
+        $wood: resources.wood,
+        $clay: resources.clay,
+        $iron: resources.iron,
+        $wheat: resources.wheat,
+      },
+    });
+  }
 
   createEvents<'resourceTransfer'>(database, {
     type: 'resourceTransfer',

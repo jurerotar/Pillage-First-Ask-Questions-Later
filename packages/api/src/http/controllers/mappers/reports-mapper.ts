@@ -63,6 +63,26 @@ const getMovementSummary = (row: ReportRow) => {
   };
 };
 
+const getTradeSummary = (row: ReportRow) => {
+  if (
+    row.trade_origin_name === null ||
+    row.trade_origin_x === null ||
+    row.trade_origin_y === null ||
+    row.trade_target_name === null ||
+    row.trade_target_x === null ||
+    row.trade_target_y === null
+  ) {
+    throw new Error(`Trade report ${row.id} is missing summary data`);
+  }
+
+  return {
+    originName: row.trade_origin_name,
+    originCoordinates: { x: row.trade_origin_x, y: row.trade_origin_y },
+    targetName: row.trade_target_name,
+    targetCoordinates: { x: row.trade_target_x, y: row.trade_target_y },
+  };
+};
+
 const mapBaseReportProperties = (row: ReportRow) => ({
   id: row.id,
   playerId: row.player_id,
@@ -88,6 +108,14 @@ const mapReportListItem = (row: ReportRow): ReportListingDto => {
       ...baseReport,
       type: 'movement',
       summary: getMovementSummary(row),
+    };
+  }
+
+  if (row.type === 'trade') {
+    return {
+      ...baseReport,
+      type: 'trade',
+      summary: getTradeSummary(row),
     };
   }
 
@@ -198,6 +226,37 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
         targetTileId: row.movement_target_tile_id,
         movementType: row.movement_type,
         units,
+      },
+    });
+  }
+
+  if (row.type === 'trade') {
+    if (
+      row.trade_id === null ||
+      row.trade_origin_tile_id === null ||
+      row.trade_target_tile_id === null ||
+      row.trade_wood === null ||
+      row.trade_clay === null ||
+      row.trade_iron === null ||
+      row.trade_wheat === null
+    ) {
+      throw new Error(`Trade report ${row.id} is missing trade data`);
+    }
+
+    return reportSchema.parse({
+      ...baseReport,
+      type: 'trade',
+      summary: getTradeSummary(row),
+      trade: {
+        id: row.trade_id,
+        originTileId: row.trade_origin_tile_id,
+        targetTileId: row.trade_target_tile_id,
+        resources: [
+          row.trade_wood,
+          row.trade_clay,
+          row.trade_iron,
+          row.trade_wheat,
+        ],
       },
     });
   }
