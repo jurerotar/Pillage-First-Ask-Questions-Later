@@ -18,8 +18,9 @@ import {
 } from '@pillage-first/utils/random';
 import { batchInsert } from '../utils/batch-insert';
 
-const REPORT_COUNT = 100;
+const REPORT_COUNT = 1_000;
 const NON_BATTLE_REPORT_COUNT = 10;
+const BATTLE_REPORT_COUNT = REPORT_COUNT - NON_BATTLE_REPORT_COUNT * 3;
 
 type VillageRow = {
   id: number;
@@ -299,7 +300,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
   const reportTagRows: [number, number][] = [];
   const battleUnitRows: [number, number, number, number][] = [];
 
-  for (let i = 0; i < REPORT_COUNT; i += 1) {
+  for (let i = 0; i < BATTLE_REPORT_COUNT; i += 1) {
     const isPlayerAttacker = i % 2 === 0;
     const playerBattleResults = isPlayerAttacker
       ? battleResultsByPlayerRole.attacker

@@ -2,8 +2,20 @@ import { z } from 'zod';
 import {
   reportOutcomeSchema,
   reportTagSchema,
+  reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
+
+export const getReportListingsRowSchema = z.strictObject({
+  id: z.int(),
+  player_id: z.int(),
+  village_id: z.int(),
+  timestamp: z.int(),
+  type: reportTypeSchema,
+  outcome: reportOutcomeSchema,
+  summary_json: z.string(),
+  tags_json: z.string(),
+});
 
 const nullableReportDetailColumns = {
   battle_is_raid: z.int().nullable(),
