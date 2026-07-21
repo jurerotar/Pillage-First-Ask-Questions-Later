@@ -2,16 +2,15 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { Tile } from '@pillage-first/types/models/tile';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import {
-  effectsCacheKey,
-  occupiableOasisInRangeCacheKey,
-} from 'app/(game)/constants/query-keys';
+import { effectsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 
 type AbandonOasisArgs = {
   oasisId: Tile['id'];
 };
+
+const occupiableOasisInRangeCacheKey = 'occupiable-oasis-in-range';
 
 export const useOccupiableOasisInRange = () => {
   const { apiClient } = use(ApiContext);

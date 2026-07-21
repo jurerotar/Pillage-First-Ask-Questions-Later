@@ -81,7 +81,6 @@ type TileModalProps = {
 
 type TileModalActionsProps = {
   onFoundNewVillage: (tile: OccupiableTile) => void;
-  onAttackOrRaidVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
   onReinforceVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
   onSendResources: (tile: OccupiedOccupiableTile) => void;
 };
@@ -340,7 +339,6 @@ const TileModalPlayerInfo = ({ tile }: TileModalProps) => {
 type OasisTileModalProps = {
   tile: OasisTile;
   onReinforceVillage: (tile: OasisTile) => void;
-  onAttackOrRaidVillage: (tile: OccupiedOccupiableTile | OasisTile) => void;
 };
 
 type OasisTileModalAnimalsProps = {
@@ -382,11 +380,7 @@ const OasisTileModalAnimalsSkeleton = () => {
   );
 };
 
-const OasisTileModal = ({
-  tile,
-  onReinforceVillage,
-  onAttackOrRaidVillage,
-}: OasisTileModalProps) => {
+const OasisTileModal = ({ tile, onReinforceVillage }: OasisTileModalProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { oasisBonuses } = useOasisBonuses(tile.id);
@@ -468,14 +462,6 @@ const OasisTileModal = ({
             </Button>
           )}
         </div>
-      )}
-      {(!isOccupied || tile.owner.id !== PLAYER_ID) && (
-        <Button
-          variant="textLink"
-          onClick={() => onAttackOrRaidVillage(tile)}
-        >
-          {t('Send troops')}
-        </Button>
       )}
     </DialogHeader>
   );
@@ -591,10 +577,7 @@ const OccupiableTileModal = ({
 
 type OccupiedOccupiableTileModalProps = {
   tile: OccupiedOccupiableTile;
-} & Pick<
-  TileModalActionsProps,
-  'onReinforceVillage' | 'onSendResources' | 'onAttackOrRaidVillage'
->;
+} & Pick<TileModalActionsProps, 'onReinforceVillage' | 'onSendResources'>;
 
 type SendResourcesActionProps = {
   tile: OccupiedOccupiableTile;
@@ -639,7 +622,6 @@ const SendResourcesAction = ({
 
 const OccupiedOccupiableTileModal = ({
   tile,
-  onAttackOrRaidVillage,
   onReinforceVillage,
   onSendResources,
 }: OccupiedOccupiableTileModalProps) => {
@@ -670,14 +652,7 @@ const OccupiedOccupiableTileModal = ({
       <TileModalPlayerInfo tile={tile} />
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        {!isOwnedByPlayer && (
-          <Button
-            variant="textLink"
-            onClick={() => onAttackOrRaidVillage(tile)}
-          >
-            {t('Send troops')}
-          </Button>
-        )}
+        {!isOwnedByPlayer && <Text>{t('No actions available')}</Text>}
         {isOwnedByPlayer && (
           <Text variant="link">
             <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>
@@ -710,7 +685,6 @@ export const TileDialog = ({
   createMapMarker,
   deleteMapMarker,
   onFoundNewVillage,
-  onAttackOrRaidVillage,
   onReinforceVillage,
   onSendResources,
 }: TileDialogProps) => {
@@ -730,7 +704,6 @@ export const TileDialog = ({
         <OasisTileModal
           tile={tile}
           onReinforceVillage={onReinforceVillage}
-          onAttackOrRaidVillage={onAttackOrRaidVillage}
         />
         <TileModalMarkerDescription
           mapMarkers={mapMarkers}
@@ -751,7 +724,6 @@ export const TileDialog = ({
         />
         <OccupiedOccupiableTileModal
           tile={tile}
-          onAttackOrRaidVillage={onAttackOrRaidVillage}
           onReinforceVillage={onReinforceVillage}
           onSendResources={onSendResources}
         />

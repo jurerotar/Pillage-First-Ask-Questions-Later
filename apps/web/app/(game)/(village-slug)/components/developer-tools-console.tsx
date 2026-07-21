@@ -36,7 +36,6 @@ import {
 import { Separator } from 'app/components/ui/separator';
 import { Switch } from 'app/components/ui/switch';
 import { useLoyalty } from '../hooks/use-loyalty';
-import { useOccupiableOasisInRange } from '../hooks/use-occupiable-oasis-in-range';
 
 export const DeveloperToolsButton = ({
   className,
@@ -98,18 +97,10 @@ export const DeveloperToolsConsole = ({
     levelUpHero,
     incrementHeroAdventurePoints,
     killHero,
-    sendRandomAttack,
     adjustLoyalty,
   } = useDeveloperSettings();
   const { hero, isHeroAlive, isHeroHome } = useHero();
   const { loyalty } = useLoyalty();
-  const { occupiableOasisInRange } = useOccupiableOasisInRange();
-
-  const oasisOccupiedByCurrentVillage = occupiableOasisInRange.filter(
-    ({ village }) => {
-      return village?.id === currentVillage.id;
-    },
-  );
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [amount, setAmount] = useState(1);
@@ -440,34 +431,9 @@ export const DeveloperToolsConsole = ({
           <Separator orientation="horizontal" />
 
           <SectionContent>
-            <Text as="h3">{t('Send random attack against:')}</Text>
-            <div className="flex flex-col gap-1 items-start">
-              <Button
-                variant="destructive"
-                onClick={() =>
-                  sendRandomAttack({ tileId: currentVillage.tileId })
-                }
-              >
-                {t('Current village')}
-              </Button>
-              {oasisOccupiedByCurrentVillage.map(({ oasis }) => (
-                <Button
-                  variant="destructive"
-                  onClick={() => sendRandomAttack({ tileId: oasis.id })}
-                  key={oasis.id}
-                >
-                  {t('Occupied oasis ({{x}}|{{y}})', oasis.coordinates)}
-                </Button>
-              ))}
-            </div>
-          </SectionContent>
-
-          <Separator orientation="horizontal" />
-
-          <SectionContent>
             <Text as="h3">{t('Adjust village loyalty')}</Text>
             <Text>
-              {t('Curent loyalty')}: {loyalty}%
+              {t('Current loyalty')}: {loyalty}%
             </Text>
             <div className="flex gap-1 items-start">
               <Button
@@ -476,12 +442,7 @@ export const DeveloperToolsConsole = ({
               >
                 -10
               </Button>
-              <Button
-                variant="destructive"
-                onClick={() => adjustLoyalty({ amount: 10 })}
-              >
-                +10
-              </Button>
+              <Button onClick={() => adjustLoyalty({ amount: 10 })}>+10</Button>
             </div>
           </SectionContent>
         </Section>

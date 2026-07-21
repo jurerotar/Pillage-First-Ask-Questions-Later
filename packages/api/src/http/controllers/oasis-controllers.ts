@@ -2,8 +2,12 @@ import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { insertEffectByEffectNameQuery } from '../../queries/effect-queries';
 import { selectTileOasisBonusesQuery } from '../../queries/map-queries';
-import { occupyOasisQuery } from '../../queries/oasis-queries';
-import { abandonOccupiedOasis } from '../../utils/oasis';
+import {
+  abandonOasisQuery,
+  deleteOasisEffectsQuery,
+  occupyOasisQuery,
+} from '../../queries/oasis-queries';
+import { returnOasisReinforcements } from '../../utils/oasis';
 import { updateVillageResourcesAt } from '../../utils/village';
 import { createController } from '../controller';
 
@@ -75,5 +79,27 @@ export const abandonOasis = createController(
     },
   },
 )(({ database, path: { oasisId, villageId } }) => {
-  abandonOccupiedOasis(database, villageId, oasisId);
+  database.transaction((db) => {
+    const now = Date.now();
+
+    updateVillageResourcesAt(db, villageId, now);
+
+    returnOasisReinforcements(db, oasisId, villageId, now);
+
+    db.exec({
+      sql: deleteOasisEffectsQuery,
+      bind: {
+        $village_id: villageId,
+        $source_specifier: oasisId,
+      },
+    });
+
+    db.exec({
+      sql: abandonOasisQuery,
+      bind: {
+        $oasis_tile_id: oasisId,
+        $village_id: villageId,
+      },
+    });
+  });
 });

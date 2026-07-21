@@ -47,25 +47,18 @@ export const adjustLoyalty = (
       INSERT INTO loyalties
       VALUES
         ($tile_id, MAX(0, MIN(100, 100 + $amount))) ON CONFLICT DO
-      UPDATE
-      SET
-        loyalty = MAX(0, MIN(100, loyalty + $amount))
+      UPDATE SET loyalty = MAX(0, MIN(100, loyalty + $amount))
     `,
-    bind: {
-      $tile_id: tileId,
-      $amount: amount,
-    },
+    bind: { $tile_id: tileId, $amount: amount },
   });
 };
 
 export const getLoyalty = (database: DbFacade, tileId: number): number => {
-  const loyalty = database.selectValue({
-    sql: selectTileLoyaltyQuery,
-    bind: {
-      $tile_id: tileId,
-    },
-    schema: z.int(),
-  });
-
-  return loyalty ?? 100;
+  return (
+    database.selectValue({
+      sql: selectTileLoyaltyQuery,
+      bind: { $tile_id: tileId },
+      schema: z.int(),
+    }) ?? 100
+  );
 };
