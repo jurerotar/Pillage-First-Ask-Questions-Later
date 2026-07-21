@@ -47,8 +47,7 @@ export const useReports = (
     Error,
     {
       reportIds: BaseReport['id'][];
-      addTags?: ReportTag[];
-      removeTags?: ReportTag[];
+      tags: Partial<Record<ReportTag, boolean>>;
     }
   >({
     mutationFn: async (body) => {

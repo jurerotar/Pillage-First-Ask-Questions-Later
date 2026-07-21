@@ -8,8 +8,8 @@ import {
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   deleteReportQuery,
-  deleteReportTagQuery,
-  insertReportTagQuery,
+  deleteReportTagsQuery,
+  insertReportTagsQuery,
   selectAdventureReportQuery,
   selectBattleReportQuery,
   selectMovementReportQuery,
@@ -152,37 +152,23 @@ export const getReport = createController('/report/:playerId/:reportId', {
 export const updateReports = createController('/reports', 'patch', {
   summary: 'Update reports',
   requestBody: z.strictObject({
-    reportIds: z.array(z.int()),
-    addTags: z.array(reportTagSchema).optional(),
-    removeTags: z.array(reportTagSchema).optional(),
+    reportIds: z.array(z.int()).min(1),
+    tags: z
+      .partialRecord(reportTagSchema, z.boolean())
+      .refine(
+        (tags) => Object.keys(tags).length > 0,
+        'No tag updates provided',
+      ),
   }),
-})(({ database, body: { reportIds, addTags, removeTags } }) => {
-  database.transaction(() => {
-    for (const reportId of reportIds) {
-      if (addTags) {
-        for (const tag of addTags) {
-          database.exec({
-            sql: insertReportTagQuery,
-            bind: {
-              $report_id: reportId,
-              $tag: tag,
-            },
-          });
-        }
-      }
+})(({ database, body: { reportIds, tags } }) => {
+  const bind = {
+    $report_ids: JSON.stringify(reportIds),
+    $tags: JSON.stringify(tags),
+  };
 
-      if (removeTags) {
-        for (const tag of removeTags) {
-          database.exec({
-            sql: deleteReportTagQuery,
-            bind: {
-              $report_id: reportId,
-              $tag: tag,
-            },
-          });
-        }
-      }
-    }
+  database.transaction(() => {
+    database.exec({ sql: insertReportTagsQuery, bind });
+    database.exec({ sql: deleteReportTagsQuery, bind });
   });
 });
 

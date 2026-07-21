@@ -24,11 +24,8 @@ export const ReportsListActions = ({
   const { t } = useTranslation();
   const disabled = selectedReportIds.length === 0;
 
-  const updateSelectedReports = (tags: {
-    addTags?: ReportTag[];
-    removeTags?: ReportTag[];
-  }) => {
-    updateReports({ reportIds: selectedReportIds, ...tags });
+  const updateSelectedReports = (tags: Partial<Record<ReportTag, boolean>>) => {
+    updateReports({ reportIds: selectedReportIds, tags });
     clearSelectedReports();
   };
 
@@ -47,14 +44,14 @@ export const ReportsListActions = ({
       </Button>
       <Button
         disabled={disabled}
-        onClick={() => updateSelectedReports({ addTags: ['read'] })}
+        onClick={() => updateSelectedReports({ read: true })}
       >
         {t('Read')}
       </Button>
       {scope !== 'unread' && (
         <Button
           disabled={disabled}
-          onClick={() => updateSelectedReports({ removeTags: ['read'] })}
+          onClick={() => updateSelectedReports({ read: false })}
         >
           {t('Unread')}
         </Button>
@@ -62,14 +59,14 @@ export const ReportsListActions = ({
       {scope !== 'archived' && (
         <Button
           disabled={disabled}
-          onClick={() => updateSelectedReports({ addTags: ['archived'] })}
+          onClick={() => updateSelectedReports({ archived: true })}
         >
           {t('Archive')}
         </Button>
       )}
       <Button
         disabled={disabled}
-        onClick={() => updateSelectedReports({ removeTags: ['archived'] })}
+        onClick={() => updateSelectedReports({ archived: false })}
       >
         {t('Unarchive')}
       </Button>
