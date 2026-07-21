@@ -201,6 +201,7 @@ describe('marketplace resolvers', () => {
     const targetVillage = createPlayerVillage(database, 'Resolver Target');
 
     const resolvesAt = NOW + 5_000;
+
     setVillageResources(
       database,
       targetVillage.tileId,
@@ -281,6 +282,7 @@ describe('marketplace resolvers', () => {
       sql: 'DELETE FROM reports WHERE id = $report_id;',
       bind: { $report_id: tradeReport.report_id },
     });
+
     expect(
       database.selectValue({
         sql: 'SELECT COUNT(*) FROM trade_reports WHERE report_id = $report_id;',
@@ -293,6 +295,7 @@ describe('marketplace resolvers', () => {
       sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
       schema: z.number(),
     });
+
     const returnEvent = database.selectObject({
       sql: `
         SELECT
@@ -375,6 +378,7 @@ describe('marketplace resolvers', () => {
       iron: 500,
       wheat: 500,
     });
+
     expect(
       database.selectValue({
         sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
@@ -428,6 +432,7 @@ describe('marketplace resolvers', () => {
         count: z.number(),
       }),
     });
+
     const nextTradeRoute = database.selectObject({
       sql: `
         SELECT starts_at, duration, village_id, JSON_EXTRACT(meta, '$.interval') AS interval
@@ -446,12 +451,14 @@ describe('marketplace resolvers', () => {
       { type: 'resourceTransfer', count: 1 },
       { type: 'tradeRoute', count: 1 },
     ]);
+
     expect(nextTradeRoute).toStrictEqual({
       starts_at: NOW + interval,
       duration: 0,
       village_id: sourceVillage.id,
       interval,
     });
+
     expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
       wood: 400,
       clay: 450,

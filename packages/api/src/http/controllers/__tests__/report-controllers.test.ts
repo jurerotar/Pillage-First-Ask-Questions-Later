@@ -12,13 +12,16 @@ import { createControllerArgs } from './utils/controller-args';
 describe('report-controllers', () => {
   test('should list reports and filter by one or multiple report types', async () => {
     const database = await prepareTestDatabase();
+
     const allReports = getReports(
       database,
       createControllerArgs<'/players/:playerId/reports'>({
         path: { playerId: 1 },
       }),
     );
+
     expect(allReports).toHaveLength(100);
+
     expect(new Set(allReports.map(({ type }) => type))).toStrictEqual(
       new Set([
         'battle',
@@ -37,6 +40,7 @@ describe('report-controllers', () => {
         query: { types: 'huntingParty' },
       }),
     );
+
     expect(huntingReports).toHaveLength(10);
     expect(huntingReports.every(({ type }) => type === 'huntingParty')).toBe(
       true,
@@ -49,6 +53,7 @@ describe('report-controllers', () => {
         query: { types: ['huntingParty', 'gatheringExpedition'] },
       }),
     );
+
     expect(expeditionReports).toHaveLength(20);
     expect(
       expeditionReports.every(
@@ -59,6 +64,7 @@ describe('report-controllers', () => {
 
   test('should apply unread, archived, and village scopes', async () => {
     const database = await prepareTestDatabase();
+
     const unreadReports = getReports(
       database,
       createControllerArgs<'/players/:playerId/reports'>({
@@ -66,6 +72,7 @@ describe('report-controllers', () => {
         query: { scope: 'unread' },
       }),
     );
+
     expect(unreadReports.length).toBeGreaterThan(0);
     expect(unreadReports.every(({ tags }) => !tags.includes('read'))).toBe(
       true,
@@ -78,6 +85,7 @@ describe('report-controllers', () => {
         query: { scope: 'archived' },
       }),
     );
+
     expect(archivedReports.length).toBeGreaterThan(0);
     expect(archivedReports.every(({ tags }) => tags.includes('archived'))).toBe(
       true,
@@ -90,12 +98,14 @@ describe('report-controllers', () => {
         query: { scope: 'village', villageId: 1 },
       }),
     );
+
     expect(villageReports.length).toBeGreaterThan(0);
     expect(villageReports.every(({ villageId }) => villageId === 1)).toBe(true);
   });
 
   test('should return complete detail DTOs for every report type', async () => {
     const database = await prepareTestDatabase();
+
     const reportIds = database.selectObjects({
       sql: `SELECT rti.report_type AS type, MIN(r.id) AS id FROM reports r
         JOIN report_type_ids rti ON rti.id = r.type_id GROUP BY rti.report_type;`,
@@ -110,6 +120,7 @@ describe('report-controllers', () => {
         }),
       ),
     );
+
     expect(new Set(reports.map(({ type }) => type))).toStrictEqual(
       new Set([
         'battle',
@@ -120,6 +131,7 @@ describe('report-controllers', () => {
         'gatheringExpedition',
       ]),
     );
+
     expect(reports.find(({ type }) => type === 'battle')).toHaveProperty(
       'battle.attacker.troops.units',
     );
@@ -142,10 +154,12 @@ describe('report-controllers', () => {
 
   test('should reject missing reports and reports owned by another player', async () => {
     const database = await prepareTestDatabase();
+
     const reportId = database.selectValue({
       sql: 'SELECT MIN(id) FROM reports;',
       schema: z.int(),
     })!;
+
     expect(() =>
       getReport(
         database,
@@ -154,6 +168,7 @@ describe('report-controllers', () => {
         }),
       ),
     ).toThrow(`Report ${reportId} not found for player 2`);
+
     expect(() =>
       getReport(
         database,
@@ -166,12 +181,14 @@ describe('report-controllers', () => {
 
   test('should update tags for multiple reports to their requested state', async () => {
     const database = await prepareTestDatabase();
+
     const reports = getReports(
       database,
       createControllerArgs<'/players/:playerId/reports'>({
         path: { playerId: 1 },
       }),
     );
+
     const reportIds = reports.slice(0, 2).map(({ id }) => id);
 
     expect(reportIds).toHaveLength(2);
@@ -228,6 +245,7 @@ describe('report-controllers', () => {
 
   test('should delete hunting party and gathering expedition details', async () => {
     const database = await prepareTestDatabase();
+
     const reportIds = database.selectValues({
       sql: `
         SELECT MIN(r.id) AS id
@@ -240,6 +258,7 @@ describe('report-controllers', () => {
     });
 
     expect(reportIds).toHaveLength(2);
+
     deleteReports(
       database,
       createControllerArgs<'/reports', 'delete'>({ body: reportIds }),
@@ -261,6 +280,7 @@ describe('report-controllers', () => {
         orphaned_gathering_units: z.int(),
       }),
     })!;
+
     expect(remainingDetails).toStrictEqual({
       hunting_reports: 0,
       orphaned_hunting_units: 0,
@@ -279,6 +299,7 @@ describe('report-controllers', () => {
       `,
       schema: z.int(),
     });
+
     expect(reportIds).toHaveLength(6);
 
     deleteReports(
@@ -310,6 +331,7 @@ describe('report-controllers', () => {
         tags: z.int(),
       }),
     })!;
+
     expect(remaining).toStrictEqual({
       reports: 0,
       adventures: 0,
