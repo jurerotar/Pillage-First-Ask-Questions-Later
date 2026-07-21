@@ -100,10 +100,8 @@ export const mapBattle = (
       reinforcements: [],
     },
     outcome: {
-      isRaid: Boolean(row.is_raid),
       loot,
       totalCarryCapacity: 0,
-      didAttackerWin: false,
       canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
     },
     statistics: {
