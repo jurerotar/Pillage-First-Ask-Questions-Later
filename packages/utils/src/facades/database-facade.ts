@@ -18,6 +18,15 @@ const queryPlanRowSchema = z.strictObject({
 
 export type DbQueryPlanRow = z.infer<typeof queryPlanRowSchema>;
 
+const parseArray = <T extends z.core.$ZodType>(
+  schema: T,
+  values: unknown[],
+): z.core.output<T>[] => {
+  return z
+    .array(schema as unknown as z.ZodType)
+    .parse(values) as z.core.output<T>[];
+};
+
 const createPreparedStatementCache = (): Map<string, PreparedStatement> => {
   return new Map<string, PreparedStatement>();
 };
@@ -47,20 +56,24 @@ export type DbFacade = {
   explain: (args: ExecQueryArgs) => DbQueryPlanRow[];
 
   /** returns a single *value* validated against `schema`. undefined if not found */
-  selectValue: <T extends z.ZodType>(
+  selectValue: <T extends z.core.$ZodType>(
     args: SelectArgs<T>,
-  ) => z.infer<T> | undefined;
+  ) => z.core.output<T> | undefined;
 
   /** returns an array of values validated against `schema` (empty array if nothing found) */
-  selectValues: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
+  selectValues: <T extends z.core.$ZodType>(
+    args: SelectArgs<T>,
+  ) => z.core.output<T>[];
 
   /** single row object validated against schema (use a z.strictObject(...) schema) */
-  selectObject: <T extends z.ZodType>(
+  selectObject: <T extends z.core.$ZodType>(
     args: SelectArgs<T>,
-  ) => z.infer<T> | undefined;
+  ) => z.core.output<T> | undefined;
 
   /** many row objects validated against schema */
-  selectObjects: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
+  selectObjects: <T extends z.core.$ZodType>(
+    args: SelectArgs<T>,
+  ) => z.core.output<T>[];
 
   prepare: ({
     sql,
@@ -231,7 +244,7 @@ export const createDbFacade = (
         return;
       }
 
-      return schema.parse(data);
+      return z.parse(schema, data);
     },
 
     selectValues: ({ sql, bind, schema }) => {
@@ -253,7 +266,7 @@ export const createDbFacade = (
         },
       });
 
-      return z.array(schema).parse(values);
+      return parseArray(schema, values);
     },
 
     selectObject: ({ sql, bind, schema }) => {
@@ -278,7 +291,7 @@ export const createDbFacade = (
       });
 
       if (row !== undefined) {
-        return schema.parse(row);
+        return z.parse(schema, row);
       }
 
       return;
@@ -300,7 +313,7 @@ export const createDbFacade = (
         },
       });
 
-      return z.array(schema).parse(rows);
+      return parseArray(schema, rows);
     },
 
     prepare: ({ sql }) => {
