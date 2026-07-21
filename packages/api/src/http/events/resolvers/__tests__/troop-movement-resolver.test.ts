@@ -567,6 +567,40 @@ describe(reinforcementMovementResolver, () => {
 
     expect(sourceHeroEffectsAfter).toHaveLength(sourceHeroEffectsBefore.length);
     expect(targetHeroEffectsAfter).toHaveLength(0);
+
+    const report = database.selectObject({
+      sql: `
+        SELECT rti.report_type, roi.report_outcome, mr.movement_type,
+          mr.origin_tile_id, mr.target_tile_id, ui.unit AS unit_id, mru.amount
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN movement_reports mr ON mr.report_id = r.id
+        JOIN movement_report_units mru ON mru.movement_report_id = mr.id
+        JOIN unit_ids ui ON ui.id = mru.unit_id
+        WHERE rti.report_type = 'movement'
+        ORDER BY r.id DESC LIMIT 1;
+      `,
+      schema: z.strictObject({
+        report_type: z.string(),
+        report_outcome: z.string(),
+        movement_type: z.string(),
+        origin_tile_id: z.int(),
+        target_tile_id: z.int(),
+        unit_id: z.string(),
+        amount: z.int(),
+      }),
+    })!;
+
+    expect(report).toStrictEqual({
+      report_type: 'movement',
+      report_outcome: 'troopMovement',
+      movement_type: 'reinforcement',
+      origin_tile_id: sourceTileId,
+      target_tile_id: targetVillage.tileId,
+      unit_id: 'HERO',
+      amount: 1,
+    });
   });
 
   test('should not update hero village_id when hero is sent as reinforcement', async () => {

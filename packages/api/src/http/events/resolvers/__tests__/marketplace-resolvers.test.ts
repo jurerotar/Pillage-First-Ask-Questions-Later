@@ -234,6 +234,8 @@ describe('marketplace resolvers', () => {
           r.id AS report_id,
           r.village_id,
           r.timestamp,
+          rti.report_type,
+          roi.report_outcome,
           tr.origin_tile_id,
           tr.target_tile_id,
           tr.wood,
@@ -241,6 +243,8 @@ describe('marketplace resolvers', () => {
           tr.iron,
           tr.wheat
         FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
         JOIN trade_reports tr ON r.id = tr.report_id
         WHERE r.village_id = $village_id;
       `,
@@ -249,6 +253,8 @@ describe('marketplace resolvers', () => {
         report_id: z.number(),
         village_id: z.number(),
         timestamp: z.number(),
+        report_type: z.string(),
+        report_outcome: z.string(),
         origin_tile_id: z.number(),
         target_tile_id: z.number(),
         wood: z.number(),
@@ -261,6 +267,8 @@ describe('marketplace resolvers', () => {
     expect(tradeReport).toMatchObject({
       village_id: targetVillage.id,
       timestamp: resolvesAt,
+      report_type: 'trade',
+      report_outcome: 'incomingMerchantsArrived',
       origin_tile_id: sourceVillage.tile_id,
       target_tile_id: targetVillage.tileId,
       wood: 100,
