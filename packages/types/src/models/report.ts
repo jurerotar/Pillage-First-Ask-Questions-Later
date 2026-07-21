@@ -80,8 +80,12 @@ export const adventureReportSchema = baseReportSchema.extend({
 export const tradeReportSchema = baseReportSchema.extend({
   type: z.literal('trade'),
   summary: z.strictObject({
+    originPlayerName: z.string(),
+    originPlayerSlug: z.string(),
     originName: z.string(),
     originCoordinates: coordinatesSchema,
+    targetPlayerName: z.string(),
+    targetPlayerSlug: z.string(),
     targetName: z.string(),
     targetCoordinates: coordinatesSchema,
   }),

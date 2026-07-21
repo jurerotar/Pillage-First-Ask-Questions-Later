@@ -241,7 +241,7 @@ describe('marketplace resolvers', () => {
           tr.iron,
           tr.wheat
         FROM reports r
-        JOIN trading_reports tr ON r.id = tr.report_id
+        JOIN trade_reports tr ON r.id = tr.report_id
         WHERE r.village_id = $village_id;
       `,
       bind: { $village_id: targetVillage.id },
@@ -275,7 +275,7 @@ describe('marketplace resolvers', () => {
     });
     expect(
       database.selectValue({
-        sql: 'SELECT COUNT(*) FROM trading_reports WHERE report_id = $report_id;',
+        sql: 'SELECT COUNT(*) FROM trade_reports WHERE report_id = $report_id;',
         bind: { $report_id: tradeReport.report_id },
         schema: z.number(),
       }),

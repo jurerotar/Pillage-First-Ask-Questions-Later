@@ -1,4 +1,4 @@
-CREATE TABLE battles
+CREATE TABLE battle_reports
 (
   id INTEGER PRIMARY KEY,
   report_id INTEGER NOT NULL UNIQUE,

@@ -25,6 +25,7 @@ import {
   MovementReportTable,
   Report,
   ReportHeader,
+  TradeReportTable,
 } from './components/report';
 
 const ReportPage = ({ params }: Route.ComponentProps) => {
@@ -91,7 +92,7 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
               <AdventureReportTable />
             </>
           )}
-          {isTradeReport(report) && <></>}
+          {isTradeReport(report) && <TradeReportTable />}
           {isMovementReport(report) && <MovementReportTable />}
         </Report>
       )}

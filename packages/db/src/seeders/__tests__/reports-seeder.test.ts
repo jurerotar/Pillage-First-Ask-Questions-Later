@@ -27,7 +27,7 @@ describe('reportsSeeder', () => {
       sql: `
         SELECT COUNT(*)
         FROM reports r
-        LEFT JOIN battles b ON b.report_id = r.id
+        LEFT JOIN battle_reports b ON b.report_id = r.id
         LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
         LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
         LEFT JOIN report_outcome_ids roi ON r.report_outcome_id = roi.id
@@ -76,7 +76,7 @@ describe('reportsSeeder', () => {
           (SELECT COUNT(*) FROM hero_adventure_reports) AS adventures,
           (SELECT COUNT(*) FROM movement_reports) AS movements,
           (SELECT COUNT(*) FROM movement_report_units) AS movement_units,
-          (SELECT COUNT(*) FROM trading_reports) AS trades;
+          (SELECT COUNT(*) FROM trade_reports) AS trades;
       `,
       schema: z.strictObject({
         adventures: z.number(),
@@ -116,16 +116,16 @@ describe('reportsSeeder', () => {
 
   test('seeded battles include participants and unit rows', () => {
     const battleCount = database.selectValue({
-      sql: 'SELECT COUNT(*) FROM battles;',
+      sql: 'SELECT COUNT(*) FROM battle_reports;',
       schema: z.number(),
     });
     const battleCountWithParticipants = database.selectValue({
       sql: `
         SELECT COUNT(*)
-        FROM battles b
+        FROM battle_reports b
         WHERE (
           SELECT COUNT(*)
-          FROM battle_participants bp
+          FROM battle_report_participants bp
           WHERE bp.battle_id = b.id
         ) >= 2;
       `,
@@ -134,9 +134,9 @@ describe('reportsSeeder', () => {
     const battleCountWithUnits = database.selectValue({
       sql: `
         SELECT COUNT(DISTINCT b.id)
-        FROM battles b
-        JOIN battle_participants bp ON bp.battle_id = b.id
-        JOIN battle_units bu ON bu.battle_participant_id = bp.id;
+        FROM battle_reports b
+        JOIN battle_report_participants bp ON bp.battle_id = b.id
+        JOIN battle_report_units bu ON bu.battle_participant_id = bp.id;
       `,
       schema: z.number(),
     });
@@ -150,7 +150,7 @@ describe('reportsSeeder', () => {
     const invalidUnitCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
-        FROM battle_units
+        FROM battle_report_units
         WHERE
           amount_before < 0
           OR amount_after < 0
@@ -166,8 +166,8 @@ describe('reportsSeeder', () => {
     const reinforcedBattleCount = database.selectValue({
       sql: `
         SELECT COUNT(DISTINCT b.id)
-        FROM battles b
-        JOIN battle_participants bp ON bp.battle_id = b.id
+        FROM battle_reports b
+        JOIN battle_report_participants bp ON bp.battle_id = b.id
         WHERE
           bp.tile_id != b.origin_tile_id
           AND bp.tile_id != b.target_tile_id;
@@ -183,7 +183,7 @@ describe('reportsSeeder', () => {
       sql: `
         SELECT COUNT(*)
         FROM reports r
-        JOIN battles b ON b.report_id = r.id
+        JOIN battle_reports b ON b.report_id = r.id
         JOIN villages target_v ON target_v.tile_id = b.target_tile_id
         WHERE
           r.player_id = $player_id
@@ -198,7 +198,7 @@ describe('reportsSeeder', () => {
       sql: `
         SELECT COUNT(*)
         FROM reports r
-        JOIN battles b ON b.report_id = r.id
+        JOIN battle_reports b ON b.report_id = r.id
         JOIN villages origin_v ON origin_v.tile_id = b.origin_tile_id
         WHERE
           r.player_id = $player_id

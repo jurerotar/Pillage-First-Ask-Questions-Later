@@ -52,9 +52,9 @@ export const selectBattleUnitsByReportQuery = `
     bu.amount_before,
     bu.amount_after
   FROM
-    battle_units bu
-    JOIN battle_participants bp ON bu.battle_participant_id = bp.id
-    JOIN battles b ON bp.battle_id = b.id
+    battle_report_units bu
+    JOIN battle_report_participants bp ON bu.battle_participant_id = bp.id
+    JOIN battle_reports b ON bp.battle_id = b.id
     JOIN unit_ids ui ON bu.unit_id = ui.id
   WHERE
     b.report_id = $report_id;
@@ -75,8 +75,8 @@ export const selectBattleParticipantsByReportQuery = `
       ELSE 0
       END AS is_reinforcement
   FROM
-    battle_participants p
-    JOIN battles b ON p.battle_id = b.id
+    battle_report_participants p
+    JOIN battle_reports b ON p.battle_id = b.id
     LEFT JOIN players pl ON p.player_id = pl.id
     LEFT JOIN tribe_ids t ON pl.tribe_id = t.id
   WHERE
@@ -103,7 +103,7 @@ export const selectBattleByReportQuery = `
     attacker_points,
     defender_points
   FROM
-    battles
+    battle_reports
   WHERE
     report_id = $report_id;
 `;

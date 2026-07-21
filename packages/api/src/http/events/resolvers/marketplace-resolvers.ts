@@ -59,7 +59,7 @@ export const resourceTransferResolver: Resolver<
 
     database.exec({
       sql: `
-        INSERT INTO trading_reports (
+        INSERT INTO trade_reports (
           report_id,
           origin_tile_id,
           target_tile_id,

@@ -63,8 +63,12 @@ const getMovementSummary = (row: MovementReportRow) => {
 
 const getTradeSummary = (row: TradeReportRow) => {
   return {
+    originPlayerName: row.trade_origin_player_name,
+    originPlayerSlug: row.trade_origin_player_slug,
     originName: row.trade_origin_name,
     originCoordinates: { x: row.trade_origin_x, y: row.trade_origin_y },
+    targetPlayerName: row.trade_target_player_name,
+    targetPlayerSlug: row.trade_target_player_slug,
     targetName: row.trade_target_name,
     targetCoordinates: { x: row.trade_target_x, y: row.trade_target_y },
   };
