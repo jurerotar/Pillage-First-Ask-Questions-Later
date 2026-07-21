@@ -1,26 +1,40 @@
 import { z } from 'zod';
-import { battleTypeSchema } from '../models/battle';
-import { reportTagSchema, reportTypeSchema } from '../models/report';
+import {
+  adventureReportSchema,
+  battleReportSchema,
+  gatheringExpeditionReportSchema,
+  huntingPartyReportSchema,
+  movementReportSchema,
+  tradeReportSchema,
+} from '../models/report';
 
-export const baseReportDtoSchema = z.strictObject({
-  id: z.int(),
-  playerId: z.int(),
-  villageId: z.int(),
-  timestamp: z.int(),
-  subject: z.string(),
-  type: reportTypeSchema,
-  tags: z.array(reportTagSchema),
+export const battleReportSummaryDtoSchema = battleReportSchema.omit({
+  battle: true,
 });
 
-export const reportDtoSchema = z.discriminatedUnion('type', [
-  z.strictObject({
-    id: z.int(),
-    playerId: z.int(),
-    villageId: z.int(),
-    timestamp: z.int(),
-    subject: z.string(),
-    type: z.literal('battle'),
-    tags: z.array(reportTagSchema),
-    battle: battleTypeSchema,
+export const adventureReportSummaryDtoSchema = adventureReportSchema.omit({
+  adventureId: true,
+  itemId: true,
+  itemAmount: true,
+  healthBefore: true,
+  healthAfter: true,
+});
+
+export const tradeReportSummaryDtoSchema = tradeReportSchema.omit({
+  trade: true,
+});
+
+export const reportListingDtoSchema = z.discriminatedUnion('type', [
+  battleReportSummaryDtoSchema,
+  adventureReportSummaryDtoSchema,
+  tradeReportSummaryDtoSchema,
+  movementReportSchema.omit({ movement: true }),
+  huntingPartyReportSchema.omit({ tribe: true, units: true }),
+  gatheringExpeditionReportSchema.omit({
+    tribe: true,
+    units: true,
+    loot: true,
   }),
 ]);
+
+export type ReportListingDto = z.infer<typeof reportListingDtoSchema>;

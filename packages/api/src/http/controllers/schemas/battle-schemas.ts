@@ -14,6 +14,8 @@ export const getBattleUnitsByReportRowSchema = z
 export const getBattleParticipantsByReportRowSchema = z
   .strictObject({
     id: z.int(),
+    player_id: z.int().nullable(),
+    tile_id: z.int(),
     role: z.enum(['attacker', 'defender']),
     tribe: tribeSchema,
     is_reinforcement: z.int(),
@@ -41,9 +43,10 @@ export const getBattleOasisInformationRowSchema = z
 
 export const getBattleByReportRowSchema = z
   .strictObject({
-    attacking_village_id: z.int(),
-    defending_village_id: z.int().nullable(),
-    defending_oasis_id: z.int().nullable(),
+    id: z.int(),
+    origin_tile_id: z.int(),
+    target_tile_id: z.int(),
+    is_raid: z.int(),
     loot_wood: z.int(),
     loot_clay: z.int(),
     loot_iron: z.int(),
@@ -52,9 +55,4 @@ export const getBattleByReportRowSchema = z
     attacker_points: z.int(),
     defender_points: z.int(),
   })
-  .refine(
-    ({ defending_village_id, defending_oasis_id }) =>
-      defending_village_id != null || defending_oasis_id != null,
-    'Either the defending village or oasis ID must be defined',
-  )
   .meta({ id: 'GetBattleByReportRow' });

@@ -1,47 +1,62 @@
 import type { z } from 'zod';
 import type {
-  battleDtoSchema,
-  battleParticipantDtoSchema,
-  battleUnitDtoSchema,
-} from '@pillage-first/types/dtos/battle';
-import type { BattleStatistics } from '@pillage-first/types/models/battle';
+  BattleStatistics,
+  battleSchema,
+} from '@pillage-first/types/models/battle';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
+import type { Tribe } from '@pillage-first/types/models/tribe';
+import type { UnitId } from '@pillage-first/types/models/unit';
 import type {
   getBattleByReportRowSchema,
   getBattleParticipantsByReportRowSchema,
   getBattleUnitsByReportRowSchema,
 } from '../schemas/battle-schemas';
 
+export type MappedBattleUnit = {
+  battleParticipantId: number;
+  unitId: UnitId;
+  amountBefore: number;
+  amountAfter: number;
+};
+
+export type MappedBattleParticipant = {
+  id: number;
+  playerId: number | null;
+  tileId: number;
+  role: 'attacker' | 'defender';
+  tribe: Tribe;
+  isReinforcement: boolean;
+  units: Omit<MappedBattleUnit, 'battleParticipantId'>[];
+};
+
 export const mapBattleUnits = (
   row: z.infer<typeof getBattleUnitsByReportRowSchema>,
-): z.infer<typeof battleUnitDtoSchema> => {
-  const dto = {
+): MappedBattleUnit => {
+  return {
     battleParticipantId: row.battle_participant_id,
     unitId: row.unit_id,
     amountBefore: row.amount_before,
     amountAfter: row.amount_after,
   };
-
-  return dto;
 };
 
 export const mapBattleParticipants = (
   row: z.infer<typeof getBattleParticipantsByReportRowSchema>,
-): z.infer<typeof battleParticipantDtoSchema> => {
-  const dto = {
+): MappedBattleParticipant => {
+  return {
     id: row.id,
+    playerId: row.player_id,
+    tileId: row.tile_id,
     role: row.role,
     tribe: row.tribe,
     isReinforcement: Boolean(row.is_reinforcement),
     units: [],
   };
-
-  return dto;
 };
 
 export const mapBattle = (
   row: z.infer<typeof getBattleByReportRowSchema>,
-): z.infer<typeof battleDtoSchema> => {
+): z.infer<typeof battleSchema> => {
   const loot: ResourceBundle = [
     row.loot_wood,
     row.loot_clay,
@@ -63,26 +78,35 @@ export const mapBattle = (
     resourcesLost: 0,
   };
 
-  const dto = {
-    attackingVillageId: row.attacking_village_id,
-    defendingVillageId: row.defending_village_id ?? undefined,
-    defendingOasisId: row.defending_oasis_id ?? undefined,
-    attackingPlayerName: '',
-    attackingPlayerSlug: '',
-    defendingPlayerName: '',
-    defendingPlayerSlug: undefined,
-    originName: '',
-    originCoordinates: { x: 0, y: 0 },
-    targetName: '',
-    targetCoordinates: { x: 0, y: 0 },
-    loot,
-    totalCarryCapacity: 0,
-    didAttackerWin: false,
-    canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
-    attackStatistics,
-    defenceStatistics,
-    participants: [],
+  return {
+    id: row.id,
+    attacker: {
+      player: { id: null, name: '', slug: undefined },
+      village: {
+        tileId: row.origin_tile_id,
+        name: '',
+        coordinates: { x: 0, y: 0 },
+      },
+      troops: { id: 0, tribe: 'romans' as const, units: [] },
+    },
+    defender: {
+      player: { id: null, name: '', slug: undefined },
+      village: {
+        tileId: row.target_tile_id,
+        name: '',
+        coordinates: { x: 0, y: 0 },
+      },
+      troops: { id: 0, tribe: 'romans' as const, units: [] },
+      reinforcements: [],
+    },
+    outcome: {
+      loot,
+      totalCarryCapacity: 0,
+      canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
+    },
+    statistics: {
+      attacker: attackStatistics,
+      defender: defenceStatistics,
+    },
   };
-
-  return dto;
 };

@@ -12,12 +12,14 @@ import { FaSpider, FaWarehouse } from 'react-icons/fa';
 import { FaHandshakeAngle, FaPeopleGroup, FaStar } from 'react-icons/fa6';
 import {
   GiBarbedSpear,
+  GiBasket,
   GiBattleAxe,
   GiBearHead,
   GiBoar,
   GiCrocJaws,
   GiElephant,
   GiGreekTemple,
+  GiHuntingHorn,
   GiIBeam,
   GiLeatherBoot,
   GiPointyHat,
@@ -50,6 +52,7 @@ import {
   TbBorderCorners,
   TbBrandSpeedtest,
   TbLaurelWreath,
+  TbShieldPlus,
   TbTooltip,
 } from 'react-icons/tb';
 import { TiMinus, TiPlus } from 'react-icons/ti';
@@ -90,7 +93,19 @@ type ReportIconType =
   | 'attackerFullLoss'
   | 'defenderNoLoss'
   | 'defenderSomeLoss'
-  | 'defenderFullLoss';
+  | 'defenderFullLoss'
+  | 'scoutAttackerNoLoss'
+  | 'scoutAttackerSomeLoss'
+  | 'scoutAttackerFullLoss'
+  | 'scoutDefenderNoLoss'
+  | 'scoutDefenderSomeLoss'
+  | 'scoutDefenderFullLoss'
+  | 'outgoingMerchantsArrived'
+  | 'incomingMerchantsArrived'
+  | 'heroAdventure'
+  | 'troopMovement'
+  | 'huntingParty'
+  | 'gatheringExpedition';
 
 type MapControlsIconType =
   | 'mapMagnificationIncrease'
@@ -268,6 +283,73 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <LuShield
       {...props}
       className={clsx('text-red-500', props.className)}
+    />
+  ),
+  scoutAttackerNoLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
+    />
+  ),
+  scoutAttackerSomeLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+    />
+  ),
+  scoutAttackerFullLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
+  scoutDefenderNoLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
+    />
+  ),
+  scoutDefenderSomeLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+    />
+  ),
+  scoutDefenderFullLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
+  outgoingMerchantsArrived: (props) => (
+    <FaHandshakeAngle
+      {...props}
+      className={clsx('text-taupe-300', props.className)}
+    />
+  ),
+  incomingMerchantsArrived: (props) => (
+    <FaHandshakeAngle
+      {...props}
+      className={clsx('text-taupe-300', props.className)}
+    />
+  ),
+  heroAdventure: (props) => icons.adventure(props),
+  troopMovement: (props) => (
+    <TbShieldPlus
+      {...props}
+      className={clsx('text-green-500', props.className)}
+    />
+  ),
+  huntingParty: (props) => (
+    <GiHuntingHorn
+      {...props}
+      className={clsx('text-taupe-400', props.className)}
+    />
+  ),
+  gatheringExpedition: (props) => (
+    <GiBasket
+      {...props}
+      className={clsx('text-mauve-600', props.className)}
     />
   ),
 
@@ -657,12 +739,6 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <GiPointyHat
       {...props}
       className={clsx('text-blue-500', props.className)}
-    />
-  ),
-  huntingParty: (props) => (
-    <GiWolfTrap
-      {...props}
-      className={clsx('text-orange-600 dark:text-orange-500', props.className)}
     />
   ),
   gatheringTrip: (props) => (

@@ -1,5 +1,7 @@
+import { z } from 'zod';
 import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { insertReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import { addVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
@@ -15,14 +17,71 @@ export const gatherersHutGatheringTripResolver: Resolver<
     sentTroopAmount += troop.amount;
   }
 
+  const loot = calculateGatherersHutGatheringResources(sentTroopAmount);
+
   addTroops(database, troops);
 
-  addVillageResourcesAt(
-    database,
+  addVillageResourcesAt(database, villageId, resolvesAt, loot);
+
+  const village = database.selectObject({
+    sql: `
+      SELECT v.player_id, v.tile_id, p.tribe_id
+      FROM villages v JOIN players p ON p.id = v.player_id
+      WHERE v.id = $village_id;
+    `,
+    bind: { $village_id: villageId },
+    schema: z.strictObject({
+      player_id: z.int(),
+      tile_id: z.int(),
+      tribe_id: z.int(),
+    }),
+  })!;
+
+  const reportId = insertReport(database, {
+    playerId: village.player_id,
     villageId,
-    resolvesAt,
-    calculateGatherersHutGatheringResources(sentTroopAmount),
-  );
+    timestamp: resolvesAt,
+    type: 'gatheringExpedition',
+    outcome: 'gatheringExpedition',
+    tags: [],
+  });
+
+  const gatheringExpeditionReportId = database.selectValue({
+    sql: `
+      INSERT INTO gathering_expedition_reports (
+        report_id, village_tile_id, tribe_id,
+        loot_wood, loot_clay, loot_iron, loot_wheat
+      ) VALUES (
+        $report_id, $village_tile_id, $tribe_id,
+        $loot_wood, $loot_clay, $loot_iron, $loot_wheat
+      ) RETURNING id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_tile_id: village.tile_id,
+      $tribe_id: village.tribe_id,
+      $loot_wood: loot[0]!,
+      $loot_clay: loot[1]!,
+      $loot_iron: loot[2]!,
+      $loot_wheat: loot[3]!,
+    },
+    schema: z.int(),
+  })!;
+
+  for (const troop of troops) {
+    database.exec({
+      sql: `
+        INSERT INTO gathering_expedition_report_units (
+          gathering_expedition_report_id, unit_id, amount
+        ) SELECT $report_detail_id, id, $amount FROM unit_ids WHERE unit = $unit_id;
+      `,
+      bind: {
+        $report_detail_id: gatheringExpeditionReportId,
+        $unit_id: troop.unitId,
+        $amount: troop.amount,
+      },
+    });
+  }
 
   database.exec({
     sql: `

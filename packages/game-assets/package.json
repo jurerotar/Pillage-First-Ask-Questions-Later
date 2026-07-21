@@ -15,9 +15,6 @@
     "./buildings": {
       "default": "./src/buildings.ts"
     },
-    "./combat/combat-engine": {
-      "default": "./src/combat/combat-engine.ts"
-    },
     "./units": {
       "default": "./src/units.ts"
     },

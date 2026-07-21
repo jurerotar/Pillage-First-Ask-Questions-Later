@@ -18,6 +18,15 @@ const queryPlanRowSchema = z.strictObject({
 
 export type DbQueryPlanRow = z.infer<typeof queryPlanRowSchema>;
 
+const parseArray = <T extends z.core.$ZodType>(
+  schema: T,
+  values: unknown[],
+): z.core.output<T>[] => {
+  return z
+    .array(schema as unknown as z.ZodType)
+    .parse(values) as z.core.output<T>[];
+};
+
 const createPreparedStatementCache = (): Map<string, PreparedStatement> => {
   return new Map<string, PreparedStatement>();
 };
@@ -41,32 +50,30 @@ const clearBindingsAfterExecution = (
 };
 
 export type DbFacade = {
-  exec: <const Sql extends string>(args: ExecQueryArgs<Sql>) => void;
+  exec: (args: ExecQueryArgs) => void;
 
   /** returns SQLite EXPLAIN QUERY PLAN rows without executing the original query */
-  explain: <const Sql extends string>(
-    args: ExecQueryArgs<Sql>,
-  ) => DbQueryPlanRow[];
+  explain: (args: ExecQueryArgs) => DbQueryPlanRow[];
 
   /** returns a single *value* validated against `schema`. undefined if not found */
-  selectValue: <T extends z.ZodType, const Sql extends string>(
-    args: SelectArgs<T, Sql>,
-  ) => z.infer<T> | undefined;
+  selectValue: <T extends z.core.$ZodType>(
+    args: SelectArgs<T>,
+  ) => z.core.output<T> | undefined;
 
   /** returns an array of values validated against `schema` (empty array if nothing found) */
-  selectValues: <T extends z.ZodType, const Sql extends string>(
-    args: SelectArgs<T, Sql>,
-  ) => z.infer<T>[];
+  selectValues: <T extends z.core.$ZodType>(
+    args: SelectArgs<T>,
+  ) => z.core.output<T>[];
 
   /** single row object validated against schema (use a z.strictObject(...) schema) */
-  selectObject: <T extends z.ZodType, const Sql extends string>(
-    args: SelectArgs<T, Sql>,
-  ) => z.infer<T> | undefined;
+  selectObject: <T extends z.core.$ZodType>(
+    args: SelectArgs<T>,
+  ) => z.core.output<T> | undefined;
 
   /** many row objects validated against schema */
-  selectObjects: <T extends z.ZodType, const Sql extends string>(
-    args: SelectArgs<T, Sql>,
-  ) => z.infer<T>[];
+  selectObjects: <T extends z.core.$ZodType>(
+    args: SelectArgs<T>,
+  ) => z.core.output<T>[];
 
   prepare: ({
     sql,
@@ -139,10 +146,7 @@ export const createDbFacade = (
     return statement;
   };
 
-  const explainQueryPlan = <const Sql extends string>({
-    sql,
-    bind,
-  }: ExecQueryArgs<Sql>): DbQueryPlanRow[] => {
+  const explainQueryPlan = ({ sql, bind }: ExecQueryArgs): DbQueryPlanRow[] => {
     return z
       .array(queryPlanRowSchema)
       .parse(database.selectObjects(`EXPLAIN QUERY PLAN ${sql}`, bind));
@@ -240,7 +244,7 @@ export const createDbFacade = (
         return;
       }
 
-      return schema.parse(data);
+      return z.parse(schema, data);
     },
 
     selectValues: ({ sql, bind, schema }) => {
@@ -262,7 +266,7 @@ export const createDbFacade = (
         },
       });
 
-      return z.array(schema).parse(values);
+      return parseArray(schema, values);
     },
 
     selectObject: ({ sql, bind, schema }) => {
@@ -287,7 +291,7 @@ export const createDbFacade = (
       });
 
       if (row !== undefined) {
-        return schema.parse(row);
+        return z.parse(schema, row);
       }
 
       return;
@@ -309,7 +313,7 @@ export const createDbFacade = (
         },
       });
 
-      return z.array(schema).parse(rows);
+      return parseArray(schema, rows);
     },
 
     prepare: ({ sql }) => {

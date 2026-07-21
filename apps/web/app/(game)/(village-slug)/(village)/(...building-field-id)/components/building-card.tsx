@@ -85,7 +85,7 @@ export const BuildingCard = ({
 
   return (
     <BuildingCardContext value={value}>
-      <article className="flex flex-col gap-2 relative [&>section:nth-of-type(2)]:!pt-0 [&>section:nth-of-type(2)]:!border-t-0">
+      <article className="flex flex-col gap-2 relative [&>section:nth-of-type(2)]:pt-0! [&>section:nth-of-type(2)]:border-t-0!">
         <InformationPopover ariaLabel={t(`BUILDINGS.${building.id}.NAME`)}>
           <Text>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</Text>
         </InformationPopover>

@@ -3,7 +3,6 @@ import type {
   ZodOpenApiOperationObject,
   ZodOpenApiPathsObject,
 } from 'zod-openapi';
-import type { ControllerOperation, Method } from './controller';
 import {
   getBookmarks,
   updateBookmark,
@@ -14,7 +13,6 @@ import {
   incrementHeroAdventurePoints,
   killHero,
   levelUpHero,
-  sendRandomAttack,
   spawnHeroItem,
   updateDeveloperSettings,
   updateVillageResources,
@@ -131,42 +129,9 @@ import {
   rearrangeBuildingFields,
 } from './controllers/village-controllers';
 import { getArtifactsAroundVillage } from './controllers/world-items-controllers';
-import { createRoute } from './route';
+import { createRoute, type Route } from './route';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
-
-type UnionToIntersection<T> = (
-  T extends unknown
-    ? (value: T) => void
-    : never
-) extends (value: infer U) => void
-  ? U
-  : never;
-
-type RouteMetadata = {
-  controller: {
-    path: string;
-    method: Method;
-    operation: ControllerOperation;
-  };
-};
-
-type PathsFromRoutes<TRoutes extends readonly RouteMetadata[]> =
-  UnionToIntersection<
-    TRoutes[number] extends { controller: infer TController }
-      ? TController extends {
-          path: infer TPath extends string;
-          method: infer TMethod extends Method;
-          operation: infer TOperation;
-        }
-        ? {
-            [TPathKey in TPath]: {
-              [TMethodKey in TMethod]: TOperation;
-            };
-          }
-        : never
-      : never
-  >;
 
 export const apiRoutes = [
   // Server
@@ -180,7 +145,6 @@ export const apiRoutes = [
   createRoute(levelUpHero),
   createRoute(incrementHeroAdventurePoints),
   createRoute(killHero),
-  createRoute(sendRandomAttack),
   createRoute(adjustVillageLoyalty),
 
   // Auctions
@@ -323,9 +287,11 @@ for (const route of apiRoutes) {
     .operation as ZodOpenApiOperationObject;
 }
 
-export const paths = openApiPaths as PathsFromRoutes<typeof apiRoutes>;
+export const paths: ZodOpenApiPathsObject = openApiPaths;
 
-export const compiledApiRoutes = apiRoutes.map((route) => ({
+type CompiledRoute = Route & { matcher: ReturnType<typeof match> };
+
+export const compiledApiRoutes: CompiledRoute[] = apiRoutes.map((route) => ({
   ...route,
   matcher: match(route.path, { decode: false }),
 }));

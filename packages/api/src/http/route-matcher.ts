@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { compiledApiRoutes } from './api-routes';
 import {
@@ -98,20 +99,30 @@ export const matchRoute = (url: string, method: string, body?: unknown) => {
     const routeConfig = route.controller.operation as RouteRequestParamsConfig;
 
     const requestParams = routeConfig?.requestParams;
-    const rawQuery = queryString
-      ? Object.fromEntries(new URLSearchParams(queryString))
-      : {};
+    const rawQuery: Record<string, string | string[]> = {};
+    if (queryString) {
+      for (const [key, value] of new URLSearchParams(queryString)) {
+        const currentValue = rawQuery[key];
+        if (currentValue === undefined) {
+          rawQuery[key] = value;
+        } else if (Array.isArray(currentValue)) {
+          currentValue.push(value);
+        } else {
+          rawQuery[key] = [currentValue, value];
+        }
+      }
+    }
 
     const pathParams = requestParams?.path
-      ? requestParams.path.parse(rawPathParams)
+      ? z.parse(requestParams.path, rawPathParams)
       : rawPathParams;
 
     const queryParams = requestParams?.query
-      ? requestParams.query.parse(rawQuery)
+      ? z.parse(requestParams.query, rawQuery)
       : rawQuery;
 
     const bodySchema = getJsonRequestBodySchema(routeConfig?.requestBody);
-    const parsedBody = bodySchema ? bodySchema.parse(body) : body;
+    const parsedBody = bodySchema ? z.parse(bodySchema, body) : body;
 
     return {
       controller: route.controller as Controller,

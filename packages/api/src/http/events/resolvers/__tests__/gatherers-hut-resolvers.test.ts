@@ -190,6 +190,46 @@ describe('gatherers hut resolvers', () => {
 
     expect(completedGatheringTripCount).toBe(1);
 
+    const report = database.selectObject({
+      sql: `
+        SELECT r.village_id, rti.report_type, roi.report_outcome,
+          ger.village_tile_id, ger.loot_wood, ger.loot_clay,
+          ger.loot_iron, ger.loot_wheat, ui.unit AS unit_id, geru.amount
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN gathering_expedition_reports ger ON ger.report_id = r.id
+        JOIN gathering_expedition_report_units geru ON geru.gathering_expedition_report_id = ger.id
+        JOIN unit_ids ui ON ui.id = geru.unit_id
+        WHERE rti.report_type = 'gatheringExpedition'
+        ORDER BY r.id DESC LIMIT 1;
+      `,
+      schema: z.strictObject({
+        village_id: z.int(),
+        report_type: z.string(),
+        report_outcome: z.string(),
+        village_tile_id: z.int(),
+        loot_wood: z.int(),
+        loot_clay: z.int(),
+        loot_iron: z.int(),
+        loot_wheat: z.int(),
+        unit_id: z.string(),
+        amount: z.int(),
+      }),
+    })!;
+    expect(report).toStrictEqual({
+      village_id: villageId,
+      report_type: 'gatheringExpedition',
+      report_outcome: 'gatheringExpedition',
+      village_tile_id: villageTileId,
+      loot_wood: 5,
+      loot_clay: 5,
+      loot_iron: 5,
+      loot_wheat: 5,
+      unit_id: 'PHALANX',
+      amount: 5,
+    });
+
     vi.useRealTimers();
   });
 });

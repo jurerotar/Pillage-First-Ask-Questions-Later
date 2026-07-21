@@ -1,0 +1,120 @@
+import type { TFunction } from 'i18next';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
+import type { Report } from '@pillage-first/types/models/report';
+import {
+  isAdventureReport,
+  isBattleReport,
+  isGatheringExpeditionReport,
+  isHuntingPartyReport,
+  isMovementReport,
+  isTradeReport,
+} from '@pillage-first/utils/guards/report';
+
+export const getReportSubject = (
+  report: ReportListingDto | Report,
+  t: TFunction,
+): string => {
+  if (isBattleReport(report)) {
+    const {
+      movementType,
+      originName,
+      originCoordinates,
+      targetName,
+      targetCoordinates,
+    } = report.summary;
+    const { x: originX, y: originY } = originCoordinates;
+    const { x: targetX, y: targetY } = targetCoordinates;
+
+    return movementType === 'raid'
+      ? t(
+          '{{originName}} ({{originX}}|{{originY}}) raids {{targetName}} ({{targetX}}|{{targetY}})',
+          {
+            originName,
+            originX,
+            originY,
+            targetName,
+            targetX,
+            targetY,
+          },
+        )
+      : t(
+          '{{originName}} ({{originX}}|{{originY}}) attacks {{targetName}} ({{targetX}}|{{targetY}})',
+          {
+            originName,
+            originX,
+            originY,
+            targetName,
+            targetX,
+            targetY,
+          },
+        );
+  }
+
+  if (isAdventureReport(report)) {
+    const { originVillageName, originCoordinates } = report.summary;
+
+    return t(
+      'Hero from {{originVillageName}} ({{x}}|{{y}}) completed an adventure',
+      {
+        originVillageName,
+        x: originCoordinates.x,
+        y: originCoordinates.y,
+      },
+    );
+  }
+
+  if (isTradeReport(report)) {
+    const { originName, originCoordinates, targetName, targetCoordinates } =
+      report.summary;
+    const { x: originX, y: originY } = originCoordinates;
+    const { x: targetX, y: targetY } = targetCoordinates;
+
+    return t(
+      'Merchants from {{originName}} ({{originX}}|{{originY}}) arrived at {{targetName}} ({{targetX}}|{{targetY}})',
+      { originName, originX, originY, targetName, targetX, targetY },
+    );
+  }
+
+  if (isMovementReport(report)) {
+    const {
+      movementType,
+      originName,
+      originCoordinates,
+      targetName,
+      targetCoordinates,
+    } = report.summary;
+    const { x: originX, y: originY } = originCoordinates;
+    const { x: targetX, y: targetY } = targetCoordinates;
+
+    return movementType === 'reinforcement'
+      ? t(
+          'Reinforcements from {{originName}} ({{originX}}|{{originY}}) arrived at {{targetName}} ({{targetX}}|{{targetY}})',
+          { originName, originX, originY, targetName, targetX, targetY },
+        )
+      : t(
+          'Troops from {{originName}} ({{originX}}|{{originY}}) relocated to {{targetName}} ({{targetX}}|{{targetY}})',
+          { originName, originX, originY, targetName, targetX, targetY },
+        );
+  }
+
+  if (isHuntingPartyReport(report)) {
+    return t('Hunting party from {{villageName}} ({{x}}|{{y}}) returned', {
+      villageName: report.summary.villageName,
+      x: report.summary.villageCoordinates.x,
+      y: report.summary.villageCoordinates.y,
+    });
+  }
+
+  if (isGatheringExpeditionReport(report)) {
+    return t(
+      'Gathering expedition from {{villageName}} ({{x}}|{{y}}) returned',
+      {
+        villageName: report.summary.villageName,
+        x: report.summary.villageCoordinates.x,
+        y: report.summary.villageCoordinates.y,
+      },
+    );
+  }
+
+  return '';
+};

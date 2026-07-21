@@ -1,18 +1,24 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import type {
   BaseReport,
   ReportTag,
   ReportType,
 } from '@pillage-first/types/models/report';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { reportsCacheKey } from 'app/(game)/constants/query-keys';
+import {
+  reportListingsCacheKey,
+  reportsCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
 import { useMe } from './use-me';
 
+export type ReportScope = 'global' | 'unread' | 'archived' | 'village';
+
 export const useReports = (
-  scope: 'global' | 'unread' | 'archived' | 'village' = 'global',
+  scope: ReportScope = 'global',
   types: ReportType[] = [],
 ) => {
   const { apiClient } = use(ApiContext);
@@ -20,21 +26,18 @@ export const useReports = (
   const { player } = useMe();
 
   const { data: reports } = useSuspenseQuery({
-    queryKey: [reportsCacheKey, currentVillage.id, scope, types],
+    queryKey: [reportListingsCacheKey, currentVillage.id, scope, types],
     queryFn: async () => {
-      const { data } = await apiClient.get(
-        '/players/:playerId/reports/:villageId',
-        {
-          path: {
-            playerId: player.id,
-            villageId: currentVillage.id,
-          },
-          query: {
-            scope,
-            ...(types.length > 0 ? { types } : {}),
-          },
+      const { data } = await apiClient.get('/players/:playerId/reports', {
+        path: {
+          playerId: player.id,
         },
-      );
+        query: {
+          scope,
+          ...(scope === 'village' ? { villageId: currentVillage.id } : {}),
+          ...(types.length > 0 ? { types } : {}),
+        },
+      });
       return data;
     },
   });
@@ -44,15 +47,17 @@ export const useReports = (
     Error,
     {
       reportIds: BaseReport['id'][];
-      addTags?: ReportTag[];
-      removeTags?: ReportTag[];
+      tags: Partial<Record<ReportTag, boolean>>;
     }
   >({
     mutationFn: async (body) => {
       await apiClient.patch('/reports', { body });
     },
-    onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[reportsCacheKey]]);
+    onSuccess: async (_data, { reportIds }, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [reportListingsCacheKey],
+        ...reportIds.map((reportId) => [reportsCacheKey, reportId]),
+      ]);
     },
   });
 
@@ -66,8 +71,22 @@ export const useReports = (
         body: reportIds,
       });
     },
-    onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[reportsCacheKey]]);
+    onSuccess: (_data, { reportIds }, _onMutateResult, context) => {
+      const deletedReportIds = new Set(reportIds);
+
+      context.client.setQueriesData<ReportListingDto[]>(
+        { queryKey: [reportListingsCacheKey] },
+        (reports = []) => {
+          return reports.filter((report) => !deletedReportIds.has(report.id));
+        },
+      );
+
+      for (const reportId of reportIds) {
+        context.client.removeQueries({
+          queryKey: [reportsCacheKey, reportId],
+          exact: true,
+        });
+      }
     },
   });
 

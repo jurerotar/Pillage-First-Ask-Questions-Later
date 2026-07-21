@@ -27,12 +27,12 @@ type OperationFor<TRoute> = TRoute extends {
   ? TOperation
   : never;
 
-type InferInputSchema<TSchema> = TSchema extends z.ZodType
-  ? z.input<TSchema>
+type InferInputSchema<TSchema> = TSchema extends z.core.$ZodType
+  ? z.core.input<TSchema>
   : never;
 
-type InferOutputSchema<TSchema> = TSchema extends z.ZodType
-  ? z.output<TSchema>
+type InferOutputSchema<TSchema> = TSchema extends z.core.$ZodType
+  ? z.core.output<TSchema>
   : never;
 
 type ParametersFor<TOperation> = TOperation extends {

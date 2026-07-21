@@ -18,10 +18,9 @@ export const createRoute = <
   TPath extends string,
   TMethod extends Method,
   TOperation extends ControllerOperation,
-  TReturn,
 >(
-  controller: Controller<TPath, TMethod, TOperation, TReturn>,
-): Route<typeof controller> => ({
+  controller: Controller<TPath, TMethod, TOperation>,
+): Route<Controller<TPath, TMethod, TOperation>> => ({
   path: controller.path,
   method: controller.method.toUpperCase(),
   controller,

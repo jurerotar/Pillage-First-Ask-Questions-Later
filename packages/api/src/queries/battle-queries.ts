@@ -52,30 +52,49 @@ export const selectBattleUnitsByReportQuery = `
     bu.amount_before,
     bu.amount_after
   FROM
-    battle_units bu
+    battle_report_units bu
+    JOIN battle_report_participants bp ON bu.battle_participant_id = bp.id
+    JOIN battle_reports b ON bp.battle_id = b.id
     JOIN unit_ids ui ON bu.unit_id = ui.id
   WHERE
-    bu.report_id = $report_id;
+    b.report_id = $report_id;
 `;
 
 export const selectBattleParticipantsByReportQuery = `
   SELECT
     p.id,
-    p.role,
-    t.tribe,
-    p.is_reinforcement
+    p.player_id,
+    p.tile_id,
+    CASE
+      WHEN p.tile_id = b.origin_tile_id THEN 'attacker'
+      ELSE 'defender'
+      END AS role,
+    COALESCE(t.tribe, 'nature') AS tribe,
+    CASE
+      WHEN p.tile_id != b.origin_tile_id AND p.tile_id != b.target_tile_id THEN 1
+      ELSE 0
+      END AS is_reinforcement
   FROM
-    battle_participants p
-    JOIN tribe_ids t ON p.tribe_id = t.id
+    battle_report_participants p
+    JOIN battle_reports b ON p.battle_id = b.id
+    LEFT JOIN players pl ON p.player_id = pl.id
+    LEFT JOIN tribe_ids t ON pl.tribe_id = t.id
   WHERE
-    p.report_id = $report_id;
+    b.report_id = $report_id;
+`;
+
+export const selectPlayerIdByVillageTileQuery = `
+  SELECT player_id
+  FROM villages
+  WHERE tile_id = $tile_id;
 `;
 
 export const selectBattleByReportQuery = `
   SELECT
-    attacking_village_id,
-    defending_village_id,
-    defending_oasis_id,
+    id,
+    origin_tile_id,
+    target_tile_id,
+    is_raid,
     loot_wood,
     loot_clay,
     loot_iron,
@@ -84,7 +103,7 @@ export const selectBattleByReportQuery = `
     attacker_points,
     defender_points
   FROM
-    battles
+    battle_reports
   WHERE
     report_id = $report_id;
 `;

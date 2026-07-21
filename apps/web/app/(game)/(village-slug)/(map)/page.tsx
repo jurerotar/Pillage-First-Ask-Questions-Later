@@ -431,12 +431,6 @@ const MapPageContents = () => {
                 targetTileId: tile.id,
               });
             }}
-            onAttackOrRaidVillage={(tile) => {
-              openMapSendTroopsModal({
-                mode: 'attack-or-raid',
-                targetTileId: tile.id,
-              });
-            }}
             onReinforceVillage={(tile) => {
               openMapSendTroopsModal({
                 mode: 'reinforcement',

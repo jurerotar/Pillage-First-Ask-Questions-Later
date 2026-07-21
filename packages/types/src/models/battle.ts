@@ -12,48 +12,70 @@ export const battleStatisticsSchema = z.strictObject({
 });
 
 export const battleUnitSchema = z.strictObject({
-  battleParticipantId: z.int(),
   unitId: unitIdSchema,
   amountBefore: z.int(),
   amountAfter: z.int(),
 });
 
-export const battleParticipantSchema = z.strictObject({
+export const battleTroopsSchema = z.strictObject({
   id: z.int(),
-  role: z.enum(['attacker', 'defender']),
   tribe: tribeSchema,
-  isReinforcement: z.boolean(),
   units: z.array(battleUnitSchema),
 });
 
-export const battleTypeSchema = z
-  .strictObject({
-    attackingVillageId: z.int(),
-    defendingVillageId: z.int().optional(),
-    defendingOasisId: z.int().optional(),
-    attackingPlayerName: z.string(),
-    attackingPlayerSlug: z.string(),
-    defendingPlayerName: z.string(),
-    defendingPlayerSlug: z.string().optional(),
-    originName: z.string(),
-    originCoordinates: coordinatesSchema,
-    targetName: z.string(),
-    targetCoordinates: coordinatesSchema,
-    loot: resourceBundleSchema,
-    totalCarryCapacity: z.int(),
-    didAttackerWin: z.boolean(),
-    canAttackerSeeFullReport: z.boolean(),
-    attackStatistics: battleStatisticsSchema,
-    defenceStatistics: battleStatisticsSchema,
-    participants: z.array(battleParticipantSchema),
-  })
-  .refine(
-    ({ defendingVillageId, defendingOasisId }) =>
-      defendingVillageId != null || defendingOasisId != null,
-    'Either the defending village or oasis ID must be defined',
-  );
+export const battlePlayerSchema = z.strictObject({
+  id: z.int().nullable(),
+  name: z.string(),
+  slug: z.string().optional(),
+});
+
+export const battleVillageSchema = z.strictObject({
+  tileId: z.int(),
+  name: z.string(),
+  coordinates: coordinatesSchema,
+});
+
+export const battleParticipantSchema = z.strictObject({
+  player: battlePlayerSchema,
+  village: battleVillageSchema,
+  troops: battleTroopsSchema,
+});
+
+export const battleDefenderSchema = battleParticipantSchema.extend({
+  reinforcements: z.array(battleParticipantSchema),
+});
+
+export const battleOutcomeSchema = z.strictObject({
+  loot: resourceBundleSchema,
+  totalCarryCapacity: z.int(),
+  canAttackerSeeFullReport: z.boolean(),
+});
+
+export const battleSummarySchema = z.strictObject({
+  isRaid: z.boolean(),
+  originName: z.string(),
+  targetName: z.string(),
+  targetCoordinates: coordinatesSchema,
+});
+
+export const battleSchema = z.strictObject({
+  id: z.int(),
+  attacker: battleParticipantSchema,
+  defender: battleDefenderSchema,
+  outcome: battleOutcomeSchema,
+  statistics: z.strictObject({
+    attacker: battleStatisticsSchema,
+    defender: battleStatisticsSchema,
+  }),
+});
 
 export type BattleStatistics = z.infer<typeof battleStatisticsSchema>;
 export type BattleUnit = z.infer<typeof battleUnitSchema>;
+export type BattleTroops = z.infer<typeof battleTroopsSchema>;
+export type BattlePlayer = z.infer<typeof battlePlayerSchema>;
+export type BattleVillage = z.infer<typeof battleVillageSchema>;
 export type BattleParticipant = z.infer<typeof battleParticipantSchema>;
-export type BattleType = z.infer<typeof battleTypeSchema>;
+export type BattleDefender = z.infer<typeof battleDefenderSchema>;
+export type BattleOutcome = z.infer<typeof battleOutcomeSchema>;
+export type BattleSummary = z.infer<typeof battleSummarySchema>;
+export type BattleType = z.infer<typeof battleSchema>;

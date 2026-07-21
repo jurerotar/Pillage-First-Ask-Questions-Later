@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import type { BaseReport } from '@pillage-first/types/models/report';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -12,16 +13,16 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { ReportTagIcon } from './report-tag-icon';
+import { getReportSubject } from '../utils/report-subject';
 
 type ReportsTableProps = {
-  reports: BaseReport[];
+  reports: ReportListingDto[];
   hasReports: boolean;
   selectedReportIds: BaseReport['id'][];
   allVisibleReportsSelected: boolean;
   onToggleReport: (reportId: BaseReport['id']) => void;
   onToggleVisibleReports: () => void;
-  onOpenReport: (report: BaseReport) => void;
+  onOpenReport: (report: ReportListingDto) => void;
 };
 
 export const ReportsTable = ({
@@ -59,23 +60,23 @@ export const ReportsTable = ({
                   onCheckedChange={() => onToggleReport(report.id)}
                 />
               </TableCell>
-              <TableCell className="flex gap-3 items-center">
-                <ReportTagIcon tags={report.tags} />
+              <TableCell className="flex gap-2 items-center">
+                <Icon type={report.outcome} />
                 <Link
                   onClick={() => onOpenReport(report)}
                   to={`../reports/${report.id}`}
                 >
                   <Text
                     className={
-                      report.tags.includes('READ')
+                      report.tags.includes('read')
                         ? 'text-gray-700 font-normal'
                         : 'text-link font-medium'
                     }
                   >
-                    {report.subject}
+                    {getReportSubject(report, t)}
                   </Text>
                 </Link>
-                {report.tags.includes('ARCHIVED') && <Icon type="hero" />}
+                {report.tags.includes('archived') && <Icon type="hero" />}
               </TableCell>
               <TableCell>
                 {new Date(report.timestamp).toLocaleString()}
@@ -84,7 +85,10 @@ export const ReportsTable = ({
           ))}
           {!hasReports && (
             <TableRow>
-              <TableCell className="text-center py-8">
+              <TableCell
+                colSpan={3}
+                className="text-center py-8"
+              >
                 {t('No reports found yet.')}
               </TableCell>
             </TableRow>

@@ -3,7 +3,6 @@ import { use } from 'react';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
 import type { HeroItem } from '@pillage-first/types/models/hero-item';
 import type { Resource } from '@pillage-first/types/models/resource';
-import type { Tile } from '@pillage-first/types/models/tile';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider';
@@ -15,7 +14,6 @@ import {
   heroInventoryCacheKey,
   heroLoadoutCacheKey,
   loyaltyCacheKey,
-  troopMovementsCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -38,13 +36,7 @@ type SpawnHeroItemArgs = {
   amount: number;
 };
 
-type AdjustLoyaltyArgs = {
-  amount: number;
-};
-
-type SendRandomAttackArgs = {
-  tileId: Tile['id'];
-};
+type AdjustLoyaltyArgs = { amount: number };
 
 export const useDeveloperSettings = () => {
   const { apiClient } = use(ApiContext);
@@ -173,38 +165,15 @@ export const useDeveloperSettings = () => {
     },
   });
 
-  const { mutate: sendRandomAttack } = useMutation<
-    void,
-    Error,
-    SendRandomAttackArgs
-  >({
-    mutationFn: async ({ tileId }) => {
-      await apiClient.post('/developer-settings/send-random-attack/:tileId', {
-        path: {
-          tileId: tileId,
-        },
-      });
-    },
-    onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [
-        [troopMovementsCacheKey, currentVillage.id],
-      ]);
-    },
-  });
-
   const { mutate: adjustLoyalty } = useMutation<void, Error, AdjustLoyaltyArgs>(
     {
       mutationFn: async ({ amount }) => {
         await apiClient.patch('/developer-settings/:tileId/adjustLoyalty', {
-          path: {
-            tileId: currentVillage.tileId,
-          },
-          body: {
-            amount,
-          },
+          path: { tileId: currentVillage.tileId },
+          body: { amount },
         });
       },
-      onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      onSuccess: async (_, _args, _onMutateResult, context) => {
         await invalidateQueries(context, [[loyaltyCacheKey]]);
       },
     },
@@ -218,7 +187,6 @@ export const useDeveloperSettings = () => {
     levelUpHero,
     incrementHeroAdventurePoints,
     killHero,
-    sendRandomAttack,
     adjustLoyalty,
   };
 };
