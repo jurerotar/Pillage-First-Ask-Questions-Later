@@ -7,7 +7,7 @@ import { prepareTestDatabase } from '../../';
 const database = await prepareTestDatabase();
 
 describe('reportsSeeder', () => {
-  test('seeds 1,000 player reports', () => {
+  test('seeds 100 player reports', () => {
     const reportCounts = database.selectObject({
       sql: `
         SELECT
@@ -21,7 +21,7 @@ describe('reportsSeeder', () => {
       schema: z.strictObject({ total: z.number(), battles: z.number() }),
     })!;
 
-    expect(reportCounts).toEqual({ total: 1_000, battles: 970 });
+    expect(reportCounts).toEqual({ total: 100, battles: 50 });
   });
 
   test('every seeded battle report has one battle with real tiles and report outcome', () => {
@@ -51,7 +51,7 @@ describe('reportsSeeder', () => {
     expect(invalidBattleCount).toBe(0);
   });
 
-  test('seeds adventure, movement, and trade reports with detail rows', () => {
+  test('seeds all non-battle reports with detail rows', () => {
     const reportCounts = database.selectObjects({
       sql: `
         SELECT rti.report_type AS type, COUNT(*) AS count
@@ -67,7 +67,9 @@ describe('reportsSeeder', () => {
 
     expect(reportCounts).toStrictEqual([
       { type: 'adventure', count: 10 },
-      { type: 'battle', count: 970 },
+      { type: 'battle', count: 50 },
+      { type: 'gatheringExpedition', count: 10 },
+      { type: 'huntingParty', count: 10 },
       { type: 'movement', count: 10 },
       { type: 'trade', count: 10 },
     ]);
@@ -78,13 +80,21 @@ describe('reportsSeeder', () => {
           (SELECT COUNT(*) FROM hero_adventure_reports) AS adventures,
           (SELECT COUNT(*) FROM movement_reports) AS movements,
           (SELECT COUNT(*) FROM movement_report_units) AS movement_units,
-          (SELECT COUNT(*) FROM trade_reports) AS trades;
+          (SELECT COUNT(*) FROM trade_reports) AS trades,
+          (SELECT COUNT(*) FROM hunting_party_reports) AS hunting_parties,
+          (SELECT COUNT(*) FROM hunting_party_report_units) AS hunting_party_units,
+          (SELECT COUNT(*) FROM gathering_expedition_reports) AS gathering_expeditions,
+          (SELECT COUNT(*) FROM gathering_expedition_report_units) AS gathering_expedition_units;
       `,
       schema: z.strictObject({
         adventures: z.number(),
         movements: z.number(),
         movement_units: z.number(),
         trades: z.number(),
+        hunting_parties: z.number(),
+        hunting_party_units: z.number(),
+        gathering_expeditions: z.number(),
+        gathering_expedition_units: z.number(),
       }),
     });
 
@@ -93,6 +103,10 @@ describe('reportsSeeder', () => {
       movements: 10,
       movement_units: 10,
       trades: 10,
+      hunting_parties: 10,
+      hunting_party_units: 30,
+      gathering_expeditions: 10,
+      gathering_expedition_units: 10,
     });
   });
 
@@ -143,9 +157,9 @@ describe('reportsSeeder', () => {
       schema: z.number(),
     });
 
-    expect(battleCount).toBe(970);
-    expect(battleCountWithParticipants).toBe(970);
-    expect(battleCountWithUnits).toBe(970);
+    expect(battleCount).toBe(50);
+    expect(battleCountWithParticipants).toBe(50);
+    expect(battleCountWithUnits).toBe(50);
   });
 
   test('seeded battle troop counts are internally consistent', () => {

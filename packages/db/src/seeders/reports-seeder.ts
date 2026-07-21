@@ -2,11 +2,12 @@ import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
 import { items } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import type {
-  BattleResultId,
-  ReportOutcome,
-  ReportTag,
-  ReportType,
+import {
+  type BattleResultId,
+  type ReportOutcome,
+  type ReportTag,
+  type ReportType,
+  reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import type { Server } from '@pillage-first/types/models/server';
 import { type Tribe, tribeSchema } from '@pillage-first/types/models/tribe';
@@ -18,9 +19,8 @@ import {
 } from '@pillage-first/utils/random';
 import { batchInsert } from '../utils/batch-insert';
 
-const REPORT_COUNT = 1_000;
 const NON_BATTLE_REPORT_COUNT = 10;
-const BATTLE_REPORT_COUNT = REPORT_COUNT - NON_BATTLE_REPORT_COUNT * 3;
+const BATTLE_REPORT_COUNT = 50;
 
 type VillageRow = {
   id: number;
@@ -171,7 +171,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(`${server.seed}:reports`);
 
   const reportTypeIds = new Map<ReportType, number>(
-    (['battle', 'adventure', 'trade', 'movement'] as const).map((type) => [
+    reportTypeSchema.options.map((type) => [
       type,
       selectLookupId(database, 'report_type_ids', 'report_type', type),
     ]),
@@ -200,6 +200,8 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
     'heroAdventure',
     'troopMovement',
     'incomingMerchantsArrived',
+    'huntingParty',
+    'gatheringExpedition',
   ] as const) {
     reportOutcomeIds.set(
       outcome,
@@ -534,6 +536,65 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
   const movementUnitId = unitLookupIds.get(
     unitIdsByTribe[playerVillage.tribe][0],
   )!;
+  const huntingUnitIds = unitIdsByTribe.nature.map(
+    (unitId) => unitLookupIds.get(unitId)!,
+  );
+
+  const insertHuntingPartyReport = (
+    reportId: number,
+    units: [number, number][],
+  ) => {
+    const huntingPartyReportId = database.selectValue({
+      sql: 'INSERT INTO hunting_party_reports (report_id, village_tile_id) VALUES ($report_id, $tile_id) RETURNING id;',
+      bind: {
+        $report_id: reportId,
+        $tile_id: playerVillage.tileId,
+      },
+      schema: z.number(),
+    })!;
+    for (const [unitId, amount] of units) {
+      database.exec({
+        sql: 'INSERT INTO hunting_party_report_units (hunting_party_report_id, unit_id, amount) VALUES ($report_detail_id, $unit_id, $amount);',
+        bind: {
+          $report_detail_id: huntingPartyReportId,
+          $unit_id: unitId,
+          $amount: amount,
+        },
+      });
+    }
+  };
+
+  const insertGatheringExpeditionReport = (
+    reportId: number,
+    units: [number, number][],
+    loot: [number, number, number, number],
+  ) => {
+    const gatheringExpeditionReportId = database.selectValue({
+      sql: `INSERT INTO gathering_expedition_reports (report_id, village_tile_id, tribe_id, loot_wood, loot_clay, loot_iron, loot_wheat)
+        VALUES ($report_id, $tile_id, (SELECT id FROM tribe_ids WHERE tribe = $tribe), $wood, $clay, $iron, $wheat) RETURNING id;`,
+      bind: {
+        $report_id: reportId,
+        $tile_id: playerVillage.tileId,
+        $tribe: playerVillage.tribe,
+        $wood: loot[0],
+        $clay: loot[1],
+        $iron: loot[2],
+        $wheat: loot[3],
+      },
+      schema: z.number(),
+    })!;
+
+    for (const [unitId, amount] of units) {
+      database.exec({
+        sql: 'INSERT INTO gathering_expedition_report_units (gathering_expedition_report_id, unit_id, amount) VALUES ($report_detail_id, $unit_id, $amount);',
+        bind: {
+          $report_detail_id: gatheringExpeditionReportId,
+          $unit_id: unitId,
+          $amount: amount,
+        },
+      });
+    }
+  };
 
   for (let i = 0; i < NON_BATTLE_REPORT_COUNT; i += 1) {
     const adventureItem =
@@ -623,6 +684,35 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
         $wheat: seededRandomIntFromInterval(prng, 100, 1000),
       },
     });
+
+    const huntingReportId = insertBaseReport(
+      i * 5 + 3,
+      'huntingParty',
+      'huntingParty',
+    );
+    insertHuntingPartyReport(
+      huntingReportId,
+      huntingUnitIds.map((unitId) => [
+        unitId,
+        seededRandomIntFromInterval(prng, 1, 8),
+      ]),
+    );
+
+    const gatheringReportId = insertBaseReport(
+      i * 5 + 4,
+      'gatheringExpedition',
+      'gatheringExpedition',
+    );
+    insertGatheringExpeditionReport(
+      gatheringReportId,
+      [[movementUnitId, seededRandomIntFromInterval(prng, 10, 100)]],
+      [
+        seededRandomIntFromInterval(prng, 100, 500),
+        seededRandomIntFromInterval(prng, 100, 500),
+        seededRandomIntFromInterval(prng, 100, 500),
+        seededRandomIntFromInterval(prng, 100, 500),
+      ],
+    );
   }
 
   batchInsert(

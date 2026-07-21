@@ -17,6 +17,8 @@ CREATE TABLE report_outcome_ids
         'outgoingMerchantsArrived',
         'incomingMerchantsArrived',
         'heroAdventure',
-        'troopMovement'
+        'troopMovement',
+        'huntingParty',
+        'gatheringExpedition'
     ))
 ) STRICT;

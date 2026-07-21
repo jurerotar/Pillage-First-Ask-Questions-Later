@@ -10,6 +10,8 @@ export const reportTypeSchema = z.enum([
   'adventure',
   'trade',
   'movement',
+  'huntingParty',
+  'gatheringExpedition',
 ]);
 
 export const battleResultIdSchema = z.enum([
@@ -33,6 +35,8 @@ export const reportOutcomeSchema = z.enum([
   'incomingMerchantsArrived',
   'heroAdventure',
   'troopMovement',
+  'huntingParty',
+  'gatheringExpedition',
 ]);
 
 export const reportTagSchema = z.enum(['read', 'archived']);
@@ -127,12 +131,39 @@ export const movementReportSchema = baseReportSchema.extend({
   }),
 });
 
+const expeditionReportSummarySchema = z.strictObject({
+  villageName: z.string(),
+  villageCoordinates: coordinatesSchema,
+});
+
+const expeditionUnitSchema = z.strictObject({
+  unitId: unitIdSchema,
+  amount: z.int().positive(),
+});
+
+export const huntingPartyReportSchema = baseReportSchema.extend({
+  type: z.literal('huntingParty'),
+  summary: expeditionReportSummarySchema,
+  tribe: z.literal('nature'),
+  units: z.array(expeditionUnitSchema),
+});
+
+export const gatheringExpeditionReportSchema = baseReportSchema.extend({
+  type: z.literal('gatheringExpedition'),
+  summary: expeditionReportSummarySchema,
+  tribe: tribeSchema,
+  units: z.array(expeditionUnitSchema),
+  loot: resourceBundleSchema,
+});
+
 export const reportSchema = z
   .discriminatedUnion('type', [
     battleReportSchema,
     adventureReportSchema,
     tradeReportSchema,
     movementReportSchema,
+    huntingPartyReportSchema,
+    gatheringExpeditionReportSchema,
   ])
   .meta({ id: 'Report' });
 
@@ -148,3 +179,7 @@ export type BattleReport = z.infer<typeof battleReportSchema>;
 export type AdventureReport = z.infer<typeof adventureReportSchema>;
 export type TroopMovementReport = z.infer<typeof movementReportSchema>;
 export type TradeReport = z.infer<typeof tradeReportSchema>;
+export type HuntingPartyReport = z.infer<typeof huntingPartyReportSchema>;
+export type GatheringExpeditionReport = z.infer<
+  typeof gatheringExpeditionReportSchema
+>;

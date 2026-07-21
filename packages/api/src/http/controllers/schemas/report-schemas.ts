@@ -172,11 +172,34 @@ export const tradeReportRowSchema = baseReportRowSchema.extend({
   trade_wheat: z.int(),
 });
 
+const expeditionReportRowSchema = baseReportRowSchema.extend({
+  expedition_id: z.int(),
+  expedition_tribe: tribeSchema,
+  expedition_village_name: z.string(),
+  expedition_village_x: z.int(),
+  expedition_village_y: z.int(),
+  loot_wood: z.int().nullable(),
+  loot_clay: z.int().nullable(),
+  loot_iron: z.int().nullable(),
+  loot_wheat: z.int().nullable(),
+});
+
+export const huntingPartyReportRowSchema = expeditionReportRowSchema.extend({
+  type: z.literal('huntingParty'),
+});
+
+export const gatheringExpeditionReportRowSchema =
+  expeditionReportRowSchema.extend({
+    type: z.literal('gatheringExpedition'),
+  });
+
 export const getReportsRowSchema = z
   .discriminatedUnion('type', [
     battleReportRowSchema,
     adventureReportRowSchema,
     movementReportRowSchema,
     tradeReportRowSchema,
+    huntingPartyReportRowSchema,
+    gatheringExpeditionReportRowSchema,
   ])
   .meta({ id: 'GetReportsRow' });
