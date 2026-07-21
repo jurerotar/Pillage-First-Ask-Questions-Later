@@ -130,7 +130,7 @@ import {
   rearrangeBuildingFields,
 } from './controllers/village-controllers';
 import { getArtifactsAroundVillage } from './controllers/world-items-controllers';
-import { createRoute } from './route';
+import { createRoute, type Route } from './route';
 
 // NOTE: /player/:playerId/* is aliased to /me/*. In an actual server setting you'd get current user from session
 
@@ -323,7 +323,9 @@ for (const route of apiRoutes) {
 
 export const paths = openApiPaths as PathsFromRoutes<typeof apiRoutes>;
 
-export const compiledApiRoutes = apiRoutes.map((route) => ({
+type CompiledRoute = Route & { matcher: ReturnType<typeof match> };
+
+export const compiledApiRoutes: CompiledRoute[] = apiRoutes.map((route) => ({
   ...route,
   matcher: match(route.path, { decode: false }),
 }));
