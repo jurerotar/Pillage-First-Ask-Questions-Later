@@ -5,21 +5,33 @@ import {
   reportTagSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   deleteReportQuery,
   deleteReportTagQuery,
   insertReportTagQuery,
+  selectAdventureReportQuery,
+  selectBattleReportQuery,
+  selectMovementReportQuery,
   selectReportListingsQuery,
-  selectReportQuery,
+  selectReportTypeQuery,
+  selectTradeReportQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
 import {
+  mapAdventureReportRowToDto,
+  mapBattleReportRowToDto,
+  mapMovementReportRowToDto,
   mapReportListingRowToDto,
-  mapReportRowToDto,
+  mapTradeReportRowToDto,
 } from './mappers/report-mapper';
 import {
+  adventureReportRowSchema,
+  battleReportRowSchema,
   getReportListingsRowSchema,
-  getReportsRowSchema,
+  getReportTypeRowSchema,
+  movementReportRowSchema,
+  tradeReportRowSchema,
 } from './schemas/report-schemas';
 
 export const getReports = createController('/players/:playerId/reports', {
@@ -73,19 +85,68 @@ export const getReport = createController('/report/:playerId/:reportId', {
       reportId: z.coerce.number(),
     }),
   },
-  response: reportSchema.nullable(),
+  response: reportSchema,
 })(({ database, path: { playerId, reportId } }) => {
-  const row = database.selectObject({
-    sql: selectReportQuery,
+  const reportInfo = database.selectObject({
+    sql: selectReportTypeQuery,
     bind: { $player_id: playerId, $report_id: reportId },
-    schema: getReportsRowSchema,
+    schema: getReportTypeRowSchema,
   });
 
-  if (row) {
-    return mapReportRowToDto(database, row);
+  if (!reportInfo) {
+    throw new Error(`Report ${reportId} not found for player ${playerId}`);
   }
 
-  return null;
+  const bind = { $player_id: playerId, $report_id: reportId };
+
+  if (reportInfo.type === 'battle') {
+    const rows = database.selectObjects({
+      sql: selectBattleReportQuery,
+      bind,
+      schema: battleReportRowSchema,
+    });
+
+    return mapBattleReportRowToDto(rows);
+  }
+
+  if (reportInfo.type === 'adventure') {
+    const row = database.selectObject({
+      sql: selectAdventureReportQuery,
+      bind,
+      schema: adventureReportRowSchema,
+    })!;
+
+    return mapAdventureReportRowToDto(row);
+  }
+
+  if (reportInfo.type === 'movement') {
+    const row = database.selectObject({
+      sql: selectMovementReportQuery,
+      bind,
+      schema: movementReportRowSchema,
+    })!;
+
+    const movementUnits = database.selectObjects({
+      sql: `
+        SELECT ui.unit AS unitId, mru.amount
+        FROM movement_report_units mru
+        JOIN unit_ids ui ON mru.unit_id = ui.id
+        WHERE mru.movement_report_id = $movement_report_id;
+      `,
+      bind: { $movement_report_id: row.movement_id },
+      schema: z.strictObject({ unitId: unitIdSchema, amount: z.int() }),
+    });
+
+    return mapMovementReportRowToDto(row, movementUnits);
+  }
+
+  const row = database.selectObject({
+    sql: selectTradeReportQuery,
+    bind,
+    schema: tradeReportRowSchema,
+  })!;
+
+  return mapTradeReportRowToDto(row);
 });
 
 export const updateReports = createController('/reports', 'patch', {

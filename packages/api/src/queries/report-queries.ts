@@ -66,11 +66,9 @@ export const selectReportListingsQuery = `
   LEFT JOIN villages origin_v ON origin_v.tile_id = origin_t.id
   LEFT JOIN tiles target_t ON target_t.id = b.target_tile_id
   LEFT JOIN villages target_v ON target_v.tile_id = target_t.id
-  LEFT JOIN (
-    SELECT tile_id, MAX(village_id) AS village_id
-    FROM oasis
-    GROUP BY tile_id
-  ) target_o ON target_o.tile_id = target_t.id
+  LEFT JOIN oasis target_o ON target_o.id = (
+    SELECT MIN(id) FROM oasis WHERE tile_id = target_t.id
+  )
   LEFT JOIN villages adventure_v ON adventure_v.id = r.village_id
   LEFT JOIN players adventure_p ON adventure_p.id = adventure_v.player_id
   LEFT JOIN tiles adventure_t ON adventure_t.id = adventure_v.tile_id
@@ -115,22 +113,50 @@ export const selectReportListingsQuery = `
     )
     AND (
       $type_count = 0
-      OR ($include_battle = 1 AND rty.report_type = 'battle')
-      OR ($include_adventure = 1 AND rty.report_type = 'adventure')
-      OR ($include_trade = 1 AND rty.report_type = 'trade')
-      OR ($include_movement = 1 AND rty.report_type = 'movement')
+      OR ($include_battle = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'battle'))
+      OR ($include_adventure = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'adventure'))
+      OR ($include_trade = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'trade'))
+      OR ($include_movement = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'movement'))
     )
   ORDER BY r.timestamp DESC;
 `;
 
-export const selectReportQuery = `
+export const selectReportTypeQuery = `
   SELECT
-    r.id,
-    r.player_id,
-    r.village_id,
-    r.timestamp,
-    rty.report_type AS type,
-    roi.report_outcome AS outcome,
+    rty.report_type AS type
+  FROM reports r
+  JOIN report_type_ids rty ON rty.id = r.type_id
+  WHERE r.id = $report_id AND r.player_id = $player_id;
+`;
+
+const reportCte = `
+  WITH report AS MATERIALIZED (
+    SELECT
+      r.id, r.player_id, r.village_id, r.timestamp,
+      rty.report_type AS type,
+      roi.report_outcome AS outcome,
+      COALESCE((
+        SELECT json_group_array(rti.tag)
+        FROM report_tags rt
+        JOIN report_tag_ids rti ON rti.id = rt.report_tag_id
+        WHERE rt.report_id = r.id
+      ), '[]') AS tags_json
+    FROM reports r
+    JOIN report_type_ids rty ON rty.id = r.type_id
+    JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+    WHERE r.id = $report_id AND r.player_id = $player_id
+  )
+`;
+
+const reportColumns = `
+  r.id, r.player_id, r.village_id, r.timestamp,
+  r.type, r.outcome, r.tags_json
+`;
+
+export const selectBattleReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
     b.is_raid AS battle_is_raid,
     origin_v.name AS battle_origin_name,
     origin_t.x AS battle_origin_x,
@@ -140,126 +166,132 @@ export const selectReportQuery = `
       WHEN target_o.id IS NOT NULL AND target_o.village_id IS NOT NULL THEN 'Occupied oasis'
       WHEN target_o.id IS NOT NULL THEN 'Unoccupied oasis'
       ELSE ''
-      END AS battle_target_name,
+    END AS battle_target_name,
     target_t.x AS battle_target_x,
     target_t.y AS battle_target_y,
-    ar.adventure_id,
-    ar.item_id,
-    ar.item_amount,
-    ar.health_before,
-    ar.health_after,
-    adventure_p.name AS adventure_origin_player_name,
-    adventure_p.slug AS adventure_origin_player_slug,
-    adventure_v.name AS adventure_origin_village_name,
-    adventure_t.x AS adventure_origin_x,
-    adventure_t.y AS adventure_origin_y,
-    adventure_tribe.tribe AS adventure_origin_tribe,
-    mr.id AS movement_id,
-    mr.movement_type,
-    movement_origin_tribe.tribe AS movement_tribe,
+    b.id AS battle_id,
+    b.origin_tile_id, b.target_tile_id,
+    b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
+    b.can_attacker_see_full_report,
+    b.attacker_points, b.defender_points,
+    bp.id AS participant_id,
+    bp.player_id AS participant_player_id,
+    bp.tile_id AS participant_tile_id,
+    CASE WHEN bp.tile_id = b.origin_tile_id THEN 'attacker' ELSE 'defender' END AS participant_role,
+    COALESCE(participant_tribe.tribe, 'nature') AS participant_tribe,
+    CASE WHEN bp.tile_id NOT IN (b.origin_tile_id, b.target_tile_id) THEN 1 ELSE 0 END AS participant_is_reinforcement,
+    COALESCE(participant_p.name, oasis_p.name, 'Nature') AS participant_player_name,
+    COALESCE(participant_p.slug, oasis_p.slug) AS participant_player_slug,
+    CASE
+      WHEN participant_v.id IS NOT NULL THEN participant_v.name
+      WHEN participant_o.village_id IS NOT NULL THEN 'Occupied oasis'
+      ELSE 'Unoccupied oasis'
+    END AS participant_location_name,
+    participant_t.x AS participant_x,
+    participant_t.y AS participant_y,
+    participant_ui.unit AS participant_unit_id,
+    bru.amount_before AS participant_amount_before,
+    bru.amount_after AS participant_amount_after
+  FROM report r
+  JOIN battle_reports b ON b.report_id = r.id
+  JOIN tiles origin_t ON origin_t.id = b.origin_tile_id
+  LEFT JOIN villages origin_v ON origin_v.tile_id = origin_t.id
+  JOIN tiles target_t ON target_t.id = b.target_tile_id
+  LEFT JOIN villages target_v ON target_v.tile_id = target_t.id
+  LEFT JOIN oasis target_o ON target_o.id = (
+    SELECT MIN(id) FROM oasis WHERE tile_id = target_t.id
+  )
+  JOIN battle_report_participants bp ON bp.battle_id = b.id
+  JOIN tiles participant_t ON participant_t.id = bp.tile_id
+  LEFT JOIN villages participant_v ON participant_v.tile_id = participant_t.id
+  LEFT JOIN players participant_p ON participant_p.id = participant_v.player_id
+  LEFT JOIN tribe_ids participant_tribe ON participant_tribe.id = participant_p.tribe_id
+  LEFT JOIN oasis participant_o ON participant_o.id = (
+    SELECT MIN(id) FROM oasis WHERE tile_id = participant_t.id
+  )
+  LEFT JOIN villages oasis_v ON oasis_v.id = participant_o.village_id
+  LEFT JOIN players oasis_p ON oasis_p.id = oasis_v.player_id
+  LEFT JOIN battle_report_units bru ON bru.battle_participant_id = bp.id
+  LEFT JOIN unit_ids participant_ui ON participant_ui.id = bru.unit_id
+  ;
+`;
+
+export const selectAdventureReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    ar.adventure_id, ar.item_id, ar.item_amount, ar.health_before, ar.health_after,
+    p.name AS adventure_origin_player_name,
+    p.slug AS adventure_origin_player_slug,
+    v.name AS adventure_origin_village_name,
+    t.x AS adventure_origin_x,
+    t.y AS adventure_origin_y,
+    ti.tribe AS adventure_origin_tribe
+  FROM report r
+  JOIN hero_adventure_reports ar ON ar.report_id = r.id
+  JOIN villages v ON v.id = r.village_id
+  JOIN players p ON p.id = v.player_id
+  JOIN tiles t ON t.id = v.tile_id
+  JOIN tribe_ids ti ON ti.id = p.tribe_id
+  ;
+`;
+
+export const selectMovementReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    mr.id AS movement_id, mr.movement_type,
+    origin_tribe.tribe AS movement_tribe,
     mr.origin_tile_id AS movement_origin_tile_id,
     mr.target_tile_id AS movement_target_tile_id,
-    movement_origin_p.name AS movement_origin_player_name,
-    movement_origin_p.slug AS movement_origin_player_slug,
-    movement_origin_v.name AS movement_origin_name,
-    movement_origin_t.x AS movement_origin_x,
-    movement_origin_t.y AS movement_origin_y,
-    movement_target_p.name AS movement_target_player_name,
-    movement_target_p.slug AS movement_target_player_slug,
-    CASE
-      WHEN movement_target_v.id IS NOT NULL THEN movement_target_v.name
-      WHEN movement_target_o.id IS NOT NULL THEN 'Oasis'
-      ELSE NULL
-      END AS movement_target_name,
-    movement_target_t.x AS movement_target_x,
-    movement_target_t.y AS movement_target_y,
+    origin_p.name AS movement_origin_player_name,
+    origin_p.slug AS movement_origin_player_slug,
+    origin_v.name AS movement_origin_name,
+    origin_t.x AS movement_origin_x, origin_t.y AS movement_origin_y,
+    target_p.name AS movement_target_player_name,
+    target_p.slug AS movement_target_player_slug,
+    COALESCE(target_v.name, CASE WHEN target_o.id IS NOT NULL THEN 'Oasis' END) AS movement_target_name,
+    target_t.x AS movement_target_x, target_t.y AS movement_target_y
+  FROM report r
+  JOIN movement_reports mr ON mr.report_id = r.id
+  JOIN tiles origin_t ON origin_t.id = mr.origin_tile_id
+  JOIN villages origin_v ON origin_v.tile_id = origin_t.id
+  JOIN players origin_p ON origin_p.id = origin_v.player_id
+  JOIN tribe_ids origin_tribe ON origin_tribe.id = origin_p.tribe_id
+  JOIN tiles target_t ON target_t.id = mr.target_tile_id
+  LEFT JOIN villages target_v ON target_v.tile_id = target_t.id
+  LEFT JOIN players target_p ON target_p.id = target_v.player_id
+  LEFT JOIN oasis target_o ON target_o.id = (
+    SELECT MIN(id) FROM oasis WHERE tile_id = target_t.id
+  );
+`;
+
+export const selectTradeReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
     tr.id AS trade_id,
     tr.origin_tile_id AS trade_origin_tile_id,
     tr.target_tile_id AS trade_target_tile_id,
-    trade_origin_p.name AS trade_origin_player_name,
-    trade_origin_p.slug AS trade_origin_player_slug,
-    trade_origin_v.name AS trade_origin_name,
-    trade_origin_t.x AS trade_origin_x,
-    trade_origin_t.y AS trade_origin_y,
-    trade_target_p.name AS trade_target_player_name,
-    trade_target_p.slug AS trade_target_player_slug,
-    trade_target_v.name AS trade_target_name,
-    trade_target_t.x AS trade_target_x,
-    trade_target_t.y AS trade_target_y,
-    tr.wood AS trade_wood,
-    tr.clay AS trade_clay,
-    tr.iron AS trade_iron,
-    tr.wheat AS trade_wheat,
-    COALESCE((
-      SELECT json_group_array(rti.tag)
-      FROM report_tags rt
-      JOIN report_tag_ids rti ON rti.id = rt.report_tag_id
-      WHERE rt.report_id = r.id
-    ), '[]') AS tags_json
-  FROM
-    reports r
-    JOIN report_type_ids rty ON r.type_id = rty.id
-    JOIN report_outcome_ids roi ON r.report_outcome_id = roi.id
-    LEFT JOIN battle_reports b ON r.id = b.report_id
-    LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
-    LEFT JOIN villages origin_v ON origin_t.id = origin_v.tile_id
-    LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
-    LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
-    LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
-    LEFT JOIN hero_adventure_reports ar ON r.id = ar.report_id
-    LEFT JOIN villages adventure_v ON r.village_id = adventure_v.id
-    LEFT JOIN players adventure_p ON adventure_v.player_id = adventure_p.id
-    LEFT JOIN tiles adventure_t ON adventure_v.tile_id = adventure_t.id
-    LEFT JOIN tribe_ids adventure_tribe ON adventure_p.tribe_id = adventure_tribe.id
-    LEFT JOIN movement_reports mr ON r.id = mr.report_id
-    LEFT JOIN tiles movement_origin_t ON mr.origin_tile_id = movement_origin_t.id
-    LEFT JOIN villages movement_origin_v ON movement_origin_t.id = movement_origin_v.tile_id
-    LEFT JOIN players movement_origin_p ON movement_origin_v.player_id = movement_origin_p.id
-    LEFT JOIN tribe_ids movement_origin_tribe ON movement_origin_p.tribe_id = movement_origin_tribe.id
-    LEFT JOIN tiles movement_target_t ON mr.target_tile_id = movement_target_t.id
-    LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
-    LEFT JOIN players movement_target_p ON movement_target_v.player_id = movement_target_p.id
-    LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
-    LEFT JOIN trade_reports tr ON r.id = tr.report_id
-    LEFT JOIN tiles trade_origin_t ON tr.origin_tile_id = trade_origin_t.id
-    LEFT JOIN villages trade_origin_v ON trade_origin_t.id = trade_origin_v.tile_id
-    LEFT JOIN players trade_origin_p ON trade_origin_v.player_id = trade_origin_p.id
-    LEFT JOIN tiles trade_target_t ON tr.target_tile_id = trade_target_t.id
-    LEFT JOIN villages trade_target_v ON trade_target_t.id = trade_target_v.tile_id
-    LEFT JOIN players trade_target_p ON trade_target_v.player_id = trade_target_p.id
-  WHERE
-    r.id = $report_id AND
-    r.player_id = $player_id;
-`;
-
-export const selectBattlePlayerInformationQuery = `
-  SELECT
-    p.name AS player_name,
-    p.slug AS player_slug,
-    v.name AS village_name,
-    t.x,
-    t.y
-  FROM
-    villages v
-    JOIN players p ON v.player_id = p.id
-    JOIN tiles t ON v.tile_id = t.id
-  WHERE
-    t.id = $tile_id
-`;
-
-export const selectBattleOasisInformationQuery = `
-  SELECT
-    p.name AS player_name,
-    p.slug AS player_slug,
-    x,
-    y
-  FROM
-    oasis o
-    JOIN tiles t ON o.tile_id = t.id
-    LEFT JOIN villages v ON o.village_id = v.id
-    LEFT JOIN players p ON v.player_id = p.id
-  WHERE
-    o.tile_id = $tile_id
+    origin_p.name AS trade_origin_player_name,
+    origin_p.slug AS trade_origin_player_slug,
+    origin_v.name AS trade_origin_name,
+    origin_t.x AS trade_origin_x, origin_t.y AS trade_origin_y,
+    target_p.name AS trade_target_player_name,
+    target_p.slug AS trade_target_player_slug,
+    target_v.name AS trade_target_name,
+    target_t.x AS trade_target_x, target_t.y AS trade_target_y,
+    tr.wood AS trade_wood, tr.clay AS trade_clay,
+    tr.iron AS trade_iron, tr.wheat AS trade_wheat
+  FROM report r
+  JOIN trade_reports tr ON tr.report_id = r.id
+  JOIN tiles origin_t ON origin_t.id = tr.origin_tile_id
+  JOIN villages origin_v ON origin_v.tile_id = origin_t.id
+  JOIN players origin_p ON origin_p.id = origin_v.player_id
+  JOIN tiles target_t ON target_t.id = tr.target_tile_id
+  JOIN villages target_v ON target_v.tile_id = target_t.id
+  JOIN players target_p ON target_p.id = target_v.player_id
+  ;
 `;
 
 export const deleteReportQuery = `
@@ -268,33 +300,15 @@ export const deleteReportQuery = `
 `;
 
 export const insertReportTagQuery = `
-  INSERT
-  OR IGNORE INTO report_tags
-  VALUES
-    (
-      $report_id,
-      (
-        SELECT
-          id
-        FROM
-          report_tag_ids
-        WHERE
-          tag = $tag
-      )
-    )
+  INSERT OR IGNORE INTO report_tags (report_id, report_tag_id)
+  VALUES (
+    $report_id,
+    (SELECT id FROM report_tag_ids WHERE tag = $tag)
+  )
 `;
 
 export const deleteReportTagQuery = `
-  DELETE FROM
-    report_tags
-  WHERE
-    report_id = $report_id
-    AND report_tag_id = (
-      SELECT
-        id
-      FROM
-        report_tag_ids
-      WHERE
-        tag = $tag
-    )
+  DELETE FROM report_tags
+  WHERE report_id = $report_id
+    AND report_tag_id = (SELECT id FROM report_tag_ids WHERE tag = $tag)
 `;
