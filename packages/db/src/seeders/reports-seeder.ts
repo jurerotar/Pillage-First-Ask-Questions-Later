@@ -1,5 +1,6 @@
 import { type PRNGFunction, prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
+import { items } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type {
   BattleResultId,
@@ -534,6 +535,8 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
   )!;
 
   for (let i = 0; i < NON_BATTLE_REPORT_COUNT; i += 1) {
+    const adventureItem =
+      i % 2 === 0 ? null : seededRandomArrayElement(prng, items);
     const adventureReportId = insertBaseReport(
       i * 3,
       'adventure',
@@ -542,15 +545,21 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
     database.exec({
       sql: `
         INSERT INTO hero_adventure_reports (
-          report_id, adventure_id, item_id, health_before, health_after
+          report_id, adventure_id, item_id, item_amount,
+          health_before, health_after
         ) VALUES (
-          $report_id, $adventure_id, $item_id, $health_before, $health_after
+          $report_id, $adventure_id, $item_id, $item_amount,
+          $health_before, $health_after
         );
       `,
       bind: {
         $report_id: adventureReportId,
         $adventure_id: i + 1,
-        $item_id: i % 2 === 0 ? null : 1,
+        $item_id: adventureItem?.id ?? null,
+        $item_amount:
+          adventureItem === null
+            ? null
+            : seededRandomIntFromInterval(prng, 1, 10),
         $health_before: 100,
         $health_after: seededRandomIntFromInterval(prng, 70, 95),
       },

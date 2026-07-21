@@ -13,6 +13,7 @@ export const battleReportSummaryDtoSchema = battleReportSchema.omit({
 export const adventureReportSummaryDtoSchema = adventureReportSchema.omit({
   adventureId: true,
   itemId: true,
+  itemAmount: true,
   healthBefore: true,
   healthAfter: true,
 });

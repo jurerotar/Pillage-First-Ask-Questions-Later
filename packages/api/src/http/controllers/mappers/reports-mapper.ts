@@ -11,22 +11,14 @@ import { getBattle } from '../../../utils/report';
 import type { getReportsRowSchema } from '../schemas/report-schemas';
 
 type ReportRow = z.infer<typeof getReportsRowSchema>;
+type BattleReportRow = Extract<ReportRow, { type: 'battle' }>;
+type AdventureReportRow = Extract<ReportRow, { type: 'adventure' }>;
+type MovementReportRow = Extract<ReportRow, { type: 'movement' }>;
+type TradeReportRow = Extract<ReportRow, { type: 'trade' }>;
 type ReportListingDto = z.infer<typeof reportListingDtoSchema>;
 type ReportDto = Report;
 
-const getReportSummary = (row: ReportRow): BattleReportSummary => {
-  if (
-    row.battle_is_raid === null ||
-    row.battle_origin_name === null ||
-    row.battle_origin_x === null ||
-    row.battle_origin_y === null ||
-    row.battle_target_name === null ||
-    row.battle_target_x === null ||
-    row.battle_target_y === null
-  ) {
-    throw new Error(`Battle report ${row.id} is missing summary data`);
-  }
-
+const getReportSummary = (row: BattleReportRow): BattleReportSummary => {
   return {
     originName: row.battle_origin_name,
     originCoordinates: { x: row.battle_origin_x, y: row.battle_origin_y },
@@ -36,21 +28,20 @@ const getReportSummary = (row: ReportRow): BattleReportSummary => {
   };
 };
 
-const getMovementSummary = (row: ReportRow) => {
-  if (
-    row.movement_type === null ||
-    row.movement_origin_player_name === null ||
-    row.movement_origin_player_slug === null ||
-    row.movement_origin_name === null ||
-    row.movement_origin_x === null ||
-    row.movement_origin_y === null ||
-    row.movement_target_name === null ||
-    row.movement_target_x === null ||
-    row.movement_target_y === null
-  ) {
-    throw new Error(`Movement report ${row.id} is missing summary data`);
-  }
+const getAdventureSummary = (row: AdventureReportRow) => {
+  return {
+    originPlayerName: row.adventure_origin_player_name,
+    originPlayerSlug: row.adventure_origin_player_slug,
+    originVillageName: row.adventure_origin_village_name,
+    originCoordinates: {
+      x: row.adventure_origin_x,
+      y: row.adventure_origin_y,
+    },
+    tribe: row.adventure_origin_tribe,
+  };
+};
 
+const getMovementSummary = (row: MovementReportRow) => {
   return {
     originPlayerName: row.movement_origin_player_name,
     originPlayerSlug: row.movement_origin_player_slug,
@@ -70,18 +61,7 @@ const getMovementSummary = (row: ReportRow) => {
   };
 };
 
-const getTradeSummary = (row: ReportRow) => {
-  if (
-    row.trade_origin_name === null ||
-    row.trade_origin_x === null ||
-    row.trade_origin_y === null ||
-    row.trade_target_name === null ||
-    row.trade_target_x === null ||
-    row.trade_target_y === null
-  ) {
-    throw new Error(`Trade report ${row.id} is missing summary data`);
-  }
-
+const getTradeSummary = (row: TradeReportRow) => {
   return {
     originName: row.trade_origin_name,
     originCoordinates: { x: row.trade_origin_x, y: row.trade_origin_y },
@@ -126,11 +106,16 @@ const mapReportListItem = (row: ReportRow): ReportListingDto => {
     };
   }
 
-  return {
-    ...baseReport,
-    type: row.type,
-    summary: null,
-  };
+  if (row.type === 'adventure') {
+    return {
+      ...baseReport,
+      type: 'adventure',
+      summary: getAdventureSummary(row),
+    };
+  }
+
+  row satisfies never;
+  throw new Error('Unsupported report type');
 };
 
 export const mapReports = (rows: ReportRow[]): ReportListingDto[] => {
@@ -183,36 +168,19 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
   }
 
   if (row.type === 'adventure') {
-    if (
-      row.adventure_id === null ||
-      row.health_before === null ||
-      row.health_after === null
-    ) {
-      throw new Error(`Adventure report ${row.id} is missing adventure data`);
-    }
-
     return reportSchema.parse({
       ...baseReport,
       type: 'adventure',
-      summary: null,
+      summary: getAdventureSummary(row),
       adventureId: row.adventure_id,
       itemId: row.item_id,
+      itemAmount: row.item_amount,
       healthBefore: row.health_before,
       healthAfter: row.health_after,
     });
   }
 
   if (row.type === 'movement') {
-    if (
-      row.movement_id === null ||
-      row.movement_type === null ||
-      row.movement_tribe === null ||
-      row.movement_origin_tile_id === null ||
-      row.movement_target_tile_id === null
-    ) {
-      throw new Error(`Movement report ${row.id} is missing movement data`);
-    }
-
     const units = database.selectObjects({
       sql: `
         SELECT ui.unit AS unitId, mru.amount
@@ -240,18 +208,6 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
   }
 
   if (row.type === 'trade') {
-    if (
-      row.trade_id === null ||
-      row.trade_origin_tile_id === null ||
-      row.trade_target_tile_id === null ||
-      row.trade_wood === null ||
-      row.trade_clay === null ||
-      row.trade_iron === null ||
-      row.trade_wheat === null
-    ) {
-      throw new Error(`Trade report ${row.id} is missing trade data`);
-    }
-
     return reportSchema.parse({
       ...baseReport,
       type: 'trade',
@@ -270,11 +226,6 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
     });
   }
 
-  const report = reportSchema.parse({
-    ...baseReport,
-    type: row.type,
-    summary: null,
-  });
-
-  return report;
+  row satisfies never;
+  throw new Error('Unsupported report type');
 };

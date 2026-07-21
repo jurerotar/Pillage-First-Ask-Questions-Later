@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
+import { items } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../';
 
@@ -91,6 +92,26 @@ describe('reportsSeeder', () => {
       movement_units: 10,
       trades: 10,
     });
+  });
+
+  test('seeded adventure rewards only reference real hero items', () => {
+    const seededItems = database.selectObjects({
+      sql: `
+        SELECT item_id, item_amount
+        FROM hero_adventure_reports
+        WHERE item_id IS NOT NULL;
+      `,
+      schema: z.strictObject({
+        item_id: z.number(),
+        item_amount: z.number().int().positive(),
+      }),
+    });
+    const realItemIds = new Set(items.map(({ id }) => id));
+
+    expect(seededItems.length).toBeGreaterThan(0);
+    expect(seededItems.every(({ item_id }) => realItemIds.has(item_id))).toBe(
+      true,
+    );
   });
 
   test('seeded battles include participants and unit rows', () => {

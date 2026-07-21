@@ -20,8 +20,15 @@ export const selectReportsQuery = `
     target_t.y AS battle_target_y,
     ar.adventure_id,
     ar.item_id,
+    ar.item_amount,
     ar.health_before,
     ar.health_after,
+    adventure_p.name AS adventure_origin_player_name,
+    adventure_p.slug AS adventure_origin_player_slug,
+    adventure_v.name AS adventure_origin_village_name,
+    adventure_t.x AS adventure_origin_x,
+    adventure_t.y AS adventure_origin_y,
+    adventure_tribe.tribe AS adventure_origin_tribe,
     mr.id AS movement_id,
     mr.movement_type,
     movement_origin_tribe.tribe AS movement_tribe,
@@ -66,6 +73,10 @@ export const selectReportsQuery = `
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
     LEFT JOIN hero_adventure_reports ar ON r.id = ar.report_id
+    LEFT JOIN villages adventure_v ON r.village_id = adventure_v.id
+    LEFT JOIN players adventure_p ON adventure_v.player_id = adventure_p.id
+    LEFT JOIN tiles adventure_t ON adventure_v.tile_id = adventure_t.id
+    LEFT JOIN tribe_ids adventure_tribe ON adventure_p.tribe_id = adventure_tribe.id
     LEFT JOIN movement_reports mr ON r.id = mr.report_id
     LEFT JOIN tiles movement_origin_t ON mr.origin_tile_id = movement_origin_t.id
     LEFT JOIN villages movement_origin_v ON movement_origin_t.id = movement_origin_v.tile_id
@@ -144,8 +155,15 @@ export const selectReportQuery = `
     target_t.y AS battle_target_y,
     ar.adventure_id,
     ar.item_id,
+    ar.item_amount,
     ar.health_before,
     ar.health_after,
+    adventure_p.name AS adventure_origin_player_name,
+    adventure_p.slug AS adventure_origin_player_slug,
+    adventure_v.name AS adventure_origin_village_name,
+    adventure_t.x AS adventure_origin_x,
+    adventure_t.y AS adventure_origin_y,
+    adventure_tribe.tribe AS adventure_origin_tribe,
     mr.id AS movement_id,
     mr.movement_type,
     movement_origin_tribe.tribe AS movement_tribe,
@@ -190,6 +208,10 @@ export const selectReportQuery = `
     LEFT JOIN villages target_v ON target_t.id = target_v.tile_id
     LEFT JOIN oasis target_o ON target_t.id = target_o.tile_id
     LEFT JOIN hero_adventure_reports ar ON r.id = ar.report_id
+    LEFT JOIN villages adventure_v ON r.village_id = adventure_v.id
+    LEFT JOIN players adventure_p ON adventure_v.player_id = adventure_p.id
+    LEFT JOIN tiles adventure_t ON adventure_v.tile_id = adventure_t.id
+    LEFT JOIN tribe_ids adventure_tribe ON adventure_p.tribe_id = adventure_tribe.id
     LEFT JOIN movement_reports mr ON r.id = mr.report_id
     LEFT JOIN tiles movement_origin_t ON mr.origin_tile_id = movement_origin_t.id
     LEFT JOIN villages movement_origin_v ON movement_origin_t.id = movement_origin_v.tile_id

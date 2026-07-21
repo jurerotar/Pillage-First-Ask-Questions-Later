@@ -63,9 +63,16 @@ export const battleReportSchema = baseReportSchema.extend({
 
 export const adventureReportSchema = baseReportSchema.extend({
   type: z.literal('adventure'),
-  summary: z.null(),
+  summary: z.strictObject({
+    originPlayerName: z.string(),
+    originPlayerSlug: z.string(),
+    originVillageName: z.string(),
+    originCoordinates: coordinatesSchema,
+    tribe: tribeSchema,
+  }),
   adventureId: z.int(),
   itemId: z.int().nullable(),
+  itemAmount: z.int().positive().nullable(),
   healthBefore: z.number(),
   healthAfter: z.number(),
 });
