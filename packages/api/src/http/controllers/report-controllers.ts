@@ -13,7 +13,10 @@ import {
   selectReportQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
-import { mapReport, mapReportListings } from './mappers/reports-mapper';
+import {
+  mapReportListingRowToDto,
+  mapReportRowToDto,
+} from './mappers/report-mapper';
 import {
   getReportListingsRowSchema,
   getReportsRowSchema,
@@ -59,7 +62,7 @@ export const getReports = createController('/players/:playerId/reports', {
     schema: getReportListingsRowSchema,
   });
 
-  return mapReportListings(rows);
+  return rows.map(mapReportListingRowToDto);
 });
 
 export const getReport = createController('/report/:playerId/:reportId', {
@@ -72,14 +75,14 @@ export const getReport = createController('/report/:playerId/:reportId', {
   },
   response: reportSchema.nullable(),
 })(({ database, path: { playerId, reportId } }) => {
-  const rows = database.selectObjects({
+  const row = database.selectObject({
     sql: selectReportQuery,
     bind: { $player_id: playerId, $report_id: reportId },
     schema: getReportsRowSchema,
   });
 
-  if (rows.length > 0) {
-    return mapReport(database, rows);
+  if (row) {
+    return mapReportRowToDto(database, row);
   }
 
   return null;

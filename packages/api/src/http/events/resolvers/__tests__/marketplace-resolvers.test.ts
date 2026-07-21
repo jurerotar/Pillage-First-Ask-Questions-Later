@@ -450,6 +450,38 @@ describe('marketplace resolvers', () => {
       iron: 475,
       wheat: 490,
     });
+
+    const transferEventId = database.selectValue({
+      sql: "SELECT id FROM events WHERE type = 'resourceTransfer';",
+      schema: z.number(),
+    })!;
+
+    resolveEvent(database, transferEventId);
+
+    const outgoingReport = database.selectObject({
+      sql: `
+        SELECT r.village_id, roi.report_outcome, tr.origin_tile_id, tr.target_tile_id
+        FROM reports r
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN trade_reports tr ON tr.report_id = r.id
+        WHERE r.village_id = $village_id
+          AND roi.report_outcome = 'outgoingMerchantsArrived';
+      `,
+      bind: { $village_id: sourceVillage.id },
+      schema: z.strictObject({
+        village_id: z.number(),
+        report_outcome: z.string(),
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
+      }),
+    });
+
+    expect(outgoingReport).toStrictEqual({
+      village_id: sourceVillage.id,
+      report_outcome: 'outgoingMerchantsArrived',
+      origin_tile_id: sourceVillage.tile_id,
+      target_tile_id: targetVillage.tileId,
+    });
   });
 
   test('tradeRoute should schedule the next route when the transfer cannot start', async () => {

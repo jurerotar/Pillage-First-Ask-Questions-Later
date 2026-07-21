@@ -1,12 +1,14 @@
-import type { SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import { unitsMap } from '@pillage-first/game-assets/units';
 import type {
   BattleParticipant,
   BattleType,
-  BattleUnit,
 } from '@pillage-first/types/models/battle';
-import type { BaseReport } from '@pillage-first/types/models/report';
+import type {
+  BaseReport,
+  ReportOutcome,
+} from '@pillage-first/types/models/report';
+import type { Resources } from '@pillage-first/types/models/resource';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   type MappedBattleParticipant,
@@ -36,28 +38,17 @@ export type CreateNewReport = Pick<
   'playerId' | 'villageId' | 'timestamp' | 'type' | 'outcome' | 'tags'
 >;
 
-export type CreateNewBattleType = Omit<
-  BattleType,
-  'id' | 'attacker' | 'defender' | 'outcome' | 'statistics'
+export type CreateNewTradeReport = Pick<
+  CreateNewReport,
+  'playerId' | 'villageId' | 'timestamp'
 > & {
-  reportId: BaseReport['id'];
+  outcome: Extract<
+    ReportOutcome,
+    'incomingMerchantsArrived' | 'outgoingMerchantsArrived'
+  >;
   originTileId: number;
   targetTileId: number;
-  isRaid: boolean;
-  loot: [number, number, number, number];
-  canAttackerSeeFullReport: boolean;
-  attackStatisticPoints: number;
-  defenceStatisticPoints: number;
-};
-
-export type CreateNewBattleParticipant = {
-  battleId: BattleType['id'];
-  playerId: number | null;
-  tileId: number;
-};
-
-export type CreateNewBattleUnit = BattleUnit & {
-  battleParticipantId: number;
+  resources: Resources;
 };
 
 export const insertReport = (
@@ -108,157 +99,69 @@ export const insertReport = (
     schema: z.int(),
   })!;
 
-  if (report.tags.length === 0) {
-    return reportId;
+  if (report.tags.length > 0) {
+    database.exec({
+      sql: `
+        INSERT INTO report_tags (report_id, report_tag_id)
+        SELECT $report_id, report_tag_ids.id
+        FROM json_each($tags)
+        JOIN report_tag_ids ON report_tag_ids.tag = json_each.value;
+      `,
+      bind: {
+        $report_id: reportId,
+        $tags: JSON.stringify(report.tags),
+      },
+    });
   }
-
-  var valueRows = [];
-  for (let i = 0; i < report.tags.length; i += 1) {
-    const tag = report.tags[i];
-    const frontComma = i === 0 ? '' : ',';
-    valueRows.push(
-      `${frontComma}(${reportId}, (SELECT id FROM report_tag_ids WHERE tag = '${tag}'))`,
-    );
-  }
-
-  database.exec({
-    sql: `
-      INSERT INTO
-        report_tags (report_id, report_tag_id)
-      VALUES
-        ${valueRows}`,
-  });
 
   return reportId;
 };
 
-export const insertBattle = (
+export const insertTradeReport = (
   database: DbFacade,
-  battle: CreateNewBattleType,
+  report: CreateNewTradeReport,
 ): number => {
-  return database.selectValue({
-    sql: `
-      INSERT INTO
-        battle_reports (
-          report_id,
-          origin_tile_id,
-          target_tile_id,
-          is_raid,
-          loot_wood,
-          loot_clay,
-          loot_iron,
-          loot_wheat,
-          can_attacker_see_full_report,
-          attacker_points,
-          defender_points
-        )
-      VALUES
-        (
-          $report_id,
-          $origin_tile_id,
-          $target_tile_id,
-          $is_raid,
-          $loot_wood,
-          $loot_clay,
-          $loot_iron,
-          $loot_wheat,
-          $can_attacker_see_full_report,
-          $attacker_points,
-          $defender_points
-        )
-      RETURNING id;
-    `,
-    bind: {
-      $report_id: battle.reportId,
-      $origin_tile_id: battle.originTileId,
-      $target_tile_id: battle.targetTileId,
-      $is_raid: battle.isRaid,
-      $loot_wood: battle.loot[0],
-      $loot_clay: battle.loot[1],
-      $loot_iron: battle.loot[2],
-      $loot_wheat: battle.loot[3],
-      $can_attacker_see_full_report: battle.canAttackerSeeFullReport,
-      $attacker_points: battle.attackStatisticPoints,
-      $defender_points: battle.defenceStatisticPoints,
-    },
-    schema: z.int(),
-  })!;
-};
-
-export const insertBattleParticipant = (
-  database: DbFacade,
-  participant: CreateNewBattleParticipant,
-): number => {
-  return database.selectValue({
-    sql: `
-      INSERT INTO
-        battle_report_participants (battle_id, player_id, tile_id)
-      VALUES
-        (
-          $battle_id,
-          $player_id,
-          $tile_id
-        )
-      RETURNING id;
-`,
-    bind: {
-      $battle_id: participant.battleId,
-      $player_id: participant.playerId,
-      $tile_id: participant.tileId,
-    },
-    schema: z.int(),
-  })!;
-};
-
-export const insertBattleUnits = (
-  database: DbFacade,
-  units: CreateNewBattleUnit[],
-): void => {
-  const requiredEventProperties = new Set([
-    'battleParticipantId',
-    'unitId',
-    'amountBefore',
-    'amountAfter',
-  ]);
-  const amountOfColumnsToInsert = requiredEventProperties.size;
-
-  const sqlTemplate = `
-    INSERT INTO
-      battle_report_units (battle_participant_id, unit_id, amount_before, amount_after)
-    VALUES (
-      ?,
-      (SELECT id FROM unit_ids WHERE unit = ?),
-      ?,
-      ?)
-  `;
-
-  const valueTemplate = `
-    ,(
-      ?,
-      (SELECT id FROM unit_ids WHERE unit = ?),
-      ?,
-      ?
-    )`;
-  const amountOfUnits = units.length;
-
-  const sql = `${sqlTemplate}${valueTemplate.repeat(amountOfUnits - 1)};`;
-
-  const params: SqlValue[] = Array.from({
-    length: units.length * amountOfColumnsToInsert,
+  const reportId = insertReport(database, {
+    playerId: report.playerId,
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'trade',
+    outcome: report.outcome,
+    tags: [],
   });
 
-  for (let i = 0; i < units.length; i += 1) {
-    const unit = units[i];
-    const base = i * amountOfColumnsToInsert;
+  database.exec({
+    sql: `
+      INSERT INTO trade_reports (
+        report_id,
+        origin_tile_id,
+        target_tile_id,
+        wood,
+        clay,
+        iron,
+        wheat
+      ) VALUES (
+        $report_id,
+        $origin_tile_id,
+        $target_tile_id,
+        $wood,
+        $clay,
+        $iron,
+        $wheat
+      );
+    `,
+    bind: {
+      $report_id: reportId,
+      $origin_tile_id: report.originTileId,
+      $target_tile_id: report.targetTileId,
+      $wood: report.resources.wood,
+      $clay: report.resources.clay,
+      $iron: report.resources.iron,
+      $wheat: report.resources.wheat,
+    },
+  });
 
-    params[base] = unit.battleParticipantId;
-    params[base + 1] = unit.unitId;
-    params[base + 2] = unit.amountBefore;
-    params[base + 3] = unit.amountAfter;
-  }
-
-  const stmt = database.prepare({ sql });
-  stmt.bind(params).stepReset();
+  return reportId;
 };
 
 export const getBattle = (
@@ -289,13 +192,18 @@ export const getBattle = (
     })
     .map(mapBattleUnits);
 
-  const participantsIdMap = new Map();
+  const participantsIdMap = new Map<number, MappedBattleParticipant>();
   for (const participant of participants) {
     participantsIdMap.set(participant.id, participant);
   }
 
   for (const unit of units) {
     const participant = participantsIdMap.get(unit.battleParticipantId);
+    if (!participant) {
+      throw new Error(
+        `Battle participant ${unit.battleParticipantId} not found for report ${reportId}`,
+      );
+    }
     const { battleParticipantId: _, ...battleUnit } = unit;
     participant.units.push(battleUnit);
   }
