@@ -299,16 +299,24 @@ export const deleteReportQuery = `
   WHERE id IN (SELECT value FROM json_each($report_ids))
 `;
 
-export const insertReportTagQuery = `
+export const insertReportTagsQuery = `
   INSERT OR IGNORE INTO report_tags (report_id, report_tag_id)
-  VALUES (
-    $report_id,
-    (SELECT id FROM report_tag_ids WHERE tag = $tag)
-  )
+  SELECT r.id, rti.id
+  FROM json_each($report_ids) report_ids
+  JOIN reports r ON r.id = report_ids.value
+  CROSS JOIN json_each($tags) tag_updates
+  JOIN report_tag_ids rti ON rti.tag = tag_updates.key
+  WHERE tag_updates.value = 1
 `;
 
-export const deleteReportTagQuery = `
+export const deleteReportTagsQuery = `
   DELETE FROM report_tags
-  WHERE report_id = $report_id
-    AND report_tag_id = (SELECT id FROM report_tag_ids WHERE tag = $tag)
+  WHERE (report_id, report_tag_id) IN (
+    SELECT r.id, rti.id
+    FROM json_each($report_ids) report_ids
+    JOIN reports r ON r.id = report_ids.value
+    CROSS JOIN json_each($tags) tag_updates
+    JOIN report_tag_ids rti ON rti.tag = tag_updates.key
+    WHERE tag_updates.value = 0
+  )
 `;

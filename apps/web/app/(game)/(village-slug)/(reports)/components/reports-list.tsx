@@ -41,7 +41,7 @@ export const ReportsList = ({
 
   const markAsRead = (report: ReportListingDto) => {
     if (!report.tags.includes('read')) {
-      updateReports({ reportIds: [report.id], addTags: ['read'] });
+      updateReports({ reportIds: [report.id], tags: { read: true } });
     }
   };
 
