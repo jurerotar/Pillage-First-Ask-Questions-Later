@@ -51,9 +51,13 @@ export const selectReportsQuery = `
     tr.id AS trade_id,
     tr.origin_tile_id AS trade_origin_tile_id,
     tr.target_tile_id AS trade_target_tile_id,
+    trade_origin_p.name AS trade_origin_player_name,
+    trade_origin_p.slug AS trade_origin_player_slug,
     trade_origin_v.name AS trade_origin_name,
     trade_origin_t.x AS trade_origin_x,
     trade_origin_t.y AS trade_origin_y,
+    trade_target_p.name AS trade_target_player_name,
+    trade_target_p.slug AS trade_target_player_slug,
     trade_target_v.name AS trade_target_name,
     trade_target_t.x AS trade_target_x,
     trade_target_t.y AS trade_target_y,
@@ -66,7 +70,7 @@ export const selectReportsQuery = `
     reports r
     JOIN report_type_ids rty ON r.type_id = rty.id
     JOIN report_outcome_ids roi ON r.report_outcome_id = roi.id
-    LEFT JOIN battles b ON r.id = b.report_id
+    LEFT JOIN battle_reports b ON r.id = b.report_id
     LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
     LEFT JOIN villages origin_v ON origin_t.id = origin_v.tile_id
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
@@ -86,11 +90,13 @@ export const selectReportsQuery = `
     LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
     LEFT JOIN players movement_target_p ON movement_target_v.player_id = movement_target_p.id
     LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
-    LEFT JOIN trading_reports tr ON r.id = tr.report_id
+    LEFT JOIN trade_reports tr ON r.id = tr.report_id
     LEFT JOIN tiles trade_origin_t ON tr.origin_tile_id = trade_origin_t.id
     LEFT JOIN villages trade_origin_v ON trade_origin_t.id = trade_origin_v.tile_id
+    LEFT JOIN players trade_origin_p ON trade_origin_v.player_id = trade_origin_p.id
     LEFT JOIN tiles trade_target_t ON tr.target_tile_id = trade_target_t.id
     LEFT JOIN villages trade_target_v ON trade_target_t.id = trade_target_v.tile_id
+    LEFT JOIN players trade_target_p ON trade_target_v.player_id = trade_target_p.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
@@ -186,9 +192,13 @@ export const selectReportQuery = `
     tr.id AS trade_id,
     tr.origin_tile_id AS trade_origin_tile_id,
     tr.target_tile_id AS trade_target_tile_id,
+    trade_origin_p.name AS trade_origin_player_name,
+    trade_origin_p.slug AS trade_origin_player_slug,
     trade_origin_v.name AS trade_origin_name,
     trade_origin_t.x AS trade_origin_x,
     trade_origin_t.y AS trade_origin_y,
+    trade_target_p.name AS trade_target_player_name,
+    trade_target_p.slug AS trade_target_player_slug,
     trade_target_v.name AS trade_target_name,
     trade_target_t.x AS trade_target_x,
     trade_target_t.y AS trade_target_y,
@@ -201,7 +211,7 @@ export const selectReportQuery = `
     reports r
     JOIN report_type_ids rty ON r.type_id = rty.id
     JOIN report_outcome_ids roi ON r.report_outcome_id = roi.id
-    LEFT JOIN battles b ON r.id = b.report_id
+    LEFT JOIN battle_reports b ON r.id = b.report_id
     LEFT JOIN tiles origin_t ON b.origin_tile_id = origin_t.id
     LEFT JOIN villages origin_v ON origin_t.id = origin_v.tile_id
     LEFT JOIN tiles target_t ON b.target_tile_id = target_t.id
@@ -221,11 +231,13 @@ export const selectReportQuery = `
     LEFT JOIN villages movement_target_v ON movement_target_t.id = movement_target_v.tile_id
     LEFT JOIN players movement_target_p ON movement_target_v.player_id = movement_target_p.id
     LEFT JOIN oasis movement_target_o ON movement_target_t.id = movement_target_o.tile_id
-    LEFT JOIN trading_reports tr ON r.id = tr.report_id
+    LEFT JOIN trade_reports tr ON r.id = tr.report_id
     LEFT JOIN tiles trade_origin_t ON tr.origin_tile_id = trade_origin_t.id
     LEFT JOIN villages trade_origin_v ON trade_origin_t.id = trade_origin_v.tile_id
+    LEFT JOIN players trade_origin_p ON trade_origin_v.player_id = trade_origin_p.id
     LEFT JOIN tiles trade_target_t ON tr.target_tile_id = trade_target_t.id
     LEFT JOIN villages trade_target_v ON trade_target_t.id = trade_target_v.tile_id
+    LEFT JOIN players trade_target_p ON trade_target_v.player_id = trade_target_p.id
     LEFT JOIN report_tags t ON r.id = t.report_id
     LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE

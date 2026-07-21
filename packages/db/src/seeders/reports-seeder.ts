@@ -365,7 +365,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
 
     const battleId = database.selectValue({
       sql: `
-        INSERT INTO battles (
+        INSERT INTO battle_reports (
           report_id,
           origin_tile_id,
           target_tile_id,
@@ -416,7 +416,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
 
     const attackerParticipantId = database.selectValue({
       sql: `
-        INSERT INTO battle_participants (battle_id, player_id, tile_id)
+        INSERT INTO battle_report_participants (battle_id, player_id, tile_id)
         VALUES ($battle_id, $player_id, $tile_id)
         RETURNING id;
       `,
@@ -430,7 +430,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
 
     const defenderParticipantId = database.selectValue({
       sql: `
-        INSERT INTO battle_participants (battle_id, player_id, tile_id)
+        INSERT INTO battle_report_participants (battle_id, player_id, tile_id)
         VALUES ($battle_id, $player_id, $tile_id)
         RETURNING id;
       `,
@@ -474,7 +474,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
       if (reinforcementVillage) {
         const reinforcementParticipantId = database.selectValue({
           sql: `
-            INSERT INTO battle_participants (battle_id, player_id, tile_id)
+            INSERT INTO battle_report_participants (battle_id, player_id, tile_id)
             VALUES ($battle_id, $player_id, $tile_id)
             RETURNING id;
           `,
@@ -605,7 +605,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
     );
     database.exec({
       sql: `
-        INSERT INTO trading_reports (
+        INSERT INTO trade_reports (
           report_id, origin_tile_id, target_tile_id, wood, clay, iron, wheat
         ) VALUES (
           $report_id, $origin_tile_id, $target_tile_id,
@@ -626,7 +626,7 @@ export const reportsSeeder = (database: DbFacade, server: Server): void => {
 
   batchInsert(
     database,
-    'battle_units',
+    'battle_report_units',
     ['battle_participant_id', 'unit_id', 'amount_before', 'amount_after'],
     battleUnitRows,
   );

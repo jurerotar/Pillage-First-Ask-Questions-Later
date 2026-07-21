@@ -9,9 +9,9 @@ import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
-import createBattleParticipantsTable from '../schemas/battle-participants-schema.sql?raw';
-import createBattleUnitsTable from '../schemas/battle-units-schema.sql?raw';
-import createBattlesTable from '../schemas/battles-schema.sql?raw';
+import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
+import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
+import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
 import createBuildingFieldsTable from '../schemas/building-fields-schema.sql?raw';
 import createDeveloperSettingsTable from '../schemas/developer-settings-schema.sql?raw';
@@ -63,7 +63,7 @@ import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
-import createTradingReportsTable from '../schemas/trading-reports-schema.sql?raw';
+import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
@@ -237,13 +237,13 @@ export const migrateAndSeed = (
     db.exec({ sql: createHeroAdventureReportsTable });
     db.exec({ sql: createMovementReportsTable });
     db.exec({ sql: createMovementReportUnitsTable });
-    db.exec({ sql: createTradingReportsTable });
+    db.exec({ sql: createTradeReportsTable });
     db.exec({ sql: createReportDeleteTriggers });
     db.exec({ sql: createReportTagsTable });
 
-    db.exec({ sql: createBattlesTable });
-    db.exec({ sql: createBattleParticipantsTable });
-    db.exec({ sql: createBattleUnitsTable });
+    db.exec({ sql: createBattleReportsTable });
+    db.exec({ sql: createBattleReportParticipantsTable });
+    db.exec({ sql: createBattleReportUnitsTable });
     reportsSeeder(db, server);
 
     // Heroes

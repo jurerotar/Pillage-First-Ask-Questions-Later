@@ -1,4 +1,4 @@
-CREATE TABLE trading_reports
+CREATE TABLE trade_reports
 (
   id INTEGER PRIMARY KEY,
   report_id INTEGER NOT NULL UNIQUE,

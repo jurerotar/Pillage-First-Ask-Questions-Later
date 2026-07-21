@@ -8,5 +8,5 @@ BEGIN
 
   DELETE FROM hero_adventure_reports WHERE report_id = OLD.id;
   DELETE FROM movement_reports WHERE report_id = OLD.id;
-  DELETE FROM trading_reports WHERE report_id = OLD.id;
+  DELETE FROM trade_reports WHERE report_id = OLD.id;
 END;

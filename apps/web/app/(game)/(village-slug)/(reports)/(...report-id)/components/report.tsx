@@ -8,10 +8,12 @@ import type {
   AdventureReport,
   BattleReport,
   Report as ReportType,
+  TradeReport,
   TroopMovementReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import {
   UnitTable,
   UnitTableHiddenRow,
@@ -357,6 +359,88 @@ export const MovementReportTable = () => {
       />
       <UnitTableWheatConsumption troops={troops} />
     </UnitTable>
+  );
+};
+
+export const TradeReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as TradeReport;
+  const {
+    originPlayerName,
+    originPlayerSlug,
+    originName,
+    originCoordinates,
+    targetPlayerName,
+    targetPlayerSlug,
+    targetName,
+    targetCoordinates,
+  } = report.summary;
+
+  return (
+    <div className="overflow-x-scroll scrollbar-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Trade')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left normal-case"
+            >
+              <Link
+                to={`../players/${originPlayerSlug}`}
+                className="text-link"
+              >
+                {originPlayerName}
+              </Link>{' '}
+              {t('from')}{' '}
+              <Link
+                to={`../map?x=${originCoordinates.x}&y=${originCoordinates.y}`}
+                className="text-link"
+              >
+                {originName} ({originCoordinates.x}|{originCoordinates.y})
+              </Link>{' '}
+              {t('to')}{' '}
+              <Link
+                to={`../players/${targetPlayerSlug}`}
+                className="text-link"
+              >
+                {targetPlayerName}
+              </Link>{' '}
+              {t('from')}{' '}
+              <Link
+                to={`../map?x=${targetCoordinates.x}&y=${targetCoordinates.y}`}
+                className="text-link"
+              >
+                {targetName} ({targetCoordinates.x}|{targetCoordinates.y})
+              </Link>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Resources')}
+            </TableCell>
+            <TableCell className="text-left">
+              <div className="flex flex-wrap items-center gap-2">
+                <Resources
+                  resources={report.trade.resources}
+                  iconClassName="size-4"
+                />
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 

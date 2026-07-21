@@ -139,7 +139,7 @@ export const insertBattle = (
   return database.selectValue({
     sql: `
       INSERT INTO
-        battles (
+        battle_reports (
           report_id,
           origin_tile_id,
           target_tile_id,
@@ -192,7 +192,7 @@ export const insertBattleParticipant = (
   return database.selectValue({
     sql: `
       INSERT INTO
-        battle_participants (battle_id, player_id, tile_id)
+        battle_report_participants (battle_id, player_id, tile_id)
       VALUES
         (
           $battle_id,
@@ -224,7 +224,7 @@ export const insertBattleUnits = (
 
   const sqlTemplate = `
     INSERT INTO
-      battle_units (battle_participant_id, unit_id, amount_before, amount_after)
+      battle_report_units (battle_participant_id, unit_id, amount_before, amount_after)
     VALUES (
       ?,
       (SELECT id FROM unit_ids WHERE unit = ?),

@@ -1,4 +1,4 @@
-CREATE TABLE battle_units
+CREATE TABLE battle_report_units
 (
   battle_participant_id INTEGER NOT NULL,
   unit_id INTEGER NOT NULL,
@@ -8,6 +8,6 @@ CREATE TABLE battle_units
   PRIMARY KEY (battle_participant_id, unit_id),
   CHECK (amount_after <= amount_before),
 
-  FOREIGN KEY (battle_participant_id) REFERENCES battle_participants (id) ON DELETE CASCADE,
+  FOREIGN KEY (battle_participant_id) REFERENCES battle_report_participants (id) ON DELETE CASCADE,
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id) ON DELETE CASCADE
 ) STRICT;
