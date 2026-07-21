@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   reportOutcomeSchema,
-  reportTagSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
@@ -76,7 +75,7 @@ const baseReportRowSchema = z.strictObject({
   village_id: z.int(),
   timestamp: z.int(),
   outcome: reportOutcomeSchema,
-  tag: reportTagSchema.nullable(),
+  tags_json: z.string(),
   ...nullableReportDetailColumns,
 });
 

@@ -190,7 +190,12 @@ export const selectReportQuery = `
     tr.clay AS trade_clay,
     tr.iron AS trade_iron,
     tr.wheat AS trade_wheat,
-    tag
+    COALESCE((
+      SELECT json_group_array(rti.tag)
+      FROM report_tags rt
+      JOIN report_tag_ids rti ON rti.id = rt.report_tag_id
+      WHERE rt.report_id = r.id
+    ), '[]') AS tags_json
   FROM
     reports r
     JOIN report_type_ids rty ON r.type_id = rty.id
@@ -222,8 +227,6 @@ export const selectReportQuery = `
     LEFT JOIN tiles trade_target_t ON tr.target_tile_id = trade_target_t.id
     LEFT JOIN villages trade_target_v ON trade_target_t.id = trade_target_v.tile_id
     LEFT JOIN players trade_target_p ON trade_target_v.player_id = trade_target_p.id
-    LEFT JOIN report_tags t ON r.id = t.report_id
-    LEFT JOIN report_tag_ids i ON t.report_tag_id = i.id
   WHERE
     r.id = $report_id AND
     r.player_id = $player_id;
