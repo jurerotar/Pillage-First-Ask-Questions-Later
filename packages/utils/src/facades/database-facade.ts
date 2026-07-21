@@ -41,32 +41,26 @@ const clearBindingsAfterExecution = (
 };
 
 export type DbFacade = {
-  exec: <const Sql extends string>(args: ExecQueryArgs<Sql>) => void;
+  exec: (args: ExecQueryArgs) => void;
 
   /** returns SQLite EXPLAIN QUERY PLAN rows without executing the original query */
-  explain: <const Sql extends string>(
-    args: ExecQueryArgs<Sql>,
-  ) => DbQueryPlanRow[];
+  explain: (args: ExecQueryArgs) => DbQueryPlanRow[];
 
   /** returns a single *value* validated against `schema`. undefined if not found */
-  selectValue: <T extends z.ZodType, const Sql extends string>(
-    args: SelectArgs<T, Sql>,
+  selectValue: <T extends z.ZodType>(
+    args: SelectArgs<T>,
   ) => z.infer<T> | undefined;
 
   /** returns an array of values validated against `schema` (empty array if nothing found) */
-  selectValues: <T extends z.ZodType, const Sql extends string>(
-    args: SelectArgs<T, Sql>,
-  ) => z.infer<T>[];
+  selectValues: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
 
   /** single row object validated against schema (use a z.strictObject(...) schema) */
-  selectObject: <T extends z.ZodType, const Sql extends string>(
-    args: SelectArgs<T, Sql>,
+  selectObject: <T extends z.ZodType>(
+    args: SelectArgs<T>,
   ) => z.infer<T> | undefined;
 
   /** many row objects validated against schema */
-  selectObjects: <T extends z.ZodType, const Sql extends string>(
-    args: SelectArgs<T, Sql>,
-  ) => z.infer<T>[];
+  selectObjects: <T extends z.ZodType>(args: SelectArgs<T>) => z.infer<T>[];
 
   prepare: ({
     sql,
@@ -139,10 +133,7 @@ export const createDbFacade = (
     return statement;
   };
 
-  const explainQueryPlan = <const Sql extends string>({
-    sql,
-    bind,
-  }: ExecQueryArgs<Sql>): DbQueryPlanRow[] => {
+  const explainQueryPlan = ({ sql, bind }: ExecQueryArgs): DbQueryPlanRow[] => {
     return z
       .array(queryPlanRowSchema)
       .parse(database.selectObjects(`EXPLAIN QUERY PLAN ${sql}`, bind));
