@@ -75,10 +75,11 @@ describe(matchRoute, () => {
 
   test('preserves repeated query params as arrays', () => {
     const result = matchRoute(
-      '/players/1/reports/1?scope=global&types=adventure&types=movement&types=trade',
+      '/players/1/reports?scope=village&villageId=2&types=adventure&types=movement&types=trade',
       'GET',
     );
 
+    expect(result.query.villageId).toBe(2);
     expect(result.query.types).toStrictEqual([
       'adventure',
       'movement',
