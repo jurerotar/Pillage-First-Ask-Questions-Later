@@ -1,13 +1,12 @@
-import { z } from 'zod';
+import type { z } from 'zod';
+import { unitsMap } from '@pillage-first/game-assets/units';
 import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
-import type {
-  BattleReportSummary,
-  Report,
+import type { BattleType } from '@pillage-first/types/models/battle';
+import type { BattleReportSummary } from '@pillage-first/types/models/report';
+import {
+  type movementReportUnitSchema,
+  reportSchema,
 } from '@pillage-first/types/models/report';
-import { reportSchema } from '@pillage-first/types/models/report';
-import { unitIdSchema } from '@pillage-first/types/models/unit';
-import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { getBattle } from '../../../utils/report';
 import type {
   getReportListingsRowSchema,
   getReportsRowSchema,
@@ -102,79 +101,169 @@ export const mapReportListingRowToDto = (
     tags: JSON.parse(row.tags_json),
   });
 
-export const mapReportRowToDto = (
-  database: DbFacade,
-  row: ReportRow,
-): Report => {
-  const baseReport = mapBaseReportRowToDto(row);
+export const mapBattleReportRowToDto = (rows: BattleReportRow[]) => {
+  const row = rows[0]!;
 
-  if (row.type === 'battle') {
-    return reportSchema.parse({
-      ...baseReport,
-      type: 'battle',
-      summary: mapBattleReportRowToSummaryDto(row),
-      battle: getBattle(database, row.id),
-    });
+  const participants = new Map<number, BattleType['attacker']>();
+  const reinforcements: BattleType['defender']['reinforcements'] = [];
+  const attackerStatistics = {
+    points: row.attacker_points,
+    supplyBefore: 0,
+    supplyLost: 0,
+    resourcesLost: 0,
+  };
+  const defenderStatistics = {
+    points: row.defender_points,
+    supplyBefore: 0,
+    supplyLost: 0,
+    resourcesLost: 0,
+  };
+  let attacker: BattleType['attacker'] | undefined;
+  let defender: BattleType['attacker'] | undefined;
+  let totalCarryCapacity = 0;
+
+  for (const participantRow of rows) {
+    let participant = participants.get(participantRow.participant_id);
+    if (!participant) {
+      participant = {
+        player: {
+          id: participantRow.participant_player_id,
+          name: participantRow.participant_player_name,
+          slug: participantRow.participant_player_slug ?? undefined,
+        },
+        village: {
+          tileId: participantRow.participant_tile_id,
+          name: participantRow.participant_location_name,
+          coordinates: {
+            x: participantRow.participant_x,
+            y: participantRow.participant_y,
+          },
+        },
+        troops: {
+          id: participantRow.participant_id,
+          tribe: participantRow.participant_tribe,
+          units: [],
+        },
+      };
+      participants.set(participantRow.participant_id, participant);
+
+      if (participantRow.participant_role === 'attacker') {
+        attacker = participant;
+      } else if (participantRow.participant_is_reinforcement) {
+        reinforcements.push(participant);
+      } else {
+        defender = participant;
+      }
+    }
+
+    if (
+      participantRow.participant_unit_id &&
+      participantRow.participant_amount_before != null &&
+      participantRow.participant_amount_after != null
+    ) {
+      participant.troops.units.push({
+        unitId: participantRow.participant_unit_id,
+        amountBefore: participantRow.participant_amount_before,
+        amountAfter: participantRow.participant_amount_after,
+      });
+
+      const unit = unitsMap.get(participantRow.participant_unit_id);
+      if (unit) {
+        const amountLost =
+          participantRow.participant_amount_before -
+          participantRow.participant_amount_after;
+        const statistics =
+          participantRow.participant_role === 'attacker'
+            ? attackerStatistics
+            : defenderStatistics;
+
+        let resourceCost = 0;
+        for (const cost of unit.baseRecruitmentCost) {
+          resourceCost += cost;
+        }
+
+        statistics.supplyBefore += participantRow.participant_amount_before;
+        statistics.supplyLost += amountLost;
+        statistics.resourcesLost += resourceCost * amountLost;
+
+        if (participantRow.participant_role === 'attacker') {
+          totalCarryCapacity +=
+            unit.unitCarryCapacity * participantRow.participant_amount_after;
+        }
+      }
+    }
   }
 
-  if (row.type === 'adventure') {
-    return reportSchema.parse({
-      ...baseReport,
-      type: 'adventure',
-      summary: mapAdventureReportRowToSummaryDto(row),
-      adventureId: row.adventure_id,
-      itemId: row.item_id,
-      itemAmount: row.item_amount,
-      healthBefore: row.health_before,
-      healthAfter: row.health_after,
-    });
+  if (!attacker || !defender) {
+    throw new Error(`Battle participants missing for report ${row.id}`);
   }
 
-  if (row.type === 'movement') {
-    const units = database.selectObjects({
-      sql: `
-        SELECT ui.unit AS unitId, mru.amount
-        FROM movement_report_units mru
-        JOIN unit_ids ui ON mru.unit_id = ui.id
-        WHERE mru.movement_report_id = $movement_report_id;
-      `,
-      bind: { $movement_report_id: row.movement_id },
-      schema: z.strictObject({ unitId: unitIdSchema, amount: z.int() }),
-    });
+  const battle: BattleType = {
+    id: row.battle_id,
+    attacker,
+    defender: { ...defender, reinforcements },
+    outcome: {
+      isRaid: Boolean(row.battle_is_raid),
+      loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
+      totalCarryCapacity,
+      didAttackerWin: row.attacker_points > row.defender_points,
+      canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
+    },
+    statistics: { attacker: attackerStatistics, defender: defenderStatistics },
+  };
 
-    return reportSchema.parse({
-      ...baseReport,
-      type: 'movement',
-      summary: mapMovementReportRowToSummaryDto(row),
-      movement: {
-        id: row.movement_id,
-        tribe: row.movement_tribe,
-        originTileId: row.movement_origin_tile_id,
-        targetTileId: row.movement_target_tile_id,
-        movementType: row.movement_type,
-        units,
-      },
-    });
-  }
-
-  if (row.type === 'trade') {
-    return reportSchema.parse({
-      ...baseReport,
-      type: 'trade',
-      summary: mapTradeReportRowToSummaryDto(row),
-      trade: {
-        id: row.trade_id,
-        originTileId: row.trade_origin_tile_id,
-        targetTileId: row.trade_target_tile_id,
-        resources: [
-          row.trade_wood,
-          row.trade_clay,
-          row.trade_iron,
-          row.trade_wheat,
-        ],
-      },
-    });
-  }
-
-  throw new Error('Unsupported report type');
+  return reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'battle',
+    summary: mapBattleReportRowToSummaryDto(row),
+    battle,
+  });
 };
+
+export const mapAdventureReportRowToDto = (row: AdventureReportRow) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'adventure',
+    summary: mapAdventureReportRowToSummaryDto(row),
+    adventureId: row.adventure_id,
+    itemId: row.item_id,
+    itemAmount: row.item_amount,
+    healthBefore: row.health_before,
+    healthAfter: row.health_after,
+  });
+
+export const mapMovementReportRowToDto = (
+  row: MovementReportRow,
+  movementUnits: z.infer<typeof movementReportUnitSchema>[],
+) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'movement',
+    summary: mapMovementReportRowToSummaryDto(row),
+    movement: {
+      id: row.movement_id,
+      tribe: row.movement_tribe,
+      originTileId: row.movement_origin_tile_id,
+      targetTileId: row.movement_target_tile_id,
+      movementType: row.movement_type,
+      units: movementUnits,
+    },
+  });
+
+export const mapTradeReportRowToDto = (row: TradeReportRow) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'trade',
+    summary: mapTradeReportRowToSummaryDto(row),
+    trade: {
+      id: row.trade_id,
+      originTileId: row.trade_origin_tile_id,
+      targetTileId: row.trade_target_tile_id,
+      resources: [
+        row.trade_wood,
+        row.trade_clay,
+        row.trade_iron,
+        row.trade_wheat,
+      ],
+    },
+  });
