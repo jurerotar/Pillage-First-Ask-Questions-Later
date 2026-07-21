@@ -260,7 +260,8 @@ export const selectBattleOasisInformationQuery = `
 `;
 
 export const deleteReportQuery = `
-  DELETE FROM reports WHERE id = $report_id
+  DELETE FROM reports
+  WHERE id IN (SELECT value FROM json_each($report_ids))
 `;
 
 export const insertReportTagQuery = `
