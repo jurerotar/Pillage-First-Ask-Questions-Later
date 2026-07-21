@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { compiledApiRoutes } from './api-routes';
 import {
@@ -113,15 +114,15 @@ export const matchRoute = (url: string, method: string, body?: unknown) => {
     }
 
     const pathParams = requestParams?.path
-      ? requestParams.path.parse(rawPathParams)
+      ? z.parse(requestParams.path, rawPathParams)
       : rawPathParams;
 
     const queryParams = requestParams?.query
-      ? requestParams.query.parse(rawQuery)
+      ? z.parse(requestParams.query, rawQuery)
       : rawQuery;
 
     const bodySchema = getJsonRequestBodySchema(routeConfig?.requestBody);
-    const parsedBody = bodySchema ? bodySchema.parse(body) : body;
+    const parsedBody = bodySchema ? z.parse(bodySchema, body) : body;
 
     return {
       controller: route.controller as Controller,
