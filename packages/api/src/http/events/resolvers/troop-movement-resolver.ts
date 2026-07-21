@@ -175,6 +175,7 @@ export const adventureMovementResolver: Resolver<
           report_id,
           adventure_id,
           item_id,
+          item_amount,
           health_before,
           health_after
         )
@@ -183,6 +184,7 @@ export const adventureMovementResolver: Resolver<
           $report_id,
           $adventure_id,
           $item_id,
+          $item_amount,
           $health_before,
           $health_after
         );
@@ -191,6 +193,7 @@ export const adventureMovementResolver: Resolver<
       $report_id: reportId,
       $adventure_id: adventureId,
       $item_id: null,
+      $item_amount: null,
       $health_before: healthBefore,
       $health_after: healthAfter,
     },

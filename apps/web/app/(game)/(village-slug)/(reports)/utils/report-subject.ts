@@ -49,7 +49,16 @@ export const getReportSubject = (
   }
 
   if (isAdventureReport(report)) {
-    return t('Hero completed an adventure');
+    const { originVillageName, originCoordinates } = report.summary;
+
+    return t(
+      'Hero from {{originVillageName}} ({{x}}|{{y}}) completed an adventure',
+      {
+        originVillageName,
+        x: originCoordinates.x,
+        y: originCoordinates.y,
+      },
+    );
   }
 
   if (isTradeReport(report)) {

@@ -1,9 +1,11 @@
 import { createContext, type PropsWithChildren, use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import type { BattleParticipant } from '@pillage-first/types/models/battle';
 import type {
+  AdventureReport,
   BattleReport,
   Report as ReportType,
   TroopMovementReport,
@@ -354,6 +356,105 @@ export const MovementReportTable = () => {
         troops={troops}
       />
       <UnitTableWheatConsumption troops={troops} />
+    </UnitTable>
+  );
+};
+
+export const AdventureReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as AdventureReport;
+  const { adventureId, healthBefore, healthAfter, itemId, itemAmount } = report;
+  const healthDifference = healthAfter - healthBefore;
+  const hasHeroDied = healthAfter === 0;
+  const experienceGained = hasHeroDied ? 0 : adventureId * 10;
+
+  const formattedHealthDifference = `${healthDifference > 0 ? '+' : ''}${healthDifference}%`;
+
+  return (
+    <div className="overflow-x-scroll scrollbar-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Adventure statistics')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Health')}
+            </TableCell>
+            <TableCell className="text-left">
+              {healthBefore}% → {healthAfter}% ({formattedHealthDifference})
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Experience')}
+            </TableCell>
+            <TableCell className="text-left">
+              +{formatNumber(experienceGained)}
+            </TableCell>
+          </TableRow>
+          {hasHeroDied ? (
+            <TableRow>
+              <TableCell
+                colSpan={2}
+                className="text-left text-red-500"
+              >
+                {t('Hero died.')}
+              </TableCell>
+            </TableRow>
+          ) : (
+            <TableRow>
+              <TableCell className="text-left font-medium">
+                {t('Item')}
+              </TableCell>
+              <TableCell className="text-left">
+                {itemId === null
+                  ? t('Hero found nothing.')
+                  : `${formatNumber(itemAmount!)}x ${t(`ITEMS.${getItemDefinition(itemId).name}.NAME`)}`}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
+
+export const AdventureHeroTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as AdventureReport;
+  const {
+    originPlayerName,
+    originPlayerSlug,
+    originVillageName,
+    originCoordinates,
+    tribe,
+  } = report.summary;
+  const troops = sortTroops(tribe, [{ unitId: 'HERO', amount: 1 }]);
+
+  return (
+    <UnitTable tribe={tribe}>
+      <UnitTableTitle>{t('Adventure')}</UnitTableTitle>
+      <UnitTablePlayer
+        playerName={originPlayerName}
+        playerSlug={originPlayerSlug}
+        tileName={originVillageName}
+        coordinates={originCoordinates}
+      />
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={t('Troops')}
+        troops={troops}
+      />
     </UnitTable>
   );
 };

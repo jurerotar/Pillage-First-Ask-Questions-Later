@@ -18,6 +18,8 @@ import {
 } from 'app/components/ui/breadcrumb';
 import { useReport } from '../../hooks/use-report';
 import {
+  AdventureHeroTable,
+  AdventureReportTable,
   BattleParticipantTable,
   BattleStatisticsTable,
   MovementReportTable,
@@ -83,7 +85,12 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
               <BattleStatisticsTable />
             </>
           )}
-          {isAdventureReport(report) && <></>}
+          {isAdventureReport(report) && (
+            <>
+              <AdventureHeroTable />
+              <AdventureReportTable />
+            </>
+          )}
           {isTradeReport(report) && <></>}
           {isMovementReport(report) && <MovementReportTable />}
         </Report>
