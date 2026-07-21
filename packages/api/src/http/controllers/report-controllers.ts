@@ -46,6 +46,7 @@ export const getReports = createController(
       : Array.isArray(query.types)
         ? query.types
         : [query.types];
+
   const rows = database.selectObjects({
     sql: selectReportListingsQuery,
     bind: {
@@ -125,17 +126,13 @@ export const updateReports = createController('/reports', 'patch', {
 });
 
 export const deleteReports = createController('/reports', 'delete', {
-  summary: 'Delete report',
-  requestBody: z.array(z.number()),
+  summary: 'Delete reports',
+  requestBody: z.array(z.int()),
 })(({ database, body }) => {
-  database.transaction(() => {
-    for (const reportId of body) {
-      database.exec({
-        sql: deleteReportQuery,
-        bind: {
-          $report_id: reportId,
-        },
-      });
-    }
+  database.exec({
+    sql: deleteReportQuery,
+    bind: {
+      $report_ids: JSON.stringify(body),
+    },
   });
 });
