@@ -9,12 +9,15 @@ import {
   deleteReportQuery,
   deleteReportTagQuery,
   insertReportTagQuery,
+  selectReportListingsQuery,
   selectReportQuery,
-  selectReportsQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
-import { mapReport, mapReports } from './mappers/reports-mapper';
-import { getReportsRowSchema } from './schemas/report-schemas';
+import { mapReport, mapReportListings } from './mappers/reports-mapper';
+import {
+  getReportListingsRowSchema,
+  getReportsRowSchema,
+} from './schemas/report-schemas';
 
 export const getReports = createController(
   '/players/:playerId/reports/:villageId',
@@ -44,7 +47,7 @@ export const getReports = createController(
         ? query.types
         : [query.types];
   const rows = database.selectObjects({
-    sql: selectReportsQuery,
+    sql: selectReportListingsQuery,
     bind: {
       $player_id: playerId,
       $village_id: villageId,
@@ -55,10 +58,10 @@ export const getReports = createController(
       $include_trade: reportTypes.includes('trade') ? 1 : 0,
       $include_movement: reportTypes.includes('movement') ? 1 : 0,
     },
-    schema: getReportsRowSchema,
+    schema: getReportListingsRowSchema,
   });
 
-  return mapReports(rows);
+  return mapReportListings(rows);
 });
 
 export const getReport = createController('/report/:playerId/:reportId', {
@@ -92,43 +95,47 @@ export const updateReports = createController('/reports', 'patch', {
     removeTags: z.array(reportTagSchema).optional(),
   }),
 })(({ database, body: { reportIds, addTags, removeTags } }) => {
-  for (const reportId of reportIds) {
-    if (addTags) {
-      for (const tag of addTags) {
-        database.exec({
-          sql: insertReportTagQuery,
-          bind: {
-            $report_id: reportId,
-            $tag: tag,
-          },
-        });
+  database.transaction(() => {
+    for (const reportId of reportIds) {
+      if (addTags) {
+        for (const tag of addTags) {
+          database.exec({
+            sql: insertReportTagQuery,
+            bind: {
+              $report_id: reportId,
+              $tag: tag,
+            },
+          });
+        }
       }
-    }
 
-    if (removeTags) {
-      for (const tag of removeTags) {
-        database.exec({
-          sql: deleteReportTagQuery,
-          bind: {
-            $report_id: reportId,
-            $tag: tag,
-          },
-        });
+      if (removeTags) {
+        for (const tag of removeTags) {
+          database.exec({
+            sql: deleteReportTagQuery,
+            bind: {
+              $report_id: reportId,
+              $tag: tag,
+            },
+          });
+        }
       }
     }
-  }
+  });
 });
 
 export const deleteReports = createController('/reports', 'delete', {
   summary: 'Delete report',
   requestBody: z.array(z.number()),
 })(({ database, body }) => {
-  for (const reportId of body) {
-    database.exec({
-      sql: deleteReportQuery,
-      bind: {
-        $report_id: reportId,
-      },
-    });
-  }
+  database.transaction(() => {
+    for (const reportId of body) {
+      database.exec({
+        sql: deleteReportQuery,
+        bind: {
+          $report_id: reportId,
+        },
+      });
+    }
+  });
 });

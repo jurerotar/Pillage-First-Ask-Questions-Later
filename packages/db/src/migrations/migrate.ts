@@ -4,6 +4,7 @@ import createBuildingFieldsIndexes from '../indexes/building-fields-indexes.sql?
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from '../indexes/players-indexes.sql?raw';
+import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
 import createResourceSitesIndexes from '../indexes/resource-sites-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
@@ -300,6 +301,7 @@ export const migrateAndSeed = (
     db.exec({ sql: createWorldItemsTable });
     worldItemsSeeder(db, server);
     db.exec({ sql: createWorldItemsIndexes });
+    db.exec({ sql: createReportsIndexes });
 
     // Unit research
     db.exec({ sql: createUnitResearchTable });

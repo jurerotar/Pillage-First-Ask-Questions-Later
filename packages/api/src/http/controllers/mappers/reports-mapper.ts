@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
+import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
 import type {
   BattleReportSummary,
   Report,
@@ -8,9 +8,13 @@ import { reportSchema } from '@pillage-first/types/models/report';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { getBattle } from '../../../utils/report';
-import type { getReportsRowSchema } from '../schemas/report-schemas';
+import type {
+  getReportListingsRowSchema,
+  getReportsRowSchema,
+} from '../schemas/report-schemas';
 
 type ReportRow = z.infer<typeof getReportsRowSchema>;
+type ReportListingRow = z.infer<typeof getReportListingsRowSchema>;
 type BattleReportRow = Extract<ReportRow, { type: 'battle' }>;
 type AdventureReportRow = Extract<ReportRow, { type: 'adventure' }>;
 type MovementReportRow = Extract<ReportRow, { type: 'movement' }>;
@@ -83,63 +87,21 @@ const mapBaseReportProperties = (row: ReportRow) => ({
   tags: [],
 });
 
-const mapReportListItem = (row: ReportRow): ReportListingDto => {
-  const baseReport = mapBaseReportProperties(row);
-
-  if (row.type === 'battle') {
-    return {
-      ...baseReport,
-      type: 'battle',
-      summary: getReportSummary(row),
-    };
-  }
-
-  if (row.type === 'movement') {
-    return {
-      ...baseReport,
-      type: 'movement',
-      summary: getMovementSummary(row),
-    };
-  }
-
-  if (row.type === 'trade') {
-    return {
-      ...baseReport,
-      type: 'trade',
-      summary: getTradeSummary(row),
-    };
-  }
-
-  if (row.type === 'adventure') {
-    return {
-      ...baseReport,
-      type: 'adventure',
-      summary: getAdventureSummary(row),
-    };
-  }
-
-  row satisfies never;
-  throw new Error('Unsupported report type');
-};
-
-export const mapReports = (rows: ReportRow[]): ReportListingDto[] => {
-  const reportMap = new Map<number, ReportListingDto>();
-
-  for (const row of rows) {
-    let report = reportMap.get(row.id);
-
-    if (report === undefined) {
-      report = mapReportListItem(row);
-
-      reportMap.set(report.id, report);
-    }
-
-    if (row.tag) {
-      report.tags.push(row.tag);
-    }
-  }
-
-  return [...reportMap.values()];
+export const mapReportListings = (
+  rows: ReportListingRow[],
+): ReportListingDto[] => {
+  return rows.map((row) =>
+    reportListingDtoSchema.parse({
+      id: row.id,
+      playerId: row.player_id,
+      villageId: row.village_id,
+      timestamp: row.timestamp,
+      type: row.type,
+      outcome: row.outcome,
+      summary: JSON.parse(row.summary_json),
+      tags: JSON.parse(row.tags_json),
+    }),
+  );
 };
 
 export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
@@ -147,17 +109,17 @@ export const mapReport = (database: DbFacade, rows: ReportRow[]): ReportDto => {
     throw new Error('Cannot map report from empty row set');
   }
 
-  const tags: ReportDto['tags'] = [];
+  const tags = new Set<ReportDto['tags'][number]>();
   for (const row of rows) {
     if (row.tag) {
-      tags.push(row.tag);
+      tags.add(row.tag);
     }
   }
 
   const row = rows[0];
   const baseReport = {
     ...mapBaseReportProperties(row),
-    tags,
+    tags: [...tags],
   };
 
   if (row.type === 'battle') {

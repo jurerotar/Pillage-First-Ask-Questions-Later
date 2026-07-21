@@ -7,19 +7,21 @@ import { prepareTestDatabase } from '../../';
 const database = await prepareTestDatabase();
 
 describe('reportsSeeder', () => {
-  test('seeds 100 player battle reports', () => {
-    const reportCount = database.selectValue({
+  test('seeds 1,000 player reports', () => {
+    const reportCounts = database.selectObject({
       sql: `
-        SELECT COUNT(*)
+        SELECT
+          COUNT(*) AS total,
+          COUNT(*) FILTER (WHERE rt.report_type = 'battle') AS battles
         FROM reports r
         JOIN report_type_ids rt ON r.type_id = rt.id
-        WHERE r.player_id = $player_id AND rt.report_type = 'battle';
+        WHERE r.player_id = $player_id;
       `,
       bind: { $player_id: PLAYER_ID },
-      schema: z.number(),
-    });
+      schema: z.strictObject({ total: z.number(), battles: z.number() }),
+    })!;
 
-    expect(reportCount).toBe(100);
+    expect(reportCounts).toEqual({ total: 1_000, battles: 970 });
   });
 
   test('every seeded battle report has one battle with real tiles and report outcome', () => {
@@ -65,7 +67,7 @@ describe('reportsSeeder', () => {
 
     expect(reportCounts).toStrictEqual([
       { type: 'adventure', count: 10 },
-      { type: 'battle', count: 100 },
+      { type: 'battle', count: 970 },
       { type: 'movement', count: 10 },
       { type: 'trade', count: 10 },
     ]);
@@ -141,9 +143,9 @@ describe('reportsSeeder', () => {
       schema: z.number(),
     });
 
-    expect(battleCount).toBe(100);
-    expect(battleCountWithParticipants).toBe(100);
-    expect(battleCountWithUnits).toBe(100);
+    expect(battleCount).toBe(970);
+    expect(battleCountWithParticipants).toBe(970);
+    expect(battleCountWithUnits).toBe(970);
   });
 
   test('seeded battle troop counts are internally consistent', () => {
