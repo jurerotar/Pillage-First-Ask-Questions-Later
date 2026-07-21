@@ -46,10 +46,8 @@ export const battleDefenderSchema = battleParticipantSchema.extend({
 });
 
 export const battleOutcomeSchema = z.strictObject({
-  isRaid: z.boolean(),
   loot: resourceBundleSchema,
   totalCarryCapacity: z.int(),
-  didAttackerWin: z.boolean(),
   canAttackerSeeFullReport: z.boolean(),
 });
 

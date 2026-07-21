@@ -203,10 +203,8 @@ export const mapBattleReportRowToDto = (rows: BattleReportRow[]) => {
     attacker,
     defender: { ...defender, reinforcements },
     outcome: {
-      isRaid: Boolean(row.battle_is_raid),
       loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
       totalCarryCapacity,
-      didAttackerWin: row.attacker_points > row.defender_points,
       canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
     },
     statistics: { attacker: attackerStatistics, defender: defenderStatistics },
