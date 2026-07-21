@@ -1,5 +1,5 @@
 import type { BindableValue } from '@sqlite.org/sqlite-wasm';
-import type { z } from 'zod';
+import type { $ZodType } from 'zod/v4/core';
 
 type QueryBind = Record<`$${string}`, BindableValue>;
 
@@ -10,7 +10,7 @@ export type ExecArgs = {
   bind?: QueryBind;
 };
 
-export type SelectArgs<T extends z.ZodType> = {
+export type SelectArgs<T extends $ZodType> = {
   sql: string;
   schema: T;
 } & QueryBindArgs;
