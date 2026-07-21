@@ -19,26 +19,23 @@ import {
   getReportsRowSchema,
 } from './schemas/report-schemas';
 
-export const getReports = createController(
-  '/players/:playerId/reports/:villageId',
-  {
-    summary: 'Get player reports',
-    requestParams: {
-      path: z.strictObject({
-        playerId: z.coerce.number(),
-        villageId: z.coerce.number(),
-      }),
-      query: z.strictObject({
-        scope: z
-          .enum(['global', 'unread', 'archived', 'village'])
-          .optional()
-          .default('global'),
-        types: z.array(reportTypeSchema).or(reportTypeSchema).optional(),
-      }),
-    },
-    response: z.array(reportListingDtoSchema),
+export const getReports = createController('/players/:playerId/reports', {
+  summary: 'Get player reports',
+  requestParams: {
+    path: z.strictObject({
+      playerId: z.coerce.number(),
+    }),
+    query: z.strictObject({
+      scope: z
+        .enum(['global', 'unread', 'archived', 'village'])
+        .optional()
+        .default('global'),
+      villageId: z.coerce.number().optional(),
+      types: z.array(reportTypeSchema).or(reportTypeSchema).optional(),
+    }),
   },
-)(({ database, path: { playerId, villageId }, query }) => {
+  response: z.array(reportListingDtoSchema),
+})(({ database, path: { playerId }, query }) => {
   const scope = query.scope ?? 'global';
   const reportTypes =
     query.types == null
@@ -51,7 +48,7 @@ export const getReports = createController(
     sql: selectReportListingsQuery,
     bind: {
       $player_id: playerId,
-      $village_id: villageId,
+      $village_id: query.villageId ?? null,
       $scope: scope,
       $type_count: reportTypes.length,
       $include_battle: reportTypes.includes('battle') ? 1 : 0,

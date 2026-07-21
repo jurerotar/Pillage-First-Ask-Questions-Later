@@ -10,7 +10,7 @@ export const reportFilterTypes: ReportType[] = [
 
 export const useReportFilters = () => {
   return useFilters<ReportType>({
-    paramName: 'reports',
+    paramName: 'scope',
     defaultFilters: reportFilterTypes,
   });
 };
