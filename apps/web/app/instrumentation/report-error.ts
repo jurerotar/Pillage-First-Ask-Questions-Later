@@ -37,6 +37,11 @@ export const reportError = (
   fallbackMessage: string,
   context?: ReportErrorContext,
 ): void => {
+  if (!faro) {
+    console.error(error);
+    return;
+  }
+
   faro.unpatchedConsole.error(fallbackMessage, error, context);
 
   faro.api.pushError(toError(error, fallbackMessage), {
