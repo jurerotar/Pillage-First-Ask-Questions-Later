@@ -6,7 +6,7 @@ export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
 type JsonRequestBody = {
   content?: {
     'application/json'?: {
-      schema?: z.ZodType;
+      schema?: z.core.$ZodType;
     };
   };
 };
@@ -14,8 +14,8 @@ type JsonRequestBody = {
 export type ControllerOperation = {
   summary?: string;
   requestParams?: {
-    path?: z.ZodType;
-    query?: z.ZodType;
+    path?: z.core.$ZodType;
+    query?: z.core.$ZodType;
   };
   requestBody?: JsonRequestBody;
   responses?: Record<string, unknown>;
@@ -25,12 +25,12 @@ export type ControllerOperationConfig = Omit<
   ControllerOperation,
   'requestBody'
 > & {
-  requestBody?: z.ZodType | JsonRequestBody;
-  response?: z.ZodType;
+  requestBody?: z.core.$ZodType | JsonRequestBody;
+  response?: z.core.$ZodType;
 };
 
 type ResponseSchemaFor<TOperation> = TOperation extends {
-  response: infer TSchema extends z.ZodType;
+  response: infer TSchema extends z.core.$ZodType;
 }
   ? TSchema
   : never;
@@ -38,7 +38,9 @@ type ResponseSchemaFor<TOperation> = TOperation extends {
 type NormalizeControllerOperation<
   TOperation extends ControllerOperationConfig,
 > = Omit<TOperation, 'requestBody' | 'response' | 'responses'> &
-  (TOperation extends { requestBody: infer TRequestBody extends z.ZodType }
+  (TOperation extends {
+    requestBody: infer TRequestBody extends z.core.$ZodType;
+  }
     ? {
         requestBody: {
           content: {
@@ -53,7 +55,7 @@ type NormalizeControllerOperation<
         }
       ? { requestBody: TRequestBody }
       : Record<never, never>) &
-  (TOperation extends { response: z.ZodType }
+  (TOperation extends { response: z.core.$ZodType }
     ? {
         responses: {
           '200': {
@@ -81,11 +83,13 @@ type NormalizeControllerOperation<
 type RequestBodySchemaFor<TOperation> = TOperation extends {
   requestBody: infer TRequestBody;
 }
-  ? TRequestBody extends z.ZodType
+  ? TRequestBody extends z.core.$ZodType
     ? TRequestBody
     : TRequestBody extends {
           content: {
-            'application/json': { schema: infer TSchema extends z.ZodType };
+            'application/json': {
+              schema: infer TSchema extends z.core.$ZodType;
+            };
           };
         }
       ? TSchema
@@ -103,19 +107,19 @@ export type ControllerArgs<
     method: TMethod;
   };
   path: TOperation extends {
-    requestParams: { path: infer P extends z.ZodType };
+    requestParams: { path: infer P extends z.core.$ZodType };
   }
-    ? z.infer<P>
+    ? z.core.output<P>
     : Record<string, unknown>;
   query: TOperation extends {
-    requestParams: { query: infer Q extends z.ZodType };
+    requestParams: { query: infer Q extends z.core.$ZodType };
   }
-    ? z.infer<Q>
+    ? z.core.output<Q>
     : Record<string, unknown>;
   url: string;
   body: TBody extends undefined
-    ? RequestBodySchemaFor<TOperation> extends infer B extends z.ZodType
-      ? z.infer<B>
+    ? RequestBodySchemaFor<TOperation> extends infer B extends z.core.$ZodType
+      ? z.core.output<B>
       : Record<string, unknown>
     : TBody;
 };
@@ -150,12 +154,12 @@ type JsonSchemaFor<
   ? TSchema
   : never;
 
-type InferOutputSchema<TSchema> = TSchema extends z.ZodType
-  ? z.output<TSchema>
+type InferOutputSchema<TSchema> = TSchema extends z.core.$ZodType
+  ? z.core.output<TSchema>
   : never;
 
 type SuccessResponseFor<TOperation> = TOperation extends {
-  response: infer TResponseSchema extends z.ZodType;
+  response: infer TResponseSchema extends z.core.$ZodType;
 }
   ? InferOutputSchema<TResponseSchema>
   : TOperation extends {
@@ -300,7 +304,12 @@ const normalizeControllerOperation = <
 
 export const getJsonRequestBodySchema = (
   requestBody: ControllerOperationConfig['requestBody'],
-) =>
-  requestBody instanceof z.ZodType
-    ? requestBody
-    : requestBody?.content?.['application/json']?.schema;
+) => {
+  if (requestBody instanceof z.ZodType) {
+    return requestBody;
+  }
+
+  const jsonRequestBody = requestBody as JsonRequestBody | undefined;
+
+  return jsonRequestBody?.content?.['application/json']?.schema;
+};
