@@ -66,9 +66,6 @@
     "./dtos/report": {
       "default": "./src/dtos/report.ts"
     },
-    "./dtos/battle": {
-      "default": "./src/dtos/battle.ts"
-    },
     "./api-events": {
       "default": "./src/api-events.ts"
     },

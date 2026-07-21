@@ -160,8 +160,10 @@ describe(adventureMovementResolver, () => {
           reports r
           JOIN report_type_ids rti ON r.type_id = rti.id
           JOIN report_outcome_ids roi ON r.report_outcome_id = roi.id
-          JOIN hero_adventure_reports har ON r.id = har.report_id;
+          JOIN hero_adventure_reports har ON r.id = har.report_id
+        WHERE r.timestamp = $timestamp;
       `,
+      bind: { $timestamp: mockEvent.resolvesAt },
       schema: z.strictObject({
         player_id: z.number(),
         village_id: z.number(),
@@ -279,7 +281,7 @@ describe(adventureMovementResolver, () => {
         FROM
           hero_adventure_reports har
           JOIN reports r ON har.report_id = r.id
-        WHERE r.village_id = $village_id;
+        WHERE r.village_id = $village_id AND har.health_before = 3;
       `,
       bind: { $village_id: villageId },
       schema: z.strictObject({

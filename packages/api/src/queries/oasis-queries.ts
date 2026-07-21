@@ -1,12 +1,3 @@
-export const selectOasisIdByTileIdQuery = `
-  SELECT
-    id as oasis_id
-  FROM
-    oasis
-  WHERE
-    tile_id = $tile_id;
-`;
-
 export const occupyOasisQuery = `
   UPDATE oasis
   SET
@@ -23,14 +14,6 @@ export const deleteOasisEffectsQuery = `
     source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
     AND village_id = $village_id
     AND source_specifier = $source_specifier;
-`;
-
-export const deleteOasisLoyaltyQuery = `
-  DELETE
-  FROM
-    loyalties
-  WHERE
-    tile_id = $tile_id;
 `;
 
 export const selectOasisReinforcementsToReturnQuery = `
