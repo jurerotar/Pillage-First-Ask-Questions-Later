@@ -12,6 +12,8 @@ import {
   insertReportTagsQuery,
   selectAdventureReportQuery,
   selectBattleReportQuery,
+  selectGatheringExpeditionReportQuery,
+  selectHuntingPartyReportQuery,
   selectMovementReportQuery,
   selectReportListingsQuery,
   selectReportTypeQuery,
@@ -21,6 +23,8 @@ import { createController } from '../controller';
 import {
   mapAdventureReportRowToDto,
   mapBattleReportRowToDto,
+  mapGatheringExpeditionReportRowToDto,
+  mapHuntingPartyReportRowToDto,
   mapMovementReportRowToDto,
   mapReportListingRowToDto,
   mapTradeReportRowToDto,
@@ -28,8 +32,10 @@ import {
 import {
   adventureReportRowSchema,
   battleReportRowSchema,
+  gatheringExpeditionReportRowSchema,
   getReportListingsRowSchema,
   getReportTypeRowSchema,
+  huntingPartyReportRowSchema,
   movementReportRowSchema,
   tradeReportRowSchema,
 } from './schemas/report-schemas';
@@ -70,6 +76,10 @@ export const getReports = createController('/players/:playerId/reports', {
       $include_adventure: reportTypes.includes('adventure') ? 1 : 0,
       $include_trade: reportTypes.includes('trade') ? 1 : 0,
       $include_movement: reportTypes.includes('movement') ? 1 : 0,
+      $include_hunting_party: reportTypes.includes('huntingParty') ? 1 : 0,
+      $include_gathering_expedition: reportTypes.includes('gatheringExpedition')
+        ? 1
+        : 0,
     },
     schema: getReportListingsRowSchema,
   });
@@ -138,6 +148,38 @@ export const getReport = createController('/report/:playerId/:reportId', {
     });
 
     return mapMovementReportRowToDto(row, movementUnits);
+  }
+
+  if (reportInfo.type === 'huntingParty') {
+    const row = database.selectObject({
+      sql: selectHuntingPartyReportQuery,
+      bind,
+      schema: huntingPartyReportRowSchema,
+    })!;
+
+    const units = database.selectObjects({
+      sql: 'SELECT ui.unit AS unitId, hpru.amount FROM hunting_party_report_units hpru JOIN unit_ids ui ON ui.id = hpru.unit_id WHERE hpru.hunting_party_report_id = $report_detail_id;',
+      bind: { $report_detail_id: row.expedition_id },
+      schema: z.strictObject({ unitId: unitIdSchema, amount: z.int() }),
+    });
+
+    return mapHuntingPartyReportRowToDto(row, units);
+  }
+
+  if (reportInfo.type === 'gatheringExpedition') {
+    const row = database.selectObject({
+      sql: selectGatheringExpeditionReportQuery,
+      bind,
+      schema: gatheringExpeditionReportRowSchema,
+    })!;
+
+    const units = database.selectObjects({
+      sql: 'SELECT ui.unit AS unitId, geru.amount FROM gathering_expedition_report_units geru JOIN unit_ids ui ON ui.id = geru.unit_id WHERE geru.gathering_expedition_report_id = $report_detail_id;',
+      bind: { $report_detail_id: row.expedition_id },
+      schema: z.strictObject({ unitId: unitIdSchema, amount: z.int() }),
+    });
+
+    return mapGatheringExpeditionReportRowToDto(row, units);
   }
 
   const row = database.selectObject({

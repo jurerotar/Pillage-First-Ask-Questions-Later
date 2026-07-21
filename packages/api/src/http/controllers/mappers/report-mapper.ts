@@ -19,6 +19,11 @@ type BattleReportRow = Extract<ReportRow, { type: 'battle' }>;
 type AdventureReportRow = Extract<ReportRow, { type: 'adventure' }>;
 type MovementReportRow = Extract<ReportRow, { type: 'movement' }>;
 type TradeReportRow = Extract<ReportRow, { type: 'trade' }>;
+type HuntingPartyReportRow = Extract<ReportRow, { type: 'huntingParty' }>;
+type GatheringExpeditionReportRow = Extract<
+  ReportRow,
+  { type: 'gatheringExpedition' }
+>;
 
 const mapBattleReportRowToSummaryDto = (
   row: BattleReportRow,
@@ -264,4 +269,39 @@ export const mapTradeReportRowToDto = (row: TradeReportRow) =>
         row.trade_wheat,
       ],
     },
+  });
+
+const mapExpeditionReportRowToSummaryDto = (
+  row: HuntingPartyReportRow | GatheringExpeditionReportRow,
+) => ({
+  villageName: row.expedition_village_name,
+  villageCoordinates: {
+    x: row.expedition_village_x,
+    y: row.expedition_village_y,
+  },
+});
+
+export const mapHuntingPartyReportRowToDto = (
+  row: HuntingPartyReportRow,
+  units: z.infer<typeof movementReportUnitSchema>[],
+) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'huntingParty',
+    summary: mapExpeditionReportRowToSummaryDto(row),
+    tribe: row.expedition_tribe,
+    units,
+  });
+
+export const mapGatheringExpeditionReportRowToDto = (
+  row: GatheringExpeditionReportRow,
+  units: z.infer<typeof movementReportUnitSchema>[],
+) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'gatheringExpedition',
+    summary: mapExpeditionReportRowToSummaryDto(row),
+    tribe: row.expedition_tribe,
+    units,
+    loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
   });

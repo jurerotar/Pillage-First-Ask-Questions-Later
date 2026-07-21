@@ -2,6 +2,8 @@ import { z } from 'zod';
 import {
   adventureReportSchema,
   battleReportSchema,
+  gatheringExpeditionReportSchema,
+  huntingPartyReportSchema,
   movementReportSchema,
   tradeReportSchema,
 } from '../models/report';
@@ -27,6 +29,12 @@ export const reportListingDtoSchema = z.discriminatedUnion('type', [
   adventureReportSummaryDtoSchema,
   tradeReportSummaryDtoSchema,
   movementReportSchema.omit({ movement: true }),
+  huntingPartyReportSchema.omit({ tribe: true, units: true }),
+  gatheringExpeditionReportSchema.omit({
+    tribe: true,
+    units: true,
+    loot: true,
+  }),
 ]);
 
 export type ReportListingDto = z.infer<typeof reportListingDtoSchema>;

@@ -385,6 +385,47 @@ describe(relocationMovementResolver, () => {
       schema: z.strictObject({ tile_id: z.number() }),
     })!;
     expect(heroTroop.tile_id).toBe(targetTileId);
+
+    const movementReport = database.selectObject({
+      sql: `
+        SELECT r.player_id, r.village_id, r.timestamp,
+          rti.report_type, roi.report_outcome, mr.origin_tile_id,
+          mr.target_tile_id, mr.movement_type, ui.unit AS unit_id, mru.amount
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN movement_reports mr ON mr.report_id = r.id
+        JOIN movement_report_units mru ON mru.movement_report_id = mr.id
+        JOIN unit_ids ui ON ui.id = mru.unit_id
+        WHERE rti.report_type = 'movement'
+        ORDER BY r.id DESC LIMIT 1;
+      `,
+      schema: z.strictObject({
+        player_id: z.int(),
+        village_id: z.int(),
+        timestamp: z.int(),
+        report_type: z.string(),
+        report_outcome: z.string(),
+        origin_tile_id: z.int(),
+        target_tile_id: z.int(),
+        movement_type: z.string(),
+        unit_id: z.string(),
+        amount: z.int(),
+      }),
+    })!;
+
+    expect(movementReport).toStrictEqual({
+      player_id: PLAYER_ID,
+      village_id: initialVillageId,
+      timestamp: mockEvent.resolvesAt,
+      report_type: 'movement',
+      report_outcome: 'troopMovement',
+      origin_tile_id: mockEvent.originTileId,
+      target_tile_id: targetTileId,
+      movement_type: 'relocation',
+      unit_id: 'HERO',
+      amount: 1,
+    });
   });
 
   test('should move troop wheatProduction effects from origin village to target village', async () => {

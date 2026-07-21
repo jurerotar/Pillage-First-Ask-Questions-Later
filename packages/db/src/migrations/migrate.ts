@@ -22,6 +22,8 @@ import createFactionReputationTable from '../schemas/faction-reputation-schema.s
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
 import createGatherersHutExpeditionsTable from '../schemas/gatherers-hut-expeditions-schema.sql?raw';
+import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
+import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
 import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
 import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.sql?raw';
@@ -33,6 +35,8 @@ import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-im
 import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
 import createVillageFoundingHistoryTable from '../schemas/history-tables/village-founding-history-schema.sql?raw';
+import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
+import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
@@ -239,6 +243,10 @@ export const migrateAndSeed = (
     db.exec({ sql: createMovementReportsTable });
     db.exec({ sql: createMovementReportUnitsTable });
     db.exec({ sql: createTradeReportsTable });
+    db.exec({ sql: createHuntingPartyReportsTable });
+    db.exec({ sql: createHuntingPartyReportUnitsTable });
+    db.exec({ sql: createGatheringExpeditionReportsTable });
+    db.exec({ sql: createGatheringExpeditionReportUnitsTable });
     db.exec({ sql: createReportDeleteTriggers });
     db.exec({ sql: createReportTagsTable });
 

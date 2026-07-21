@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import {
   isAdventureReport,
   isBattleReport,
+  isGatheringExpeditionReport,
+  isHuntingPartyReport,
   isMovementReport,
   isTradeReport,
 } from '@pillage-first/utils/guards/report';
@@ -22,6 +24,8 @@ import {
   AdventureReportTable,
   BattleParticipantTable,
   BattleStatisticsTable,
+  GatheringExpeditionReportTable,
+  HuntingPartyReportTable,
   MovementReportTable,
   Report,
   ReportHeader,
@@ -94,6 +98,10 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
           )}
           {isTradeReport(report) && <TradeReportTable />}
           {isMovementReport(report) && <MovementReportTable />}
+          {isHuntingPartyReport(report) && <HuntingPartyReportTable />}
+          {isGatheringExpeditionReport(report) && (
+            <GatheringExpeditionReportTable />
+          )}
         </Report>
       )}
     </PageContents>

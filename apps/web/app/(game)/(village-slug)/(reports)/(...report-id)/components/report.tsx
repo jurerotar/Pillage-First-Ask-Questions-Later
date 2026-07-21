@@ -7,6 +7,8 @@ import type { BattleParticipant } from '@pillage-first/types/models/battle';
 import type {
   AdventureReport,
   BattleReport,
+  GatheringExpeditionReport,
+  HuntingPartyReport,
   Report as ReportType,
   TradeReport,
   TroopMovementReport,
@@ -441,6 +443,62 @@ export const TradeReportTable = () => {
         </TableBody>
       </Table>
     </div>
+  );
+};
+
+export const HuntingPartyReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as HuntingPartyReport;
+  const troops = sortTroops(report.tribe, report.units);
+
+  return (
+    <UnitTable tribe={report.tribe}>
+      <UnitTableTitle>{t('Hunting party')}</UnitTableTitle>
+      <UnitTablePlayer
+        playerName={t('Hunting party')}
+        tileName={report.summary.villageName}
+        coordinates={report.summary.villageCoordinates}
+      />
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={t('Captured animals')}
+        troops={troops}
+      />
+    </UnitTable>
+  );
+};
+
+export const GatheringExpeditionReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as GatheringExpeditionReport;
+  const troops = sortTroops(report.tribe, report.units);
+
+  let totalLoot = 0;
+
+  for (const amount of report.loot) {
+    totalLoot += amount;
+  }
+
+  return (
+    <UnitTable tribe={report.tribe}>
+      <UnitTableTitle>{t('Gathering expedition')}</UnitTableTitle>
+      <UnitTablePlayer
+        playerName={t('Gathering expedition')}
+        tileName={report.summary.villageName}
+        coordinates={report.summary.villageCoordinates}
+      />
+      <UnitTableUnitIcons />
+      <UnitTableRow
+        label={t('Sent troops')}
+        troops={troops}
+      />
+      <UnitTableLoot
+        loot={report.loot}
+        totalCarryCapacity={totalLoot}
+      />
+    </UnitTable>
   );
 };
 

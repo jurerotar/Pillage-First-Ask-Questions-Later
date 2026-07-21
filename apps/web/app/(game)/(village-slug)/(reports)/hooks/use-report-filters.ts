@@ -6,6 +6,8 @@ export const reportFilterTypes: ReportType[] = [
   'battle',
   'movement',
   'trade',
+  'huntingParty',
+  'gatheringExpedition',
 ];
 
 export const useReportFilters = () => {

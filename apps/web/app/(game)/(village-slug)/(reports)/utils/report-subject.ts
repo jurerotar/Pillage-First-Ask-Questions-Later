@@ -4,6 +4,8 @@ import type { Report } from '@pillage-first/types/models/report';
 import {
   isAdventureReport,
   isBattleReport,
+  isGatheringExpeditionReport,
+  isHuntingPartyReport,
   isMovementReport,
   isTradeReport,
 } from '@pillage-first/utils/guards/report';
@@ -93,6 +95,25 @@ export const getReportSubject = (
           'Troops from {{originName}} ({{originX}}|{{originY}}) relocated to {{targetName}} ({{targetX}}|{{targetY}})',
           { originName, originX, originY, targetName, targetX, targetY },
         );
+  }
+
+  if (isHuntingPartyReport(report)) {
+    return t('Hunting party from {{villageName}} ({{x}}|{{y}}) returned', {
+      villageName: report.summary.villageName,
+      x: report.summary.villageCoordinates.x,
+      y: report.summary.villageCoordinates.y,
+    });
+  }
+
+  if (isGatheringExpeditionReport(report)) {
+    return t(
+      'Gathering expedition from {{villageName}} ({{x}}|{{y}}) returned',
+      {
+        villageName: report.summary.villageName,
+        x: report.summary.villageCoordinates.x,
+        y: report.summary.villageCoordinates.y,
+      },
+    );
   }
 
   return '';

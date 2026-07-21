@@ -7,6 +7,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { randomArrayElement } from '@pillage-first/utils/random';
 import { insertAnimalCagesIntoHeroInventoryQuery } from '../../../queries/hero-queries';
 import { selectVillageAndFirstOasisTileIdsQuery } from '../../../queries/map-queries';
+import { insertReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import type { Resolver } from '../resolver';
 
@@ -32,7 +33,7 @@ export const animalCageProductionResolver: Resolver<
 export const huntersLodgeHuntResolver: Resolver<
   GameEvent<'huntersLodgeHunt'>
 > = (database, args) => {
-  const { huntingPartyLevel, villageId } = args;
+  const { huntingPartyLevel, resolvesAt, villageId } = args;
 
   const huntersLodge = database.selectObject({
     sql: selectVillageAndFirstOasisTileIdsQuery,
@@ -56,6 +57,41 @@ export const huntersLodgeHuntResolver: Resolver<
       source: huntersLodge.sourceTileId,
     },
   ]);
+
+  const playerId = database.selectValue({
+    sql: 'SELECT player_id FROM villages WHERE id = $village_id;',
+    bind: { $village_id: villageId },
+    schema: z.int(),
+  })!;
+
+  const reportId = insertReport(database, {
+    playerId,
+    villageId,
+    timestamp: resolvesAt,
+    type: 'huntingParty',
+    outcome: 'huntingParty',
+    tags: [],
+  });
+
+  const huntingPartyReportId = database.selectValue({
+    sql: 'INSERT INTO hunting_party_reports (report_id, village_tile_id) VALUES ($report_id, $village_tile_id) RETURNING id;',
+    bind: {
+      $report_id: reportId,
+      $village_tile_id: huntersLodge.villageTileId,
+    },
+    schema: z.int(),
+  })!;
+
+  database.exec({
+    sql: `
+      INSERT INTO hunting_party_report_units (hunting_party_report_id, unit_id, amount)
+      SELECT $hunting_party_report_id, id, 1 FROM unit_ids WHERE unit = $unit_id;
+    `,
+    bind: {
+      $hunting_party_report_id: huntingPartyReportId,
+      $unit_id: unitId,
+    },
+  });
 
   return {
     affectedVillageIds: [villageId],

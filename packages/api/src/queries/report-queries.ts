@@ -51,6 +51,14 @@ export const selectReportListingsQuery = `
         'targetName', trade_target_v.name,
         'targetCoordinates', json_object('x', trade_target_t.x, 'y', trade_target_t.y)
       )
+      WHEN 'huntingParty' THEN json_object(
+        'villageName', hunting_v.name,
+        'villageCoordinates', json_object('x', hunting_t.x, 'y', hunting_t.y)
+      )
+      WHEN 'gatheringExpedition' THEN json_object(
+        'villageName', gathering_v.name,
+        'villageCoordinates', json_object('x', gathering_t.x, 'y', gathering_t.y)
+      )
     END AS summary_json,
     COALESCE((
       SELECT json_group_array(rti.tag)
@@ -92,6 +100,12 @@ export const selectReportListingsQuery = `
   LEFT JOIN tiles trade_target_t ON trade_target_t.id = tr.target_tile_id
   LEFT JOIN villages trade_target_v ON trade_target_v.tile_id = trade_target_t.id
   LEFT JOIN players trade_target_p ON trade_target_p.id = trade_target_v.player_id
+  LEFT JOIN hunting_party_reports hpr ON hpr.report_id = r.id
+  LEFT JOIN tiles hunting_t ON hunting_t.id = hpr.village_tile_id
+  LEFT JOIN villages hunting_v ON hunting_v.tile_id = hunting_t.id
+  LEFT JOIN gathering_expedition_reports ger ON ger.report_id = r.id
+  LEFT JOIN tiles gathering_t ON gathering_t.id = ger.village_tile_id
+  LEFT JOIN villages gathering_v ON gathering_v.tile_id = gathering_t.id
   WHERE
     r.player_id = $player_id
     AND ($scope != 'village' OR r.village_id = $village_id)
@@ -117,6 +131,8 @@ export const selectReportListingsQuery = `
       OR ($include_adventure = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'adventure'))
       OR ($include_trade = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'trade'))
       OR ($include_movement = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'movement'))
+      OR ($include_hunting_party = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'huntingParty'))
+      OR ($include_gathering_expedition = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'gatheringExpedition'))
     )
   ORDER BY r.timestamp DESC;
 `;
@@ -292,6 +308,39 @@ export const selectTradeReportQuery = `
   JOIN villages target_v ON target_v.tile_id = target_t.id
   JOIN players target_p ON target_p.id = target_v.player_id
   ;
+`;
+
+export const selectHuntingPartyReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    hpr.id AS expedition_id,
+    'nature' AS expedition_tribe,
+    v.name AS expedition_village_name,
+    t.x AS expedition_village_x,
+    t.y AS expedition_village_y,
+    NULL AS loot_wood, NULL AS loot_clay, NULL AS loot_iron, NULL AS loot_wheat
+  FROM report r
+  JOIN hunting_party_reports hpr ON hpr.report_id = r.id
+  JOIN tiles t ON t.id = hpr.village_tile_id
+  JOIN villages v ON v.tile_id = t.id;
+`;
+
+export const selectGatheringExpeditionReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    ger.id AS expedition_id,
+    ti.tribe AS expedition_tribe,
+    v.name AS expedition_village_name,
+    t.x AS expedition_village_x,
+    t.y AS expedition_village_y,
+    ger.loot_wood, ger.loot_clay, ger.loot_iron, ger.loot_wheat
+  FROM report r
+  JOIN gathering_expedition_reports ger ON ger.report_id = r.id
+  JOIN tribe_ids ti ON ti.id = ger.tribe_id
+  JOIN tiles t ON t.id = ger.village_tile_id
+  JOIN villages v ON v.tile_id = t.id;
 `;
 
 export const deleteReportQuery = `
