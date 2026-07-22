@@ -163,27 +163,28 @@ describe('calculateComputedEffect – woodProduction', () => {
       ['woodProduction'],
       ['clayProduction'],
       ['ironProduction'],
-    ] satisfies [
-      ResourceProductionEffectId,
-    ][])('00018 with no %s building base and hero base 1000 – should return 1000', (effectId) => {
-      const heroBaseEffect: HeroEffect = {
-        villageId,
-        id: effectId,
-        scope: 'local',
-        source: 'hero',
-        value: 1000,
-        type: 'base',
-        sourceSpecifier: null,
-      };
+    ] satisfies [ResourceProductionEffectId][])(
+      '00018 with no %s building base and hero base 1000 – should return 1000',
+      (effectId) => {
+        const heroBaseEffect: HeroEffect = {
+          villageId,
+          id: effectId,
+          scope: 'local',
+          source: 'hero',
+          value: 1000,
+          type: 'base',
+          sourceSpecifier: null,
+        };
 
-      const result = calculateComputedEffect(
-        effectId,
-        [heroBaseEffect],
-        villageId,
-      );
+        const result = calculateComputedEffect(
+          effectId,
+          [heroBaseEffect],
+          villageId,
+        );
 
-      expect(result.total).toBe(1000);
-    });
+        expect(result.total).toBe(1000);
+      },
+    );
   });
 
   describe('wheatProduction', () => {
