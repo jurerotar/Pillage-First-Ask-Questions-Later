@@ -13,7 +13,6 @@ import {
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { invalidateQueries } from 'app/utils/react-query';
-import { useMe } from './use-me';
 
 export type ReportScope = 'global' | 'unread' | 'archived' | 'village';
 
@@ -23,15 +22,11 @@ export const useReports = (
 ) => {
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
-  const { player } = useMe();
 
   const { data: reports } = useSuspenseQuery({
     queryKey: [reportListingsCacheKey, currentVillage.id, scope, types],
     queryFn: async () => {
-      const { data } = await apiClient.get('/players/:playerId/reports', {
-        path: {
-          playerId: player.id,
-        },
+      const { data } = await apiClient.get('/reports', {
         query: {
           scope,
           ...(scope === 'village' ? { villageId: currentVillage.id } : {}),

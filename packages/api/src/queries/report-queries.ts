@@ -1,7 +1,6 @@
 export const selectReportListingsQuery = `
   SELECT
     r.id,
-    r.player_id,
     r.village_id,
     r.timestamp,
     rty.report_type AS type,
@@ -107,8 +106,7 @@ export const selectReportListingsQuery = `
   LEFT JOIN tiles gathering_t ON gathering_t.id = ger.village_tile_id
   LEFT JOIN villages gathering_v ON gathering_v.tile_id = gathering_t.id
   WHERE
-    r.player_id = $player_id
-    AND ($scope != 'village' OR r.village_id = $village_id)
+    ($scope != 'village' OR r.village_id = $village_id)
     AND (
       $scope != 'unread'
       OR NOT EXISTS (
@@ -142,13 +140,13 @@ export const selectReportTypeQuery = `
     rty.report_type AS type
   FROM reports r
   JOIN report_type_ids rty ON rty.id = r.type_id
-  WHERE r.id = $report_id AND r.player_id = $player_id;
+  WHERE r.id = $report_id;
 `;
 
 const reportCte = `
   WITH report AS MATERIALIZED (
     SELECT
-      r.id, r.player_id, r.village_id, r.timestamp,
+      r.id, r.village_id, r.timestamp,
       rty.report_type AS type,
       roi.report_outcome AS outcome,
       COALESCE((
@@ -160,12 +158,12 @@ const reportCte = `
     FROM reports r
     JOIN report_type_ids rty ON rty.id = r.type_id
     JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
-    WHERE r.id = $report_id AND r.player_id = $player_id
+    WHERE r.id = $report_id
   )
 `;
 
 const reportColumns = `
-  r.id, r.player_id, r.village_id, r.timestamp,
+  r.id, r.village_id, r.timestamp,
   r.type, r.outcome, r.tags_json
 `;
 

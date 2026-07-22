@@ -85,7 +85,6 @@ const mapTradeReportRowToSummaryDto = (row: TradeReportRow) => {
 
 const mapBaseReportRowToDto = (row: ReportRow) => ({
   id: row.id,
-  playerId: row.player_id,
   villageId: row.village_id,
   timestamp: row.timestamp,
   outcome: row.outcome,
@@ -97,7 +96,6 @@ export const mapReportListingRowToDto = (
 ): ReportListingDto =>
   reportListingDtoSchema.parse({
     id: row.id,
-    playerId: row.player_id,
     villageId: row.village_id,
     timestamp: row.timestamp,
     type: row.type,

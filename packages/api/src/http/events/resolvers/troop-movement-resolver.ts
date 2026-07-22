@@ -57,7 +57,6 @@ const insertMovementReport = (
     })!;
 
   const reportId = insertReport(database, {
-    playerId: PLAYER_ID,
     villageId,
     timestamp: resolvesAt,
     type: 'movement',
@@ -156,7 +155,6 @@ export const adventureMovementResolver: Resolver<
   })!;
 
   const reportId = insertReport(database, {
-    playerId: PLAYER_ID,
     villageId,
     timestamp: resolvesAt,
     type: 'adventure',

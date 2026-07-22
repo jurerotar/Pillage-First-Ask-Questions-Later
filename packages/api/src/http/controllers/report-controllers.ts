@@ -40,12 +40,9 @@ import {
   tradeReportRowSchema,
 } from './schemas/report-schemas';
 
-export const getReports = createController('/players/:playerId/reports', {
+export const getReports = createController('/reports', {
   summary: 'Get player reports',
   requestParams: {
-    path: z.strictObject({
-      playerId: z.coerce.number(),
-    }),
     query: z.strictObject({
       scope: z
         .enum(['global', 'unread', 'archived', 'village'])
@@ -56,7 +53,7 @@ export const getReports = createController('/players/:playerId/reports', {
     }),
   },
   response: z.array(reportListingDtoSchema),
-})(({ database, path: { playerId }, query }) => {
+})(({ database, query }) => {
   const scope = query.scope ?? 'global';
   const reportTypes =
     query.types == null
@@ -68,7 +65,6 @@ export const getReports = createController('/players/:playerId/reports', {
   const rows = database.selectObjects({
     sql: selectReportListingsQuery,
     bind: {
-      $player_id: playerId,
       $village_id: query.villageId ?? null,
       $scope: scope,
       $type_count: reportTypes.length,
@@ -87,27 +83,26 @@ export const getReports = createController('/players/:playerId/reports', {
   return rows.map(mapReportListingRowToDto);
 });
 
-export const getReport = createController('/report/:playerId/:reportId', {
+export const getReport = createController('/reports/:reportId', {
   summary: 'Get report by id',
   requestParams: {
     path: z.strictObject({
-      playerId: z.coerce.number(),
       reportId: z.coerce.number(),
     }),
   },
   response: reportSchema,
-})(({ database, path: { playerId, reportId } }) => {
+})(({ database, path: { reportId } }) => {
   const reportInfo = database.selectObject({
     sql: selectReportTypeQuery,
-    bind: { $player_id: playerId, $report_id: reportId },
+    bind: { $report_id: reportId },
     schema: getReportTypeRowSchema,
   });
 
   if (!reportInfo) {
-    throw new Error(`Report ${reportId} not found for player ${playerId}`);
+    throw new Error(`Report ${reportId} not found`);
   }
 
-  const bind = { $player_id: playerId, $report_id: reportId };
+  const bind = { $report_id: reportId };
 
   if (reportInfo.type === 'battle') {
     const rows = database.selectObjects({

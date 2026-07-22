@@ -75,7 +75,7 @@ describe(matchRoute, () => {
 
   test('preserves repeated query params as arrays', () => {
     const result = matchRoute(
-      '/players/1/reports?scope=village&villageId=2&types=adventure&types=movement&types=trade',
+      '/reports?scope=village&villageId=2&types=adventure&types=movement&types=trade',
       'GET',
     );
 

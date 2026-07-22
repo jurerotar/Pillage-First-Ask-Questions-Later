@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   createGameEventMock,
   createTroopMovementAdventureEventMock,
@@ -147,7 +146,6 @@ describe(adventureMovementResolver, () => {
     const report = database.selectObject({
       sql: `
         SELECT
-          r.player_id,
           r.village_id,
           r.timestamp,
           rti.report_type,
@@ -165,7 +163,6 @@ describe(adventureMovementResolver, () => {
       `,
       bind: { $timestamp: mockEvent.resolvesAt },
       schema: z.strictObject({
-        player_id: z.number(),
         village_id: z.number(),
         timestamp: z.number(),
         report_type: z.string(),
@@ -178,7 +175,6 @@ describe(adventureMovementResolver, () => {
     })!;
 
     expect(report).toEqual({
-      player_id: PLAYER_ID,
       village_id: villageId,
       timestamp: mockEvent.resolvesAt,
       report_type: 'adventure',
@@ -388,7 +384,7 @@ describe(relocationMovementResolver, () => {
 
     const movementReport = database.selectObject({
       sql: `
-        SELECT r.player_id, r.village_id, r.timestamp,
+        SELECT r.village_id, r.timestamp,
           rti.report_type, roi.report_outcome, mr.origin_tile_id,
           mr.target_tile_id, mr.movement_type, ui.unit AS unit_id, mru.amount
         FROM reports r
@@ -401,7 +397,6 @@ describe(relocationMovementResolver, () => {
         ORDER BY r.id DESC LIMIT 1;
       `,
       schema: z.strictObject({
-        player_id: z.int(),
         village_id: z.int(),
         timestamp: z.int(),
         report_type: z.string(),
@@ -415,7 +410,6 @@ describe(relocationMovementResolver, () => {
     })!;
 
     expect(movementReport).toStrictEqual({
-      player_id: PLAYER_ID,
       village_id: initialVillageId,
       timestamp: mockEvent.resolvesAt,
       report_type: 'movement',

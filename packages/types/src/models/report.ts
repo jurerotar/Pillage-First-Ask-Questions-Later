@@ -43,7 +43,6 @@ export const reportTagSchema = z.enum(['read', 'archived']);
 
 export const baseReportSchema = z.strictObject({
   id: z.int(),
-  playerId: z.int(),
   villageId: z.int(),
   timestamp: z.int(),
   type: reportTypeSchema,

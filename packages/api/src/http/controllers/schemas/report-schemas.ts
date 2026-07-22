@@ -8,7 +8,6 @@ import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getReportListingsRowSchema = z.strictObject({
   id: z.int(),
-  player_id: z.int(),
   village_id: z.int(),
   timestamp: z.int(),
   type: reportTypeSchema,
@@ -78,7 +77,6 @@ const nullableReportDetailColumns = z
 
 const baseReportRowSchema = z.strictObject({
   id: z.int(),
-  player_id: z.int(),
   village_id: z.int(),
   timestamp: z.int(),
   outcome: reportOutcomeSchema,

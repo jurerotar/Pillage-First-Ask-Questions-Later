@@ -49,7 +49,6 @@ export const resourceTransferResolver: Resolver<
 
   if (playerVillageIds.some(({ id }) => id === villageId)) {
     insertTradeReport(database, {
-      playerId: PLAYER_ID,
       villageId,
       timestamp: resolvesAt,
       outcome: 'outgoingMerchantsArrived',
@@ -61,7 +60,6 @@ export const resourceTransferResolver: Resolver<
 
   if (playerVillageIds.some(({ id }) => id === targetVillageId)) {
     insertTradeReport(database, {
-      playerId: PLAYER_ID,
       villageId: targetVillageId,
       timestamp: resolvesAt,
       outcome: 'incomingMerchantsArrived',

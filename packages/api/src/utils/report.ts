@@ -8,12 +8,12 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export type CreateNewReport = Pick<
   BaseReport,
-  'playerId' | 'villageId' | 'timestamp' | 'type' | 'outcome' | 'tags'
+  'villageId' | 'timestamp' | 'type' | 'outcome' | 'tags'
 >;
 
 export type CreateNewTradeReport = Pick<
   CreateNewReport,
-  'playerId' | 'villageId' | 'timestamp'
+  'villageId' | 'timestamp'
 > & {
   outcome: Extract<
     ReportOutcome,
@@ -32,7 +32,6 @@ export const insertReport = (
     sql: `
       INSERT INTO
         reports (
-          player_id,
           village_id,
           timestamp,
           type_id,
@@ -40,7 +39,6 @@ export const insertReport = (
         )
       VALUES
         (
-          $player_id,
           $village_id,
           $timestamp,
           (
@@ -63,7 +61,6 @@ export const insertReport = (
       RETURNING id;
 `,
     bind: {
-      $player_id: report.playerId,
       $village_id: report.villageId,
       $timestamp: report.timestamp,
       $type: report.type,
@@ -95,7 +92,6 @@ export const insertTradeReport = (
   report: CreateNewTradeReport,
 ): number => {
   const reportId = insertReport(database, {
-    playerId: report.playerId,
     villageId: report.villageId,
     timestamp: report.timestamp,
     type: 'trade',

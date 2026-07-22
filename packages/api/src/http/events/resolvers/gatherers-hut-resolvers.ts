@@ -25,20 +25,18 @@ export const gatherersHutGatheringTripResolver: Resolver<
 
   const village = database.selectObject({
     sql: `
-      SELECT v.player_id, v.tile_id, p.tribe_id
+      SELECT v.tile_id, p.tribe_id
       FROM villages v JOIN players p ON p.id = v.player_id
       WHERE v.id = $village_id;
     `,
     bind: { $village_id: villageId },
     schema: z.strictObject({
-      player_id: z.int(),
       tile_id: z.int(),
       tribe_id: z.int(),
     }),
   })!;
 
   const reportId = insertReport(database, {
-    playerId: village.player_id,
     villageId,
     timestamp: resolvesAt,
     type: 'gatheringExpedition',

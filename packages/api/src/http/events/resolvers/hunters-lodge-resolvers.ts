@@ -58,14 +58,7 @@ export const huntersLodgeHuntResolver: Resolver<
     },
   ]);
 
-  const playerId = database.selectValue({
-    sql: 'SELECT player_id FROM villages WHERE id = $village_id;',
-    bind: { $village_id: villageId },
-    schema: z.int(),
-  })!;
-
   const reportId = insertReport(database, {
-    playerId,
     villageId,
     timestamp: resolvesAt,
     type: 'huntingParty',
