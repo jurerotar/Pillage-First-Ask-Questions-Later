@@ -66,6 +66,10 @@ import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
+import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
+import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
+import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
+import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
 import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
@@ -246,6 +250,10 @@ export const migrateAndSeed = (
     db.exec({ sql: createHuntingPartyReportUnitsTable });
     db.exec({ sql: createGatheringExpeditionReportsTable });
     db.exec({ sql: createGatheringExpeditionReportUnitsTable });
+    db.exec({ sql: createScoutingReportsTable });
+    db.exec({ sql: createScoutingReportAttackerUnitsTable });
+    db.exec({ sql: createScoutingReportUnitsTable });
+    db.exec({ sql: createScoutingReportStructuresTable });
     db.exec({ sql: createReportDeleteTriggers });
     db.exec({ sql: createReportTagsTable });
 

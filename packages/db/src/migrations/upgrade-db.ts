@@ -20,6 +20,10 @@ import createMovementReportUnitsTable from '../schemas/movement-report-units-sch
 import createMovementReportsTable from '../schemas/movement-reports-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
+import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
+import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
+import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
+import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import { reportOutcomeIdsSeeder } from '../seeders/report-outcome-ids-seeder';
@@ -1071,6 +1075,10 @@ export const upgradeDb = (database: DbFacade): void => {
     db.exec({ sql: createBattleReportsTable });
     db.exec({ sql: createBattleReportParticipantsTable });
     db.exec({ sql: createBattleReportUnitsTable });
+    db.exec({ sql: createScoutingReportsTable });
+    db.exec({ sql: createScoutingReportAttackerUnitsTable });
+    db.exec({ sql: createScoutingReportUnitsTable });
+    db.exec({ sql: createScoutingReportStructuresTable });
 
     db.exec({ sql: createReportsIndexes });
     db.exec({ sql: createReportDeleteTriggers });

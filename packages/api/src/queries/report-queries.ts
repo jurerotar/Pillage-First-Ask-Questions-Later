@@ -58,6 +58,16 @@ export const selectReportListingsQuery = `
         'villageName', gathering_v.name,
         'villageCoordinates', json_object('x', gathering_t.x, 'y', gathering_t.y)
       )
+      WHEN 'scouting' THEN json_object(
+        'originPlayerName', scouting_origin_p.name,
+        'originPlayerSlug', scouting_origin_p.slug,
+        'originName', scouting_origin_v.name,
+        'originCoordinates', json_object('x', scouting_origin_t.x, 'y', scouting_origin_t.y),
+        'targetPlayerName', scouting_target_p.name,
+        'targetPlayerSlug', scouting_target_p.slug,
+        'targetName', scouting_target_v.name,
+        'targetCoordinates', json_object('x', scouting_target_t.x, 'y', scouting_target_t.y)
+      )
     END AS summary_json,
     COALESCE((
       SELECT json_group_array(rti.tag)
@@ -105,6 +115,13 @@ export const selectReportListingsQuery = `
   LEFT JOIN gathering_expedition_reports ger ON ger.report_id = r.id
   LEFT JOIN tiles gathering_t ON gathering_t.id = ger.village_tile_id
   LEFT JOIN villages gathering_v ON gathering_v.tile_id = gathering_t.id
+  LEFT JOIN scouting_reports sr ON sr.report_id = r.id
+  LEFT JOIN tiles scouting_origin_t ON scouting_origin_t.id = sr.origin_tile_id
+  LEFT JOIN villages scouting_origin_v ON scouting_origin_v.tile_id = scouting_origin_t.id
+  LEFT JOIN players scouting_origin_p ON scouting_origin_p.id = scouting_origin_v.player_id
+  LEFT JOIN tiles scouting_target_t ON scouting_target_t.id = sr.target_tile_id
+  LEFT JOIN villages scouting_target_v ON scouting_target_v.tile_id = scouting_target_t.id
+  LEFT JOIN players scouting_target_p ON scouting_target_p.id = scouting_target_v.player_id
   WHERE
     ($scope != 'village' OR r.village_id = $village_id)
     AND (
@@ -131,6 +148,7 @@ export const selectReportListingsQuery = `
       OR ($include_movement = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'movement'))
       OR ($include_hunting_party = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'huntingParty'))
       OR ($include_gathering_expedition = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'gatheringExpedition'))
+      OR ($include_scouting = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'scouting'))
     )
   ORDER BY r.timestamp DESC;
 `;
@@ -339,6 +357,26 @@ export const selectGatheringExpeditionReportQuery = `
   JOIN tribe_ids ti ON ti.id = ger.tribe_id
   JOIN tiles t ON t.id = ger.village_tile_id
   JOIN villages v ON v.tile_id = t.id;
+`;
+
+export const selectScoutingReportQuery = `
+  ${reportCte}
+  SELECT ${reportColumns}, sr.id AS scouting_id, sr.perspective,
+    sr.successful, sr.scouting_target, sr.wood, sr.clay, sr.iron, sr.wheat,
+    origin_p.name AS origin_player_name, origin_p.slug AS origin_player_slug,
+    origin_v.name AS origin_name, origin_t.x AS origin_x, origin_t.y AS origin_y,
+    target_p.name AS target_player_name, target_p.slug AS target_player_slug,
+    target_v.name AS target_name, target_t.x AS target_x, target_t.y AS target_y,
+    origin_tribe.tribe AS attacker_tribe, target_tribe.tribe AS defender_tribe
+  FROM report r JOIN scouting_reports sr ON sr.report_id = r.id
+  JOIN tiles origin_t ON origin_t.id = sr.origin_tile_id
+  JOIN villages origin_v ON origin_v.tile_id = origin_t.id
+  JOIN players origin_p ON origin_p.id = origin_v.player_id
+  JOIN tribe_ids origin_tribe ON origin_tribe.id = origin_p.tribe_id
+  JOIN tiles target_t ON target_t.id = sr.target_tile_id
+  JOIN villages target_v ON target_v.tile_id = target_t.id
+  JOIN players target_p ON target_p.id = target_v.player_id
+  JOIN tribe_ids target_tribe ON target_tribe.id = target_p.tribe_id;
 `;
 
 export const deleteReportQuery = `

@@ -38,3 +38,7 @@ export const isGatheringExpeditionReport = <T extends ReportLike>(
 ): report is Extract<T, { type: 'gatheringExpedition' }> => {
   return report.type === 'gatheringExpedition';
 };
+
+export const isScoutingReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'scouting' }> => report.type === 'scouting';

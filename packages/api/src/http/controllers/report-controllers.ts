@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportSchema,
   reportTagSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   deleteReportQuery,
@@ -17,6 +19,7 @@ import {
   selectMovementReportQuery,
   selectReportListingsQuery,
   selectReportTypeQuery,
+  selectScoutingReportQuery,
   selectTradeReportQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
@@ -27,6 +30,7 @@ import {
   mapHuntingPartyReportRowToDto,
   mapMovementReportRowToDto,
   mapReportListingRowToDto,
+  mapScoutingReportRowToDto,
   mapTradeReportRowToDto,
 } from './mappers/report-mapper';
 import {
@@ -37,6 +41,7 @@ import {
   getReportTypeRowSchema,
   huntingPartyReportRowSchema,
   movementReportRowSchema,
+  scoutingReportRowSchema,
   tradeReportRowSchema,
 } from './schemas/report-schemas';
 
@@ -76,6 +81,7 @@ export const getReports = createController('/reports', {
       $include_gathering_expedition: reportTypes.includes('gatheringExpedition')
         ? 1
         : 0,
+      $include_scouting: reportTypes.includes('scouting') ? 1 : 0,
     },
     schema: getReportListingsRowSchema,
   });
@@ -175,6 +181,58 @@ export const getReport = createController('/reports/:reportId', {
     });
 
     return mapGatheringExpeditionReportRowToDto(row, units);
+  }
+
+  if (reportInfo.type === 'scouting') {
+    const row = database.selectObject({
+      sql: selectScoutingReportQuery,
+      bind,
+      schema: scoutingReportRowSchema,
+    })!;
+
+    const units = database.selectObjects({
+      sql: `SELECT sru.role, sru.tile_id AS tileId, ui.unit AS unitId, sru.amount,
+        ti.tribe, p.name AS playerName, p.slug AS playerSlug,
+        v.name AS villageName, t.x, t.y
+        FROM scouting_report_units sru
+        JOIN unit_ids ui ON ui.id = sru.unit_id
+        JOIN tiles t ON t.id = sru.tile_id
+        JOIN villages v ON v.tile_id = t.id
+        JOIN players p ON p.id = v.player_id
+        JOIN tribe_ids ti ON ti.id = p.tribe_id
+        WHERE sru.scouting_report_id = $id;`,
+      bind: { $id: row.scouting_id },
+      schema: z.strictObject({
+        role: z.enum(['defender', 'reinforcement']),
+        tileId: z.int(),
+        unitId: unitIdSchema,
+        amount: z.int(),
+        tribe: tribeSchema,
+        playerName: z.string(),
+        playerSlug: z.string(),
+        villageName: z.string(),
+        x: z.int(),
+        y: z.int(),
+      }),
+    });
+
+    const attackerUnits = database.selectObjects({
+      sql: 'SELECT ui.unit AS unitId, srau.amount_before AS amountBefore, srau.amount_after AS amountAfter FROM scouting_report_attacker_units srau JOIN unit_ids ui ON ui.id = srau.unit_id WHERE srau.scouting_report_id = $id;',
+      bind: { $id: row.scouting_id },
+      schema: z.strictObject({
+        unitId: unitIdSchema,
+        amountBefore: z.int(),
+        amountAfter: z.int(),
+      }),
+    });
+
+    const structures = database.selectObjects({
+      sql: 'SELECT bi.building AS buildingId, srs.level FROM scouting_report_structures srs JOIN building_ids bi ON bi.id = srs.building_id WHERE srs.scouting_report_id = $id;',
+      bind: { $id: row.scouting_id },
+      schema: z.strictObject({ buildingId: buildingIdSchema, level: z.int() }),
+    });
+
+    return mapScoutingReportRowToDto(row, attackerUnits, units, structures);
   }
 
   const row = database.selectObject({

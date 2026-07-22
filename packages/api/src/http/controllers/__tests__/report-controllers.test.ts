@@ -448,4 +448,60 @@ describe('report-controllers', () => {
       tags: 0,
     });
   });
+
+  test('should delete all scouting report data', async () => {
+    const database = await prepareReportsTestDatabase();
+    const reportId = 7;
+
+    database.exec({
+      sql: `
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        VALUES (${reportId}, (SELECT id FROM villages ORDER BY id LIMIT 1), 7000,
+          (SELECT id FROM report_type_ids WHERE report_type = 'scouting'),
+          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'scoutAttackerNoLoss'));
+        INSERT INTO scouting_reports (id, report_id, origin_tile_id, target_tile_id, perspective, successful, scouting_target, wood, clay, iron, wheat)
+        VALUES (1, ${reportId},
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+          'attacker', 1, 'defensiveStructures', NULL, NULL, NULL, NULL);
+        INSERT INTO scouting_report_attacker_units (scouting_report_id, unit_id, amount_before, amount_after)
+        VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'ROMAN_SCOUT'), 10, 8);
+        INSERT INTO scouting_report_units (scouting_report_id, role, tile_id, unit_id, amount)
+        VALUES (1, 'defender',
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 20);
+        INSERT INTO scouting_report_structures (scouting_report_id, building_id, level)
+        VALUES (1, (SELECT id FROM building_ids WHERE building = 'RESIDENCE'), 10);
+      `,
+    });
+
+    deleteReports(
+      database,
+      createControllerArgs<'/reports', 'delete'>({ body: [reportId] }),
+    );
+
+    const remaining = database.selectObject({
+      sql: `SELECT
+        (SELECT COUNT(*) FROM reports WHERE id = ${reportId}) AS reports,
+        (SELECT COUNT(*) FROM scouting_reports WHERE report_id = ${reportId}) AS scouting_reports,
+        (SELECT COUNT(*) FROM scouting_report_attacker_units) AS attacker_units,
+        (SELECT COUNT(*) FROM scouting_report_units) AS scouted_units,
+        (SELECT COUNT(*) FROM scouting_report_structures) AS structures;`,
+      schema: z.strictObject({
+        reports: z.int(),
+        scouting_reports: z.int(),
+        attacker_units: z.int(),
+        scouted_units: z.int(),
+        structures: z.int(),
+      }),
+    })!;
+
+    expect(remaining).toStrictEqual({
+      reports: 0,
+      scouting_reports: 0,
+      attacker_units: 0,
+      scouted_units: 0,
+      structures: 0,
+    });
+  });
 });

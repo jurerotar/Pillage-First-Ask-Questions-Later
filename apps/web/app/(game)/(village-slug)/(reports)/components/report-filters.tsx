@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { LuScale, LuSword } from 'react-icons/lu';
+import { LuEye, LuScale, LuSword } from 'react-icons/lu';
 import { PiPathBold, PiSignpostBold } from 'react-icons/pi';
 import type { ReportType } from '@pillage-first/types/models/report';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
@@ -28,6 +28,13 @@ export const ReportFilters = ({
         variant="outline"
         size="sm"
       >
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
+          data-tooltip-content={t('Toggle scouting reports')}
+          value="scouting"
+        >
+          <LuEye className="size-4" />
+        </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Toggle movement reports')}
