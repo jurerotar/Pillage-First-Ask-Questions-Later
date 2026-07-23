@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import {
   isIndexableDeploy,
   submitIndexNowUrls,
-} from './indexnow-on-deploy.mjs';
+} from '../indexnow-on-deploy.mjs';
 
 test('only indexes production deploys from master', () => {
   assert.equal(

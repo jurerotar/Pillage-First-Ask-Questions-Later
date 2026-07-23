@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   getPublicPathsForFiles,
   PUBLIC_PATHS,
-} from './generate-indexnow-manifest';
+} from '../generate-indexnow-manifest';
 
 describe('getPublicPathsForFiles', () => {
   test('maps FAQ content changes to the canonical FAQ URL', () => {

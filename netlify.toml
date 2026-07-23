@@ -18,3 +18,13 @@ command = "npm run inject-graphics && turbo run build:dev"
 [[edge_functions]]
 path = "/api/discord-members"
 function = "discord-members"
+
+[[edge_functions]]
+path = "/api/github/repository"
+function = "github"
+cache = "manual"
+
+[[edge_functions]]
+path = "/api/github/contributors"
+function = "github"
+cache = "manual"
