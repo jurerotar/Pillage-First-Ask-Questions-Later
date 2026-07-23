@@ -1,5 +1,5 @@
 [build]
-command = "npm run inject-graphics && turbo run build"
+command = "npm run inject-graphics && turbo run build && node scripts/generate-indexnow-manifest.ts"
 publish = "apps/web/build/client"
 image = "ubuntu-24.04"
 
