@@ -1,6 +1,5 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /not-found
 
 Sitemap: https://pillagefirst.com/sitemap.xml
-

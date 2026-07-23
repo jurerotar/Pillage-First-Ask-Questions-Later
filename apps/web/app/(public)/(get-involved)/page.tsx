@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fa6';
 import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubContributorsPreview } from 'app/(public)/components/github-contributors-preview';
+import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -90,7 +91,10 @@ const GetInvolvedPage = () => {
 
   return (
     <PageContents>
-      <title>{title}</title>
+      <PageMetadata
+        title={title}
+        description="Help build Pillage First! by contributing code or artwork, playtesting new features, sharing feedback or joining the open-source community."
+      />
       <div className="flex flex-col gap-6 max-w-5xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
           <BreadcrumbList>
