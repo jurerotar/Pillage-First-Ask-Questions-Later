@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { Building } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type {
+  AdventureReport,
   BaseReport,
   ReportOutcome,
 } from '@pillage-first/types/models/report';
@@ -26,6 +27,34 @@ export type CreateNewTradeReport = Pick<
   originTileId: number;
   targetTileId: number;
   resources: Resources;
+};
+
+export type CreateNewAdventureReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> &
+  Pick<
+    AdventureReport,
+    'adventureId' | 'itemId' | 'itemAmount' | 'healthBefore' | 'healthAfter'
+  >;
+
+export type CreateNewGatheringExpeditionReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  villageTileId: number;
+  tribeId: number;
+  loot: number[];
+  units: { unitId: UnitId; amount: number }[];
+};
+
+export type CreateNewHuntingPartyReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  villageTileId: number;
+  unitId: UnitId;
+  amount: number;
 };
 
 export type CreateNewScoutingReport = Pick<
@@ -109,6 +138,167 @@ export const insertReport = (
       },
     });
   }
+
+  return reportId;
+};
+
+export const insertAdventureReport = (
+  database: DbFacade,
+  report: CreateNewAdventureReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'adventure',
+    outcome: 'heroAdventure',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO hero_adventure_reports (
+        report_id,
+        adventure_id,
+        item_id,
+        item_amount,
+        health_before,
+        health_after
+      )
+      VALUES (
+        $report_id,
+        $adventure_id,
+        $item_id,
+        $item_amount,
+        $health_before,
+        $health_after
+      );
+    `,
+    bind: {
+      $report_id: reportId,
+      $adventure_id: report.adventureId,
+      $item_id: report.itemId,
+      $item_amount: report.itemAmount,
+      $health_before: report.healthBefore,
+      $health_after: report.healthAfter,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertGatheringExpeditionReport = (
+  database: DbFacade,
+  report: CreateNewGatheringExpeditionReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'gatheringExpedition',
+    outcome: 'gatheringExpedition',
+    tags: [],
+  });
+
+  const gatheringExpeditionReportId = database.selectValue({
+    sql: `
+      INSERT INTO gathering_expedition_reports (
+        report_id,
+        village_tile_id,
+        tribe_id,
+        loot_wood,
+        loot_clay,
+        loot_iron,
+        loot_wheat
+      )
+      VALUES (
+        $report_id,
+        $village_tile_id,
+        $tribe_id,
+        $loot_wood,
+        $loot_clay,
+        $loot_iron,
+        $loot_wheat
+      )
+      RETURNING id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_tile_id: report.villageTileId,
+      $tribe_id: report.tribeId,
+      $loot_wood: report.loot[0]!,
+      $loot_clay: report.loot[1]!,
+      $loot_iron: report.loot[2]!,
+      $loot_wheat: report.loot[3]!,
+    },
+    schema: z.int(),
+  })!;
+
+  database.exec({
+    sql: `
+      INSERT INTO gathering_expedition_report_units (
+        gathering_expedition_report_id,
+        unit_id,
+        amount
+      )
+      SELECT
+        $report_detail_id,
+        unit_ids.id,
+        json_extract(unit.value, '$.amount')
+      FROM
+        json_each($units) AS unit
+        JOIN unit_ids
+          ON unit_ids.unit = json_extract(unit.value, '$.unitId');
+    `,
+    bind: {
+      $report_detail_id: gatheringExpeditionReportId,
+      $units: JSON.stringify(report.units),
+    },
+  });
+
+  return reportId;
+};
+
+export const insertHuntingPartyReport = (
+  database: DbFacade,
+  report: CreateNewHuntingPartyReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'huntingParty',
+    outcome: 'huntingParty',
+    tags: [],
+  });
+
+  const huntingPartyReportId = database.selectValue({
+    sql: `
+      INSERT INTO hunting_party_reports (report_id, village_tile_id)
+      VALUES ($report_id, $village_tile_id)
+      RETURNING id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_tile_id: report.villageTileId,
+    },
+    schema: z.int(),
+  })!;
+
+  database.exec({
+    sql: `
+      INSERT INTO hunting_party_report_units (
+        hunting_party_report_id,
+        unit_id,
+        amount
+      )
+      SELECT $hunting_party_report_id, id, $amount
+      FROM unit_ids
+      WHERE unit = $unit_id;
+    `,
+    bind: {
+      $hunting_party_report_id: huntingPartyReportId,
+      $unit_id: report.unitId,
+      $amount: report.amount,
+    },
+  });
 
   return reportId;
 };

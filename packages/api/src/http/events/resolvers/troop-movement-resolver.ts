@@ -27,7 +27,10 @@ import {
 } from '../../../utils/hero';
 import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
 import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
-import { insertMovementReport, insertReport } from '../../../utils/report';
+import {
+  insertAdventureReport,
+  insertMovementReport,
+} from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import { updateVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
@@ -86,43 +89,14 @@ export const adventureMovementResolver: Resolver<
     schema: z.number(),
   })!;
 
-  const reportId = insertReport(database, {
+  insertAdventureReport(database, {
     villageId,
     timestamp: resolvesAt,
-    type: 'adventure',
-    outcome: 'heroAdventure',
-    tags: [],
-  });
-
-  database.exec({
-    sql: `
-      INSERT INTO
-        hero_adventure_reports (
-          report_id,
-          adventure_id,
-          item_id,
-          item_amount,
-          health_before,
-          health_after
-        )
-      VALUES
-        (
-          $report_id,
-          $adventure_id,
-          $item_id,
-          $item_amount,
-          $health_before,
-          $health_after
-        );
-    `,
-    bind: {
-      $report_id: reportId,
-      $adventure_id: adventureId,
-      $item_id: null,
-      $item_amount: null,
-      $health_before: healthBefore,
-      $health_after: healthAfter,
-    },
+    adventureId,
+    itemId: null,
+    itemAmount: null,
+    healthBefore,
+    healthAfter,
   });
 
   if (healthAfter === 0) {

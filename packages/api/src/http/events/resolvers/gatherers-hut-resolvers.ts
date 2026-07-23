@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { insertReport } from '../../../utils/report';
+import { insertGatheringExpeditionReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import { addVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
@@ -36,55 +36,13 @@ export const gatherersHutGatheringTripResolver: Resolver<
     }),
   })!;
 
-  const reportId = insertReport(database, {
+  insertGatheringExpeditionReport(database, {
     villageId,
     timestamp: resolvesAt,
-    type: 'gatheringExpedition',
-    outcome: 'gatheringExpedition',
-    tags: [],
-  });
-
-  const gatheringExpeditionReportId = database.selectValue({
-    sql: `
-      INSERT INTO gathering_expedition_reports (
-        report_id, village_tile_id, tribe_id,
-        loot_wood, loot_clay, loot_iron, loot_wheat
-      ) VALUES (
-        $report_id, $village_tile_id, $tribe_id,
-        $loot_wood, $loot_clay, $loot_iron, $loot_wheat
-      ) RETURNING id;
-    `,
-    bind: {
-      $report_id: reportId,
-      $village_tile_id: village.tile_id,
-      $tribe_id: village.tribe_id,
-      $loot_wood: loot[0]!,
-      $loot_clay: loot[1]!,
-      $loot_iron: loot[2]!,
-      $loot_wheat: loot[3]!,
-    },
-    schema: z.int(),
-  })!;
-
-  database.exec({
-    sql: `
-      INSERT INTO gathering_expedition_report_units (
-        gathering_expedition_report_id,
-        unit_id,
-        amount
-      )
-      SELECT
-        $report_detail_id,
-        unit_ids.id,
-        json_extract(troop.value, '$.amount')
-      FROM json_each($troops) AS troop
-      JOIN unit_ids
-        ON unit_ids.unit = json_extract(troop.value, '$.unitId');
-    `,
-    bind: {
-      $report_detail_id: gatheringExpeditionReportId,
-      $troops: JSON.stringify(troops),
-    },
+    villageTileId: village.tile_id,
+    tribeId: village.tribe_id,
+    loot,
+    units: troops,
   });
 
   database.exec({
