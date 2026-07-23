@@ -66,20 +66,26 @@ export const gatherersHutGatheringTripResolver: Resolver<
     schema: z.int(),
   })!;
 
-  for (const troop of troops) {
-    database.exec({
-      sql: `
-        INSERT INTO gathering_expedition_report_units (
-          gathering_expedition_report_id, unit_id, amount
-        ) SELECT $report_detail_id, id, $amount FROM unit_ids WHERE unit = $unit_id;
-      `,
-      bind: {
-        $report_detail_id: gatheringExpeditionReportId,
-        $unit_id: troop.unitId,
-        $amount: troop.amount,
-      },
-    });
-  }
+  database.exec({
+    sql: `
+      INSERT INTO gathering_expedition_report_units (
+        gathering_expedition_report_id,
+        unit_id,
+        amount
+      )
+      SELECT
+        $report_detail_id,
+        unit_ids.id,
+        json_extract(troop.value, '$.amount')
+      FROM json_each($troops) AS troop
+      JOIN unit_ids
+        ON unit_ids.unit = json_extract(troop.value, '$.unitId');
+    `,
+    bind: {
+      $report_detail_id: gatheringExpeditionReportId,
+      $troops: JSON.stringify(troops),
+    },
+  });
 
   database.exec({
     sql: `
