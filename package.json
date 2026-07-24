@@ -30,7 +30,7 @@
     "oxlint-tsgolint": "7.0.2001",
     "playwright": "1.61.1",
     "sharp": "0.35.3",
-    "turbo": "2.10.5",
+    "turbo": "2.10.6",
     "typescript": "7.0.2"
   },
   "overrides": {
