@@ -1,6 +1,6 @@
 ## Version 0.4.45
 
-#### Jul 22, 2026
+#### Jul 24, 2026
 
 * [Feature] **Reports are finally here!** This was one of the last missing features blocking us from working on combat
   mechanics. We added adventure, merchant, troop relocation and reinforcements, hunting party, gathering expedition,
