@@ -83,14 +83,14 @@ export const UnitSelector = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-3 md:flex md:flex-row gap-4 justify-start">
+      <div className="grid grid-cols-6 gap-2 md:gap-4">
         {displayGroups.map((group) => {
           const categoryUnits = groupedUnits[group] ?? [];
 
           return (
             <div
               key={group}
-              className="flex flex-1 flex-col gap-2"
+              className="flex min-w-0 flex-col gap-2"
             >
               <div className="flex flex-col gap-4 w-full">
                 {categoryUnits.map((unit) => {

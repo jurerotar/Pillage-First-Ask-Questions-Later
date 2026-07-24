@@ -111,10 +111,7 @@ export const DialogFooter = ({
   return (
     <div
       data-slot="dialog-footer"
-      className={clsx(
-        'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
-        className,
-      )}
+      className={clsx('flex gap-2 flex-row justify-end', className)}
       {...props}
     />
   );

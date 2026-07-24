@@ -266,8 +266,8 @@ export const TroopMovementConfirmationContent = ({
     >
       <TroopConfirmationHeader />
 
-      <div className="space-y-2">
-        <div className="flex flex-col gap-4">
+      <div className="min-w-0 space-y-2">
+        <div className="flex min-w-0 flex-col gap-4">
           <TroopConfirmationUnitTable />
         </div>
 
