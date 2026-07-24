@@ -23,7 +23,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
-import { Separator } from 'app/components/ui/separator';
 import { formatTime } from 'app/utils/time';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
 import { ArrivalTime } from './arrival-time';
@@ -273,7 +272,6 @@ export const TroopMovementConfirmationContent = ({
 
         {!hideMovementDetails && (
           <>
-            <Separator orientation="horizontal" />
             <TroopConfirmationMovementDetails
               formData={formData}
               originTileId={originTileId}
