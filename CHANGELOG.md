@@ -1,3 +1,17 @@
+## Version 0.4.46
+
+#### Jul 24, 2026
+
+* [UIUXImprovement] Reworked report actions. Actions for individual reports are now available through a context menu,
+  while bulk actions are displayed in the table header after selecting reports. Only actions relevant to the selected
+  reports are shown.
+* [UIUXImprovement] Report timestamps now use a shorter, locale-aware format. Reports received today display the time,
+  while older reports display the date. The full timestamp is available by hovering over it.
+* [UIUXImprovement] Archived reports now display an archive icon and report subjects have been shortened for easier
+  scanning.
+* [UIUXImprovement] Report details now include actions for deleting, archiving and changing the read status of the
+  report. Adventure, hunting party and gathering expedition reports also received cleaner headings.
+
 ## Version 0.4.45
 
 #### Jul 24, 2026
@@ -17,7 +31,7 @@
 
 #### Jul 14, 2026
 
-* [Feature] This version includes a reworked UI. Page & section descriptions have now been removed from the page and
+* [UIUXImprovement] This version includes a reworked UI. Page & section descriptions have now been removed from the page and
   instead added to **information popovers**. This reduces the length of the pages, reducing the amount of scrolling
   required and enabling faster navigation through the pages. Information popovers are available as page, section or
   block level elements, so you may encounter more than one on a given page.
@@ -26,7 +40,7 @@
 
 #### Jul 11, 2026
 
-* [Feature] When switching villages with a building details view open, the app now attempts to open the same building,
+* [UIUXImprovement] When switching villages with a building details view open, the app now attempts to open the same building,
   even if it occupies a different position in the new village. Previously, it would always open the building at the same
   position, regardless of which building was actually there.
 

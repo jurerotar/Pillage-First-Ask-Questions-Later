@@ -37,7 +37,13 @@ import {
 import { GrDocumentMissing } from 'react-icons/gr';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
 import { LiaCoinsSolid } from 'react-icons/lia';
-import { LuClock, LuShield, LuSword, LuSwords } from 'react-icons/lu';
+import {
+  LuArchive,
+  LuClock,
+  LuShield,
+  LuSword,
+  LuSwords,
+} from 'react-icons/lu';
 import {
   PiFlagPennantFill,
   PiKeyhole,
@@ -118,7 +124,7 @@ type MapControlsIconType =
   | 'mapTreasureIconToggle'
   | 'mapMarker';
 
-type CommonIconType = 'cancel';
+type CommonIconType = 'archived' | 'cancel';
 
 type TreasureTileIconType =
   | 'treasureTileItem'
@@ -198,6 +204,7 @@ export type IconType =
 
 export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   missingIcon: (props) => <GrDocumentMissing {...props} />,
+  archived: (props) => <LuArchive {...props} />,
   cancel: (props) => (
     <RxCross2
       {...props}

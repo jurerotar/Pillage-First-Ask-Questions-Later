@@ -188,6 +188,7 @@ export const groupOrder = [
   'BugFix',
   'Performance',
   'TechnicalImprovement',
+  'UIUXImprovement',
 ] as const;
 
 type KnownTag = (typeof groupOrder)[number];
@@ -205,6 +206,7 @@ const groupTitle: Record<(typeof groupOrder)[number], string> = {
   BugFix: 'Bug fixes',
   Performance: 'Performance',
   TechnicalImprovement: 'Technical improvements',
+  UIUXImprovement: 'UI/UX improvements',
 };
 
 export const buildItemsFromChangelog = (

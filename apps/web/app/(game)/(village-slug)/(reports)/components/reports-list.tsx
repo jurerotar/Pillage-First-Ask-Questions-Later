@@ -8,7 +8,6 @@ import {
 } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Pagination } from 'app/components/ui/pagination';
 import { useReportSelection } from '../hooks/use-report-selection';
-import { ReportsListActions } from './reports-list-actions';
 import { ReportsTable } from './reports-table';
 
 const REPORTS_PER_PAGE = 20;
@@ -55,15 +54,11 @@ export const ReportsList = ({
         onToggleReport={toggleSelectedReport}
         onToggleVisibleReports={toggleVisibleReports}
         onOpenReport={markAsRead}
+        updateReports={updateReports}
+        deleteReports={deleteReports}
+        clearSelectedReports={clearSelectedReports}
       />
-      <div className="flex w-full justify-between">
-        <ReportsListActions
-          scope={scope}
-          selectedReportIds={selectedReportIds}
-          updateReports={updateReports}
-          deleteReports={deleteReports}
-          clearSelectedReports={clearSelectedReports}
-        />
+      <div className="flex w-full justify-end">
         <Pagination
           {...pagination}
           setPage={handlePageChange}

@@ -12,12 +12,14 @@ import { CopyReleaseButton } from './components/copy-release-button';
 import { FeaturesBlock } from './components/features-block';
 import { PerformanceBlock } from './components/performance-block';
 import { TechnicalImprovementBlock } from './components/technical-improvement-block';
+import { UIUXImprovementBlock } from './components/ui-ux-improvement-block';
 
 const tagToBlock = {
   Feature: FeaturesBlock,
   BugFix: BugFixesBlock,
   Performance: PerformanceBlock,
   TechnicalImprovement: TechnicalImprovementBlock,
+  UIUXImprovement: UIUXImprovementBlock,
 };
 
 const inlineMarkdownPattern =
@@ -150,6 +152,7 @@ const buildReleaseMarkdown = (release: ChangelogEntry): string => {
     BugFix: 'Bug fixes',
     Performance: 'Performance',
     TechnicalImprovement: 'Technical improvements',
+    UIUXImprovement: 'UI/UX improvements',
   } as const;
 
   for (const tag of groupOrder) {

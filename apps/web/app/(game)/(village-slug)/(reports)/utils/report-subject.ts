@@ -52,16 +52,7 @@ export const getReportSubject = (
   }
 
   if (isAdventureReport(report)) {
-    const { originVillageName, originCoordinates } = report.summary;
-
-    return t(
-      'Hero from {{originVillageName}} ({{x}}|{{y}}) completed an adventure',
-      {
-        originVillageName,
-        x: originCoordinates.x,
-        y: originCoordinates.y,
-      },
-    );
+    return t('Hero completed an adventure');
   }
 
   if (isScoutingReport(report)) {
@@ -81,15 +72,14 @@ export const getReportSubject = (
   }
 
   if (isTradeReport(report)) {
-    const { originName, originCoordinates, targetName, targetCoordinates } =
-      report.summary;
-    const { x: originX, y: originY } = originCoordinates;
+    const { targetName, targetCoordinates } = report.summary;
     const { x: targetX, y: targetY } = targetCoordinates;
 
-    return t(
-      'Merchants from {{originName}} ({{originX}}|{{originY}}) arrived at {{targetName}} ({{targetX}}|{{targetY}})',
-      { originName, originX, originY, targetName, targetX, targetY },
-    );
+    return t('Merchants reached {{targetName}} ({{targetX}}|{{targetY}})', {
+      targetName,
+      targetX,
+      targetY,
+    });
   }
 
   if (isMovementReport(report)) {
@@ -105,17 +95,17 @@ export const getReportSubject = (
 
     return movementType === 'reinforcement'
       ? t(
-          'Reinforcements from {{originName}} ({{originX}}|{{originY}}) arrived at {{targetName}} ({{targetX}}|{{targetY}})',
+          '{{originName}} ({{originX}}|{{originY}}) reinforced {{targetName}} ({{targetX}}|{{targetY}})',
           { originName, originX, originY, targetName, targetX, targetY },
         )
       : t(
-          'Troops from {{originName}} ({{originX}}|{{originY}}) relocated to {{targetName}} ({{targetX}}|{{targetY}})',
+          '{{originName}} ({{originX}}|{{originY}}) troops moved to {{targetName}} ({{targetX}}|{{targetY}})',
           { originName, originX, originY, targetName, targetX, targetY },
         );
   }
 
   if (isHuntingPartyReport(report)) {
-    return t('Hunting party from {{villageName}} ({{x}}|{{y}}) returned', {
+    return t('Hunting party returned to {{villageName}} ({{x}}|{{y}})', {
       villageName: report.summary.villageName,
       x: report.summary.villageCoordinates.x,
       y: report.summary.villageCoordinates.y,
@@ -123,14 +113,11 @@ export const getReportSubject = (
   }
 
   if (isGatheringExpeditionReport(report)) {
-    return t(
-      'Gathering expedition from {{villageName}} ({{x}}|{{y}}) returned',
-      {
-        villageName: report.summary.villageName,
-        x: report.summary.villageCoordinates.x,
-        y: report.summary.villageCoordinates.y,
-      },
-    );
+    return t('Gathering expedition returned to {{villageName}} ({{x}}|{{y}})', {
+      villageName: report.summary.villageName,
+      x: report.summary.villageCoordinates.x,
+      y: report.summary.villageCoordinates.y,
+    });
   }
 
   return '';

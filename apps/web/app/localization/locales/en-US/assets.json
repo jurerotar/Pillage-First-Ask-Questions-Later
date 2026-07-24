@@ -924,6 +924,7 @@
   },
   "ICONS": {
     "missingIcon": "Missing icon",
+    "archived": "Archived",
     "wood": "Wood",
     "clay": "Clay",
     "iron": "Iron",

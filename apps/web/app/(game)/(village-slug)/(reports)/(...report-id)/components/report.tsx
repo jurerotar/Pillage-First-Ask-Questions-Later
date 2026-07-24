@@ -606,7 +606,6 @@ export const HuntingPartyReportTable = () => {
 
   return (
     <UnitTable tribe={report.tribe}>
-      <UnitTableTitle>{t('Hunting party')}</UnitTableTitle>
       <UnitTablePlayer
         playerName={t('Hunting party')}
         tileName={report.summary.villageName}
@@ -635,7 +634,6 @@ export const GatheringExpeditionReportTable = () => {
 
   return (
     <UnitTable tribe={report.tribe}>
-      <UnitTableTitle>{t('Gathering expedition')}</UnitTableTitle>
       <UnitTablePlayer
         playerName={t('Gathering expedition')}
         tileName={report.summary.villageName}
@@ -674,7 +672,7 @@ export const AdventureReportTable = () => {
               colSpan={2}
               className="text-left"
             >
-              <Text>{t('Adventure statistics')}</Text>
+              <Text>{t('Outcome')}</Text>
             </TableHeaderCell>
           </TableRow>
         </TableHeader>
@@ -726,21 +724,13 @@ export const AdventureHeroTable = () => {
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext)!;
   const report = _report as AdventureReport;
-  const {
-    originPlayerName,
-    originPlayerSlug,
-    originVillageName,
-    originCoordinates,
-    tribe,
-  } = report.summary;
+  const { originVillageName, originCoordinates, tribe } = report.summary;
   const troops = sortTroops(tribe, [{ unitId: 'HERO', amount: 1 }]);
 
   return (
     <UnitTable tribe={tribe}>
-      <UnitTableTitle>{t('Adventure')}</UnitTableTitle>
       <UnitTablePlayer
-        playerName={originPlayerName}
-        playerSlug={originPlayerSlug}
+        playerName={t('Adventure')}
         tileName={originVillageName}
         coordinates={originCoordinates}
       />
