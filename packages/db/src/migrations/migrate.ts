@@ -4,11 +4,15 @@ import createBuildingFieldsIndexes from '../indexes/building-fields-indexes.sql?
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from '../indexes/players-indexes.sql?raw';
+import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
 import createResourceSitesIndexes from '../indexes/resource-sites-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
+import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
+import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
+import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
 import createBuildingFieldsTable from '../schemas/building-fields-schema.sql?raw';
 import createDeveloperSettingsTable from '../schemas/developer-settings-schema.sql?raw';
@@ -18,6 +22,9 @@ import createFactionReputationTable from '../schemas/faction-reputation-schema.s
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
 import createGatherersHutExpeditionsTable from '../schemas/gatherers-hut-expeditions-schema.sql?raw';
+import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
+import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
+import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
 import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.sql?raw';
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
@@ -28,6 +35,8 @@ import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-im
 import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
 import createVillageFoundingHistoryTable from '../schemas/history-tables/village-founding-history-schema.sql?raw';
+import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
+import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createEffectIdsTable from '../schemas/lookup-tables/effect-ids-schema.sql?raw';
@@ -35,6 +44,9 @@ import createEffectScopeIdsTable from '../schemas/lookup-tables/effect-scope-ids
 import createEffectSourceIdsTable from '../schemas/lookup-tables/effect-source-ids-schema.sql?raw';
 import createEffectTypeIdsTable from '../schemas/lookup-tables/effect-type-ids-schema.sql?raw';
 import createFactionIdsTable from '../schemas/lookup-tables/faction-ids-schema.sql?raw';
+import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
+import createReportTagIdsTable from '../schemas/lookup-tables/report-tag-ids-schema.sql?raw';
+import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createResourceFieldCompositionIdsTable from '../schemas/lookup-tables/resource-field-composition-ids-schema.sql?raw';
 import createResourceIdsTable from '../schemas/lookup-tables/resource-ids-schema.sql?raw';
 import createTileTypeIdsTable from '../schemas/lookup-tables/tile-type-ids-schema.sql?raw';
@@ -45,13 +57,22 @@ import createLoyaltiesTable from '../schemas/loyalties-schema.sql?raw';
 import createMapFiltersTable from '../schemas/map-filters-schema.sql?raw';
 import createMapMarkersTable from '../schemas/map-markers-schema.sql?raw';
 import createMetaTable from '../schemas/meta-schema.sql?raw';
+import createMovementReportUnitsTable from '../schemas/movement-report-units-schema.sql?raw';
+import createMovementReportsTable from '../schemas/movement-reports-schema.sql?raw';
 import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
+import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
+import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
+import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
+import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
+import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
+import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createServersTable from '../schemas/servers-schema.sql?raw';
 import createTilesTable from '../schemas/tiles-schema.sql?raw';
+import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
@@ -80,6 +101,9 @@ import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
+import { reportOutcomeIdsSeeder } from '../seeders/report-outcome-ids-seeder';
+import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
+import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
 import { resourceIdsSeeder } from '../seeders/resource-ids-seeder';
 import { resourceSitesSeeder } from '../seeders/resource-sites-seeder';
@@ -96,6 +120,7 @@ import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
+import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 
 export const migrateAndSeed = (
   database: DbFacade,
@@ -206,6 +231,36 @@ export const migrateAndSeed = (
 
     onProgress?.();
 
+    // Reports
+    db.exec({ sql: createReportOutcomeIdsTable });
+    reportOutcomeIdsSeeder(db);
+
+    db.exec({ sql: createReportTagIdsTable });
+    reportTagIdsSeeder(db);
+
+    db.exec({ sql: createReportTypeIdsTable });
+    reportTypeIdsSeeder(db);
+
+    db.exec({ sql: createReportsTable });
+    db.exec({ sql: createHeroAdventureReportsTable });
+    db.exec({ sql: createMovementReportsTable });
+    db.exec({ sql: createMovementReportUnitsTable });
+    db.exec({ sql: createTradeReportsTable });
+    db.exec({ sql: createHuntingPartyReportsTable });
+    db.exec({ sql: createHuntingPartyReportUnitsTable });
+    db.exec({ sql: createGatheringExpeditionReportsTable });
+    db.exec({ sql: createGatheringExpeditionReportUnitsTable });
+    db.exec({ sql: createScoutingReportsTable });
+    db.exec({ sql: createScoutingReportAttackerUnitsTable });
+    db.exec({ sql: createScoutingReportUnitsTable });
+    db.exec({ sql: createScoutingReportStructuresTable });
+    db.exec({ sql: createReportDeleteTriggers });
+    db.exec({ sql: createReportTagsTable });
+
+    db.exec({ sql: createBattleReportsTable });
+    db.exec({ sql: createBattleReportParticipantsTable });
+    db.exec({ sql: createBattleReportUnitsTable });
+
     // Heroes
     db.exec({ sql: createHeroesTable });
     db.exec({ sql: createHeroSelectableAttributesTable });
@@ -260,6 +315,7 @@ export const migrateAndSeed = (
     db.exec({ sql: createWorldItemsTable });
     worldItemsSeeder(db, server);
     db.exec({ sql: createWorldItemsIndexes });
+    db.exec({ sql: createReportsIndexes });
 
     // Unit research
     db.exec({ sql: createUnitResearchTable });

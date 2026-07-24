@@ -11,7 +11,6 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import {
-  insertEffectByEffectNameQuery,
   insertEffectQuery,
   selectWheatProductionEffectIdQuery,
   updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
@@ -28,6 +27,10 @@ import {
 } from '../../../utils/hero';
 import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
 import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
+import {
+  insertAdventureReport,
+  insertMovementReport,
+} from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import { updateVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
@@ -37,7 +40,31 @@ export const adventureMovementResolver: Resolver<
 > = (database, args) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
-  const { heroId, health } = database.selectObject({
+  const { heroId, healthBefore, adventureId } = database.selectObject({
+    sql: `
+      SELECT
+        h.id AS heroId,
+        h.health AS healthBefore,
+        ha.completed + 1 AS adventureId
+      FROM
+        heroes h
+        JOIN hero_adventures ha ON h.id = ha.hero_id
+      WHERE
+        h.player_id = (
+          SELECT player_id
+          FROM villages
+          WHERE id = $village_id
+        );
+    `,
+    bind: { $village_id: villageId },
+    schema: z.strictObject({
+      heroId: z.number(),
+      healthBefore: z.number(),
+      adventureId: z.int(),
+    }),
+  })!;
+
+  const healthAfter = database.selectValue({
     sql: `
       UPDATE heroes
       SET
@@ -55,28 +82,24 @@ export const adventureMovementResolver: Resolver<
                      ) * 10
             ELSE 0
             END
-      WHERE
-        player_id = (
-          SELECT player_id
-          FROM
-            villages
-          WHERE
-            id = $village_id
-          )
-      RETURNING
-        id AS heroId,
-        health
+      WHERE id = $hero_id
+      RETURNING health
     `,
-    bind: {
-      $village_id: villageId,
-    },
-    schema: z.strictObject({
-      heroId: z.number(),
-      health: z.number(),
-    }),
+    bind: { $hero_id: heroId },
+    schema: z.number(),
   })!;
 
-  if (health === 0) {
+  insertAdventureReport(database, {
+    villageId,
+    timestamp: resolvesAt,
+    adventureId,
+    itemId: null,
+    itemAmount: null,
+    healthBefore,
+    healthAfter,
+  });
+
+  if (healthAfter === 0) {
     onHeroDeath(database, resolvesAt);
 
     return {
@@ -86,14 +109,12 @@ export const adventureMovementResolver: Resolver<
 
   database.exec({
     sql: 'UPDATE hero_adventures SET completed = completed + 1 WHERE hero_id = $hero_id;',
-    bind: {
-      $hero_id: heroId,
-    },
+    bind: { $hero_id: heroId },
   });
 
   assessAdventureCountQuestCompletion(database, resolvesAt);
 
-  if (health < 100) {
+  if (healthAfter < 100) {
     createHeroHealthRegenerationEventByVillageId(
       database,
       villageId,
@@ -238,39 +259,73 @@ export const findNewVillageMovementResolver: Resolver<
     schema: z.number(),
   })!;
 
-  for (const { field_id, building_id, level } of buildingFields) {
-    database.exec({
-      sql: `
-        INSERT INTO
-          building_fields (village_id, field_id, building_id, level)
-        VALUES
-          ($village_id, $field_id, $buildingId, $level);
-      `,
-      bind: {
-        $village_id: newVillageId,
-        $field_id: field_id,
-        $buildingId: buildingIdMap.get(building_id)!,
-        $level: level,
-      },
-    });
+  database.exec({
+    sql: `
+      INSERT INTO building_fields (village_id, field_id, building_id, level)
+      SELECT
+        $village_id,
+        json_extract(field.value, '$.fieldId'),
+        json_extract(field.value, '$.buildingId'),
+        json_extract(field.value, '$.level')
+      FROM json_each($fields) AS field;
+    `,
+    bind: {
+      $village_id: newVillageId,
+      $fields: JSON.stringify(
+        buildingFields.map(({ field_id, building_id, level }) => ({
+          fieldId: field_id,
+          buildingId: buildingIdMap.get(building_id)!,
+          level,
+        })),
+      ),
+    },
+  });
 
-    const building = buildingMap.get(building_id)!;
+  const buildingEffects = buildingFields.flatMap(
+    ({ field_id, building_id, level }) =>
+      buildingMap.get(building_id)!.effects.map((effect) => ({
+        effectId: effect.effectId,
+        value: effect.valuesPerLevel[level],
+        type: effect.type,
+        sourceSpecifier: field_id,
+      })),
+  );
 
-    for (const effect of building.effects) {
-      database.exec({
-        sql: insertEffectByEffectNameQuery,
-        bind: {
-          $effect_name: effect.effectId,
-          $value: effect.valuesPerLevel[level],
-          $type: effect.type,
-          $scope: 'local',
-          $source: 'building',
-          $village_id: newVillageId,
-          $source_specifier: field_id,
-        },
-      });
-    }
-  }
+  database.exec({
+    sql: `
+      INSERT INTO effects (
+        effect_id,
+        value,
+        type_id,
+        scope_id,
+        source_id,
+        village_id,
+        source_specifier
+      )
+      SELECT
+        effect_ids.id,
+        json_extract(effect.value, '$.value'),
+        effect_type_ids.id,
+        effect_scope_ids.id,
+        effect_source_ids.id,
+        $village_id,
+        json_extract(effect.value, '$.sourceSpecifier')
+      FROM
+        json_each($effects) AS effect
+        JOIN effect_ids
+          ON effect_ids.effect = json_extract(effect.value, '$.effectId')
+        JOIN effect_type_ids
+          ON effect_type_ids.type = json_extract(effect.value, '$.type')
+        JOIN effect_scope_ids
+          ON effect_scope_ids.scope = 'local'
+        JOIN effect_source_ids
+          ON effect_source_ids.source = 'building';
+    `,
+    bind: {
+      $effects: JSON.stringify(buildingEffects),
+      $village_id: newVillageId,
+    },
+  });
 
   // Initialize resource site for the new village (fresh-settlement baseline similar to starting village)
   database.exec({
@@ -290,23 +345,25 @@ export const findNewVillageMovementResolver: Resolver<
     resourceFieldComposition,
   );
 
-  for (const quest of quests) {
-    const isCompleted = quest.id === 'oneOf-MAIN_BUILDING-1';
-
-    database.exec({
-      sql: `
-        INSERT INTO
-          quests (quest_id, completed_at, collected_at, village_id)
-        VALUES
-          ($questId, $completedAt, NULL, $village_id);
-      `,
-      bind: {
-        $questId: quest.id,
-        $completedAt: isCompleted ? resolvesAt : null,
-        $village_id: newVillageId,
-      },
-    });
-  }
+  database.exec({
+    sql: `
+      INSERT INTO quests (quest_id, completed_at, collected_at, village_id)
+      SELECT
+        quest.value,
+        CASE
+          WHEN quest.value = 'oneOf-MAIN_BUILDING-1' THEN $resolves_at
+          ELSE NULL
+        END,
+        NULL,
+        $village_id
+      FROM json_each($quests) AS quest;
+    `,
+    bind: {
+      $quests: JSON.stringify(quests.map(({ id }) => id)),
+      $resolves_at: resolvesAt,
+      $village_id: newVillageId,
+    },
+  });
 
   // Population effect
   database.exec({
@@ -423,6 +480,11 @@ export const relocationMovementResolver: Resolver<
     schema: z.number(),
   })!;
 
+  insertMovementReport(database, {
+    ...args,
+    movementType: 'relocation',
+  });
+
   addTroops(
     database,
     troops.map((troop) => ({
@@ -464,6 +526,11 @@ export const reinforcementMovementResolver: Resolver<
         villageId: z.number(),
       }),
     })!;
+
+  insertMovementReport(database, {
+    ...args,
+    movementType: 'reinforcement',
+  });
 
   addTroops(
     database,
@@ -513,9 +580,7 @@ export const attackMovementResolver: Resolver<
     schema: z.number(),
   });
 
-  return {
-    affectedVillageIds: [villageId, ...targetVillageIds],
-  };
+  return { affectedVillageIds: [villageId, ...targetVillageIds] };
 };
 
 export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
@@ -541,7 +606,5 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
     schema: z.number(),
   });
 
-  return {
-    affectedVillageIds: [villageId, ...targetVillageIds],
-  };
+  return { affectedVillageIds: [villageId, ...targetVillageIds] };
 };

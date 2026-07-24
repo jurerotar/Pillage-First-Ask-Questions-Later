@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.44",
+  "version": "0.4.45",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -21,24 +21,24 @@
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.3",
+    "@biomejs/biome": "2.5.5",
     "@commitlint/cli": "21.2.1",
     "@commitlint/config-conventional": "21.2.0",
     "@playwright/test": "1.61.1",
     "lefthook": "2.1.10",
-    "oxlint": "1.74.0",
-    "oxlint-tsgolint": "0.24.0",
+    "oxlint": "1.75.0",
+    "oxlint-tsgolint": "7.0.2001",
     "playwright": "1.61.1",
     "sharp": "0.35.3",
-    "turbo": "2.10.5",
+    "turbo": "2.10.6",
     "typescript": "7.0.2"
   },
   "overrides": {
     "vite-plugin-devtools-json": {
-      "vite": "8.1.4"
+      "vite": "8.1.5"
     },
     "vite-plugin-pwa": {
-      "vite": "8.1.4"
+      "vite": "8.1.5"
     },
     "openapi-typescript": {
       "typescript": "7.0.2"
@@ -71,6 +71,7 @@
     "core-js-pure": false,
     "esbuild": false,
     "lefthook": false,
+    "tree-sitter": false,
     "@tree-sitter-grammars/tree-sitter-yaml": false,
     "tree-sitter-json": false
   }

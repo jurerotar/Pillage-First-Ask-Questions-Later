@@ -12,7 +12,9 @@ import {
   heroCacheKey,
   heroInventoryCacheKey,
   loyaltyCacheKey,
+  occupiableOasisInRangeCacheKey,
   questsCacheKey,
+  reportListingsCacheKey,
   sentReinforcementsCacheKey,
   tilesCacheKey,
   trapperCagesCacheKey,
@@ -85,6 +87,7 @@ export const cachesToClearOnResolve: Handlers = {
   troopMovementReinforcements: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [villageTroopsCacheKey, villageId],
         [effectsCacheKey, villageId],
@@ -96,6 +99,7 @@ export const cachesToClearOnResolve: Handlers = {
   troopMovementRelocation: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [villageTroopsCacheKey, villageId],
         [effectsCacheKey, villageId],
@@ -127,18 +131,27 @@ export const cachesToClearOnResolve: Handlers = {
   troopMovementAttack: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [reportListingsCacheKey],
+      [loyaltyCacheKey],
+      [tilesCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
+        [villageTroopsCacheKey, villageId],
+        [occupiableOasisInRangeCacheKey, villageId],
+        [effectsCacheKey, villageId],
       ]),
     ];
   },
   troopMovementRaid: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [effectsCacheKey, villageId],
         [troopMovementsCacheKey, villageId],
+        [villageTroopsCacheKey, villageId],
+        [effectsCacheKey, villageId],
       ]),
     ];
   },
@@ -146,6 +159,7 @@ export const cachesToClearOnResolve: Handlers = {
   troopMovementOasisOccupation: ({ affectedVillageIds }) => {
     return [
       [heroCacheKey],
+      [reportListingsCacheKey],
       [tilesCacheKey],
       [currentVillageCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
@@ -159,6 +173,7 @@ export const cachesToClearOnResolve: Handlers = {
       [heroCacheKey],
       [adventurePointsCacheKey],
       [heroInventoryCacheKey],
+      [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [questsCacheKey, villageId],
         [effectsCacheKey, villageId],
@@ -205,6 +220,7 @@ export const cachesToClearOnResolve: Handlers = {
   huntersLodgeHunt: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [villageTroopsCacheKey, villageId],
         [eventsCacheKey, 'huntersLodgeHunt', villageId],
@@ -232,6 +248,7 @@ export const cachesToClearOnResolve: Handlers = {
   gatherersHutGatheringTrip: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [villageTroopsCacheKey, villageId],
         [eventsCacheKey, 'gatherersHutGatheringTrip', villageId],
@@ -242,6 +259,7 @@ export const cachesToClearOnResolve: Handlers = {
   resourceTransfer: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [eventsHistoryCacheKey, villageId],
         [eventsCacheKey, 'resourceTransfer', villageId],
@@ -251,6 +269,7 @@ export const cachesToClearOnResolve: Handlers = {
   tradeRoute: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],
+      [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [eventsCacheKey, 'resourceTransfer', villageId],
         [eventsCacheKey, 'tradeRoute', villageId],

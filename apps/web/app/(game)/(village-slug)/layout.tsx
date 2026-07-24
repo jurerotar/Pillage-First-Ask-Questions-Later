@@ -98,7 +98,7 @@ const Counter = ({ counter }: CounterProps) => {
 };
 
 const ReportsCounter = () => {
-  const { reports } = useReports();
+  const { reports } = useReports('unread');
   return <Counter counter={reports.length} />;
 };
 

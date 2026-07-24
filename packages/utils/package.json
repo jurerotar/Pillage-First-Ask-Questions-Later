@@ -72,6 +72,9 @@
     "./guards/map": {
       "default": "./src/guards/map-guards.ts"
     },
+    "./guards/report": {
+      "default": "./src/guards/report-guards.ts"
+    },
     "./facades/database": {
       "default": "./src/facades/database-facade.ts"
     }
@@ -92,7 +95,7 @@
   },
   "devDependencies": {
     "typescript": "7.0.2",
-    "vite": "8.1.4",
+    "vite": "8.1.5",
     "vitest": "4.1.10",
     "zod": "4.4.3"
   }

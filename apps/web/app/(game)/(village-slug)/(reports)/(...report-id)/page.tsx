@@ -1,9 +1,17 @@
 import { useTranslation } from 'react-i18next';
+import {
+  isAdventureReport,
+  isBattleReport,
+  isGatheringExpeditionReport,
+  isHuntingPartyReport,
+  isMovementReport,
+  isScoutingReport,
+  isTradeReport,
+} from '@pillage-first/utils/guards/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
-import { Alert } from 'app/components/ui/alert';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,12 +19,29 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
+import { useReport } from '../../hooks/use-report';
+import {
+  AdventureHeroTable,
+  AdventureReportTable,
+  BattleParticipantTable,
+  BattleStatisticsTable,
+  GatheringExpeditionReportTable,
+  HuntingPartyReportTable,
+  MovementReportTable,
+  Report,
+  ReportHeader,
+  ScoutingReportTables,
+  TradeReportTable,
+} from './components/report';
 
 const ReportPage = ({ params }: Route.ComponentProps) => {
-  const { reportId, villageSlug, serverSlug } = params;
+  const { reportId: reportIdParam, villageSlug, serverSlug } = params;
   const { t } = useTranslation();
 
-  const title = `${t('Report - {{playerSlug}}', { reportId })} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+  const reportId = Number.parseInt(reportIdParam, 10);
+  const { report } = useReport(reportId);
+
+  const title = `${t('Report - {{reportId}}', { reportId })}  | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   return (
     <PageContents>
@@ -42,10 +67,46 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
       >
         <Text>{t('Review the selected in-game report.')}</Text>
       </InformationPopover>
-      <Text as="h1">{t('Player')}</Text>
-      <Alert variant="warning">
-        {t('This page is still under development')}
-      </Alert>
+      {!report && <Text as="h1">Report not found</Text>}
+      {report && (
+        <Report report={report}>
+          <ReportHeader />
+          {isBattleReport(report) && (
+            <>
+              <BattleParticipantTable
+                participant={report.battle.attacker}
+                participantRole="attacker"
+              />
+              <BattleParticipantTable
+                participant={report.battle.defender}
+                participantRole="defender"
+              />
+              {report.battle.outcome.canAttackerSeeFullReport &&
+                report.battle.defender.reinforcements.map((participant) => (
+                  <BattleParticipantTable
+                    key={participant.player.id}
+                    participant={participant}
+                    participantRole="reinforcement"
+                  />
+                ))}
+              <BattleStatisticsTable />
+            </>
+          )}
+          {isAdventureReport(report) && (
+            <>
+              <AdventureHeroTable />
+              <AdventureReportTable />
+            </>
+          )}
+          {isTradeReport(report) && <TradeReportTable />}
+          {isScoutingReport(report) && <ScoutingReportTables />}
+          {isMovementReport(report) && <MovementReportTable />}
+          {isHuntingPartyReport(report) && <HuntingPartyReportTable />}
+          {isGatheringExpeditionReport(report) && (
+            <GatheringExpeditionReportTable />
+          )}
+        </Report>
+      )}
     </PageContents>
   );
 };

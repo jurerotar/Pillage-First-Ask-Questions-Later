@@ -7,6 +7,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { randomArrayElement } from '@pillage-first/utils/random';
 import { insertAnimalCagesIntoHeroInventoryQuery } from '../../../queries/hero-queries';
 import { selectVillageAndFirstOasisTileIdsQuery } from '../../../queries/map-queries';
+import { insertHuntingPartyReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import type { Resolver } from '../resolver';
 
@@ -32,7 +33,7 @@ export const animalCageProductionResolver: Resolver<
 export const huntersLodgeHuntResolver: Resolver<
   GameEvent<'huntersLodgeHunt'>
 > = (database, args) => {
-  const { huntingPartyLevel, villageId } = args;
+  const { huntingPartyLevel, resolvesAt, villageId } = args;
 
   const huntersLodge = database.selectObject({
     sql: selectVillageAndFirstOasisTileIdsQuery,
@@ -56,6 +57,14 @@ export const huntersLodgeHuntResolver: Resolver<
       source: huntersLodge.sourceTileId,
     },
   ]);
+
+  insertHuntingPartyReport(database, {
+    villageId,
+    timestamp: resolvesAt,
+    villageTileId: huntersLodge.villageTileId,
+    unitId,
+    amount: 1,
+  });
 
   return {
     affectedVillageIds: [villageId],

@@ -81,5 +81,9 @@ export const reinforcementRelocationFormSchema = baseTroopFormSchema.extend({
   action: z.enum(['reinforcement', 'relocation']),
 });
 
+export const attackOrRaidFormSchema = baseTroopFormSchema.extend({
+  action: z.enum(['attack', 'raid']),
+});
+
 export type UnitSelection = z.infer<typeof unitSelectionSchema>;
 export type BaseTroopFormValues = z.infer<typeof baseTroopFormSchema>;

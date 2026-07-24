@@ -72,4 +72,18 @@ describe(matchRoute, () => {
 
     expect(result.url).toBe(url);
   });
+
+  test('preserves repeated query params as arrays', () => {
+    const result = matchRoute(
+      '/reports?scope=village&villageId=2&types=adventure&types=movement&types=trade',
+      'GET',
+    );
+
+    expect(result.query.villageId).toBe(2);
+    expect(result.query.types).toStrictEqual([
+      'adventure',
+      'movement',
+      'trade',
+    ]);
+  });
 });

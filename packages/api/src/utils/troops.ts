@@ -15,83 +15,151 @@ import {
 } from '@pillage-first/utils/guards/event';
 
 export const addTroops = (database: DbFacade, troops: Troop[]) => {
-  const stmt = database.prepare({
-    sql: `
-      INSERT INTO
-        troops (unit_id, amount, tile_id, source_tile_id)
-      VALUES
-        ((
-           SELECT id
-           FROM
-             unit_ids
-           WHERE
-             unit = $unit_id
-           ), $amount, $tile_id, $source_tile_id)
-      ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
-        amount = troops.amount + EXCLUDED.amount;
-    `,
-  });
-
-  for (const troop of troops) {
-    stmt
-      .bind({
+  if (troops.length === 1) {
+    const troop = troops[0]!;
+    database.exec({
+      sql: `
+        INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+        VALUES (
+          (SELECT id FROM unit_ids WHERE unit = $unit_id),
+          $amount,
+          $tile_id,
+          $source_tile_id
+        )
+        ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
+          amount = troops.amount + EXCLUDED.amount;
+      `,
+      bind: {
         $unit_id: troop.unitId,
         $amount: troop.amount,
         $tile_id: troop.tileId,
         $source_tile_id: troop.source,
-      })
-      .stepReset();
+      },
+    });
+    return;
   }
+
+  database.exec({
+    sql: `
+      INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+      SELECT
+        unit_ids.id,
+        SUM(json_extract(troop.value, '$.amount')),
+        json_extract(troop.value, '$.tileId'),
+        json_extract(troop.value, '$.source')
+      FROM
+        json_each($troops) AS troop
+        JOIN unit_ids
+          ON unit_ids.unit = json_extract(troop.value, '$.unitId')
+      GROUP BY
+        unit_ids.id,
+        json_extract(troop.value, '$.tileId'),
+        json_extract(troop.value, '$.source')
+      HAVING TRUE
+      ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
+        amount = troops.amount + EXCLUDED.amount;
+    `,
+    bind: { $troops: JSON.stringify(troops) },
+  });
 };
 
 export const removeTroops = (database: DbFacade, troops: Troop[]) => {
-  for (const troop of troops) {
+  if (troops.length === 1) {
+    const troop = troops[0]!;
+    const bind = {
+      $unit_id: troop.unitId,
+      $amount: troop.amount,
+      $tile_id: troop.tileId,
+      $source_tile_id: troop.source,
+    };
     database.exec({
       sql: `
-        DELETE
-        FROM
-          troops
+        DELETE FROM troops
         WHERE
-          unit_id = (
-            SELECT id
-            FROM unit_ids
-            WHERE unit = $unit_id
-            )
+          unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
           AND tile_id = $tile_id
           AND source_tile_id = $source_tile_id
           AND amount <= $amount;
       `,
-      bind: {
-        $unit_id: troop.unitId,
-        $amount: troop.amount,
-        $tile_id: troop.tileId,
-        $source_tile_id: troop.source,
-      },
+      bind,
     });
-
     database.exec({
       sql: `
         UPDATE troops
-        SET
-          amount = amount - $amount
+        SET amount = amount - $amount
         WHERE
-          unit_id = (
-            SELECT id
-            FROM unit_ids
-            WHERE unit = $unit_id
-            )
+          unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
           AND tile_id = $tile_id
           AND source_tile_id = $source_tile_id
           AND amount > $amount;
       `,
-      bind: {
-        $unit_id: troop.unitId,
-        $amount: troop.amount,
-        $tile_id: troop.tileId,
-        $source_tile_id: troop.source,
-      },
+      bind,
     });
+    return;
   }
+
+  database.exec({
+    sql: `
+      WITH requested_troops AS (
+        SELECT
+          unit_ids.id AS unit_id,
+          json_extract(troop.value, '$.tileId') AS tile_id,
+          json_extract(troop.value, '$.source') AS source_tile_id,
+          SUM(json_extract(troop.value, '$.amount')) AS amount
+        FROM
+          json_each($troops) AS troop
+          JOIN unit_ids
+            ON unit_ids.unit = json_extract(troop.value, '$.unitId')
+        GROUP BY unit_ids.id, tile_id, source_tile_id
+      )
+      DELETE FROM troops
+      WHERE EXISTS (
+        SELECT 1
+        FROM requested_troops
+        WHERE
+          requested_troops.unit_id = troops.unit_id
+          AND requested_troops.tile_id = troops.tile_id
+          AND requested_troops.source_tile_id = troops.source_tile_id
+          AND troops.amount <= requested_troops.amount
+      );
+    `,
+    bind: { $troops: JSON.stringify(troops) },
+  });
+
+  database.exec({
+    sql: `
+      WITH requested_troops AS (
+        SELECT
+          unit_ids.id AS unit_id,
+          json_extract(troop.value, '$.tileId') AS tile_id,
+          json_extract(troop.value, '$.source') AS source_tile_id,
+          SUM(json_extract(troop.value, '$.amount')) AS amount
+        FROM
+          json_each($troops) AS troop
+          JOIN unit_ids
+            ON unit_ids.unit = json_extract(troop.value, '$.unitId')
+        GROUP BY unit_ids.id, tile_id, source_tile_id
+      )
+      UPDATE troops
+      SET amount = amount - (
+        SELECT requested_troops.amount
+        FROM requested_troops
+        WHERE
+          requested_troops.unit_id = troops.unit_id
+          AND requested_troops.tile_id = troops.tile_id
+          AND requested_troops.source_tile_id = troops.source_tile_id
+      )
+      WHERE EXISTS (
+        SELECT 1
+        FROM requested_troops
+        WHERE
+          requested_troops.unit_id = troops.unit_id
+          AND requested_troops.tile_id = troops.tile_id
+          AND requested_troops.source_tile_id = troops.source_tile_id
+      );
+    `,
+    bind: { $troops: JSON.stringify(troops) },
+  });
 };
 
 export const validateTroopMovement = (

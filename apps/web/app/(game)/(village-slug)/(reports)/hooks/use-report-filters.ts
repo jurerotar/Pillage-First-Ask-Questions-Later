@@ -3,17 +3,17 @@ import { useFilters } from 'app/hooks/use-filters';
 
 export const reportFilterTypes: ReportType[] = [
   'adventure',
-  'attack',
-  'raid',
-  'defence',
-  'scout-attack',
-  'scout-defence',
+  'battle',
+  'scouting',
+  'movement',
   'trade',
+  'huntingParty',
+  'gatheringExpedition',
 ];
 
 export const useReportFilters = () => {
   return useFilters<ReportType>({
-    paramName: 'reports',
+    paramName: 'scope',
     defaultFilters: reportFilterTypes,
   });
 };

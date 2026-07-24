@@ -201,6 +201,7 @@ describe('marketplace resolvers', () => {
     const targetVillage = createPlayerVillage(database, 'Resolver Target');
 
     const resolvesAt = NOW + 5_000;
+
     setVillageResources(
       database,
       targetVillage.tileId,
@@ -228,10 +229,73 @@ describe('marketplace resolvers', () => {
       wheat: 210,
     });
 
+    const tradeReport = database.selectObject({
+      sql: `
+        SELECT
+          r.id AS report_id,
+          r.village_id,
+          r.timestamp,
+          rti.report_type,
+          roi.report_outcome,
+          tr.origin_tile_id,
+          tr.target_tile_id,
+          tr.wood,
+          tr.clay,
+          tr.iron,
+          tr.wheat
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN trade_reports tr ON r.id = tr.report_id
+        WHERE r.village_id = $village_id;
+      `,
+      bind: { $village_id: targetVillage.id },
+      schema: z.strictObject({
+        report_id: z.number(),
+        village_id: z.number(),
+        timestamp: z.number(),
+        report_type: z.string(),
+        report_outcome: z.string(),
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
+        wood: z.number(),
+        clay: z.number(),
+        iron: z.number(),
+        wheat: z.number(),
+      }),
+    })!;
+
+    expect(tradeReport).toMatchObject({
+      village_id: targetVillage.id,
+      timestamp: resolvesAt,
+      report_type: 'trade',
+      report_outcome: 'incomingMerchantsArrived',
+      origin_tile_id: sourceVillage.tile_id,
+      target_tile_id: targetVillage.tileId,
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+    });
+
+    database.exec({
+      sql: 'DELETE FROM reports WHERE id = $report_id;',
+      bind: { $report_id: tradeReport.report_id },
+    });
+
+    expect(
+      database.selectValue({
+        sql: 'SELECT COUNT(*) FROM trade_reports WHERE report_id = $report_id;',
+        bind: { $report_id: tradeReport.report_id },
+        schema: z.number(),
+      }),
+    ).toBe(0);
+
     const transferCount = database.selectValue({
       sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
       schema: z.number(),
     });
+
     const returnEvent = database.selectObject({
       sql: `
         SELECT
@@ -314,6 +378,7 @@ describe('marketplace resolvers', () => {
       iron: 500,
       wheat: 500,
     });
+
     expect(
       database.selectValue({
         sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
@@ -367,6 +432,7 @@ describe('marketplace resolvers', () => {
         count: z.number(),
       }),
     });
+
     const nextTradeRoute = database.selectObject({
       sql: `
         SELECT starts_at, duration, village_id, JSON_EXTRACT(meta, '$.interval') AS interval
@@ -385,17 +451,51 @@ describe('marketplace resolvers', () => {
       { type: 'resourceTransfer', count: 1 },
       { type: 'tradeRoute', count: 1 },
     ]);
+
     expect(nextTradeRoute).toStrictEqual({
       starts_at: NOW + interval,
       duration: 0,
       village_id: sourceVillage.id,
       interval,
     });
+
     expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
       wood: 400,
       clay: 450,
       iron: 475,
       wheat: 490,
+    });
+
+    const transferEventId = database.selectValue({
+      sql: "SELECT id FROM events WHERE type = 'resourceTransfer';",
+      schema: z.number(),
+    })!;
+
+    resolveEvent(database, transferEventId);
+
+    const outgoingReport = database.selectObject({
+      sql: `
+        SELECT r.village_id, roi.report_outcome, tr.origin_tile_id, tr.target_tile_id
+        FROM reports r
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN trade_reports tr ON tr.report_id = r.id
+        WHERE r.village_id = $village_id
+          AND roi.report_outcome = 'outgoingMerchantsArrived';
+      `,
+      bind: { $village_id: sourceVillage.id },
+      schema: z.strictObject({
+        village_id: z.number(),
+        report_outcome: z.string(),
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
+      }),
+    });
+
+    expect(outgoingReport).toStrictEqual({
+      village_id: sourceVillage.id,
+      report_outcome: 'outgoingMerchantsArrived',
+      origin_tile_id: sourceVillage.tile_id,
+      target_tile_id: targetVillage.tileId,
     });
   });
 

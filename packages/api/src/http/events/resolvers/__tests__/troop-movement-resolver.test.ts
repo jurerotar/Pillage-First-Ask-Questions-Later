@@ -143,6 +143,48 @@ describe(adventureMovementResolver, () => {
     expect(hero.experience).toBe(60);
     expect(adventures.completed).toBe(6);
 
+    const report = database.selectObject({
+      sql: `
+        SELECT
+          r.village_id,
+          r.timestamp,
+          rti.report_type,
+          roi.report_outcome,
+          har.adventure_id,
+          har.item_id,
+          har.health_before,
+          har.health_after
+        FROM
+          reports r
+          JOIN report_type_ids rti ON r.type_id = rti.id
+          JOIN report_outcome_ids roi ON r.report_outcome_id = roi.id
+          JOIN hero_adventure_reports har ON r.id = har.report_id
+        WHERE r.timestamp = $timestamp;
+      `,
+      bind: { $timestamp: mockEvent.resolvesAt },
+      schema: z.strictObject({
+        village_id: z.number(),
+        timestamp: z.number(),
+        report_type: z.string(),
+        report_outcome: z.string(),
+        adventure_id: z.number(),
+        item_id: z.number().nullable(),
+        health_before: z.number(),
+        health_after: z.number(),
+      }),
+    })!;
+
+    expect(report).toEqual({
+      village_id: villageId,
+      timestamp: mockEvent.resolvesAt,
+      report_type: 'adventure',
+      report_outcome: 'heroAdventure',
+      adventure_id: 6,
+      item_id: null,
+      health_before: 100,
+      health_after: 97,
+    });
+
     // Check if return event was created
     const returnEventRow = database.selectObject({
       sql: "SELECT id, type, starts_at, duration, resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn';",
@@ -224,6 +266,34 @@ describe(adventureMovementResolver, () => {
     expect(hero.health).toBe(0);
     expect(hero.experience).toBe(100);
     expect(adventures.completed).toBe(5);
+
+    const report = database.selectObject({
+      sql: `
+        SELECT
+          har.adventure_id,
+          har.item_id,
+          har.health_before,
+          har.health_after
+        FROM
+          hero_adventure_reports har
+          JOIN reports r ON har.report_id = r.id
+        WHERE r.village_id = $village_id AND har.health_before = 3;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        adventure_id: z.number(),
+        item_id: z.number().nullable(),
+        health_before: z.number(),
+        health_after: z.number(),
+      }),
+    });
+
+    expect(report).toEqual({
+      adventure_id: 6,
+      item_id: null,
+      health_before: 3,
+      health_after: 0,
+    });
 
     // Check if return event was NOT created
     const returnEventRow = database.selectObject({
@@ -311,6 +381,45 @@ describe(relocationMovementResolver, () => {
       schema: z.strictObject({ tile_id: z.number() }),
     })!;
     expect(heroTroop.tile_id).toBe(targetTileId);
+
+    const movementReport = database.selectObject({
+      sql: `
+        SELECT r.village_id, r.timestamp,
+          rti.report_type, roi.report_outcome, mr.origin_tile_id,
+          mr.target_tile_id, mr.movement_type, ui.unit AS unit_id, mru.amount
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN movement_reports mr ON mr.report_id = r.id
+        JOIN movement_report_units mru ON mru.movement_report_id = mr.id
+        JOIN unit_ids ui ON ui.id = mru.unit_id
+        WHERE rti.report_type = 'movement'
+        ORDER BY r.id DESC LIMIT 1;
+      `,
+      schema: z.strictObject({
+        village_id: z.int(),
+        timestamp: z.int(),
+        report_type: z.string(),
+        report_outcome: z.string(),
+        origin_tile_id: z.int(),
+        target_tile_id: z.int(),
+        movement_type: z.string(),
+        unit_id: z.string(),
+        amount: z.int(),
+      }),
+    })!;
+
+    expect(movementReport).toStrictEqual({
+      village_id: initialVillageId,
+      timestamp: mockEvent.resolvesAt,
+      report_type: 'movement',
+      report_outcome: 'troopMovement',
+      origin_tile_id: mockEvent.originTileId,
+      target_tile_id: targetTileId,
+      movement_type: 'relocation',
+      unit_id: 'HERO',
+      amount: 1,
+    });
   });
 
   test('should move troop wheatProduction effects from origin village to target village', async () => {
@@ -452,6 +561,40 @@ describe(reinforcementMovementResolver, () => {
 
     expect(sourceHeroEffectsAfter).toHaveLength(sourceHeroEffectsBefore.length);
     expect(targetHeroEffectsAfter).toHaveLength(0);
+
+    const report = database.selectObject({
+      sql: `
+        SELECT rti.report_type, roi.report_outcome, mr.movement_type,
+          mr.origin_tile_id, mr.target_tile_id, ui.unit AS unit_id, mru.amount
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN movement_reports mr ON mr.report_id = r.id
+        JOIN movement_report_units mru ON mru.movement_report_id = mr.id
+        JOIN unit_ids ui ON ui.id = mru.unit_id
+        WHERE rti.report_type = 'movement'
+        ORDER BY r.id DESC LIMIT 1;
+      `,
+      schema: z.strictObject({
+        report_type: z.string(),
+        report_outcome: z.string(),
+        movement_type: z.string(),
+        origin_tile_id: z.int(),
+        target_tile_id: z.int(),
+        unit_id: z.string(),
+        amount: z.int(),
+      }),
+    })!;
+
+    expect(report).toStrictEqual({
+      report_type: 'movement',
+      report_outcome: 'troopMovement',
+      movement_type: 'reinforcement',
+      origin_tile_id: sourceTileId,
+      target_tile_id: targetVillage.tileId,
+      unit_id: 'HERO',
+      amount: 1,
+    });
   });
 
   test('should not update hero village_id when hero is sent as reinforcement', async () => {

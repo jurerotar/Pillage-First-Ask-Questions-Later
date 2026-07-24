@@ -1,3 +1,11 @@
+## Version 0.4.45
+
+#### Jul 24, 2026
+
+* [Feature] **Reports are finally here!** This was one of the last missing features blocking us from working on combat
+  mechanics. We added adventure, merchant, troop relocation and reinforcements, hunting party, gathering expedition,
+  scouting and battle reports.
+
 ## Version 0.4.44
 
 #### Jul 16, 2026
@@ -44,11 +52,9 @@
   reduced size of `effects` table by around 40% (which amounts to around 800KB in practice) and improved execution speed
   of most common queries by around 20-25%.
 * [Performance] Reworked `tiles` table. This minor change reduced our total database size by around 4% (150KB in
-  practice) and improved
-  execution speed of map-related queries by around 1-2%.
+  practice) and improved execution speed of map-related queries by around 1-2%.
 * [Performance] Reworked `oasis` table. This minor change reduced our total database size by around 1.5% (45KB in
-  practice) and improved
-  execution speed of oasis-related queries around 15%-70%.
+  practice) and improved execution speed of oasis-related queries around 15%-70%.
 
 ## Version 0.4.38
 
@@ -91,8 +97,8 @@
 
 #### Jun 19, 2026
 
-* [BugFix] Improved internal data structures to prevent event execution happening with stale data, which was observed
-  to (potentially) happen in some cases.
+* [BugFix] Improved internal data structures to prevent event execution happening with stale data, which was observed to
+  (potentially) happen in some cases.
 
 ## Version 0.4.33
 
@@ -370,18 +376,16 @@ fix: building downgrade fixes
   the map, while having three settlers present in your village.
 
 * [Feature] We're getting a new page! **Event log page** will show a list of the latest events happening in your
-  kingdom! It
-  will show completed **construction/destruction/downgrade events**, **training events**, as well as **unit improvement
-  events**, **unit research events** and **new village founding events**. You'll be able to toggle between
+  kingdom! It will show completed **construction/destruction/downgrade events**, **training events**, as well as **unit
+  improvement events**, **unit research events** and **new village founding events**. You'll be able to toggle between
   village-specific events or all events. This will allow you to see what was done since you were last online, at a
   glance!
 
 * [Feature] We added new custom-made icons! This time for **cavalry defense** and **infantry defense**.
 
 * [Feature] We added experimental support for transferring a game world between devices on the same network. This is
-  done
-  using WebRTC technology. To transfer the game world to a new device, both devices must have the app open and be on the
-  same network.
+  done using WebRTC technology. To transfer the game world to a new device, both devices must have the app open and be
+  on the same network.
 
 * [Feature] We added an initial implementation for village loyalty mechanic. This will be expanded in the future with
   the introduction of combat mechanics.
@@ -392,10 +396,9 @@ fix: building downgrade fixes
 * [Feature] We reworked how construction cancellation works. Previously, cancelling an ongoing construction refunded a
   flat 80% of the construction cost, regardless of when the construction was canceled. This penalized players who
   initialized construction by mistake. The new refund system is based on the proportionality of already-completed
-  construction.
-  Cancelling immediately or in the first 5% of construction duration will refund 95% of the construction cost. From 5%
-  of construction duration forwards, the system will refund resources proportionally, with the minimum amount return of
-  40%.
+  construction. Cancelling immediately or in the first 5% of construction duration will refund 95% of the construction
+  cost. From 5% of construction duration forwards, the system will refund resources proportionally, with the minimum
+  amount return of 40%.
 
 ## Version 0.3.17
 
@@ -476,9 +479,8 @@ fix: building downgrade fixes
 #### Mar 6, 2026
 
 * [BugFix] Added additional validations to prevent the app from getting to an incorrect state. These fixes should
-  prevent
-  users from being able to upgrade units beyond level 20, upgrade buildings beyond their max level and surpass other
-  similar limitations.
+  prevent users from being able to upgrade units beyond level 20, upgrade buildings beyond their max level and surpass
+  other similar limitations.
 
 ## Version 0.3.4
 
@@ -518,13 +520,13 @@ fix: building downgrade fixes
 
 * [Breaking] This version introduces breaking changes
 
-* [Feature] Added hero adventures! Too long have our heroes sat idly by. No longer! You'll now be able to send
-  a hero on adventures to gather loot and experience! <br /> Adventures will take anywhere from 8 to 12 minutes, and are
-  scaled with game world speed.<br /> Each adventure will cost your hero some health points; 5 to be exact. This can be
-  reduced by wearing damage-reducing gear!<br /> Your hero earns experience each time it completes an adventure. It
-  currently receives `10 * (number_of_completed_adventures + 1)` experience per successful adventure!<br /> Your hero
-  will receive loot on successfully finishing an adventure. We're currently still missing loot tables, so this is coming
-  in a later patch, along with hero inventory interface.<br />
+* [Feature] Added hero adventures! Too long have our heroes sat idly by. No longer! You'll now be able to send a hero on
+  adventures to gather loot and experience! <br /> Adventures will take anywhere from 8 to 12 minutes, and are scaled
+  with game world speed.<br /> Each adventure will cost your hero some health points; 5 to be exact. This can be reduced
+  by wearing damage-reducing gear!<br /> Your hero earns experience each time it completes an adventure. It currently
+  receives `10 * (number_of_completed_adventures + 1)` experience per successful adventure!<br /> Your hero will receive
+  loot on successfully finishing an adventure. We're currently still missing loot tables, so this is coming in a later
+  patch, along with hero inventory interface.<br />
 
 * [Feature] Added the ability to train Chiefs and Settlers.
 
@@ -537,11 +539,9 @@ fix: building downgrade fixes
 * [BugFix] Fixed an issue where not all occupiable oases were shown in Hero's Mansion.
 
 * [Performance] Improved database seeding performance and reduced the overall size of the database file. We implemented
-  2
-  separate changes in regard to a database. The first one reduced overall database size by around 10-30%, depending
-  on game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This
-  results
-  in faster game world creation, as well as better performance while in the game!
+  2 separate changes in regard to a database. The first one reduced overall database size by around 10-30%, depending on
+  game world size. The second one cut the time to seed the database by over 50% on game worlds of all sizes. This
+  results in faster game world creation, as well as better performance while in the game!
 
 * [TechnicalImprovement] Improved database breaking changes detection. App will now more consistently detect outdated
   game worlds.
@@ -577,8 +577,7 @@ fix: building downgrade fixes
 #### Feb 16, 2026
 
 * [Feature] Added an option to view the constructable buildings list in compacted form. This change allows players to
-  scroll
-  less, especially on mobile devices.
+  scroll less, especially on mobile devices.
 
 * [Feature] Added the ability to commit minor database upgrades without breaking game worlds.
 
@@ -623,15 +622,14 @@ fix: building downgrade fixes
 * [Feature] Game world overview page - you can now see the split of tribes, factions and basic game world information.
 * [Feature] Oasis bonus finder - long gone are the days of manually checking the map for your perfect location of your
   next village. This tool allows you to find all tiles with specific resource composition and bonuses!
-* [Feature] Reworked developer tools - you may now toggle instant completion and cost-free of individual event
-  types, add or remove resources, add adventure points or spawn hero items!
+* [Feature] Reworked developer tools - you may now toggle instant completion and cost-free of individual event types,
+  add or remove resources, add adventure points or spawn hero items!
 * [Feature] Tons of new quests - we've expanded the quest list from humble 160 to over 1000. More will get added as
   development continues!
 
   From a technical improvement perspective, we haven't been idling. The new version fixes the long-standing issue of
-  game
-  world state corruption, it massively improves developer experience and speed, adds over 200 tests and enables us to
-  onboard new contributors easier! These changes were contributed by over seven new contributors!
+  game world state corruption, it massively improves developer experience and speed, adds over 200 tests and enables us
+  to onboard new contributors easier! These changes were contributed by over seven new contributors!
 
 ## Version 0.0.49
 
@@ -644,9 +642,8 @@ fix: building downgrade fixes
 
 #### Jan 19, 2026
 
-* [Feature] You'll now be able to start building upgrades faster on mobile! Press the building upgrade indicator
-  for a second, and the building will start upgrading, without you having to open the building interface and clicking
-  the
+* [Feature] You'll now be able to start building upgrades faster on mobile! Press the building upgrade indicator for a
+  second, and the building will start upgrading, without you having to open the building interface and clicking the
   build button.
 
 ## Version 0.0.47
@@ -658,12 +655,10 @@ fix: building downgrade fixes
   may take a couple of seconds.
 
 * [TechnicalImprovement] We transitioned the repository to a monorepo. This came with some technical challenges, but
-  also a
-  ton of clarity. Project is now much simpler to navigate and reason about!
+  also a ton of clarity. Project is now much simpler to navigate and reason about!
 
 * [TechnicalImprovement] We've added oxlint to the project. This is a new linting tool, and it's very promising. Plan is
-  to
-  use it side-by-side with Biome (our current linter), with the goal of eventually transitioning fully off of Biome.
+  to use it side-by-side with Biome (our current linter), with the goal of eventually transitioning fully off of Biome.
 
 ## Version 0.0.46
 
@@ -683,9 +678,9 @@ fix: building downgrade fixes
 #### Dec 24, 2025
 
 * [Feature] UI color scheme (dark/light mode), graphic skin variant (default, snow, ...), locale and graphics day-night
-  setting are now persistent between game worlds. This doesn't mean much yet. We don't have graphics, only
-  support a single locale and don't have a dark mode yet, but once those things arrive, you'll be able to set them once
-  and have the setting persist through all game worlds.
+  setting are now persistent between game worlds. This doesn't mean much yet. We don't have graphics, only support a
+  single locale and don't have a dark mode yet, but once those things arrive, you'll be able to set them once and have
+  the setting persist through all game worlds.
 
 * [Performance] We've done a minor cleanup. In this case, we managed to remove a minor dependency, which reduced the
   final bundle by about ~60 kb.
@@ -709,7 +704,7 @@ fix: building downgrade fixes
 * [BugFix] We've fixed an annoying layout shift, which appeared when changing between village and non-village pages!
 
 * [Performance] We've substantially improved the performance of the construct new building page. This page was actually
-  flagged as one of the slowest pages we have. The reason for this is that to determine which buildings you're
-  allowed to construct, we have to run a bunch of checks. While these checks are not that slow individually, we had to
-  run these checks multiple times for each building, which added up quickly. We've now reworked this to make it more
-  efficient. You should be seeing faster page renders, especially on mid/lower-end devices.
+  flagged as one of the slowest pages we have. The reason for this is that to determine which buildings you're allowed
+  to construct, we have to run a bunch of checks. While these checks are not that slow individually, we had to run these
+  checks multiple times for each building, which added up quickly. We've now reworked this to make it more efficient.
+  You should be seeing faster page renders, especially on mid/lower-end devices.

@@ -6,6 +6,7 @@ import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
 import { onHeroDeath } from '../../utils/hero';
+import { adjustLoyalty, createLoyaltyIncreaseEvent } from '../../utils/loyalty';
 import {
   addVillageResourcesAt,
   subtractVillageResourcesAt,
@@ -333,4 +334,19 @@ export const killHero = createController(
   });
 
   onHeroDeath(database, now);
+});
+
+export const adjustVillageLoyalty = createController(
+  '/developer-settings/:tileId/adjustLoyalty',
+  'patch',
+  {
+    summary: 'Adjust village loyalty',
+    requestParams: {
+      path: z.strictObject({ tileId: z.coerce.number() }),
+    },
+    requestBody: z.strictObject({ amount: z.number() }),
+  },
+)(({ database, path: { tileId }, body: { amount } }) => {
+  adjustLoyalty(database, tileId, amount);
+  createLoyaltyIncreaseEvent(database);
 });
