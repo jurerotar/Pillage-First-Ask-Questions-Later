@@ -10,6 +10,7 @@ import type {
   GatheringExpeditionReport,
   HuntingPartyReport,
   Report as ReportType,
+  ScoutingReport,
   TradeReport,
   TroopMovementReport,
 } from '@pillage-first/types/models/report';
@@ -22,6 +23,7 @@ import {
   UnitTableLoot,
   UnitTablePlayer,
   UnitTableRow,
+  UnitTableScoutedLoot,
   UnitTableTitle,
   UnitTableUnitIcons,
   UnitTableWheatConsumption,
@@ -443,6 +445,156 @@ export const TradeReportTable = () => {
         </TableBody>
       </Table>
     </div>
+  );
+};
+
+export const ScoutingReportTables = () => {
+  const { t } = useTranslation();
+  const { report: rawReport } = use(ReportContext);
+
+  const report = rawReport as ScoutingReport;
+  const { scouting, summary } = report;
+
+  const attackerTroopsBefore = sortTroops(
+    scouting.attacker.tribe,
+    scouting.attacker.units.map(({ unitId, amountBefore }) => ({
+      unitId,
+      amount: amountBefore,
+    })),
+  );
+
+  const attackerTroopsAfter = sortTroops(
+    scouting.attacker.tribe,
+    scouting.attacker.units.map(({ unitId, amountAfter }) => ({
+      unitId,
+      amount: amountAfter,
+    })),
+  );
+
+  const attackerTroopsLost = sortTroops(
+    scouting.attacker.tribe,
+    scouting.attacker.units.map(({ unitId, amountBefore, amountAfter }) => ({
+      unitId,
+      amount: amountBefore - amountAfter,
+    })),
+  );
+
+  const defenderTroops = sortTroops(
+    scouting.defender.tribe,
+    scouting.defender.units,
+  );
+
+  const hideIntelligence = !scouting.successful;
+
+  return (
+    <>
+      <UnitTable tribe={scouting.attacker.tribe}>
+        <UnitTableTitle>{t('Attacker')}</UnitTableTitle>
+        <UnitTablePlayer
+          playerName={summary.originPlayerName}
+          playerSlug={summary.originPlayerSlug}
+          tileName={summary.originName}
+          coordinates={summary.originCoordinates}
+        />
+        <UnitTableUnitIcons />
+        <UnitTableRow
+          label={t('Initial')}
+          troops={attackerTroopsBefore}
+        />
+        <UnitTableRow
+          label={t('Casualties')}
+          troops={attackerTroopsLost}
+          textColor="text-red-500"
+        />
+        <UnitTableRow
+          label={t('Remaining')}
+          troops={attackerTroopsAfter}
+          textColor="text-green-700"
+        />
+      </UnitTable>
+      <UnitTable tribe={scouting.defender.tribe}>
+        <UnitTableTitle>{t('Defender')}</UnitTableTitle>
+        <UnitTablePlayer
+          playerName={summary.targetPlayerName}
+          playerSlug={summary.targetPlayerSlug}
+          tileName={summary.targetName}
+          coordinates={summary.targetCoordinates}
+        />
+        <UnitTableUnitIcons />
+        {hideIntelligence ? (
+          <UnitTableHiddenRow
+            label={t('Troops')}
+            troops={defenderTroops}
+          />
+        ) : (
+          <UnitTableRow
+            label={t('Troops')}
+            troops={defenderTroops}
+          />
+        )}
+        {hideIntelligence && (
+          <tfoot className="border-t dark:border-border">
+            <tr>
+              <td
+                colSpan={12}
+                className="p-2 text-left"
+              >
+                <Text className="text-sm font-medium">
+                  {t('No information was gathered')}
+                </Text>
+              </td>
+            </tr>
+          </tfoot>
+        )}
+        {!hideIntelligence && scouting.resources && (
+          <UnitTableScoutedLoot loot={scouting.resources} />
+        )}
+        {!hideIntelligence && scouting.defensiveStructures.length > 0 && (
+          <tfoot className="border-t dark:border-border">
+            {scouting.defensiveStructures.map(({ buildingId, level }) => (
+              <tr key={buildingId}>
+                <td className="p-2">
+                  <Text className="text-sm font-medium">
+                    {t(`BUILDINGS.${buildingId}.NAME`)}
+                  </Text>
+                </td>
+                <td
+                  colSpan={100}
+                  className="p-2 text-left"
+                >
+                  <Text className="text-sm">
+                    {t('Level {{level}}', { level })}
+                  </Text>
+                </td>
+              </tr>
+            ))}
+          </tfoot>
+        )}
+      </UnitTable>
+      {!hideIntelligence &&
+        scouting.defender.reinforcements.map((reinforcement) => {
+          const troops = sortTroops(reinforcement.tribe, reinforcement.units);
+          return (
+            <UnitTable
+              key={`${reinforcement.village.coordinates.x}:${reinforcement.village.coordinates.y}`}
+              tribe={reinforcement.tribe}
+            >
+              <UnitTableTitle>{t('Reinforcement')}</UnitTableTitle>
+              <UnitTablePlayer
+                playerName={reinforcement.player.name}
+                playerSlug={reinforcement.player.slug}
+                tileName={reinforcement.village.name}
+                coordinates={reinforcement.village.coordinates}
+              />
+              <UnitTableUnitIcons />
+              <UnitTableRow
+                label={t('Troops')}
+                troops={troops}
+              />
+            </UnitTable>
+          );
+        })}
+    </>
   );
 };
 

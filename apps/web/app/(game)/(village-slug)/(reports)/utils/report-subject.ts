@@ -7,6 +7,7 @@ import {
   isGatheringExpeditionReport,
   isHuntingPartyReport,
   isMovementReport,
+  isScoutingReport,
   isTradeReport,
 } from '@pillage-first/utils/guards/report';
 
@@ -59,6 +60,22 @@ export const getReportSubject = (
         originVillageName,
         x: originCoordinates.x,
         y: originCoordinates.y,
+      },
+    );
+  }
+
+  if (isScoutingReport(report)) {
+    const { originName, originCoordinates, targetName, targetCoordinates } =
+      report.summary;
+    return t(
+      '{{originName}} ({{originX}}|{{originY}}) scouts {{targetName}} ({{targetX}}|{{targetY}})',
+      {
+        originName,
+        originX: originCoordinates.x,
+        originY: originCoordinates.y,
+        targetName,
+        targetX: targetCoordinates.x,
+        targetY: targetCoordinates.y,
       },
     );
   }

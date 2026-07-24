@@ -9,18 +9,145 @@ import {
 } from '../report-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
+const prepareReportsTestDatabase = async () => {
+  const database = await prepareTestDatabase();
+
+  database.exec({
+    sql: `
+      INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+      VALUES
+        (1, (SELECT id FROM villages ORDER BY id LIMIT 1), 1000, (SELECT id FROM report_type_ids WHERE report_type = 'battle'), (SELECT id FROM report_outcome_ids WHERE report_outcome = 'attackerNoLoss')),
+        (2, (SELECT id FROM villages ORDER BY id LIMIT 1), 2000, (SELECT id FROM report_type_ids WHERE report_type = 'adventure'), (SELECT id FROM report_outcome_ids WHERE report_outcome = 'heroAdventure')),
+        (3, (SELECT id FROM villages ORDER BY id LIMIT 1), 3000, (SELECT id FROM report_type_ids WHERE report_type = 'movement'), (SELECT id FROM report_outcome_ids WHERE report_outcome = 'troopMovement')),
+        (4, (SELECT id FROM villages ORDER BY id LIMIT 1), 4000, (SELECT id FROM report_type_ids WHERE report_type = 'trade'), (SELECT id FROM report_outcome_ids WHERE report_outcome = 'outgoingMerchantsArrived')),
+        (5, (SELECT id FROM villages ORDER BY id LIMIT 1), 5000, (SELECT id FROM report_type_ids WHERE report_type = 'huntingParty'), (SELECT id FROM report_outcome_ids WHERE report_outcome = 'huntingParty')),
+        (6, (SELECT id FROM villages ORDER BY id LIMIT 1), 6000, (SELECT id FROM report_type_ids WHERE report_type = 'gatheringExpedition'), (SELECT id FROM report_outcome_ids WHERE report_outcome = 'gatheringExpedition'));
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO report_tags (report_id, report_tag_id)
+      VALUES
+        (1, (SELECT id FROM report_tag_ids WHERE tag = 'read')),
+        (2, (SELECT id FROM report_tag_ids WHERE tag = 'archived'));
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO battle_reports (
+        id, report_id, origin_tile_id, target_tile_id, is_raid,
+        loot_wood, loot_clay, loot_iron, loot_wheat,
+        can_attacker_see_full_report, attacker_points, defender_points
+      ) VALUES (
+        1, 1,
+        (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
+        (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+        0, 10, 20, 30, 40, 1, 100, 50
+      );
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
+      SELECT 1, 1, player_id, tile_id FROM villages ORDER BY id LIMIT 1;
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
+      SELECT 2, 1, player_id, tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1;
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after)
+      VALUES
+        (1, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 10, 8),
+        (2, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5, 0);
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO hero_adventure_reports (
+        report_id, adventure_id, item_id, item_amount, health_before, health_after
+      ) VALUES (2, 1, NULL, NULL, 100, 95);
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO movement_reports (id, report_id, origin_tile_id, target_tile_id, movement_type)
+      VALUES (
+        1, 3,
+        (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
+        (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+        'reinforcement'
+      );
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO movement_report_units (movement_report_id, unit_id, amount)
+      VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 10);
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO trade_reports (
+        id, report_id, origin_tile_id, target_tile_id, wood, clay, iron, wheat
+      ) VALUES (
+        1, 4,
+        (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
+        (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+        100, 200, 300, 400
+      );
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO hunting_party_reports (id, report_id, village_tile_id)
+      VALUES (1, 5, (SELECT tile_id FROM villages ORDER BY id LIMIT 1));
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO hunting_party_report_units (hunting_party_report_id, unit_id, amount)
+      VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'RAT'), 3);
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO gathering_expedition_reports (
+        id, report_id, village_tile_id, tribe_id,
+        loot_wood, loot_clay, loot_iron, loot_wheat
+      ) VALUES (
+        1, 6,
+        (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
+        (SELECT p.tribe_id FROM villages v JOIN players p ON p.id = v.player_id ORDER BY v.id LIMIT 1),
+        40, 30, 20, 10
+      );
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO gathering_expedition_report_units (
+        gathering_expedition_report_id, unit_id, amount
+      ) VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 4);
+    `,
+  });
+
+  return database;
+};
+
 describe('report-controllers', () => {
   test('should list reports and filter by one or multiple report types', async () => {
-    const database = await prepareTestDatabase();
+    const database = await prepareReportsTestDatabase();
 
     const allReports = getReports(
       database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
-      }),
+      createControllerArgs<'/reports'>({}),
     );
 
-    expect(allReports).toHaveLength(100);
+    expect(allReports).toHaveLength(6);
 
     expect(new Set(allReports.map(({ type }) => type))).toStrictEqual(
       new Set([
@@ -35,26 +162,24 @@ describe('report-controllers', () => {
 
     const huntingReports = getReports(
       database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
+      createControllerArgs<'/reports'>({
         query: { types: 'huntingParty' },
       }),
     );
 
-    expect(huntingReports).toHaveLength(10);
+    expect(huntingReports).toHaveLength(1);
     expect(huntingReports.every(({ type }) => type === 'huntingParty')).toBe(
       true,
     );
 
     const expeditionReports = getReports(
       database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
+      createControllerArgs<'/reports'>({
         query: { types: ['huntingParty', 'gatheringExpedition'] },
       }),
     );
 
-    expect(expeditionReports).toHaveLength(20);
+    expect(expeditionReports).toHaveLength(2);
     expect(
       expeditionReports.every(
         ({ type }) => type === 'huntingParty' || type === 'gatheringExpedition',
@@ -63,12 +188,15 @@ describe('report-controllers', () => {
   });
 
   test('should apply unread, archived, and village scopes', async () => {
-    const database = await prepareTestDatabase();
+    const database = await prepareReportsTestDatabase();
+    const villageId = database.selectValue({
+      sql: 'SELECT id FROM villages ORDER BY id LIMIT 1;',
+      schema: z.int(),
+    })!;
 
     const unreadReports = getReports(
       database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
+      createControllerArgs<'/reports'>({
         query: { scope: 'unread' },
       }),
     );
@@ -80,8 +208,7 @@ describe('report-controllers', () => {
 
     const archivedReports = getReports(
       database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
+      createControllerArgs<'/reports'>({
         query: { scope: 'archived' },
       }),
     );
@@ -93,18 +220,19 @@ describe('report-controllers', () => {
 
     const villageReports = getReports(
       database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
-        query: { scope: 'village', villageId: 1 },
+      createControllerArgs<'/reports'>({
+        query: { scope: 'village', villageId },
       }),
     );
 
     expect(villageReports.length).toBeGreaterThan(0);
-    expect(villageReports.every(({ villageId }) => villageId === 1)).toBe(true);
+    expect(
+      villageReports.every((report) => report.villageId === villageId),
+    ).toBe(true);
   });
 
   test('should return complete detail DTOs for every report type', async () => {
-    const database = await prepareTestDatabase();
+    const database = await prepareReportsTestDatabase();
 
     const reportIds = database.selectObjects({
       sql: `SELECT rti.report_type AS type, MIN(r.id) AS id FROM reports r
@@ -115,8 +243,8 @@ describe('report-controllers', () => {
     const reports = reportIds.map(({ id }) =>
       getReport(
         database,
-        createControllerArgs<'/report/:playerId/:reportId'>({
-          path: { playerId: 1, reportId: id },
+        createControllerArgs<'/reports/:reportId'>({
+          path: { reportId: id },
         }),
       ),
     );
@@ -152,42 +280,23 @@ describe('report-controllers', () => {
     ).toHaveProperty('loot');
   });
 
-  test('should reject missing reports and reports owned by another player', async () => {
-    const database = await prepareTestDatabase();
-
-    const reportId = database.selectValue({
-      sql: 'SELECT MIN(id) FROM reports;',
-      schema: z.int(),
-    })!;
+  test('should reject missing reports', async () => {
+    const database = await prepareReportsTestDatabase();
 
     expect(() =>
       getReport(
         database,
-        createControllerArgs<'/report/:playerId/:reportId'>({
-          path: { playerId: 2, reportId },
+        createControllerArgs<'/reports/:reportId'>({
+          path: { reportId: -1 },
         }),
       ),
-    ).toThrow(`Report ${reportId} not found for player 2`);
-
-    expect(() =>
-      getReport(
-        database,
-        createControllerArgs<'/report/:playerId/:reportId'>({
-          path: { playerId: 1, reportId: -1 },
-        }),
-      ),
-    ).toThrow('Report -1 not found for player 1');
+    ).toThrow('Report -1 not found');
   });
 
   test('should update tags for multiple reports to their requested state', async () => {
-    const database = await prepareTestDatabase();
+    const database = await prepareReportsTestDatabase();
 
-    const reports = getReports(
-      database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
-      }),
-    );
+    const reports = getReports(database, createControllerArgs<'/reports'>({}));
 
     const reportIds = reports.slice(0, 2).map(({ id }) => id);
 
@@ -205,9 +314,7 @@ describe('report-controllers', () => {
 
     let updatedReports = getReports(
       database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
-      }),
+      createControllerArgs<'/reports'>({}),
     ).filter(({ id }) => reportIds.includes(id));
 
     expect(updatedReports).toHaveLength(2);
@@ -230,9 +337,7 @@ describe('report-controllers', () => {
 
     updatedReports = getReports(
       database,
-      createControllerArgs<'/players/:playerId/reports'>({
-        path: { playerId: 1 },
-      }),
+      createControllerArgs<'/reports'>({}),
     ).filter(({ id }) => reportIds.includes(id));
 
     expect(updatedReports.every(({ tags }) => !tags.includes('read'))).toBe(
@@ -244,7 +349,7 @@ describe('report-controllers', () => {
   });
 
   test('should delete hunting party and gathering expedition details', async () => {
-    const database = await prepareTestDatabase();
+    const database = await prepareReportsTestDatabase();
 
     const reportIds = database.selectValues({
       sql: `
@@ -290,7 +395,7 @@ describe('report-controllers', () => {
   });
 
   test('should delete selected reports of every type and all dependent rows', async () => {
-    const database = await prepareTestDatabase();
+    const database = await prepareReportsTestDatabase();
     const reportIds = database.selectValues({
       sql: `
         SELECT MIN(r.id) FROM reports r
@@ -341,6 +446,62 @@ describe('report-controllers', () => {
       hunting_parties: 0,
       gathering_expeditions: 0,
       tags: 0,
+    });
+  });
+
+  test('should delete all scouting report data', async () => {
+    const database = await prepareReportsTestDatabase();
+    const reportId = 7;
+
+    database.exec({
+      sql: `
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        VALUES (${reportId}, (SELECT id FROM villages ORDER BY id LIMIT 1), 7000,
+          (SELECT id FROM report_type_ids WHERE report_type = 'scouting'),
+          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'scoutAttackerNoLoss'));
+        INSERT INTO scouting_reports (id, report_id, origin_tile_id, target_tile_id, perspective, successful, scouting_target, wood, clay, iron, wheat)
+        VALUES (1, ${reportId},
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+          'attacker', 1, 'defensiveStructures', NULL, NULL, NULL, NULL);
+        INSERT INTO scouting_report_attacker_units (scouting_report_id, unit_id, amount_before, amount_after)
+        VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'ROMAN_SCOUT'), 10, 8);
+        INSERT INTO scouting_report_units (scouting_report_id, role, tile_id, unit_id, amount)
+        VALUES (1, 'defender',
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 20);
+        INSERT INTO scouting_report_structures (scouting_report_id, building_id, level)
+        VALUES (1, (SELECT id FROM building_ids WHERE building = 'RESIDENCE'), 10);
+      `,
+    });
+
+    deleteReports(
+      database,
+      createControllerArgs<'/reports', 'delete'>({ body: [reportId] }),
+    );
+
+    const remaining = database.selectObject({
+      sql: `SELECT
+        (SELECT COUNT(*) FROM reports WHERE id = ${reportId}) AS reports,
+        (SELECT COUNT(*) FROM scouting_reports WHERE report_id = ${reportId}) AS scouting_reports,
+        (SELECT COUNT(*) FROM scouting_report_attacker_units) AS attacker_units,
+        (SELECT COUNT(*) FROM scouting_report_units) AS scouted_units,
+        (SELECT COUNT(*) FROM scouting_report_structures) AS structures;`,
+      schema: z.strictObject({
+        reports: z.int(),
+        scouting_reports: z.int(),
+        attacker_units: z.int(),
+        scouted_units: z.int(),
+        structures: z.int(),
+      }),
+    })!;
+
+    expect(remaining).toStrictEqual({
+      reports: 0,
+      scouting_reports: 0,
+      attacker_units: 0,
+      scouted_units: 0,
+      structures: 0,
     });
   });
 });

@@ -5,6 +5,7 @@ import {
   isGatheringExpeditionReport,
   isHuntingPartyReport,
   isMovementReport,
+  isScoutingReport,
   isTradeReport,
 } from '@pillage-first/utils/guards/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
@@ -29,6 +30,7 @@ import {
   MovementReportTable,
   Report,
   ReportHeader,
+  ScoutingReportTables,
   TradeReportTable,
 } from './components/report';
 
@@ -97,6 +99,7 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
             </>
           )}
           {isTradeReport(report) && <TradeReportTable />}
+          {isScoutingReport(report) && <ScoutingReportTables />}
           {isMovementReport(report) && <MovementReportTable />}
           {isHuntingPartyReport(report) && <HuntingPartyReportTable />}
           {isGatheringExpeditionReport(report) && (

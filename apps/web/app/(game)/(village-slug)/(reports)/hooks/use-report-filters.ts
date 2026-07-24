@@ -4,6 +4,7 @@ import { useFilters } from 'app/hooks/use-filters';
 export const reportFilterTypes: ReportType[] = [
   'adventure',
   'battle',
+  'scouting',
   'movement',
   'trade',
   'huntingParty',

@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -56,7 +57,8 @@ const toTroops = ({
   }));
 
 const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
-  for (const troop of troops) {
+  if (troops.length === 1) {
+    const troop = troops[0]!;
     const availableAmount = database.selectValue({
       sql: selectTroopAmountQuery,
       bind: {
@@ -70,6 +72,45 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
     if ((availableAmount ?? 0) < troop.amount) {
       throw new Error('Not enough troops available');
     }
+    return;
+  }
+
+  const hasUnavailableTroops = database.selectValue({
+    sql: `
+      WITH requested_troops AS (
+        SELECT
+          unit_ids.id AS unit_id,
+          json_extract(troop.value, '$.tileId') AS tile_id,
+          json_extract(troop.value, '$.source') AS source_tile_id,
+          SUM(json_extract(troop.value, '$.amount')) AS amount
+        FROM
+          json_each($troops) AS troop
+          JOIN unit_ids
+            ON unit_ids.unit = json_extract(troop.value, '$.unitId')
+        GROUP BY unit_ids.id, tile_id, source_tile_id
+      )
+      SELECT EXISTS (
+        SELECT 1
+        FROM
+          requested_troops
+          LEFT JOIN troops
+            ON troops.unit_id = requested_troops.unit_id
+            AND troops.tile_id = requested_troops.tile_id
+            AND troops.source_tile_id = requested_troops.source_tile_id
+        GROUP BY
+          requested_troops.unit_id,
+          requested_troops.tile_id,
+          requested_troops.source_tile_id,
+          requested_troops.amount
+        HAVING COALESCE(SUM(troops.amount), 0) < requested_troops.amount
+      );
+    `,
+    bind: { $troops: JSON.stringify(troops) },
+    schema: z.coerce.boolean(),
+  })!;
+
+  if (hasUnavailableTroops) {
+    throw new Error('Not enough troops available');
   }
 };
 

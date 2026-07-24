@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { battleSchema } from './battle';
+import { buildingIdSchema } from './building';
 import { coordinatesSchema } from './coordinates';
 import { resourceBundleSchema } from './resource';
 import { tribeSchema } from './tribe';
@@ -12,6 +13,7 @@ export const reportTypeSchema = z.enum([
   'movement',
   'huntingParty',
   'gatheringExpedition',
+  'scouting',
 ]);
 
 export const battleResultIdSchema = z.enum([
@@ -43,7 +45,6 @@ export const reportTagSchema = z.enum(['read', 'archived']);
 
 export const baseReportSchema = z.strictObject({
   id: z.int(),
-  playerId: z.int(),
   villageId: z.int(),
   timestamp: z.int(),
   type: reportTypeSchema,
@@ -156,6 +157,60 @@ export const gatheringExpeditionReportSchema = baseReportSchema.extend({
   loot: resourceBundleSchema,
 });
 
+export const scoutingReportSummarySchema = z.strictObject({
+  originPlayerName: z.string(),
+  originPlayerSlug: z.string(),
+  originName: z.string(),
+  originCoordinates: coordinatesSchema,
+  targetPlayerName: z.string(),
+  targetPlayerSlug: z.string(),
+  targetName: z.string(),
+  targetCoordinates: coordinatesSchema,
+});
+
+const scoutingTroopsSchema = z.strictObject({
+  tribe: tribeSchema,
+  units: z.array(z.strictObject({ unitId: unitIdSchema, amount: z.int() })),
+});
+
+const scoutingAttackerTroopsSchema = z.strictObject({
+  tribe: tribeSchema,
+  units: z.array(
+    z.strictObject({
+      unitId: unitIdSchema,
+      amountBefore: z.int(),
+      amountAfter: z.int(),
+    }),
+  ),
+});
+
+const scoutingReinforcementSchema = scoutingTroopsSchema.extend({
+  player: z.strictObject({ name: z.string(), slug: z.string() }),
+  village: z.strictObject({ name: z.string(), coordinates: coordinatesSchema }),
+});
+
+export const scoutingReportSchema = baseReportSchema.extend({
+  type: z.literal('scouting'),
+  summary: scoutingReportSummarySchema,
+  scouting: z.strictObject({
+    id: z.int(),
+    perspective: z.enum(['attacker', 'defender']),
+    successful: z.boolean(),
+    target: z.enum(['resources', 'defensiveStructures']),
+    attacker: scoutingAttackerTroopsSchema,
+    defender: scoutingTroopsSchema.extend({
+      reinforcements: z.array(scoutingReinforcementSchema),
+    }),
+    resources: resourceBundleSchema.nullable(),
+    defensiveStructures: z.array(
+      z.strictObject({
+        buildingId: buildingIdSchema,
+        level: z.int().nonnegative(),
+      }),
+    ),
+  }),
+});
+
 export const reportSchema = z
   .discriminatedUnion('type', [
     battleReportSchema,
@@ -164,6 +219,7 @@ export const reportSchema = z
     movementReportSchema,
     huntingPartyReportSchema,
     gatheringExpeditionReportSchema,
+    scoutingReportSchema,
   ])
   .meta({ id: 'Report' });
 
@@ -183,3 +239,5 @@ export type HuntingPartyReport = z.infer<typeof huntingPartyReportSchema>;
 export type GatheringExpeditionReport = z.infer<
   typeof gatheringExpeditionReportSchema
 >;
+export type ScoutingReport = z.infer<typeof scoutingReportSchema>;
+export type ScoutingReportSummary = z.infer<typeof scoutingReportSummarySchema>;

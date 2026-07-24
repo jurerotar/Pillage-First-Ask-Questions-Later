@@ -510,22 +510,22 @@ export const validateEventCreationPrerequisites = (
       throw new Error("Gatherer's Hut party size exceeded");
     }
 
-    for (const [unitId, amount] of troopAmountsByUnitId) {
+    if (troopAmountsByUnitId.size === 1) {
+      const [unitId, amount] = troopAmountsByUnitId.entries().next().value!;
       const availableTroops = database.selectValue({
         sql: `
           SELECT COALESCE(SUM(t.amount), 0)
           FROM
             troops t
-              JOIN unit_ids ui ON ui.id = t.unit_id
+            JOIN unit_ids ui ON ui.id = t.unit_id
           WHERE
             ui.unit = $unit_id
             AND t.tile_id = $tile_id
-            AND t.source_tile_id = $source_tile_id;
+            AND t.source_tile_id = $tile_id;
         `,
         bind: {
           $unit_id: unitId,
           $tile_id: villageTileId,
-          $source_tile_id: villageTileId,
         },
         schema: z.number(),
       })!;
@@ -533,6 +533,47 @@ export const validateEventCreationPrerequisites = (
       if (amount > availableTroops) {
         throw new Error('Not enough idle troops available');
       }
+      return;
+    }
+
+    const hasUnavailableTroops = database.selectValue({
+      sql: `
+        WITH requested_troops AS (
+          SELECT
+            unit_ids.id AS unit_id,
+            SUM(json_extract(troop.value, '$.amount')) AS amount
+          FROM
+            json_each($troops) AS troop
+            JOIN unit_ids
+              ON unit_ids.unit = json_extract(troop.value, '$.unitId')
+          GROUP BY unit_ids.id
+        )
+        SELECT EXISTS (
+          SELECT 1
+          FROM
+            requested_troops
+            LEFT JOIN troops
+              ON troops.unit_id = requested_troops.unit_id
+              AND troops.tile_id = $tile_id
+              AND troops.source_tile_id = $tile_id
+          GROUP BY requested_troops.unit_id, requested_troops.amount
+          HAVING COALESCE(SUM(troops.amount), 0) < requested_troops.amount
+        );
+      `,
+      bind: {
+        $troops: JSON.stringify(
+          [...troopAmountsByUnitId].map(([unitId, amount]) => ({
+            unitId,
+            amount,
+          })),
+        ),
+        $tile_id: villageTileId,
+      },
+      schema: z.coerce.boolean(),
+    })!;
+
+    if (hasUnavailableTroops) {
+      throw new Error('Not enough idle troops available');
     }
 
     return;
@@ -908,9 +949,10 @@ export const runEventCreationSideEffects = (
   if (isTroopMovementEvent(event) && !isReturnTroopMovementEvent(event)) {
     const troopMovementEvents = events as TroopMovementEvent[];
 
-    for (const { troops } of troopMovementEvents) {
-      removeTroops(database, troops);
-    }
+    removeTroops(
+      database,
+      troopMovementEvents.flatMap(({ troops }) => troops),
+    );
   }
 
   if (isGatherersHutGatheringTripEvent(event)) {

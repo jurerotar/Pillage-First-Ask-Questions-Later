@@ -8,7 +8,6 @@ import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getReportListingsRowSchema = z.strictObject({
   id: z.int(),
-  player_id: z.int(),
   village_id: z.int(),
   timestamp: z.int(),
   type: reportTypeSchema,
@@ -78,7 +77,6 @@ const nullableReportDetailColumns = z
 
 const baseReportRowSchema = z.strictObject({
   id: z.int(),
-  player_id: z.int(),
   village_id: z.int(),
   timestamp: z.int(),
   outcome: reportOutcomeSchema,
@@ -193,6 +191,30 @@ export const gatheringExpeditionReportRowSchema =
     type: z.literal('gatheringExpedition'),
   });
 
+export const scoutingReportRowSchema = baseReportRowSchema.extend({
+  type: z.literal('scouting'),
+  scouting_id: z.int(),
+  perspective: z.enum(['attacker', 'defender']),
+  successful: z.int(),
+  scouting_target: z.enum(['resources', 'defensiveStructures']),
+  wood: z.int().nullable(),
+  clay: z.int().nullable(),
+  iron: z.int().nullable(),
+  wheat: z.int().nullable(),
+  origin_player_name: z.string(),
+  origin_player_slug: z.string(),
+  origin_name: z.string(),
+  origin_x: z.int(),
+  origin_y: z.int(),
+  target_player_name: z.string(),
+  target_player_slug: z.string(),
+  target_name: z.string(),
+  target_x: z.int(),
+  target_y: z.int(),
+  attacker_tribe: tribeSchema,
+  defender_tribe: tribeSchema,
+});
+
 export const getReportsRowSchema = z
   .discriminatedUnion('type', [
     battleReportRowSchema,
@@ -201,5 +223,6 @@ export const getReportsRowSchema = z
     tradeReportRowSchema,
     huntingPartyReportRowSchema,
     gatheringExpeditionReportRowSchema,
+    scoutingReportRowSchema,
   ])
   .meta({ id: 'GetReportsRow' });

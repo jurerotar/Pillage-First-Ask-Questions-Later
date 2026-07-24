@@ -249,6 +249,50 @@ export const UnitTableLoot = ({
   );
 };
 
+type UnitTableScoutedLootProps = {
+  loot: ResourceBundle;
+};
+
+export const UnitTableScoutedLoot = ({ loot }: UnitTableScoutedLootProps) => {
+  const { t } = useTranslation();
+
+  let totalLoot = 0;
+
+  for (const resource of loot) {
+    totalLoot += resource;
+  }
+
+  return (
+    <tfoot className="border-t dark:border-border py-3">
+      <tr>
+        <td className="p-2">
+          <Text className="text-sm font-medium">{t('Loot')}:</Text>
+        </td>
+        <td
+          colSpan={100}
+          className="p-2"
+        >
+          <div className="flex justify-left items-center gap-2 text-sm">
+            <Resources
+              resources={loot}
+              iconClassName="size-4"
+            />
+            <div className="inline-flex gap-1 items-center">
+              <Icon
+                className="size-4"
+                type="unitCarryCapacity"
+              />
+              <span className="text-sm font-medium whitespace-nowrap">
+                {formatNumber(totalLoot)}
+              </span>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </tfoot>
+  );
+};
+
 type UnitTableWheatConsumptionProps = {
   troops: TroopLike[];
 };

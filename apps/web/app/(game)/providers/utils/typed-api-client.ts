@@ -2,24 +2,26 @@ import type { z } from 'zod';
 import type { apiRoutes } from '@pillage-first/api/api-routes';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
-type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
+type HttpMethod = 'get' | 'post' | 'patch' | 'delete';
 type ApiRouteController = (typeof apiRoutes)[number]['controller'];
-type RouteForMethod<TMethod extends HttpMethod> = Extract<
-  ApiRouteController,
-  { method: TMethod }
->;
 
-type PathForMethod<TMethod extends HttpMethod> =
-  RouteForMethod<TMethod> extends {
-    path: infer TPath extends string;
-  }
-    ? TPath
-    : never;
+type RoutesByMethod = {
+  [TMethod in HttpMethod]: {
+    [TRoute in ApiRouteController as TRoute extends { method: TMethod }
+      ? TRoute['path']
+      : never]: TRoute;
+  };
+};
+
+type PathForMethod<TMethod extends HttpMethod> = Extract<
+  keyof RoutesByMethod[TMethod],
+  string
+>;
 
 type RouteFor<
   TPath extends PathForMethod<TMethod>,
   TMethod extends HttpMethod,
-> = Extract<RouteForMethod<TMethod>, { path: TPath }>;
+> = RoutesByMethod[TMethod][TPath];
 
 type OperationFor<TRoute> = TRoute extends {
   operation: infer TOperation;
@@ -36,14 +38,10 @@ type InferOutputSchema<TSchema> = TSchema extends z.core.$ZodType
   : never;
 
 type ParametersFor<TOperation> = TOperation extends {
-  parameters: infer TParameters;
+  requestParams: infer TRequestParams;
 }
-  ? TParameters
-  : TOperation extends {
-        requestParams: infer TRequestParams;
-      }
-    ? TRequestParams
-    : never;
+  ? TRequestParams
+  : never;
 
 type PathParamsFor<TRoute> =
   ParametersFor<OperationFor<TRoute>> extends {
@@ -162,12 +160,11 @@ type RequestArgs<TRoute> =
 
 type ApiClientMethod<TMethod extends HttpMethod> = <
   TPath extends PathForMethod<TMethod>,
-  TRoute extends RouteFor<TPath, TMethod> = RouteFor<TPath, TMethod>,
 >(
   pathTemplate: TPath,
-  ...args: RequestArgs<TRoute>
+  ...args: RequestArgs<RouteFor<TPath, TMethod>>
 ) => Promise<{
-  data: ResponseFor<TRoute>;
+  data: ResponseFor<RouteFor<TPath, TMethod>>;
 }>;
 
 export type ApiClient = {
@@ -177,10 +174,13 @@ export type ApiClient = {
   delete: ApiClientMethod<'delete'>;
 };
 
-const buildPath = <TRoute>(
-  pathTemplate: string,
-  options?: Partial<RequestOptions<TRoute>>,
-) => {
+type RuntimeRequestOptions = {
+  path?: Record<string, unknown>;
+  query?: Record<string, unknown>;
+  body?: unknown;
+};
+
+const buildPath = (pathTemplate: string, options?: RuntimeRequestOptions) => {
   let path = pathTemplate;
 
   for (const [name, value] of Object.entries(options?.path ?? {})) {
@@ -218,18 +218,14 @@ const buildPath = <TRoute>(
 };
 
 export const createTypedApiClient = (fetcher: Fetcher): ApiClient => {
-  const request = async <
-    TMethod extends HttpMethod,
-    TPath extends PathForMethod<TMethod>,
-    TRoute extends RouteFor<TPath, TMethod> = RouteFor<TPath, TMethod>,
-  >(
-    method: TMethod,
-    pathTemplate: TPath,
-    ...[options]: RequestArgs<TRoute>
-  ): Promise<{ data: ResponseFor<TRoute> }> => {
-    const url = buildPath<TRoute>(pathTemplate, options);
+  const request = async (
+    method: HttpMethod,
+    pathTemplate: string,
+    options?: RuntimeRequestOptions,
+  ): Promise<{ data: unknown }> => {
+    const url = buildPath(pathTemplate, options);
 
-    const { data } = await fetcher<ResponseFor<TRoute>, BodyFor<TRoute>>(url, {
+    const { data } = await fetcher<unknown, unknown>(url, {
       method: method.toUpperCase(),
       body: options?.body,
     });
@@ -240,9 +236,9 @@ export const createTypedApiClient = (fetcher: Fetcher): ApiClient => {
   };
 
   return {
-    get: (pathTemplate, ...args) => request('get', pathTemplate, ...args),
-    post: (pathTemplate, ...args) => request('post', pathTemplate, ...args),
-    patch: (pathTemplate, ...args) => request('patch', pathTemplate, ...args),
-    delete: (pathTemplate, ...args) => request('delete', pathTemplate, ...args),
+    get: request.bind(null, 'get') as ApiClientMethod<'get'>,
+    post: request.bind(null, 'post') as ApiClientMethod<'post'>,
+    patch: request.bind(null, 'patch') as ApiClientMethod<'patch'>,
+    delete: request.bind(null, 'delete') as ApiClientMethod<'delete'>,
   };
 };

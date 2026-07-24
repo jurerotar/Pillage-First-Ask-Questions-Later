@@ -24,6 +24,7 @@ type GatheringExpeditionReportRow = Extract<
   ReportRow,
   { type: 'gatheringExpedition' }
 >;
+type ScoutingReportRow = Extract<ReportRow, { type: 'scouting' }>;
 
 const mapBattleReportRowToSummaryDto = (
   row: BattleReportRow,
@@ -85,7 +86,6 @@ const mapTradeReportRowToSummaryDto = (row: TradeReportRow) => {
 
 const mapBaseReportRowToDto = (row: ReportRow) => ({
   id: row.id,
-  playerId: row.player_id,
   villageId: row.village_id,
   timestamp: row.timestamp,
   outcome: row.outcome,
@@ -97,7 +97,6 @@ export const mapReportListingRowToDto = (
 ): ReportListingDto =>
   reportListingDtoSchema.parse({
     id: row.id,
-    playerId: row.player_id,
     villageId: row.village_id,
     timestamp: row.timestamp,
     type: row.type,
@@ -305,3 +304,82 @@ export const mapGatheringExpeditionReportRowToDto = (
     units,
     loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
   });
+
+export const mapScoutingReportRowToDto = (
+  row: ScoutingReportRow,
+  attackerUnits: {
+    unitId: string;
+    amountBefore: number;
+    amountAfter: number;
+  }[],
+  units: {
+    role: 'defender' | 'reinforcement';
+    tileId: number;
+    unitId: string;
+    amount: number;
+    tribe: ScoutingReportRow['attacker_tribe'];
+    playerName: string;
+    playerSlug: string;
+    villageName: string;
+    x: number;
+    y: number;
+  }[],
+  defensiveStructures: { buildingId: string; level: number }[],
+) => {
+  const hideIntelligence = !row.successful;
+  const reinforcementRows = units.filter(
+    ({ role }) => role === 'reinforcement',
+  );
+  const reinforcements = [
+    ...new Set(reinforcementRows.map(({ tileId }) => tileId)),
+  ].map((tileId) => {
+    const rows = reinforcementRows.filter((unit) => unit.tileId === tileId);
+    const first = rows[0]!;
+    return {
+      tribe: first.tribe,
+      player: { name: first.playerName, slug: first.playerSlug },
+      village: {
+        name: first.villageName,
+        coordinates: { x: first.x, y: first.y },
+      },
+      units: rows.map(({ unitId, amount }) => ({ unitId, amount })),
+    };
+  });
+
+  return reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'scouting',
+    summary: {
+      originPlayerName: row.origin_player_name,
+      originPlayerSlug: row.origin_player_slug,
+      originName: row.origin_name,
+      originCoordinates: { x: row.origin_x, y: row.origin_y },
+      targetPlayerName: row.target_player_name,
+      targetPlayerSlug: row.target_player_slug,
+      targetName: row.target_name,
+      targetCoordinates: { x: row.target_x, y: row.target_y },
+    },
+    scouting: {
+      id: row.scouting_id,
+      perspective: row.perspective,
+      successful: Boolean(row.successful),
+      target: row.scouting_target,
+      attacker: {
+        tribe: row.attacker_tribe,
+        units: attackerUnits,
+      },
+      defender: {
+        tribe: row.defender_tribe,
+        units: units
+          .filter(({ role }) => role === 'defender')
+          .map(({ unitId, amount }) => ({ unitId, amount })),
+        reinforcements: hideIntelligence ? [] : reinforcements,
+      },
+      resources:
+        hideIntelligence || row.wood == null
+          ? null
+          : [row.wood, row.clay, row.iron, row.wheat],
+      defensiveStructures: hideIntelligence ? [] : defensiveStructures,
+    },
+  });
+};

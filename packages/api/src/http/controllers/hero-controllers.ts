@@ -8,7 +8,6 @@ import {
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
-import { insertEffectByEffectNameQuery } from '../../queries/effect-queries';
 import { getPlayerHeroAdventureStateAt } from '../../utils/adventures';
 import { createEvents } from '../../utils/create-event';
 import { updateHeroResourceProductionEffects } from '../../utils/hero';
@@ -527,20 +526,46 @@ export const equipHeroItem = createController(
         schema: z.number(),
       });
 
-      for (const effect of itemDef.effects) {
-        database.exec({
-          sql: insertEffectByEffectNameQuery,
-          bind: {
-            $effect_name: effect.id,
-            $value: effect.value,
-            $type: effect.type,
-            $scope: effect.scope,
-            $source: 'hero',
-            $village_id: effect.scope === 'local' ? (villageId ?? null) : null,
-            $source_specifier: itemId,
-          },
-        });
-      }
+      database.exec({
+        sql: `
+          INSERT INTO effects (
+            effect_id,
+            value,
+            type_id,
+            scope_id,
+            source_id,
+            village_id,
+            source_specifier
+          )
+          SELECT
+            effect_ids.id,
+            json_extract(effect.value, '$.value'),
+            effect_type_ids.id,
+            effect_scope_ids.id,
+            effect_source_ids.id,
+            CASE
+              WHEN json_extract(effect.value, '$.scope') = 'local'
+                THEN $village_id
+              ELSE NULL
+            END,
+            $source_specifier
+          FROM
+            json_each($effects) AS effect
+            JOIN effect_ids
+              ON effect_ids.effect = json_extract(effect.value, '$.id')
+            JOIN effect_type_ids
+              ON effect_type_ids.type = json_extract(effect.value, '$.type')
+            JOIN effect_scope_ids
+              ON effect_scope_ids.scope = json_extract(effect.value, '$.scope')
+            JOIN effect_source_ids
+              ON effect_source_ids.source = 'hero';
+        `,
+        bind: {
+          $effects: JSON.stringify(itemDef.effects),
+          $village_id: villageId ?? null,
+          $source_specifier: itemId,
+        },
+      });
     }
   });
 });

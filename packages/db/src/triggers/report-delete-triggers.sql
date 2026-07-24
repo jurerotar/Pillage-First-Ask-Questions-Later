@@ -3,6 +3,10 @@ BEFORE DELETE ON reports
 BEGIN
   DELETE FROM report_tags WHERE report_id = OLD.id;
 
+  DELETE FROM scouting_report_units WHERE scouting_report_id IN (SELECT id FROM scouting_reports WHERE report_id = OLD.id);
+  DELETE FROM scouting_report_attacker_units WHERE scouting_report_id IN (SELECT id FROM scouting_reports WHERE report_id = OLD.id);
+  DELETE FROM scouting_report_structures WHERE scouting_report_id IN (SELECT id FROM scouting_reports WHERE report_id = OLD.id);
+
   DELETE FROM battle_report_units
   WHERE battle_participant_id IN (
     SELECT bp.id
@@ -37,4 +41,5 @@ BEGIN
   DELETE FROM battle_reports WHERE report_id = OLD.id;
   DELETE FROM hunting_party_reports WHERE report_id = OLD.id;
   DELETE FROM gathering_expedition_reports WHERE report_id = OLD.id;
+  DELETE FROM scouting_reports WHERE report_id = OLD.id;
 END;
