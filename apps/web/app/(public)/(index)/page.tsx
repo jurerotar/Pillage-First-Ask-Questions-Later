@@ -3,6 +3,7 @@ import { FaGithub } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubButton } from 'app/(public)/components/github-button';
+import { PageMetadata } from 'app/(public)/components/page-metadata';
 import {
   DiscordSocialProofCard,
   SocialProofMasonry,
@@ -372,7 +373,10 @@ const OpenSourceSection = () => {
 const HomePage = () => {
   return (
     <PageContents>
-      <title>Pillage First! (Ask Questions Later)</title>
+      <PageMetadata
+        title="Pillage First! (Ask Questions Later)"
+        description="Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds."
+      />
       <main>
         <div className="max-w-7xl mx-auto flex py-8 lg:py-12 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
           <section className="flex flex-col flex-1 gap-4 justify-center">

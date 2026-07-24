@@ -5,6 +5,7 @@ import type { Route } from '@react-router/types/app/(public)/(game-worlds)/(inde
 import { ServerCard } from 'app/(public)/(game-worlds)/(index)/components/server-card';
 import { removeUnlistedGameWorldDirectoriesMiddleware } from 'app/(public)/(game-worlds)/(index)/middleware/remove-unlisted-game-world-directories-middleware';
 import { useGameWorldListing } from 'app/(public)/(game-worlds)/hooks/use-game-world-listing';
+import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -29,7 +30,10 @@ const MyGameWorldsPage = () => {
 
   return (
     <PageContents>
-      <title>{title}</title>
+      <PageMetadata
+        title={title}
+        description="View, create, import, manage and continue playing your Pillage First! game worlds."
+      />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
           <BreadcrumbList>

@@ -1,39 +1,53 @@
 # Frequently asked questions
 
 <section>
-  ## What's the state of the project?
-
-  Project is still pretty heavy in development! It's still missing a lot of major features. What's currently available
-  is building construction, unit training, a couple of building interfaces, as well as secondary pages like
-  production-overview, village-overview, map, preferences, statistics, player pages, oasis bonus finder,...
-
-  **We've recently completed a rework of the game engine**, which has been a massive undertaking. This was previously
-  taking the majority of development efforts, which will now go to new features!
-</section>
-
-<section>
   ## Is there a project roadmap available?
 
   Due to the nature of this project (I get work on it only in my free time), I'm not willing to commit to any specific
-  timeline for any features. That being said, here's some of the **prioritized features**:
+  timeline for any features.
+  <br />
+  **That being said, here's the general plan for upcoming development**:
 
-  * Combat mechanics
-  * Trading mechanics
-  * Hero adventures & inventory
+  - Combat mechanics
+  - Hero inventory & auction system
+  - NPC behavior (attacking, trading, sending reinforcements, ...)
+  - Various accessibility features (time skip, vacation mode)
 
-  **Bug fixing and minor quality-of-life updates will take priority**.
+  **The following systems are currently available**:
+
+  - Game world creation and management (exporting, importing, duplicating)
+  - Village building mechanics
+  - Unit training
+  - Troop movements (reinforcements and relocations)
+  - Establishing new villages
+  - Transferring resources between villages
+  - Hero adventures and management
+  - Various building-specific functionalities (village building rearrangement, hunting parties & gathering expeditions,
+  ...)
 </section>
 
 <section>
   ## Are there game design differences between Travian and Pillage First!?
 
-  Yes, there are a few! The main ones include planned new buildings, the removal of the capital village mechanic,
-  expanded artifact system, planned new hero items and more NPC interactions. Mechanics are always up for discussion, so
-  feel free to leave your thoughts! Game design is an ongoing conversation in <a rel="noopener noreferrer"
-                                                                                 className="text-blue-500 underline"
-                                                                                 target="_blank"
-                                                                                 href="https://discord.gg/Ep7NKVXUZA">our
-  Discord server</a>, so feel free to hop in and share your thoughts!
+  There's a couple of differences with Travian, and a lot more are on the way.
+
+  The biggest one is that Pillage First! is a single player game. There's no multiplayer, nor are there currently plans
+  for one to be built on top.
+
+  <br />
+  **This is deliberate as it allows us a couple of nice benefits, namely**:
+
+  - game worlds can be generated at will by each player
+  - game worlds can (will?) be fully customizable to best fit your preferences
+  - we already experimented with, and plan to add features like vacation mode (which pauses the whole game world) and
+  time skip
+
+  **Gameplay wise we also differ a bit**:
+
+  - Unit upgrades are global, meaning you do them once and units in all villages are upgraded permanently.
+  - We added a few new buildings, namely Hunter's Lodge, and Gatherer's Hut, with more on the way.
+  - We removed "capital village" mechanic. You are free to upgrade resource fields in all villages up to level 20, if
+  you so wish.
 </section>
 
 <section>
@@ -44,11 +58,11 @@
 
   That being said, the current goal is to keep this repository as a **standalone, offline-first app focused on
   single-player gameplay**.
-
+  <br />
   One of the hopes for the future of this project is that someone might eventually fork the project, restructure it, and
   connect it to a backend, enabling a multiplayer experience. Most of the frontend can be completely reused, making the
   transition easier than starting from scratch.
-
+  <br />
   **If you're passionate about backend development and want to help bring multiplayer to life, feel free to reach out!**
 </section>
 
@@ -59,6 +73,7 @@
   open all this time. These events would happen at some time in the past, but since app can't run without the browser
   being open, we resolve these events now. This means you can be attacked while offline, since this attack would also
   have happened if you were online.
+  <br />
   The major downside is that we can't know which events have happened until we actually open the game world and simulate
   the timeline. This means we can't let the player know if they're under attack, because the only way for us to know
   whether an attack has been triggered is to actually open the game.
@@ -71,7 +86,7 @@
   all-nighters, finding duals from across the world and making sure account is covered 24/7 was fun in middle school,
   but it's not something I want to (or even can?) engage in now. I want to be able to take a break, whenever life gets
   in the way, and for the game to respect that.
-
+  <br />
   I want this game to be a **more accessible, customizable and time-friendly version of Travian**.
 </section>
 
@@ -80,14 +95,13 @@
 
   We've made a lot of effort to differentiate this game from Travian. Even though Pillage First! is inspired by Travian,
   we've made (and plan for more) **fundamental gameplay, technological & design differences** between games.
-
+  <br />
   **Codebase has been written completely from scratch**. We're not using Travian codebase as a reference or any other
-  reason
-  in any stage of development.
-
+  reason in any stage of development.
+  <br />
   Art is completely handmade. We don't use or allow any Travian assets. Furthermore, we don't use and don't allow
   AI-transformed Travian assets to be used in this project.
-
+  <br />
   We also include legal notices on the page to explicitly differentiate this project from Travian.
 </section>
 
@@ -131,9 +145,8 @@
 
   - **Respecting your time** - Most of us are not in high school anymore. Waking up at 3am to send out attacks may have
   been a valid strategy 10 years ago, but it's out of the question now. Because we realize real-life takes priority, we
-  plan on adding multiple mechanism to help you balance game needs:
-  - Unlimited vacation mode, available at any point for any reason
-  - Ability to disable attacks while you're offline
+  plan on adding multiple mechanism to help you balance game needs. Two, currently planned ones are **unlimited vacation
+  mode**, available at any point for any reason and **the ability to disable attacks while you're offline**.
 
   - **Moderation cost & complexity** - multiplayer comes with a whole layer of moderation challenges, things like chat
   filters, reporting tools, cheat prevention, account and support systems. They're not just one-time features either;
