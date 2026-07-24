@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -18,7 +19,10 @@ const NotFoundPage = () => {
 
   return (
     <PageContents>
-      <title>{title}</title>
+      <PageMetadata
+        title={title}
+        description="The requested Pillage First! page could not be found. Return home, create a new game world or continue one of your saved worlds."
+      />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
           <BreadcrumbList>

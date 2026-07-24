@@ -9,6 +9,7 @@ import type {
 } from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker';
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -69,7 +70,10 @@ const ImportGameWorld = () => {
 
   return (
     <PageContents>
-      <title>{title}</title>
+      <PageMetadata
+        title={title}
+        description="Import a previously exported Pillage First! game world from any device and continue playing."
+      />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
           <BreadcrumbList>

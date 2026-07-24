@@ -6,13 +6,11 @@ type GithubRepo = {
   watchers_count: number;
 };
 
-export const useGithubStars = (
-  repo = 'jurerotar/Pillage-First-Ask-Questions-Later',
-) => {
+export const useGithubStars = () => {
   return useQuery({
-    queryKey: ['github-stars', repo],
+    queryKey: ['github-stars'],
     queryFn: async () => {
-      const response = await fetch(`https://api.github.com/repos/${repo}`);
+      const response = await fetch('/api/github/repository');
 
       if (!response.ok) {
         throw new Error('Failed to fetch github stars');

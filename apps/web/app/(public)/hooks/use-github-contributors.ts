@@ -13,9 +13,7 @@ export const useGithubContributors = () => {
   return useQuery({
     queryKey: ['github-contributors'],
     queryFn: async () => {
-      const response = await fetch(
-        'https://api.github.com/repos/jurerotar/Pillage-First-Ask-Questions-Later/contributors?per_page=12',
-      );
+      const response = await fetch('/api/github/contributors');
 
       if (!response.ok) {
         throw new Error('Failed to fetch github contributors');

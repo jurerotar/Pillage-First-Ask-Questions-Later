@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -20,7 +21,10 @@ const LatestUpdatesPage = () => {
 
   return (
     <PageContents>
-      <title>{title}</title>
+      <PageMetadata
+        title={title}
+        description="Read the latest Pillage First! release notes, including new gameplay features, bug fixes, performance improvements and technical changes."
+      />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
           <BreadcrumbList>
