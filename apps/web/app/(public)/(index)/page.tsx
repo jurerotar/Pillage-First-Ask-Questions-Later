@@ -181,6 +181,10 @@ const SocialProofSection = () => {
             author="Foxplay on Discord"
             body="I'm so happy to get a chance playing this again with a few tweeks in quality of life, that make it so much better. Thank you very much, looking forward to this!"
           />
+          <DiscordSocialProofCard
+            author="Gilli on Discord"
+            body="Thank you for doing this! I have been following the progress of the game some time now, and I am really impressed by the development and the frequent updates! Having a game like this, where you don´t have to juggle work, kids and IRL off time activities at the same time is just amazing!"
+          />
         </SocialProofMasonry>
       </div>
     </section>
@@ -210,7 +214,7 @@ const MotivationSection = () => {
     <section className="pt-4 lg:pt-0">
       <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="w-full mb-8 md:mb-0 order-2 flex items-center">
-          <div className="w-full border-y border-border divide-y divide-border">
+          <div className="w-full border-y border-border divide-y">
             {principles.map((principle, index) => (
               <div
                 key={principle.title}
@@ -309,7 +313,7 @@ const FAQSection = () => {
           </Text>
         </div>
 
-        <div className="divide-y divide-border border-y border-border">
+        <div className="divide-y divide-border border-y">
           {questions.map((item) => (
             <details
               key={item.question}
@@ -337,7 +341,7 @@ const FAQSection = () => {
 
 const OpenSourceSection = () => {
   return (
-    <section className="bg-muted dark:bg-background overflow-hidden pt-4 lg:pt-0 -mb-4">
+    <section className="dark:bg-background overflow-hidden pt-4 lg:pt-0 -mb-4">
       <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10">
           <Text as="h2">Pillage First! is an open-source technology!</Text>

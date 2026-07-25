@@ -1,13 +1,34 @@
-import { chromium } from '@playwright/test';
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, unlinkSync } from 'node:fs';
-import { join, basename, extname } from 'node:path';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
+import { basename, extname, join } from 'node:path';
+import { chromium, type Page } from '@playwright/test';
 import sharp from 'sharp';
 
 const APP_URL = process.env.APP_URL || 'http://localhost:5173';
 const ASSETS_DIR = join(process.cwd(), '.github', 'assets');
+const LANDING_DIR = join(process.cwd(), 'apps', 'web', 'public', 'landing');
+const SCREENSHOT_BASE_NAMES = [
+  'image-1',
+  'image-2',
+  'image-3',
+  'image-4',
+  'image-5',
+];
+const THEMES = ['light', 'dark'];
 
 // Generate a timestamp for the image filenames
-const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0].slice(0, 12); // YYYYMMDDHHMM
+const timestamp = new Date()
+  .toISOString()
+  .replace(/[-:T]/g, '')
+  .split('.')[0]
+  .slice(0, 14); // YYYYMMDDHHMMSS
 
 const losslessOptimize = async (filePath: string) => {
   console.log(`Optimizing JPEG ${filePath}...`);
@@ -24,12 +45,10 @@ const convertToAvif = async (filePath: string) => {
     `${basename(filePath, extname(filePath))}.avif`,
   );
   console.log(`Converting ${filePath} to AVIF ${avifPath}...`);
-  await sharp(filePath)
-    .avif({ quality: 60, lossless: false })
-    .toFile(avifPath);
+  await sharp(filePath).avif({ quality: 60, lossless: false }).toFile(avifPath);
 };
 
-const generateScreenshotsForTheme = async (page: any, themeSuffix: string = '') => {
+const generateScreenshotsForTheme = async (page: Page, themeSuffix = '') => {
   const suffix = themeSuffix ? `-${themeSuffix}` : '';
 
   // Take Resources screenshot
@@ -38,7 +57,7 @@ const generateScreenshotsForTheme = async (page: any, themeSuffix: string = '') 
     path: join(ASSETS_DIR, `image-1${suffix}-${timestamp}.jpg`),
     type: 'jpeg',
     quality: 90,
-    fullPage: false
+    fullPage: false,
   });
 
   // Navigate to Village
@@ -152,48 +171,64 @@ const generateScreenshots = async () => {
 
     // 3. Generate Dark Mode Screenshots
     await generateScreenshotsForTheme(page, 'dark');
-  } catch (error) {
-    console.error('Error during screenshot generation:', error);
-    console.log('Proceeding with optimization of existing/partially generated images...');
+  } finally {
+    await browser.close();
   }
 
-  await browser.close();
+  const filesToProcess = SCREENSHOT_BASE_NAMES.flatMap((baseName) =>
+    THEMES.map((theme) =>
+      join(ASSETS_DIR, `${baseName}-${theme}-${timestamp}.jpg`),
+    ),
+  );
+  const missingScreenshots = filesToProcess.filter((file) => !existsSync(file));
 
-  // Remove old screenshots
+  if (missingScreenshots.length > 0) {
+    throw new Error(
+      `Screenshot generation was incomplete. Missing:\n${missingScreenshots.join('\n')}`,
+    );
+  }
+
+  // Optimize generated images
+  console.log('Optimizing and converting images...');
+  for (const file of filesToProcess) {
+    await losslessOptimize(file);
+    await convertToAvif(file);
+  }
+
+  // Publish both formats before updating the timestamp consumed by the app.
+  mkdirSync(LANDING_DIR, { recursive: true });
+  const generatedFiles = readdirSync(ASSETS_DIR).filter(
+    (file) =>
+      file.includes(timestamp) &&
+      (file.endsWith('.jpg') || file.endsWith('.avif')),
+  );
+  for (const file of generatedFiles) {
+    copyFileSync(join(ASSETS_DIR, file), join(LANDING_DIR, file));
+  }
+
+  // Only remove the old set after the complete new set has been saved and converted.
   console.log('Cleaning up old screenshots...');
   const existingFiles = readdirSync(ASSETS_DIR);
   for (const file of existingFiles) {
-    if (file.endsWith('.jpg') || file.endsWith('.avif')) {
-      if (!file.includes(timestamp)) {
-        unlinkSync(join(ASSETS_DIR, file));
-      }
+    if (
+      (file.endsWith('.jpg') || file.endsWith('.avif')) &&
+      !file.includes(timestamp)
+    ) {
+      unlinkSync(join(ASSETS_DIR, file));
+    }
+  }
+  const existingLandingFiles = readdirSync(LANDING_DIR);
+  for (const file of existingLandingFiles) {
+    if (
+      file.startsWith('image-') &&
+      (file.endsWith('.jpg') || file.endsWith('.avif')) &&
+      !file.includes(timestamp)
+    ) {
+      unlinkSync(join(LANDING_DIR, file));
     }
   }
 
   console.log('Screenshots generated successfully!');
-
-  // Optimize generated images
-  console.log('Optimizing and converting images...');
-  const baseNames = [
-    'image-1',
-    'image-2',
-    'image-3',
-    'image-4',
-    'image-5',
-  ];
-
-  const filesToProcess: string[] = [];
-  for (const baseName of baseNames) {
-    filesToProcess.push(join(ASSETS_DIR, `${baseName}-light-${timestamp}.jpg`));
-    filesToProcess.push(join(ASSETS_DIR, `${baseName}-dark-${timestamp}.jpg`));
-  }
-
-  for (const file of filesToProcess) {
-    if (existsSync(file)) {
-      await losslessOptimize(file);
-      await convertToAvif(file);
-    }
-  }
 
   // Update README.md and apps/web/app/(public)/(index)/page.tsx
   console.log(`Updating references to timestamp ${timestamp}...`);
@@ -203,15 +238,33 @@ const generateScreenshots = async () => {
     let readmeContent = readFileSync(readmePath, 'utf8');
     // Map old names or timestamped names to new sequential names with timestamp
     // image-1: resources, image-2: village, image-3: map
-    readmeContent = readmeContent.replace(/\/image-3(-light|-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-3$1-${timestamp}.$4`);
-    readmeContent = readmeContent.replace(/\/image-2(-light|-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-2$1-${timestamp}.$4`);
-    readmeContent = readmeContent.replace(/\/image-1(-light|-dark)?(-(\d{12}))?\.(jpg|avif)/g, `/image-1$1-${timestamp}.$4`);
+    readmeContent = readmeContent.replace(
+      /\/image-3(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/g,
+      `/image-3$1-${timestamp}.$4`,
+    );
+    readmeContent = readmeContent.replace(
+      /\/image-2(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/g,
+      `/image-2$1-${timestamp}.$4`,
+    );
+    readmeContent = readmeContent.replace(
+      /\/image-1(-light|-dark)?(-(\d{12,14}))?\.(jpg|avif)/g,
+      `/image-1$1-${timestamp}.$4`,
+    );
 
     writeFileSync(readmePath, readmeContent);
   }
 
   // Create screenshots.json for the landing page
-  const screenshotsJsonPath = join(process.cwd(), 'apps', 'web', 'app', '(public)', '(index)', 'assets', 'screenshots.json');
+  const screenshotsJsonPath = join(
+    process.cwd(),
+    'apps',
+    'web',
+    'app',
+    '(public)',
+    '(index)',
+    'assets',
+    'screenshots.json',
+  );
   const screenshotsJson = {
     timestamp,
   };
