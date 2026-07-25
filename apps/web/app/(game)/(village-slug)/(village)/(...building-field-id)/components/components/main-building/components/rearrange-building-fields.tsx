@@ -1,11 +1,16 @@
 import { clsx } from 'clsx';
-import { type DragEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { type DragEvent, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import type { Building } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
+import { useDragImage } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/hooks/use-drag-image';
 import { useRearrangeBuildingFields } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/hooks/use-rearrange-building-fields';
+import {
+  isSwappableBuildingField,
+  villageViewBuildingFieldIds,
+} from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/main-building/components/utils/building-field-rearrangement';
 import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/building-field.module.scss';
 import {
   Section,
@@ -16,30 +21,35 @@ import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 
-type RearrangeableBuildingFieldId = BuildingField['id'];
 type BuildingFieldSlot = {
   buildingId: Building['id'];
   sourceBuildingFieldId: BuildingField['id'];
 } | null;
-type BuildingFieldSlots = Record<
-  RearrangeableBuildingFieldId,
-  BuildingFieldSlot
+type BuildingFieldSlots = Partial<
+  Record<BuildingField['id'], BuildingFieldSlot>
 >;
+type InteractionState = {
+  draggedBuildingFieldId: BuildingField['id'] | null;
+  dragOverBuildingFieldId: BuildingField['id'] | null;
+  selectedBuildingFieldId: BuildingField['id'] | null;
+};
 
-const villageViewBuildingFieldIds = Array.from(
-  { length: 22 },
-  (_, index) => index + 19,
-);
-const lockedBuildingFieldIds = new Set<BuildingField['id']>([39, 40]);
+const initialInteractionState: InteractionState = {
+  draggedBuildingFieldId: null,
+  dragOverBuildingFieldId: null,
+  selectedBuildingFieldId: null,
+};
 
 const getBuildingFieldSlots = (
   buildingFields: BuildingField[],
 ): BuildingFieldSlots => {
+  const buildingFieldsById = new Map(
+    buildingFields.map((buildingField) => [buildingField.id, buildingField]),
+  );
+
   return Object.fromEntries(
     villageViewBuildingFieldIds.map((buildingFieldId) => {
-      const buildingField = buildingFields.find(
-        ({ id }) => id === buildingFieldId,
-      );
+      const buildingField = buildingFieldsById.get(buildingFieldId);
 
       return [
         buildingFieldId,
@@ -55,7 +65,7 @@ const getBuildingFieldSlots = (
 };
 
 const isLockedBuildingField = (buildingFieldId: BuildingField['id']) => {
-  return lockedBuildingFieldIds.has(buildingFieldId);
+  return !isSwappableBuildingField(buildingFieldId);
 };
 
 const areBuildingFieldSlotsEqual = (
@@ -84,33 +94,18 @@ export const RearrangeBuildingFields = () => {
   );
   const [buildingFieldSlots, setBuildingFieldSlots] =
     useState<BuildingFieldSlots>(initialBuildingFieldSlots);
-  const [draggedBuildingFieldId, setDraggedBuildingFieldId] = useState<
-    BuildingField['id'] | null
-  >(null);
-  const [dragOverBuildingFieldId, setDragOverBuildingFieldId] = useState<
-    BuildingField['id'] | null
-  >(null);
-  const [selectedBuildingFieldId, setSelectedBuildingFieldId] = useState<
-    BuildingField['id'] | null
-  >(null);
-  const dragImageRef = useRef<HTMLElement | null>(null);
-
-  const removeDragImage = () => {
-    dragImageRef.current?.remove();
-    dragImageRef.current = null;
-  };
+  const [interaction, setInteraction] = useState(initialInteractionState);
+  const {
+    draggedBuildingFieldId,
+    dragOverBuildingFieldId,
+    selectedBuildingFieldId,
+  } = interaction;
+  const { removeDragImage, setDragImage } = useDragImage();
 
   useEffect(() => {
     setBuildingFieldSlots(initialBuildingFieldSlots);
-    setSelectedBuildingFieldId(null);
+    setInteraction(initialInteractionState);
   }, [initialBuildingFieldSlots]);
-
-  useEffect(() => {
-    return () => {
-      dragImageRef.current?.remove();
-      dragImageRef.current = null;
-    };
-  }, []);
 
   const persistBuildingFieldSlots = async (slots: BuildingFieldSlots) => {
     await rearrangeBuildingFieldsAsync(
@@ -136,19 +131,26 @@ export const RearrangeBuildingFields = () => {
       sourceBuildingFieldId === targetBuildingFieldId ||
       isLockedBuildingField(sourceBuildingFieldId) ||
       isLockedBuildingField(targetBuildingFieldId) ||
-      buildingFieldSlots[sourceBuildingFieldId] === null
+      buildingFieldSlots[sourceBuildingFieldId] == null
     ) {
       return;
     }
 
-    const nextBuildingFieldSlots = {
-      ...buildingFieldSlots,
-      [sourceBuildingFieldId]: buildingFieldSlots[targetBuildingFieldId],
-      [targetBuildingFieldId]: buildingFieldSlots[sourceBuildingFieldId],
-    };
+    setBuildingFieldSlots((slots) => {
+      if (slots[sourceBuildingFieldId] == null) {
+        return slots;
+      }
 
-    setBuildingFieldSlots(nextBuildingFieldSlots);
-    setSelectedBuildingFieldId(null);
+      return {
+        ...slots,
+        [sourceBuildingFieldId]: slots[targetBuildingFieldId] ?? null,
+        [targetBuildingFieldId]: slots[sourceBuildingFieldId],
+      };
+    });
+    setInteraction((state) => ({
+      ...state,
+      selectedBuildingFieldId: null,
+    }));
   };
 
   const handleBuildingFieldClick = (buildingFieldId: BuildingField['id']) => {
@@ -158,13 +160,19 @@ export const RearrangeBuildingFields = () => {
 
     if (selectedBuildingFieldId === null) {
       if (buildingFieldSlots[buildingFieldId] !== null) {
-        setSelectedBuildingFieldId(buildingFieldId);
+        setInteraction((state) => ({
+          ...state,
+          selectedBuildingFieldId: buildingFieldId,
+        }));
       }
       return;
     }
 
     if (selectedBuildingFieldId === buildingFieldId) {
-      setSelectedBuildingFieldId(null);
+      setInteraction((state) => ({
+        ...state,
+        selectedBuildingFieldId: null,
+      }));
       return;
     }
 
@@ -183,28 +191,15 @@ export const RearrangeBuildingFields = () => {
       return;
     }
 
-    setDraggedBuildingFieldId(buildingFieldId);
-    setSelectedBuildingFieldId(null);
+    setInteraction({
+      draggedBuildingFieldId: buildingFieldId,
+      dragOverBuildingFieldId: null,
+      selectedBuildingFieldId: null,
+    });
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text/plain', String(buildingFieldId));
 
-    removeDragImage();
-
-    const dragImage = event.currentTarget.cloneNode(true) as HTMLElement;
-    const { width, height } = event.currentTarget.getBoundingClientRect();
-
-    dragImage.style.position = 'fixed';
-    dragImage.style.top = '-1000px';
-    dragImage.style.left = '-1000px';
-    dragImage.style.width = `${width}px`;
-    dragImage.style.height = `${height}px`;
-    dragImage.style.pointerEvents = 'none';
-    dragImage.style.opacity = '1';
-    dragImage.style.transform = 'none';
-
-    document.body.append(dragImage);
-    event.dataTransfer.setDragImage(dragImage, width / 2, height / 2);
-    dragImageRef.current = dragImage;
+    setDragImage(event.currentTarget, event.dataTransfer);
   };
 
   const handleDragOver = (
@@ -220,7 +215,10 @@ export const RearrangeBuildingFields = () => {
 
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
-    setDragOverBuildingFieldId(buildingFieldId);
+    setInteraction((state) => ({
+      ...state,
+      dragOverBuildingFieldId: buildingFieldId,
+    }));
   };
 
   const handleDrop = (
@@ -233,8 +231,11 @@ export const RearrangeBuildingFields = () => {
       draggedBuildingFieldId ??
       Number(event.dataTransfer.getData('text/plain'));
 
-    setDraggedBuildingFieldId(null);
-    setDragOverBuildingFieldId(null);
+    setInteraction((state) => ({
+      ...state,
+      draggedBuildingFieldId: null,
+      dragOverBuildingFieldId: null,
+    }));
     removeDragImage();
 
     if (
@@ -250,22 +251,27 @@ export const RearrangeBuildingFields = () => {
   };
 
   const handleDragEnd = () => {
-    setDraggedBuildingFieldId(null);
-    setDragOverBuildingFieldId(null);
+    setInteraction((state) => ({
+      ...state,
+      draggedBuildingFieldId: null,
+      dragOverBuildingFieldId: null,
+    }));
     removeDragImage();
   };
 
   const handleReset = () => {
     setBuildingFieldSlots(initialBuildingFieldSlots);
-    setSelectedBuildingFieldId(null);
-    setDraggedBuildingFieldId(null);
-    setDragOverBuildingFieldId(null);
+    setInteraction(initialInteractionState);
   };
 
   const handleConfirm = async () => {
-    await persistBuildingFieldSlots(buildingFieldSlots);
-    toast.success(t('Buildings rearranged'));
-    await navigate('..', { relative: 'path' });
+    try {
+      await persistBuildingFieldSlots(buildingFieldSlots);
+      toast.success(t('Buildings rearranged'));
+      await navigate('..', { relative: 'path' });
+    } catch {
+      toast.error(t('Buildings could not be rearranged'));
+    }
   };
 
   return (
@@ -279,7 +285,7 @@ export const RearrangeBuildingFields = () => {
         <Text as="h2">{t('Rearrange buildings')}</Text>
       </SectionContent>
       <SectionContent>
-        <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden non-selectable non-selectable">
+        <div className="relative aspect-16/10 w-full max-w-full lg:max-w-5xl overflow-hidden non-selectable">
           {villageViewBuildingFieldIds.map((buildingFieldId) => {
             const buildingId =
               buildingFieldSlots[buildingFieldId]?.buildingId ?? null;
@@ -309,30 +315,28 @@ export const RearrangeBuildingFields = () => {
                     handleDragStart(event, buildingFieldId)
                   }
                   onDragOver={(event) => handleDragOver(event, buildingFieldId)}
-                  onDragLeave={() => setDragOverBuildingFieldId(null)}
+                  onDragLeave={() =>
+                    setInteraction((state) => ({
+                      ...state,
+                      dragOverBuildingFieldId: null,
+                    }))
+                  }
                   onDrop={(event) => handleDrop(event, buildingFieldId)}
                   onDragEnd={handleDragEnd}
                   onClick={() => handleBuildingFieldClick(buildingFieldId)}
                   data-building-field-id={buildingFieldId}
                   aria-label={
-                    buildingId
+                    buildingId !== null
                       ? t(`BUILDINGS.${buildingId}.NAME`)
                       : t('Building site')
                   }
                   aria-disabled={isLocked || isRearrangingBuildingFields}
                   aria-pressed={isSelected}
-                  style={
-                    buildingId === null
-                      ? {
-                          clipPath: 'ellipse(50% 50% at 50% 50%)',
-                        }
-                      : undefined
-                  }
                   className={clsx(
                     'touch-manipulation non-selectable',
-                    buildingId
+                    buildingId !== null
                       ? 'relative size-8 lg:size-12 rounded-full focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border'
-                      : 'w-8 lg:w-16 h-4 lg:h-10 bg-green-900/50 hover:bg-green-800/70 cursor-pointer',
+                      : 'w-8 lg:w-16 h-4 lg:h-10 [clip-path:ellipse(50%_50%_at_50%_50%)] bg-green-900/50 hover:bg-green-800/70 cursor-pointer',
                     buildingId !== null &&
                       !isLocked &&
                       !isRearrangingBuildingFields &&
@@ -342,7 +346,7 @@ export const RearrangeBuildingFields = () => {
                     (isDragOver || isSelected) && 'ring-2 ring-ring bg-accent',
                   )}
                 >
-                  {buildingId && (
+                  {buildingId !== null && (
                     <span className="inline-flex non-selectable flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
                       {t(`BUILDINGS.${buildingId}.NAME`)}
                     </span>

@@ -271,12 +271,10 @@ export const TroopMovementConfirmationContent = ({
         </div>
 
         {!hideMovementDetails && (
-          <>
-            <TroopConfirmationMovementDetails
-              formData={formData}
-              originTileId={originTileId}
-            />
-          </>
+          <TroopConfirmationMovementDetails
+            formData={formData}
+            originTileId={originTileId}
+          />
         )}
       </div>
 
