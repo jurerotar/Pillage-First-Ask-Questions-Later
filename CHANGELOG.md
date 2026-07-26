@@ -4,6 +4,8 @@
 
 * [Feature] Added the ability to exclude battle reports in which you have no losses as the attacker and trade reports in
   which you're trading between your own villages.
+* [Feature] Added report cap of a thousand reports. Automatic report deletion of the oldest, non-archived reports kicks
+  in after the cap is reached.
 
 ## Version 0.4.46
 

@@ -121,6 +121,7 @@ import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
+import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 
 export const migrateAndSeed = (
   database: DbFacade,
@@ -255,6 +256,7 @@ export const migrateAndSeed = (
     db.exec({ sql: createScoutingReportUnitsTable });
     db.exec({ sql: createScoutingReportStructuresTable });
     db.exec({ sql: createReportDeleteTriggers });
+    db.exec({ sql: createReportRetentionTriggers });
     db.exec({ sql: createReportTagsTable });
 
     db.exec({ sql: createBattleReportsTable });
