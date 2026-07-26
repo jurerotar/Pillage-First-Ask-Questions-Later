@@ -31,6 +31,7 @@ import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
 import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
+import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
 const queuedTroopCountQuestThresholds = [
@@ -1083,6 +1084,10 @@ export const upgradeDb = (database: DbFacade): void => {
     db.exec({ sql: createReportsIndexes });
     db.exec({ sql: createReportDeleteTriggers });
     setupGlobalWriteTriggers(db);
+  });
+
+  migrateTo('0.4.47', database, (db) => {
+    db.exec({ sql: createReportRetentionTriggers });
   });
 
   // If all migrations passed, bump it to current version

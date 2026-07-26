@@ -5,9 +5,16 @@ import {
   gatheringExpeditionReportSchema,
   huntingPartyReportSchema,
   movementReportSchema,
+  reportTypeSchema,
   scoutingReportSchema,
   tradeReportSchema,
 } from '../models/report';
+
+export const reportListingFilterSchema = z.enum([
+  ...reportTypeSchema.options,
+  'noLoss',
+  'ownTrades',
+]);
 
 export const battleReportSummaryDtoSchema = battleReportSchema.omit({
   battle: true,
@@ -40,3 +47,4 @@ export const reportListingDtoSchema = z.discriminatedUnion('type', [
 ]);
 
 export type ReportListingDto = z.infer<typeof reportListingDtoSchema>;
+export type ReportListingFilter = z.infer<typeof reportListingFilterSchema>;

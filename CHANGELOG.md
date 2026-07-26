@@ -1,3 +1,12 @@
+## Version 0.4.47
+
+#### Jul 26, 2026
+
+* [Feature] Added the ability to exclude battle reports in which you have no losses as the attacker and trade reports in
+  which you're trading between your own villages.
+* [Feature] Added report cap of a thousand reports. Automatic report deletion of the oldest, non-archived reports kicks
+  in after the cap is reached.
+
 ## Version 0.4.46
 
 #### Jul 24, 2026
@@ -31,8 +40,8 @@
 
 #### Jul 14, 2026
 
-* [UIUXImprovement] This version includes a reworked UI. Page & section descriptions have now been removed from the page and
-  instead added to **information popovers**. This reduces the length of the pages, reducing the amount of scrolling
+* [UIUXImprovement] This version includes a reworked UI. Page & section descriptions have now been removed from the page
+  and instead added to **information popovers**. This reduces the length of the pages, reducing the amount of scrolling
   required and enabling faster navigation through the pages. Information popovers are available as page, section or
   block level elements, so you may encounter more than one on a given page.
 
@@ -40,9 +49,9 @@
 
 #### Jul 11, 2026
 
-* [UIUXImprovement] When switching villages with a building details view open, the app now attempts to open the same building,
-  even if it occupies a different position in the new village. Previously, it would always open the building at the same
-  position, regardless of which building was actually there.
+* [UIUXImprovement] When switching villages with a building details view open, the app now attempts to open the same
+  building, even if it occupies a different position in the new village. Previously, it would always open the building
+  at the same position, regardless of which building was actually there.
 
 ## Version 0.4.41
 

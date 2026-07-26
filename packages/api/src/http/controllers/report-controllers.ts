@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
+import {
+  reportListingDtoSchema,
+  reportListingFilterSchema,
+} from '@pillage-first/types/dtos/report';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportSchema,
@@ -54,18 +57,25 @@ export const getReports = createController('/reports', {
         .optional()
         .default('global'),
       villageId: z.coerce.number().optional(),
-      types: z.array(reportTypeSchema).or(reportTypeSchema).optional(),
+      filters: z
+        .array(reportListingFilterSchema)
+        .or(reportListingFilterSchema)
+        .optional(),
     }),
   },
   response: z.array(reportListingDtoSchema),
 })(({ database, query }) => {
   const scope = query.scope ?? 'global';
-  const reportTypes =
-    query.types == null
+  const reportFilters =
+    query.filters == null
       ? []
-      : Array.isArray(query.types)
-        ? query.types
-        : [query.types];
+      : Array.isArray(query.filters)
+        ? query.filters
+        : [query.filters];
+
+  const reportTypes = reportFilters.filter(
+    (filter) => reportTypeSchema.safeParse(filter).success,
+  );
 
   const rows = database.selectObjects({
     sql: selectReportListingsQuery,
@@ -82,6 +92,8 @@ export const getReports = createController('/reports', {
         ? 1
         : 0,
       $include_scouting: reportTypes.includes('scouting') ? 1 : 0,
+      $exclude_no_loss: reportFilters.includes('noLoss') ? 1 : 0,
+      $exclude_own_trades: reportFilters.includes('ownTrades') ? 1 : 0,
     },
     schema: getReportListingsRowSchema,
   });
