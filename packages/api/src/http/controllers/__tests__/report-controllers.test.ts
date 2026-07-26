@@ -163,7 +163,7 @@ describe('report-controllers', () => {
     const huntingReports = getReports(
       database,
       createControllerArgs<'/reports'>({
-        query: { types: 'huntingParty' },
+        query: { filters: 'huntingParty' },
       }),
     );
 
@@ -175,7 +175,7 @@ describe('report-controllers', () => {
     const expeditionReports = getReports(
       database,
       createControllerArgs<'/reports'>({
-        query: { types: ['huntingParty', 'gatheringExpedition'] },
+        query: { filters: ['huntingParty', 'gatheringExpedition'] },
       }),
     );
 
@@ -185,6 +185,60 @@ describe('report-controllers', () => {
         ({ type }) => type === 'huntingParty' || type === 'gatheringExpedition',
       ),
     ).toBe(true);
+  });
+
+  test('should exclude no-loss battles and trades between own villages', async () => {
+    const database = await prepareReportsTestDatabase();
+
+    database.exec({
+      sql: `
+        UPDATE reports
+        SET report_outcome_id = (
+          SELECT id FROM report_outcome_ids
+          WHERE report_outcome = 'defenderNoLoss'
+        )
+        WHERE id = 1;
+      `,
+    });
+
+    const reportsWithDefenderVictory = getReports(
+      database,
+      createControllerArgs<'/reports'>({
+        query: { filters: 'noLoss' },
+      }),
+    );
+
+    expect(reportsWithDefenderVictory).toHaveLength(6);
+
+    database.exec({
+      sql: `
+        UPDATE trade_reports
+        SET target_tile_id = origin_tile_id;
+      `,
+    });
+    database.exec({
+      sql: `
+        UPDATE reports
+        SET report_outcome_id = (
+          SELECT id FROM report_outcome_ids
+          WHERE report_outcome = 'attackerNoLoss'
+        )
+        WHERE id = 1;
+      `,
+    });
+
+    const reports = getReports(
+      database,
+      createControllerArgs<'/reports'>({
+        query: {
+          filters: ['noLoss', 'ownTrades'],
+        },
+      }),
+    );
+
+    expect(reports).toHaveLength(4);
+    expect(reports.some(({ type }) => type === 'battle')).toBe(false);
+    expect(reports.some(({ type }) => type === 'trade')).toBe(false);
   });
 
   test('should apply unread, archived, and village scopes', async () => {

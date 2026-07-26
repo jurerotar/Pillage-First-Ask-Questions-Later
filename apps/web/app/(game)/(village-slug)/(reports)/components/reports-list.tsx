@@ -1,5 +1,7 @@
-import type { ReportListingDto } from '@pillage-first/types/dtos/report';
-import type { ReportType } from '@pillage-first/types/models/report';
+import type {
+  ReportListingDto,
+  ReportListingFilter,
+} from '@pillage-first/types/dtos/report';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import {
@@ -15,7 +17,7 @@ const REPORTS_PER_PAGE = 20;
 type ReportsListProps = {
   scope: ReportScope;
   page: number;
-  reportFilters: ReportType[];
+  reportFilters: ReportListingFilter[];
   handlePageChange: (newPage: number | ((prev: number) => number)) => void;
 };
 

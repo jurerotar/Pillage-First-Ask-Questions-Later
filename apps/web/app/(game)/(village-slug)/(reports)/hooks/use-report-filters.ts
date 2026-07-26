@@ -1,19 +1,12 @@
-import type { ReportType } from '@pillage-first/types/models/report';
+import {
+  type ReportListingFilter,
+  reportListingFilterSchema,
+} from '@pillage-first/types/dtos/report';
 import { useFilters } from 'app/hooks/use-filters';
 
-export const reportFilterTypes: ReportType[] = [
-  'adventure',
-  'battle',
-  'scouting',
-  'movement',
-  'trade',
-  'huntingParty',
-  'gatheringExpedition',
-];
-
 export const useReportFilters = () => {
-  return useFilters<ReportType>({
+  return useFilters<ReportListingFilter>({
     paramName: 'scope',
-    defaultFilters: reportFilterTypes,
+    defaultFilters: reportListingFilterSchema.options,
   });
 };

@@ -150,6 +150,16 @@ export const selectReportListingsQuery = `
       OR ($include_gathering_expedition = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'gatheringExpedition'))
       OR ($include_scouting = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'scouting'))
     )
+    AND (
+      $exclude_no_loss = 0
+      OR rty.report_type != 'battle'
+      OR roi.report_outcome != 'attackerNoLoss'
+    )
+    AND (
+      $exclude_own_trades = 0
+      OR rty.report_type != 'trade'
+      OR trade_origin_v.player_id != trade_target_v.player_id
+    )
   ORDER BY r.timestamp DESC;
 `;
 
