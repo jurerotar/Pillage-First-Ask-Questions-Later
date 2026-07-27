@@ -187,7 +187,7 @@ describe('report-controllers', () => {
     ).toBe(true);
   });
 
-  test('should exclude no-loss battles and trades between own villages', async () => {
+  test('should include custom report types only while their filters are active', async () => {
     const database = await prepareReportsTestDatabase();
 
     database.exec({
@@ -227,7 +227,7 @@ describe('report-controllers', () => {
       `,
     });
 
-    const reports = getReports(
+    const reportsWithCustomFilters = getReports(
       database,
       createControllerArgs<'/reports'>({
         query: {
@@ -236,9 +236,38 @@ describe('report-controllers', () => {
       }),
     );
 
-    expect(reports).toHaveLength(4);
-    expect(reports.some(({ type }) => type === 'battle')).toBe(false);
-    expect(reports.some(({ type }) => type === 'trade')).toBe(false);
+    expect(reportsWithCustomFilters).toHaveLength(6);
+    expect(reportsWithCustomFilters.some(({ type }) => type === 'battle')).toBe(
+      true,
+    );
+    expect(reportsWithCustomFilters.some(({ type }) => type === 'trade')).toBe(
+      true,
+    );
+
+    const reportsWithoutCustomFilters = getReports(
+      database,
+      createControllerArgs<'/reports'>({
+        query: {
+          filters: [
+            'battle',
+            'adventure',
+            'movement',
+            'trade',
+            'huntingParty',
+            'gatheringExpedition',
+            'scouting',
+          ],
+        },
+      }),
+    );
+
+    expect(reportsWithoutCustomFilters).toHaveLength(4);
+    expect(
+      reportsWithoutCustomFilters.some(({ type }) => type === 'battle'),
+    ).toBe(false);
+    expect(
+      reportsWithoutCustomFilters.some(({ type }) => type === 'trade'),
+    ).toBe(false);
   });
 
   test('should apply unread, archived, and village scopes', async () => {

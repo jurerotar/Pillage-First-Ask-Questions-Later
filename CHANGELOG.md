@@ -1,3 +1,10 @@
+## Version 0.4.48
+
+#### Jul 27, 2026
+
+* [BugFix] Fixed an issue where a duplicated trade report was creating when transferring resources between your own
+  villages.
+
 ## Version 0.4.47
 
 #### Jul 26, 2026

@@ -190,7 +190,7 @@ export const ReportsTable = ({
             <TableRow>
               <TableCell
                 colSpan={4}
-                className="text-center py-8"
+                className="text-left"
               >
                 {t('No reports found yet.')}
               </TableCell>

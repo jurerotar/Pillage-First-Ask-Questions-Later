@@ -92,8 +92,12 @@ export const getReports = createController('/reports', {
         ? 1
         : 0,
       $include_scouting: reportTypes.includes('scouting') ? 1 : 0,
-      $exclude_no_loss: reportFilters.includes('noLoss') ? 1 : 0,
-      $exclude_own_trades: reportFilters.includes('ownTrades') ? 1 : 0,
+      $exclude_no_loss:
+        reportFilters.length === 0 || reportFilters.includes('noLoss') ? 0 : 1,
+      $exclude_own_trades:
+        reportFilters.length === 0 || reportFilters.includes('ownTrades')
+          ? 0
+          : 1,
     },
     schema: getReportListingsRowSchema,
   });

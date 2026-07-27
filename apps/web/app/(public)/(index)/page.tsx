@@ -183,7 +183,7 @@ const SocialProofSection = () => {
           />
           <DiscordSocialProofCard
             author="Gilli on Discord"
-            body="Thank you for doing this! I have been following the progress of the game some time now, and I am really impressed by the development and the frequent updates! Having a game like this, where you don´t have to juggle work, kids and IRL off time activities at the same time is just amazing!"
+            body="Thank you for doing this! I have been following the progress of the game some time now, and I am really impressed by the development and the frequent updates! Having a game like this, where you don't have to juggle work, kids and IRL off time activities at the same time is just amazing!"
           />
         </SocialProofMasonry>
       </div>

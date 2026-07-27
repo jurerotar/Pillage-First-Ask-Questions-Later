@@ -278,6 +278,23 @@ describe('marketplace resolvers', () => {
       wheat: 10,
     });
 
+    expect(
+      database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM reports r
+          JOIN trade_reports tr ON tr.report_id = r.id
+          WHERE tr.origin_tile_id = $origin_tile_id
+            AND tr.target_tile_id = $target_tile_id;
+        `,
+        bind: {
+          $origin_tile_id: sourceVillage.tile_id,
+          $target_tile_id: targetVillage.tileId,
+        },
+        schema: z.number(),
+      }),
+    ).toBe(1);
+
     database.exec({
       sql: 'DELETE FROM reports WHERE id = $report_id;',
       bind: { $report_id: tradeReport.report_id },
@@ -473,16 +490,19 @@ describe('marketplace resolvers', () => {
 
     resolveEvent(database, transferEventId);
 
-    const outgoingReport = database.selectObject({
+    const tradeReport = database.selectObject({
       sql: `
         SELECT r.village_id, roi.report_outcome, tr.origin_tile_id, tr.target_tile_id
         FROM reports r
         JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
         JOIN trade_reports tr ON tr.report_id = r.id
-        WHERE r.village_id = $village_id
-          AND roi.report_outcome = 'outgoingMerchantsArrived';
+        WHERE tr.origin_tile_id = $origin_tile_id
+          AND tr.target_tile_id = $target_tile_id;
       `,
-      bind: { $village_id: sourceVillage.id },
+      bind: {
+        $origin_tile_id: sourceVillage.tile_id,
+        $target_tile_id: targetVillage.tileId,
+      },
       schema: z.strictObject({
         village_id: z.number(),
         report_outcome: z.string(),
@@ -491,9 +511,9 @@ describe('marketplace resolvers', () => {
       }),
     });
 
-    expect(outgoingReport).toStrictEqual({
-      village_id: sourceVillage.id,
-      report_outcome: 'outgoingMerchantsArrived',
+    expect(tradeReport).toStrictEqual({
+      village_id: targetVillage.id,
+      report_outcome: 'incomingMerchantsArrived',
       origin_tile_id: sourceVillage.tile_id,
       target_tile_id: targetVillage.tileId,
     });

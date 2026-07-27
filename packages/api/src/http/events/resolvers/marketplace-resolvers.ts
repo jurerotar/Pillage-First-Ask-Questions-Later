@@ -47,7 +47,13 @@ export const resourceTransferResolver: Resolver<
     schema: z.strictObject({ id: z.number() }),
   });
 
-  if (playerVillageIds.some(({ id }) => id === villageId)) {
+  const ownsOriginVillage = playerVillageIds.some(({ id }) => id === villageId);
+
+  const ownsTargetVillage = playerVillageIds.some(
+    ({ id }) => id === targetVillageId,
+  );
+
+  if (ownsOriginVillage && !ownsTargetVillage) {
     insertTradeReport(database, {
       villageId,
       timestamp: resolvesAt,
@@ -58,7 +64,7 @@ export const resourceTransferResolver: Resolver<
     });
   }
 
-  if (playerVillageIds.some(({ id }) => id === targetVillageId)) {
+  if (ownsTargetVillage) {
     insertTradeReport(database, {
       villageId: targetVillageId,
       timestamp: resolvesAt,

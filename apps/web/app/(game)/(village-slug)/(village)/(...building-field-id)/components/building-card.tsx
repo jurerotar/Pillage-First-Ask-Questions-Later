@@ -108,7 +108,7 @@ export const BuildingOverview = () => {
   );
 
   return (
-    <section>
+    <section className="flex flex-col gap-2">
       <Text
         as="h2"
         className="inline-flex"
@@ -116,7 +116,7 @@ export const BuildingOverview = () => {
         {t(`BUILDINGS.${building.id}.NAME`)}
       </Text>
       {(isUpgrading || isDowngrading) && (
-        <span className="inline-flex text-warning mt-2">
+        <span className="inline-flex text-warning">
           {t(
             isUpgrading
               ? 'Currently upgrading to level {{level}}'
@@ -128,7 +128,7 @@ export const BuildingOverview = () => {
         </span>
       )}
       {isActualMaxLevel && (
-        <span className="inline-flex text-green-600 mt-2">
+        <span className="inline-flex text-green-600">
           {t('{{building}} is fully upgraded', {
             building: t(`BUILDINGS.${building.id}.NAME`),
           })}
