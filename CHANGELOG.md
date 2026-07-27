@@ -4,6 +4,9 @@
 
 * [BugFix] Fixed an issue where a duplicated trade report was creating when transferring resources between your own
   villages.
+* [BugFix] Fixed dialog height on longer dialogs.
+* [UIUXImprovement] Reworked mobile bottom navigation bar. Links with no counters are now positioned inside a popover.
+  This reduces the amount of scrolling players have to do to navigate the app.
 
 ## Version 0.4.47
 

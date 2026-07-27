@@ -102,11 +102,12 @@ export const CreateNewGameWorldForm = () => {
     t('Generating villages...'),
     t('Finalizing world generation...'),
   ];
-  const completedStepCount = Math.min(
+  const completedConnectorCount = Math.min(
     Math.max(currentStepIndex, 0),
-    steps.length,
+    steps.length - 1,
   );
-  const generationProgress = (completedStepCount / steps.length) * 100;
+  const generationProgress =
+    (completedConnectorCount / (steps.length - 1)) * 100;
 
   const {
     mutate: createServer,

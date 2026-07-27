@@ -26,7 +26,10 @@ export const Footer = () => {
     <footer className="border-t mt-4 pb-safe">
       <div className="container max-w-7xl mx-auto grid gap-4 md:gap-8 py-6 lg:py-10 md:grid-cols-4 px-2">
         <div className="flex flex-col gap-2 col-span-full md:col-span-1">
-          <Link to="/">
+          <Link
+            className="inline-flex w-fit"
+            to="/"
+          >
             <img
               alt={t('Pillage First! logo')}
               width="200"
