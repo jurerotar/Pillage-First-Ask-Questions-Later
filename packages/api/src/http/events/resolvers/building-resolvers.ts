@@ -9,8 +9,10 @@ import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../../queries/effect-queries';
+import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
 import { createEvents } from '../../../utils/create-event';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
+import { processScheduledBuildingUpgrades } from '../../../utils/scheduled-building-upgrades';
 import {
   demolishBuilding,
   updateVillageResourcesAt,
@@ -131,6 +133,7 @@ export const buildingLevelChangeResolver: Resolver<
   }
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
+  processScheduledBuildingUpgrades(database, villageId);
 
   return {
     affectedVillageIds: [villageId],
@@ -149,77 +152,7 @@ export const buildingConstructionResolver: Resolver<
     startsAt,
   } = args;
 
-  // Create building field
-  database.exec({
-    sql: `
-      INSERT INTO building_fields (village_id, field_id, building_id, level)
-      SELECT $village_id, $field_id, bi.id, 0
-      FROM building_ids bi
-      WHERE bi.building = $building_id
-    `,
-    bind: {
-      $village_id: villageId,
-      $field_id: buildingFieldId,
-      $building_id: buildingId,
-    },
-  });
-
-  // Create building effects
-  const { effects } = getBuildingDefinition(buildingId);
-
-  database.exec({
-    sql: `
-      INSERT INTO effects (
-        effect_id,
-        value,
-        type_id,
-        scope_id,
-        source_id,
-        village_id,
-        source_specifier
-      )
-      SELECT
-        effect_ids.id,
-        json_extract(effect.value, '$.value'),
-        effect_type_ids.id,
-        effect_scope_ids.id,
-        effect_source_ids.id,
-        $village_id,
-        $source_specifier
-      FROM
-        json_each($effects) AS effect
-        JOIN effect_ids
-          ON effect_ids.effect = json_extract(effect.value, '$.effectId')
-        JOIN effect_type_ids
-          ON effect_type_ids.type = json_extract(effect.value, '$.type')
-        JOIN effect_scope_ids
-          ON effect_scope_ids.scope = 'local'
-        JOIN effect_source_ids
-          ON effect_source_ids.source = 'building';
-    `,
-    bind: {
-      $effects: JSON.stringify(
-        effects.map(({ effectId, valuesPerLevel, type }) => ({
-          effectId,
-          type,
-          value: valuesPerLevel[0],
-        })),
-      ),
-      $village_id: villageId,
-      $source_specifier: buildingFieldId,
-    },
-  });
-
-  // Update population effect
-  const { population } = getBuildingDataForLevel(buildingId, 0);
-
-  database.exec({
-    sql: updatePopulationEffectQuery,
-    bind: {
-      $village_id: villageId,
-      $value: population,
-    },
-  });
+  createBuildingPlaceholder(database, villageId, buildingFieldId, buildingId);
 
   createEvents<'buildingLevelChange'>(database, {
     villageId,
@@ -366,11 +299,7 @@ export const buildingScheduledConstructionEventResolver: Resolver<
   GameEvent<'buildingScheduledConstruction'>
 > = (database, args) => {
   const { villageId } = args;
-
-  createEvents<'buildingLevelChange'>(database, {
-    ...args,
-    type: 'buildingLevelChange',
-  });
+  processScheduledBuildingUpgrades(database, villageId);
 
   return {
     affectedVillageIds: [villageId],

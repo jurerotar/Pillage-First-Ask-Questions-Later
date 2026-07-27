@@ -14,6 +14,7 @@ import {
   type BorderIndicatorBorderVariant,
 } from 'app/(game)/(village-slug)/components/border-indicator';
 import { BuildingUpgradeStatusContext } from 'app/(game)/(village-slug)/providers/building-upgrade-status-provider';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 type StaticButtonProps = {
   buildingField: BuildingField;
@@ -108,9 +109,15 @@ export const BuildingUpgradeIndicator = ({
   onUpgrade,
 }: BuildingUpgradeIndicatorProps) => {
   const { variant, canUpgrade } = use(BuildingUpgradeStatusContext);
+  const { buildingUpgradeEventCountByFieldId } = use(
+    CurrentVillageBuildingQueueContext,
+  );
+  const hasActiveOrScheduledUpgrade = buildingUpgradeEventCountByFieldId.has(
+    buildingField.id,
+  );
 
   const backgroundVariant = ((): BorderIndicatorBackgroundVariant => {
-    if (buildingEvent) {
+    if (buildingEvent || hasActiveOrScheduledUpgrade) {
       return 'orange';
     }
 

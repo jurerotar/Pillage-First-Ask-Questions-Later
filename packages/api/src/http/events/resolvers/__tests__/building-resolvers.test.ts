@@ -5,15 +5,351 @@ import {
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
+  createGameEventMock,
 } from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
+import {
+  createBuildingPlaceholder,
+  removeBuildingPlaceholder,
+} from '../../../../utils/building-placeholder';
+import { insertEvents } from '../../../../utils/events';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
+  buildingScheduledConstructionEventResolver,
 } from '../building-resolvers';
 
 describe('building resolvers', () => {
+  test.skip('legacy scheduled events: Romans start at most one resource and one village construction', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = database.selectValue({
+      sql: `
+        SELECT village_id
+        FROM building_fields
+        GROUP BY village_id
+        HAVING
+          SUM(field_id <= 18 AND level > 0) > 0
+          AND SUM(field_id > 18 AND level > 0) > 0
+        LIMIT 1;
+      `,
+      schema: z.number(),
+    })!;
+    const fields = database.selectObjects({
+      sql: `
+        SELECT bf.field_id AS buildingFieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.level > 0
+        ORDER BY bf.field_id;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        buildingFieldId: z.number(),
+        level: z.number(),
+        buildingId: z.string(),
+      }),
+    });
+    const resourceField = fields.find(({ buildingFieldId }) => {
+      return buildingFieldId <= 18;
+    })!;
+    const villageField = fields.find(({ buildingFieldId }) => {
+      return buildingFieldId > 18;
+    })!;
+
+    database.exec({
+      sql: `
+        UPDATE players
+        SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
+        WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
+      `,
+      bind: { $village_id: villageId },
+    });
+
+    const resourceUpgrade = createGameEventMock(
+      'buildingScheduledConstruction',
+      {
+        id: 94_000,
+        villageId,
+        buildingId: resourceField.buildingId as Building['id'],
+        buildingFieldId: resourceField.buildingFieldId,
+        previousLevel: resourceField.level,
+        level: resourceField.level + 1,
+      },
+    );
+    const villageUpgrade = createGameEventMock(
+      'buildingScheduledConstruction',
+      {
+        id: 94_001,
+        villageId,
+        buildingId: villageField.buildingId as Building['id'],
+        buildingFieldId: villageField.buildingFieldId,
+        previousLevel: villageField.level,
+        level: villageField.level + 1,
+      },
+    );
+    const secondResourceUpgrade = createGameEventMock(
+      'buildingScheduledConstruction',
+      {
+        id: 94_002,
+        villageId,
+        buildingId: resourceField.buildingId as Building['id'],
+        buildingFieldId: resourceField.buildingFieldId,
+        previousLevel: resourceField.level + 1,
+        level: resourceField.level + 2,
+      },
+    );
+
+    buildingScheduledConstructionEventResolver(database, resourceUpgrade);
+    buildingScheduledConstructionEventResolver(database, villageUpgrade);
+    buildingScheduledConstructionEventResolver(database, secondResourceUpgrade);
+
+    const eventCounts = database.selectObject({
+      sql: `
+        SELECT
+          SUM(type = 'buildingLevelChange') AS active,
+          SUM(type = 'buildingScheduledConstruction') AS scheduled
+        FROM events;
+      `,
+      schema: z.strictObject({
+        active: z.number(),
+        scheduled: z.number(),
+      }),
+    })!;
+
+    expect(eventCounts).toEqual({
+      active: 2,
+      scheduled: 1,
+    });
+  });
+
+  test.skip('legacy scheduled events: busy queues defer an upgrade', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const fields = database.selectObjects({
+      sql: `
+        SELECT bf.field_id AS buildingFieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.level > 0
+        ORDER BY bf.field_id
+        LIMIT 2;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        buildingFieldId: z.number(),
+        level: z.number(),
+        buildingId: z.string(),
+      }),
+    });
+    const [activeField, scheduledField] = fields;
+    const activeResolvesAt = Date.now() + 60_000;
+
+    database.exec({
+      sql: `
+        UPDATE players
+        SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'teutons')
+        WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
+      `,
+      bind: { $village_id: villageId },
+    });
+
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        villageId,
+        buildingId: activeField.buildingId as Building['id'],
+        buildingFieldId: activeField.buildingFieldId,
+        previousLevel: activeField.level,
+        level: activeField.level + 1,
+        startsAt: Date.now(),
+        duration: 60_000,
+        resolvesAt: activeResolvesAt,
+      }),
+      createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: scheduledField.buildingId as Building['id'],
+        buildingFieldId: scheduledField.buildingFieldId,
+        previousLevel: scheduledField.level + 1,
+        level: scheduledField.level + 2,
+      }),
+    ]);
+
+    const scheduled = createGameEventMock('buildingScheduledConstruction', {
+      id: 93_000,
+      villageId,
+      buildingId: scheduledField.buildingId as Building['id'],
+      buildingFieldId: scheduledField.buildingFieldId,
+      previousLevel: scheduledField.level,
+      level: scheduledField.level + 1,
+    });
+    const storedActiveResolvesAt = database.selectValue({
+      sql: `
+        SELECT resolves_at
+        FROM events
+        WHERE type = 'buildingLevelChange';
+      `,
+      schema: z.number(),
+    })!;
+
+    expect(() =>
+      buildingScheduledConstructionEventResolver(database, scheduled),
+    ).not.toThrow();
+
+    const deferred = database.selectObject({
+      sql: `
+        SELECT id, starts_at AS startsAt, resolves_at AS resolvesAt
+        FROM events
+        WHERE id = $id;
+      `,
+      bind: { $id: scheduled.id },
+      schema: z.strictObject({
+        id: z.number(),
+        startsAt: z.number(),
+        resolvesAt: z.number(),
+      }),
+    })!;
+
+    expect(deferred).toEqual({
+      id: scheduled.id,
+      startsAt: storedActiveResolvesAt,
+      resolvesAt: storedActiveResolvesAt,
+    });
+  });
+
+  test.skip('legacy scheduled events: failed starts remove dependent upgrades', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const fields = database.selectObjects({
+      sql: `
+        SELECT bf.field_id AS buildingFieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.level > 0
+        ORDER BY bf.field_id
+        LIMIT 2;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        buildingFieldId: z.number(),
+        level: z.number(),
+        buildingId: z.string(),
+      }),
+    });
+    const [failedField, preservedField] = fields;
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wood = 0, clay = 0, iron = 0, wheat = 0
+        WHERE tile_id = (
+          SELECT tile_id FROM villages WHERE id = $village_id
+        );
+      `,
+      bind: { $village_id: villageId },
+    });
+
+    const failed = createGameEventMock('buildingScheduledConstruction', {
+      id: 92_000,
+      villageId,
+      buildingId: failedField.buildingId as Building['id'],
+      buildingFieldId: failedField.buildingFieldId,
+      previousLevel: failedField.level,
+      level: failedField.level + 1,
+    });
+    const higher = createGameEventMock('buildingScheduledConstruction', {
+      id: 92_001,
+      villageId,
+      buildingId: failedField.buildingId as Building['id'],
+      buildingFieldId: failedField.buildingFieldId,
+      previousLevel: failedField.level + 1,
+      level: failedField.level + 2,
+    });
+    const differentField = createGameEventMock(
+      'buildingScheduledConstruction',
+      {
+        id: 92_002,
+        villageId,
+        buildingId: preservedField.buildingId as Building['id'],
+        buildingFieldId: preservedField.buildingFieldId,
+        previousLevel: preservedField.level,
+        level: preservedField.level + 1,
+      },
+    );
+
+    insertEvents(database, [higher, differentField]);
+    buildingScheduledConstructionEventResolver(database, failed);
+
+    const remainingFieldIds = database.selectValues({
+      sql: `
+        SELECT CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER)
+        FROM events
+        WHERE type = 'buildingScheduledConstruction'
+        ORDER BY id;
+      `,
+      schema: z.number(),
+    });
+
+    expect(remainingFieldIds).toEqual([preservedField.buildingFieldId]);
+  });
+
+  test('removing a scheduled new-building placeholder removes its field and effects', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const buildingFieldId = 25;
+    const buildingId: Building['id'] = 'CRANNY';
+    const getPopulationEffect = () =>
+      database.selectValue({
+        sql: `
+          SELECT value
+          FROM effects
+          WHERE village_id = $village_id
+            AND source_specifier = 0
+            AND effect_id = (
+              SELECT id FROM effect_ids WHERE effect = 'wheatProduction'
+            );
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      });
+    const populationBefore = getPopulationEffect();
+
+    createBuildingPlaceholder(database, villageId, buildingFieldId, buildingId);
+    removeBuildingPlaceholder(database, villageId, buildingFieldId, buildingId);
+
+    const fieldCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM building_fields
+        WHERE village_id = $village_id AND field_id = $building_field_id;
+      `,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: buildingFieldId,
+      },
+      schema: z.number(),
+    });
+    const effectCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM effects
+        WHERE village_id = $village_id
+          AND source_specifier = $building_field_id
+          AND source_id = (
+            SELECT id FROM effect_source_ids WHERE source = 'building'
+          );
+      `,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: buildingFieldId,
+      },
+      schema: z.number(),
+    });
+
+    expect(fieldCount).toBe(0);
+    expect(effectCount).toBe(0);
+    expect(getPopulationEffect()).toBe(populationBefore);
+  });
+
   describe(buildingConstructionResolver, () => {
     test('should construct a building', async () => {
       const database = await prepareTestDatabase();

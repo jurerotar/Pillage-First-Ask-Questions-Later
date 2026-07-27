@@ -10,7 +10,6 @@ import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   deleteNextDemolitionEventQuery,
-  deleteScheduledBuildingEventsFromEventQuery,
   deleteUnitImprovementEventsFromLevelQuery,
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
@@ -18,11 +17,11 @@ import {
   selectEventByIdQuery,
   selectEventsByTypeQuery,
   selectTroopMovementEventsQuery,
-  updateEventStartsAtQuery,
 } from '../../queries/event-queries';
+import { removeBuildingPlaceholder } from '../../utils/building-placeholder';
 import { createEvents } from '../../utils/create-event';
-import { getEventStartTime } from '../../utils/events';
-import { addVillageResourcesAt, demolishBuilding } from '../../utils/village';
+import { processScheduledBuildingUpgrades } from '../../utils/scheduled-building-upgrades';
+import { addVillageResourcesAt } from '../../utils/village';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
@@ -150,7 +149,15 @@ export const createNewEvents = createController('/events', 'post', {
   summary: 'Create new events',
   requestBody: createEventDtoSchema,
 })(({ database, body }) => {
-  createEvents(database, normalizeCreateEventBody(body) as never);
+  const normalizedBody = normalizeCreateEventBody(body);
+
+  if (normalizedBody.type === 'buildingScheduledConstruction') {
+    throw new Error(
+      'Scheduled building construction must use the scheduled upgrades endpoint',
+    );
+  }
+
+  createEvents(database, normalizedBody as never);
 });
 
 export const cancelConstructionEvent = createController(
@@ -178,69 +185,45 @@ export const cancelConstructionEvent = createController(
       cancelledEventRow!,
     ) as GameEvent<'buildingLevelChange'>;
 
-    const { level, buildingId, villageId, buildingFieldId, resolvesAt } =
-      cancelledEvent;
+    const { level, buildingId, villageId, buildingFieldId } = cancelledEvent;
 
-    // Delete this event and all future events on the same building fields
-    const cancelledScheduledEvents = db.selectObjects({
-      sql: deleteScheduledBuildingEventsFromEventQuery,
+    db.exec({
+      sql: 'DELETE FROM events WHERE id = $event_id;',
+      bind: {
+        $event_id: cancelledEvent.id,
+      },
+    });
+
+    db.exec({
+      sql: `
+        DELETE FROM scheduled_building_upgrades
+        WHERE village_id = $village_id
+          AND building_field_id = $building_field_id;
+      `,
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
-        $resolves_at: resolvesAt,
       },
-      schema: z.strictObject({
-        buildingFieldId: z.number(),
-        level: z.number(),
-      }),
     });
 
-    for (const { buildingFieldId, level } of cancelledScheduledEvents) {
-      // If building is currently upgrading to level 1, we need to demolish it
-      if (level === 1) {
-        demolishBuilding(db, villageId, buildingFieldId);
-      }
+    if (level === 1) {
+      removeBuildingPlaceholder(db, villageId, buildingFieldId, buildingId);
     }
 
-    // Remaining building events now need to have their start times adjusted.
-    // Only scheduled construction events need adjusting, since any ongoing events are already ongoing.
-    const scheduledEventRows = db.selectObjects({
-      sql: selectAllVillageEventsByTypeQuery,
-      bind: {
-        $village_id: villageId,
-        $type: 'buildingScheduledConstruction',
-      },
-      schema: baseEventRowSchema,
-    });
+    const now = Date.now();
+    const duration = cancelledEvent.resolvesAt - cancelledEvent.startsAt;
+    const elapsed = Math.max(0, now - cancelledEvent.startsAt);
+    const completionPercentage =
+      duration > 0 ? Math.min(1, elapsed / duration) : 1;
 
-    for (const event of scheduledEventRows.map(mapEventRowToTypedEvent)) {
-      const startsAt = getEventStartTime(db, event);
+    const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
+      buildingId,
+      level,
+      completionPercentage,
+    );
 
-      db.exec({
-        sql: updateEventStartsAtQuery,
-        bind: {
-          $event_id: event.id,
-          $starts_at: startsAt,
-        },
-      });
-    }
-
-    // If event is already ongoing, refund resources
-    if (cancelledEvent.type === 'buildingLevelChange') {
-      const now = Date.now();
-      const duration = cancelledEvent.resolvesAt - cancelledEvent.startsAt;
-      const elapsed = Math.max(0, now - cancelledEvent.startsAt);
-      const completionPercentage =
-        duration > 0 ? Math.min(1, elapsed / duration) : 1;
-
-      const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
-        buildingId,
-        level,
-        completionPercentage,
-      );
-
-      addVillageResourcesAt(db, villageId, now, resourcesToRefund);
-    }
+    addVillageResourcesAt(db, villageId, now, resourcesToRefund);
+    processScheduledBuildingUpgrades(db, villageId);
   });
 
   triggerKick();

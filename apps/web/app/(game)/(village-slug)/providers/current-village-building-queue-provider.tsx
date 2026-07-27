@@ -8,18 +8,30 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { partition } from '@pillage-first/utils/array';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
+import {
+  type ScheduledBuildingUpgrade,
+  useScheduledBuildingUpgrades,
+} from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+
+export type BuildingUpgradeQueueEntry =
+  | BuildingEvent
+  | ScheduledBuildingUpgrade;
+
+export const getBuildingUpgradeQueueEntryKey = (
+  entry: Pick<BuildingUpgradeQueueEntry, 'id' | 'type'>,
+): string => `${entry.type}-${entry.id}`;
 
 type CurrentVillageBuildingQueueContextReturn = {
   buildingEvents: BuildingEvent[];
   buildingEventByFieldId: Map<BuildingField['id'], BuildingEvent>;
   buildingUpgradeEventCountByFieldId: Map<BuildingField['id'], number>;
-  buildingUpgradeEvents: BuildingEvent[];
+  buildingUpgradeEvents: BuildingUpgradeQueueEntry[];
   buildingDowngradeEvents: BuildingEvent[];
   downgradedBuildingByFieldId: Map<BuildingField['id'], BuildingEvent>;
   getBuildingEventQueue: (
     buildingFieldId: BuildingField['id'],
-  ) => BuildingEvent[];
+  ) => BuildingUpgradeQueueEntry[];
 };
 
 export const CurrentVillageBuildingQueueContext =
@@ -32,31 +44,36 @@ export const CurrentVillageBuildingQueueContextProvider = ({
 }: PropsWithChildren) => {
   const tribe = useTribe();
 
+  const { eventsByType: currentVillageBuildingConstructionEvents } =
+    useEventsByType('buildingConstruction');
   const { eventsByType: currentVillageBuildingDestructionEvents } =
     useEventsByType('buildingDestruction');
   const { eventsByType: currentVillageBuildingLevelChangeEvents } =
     useEventsByType('buildingLevelChange');
-  const { eventsByType: currentVillageBuildingScheduledConstructionEvents } =
-    useEventsByType('buildingScheduledConstruction');
+  const { scheduledBuildingUpgrades } = useScheduledBuildingUpgrades();
 
   const buildingEvents = useMemo(() => {
     return [
+      ...currentVillageBuildingConstructionEvents,
       ...currentVillageBuildingDestructionEvents,
       ...currentVillageBuildingLevelChangeEvents,
-      ...currentVillageBuildingScheduledConstructionEvents,
     ].toSorted((a, b) => a.startsAt + a.duration - (b.startsAt + b.duration));
   }, [
+    currentVillageBuildingConstructionEvents,
     currentVillageBuildingLevelChangeEvents,
-    currentVillageBuildingScheduledConstructionEvents,
     currentVillageBuildingDestructionEvents,
   ]);
 
-  const [buildingUpgradeEvents, buildingDowngradeEvents] = useMemo(() => {
+  const [activeBuildingUpgradeEvents, buildingDowngradeEvents] = useMemo(() => {
     return partition<BuildingEvent>(
       buildingEvents,
       ({ previousLevel, level }) => level > previousLevel,
     );
   }, [buildingEvents]);
+  const buildingUpgradeEvents = useMemo(
+    () => [...activeBuildingUpgradeEvents, ...scheduledBuildingUpgrades],
+    [activeBuildingUpgradeEvents, scheduledBuildingUpgrades],
+  );
 
   const buildingEventByFieldId = useMemo(() => {
     return new Map(
@@ -85,7 +102,7 @@ export const CurrentVillageBuildingQueueContextProvider = ({
   }, [buildingDowngradeEvents]);
 
   const buildingEventQueues = useMemo(() => {
-    const [resourceQueue, villageQueue] = partition<BuildingEvent>(
+    const [resourceQueue, villageQueue] = partition<BuildingUpgradeQueueEntry>(
       buildingUpgradeEvents,
       (event) => event.buildingFieldId <= 18,
     );
@@ -97,7 +114,7 @@ export const CurrentVillageBuildingQueueContextProvider = ({
   }, [buildingUpgradeEvents]);
 
   const getBuildingEventQueue = useCallback(
-    (buildingFieldId: BuildingField['id']): BuildingEvent[] => {
+    (buildingFieldId: BuildingField['id']): BuildingUpgradeQueueEntry[] => {
       if (tribe !== 'romans') {
         return buildingUpgradeEvents;
       }

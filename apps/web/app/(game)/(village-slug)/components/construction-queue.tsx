@@ -2,26 +2,27 @@ import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
 import { type PropsWithChildren, Suspense, use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { LuChevronLeft, LuChevronRight, LuConstruction } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
 import { type PlacesType, Tooltip } from 'react-tooltip';
-import type { BuildingEvent } from '@pillage-first/types/models/game-event';
-import { isScheduledBuildingEvent } from '@pillage-first/utils/guards/event';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { useScheduledBuildingUpgrades } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
+import {
+  type BuildingUpgradeQueueEntry,
+  CurrentVillageBuildingQueueContext,
+  getBuildingUpgradeQueueEntryKey,
+} from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-muted-foreground px-2 py-2.5 box-content border border-border rounded-xs transition-colors';
 
 type ConstructionQueueBuildingProps = {
-  buildingEvent: BuildingEvent;
+  buildingEvent: BuildingUpgradeQueueEntry;
   tooltipPosition: PlacesType;
 };
 
@@ -33,13 +34,14 @@ const ConstructionQueueBuilding = ({
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
   const { mutate: cancelConstruction } = useCancelConstruction();
+  const { cancelScheduledBuildingUpgrade } = useScheduledBuildingUpgrades();
 
-  const tooltipId = `tooltip-${buildingEvent.id}`;
+  const tooltipId = `construction-queue-tooltip-${getBuildingUpgradeQueueEntryKey(buildingEvent)}`;
   const tooltipKey = isWiderThanLg
     ? 'is-wider-than-lg'
     : 'is-not-wider-than-lg';
 
-  const isScheduledEvent = isScheduledBuildingEvent(buildingEvent);
+  const isScheduledEvent = buildingEvent.type === 'scheduledBuildingUpgrade';
 
   return (
     <>
@@ -48,10 +50,12 @@ const ConstructionQueueBuilding = ({
         className="flex flex-col relative cursor-pointer"
       >
         <LuConstruction className="text-2xl lg:text-3xl text-muted-foreground bg-background px-2.5 pb-4 pt-1 box-content border border-border rounded-xs transition-colors" />
-        <Countdown
-          className="absolute bottom-0 left-0 text-2xs w-full leading-none bg-background border border-border text-center transition-colors"
-          endsAt={buildingEvent.startsAt + buildingEvent.duration}
-        />
+        {!isScheduledEvent && (
+          <Countdown
+            className="absolute bottom-0 left-0 text-2xs w-full leading-none bg-background border border-border text-center transition-colors"
+            endsAt={buildingEvent.startsAt + buildingEvent.duration}
+          />
+        )}
       </div>
 
       <Tooltip
@@ -71,7 +75,7 @@ const ConstructionQueueBuilding = ({
       >
         <div className="flex flex-col gap-2">
           <div className="flex md:hidden border-b border-border pb-1 text-sm">
-            <b>{t('Under construction')}</b>
+            <b>{isScheduledEvent ? t('In queue') : t('Under construction')}</b>
           </div>
           <div className="flex gap-2">
             <div className="flex items-center">
@@ -86,18 +90,28 @@ const ConstructionQueueBuilding = ({
                 </span>
               </span>
               <span className="inline-flex gap-1 text-sm">
-                <Countdown
-                  endsAt={buildingEvent.startsAt + buildingEvent.duration}
-                />
-                {isScheduledEvent && <span>({t('In queue')})</span>}
+                {isScheduledEvent ? (
+                  <span>{t('In queue')}</span>
+                ) : (
+                  <Countdown
+                    endsAt={buildingEvent.startsAt + buildingEvent.duration}
+                  />
+                )}
               </span>
             </div>
             <div className="flex items-center">
               <button
                 aria-label={t('Cancel building construction')}
-                onClick={() =>
-                  cancelConstruction({ eventId: buildingEvent.id })
-                }
+                onClick={() => {
+                  if (isScheduledEvent) {
+                    cancelScheduledBuildingUpgrade({
+                      scheduledUpgradeId: buildingEvent.id,
+                    });
+                    return;
+                  }
+
+                  cancelConstruction({ eventId: buildingEvent.id });
+                }}
                 type="button"
               >
                 <MdCancel className="text-xl lg:text-2xl text-red-400 box-content" />
@@ -110,23 +124,10 @@ const ConstructionQueueBuilding = ({
   );
 };
 
-type ConstructionQueueEmptySlotProps = {
-  type: 'free' | 'locked';
-};
-
-const ConstructionQueueEmptySlot = ({
-  type,
-}: PropsWithChildren<ConstructionQueueEmptySlotProps>) => {
-  if (type === 'free') {
-    return <ImHammer className={iconClassName} />;
-  }
-
-  return <FaLock className={iconClassName} />;
-};
+const ConstructionQueueEmptySlot = () => <ImHammer className={iconClassName} />;
 
 const ConstructionQueueContent = () => {
   const { t } = useTranslation();
-  const tribe = useTribe();
   const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const [isExtended, setIsExtended] = useState<boolean>(false);
@@ -136,8 +137,6 @@ const ConstructionQueueContent = () => {
   });
 
   const totalSlotsCount = 5;
-  const availableSlotsCount = tribe === 'romans' ? 2 : 1;
-
   const emptySlotsCount = Math.max(
     0,
     totalSlotsCount - buildingUpgradeEvents.length,
@@ -160,12 +159,9 @@ const ConstructionQueueContent = () => {
     })),
     ...Array.from({ length: emptySlotsCount }, (_, i) => {
       const slotIndex = buildingUpgradeEvents.length + i;
-      const isFree = slotIndex < availableSlotsCount;
-
       return {
         type: 'empty',
         id: `empty-slot-${slotIndex}`,
-        status: isFree ? 'free' : 'locked',
       } as const;
     }),
   ];
@@ -183,20 +179,26 @@ const ConstructionQueueContent = () => {
               buildingEvent={slots[0].event}
             />
           ) : (
-            <ConstructionQueueEmptySlot type={slots[0].status} />
+            <ConstructionQueueEmptySlot />
           )}
         </li>
 
         {(isWiderThanLg || isExtended) &&
           slots.slice(1).map((slot) => (
-            <li key={slot.type === 'building' ? slot.event.id : slot.id}>
+            <li
+              key={
+                slot.type === 'building'
+                  ? getBuildingUpgradeQueueEntryKey(slot.event)
+                  : slot.id
+              }
+            >
               {slot.type === 'building' ? (
                 <ConstructionQueueBuilding
                   tooltipPosition="right-start"
                   buildingEvent={slot.event}
                 />
               ) : (
-                <ConstructionQueueEmptySlot type={slot.status} />
+                <ConstructionQueueEmptySlot />
               )}
             </li>
           ))}

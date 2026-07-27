@@ -8,6 +8,7 @@ import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
 import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
+import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { VillageMapContext } from 'app/(game)/(village-slug)/(village)/providers/village-map-context';
 import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/building-upgrade-indicator';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
@@ -49,10 +50,11 @@ export const OccupiedBuildingField = ({
   const { bookmarks } = use(VillageMapContext);
   const { buildingEventByFieldId } = use(CurrentVillageBuildingQueueContext);
 
-  const { id: buildingFieldId, buildingId, level } = buildingField;
+  const { id: buildingFieldId, buildingId } = buildingField;
+  const { virtualLevel } = useBuildingVirtualLevel(buildingFieldId);
 
   const buildingDefinition = getBuildingDefinition(buildingId);
-  const isMaxLevel = buildingDefinition.maxLevel === level;
+  const isMaxLevel = buildingDefinition.maxLevel === virtualLevel;
 
   const tab = bookmarks[buildingId] ?? 'default';
 
@@ -84,6 +86,7 @@ export const OccupiedBuildingField = ({
   return (
     <OccupiedBuildingFieldActive
       buildingField={buildingField}
+      virtualLevel={virtualLevel}
       currentBuildingFieldBuildingEvent={currentBuildingFieldBuildingEvent}
       tab={tab}
     />
@@ -92,21 +95,23 @@ export const OccupiedBuildingField = ({
 
 type OccupiedBuildingFieldActiveProps = {
   buildingField: BuildingFieldType;
+  virtualLevel: number;
   currentBuildingFieldBuildingEvent: BuildingEvent | undefined;
   tab: string;
 };
 
 const OccupiedBuildingFieldActive = ({
   buildingField,
+  virtualLevel,
   currentBuildingFieldBuildingEvent,
   tab,
 }: OccupiedBuildingFieldActiveProps) => {
   const { isWiderThanLg } = use(VillageMapContext);
-  const { id: buildingFieldId, buildingId, level } = buildingField;
+  const { id: buildingFieldId, buildingId } = buildingField;
 
   const { canUpgrade, variant } = useBuildingConstructionStatus(
     buildingId,
-    level,
+    virtualLevel,
     buildingFieldId,
   );
   const status = useMemo(

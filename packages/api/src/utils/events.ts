@@ -36,6 +36,7 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { effectSchema } from '@pillage-first/types/models/effect';
 import type {
   GameEvent,
@@ -170,6 +171,101 @@ export const validateEventCreationPrerequisites = (
   database: DbFacade,
   event: GameEvent,
 ): void => {
+  if (isScheduledBuildingEvent(event)) {
+    const scheduledCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM events
+        WHERE village_id = $village_id
+          AND type IN (
+            'buildingScheduledConstruction',
+            'buildingConstruction',
+            'buildingLevelChange'
+          )
+          AND NOT (
+            type = 'buildingLevelChange'
+            AND CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER) >
+                CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
+          );
+      `,
+      bind: { $village_id: event.villageId },
+      schema: z.number(),
+    })!;
+
+    if (scheduledCount >= 5) {
+      throw new Error('Building construction queue is full');
+    }
+
+    const { maxLevel } = getBuildingDefinition(event.buildingId);
+    if (event.level > maxLevel) {
+      throw new Error('Building level cannot exceed max level');
+    }
+
+    if (event.level !== event.previousLevel + 1) {
+      throw new Error('Scheduled building upgrades must be consecutive');
+    }
+
+    const virtualLevel = database.selectValue({
+      sql: `
+        SELECT MAX(level)
+        FROM (
+          SELECT level
+          FROM building_fields
+          WHERE village_id = $village_id
+            AND field_id = $building_field_id
+
+          UNION ALL
+
+          SELECT CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
+          FROM events
+          WHERE village_id = $village_id
+            AND type IN (
+              'buildingScheduledConstruction',
+              'buildingConstruction',
+              'buildingLevelChange'
+            )
+            AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) =
+                $building_field_id
+        );
+      `,
+      bind: {
+        $village_id: event.villageId,
+        $building_field_id: event.buildingFieldId,
+      },
+      schema: z.number().nullable(),
+    });
+
+    if (event.previousLevel === 0) {
+      const existingBuildingId = database.selectValue({
+        sql: `
+          SELECT bi.building
+          FROM building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE bf.village_id = $village_id
+            AND bf.field_id = $building_field_id;
+        `,
+        bind: {
+          $village_id: event.villageId,
+          $building_field_id: event.buildingFieldId,
+        },
+        schema: buildingIdSchema.nullable(),
+      });
+
+      const isEmptyField = virtualLevel === null;
+      const isMatchingLevelZeroBuilding =
+        virtualLevel === 0 && existingBuildingId === event.buildingId;
+
+      if (
+        event.level !== 1 ||
+        (!isEmptyField && !isMatchingLevelZeroBuilding)
+      ) {
+        throw new Error('Building field is already occupied');
+      }
+    } else if (virtualLevel !== event.previousLevel) {
+      throw new Error('Scheduled building upgrades must be consecutive');
+    }
+  }
+
   if (isUnitImprovementEvent(event)) {
     const { villageId, level } = event;
 
@@ -579,7 +675,7 @@ export const validateEventCreationPrerequisites = (
     return;
   }
 
-  if (isBuildingEvent(event)) {
+  if (isBuildingEvent(event) && !isScheduledBuildingEvent(event)) {
     const { villageId, buildingFieldId, buildingId, level } = event;
 
     if (isBuildingDowngradeEvent(event)) {
@@ -1126,6 +1222,10 @@ export const getEventDuration = (
   database: DbFacade,
   event: GameEvent,
 ): number => {
+  if (isScheduledBuildingEvent(event)) {
+    return 0;
+  }
+
   if (isBuildingEvent(event)) {
     if (isBuildingConstructionEvent(event)) {
       return 0;

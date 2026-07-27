@@ -214,7 +214,13 @@ export const deleteScheduledBuildingEventsFromEventQuery = `
   WHERE
     village_id = $village_id
     AND JSON_EXTRACT(events.meta, '$.buildingFieldId') = $building_field_id
-    AND resolves_at >= $resolves_at
+    AND (
+      id = $event_id
+      OR (
+        type = 'buildingScheduledConstruction'
+        AND ($cancelled_is_scheduled = 0 OR id >= $event_id)
+      )
+    )
   RETURNING
     JSON_EXTRACT(events.meta, '$.buildingFieldId') AS buildingFieldId,
     JSON_EXTRACT(events.meta, '$.level') AS level;

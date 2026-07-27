@@ -35,6 +35,7 @@ import {
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
@@ -2273,6 +2274,129 @@ describe('events utils', () => {
       expect(resultTimestamp).toBe(now);
 
       vi.useRealTimers();
+    });
+  });
+
+  describe('scheduled building construction', () => {
+    test('has zero duration and consumes no resources while scheduled', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const event = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        buildingFieldId: 20,
+        previousLevel: 1,
+        level: 2,
+      });
+
+      expect(getEventDuration(database, event)).toBe(0);
+      expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+    });
+
+    test('allows five total active or scheduled constructions and rejects a sixth', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      insertEvents(
+        database,
+        Array.from({ length: 5 }, (_, index) =>
+          createGameEventMock('buildingScheduledConstruction', {
+            id: 90_000 + index,
+            villageId,
+            buildingId: 'MAIN_BUILDING',
+            buildingFieldId: 20 + index,
+            previousLevel: 1,
+            level: 2,
+          }),
+        ),
+      );
+
+      const sixth = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        buildingFieldId: 30,
+        previousLevel: 1,
+        level: 2,
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, sixth)).toThrow(
+        'Building construction queue is full',
+      );
+    });
+
+    test('allows scheduling behind an occupied active construction queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      insertEvents(database, [
+        createBuildingLevelChangeEventMock({
+          id: 91_000,
+          villageId,
+          buildingId: 'MAIN_BUILDING',
+          buildingFieldId: 38,
+          previousLevel: 1,
+          level: 2,
+        }),
+      ]);
+
+      const scheduled = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        buildingFieldId: 38,
+        previousLevel: 2,
+        level: 3,
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(database, scheduled),
+      ).not.toThrow();
+    });
+
+    test('allows scheduling level one for an existing level-zero building', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const levelZeroBuilding = database.selectObject({
+        sql: `
+          SELECT bf.field_id AS buildingFieldId, bi.building AS buildingId
+          FROM building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE bf.village_id = $village_id
+            AND bf.level = 0
+          LIMIT 1;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          buildingFieldId: z.number(),
+          buildingId: buildingIdSchema,
+        }),
+      })!;
+      const scheduled = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: levelZeroBuilding.buildingId,
+        buildingFieldId: levelZeroBuilding.buildingFieldId,
+        previousLevel: 0,
+        level: 1,
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(database, scheduled),
+      ).not.toThrow();
+    });
+
+    test('rejects a scheduled level above the building maximum', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const event = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        buildingFieldId: 20,
+        previousLevel: 20,
+        level: 21,
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Building level cannot exceed max level',
+      );
     });
   });
 });
