@@ -4,7 +4,10 @@ import { FaHome } from 'react-icons/fa';
 import { FaStar } from 'react-icons/fa6';
 import { LuMinus, LuPlus } from 'react-icons/lu';
 import { Link } from 'react-router';
-import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
+import {
+  calculateHeroAttributePoints,
+  calculateHeroLevel,
+} from '@pillage-first/game-assets/utils/hero';
 import type { HeroResourceToProduce } from '@pillage-first/types/models/hero';
 import { HeroRevival } from 'app/(game)/(village-slug)/(hero)/components/hero-revival';
 import {
@@ -94,8 +97,9 @@ export const HeroAttributes = () => {
     return total;
   }, [selectableAttributes]);
 
-  const isLevelUpAvailable = (level + 1) * 4 > totalSpentPoints;
-  const freePoints = (level + 1) * 4 - totalSpentPoints;
+  const availableAttributePoints = calculateHeroAttributePoints(level);
+  const isLevelUpAvailable = availableAttributePoints > totalSpentPoints;
+  const freePoints = availableAttributePoints - totalSpentPoints;
 
   const heroStrength = baseAttackPower;
 

@@ -34,7 +34,10 @@ import {
   Outlet,
   type ShouldRevalidateFunction,
 } from 'react-router';
-import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
+import {
+  calculateHeroAttributePoints,
+  calculateHeroLevel,
+} from '@pillage-first/game-assets/utils/hero';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
@@ -282,7 +285,8 @@ const HeroNavigationItem = () => {
   }
 
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
-  const isLevelUpAvailable = (level + 1) * 4 > selectedAttributeCount;
+  const isLevelUpAvailable =
+    calculateHeroAttributePoints(level) > selectedAttributeCount;
 
   return (
     <Link

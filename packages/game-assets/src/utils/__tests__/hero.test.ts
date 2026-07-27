@@ -1,10 +1,23 @@
 import { describe, expect, test } from 'vitest';
 import {
   calculateHealthRegenerationEventDuration,
+  calculateHeroAttributePoints,
   calculateHeroLevel,
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
 } from '../hero';
+
+describe('calculateHeroAttributePoints', () => {
+  test.each([
+    [0, 4],
+    [98, 396],
+    [99, 400],
+    [100, 400],
+    [150, 400],
+  ])('level %i has %i attribute points available', (level, points) => {
+    expect(calculateHeroAttributePoints(level)).toBe(points);
+  });
+});
 
 describe('calculateHeroLevel (level starts at 0)', () => {
   test('should return level 0 at 0 exp', () => {
