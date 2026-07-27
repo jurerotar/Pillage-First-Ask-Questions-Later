@@ -16,6 +16,7 @@
 * [BugFix] Fixed an issue where a duplicated trade report was creating when transferring resources between your own
   villages.
 * [BugFix] Fixed dialog height on longer dialogs.
+* [BugFix] Fixed an issue where hero would be assigned additional attribute points even after level 99.
 * [UIUXImprovement] Reworked mobile bottom navigation bar. Links with no counters are now positioned inside a popover.
   This reduces the amount of scrolling players have to do to navigate the app.
 

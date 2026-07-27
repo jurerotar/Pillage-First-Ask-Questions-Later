@@ -10,7 +10,7 @@ export const useGithubStars = () => {
   return useQuery({
     queryKey: ['github-stars'],
     queryFn: async () => {
-      const response = await fetch('/api/github/repository');
+      const response = await fetch('/github-repository.json');
 
       if (!response.ok) {
         throw new Error('Failed to fetch github stars');
