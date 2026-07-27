@@ -282,4 +282,67 @@ describe('scheduled building upgrades', () => {
       }),
     ).toBe(0);
   });
+
+  test.each([0, -100])(
+    'does not promote an upgrade when current free crop is %i',
+    async (wheatProduction) => {
+      const database = await prepareTestDatabase();
+      const villageId = 1;
+      const field = database.selectObject({
+        sql: `
+          SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+          FROM building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE bf.village_id = $village_id
+            AND bf.field_id <= 18
+          LIMIT 1;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          fieldId: z.number(),
+          level: z.number(),
+          buildingId: buildingIdSchema,
+        }),
+      })!;
+      database.exec({
+        sql: `
+          UPDATE effects
+          SET value = $value
+          WHERE village_id = $village_id
+            AND effect_id = (
+              SELECT id FROM effect_ids WHERE effect = 'wheatProduction'
+            );
+        `,
+        bind: {
+          $value: wheatProduction,
+          $village_id: villageId,
+        },
+      });
+      insertScheduledBuildingUpgrade(database, {
+        villageId,
+        buildingId: field.buildingId,
+        buildingFieldId: field.fieldId,
+        level: field.level + 1,
+      });
+
+      processScheduledBuildingUpgrades(database, villageId);
+
+      const counts = database.selectObject({
+        sql: `
+          SELECT
+            (SELECT COUNT(*) FROM events
+             WHERE village_id = $village_id
+               AND type = 'buildingLevelChange') AS active,
+            (SELECT COUNT(*) FROM scheduled_building_upgrades
+             WHERE village_id = $village_id) AS scheduled;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          active: z.number(),
+          scheduled: z.number(),
+        }),
+      });
+      expect(counts).toEqual({ active: 0, scheduled: 0 });
+    },
+  );
 });

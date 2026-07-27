@@ -5,6 +5,7 @@ import {
   calculateBuildingCostForLevel,
   calculateBuildingDestructionDuration,
   calculateBuildingDurationForLevel,
+  calculatePopulationDifference,
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
 import {
@@ -765,6 +766,39 @@ export const validateEventCreationPrerequisites = (
 
     if (buildingEventsCount >= 1) {
       throw new Error('Building construction queue is full');
+    }
+
+    const isFreeBuildingConstructionEnabled = database.selectValue({
+      sql: `
+        SELECT is_free_building_construction_enabled
+        FROM developer_settings;
+      `,
+      schema: z.coerce.boolean(),
+    })!;
+
+    if (!isFreeBuildingConstructionEnabled) {
+      const wheatProductionEffects = database.selectObjects({
+        sql: selectAllRelevantEffectsByIdQuery,
+        bind: {
+          $effect_id: 'wheatProduction',
+          $village_id: villageId,
+        },
+        schema: apiEffectSchema,
+      });
+      const { total: freeCrop } = calculateComputedEffect(
+        'wheatProduction',
+        wheatProductionEffects,
+        villageId,
+      );
+      const requiredFreeCrop = calculatePopulationDifference(
+        buildingId,
+        event.previousLevel,
+        level,
+      );
+
+      if (freeCrop < requiredFreeCrop) {
+        throw new Error('Not enough free crop');
+      }
     }
 
     if (isBuildingConstructionEvent(event)) {
