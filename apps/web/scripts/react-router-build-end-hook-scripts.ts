@@ -68,9 +68,11 @@ const createRouteTree = (
   const routeTree: BrowserManifestRouteObject[] = [];
 
   for (const route of Object.values(routes)) {
+    const isPathlessIndexRoute = route.index && route.path === undefined;
+
     routesById.set(
       route.id,
-      route.index
+      isPathlessIndexRoute
         ? {
             id: route.id,
             index: true,
