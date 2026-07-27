@@ -103,6 +103,7 @@ export const removeScheduledBuildingUpgradeChain = (
 export const processScheduledBuildingUpgrades = (
   database: DbFacade,
   villageId: Village['id'],
+  startsAt?: number,
 ): void => {
   const scheduledUpgrades = selectScheduledBuildingUpgrades(
     database,
@@ -118,6 +119,7 @@ export const processScheduledBuildingUpgrades = (
         buildingFieldId: scheduledUpgrade.buildingFieldId,
         previousLevel: scheduledUpgrade.level - 1,
         level: scheduledUpgrade.level,
+        startsAt,
       });
 
       database.exec({

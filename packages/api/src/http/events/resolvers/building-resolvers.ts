@@ -133,7 +133,7 @@ export const buildingLevelChangeResolver: Resolver<
   }
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
-  processScheduledBuildingUpgrades(database, villageId);
+  processScheduledBuildingUpgrades(database, villageId, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],
@@ -298,8 +298,8 @@ export const buildingDestructionResolver: Resolver<
 export const buildingScheduledConstructionEventResolver: Resolver<
   GameEvent<'buildingScheduledConstruction'>
 > = (database, args) => {
-  const { villageId } = args;
-  processScheduledBuildingUpgrades(database, villageId);
+  const { villageId, resolvesAt } = args;
+  processScheduledBuildingUpgrades(database, villageId, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],

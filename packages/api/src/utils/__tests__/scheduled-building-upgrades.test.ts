@@ -345,4 +345,49 @@ describe('scheduled building upgrades', () => {
       expect(counts).toEqual({ active: 0, scheduled: 0 });
     },
   );
+
+  test('starts an offline-promoted upgrade at the predecessor completion time', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const predecessorResolvesAt = Date.now() - 60_000;
+    const field = database.selectObject({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.field_id <= 18
+        LIMIT 1;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    })!;
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: field.buildingId,
+      buildingFieldId: field.fieldId,
+      level: field.level + 1,
+    });
+
+    processScheduledBuildingUpgrades(
+      database,
+      villageId,
+      predecessorResolvesAt,
+    );
+
+    expect(
+      database.selectValue({
+        sql: `
+          SELECT starts_at
+          FROM events
+          WHERE village_id = $village_id AND type = 'buildingLevelChange';
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      }),
+    ).toBe(predecessorResolvesAt);
+  });
 });

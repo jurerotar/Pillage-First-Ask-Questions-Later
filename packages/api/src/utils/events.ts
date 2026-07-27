@@ -1643,9 +1643,13 @@ export const getEventDuration = (
 
 export const getEventResourceSubtractionTimestamp = (
   _database: DbFacade,
-  _event: GameEvent,
-  _startsAt: number,
+  event: GameEvent,
+  startsAt: number,
 ) => {
+  if (isBuildingLevelChangeEvent(event)) {
+    return startsAt;
+  }
+
   return Date.now();
 };
 
