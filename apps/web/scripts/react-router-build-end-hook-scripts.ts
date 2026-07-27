@@ -242,3 +242,56 @@ export const generateStaticFeeds: NonNullable<
     writeFile(join(clientDir, 'atom.xml'), atom, 'utf8'),
   ]);
 };
+
+const githubRequestHeaders = {
+  Accept: 'application/vnd.github+json',
+  'User-Agent': 'Pillage-First-Build',
+  'X-GitHub-Api-Version': '2022-11-28',
+  ...(process.env.GITHUB_TOKEN
+    ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` }
+    : {}),
+};
+
+const fetchGithubJson = async (
+  resource: string,
+  fallback: unknown,
+): Promise<unknown> => {
+  try {
+    const resourcePath = resource ? `/${resource}` : '';
+    const response = await fetch(
+      `https://api.github.com/repos/jurerotar/Pillage-First-Ask-Questions-Later${resourcePath}`,
+      { headers: githubRequestHeaders },
+    );
+
+    if (!response.ok) {
+      throw new Error(`GitHub returned ${response.status}`);
+    }
+
+    return await response.json();
+  } catch {
+    return fallback;
+  }
+};
+
+export const generateStaticGithubData: NonNullable<
+  Config['buildEnd']
+> = async () => {
+  const clientDir = resolve('build/client');
+  const [repository, contributors] = await Promise.all([
+    fetchGithubJson('', {}),
+    fetchGithubJson('contributors?per_page=12', []),
+  ]);
+
+  await Promise.all([
+    writeFile(
+      join(clientDir, 'github-repository.json'),
+      JSON.stringify(repository),
+      'utf8',
+    ),
+    writeFile(
+      join(clientDir, 'github-contributors.json'),
+      JSON.stringify(contributors),
+      'utf8',
+    ),
+  ]);
+};

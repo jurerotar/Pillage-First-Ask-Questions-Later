@@ -13,7 +13,7 @@ export const useGithubContributors = () => {
   return useQuery({
     queryKey: ['github-contributors'],
     queryFn: async () => {
-      const response = await fetch('/api/github/contributors');
+      const response = await fetch('/github-contributors.json');
 
       if (!response.ok) {
         throw new Error('Failed to fetch github contributors');

@@ -2,6 +2,7 @@ import type { Config } from '@react-router/dev/config';
 import {
   createSPAPagesWithPreloads,
   generateStaticFeeds,
+  generateStaticGithubData,
   replaceReactIconsSpritePlaceholdersOnPreRenderedPages,
 } from './scripts/react-router-build-end-hook-scripts';
 
@@ -31,6 +32,7 @@ const reactRouterConfig: Config = {
     await createSPAPagesWithPreloads(args);
     await replaceReactIconsSpritePlaceholdersOnPreRenderedPages(args);
     await generateStaticFeeds(args);
+    await generateStaticGithubData(args);
   },
 };
 
