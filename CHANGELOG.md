@@ -1,3 +1,14 @@
+## Version 0.4.49
+
+#### Jul 28, 2026
+
+* [Feature] **Our most requested feature is finally here!** You may now schedule future building construction. Each
+  village may have up to 5 buildings under construction or scheduled for construction. Scheduled construction may
+  include both new buildings and upgrades, and may be reordered or cancelled at any time. Resource requirements are
+  checked only once construction begins, and resources are consumed at that time. Romans retain their ability to
+  construct one resource field and one village building at the same time. Construction queues continue progressing while
+  you're away.
+
 ## Version 0.4.48
 
 #### Jul 27, 2026
