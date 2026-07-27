@@ -26,16 +26,18 @@ import {
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
-import { TbGrave2, TbMap2, TbShoe } from 'react-icons/tb';
+import { TbDotsVertical, TbGrave2, TbMap2, TbShoe } from 'react-icons/tb';
 import {
   Link,
   NavLink,
   type NavLinkProps,
   Outlet,
   type ShouldRevalidateFunction,
-  useNavigate,
 } from 'react-router';
-import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
+import {
+  calculateHeroAttributePoints,
+  calculateHeroLevel,
+} from '@pillage-first/game-assets/utils/hero';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
@@ -53,7 +55,7 @@ import { TroopMovements } from 'app/(game)/(village-slug)/components/troop-movem
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCenterHorizontally } from 'app/(game)/(village-slug)/hooks/dom/use-center-horizontally';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
-import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
+import { useVillageSwitchNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-village-switch-navigation';
 import { useCollectableQuestCount } from 'app/(game)/(village-slug)/hooks/use-collectable-quest-count';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useHeroAdventures } from 'app/(game)/(village-slug)/hooks/use-hero-adventures';
@@ -69,6 +71,12 @@ import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
+import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -99,7 +107,7 @@ const Counter = ({ counter }: CounterProps) => {
 };
 
 const ReportsCounter = () => {
-  const { reports } = useReports();
+  const { reports } = useReports('unread');
   return <Counter counter={reports.length} />;
 };
 
@@ -277,7 +285,8 @@ const HeroNavigationItem = () => {
   }
 
   // Each level gets you 4 selectable attributes to pick. Show icon if user has currently selected less than total possible.
-  const isLevelUpAvailable = (level + 1) * 4 > selectedAttributeCount;
+  const isLevelUpAvailable =
+    calculateHeroAttributePoints(level) > selectedAttributeCount;
 
   return (
     <Link
@@ -529,8 +538,7 @@ const ResourceCounters = () => {
 
 const VillageSelect = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { getNewVillageUrl } = useGameNavigation();
+  const { navigateToVillage } = useVillageSwitchNavigation();
   const { playerVillages } = usePlayerVillageListing();
   const { currentVillage } = useCurrentVillage();
   const { x: currentVillageX, y: currentVillageY } = currentVillage.coordinates;
@@ -539,7 +547,7 @@ const VillageSelect = () => {
   return (
     <Select
       onValueChange={(value) => {
-        void navigate(getNewVillageUrl(value));
+        void navigateToVillage(value);
       }}
       value={currentVillage.slug}
     >
@@ -749,6 +757,94 @@ type MobileBottomNavigationProps = {
   onDeveloperToolsToggle: () => void;
 };
 
+const MobileMoreNavigation = () => {
+  const { t } = useTranslation();
+  const itemClassName =
+    'flex w-full items-center gap-3 rounded-sm px-3 py-2 text-sm font-medium hover:bg-muted focus-visible:bg-muted focus-visible:outline-none';
+
+  return (
+    <Popover>
+      <PopoverTrigger
+        aria-label={t('More')}
+        title={t('More')}
+      >
+        <NavigationSideItem>
+          <TbDotsVertical className="text-2xl" />
+        </NavigationSideItem>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        side="top"
+        sideOffset={8}
+        className="w-52 p-1"
+      >
+        <nav aria-label={t('More')}>
+          <PopoverClose asChild>
+            <Link
+              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
+              className={itemClassName}
+            >
+              <MdEventNote className="text-xl" />
+              <span>{t('Event log')}</span>
+            </Link>
+          </PopoverClose>
+          <PopoverClose asChild>
+            <Link
+              to="statistics"
+              className={itemClassName}
+            >
+              <GoGraph className="text-xl" />
+              <span>{t('Statistics')}</span>
+            </Link>
+          </PopoverClose>
+          <PopoverClose asChild>
+            <Link
+              to="preferences"
+              className={itemClassName}
+            >
+              <MdSettings className="text-xl" />
+              <span>{t('Preferences')}</span>
+            </Link>
+          </PopoverClose>
+          <PopoverClose asChild>
+            <Link
+              to="/game-worlds"
+              className={itemClassName}
+            >
+              <RxExit className="text-xl text-red-500" />
+              <span>{t('Logout')}</span>
+            </Link>
+          </PopoverClose>
+          <Separator
+            orientation="horizontal"
+            className=""
+          />
+          <PopoverClose asChild>
+            <Link
+              target="_blank"
+              to="https://discord.com/invite/Ep7NKVXUZA"
+              className={itemClassName}
+            >
+              <FaDiscord className="text-xl text-[#7289da]" />
+              <span>Discord</span>
+            </Link>
+          </PopoverClose>
+          <PopoverClose asChild>
+            <Link
+              target="_blank"
+              to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
+              className={itemClassName}
+            >
+              <FaGithub className="text-xl text-[#24292e] dark:text-white" />
+              <span>GitHub</span>
+            </Link>
+          </PopoverClose>
+        </nav>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
 const MobileBottomNavigation = ({
   onDeveloperToolsToggle,
 }: MobileBottomNavigationProps) => {
@@ -771,44 +867,6 @@ const MobileBottomNavigation = ({
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
-          <li>
-            <Link
-              target="_blank"
-              to="https://github.com/jurerotar/Pillage-First-Ask-Questions-Later"
-              aria-label="GitHub"
-              title="GitHub"
-            >
-              <NavigationSideItem>
-                <FaGithub className="text-2xl text-[#24292e] dark:text-white" />
-              </NavigationSideItem>
-            </Link>
-          </li>
-          <li>
-            <Link
-              target="_blank"
-              to="https://discord.com/invite/Ep7NKVXUZA"
-              aria-label="Discord"
-              title="Discord"
-            >
-              <NavigationSideItem>
-                <FaDiscord className="text-2xl text-[#7289da]" />
-              </NavigationSideItem>
-            </Link>
-          </li>
-          <li>
-            <Separator orientation="vertical" />
-          </li>
-          <li>
-            <Link
-              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
-              aria-label={t('Event log')}
-              title={t('Event log')}
-            >
-              <NavigationSideItem>
-                <MdEventNote className="text-2xl" />
-              </NavigationSideItem>
-            </Link>
-          </li>
           <li>
             <AdventuresNavigationItem />
           </li>
@@ -834,31 +892,6 @@ const MobileBottomNavigation = ({
           <li>
             <ReportsNavigationItem />
           </li>
-          <li>
-            <Link
-              to="statistics"
-              aria-label={t('Statistics')}
-              title={t('Statistics')}
-            >
-              <NavigationSideItem>
-                <GoGraph className="text-2xl" />
-              </NavigationSideItem>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="preferences"
-              aria-label={t('Preferences')}
-              title={t('Preferences')}
-            >
-              <NavigationSideItem>
-                <MdSettings className="text-2xl" />
-              </NavigationSideItem>
-            </Link>
-          </li>
-          <li>
-            <Separator orientation="vertical" />
-          </li>
           {preferences.isDeveloperToolsConsoleEnabled && (
             <li>
               <button
@@ -873,15 +906,7 @@ const MobileBottomNavigation = ({
             </li>
           )}
           <li>
-            <Link
-              to="/game-worlds"
-              aria-label={t('Logout')}
-              title={t('Logout')}
-            >
-              <NavigationSideItem>
-                <RxExit className="text-2xl text-red-500" />
-              </NavigationSideItem>
-            </Link>
+            <MobileMoreNavigation />
           </li>
         </ul>
       </nav>

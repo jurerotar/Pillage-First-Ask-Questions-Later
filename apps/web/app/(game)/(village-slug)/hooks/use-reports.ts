@@ -1,54 +1,92 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import type { Report, ReportTag } from '@pillage-first/types/models/report';
-import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
-import { reportsCacheKey } from 'app/(game)/constants/query-keys';
+import type {
+  ReportListingDto,
+  ReportListingFilter,
+} from '@pillage-first/types/dtos/report';
+import type { BaseReport, ReportTag } from '@pillage-first/types/models/report';
+import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import {
+  reportListingsCacheKey,
+  reportsCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
+import { invalidateQueries } from 'app/utils/react-query';
 
-export const useReports = () => {
+export type ReportScope = 'global' | 'unread' | 'archived' | 'village';
+
+export const useReports = (
+  scope: ReportScope = 'global',
+  filters: ReportListingFilter[] = [],
+) => {
   const { apiClient } = use(ApiContext);
-  const { player } = useMe();
+  const { currentVillage } = useCurrentVillage();
 
   const { data: reports } = useSuspenseQuery({
-    queryKey: [reportsCacheKey],
+    queryKey: [reportListingsCacheKey, currentVillage.id, scope, filters],
     queryFn: async () => {
-      const { data } = await apiClient.get('/players/:playerId/reports', {
-        path: {
-          playerId: player.id,
+      const { data } = await apiClient.get('/reports', {
+        query: {
+          scope,
+          ...(scope === 'village' ? { villageId: currentVillage.id } : {}),
+          ...(filters.length > 0 ? { filters } : {}),
         },
       });
       return data;
     },
   });
 
-  const { mutate: tagReport } = useMutation<
+  const { mutate: updateReports } = useMutation<
     void,
     Error,
-    { reportId: Report['id']; tag: ReportTag }
+    {
+      reportIds: BaseReport['id'][];
+      tags: Partial<Record<ReportTag, boolean>>;
+    }
   >({
-    mutationFn: async ({ reportId, tag }) => {
-      await apiClient.patch('/reports/:reportId', {
-        path: { reportId },
-        body: { tag },
-      });
+    mutationFn: async (body) => {
+      await apiClient.patch('/reports', { body });
+    },
+    onSuccess: async (_data, { reportIds }, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [reportListingsCacheKey],
+        ...reportIds.map((reportId) => [reportsCacheKey, reportId]),
+      ]);
     },
   });
 
-  const { mutate: deleteReport } = useMutation<
+  const { mutate: deleteReports } = useMutation<
     void,
     Error,
-    { reportId: Report['id'] }
+    { reportIds: BaseReport['id'][] }
   >({
-    mutationFn: async ({ reportId }) => {
-      await apiClient.delete('/reports/:reportId', {
-        path: { reportId },
+    mutationFn: async ({ reportIds }) => {
+      await apiClient.delete('/reports', {
+        body: reportIds,
       });
+    },
+    onSuccess: (_data, { reportIds }, _onMutateResult, context) => {
+      const deletedReportIds = new Set(reportIds);
+
+      context.client.setQueriesData<ReportListingDto[]>(
+        { queryKey: [reportListingsCacheKey] },
+        (reports = []) => {
+          return reports.filter((report) => !deletedReportIds.has(report.id));
+        },
+      );
+
+      for (const reportId of reportIds) {
+        context.client.removeQueries({
+          queryKey: [reportsCacheKey, reportId],
+          exact: true,
+        });
+      }
     },
   });
 
   return {
     reports,
-    tagReport,
-    deleteReport,
+    updateReports,
+    deleteReports,
   };
 };

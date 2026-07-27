@@ -33,9 +33,8 @@ describe('metaSeeder', () => {
   });
 
   test('writing to a table updates meta.last_write', () => {
-    const initialMeta = database.selectObject({
-      sql: 'SELECT last_write FROM meta LIMIT 1;',
-      schema: z.strictObject({ last_write: z.number() }),
+    database.exec({
+      sql: 'UPDATE meta SET last_write = 0;',
     });
 
     database.exec({
@@ -49,10 +48,6 @@ describe('metaSeeder', () => {
     });
 
     expect(updatedMeta).toBeDefined();
-    if (initialMeta) {
-      expect(updatedMeta?.last_write).not.toBe(initialMeta.last_write);
-    } else {
-      expect(updatedMeta?.last_write).toBeDefined();
-    }
+    expect(updatedMeta?.last_write).toBeGreaterThan(0);
   });
 });

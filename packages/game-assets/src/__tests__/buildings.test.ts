@@ -10,16 +10,13 @@ const buildingEffectCases = buildings.flatMap(({ id, maxLevel, effects }) =>
 );
 
 describe('building assets', () => {
-  test.each(
-    buildingEffectCases,
-  )("effect '$effect.effectId' in $buildingId has values for each building level", ({
-    buildingId,
-    effect,
-    expectedLength,
-  }) => {
-    expect(
-      effect.valuesPerLevel,
-      `Effect '${effect.effectId}' in ${buildingId} has incorrect length (expected ${expectedLength}, got ${effect.valuesPerLevel.toString()})`,
-    ).toHaveLength(expectedLength);
-  });
+  test.each(buildingEffectCases)(
+    "effect '$effect.effectId' in $buildingId has values for each building level",
+    ({ buildingId, effect, expectedLength }) => {
+      expect(
+        effect.valuesPerLevel,
+        `Effect '${effect.effectId}' in ${buildingId} has incorrect length (expected ${expectedLength}, got ${effect.valuesPerLevel.toString()})`,
+      ).toHaveLength(expectedLength);
+    },
+  );
 });

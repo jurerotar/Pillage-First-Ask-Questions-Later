@@ -42,51 +42,67 @@ export const getOasesWithAnimals = createController(
     sqlBindings[`$amount_${index}`] = amount;
 
     filterClauses.push(`
-        EXISTS (
-          SELECT 1
-          FROM troops tr
-          JOIN unit_ids ui ON ui.id = tr.unit_id
-          WHERE tr.tile_id = t.id
-            AND ui.unit = $animal_${index}
-          GROUP BY tr.tile_id
-          HAVING SUM(tr.amount) >= $amount_${index}
-        )
+        (animal_unit = $animal_${index} AND amount >= $amount_${index})
       `);
   }
 
   const rows = database.selectObjects({
     sql: `
+        WITH
+          animal_amounts AS (
+            SELECT
+              tr.tile_id,
+              ui.unit AS animal_unit,
+              SUM(tr.amount) AS amount
+            FROM troops tr
+            JOIN unit_ids ui ON ui.id = tr.unit_id
+            GROUP BY tr.tile_id, tr.unit_id
+          ),
+          matching_oases AS (
+            ${
+              filterClauses.length > 0
+                ? `
+                  SELECT tile_id
+                  FROM animal_amounts
+                  WHERE ${filterClauses.join(' OR ')}
+                  GROUP BY tile_id
+                  HAVING COUNT(*) = ${uniqueFilters.size}
+                `
+                : `
+                  SELECT id AS tile_id
+                  FROM tiles
+                  WHERE type_id = 2
+                `
+            }
+          ),
+          bonuses_by_tile AS (
+            SELECT
+              o.tile_id,
+              JSON_GROUP_ARRAY(JSON_OBJECT('resource', ri.resource, 'bonus', o.bonus)) AS bonuses_json
+            FROM oasis o
+            JOIN resource_ids ri ON ri.id = o.resource_id
+            GROUP BY o.tile_id
+          ),
+          animals_by_tile AS (
+            SELECT
+              tile_id,
+              JSON_GROUP_ARRAY(JSON_OBJECT('unitId', animal_unit, 'amount', amount)) AS animals_json
+            FROM animal_amounts
+            GROUP BY tile_id
+          )
         SELECT
           t.id AS tile_id,
           t.x AS coordinates_x,
           t.y AS coordinates_y,
-          (
-            SELECT JSON_GROUP_ARRAY(JSON_OBJECT('resource', ri.resource, 'bonus', o.bonus))
-            FROM
-              oasis o
-                JOIN resource_ids ri ON ri.id = o.resource_id
-            WHERE
-              o.tile_id = t.id
-            ) AS bonuses_json,
-          (
-            SELECT JSON_GROUP_ARRAY(JSON_OBJECT('unitId', ui.unit, 'amount', tt.amount))
-            FROM
-              (
-                SELECT tr.unit_id, SUM(tr.amount) AS amount
-                FROM
-                  troops tr
-                WHERE
-                  tr.tile_id = t.id
-                GROUP BY tr.unit_id
-                ) tt
-                JOIN unit_ids ui ON ui.id = tt.unit_id
-            ) AS animals_json,
+          COALESCE(b.bonuses_json, '[]') AS bonuses_json,
+          COALESCE(a.animals_json, '[]') AS animals_json,
           ((t.x - $tile_x) * (t.x - $tile_x) + (t.y - $tile_y) * (t.y - $tile_y)) AS distance_squared
-        FROM
-          tiles t
+        FROM matching_oases mo
+        JOIN tiles t ON t.id = mo.tile_id
+        LEFT JOIN bonuses_by_tile b ON b.tile_id = t.id
+        LEFT JOIN animals_by_tile a ON a.tile_id = t.id
         WHERE
-          t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis')
-          ${filterClauses.length > 0 ? `AND ${filterClauses.join(' AND ')}` : ''}
+          t.type_id = 2
         ORDER BY distance_squared ASC;
       `,
     bind: {

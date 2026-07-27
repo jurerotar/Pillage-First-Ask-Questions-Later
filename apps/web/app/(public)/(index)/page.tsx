@@ -3,6 +3,7 @@ import { FaGithub } from 'react-icons/fa6';
 import { Link } from 'react-router';
 import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubButton } from 'app/(public)/components/github-button';
+import { PageMetadata } from 'app/(public)/components/page-metadata';
 import {
   DiscordSocialProofCard,
   SocialProofMasonry,
@@ -180,6 +181,10 @@ const SocialProofSection = () => {
             author="Foxplay on Discord"
             body="I'm so happy to get a chance playing this again with a few tweeks in quality of life, that make it so much better. Thank you very much, looking forward to this!"
           />
+          <DiscordSocialProofCard
+            author="Gilli on Discord"
+            body="Thank you for doing this! I have been following the progress of the game some time now, and I am really impressed by the development and the frequent updates! Having a game like this, where you don't have to juggle work, kids and IRL off time activities at the same time is just amazing!"
+          />
         </SocialProofMasonry>
       </div>
     </section>
@@ -209,7 +214,7 @@ const MotivationSection = () => {
     <section className="pt-4 lg:pt-0">
       <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="w-full mb-8 md:mb-0 order-2 flex items-center">
-          <div className="w-full border-y border-border divide-y divide-border">
+          <div className="w-full border-y border-border divide-y">
             {principles.map((principle, index) => (
               <div
                 key={principle.title}
@@ -258,7 +263,7 @@ const MotivationSection = () => {
           <div className="flex flex-wrap gap-2">
             <DiscordButton>Help shape the game</DiscordButton>
             <Link to="/get-involved">
-              <Button variant="outline">Get involved</Button>
+              <Button variant="secondary">Get involved</Button>
             </Link>
           </div>
         </div>
@@ -308,7 +313,7 @@ const FAQSection = () => {
           </Text>
         </div>
 
-        <div className="divide-y divide-border border-y border-border">
+        <div className="divide-y divide-border border-y">
           {questions.map((item) => (
             <details
               key={item.question}
@@ -336,7 +341,7 @@ const FAQSection = () => {
 
 const OpenSourceSection = () => {
   return (
-    <section className="bg-muted dark:bg-background overflow-hidden pt-4 lg:pt-0 -mb-4">
+    <section className="dark:bg-background overflow-hidden pt-4 lg:pt-0 -mb-4">
       <div className="max-w-7xl min-h-75 p-2 mx-auto grid grid-cols-1 md:grid-cols-2">
         <div className="flex flex-col w-full lg:my-20 gap-4 z-10">
           <Text as="h2">Pillage First! is an open-source technology!</Text>
@@ -348,7 +353,7 @@ const OpenSourceSection = () => {
           <div className="flex flex-wrap gap-2 items-center">
             <GithubButton />
             <Link to="/get-involved">
-              <Button variant="outline">Get involved</Button>
+              <Button variant="secondary">Get involved</Button>
             </Link>
           </div>
         </div>
@@ -372,7 +377,10 @@ const OpenSourceSection = () => {
 const HomePage = () => {
   return (
     <PageContents>
-      <title>Pillage First! (Ask Questions Later)</title>
+      <PageMetadata
+        title="Pillage First! (Ask Questions Later)"
+        description="Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds."
+      />
       <main>
         <div className="max-w-7xl mx-auto flex py-8 lg:py-12 lg:-mt-6 flex-col lg:flex-row gap-2 px-2 justify-center items-center">
           <section className="flex flex-col flex-1 gap-4 justify-center">

@@ -355,8 +355,8 @@ describe('village-controllers', () => {
         sql: 'SELECT id FROM villages ORDER BY id LIMIT 2',
         schema: z.strictObject({ id: z.number() }),
       });
-      const villageId = villages[0]!.id;
-      const otherVillageId = villages[1]!.id;
+      const villageId = villages[0].id;
+      const otherVillageId = villages[1].id;
       const eventStartsAt = 223_456_789;
 
       database.exec({
@@ -457,11 +457,11 @@ describe('village-controllers', () => {
       });
 
       expect(events).toHaveLength(eventsToInsert.length);
-      expect(JSON.parse(events[0]!.meta).buildingFieldId).toBe(19);
-      expect(JSON.parse(events[1]!.meta).buildingFieldId).toBe(19);
-      expect(events[1]!.villageId).toBe(otherVillageId);
-      expect(JSON.parse(events[2]!.meta).buildingFieldId).toBe(20);
-      expect(JSON.parse(events[3]!.meta).buildingFieldId).toBe(21);
+      expect(JSON.parse(events[0].meta).buildingFieldId).toBe(19);
+      expect(JSON.parse(events[1].meta).buildingFieldId).toBe(19);
+      expect(events[1].villageId).toBe(otherVillageId);
+      expect(JSON.parse(events[2].meta).buildingFieldId).toBe(20);
+      expect(JSON.parse(events[3].meta).buildingFieldId).toBe(21);
     });
 
     test('should move building to empty field', async () => {

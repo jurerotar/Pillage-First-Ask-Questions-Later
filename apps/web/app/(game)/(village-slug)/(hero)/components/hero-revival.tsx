@@ -16,6 +16,7 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useReviveHero } from 'app/(game)/(village-slug)/hooks/use-revive-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -66,12 +67,14 @@ export const HeroRevival = () => {
 
   return (
     <SectionContent>
+      <InformationPopover ariaLabel={t('Revive hero')}>
+        <Text>
+          {t(
+            "Your hero is dead. While the hero is dead, it can not produce resources, give bonuses or start adventures. Revival cost and duration increases with your hero's level. Hero can only be revived in its home village.",
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h2">{t('Revive hero')}</Text>
-      <Text>
-        {t(
-          "Your hero is dead. While the hero is dead, it can not produce resources, give bonuses or start adventures. Revival cost and duration increases with your hero's level. Hero can only be revived in its home village.",
-        )}
-      </Text>
       {isReviving && (
         <Text className="font-medium">
           {t('Your hero is currently being healed and will be ready in ')}

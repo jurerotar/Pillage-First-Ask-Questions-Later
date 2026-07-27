@@ -11,7 +11,10 @@ import type { Server } from '@pillage-first/types/models/server';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
-import { createTypedApiClient } from 'app/(game)/providers/utils/typed-api-client';
+import {
+  type ApiClient,
+  createTypedApiClient,
+} from 'app/(game)/providers/utils/typed-api-client';
 import { createWorkerFetcher } from 'app/(game)/providers/utils/worker-fetch';
 import { reportError } from 'app/instrumentation/report-error';
 
@@ -21,7 +24,7 @@ type ApiProviderProps = {
 
 type ApiContextReturn = {
   apiWorker: Worker;
-  apiClient: ReturnType<typeof createTypedApiClient>;
+  apiClient: ApiClient;
 };
 
 export const ApiContext = createContext<ApiContextReturn>(

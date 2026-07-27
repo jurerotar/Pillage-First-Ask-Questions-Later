@@ -13,6 +13,7 @@ import {
   heroCacheKey,
   heroInventoryCacheKey,
   heroLoadoutCacheKey,
+  loyaltyCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
@@ -34,6 +35,8 @@ type SpawnHeroItemArgs = {
   itemId: HeroItem['id'];
   amount: number;
 };
+
+type AdjustLoyaltyArgs = { amount: number };
 
 export const useDeveloperSettings = () => {
   const { apiClient } = use(ApiContext);
@@ -162,6 +165,20 @@ export const useDeveloperSettings = () => {
     },
   });
 
+  const { mutate: adjustLoyalty } = useMutation<void, Error, AdjustLoyaltyArgs>(
+    {
+      mutationFn: async ({ amount }) => {
+        await apiClient.patch('/developer-settings/:tileId/adjustLoyalty', {
+          path: { tileId: currentVillage.tileId },
+          body: { amount },
+        });
+      },
+      onSuccess: async (_, _args, _onMutateResult, context) => {
+        await invalidateQueries(context, [[loyaltyCacheKey]]);
+      },
+    },
+  );
+
   return {
     developerSettings,
     updateDeveloperSetting,
@@ -170,5 +187,6 @@ export const useDeveloperSettings = () => {
     levelUpHero,
     incrementHeroAdventurePoints,
     killHero,
+    adjustLoyalty,
   };
 };

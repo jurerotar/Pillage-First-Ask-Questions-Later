@@ -101,6 +101,7 @@ export const TroopSelectionForm = <T extends BaseTroopFormValues>({
                   type="button"
                   variant="outline"
                   onClick={onCancel}
+                  className="ml-auto"
                 >
                   {cancelLabel ?? t('Cancel')}
                 </Button>
@@ -108,6 +109,7 @@ export const TroopSelectionForm = <T extends BaseTroopFormValues>({
               <Button
                 type="submit"
                 disabled={isSubmitDisabled}
+                className={onCancel ? undefined : 'ml-auto'}
               >
                 {submitLabel ?? t('Confirm')}
               </Button>

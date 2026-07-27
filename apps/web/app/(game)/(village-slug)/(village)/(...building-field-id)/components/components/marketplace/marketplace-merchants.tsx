@@ -7,6 +7,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { MerchantMovementTable } from 'app/(game)/(village-slug)/components/merchant-movement-table';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 
 export const MarketplaceMerchants = () => {
@@ -18,6 +19,13 @@ export const MarketplaceMerchants = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="merchants" />
+        <InformationPopover ariaLabel={t('Merchant overview')}>
+          <Text>
+            {t(
+              'Merchants transport resources between villages. This overview shows how many merchants are free and which merchant movements are in progress.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Merchant overview')}</Text>
       </SectionContent>
       <SectionContent>

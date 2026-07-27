@@ -3,9 +3,13 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { usePlayerRankings } from 'app/(game)/(village-slug)/(statistics)/components/hooks/use-player-rankings';
-import { Section } from 'app/(game)/(village-slug)/components/building-layout';
+import {
+  OverflowContainer,
+  Section,
+} from 'app/(game)/(village-slug)/components/building-layout';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Pagination } from 'app/components/ui/pagination';
 import {
@@ -42,13 +46,15 @@ export const PopulationRankings = () => {
 
   return (
     <Section>
+      <InformationPopover ariaLabel={t('Population rankings')}>
+        <Text>
+          {t(
+            'A paginated list of player sorted by total population of all their villages.',
+          )}
+        </Text>
+      </InformationPopover>
       <Text as="h2">{t('Population rankings')}</Text>
-      <Text>
-        {t(
-          'A paginated list of player sorted by total population of all their villages.',
-        )}
-      </Text>
-      <div className="overflow-x-scroll scrollbar-hidden">
+      <OverflowContainer>
         <Table>
           <TableHeader>
             <TableRow>
@@ -115,7 +121,7 @@ export const PopulationRankings = () => {
             )}
           </TableBody>
         </Table>
-      </div>
+      </OverflowContainer>
       <div className="flex w-full justify-end">
         <Pagination {...pagination} />
       </div>

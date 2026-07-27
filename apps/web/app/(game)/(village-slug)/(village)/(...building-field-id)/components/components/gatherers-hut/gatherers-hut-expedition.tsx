@@ -37,6 +37,7 @@ import { useGatherersHutExpeditions } from 'app/(game)/(village-slug)/hooks/use-
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import {
   currentVillageCacheKey,
   villageTroopsCacheKey,
@@ -380,21 +381,25 @@ export const GatherersHutExpedition = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="gathering-expedition" />
+        <InformationPopover ariaLabel={t('Gathering expedition')}>
+          <Text>
+            {t(
+              "Send idle troops from this village to gather resources. The Gatherer's Hut level controls how many troops can join the expedition.",
+            )}
+            <br />
+            {completed === 0
+              ? t(
+                  'This village has not completed any gathering expeditions yet.',
+                )
+              : t(
+                  'This village has already completed {{count}} gathering expeditions.',
+                  {
+                    count: completed,
+                  },
+                )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Gathering expedition')}</Text>
-        <Text>
-          {t(
-            "Send idle troops from this village to gather resources. The Gatherer's Hut level controls how many troops can join the expedition.",
-          )}
-          <br />
-          {completed === 0
-            ? t('This village has not completed any gathering expeditions yet.')
-            : t(
-                'This village has already completed {{count}} gathering expeditions.',
-                {
-                  count: completed,
-                },
-              )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <div className="flex flex-col gap-6">

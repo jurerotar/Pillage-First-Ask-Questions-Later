@@ -2,24 +2,24 @@
 
 <p align="center">
   <picture>
-    <source srcset="/.github/assets/image-3-dark-202603240613.avif" media="(prefers-color-scheme: dark)" type="image/avif">
-    <source srcset="/.github/assets/image-3-dark-202603240613.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
-    <source srcset="/.github/assets/image-3-light-202603240613.avif" type="image/avif">
-    <img src="/.github/assets/image-3-light-202603240613.jpg" width="30%">
+    <source srcset="/.github/assets/image-3-dark-20260725061338.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+    <source srcset="/.github/assets/image-3-dark-20260725061338.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
+    <source srcset="/.github/assets/image-3-light-20260725061338.avif" type="image/avif">
+    <img src="/.github/assets/image-3-light-20260725061338.jpg" width="30%">
   </picture>
   &nbsp;
   <picture>
-    <source srcset="/.github/assets/image-2-dark-202603240613.avif" media="(prefers-color-scheme: dark)" type="image/avif">
-    <source srcset="/.github/assets/image-2-dark-202603240613.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
-    <source srcset="/.github/assets/image-2-light-202603240613.avif" type="image/avif">
-    <img src="/.github/assets/image-2-light-202603240613.jpg" width="30%">
+    <source srcset="/.github/assets/image-2-dark-20260725061338.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+    <source srcset="/.github/assets/image-2-dark-20260725061338.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
+    <source srcset="/.github/assets/image-2-light-20260725061338.avif" type="image/avif">
+    <img src="/.github/assets/image-2-light-20260725061338.jpg" width="30%">
   </picture>
   &nbsp;
   <picture>
-    <source srcset="/.github/assets/image-1-dark-202603240613.avif" media="(prefers-color-scheme: dark)" type="image/avif">
-    <source srcset="/.github/assets/image-1-dark-202603240613.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
-    <source srcset="/.github/assets/image-1-light-202603240613.avif" type="image/avif">
-    <img src="/.github/assets/image-1-light-202603240613.jpg" width="30%">
+    <source srcset="/.github/assets/image-1-dark-20260725061338.avif" media="(prefers-color-scheme: dark)" type="image/avif">
+    <source srcset="/.github/assets/image-1-dark-20260725061338.jpg" media="(prefers-color-scheme: dark)" type="image/jpeg">
+    <source srcset="/.github/assets/image-1-light-20260725061338.avif" type="image/avif">
+    <img src="/.github/assets/image-1-light-20260725061338.jpg" width="30%">
   </picture>
 </p>
 

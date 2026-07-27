@@ -1,6 +1,9 @@
+import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { createEvents } from '../../../utils/create-event';
 import { getTotalResourceAmount } from '../../../utils/marketplace';
+import { insertTradeReport } from '../../../utils/report';
 import { addVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
@@ -29,6 +32,48 @@ export const resourceTransferResolver: Resolver<
     resources.iron,
     resources.wheat,
   ]);
+
+  const playerVillageIds = database.selectObjects({
+    sql: `
+      SELECT id FROM villages
+      WHERE id IN ($origin_village_id, $target_village_id)
+        AND player_id = $player_id;
+    `,
+    bind: {
+      $origin_village_id: villageId,
+      $target_village_id: targetVillageId,
+      $player_id: PLAYER_ID,
+    },
+    schema: z.strictObject({ id: z.number() }),
+  });
+
+  const ownsOriginVillage = playerVillageIds.some(({ id }) => id === villageId);
+
+  const ownsTargetVillage = playerVillageIds.some(
+    ({ id }) => id === targetVillageId,
+  );
+
+  if (ownsOriginVillage && !ownsTargetVillage) {
+    insertTradeReport(database, {
+      villageId,
+      timestamp: resolvesAt,
+      outcome: 'outgoingMerchantsArrived',
+      originTileId,
+      targetTileId,
+      resources,
+    });
+  }
+
+  if (ownsTargetVillage) {
+    insertTradeReport(database, {
+      villageId: targetVillageId,
+      timestamp: resolvesAt,
+      outcome: 'incomingMerchantsArrived',
+      originTileId,
+      targetTileId,
+      resources,
+    });
+  }
 
   createEvents<'resourceTransfer'>(database, {
     type: 'resourceTransfer',

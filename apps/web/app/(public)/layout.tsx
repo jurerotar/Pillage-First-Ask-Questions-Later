@@ -82,7 +82,7 @@ const LayoutContent = () => {
   return (
     <html
       lang="en-US"
-      className={uiColorScheme === 'dark' ? 'dark' : ''}
+      className={uiColorScheme}
     >
       <head>
         <HeadLinks />

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { CreateNewGameWorldForm } from 'app/(public)/(game-worlds)/(create)/components/create-new-game-world-form';
+import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -22,7 +23,10 @@ const CreateNewGameWorldPage = () => {
 
   return (
     <PageContents>
-      <title>{title}</title>
+      <PageMetadata
+        title={title}
+        description="Create a new, customized Pillage First! game world."
+      />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>
           <BreadcrumbList>

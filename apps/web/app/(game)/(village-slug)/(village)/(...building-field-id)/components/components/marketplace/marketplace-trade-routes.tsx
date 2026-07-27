@@ -8,6 +8,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -16,6 +17,7 @@ import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { eventsCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-provider';
 import { Text } from 'app/components/text';
@@ -318,7 +320,7 @@ const ActiveTradeRoutes = ({
 
   if (routes.length === 0) {
     return (
-      <div className="overflow-x-scroll scrollbar-hidden">
+      <OverflowContainer>
         <Table>
           <TableHeader>
             <TableRow>
@@ -337,7 +339,7 @@ const ActiveTradeRoutes = ({
             </TableRow>
           </TableBody>
         </Table>
-      </div>
+      </OverflowContainer>
     );
   }
 
@@ -361,7 +363,7 @@ const ActiveTradeRoutes = ({
               </Link>
             </Text>
 
-            <div className="overflow-x-scroll scrollbar-hidden">
+            <OverflowContainer>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -414,7 +416,7 @@ const ActiveTradeRoutes = ({
                   ))}
                 </TableBody>
               </Table>
-            </div>
+            </OverflowContainer>
           </div>
         ),
       )}
@@ -524,12 +526,14 @@ export const MarketplaceTradeRoutes = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="trade-routes" />
+        <InformationPopover ariaLabel={t('Trade routes')}>
+          <Text>
+            {t(
+              'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Trade routes')}</Text>
-        <Text>
-          {t(
-            'Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <MarketplaceTradeRouteForm

@@ -45,6 +45,9 @@
     "./opfs-lock-retry": {
       "default": "./src/opfs-lock-retry.ts"
     },
+    "./types": {
+      "default": "./src/types.ts"
+    },
     "./game/calculate-computed-effect": {
       "default": "./src/game/calculate-computed-effect.ts"
     },
@@ -53,6 +56,9 @@
     },
     "./game/calculate-current-resources": {
       "default": "./src/game/calculate-current-resources.ts"
+    },
+    "./game/building-requirements": {
+      "default": "./src/game/building-requirements.ts"
     },
     "./guards/effect": {
       "default": "./src/guards/effect-guards.ts"
@@ -66,6 +72,9 @@
     "./guards/map": {
       "default": "./src/guards/map-guards.ts"
     },
+    "./guards/report": {
+      "default": "./src/guards/report-guards.ts"
+    },
     "./facades/database": {
       "default": "./src/facades/database-facade.ts"
     }
@@ -78,17 +87,15 @@
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
     "test": "vitest",
-    "type-check": "tsgo"
+    "type-check": "tsc"
   },
   "dependencies": {
     "@pillage-first/types": "*",
     "ts-seedrandom": "1.6.0"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260615.1",
-    "type-fest": "5.8.0",
-    "typescript": "6.0.3",
-    "vite": "8.1.3",
+    "typescript": "7.0.2",
+    "vite": "8.1.5",
     "vitest": "4.1.10",
     "zod": "4.4.3"
   }

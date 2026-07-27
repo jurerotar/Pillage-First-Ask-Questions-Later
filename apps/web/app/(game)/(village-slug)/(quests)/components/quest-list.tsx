@@ -143,13 +143,15 @@ export const QuestList = ({ quests }: QuestListProps) => {
 
   return (
     <>
-      {pagination.currentPageItems.map((quest) => (
-        <QuestListItem
-          key={quest.id}
-          quest={quest}
-          onComplete={(questId) => completeQuest({ questId })}
-        />
-      ))}
+      <div className="flex flex-col gap-2">
+        {pagination.currentPageItems.map((quest) => (
+          <QuestListItem
+            key={quest.id}
+            quest={quest}
+            onComplete={(questId) => completeQuest({ questId })}
+          />
+        ))}
+      </div>
       <div className="flex w-full justify-end">
         <Pagination {...pagination} />
       </div>

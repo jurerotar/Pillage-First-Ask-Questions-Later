@@ -31,11 +31,8 @@ export default [
         ),
       ]),
     ]),
-    route('not-found', '(public)/(not-found)/page.tsx', {
-      id: 'public-not-found-page',
-    }),
     route('*', '(public)/(not-found)/page.tsx', {
-      id: 'public-not-found-catch-all',
+      id: 'public-not-found-page',
     }),
   ]),
   // Game routes

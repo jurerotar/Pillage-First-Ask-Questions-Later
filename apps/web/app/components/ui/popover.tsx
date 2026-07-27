@@ -56,3 +56,27 @@ export const PopoverAnchor = ({
     />
   );
 };
+
+export const PopoverClose = ({
+  ...props
+}: ComponentProps<typeof PopoverPrimitive.Close>) => {
+  return (
+    <PopoverPrimitive.Close
+      data-slot="popover-close"
+      {...props}
+    />
+  );
+};
+
+export const PopoverArrow = ({
+  className,
+  ...props
+}: ComponentProps<typeof PopoverPrimitive.Arrow>) => {
+  return (
+    <PopoverPrimitive.Arrow
+      data-slot="popover-arrow"
+      className={clsx('fill-popover stroke-border', className)}
+      {...props}
+    />
+  );
+};

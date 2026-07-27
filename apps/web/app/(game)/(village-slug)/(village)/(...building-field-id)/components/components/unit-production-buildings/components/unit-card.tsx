@@ -17,11 +17,15 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
-import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
+import type {
+  Building,
+  TroopTrainingBuildingId,
+} from '@pillage-first/types/models/building';
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
 import { useUnitRecruitmentErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/hooks/use-unit-recruitment-error-bag';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
@@ -36,6 +40,7 @@ import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences'
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
@@ -45,10 +50,71 @@ import { Input } from 'app/components/ui/input';
 import { Slider } from 'app/components/ui/slider';
 import { formatTime } from 'app/utils/time';
 
+const defaultTroopTrainingDurationEffect = 'barracksTrainingDuration';
+
+type TroopTrainingBuildingConfig = {
+  buildingId: TroopTrainingBuildingId;
+  durationEffect: TroopTrainingDurationEffectId;
+  category: Unit['category'];
+};
+
+export const troopTrainingBuildingConfigMap = new Map<
+  Building['id'],
+  TroopTrainingBuildingConfig
+>([
+  [
+    'BARRACKS',
+    {
+      buildingId: 'BARRACKS',
+      durationEffect: 'barracksTrainingDuration',
+      category: 'infantry',
+    },
+  ],
+  [
+    'STABLE',
+    {
+      buildingId: 'STABLE',
+      durationEffect: 'stableTrainingDuration',
+      category: 'cavalry',
+    },
+  ],
+  [
+    'WORKSHOP',
+    {
+      buildingId: 'WORKSHOP',
+      durationEffect: 'workshopTrainingDuration',
+      category: 'siege',
+    },
+  ],
+  [
+    'GREAT_BARRACKS',
+    {
+      buildingId: 'GREAT_BARRACKS',
+      durationEffect: 'greatBarracksTrainingDuration',
+      category: 'infantry',
+    },
+  ],
+  [
+    'GREAT_STABLE',
+    {
+      buildingId: 'GREAT_STABLE',
+      durationEffect: 'greatStableTrainingDuration',
+      category: 'cavalry',
+    },
+  ],
+  [
+    'RESIDENCE',
+    {
+      buildingId: 'RESIDENCE',
+      durationEffect: 'residenceTrainingDuration',
+      category: 'administration',
+    },
+  ],
+]);
+
 type UnitCardContextState = {
   unitId: Unit['id'];
-  buildingId: TroopTrainingBuildingId;
-  durationEffect?: TroopTrainingDurationEffectId;
+  troopTrainingConfig: TroopTrainingBuildingConfig | null;
 };
 
 const UnitCardContext = createContext<UnitCardContextState>(
@@ -57,36 +123,31 @@ const UnitCardContext = createContext<UnitCardContextState>(
 
 type UnitCardProps = {
   unitId: Unit['id'];
-  buildingId: TroopTrainingBuildingId;
-  durationEffect?: TroopTrainingDurationEffectId;
-  showOuterBorder?: boolean;
 };
 
 export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
-  const {
-    unitId,
-    buildingId,
-    durationEffect,
-    children,
-    showOuterBorder = true,
-  } = props;
+  const { unitId, children } = props;
+
+  const { t } = useTranslation();
+  const { buildingField } = use(BuildingFieldContext);
+  const troopTrainingConfig =
+    buildingField == null
+      ? null
+      : (troopTrainingBuildingConfigMap.get(buildingField.buildingId) ?? null);
 
   const value = useMemo(() => {
     return {
       unitId,
-      durationEffect,
-      buildingId,
+      troopTrainingConfig,
     };
-  }, [unitId, durationEffect, buildingId]);
+  }, [unitId, troopTrainingConfig]);
 
   return (
     <UnitCardContext value={value}>
-      <article
-        className={clsx(
-          'flex flex-col gap-2 p-2',
-          showOuterBorder && 'border border-border',
-        )}
-      >
+      <article className="flex flex-col gap-2 relative [&>section:nth-of-type(2)]:!pt-0 [&>section:nth-of-type(2)]:!border-t-0">
+        <InformationPopover ariaLabel={t(`UNITS.${unitId}.NAME`)}>
+          <Text>{t(`UNITS.${unitId}.DESCRIPTION`)}</Text>
+        </InformationPopover>
         {children}
       </article>
     </UnitCardContext>
@@ -106,7 +167,6 @@ export const UnitOverview = () => {
         />
         <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
       </div>
-      <Text>{t(`UNITS.${unitId}.DESCRIPTION`)}</Text>
     </section>
   );
 };
@@ -520,13 +580,13 @@ export const UnitRequirements = () => {
 };
 
 export const UnitCost = () => {
-  const { unitId, durationEffect } = use(UnitCardContext);
+  const { unitId, troopTrainingConfig } = use(UnitCardContext);
   const { t } = useTranslation();
   const { baseRecruitmentDuration, baseRecruitmentCost } =
     getUnitDefinition(unitId);
-  const { total: trainingDurationModifier } = useComputedEffect(
-    durationEffect ?? 'barracksTrainingDuration',
-  );
+  const durationEffect =
+    troopTrainingConfig?.durationEffect ?? defaultTroopTrainingDurationEffect;
+  const { total: trainingDurationModifier } = useComputedEffect(durationEffect);
 
   return (
     <section className="flex flex-col gap-2 pt-2 border-t border-border">
@@ -536,11 +596,11 @@ export const UnitCost = () => {
         <div className="flex gap-1 items-center">
           <Icon
             className="size-5"
-            type={durationEffect!}
+            type={durationEffect}
           />
           {formatTime(
             baseRecruitmentDuration *
-              (durationEffect ? trainingDurationModifier : 1),
+              (troopTrainingConfig ? trainingDurationModifier : 1),
           )}
         </div>
       </div>
@@ -551,12 +611,14 @@ export const UnitCost = () => {
 export const UnitRecruitment = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
-  const { unitId, durationEffect, buildingId } = use(UnitCardContext);
+  const { unitId, troopTrainingConfig } = use(UnitCardContext);
   const { developerSettings } = useDeveloperSettings();
   const currentResources = use(CurrentVillageStateContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
     getUnitDefinition(unitId);
-  const { total } = useComputedEffect(durationEffect!);
+  const durationEffect =
+    troopTrainingConfig?.durationEffect ?? defaultTroopTrainingDurationEffect;
+  const { total } = useComputedEffect(durationEffect);
   const { createEvent: createTroopTrainingEvent } =
     useCreateEvent('troopTraining');
   const { errorBag } = useUnitRecruitmentErrorBag(unitId);
@@ -572,7 +634,7 @@ export const UnitRecruitment = () => {
     // Great barracks/stable have 3x the cost
     if (
       ['greatBarracksTrainingDuration', 'greatStableTrainingDuration'].includes(
-        durationEffect!,
+        durationEffect,
       )
     ) {
       return baseRecruitmentCost.map((cost) => cost * 3);
@@ -594,6 +656,14 @@ export const UnitRecruitment = () => {
     : calculateMaxUnits(currentResources, individualUnitRecruitmentCost);
 
   const form = useForm({ defaultValues: { amount: 0 } });
+
+  if (troopTrainingConfig === null) {
+    throw new Error(
+      'UnitRecruitment must be rendered in a troop-training building context.',
+    );
+  }
+
+  const { buildingId } = troopTrainingConfig;
   const { register, handleSubmit, setValue, watch } = form;
   const amount = watch('amount');
   const duration = Math.trunc(total * individualUnitRecruitmentDuration);
@@ -610,7 +680,7 @@ export const UnitRecruitment = () => {
       buildingId,
       amount,
       unitId,
-      durationEffectId: durationEffect!,
+      durationEffectId: durationEffect,
       cachesToClearImmediately: [[currentVillageCacheKey, currentVillage.slug]],
     });
   };
@@ -642,7 +712,7 @@ export const UnitRecruitment = () => {
             <div className="flex gap-1 items-center">
               <Icon
                 className="size-5"
-                type={durationEffect!}
+                type={durationEffect}
               />
               {formattedDuration}
             </div>

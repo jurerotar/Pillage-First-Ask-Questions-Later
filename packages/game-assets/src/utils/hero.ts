@@ -1,6 +1,12 @@
 import type { PlayableTribe } from '@pillage-first/types/models/tribe';
 import { roundTo5 } from '@pillage-first/utils/math';
 
+const MAX_HERO_ATTRIBUTE_LEVEL = 99;
+
+export const calculateHeroAttributePoints = (level: number): number => {
+  return (Math.min(level, MAX_HERO_ATTRIBUTE_LEVEL) + 1) * 4;
+};
+
 export const calculateHeroLevel = (currentExp: number) => {
   const k = currentExp / 25;
   const level = Math.floor((-1 + Math.sqrt(1 + 4 * k)) / 2);

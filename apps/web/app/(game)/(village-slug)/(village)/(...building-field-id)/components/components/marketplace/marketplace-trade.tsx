@@ -8,6 +8,7 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import {
@@ -39,12 +40,14 @@ export const MarketplaceTrade = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="trade" />
+        <InformationPopover ariaLabel={t('Trade')}>
+          <Text>
+            {t(
+              "Buy resources from nearby players and filter offers to match your needs. Select the resource you're searching for by clicking its button. The same applies when choosing what you want to offer.",
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Trade')}</Text>
-        <Text>
-          {t(
-            "Buy resources from nearby players and filter offers to match your needs. Select the resource you're searching for by clicking its button. The same applies when choosing what you want to offer.",
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <div className="flex flex-col sm:flex-row gap-2">

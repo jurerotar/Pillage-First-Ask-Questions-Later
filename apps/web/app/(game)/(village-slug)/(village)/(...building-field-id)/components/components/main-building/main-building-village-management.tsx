@@ -8,6 +8,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
@@ -28,12 +29,14 @@ export const MainBuildingVillageManagement = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="village-management" />
+        <InformationPopover ariaLabel={t('Village management')}>
+          <Text>
+            {t(
+              'The main building is the administrative center of your village. From here, you can rename your village and manage its infrastructure. If needed, you can also demolish existing buildings to make room for new development or restructure your layout.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Village management')}</Text>
-        <Text>
-          {t(
-            'The main building is the administrative center of your village. From here, you can rename your village and manage its infrastructure. If needed, you can also demolish existing buildings to make room for new development or restructure your layout.',
-          )}
-        </Text>
       </SectionContent>
       <Tabs
         value={tabs[tabIndex] ?? tabs[0]}

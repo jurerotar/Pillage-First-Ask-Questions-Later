@@ -7,6 +7,7 @@ import {
 import { FoundNewVillageForm } from 'app/(game)/(village-slug)/components/send-troops/found-new-village-form';
 import { ReinforcementRelocationForm } from 'app/(game)/(village-slug)/components/send-troops/reinforcement-relocation-form';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
@@ -31,6 +32,13 @@ export const RallyPointSendTroops = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="send-troops" />
+        <InformationPopover ariaLabel={t('Send troops')}>
+          <Text>
+            {t(
+              'Send troops to reinforce, relocate, or found a new village. Choose the action tab that matches the mission before selecting the destination and units.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Send troops')}</Text>
       </SectionContent>
       <Tabs

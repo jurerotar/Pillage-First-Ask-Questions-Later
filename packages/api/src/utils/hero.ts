@@ -10,7 +10,6 @@ import type { Resource } from '@pillage-first/types/models/resource';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   deleteHeroEffectsQuery,
-  updateHeroResourceProductionEffectQuery,
   updateHeroVillageEffectsByVillageIdQuery,
 } from '../queries/effect-queries';
 import { updateHeroVillageByCurrentVillageQuery } from '../queries/hero-queries';
@@ -95,24 +94,38 @@ export const updateHeroResourceProductionEffects = ({
   const parsedResourceToProduce =
     heroResourceToProduceSchema.parse(resourceToProduce);
 
-  for (const effectId of resourceProductionEffectIds) {
-    const value =
+  const effects = resourceProductionEffectIds.map((effectId) => ({
+    effectId,
+    value:
       parsedResourceToProduce === 'shared'
         ? productionPerPoint.shared * resourceProduction
         : resourceProductionEffectByResource[parsedResourceToProduce] ===
             effectId
           ? productionPerPoint.focused * resourceProduction
-          : 0;
+          : 0,
+  }));
 
-    database.exec({
-      sql: updateHeroResourceProductionEffectQuery,
-      bind: {
-        $value: value,
-        $effect_id: effectId,
-        $village_id: villageId,
-      },
-    });
-  }
+  database.exec({
+    sql: `
+      UPDATE effects
+      SET value = json_extract(effect.value, '$.value')
+      FROM
+        json_each($effects) AS effect
+        JOIN effect_ids
+          ON effect_ids.effect = json_extract(effect.value, '$.effectId')
+      WHERE
+        effects.effect_id = effect_ids.id
+        AND effects.source_id = (
+          SELECT id FROM effect_source_ids WHERE source = 'hero'
+        )
+        AND effects.source_specifier = 0
+        AND effects.village_id = $village_id;
+    `,
+    bind: {
+      $effects: JSON.stringify(effects),
+      $village_id: villageId,
+    },
+  });
 };
 
 export const createHeroHealthRegenerationEventByVillageId = (

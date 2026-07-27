@@ -1,9 +1,78 @@
 import type { z } from 'zod';
-import type { paths } from '@pillage-first/api/open-api';
+import type { apiRoutes } from '@pillage-first/api/api-routes';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
-type HttpMethod = 'get' | 'post' | 'put' | 'patch' | 'delete';
-type OpenApiPaths = typeof paths;
+type HttpMethod = 'get' | 'post' | 'patch' | 'delete';
+type ApiRouteController = (typeof apiRoutes)[number]['controller'];
+
+type RoutesByMethod = {
+  [TMethod in HttpMethod]: {
+    [TRoute in ApiRouteController as TRoute extends { method: TMethod }
+      ? TRoute['path']
+      : never]: TRoute;
+  };
+};
+
+type PathForMethod<TMethod extends HttpMethod> = Extract<
+  keyof RoutesByMethod[TMethod],
+  string
+>;
+
+type RouteFor<
+  TPath extends PathForMethod<TMethod>,
+  TMethod extends HttpMethod,
+> = RoutesByMethod[TMethod][TPath];
+
+type OperationFor<TRoute> = TRoute extends {
+  operation: infer TOperation;
+}
+  ? TOperation
+  : never;
+
+type InferInputSchema<TSchema> = TSchema extends z.core.$ZodType
+  ? z.core.input<TSchema>
+  : never;
+
+type InferOutputSchema<TSchema> = TSchema extends z.core.$ZodType
+  ? z.core.output<TSchema>
+  : never;
+
+type ParametersFor<TOperation> = TOperation extends {
+  requestParams: infer TRequestParams;
+}
+  ? TRequestParams
+  : never;
+
+type PathParamsFor<TRoute> =
+  ParametersFor<OperationFor<TRoute>> extends {
+    path?: infer TPathSchema;
+  }
+    ? InferInputSchema<NonNullable<TPathSchema>>
+    : never;
+
+type QueryParamsFor<TRoute> =
+  ParametersFor<OperationFor<TRoute>> extends {
+    query?: infer TQuerySchema;
+  }
+    ? InferInputSchema<NonNullable<TQuerySchema>>
+    : never;
+
+type BodySchemaFor<TRoute> =
+  OperationFor<TRoute> extends {
+    requestBody?: infer TRequestBody;
+  }
+    ? NonNullable<TRequestBody> extends {
+        content: {
+          'application/json': {
+            schema: infer TBodySchema;
+          };
+        };
+      }
+      ? TBodySchema
+      : never
+    : never;
+
+type BodyFor<TRoute> = InferInputSchema<BodySchemaFor<TRoute>>;
 
 type JsonSchemaFor<
   TOperation,
@@ -22,117 +91,96 @@ type JsonSchemaFor<
   ? TSchema
   : never;
 
-type InferInputSchema<TSchema> = TSchema extends z.ZodType
-  ? z.input<TSchema>
-  : never;
-
-type InferOutputSchema<TSchema> = TSchema extends z.ZodType
-  ? z.output<TSchema>
-  : never;
-
-type PathForMethod<TMethod extends HttpMethod> = {
-  [TPath in keyof OpenApiPaths]: TMethod extends keyof OpenApiPaths[TPath]
-    ? OpenApiPaths[TPath][TMethod] extends never
-      ? never
-      : TPath extends string
-        ? TPath
+type SuccessResponseFor<TRoute> =
+  OperationFor<TRoute> extends infer TOperation
+    ? TOperation extends { responses: infer TResponses }
+      ? TResponses extends Record<string, unknown>
+        ? '200' extends keyof TResponses
+          ? InferOutputSchema<JsonSchemaFor<TOperation, '200'>>
+          : '201' extends keyof TResponses
+            ? InferOutputSchema<JsonSchemaFor<TOperation, '201'>>
+            : '202' extends keyof TResponses
+              ? InferOutputSchema<JsonSchemaFor<TOperation, '202'>>
+              : '204' extends keyof TResponses
+                ? undefined
+                : never
         : never
+      : never
     : never;
-}[keyof OpenApiPaths];
 
-type Operation<
-  TPath extends PathForMethod<TMethod>,
-  TMethod extends HttpMethod,
-> = TMethod extends keyof OpenApiPaths[TPath]
-  ? NonNullable<OpenApiPaths[TPath][TMethod]>
-  : never;
+type ResponseFor<TRoute> = SuccessResponseFor<TRoute>;
 
-type ParametersFor<TOperation> = TOperation extends {
-  parameters: infer TParameters;
+type HasPathParams<TRoute> = TRoute extends {
+  operation: { requestParams: { path: unknown } };
 }
-  ? TParameters
-  : TOperation extends {
-        requestParams: infer TRequestParams;
-      }
-    ? TRequestParams
-    : never;
+  ? true
+  : false;
 
-type PathParamsFor<TOperation> =
-  ParametersFor<TOperation> extends {
-    path?: infer TPathSchema;
-  }
-    ? InferInputSchema<NonNullable<TPathSchema>>
-    : never;
-
-type QueryParamsFor<TOperation> =
-  ParametersFor<TOperation> extends {
-    query?: infer TQuerySchema;
-  }
-    ? InferInputSchema<NonNullable<TQuerySchema>>
-    : never;
-
-type BodySchemaFor<TOperation> = TOperation extends {
-  requestBody?: infer TRequestBody;
+type HasQueryParams<TRoute> = TRoute extends {
+  operation: { requestParams: { query: unknown } };
 }
-  ? NonNullable<TRequestBody> extends {
-      content: {
-        'application/json': {
-          schema: infer TBodySchema;
-        };
-      };
-    }
-    ? TBodySchema
-    : never
-  : never;
+  ? true
+  : false;
 
-type BodyFor<TOperation> = InferInputSchema<BodySchemaFor<TOperation>>;
-
-type SuccessResponseFor<TOperation> = TOperation extends {
-  responses: infer TResponses;
+type HasBody<TRoute> = TRoute extends {
+  operation: { requestBody: unknown };
 }
-  ? TResponses extends Record<string, unknown>
-    ? '200' extends keyof TResponses
-      ? InferOutputSchema<JsonSchemaFor<TOperation, '200'>>
-      : '201' extends keyof TResponses
-        ? InferOutputSchema<JsonSchemaFor<TOperation, '201'>>
-        : '202' extends keyof TResponses
-          ? InferOutputSchema<JsonSchemaFor<TOperation, '202'>>
-          : '204' extends keyof TResponses
-            ? undefined
-            : never
-    : never
-  : never;
+  ? true
+  : false;
 
-type PathParamOptions<TOperation> = [PathParamsFor<TOperation>] extends [never]
-  ? { path?: never }
-  : { path: PathParamsFor<TOperation> };
+type PathParamOptions<TRoute> =
+  HasPathParams<TRoute> extends true
+    ? { path: PathParamsFor<TRoute> }
+    : { path?: never };
 
-type QueryParamOptions<TOperation> = [QueryParamsFor<TOperation>] extends [
-  never,
-]
-  ? { query?: never }
-  : { query?: QueryParamsFor<TOperation> };
+type QueryParamOptions<TRoute> =
+  HasQueryParams<TRoute> extends true
+    ? { query?: QueryParamsFor<TRoute> }
+    : { query?: never };
 
-type BodyOptions<TOperation> = {
-  body?: BodyFor<TOperation>;
+type BodyOptions<TRoute> = {
+  body?: BodyFor<TRoute>;
 };
 
-type RequestOptions<TOperation> = PathParamOptions<TOperation> &
-  QueryParamOptions<TOperation> &
-  BodyOptions<TOperation>;
+type RequestOptions<TRoute> = PathParamOptions<TRoute> &
+  QueryParamOptions<TRoute> &
+  BodyOptions<TRoute>;
 
-type HasRequiredOptions<TOperation> = [PathParamsFor<TOperation>] extends [
-  never,
-]
-  ? [BodyFor<TOperation>] extends [never]
-    ? false
-    : true
-  : true;
+type HasRequiredOptions<TRoute> =
+  HasPathParams<TRoute> extends true
+    ? true
+    : HasBody<TRoute> extends true
+      ? true
+      : false;
 
-const buildPath = <TOperation>(
-  pathTemplate: string,
-  options?: Partial<RequestOptions<TOperation>>,
-) => {
+type RequestArgs<TRoute> =
+  HasRequiredOptions<TRoute> extends true
+    ? [RequestOptions<TRoute>]
+    : [RequestOptions<TRoute>?];
+
+type ApiClientMethod<TMethod extends HttpMethod> = <
+  TPath extends PathForMethod<TMethod>,
+>(
+  pathTemplate: TPath,
+  ...args: RequestArgs<RouteFor<TPath, TMethod>>
+) => Promise<{
+  data: ResponseFor<RouteFor<TPath, TMethod>>;
+}>;
+
+export type ApiClient = {
+  get: ApiClientMethod<'get'>;
+  post: ApiClientMethod<'post'>;
+  patch: ApiClientMethod<'patch'>;
+  delete: ApiClientMethod<'delete'>;
+};
+
+type RuntimeRequestOptions = {
+  path?: Record<string, unknown>;
+  query?: Record<string, unknown>;
+  body?: unknown;
+};
+
+const buildPath = (pathTemplate: string, options?: RuntimeRequestOptions) => {
   let path = pathTemplate;
 
   for (const [name, value] of Object.entries(options?.path ?? {})) {
@@ -169,24 +217,15 @@ const buildPath = <TOperation>(
   return queryString ? `${path}?${queryString}` : path;
 };
 
-export const createTypedApiClient = (fetcher: Fetcher) => {
-  const request = async <
-    TMethod extends HttpMethod,
-    TPath extends PathForMethod<TMethod>,
-    TOperation extends Operation<TPath, TMethod> = Operation<TPath, TMethod>,
-  >(
-    method: TMethod,
-    pathTemplate: TPath,
-    ...[options]: HasRequiredOptions<TOperation> extends true
-      ? [RequestOptions<TOperation>]
-      : [RequestOptions<TOperation>?]
-  ): Promise<{ data: SuccessResponseFor<TOperation> }> => {
-    const url = buildPath<TOperation>(pathTemplate, options);
+export const createTypedApiClient = (fetcher: Fetcher): ApiClient => {
+  const request = async (
+    method: HttpMethod,
+    pathTemplate: string,
+    options?: RuntimeRequestOptions,
+  ): Promise<{ data: unknown }> => {
+    const url = buildPath(pathTemplate, options);
 
-    const { data } = await fetcher<
-      SuccessResponseFor<TOperation>,
-      BodyFor<TOperation>
-    >(url, {
+    const { data } = await fetcher<unknown, unknown>(url, {
       method: method.toUpperCase(),
       body: options?.body,
     });
@@ -197,29 +236,9 @@ export const createTypedApiClient = (fetcher: Fetcher) => {
   };
 
   return {
-    get: <TPath extends PathForMethod<'get'>>(
-      pathTemplate: TPath,
-      ...args: HasRequiredOptions<Operation<TPath, 'get'>> extends true
-        ? [RequestOptions<Operation<TPath, 'get'>>]
-        : [RequestOptions<Operation<TPath, 'get'>>?]
-    ) => request<'get', TPath>('get', pathTemplate, ...args),
-    post: <TPath extends PathForMethod<'post'>>(
-      pathTemplate: TPath,
-      ...args: HasRequiredOptions<Operation<TPath, 'post'>> extends true
-        ? [RequestOptions<Operation<TPath, 'post'>>]
-        : [RequestOptions<Operation<TPath, 'post'>>?]
-    ) => request<'post', TPath>('post', pathTemplate, ...args),
-    patch: <TPath extends PathForMethod<'patch'>>(
-      pathTemplate: TPath,
-      ...args: HasRequiredOptions<Operation<TPath, 'patch'>> extends true
-        ? [RequestOptions<Operation<TPath, 'patch'>>]
-        : [RequestOptions<Operation<TPath, 'patch'>>?]
-    ) => request<'patch', TPath>('patch', pathTemplate, ...args),
-    delete: <TPath extends PathForMethod<'delete'>>(
-      pathTemplate: TPath,
-      ...args: HasRequiredOptions<Operation<TPath, 'delete'>> extends true
-        ? [RequestOptions<Operation<TPath, 'delete'>>]
-        : [RequestOptions<Operation<TPath, 'delete'>>?]
-    ) => request<'delete', TPath>('delete', pathTemplate, ...args),
+    get: request.bind(null, 'get') as ApiClientMethod<'get'>,
+    post: request.bind(null, 'post') as ApiClientMethod<'post'>,
+    patch: request.bind(null, 'patch') as ApiClientMethod<'patch'>,
+    delete: request.bind(null, 'delete') as ApiClientMethod<'delete'>,
   };
 };

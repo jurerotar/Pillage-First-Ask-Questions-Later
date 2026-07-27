@@ -7,7 +7,6 @@ export const mapPreferences = (row: z.infer<typeof getPreferencesSchema>) => {
     isAccessibilityModeEnabled: Boolean(row.is_accessibility_mode_enabled),
     isReducedMotionModeEnabled: Boolean(row.is_reduced_motion_mode_enabled),
     shouldShowBuildingNames: Boolean(row.should_show_building_names),
-    buildingConstructionViewMode: row.building_construction_view_mode,
     isAutomaticNavigationAfterBuildingLevelChangeEnabled: Boolean(
       row.is_automatic_navigation_after_building_level_change_enabled,
     ),

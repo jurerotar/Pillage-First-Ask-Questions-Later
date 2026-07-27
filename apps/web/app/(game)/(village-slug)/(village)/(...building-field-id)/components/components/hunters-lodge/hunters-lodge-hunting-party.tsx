@@ -18,6 +18,7 @@ import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
@@ -199,12 +200,14 @@ export const HuntersLodgeHuntingParty = () => {
     <Section>
       <SectionContent>
         <Bookmark tab="hunting-party" />
+        <InformationPopover ariaLabel={t('Hunting party')}>
+          <Text>
+            {t(
+              "Hunters periodically set out from your village. A successful hunt captures one eligible animal and brings it back to this village. By upgrading Hunter's Lodge, you can start capturing stronger animals.",
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Hunting party')}</Text>
-        <Text>
-          {t(
-            "Hunters periodically set out from your village. A successful hunt captures one eligible animal and brings it back to this village. By upgrading Hunter's Lodge, you can start capturing stronger animals.",
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         {isHuntingPartyActive && (

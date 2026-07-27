@@ -21,10 +21,6 @@ export const HeadLinks = () => {
         </>
       )}
       <meta
-        name="description"
-        content="Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds."
-      />
-      <meta
         name="twitter:card"
         content="summary_large_image"
       />
@@ -35,14 +31,6 @@ export const HeadLinks = () => {
       <meta
         name="twitter:creator"
         content="@pillagefirst"
-      />
-      <meta
-        name="twitter:title"
-        content="Pillage First! (Ask Questions Later)"
-      />
-      <meta
-        name="twitter:description"
-        content="Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds."
       />
       <meta
         name="twitter:image"
@@ -59,14 +47,6 @@ export const HeadLinks = () => {
       <meta
         property="og:type"
         content="website"
-      />
-      <meta
-        property="og:title"
-        content="Pillage First! (Ask Questions Later)"
-      />
-      <meta
-        property="og:description"
-        content="Pillage First! (Ask Questions Later) is an open-source, single-player, strategy game inspired by Travian. Build villages, manage resources, train troops, start adventures and wage war in persistent, offline-first game worlds."
       />
       <meta
         property="og:image"

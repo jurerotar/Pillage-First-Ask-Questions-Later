@@ -219,12 +219,48 @@ describe('hunters lodge resolvers', () => {
 
     expect(caughtAnimals).toHaveLength(1);
     expect(getHunterLodgeCatchableAnimals(1)).toContain(
-      caughtAnimals[0]!.unitId,
+      caughtAnimals[0].unitId,
     );
-    expect(caughtAnimals[0]!.amount).toBe(1);
-    expect(caughtAnimals[0]!.sourceTileId).toBe(firstOasisTileId);
+    expect(caughtAnimals[0].amount).toBe(1);
+    expect(caughtAnimals[0].sourceTileId).toBe(firstOasisTileId);
     expect(wheatProductionFromTroopsAfter).toBe(
       wheatProductionFromTroopsBefore,
     );
+
+    const report = database.selectObject({
+      sql: `
+        SELECT r.village_id, r.timestamp, rti.report_type, roi.report_outcome,
+          hpr.village_tile_id, ui.unit AS unit_id, hpru.amount
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN hunting_party_reports hpr ON hpr.report_id = r.id
+        JOIN hunting_party_report_units hpru ON hpru.hunting_party_report_id = hpr.id
+        JOIN unit_ids ui ON ui.id = hpru.unit_id
+        WHERE rti.report_type = 'huntingParty'
+        ORDER BY r.id DESC LIMIT 1;
+      `,
+      schema: z.strictObject({
+        village_id: z.int(),
+        timestamp: z.int(),
+        report_type: z.string(),
+        report_outcome: z.string(),
+        village_tile_id: z.int(),
+        unit_id: z.string(),
+        amount: z.int(),
+      }),
+    })!;
+
+    expect(report).toMatchObject({
+      village_id: villageId,
+      report_type: 'huntingParty',
+      report_outcome: 'huntingParty',
+      village_tile_id: database.selectValue({
+        sql: 'SELECT tile_id FROM villages WHERE id = 1;',
+        schema: z.int(),
+      }),
+      unit_id: caughtAnimals[0].unitId,
+      amount: 1,
+    });
   });
 });

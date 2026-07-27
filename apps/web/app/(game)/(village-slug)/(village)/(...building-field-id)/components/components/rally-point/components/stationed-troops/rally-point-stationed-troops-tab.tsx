@@ -9,6 +9,7 @@ import {
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import {
   UnitTable,
   UnitTableRow,
@@ -38,12 +39,14 @@ export const RallyPointStationedTroopsTab = () => {
   return (
     <Section>
       <SectionContent>
+        <InformationPopover ariaLabel={t('Stationed troops')}>
+          <Text>
+            {t(
+              'These are the troops currently stationed in this village and available as part of your local garrison.',
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Stationed troops')}</Text>
-        <Text>
-          {t(
-            'These are the troops currently stationed in this village and available as part of your local garrison.',
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <UnitTable tribe={tribe}>

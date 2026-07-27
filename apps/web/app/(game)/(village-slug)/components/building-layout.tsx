@@ -1,9 +1,29 @@
+import { clsx } from 'clsx';
 import type { PropsWithChildren } from 'react';
 
-export const Section = ({ children }: PropsWithChildren) => {
-  return <article className="flex flex-col gap-4">{children}</article>;
+type BuildingLayoutProps = PropsWithChildren<{
+  className?: string;
+}>;
+
+export const Section = ({ children, className }: BuildingLayoutProps) => {
+  return (
+    <div className={clsx('relative flex flex-col gap-4', className)}>
+      {children}
+    </div>
+  );
 };
 
-export const SectionContent = ({ children }: PropsWithChildren) => {
-  return <div className="flex flex-col gap-2 relative">{children}</div>;
+export const SectionContent = ({
+  children,
+  className,
+}: BuildingLayoutProps) => {
+  return (
+    <div className={clsx('flex flex-col gap-2 relative', className)}>
+      {children}
+    </div>
+  );
+};
+
+export const OverflowContainer = ({ children }: PropsWithChildren) => {
+  return <div className="overflow-x-scroll scrollbar-hidden">{children}</div>;
 };

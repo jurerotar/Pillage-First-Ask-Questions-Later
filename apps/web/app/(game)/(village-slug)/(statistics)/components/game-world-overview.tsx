@@ -19,10 +19,12 @@ import { factionSchema } from '@pillage-first/types/models/faction';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { useGameWorldOverview } from 'app/(game)/(village-slug)/(statistics)/components/hooks/use-game-world-overview';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
   Table,
@@ -77,10 +79,12 @@ export const GameWorldOverview = () => {
 
   return (
     <Section>
+      <InformationPopover ariaLabel={t('Server overview')}>
+        <Text>{t('General statistics for this game world.')}</Text>
+      </InformationPopover>
       <Text as="h2">{t('Server overview')}</Text>
-      <Text>{t('General statistics for this game world.')}</Text>
 
-      <div className="overflow-x-scroll scrollbar-hidden">
+      <OverflowContainer>
         <Table>
           <TableBody>
             <TableRow>
@@ -141,7 +145,7 @@ export const GameWorldOverview = () => {
             </TableRow>
           </TableBody>
         </Table>
-      </div>
+      </OverflowContainer>
       <SectionContent>
         <Text as="h3">{t('Players by Faction')}</Text>
 

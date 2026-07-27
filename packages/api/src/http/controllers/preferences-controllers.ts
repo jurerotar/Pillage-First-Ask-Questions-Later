@@ -41,7 +41,7 @@ export const updatePreference = createController(
       }),
     },
     requestBody: z.strictObject({
-      value: z.union([z.boolean(), z.enum(['detailed', 'compact'])]),
+      value: z.boolean(),
     }),
   },
 )(({ database, path: { preferenceName }, body: { value } }) => {

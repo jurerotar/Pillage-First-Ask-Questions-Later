@@ -16,6 +16,7 @@ import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { MainBuildingDemolitionTable } from 'app/(game)/(village-slug)/components/main-building-demolition-table';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
@@ -187,15 +188,20 @@ export const DemolishBuilding = () => {
   return (
     <Section>
       <SectionContent>
+        <InformationPopover
+          ariaLabel={t('Demolish buildings')}
+          className="right-0"
+        >
+          <Text>
+            {t(
+              'With a level 10 {{mainBuilding}} you are able to downgrade or demolish a building. You cannot downgrade or demolish buildings which are currently being upgraded.',
+              {
+                mainBuilding: t('BUILDINGS.MAIN_BUILDING.NAME'),
+              },
+            )}
+          </Text>
+        </InformationPopover>
         <Text as="h2">{t('Demolish buildings')}</Text>
-        <Text>
-          {t(
-            'With a level 10 {{mainBuilding}} you are able to downgrade or demolish a building. You cannot downgrade or demolish buildings which are currently being upgraded.',
-            {
-              mainBuilding: t('BUILDINGS.MAIN_BUILDING.NAME'),
-            },
-          )}
-        </Text>
       </SectionContent>
       <SectionContent>
         <MainBuildingDemolitionTable />

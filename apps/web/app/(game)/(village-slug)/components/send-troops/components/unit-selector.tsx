@@ -7,13 +7,11 @@ import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { FormControl, FormField, FormItem } from 'app/components/ui/form';
 import { Input } from 'app/components/ui/input';
 
-const displayGroups: (Unit['category'] | 'scout')[] = [
+const displayGroups: Unit['category'][] = [
   'infantry',
   'cavalry',
-  'scout',
   'siege',
   'administration',
-  'hero',
 ];
 
 type UnitSelectorProps = {
@@ -50,14 +48,12 @@ export const UnitSelector = ({
   }
 
   const groupedUnits: Partial<
-    Record<
-      Unit['category'] | 'scout',
-      ({ index: number } & (typeof units)[number])[]
-    >
+    Record<Unit['category'], ({ index: number } & (typeof units)[number])[]>
   > = {};
 
   for (const [index, unit] of units.entries()) {
-    const groupKey = unit.tier === 'scout' ? 'scout' : unit.category;
+    const groupKey =
+      unit.category === 'hero' ? 'administration' : unit.category;
     if (!groupedUnits[groupKey]) {
       groupedUnits[groupKey] = [];
     }
@@ -83,14 +79,14 @@ export const UnitSelector = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-3 md:flex md:flex-row gap-4 justify-start">
+      <div className="grid grid-cols-4 gap-2 md:gap-4">
         {displayGroups.map((group) => {
           const categoryUnits = groupedUnits[group] ?? [];
 
           return (
             <div
               key={group}
-              className="flex flex-1 flex-col gap-2"
+              className="flex min-w-0 flex-col gap-2"
             >
               <div className="flex flex-col gap-4 w-full">
                 {categoryUnits.map((unit) => {

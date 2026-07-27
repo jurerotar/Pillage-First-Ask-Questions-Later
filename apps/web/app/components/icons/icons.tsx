@@ -12,12 +12,14 @@ import { FaSpider, FaWarehouse } from 'react-icons/fa';
 import { FaHandshakeAngle, FaPeopleGroup, FaStar } from 'react-icons/fa6';
 import {
   GiBarbedSpear,
+  GiBasket,
   GiBattleAxe,
   GiBearHead,
   GiBoar,
   GiCrocJaws,
   GiElephant,
   GiGreekTemple,
+  GiHuntingHorn,
   GiIBeam,
   GiLeatherBoot,
   GiPointyHat,
@@ -35,7 +37,13 @@ import {
 import { GrDocumentMissing } from 'react-icons/gr';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
 import { LiaCoinsSolid } from 'react-icons/lia';
-import { LuClock, LuShield, LuSword, LuSwords } from 'react-icons/lu';
+import {
+  LuArchive,
+  LuClock,
+  LuShield,
+  LuSword,
+  LuSwords,
+} from 'react-icons/lu';
 import {
   PiFlagPennantFill,
   PiKeyhole,
@@ -50,10 +58,10 @@ import {
   TbBorderCorners,
   TbBrandSpeedtest,
   TbLaurelWreath,
+  TbShieldPlus,
   TbTooltip,
 } from 'react-icons/tb';
 import { TiMinus, TiPlus } from 'react-icons/ti';
-import type { CamelCase } from 'type-fest';
 import {
   PillageFirstCatapult,
   PillageFirstCavalryDefence,
@@ -78,6 +86,7 @@ import type {
   TeutonUnitId,
   Unit,
 } from '@pillage-first/types/models/unit';
+import type { CamelCase } from '@pillage-first/utils/types';
 import styles from './icons.module.scss';
 
 type UncategorizedIconType =
@@ -91,7 +100,19 @@ type ReportIconType =
   | 'attackerFullLoss'
   | 'defenderNoLoss'
   | 'defenderSomeLoss'
-  | 'defenderFullLoss';
+  | 'defenderFullLoss'
+  | 'scoutAttackerNoLoss'
+  | 'scoutAttackerSomeLoss'
+  | 'scoutAttackerFullLoss'
+  | 'scoutDefenderNoLoss'
+  | 'scoutDefenderSomeLoss'
+  | 'scoutDefenderFullLoss'
+  | 'outgoingMerchantsArrived'
+  | 'incomingMerchantsArrived'
+  | 'heroAdventure'
+  | 'troopMovement'
+  | 'huntingParty'
+  | 'gatheringExpedition';
 
 type MapControlsIconType =
   | 'mapMagnificationIncrease'
@@ -104,7 +125,7 @@ type MapControlsIconType =
   | 'mapTreasureIconToggle'
   | 'mapMarker';
 
-type CommonIconType = 'cancel';
+type CommonIconType = 'archived' | 'cancel';
 
 type TreasureTileIconType =
   | 'treasureTileItem'
@@ -187,6 +208,7 @@ export type IconType =
 
 export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   missingIcon: (props) => <GrDocumentMissing {...props} />,
+  archived: (props) => <LuArchive {...props} />,
   cancel: (props) => (
     <RxCross2
       {...props}
@@ -241,7 +263,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   attackerNoLoss: (props) => (
     <LuSwords
       {...props}
-      className={clsx('text-red-500', props.className)}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
     />
   ),
   attackerSomeLoss: (props) => (
@@ -250,7 +272,12 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
       className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
     />
   ),
-  attackerFullLoss: (props) => icons.missingIcon(props),
+  attackerFullLoss: (props) => (
+    <LuSwords
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
   defenderNoLoss: (props) => (
     <LuShield
       {...props}
@@ -267,6 +294,73 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <LuShield
       {...props}
       className={clsx('text-red-500', props.className)}
+    />
+  ),
+  scoutAttackerNoLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
+    />
+  ),
+  scoutAttackerSomeLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+    />
+  ),
+  scoutAttackerFullLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
+  scoutDefenderNoLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-green-500 dark:text-green-400', props.className)}
+    />
+  ),
+  scoutDefenderSomeLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+    />
+  ),
+  scoutDefenderFullLoss: (props) => (
+    <GiSpyglass
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
+  outgoingMerchantsArrived: (props) => (
+    <FaHandshakeAngle
+      {...props}
+      className={clsx('text-taupe-300', props.className)}
+    />
+  ),
+  incomingMerchantsArrived: (props) => (
+    <FaHandshakeAngle
+      {...props}
+      className={clsx('text-taupe-300', props.className)}
+    />
+  ),
+  heroAdventure: (props) => icons.adventure(props),
+  troopMovement: (props) => (
+    <TbShieldPlus
+      {...props}
+      className={clsx('text-green-500', props.className)}
+    />
+  ),
+  huntingParty: (props) => (
+    <GiHuntingHorn
+      {...props}
+      className={clsx('text-taupe-400', props.className)}
+    />
+  ),
+  gatheringExpedition: (props) => (
+    <GiBasket
+      {...props}
+      className={clsx('text-mauve-600', props.className)}
     />
   ),
 
@@ -713,12 +807,6 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <GiPointyHat
       {...props}
       className={clsx('text-blue-500', props.className)}
-    />
-  ),
-  huntingParty: (props) => (
-    <GiWolfTrap
-      {...props}
-      className={clsx('text-orange-600 dark:text-orange-500', props.className)}
     />
   ),
   gatheringTrip: (props) => (

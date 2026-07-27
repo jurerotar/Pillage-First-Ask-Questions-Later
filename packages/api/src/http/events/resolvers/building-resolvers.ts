@@ -6,7 +6,6 @@ import {
 import { specialFieldIds } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import {
-  insertEffectByEffectNameQuery,
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../../queries/effect-queries';
@@ -69,13 +68,50 @@ export const buildingLevelChangeResolver: Resolver<
   // Update effects
   const { effects } = getBuildingDefinition(buildingId);
 
-  for (const { effectId, valuesPerLevel, type } of effects) {
+  if (effects.length === 1 || effects.length >= 8) {
+    for (const { effectId, valuesPerLevel, type } of effects) {
+      database.exec({
+        sql: updateBuildingEffectQuery,
+        bind: {
+          $effect_id: effectId,
+          $value: valuesPerLevel[level],
+          $type: type,
+          $village_id: villageId,
+          $source_specifier: buildingFieldId,
+        },
+      });
+    }
+  } else {
     database.exec({
-      sql: updateBuildingEffectQuery,
+      sql: `
+      UPDATE effects
+      SET value = json_extract(effect.value, '$.value')
+      FROM
+        json_each($effects) AS effect
+        JOIN effect_ids
+          ON effect_ids.effect = json_extract(effect.value, '$.effectId')
+        JOIN effect_type_ids
+          ON effect_type_ids.type = json_extract(effect.value, '$.type')
+      WHERE
+        effects.effect_id = effect_ids.id
+        AND effects.type_id = effect_type_ids.id
+        AND effects.scope_id = (
+          SELECT id FROM effect_scope_ids WHERE scope = 'local'
+        )
+        AND effects.source_id = (
+          SELECT id FROM effect_source_ids WHERE source = 'building'
+        )
+        AND effects.village_id = $village_id
+        AND effects.source_specifier = $source_specifier;
+    `,
       bind: {
-        $effect_id: effectId,
-        $value: valuesPerLevel[level],
-        $type: type,
+        $effects: JSON.stringify(
+          effects.map(({ effectId, valuesPerLevel, type }) => ({
+            effectId,
+            type,
+            value: valuesPerLevel[level],
+          })),
+        ),
         $village_id: villageId,
         $source_specifier: buildingFieldId,
       },
@@ -131,20 +167,48 @@ export const buildingConstructionResolver: Resolver<
   // Create building effects
   const { effects } = getBuildingDefinition(buildingId);
 
-  for (const { effectId, valuesPerLevel, type } of effects) {
-    database.exec({
-      sql: insertEffectByEffectNameQuery,
-      bind: {
-        $effect_name: effectId,
-        $value: valuesPerLevel[0],
-        $type: type,
-        $scope: 'local',
-        $source: 'building',
-        $village_id: villageId,
-        $source_specifier: buildingFieldId,
-      },
-    });
-  }
+  database.exec({
+    sql: `
+      INSERT INTO effects (
+        effect_id,
+        value,
+        type_id,
+        scope_id,
+        source_id,
+        village_id,
+        source_specifier
+      )
+      SELECT
+        effect_ids.id,
+        json_extract(effect.value, '$.value'),
+        effect_type_ids.id,
+        effect_scope_ids.id,
+        effect_source_ids.id,
+        $village_id,
+        $source_specifier
+      FROM
+        json_each($effects) AS effect
+        JOIN effect_ids
+          ON effect_ids.effect = json_extract(effect.value, '$.effectId')
+        JOIN effect_type_ids
+          ON effect_type_ids.type = json_extract(effect.value, '$.type')
+        JOIN effect_scope_ids
+          ON effect_scope_ids.scope = 'local'
+        JOIN effect_source_ids
+          ON effect_source_ids.source = 'building';
+    `,
+    bind: {
+      $effects: JSON.stringify(
+        effects.map(({ effectId, valuesPerLevel, type }) => ({
+          effectId,
+          type,
+          value: valuesPerLevel[0],
+        })),
+      ),
+      $village_id: villageId,
+      $source_specifier: buildingFieldId,
+    },
+  });
 
   // Update population effect
   const { population } = getBuildingDataForLevel(buildingId, 0);
@@ -187,13 +251,50 @@ export const buildingDestructionResolver: Resolver<
 
   if (isNonDestroyable) {
     // Building stays at level 0 → keep the effect rows but set their values to level 0
-    for (const { effectId, valuesPerLevel, type } of effects) {
+    if (effects.length === 1 || effects.length >= 8) {
+      for (const { effectId, valuesPerLevel, type } of effects) {
+        database.exec({
+          sql: updateBuildingEffectQuery,
+          bind: {
+            $effect_id: effectId,
+            $value: valuesPerLevel[0],
+            $type: type,
+            $village_id: villageId,
+            $source_specifier: buildingFieldId,
+          },
+        });
+      }
+    } else {
       database.exec({
-        sql: updateBuildingEffectQuery,
+        sql: `
+        UPDATE effects
+        SET value = json_extract(effect.value, '$.value')
+        FROM
+          json_each($effects) AS effect
+          JOIN effect_ids
+            ON effect_ids.effect = json_extract(effect.value, '$.effectId')
+          JOIN effect_type_ids
+            ON effect_type_ids.type = json_extract(effect.value, '$.type')
+        WHERE
+          effects.effect_id = effect_ids.id
+          AND effects.type_id = effect_type_ids.id
+          AND effects.scope_id = (
+            SELECT id FROM effect_scope_ids WHERE scope = 'local'
+          )
+          AND effects.source_id = (
+            SELECT id FROM effect_source_ids WHERE source = 'building'
+          )
+          AND effects.village_id = $village_id
+          AND effects.source_specifier = $source_specifier;
+      `,
         bind: {
-          $effect_id: effectId,
-          $value: valuesPerLevel[0],
-          $type: type,
+          $effects: JSON.stringify(
+            effects.map(({ effectId, valuesPerLevel, type }) => ({
+              effectId,
+              type,
+              value: valuesPerLevel[0],
+            })),
+          ),
           $village_id: villageId,
           $source_specifier: buildingFieldId,
         },
@@ -201,18 +302,40 @@ export const buildingDestructionResolver: Resolver<
     }
   } else {
     // Fully destroyable building → remove its effect rows entirely
-    for (const { effectId } of effects) {
+    if (effects.length === 1) {
+      database.exec({
+        sql: `
+          DELETE FROM effects
+          WHERE
+            village_id = $village_id
+            AND effect_id = (
+              SELECT id FROM effect_ids WHERE effect = $effect_id
+            )
+            AND source_specifier = $source_specifier;
+        `,
+        bind: {
+          $village_id: villageId,
+          $effect_id: effects[0]!.effectId,
+          $source_specifier: buildingFieldId,
+        },
+      });
+    } else {
       database.exec({
         sql: `
         DELETE
         FROM effects
         WHERE village_id = $village_id
-          AND effect_id = (SELECT id FROM effect_ids WHERE effect = $effect_id)
+          AND effect_id IN (
+            SELECT effect_ids.id
+            FROM
+              json_each($effect_ids) AS effect
+              JOIN effect_ids ON effect_ids.effect = effect.value
+          )
           AND source_specifier = $source_specifier;
       `,
         bind: {
           $village_id: villageId,
-          $effect_id: effectId,
+          $effect_ids: JSON.stringify(effects.map(({ effectId }) => effectId)),
           $source_specifier: buildingFieldId,
         },
       });

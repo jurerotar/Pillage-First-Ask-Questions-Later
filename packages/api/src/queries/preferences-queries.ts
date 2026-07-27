@@ -3,7 +3,6 @@ export const selectPreferencesQuery = `
     is_accessibility_mode_enabled,
     is_reduced_motion_mode_enabled,
     should_show_building_names,
-    building_construction_view_mode,
     is_automatic_navigation_after_building_level_change_enabled,
     is_automatic_navigation_after_unit_research_enabled,
     is_automatic_navigation_after_unit_upgrade_enabled,

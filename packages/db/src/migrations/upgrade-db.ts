@@ -3,9 +3,35 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
+import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
+import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
+import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
+import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
+import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
+import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
+import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
+import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
+import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
+import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
+import createReportTagIdsTable from '../schemas/lookup-tables/report-tag-ids-schema.sql?raw';
+import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
+import createMovementReportUnitsTable from '../schemas/movement-report-units-schema.sql?raw';
+import createMovementReportsTable from '../schemas/movement-reports-schema.sql?raw';
+import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
+import createReportsTable from '../schemas/reports-schema.sql?raw';
+import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
+import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
+import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
+import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
+import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
+import { reportOutcomeIdsSeeder } from '../seeders/report-outcome-ids-seeder';
+import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
+import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
+import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
+import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
 const queuedTroopCountQuestThresholds = [
@@ -1025,6 +1051,43 @@ export const upgradeDb = (database: DbFacade): void => {
     }
 
     setupGlobalWriteTriggers(db);
+  });
+
+  migrateTo('0.4.45', database, (db) => {
+    db.exec({ sql: createReportOutcomeIdsTable });
+    reportOutcomeIdsSeeder(db);
+
+    db.exec({ sql: createReportTagIdsTable });
+    reportTagIdsSeeder(db);
+
+    db.exec({ sql: createReportTypeIdsTable });
+    reportTypeIdsSeeder(db);
+
+    db.exec({ sql: createReportsTable });
+    db.exec({ sql: createHeroAdventureReportsTable });
+    db.exec({ sql: createMovementReportsTable });
+    db.exec({ sql: createMovementReportUnitsTable });
+    db.exec({ sql: createTradeReportsTable });
+    db.exec({ sql: createHuntingPartyReportsTable });
+    db.exec({ sql: createHuntingPartyReportUnitsTable });
+    db.exec({ sql: createGatheringExpeditionReportsTable });
+    db.exec({ sql: createGatheringExpeditionReportUnitsTable });
+    db.exec({ sql: createReportTagsTable });
+    db.exec({ sql: createBattleReportsTable });
+    db.exec({ sql: createBattleReportParticipantsTable });
+    db.exec({ sql: createBattleReportUnitsTable });
+    db.exec({ sql: createScoutingReportsTable });
+    db.exec({ sql: createScoutingReportAttackerUnitsTable });
+    db.exec({ sql: createScoutingReportUnitsTable });
+    db.exec({ sql: createScoutingReportStructuresTable });
+
+    db.exec({ sql: createReportsIndexes });
+    db.exec({ sql: createReportDeleteTriggers });
+    setupGlobalWriteTriggers(db);
+  });
+
+  migrateTo('0.4.47', database, (db) => {
+    db.exec({ sql: createReportRetentionTriggers });
   });
 
   // If all migrations passed, bump it to current version

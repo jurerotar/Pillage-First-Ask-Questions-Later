@@ -15,6 +15,9 @@
     ".": {
       "default": "./src/worker/api-worker.ts"
     },
+    "./api-routes": {
+      "default": "./src/http/api-routes.ts"
+    },
     "./open-api": {
       "default": "./src/open-api.ts"
     }
@@ -26,7 +29,7 @@
     "lint/oxlint": "oxlint --type-aware --fix .",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
-    "type-check": "tsgo",
+    "type-check": "tsc",
     "test": "vitest"
   },
   "dependencies": {
@@ -41,9 +44,8 @@
     "zod-openapi": "6.0.0"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260615.1",
     "openapi-typescript": "7.13.0",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "vitest": "4.1.10"
   }
 }
