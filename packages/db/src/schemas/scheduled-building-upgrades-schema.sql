@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS scheduled_building_upgrades
   village_id INTEGER NOT NULL,
   building_field_id INTEGER NOT NULL,
   level INTEGER NOT NULL CHECK (level >= 1),
+  queue_position INTEGER NOT NULL DEFAULT 0,
 
   FOREIGN KEY (building_id) REFERENCES building_ids (id),
   FOREIGN KEY (village_id) REFERENCES villages (id)
@@ -13,7 +14,7 @@ CREATE TABLE IF NOT EXISTS scheduled_building_upgrades
 );
 
 CREATE INDEX IF NOT EXISTS idx_scheduled_building_upgrades_village_order
-  ON scheduled_building_upgrades (village_id, id);
+  ON scheduled_building_upgrades (village_id, queue_position);
 
 CREATE INDEX IF NOT EXISTS idx_scheduled_building_upgrades_field_level
   ON scheduled_building_upgrades (village_id, building_field_id, level);

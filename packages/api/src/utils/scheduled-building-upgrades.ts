@@ -34,7 +34,7 @@ export const selectScheduledBuildingUpgrades = (
       FROM scheduled_building_upgrades sbu
       JOIN building_ids bi ON bi.id = sbu.building_id
       WHERE sbu.village_id = $village_id
-      ORDER BY sbu.id;
+      ORDER BY sbu.queue_position, sbu.id;
     `,
     bind: { $village_id: villageId },
     schema: scheduledBuildingUpgradeRowSchema,
@@ -55,13 +55,22 @@ export const insertScheduledBuildingUpgrade = (
         building_id,
         village_id,
         building_field_id,
-        level
+        level,
+        queue_position
       )
       VALUES (
         (SELECT id FROM building_ids WHERE building = $building_id),
         $village_id,
         $building_field_id,
-        $level
+        $level,
+        COALESCE(
+          (
+            SELECT MAX(queue_position) + 1
+            FROM scheduled_building_upgrades
+            WHERE village_id = $village_id
+          ),
+          0
+        )
       );
     `,
     bind: {

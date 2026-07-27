@@ -1093,29 +1093,6 @@ export const upgradeDb = (database: DbFacade): void => {
 
   migrateTo('0.4.49', database, (db) => {
     db.exec({ sql: createScheduledBuildingUpgradesTable });
-    db.exec({
-      sql: `
-        INSERT INTO scheduled_building_upgrades (
-          building_id,
-          village_id,
-          building_field_id,
-          level
-        )
-        SELECT
-          bi.id,
-          e.village_id,
-          CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER),
-          CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
-        FROM events e
-        JOIN building_ids bi
-          ON bi.building = JSON_EXTRACT(e.meta, '$.buildingId')
-        WHERE e.type = 'buildingScheduledConstruction'
-        ORDER BY e.id;
-
-        DELETE FROM events
-        WHERE type = 'buildingScheduledConstruction';
-      `,
-    });
   });
 
   // If all migrations passed, bump it to current version

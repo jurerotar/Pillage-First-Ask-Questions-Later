@@ -14,3 +14,7 @@ export const scheduleBuildingUpgradeSchema = z.strictObject({
   buildingFieldId: z.number(),
   level: z.number(),
 });
+
+export const reorderScheduledBuildingUpgradesSchema = z.strictObject({
+  scheduledUpgradeIds: z.array(z.number()).max(5),
+});

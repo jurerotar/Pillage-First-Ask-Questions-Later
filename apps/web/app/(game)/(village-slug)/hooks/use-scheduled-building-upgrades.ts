@@ -97,9 +97,31 @@ export const useScheduledBuildingUpgrades = () => {
     },
   });
 
+  const { mutate: reorderScheduledBuildingUpgrades } = useMutation<
+    void,
+    Error,
+    { scheduledUpgradeIds: number[] }
+  >({
+    mutationFn: async (body) => {
+      await apiClient.patch(
+        '/villages/:villageId/scheduled-building-upgrades',
+        {
+          path: { villageId: currentVillage.id },
+          body,
+        },
+      );
+    },
+    onSuccess: async (_data, _variables, _onMutateResult, context) => {
+      await invalidateQueries(context, [
+        [scheduledBuildingUpgradesCacheKey, currentVillage.id],
+      ]);
+    },
+  });
+
   return {
     scheduledBuildingUpgrades,
     scheduleBuildingUpgrade,
     cancelScheduledBuildingUpgrade,
+    reorderScheduledBuildingUpgrades,
   };
 };

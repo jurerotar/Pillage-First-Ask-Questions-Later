@@ -13,6 +13,7 @@ import {
 } from '../../utils/scheduled-building-upgrades';
 import { createController } from '../controller';
 import {
+  reorderScheduledBuildingUpgradesSchema,
   scheduleBuildingUpgradeSchema,
   scheduledBuildingUpgradeSchema,
 } from './schemas/scheduled-building-upgrades-schemas';
@@ -196,6 +197,60 @@ export const scheduleBuildingUpgrade = createController(
     }
 
     processScheduledBuildingUpgrades(db, villageId);
+  });
+});
+
+export const reorderScheduledBuildingUpgrades = createController(
+  '/villages/:villageId/scheduled-building-upgrades',
+  'patch',
+  {
+    summary: 'Reorder scheduled building upgrades',
+    requestParams: {
+      path: z.strictObject({ villageId: z.coerce.number() }),
+    },
+    requestBody: reorderScheduledBuildingUpgradesSchema,
+  },
+)(({ database, path: { villageId }, body: { scheduledUpgradeIds } }) => {
+  database.transaction((db) => {
+    const scheduledUpgrades = selectScheduledBuildingUpgrades(db, villageId);
+    const upgradesById = new Map(
+      scheduledUpgrades.map((upgrade) => [upgrade.id, upgrade]),
+    );
+
+    if (
+      scheduledUpgradeIds.length !== scheduledUpgrades.length ||
+      new Set(scheduledUpgradeIds).size !== scheduledUpgradeIds.length ||
+      scheduledUpgradeIds.some((id) => !upgradesById.has(id))
+    ) {
+      throw new Error('Scheduled upgrade order must include the entire queue');
+    }
+
+    const lastLevelByFieldId = new Map<number, number>();
+    for (const id of scheduledUpgradeIds) {
+      const upgrade = upgradesById.get(id)!;
+      const lastLevel = lastLevelByFieldId.get(upgrade.buildingFieldId);
+      if (lastLevel !== undefined && upgrade.level <= lastLevel) {
+        throw new Error(
+          'Scheduled upgrades for the same building field cannot be reordered',
+        );
+      }
+      lastLevelByFieldId.set(upgrade.buildingFieldId, upgrade.level);
+    }
+
+    for (const [queuePosition, id] of scheduledUpgradeIds.entries()) {
+      db.exec({
+        sql: `
+          UPDATE scheduled_building_upgrades
+          SET queue_position = $queue_position
+          WHERE id = $id AND village_id = $village_id;
+        `,
+        bind: {
+          $queue_position: queuePosition,
+          $id: id,
+          $village_id: villageId,
+        },
+      });
+    }
   });
 });
 

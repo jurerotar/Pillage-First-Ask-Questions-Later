@@ -9,6 +9,7 @@ import { insertScheduledBuildingUpgrade } from '../../../utils/scheduled-buildin
 import {
   cancelScheduledBuildingUpgrade,
   getScheduledBuildingUpgrades,
+  reorderScheduledBuildingUpgrades,
   scheduleBuildingUpgrade,
 } from '../scheduled-building-upgrades-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -120,6 +121,69 @@ describe('scheduled building upgrade controllers', () => {
     expect(result.map(({ buildingFieldId }) => buildingFieldId)).toEqual([
       2, 1,
     ]);
+  });
+
+  test('reorders scheduled upgrades', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    for (const upgrade of [
+      { buildingId: 'CLAY_PIT' as const, buildingFieldId: 2, level: 1 },
+      { buildingId: 'WOODCUTTER' as const, buildingFieldId: 1, level: 1 },
+    ]) {
+      insertScheduledBuildingUpgrade(database, { villageId, ...upgrade });
+    }
+    const upgrades = getScheduledBuildingUpgrades(
+      database,
+      createControllerArgs({ path: { villageId: villageId.toString() } }),
+    );
+
+    reorderScheduledBuildingUpgrades(
+      database,
+      createControllerArgs({
+        path: { villageId: villageId.toString() },
+        body: {
+          scheduledUpgradeIds: upgrades.toReversed().map(({ id }) => id),
+        },
+      }),
+    );
+
+    expect(
+      getScheduledBuildingUpgrades(
+        database,
+        createControllerArgs({ path: { villageId: villageId.toString() } }),
+      ).map(({ buildingFieldId }) => buildingFieldId),
+    ).toEqual([1, 2]);
+  });
+
+  test('rejects reordering higher levels before lower levels', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    for (const level of [1, 2]) {
+      insertScheduledBuildingUpgrade(database, {
+        villageId,
+        buildingId: 'CLAY_PIT',
+        buildingFieldId: 2,
+        level,
+      });
+    }
+    const upgrades = getScheduledBuildingUpgrades(
+      database,
+      createControllerArgs({ path: { villageId: villageId.toString() } }),
+    );
+
+    expect(() =>
+      reorderScheduledBuildingUpgrades(
+        database,
+        createControllerArgs({
+          path: { villageId: villageId.toString() },
+          body: {
+            scheduledUpgradeIds: upgrades.toReversed().map(({ id }) => id),
+          },
+        }),
+      ),
+    ).toThrow(
+      'Scheduled upgrades for the same building field cannot be reordered',
+    );
   });
 
   test('cancelling an upgrade preserves earlier levels and other fields', async () => {

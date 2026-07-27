@@ -110,6 +110,7 @@ import { getReputations } from './controllers/reputation-controllers';
 import {
   cancelScheduledBuildingUpgrade,
   getScheduledBuildingUpgrades,
+  reorderScheduledBuildingUpgrades,
   scheduleBuildingUpgrade,
 } from './controllers/scheduled-building-upgrades-controllers';
 import { getServer } from './controllers/server-controllers';
@@ -231,6 +232,7 @@ export const apiRoutes = [
   createRoute(rearrangeBuildingFields),
   createRoute(getScheduledBuildingUpgrades),
   createRoute(scheduleBuildingUpgrade),
+  createRoute(reorderScheduledBuildingUpgrades),
   createRoute(cancelScheduledBuildingUpgrade),
   createRoute(getResearchedUnits),
   createRoute(transferResources),

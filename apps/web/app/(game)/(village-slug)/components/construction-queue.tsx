@@ -1,17 +1,28 @@
-import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
-import { type PropsWithChildren, Suspense, use, useState } from 'react';
+import clsx from 'clsx';
+import { Suspense, use, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ImHammer } from 'react-icons/im';
 import { IoIosArrowRoundForward } from 'react-icons/io';
-import { LuChevronLeft, LuChevronRight, LuConstruction } from 'react-icons/lu';
+import {
+  LuChevronLeft,
+  LuChevronRight,
+  LuConstruction,
+  LuGripVertical,
+} from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
-import { type PlacesType, Tooltip } from 'react-tooltip';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
+import {
+  type ConstructionQueueDragHandlers,
+  useConstructionQueueDrag,
+} from 'app/(game)/(village-slug)/hooks/use-construction-queue-drag';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
-import { useScheduledBuildingUpgrades } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
+import {
+  type ScheduledBuildingUpgrade,
+  useScheduledBuildingUpgrades,
+} from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import {
   type BuildingUpgradeQueueEntry,
   CurrentVillageBuildingQueueContext,
@@ -23,195 +34,291 @@ const iconClassName =
 
 type ConstructionQueueBuildingProps = {
   buildingEvent: BuildingUpgradeQueueEntry;
-  tooltipPosition: PlacesType;
+  isDragging?: boolean;
+  dragHandlers?: ConstructionQueueDragHandlers;
 };
 
 const ConstructionQueueBuilding = ({
   buildingEvent,
-  tooltipPosition,
-}: PropsWithChildren<ConstructionQueueBuildingProps>) => {
+  isDragging = false,
+  dragHandlers,
+}: ConstructionQueueBuildingProps) => {
   const { t } = useTranslation();
-  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-
   const { mutate: cancelConstruction } = useCancelConstruction();
   const { cancelScheduledBuildingUpgrade } = useScheduledBuildingUpgrades();
-
-  const tooltipId = `construction-queue-tooltip-${getBuildingUpgradeQueueEntryKey(buildingEvent)}`;
-  const tooltipKey = isWiderThanLg
-    ? 'is-wider-than-lg'
-    : 'is-not-wider-than-lg';
-
   const isScheduledEvent = buildingEvent.type === 'scheduledBuildingUpgrade';
 
   return (
-    <>
-      <div
-        data-tooltip-id={tooltipId}
-        className="flex flex-col relative cursor-pointer"
-      >
-        <LuConstruction className="text-2xl lg:text-3xl text-muted-foreground bg-background px-2.5 pb-4 pt-1 box-content border border-border rounded-xs transition-colors" />
-        {!isScheduledEvent && (
-          <Countdown
-            className="absolute bottom-0 left-0 text-2xs w-full leading-none bg-background border border-border text-center transition-colors"
-            endsAt={buildingEvent.startsAt + buildingEvent.duration}
-          />
-        )}
+    <div
+      className={clsx(
+        'flex items-center gap-2 rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity',
+        isDragging && 'opacity-60',
+      )}
+    >
+      {isScheduledEvent && dragHandlers ? (
+        <button
+          aria-label={t('Reorder scheduled construction')}
+          className="cursor-grab touch-none active:cursor-grabbing"
+          onPointerCancel={dragHandlers.onDragEnd}
+          onPointerDown={(event) =>
+            dragHandlers.onDragStart(event, buildingEvent.id)
+          }
+          onPointerMove={dragHandlers.onDragMove}
+          onPointerUp={dragHandlers.onDragEnd}
+          type="button"
+        >
+          <LuGripVertical className="text-xl px-1 box-content text-muted-foreground lg:text-2xl" />
+        </button>
+      ) : (
+        <LuConstruction
+          aria-label={t('Under construction')}
+          className="text-xl px-1 box-content text-muted-foreground lg:text-2xl"
+        />
+      )}
+
+      <div className="flex min-w-0 flex-1 flex-col border-x border-border px-2">
+        <span className="inline-flex items-center gap-1 whitespace-nowrap">
+          <b className="truncate">
+            {t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
+          </b>
+          <span className="inline-flex items-center text-sm">
+            ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
+            {buildingEvent.level})
+          </span>
+        </span>
+        <span className="text-sm">
+          {isScheduledEvent ? (
+            t('In queue')
+          ) : (
+            <Countdown
+              endsAt={buildingEvent.startsAt + buildingEvent.duration}
+            />
+          )}
+        </span>
       </div>
 
-      <Tooltip
-        key={tooltipKey}
-        id={tooltipId}
-        clickable
-        className="z-20! rounded-xs! px-2! py-1! bg-background! w-fit! text-foreground! border border-border transition-colors"
-        classNameArrow="border-r border-b border-border"
-        place={tooltipPosition}
-        {...(isWiderThanLg && {
-          isOpen: true,
-        })}
-        {...(!isWiderThanLg && {
-          openOnClick: true,
-          place: 'top-start',
-        })}
+      <button
+        aria-label={t('Cancel building construction')}
+        onClick={() => {
+          if (isScheduledEvent) {
+            cancelScheduledBuildingUpgrade({
+              scheduledUpgradeId: buildingEvent.id,
+            });
+            return;
+          }
+          cancelConstruction({ eventId: buildingEvent.id });
+        }}
+        type="button"
       >
-        <div className="flex flex-col gap-2">
-          <div className="flex md:hidden border-b border-border pb-1 text-sm">
-            <b>{isScheduledEvent ? t('In queue') : t('Under construction')}</b>
-          </div>
-          <div className="flex gap-2">
-            <div className="flex items-center">
-              <LuConstruction className="text-xl lg:text-2xl text-muted-foreground box-content transition-colors" />
-            </div>
-            <div className="flex flex-col px-2 border-x border-border">
-              <span className="inline-flex gap-1 whitespace-nowrap">
-                <b>{t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}</b>
-                <span className="inline-flex items-center text-sm">
-                  ({buildingEvent.level - 1} <IoIosArrowRoundForward />{' '}
-                  {buildingEvent.level})
-                </span>
-              </span>
-              <span className="inline-flex gap-1 text-sm">
-                {isScheduledEvent ? (
-                  <span>{t('In queue')}</span>
-                ) : (
-                  <Countdown
-                    endsAt={buildingEvent.startsAt + buildingEvent.duration}
-                  />
-                )}
-              </span>
-            </div>
-            <div className="flex items-center">
-              <button
-                aria-label={t('Cancel building construction')}
-                onClick={() => {
-                  if (isScheduledEvent) {
-                    cancelScheduledBuildingUpgrade({
-                      scheduledUpgradeId: buildingEvent.id,
-                    });
-                    return;
-                  }
-
-                  cancelConstruction({ eventId: buildingEvent.id });
-                }}
-                type="button"
-              >
-                <MdCancel className="text-xl lg:text-2xl text-red-400 box-content" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </Tooltip>
-    </>
+        <MdCancel className="text-xl text-red-400 lg:text-2xl" />
+      </button>
+    </div>
   );
 };
 
 const ConstructionQueueEmptySlot = () => <ImHammer className={iconClassName} />;
+
+type CompactConstructionQueueBuildingProps = {
+  buildingEvent: BuildingUpgradeQueueEntry;
+  isDragging: boolean;
+  isSelected: boolean;
+  onClick: () => void;
+  dragHandlers: ConstructionQueueDragHandlers;
+};
+
+const CompactConstructionQueueBuilding = ({
+  buildingEvent,
+  isDragging,
+  isSelected,
+  onClick,
+  dragHandlers,
+}: CompactConstructionQueueBuildingProps) => {
+  const { t } = useTranslation();
+  const isScheduledEvent = buildingEvent.type === 'scheduledBuildingUpgrade';
+
+  return (
+    <button
+      aria-label={t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
+      aria-pressed={isSelected}
+      className={clsx(
+        'relative flex flex-col rounded-xs border bg-background transition-opacity',
+        isSelected ? 'border-foreground' : 'border-border',
+        isDragging && 'opacity-60',
+        isScheduledEvent
+          ? 'touch-none cursor-grab active:cursor-grabbing'
+          : 'cursor-pointer',
+      )}
+      onClick={onClick}
+      onPointerCancel={isScheduledEvent ? dragHandlers.onDragEnd : undefined}
+      onPointerDown={
+        isScheduledEvent
+          ? (event) => dragHandlers.onDragStart(event, buildingEvent.id)
+          : undefined
+      }
+      onPointerMove={isScheduledEvent ? dragHandlers.onDragMove : undefined}
+      onPointerUp={isScheduledEvent ? dragHandlers.onDragEnd : undefined}
+      type="button"
+    >
+      {isScheduledEvent ? (
+        <>
+          <LuConstruction className="box-content px-2.5 py-2.5 text-2xl text-muted-foreground" />
+          <LuGripVertical className="absolute bottom-0 right-0 text-xs text-muted-foreground" />
+        </>
+      ) : (
+        <>
+          <LuConstruction className="box-content px-2.5 pb-4 pt-1 text-2xl text-muted-foreground" />
+          <Countdown
+            className="absolute bottom-0 left-0 w-full border-t border-border bg-background text-center text-2xs leading-none"
+            endsAt={buildingEvent.startsAt + buildingEvent.duration}
+          />
+        </>
+      )}
+    </button>
+  );
+};
+
+type ConstructionQueueEventSlotProps = {
+  event: BuildingUpgradeQueueEntry;
+  isDesktop: boolean;
+  draggedId: number | null;
+  selectedEventKey: string | null;
+  dragHandlers: ConstructionQueueDragHandlers;
+  onSelect: (event: BuildingUpgradeQueueEntry) => void;
+};
+
+const ConstructionQueueEventSlot = ({
+  event,
+  isDesktop,
+  draggedId,
+  selectedEventKey,
+  dragHandlers,
+  onSelect,
+}: ConstructionQueueEventSlotProps) => {
+  const eventKey = getBuildingUpgradeQueueEntryKey(event);
+  const isScheduledEvent = event.type === 'scheduledBuildingUpgrade';
+  const isDragging = isScheduledEvent && event.id === draggedId;
+
+  return (
+    <li data-scheduled-upgrade-id={isScheduledEvent ? event.id : undefined}>
+      {isDesktop ? (
+        <ConstructionQueueBuilding
+          buildingEvent={event}
+          dragHandlers={dragHandlers}
+          isDragging={isDragging}
+        />
+      ) : (
+        <CompactConstructionQueueBuilding
+          buildingEvent={event}
+          dragHandlers={dragHandlers}
+          isDragging={isDragging}
+          isSelected={eventKey === selectedEventKey}
+          onClick={() => onSelect(event)}
+        />
+      )}
+    </li>
+  );
+};
 
 const ConstructionQueueContent = () => {
   const { t } = useTranslation();
   const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const [isExtended, setIsExtended] = useState<boolean>(false);
+  const [selectedEventKey, setSelectedEventKey] = useState<string | null>(null);
 
-  const containerRef = useClickOutside<HTMLUListElement>(() => {
+  const activeEvents = useMemo(
+    () =>
+      buildingUpgradeEvents.filter(
+        (event) => event.type !== 'scheduledBuildingUpgrade',
+      ),
+    [buildingUpgradeEvents],
+  );
+
+  const scheduledEvents = useMemo(
+    () =>
+      buildingUpgradeEvents.filter(
+        (event): event is ScheduledBuildingUpgrade =>
+          event.type === 'scheduledBuildingUpgrade',
+      ),
+    [buildingUpgradeEvents],
+  );
+
+  const {
+    dragHandlers,
+    draggedId,
+    orderedEvents: orderedScheduledEvents,
+  } = useConstructionQueueDrag(scheduledEvents);
+
+  const orderedEvents = [...activeEvents, ...orderedScheduledEvents];
+  const selectedEvent = orderedEvents.find(
+    (event) => getBuildingUpgradeQueueEntryKey(event) === selectedEventKey,
+  );
+
+  const containerRef = useClickOutside<HTMLElement>(() => {
     setIsExtended(false);
+    setSelectedEventKey(null);
   });
 
   const totalSlotsCount = 5;
-  const emptySlotsCount = Math.max(
-    0,
-    totalSlotsCount - buildingUpgradeEvents.length,
-  );
-
-  // TODO: We've had reports of a bug where emptySlots is less than 0. We're manually reporting the issue, remove this code block once resolved.
-  if (totalSlotsCount - buildingUpgradeEvents.length < 0) {
-    faro.api.pushError(
-      new Error(
-        'Invalid array length at ConstructionQueue' +
-          JSON.stringify({ buildingUpgradeEvents }),
-      ),
-    );
-  }
+  const emptySlotsCount = Math.max(0, totalSlotsCount - orderedEvents.length);
 
   const slots = [
-    ...buildingUpgradeEvents.map((event) => ({
+    ...orderedEvents.map((event) => ({
       type: 'building' as const,
       event,
     })),
-    ...Array.from({ length: emptySlotsCount }, (_, i) => {
-      const slotIndex = buildingUpgradeEvents.length + i;
-      return {
-        type: 'empty',
-        id: `empty-slot-${slotIndex}`,
-      } as const;
-    }),
+    ...Array.from({ length: emptySlotsCount }, (_, index) => ({
+      type: 'empty' as const,
+      id: `empty-slot-${orderedEvents.length + index}`,
+    })),
   ];
 
+  const visibleSlots = isWiderThanLg || isExtended ? slots : slots.slice(0, 1);
+
   return (
-    <aside className="fixed left-0 bottom-safe-offset-26 lg:bottom-14 transition-all">
-      <ul
-        ref={containerRef}
-        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center transition-all"
-      >
-        <li>
-          {slots[0].type === 'building' ? (
-            <ConstructionQueueBuilding
-              tooltipPosition="right-start"
-              buildingEvent={slots[0].event}
+    <aside
+      className="fixed bottom-safe-offset-26 left-0 z-10 flex max-w-[calc(100vw-1rem)] flex-col items-start gap-1 transition-all lg:bottom-14"
+      ref={containerRef}
+    >
+      {!isWiderThanLg && selectedEvent && (
+        <ConstructionQueueBuilding
+          buildingEvent={selectedEvent}
+          isDragging={false}
+        />
+      )}
+      <ul className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-all lg:flex-col lg:items-stretch lg:overflow-visible">
+        {visibleSlots.map((slot) =>
+          slot.type === 'building' ? (
+            <ConstructionQueueEventSlot
+              dragHandlers={dragHandlers}
+              draggedId={draggedId}
+              event={slot.event}
+              isDesktop={isWiderThanLg}
+              key={getBuildingUpgradeQueueEntryKey(slot.event)}
+              onSelect={(event) => {
+                const key = getBuildingUpgradeQueueEntryKey(event);
+                setSelectedEventKey((current) =>
+                  current === key ? null : key,
+                );
+              }}
+              selectedEventKey={selectedEventKey}
             />
           ) : (
-            <ConstructionQueueEmptySlot />
-          )}
-        </li>
-
-        {(isWiderThanLg || isExtended) &&
-          slots.slice(1).map((slot) => (
-            <li
-              key={
-                slot.type === 'building'
-                  ? getBuildingUpgradeQueueEntryKey(slot.event)
-                  : slot.id
-              }
-            >
-              {slot.type === 'building' ? (
-                <ConstructionQueueBuilding
-                  tooltipPosition="right-start"
-                  buildingEvent={slot.event}
-                />
-              ) : (
-                <ConstructionQueueEmptySlot />
-              )}
+            <li key={slot.id}>
+              <ConstructionQueueEmptySlot />
             </li>
-          ))}
+          ),
+        )}
 
         {!isWiderThanLg && (
-          <li>
+          <li className="shrink-0">
             <button
               aria-label={
                 isExtended
                   ? t('Close construction queue')
                   : t('Expand construction queue')
               }
-              className="text-2xl bg-muted text-muted-foreground py-2.5 box-content border border-border rounded-xs transition-colors"
+              className="box-content rounded-xs border border-border bg-muted py-2.5 text-2xl text-muted-foreground transition-colors"
               onClick={() => setIsExtended(!isExtended)}
               type="button"
             >
@@ -226,7 +333,6 @@ const ConstructionQueueContent = () => {
 
 export const ConstructionQueue = () => {
   const { shouldShowSidebars } = useGameLayoutState();
-
   if (!shouldShowSidebars) {
     return null;
   }
