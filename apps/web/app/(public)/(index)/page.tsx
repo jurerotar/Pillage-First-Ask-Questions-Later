@@ -263,7 +263,7 @@ const MotivationSection = () => {
           <div className="flex flex-wrap gap-2">
             <DiscordButton>Help shape the game</DiscordButton>
             <Link to="/get-involved">
-              <Button variant="outline">Get involved</Button>
+              <Button variant="secondary">Get involved</Button>
             </Link>
           </div>
         </div>
@@ -353,7 +353,7 @@ const OpenSourceSection = () => {
           <div className="flex flex-wrap gap-2 items-center">
             <GithubButton />
             <Link to="/get-involved">
-              <Button variant="outline">Get involved</Button>
+              <Button variant="secondary">Get involved</Button>
             </Link>
           </div>
         </div>
