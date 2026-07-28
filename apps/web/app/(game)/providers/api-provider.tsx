@@ -1,35 +1,22 @@
 import { type QueryKey, useQueryClient } from '@tanstack/react-query';
 import { debounce } from 'moderndash';
-import {
-  createContext,
-  type PropsWithChildren,
-  useEffect,
-  useMemo,
-} from 'react';
+import { type PropsWithChildren, useEffect, useMemo } from 'react';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
+import {
+  ApiContext,
+  type ApiContextReturn,
+} from 'app/(game)/providers/api-context';
 import { cachesToClearOnResolve } from 'app/(game)/providers/constants/caches-to-clear-on-resolve';
 import { isEventResolvedSuccessfullyNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
-import {
-  type ApiClient,
-  createTypedApiClient,
-} from 'app/(game)/providers/utils/typed-api-client';
+import { createTypedApiClient } from 'app/(game)/providers/utils/typed-api-client';
 import { createWorkerFetcher } from 'app/(game)/providers/utils/worker-fetch';
 import { reportError } from 'app/instrumentation/report-error';
 
 type ApiProviderProps = {
   serverSlug: Server['slug'];
 };
-
-type ApiContextReturn = {
-  apiWorker: Worker;
-  apiClient: ApiClient;
-};
-
-export const ApiContext = createContext<ApiContextReturn>(
-  {} as ApiContextReturn,
-);
 
 export const ApiProvider = ({
   children,

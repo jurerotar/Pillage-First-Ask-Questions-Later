@@ -94,7 +94,7 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
   return entries;
 };
 
-export const escapeXml = (s: string): string => {
+const escapeXml = (s: string): string => {
   return s
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

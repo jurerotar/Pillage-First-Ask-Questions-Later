@@ -44,7 +44,7 @@ type ReportContextState = {
   report: ReportType;
 };
 
-export const ReportContext = createContext<ReportContextState>(
+const ReportContext = createContext<ReportContextState>(
   {} as ReportContextState,
 );
 

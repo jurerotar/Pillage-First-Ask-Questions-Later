@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
+import { useIntl } from 'app/hooks/use-intl';
 import { useTroopSelectionForm } from '../hooks/use-troop-selection-form';
 import type { BaseTroopFormValues } from '../utils/schema';
 import { TroopSelectionForm } from './troop-selection-form';
@@ -43,7 +44,9 @@ export const RelocateTroopsModal = (props: RelocateTroopsModalProps) => {
   const mode = props.mode ?? 'incoming';
   const outgoingProps =
     mode === 'outgoing' ? (props as OutgoingRelocateTroopsModalProps) : null;
-  const { t, i18n } = useTranslation();
+
+  const { t } = useTranslation();
+  const intl = useIntl();
   const { currentVillage } = useCurrentVillage();
   const { relocateReinforcements, relocateSentReinforcements } =
     useVillageTroops();
@@ -67,10 +70,8 @@ export const RelocateTroopsModal = (props: RelocateTroopsModalProps) => {
 
       return `${selected} ${unitName}`;
     });
-    const formattedTroopList = new Intl.ListFormat(i18n.language, {
-      style: 'long',
-      type: 'conjunction',
-    }).format(relocatedTroopSummary);
+
+    const formattedTroopList = intl.list.format(relocatedTroopSummary);
 
     if (mode === 'incoming') {
       const incomingProps = props as IncomingRelocateTroopsModalProps;

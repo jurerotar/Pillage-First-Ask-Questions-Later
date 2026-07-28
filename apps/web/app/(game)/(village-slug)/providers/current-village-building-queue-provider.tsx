@@ -1,43 +1,14 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  useCallback,
-  useMemo,
-} from 'react';
+import { type PropsWithChildren, useCallback, useMemo } from 'react';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { partition } from '@pillage-first/utils/array';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
-import {
-  type ScheduledBuildingUpgrade,
-  useScheduledBuildingUpgrades,
-} from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
+import { useScheduledBuildingUpgrades } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-
-export type BuildingUpgradeQueueEntry =
-  | BuildingEvent
-  | ScheduledBuildingUpgrade;
-
-export const getBuildingUpgradeQueueEntryKey = (
-  entry: Pick<BuildingUpgradeQueueEntry, 'id' | 'type'>,
-): string => `${entry.type}-${entry.id}`;
-
-type CurrentVillageBuildingQueueContextReturn = {
-  buildingEvents: BuildingEvent[];
-  buildingEventByFieldId: Map<BuildingField['id'], BuildingEvent>;
-  buildingUpgradeEventCountByFieldId: Map<BuildingField['id'], number>;
-  buildingUpgradeEvents: BuildingUpgradeQueueEntry[];
-  buildingDowngradeEvents: BuildingEvent[];
-  downgradedBuildingByFieldId: Map<BuildingField['id'], BuildingEvent>;
-  getBuildingEventQueue: (
-    buildingFieldId: BuildingField['id'],
-  ) => BuildingUpgradeQueueEntry[];
-};
-
-export const CurrentVillageBuildingQueueContext =
-  createContext<CurrentVillageBuildingQueueContextReturn>(
-    {} as CurrentVillageBuildingQueueContextReturn,
-  );
+import {
+  type BuildingUpgradeQueueEntry,
+  CurrentVillageBuildingQueueContext,
+} from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 
 export const CurrentVillageBuildingQueueContextProvider = ({
   children,
@@ -50,6 +21,8 @@ export const CurrentVillageBuildingQueueContextProvider = ({
     useEventsByType('buildingDestruction');
   const { eventsByType: currentVillageBuildingLevelChangeEvents } =
     useEventsByType('buildingLevelChange');
+  const { eventsByType: currentVillageBuildingScheduledConstructionEvents } =
+    useEventsByType('buildingScheduledConstruction');
   const { scheduledBuildingUpgrades } = useScheduledBuildingUpgrades();
 
   const buildingEvents = useMemo(() => {
@@ -57,10 +30,12 @@ export const CurrentVillageBuildingQueueContextProvider = ({
       ...currentVillageBuildingConstructionEvents,
       ...currentVillageBuildingDestructionEvents,
       ...currentVillageBuildingLevelChangeEvents,
+      ...currentVillageBuildingScheduledConstructionEvents,
     ].toSorted((a, b) => a.startsAt + a.duration - (b.startsAt + b.duration));
   }, [
     currentVillageBuildingConstructionEvents,
     currentVillageBuildingLevelChangeEvents,
+    currentVillageBuildingScheduledConstructionEvents,
     currentVillageBuildingDestructionEvents,
   ]);
 

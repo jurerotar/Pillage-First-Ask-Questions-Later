@@ -105,7 +105,6 @@ const viteConfig = defineViteConfig({
     },
   },
   optimizeDeps: {
-    entries: ['app/**/*.{ts,tsx}'],
     exclude: ['@sqlite.org/sqlite-wasm'],
   },
   resolve: {

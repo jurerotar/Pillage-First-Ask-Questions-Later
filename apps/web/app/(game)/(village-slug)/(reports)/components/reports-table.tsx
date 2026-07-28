@@ -23,7 +23,7 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
 import { getReportSubject } from '../utils/report-subject';
 import { ReportsListActions } from './reports-list-actions';
 

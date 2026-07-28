@@ -40,10 +40,9 @@ type TroopConfirmationContextState = {
   backLabel?: string;
 };
 
-export const TroopConfirmationContext =
-  createContext<TroopConfirmationContextState>(
-    {} as TroopConfirmationContextState,
-  );
+const TroopConfirmationContext = createContext<TroopConfirmationContextState>(
+  {} as TroopConfirmationContextState,
+);
 
 type TroopMovementConfirmationModalProps = {
   isOpen: boolean;
@@ -161,7 +160,7 @@ type TroopConfirmationMovementDetailsProps = {
   originTileId?: number;
 };
 
-export const TroopConfirmationMovementDetails = ({
+const TroopConfirmationMovementDetails = ({
   formData,
   originTileId,
 }: TroopConfirmationMovementDetailsProps) => {

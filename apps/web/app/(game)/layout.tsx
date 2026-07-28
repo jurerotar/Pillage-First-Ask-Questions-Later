@@ -21,7 +21,8 @@ import { HeadLinks } from 'app/components/head-links';
 import { Spinner } from 'app/components/ui/spinner';
 import { Toaster } from 'app/components/ui/toaster';
 import { loadAppTranslations } from 'app/localization/loaders/app';
-import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
+import { CookieProvider } from 'app/providers/cookie-provider';
 
 export { ErrorBoundary } from 'app/(game)/error-boundary';
 
@@ -104,8 +105,8 @@ const LayoutContent = memo<Route.ComponentProps>(
     const { uiColorScheme } = use(CookieContext);
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
 
-    const [queryClient] = useState<QueryClient>(
-      new QueryClient({
+    const [queryClient] = useState<QueryClient>(() => {
+      return new QueryClient({
         defaultOptions: {
           queries: {
             networkMode: 'always',
@@ -116,8 +117,8 @@ const LayoutContent = memo<Route.ComponentProps>(
             retry: false,
           },
         },
-      }),
-    );
+      });
+    });
 
     const toasterPosition: ToasterProps['position'] = isWiderThanLg
       ? 'bottom-right'

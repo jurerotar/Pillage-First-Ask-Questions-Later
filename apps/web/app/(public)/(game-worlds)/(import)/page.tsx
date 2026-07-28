@@ -10,6 +10,7 @@ import type {
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { PageMetadata } from 'app/(public)/components/page-metadata';
+import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -21,6 +22,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
+import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
 
 type ImportGameWorldSuccess = Extract<
@@ -57,8 +59,9 @@ const ImportGameWorld = () => {
 
       return result;
     },
-    onSuccess: async ({ server }) => {
-      createGameWorld({ server });
+    onSuccess: async ({ server }, _data, _onMutateResult, context) => {
+      await createGameWorld({ server });
+      await invalidateQueries(context, [[availableServerCacheKey]]);
 
       await navigate(`/game/${server.slug}/v-1/resources`);
     },

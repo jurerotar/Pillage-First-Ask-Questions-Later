@@ -1908,6 +1908,29 @@ describe('events utils', () => {
   });
 
   describe(createEvents, () => {
+    test('should reject incomplete event payloads before persistence', async () => {
+      const database = await prepareTestDatabase();
+
+      expect(() =>
+        createEvents(database, {
+          type: 'gatherersHutGatheringTrip',
+          villageId: 1,
+          troops: [{ unitId: 'PHALANX', amount: 1, source: 1 }],
+        } as never),
+      ).toThrow();
+
+      const eventCount = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM events
+          WHERE type = 'gatherersHutGatheringTrip';
+        `,
+        schema: z.number(),
+      });
+
+      expect(eventCount).toBe(0);
+    });
+
     test('troopTraining - should complete queued troop count quests when units are queued', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);

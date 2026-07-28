@@ -20,9 +20,12 @@ type UnitSelectorProps = {
   maxTotalUnits?: number;
 };
 
+const EMPTY_DISABLED_UNIT_TIERS: Unit['tier'][] = [];
+const EMPTY_MAX_UNITS: NonNullable<UnitSelectorProps['maxUnits']> = [];
+
 export const UnitSelector = ({
-  disabledUnitTiers = [],
-  maxUnits = [],
+  disabledUnitTiers = EMPTY_DISABLED_UNIT_TIERS,
+  maxUnits = EMPTY_MAX_UNITS,
   maxTotalUnits,
 }: UnitSelectorProps) => {
   const { control, setValue, watch } = useFormContext<{

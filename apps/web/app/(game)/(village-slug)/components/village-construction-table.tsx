@@ -1,15 +1,17 @@
 import { use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import { LuConstruction } from 'react-icons/lu';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
 import { useScheduledBuildingUpgrades } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   CurrentVillageBuildingQueueContext,
   getBuildingUpgradeQueueEntryKey,
-} from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+} from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { Button } from 'app/components/ui/button';
 import {
   Table,
@@ -22,9 +24,12 @@ import {
 
 export const VillageConstructionTable = () => {
   const { t } = useTranslation();
+  const tribe = useTribe();
   const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
 
   const totalSlotsCount = 5;
+  const availableSlotsCount = tribe === 'romans' ? 2 : 1;
+
   const slots = useMemo(() => {
     const emptySlotsCount = Math.max(
       0,
@@ -36,13 +41,15 @@ export const VillageConstructionTable = () => {
     }));
     const empties = Array.from({ length: emptySlotsCount }, (_, i) => {
       const slotIndex = buildingUpgradeEvents.length + i;
+      const isFree = slotIndex < availableSlotsCount;
       return {
         type: 'empty' as const,
         id: `empty-slot-${slotIndex}`,
+        status: isFree ? 'free' : ('locked' as const),
       };
     });
     return [...base, ...empties];
-  }, [buildingUpgradeEvents]);
+  }, [buildingUpgradeEvents, availableSlotsCount]);
 
   const { mutate: cancelConstruction } = useCancelConstruction();
   const { cancelScheduledBuildingUpgrade } = useScheduledBuildingUpgrades();
@@ -114,7 +121,11 @@ export const VillageConstructionTable = () => {
               >
                 <TableCell>
                   <span className="inline-flex items-center gap-2 text-gray-500">
-                    <ImHammer className="text-base" />
+                    {slot.status === 'free' ? (
+                      <ImHammer className="text-base" />
+                    ) : (
+                      <FaLock className="text-base" />
+                    )}
                     <span>{t('Empty')}</span>
                   </span>
                 </TableCell>

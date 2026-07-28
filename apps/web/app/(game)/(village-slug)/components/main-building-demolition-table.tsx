@@ -4,7 +4,7 @@ import { IoIosArrowRoundForward } from 'react-icons/io';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCancelDemolition } from 'app/(game)/(village-slug)/hooks/use-cancel-demolition';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { Button } from 'app/components/ui/button';
 import {
   Dialog,

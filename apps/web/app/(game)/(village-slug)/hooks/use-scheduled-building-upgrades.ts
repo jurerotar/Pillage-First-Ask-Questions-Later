@@ -9,7 +9,7 @@ import {
   eventsCacheKey,
   scheduledBuildingUpgradesCacheKey,
 } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
 
 export type ScheduledBuildingUpgrade = {
@@ -26,27 +26,26 @@ export const useScheduledBuildingUpgrades = () => {
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data } = useSuspenseQuery({
+  const { data: scheduledBuildingUpgradeRows } = useSuspenseQuery({
     queryKey: [scheduledBuildingUpgradesCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data } = await apiClient.get(
+      const { data: responseData } = await apiClient.get(
         '/villages/:villageId/scheduled-building-upgrades',
         {
           path: { villageId: currentVillage.id },
         },
       );
 
-      return data;
+      return responseData;
     },
   });
 
-  const scheduledBuildingUpgrades: ScheduledBuildingUpgrade[] = data.map(
-    (upgrade) => ({
+  const scheduledBuildingUpgrades: ScheduledBuildingUpgrade[] =
+    scheduledBuildingUpgradeRows.map((upgrade) => ({
       ...upgrade,
       type: 'scheduledBuildingUpgrade',
       previousLevel: upgrade.level - 1,
-    }),
-  );
+    }));
 
   const { mutate: scheduleBuildingUpgrade } = useMutation<
     void,

@@ -39,10 +39,8 @@ import {
 } from 'app/(game)/(village-slug)/(map)/components/map-send-troops-modal';
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import { useMapMarkers } from 'app/(game)/(village-slug)/(map)/hooks/use-map-markers';
-import {
-  MapContext,
-  MapProvider,
-} from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
+import { MapProvider } from 'app/(game)/(village-slug)/(map)/providers/map-provider';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';

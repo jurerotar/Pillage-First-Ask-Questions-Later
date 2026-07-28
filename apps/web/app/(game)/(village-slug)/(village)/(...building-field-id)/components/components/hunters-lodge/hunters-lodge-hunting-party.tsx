@@ -7,7 +7,7 @@ import {
 } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
   Section,
   SectionContent,

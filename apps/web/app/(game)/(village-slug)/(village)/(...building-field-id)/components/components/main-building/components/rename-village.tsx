@@ -16,7 +16,7 @@ import {
   currentVillageCacheKey,
   villageListingCacheKey,
 } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {

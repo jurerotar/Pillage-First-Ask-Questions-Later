@@ -18,6 +18,7 @@
     "extract-sql-schema": "node scripts/extract-sql-schema.ts",
     "extract-sql-usage": "node scripts/extract-sql-usage.ts",
     "extract-sql-seeder-usage": "node scripts/extract-sql-seeder-usage.ts",
+    "generate-github-data": "node scripts/generate-github-data.ts",
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {

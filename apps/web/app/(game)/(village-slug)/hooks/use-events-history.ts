@@ -4,7 +4,7 @@ import type { z } from 'zod';
 import type { eventsHistoryItemDtoSchema } from '@pillage-first/types/dtos/history';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { eventsHistoryCacheKey } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 
 export type HistoryEventType = z.infer<
   typeof eventsHistoryItemDtoSchema

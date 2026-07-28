@@ -1,7 +1,9 @@
+import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
 import clsx from 'clsx';
 import { Suspense, use, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import {
@@ -23,11 +25,12 @@ import {
   type ScheduledBuildingUpgrade,
   useScheduledBuildingUpgrades,
 } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   type BuildingUpgradeQueueEntry,
   CurrentVillageBuildingQueueContext,
   getBuildingUpgradeQueueEntryKey,
-} from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+} from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-muted-foreground px-2 py-2.5 box-content border border-border rounded-xs transition-colors';
@@ -116,7 +119,19 @@ const ConstructionQueueBuilding = ({
   );
 };
 
-const ConstructionQueueEmptySlot = () => <ImHammer className={iconClassName} />;
+type ConstructionQueueEmptySlotProps = {
+  type: 'free' | 'locked';
+};
+
+const ConstructionQueueEmptySlot = ({
+  type,
+}: ConstructionQueueEmptySlotProps) => {
+  if (type === 'free') {
+    return <ImHammer className={iconClassName} />;
+  }
+
+  return <FaLock className={iconClassName} />;
+};
 
 type CompactConstructionQueueBuildingProps = {
   buildingEvent: BuildingUpgradeQueueEntry;
@@ -221,6 +236,7 @@ const ConstructionQueueEventSlot = ({
 
 const ConstructionQueueContent = () => {
   const { t } = useTranslation();
+  const tribe = useTribe();
   const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const [isExtended, setIsExtended] = useState<boolean>(false);
@@ -260,17 +276,34 @@ const ConstructionQueueContent = () => {
   });
 
   const totalSlotsCount = 5;
+  const availableSlotsCount = tribe === 'romans' ? 2 : 1;
   const emptySlotsCount = Math.max(0, totalSlotsCount - orderedEvents.length);
+
+  // TODO: We've had reports of a bug where emptySlots is less than 0. We're manually reporting the issue, remove this code block once resolved.
+  if (totalSlotsCount - orderedEvents.length < 0) {
+    faro.api.pushError(
+      new Error(
+        'Invalid array length at ConstructionQueue' +
+          JSON.stringify({ buildingUpgradeEvents }),
+      ),
+    );
+  }
 
   const slots = [
     ...orderedEvents.map((event) => ({
       type: 'building' as const,
       event,
     })),
-    ...Array.from({ length: emptySlotsCount }, (_, index) => ({
-      type: 'empty' as const,
-      id: `empty-slot-${orderedEvents.length + index}`,
-    })),
+    ...Array.from({ length: emptySlotsCount }, (_, index) => {
+      const slotIndex = orderedEvents.length + index;
+      const isFree = slotIndex < availableSlotsCount;
+
+      return {
+        type: 'empty',
+        id: `empty-slot-${slotIndex}`,
+        status: isFree ? 'free' : 'locked',
+      } as const;
+    }),
   ];
 
   const visibleSlots = isWiderThanLg || isExtended ? slots : slots.slice(0, 1);
@@ -305,7 +338,7 @@ const ConstructionQueueContent = () => {
             />
           ) : (
             <li key={slot.id}>
-              <ConstructionQueueEmptySlot />
+              <ConstructionQueueEmptySlot type={slot.status} />
             </li>
           ),
         )}

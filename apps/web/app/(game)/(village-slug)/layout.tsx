@@ -63,10 +63,8 @@ import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-pla
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import {
-  CurrentVillageStateContext,
-  CurrentVillageStateProvider,
-} from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
+import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';

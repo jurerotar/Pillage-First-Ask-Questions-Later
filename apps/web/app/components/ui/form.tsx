@@ -78,8 +78,14 @@ const FormItemContext = createContext<FormItemContextValue>(
 export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
   const { name } = use(FormFieldContext);
 
+  const value = useMemo(() => {
+    return {
+      id: name,
+    };
+  }, [name]);
+
   return (
-    <FormItemContext value={{ id: name }}>
+    <FormItemContext value={value}>
       <div
         data-slot="form-item"
         className={className}

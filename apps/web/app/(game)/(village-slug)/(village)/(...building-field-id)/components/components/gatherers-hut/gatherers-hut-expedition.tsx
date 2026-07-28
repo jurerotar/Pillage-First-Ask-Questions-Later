@@ -12,7 +12,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
   Section,
   SectionContent,
@@ -329,14 +329,20 @@ export const GatherersHutExpedition = () => {
   };
 
   const getSelectedTroops = (data: GatheringExpeditionFormValues): Troop[] => {
-    return data.units
-      .filter(({ selected, unitId }) => selected > 0 && unitId !== 'HERO')
-      .map(({ unitId, selected }) => ({
-        unitId,
-        amount: selected,
-        tileId: currentVillage.tileId,
-        source: currentVillage.tileId,
-      }));
+    const selectedTroops: Troop[] = [];
+
+    for (const { unitId, selected } of data.units) {
+      if (selected > 0 && unitId !== 'HERO') {
+        selectedTroops.push({
+          unitId,
+          amount: selected,
+          tileId: currentVillage.tileId,
+          source: currentVillage.tileId,
+        });
+      }
+    }
+
+    return selectedTroops;
   };
 
   const handleSubmit = (data: GatheringExpeditionFormValues) => {

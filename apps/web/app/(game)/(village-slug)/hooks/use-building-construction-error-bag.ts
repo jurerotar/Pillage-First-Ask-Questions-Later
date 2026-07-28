@@ -18,8 +18,8 @@ import {
   useHasEnoughStorageCapacity,
 } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
 
 type UseBuildingRequirementsReturn = {
   canUpgrade: boolean;
