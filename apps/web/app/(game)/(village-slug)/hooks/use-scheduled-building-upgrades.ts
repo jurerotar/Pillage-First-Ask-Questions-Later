@@ -29,14 +29,14 @@ export const useScheduledBuildingUpgrades = () => {
   const { data: scheduledBuildingUpgradeRows } = useSuspenseQuery({
     queryKey: [scheduledBuildingUpgradesCacheKey, currentVillage.id],
     queryFn: async () => {
-      const { data: responseData } = await apiClient.get(
+      const { data } = await apiClient.get(
         '/villages/:villageId/scheduled-building-upgrades',
         {
           path: { villageId: currentVillage.id },
         },
       );
 
-      return responseData;
+      return data;
     },
   });
 
