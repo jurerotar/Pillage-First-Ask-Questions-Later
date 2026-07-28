@@ -64,7 +64,9 @@ const LandingScreenshotsSection = () => {
                   <img
                     src={`/landing/${screenshot.base}-${uiColorScheme}-${timestamp}.jpg`}
                     alt={screenshot.alt}
-                    className="rounded-lg border border-border w-full h-auto"
+                    width={1170}
+                    height={2100}
+                    className="block rounded-lg border border-border w-full h-auto"
                     loading="lazy"
                   />
                 </picture>
