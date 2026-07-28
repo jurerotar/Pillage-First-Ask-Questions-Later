@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
+import { createEventDtoSchema } from '@pillage-first/types/dtos/event';
 import type {
   GameEvent,
   GameEventType,
@@ -38,6 +39,8 @@ export const createEvents = <T extends GameEventType>(
   database: DbFacade,
   args: CreateNewEventsArgs<T>,
 ) => {
+  createEventDtoSchema.parse(args);
+
   const sampleEvent = args as GameEvent<T>;
   let { startsAt = null, duration = null } = sampleEvent;
   const amount = args?.amount ?? 1;

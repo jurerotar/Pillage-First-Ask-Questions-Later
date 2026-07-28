@@ -1,7 +1,9 @@
 import type { FieldValues, SubmitHandler } from 'react-hook-form';
 import type { z } from 'zod';
-import type { TroopMovementEventType } from '@pillage-first/types/models/game-event';
-import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
+import {
+  type SendTroopsEventType,
+  useVillageTroops,
+} from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { useDialog } from 'app/hooks/use-dialog';
 import type { BaseTroopFormValues } from '../utils/schema';
 import { type TroopFormOptions, useTroopForm } from './use-troop-form';
@@ -19,7 +21,7 @@ type UseTroopMovementFormOptions<T extends FieldValues & BaseTroopFormValues> =
     schema: z.ZodType<T>;
     formOptions: TroopFormOptions<T>;
     getMovementValidationType: (data: T) => MovementValidationType;
-    getEventType: (data: T) => TroopMovementEventType;
+    getEventType: (data: T) => SendTroopsEventType;
     onSuccess?: () => void;
   };
 
