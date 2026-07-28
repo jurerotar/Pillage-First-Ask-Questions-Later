@@ -11,7 +11,6 @@ import {
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import {
   Section,
   SectionContent,
@@ -283,11 +282,10 @@ const buildingDetailsTabMap = new Map<
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
-  const { buildingField, buildingFieldId } = use(BuildingFieldContext);
+  const { buildingField, buildingFieldId, actualLevel } =
+    use(BuildingFieldContext);
 
   const { buildingId } = buildingField!;
-
-  const { actualLevel } = useBuildingVirtualLevel(buildingFieldId);
 
   const tabs = [
     'default',

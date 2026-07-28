@@ -14,7 +14,6 @@ import {
   calculateBuildingEffectValues,
   getBuildingDataForLevel,
   getBuildingDefinition,
-  getBuildingFieldByBuildingFieldId,
 } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import type { Effect } from '@pillage-first/types/models/effect';
@@ -25,7 +24,6 @@ import {
 } from '@pillage-first/utils/game/building-requirements';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
@@ -107,9 +105,8 @@ export const BuildingCard = ({
 export const BuildingOverview = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel, isUpgrading, isDowngrading } =
-    useBuildingVirtualLevel(buildingFieldId);
+    use(BuildingFieldContext);
 
   const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(
     buildingId,
@@ -149,10 +146,8 @@ export const BuildingOverview = () => {
 
 export const BuildingCost = () => {
   const { t } = useTranslation();
-  const { buildingFieldId } = use(BuildingFieldContext);
   const { buildingId } = use(BuildingCardContext);
-  const { virtualLevel, doesBuildingExist } =
-    useBuildingVirtualLevel(buildingFieldId);
+  const { virtualLevel, doesBuildingExist } = use(BuildingFieldContext);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
@@ -279,9 +274,8 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
 export const BuildingBenefits = () => {
   const { t } = useTranslation();
   const { building, buildingId } = use(BuildingCardContext);
-  const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel, doesBuildingExist } =
-    useBuildingVirtualLevel(buildingFieldId);
+    use(BuildingFieldContext);
 
   const {
     isMaxLevel,
@@ -519,13 +513,8 @@ const BuildingCardActionsUpgrade = ({
   buildingLevel,
 }: BuildingCardActionsUpgradeProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId } = use(BuildingFieldContext);
-  const { currentVillage } = useCurrentVillage();
-
-  const { buildingId, level } = getBuildingFieldByBuildingFieldId(
-    currentVillage,
-    buildingFieldId,
-  )!;
+  const { buildingFieldId, buildingField } = use(BuildingFieldContext);
+  const { buildingId, level } = buildingField!;
 
   const { errorBag } = useBuildingConstructionErrorBag(
     buildingId,
@@ -555,16 +544,18 @@ export const BuildingActions = () => {
     use(BuildingCardContext);
   const navigate = useNavigate();
   const tribe = useTribe();
-  const { buildingFieldId, maxLevelByBuildingId, buildingIdsInQueue } =
-    use(BuildingFieldContext);
+  const {
+    buildingFieldId,
+    virtualLevel,
+    doesBuildingExist,
+    maxLevelByBuildingId,
+    buildingIdsInQueue,
+  } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,
     buildingFieldId,
   );
-  const { virtualLevel, doesBuildingExist } =
-    useBuildingVirtualLevel(buildingFieldId);
-
   const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
 
   const navigateBack = async () => {

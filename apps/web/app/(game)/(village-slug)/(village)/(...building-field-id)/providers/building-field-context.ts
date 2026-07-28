@@ -5,6 +5,11 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 type BuildingFieldContextReturn = {
   buildingFieldId: BuildingField['id'];
   buildingField: BuildingField | null;
+  doesBuildingExist: boolean;
+  actualLevel: number;
+  virtualLevel: number;
+  isUpgrading: boolean;
+  isDowngrading: boolean;
   maxLevelByBuildingId: Map<Building['id'], number>;
   buildingIdsInQueue: Set<Building['id']>;
 };
