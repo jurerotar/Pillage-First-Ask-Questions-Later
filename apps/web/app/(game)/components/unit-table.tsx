@@ -4,6 +4,7 @@ import {
   type PropsWithChildren,
   type ReactNode,
   use,
+  useMemo,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -34,8 +35,14 @@ type UnitTableProps = {
 };
 
 export const UnitTable = ({ tribe, children }: UnitTableProps) => {
+  const value = useMemo(() => {
+    return {
+      tribe,
+    };
+  }, [tribe]);
+
   return (
-    <UnitTableContext.Provider value={{ tribe }}>
+    <UnitTableContext.Provider value={value}>
       <OverflowContainer>
         <table className="w-full border-collapse border overflow-hidden dark:border-border text-left">
           {children}

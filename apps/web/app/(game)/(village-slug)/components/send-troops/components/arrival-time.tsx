@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
 import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
 import { Text } from 'app/components/text';
+import { useIntl } from 'app/hooks/use-intl';
 import { formatFutureTimestamp } from 'app/utils/time';
 
 type ArrivalTimeProps = {
@@ -8,13 +8,13 @@ type ArrivalTimeProps = {
 };
 
 export const ArrivalTime = ({ travelDuration }: ArrivalTimeProps) => {
-  const { i18n } = useTranslation();
+  const intl = useIntl();
   const now = useCountdown();
   const arrivalTimestamp = now + travelDuration;
   const { formattedDate: formattedArrivalTime } = formatFutureTimestamp(
     arrivalTimestamp,
-    i18n.language,
     now,
+    intl,
   );
 
   return <Text className="font-medium">{formattedArrivalTime}</Text>;

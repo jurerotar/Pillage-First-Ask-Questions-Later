@@ -329,14 +329,20 @@ export const GatherersHutExpedition = () => {
   };
 
   const getSelectedTroops = (data: GatheringExpeditionFormValues): Troop[] => {
-    return data.units
-      .filter(({ selected, unitId }) => selected > 0 && unitId !== 'HERO')
-      .map(({ unitId, selected }) => ({
-        unitId,
-        amount: selected,
-        tileId: currentVillage.tileId,
-        source: currentVillage.tileId,
-      }));
+    const selectedTroops: Troop[] = [];
+
+    for (const { unitId, selected } of data.units) {
+      if (selected > 0 && unitId !== 'HERO') {
+        selectedTroops.push({
+          unitId,
+          amount: selected,
+          tileId: currentVillage.tileId,
+          source: currentVillage.tileId,
+        });
+      }
+    }
+
+    return selectedTroops;
   };
 
   const handleSubmit = (data: GatheringExpeditionFormValues) => {

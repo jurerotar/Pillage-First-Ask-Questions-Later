@@ -55,7 +55,6 @@ import {
   getTotalResources,
 } from './utils/resources';
 
-const DEFAULT_START_HOUR = new Date().getHours();
 const DEFAULT_INTERVAL_HOURS = 24;
 const HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
 const START_HOUR_OPTIONS = Array.from({ length: 24 }, (_, hour) => hour);
@@ -99,7 +98,7 @@ const getTradeRouteFormValues = (
 
 const getDefaultTradeRouteFormValues = (): MarketplaceTradeRouteFormValues => ({
   resources: emptyResources,
-  startHour: DEFAULT_START_HOUR,
+  startHour: new Date().getHours(),
   intervalHours: DEFAULT_INTERVAL_HOURS,
 });
 

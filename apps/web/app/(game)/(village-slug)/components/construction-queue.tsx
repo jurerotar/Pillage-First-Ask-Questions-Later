@@ -171,10 +171,10 @@ const ConstructionQueueContent = () => {
   ];
 
   return (
-    <aside className="fixed left-0 bottom-safe-offset-26 lg:bottom-14 transition-all">
+    <aside className="fixed left-0 bottom-safe-offset-26 lg:bottom-14 transition-[bottom]">
       <ul
         ref={containerRef}
-        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center transition-all"
+        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center"
       >
         <li>
           {slots[0].type === 'building' ? (

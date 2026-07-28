@@ -1,4 +1,4 @@
-import { createContext, type PropsWithChildren } from 'react';
+import { createContext, type PropsWithChildren, useMemo } from 'react';
 
 type VillageSlugContextValue = {
   villageSlug: string;
@@ -16,7 +16,11 @@ export const VillageSlugProvider = ({
   children,
   villageSlug,
 }: VillageSlugProviderProps) => {
-  return (
-    <VillageSlugContext value={{ villageSlug }}>{children}</VillageSlugContext>
-  );
+  const value = useMemo(() => {
+    return {
+      villageSlug,
+    };
+  }, [villageSlug]);
+
+  return <VillageSlugContext value={value}>{children}</VillageSlugContext>;
 };

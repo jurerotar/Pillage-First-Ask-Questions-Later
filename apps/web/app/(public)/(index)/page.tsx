@@ -274,36 +274,36 @@ const MotivationSection = () => {
   );
 };
 
-const FAQSection = () => {
-  const questions = [
-    {
-      question:
-        'Are there game design differences between Travian and Pillage First!?',
-      answer:
-        'Yes, there are a few! The main ones include new buildings, the removal of the capital village mechanic, expanded artifact system, planned new hero items and more NPC interactions. Mechanics are always up for discussion, so make sure to join our Discord server and share with us your thoughts!',
-    },
-    {
-      question: 'Can I create more than one game world at a time?',
-      answer:
-        'Yes! You may create as many game worlds as you wish. You may also duplicate or export and share your game worlds with other players.',
-    },
-    {
-      question: 'Why single player?',
-      answer:
-        'We want to provide each player with the ability to customize their own unique gameplay experience. This is not possible in a multiplayer environment.',
-    },
-    {
-      question: 'Does the game continue even if I close the app?',
-      answer:
-        "Yes! You're free to close the app at any time and the game will pick off right next time you open it again! Units will continue to be trained, buildings will continue to be constructed and troops will continue to raid exactly as they would if you kept the app running.",
-    },
-    {
-      question: 'Can game worlds be shared between devices?',
-      answer:
-        'Yes! You can do so by either manually exporting and re-importing game world file, or by using an automatic method, which is only possible to do with devices on the same network.',
-    },
-  ];
+const questions = [
+  {
+    question:
+      'Are there game design differences between Travian and Pillage First!?',
+    answer:
+      'Yes, there are a few! The main ones include new buildings, the removal of the capital village mechanic, expanded artifact system, planned new hero items and more NPC interactions. Mechanics are always up for discussion, so make sure to join our Discord server and share with us your thoughts!',
+  },
+  {
+    question: 'Can I create more than one game world at a time?',
+    answer:
+      'Yes! You may create as many game worlds as you wish. You may also duplicate or export and share your game worlds with other players.',
+  },
+  {
+    question: 'Why single player?',
+    answer:
+      'We want to provide each player with the ability to customize their own unique gameplay experience. This is not possible in a multiplayer environment.',
+  },
+  {
+    question: 'Does the game continue even if I close the app?',
+    answer:
+      "Yes! You're free to close the app at any time and the game will pick off right next time you open it again! Units will continue to be trained, buildings will continue to be constructed and troops will continue to raid exactly as they would if you kept the app running.",
+  },
+  {
+    question: 'Can game worlds be shared between devices?',
+    answer:
+      'Yes! You can do so by either manually exporting and re-importing game world file, or by using an automatic method, which is only possible to do with devices on the same network.',
+  },
+];
 
+const FAQSection = () => {
   return (
     <section className="py-8 lg:py-12">
       <div className="max-w-7xl p-2 mx-auto grid grid-cols-1 md:grid-cols-[0.8fr_1.2fr] gap-8">

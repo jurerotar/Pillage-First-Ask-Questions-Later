@@ -1,10 +1,10 @@
-import { use, useMemo } from 'react';
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Resources } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
 import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { useIntl } from 'app/hooks/use-intl';
 import { formatFutureTimestamp } from 'app/utils/time';
 import {
   getHasEnoughGranaryCapacity,
@@ -38,14 +38,7 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
     computedWarehouseCapacityEffect,
     computedGranaryCapacityEffect,
   } = use(CurrentVillageStateContext);
-  const { locale } = use(CookieContext);
-
-  const resourceListFormatter = useMemo(() => {
-    return new Intl.ListFormat(locale, {
-      style: 'long',
-      type: 'conjunction',
-    });
-  }, [locale]);
+  const intl = useIntl();
 
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
@@ -91,7 +84,7 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
 
     const errorMessage = t(
       'Not enough resources available. You are still missing {{resources}}.',
-      { resources: resourceListFormatter.format(missingResources) },
+      { resources: intl.list.format(missingResources) },
     );
 
     errorBag.push(errorMessage);
@@ -128,8 +121,8 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
       if (maxWaitTimeInHours > 0) {
         const { isToday, formattedDate } = formatFutureTimestamp(
           readyAtTimestamp,
-          locale,
           currentTimestamp,
+          intl,
         );
 
         errorBag.push(
