@@ -15,7 +15,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-muted-foreground px-2 py-2.5 box-content border border-border rounded-xs transition-colors';
@@ -171,10 +171,10 @@ const ConstructionQueueContent = () => {
   ];
 
   return (
-    <aside className="fixed left-0 bottom-safe-offset-26 lg:bottom-14 transition-all">
+    <aside className="fixed left-0 bottom-safe-offset-26 lg:bottom-14 transition-[bottom]">
       <ul
         ref={containerRef}
-        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center transition-all"
+        className="flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-l-none rounded-xs items-center"
       >
         <li>
           {slots[0].type === 'building' ? (

@@ -4,8 +4,8 @@ import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import { partition } from '@pillage-first/utils/array';
 import { assessBuildingRequirements } from '@pillage-first/utils/game/building-requirements';
-import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import {
+  BuildingActions,
   BuildingBenefits,
   BuildingCard,
   BuildingCost,
@@ -13,7 +13,7 @@ import {
   BuildingRequirements,
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
   Section,
   SectionContent,
@@ -37,7 +37,7 @@ type BuildingCategoryPanelProps = {
   buildingCategory: Building['category'];
 };
 
-const BuildingCategoryPanel = ({
+const BuildingConstructionList = ({
   buildingCategory,
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
@@ -133,7 +133,7 @@ const BuildingCategoryPanel = ({
   );
 };
 
-export const BuildingConstruction = () => {
+export const BuildingConstructionTabs = () => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
 
@@ -193,7 +193,7 @@ export const BuildingConstruction = () => {
               <Text as="h2">{t('Infrastructure buildings')}</Text>
             </SectionContent>
             <SectionContent>
-              <BuildingCategoryPanel buildingCategory="infrastructure" />
+              <BuildingConstructionList buildingCategory="infrastructure" />
             </SectionContent>
           </Section>
         </TabPanel>
@@ -210,7 +210,7 @@ export const BuildingConstruction = () => {
               <Text as="h2">{t('Military buildings')}</Text>
             </SectionContent>
             <SectionContent>
-              <BuildingCategoryPanel buildingCategory="military" />
+              <BuildingConstructionList buildingCategory="military" />
             </SectionContent>
           </Section>
         </TabPanel>
@@ -225,7 +225,7 @@ export const BuildingConstruction = () => {
               <Text as="h2">{t('Resource buildings')}</Text>
             </SectionContent>
             <SectionContent>
-              <BuildingCategoryPanel buildingCategory="resource-booster" />
+              <BuildingConstructionList buildingCategory="resource-booster" />
             </SectionContent>
           </Section>
         </TabPanel>

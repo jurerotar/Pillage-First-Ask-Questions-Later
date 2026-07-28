@@ -3,10 +3,12 @@ import {
   createContext,
   Fragment,
   type PropsWithChildren,
+  startTransition,
   use,
   useMemo,
 } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 import {
   type CalculatedCumulativeEffect,
   calculateBuildingEffectValues,
@@ -16,21 +18,26 @@ import {
 import type { Building } from '@pillage-first/types/models/building';
 import type { Effect } from '@pillage-first/types/models/effect';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
-import type {
-  AssessedBuildingRequirement,
+import {
+  type AssessedBuildingRequirement,
   assessBuildingRequirements,
 } from '@pillage-first/utils/game/building-requirements';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
+import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
+import { Button } from 'app/components/ui/button';
 import { formatTime } from 'app/utils/time';
 
 type BuildingCardContextState = {
@@ -41,7 +48,7 @@ type BuildingCardContextState = {
   >;
 };
 
-export const BuildingCardContext = createContext<BuildingCardContextState>(
+const BuildingCardContext = createContext<BuildingCardContextState>(
   {} as BuildingCardContextState,
 );
 
@@ -98,9 +105,8 @@ export const BuildingCard = ({
 export const BuildingOverview = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel, isUpgrading, isDowngrading } =
-    useBuildingVirtualLevel(buildingFieldId);
+    use(BuildingFieldContext);
 
   const { building, isMaxLevel: isActualMaxLevel } = getBuildingDataForLevel(
     buildingId,
@@ -140,10 +146,8 @@ export const BuildingOverview = () => {
 
 export const BuildingCost = () => {
   const { t } = useTranslation();
-  const { buildingFieldId } = use(BuildingFieldContext);
   const { buildingId } = use(BuildingCardContext);
-  const { virtualLevel, doesBuildingExist } =
-    useBuildingVirtualLevel(buildingFieldId);
+  const { virtualLevel, doesBuildingExist } = use(BuildingFieldContext);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
@@ -270,9 +274,8 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
 export const BuildingBenefits = () => {
   const { t } = useTranslation();
   const { building, buildingId } = use(BuildingCardContext);
-  const { buildingFieldId } = use(BuildingFieldContext);
   const { actualLevel, virtualLevel, doesBuildingExist } =
-    useBuildingVirtualLevel(buildingFieldId);
+    use(BuildingFieldContext);
 
   const {
     isMaxLevel,
@@ -463,6 +466,155 @@ export const BuildingRequirements = () => {
           ),
         )}
       </ul>
+    </section>
+  );
+};
+
+type BuildingCardActionsSectionProps = {
+  buildingId: Building['id'];
+  onBuildingConstruction: () => void;
+};
+
+const BuildingCardActionsConstruction = ({
+  buildingId,
+  onBuildingConstruction,
+}: BuildingCardActionsSectionProps) => {
+  const { t } = useTranslation();
+  const { buildingFieldId } = use(BuildingFieldContext);
+  const { errorBag } = useBuildingConstructionErrorBag(
+    buildingId,
+    0,
+    buildingFieldId,
+  );
+
+  return (
+    <>
+      <ErrorBag errorBag={errorBag} />
+      <Button
+        data-testid="building-actions-construct-building-button"
+        variant="default"
+        size="fit"
+        onClick={onBuildingConstruction}
+        disabled={errorBag.length > 0}
+      >
+        {t('Construct')}
+      </Button>
+    </>
+  );
+};
+
+type BuildingCardActionsUpgradeProps = {
+  onBuildingUpgrade: () => void;
+  buildingLevel: number;
+};
+
+const BuildingCardActionsUpgrade = ({
+  onBuildingUpgrade,
+  buildingLevel,
+}: BuildingCardActionsUpgradeProps) => {
+  const { t } = useTranslation();
+  const { buildingFieldId, buildingField } = use(BuildingFieldContext);
+  const { buildingId, level } = buildingField!;
+
+  const { errorBag } = useBuildingConstructionErrorBag(
+    buildingId,
+    level,
+    buildingFieldId,
+  );
+
+  return (
+    <>
+      <ErrorBag errorBag={errorBag} />
+      <Button
+        data-testid="building-actions-upgrade-building-button"
+        variant="default"
+        size="fit"
+        onClick={onBuildingUpgrade}
+        disabled={errorBag.length > 0}
+      >
+        {t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
+      </Button>
+    </>
+  );
+};
+
+export const BuildingActions = () => {
+  const { t } = useTranslation();
+  const { buildingId, building, buildingConstructionReadinessAssessment } =
+    use(BuildingCardContext);
+  const navigate = useNavigate();
+  const tribe = useTribe();
+  const {
+    buildingFieldId,
+    virtualLevel,
+    doesBuildingExist,
+    maxLevelByBuildingId,
+    buildingIdsInQueue,
+  } = use(BuildingFieldContext);
+  const { preferences } = usePreferences();
+  const { constructBuilding, upgradeBuilding } = useBuildingActions(
+    buildingId,
+    buildingFieldId,
+  );
+  const { isMaxLevel } = getBuildingDataForLevel(buildingId, virtualLevel);
+
+  const navigateBack = async () => {
+    await navigate('..', { relative: 'path' });
+  };
+
+  const { canBuild } =
+    buildingConstructionReadinessAssessment ??
+    assessBuildingRequirements({
+      building,
+      tribe,
+      maxLevelByBuildingId,
+      buildingIdsInQueue,
+    });
+
+  const onBuildingConstruction = async () => {
+    await navigateBack();
+    startTransition(() => {
+      constructBuilding();
+    });
+  };
+
+  const onBuildingUpgrade = async () => {
+    if (preferences.isAutomaticNavigationAfterBuildingLevelChangeEnabled) {
+      await navigateBack();
+    }
+
+    startTransition(() => {
+      upgradeBuilding();
+    });
+  };
+
+  if (!doesBuildingExist) {
+    if (!canBuild) {
+      return null;
+    }
+
+    return (
+      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+        <Text as="h3">{t('Available actions')}</Text>
+        <BuildingCardActionsConstruction
+          buildingId={buildingId}
+          onBuildingConstruction={onBuildingConstruction}
+        />
+      </section>
+    );
+  }
+
+  if (isMaxLevel) {
+    return null;
+  }
+
+  return (
+    <section className="flex flex-col gap-2 pt-2 border-t border-border">
+      <Text as="h3">{t('Available actions')}</Text>
+      <BuildingCardActionsUpgrade
+        buildingLevel={virtualLevel}
+        onBuildingUpgrade={onBuildingUpgrade}
+      />
     </section>
   );
 };

@@ -1,27 +1,8 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import { type PropsWithChildren, useCallback, useMemo, useState } from 'react';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-
-type MapProviderValues = {
-  magnification: number;
-  increaseMagnification: () => void;
-  decreaseMagnification: () => void;
-  tileSize: number;
-  gridSize: number;
-  MAX_MAGNIFICATION: number;
-  MIN_MAGNIFICATION: number;
-};
-
-export const MapContext = createContext<MapProviderValues>(
-  {} as MapProviderValues,
-);
+import { MapContext } from './map-context';
 
 const MAX_MAGNIFICATION = 5;
 const MIN_MAGNIFICATION = 2;

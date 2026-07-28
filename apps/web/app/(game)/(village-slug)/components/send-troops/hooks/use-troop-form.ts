@@ -93,7 +93,11 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     form.reset(initialValues);
   }, [form, initialValues]);
 
-  const lastResetValuesRef = useRef(JSON.stringify(initialValues));
+  const lastResetValuesRef = useRef<string | null>(null);
+
+  if (lastResetValuesRef.current === null) {
+    lastResetValuesRef.current = JSON.stringify(initialValues);
+  }
 
   useEffect(() => {
     const currentValuesJson = JSON.stringify(initialValues);

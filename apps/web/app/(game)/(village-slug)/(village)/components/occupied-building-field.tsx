@@ -13,7 +13,7 @@ import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/b
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useBuildingConstructionStatus } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
 import { BuildingUpgradeStatusContext } from 'app/(game)/(village-slug)/providers/building-upgrade-status-provider';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { useLongPress } from 'app/hooks/use-long-press';
 
 const occupiedBuildingFieldClassName =

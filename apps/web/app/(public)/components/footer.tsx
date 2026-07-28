@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { useClientHydration } from 'app/hooks/use-client-hydration';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
 import { setCookie, UI_COLOR_SCHEME_COOKIE_NAME } from 'app/utils/device';
 
 export const Footer = () => {
@@ -44,7 +44,10 @@ export const Footer = () => {
           </Text>
         </div>
 
-        <nav className="flex flex-col gap-2">
+        <nav
+          aria-label={t('Game')}
+          className="flex flex-col gap-2"
+        >
           <Text
             as="span"
             className="font-medium uppercase text-xs text-muted-foreground"
@@ -72,7 +75,10 @@ export const Footer = () => {
           </ul>
         </nav>
 
-        <nav className="flex flex-col gap-2">
+        <nav
+          aria-label={t('Resources')}
+          className="flex flex-col gap-2"
+        >
           <Text
             as="span"
             className="font-medium uppercase text-xs text-muted-foreground"
@@ -104,7 +110,10 @@ export const Footer = () => {
         </nav>
 
         <div className="flex flex-col gap-4">
-          <nav className="flex flex-col gap-2">
+          <nav
+            aria-label={t('Community & support')}
+            className="flex flex-col gap-2"
+          >
             <Text
               as="span"
               className="font-medium uppercase text-xs text-muted-foreground"

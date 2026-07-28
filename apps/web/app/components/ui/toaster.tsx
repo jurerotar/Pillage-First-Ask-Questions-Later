@@ -1,6 +1,6 @@
 import { use } from 'react';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
 
 type ToasterStyle = NonNullable<ToasterProps['style']> & {
   '--normal-bg': string;

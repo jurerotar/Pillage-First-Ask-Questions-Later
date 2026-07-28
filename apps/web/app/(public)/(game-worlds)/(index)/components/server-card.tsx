@@ -1,4 +1,4 @@
-import { use, useState } from 'react';
+import { useState } from 'react';
 import {
   FaDownload,
   FaEllipsisVertical,
@@ -20,7 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from 'app/components/ui/popover';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { useIntl } from 'app/hooks/use-intl';
 import { daysSince } from 'app/utils/time';
 
 type ServerCardProps = {
@@ -28,7 +28,7 @@ type ServerCardProps = {
 };
 
 export const ServerCard = ({ server }: ServerCardProps) => {
-  const { locale } = use(CookieContext);
+  const intl = useIntl();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
   const {
     exportGameWorld,
@@ -46,7 +46,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
 
   const appVersion = env.VERSION;
 
-  const timeSinceCreation = daysSince(server.createdAt, locale);
+  const timeSinceCreation = daysSince(server.createdAt, intl);
 
   const gameWorldVersion = server.version ?? '0.0.0';
 

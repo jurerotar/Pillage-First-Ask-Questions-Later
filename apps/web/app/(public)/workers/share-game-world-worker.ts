@@ -5,7 +5,7 @@ import {
 } from '@pillage-first/utils/opfs-lock-retry';
 import { toTransferableArrayBuffer } from 'app/(public)/workers/utils/array-buffer';
 
-export type ShareGameWorldWorkerResponse =
+type ShareGameWorldWorkerResponse =
   | { type: 'database'; databaseBuffer: ArrayBuffer }
   | { type: 'error'; message: string };
 

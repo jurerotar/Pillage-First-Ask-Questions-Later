@@ -2,7 +2,6 @@ import {
   type Dispatch,
   type SetStateAction,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -12,7 +11,10 @@ export const usePagination = <T>(
   resultsPerPage: number,
   defaultPage = 1,
 ) => {
-  const [page, setStoredPage] = useState<number>(defaultPage);
+  const [storedPagination, setStoredPagination] = useState(() => ({
+    defaultPage,
+    page: defaultPage,
+  }));
 
   const pageCount = useMemo(() => {
     return Math.max(1, Math.ceil(items.length / resultsPerPage));
@@ -27,17 +29,28 @@ export const usePagination = <T>(
 
   const setPage: Dispatch<SetStateAction<number>> = useCallback(
     (nextPage) => {
-      setStoredPage((previousPage) => {
+      setStoredPagination((previousPagination) => {
+        const previousPage =
+          previousPagination.defaultPage === defaultPage
+            ? previousPagination.page
+            : defaultPage;
         const currentPage = clampPage(previousPage);
         const resolvedPage =
           typeof nextPage === 'function' ? nextPage(currentPage) : nextPage;
 
-        return clampPage(resolvedPage);
+        return {
+          defaultPage,
+          page: clampPage(resolvedPage),
+        };
       });
     },
-    [clampPage],
+    [clampPage, defaultPage],
   );
 
+  const page =
+    storedPagination.defaultPage === defaultPage
+      ? storedPagination.page
+      : defaultPage;
   const actualPage = clampPage(page);
 
   const isPaginationPreviousEnabled = pageCount >= 2 && actualPage !== 1;
@@ -74,10 +87,6 @@ export const usePagination = <T>(
 
     return elements;
   }, [actualPage, pageCount]);
-
-  useEffect(() => {
-    setStoredPage(defaultPage);
-  }, [defaultPage]);
 
   return useMemo(
     () => ({

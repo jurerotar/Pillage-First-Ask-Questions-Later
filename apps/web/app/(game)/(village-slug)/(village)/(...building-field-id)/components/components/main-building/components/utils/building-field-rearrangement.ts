@@ -12,7 +12,7 @@ export const villageViewBuildingFieldIds = Array.from(
   (_, index) => index + 19,
 );
 
-export const swappableBuildingFieldIds = new Set<BuildingField['id']>(
+const swappableBuildingFieldIds = new Set<BuildingField['id']>(
   villageViewBuildingFieldIds.slice(0, 20),
 );
 

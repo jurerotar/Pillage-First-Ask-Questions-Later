@@ -92,13 +92,19 @@ export const WebRTCAdvertiser = () => {
 
   const buildAvailableWorldsList = useCallback(
     (selfId?: string): AvailableWorld[] => {
-      return Array.from(activePeersRef.current!.entries())
-        .filter(([peerId]) => peerId !== selfId)
-        .map(([peerId, data]) => ({
-          peerId,
-          worlds: data.worlds,
-          deviceId: data.deviceId,
-        }));
+      const availableWorlds: AvailableWorld[] = [];
+
+      for (const [peerId, data] of activePeersRef.current!.entries()) {
+        if (peerId !== selfId) {
+          availableWorlds.push({
+            peerId,
+            worlds: data.worlds,
+            deviceId: data.deviceId,
+          });
+        }
+      }
+
+      return availableWorlds;
     },
     [],
   );
@@ -108,6 +114,7 @@ export const WebRTCAdvertiser = () => {
   }, [gameWorldListing]);
 
   useEffect(() => {
+    const peerConnections = new Set<DataConnection>();
     const peer = new Peer({
       config: {
         iceServers: [],
@@ -153,6 +160,8 @@ export const WebRTCAdvertiser = () => {
     });
 
     peer.on('connection', (conn) => {
+      peerConnections.add(conn);
+
       conn.on('data', async (data) => {
         const message = data as Message;
         if (message.type === 'QUERY_WORLDS') {
@@ -179,6 +188,10 @@ export const WebRTCAdvertiser = () => {
             conn.send({ type: 'error', message: 'Failed to share world.' });
           }
         }
+      });
+
+      conn.on('close', () => {
+        peerConnections.delete(conn);
       });
     });
 
@@ -247,10 +260,28 @@ export const WebRTCAdvertiser = () => {
     return () => {
       reconnectCancelRef.current?.();
       reconnectCancelRef.current = null;
+      peer.off('open');
+      peer.off('connection');
+      registryPeer.off('error');
+      registryPeer.off('connection');
+      registryConnectionRef.current?.off('open');
+      registryConnectionRef.current?.off('error');
+      registryConnectionRef.current?.off('close');
       registryConnectionRef.current?.close();
       registryConnectionRef.current = null;
 
+      for (const conn of peerConnections) {
+        conn.off('data');
+        conn.off('close');
+        conn.close();
+      }
+
+      peerConnections.clear();
+
       for (const conn of registryConnectionsRef.current!) {
+        conn.off('data');
+        conn.off('close');
+        conn.off('error');
         conn.close();
       }
 
@@ -272,21 +303,6 @@ export const WebRTCAdvertiser = () => {
 
       if (existingConn?.open) {
         existingConn.send(createAnnounceMessage(peerRef.current.id));
-      } else {
-        const conn = peerRef.current.connect(BROADCAST_CHANNEL);
-        if (!conn) {
-          return;
-        }
-
-        registryConnectionRef.current = conn;
-        conn.on('open', () => {
-          conn.send(createAnnounceMessage(peerRef.current!.id));
-        });
-        conn.on('close', () => {
-          if (registryConnectionRef.current === conn) {
-            registryConnectionRef.current = null;
-          }
-        });
       }
     }
   }, [gameWorldListing, createAnnounceMessage]);

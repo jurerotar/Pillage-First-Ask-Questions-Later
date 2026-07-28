@@ -21,6 +21,7 @@ import type {
 } from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker';
 import CreateNewGameWorldWorker from 'app/(public)/(game-worlds)/(create)/workers/create-new-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
+import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
@@ -41,6 +42,7 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { reportError } from 'app/instrumentation/report-error';
+import { invalidateQueries } from 'app/utils/react-query';
 
 const createServerFormSchema = z.strictObject({
   seed: z.string().min(1, { error: 'Seed is required' }),
@@ -169,7 +171,12 @@ export const CreateNewGameWorldForm = () => {
     onMutate: () => {
       setCurrentStepIndex(0);
     },
-    onSuccess: async (migrationDuration, { server }) => {
+    onSuccess: async (
+      migrationDuration,
+      { server },
+      _onMutateResult,
+      context,
+    ) => {
       faro.api?.pushMeasurement({
         type: 'performance',
         values: {
@@ -177,7 +184,8 @@ export const CreateNewGameWorldForm = () => {
         },
       });
 
-      createGameWorld({ server });
+      await createGameWorld({ server });
+      await invalidateQueries(context, [[availableServerCacheKey]]);
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
     onError: (_, { server }) => deleteGameWorld({ server }),
@@ -478,7 +486,7 @@ export const CreateNewGameWorldForm = () => {
                 aria-hidden="true"
               >
                 <div
-                  className="w-full rounded-full bg-success transition-all duration-500"
+                  className="w-full rounded-full bg-success transition-[height] duration-500"
                   style={{ height: `${generationProgress}%` }}
                 />
               </div>
@@ -506,7 +514,7 @@ export const CreateNewGameWorldForm = () => {
                     </div>
                     <Text
                       className={clsx(
-                        'text-sm transition-all duration-300',
+                        'text-sm transition-colors duration-300',
                         isCompleted && 'text-foreground font-medium',
                         isCurrent && 'text-primary font-bold',
                         !isCompleted && !isCurrent && 'text-muted-foreground',
