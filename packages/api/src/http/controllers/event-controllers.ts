@@ -29,38 +29,6 @@ import {
 import { createController } from '../controller';
 import { triggerKick } from '../events/scheduler/scheduler-signal';
 
-const troopMovementTypes = new Set([
-  'troopMovementReinforcements',
-  'troopMovementRelocation',
-  'troopMovementReturn',
-  'troopMovementFindNewVillage',
-  'troopMovementAttack',
-  'troopMovementRaid',
-  'troopMovementOasisOccupation',
-  'troopMovementAdventure',
-]);
-
-const normalizeCreateEventBody = (
-  body: z.infer<typeof createEventDtoSchema>,
-) => {
-  const eventBody = { ...body } as Record<string, unknown>;
-
-  if (!troopMovementTypes.has(eventBody.type as string)) {
-    return body;
-  }
-
-  return {
-    type: eventBody.type,
-    villageId: eventBody.villageId,
-    troops: eventBody.troops,
-    originTileId: eventBody.originTileId,
-    targetTileId: eventBody.targetTileId,
-    startsAt: eventBody.startsAt,
-    duration: eventBody.duration,
-    originalMovementType: eventBody.originalMovementType,
-  };
-};
-
 export const getVillageEvents = createController(
   '/villages/:villageId/events',
   {
@@ -149,15 +117,7 @@ export const createNewEvents = createController('/events', 'post', {
   summary: 'Create new events',
   requestBody: createEventDtoSchema,
 })(({ database, body }) => {
-  const normalizedBody = normalizeCreateEventBody(body);
-
-  if (normalizedBody.type === 'buildingScheduledConstruction') {
-    throw new Error(
-      'Scheduled building construction must use the scheduled upgrades endpoint',
-    );
-  }
-
-  createEvents(database, normalizedBody as never);
+  createEvents(database, body as never);
 });
 
 export const cancelConstructionEvent = createController(
