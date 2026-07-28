@@ -2,7 +2,7 @@ import { kebabCase } from 'moderndash';
 import type { RouteConfigEntry } from '@react-router/dev/routes';
 import routes from '../routes';
 
-export const extractPathsFromRoutes = (
+const extractPathsFromRoutes = (
   routeEntries: RouteConfigEntry[],
   parentPath = '',
 ): string[] => {

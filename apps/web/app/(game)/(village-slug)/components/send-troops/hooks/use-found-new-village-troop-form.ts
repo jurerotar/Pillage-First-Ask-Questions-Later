@@ -16,7 +16,7 @@ type UseFoundNewVillageTroopFormOptions = {
   onSuccess?: () => void;
 };
 
-export const disabledFoundNewVillageUnitTiers = [
+const disabledFoundNewVillageUnitTiers = [
   'tier-1',
   'tier-2',
   'tier-3',
