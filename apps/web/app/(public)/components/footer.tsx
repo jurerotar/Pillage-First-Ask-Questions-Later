@@ -173,7 +173,10 @@ export const Footer = () => {
                   await setCookie(UI_COLOR_SCHEME_COOKIE_NAME, value);
                 }}
               >
-                <SelectTrigger size="sm">
+                <SelectTrigger
+                  size="sm"
+                  aria-label={t('Color scheme')}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
