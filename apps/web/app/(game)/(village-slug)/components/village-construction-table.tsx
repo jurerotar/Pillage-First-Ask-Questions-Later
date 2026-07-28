@@ -7,7 +7,7 @@ import { LuConstruction } from 'react-icons/lu';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { Button } from 'app/components/ui/button';
 import {
   Table,

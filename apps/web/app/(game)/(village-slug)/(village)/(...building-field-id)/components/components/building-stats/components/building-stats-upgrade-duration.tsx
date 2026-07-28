@@ -5,7 +5,7 @@ import {
   getBuildingDefinition,
   getBuildingFieldByBuildingFieldId,
 } from '@pillage-first/game-assets/utils/buildings';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
   OverflowContainer,
   Section,

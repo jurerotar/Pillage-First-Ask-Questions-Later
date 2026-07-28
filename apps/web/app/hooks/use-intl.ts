@@ -1,5 +1,5 @@
 import { use, useMemo } from 'react';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
 
 export type IntlFormatters = {
   dateTime: Intl.DateTimeFormat;

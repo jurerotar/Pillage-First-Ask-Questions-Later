@@ -12,7 +12,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
   Section,
   SectionContent,

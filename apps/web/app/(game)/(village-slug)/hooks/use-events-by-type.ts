@@ -6,7 +6,7 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { eventsCacheKey } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 
 export const useEventsByType = <T extends GameEventType>(eventType: T) => {
   const { apiClient } = use(ApiContext);

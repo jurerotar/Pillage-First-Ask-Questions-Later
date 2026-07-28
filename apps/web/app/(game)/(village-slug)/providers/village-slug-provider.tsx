@@ -1,12 +1,5 @@
-import { createContext, type PropsWithChildren, useMemo } from 'react';
-
-type VillageSlugContextValue = {
-  villageSlug: string;
-};
-
-export const VillageSlugContext = createContext<VillageSlugContextValue>(
-  {} as never,
-);
+import { type PropsWithChildren, useMemo } from 'react';
+import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-context';
 
 type VillageSlugProviderProps = PropsWithChildren<{
   villageSlug: string;

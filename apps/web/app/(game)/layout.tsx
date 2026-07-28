@@ -21,7 +21,8 @@ import { HeadLinks } from 'app/components/head-links';
 import { Spinner } from 'app/components/ui/spinner';
 import { Toaster } from 'app/components/ui/toaster';
 import { loadAppTranslations } from 'app/localization/loaders/app';
-import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
+import { CookieProvider } from 'app/providers/cookie-provider';
 
 export { ErrorBoundary } from 'app/(game)/error-boundary';
 

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { Resources } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
 import { useIntl } from 'app/hooks/use-intl';
 import { formatFutureTimestamp } from 'app/utils/time';
 import {

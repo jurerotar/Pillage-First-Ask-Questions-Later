@@ -1,7 +1,7 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 
 // TODO: Raise this to 5 once you figure out how to solve the scheduledBuildingEvent bug
 const MAX_BUILDINGS_IN_QUEUE = 1;

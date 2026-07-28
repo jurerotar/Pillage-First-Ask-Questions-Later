@@ -19,7 +19,7 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { eventsCacheKey } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {

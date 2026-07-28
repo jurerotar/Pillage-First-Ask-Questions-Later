@@ -12,7 +12,7 @@ import {
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
 import screenshotsData from './assets/screenshots.json' with { type: 'json' };
 import Landing from './mdx/landing.mdx';
 import Motivation from './mdx/motivation.mdx';

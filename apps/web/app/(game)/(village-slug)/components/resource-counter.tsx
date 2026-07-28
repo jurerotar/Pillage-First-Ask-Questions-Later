@@ -8,7 +8,7 @@ import {
 } from '@pillage-first/utils/format';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
 import { Icon } from 'app/components/icon';
 
 type ResourceCounterProps = {

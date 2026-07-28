@@ -3,7 +3,8 @@ import type { ComponentProps } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuChevronLeft, LuChevronRight, LuEllipsis } from 'react-icons/lu';
 import type { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
-import { type Button, buttonVariants } from 'app/components/ui/button';
+import type { Button } from 'app/components/ui/button';
+import { buttonVariants } from 'app/components/ui/cvas/button-cva';
 
 export const PaginationWrapper = ({
   className,

@@ -1,31 +1,10 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  useCallback,
-  useMemo,
-} from 'react';
+import { type PropsWithChildren, useCallback, useMemo } from 'react';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import { partition } from '@pillage-first/utils/array';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-
-type CurrentVillageBuildingQueueContextReturn = {
-  buildingEvents: BuildingEvent[];
-  buildingEventByFieldId: Map<BuildingField['id'], BuildingEvent>;
-  buildingUpgradeEventCountByFieldId: Map<BuildingField['id'], number>;
-  buildingUpgradeEvents: BuildingEvent[];
-  buildingDowngradeEvents: BuildingEvent[];
-  downgradedBuildingByFieldId: Map<BuildingField['id'], BuildingEvent>;
-  getBuildingEventQueue: (
-    buildingFieldId: BuildingField['id'],
-  ) => BuildingEvent[];
-};
-
-export const CurrentVillageBuildingQueueContext =
-  createContext<CurrentVillageBuildingQueueContextReturn>(
-    {} as CurrentVillageBuildingQueueContextReturn,
-  );
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 
 export const CurrentVillageBuildingQueueContextProvider = ({
   children,

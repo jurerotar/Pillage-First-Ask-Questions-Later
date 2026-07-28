@@ -5,7 +5,7 @@ import type {
   EventApiNotificationEvent,
 } from '@pillage-first/types/api-events';
 
-export const isNotificationMessageEvent = (
+const isNotificationMessageEvent = (
   event: MessageEvent,
 ): event is MessageEvent<ApiNotificationEvent> => {
   const { data } = event;
