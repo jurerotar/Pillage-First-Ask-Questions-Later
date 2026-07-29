@@ -7,12 +7,16 @@ import {
   createBuildingLevelChangeEventMock,
   createGameEventMock,
 } from '@pillage-first/mocks/event';
-import type { Building } from '@pillage-first/types/models/building';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import {
   createBuildingPlaceholder,
   removeBuildingPlaceholder,
 } from '../../../../utils/building-placeholder';
 import { insertEvents } from '../../../../utils/events';
+import { insertScheduledBuildingUpgrade } from '../../../../utils/scheduled-building-upgrades';
 import {
   buildingConstructionResolver,
   buildingDestructionResolver,
@@ -411,6 +415,67 @@ describe('building resolvers', () => {
   });
 
   describe(buildingLevelChangeResolver, () => {
+    test('promotes the next scheduled upgrade after a completed level increase', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = 1;
+      const fields = database.selectObjects({
+        sql: `
+          SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+          FROM building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE bf.village_id = $village_id AND bf.field_id <= 18
+          ORDER BY bf.field_id
+          LIMIT 2;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          fieldId: z.number(),
+          level: z.number(),
+          buildingId: buildingIdSchema,
+        }),
+      });
+      const [completedField, scheduledField] = fields;
+
+      insertScheduledBuildingUpgrade(database, {
+        villageId,
+        buildingId: scheduledField.buildingId,
+        buildingFieldId: scheduledField.fieldId,
+        level: scheduledField.level + 1,
+      });
+
+      buildingLevelChangeResolver(
+        database,
+        createBuildingLevelChangeEventMock({
+          villageId,
+          buildingId: completedField.buildingId,
+          buildingFieldId: completedField.fieldId,
+          previousLevel: completedField.level,
+          level: completedField.level + 1,
+        }),
+      );
+
+      const promoted = database.selectObject({
+        sql: `
+          SELECT
+            CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) AS fieldId,
+            (SELECT COUNT(*) FROM scheduled_building_upgrades
+             WHERE village_id = $village_id) AS scheduled
+          FROM events
+          WHERE village_id = $village_id AND type = 'buildingLevelChange';
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          fieldId: z.number(),
+          scheduled: z.number(),
+        }),
+      });
+
+      expect(promoted).toEqual({
+        fieldId: scheduledField.fieldId,
+        scheduled: 0,
+      });
+    });
+
     test('should change building level and update population', async () => {
       const database = await prepareTestDatabase();
       const villageId = 1;

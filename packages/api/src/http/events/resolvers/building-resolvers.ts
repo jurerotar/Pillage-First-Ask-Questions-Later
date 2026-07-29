@@ -12,7 +12,7 @@ import {
 import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
 import { createEvents } from '../../../utils/create-event';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
-import { processScheduledBuildingUpgrades } from '../../../utils/scheduled-building-upgrades';
+import { promoteNextScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
   demolishBuilding,
   updateVillageResourcesAt,
@@ -130,10 +130,11 @@ export const buildingLevelChangeResolver: Resolver<
       level,
       resolvesAt,
     );
+
+    promoteNextScheduledBuildingUpgrade(database, villageId, resolvesAt);
   }
 
   updateVillageResourcesAt(database, villageId, resolvesAt);
-  processScheduledBuildingUpgrades(database, villageId, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],
@@ -299,7 +300,7 @@ export const buildingScheduledConstructionEventResolver: Resolver<
   GameEvent<'buildingScheduledConstruction'>
 > = (database, args) => {
   const { villageId, resolvesAt } = args;
-  processScheduledBuildingUpgrades(database, villageId, resolvesAt);
+  promoteNextScheduledBuildingUpgrade(database, villageId, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],

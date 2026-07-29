@@ -45,6 +45,7 @@ import type {
 } from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
@@ -194,7 +195,7 @@ export const validateEventCreationPrerequisites = (
     })!;
 
     if (scheduledCount >= 5) {
-      throw new Error('Building construction queue is full');
+      throw new BuildingConstructionQueueFullError();
     }
 
     const { maxLevel } = getBuildingDefinition(event.buildingId);
@@ -765,7 +766,7 @@ export const validateEventCreationPrerequisites = (
     })!;
 
     if (buildingEventsCount >= 1) {
-      throw new Error('Building construction queue is full');
+      throw new BuildingConstructionQueueFullError();
     }
 
     const isFreeBuildingConstructionEnabled = database.selectValue({

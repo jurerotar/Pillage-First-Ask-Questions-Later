@@ -15,6 +15,60 @@ import {
 import { createControllerArgs } from './utils/controller-args';
 
 describe('scheduled building upgrade controllers', () => {
+  test('scheduling an upgrade only queues it', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const field = database.selectObject({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.field_id <= 18
+        ORDER BY bf.field_id
+        LIMIT 1;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    })!;
+
+    scheduleBuildingUpgrade(
+      database,
+      createControllerArgs({
+        path: { villageId: villageId.toString() },
+        body: {
+          buildingId: field.buildingId,
+          buildingFieldId: field.fieldId,
+          level: field.level + 1,
+        },
+      }),
+    );
+
+    const counts = database.selectObject({
+      sql: `
+        SELECT
+          (SELECT COUNT(*) FROM scheduled_building_upgrades
+           WHERE village_id = $village_id) AS scheduled,
+          (SELECT COUNT(*) FROM events
+           WHERE village_id = $village_id
+             AND type IN ('buildingConstruction', 'buildingLevelChange')) AS active;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        scheduled: z.number(),
+        active: z.number(),
+      }),
+    });
+
+    expect(counts).toEqual({
+      scheduled: 1,
+      active: 0,
+    });
+  });
+
   test('replaces an orphaned level-zero placeholder when scheduling a new building', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;

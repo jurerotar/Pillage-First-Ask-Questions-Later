@@ -20,7 +20,6 @@ import {
 } from '../../queries/event-queries';
 import { removeBuildingPlaceholder } from '../../utils/building-placeholder';
 import { createEvents } from '../../utils/create-event';
-import { processScheduledBuildingUpgrades } from '../../utils/scheduled-building-upgrades';
 import { addVillageResourcesAt } from '../../utils/village';
 import {
   baseEventRowSchema,
@@ -183,7 +182,6 @@ export const cancelConstructionEvent = createController(
     );
 
     addVillageResourcesAt(db, villageId, now, resourcesToRefund);
-    processScheduledBuildingUpgrades(db, villageId);
   });
 
   triggerKick();
