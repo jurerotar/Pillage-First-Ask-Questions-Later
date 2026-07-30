@@ -176,6 +176,36 @@ const postScheduledConstructionCancelledNotification = (
   } satisfies ScheduledBuildingConstructionCancelledNotificationEvent);
 };
 
+const insertScheduledConstructionCancellationHistory = (
+  database: DbFacade,
+  scheduledUpgrade: ScheduledBuildingUpgradeRow,
+): void => {
+  database.exec({
+    sql: `
+      INSERT INTO scheduled_building_construction_cancellation_history (
+        village_id,
+        field_id,
+        building_id,
+        level,
+        timestamp
+      )
+      VALUES (
+        $village_id,
+        $field_id,
+        (SELECT id FROM building_ids WHERE building = $building_id),
+        $level,
+        unixepoch()
+      );
+    `,
+    bind: {
+      $village_id: scheduledUpgrade.villageId,
+      $field_id: scheduledUpgrade.buildingFieldId,
+      $building_id: scheduledUpgrade.buildingId,
+      $level: scheduledUpgrade.level,
+    },
+  });
+};
+
 export const promoteNextScheduledBuildingUpgrade = (
   database: DbFacade,
   villageId: Village['id'],
@@ -244,6 +274,10 @@ export const promoteNextScheduledBuildingUpgrade = (
       }
 
       if (cancellationReason) {
+        insertScheduledConstructionCancellationHistory(
+          database,
+          scheduledUpgrade,
+        );
         postScheduledConstructionCancelledNotification(
           scheduledUpgrade,
           cancellationReason,

@@ -11,6 +11,7 @@ import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
 import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
 import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
+import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
 import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
@@ -1093,6 +1094,10 @@ export const upgradeDb = (database: DbFacade): void => {
 
   migrateTo('0.4.49', database, (db) => {
     db.exec({ sql: createScheduledBuildingUpgradesTable });
+
+    db.exec({
+      sql: createScheduledBuildingConstructionCancellationHistoryTable,
+    });
   });
 
   // If all migrations passed, bump it to current version

@@ -35,12 +35,21 @@ export const getEventsHistorySchema = z
       timestamp: z.number(),
       data: z.preprocess(
         (val) => (typeof val === 'string' ? JSON.parse(val) : val),
-        z.strictObject({
-          fieldId: z.number(),
-          building: buildingIdSchema,
-          previousLevel: z.number(),
-          newLevel: z.number(),
-        }),
+        z.discriminatedUnion('status', [
+          z.strictObject({
+            status: z.literal('completed'),
+            fieldId: z.number(),
+            building: buildingIdSchema,
+            previousLevel: z.number(),
+            newLevel: z.number(),
+          }),
+          z.strictObject({
+            status: z.literal('cancelled'),
+            fieldId: z.number(),
+            building: buildingIdSchema,
+            level: z.number(),
+          }),
+        ]),
       ),
     }),
     z.strictObject({

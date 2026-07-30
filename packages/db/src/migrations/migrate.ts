@@ -31,6 +31,7 @@ import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?r
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
+import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-improvement-history-schema.sql?raw';
 import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
@@ -171,6 +172,9 @@ export const migrateAndSeed = (
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });
     db.exec({ sql: createBuildingLevelChangeHistoryTable });
+    db.exec({
+      sql: createScheduledBuildingConstructionCancellationHistoryTable,
+    });
     db.exec({ sql: createUnitImprovementHistoryTable });
     db.exec({ sql: createUnitResearchHistoryTable });
     db.exec({ sql: createVillageFoundingHistoryTable });

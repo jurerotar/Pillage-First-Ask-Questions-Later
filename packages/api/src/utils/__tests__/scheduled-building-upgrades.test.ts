@@ -375,6 +375,30 @@ describe('scheduled building upgrades', () => {
       level: field.level + 1,
       reason: 'missing-resources',
     });
+
+    expect(
+      database.selectObject({
+        sql: `
+          SELECT
+            sch.level,
+            sch.field_id AS fieldId,
+            bi.building AS buildingId
+          FROM scheduled_building_construction_cancellation_history sch
+          JOIN building_ids bi ON bi.id = sch.building_id
+          WHERE sch.village_id = $village_id;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          level: z.number(),
+          fieldId: z.number(),
+          buildingId: buildingIdSchema,
+        }),
+      }),
+    ).toEqual({
+      level: field.level + 1,
+      fieldId: field.fieldId,
+      buildingId: field.buildingId,
+    });
   });
 
   test('removes an invalid head candidate and promotes the next candidate', async () => {

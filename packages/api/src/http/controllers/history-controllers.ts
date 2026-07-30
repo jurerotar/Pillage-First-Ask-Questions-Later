@@ -133,10 +133,27 @@ export const getEventsHistory = createController(
         json_object(
           'fieldId', field_id,
           'building', (SELECT building FROM building_ids WHERE id = building_id),
+          'status', 'completed',
           'previousLevel', previous_level,
           'newLevel', new_level
         ) AS data
       FROM building_level_change_history
+      ${villageFilter}
+    `);
+
+    queries.push(`
+      SELECT
+        'construction-cancellation-' || id AS id,
+        village_id AS villageId,
+        'construction' AS type,
+        timestamp,
+        json_object(
+          'fieldId', field_id,
+          'building', (SELECT building FROM building_ids WHERE id = building_id),
+          'status', 'cancelled',
+          'level', level
+        ) AS data
+      FROM scheduled_building_construction_cancellation_history
       ${villageFilter}
     `);
   }
