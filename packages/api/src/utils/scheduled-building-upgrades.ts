@@ -6,6 +6,7 @@ import type { Village } from '@pillage-first/types/models/village';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { removeBuildingPlaceholder } from './building-placeholder';
+import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
 import { createEvents } from './create-event';
 
 export const scheduledBuildingUpgradeRowSchema = z.strictObject({
@@ -154,6 +155,18 @@ export const promoteNextScheduledBuildingUpgrade = (
     }
 
     try {
+      if (scheduledUpgrade.level === 1) {
+        assertBuildingConstructionRequirementsAreMet(
+          database,
+          villageId,
+          scheduledUpgrade.buildingId,
+          {
+            buildingFieldId: scheduledUpgrade.buildingFieldId,
+            excludedScheduledBuildingUpgradeId: scheduledUpgrade.id,
+          },
+        );
+      }
+
       createEvents<'buildingLevelChange'>(database, {
         type: 'buildingLevelChange',
         villageId,

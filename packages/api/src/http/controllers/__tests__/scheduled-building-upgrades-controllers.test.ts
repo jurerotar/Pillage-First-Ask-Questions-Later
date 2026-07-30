@@ -69,6 +69,87 @@ describe('scheduled building upgrade controllers', () => {
     });
   });
 
+  test('allows scheduling new building construction when requirements are missing', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const buildingFieldId = 25;
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE village_id = $village_id AND source_specifier = $field_id;
+        DELETE FROM building_fields
+        WHERE village_id = $village_id AND field_id = $field_id;
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+    });
+
+    expect(() =>
+      scheduleBuildingUpgrade(
+        database,
+        createControllerArgs({
+          path: { villageId: villageId.toString() },
+          body: {
+            buildingId: 'BARRACKS',
+            buildingFieldId,
+            level: 1,
+          },
+        }),
+      ),
+    ).not.toThrow();
+
+    const scheduledCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM scheduled_building_upgrades
+        WHERE village_id = $village_id
+          AND building_field_id = $field_id;
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+      schema: z.number(),
+    });
+
+    expect(scheduledCount).toBe(1);
+  });
+
+  test('does not check construction requirements when scheduling a level up', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const buildingFieldId = 25;
+
+    database.exec({
+      sql: `
+        INSERT OR REPLACE INTO building_fields (
+          village_id,
+          field_id,
+          building_id,
+          level
+        )
+        VALUES (
+          $village_id,
+          $field_id,
+          (SELECT id FROM building_ids WHERE building = 'BARRACKS'),
+          1
+        );
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+    });
+
+    expect(() =>
+      scheduleBuildingUpgrade(
+        database,
+        createControllerArgs({
+          path: { villageId: villageId.toString() },
+          body: {
+            buildingId: 'BARRACKS',
+            buildingFieldId,
+            level: 2,
+          },
+        }),
+      ),
+    ).not.toThrow();
+  });
+
   test('replaces an orphaned level-zero placeholder when scheduling a new building', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;

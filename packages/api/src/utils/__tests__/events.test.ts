@@ -403,6 +403,77 @@ describe('events utils', () => {
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId,
+            buildingId: 'WAREHOUSE',
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('buildingConstruction - should throw if building requirements are missing', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const buildingFieldId = 25;
+
+      database.exec({
+        sql: `
+          DELETE FROM effects
+          WHERE village_id = $village_id AND source_specifier = $field_id;
+          DELETE FROM building_fields
+          WHERE village_id = $village_id AND field_id = $field_id;
+        `,
+        bind: {
+          $village_id: villageId,
+          $field_id: buildingFieldId,
+        },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingConstructionEventMock({
+            villageId,
+            buildingFieldId,
+            buildingId: 'BARRACKS',
+          }),
+        ),
+      ).toThrow('Building requirements are not met');
+    });
+
+    test('buildingLevelChange - should not check construction requirements for level ups', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const buildingFieldId = 25;
+
+      database.exec({
+        sql: `
+          INSERT OR REPLACE INTO building_fields (
+            village_id,
+            field_id,
+            building_id,
+            level
+          )
+          VALUES (
+            $village_id,
+            $field_id,
+            (SELECT id FROM building_ids WHERE building = 'BARRACKS'),
+            1
+          );
+        `,
+        bind: {
+          $village_id: villageId,
+          $field_id: buildingFieldId,
+        },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId,
+            buildingId: 'BARRACKS',
+            previousLevel: 1,
+            level: 2,
           }),
         ),
       ).not.toThrow();
@@ -489,6 +560,7 @@ describe('events utils', () => {
         createBuildingConstructionEventMock({
           villageId,
           buildingFieldId: 1, // resource field
+          buildingId: 'WOODCUTTER',
         }),
       ]);
 
@@ -498,6 +570,7 @@ describe('events utils', () => {
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 19, // village building
+            buildingId: 'WAREHOUSE',
           }),
         ),
       ).toThrow('Building construction queue is full');
@@ -521,6 +594,7 @@ describe('events utils', () => {
         createBuildingConstructionEventMock({
           villageId,
           buildingFieldId: 1, // resource field
+          buildingId: 'WOODCUTTER',
         }),
       ]);
 
@@ -530,6 +604,7 @@ describe('events utils', () => {
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 19, // village building
+            buildingId: 'WAREHOUSE',
           }),
         ),
       ).not.toThrow();
@@ -553,6 +628,7 @@ describe('events utils', () => {
         createBuildingConstructionEventMock({
           villageId,
           buildingFieldId: 1, // resource field
+          buildingId: 'WOODCUTTER',
         }),
       ]);
 
@@ -562,6 +638,7 @@ describe('events utils', () => {
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 2, // another resource field
+            buildingId: 'WHEAT_FIELD',
           }),
         ),
       ).toThrow('Building construction queue is full');
@@ -585,6 +662,7 @@ describe('events utils', () => {
         createBuildingConstructionEventMock({
           villageId,
           buildingFieldId: 19, // village building
+          buildingId: 'WAREHOUSE',
         }),
       ]);
 

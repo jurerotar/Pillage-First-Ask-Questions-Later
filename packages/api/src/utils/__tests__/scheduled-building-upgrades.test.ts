@@ -628,6 +628,68 @@ describe('scheduled building upgrades', () => {
     });
   });
 
+  test('removes scheduled construction with missing requirements when it tries to start', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const buildingFieldId = 25;
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE village_id = $village_id
+          AND source_specifier = $field_id;
+        DELETE FROM building_fields
+        WHERE village_id = $village_id
+          AND field_id = $field_id;
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+      },
+    });
+    createBuildingPlaceholder(database, villageId, buildingFieldId, 'BARRACKS');
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: 'BARRACKS',
+      buildingFieldId,
+      level: 1,
+    });
+
+    promoteNextScheduledBuildingUpgrade(database, villageId);
+
+    const result = database.selectObject({
+      sql: `
+        SELECT
+          (SELECT COUNT(*)
+           FROM events
+           WHERE village_id = $village_id
+             AND type = 'buildingLevelChange') AS active,
+          (SELECT COUNT(*)
+           FROM scheduled_building_upgrades
+           WHERE village_id = $village_id) AS scheduled,
+          (SELECT COUNT(*)
+           FROM building_fields
+           WHERE village_id = $village_id
+             AND field_id = $field_id) AS placeholderFields;
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+      },
+      schema: z.strictObject({
+        active: z.number(),
+        scheduled: z.number(),
+        placeholderFields: z.number(),
+      }),
+    });
+
+    expect(result).toEqual({
+      active: 0,
+      scheduled: 0,
+      placeholderFields: 0,
+    });
+  });
+
   test.each([0, -100])(
     'does not promote an upgrade when current free crop is %i',
     async (wheatProduction) => {

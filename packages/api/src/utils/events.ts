@@ -91,6 +91,7 @@ import {
   getPlayerHeroAdventureStateAt,
   materializeHeroAdventurePointsAt,
 } from './adventures';
+import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
 import {
   getFreeMerchantAmount,
   getMarketplaceVillage,
@@ -829,6 +830,13 @@ export const validateEventCreationPrerequisites = (
       if (isBuildingFieldOccupied) {
         throw new Error('Building field is already occupied');
       }
+
+      assertBuildingConstructionRequirementsAreMet(
+        database,
+        villageId,
+        buildingId,
+        { buildingFieldId },
+      );
 
       return;
     }
