@@ -1,10 +1,15 @@
 import { z } from 'zod';
+import type {
+  ScheduledBuildingConstructionCancellationReason,
+  ScheduledBuildingConstructionCancelledNotificationEvent,
+} from '@pillage-first/types/api-events';
 import type { Building } from '@pillage-first/types/models/building';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { Village } from '@pillage-first/types/models/village';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { postWorkerMessage } from '../worker/notification-port';
 import { removeBuildingPlaceholder } from './building-placeholder';
 import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
 import { createEvents } from './create-event';
@@ -139,6 +144,38 @@ export const removeScheduledBuildingUpgradeChain = (
   });
 };
 
+const getScheduledConstructionCancellationReason = (
+  error: unknown,
+): ScheduledBuildingConstructionCancellationReason | undefined => {
+  if (!(error instanceof Error)) {
+    return;
+  }
+
+  if (error.message === 'Not enough resources') {
+    return 'missing-resources';
+  }
+
+  if (error.message === 'Building requirements are not met') {
+    return 'missing-requirements';
+  }
+
+  return;
+};
+
+const postScheduledConstructionCancelledNotification = (
+  scheduledUpgrade: ScheduledBuildingUpgradeRow,
+  reason: ScheduledBuildingConstructionCancellationReason,
+): void => {
+  postWorkerMessage({
+    eventKey: 'scheduled-building-construction:cancelled',
+    villageId: scheduledUpgrade.villageId,
+    buildingId: scheduledUpgrade.buildingId,
+    buildingFieldId: scheduledUpgrade.buildingFieldId,
+    level: scheduledUpgrade.level,
+    reason,
+  } satisfies ScheduledBuildingConstructionCancelledNotificationEvent);
+};
+
 export const promoteNextScheduledBuildingUpgrade = (
   database: DbFacade,
   villageId: Village['id'],
@@ -187,6 +224,9 @@ export const promoteNextScheduledBuildingUpgrade = (
         return;
       }
 
+      const cancellationReason =
+        getScheduledConstructionCancellationReason(error);
+
       removeScheduledBuildingUpgradeChain(database, {
         villageId,
         buildingId: scheduledUpgrade.buildingId,
@@ -200,6 +240,13 @@ export const promoteNextScheduledBuildingUpgrade = (
           villageId,
           scheduledUpgrade.buildingFieldId,
           scheduledUpgrade.buildingId,
+        );
+      }
+
+      if (cancellationReason) {
+        postScheduledConstructionCancelledNotification(
+          scheduledUpgrade,
+          cancellationReason,
         );
       }
     }

@@ -3,6 +3,7 @@ import type {
   ControllerErrorEvent,
   DatabaseInitializationErrorEvent,
   EventApiNotificationEvent,
+  ScheduledBuildingConstructionCancelledNotificationEvent,
 } from '@pillage-first/types/api-events';
 
 const isNotificationMessageEvent = (
@@ -29,6 +30,16 @@ export const isEventCreatedNotificationMessageEvent = (
     isNotificationMessageEvent(event) && event.data.eventKey === 'event:created'
   );
 };
+
+export const isScheduledBuildingConstructionCancelledNotificationMessageEvent =
+  (
+    event: MessageEvent,
+  ): event is MessageEvent<ScheduledBuildingConstructionCancelledNotificationEvent> => {
+    return (
+      isNotificationMessageEvent(event) &&
+      event.data.eventKey === 'scheduled-building-construction:cancelled'
+    );
+  };
 
 export const isEventResolvedSuccessfullyNotificationMessageEvent = (
   event: MessageEvent,
