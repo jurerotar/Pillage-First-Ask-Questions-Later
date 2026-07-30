@@ -6,6 +6,7 @@ import {
   startTransition,
   use,
   useMemo,
+  useState,
 } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -38,6 +39,14 @@ import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Button } from 'app/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from 'app/components/ui/dialog';
 import { formatTime } from 'app/utils/time';
 
 type BuildingCardContextState = {
@@ -46,6 +55,7 @@ type BuildingCardContextState = {
   buildingConstructionReadinessAssessment?: ReturnType<
     typeof assessBuildingRequirements
   >;
+  shouldAllowUnmetRequirementsForScheduledConstruction?: boolean;
 };
 
 const BuildingCardContext = createContext<BuildingCardContextState>(
@@ -57,6 +67,7 @@ type BuildingCardProps = {
   buildingConstructionReadinessAssessment?: ReturnType<
     typeof assessBuildingRequirements
   >;
+  shouldAllowUnmetRequirementsForScheduledConstruction?: boolean;
 };
 
 const unfinishedBuildings = new Set<Building['id']>([
@@ -76,6 +87,7 @@ const unfinishedBuildings = new Set<Building['id']>([
 export const BuildingCard = ({
   buildingId,
   buildingConstructionReadinessAssessment,
+  shouldAllowUnmetRequirementsForScheduledConstruction,
   children,
 }: PropsWithChildren<BuildingCardProps>) => {
   const { t } = useTranslation();
@@ -86,8 +98,14 @@ export const BuildingCard = ({
       buildingId,
       building,
       buildingConstructionReadinessAssessment,
+      shouldAllowUnmetRequirementsForScheduledConstruction,
     }),
-    [buildingId, building, buildingConstructionReadinessAssessment],
+    [
+      buildingId,
+      building,
+      buildingConstructionReadinessAssessment,
+      shouldAllowUnmetRequirementsForScheduledConstruction,
+    ],
   );
 
   return (
@@ -204,6 +222,69 @@ export const BuildingUnfinishedNotice = () => {
         'Building is not fully implemented, some functionality may be missing.',
       )}
     </Alert>
+  );
+};
+
+type BuildingScheduledConstructionConfirmationDialogProps = {
+  isOpen: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+};
+
+const BuildingScheduledConstructionConfirmationDialog = ({
+  isOpen,
+  onCancel,
+  onConfirm,
+}: BuildingScheduledConstructionConfirmationDialogProps) => {
+  const { t } = useTranslation();
+  const {
+    buildingConstructionReadinessAssessment,
+    shouldAllowUnmetRequirementsForScheduledConstruction,
+  } = use(BuildingCardContext);
+
+  if (
+    buildingConstructionReadinessAssessment?.canBuild ||
+    !shouldAllowUnmetRequirementsForScheduledConstruction
+  ) {
+    return null;
+  }
+
+  return (
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          onCancel();
+        }
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('Confirm queued construction')}</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>
+          <Alert variant="warning">
+            {t(
+              'This building does not currently meet all requirements. You may still schedule it, but construction will only start if all prerequisites are met.',
+            )}
+          </Alert>
+        </DialogDescription>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={onCancel}
+          >
+            {t('Cancel')}
+          </Button>
+          <Button
+            variant="confirm"
+            onClick={onConfirm}
+          >
+            {t('Confirm')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
@@ -540,8 +621,12 @@ const BuildingCardActionsUpgrade = ({
 
 export const BuildingActions = () => {
   const { t } = useTranslation();
-  const { buildingId, building, buildingConstructionReadinessAssessment } =
-    use(BuildingCardContext);
+  const {
+    buildingId,
+    building,
+    buildingConstructionReadinessAssessment,
+    shouldAllowUnmetRequirementsForScheduledConstruction,
+  } = use(BuildingCardContext);
   const navigate = useNavigate();
   const tribe = useTribe();
   const {
@@ -552,6 +637,10 @@ export const BuildingActions = () => {
     buildingIdsInQueue,
   } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
+  const [
+    isScheduledConstructionConfirmationOpen,
+    setIsScheduledConstructionConfirmationOpen,
+  ] = useState(false);
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,
     buildingFieldId,
@@ -570,12 +659,24 @@ export const BuildingActions = () => {
       maxLevelByBuildingId,
       buildingIdsInQueue,
     });
+  const shouldConfirmUnmetScheduledConstruction =
+    !canBuild && shouldAllowUnmetRequirementsForScheduledConstruction;
 
-  const onBuildingConstruction = async () => {
+  const queueBuildingConstruction = async () => {
+    setIsScheduledConstructionConfirmationOpen(false);
     await navigateBack();
     startTransition(() => {
       constructBuilding();
     });
+  };
+
+  const onBuildingConstruction = async () => {
+    if (shouldConfirmUnmetScheduledConstruction) {
+      setIsScheduledConstructionConfirmationOpen(true);
+      return;
+    }
+
+    await queueBuildingConstruction();
   };
 
   const onBuildingUpgrade = async () => {
@@ -589,7 +690,7 @@ export const BuildingActions = () => {
   };
 
   if (!doesBuildingExist) {
-    if (!canBuild) {
+    if (!canBuild && !shouldAllowUnmetRequirementsForScheduledConstruction) {
       return null;
     }
 
@@ -599,6 +700,13 @@ export const BuildingActions = () => {
         <BuildingCardActionsConstruction
           buildingId={buildingId}
           onBuildingConstruction={onBuildingConstruction}
+        />
+        <BuildingScheduledConstructionConfirmationDialog
+          isOpen={isScheduledConstructionConfirmationOpen}
+          onCancel={() => {
+            setIsScheduledConstructionConfirmationOpen(false);
+          }}
+          onConfirm={queueBuildingConstruction}
         />
       </section>
     );

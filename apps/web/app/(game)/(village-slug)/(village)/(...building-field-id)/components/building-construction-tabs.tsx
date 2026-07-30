@@ -20,6 +20,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
@@ -42,8 +43,12 @@ const BuildingConstructionList = ({
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
   const tribe = useTribe();
-  const { maxLevelByBuildingId, buildingIdsInQueue } =
+  const { buildingFieldId, maxLevelByBuildingId, buildingIdsInQueue } =
     use(BuildingFieldContext);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
+
+  const shouldAllowUnmetRequirementsForScheduledConstruction =
+    getBuildingEventQueue(buildingFieldId).length > 0;
 
   const buildingsByCategory = useMemo(() => {
     return buildings.filter(({ category }) => category === buildingCategory);
@@ -117,6 +122,9 @@ const BuildingConstructionList = ({
                 buildingConstructionReadinessAssessment={assessments.get(
                   building.id,
                 )}
+                shouldAllowUnmetRequirementsForScheduledConstruction={
+                  shouldAllowUnmetRequirementsForScheduledConstruction
+                }
               >
                 <BuildingOverview />
                 <BuildingUnfinishedNotice />
