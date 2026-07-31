@@ -9,6 +9,14 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { Village } from '@pillage-first/types/models/village';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import {
+  deleteScheduledBuildingUpgradeByIdQuery,
+  deleteScheduledBuildingUpgradeChainQuery,
+  insertScheduledBuildingUpgradeQuery,
+  insertScheduledConstructionCancellationHistoryQuery,
+  selectNextScheduledBuildingUpgradeQuery,
+  selectScheduledBuildingUpgradesQuery,
+} from '../queries/scheduled-building-upgrades-queries';
 import { postWorkerMessage } from '../worker/notification-port';
 import { removeBuildingPlaceholder } from './building-placeholder';
 import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
@@ -31,18 +39,7 @@ export const selectScheduledBuildingUpgrades = (
   villageId: Village['id'],
 ): ScheduledBuildingUpgradeRow[] =>
   database.selectObjects({
-    sql: `
-      SELECT
-        sbu.id,
-        bi.building AS buildingId,
-        sbu.village_id AS villageId,
-        sbu.building_field_id AS buildingFieldId,
-        sbu.level
-      FROM scheduled_building_upgrades sbu
-      JOIN building_ids bi ON bi.id = sbu.building_id
-      WHERE sbu.village_id = $village_id
-      ORDER BY sbu.queue_position, sbu.id;
-    `,
+    sql: selectScheduledBuildingUpgradesQuery,
     bind: { $village_id: villageId },
     schema: scheduledBuildingUpgradeRowSchema,
   });
@@ -50,22 +47,14 @@ export const selectScheduledBuildingUpgrades = (
 const selectNextScheduledBuildingUpgrade = (
   database: DbFacade,
   villageId: Village['id'],
+  buildingFieldId?: BuildingField['id'],
 ): ScheduledBuildingUpgradeRow | undefined =>
   database.selectObject({
-    sql: `
-      SELECT
-        sbu.id,
-        bi.building AS buildingId,
-        sbu.village_id AS villageId,
-        sbu.building_field_id AS buildingFieldId,
-        sbu.level
-      FROM scheduled_building_upgrades sbu
-      JOIN building_ids bi ON bi.id = sbu.building_id
-      WHERE sbu.village_id = $village_id
-      ORDER BY sbu.queue_position, sbu.id
-      LIMIT 1;
-    `,
-    bind: { $village_id: villageId },
+    sql: selectNextScheduledBuildingUpgradeQuery,
+    bind: {
+      $village_id: villageId,
+      $building_field_id: buildingFieldId ?? null,
+    },
     schema: scheduledBuildingUpgradeRowSchema,
   });
 
@@ -79,29 +68,7 @@ export const insertScheduledBuildingUpgrade = (
   },
 ): void => {
   database.exec({
-    sql: `
-      INSERT INTO scheduled_building_upgrades (
-        building_id,
-        village_id,
-        building_field_id,
-        level,
-        queue_position
-      )
-      VALUES (
-        (SELECT id FROM building_ids WHERE building = $building_id),
-        $village_id,
-        $building_field_id,
-        $level,
-        COALESCE(
-          (
-            SELECT MAX(queue_position) + 1
-            FROM scheduled_building_upgrades
-            WHERE village_id = $village_id
-          ),
-          0
-        )
-      );
-    `,
+    sql: insertScheduledBuildingUpgradeQuery,
     bind: {
       $building_id: args.buildingId,
       $village_id: args.villageId,
@@ -126,15 +93,7 @@ export const removeScheduledBuildingUpgradeChain = (
   },
 ): void => {
   database.exec({
-    sql: `
-      DELETE FROM scheduled_building_upgrades
-      WHERE village_id = $village_id
-        AND building_id = (
-          SELECT id FROM building_ids WHERE building = $building_id
-        )
-        AND building_field_id = $building_field_id
-        AND level >= $level;
-    `,
+    sql: deleteScheduledBuildingUpgradeChainQuery,
     bind: {
       $village_id: villageId,
       $building_id: buildingId,
@@ -181,22 +140,7 @@ const insertScheduledConstructionCancellationHistory = (
   scheduledUpgrade: ScheduledBuildingUpgradeRow,
 ): void => {
   database.exec({
-    sql: `
-      INSERT INTO scheduled_building_construction_cancellation_history (
-        village_id,
-        field_id,
-        building_id,
-        level,
-        timestamp
-      )
-      VALUES (
-        $village_id,
-        $field_id,
-        (SELECT id FROM building_ids WHERE building = $building_id),
-        $level,
-        unixepoch()
-      );
-    `,
+    sql: insertScheduledConstructionCancellationHistoryQuery,
     bind: {
       $village_id: scheduledUpgrade.villageId,
       $field_id: scheduledUpgrade.buildingFieldId,
@@ -210,11 +154,13 @@ export const promoteNextScheduledBuildingUpgrade = (
   database: DbFacade,
   villageId: Village['id'],
   startsAt?: number,
+  buildingFieldId?: BuildingField['id'],
 ): void => {
   while (true) {
     const scheduledUpgrade = selectNextScheduledBuildingUpgrade(
       database,
       villageId,
+      buildingFieldId,
     );
 
     if (!scheduledUpgrade) {
@@ -245,7 +191,7 @@ export const promoteNextScheduledBuildingUpgrade = (
       });
 
       database.exec({
-        sql: 'DELETE FROM scheduled_building_upgrades WHERE id = $id;',
+        sql: deleteScheduledBuildingUpgradeByIdQuery,
         bind: { $id: scheduledUpgrade.id },
       });
       return;

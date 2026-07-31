@@ -14,7 +14,89 @@ import {
 } from '../scheduled-building-upgrades-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
+const insertActiveBuildingUpgrade = (
+  database: Awaited<ReturnType<typeof prepareTestDatabase>>,
+  villageId: number,
+  targetBuildingFieldId?: number,
+) => {
+  const lanePredicate =
+    targetBuildingFieldId === undefined
+      ? ''
+      : targetBuildingFieldId <= 18
+        ? 'AND bf.field_id <= 18'
+        : 'AND bf.field_id > 18';
+
+  const field = database.selectObject({
+    sql: `
+      SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+      FROM building_fields bf
+      JOIN building_ids bi ON bi.id = bf.building_id
+      WHERE bf.village_id = $village_id
+        AND ($excluded_field_id IS NULL OR bf.field_id <> $excluded_field_id)
+        ${lanePredicate}
+      ORDER BY bf.field_id
+      LIMIT 1;
+    `,
+    bind: {
+      $village_id: villageId,
+      $excluded_field_id: targetBuildingFieldId ?? null,
+    },
+    schema: z.strictObject({
+      fieldId: z.number(),
+      level: z.number(),
+      buildingId: buildingIdSchema,
+    }),
+  })!;
+
+  insertEvents(database, [
+    createBuildingLevelChangeEventMock({
+      villageId,
+      buildingId: field.buildingId,
+      buildingFieldId: field.fieldId,
+      previousLevel: field.level,
+      level: field.level + 1,
+    }),
+  ]);
+
+  return field;
+};
+
 describe('scheduled building upgrade controllers', () => {
+  test('rejects scheduling when no relevant construction is active', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const field = database.selectObject({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.field_id <= 18
+        ORDER BY bf.field_id
+        LIMIT 1;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    })!;
+
+    expect(() =>
+      scheduleBuildingUpgrade(
+        database,
+        createControllerArgs({
+          path: { villageId: villageId.toString() },
+          body: {
+            buildingId: field.buildingId,
+            buildingFieldId: field.fieldId,
+            level: field.level + 1,
+          },
+        }),
+      ),
+    ).toThrow('Cannot schedule building upgrade without active construction');
+  });
+
   test('scheduling an upgrade only queues it', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
@@ -34,6 +116,7 @@ describe('scheduled building upgrade controllers', () => {
         buildingId: buildingIdSchema,
       }),
     })!;
+    insertActiveBuildingUpgrade(database, villageId, field.fieldId);
 
     scheduleBuildingUpgrade(
       database,
@@ -65,7 +148,7 @@ describe('scheduled building upgrade controllers', () => {
 
     expect(counts).toEqual({
       scheduled: 1,
-      active: 0,
+      active: 1,
     });
   });
 
@@ -73,6 +156,7 @@ describe('scheduled building upgrade controllers', () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
+    insertActiveBuildingUpgrade(database, villageId, buildingFieldId);
 
     database.exec({
       sql: `
@@ -116,6 +200,7 @@ describe('scheduled building upgrade controllers', () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
+    insertActiveBuildingUpgrade(database, villageId, buildingFieldId);
 
     database.exec({
       sql: `

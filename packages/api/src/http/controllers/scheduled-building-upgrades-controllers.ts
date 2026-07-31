@@ -2,6 +2,15 @@ import { z } from 'zod';
 import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
+import { selectRelevantActiveBuildingConstructionExistsQuery } from '../../queries/event-queries';
+import {
+  selectActiveAndScheduledBuildingConstructionCountQuery,
+  selectBuildingFieldForScheduledUpgradeQuery,
+  selectBuildingFieldPendingConstructionExistsQuery,
+  selectScheduledBuildingUpgradeCancellationTargetQuery,
+  selectScheduledBuildingVirtualLevelQuery,
+  updateScheduledBuildingUpgradeQueuePositionQuery,
+} from '../../queries/scheduled-building-upgrades-queries';
 import {
   createBuildingPlaceholder,
   removeBuildingPlaceholder,
@@ -42,33 +51,27 @@ export const scheduleBuildingUpgrade = createController(
     requestBody: scheduleBuildingUpgradeSchema,
   },
 )(({ database, path: { villageId }, body }) => {
-  const numericVillageId = Number(villageId);
-
   database.transaction((db) => {
+    const { buildingId, buildingFieldId, level } = body;
+
+    const hasActiveRelevantConstruction = db.selectValue({
+      sql: selectRelevantActiveBuildingConstructionExistsQuery,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: buildingFieldId,
+      },
+      schema: z.coerce.boolean(),
+    })!;
+
+    if (!hasActiveRelevantConstruction) {
+      throw new Error(
+        'Cannot schedule building upgrade without active construction',
+      );
+    }
+
     const activeAndScheduledCount = db.selectValue({
-      sql: `
-        SELECT
-          (
-            SELECT COUNT(*)
-            FROM events
-            WHERE village_id = $village_id
-              AND (
-                type = 'buildingConstruction'
-                OR (
-                  type = 'buildingLevelChange'
-                  AND CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER) >
-                      CAST(JSON_EXTRACT(meta, '$.previousLevel') AS INTEGER)
-                )
-              )
-          )
-          +
-          (
-            SELECT COUNT(*)
-            FROM scheduled_building_upgrades
-            WHERE village_id = $village_id
-          );
-      `,
-      bind: { $village_id: numericVillageId },
+      sql: selectActiveAndScheduledBuildingConstructionCountQuery,
+      bind: { $village_id: villageId },
       schema: z.number(),
     })!;
 
@@ -76,7 +79,6 @@ export const scheduleBuildingUpgrade = createController(
       throw new BuildingConstructionQueueFullError();
     }
 
-    const { buildingId, buildingFieldId, level } = body;
     const { maxLevel } = getBuildingDefinition(buildingId);
 
     if (level > maxLevel) {
@@ -84,35 +86,9 @@ export const scheduleBuildingUpgrade = createController(
     }
 
     const currentVirtualLevel = db.selectValue({
-      sql: `
-        SELECT MAX(level)
-        FROM (
-          SELECT bf.level
-          FROM building_fields bf
-          JOIN building_ids bi ON bi.id = bf.building_id
-          WHERE bf.village_id = $village_id
-            AND bf.field_id = $building_field_id
-            AND bi.building = $building_id
-
-          UNION ALL
-
-          SELECT CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
-          FROM events
-          WHERE village_id = $village_id
-            AND type IN ('buildingConstruction', 'buildingLevelChange')
-            AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) =
-                $building_field_id
-
-          UNION ALL
-
-          SELECT level
-          FROM scheduled_building_upgrades
-          WHERE village_id = $village_id
-            AND building_field_id = $building_field_id
-        );
-      `,
+      sql: selectScheduledBuildingVirtualLevelQuery,
       bind: {
-        $village_id: numericVillageId,
+        $village_id: villageId,
         $building_field_id: buildingFieldId,
         $building_id: buildingId,
       },
@@ -124,15 +100,9 @@ export const scheduleBuildingUpgrade = createController(
     }
 
     const existingBuilding = db.selectObject({
-      sql: `
-        SELECT bi.building AS buildingId, bf.level
-        FROM building_fields bf
-        JOIN building_ids bi ON bi.id = bf.building_id
-        WHERE bf.village_id = $village_id
-          AND bf.field_id = $building_field_id;
-      `,
+      sql: selectBuildingFieldForScheduledUpgradeQuery,
       bind: {
-        $village_id: numericVillageId,
+        $village_id: villageId,
         $building_field_id: buildingFieldId,
       },
       schema: z.strictObject({
@@ -143,25 +113,9 @@ export const scheduleBuildingUpgrade = createController(
 
     if (existingBuilding && existingBuilding.buildingId !== buildingId) {
       const hasPendingConstruction = db.selectValue({
-        sql: `
-          SELECT EXISTS (
-            SELECT 1
-            FROM events
-            WHERE village_id = $village_id
-              AND type IN ('buildingConstruction', 'buildingLevelChange')
-              AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) =
-                  $building_field_id
-
-            UNION ALL
-
-            SELECT 1
-            FROM scheduled_building_upgrades
-            WHERE village_id = $village_id
-              AND building_field_id = $building_field_id
-          );
-        `,
+        sql: selectBuildingFieldPendingConstructionExistsQuery,
         bind: {
-          $village_id: numericVillageId,
+          $village_id: villageId,
           $building_field_id: buildingFieldId,
         },
         schema: z.coerce.boolean(),
@@ -177,7 +131,7 @@ export const scheduleBuildingUpgrade = createController(
 
       removeBuildingPlaceholder(
         db,
-        numericVillageId,
+        villageId,
         buildingFieldId,
         existingBuilding.buildingId,
       );
@@ -189,18 +143,13 @@ export const scheduleBuildingUpgrade = createController(
 
     insertScheduledBuildingUpgrade(db, {
       buildingId,
-      villageId: numericVillageId,
+      villageId,
       buildingFieldId,
       level,
     });
 
     if (isNewBuilding) {
-      createBuildingPlaceholder(
-        db,
-        numericVillageId,
-        buildingFieldId,
-        buildingId,
-      );
+      createBuildingPlaceholder(db, villageId, buildingFieldId, buildingId);
     }
   });
 });
@@ -216,13 +165,8 @@ export const reorderScheduledBuildingUpgrades = createController(
     requestBody: reorderScheduledBuildingUpgradesSchema,
   },
 )(({ database, path: { villageId }, body: { scheduledUpgradeIds } }) => {
-  const numericVillageId = Number(villageId);
-
   database.transaction((db) => {
-    const scheduledUpgrades = selectScheduledBuildingUpgrades(
-      db,
-      numericVillageId,
-    );
+    const scheduledUpgrades = selectScheduledBuildingUpgrades(db, villageId);
     const upgradesById = new Map(
       scheduledUpgrades.map((upgrade) => [upgrade.id, upgrade]),
     );
@@ -249,15 +193,11 @@ export const reorderScheduledBuildingUpgrades = createController(
 
     for (const [queuePosition, id] of scheduledUpgradeIds.entries()) {
       db.exec({
-        sql: `
-          UPDATE scheduled_building_upgrades
-          SET queue_position = $queue_position
-          WHERE id = $id AND village_id = $village_id;
-        `,
+        sql: updateScheduledBuildingUpgradeQueuePositionQuery,
         bind: {
           $queue_position: queuePosition,
           $id: id,
-          $village_id: numericVillageId,
+          $village_id: villageId,
         },
       });
     }
@@ -277,20 +217,10 @@ export const cancelScheduledBuildingUpgrade = createController(
     },
   },
 )(({ database, path: { villageId, scheduledUpgradeId } }) => {
-  const numericVillageId = Number(villageId);
-
   database.transaction((db) => {
     const cancelled = db.selectObject({
-      sql: `
-        SELECT
-          bi.building AS buildingId,
-          sbu.building_field_id AS buildingFieldId,
-          sbu.level
-        FROM scheduled_building_upgrades sbu
-        JOIN building_ids bi ON bi.id = sbu.building_id
-        WHERE sbu.id = $id AND sbu.village_id = $village_id;
-      `,
-      bind: { $id: scheduledUpgradeId, $village_id: numericVillageId },
+      sql: selectScheduledBuildingUpgradeCancellationTargetQuery,
+      bind: { $id: scheduledUpgradeId, $village_id: villageId },
       schema: z.strictObject({
         buildingId: buildingIdSchema,
         buildingFieldId: z.number(),
@@ -303,7 +233,7 @@ export const cancelScheduledBuildingUpgrade = createController(
     }
 
     removeScheduledBuildingUpgradeChain(db, {
-      villageId: numericVillageId,
+      villageId,
       buildingId: cancelled.buildingId,
       buildingFieldId: cancelled.buildingFieldId,
       fromLevel: cancelled.level,
@@ -312,7 +242,7 @@ export const cancelScheduledBuildingUpgrade = createController(
     if (cancelled.level === 1) {
       removeBuildingPlaceholder(
         db,
-        numericVillageId,
+        villageId,
         cancelled.buildingFieldId,
         cancelled.buildingId,
       );

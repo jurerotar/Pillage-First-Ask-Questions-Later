@@ -70,6 +70,36 @@ export const selectVillageEventExistsByTypeQuery = `
     ) AS event_exists;
 `;
 
+export const selectRelevantActiveBuildingConstructionExistsQuery = `
+  SELECT EXISTS (
+    SELECT 1
+    FROM events e
+    JOIN villages v ON v.id = e.village_id
+    JOIN players p ON p.id = v.player_id
+    JOIN tribe_ids ti ON ti.id = p.tribe_id
+    WHERE e.village_id = $village_id
+      AND (
+        e.type = 'buildingConstruction'
+        OR (
+          e.type = 'buildingLevelChange'
+          AND CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) >
+              CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER)
+        )
+      )
+      AND (
+        ti.tribe <> 'romans'
+        OR (
+          CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) <= 18
+          AND $building_field_id <= 18
+        )
+        OR (
+          CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) > 18
+          AND $building_field_id > 18
+        )
+      )
+  );
+`;
+
 export const selectTroopMovementEventsQuery = `
   SELECT id, type, starts_at, duration, resolves_at, meta, village_id
   FROM

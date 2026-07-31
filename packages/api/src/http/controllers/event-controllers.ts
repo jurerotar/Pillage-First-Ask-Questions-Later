@@ -18,8 +18,10 @@ import {
   selectEventsByTypeQuery,
   selectTroopMovementEventsQuery,
 } from '../../queries/event-queries';
+import { deleteScheduledBuildingUpgradesByVillageAndFieldQuery } from '../../queries/scheduled-building-upgrades-queries';
 import { removeBuildingPlaceholder } from '../../utils/building-placeholder';
 import { createEvents } from '../../utils/create-event';
+import { promoteNextScheduledBuildingUpgrade } from '../../utils/scheduled-building-upgrades';
 import { addVillageResourcesAt } from '../../utils/village';
 import {
   baseEventRowSchema,
@@ -154,11 +156,7 @@ export const cancelConstructionEvent = createController(
     });
 
     db.exec({
-      sql: `
-        DELETE FROM scheduled_building_upgrades
-        WHERE village_id = $village_id
-          AND building_field_id = $building_field_id;
-      `,
+      sql: deleteScheduledBuildingUpgradesByVillageAndFieldQuery,
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
@@ -182,6 +180,8 @@ export const cancelConstructionEvent = createController(
     );
 
     addVillageResourcesAt(db, villageId, now, resourcesToRefund);
+
+    promoteNextScheduledBuildingUpgrade(db, villageId, now, buildingFieldId);
   });
 
   triggerKick();
