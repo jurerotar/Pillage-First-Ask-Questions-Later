@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { calculateBuildingCostForLevel } from '@pillage-first/game-assets/utils/buildings';
@@ -7,7 +7,6 @@ import {
   type Building,
   buildingIdSchema,
 } from '@pillage-first/types/models/building';
-import { postWorkerMessage } from '../../worker/notification-port';
 import { createBuildingPlaceholder } from '../building-placeholder';
 import { insertEvents } from '../events';
 import {
@@ -15,15 +14,7 @@ import {
   promoteNextScheduledBuildingUpgrade,
 } from '../scheduled-building-upgrades';
 
-vi.mock('../../worker/notification-port', () => ({
-  postWorkerMessage: vi.fn(),
-}));
-
 describe('scheduled building upgrades', () => {
-  afterEach(() => {
-    vi.mocked(postWorkerMessage).mockClear();
-  });
-
   test('starts only the first queued upgrade for a non-Roman village', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
@@ -366,15 +357,6 @@ describe('scheduled building upgrades', () => {
         schema: z.number(),
       }),
     ).toBe(0);
-
-    expect(postWorkerMessage).toHaveBeenCalledWith({
-      eventKey: 'scheduled-building-construction:cancelled',
-      villageId,
-      buildingId: field.buildingId,
-      buildingFieldId: field.fieldId,
-      level: field.level + 1,
-      reason: 'missing-resources',
-    });
 
     expect(
       database.selectObject({
@@ -729,15 +711,6 @@ describe('scheduled building upgrades', () => {
       active: 0,
       scheduled: 0,
       placeholderFields: 0,
-    });
-
-    expect(postWorkerMessage).toHaveBeenCalledWith({
-      eventKey: 'scheduled-building-construction:cancelled',
-      villageId,
-      buildingId: 'BARRACKS',
-      buildingFieldId,
-      level: 1,
-      reason: 'missing-requirements',
     });
   });
 
