@@ -59,7 +59,7 @@ const ConstructionQueueBuilding = ({
   return (
     <div
       className={clsx(
-        'flex items-center gap-2 rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity',
+        'flex items-center gap-2 rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity non-selectable',
         isDragging && 'opacity-60',
         dropTargetStatus === 'valid' && 'ring-2 ring-green-500/70',
         dropTargetStatus === 'invalid' && 'ring-2 ring-red-500/70',
@@ -165,7 +165,7 @@ const CompactConstructionQueueBuilding = ({
       aria-label={t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
       aria-pressed={isSelected}
       className={clsx(
-        'relative flex flex-col rounded-xs border bg-background',
+        'relative flex flex-col rounded-xs border bg-background non-selectable',
         isSelected ? 'border-foreground' : 'border-border',
         isDragging && 'opacity-60',
         dropTargetStatus === 'valid' && 'ring-2 ring-green-500/70',
