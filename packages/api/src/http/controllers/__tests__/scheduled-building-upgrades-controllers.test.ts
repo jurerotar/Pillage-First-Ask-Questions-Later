@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
 import { insertEvents } from '../../../utils/events';
 import { insertScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
@@ -59,6 +60,122 @@ const insertActiveBuildingUpgrade = (
   ]);
 
   return field;
+};
+
+const expectAtMostOneActiveConstructionPerLane = (
+  database: DbFacade,
+  villageId: number,
+) => {
+  const violations = database.selectObjects({
+    sql: `
+      WITH active_building_events AS (
+        SELECT
+          CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) AS field_id,
+          ti.tribe
+        FROM events e
+        JOIN villages v ON v.id = e.village_id
+        JOIN players p ON p.id = v.player_id
+        JOIN tribe_ids ti ON ti.id = p.tribe_id
+        WHERE e.village_id = $village_id
+          AND (
+            e.type = 'buildingConstruction'
+            OR (
+              e.type = 'buildingLevelChange'
+              AND CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) >
+                  CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER)
+            )
+          )
+      ),
+      active_lanes AS (
+        SELECT
+          CASE
+            WHEN tribe = 'romans' AND field_id <= 18 THEN 'resource'
+            WHEN tribe = 'romans' THEN 'village'
+            ELSE 'single'
+          END AS lane
+        FROM active_building_events
+      )
+      SELECT lane, COUNT(*) AS active
+      FROM active_lanes
+      GROUP BY lane
+      HAVING COUNT(*) > 1;
+    `,
+    bind: { $village_id: villageId },
+    schema: z.strictObject({
+      lane: z.string(),
+      active: z.number(),
+    }),
+  });
+
+  expect(violations).toEqual([]);
+};
+
+const expectScheduledLevelsToBeConsecutive = (
+  database: DbFacade,
+  villageId: number,
+) => {
+  const violations = database.selectObjects({
+    sql: `
+      WITH scheduled AS (
+        SELECT
+          sbu.id,
+          sbu.building_id,
+          sbu.building_field_id,
+          sbu.level,
+          LAG(sbu.level) OVER (
+            PARTITION BY sbu.building_field_id, sbu.building_id
+            ORDER BY sbu.level
+          ) AS previous_scheduled_level
+        FROM scheduled_building_upgrades sbu
+        WHERE sbu.village_id = $village_id
+      ),
+      scheduled_with_base AS (
+        SELECT
+          scheduled.id,
+          scheduled.building_field_id,
+          scheduled.level,
+          COALESCE(
+            scheduled.previous_scheduled_level,
+            (
+              SELECT MAX(base.level)
+              FROM (
+                SELECT bf.level
+                FROM building_fields bf
+                WHERE bf.village_id = $village_id
+                  AND bf.field_id = scheduled.building_field_id
+                  AND bf.building_id = scheduled.building_id
+
+                UNION ALL
+
+                SELECT CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
+                FROM events e
+                JOIN building_ids bi
+                  ON bi.building = JSON_EXTRACT(e.meta, '$.buildingId')
+                WHERE e.village_id = $village_id
+                  AND e.type IN ('buildingConstruction', 'buildingLevelChange')
+                  AND CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) =
+                      scheduled.building_field_id
+                  AND bi.id = scheduled.building_id
+              ) base
+            ),
+            0
+          ) AS previous_level
+        FROM scheduled
+      )
+      SELECT id, building_field_id AS buildingFieldId, level, previous_level AS previousLevel
+      FROM scheduled_with_base
+      WHERE level <> previous_level + 1;
+    `,
+    bind: { $village_id: villageId },
+    schema: z.strictObject({
+      id: z.number(),
+      buildingFieldId: z.number(),
+      level: z.number(),
+      previousLevel: z.number(),
+    }),
+  });
+
+  expect(violations).toEqual([]);
 };
 
 describe('scheduled building upgrade controllers', () => {
@@ -404,6 +521,121 @@ describe('scheduled building upgrade controllers', () => {
     ).toThrow(
       'Scheduled upgrades for the same building field cannot be reordered',
     );
+  });
+
+  test('maintains queue invariants after scheduling, reordering, and cancelling', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const fields = database.selectObjects({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.field_id <= 18
+        ORDER BY bf.field_id
+        LIMIT 2;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    });
+    const [activeField, queuedField] = fields;
+
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        villageId,
+        buildingId: activeField.buildingId,
+        buildingFieldId: activeField.fieldId,
+        previousLevel: activeField.level,
+        level: activeField.level + 1,
+      }),
+    ]);
+
+    scheduleBuildingUpgrade(
+      database,
+      createControllerArgs({
+        path: { villageId: villageId.toString() },
+        body: {
+          buildingId: queuedField.buildingId,
+          buildingFieldId: queuedField.fieldId,
+          level: queuedField.level + 1,
+        },
+      }),
+    );
+    scheduleBuildingUpgrade(
+      database,
+      createControllerArgs({
+        path: { villageId: villageId.toString() },
+        body: {
+          buildingId: queuedField.buildingId,
+          buildingFieldId: queuedField.fieldId,
+          level: queuedField.level + 2,
+        },
+      }),
+    );
+    scheduleBuildingUpgrade(
+      database,
+      createControllerArgs({
+        path: { villageId: villageId.toString() },
+        body: {
+          buildingId: activeField.buildingId,
+          buildingFieldId: activeField.fieldId,
+          level: activeField.level + 2,
+        },
+      }),
+    );
+
+    expectAtMostOneActiveConstructionPerLane(database, villageId);
+    expectScheduledLevelsToBeConsecutive(database, villageId);
+
+    const scheduledUpgrades = getScheduledBuildingUpgrades(
+      database,
+      createControllerArgs({ path: { villageId: villageId.toString() } }),
+    );
+    const reorderedIds = [
+      scheduledUpgrades[2].id,
+      scheduledUpgrades[0].id,
+      scheduledUpgrades[1].id,
+    ];
+
+    reorderScheduledBuildingUpgrades(
+      database,
+      createControllerArgs({
+        path: { villageId: villageId.toString() },
+        body: { scheduledUpgradeIds: reorderedIds },
+      }),
+    );
+
+    expectAtMostOneActiveConstructionPerLane(database, villageId);
+    expectScheduledLevelsToBeConsecutive(database, villageId);
+
+    cancelScheduledBuildingUpgrade(
+      database,
+      createControllerArgs({
+        path: {
+          villageId: villageId.toString(),
+          scheduledUpgradeId: scheduledUpgrades[0].id.toString(),
+        },
+      }),
+    );
+
+    expectAtMostOneActiveConstructionPerLane(database, villageId);
+    expectScheduledLevelsToBeConsecutive(database, villageId);
+
+    const remaining = getScheduledBuildingUpgrades(
+      database,
+      createControllerArgs({ path: { villageId: villageId.toString() } }),
+    );
+
+    expect(remaining).toEqual([
+      expect.objectContaining({
+        buildingFieldId: activeField.fieldId,
+        level: activeField.level + 2,
+      }),
+    ]);
   });
 
   test('cancelling an upgrade preserves earlier levels and other fields', async () => {

@@ -2,17 +2,69 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { calculateBuildingCostForLevel } from '@pillage-first/game-assets/utils/buildings';
-import { createBuildingConstructionEventMock } from '@pillage-first/mocks/event';
+import {
+  createBuildingConstructionEventMock,
+  createBuildingLevelChangeEventMock,
+} from '@pillage-first/mocks/event';
 import {
   type Building,
   buildingIdSchema,
 } from '@pillage-first/types/models/building';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createBuildingPlaceholder } from '../building-placeholder';
 import { insertEvents } from '../events';
 import {
   insertScheduledBuildingUpgrade,
   promoteNextScheduledBuildingUpgrade,
 } from '../scheduled-building-upgrades';
+
+const expectAtMostOneActiveConstructionPerLane = (
+  database: DbFacade,
+  villageId: number,
+) => {
+  const violations = database.selectObjects({
+    sql: `
+      WITH active_building_events AS (
+        SELECT
+          CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) AS field_id,
+          ti.tribe
+        FROM events e
+        JOIN villages v ON v.id = e.village_id
+        JOIN players p ON p.id = v.player_id
+        JOIN tribe_ids ti ON ti.id = p.tribe_id
+        WHERE e.village_id = $village_id
+          AND (
+            e.type = 'buildingConstruction'
+            OR (
+              e.type = 'buildingLevelChange'
+              AND CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) >
+                  CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER)
+            )
+          )
+      ),
+      active_lanes AS (
+        SELECT
+          CASE
+            WHEN tribe = 'romans' AND field_id <= 18 THEN 'resource'
+            WHEN tribe = 'romans' THEN 'village'
+            ELSE 'single'
+          END AS lane
+        FROM active_building_events
+      )
+      SELECT lane, COUNT(*) AS active
+      FROM active_lanes
+      GROUP BY lane
+      HAVING COUNT(*) > 1;
+    `,
+    bind: { $village_id: villageId },
+    schema: z.strictObject({
+      lane: z.string(),
+      active: z.number(),
+    }),
+  });
+
+  expect(violations).toEqual([]);
+};
 
 describe('scheduled building upgrades', () => {
   test('starts only the first queued upgrade for a non-Roman village', async () => {
@@ -304,6 +356,120 @@ describe('scheduled building upgrades', () => {
     expect(result).toEqual({
       fieldId: resourceField.fieldId,
       scheduled: 1,
+    });
+  });
+
+  test('lane-filtered promotion preserves the Roman active construction invariant', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+
+    database.exec({
+      sql: `
+        UPDATE players
+        SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
+        WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
+
+        UPDATE developer_settings
+        SET is_free_building_construction_enabled = 1;
+      `,
+      bind: { $village_id: villageId },
+    });
+
+    const resourceField = database.selectObject({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.field_id <= 18
+        ORDER BY bf.field_id
+        LIMIT 1;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    })!;
+    const villageFields = database.selectObjects({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id
+          AND bf.field_id > 18
+          AND bf.level > 0
+        ORDER BY bf.field_id
+        LIMIT 2;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    });
+    const [activeVillageField, queuedVillageField] = villageFields;
+
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        villageId,
+        buildingId: activeVillageField.buildingId,
+        buildingFieldId: activeVillageField.fieldId,
+        previousLevel: activeVillageField.level,
+        level: activeVillageField.level + 1,
+      }),
+    ]);
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: queuedVillageField.buildingId,
+      buildingFieldId: queuedVillageField.fieldId,
+      level: queuedVillageField.level + 1,
+    });
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: resourceField.buildingId,
+      buildingFieldId: resourceField.fieldId,
+      level: resourceField.level + 1,
+    });
+
+    promoteNextScheduledBuildingUpgrade(
+      database,
+      villageId,
+      undefined,
+      resourceField.fieldId,
+    );
+
+    expectAtMostOneActiveConstructionPerLane(database, villageId);
+
+    const result = database.selectObject({
+      sql: `
+        SELECT
+          (SELECT COUNT(*)
+           FROM events
+           WHERE village_id = $village_id
+             AND type = 'buildingLevelChange'
+             AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) =
+                 $resource_field_id) AS promotedResource,
+          (SELECT COUNT(*)
+           FROM scheduled_building_upgrades
+           WHERE village_id = $village_id
+             AND building_field_id = $queued_village_field_id) AS queuedVillage;
+      `,
+      bind: {
+        $village_id: villageId,
+        $resource_field_id: resourceField.fieldId,
+        $queued_village_field_id: queuedVillageField.fieldId,
+      },
+      schema: z.strictObject({
+        promotedResource: z.number(),
+        queuedVillage: z.number(),
+      }),
+    });
+
+    expect(result).toEqual({
+      promotedResource: 1,
+      queuedVillage: 1,
     });
   });
 

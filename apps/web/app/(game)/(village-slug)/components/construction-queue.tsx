@@ -35,16 +35,20 @@ import {
 const iconClassName =
   'text-2xl lg:text-3xl bg-background text-muted-foreground px-2 py-2.5 box-content border border-border rounded-xs transition-colors';
 
+type DropTargetStatus = 'valid' | 'invalid';
+
 type ConstructionQueueBuildingProps = {
   buildingEvent: BuildingUpgradeQueueEntry;
   isDragging?: boolean;
   dragHandlers?: ConstructionQueueDragHandlers;
+  dropTargetStatus?: DropTargetStatus;
 };
 
 const ConstructionQueueBuilding = ({
   buildingEvent,
   isDragging = false,
   dragHandlers,
+  dropTargetStatus,
 }: ConstructionQueueBuildingProps) => {
   const { t } = useTranslation();
   const { mutate: cancelConstruction } = useCancelConstruction();
@@ -54,8 +58,10 @@ const ConstructionQueueBuilding = ({
   return (
     <div
       className={clsx(
-        'flex items-center gap-2 rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity',
+        'flex items-center gap-2 rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-[opacity,box-shadow]',
         isDragging && 'opacity-60',
+        dropTargetStatus === 'valid' && 'ring-2 ring-green-500/70',
+        dropTargetStatus === 'invalid' && 'ring-2 ring-red-500/70',
       )}
     >
       {isScheduledEvent && dragHandlers ? (
@@ -139,6 +145,7 @@ type CompactConstructionQueueBuildingProps = {
   isSelected: boolean;
   onClick: () => void;
   dragHandlers: ConstructionQueueDragHandlers;
+  dropTargetStatus?: DropTargetStatus;
 };
 
 const CompactConstructionQueueBuilding = ({
@@ -147,6 +154,7 @@ const CompactConstructionQueueBuilding = ({
   isSelected,
   onClick,
   dragHandlers,
+  dropTargetStatus,
 }: CompactConstructionQueueBuildingProps) => {
   const { t } = useTranslation();
   const isScheduledEvent = buildingEvent.type === 'scheduledBuildingUpgrade';
@@ -156,9 +164,11 @@ const CompactConstructionQueueBuilding = ({
       aria-label={t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
       aria-pressed={isSelected}
       className={clsx(
-        'relative flex flex-col rounded-xs border bg-background transition-opacity',
+        'relative flex flex-col rounded-xs border bg-background transition-[opacity,box-shadow,border-color]',
         isSelected ? 'border-foreground' : 'border-border',
         isDragging && 'opacity-60',
+        dropTargetStatus === 'valid' && 'ring-2 ring-green-500/70',
+        dropTargetStatus === 'invalid' && 'ring-2 ring-red-500/70',
         isScheduledEvent
           ? 'touch-none cursor-grab active:cursor-grabbing'
           : 'cursor-pointer',
@@ -198,6 +208,7 @@ type ConstructionQueueEventSlotProps = {
   draggedId: number | null;
   selectedEventKey: string | null;
   dragHandlers: ConstructionQueueDragHandlers;
+  validDropTargetIds: Set<number>;
   onSelect: (event: BuildingUpgradeQueueEntry) => void;
 };
 
@@ -207,23 +218,32 @@ const ConstructionQueueEventSlot = ({
   draggedId,
   selectedEventKey,
   dragHandlers,
+  validDropTargetIds,
   onSelect,
 }: ConstructionQueueEventSlotProps) => {
   const eventKey = getBuildingUpgradeQueueEntryKey(event);
   const isScheduledEvent = event.type === 'scheduledBuildingUpgrade';
   const isDragging = isScheduledEvent && event.id === draggedId;
+  const dropTargetStatus =
+    isScheduledEvent && draggedId !== null && !isDragging
+      ? validDropTargetIds.has(event.id)
+        ? 'valid'
+        : 'invalid'
+      : undefined;
 
   return (
     <li data-scheduled-upgrade-id={isScheduledEvent ? event.id : undefined}>
       {isDesktop ? (
         <ConstructionQueueBuilding
           buildingEvent={event}
+          dropTargetStatus={dropTargetStatus}
           dragHandlers={dragHandlers}
           isDragging={isDragging}
         />
       ) : (
         <CompactConstructionQueueBuilding
           buildingEvent={event}
+          dropTargetStatus={dropTargetStatus}
           dragHandlers={dragHandlers}
           isDragging={isDragging}
           isSelected={eventKey === selectedEventKey}
@@ -263,6 +283,7 @@ const ConstructionQueueContent = () => {
     dragHandlers,
     draggedId,
     orderedEvents: orderedScheduledEvents,
+    validDropTargetIds,
   } = useConstructionQueueDrag(scheduledEvents);
 
   const orderedEvents = [...activeEvents, ...orderedScheduledEvents];
@@ -335,6 +356,7 @@ const ConstructionQueueContent = () => {
                 );
               }}
               selectedEventKey={selectedEventKey}
+              validDropTargetIds={validDropTargetIds}
             />
           ) : (
             <li key={slot.id}>

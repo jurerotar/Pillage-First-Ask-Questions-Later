@@ -1,6 +1,7 @@
 import {
   type PointerEvent as ReactPointerEvent,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -36,18 +37,43 @@ const moveScheduledUpgrade = (
   upgrades: ScheduledBuildingUpgrade[],
   draggedId: number,
   targetId: number,
-): ScheduledBuildingUpgrade[] => {
+): ScheduledBuildingUpgrade[] | null => {
   const fromIndex = upgrades.findIndex(({ id }) => id === draggedId);
   const toIndex = upgrades.findIndex(({ id }) => id === targetId);
 
   if (fromIndex === -1 || toIndex === -1) {
-    return upgrades;
+    return null;
   }
 
   const next = [...upgrades];
   const [moved] = next.splice(fromIndex, 1);
   next.splice(toIndex, 0, moved);
-  return hasValidFieldOrder(next) ? next : upgrades;
+  return next;
+};
+
+export const getValidScheduledConstructionDropTargetIds = (
+  upgrades: ScheduledBuildingUpgrade[],
+  draggedId: number | null,
+): Set<number> => {
+  if (draggedId === null) {
+    return new Set();
+  }
+
+  const validDropTargetIds = new Set<number>();
+
+  for (const { id: targetId } of upgrades) {
+    if (targetId === draggedId) {
+      continue;
+    }
+
+    const next = moveScheduledUpgrade(upgrades, draggedId, targetId);
+
+    if (next && hasValidFieldOrder(next)) {
+      validDropTargetIds.add(targetId);
+    }
+  }
+
+  return validDropTargetIds;
 };
 
 export const useConstructionQueueDrag = (
@@ -57,6 +83,10 @@ export const useConstructionQueueDrag = (
   const [orderedEvents, setOrderedEvents] = useState(scheduledEvents);
   const [draggedId, setDraggedId] = useState<number | null>(null);
   const originalOrderRef = useRef<number[]>([]);
+  const validDropTargetIds = useMemo(
+    () => getValidScheduledConstructionDropTargetIds(orderedEvents, draggedId),
+    [orderedEvents, draggedId],
+  );
 
   useEffect(() => {
     if (draggedId === null) {
@@ -88,9 +118,15 @@ export const useConstructionQueueDrag = (
       );
 
       if (Number.isFinite(targetId) && targetId !== draggedId) {
-        setOrderedEvents((current) =>
-          moveScheduledUpgrade(current, draggedId, targetId),
-        );
+        setOrderedEvents((current) => {
+          const next = moveScheduledUpgrade(current, draggedId, targetId);
+
+          if (!next || !hasValidFieldOrder(next)) {
+            return current;
+          }
+
+          return next;
+        });
       }
     },
     onDragEnd: (event) => {
@@ -113,5 +149,5 @@ export const useConstructionQueueDrag = (
     },
   };
 
-  return { dragHandlers, draggedId, orderedEvents };
+  return { dragHandlers, draggedId, orderedEvents, validDropTargetIds };
 };
