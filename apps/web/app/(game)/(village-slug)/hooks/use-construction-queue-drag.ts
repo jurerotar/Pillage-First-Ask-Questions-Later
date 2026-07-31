@@ -5,10 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  type ScheduledBuildingUpgrade,
-  useScheduledBuildingUpgrades,
-} from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
+import type { ScheduledBuildingUpgrade } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 
 export type ConstructionQueueDragHandlers = {
   onDragStart: (
@@ -18,6 +15,10 @@ export type ConstructionQueueDragHandlers = {
   onDragMove: (event: ReactPointerEvent<HTMLButtonElement>) => void;
   onDragEnd: (event: ReactPointerEvent<HTMLButtonElement>) => void;
 };
+
+type ReorderScheduledBuildingUpgrades = (variables: {
+  scheduledUpgradeIds: number[];
+}) => void;
 
 const hasValidFieldOrder = (upgrades: ScheduledBuildingUpgrade[]): boolean => {
   const lastLevelByFieldId = new Map<number, number>();
@@ -78,8 +79,8 @@ export const getValidScheduledConstructionDropTargetIds = (
 
 export const useConstructionQueueDrag = (
   scheduledEvents: ScheduledBuildingUpgrade[],
+  reorderScheduledBuildingUpgrades: ReorderScheduledBuildingUpgrades,
 ) => {
-  const { reorderScheduledBuildingUpgrades } = useScheduledBuildingUpgrades();
   const [orderedEvents, setOrderedEvents] = useState(scheduledEvents);
   const [draggedId, setDraggedId] = useState<number | null>(null);
   const originalOrderRef = useRef<number[]>([]);

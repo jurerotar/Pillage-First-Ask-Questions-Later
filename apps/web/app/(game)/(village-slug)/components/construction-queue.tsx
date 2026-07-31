@@ -1,7 +1,7 @@
 import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
 import clsx from 'clsx';
-import { Suspense, use, useMemo, useState } from 'react';
+import { Suspense, use, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
@@ -43,6 +43,7 @@ type ConstructionQueueBuildingProps = {
   isDragging?: boolean;
   dragHandlers?: ConstructionQueueDragHandlers;
   dropTargetStatus?: DropTargetStatus;
+  onCancel: (buildingEvent: BuildingUpgradeQueueEntry) => void;
 };
 
 const ConstructionQueueBuilding = ({
@@ -50,10 +51,9 @@ const ConstructionQueueBuilding = ({
   isDragging = false,
   dragHandlers,
   dropTargetStatus,
+  onCancel,
 }: ConstructionQueueBuildingProps) => {
   const { t } = useTranslation();
-  const { mutate: cancelConstruction } = useCancelConstruction();
-  const { cancelScheduledBuildingUpgrade } = useScheduledBuildingUpgrades();
   const isScheduledEvent = buildingEvent.type === 'scheduledBuildingUpgrade';
 
   return (
@@ -109,15 +109,7 @@ const ConstructionQueueBuilding = ({
 
       <button
         aria-label={t('Cancel building construction')}
-        onClick={() => {
-          if (isScheduledEvent) {
-            cancelScheduledBuildingUpgrade({
-              scheduledUpgradeId: buildingEvent.id,
-            });
-            return;
-          }
-          cancelConstruction({ eventId: buildingEvent.id });
-        }}
+        onClick={() => onCancel(buildingEvent)}
         type="button"
       >
         <MdCancel className="text-xl text-red-400 lg:text-2xl" />
@@ -211,6 +203,7 @@ type ConstructionQueueEventSlotProps = {
   selectedEventKey: string | null;
   dragHandlers: ConstructionQueueDragHandlers;
   validDropTargetIds: Set<number>;
+  onCancel: (buildingEvent: BuildingUpgradeQueueEntry) => void;
   onSelect: (event: BuildingUpgradeQueueEntry) => void;
 };
 
@@ -222,6 +215,7 @@ const ConstructionQueueEventSlot = ({
   selectedEventKey,
   dragHandlers,
   validDropTargetIds,
+  onCancel,
   onSelect,
 }: ConstructionQueueEventSlotProps) => {
   const eventKey = getBuildingUpgradeQueueEntryKey(event);
@@ -242,6 +236,7 @@ const ConstructionQueueEventSlot = ({
           dropTargetStatus={dropTargetStatus}
           dragHandlers={dragHandlers}
           isDragging={isDragging}
+          onCancel={onCancel}
         />
       ) : (
         <CompactConstructionQueueBuilding
@@ -260,6 +255,9 @@ const ConstructionQueueEventSlot = ({
 const ConstructionQueueContent = () => {
   const { t } = useTranslation();
   const tribe = useTribe();
+  const { mutate: cancelConstruction } = useCancelConstruction();
+  const { cancelScheduledBuildingUpgrade, reorderScheduledBuildingUpgrades } =
+    useScheduledBuildingUpgrades();
   const { buildingUpgradeEvents } = use(CurrentVillageBuildingQueueContext);
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const [isExtended, setIsExtended] = useState<boolean>(false);
@@ -287,7 +285,24 @@ const ConstructionQueueContent = () => {
     draggedId,
     orderedEvents: orderedScheduledEvents,
     validDropTargetIds,
-  } = useConstructionQueueDrag(scheduledEvents);
+  } = useConstructionQueueDrag(
+    scheduledEvents,
+    reorderScheduledBuildingUpgrades,
+  );
+
+  const cancelBuildingUpgradeQueueEntry = useCallback(
+    (buildingEvent: BuildingUpgradeQueueEntry) => {
+      if (buildingEvent.type === 'scheduledBuildingUpgrade') {
+        cancelScheduledBuildingUpgrade({
+          scheduledUpgradeId: buildingEvent.id,
+        });
+        return;
+      }
+
+      cancelConstruction({ eventId: buildingEvent.id });
+    },
+    [cancelConstruction, cancelScheduledBuildingUpgrade],
+  );
 
   const orderedEvents = [...activeEvents, ...orderedScheduledEvents];
   const selectedEvent = orderedEvents.find(
@@ -356,6 +371,7 @@ const ConstructionQueueContent = () => {
         <ConstructionQueueBuilding
           buildingEvent={selectedEvent}
           isDragging={false}
+          onCancel={cancelBuildingUpgradeQueueEntry}
         />
       )}
       <ul className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-all lg:flex-col lg:items-stretch lg:overflow-visible">
@@ -368,6 +384,7 @@ const ConstructionQueueContent = () => {
               event={slot.event}
               isDesktop={isWiderThanLg}
               key={getBuildingUpgradeQueueEntryKey(slot.event)}
+              onCancel={cancelBuildingUpgradeQueueEntry}
               onSelect={(event) => {
                 const key = getBuildingUpgradeQueueEntryKey(event);
                 setSelectedEventKey((current) =>
