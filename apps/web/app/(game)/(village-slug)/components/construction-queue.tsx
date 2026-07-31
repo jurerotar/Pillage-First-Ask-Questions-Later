@@ -18,6 +18,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
 import {
   type ConstructionQueueDragHandlers,
+  getValidScheduledConstructionDropTargetIds,
   useConstructionQueueDrag,
 } from 'app/(game)/(village-slug)/hooks/use-construction-queue-drag';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
@@ -58,7 +59,7 @@ const ConstructionQueueBuilding = ({
   return (
     <div
       className={clsx(
-        'flex items-center gap-2 rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-[opacity,box-shadow]',
+        'flex items-center gap-2 rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity',
         isDragging && 'opacity-60',
         dropTargetStatus === 'valid' && 'ring-2 ring-green-500/70',
         dropTargetStatus === 'invalid' && 'ring-2 ring-red-500/70',
@@ -164,7 +165,7 @@ const CompactConstructionQueueBuilding = ({
       aria-label={t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
       aria-pressed={isSelected}
       className={clsx(
-        'relative flex flex-col rounded-xs border bg-background transition-[opacity,box-shadow,border-color]',
+        'relative flex flex-col rounded-xs border bg-background',
         isSelected ? 'border-foreground' : 'border-border',
         isDragging && 'opacity-60',
         dropTargetStatus === 'valid' && 'ring-2 ring-green-500/70',
@@ -206,6 +207,7 @@ type ConstructionQueueEventSlotProps = {
   event: BuildingUpgradeQueueEntry;
   isDesktop: boolean;
   draggedId: number | null;
+  dropSourceId: number | null;
   selectedEventKey: string | null;
   dragHandlers: ConstructionQueueDragHandlers;
   validDropTargetIds: Set<number>;
@@ -216,6 +218,7 @@ const ConstructionQueueEventSlot = ({
   event,
   isDesktop,
   draggedId,
+  dropSourceId,
   selectedEventKey,
   dragHandlers,
   validDropTargetIds,
@@ -225,7 +228,7 @@ const ConstructionQueueEventSlot = ({
   const isScheduledEvent = event.type === 'scheduledBuildingUpgrade';
   const isDragging = isScheduledEvent && event.id === draggedId;
   const dropTargetStatus =
-    isScheduledEvent && draggedId !== null && !isDragging
+    isScheduledEvent && dropSourceId !== null && event.id !== dropSourceId
       ? validDropTargetIds.has(event.id)
         ? 'valid'
         : 'invalid'
@@ -290,6 +293,21 @@ const ConstructionQueueContent = () => {
   const selectedEvent = orderedEvents.find(
     (event) => getBuildingUpgradeQueueEntryKey(event) === selectedEventKey,
   );
+  const selectedScheduledUpgradeId =
+    !isWiderThanLg && selectedEvent?.type === 'scheduledBuildingUpgrade'
+      ? selectedEvent.id
+      : null;
+  const selectedValidDropTargetIds = useMemo(
+    () =>
+      getValidScheduledConstructionDropTargetIds(
+        orderedScheduledEvents,
+        selectedScheduledUpgradeId,
+      ),
+    [orderedScheduledEvents, selectedScheduledUpgradeId],
+  );
+  const dropSourceId = draggedId ?? selectedScheduledUpgradeId;
+  const visibleValidDropTargetIds =
+    draggedId === null ? selectedValidDropTargetIds : validDropTargetIds;
 
   const containerRef = useClickOutside<HTMLElement>(() => {
     setIsExtended(false);
@@ -345,6 +363,7 @@ const ConstructionQueueContent = () => {
           slot.type === 'building' ? (
             <ConstructionQueueEventSlot
               dragHandlers={dragHandlers}
+              dropSourceId={dropSourceId}
               draggedId={draggedId}
               event={slot.event}
               isDesktop={isWiderThanLg}
@@ -356,7 +375,7 @@ const ConstructionQueueContent = () => {
                 );
               }}
               selectedEventKey={selectedEventKey}
-              validDropTargetIds={validDropTargetIds}
+              validDropTargetIds={visibleValidDropTargetIds}
             />
           ) : (
             <li key={slot.id}>
