@@ -114,10 +114,12 @@ const OccupiedBuildingFieldActive = ({
     virtualLevel,
     buildingFieldId,
   );
+
   const status = useMemo(
     () => ({ canUpgrade, errorBag: [], variant }),
     [canUpgrade, variant],
   );
+
   const { upgradeBuilding } = useBuildingActions(buildingId, buildingFieldId);
 
   const onLongPress = () => {

@@ -6,7 +6,6 @@ import {
   startTransition,
   use,
   useMemo,
-  useState,
 } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -47,6 +46,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
+import { useDialog } from 'app/hooks/use-dialog';
 import { formatTime } from 'app/utils/time';
 
 type BuildingCardContextState = {
@@ -637,10 +637,11 @@ export const BuildingActions = () => {
     buildingIdsInQueue,
   } = use(BuildingFieldContext);
   const { preferences } = usePreferences();
-  const [
-    isScheduledConstructionConfirmationOpen,
-    setIsScheduledConstructionConfirmationOpen,
-  ] = useState(false);
+  const {
+    isOpen: isScheduledConstructionConfirmationOpen,
+    openModal: openScheduledConstructionConfirmationModal,
+    closeModal: closeScheduledConstructionConfirmationModal,
+  } = useDialog();
   const { constructBuilding, upgradeBuilding } = useBuildingActions(
     buildingId,
     buildingFieldId,
@@ -663,7 +664,7 @@ export const BuildingActions = () => {
     !canBuild && shouldAllowUnmetRequirementsForScheduledConstruction;
 
   const queueBuildingConstruction = async () => {
-    setIsScheduledConstructionConfirmationOpen(false);
+    closeScheduledConstructionConfirmationModal();
     await navigateBack();
     startTransition(() => {
       constructBuilding();
@@ -672,7 +673,7 @@ export const BuildingActions = () => {
 
   const onBuildingConstruction = async () => {
     if (shouldConfirmUnmetScheduledConstruction) {
-      setIsScheduledConstructionConfirmationOpen(true);
+      openScheduledConstructionConfirmationModal();
       return;
     }
 
@@ -704,7 +705,7 @@ export const BuildingActions = () => {
         <BuildingScheduledConstructionConfirmationDialog
           isOpen={isScheduledConstructionConfirmationOpen}
           onCancel={() => {
-            setIsScheduledConstructionConfirmationOpen(false);
+            closeScheduledConstructionConfirmationModal();
           }}
           onConfirm={queueBuildingConstruction}
         />
