@@ -3,7 +3,6 @@ import { useClickOutside } from '@mantine/hooks';
 import clsx from 'clsx';
 import { Suspense, use, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaLock } from 'react-icons/fa6';
 import { ImHammer } from 'react-icons/im';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import {
@@ -26,7 +25,6 @@ import {
   type ScheduledBuildingUpgrade,
   useScheduledBuildingUpgrades,
 } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
-import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   type BuildingUpgradeQueueEntry,
   CurrentVillageBuildingQueueContext,
@@ -116,20 +114,6 @@ const ConstructionQueueBuilding = ({
       </button>
     </div>
   );
-};
-
-type ConstructionQueueEmptySlotProps = {
-  type: 'free' | 'locked';
-};
-
-const ConstructionQueueEmptySlot = ({
-  type,
-}: ConstructionQueueEmptySlotProps) => {
-  if (type === 'free') {
-    return <ImHammer className={iconClassName} />;
-  }
-
-  return <FaLock className={iconClassName} />;
 };
 
 type CompactConstructionQueueBuildingProps = {
@@ -254,7 +238,6 @@ const ConstructionQueueEventSlot = ({
 
 const ConstructionQueueContent = () => {
   const { t } = useTranslation();
-  const tribe = useTribe();
   const { mutate: cancelConstruction } = useCancelConstruction();
   const { cancelScheduledBuildingUpgrade, reorderScheduledBuildingUpgrades } =
     useScheduledBuildingUpgrades();
@@ -330,7 +313,6 @@ const ConstructionQueueContent = () => {
   });
 
   const totalSlotsCount = 5;
-  const availableSlotsCount = tribe === 'romans' ? 2 : 1;
   const emptySlotsCount = Math.max(0, totalSlotsCount - orderedEvents.length);
 
   // TODO: We've had reports of a bug where emptySlots is less than 0. We're manually reporting the issue, remove this code block once resolved.
@@ -350,12 +332,10 @@ const ConstructionQueueContent = () => {
     })),
     ...Array.from({ length: emptySlotsCount }, (_, index) => {
       const slotIndex = orderedEvents.length + index;
-      const isFree = slotIndex < availableSlotsCount;
 
       return {
         type: 'empty',
         id: `empty-slot-${slotIndex}`,
-        status: isFree ? 'free' : 'locked',
       } as const;
     }),
   ];
@@ -396,7 +376,7 @@ const ConstructionQueueContent = () => {
             />
           ) : (
             <li key={slot.id}>
-              <ConstructionQueueEmptySlot type={slot.status} />
+              <ImHammer className={iconClassName} />
             </li>
           ),
         )}
@@ -424,6 +404,7 @@ const ConstructionQueueContent = () => {
 
 export const ConstructionQueue = () => {
   const { shouldShowSidebars } = useGameLayoutState();
+
   if (!shouldShowSidebars) {
     return null;
   }
