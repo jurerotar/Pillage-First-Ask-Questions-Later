@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
 import type { Route } from '@react-router/types/app/(public)/(game-worlds)/(index)/+types/page';
 import { ServerCard } from 'app/(public)/(game-worlds)/(index)/components/server-card';
@@ -24,6 +24,7 @@ export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
 
 const MyGameWorldsPage = () => {
   const { t } = useTranslation('public');
+  const { pathname } = useLocation();
   const { gameWorldListing } = useGameWorldListing();
 
   const title = t('{{title}} | Pillage First!', { title: 'Game worlds' });
@@ -33,6 +34,7 @@ const MyGameWorldsPage = () => {
       <PageMetadata
         title={title}
         description="View, create, import, manage and continue playing your Pillage First! game worlds."
+        pathname={pathname}
       />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>

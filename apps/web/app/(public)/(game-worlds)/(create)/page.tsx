@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { CreateNewGameWorldForm } from 'app/(public)/(game-worlds)/(create)/components/create-new-game-world-form';
 import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
@@ -16,6 +16,7 @@ import { Button } from 'app/components/ui/button';
 
 const CreateNewGameWorldPage = () => {
   const { t } = useTranslation('public');
+  const { pathname } = useLocation();
 
   const title = t('{{title}} | Pillage First!', {
     title: 'Create a new game world',
@@ -26,6 +27,7 @@ const CreateNewGameWorldPage = () => {
       <PageMetadata
         title={title}
         description="Create a new, customized Pillage First! game world."
+        pathname={pathname}
       />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router';
 import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
@@ -14,6 +15,7 @@ import styles from './page.module.css';
 
 const LatestUpdatesPage = () => {
   const { t } = useTranslation('public');
+  const { pathname } = useLocation();
 
   const title = t('{{title}} | Pillage First!', {
     title: 'Latest updates',
@@ -24,6 +26,7 @@ const LatestUpdatesPage = () => {
       <PageMetadata
         title={title}
         description="Read the latest Pillage First! release notes, including new gameplay features, bug fixes, performance improvements and technical changes."
+        pathname={pathname}
       />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>

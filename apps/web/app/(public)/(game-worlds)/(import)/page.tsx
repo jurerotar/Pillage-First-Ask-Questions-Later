@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { ImportModal } from 'app/(public)/(game-worlds)/(import)/components/import-modal';
 import type {
   ImportGameWorldWorkerPayload,
@@ -32,6 +32,7 @@ type ImportGameWorldSuccess = Extract<
 
 const ImportGameWorld = () => {
   const { t } = useTranslation('public');
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const { createGameWorld } = useGameWorldActions();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -76,6 +77,7 @@ const ImportGameWorld = () => {
       <PageMetadata
         title={title}
         description="Import a previously exported Pillage First! game world from any device and continue playing."
+        pathname={pathname}
       />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>

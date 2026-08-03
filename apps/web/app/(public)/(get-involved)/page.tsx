@@ -8,6 +8,7 @@ import {
   FaShareNodes,
   FaStar,
 } from 'react-icons/fa6';
+import { useLocation } from 'react-router';
 import { DiscordButton } from 'app/(public)/components/discord-button';
 import { GithubContributorsPreview } from 'app/(public)/components/github-contributors-preview';
 import { PageMetadata } from 'app/(public)/components/page-metadata';
@@ -86,6 +87,7 @@ const contributionSteps = [
 
 const GetInvolvedPage = () => {
   const { t } = useTranslation('public');
+  const { pathname } = useLocation();
 
   const title = t('{{title}} | Pillage First!', { title: 'Get involved' });
 
@@ -94,6 +96,7 @@ const GetInvolvedPage = () => {
       <PageMetadata
         title={title}
         description="Help build Pillage First! by contributing code or artwork, playtesting new features, sharing feedback or joining the open-source community."
+        pathname={pathname}
       />
       <div className="flex flex-col gap-6 max-w-5xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>

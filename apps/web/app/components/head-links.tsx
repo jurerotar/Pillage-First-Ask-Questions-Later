@@ -33,32 +33,8 @@ export const HeadLinks = () => {
         content="@pillagefirst"
       />
       <meta
-        name="twitter:image"
-        content={`${env.DEPLOY_PRIME_URL}/pillage-first-logo.png?v=${env.GRAPHICS_VERSION}`}
-      />
-      <meta
-        name="twitter:url"
-        content={env.DEPLOY_PRIME_URL}
-      />
-      <meta
-        property="og:url"
-        content={env.DEPLOY_PRIME_URL}
-      />
-      <meta
         property="og:type"
         content="website"
-      />
-      <meta
-        property="og:image"
-        content={`${env.DEPLOY_PRIME_URL}/pillage-first-logo.png?v=${env.GRAPHICS_VERSION}`}
-      />
-      <meta
-        property="og:image:width"
-        content="920"
-      />
-      <meta
-        property="og:image:height"
-        content="919"
       />
       <meta
         property="og:locale"
