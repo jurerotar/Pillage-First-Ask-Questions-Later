@@ -7,7 +7,7 @@
   include both new buildings and upgrades, and may be reordered or cancelled at any time. Resource requirements are
   checked only once construction begins, and resources are consumed at that time. Romans retain their ability to
   construct one resource field and one village building at the same time. Construction queues continue progressing while
-  you're away.
+  you're away. We also added the ability to reorder your scheduled construction list.
 
 ## Version 0.4.48
 
