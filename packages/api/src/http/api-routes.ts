@@ -107,6 +107,12 @@ import {
   updateReports,
 } from './controllers/report-controllers';
 import { getReputations } from './controllers/reputation-controllers';
+import {
+  cancelScheduledBuildingUpgrade,
+  getScheduledBuildingUpgrades,
+  reorderScheduledBuildingUpgrades,
+  scheduleBuildingUpgrade,
+} from './controllers/scheduled-building-upgrades-controllers';
 import { getServer } from './controllers/server-controllers';
 import {
   getGameWorldOverview,
@@ -224,6 +230,10 @@ export const apiRoutes = [
   createRoute(abandonOasis),
   createRoute(getOccupiableOasisInRange),
   createRoute(rearrangeBuildingFields),
+  createRoute(getScheduledBuildingUpgrades),
+  createRoute(scheduleBuildingUpgrade),
+  createRoute(reorderScheduledBuildingUpgrades),
+  createRoute(cancelScheduledBuildingUpgrade),
   createRoute(getResearchedUnits),
   createRoute(transferResources),
   createRoute(createTradeRoute),

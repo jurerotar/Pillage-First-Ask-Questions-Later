@@ -11,6 +11,7 @@ import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
 import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
 import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
+import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
 import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
@@ -20,6 +21,7 @@ import createMovementReportUnitsTable from '../schemas/movement-report-units-sch
 import createMovementReportsTable from '../schemas/movement-reports-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
+import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
 import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
 import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
 import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
@@ -1088,6 +1090,14 @@ export const upgradeDb = (database: DbFacade): void => {
 
   migrateTo('0.4.47', database, (db) => {
     db.exec({ sql: createReportRetentionTriggers });
+  });
+
+  migrateTo('0.4.49', database, (db) => {
+    db.exec({ sql: createScheduledBuildingUpgradesTable });
+
+    db.exec({
+      sql: createScheduledBuildingConstructionCancellationHistoryTable,
+    });
   });
 
   // If all migrations passed, bump it to current version

@@ -14,6 +14,7 @@ import {
   selectVillageBySlugQuery,
   updateRearrangedBuildingFieldEffectsQuery,
   updateRearrangedBuildingFieldEventsQuery,
+  updateRearrangedScheduledBuildingUpgradesQuery,
 } from '../../queries/village-queries';
 import { createController } from '../controller';
 import {
@@ -183,6 +184,14 @@ export const rearrangeBuildingFields = createController(
     // We only update events of types that have buildingFieldId and buildingId in meta
     database.exec({
       sql: updateRearrangedBuildingFieldEventsQuery,
+      bind: {
+        $village_id: villageId,
+        $updates: JSON.stringify(updates),
+      },
+    });
+
+    database.exec({
+      sql: updateRearrangedScheduledBuildingUpgradesQuery,
       bind: {
         $village_id: villageId,
         $updates: JSON.stringify(updates),

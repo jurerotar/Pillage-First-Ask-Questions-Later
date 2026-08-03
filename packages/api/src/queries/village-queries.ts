@@ -330,12 +330,38 @@ export const updateRearrangedBuildingFieldEventsQuery = `
   FROM updates_raw ur
   WHERE
     events.village_id = $village_id
-    AND events.type IN ('buildingScheduledConstruction', 'buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
+    AND events.type IN ('buildingConstruction', 'buildingLevelChange', 'buildingDestruction')
     AND JSON_EXTRACT(meta, '$.buildingId') = ur.building_text
     AND (
       (
         ur.source_field_id IS NOT NULL
         AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) = ur.source_field_id
+      )
+      OR ur.source_field_id IS NULL
+    )
+    AND ur.building_text IS NOT NULL;
+`;
+
+export const updateRearrangedScheduledBuildingUpgradesQuery = `
+  WITH updates_raw(field_id, building_text, source_field_id) AS (
+    SELECT
+      CAST(value ->> '$.buildingFieldId' AS INTEGER),
+      value ->> '$.buildingId',
+      CAST(value ->> '$.sourceBuildingFieldId' AS INTEGER)
+    FROM JSON_EACH($updates)
+    WHERE CAST(value ->> '$.buildingFieldId' AS INTEGER) BETWEEN 19 AND 38
+  )
+  UPDATE scheduled_building_upgrades
+  SET building_field_id = ur.field_id
+  FROM updates_raw ur
+  JOIN building_ids bi ON bi.building = ur.building_text
+  WHERE
+    scheduled_building_upgrades.village_id = $village_id
+    AND scheduled_building_upgrades.building_id = bi.id
+    AND (
+      (
+        ur.source_field_id IS NOT NULL
+        AND scheduled_building_upgrades.building_field_id = ur.source_field_id
       )
       OR ur.source_field_id IS NULL
     )

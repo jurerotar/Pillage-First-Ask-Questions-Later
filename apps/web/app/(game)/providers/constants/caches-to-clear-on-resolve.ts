@@ -15,6 +15,7 @@ import {
   occupiableOasisInRangeCacheKey,
   questsCacheKey,
   reportListingsCacheKey,
+  scheduledBuildingUpgradesCacheKey,
   sentReinforcementsCacheKey,
   tilesCacheKey,
   trapperCagesCacheKey,
@@ -61,6 +62,7 @@ export const cachesToClearOnResolve: Handlers = {
         [collectableQuestCountCacheKey, villageId],
         [eventsHistoryCacheKey, villageId],
         [eventsCacheKey, 'buildingLevelChange', villageId],
+        [scheduledBuildingUpgradesCacheKey, villageId],
       ]),
     ];
   },

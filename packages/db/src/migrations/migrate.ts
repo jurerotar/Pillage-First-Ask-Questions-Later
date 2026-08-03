@@ -31,6 +31,7 @@ import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?r
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
+import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-improvement-history-schema.sql?raw';
 import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
@@ -66,6 +67,7 @@ import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
+import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
 import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
 import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
 import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
@@ -170,6 +172,9 @@ export const migrateAndSeed = (
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });
     db.exec({ sql: createBuildingLevelChangeHistoryTable });
+    db.exec({
+      sql: createScheduledBuildingConstructionCancellationHistoryTable,
+    });
     db.exec({ sql: createUnitImprovementHistoryTable });
     db.exec({ sql: createUnitResearchHistoryTable });
     db.exec({ sql: createVillageFoundingHistoryTable });
@@ -333,6 +338,9 @@ export const migrateAndSeed = (
     // Events
     db.exec({ sql: createEventsTable });
     eventsSeeder(db, server);
+
+    // Scheduled building upgrades
+    db.exec({ sql: createScheduledBuildingUpgradesTable });
 
     // Meta table and write triggers
     db.exec({ sql: createMetaTable });

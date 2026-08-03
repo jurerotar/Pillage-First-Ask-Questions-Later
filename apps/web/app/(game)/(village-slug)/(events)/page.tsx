@@ -95,6 +95,12 @@ const EventsList = ({
 
     switch (type) {
       case 'construction':
+        if (data.status === 'cancelled') {
+          return t('Scheduled {{building}} construction was cancelled', {
+            building: t(`BUILDINGS.${data.building}.NAME`),
+          });
+        }
+
         return t('{{building}} from level {{previousLevel}} to {{newLevel}}', {
           building: t(`BUILDINGS.${data.building}.NAME`),
           previousLevel: data.previousLevel,

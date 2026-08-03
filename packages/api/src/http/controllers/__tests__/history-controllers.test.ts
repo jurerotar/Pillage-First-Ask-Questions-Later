@@ -122,6 +122,25 @@ describe('history-controllers', () => {
         `,
         bind: { $v: villageId },
       });
+      database.exec({
+        sql: `
+          INSERT INTO scheduled_building_construction_cancellation_history (
+            village_id,
+            field_id,
+            building_id,
+            level,
+            timestamp
+          )
+          VALUES (
+            $v,
+            2,
+            (SELECT id FROM building_ids WHERE building = 'BARRACKS'),
+            1,
+            5000
+          )
+        `,
+        bind: { $v: villageId },
+      });
 
       // All events
       const allEvents = getEventsHistory(
@@ -132,11 +151,20 @@ describe('history-controllers', () => {
         }),
       );
 
-      expect(allEvents).toHaveLength(4);
-      expect(allEvents[0].type).toBe('improvement');
-      expect(allEvents[1].type).toBe('research');
-      expect(allEvents[2].type).toBe('training');
-      expect(allEvents[3].type).toBe('construction');
+      expect(allEvents).toHaveLength(5);
+      expect(allEvents[0].type).toBe('construction');
+      expect(allEvents[0].data).toMatchObject({
+        status: 'cancelled',
+        building: 'BARRACKS',
+      });
+      expect(allEvents[1].type).toBe('improvement');
+      expect(allEvents[2].type).toBe('research');
+      expect(allEvents[3].type).toBe('training');
+      expect(allEvents[4].type).toBe('construction');
+      expect(allEvents[4].data).toMatchObject({
+        status: 'completed',
+        building: 'MAIN_BUILDING',
+      });
 
       // Filtered events
       const trainingEvents = getEventsHistory(
@@ -153,6 +181,16 @@ describe('history-controllers', () => {
         unit: 'PHALANX',
         amount: 10,
       });
+
+      const constructionEvents = getEventsHistory(
+        database,
+        createControllerArgs<'/villages/:villageId/history/events'>({
+          path: { villageId },
+          url: `/villages/${villageId}/history/events?types=construction`,
+        }),
+      );
+
+      expect(constructionEvents).toHaveLength(2);
     });
   });
 });

@@ -6,12 +6,15 @@ import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/uti
 import {
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
+  createGameEventMock,
   createUnitImprovementEventMock,
 } from '@pillage-first/mocks/event';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectEventByIdQuery } from '../../../queries/event-queries';
 import { updateResourceSiteResourcesByVillageIdQuery } from '../../../queries/village-queries';
 import { insertEvents } from '../../../utils/events';
+import { insertScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
   cancelConstructionEvent,
   cancelDemolitionEvent,
@@ -56,6 +59,58 @@ const createPlayerVillage = (database: DbFacade, name: string) => {
 };
 
 describe('event-controllers', () => {
+  test.skip('legacy scheduled event cancellation preserves earlier upgrades', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const startsAt = 5_000;
+
+    insertEvents(
+      database,
+      [2, 3, 4].map((level) =>
+        createGameEventMock('buildingScheduledConstruction', {
+          villageId,
+          buildingId: 'MAIN_BUILDING',
+          buildingFieldId: 38,
+          previousLevel: level - 1,
+          level,
+          startsAt,
+          duration: 0,
+          resolvesAt: startsAt,
+        }),
+      ),
+    );
+
+    const eventId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM events
+        WHERE type = 'buildingScheduledConstruction'
+          AND CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER) = 3;
+      `,
+      schema: z.number(),
+    })!;
+
+    cancelConstructionEvent(
+      database,
+      createControllerArgs<'/events/:eventId', 'delete'>({
+        path: { eventId: eventId.toString() },
+      }),
+    );
+
+    const remainingLevels = database.selectValues({
+      sql: `
+        SELECT CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
+        FROM events
+        WHERE type = 'buildingScheduledConstruction'
+          AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) = 38
+        ORDER BY id;
+      `,
+      schema: z.number(),
+    });
+
+    expect(remainingLevels).toEqual([2]);
+  });
+
   test('getVillageEvents should return events for a village', async () => {
     const database = await prepareTestDatabase();
 
@@ -90,6 +145,241 @@ describe('event-controllers', () => {
     );
 
     expect(true).toBe(true);
+  });
+
+  test('cancelConstructionEvent should promote the next scheduled building upgrade', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+
+    database.exec({
+      sql: 'UPDATE developer_settings SET is_free_building_construction_enabled = 1;',
+    });
+
+    const fields = database.selectObjects({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.field_id <= 18
+        ORDER BY bf.field_id
+        LIMIT 2;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    });
+    const [activeField, scheduledField] = fields;
+
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        villageId,
+        buildingId: activeField.buildingId,
+        buildingFieldId: activeField.fieldId,
+        previousLevel: activeField.level,
+        level: activeField.level + 1,
+      }),
+    ]);
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: scheduledField.buildingId,
+      buildingFieldId: scheduledField.fieldId,
+      level: scheduledField.level + 1,
+    });
+
+    const activeEventId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM events
+        WHERE village_id = $village_id
+          AND type = 'buildingLevelChange'
+          AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) =
+              $building_field_id;
+      `,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: activeField.fieldId,
+      },
+      schema: z.number(),
+    })!;
+
+    cancelConstructionEvent(
+      database,
+      createControllerArgs<'/events/:eventId', 'delete'>({
+        path: { eventId: activeEventId.toString() },
+      }),
+    );
+
+    const result = database.selectObject({
+      sql: `
+        SELECT
+          (SELECT COUNT(*)
+           FROM scheduled_building_upgrades
+           WHERE village_id = $village_id) AS scheduled,
+          (SELECT COUNT(*)
+           FROM events
+           WHERE village_id = $village_id
+             AND type = 'buildingLevelChange'
+             AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) =
+                 $scheduled_field_id) AS promoted;
+      `,
+      bind: {
+        $village_id: villageId,
+        $scheduled_field_id: scheduledField.fieldId,
+      },
+      schema: z.strictObject({
+        scheduled: z.number(),
+        promoted: z.number(),
+      }),
+    });
+
+    expect(result).toEqual({
+      scheduled: 0,
+      promoted: 1,
+    });
+  });
+
+  test('cancelConstructionEvent should promote a scheduled upgrade from the freed Roman construction lane', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+
+    database.exec({
+      sql: `
+        UPDATE players
+        SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
+        WHERE id = (
+          SELECT player_id FROM villages WHERE id = $village_id
+        );
+
+        UPDATE developer_settings
+        SET is_free_building_construction_enabled = 1;
+      `,
+      bind: { $village_id: villageId },
+    });
+
+    const resourceFields = database.selectObjects({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id AND bf.field_id <= 18
+        ORDER BY bf.field_id
+        LIMIT 2;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    });
+
+    const villageFields = database.selectObjects({
+      sql: `
+        SELECT bf.field_id AS fieldId, bf.level, bi.building AS buildingId
+        FROM building_fields bf
+        JOIN building_ids bi ON bi.id = bf.building_id
+        WHERE bf.village_id = $village_id
+          AND bf.field_id > 18
+          AND bf.level > 0
+        ORDER BY bf.field_id
+        LIMIT 2;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        level: z.number(),
+        buildingId: buildingIdSchema,
+      }),
+    });
+
+    const [activeResourceField, scheduledResourceField] = resourceFields;
+    const [activeVillageField, scheduledVillageField] = villageFields;
+
+    insertEvents(database, [
+      createBuildingLevelChangeEventMock({
+        villageId,
+        buildingId: activeResourceField.buildingId,
+        buildingFieldId: activeResourceField.fieldId,
+        previousLevel: activeResourceField.level,
+        level: activeResourceField.level + 1,
+      }),
+      createBuildingLevelChangeEventMock({
+        villageId,
+        buildingId: activeVillageField.buildingId,
+        buildingFieldId: activeVillageField.fieldId,
+        previousLevel: activeVillageField.level,
+        level: activeVillageField.level + 1,
+      }),
+    ]);
+
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: scheduledVillageField.buildingId,
+      buildingFieldId: scheduledVillageField.fieldId,
+      level: scheduledVillageField.level + 1,
+    });
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: scheduledResourceField.buildingId,
+      buildingFieldId: scheduledResourceField.fieldId,
+      level: scheduledResourceField.level + 1,
+    });
+
+    const activeResourceEventId = database.selectValue({
+      sql: `
+        SELECT id
+        FROM events
+        WHERE village_id = $village_id
+          AND type = 'buildingLevelChange'
+          AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) =
+              $building_field_id;
+      `,
+      bind: {
+        $village_id: villageId,
+        $building_field_id: activeResourceField.fieldId,
+      },
+      schema: z.number(),
+    })!;
+
+    cancelConstructionEvent(
+      database,
+      createControllerArgs<'/events/:eventId', 'delete'>({
+        path: { eventId: activeResourceEventId.toString() },
+      }),
+    );
+
+    const result = database.selectObject({
+      sql: `
+        SELECT
+          (SELECT COUNT(*)
+           FROM events
+           WHERE village_id = $village_id
+             AND type = 'buildingLevelChange'
+             AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) =
+                 $scheduled_resource_field_id) AS promotedResource,
+          (SELECT COUNT(*)
+           FROM scheduled_building_upgrades
+           WHERE village_id = $village_id
+             AND building_field_id = $scheduled_village_field_id) AS queuedVillage;
+      `,
+      bind: {
+        $village_id: villageId,
+        $scheduled_resource_field_id: scheduledResourceField.fieldId,
+        $scheduled_village_field_id: scheduledVillageField.fieldId,
+      },
+      schema: z.strictObject({
+        promotedResource: z.number(),
+        queuedVillage: z.number(),
+      }),
+    });
+
+    expect(result).toEqual({
+      promotedResource: 1,
+      queuedVillage: 1,
+    });
   });
 
   test('getVillageEventsByType should return outgoing and incoming resource transfer events', async () => {

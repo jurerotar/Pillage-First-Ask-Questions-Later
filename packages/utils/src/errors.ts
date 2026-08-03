@@ -7,3 +7,13 @@ export class OutdatedDatabaseSchemaError extends Error {
     Object.setPrototypeOf(this, OutdatedDatabaseSchemaError.prototype);
   }
 }
+
+export class BuildingConstructionQueueFullError extends Error {
+  static readonly name = 'BuildingConstructionQueueFullError';
+
+  constructor() {
+    super('Building construction queue is full');
+    this.name = BuildingConstructionQueueFullError.name;
+    Object.setPrototypeOf(this, BuildingConstructionQueueFullError.prototype);
+  }
+}

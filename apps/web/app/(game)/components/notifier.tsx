@@ -6,6 +6,7 @@ import { calculateGatherersHutGatheringResources } from '@pillage-first/game-ass
 import type {
   ApiNotificationEvent,
   EventApiNotificationEvent,
+  ScheduledBuildingConstructionCancelledNotificationEvent,
 } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
 import type { Troop } from '@pillage-first/types/models/troop';
@@ -37,6 +38,7 @@ import {
   isControllerMessageErrorNotificationMessageEvent,
   isEventCreatedNotificationMessageEvent,
   isEventResolvedNotificationMessageEvent,
+  isScheduledBuildingConstructionCancelledNotificationMessageEvent,
 } from 'app/(game)/providers/guards/api-notification-event-guards';
 
 type NotificationFactoryArgs = {
@@ -424,6 +426,33 @@ const getEventCreatedInfo = (
   return;
 };
 
+const getScheduledBuildingConstructionCancelledInfo = (
+  event: ScheduledBuildingConstructionCancelledNotificationEvent,
+  { t, playerVillagesMap }: NotificationFactoryArgs,
+): NotificationInfo => {
+  const villageName = playerVillagesMap.get(event.villageId)!;
+  const buildingName = t(`BUILDINGS.${event.buildingId}.NAME`);
+  const { level, reason } = event;
+
+  return {
+    toastTitle: t(
+      level === 1
+        ? '{{buildingName}} construction cancelled in {{villageName}}'
+        : '{{buildingName}} level {{level}} upgrade cancelled in {{villageName}}',
+      {
+        buildingName,
+        level,
+        villageName,
+      },
+    ),
+    body: t(
+      reason === 'missing-resources'
+        ? 'Queued construction was cancelled because resources were missing when it tried to start.'
+        : 'Queued construction was cancelled because requirements were missing when it tried to start.',
+    ),
+  };
+};
+
 type NotifierProps = {
   serverSlug: Server['slug'];
 };
@@ -457,6 +486,25 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
         if (info) {
           toast(info.toastTitle);
         }
+        return;
+      }
+
+      if (
+        isScheduledBuildingConstructionCancelledNotificationMessageEvent(event)
+      ) {
+        const { data } = event;
+        const { toastTitle, body } =
+          getScheduledBuildingConstructionCancelledInfo(data, {
+            t,
+            serverName: server.name,
+            mapSize,
+            playerVillagesMap,
+          });
+
+        toast.warning(toastTitle, {
+          description: body,
+          richColors: true,
+        });
         return;
       }
 

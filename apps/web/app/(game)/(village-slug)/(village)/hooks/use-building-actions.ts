@@ -4,6 +4,7 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
+import { useScheduledBuildingUpgrades } from 'app/(game)/(village-slug)/hooks/use-scheduled-building-upgrades';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 
@@ -15,8 +16,7 @@ export const useBuildingActions = (
   const { slug: currentVillageSlug } = currentVillage;
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const { virtualLevel } = useBuildingVirtualLevel(buildingFieldId);
-  const { createEvent: createBuildingScheduledConstructionEvent } =
-    useCreateEvent('buildingScheduledConstruction');
+  const { scheduleBuildingUpgrade } = useScheduledBuildingUpgrades();
   const { createEvent: createBuildingConstructionEvent } = useCreateEvent(
     'buildingConstruction',
   );
@@ -34,6 +34,15 @@ export const useBuildingActions = (
     currentVillageBuildingEventsQueue.length > 0;
 
   const constructBuilding = useCallback(() => {
+    if (hasCurrentVillageBuildingEvents) {
+      scheduleBuildingUpgrade({
+        buildingFieldId,
+        buildingId,
+        level: 1,
+      });
+      return;
+    }
+
     createBuildingConstructionEvent({
       buildingFieldId,
       buildingId,
@@ -43,6 +52,8 @@ export const useBuildingActions = (
     });
   }, [
     createBuildingConstructionEvent,
+    scheduleBuildingUpgrade,
+    hasCurrentVillageBuildingEvents,
     buildingFieldId,
     buildingId,
     currentVillageSlug,
@@ -53,22 +64,24 @@ export const useBuildingActions = (
       buildingFieldId,
       buildingId,
       level: virtualLevel + 1,
-      previousLevel: virtualLevel,
-      cachesToClearImmediately: [[currentVillageCacheKey, currentVillageSlug]],
     };
 
     if (hasCurrentVillageBuildingEvents) {
-      createBuildingScheduledConstructionEvent(args);
+      scheduleBuildingUpgrade(args);
       return;
     }
 
-    createBuildingLevelChangeEvent(args);
+    createBuildingLevelChangeEvent({
+      ...args,
+      previousLevel: virtualLevel,
+      cachesToClearImmediately: [[currentVillageCacheKey, currentVillageSlug]],
+    });
   }, [
     buildingFieldId,
     buildingId,
     virtualLevel,
     hasCurrentVillageBuildingEvents,
-    createBuildingScheduledConstructionEvent,
+    scheduleBuildingUpgrade,
     createBuildingLevelChangeEvent,
     currentVillageSlug,
   ]);

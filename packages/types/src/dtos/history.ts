@@ -29,12 +29,21 @@ export const eventsHistoryItemDtoSchema = z
       villageId: z.number(),
       type: z.literal('construction'),
       timestamp: z.number(),
-      data: z.strictObject({
-        fieldId: z.number(),
-        building: buildingIdSchema,
-        previousLevel: z.number(),
-        newLevel: z.number(),
-      }),
+      data: z.discriminatedUnion('status', [
+        z.strictObject({
+          status: z.literal('completed'),
+          fieldId: z.number(),
+          building: buildingIdSchema,
+          previousLevel: z.number(),
+          newLevel: z.number(),
+        }),
+        z.strictObject({
+          status: z.literal('cancelled'),
+          fieldId: z.number(),
+          building: buildingIdSchema,
+          level: z.number(),
+        }),
+      ]),
     }),
     z.strictObject({
       id: z.string(),

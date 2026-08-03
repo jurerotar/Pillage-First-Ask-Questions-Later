@@ -270,7 +270,7 @@ describe('village-controllers', () => {
       ]);
     });
 
-    test('should update building field ids for all rearrangeable building event types', async () => {
+    test('should update active events and scheduled upgrades when rearranging fields', async () => {
       const database = await prepareTestDatabase();
 
       const village = database.selectObject({
@@ -280,7 +280,6 @@ describe('village-controllers', () => {
       const villageId = village.id;
       const eventStartsAt = 123_456_789;
       const buildingEventTypes = [
-        'buildingScheduledConstruction',
         'buildingConstruction',
         'buildingLevelChange',
         'buildingDestruction',
@@ -307,6 +306,19 @@ describe('village-controllers', () => {
           },
         });
       }
+      database.exec({
+        sql: `
+          INSERT INTO scheduled_building_upgrades
+            (building_id, village_id, building_field_id, level)
+          VALUES (
+            (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'),
+            $v,
+            19,
+            9
+          );
+        `,
+        bind: { $v: villageId },
+      });
 
       rearrangeBuildingFields(
         database,
@@ -346,6 +358,17 @@ describe('village-controllers', () => {
           buildingId: 'MAIN_BUILDING',
         });
       }
+      expect(
+        database.selectValue({
+          sql: `
+            SELECT building_field_id
+            FROM scheduled_building_upgrades
+            WHERE village_id = $v;
+          `,
+          bind: { $v: villageId },
+          schema: z.number(),
+        }),
+      ).toBe(25);
     });
 
     test('should not update events for other event types, other villages, null targets, or unmatched buildings', async () => {
