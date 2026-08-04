@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   encodeAppVersionToDatabaseUserVersion,
@@ -10,11 +9,9 @@ export const migrateTo = (
   targetVersion: string,
   database: DbFacade,
   onMigrate: (db: DbFacade) => void,
-): void => {
-  const currentDbVersion = database.selectValue({
-    sql: 'PRAGMA user_version',
-    schema: z.number(),
-  })!;
+  currentDbVersion: number,
+): number => {
+  const targetDbVersion = encodeAppVersionToDatabaseUserVersion(targetVersion);
 
   const [, , targetPatch] = parseAppVersion(targetVersion);
   const [, , dbPatch] = parseDatabaseUserVersion(currentDbVersion);
@@ -23,7 +20,11 @@ export const migrateTo = (
     onMigrate(database);
 
     database.exec({
-      sql: `PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(targetVersion)};`,
+      sql: `PRAGMA user_version=${targetDbVersion};`,
     });
+
+    return targetDbVersion;
   }
+
+  return currentDbVersion;
 };

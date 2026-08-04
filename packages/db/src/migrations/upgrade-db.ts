@@ -43,8 +43,33 @@ const queuedTroopCountQuestThresholds = [
 
 // This function should only contain db upgrades between app's minor version bumps. At that point, these DB changes
 // should already be part of the new schema, so contents of this function should be deleted
-export const upgradeDb = (database: DbFacade): void => {
-  migrateTo('0.4.12', database, (db) => {
+export const upgradeDb = (
+  database: DbFacade,
+  currentDatabaseVersion: number,
+): void => {
+  const targetDatabaseVersion = encodeAppVersionToDatabaseUserVersion(
+    env.VERSION,
+  );
+
+  if (currentDatabaseVersion === targetDatabaseVersion) {
+    return;
+  }
+
+  let databaseVersion = currentDatabaseVersion;
+
+  const migrate = (
+    targetVersion: string,
+    onMigrate: (db: DbFacade) => void,
+  ): void => {
+    databaseVersion = migrateTo(
+      targetVersion,
+      database,
+      onMigrate,
+      databaseVersion,
+    );
+  };
+
+  migrate('0.4.12', (db) => {
     db.exec({
       sql: `
         CREATE TRIGGER IF NOT EXISTS loyalties_delete_capped_entries_after_update
@@ -58,7 +83,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.19', database, (db) => {
+  migrate('0.4.19', (db) => {
     // Normalize legacy village_founding_history timestamps from milliseconds to seconds
     // Some historical rows were inserted by JS in milliseconds. Since triggers now set
     // timestamps via unixepoch() (seconds), convert any ms values at rest.
@@ -77,7 +102,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.22', database, (db) => {
+  migrate('0.4.22', (db) => {
     try {
       db.exec({
         sql: `
@@ -126,7 +151,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.25', database, (db) => {
+  migrate('0.4.25', (db) => {
     try {
       db.exec({
         sql: `
@@ -150,7 +175,7 @@ export const upgradeDb = (database: DbFacade): void => {
     }
   });
 
-  migrateTo('0.4.28', database, (db) => {
+  migrate('0.4.28', (db) => {
     const newBuildingIdsCount = db.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -295,7 +320,7 @@ export const upgradeDb = (database: DbFacade): void => {
     }
   });
 
-  migrateTo('0.4.32', database, (db) => {
+  migrate('0.4.32', (db) => {
     const queuedTroopCount =
       db.selectValue({
         sql: `
@@ -374,7 +399,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.33', database, (db) => {
+  migrate('0.4.33', (db) => {
     const legacyQuests = db.selectObjects({
       sql: `
         SELECT quest_id, completed_at, collected_at
@@ -468,7 +493,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.34', database, (db) => {
+  migrate('0.4.34', (db) => {
     db.exec({
       sql: `
         INSERT INTO
@@ -517,7 +542,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.36', database, (db) => {
+  migrate('0.4.36', (db) => {
     db.exec({
       sql: `
         CREATE TABLE IF NOT EXISTS gatherers_hut_expeditions
@@ -549,7 +574,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.39', database, (db) => {
+  migrate('0.4.39', (db) => {
     db.exec({
       sql: 'PRAGMA foreign_keys = OFF;',
     });
@@ -1044,7 +1069,7 @@ export const upgradeDb = (database: DbFacade): void => {
     }
   });
 
-  migrateTo('0.4.40', database, (db) => {
+  migrate('0.4.40', (db) => {
     try {
       db.exec({ sql: createTrapperCagesTable });
       db.exec({ sql: createTrapperCagesIndexes });
@@ -1055,7 +1080,7 @@ export const upgradeDb = (database: DbFacade): void => {
     setupGlobalWriteTriggers(db);
   });
 
-  migrateTo('0.4.45', database, (db) => {
+  migrate('0.4.45', (db) => {
     db.exec({ sql: createReportOutcomeIdsTable });
     reportOutcomeIdsSeeder(db);
 
@@ -1088,11 +1113,11 @@ export const upgradeDb = (database: DbFacade): void => {
     setupGlobalWriteTriggers(db);
   });
 
-  migrateTo('0.4.47', database, (db) => {
+  migrate('0.4.47', (db) => {
     db.exec({ sql: createReportRetentionTriggers });
   });
 
-  migrateTo('0.4.49', database, (db) => {
+  migrate('0.4.49', (db) => {
     db.exec({ sql: createScheduledBuildingUpgradesTable });
 
     db.exec({
@@ -1101,7 +1126,9 @@ export const upgradeDb = (database: DbFacade): void => {
   });
 
   // If all migrations passed, bump it to current version
-  database.exec({
-    sql: `PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};`,
-  });
+  if (databaseVersion !== targetDatabaseVersion) {
+    database.exec({
+      sql: `PRAGMA user_version=${targetDatabaseVersion};`,
+    });
+  }
 };
