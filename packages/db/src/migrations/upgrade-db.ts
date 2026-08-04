@@ -1125,6 +1125,20 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.50', (db) => {
+    db.exec({
+      sql: `
+        UPDATE events
+        SET
+          meta = JSON_REMOVE(meta, '$.merchantAmount')
+        WHERE
+          type = 'tradeRoute'
+          AND meta IS NOT NULL
+          AND JSON_TYPE(meta, '$.merchantAmount') IS NOT NULL;
+      `,
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({

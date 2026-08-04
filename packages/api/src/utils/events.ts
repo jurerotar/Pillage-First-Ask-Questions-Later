@@ -968,7 +968,7 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTradeRouteEvent(event)) {
-    const { village, merchant } = getVillageMerchantStats(
+    const { village, merchant, marketplaceLevel } = getVillageMerchantStats(
       database,
       event.villageId,
     );
@@ -1008,8 +1008,8 @@ export const validateEventCreationPrerequisites = (
       merchant.merchantCapacity,
     );
 
-    if (event.merchantAmount !== merchantAmount) {
-      throw new Error('Invalid merchant amount');
+    if (merchantAmount > marketplaceLevel) {
+      throw new Error('Not enough merchants');
     }
 
     return;
