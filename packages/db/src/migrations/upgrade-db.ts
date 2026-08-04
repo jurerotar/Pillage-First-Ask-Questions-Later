@@ -1125,7 +1125,7 @@ export const upgradeDb = (
     });
   });
 
-  migrateTo('0.4.50', database, (db) => {
+  migrate('0.4.50', (db) => {
     db.exec({
       sql: `
         UPDATE events
