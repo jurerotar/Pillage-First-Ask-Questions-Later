@@ -1,6 +1,13 @@
+## Version 0.4.50
+
+#### Aug 5, 2026
+
+* [Feature] We implemented **Trade Office** building. Your merchants will now carry more resources and transferring
+  resources between your villages should be less tedious!
+
 ## Version 0.4.49
 
-#### Jul 28, 2026
+#### Aug 3, 2026
 
 * [Feature] **Our most requested feature is finally here!** You may now schedule future building construction. Each
   village may have up to 5 buildings under construction or scheduled for construction. Scheduled construction may
