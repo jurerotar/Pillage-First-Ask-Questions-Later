@@ -153,7 +153,7 @@ const insertMarketplaceEvent = (
     targetTileId: number;
     startsAt: number;
     duration: number;
-    merchantAmount: number;
+    merchantAmount?: number;
     interval?: number;
     resources?: { wood: number; clay: number; iron: number; wheat: number };
   },
@@ -179,7 +179,9 @@ const insertMarketplaceEvent = (
           iron: 25,
           wheat: 10,
         },
-        merchantAmount: args.merchantAmount,
+        ...(args.merchantAmount === undefined
+          ? {}
+          : { merchantAmount: args.merchantAmount }),
         ...(args.interval === undefined ? {} : { interval: args.interval }),
       }),
     },
@@ -430,7 +432,6 @@ describe('marketplace resolvers', () => {
       targetTileId: targetVillage.tileId,
       startsAt: NOW,
       duration: 0,
-      merchantAmount: 1,
       interval,
       resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
     });
@@ -452,7 +453,12 @@ describe('marketplace resolvers', () => {
 
     const nextTradeRoute = database.selectObject({
       sql: `
-        SELECT starts_at, duration, village_id, JSON_EXTRACT(meta, '$.interval') AS interval
+        SELECT
+          starts_at,
+          duration,
+          village_id,
+          JSON_EXTRACT(meta, '$.interval') AS interval,
+          JSON_TYPE(meta, '$.merchantAmount') AS merchant_amount_type
         FROM events
         WHERE type = 'tradeRoute';
       `,
@@ -461,6 +467,7 @@ describe('marketplace resolvers', () => {
         duration: z.number(),
         village_id: z.number(),
         interval: z.number(),
+        merchant_amount_type: z.string().nullable(),
       }),
     })!;
 
@@ -474,6 +481,7 @@ describe('marketplace resolvers', () => {
       duration: 0,
       village_id: sourceVillage.id,
       interval,
+      merchant_amount_type: null,
     });
 
     expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
@@ -548,7 +556,6 @@ describe('marketplace resolvers', () => {
       targetTileId: targetVillage.tileId,
       startsAt: NOW,
       duration: 0,
-      merchantAmount: 1,
       interval,
       resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
     });

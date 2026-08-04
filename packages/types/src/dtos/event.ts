@@ -60,6 +60,10 @@ const merchantMovementEventSchema = {
   targetTileId: z.number(),
   targetVillageId: z.number(),
   resources: resourcesSchema,
+};
+
+const resourceTransferEventSchema = {
+  ...merchantMovementEventSchema,
   merchantAmount: z.number(),
 };
 
@@ -175,7 +179,7 @@ export const createEventDtoSchema = z
     }),
     z.strictObject({
       type: z.literal('resourceTransfer'),
-      ...merchantMovementEventSchema,
+      ...resourceTransferEventSchema,
     }),
     z.strictObject({
       type: z.literal('tradeRoute'),

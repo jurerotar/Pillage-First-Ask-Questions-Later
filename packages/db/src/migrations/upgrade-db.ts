@@ -1100,6 +1100,20 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
+  migrateTo('0.4.50', database, (db) => {
+    db.exec({
+      sql: `
+        UPDATE events
+        SET
+          meta = JSON_REMOVE(meta, '$.merchantAmount')
+        WHERE
+          type = 'tradeRoute'
+          AND meta IS NOT NULL
+          AND JSON_TYPE(meta, '$.merchantAmount') IS NOT NULL;
+      `,
+    });
+  });
+
   // If all migrations passed, bump it to current version
   database.exec({
     sql: `PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};`,

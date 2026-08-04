@@ -3,6 +3,10 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { merchantsMap } from '@pillage-first/game-assets/merchants';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import {
+  calculateBuildingEffectValues,
+  getBuildingDefinition,
+} from '@pillage-first/game-assets/utils/buildings';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -108,6 +112,64 @@ const setMarketplaceLevel = (
     bind: {
       $village_id: villageId,
       $level: level,
+    },
+  });
+};
+
+const setTradeOfficeLevel = (
+  database: DbFacade,
+  villageId: number,
+  level: number,
+) => {
+  database.exec({
+    sql: `
+      INSERT INTO building_fields (village_id, field_id, building_id, level)
+      SELECT $village_id, 37, id, $level
+      FROM building_ids
+      WHERE building = 'TRADE_OFFICE'
+      ON CONFLICT(village_id, field_id) DO UPDATE SET
+        building_id = EXCLUDED.building_id,
+        level = EXCLUDED.level;
+    `,
+    bind: {
+      $village_id: villageId,
+      $level: level,
+    },
+  });
+
+  database.exec({
+    sql: `
+      DELETE
+      FROM effects
+      WHERE village_id = $village_id
+        AND source_specifier = 37
+        AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building');
+    `,
+    bind: {
+      $village_id: villageId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+      VALUES (
+        (SELECT id FROM effect_ids WHERE effect = 'merchantCapacity'),
+        $value,
+        (SELECT id FROM effect_type_ids WHERE type = 'bonus'),
+        (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+        (SELECT id FROM effect_source_ids WHERE source = 'building'),
+        $village_id,
+        37
+      );
+    `,
+    bind: {
+      $village_id: villageId,
+      $value: calculateBuildingEffectValues(
+        getBuildingDefinition('TRADE_OFFICE'),
+        level,
+      ).find(({ effectId }) => effectId === 'merchantCapacity')!
+        .currentLevelValue,
     },
   });
 };
@@ -303,6 +365,58 @@ describe('marketplace-controllers', () => {
         ),
       ),
     ).toThrow('Not enough free merchants');
+  });
+
+  test('transferResources should use trade office merchant capacity', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(
+      database,
+      'Trade Office Transfer Target',
+    );
+    const baseMerchantCapacity = merchantsMap.get(
+      sourceVillage.tribe,
+    )!.merchantCapacity;
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setTradeOfficeLevel(database, sourceVillage.id, 2);
+    setVillageResources(database, sourceVillage.tileId, {
+      wood: baseMerchantCapacity + 1,
+      clay: 0,
+      iron: 0,
+      wheat: 0,
+    });
+
+    transferResources(
+      database,
+      createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>({
+        path: { villageId: sourceVillage.id },
+        body: {
+          targetVillageId: targetVillage.id,
+          resources: {
+            wood: baseMerchantCapacity + 1,
+            clay: 0,
+            iron: 0,
+            wheat: 0,
+          },
+        },
+      }),
+    );
+
+    const merchantAmount = database.selectValue({
+      sql: `
+        SELECT JSON_EXTRACT(meta, '$.merchantAmount')
+        FROM events
+        WHERE type = 'resourceTransfer';
+      `,
+      schema: z.number(),
+    });
+
+    expect(merchantAmount).toBe(1);
   });
 
   test('transferResources should reject when the source village has no marketplace', async () => {
@@ -637,7 +751,6 @@ describe('marketplace-controllers', () => {
           JSON_EXTRACT(meta, '$.resources.clay') AS clay,
           JSON_EXTRACT(meta, '$.resources.iron') AS iron,
           JSON_EXTRACT(meta, '$.resources.wheat') AS wheat,
-          JSON_EXTRACT(meta, '$.merchantAmount') AS merchant_amount,
           JSON_EXTRACT(meta, '$.interval') AS interval
         FROM events
         WHERE type = 'tradeRoute';
@@ -653,7 +766,6 @@ describe('marketplace-controllers', () => {
         clay: z.number(),
         iron: z.number(),
         wheat: z.number(),
-        merchant_amount: z.number(),
         interval: z.number(),
       }),
     })!;
@@ -669,7 +781,6 @@ describe('marketplace-controllers', () => {
       clay: 50,
       iron: 25,
       wheat: 10,
-      merchant_amount: 1,
       interval: 6 * 60 * 60 * 1000,
     });
     expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
@@ -678,6 +789,55 @@ describe('marketplace-controllers', () => {
       iron: 100,
       wheat: 100,
     });
+  });
+
+  test('createTradeRoute should validate against trade office merchant capacity without storing merchant amount', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(
+      database,
+      'Trade Office Route Target',
+    );
+    const startHour = (new Date(NOW).getHours() + 1) % 24;
+    const baseMerchantCapacity = merchantsMap.get(
+      sourceVillage.tribe,
+    )!.merchantCapacity;
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setTradeOfficeLevel(database, sourceVillage.id, 2);
+
+    createTradeRoute(
+      database,
+      createControllerArgs<'/villages/:villageId/trade-routes', 'post'>({
+        path: { villageId: sourceVillage.id },
+        body: {
+          targetVillageId: targetVillage.id,
+          startHour,
+          intervalHours: 6,
+          resources: {
+            wood: baseMerchantCapacity + 1,
+            clay: 0,
+            iron: 0,
+            wheat: 0,
+          },
+        },
+      }),
+    );
+
+    const merchantAmountType = database.selectValue({
+      sql: `
+        SELECT JSON_TYPE(meta, '$.merchantAmount')
+        FROM events
+        WHERE type = 'tradeRoute';
+      `,
+      schema: z.string().nullable(),
+    });
+
+    expect(merchantAmountType).toBeNull();
   });
 
   test('deleteTradeRoute should remove the scheduled trade route event', async () => {
@@ -701,7 +861,6 @@ describe('marketplace-controllers', () => {
           originTileId: sourceVillage.tileId,
           targetTileId: targetVillage.tileId,
           resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
-          merchantAmount: 1,
           interval: 60 * 60 * 1000,
         }),
       },
@@ -762,7 +921,6 @@ describe('marketplace-controllers', () => {
           originTileId: sourceVillage.tileId,
           targetTileId: firstTargetVillage.tileId,
           resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
-          merchantAmount: 1,
           interval: 60 * 60 * 1000,
         }),
       },
@@ -806,7 +964,6 @@ describe('marketplace-controllers', () => {
           JSON_EXTRACT(meta, '$.resources.clay') AS clay,
           JSON_EXTRACT(meta, '$.resources.iron') AS iron,
           JSON_EXTRACT(meta, '$.resources.wheat') AS wheat,
-          JSON_EXTRACT(meta, '$.merchantAmount') AS merchant_amount,
           JSON_EXTRACT(meta, '$.interval') AS interval
         FROM events
         WHERE type = 'tradeRoute';
@@ -822,7 +979,6 @@ describe('marketplace-controllers', () => {
         clay: z.number(),
         iron: z.number(),
         wheat: z.number(),
-        merchant_amount: z.number(),
         interval: z.number(),
       }),
     })!;
@@ -838,7 +994,6 @@ describe('marketplace-controllers', () => {
       clay: 50,
       iron: 25,
       wheat: 10,
-      merchant_amount: 1,
       interval: 12 * 60 * 60 * 1000,
     });
     expect(

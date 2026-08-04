@@ -2,7 +2,11 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { createEvents } from '../../../utils/create-event';
-import { getTotalResourceAmount } from '../../../utils/marketplace';
+import {
+  getMerchantAmount,
+  getTotalResourceAmount,
+  getVillageMerchantStats,
+} from '../../../utils/marketplace';
 import { insertTradeReport } from '../../../utils/report';
 import { addVillageResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
@@ -106,12 +110,17 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
     originTileId,
     targetTileId,
     resources,
-    merchantAmount,
     resolvesAt,
     interval,
   } = event;
 
   try {
+    const { merchant } = getVillageMerchantStats(database, villageId);
+    const merchantAmount = getMerchantAmount(
+      resources,
+      merchant.merchantCapacity,
+    );
+
     createEvents<'resourceTransfer'>(database, {
       type: 'resourceTransfer',
       villageId,
@@ -133,7 +142,6 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
     originTileId,
     targetTileId,
     resources,
-    merchantAmount,
     interval,
     startsAt: resolvesAt + interval,
   });

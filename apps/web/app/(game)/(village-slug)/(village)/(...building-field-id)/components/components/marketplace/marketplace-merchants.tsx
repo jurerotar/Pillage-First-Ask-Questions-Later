@@ -12,7 +12,7 @@ import { Text } from 'app/components/text';
 
 export const MarketplaceMerchants = () => {
   const { t } = useTranslation();
-  const { marketplaceLevel, availableMerchantAmount } =
+  const { marketplaceLevel, availableMerchantAmount, merchant, totalCapacity } =
     useMarketplaceMerchants();
 
   return (
@@ -32,6 +32,13 @@ export const MarketplaceMerchants = () => {
         <Text className="font-medium">
           {t('Free merchants')}: {formatNumber(availableMerchantAmount)} /{' '}
           {formatNumber(marketplaceLevel)}
+        </Text>
+        <Text className="font-medium">
+          {t('Capacity per merchant')}:{' '}
+          {formatNumber(merchant.merchantCapacity)}
+        </Text>
+        <Text className="font-medium">
+          {t('Total available capacity')}: {formatNumber(totalCapacity)}
         </Text>
       </SectionContent>
       <SectionContent>

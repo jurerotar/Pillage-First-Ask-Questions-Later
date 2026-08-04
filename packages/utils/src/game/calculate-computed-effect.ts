@@ -31,6 +31,10 @@ type EffectValueBreakdown = {
   bonusBooster: number;
 };
 
+const truncateBonusValue = (value: number): number => {
+  return Math.trunc(value + 1e-9);
+};
+
 type GetEffectBreakdownReturn = {
   serverEffectValue: number;
   buildingEffectValues: EffectValueBreakdown;
@@ -99,8 +103,9 @@ export const getEffectBreakdown = (
 
     switch (effect.source) {
       case 'tribe': {
-        // Egyptian hero has double resource production
-        assignEffectValue(effect, heroEffectValues);
+        // Tribal effects are base/static game values. They still need to be
+        // eligible for building bonuses like Trade Office merchant capacity.
+        assignEffectValue(effect, buildingEffectValues);
         break;
       }
       case 'building': {
@@ -288,7 +293,7 @@ export function calculateComputedEffect(
     const baseValue = value * serverEffectValue;
     const buildingBonus =
       buildingEffectValues.bonus > 1
-        ? Math.trunc(
+        ? truncateBonusValue(
             baseValue *
               (buildingEffectValues.bonus - 1) *
               buildingEffectValues.bonusBooster,
@@ -296,7 +301,7 @@ export function calculateComputedEffect(
         : 0;
     const heroBonus =
       heroEffectValues.bonus > 1
-        ? Math.trunc(
+        ? truncateBonusValue(
             baseValue *
               (heroEffectValues.bonus - 1) *
               heroEffectValues.bonusBooster,
@@ -304,7 +309,7 @@ export function calculateComputedEffect(
         : 0;
     const artifactBonus =
       artifactEffectValues.bonus > 1
-        ? Math.trunc(
+        ? truncateBonusValue(
             baseValue *
               (artifactEffectValues.bonus - 1) *
               artifactEffectValues.bonusBooster,
@@ -312,7 +317,7 @@ export function calculateComputedEffect(
         : 0;
     const oasisBonus =
       oasisEffectValues.bonus > 1
-        ? Math.trunc(
+        ? truncateBonusValue(
             baseValue *
               (oasisEffectValues.bonus - 1) *
               oasisEffectValues.bonusBooster,

@@ -266,9 +266,11 @@ const MarketplaceTradeRouteForm = ({
 };
 
 const ActiveTradeRoutes = ({
+  merchant,
   onEdit,
   routes,
 }: {
+  merchant: ReturnType<typeof useMarketplaceMerchants>['merchant'];
   onEdit: (route: GameEvent<'tradeRoute'>) => void;
   routes: GameEvent<'tradeRoute'>[];
 }) => {
@@ -280,6 +282,7 @@ const ActiveTradeRoutes = ({
   const villageById = useMemo(() => {
     return new Map(playerVillages.map((village) => [village.id, village]));
   }, [playerVillages]);
+
   const routesByTargetVillage = useMemo(() => {
     const groups = new Map<number, GameEvent<'tradeRoute'>[]>();
 
@@ -384,7 +387,12 @@ const ActiveTradeRoutes = ({
                         </span>
                       </TableCell>
                       <TableCell>
-                        {formatNumber(route.merchantAmount)}
+                        {formatNumber(
+                          getMerchantAmount(
+                            route.resources,
+                            merchant.merchantCapacity,
+                          ),
+                        )}
                       </TableCell>
                       <TableCell>{formatTime(route.interval)}</TableCell>
                       <TableCell>
@@ -555,6 +563,7 @@ export const MarketplaceTradeRoutes = () => {
           {t('Scheduled trade routes')}
         </Text>
         <ActiveTradeRoutes
+          merchant={merchant}
           routes={tradeRoutes}
           onEdit={startEditingTradeRoute}
         />
