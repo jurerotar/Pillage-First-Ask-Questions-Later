@@ -17,7 +17,6 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
 import {
   type ConstructionQueueDragHandlers,
-  getValidScheduledConstructionDropTargetIds,
   useConstructionQueueDrag,
 } from 'app/(game)/(village-slug)/hooks/use-construction-queue-drag';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
@@ -57,10 +56,12 @@ const ConstructionQueueBuilding = ({
   return (
     <div
       className={clsx(
-        'flex items-center gap-2 rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity non-selectable',
+        'relative flex items-center gap-2 overflow-hidden rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity non-selectable',
         isDragging && 'opacity-60',
-        dropTargetStatus === 'valid' && 'ring-2 ring-green-500/70',
-        dropTargetStatus === 'invalid' && 'ring-2 ring-red-500/70',
+        dropTargetStatus === 'valid' &&
+          "before:pointer-events-none before:absolute before:inset-0 before:bg-emerald-400/20 before:content-['']",
+        dropTargetStatus === 'invalid' &&
+          "before:pointer-events-none before:absolute before:inset-0 before:bg-red-500/15 before:content-['']",
       )}
     >
       {isScheduledEvent && dragHandlers ? (
@@ -141,11 +142,13 @@ const CompactConstructionQueueBuilding = ({
       aria-label={t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
       aria-pressed={isSelected}
       className={clsx(
-        'relative flex flex-col rounded-xs border bg-background non-selectable',
+        'relative flex flex-col overflow-hidden rounded-xs border bg-background non-selectable',
         isSelected ? 'border-foreground' : 'border-border',
         isDragging && 'opacity-60',
-        dropTargetStatus === 'valid' && 'ring-2 ring-green-500/70',
-        dropTargetStatus === 'invalid' && 'ring-2 ring-red-500/70',
+        dropTargetStatus === 'valid' &&
+          "before:pointer-events-none before:absolute before:inset-0 before:bg-emerald-400/20 before:content-['']",
+        dropTargetStatus === 'invalid' &&
+          "before:pointer-events-none before:absolute before:inset-0 before:bg-red-500/15 before:content-['']",
         isScheduledEvent
           ? 'touch-none cursor-grab active:cursor-grabbing'
           : 'cursor-pointer',
@@ -291,21 +294,7 @@ const ConstructionQueueContent = () => {
   const selectedEvent = orderedEvents.find(
     (event) => getBuildingUpgradeQueueEntryKey(event) === selectedEventKey,
   );
-  const selectedScheduledUpgradeId =
-    !isWiderThanLg && selectedEvent?.type === 'scheduledBuildingUpgrade'
-      ? selectedEvent.id
-      : null;
-  const selectedValidDropTargetIds = useMemo(
-    () =>
-      getValidScheduledConstructionDropTargetIds(
-        orderedScheduledEvents,
-        selectedScheduledUpgradeId,
-      ),
-    [orderedScheduledEvents, selectedScheduledUpgradeId],
-  );
-  const dropSourceId = draggedId ?? selectedScheduledUpgradeId;
-  const visibleValidDropTargetIds =
-    draggedId === null ? selectedValidDropTargetIds : validDropTargetIds;
+  const dropSourceId = draggedId;
 
   const containerRef = useClickOutside<HTMLElement>(() => {
     setIsExtended(false);
@@ -372,7 +361,7 @@ const ConstructionQueueContent = () => {
                 );
               }}
               selectedEventKey={selectedEventKey}
-              validDropTargetIds={visibleValidDropTargetIds}
+              validDropTargetIds={validDropTargetIds}
             />
           ) : (
             <li key={slot.id}>

@@ -20,6 +20,16 @@ type ReorderScheduledBuildingUpgrades = (variables: {
   scheduledUpgradeIds: number[];
 }) => void;
 
+const dragActivationDistance = 6;
+
+type PendingDrag = {
+  upgradeId: number;
+  pointerId: number;
+  startX: number;
+  startY: number;
+  originalOrder: number[];
+};
+
 const hasValidFieldOrder = (upgrades: ScheduledBuildingUpgrade[]): boolean => {
   const lastLevelByFieldId = new Map<number, number>();
 
@@ -122,6 +132,7 @@ export const useConstructionQueueDrag = (
   }, [scheduledEvents]);
   const [orderedEventIds, setOrderedEventIds] = useState(scheduledEventIds);
   const [draggedId, setDraggedId] = useState<number | null>(null);
+  const pendingDragRef = useRef<PendingDrag | null>(null);
   const originalOrderRef = useRef<number[]>([]);
   const lastDragTargetIdRef = useRef<number | null>(null);
   const orderedEvents = useMemo(() => {
@@ -143,6 +154,7 @@ export const useConstructionQueueDrag = (
 
     if (!scheduledEventIds.includes(draggedId)) {
       setDraggedId(null);
+      pendingDragRef.current = null;
       originalOrderRef.current = [];
       lastDragTargetIdRef.current = null;
     }
@@ -154,16 +166,41 @@ export const useConstructionQueueDrag = (
         return;
       }
 
-      event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
-      originalOrderRef.current = orderedEvents.map(({ id }) => id);
+      pendingDragRef.current = {
+        upgradeId,
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        originalOrder: orderedEvents.map(({ id }) => id),
+      };
       lastDragTargetIdRef.current = null;
-      setDraggedId(upgradeId);
     },
     onDragMove: (event) => {
-      if (draggedId === null) {
-        return;
+      let activeDraggedId = draggedId;
+
+      if (activeDraggedId === null) {
+        const pendingDrag = pendingDragRef.current;
+
+        if (pendingDrag === null || pendingDrag.pointerId !== event.pointerId) {
+          return;
+        }
+
+        const deltaX = event.clientX - pendingDrag.startX;
+        const deltaY = event.clientY - pendingDrag.startY;
+        const hasMovedFarEnough =
+          Math.hypot(deltaX, deltaY) >= dragActivationDistance;
+
+        if (!hasMovedFarEnough) {
+          return;
+        }
+
+        activeDraggedId = pendingDrag.upgradeId;
+        originalOrderRef.current = pendingDrag.originalOrder;
+        setDraggedId(activeDraggedId);
       }
+
+      event.preventDefault();
 
       const targetId = Number(
         document
@@ -172,18 +209,23 @@ export const useConstructionQueueDrag = (
           .scheduledUpgradeId ?? Number.NaN,
       );
 
-      if (
-        Number.isFinite(targetId) &&
-        targetId !== draggedId &&
-        targetId !== lastDragTargetIdRef.current
-      ) {
+      if (!Number.isFinite(targetId) || targetId === activeDraggedId) {
+        lastDragTargetIdRef.current = null;
+        return;
+      }
+
+      if (targetId !== lastDragTargetIdRef.current) {
         lastDragTargetIdRef.current = targetId;
         setOrderedEventIds((currentIds) => {
           const currentEvents = getOrderedScheduledConstructionEvents(
             scheduledEvents,
             currentIds,
           );
-          const next = moveScheduledUpgrade(currentEvents, draggedId, targetId);
+          const next = moveScheduledUpgrade(
+            currentEvents,
+            activeDraggedId,
+            targetId,
+          );
 
           if (!next || !hasValidFieldOrder(next)) {
             return currentIds;
@@ -194,12 +236,14 @@ export const useConstructionQueueDrag = (
       }
     },
     onDragEnd: (event) => {
-      if (draggedId === null) {
-        return;
-      }
-
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
         event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      pendingDragRef.current = null;
+
+      if (draggedId === null) {
+        return;
       }
 
       const nextIds = orderedEvents.map(({ id }) => id);
