@@ -1,11 +1,10 @@
 import { createContext } from 'react';
-import type { Resources } from '@pillage-first/types/models/resource';
 import type {
   ComputedEffectReturn,
   WheatProductionEffectReturn,
 } from '@pillage-first/utils/game/calculate-computed-effect';
 
-export type CurrentVillageStateContextReturn = Resources & {
+export type CurrentVillageComputedEffectsContextReturn = {
   hourlyWoodProduction: number;
   hourlyClayProduction: number;
   hourlyIronProduction: number;
@@ -15,5 +14,5 @@ export type CurrentVillageStateContextReturn = Resources & {
   computedGranaryCapacityEffect: ComputedEffectReturn;
 };
 
-export const CurrentVillageStateContext =
-  createContext<CurrentVillageStateContextReturn>({} as never);
+export const CurrentVillageComputedEffectsContext =
+  createContext<CurrentVillageComputedEffectsContextReturn>({} as never);

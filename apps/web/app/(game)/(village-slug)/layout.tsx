@@ -63,8 +63,9 @@ import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-pla
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
-import { CurrentVillageStateProvider } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
+import { CurrentVillageComputedEffectsProvider } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-provider';
+import { CurrentVillageLiveResourcesProvider } from 'app/(game)/(village-slug)/providers/current-village-live-resources-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -156,7 +157,9 @@ const NavigationSideItem = ({
 };
 
 const DesktopPopulation = () => {
-  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+  const { computedWheatProductionEffect } = use(
+    CurrentVillageComputedEffectsContext,
+  );
 
   const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
@@ -234,7 +237,9 @@ const EventLogDesktopItem = () => {
 
 const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
-  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+  const { computedWheatProductionEffect } = use(
+    CurrentVillageComputedEffectsContext,
+  );
 
   const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
@@ -944,26 +949,30 @@ const GameLayout = memo<Route.ComponentProps>(
     return (
       <div className="[-webkit-touch-callout:none]">
         <VillageSlugProvider villageSlug={villageSlug}>
-          <CurrentVillageStateProvider>
-            <CurrentVillageBuildingQueueContextProvider>
-              <Tooltip id="general-tooltip" />
-              <TopNavigation onDeveloperToolsToggle={toggleModal} />
-              <TroopMovements />
-              <Suspense fallback={<PageFallback />}>
-                <Outlet />
-              </Suspense>
-              <ConstructionQueue />
-              <TroopList />
-              {!isWiderThanLg && (
-                <MobileBottomNavigation onDeveloperToolsToggle={toggleModal} />
-              )}
-              <PreferencesUpdater />
-              <DeveloperToolsConsole
-                isOpen={isOpen}
-                onOpenChange={toggleModal}
-              />
-            </CurrentVillageBuildingQueueContextProvider>
-          </CurrentVillageStateProvider>
+          <CurrentVillageComputedEffectsProvider>
+            <CurrentVillageLiveResourcesProvider>
+              <CurrentVillageBuildingQueueContextProvider>
+                <Tooltip id="general-tooltip" />
+                <TopNavigation onDeveloperToolsToggle={toggleModal} />
+                <TroopMovements />
+                <Suspense fallback={<PageFallback />}>
+                  <Outlet />
+                </Suspense>
+                <ConstructionQueue />
+                <TroopList />
+                {!isWiderThanLg && (
+                  <MobileBottomNavigation
+                    onDeveloperToolsToggle={toggleModal}
+                  />
+                )}
+                <PreferencesUpdater />
+                <DeveloperToolsConsole
+                  isOpen={isOpen}
+                  onOpenChange={toggleModal}
+                />
+              </CurrentVillageBuildingQueueContextProvider>
+            </CurrentVillageLiveResourcesProvider>
+          </CurrentVillageComputedEffectsProvider>
         </VillageSlugProvider>
       </div>
     );

@@ -39,7 +39,7 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
@@ -613,7 +613,7 @@ export const UnitRecruitment = () => {
   const { currentVillage } = useCurrentVillage();
   const { unitId, troopTrainingConfig } = use(UnitCardContext);
   const { developerSettings } = useDeveloperSettings();
-  const currentResources = use(CurrentVillageStateContext);
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
     getUnitDefinition(unitId);
   const durationEffect =
