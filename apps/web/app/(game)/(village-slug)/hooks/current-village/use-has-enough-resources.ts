@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { Resources } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
+import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { useIntl } from 'app/hooks/use-intl';
 import { formatFutureTimestamp } from 'app/utils/time';
 import {
@@ -26,18 +27,15 @@ export const getHasEnoughResources = (
 export const useHasEnoughResources = (requiredResources: number[]) => {
   const { t } = useTranslation();
   const currentTimestamp = useCountdown();
+  const { wood, clay, iron, wheat } = use(CurrentVillageLiveResourcesContext);
   const {
-    wood,
-    clay,
-    iron,
-    wheat,
     hourlyWoodProduction,
     hourlyClayProduction,
     hourlyIronProduction,
     hourlyWheatProduction,
     computedWarehouseCapacityEffect,
     computedGranaryCapacityEffect,
-  } = use(CurrentVillageStateContext);
+  } = use(CurrentVillageComputedEffectsContext);
   const intl = useIntl();
 
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;

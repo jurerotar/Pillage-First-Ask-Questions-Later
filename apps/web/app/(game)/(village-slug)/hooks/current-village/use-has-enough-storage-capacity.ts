@@ -1,7 +1,7 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatNumber } from '@pillage-first/utils/format';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
+import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 
 export const getHasEnoughWarehouseCapacity = (
   calculatedWarehouseCapacity: number,
@@ -28,7 +28,7 @@ export const useHasEnoughStorageCapacity = (
 ) => {
   const { t } = useTranslation();
   const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
-    use(CurrentVillageStateContext);
+    use(CurrentVillageComputedEffectsContext);
 
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;

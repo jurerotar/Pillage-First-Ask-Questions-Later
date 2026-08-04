@@ -2,7 +2,7 @@ import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBuildingDataForLevel } from '@pillage-first/game-assets/utils/buildings';
 import type { Building } from '@pillage-first/types/models/building';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
+import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 
 export const getHasEnoughFreeCrop = (
   populationDifference: number,
@@ -19,7 +19,9 @@ export const useHasEnoughFreeCrop = (
   level: number,
 ) => {
   const { t } = useTranslation();
-  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+  const { computedWheatProductionEffect } = use(
+    CurrentVillageComputedEffectsContext,
+  );
 
   const { nextLevelPopulation, population } = getBuildingDataForLevel(
     buildingId,

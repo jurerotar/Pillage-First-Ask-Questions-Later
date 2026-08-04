@@ -19,7 +19,8 @@ import {
 } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-context';
+import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 
 type UseBuildingRequirementsReturn = {
   canUpgrade: boolean;
@@ -94,15 +95,12 @@ export const useBuildingConstructionStatus = (
   buildingFieldId: BuildingField['id'],
 ): UseBuildingConstructionStatusReturn => {
   const { developerSettings } = useDeveloperSettings();
+  const { wood, clay, iron, wheat } = use(CurrentVillageLiveResourcesContext);
   const {
-    wood,
-    clay,
-    iron,
-    wheat,
     computedWheatProductionEffect,
     computedWarehouseCapacityEffect,
     computedGranaryCapacityEffect,
-  } = use(CurrentVillageStateContext);
+  } = use(CurrentVillageComputedEffectsContext);
   const {
     buildingUpgradeEvents,
     getBuildingEventQueue,
