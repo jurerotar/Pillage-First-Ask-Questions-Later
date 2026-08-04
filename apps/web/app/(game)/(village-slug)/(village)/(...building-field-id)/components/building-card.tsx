@@ -81,7 +81,6 @@ const unfinishedBuildings = new Set<Building['id']>([
   'COMMAND_CENTER',
   'TRAPPER',
   'MARKETPLACE',
-  'TRADE_OFFICE',
 ]);
 
 export const BuildingCard = ({
