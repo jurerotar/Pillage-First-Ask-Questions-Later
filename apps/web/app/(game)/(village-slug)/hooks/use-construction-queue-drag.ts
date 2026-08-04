@@ -52,6 +52,42 @@ const moveScheduledUpgrade = (
   return next;
 };
 
+const getScheduledUpgradeIds = (upgrades: ScheduledBuildingUpgrade[]) => {
+  return upgrades.map(({ id }) => id);
+};
+
+const areIdsEqual = (left: number[], right: number[]) => {
+  return (
+    left.length === right.length &&
+    left.every((id, index) => id === right[index])
+  );
+};
+
+export const getOrderedScheduledConstructionEvents = (
+  scheduledEvents: ScheduledBuildingUpgrade[],
+  orderedEventIds: number[],
+): ScheduledBuildingUpgrade[] => {
+  const scheduledEventById = new Map(
+    scheduledEvents.map((event) => [event.id, event]),
+  );
+  const includedIds = new Set<number>();
+  const orderedEvents = orderedEventIds.flatMap((id) => {
+    const scheduledEvent = scheduledEventById.get(id);
+
+    if (!scheduledEvent || includedIds.has(id)) {
+      return [];
+    }
+
+    includedIds.add(id);
+    return [scheduledEvent];
+  });
+
+  return [
+    ...orderedEvents,
+    ...scheduledEvents.filter(({ id }) => !includedIds.has(id)),
+  ];
+};
+
 export const getValidScheduledConstructionDropTargetIds = (
   upgrades: ScheduledBuildingUpgrade[],
   draggedId: number | null,
@@ -81,10 +117,19 @@ export const useConstructionQueueDrag = (
   scheduledEvents: ScheduledBuildingUpgrade[],
   reorderScheduledBuildingUpgrades: ReorderScheduledBuildingUpgrades,
 ) => {
-  const [orderedEvents, setOrderedEvents] = useState(scheduledEvents);
+  const scheduledEventIds = useMemo(() => {
+    return getScheduledUpgradeIds(scheduledEvents);
+  }, [scheduledEvents]);
+  const [orderedEventIds, setOrderedEventIds] = useState(scheduledEventIds);
   const [draggedId, setDraggedId] = useState<number | null>(null);
   const originalOrderRef = useRef<number[]>([]);
   const lastDragTargetIdRef = useRef<number | null>(null);
+  const orderedEvents = useMemo(() => {
+    return getOrderedScheduledConstructionEvents(
+      scheduledEvents,
+      orderedEventIds,
+    );
+  }, [orderedEventIds, scheduledEvents]);
   const validDropTargetIds = useMemo(
     () => getValidScheduledConstructionDropTargetIds(orderedEvents, draggedId),
     [orderedEvents, draggedId],
@@ -92,9 +137,16 @@ export const useConstructionQueueDrag = (
 
   useEffect(() => {
     if (draggedId === null) {
-      setOrderedEvents(scheduledEvents);
+      setOrderedEventIds(scheduledEventIds);
+      return;
     }
-  }, [draggedId, scheduledEvents]);
+
+    if (!scheduledEventIds.includes(draggedId)) {
+      setDraggedId(null);
+      originalOrderRef.current = [];
+      lastDragTargetIdRef.current = null;
+    }
+  }, [draggedId, scheduledEventIds]);
 
   const dragHandlers: ConstructionQueueDragHandlers = {
     onDragStart: (event, upgradeId) => {
@@ -126,14 +178,18 @@ export const useConstructionQueueDrag = (
         targetId !== lastDragTargetIdRef.current
       ) {
         lastDragTargetIdRef.current = targetId;
-        setOrderedEvents((current) => {
-          const next = moveScheduledUpgrade(current, draggedId, targetId);
+        setOrderedEventIds((currentIds) => {
+          const currentEvents = getOrderedScheduledConstructionEvents(
+            scheduledEvents,
+            currentIds,
+          );
+          const next = moveScheduledUpgrade(currentEvents, draggedId, targetId);
 
           if (!next || !hasValidFieldOrder(next)) {
-            return current;
+            return currentIds;
           }
 
-          return next;
+          return getScheduledUpgradeIds(next);
         });
       }
     },
@@ -147,10 +203,7 @@ export const useConstructionQueueDrag = (
       }
 
       const nextIds = orderedEvents.map(({ id }) => id);
-      const hasChanged = nextIds.some(
-        (id, index) => id !== originalOrderRef.current[index],
-      );
-      if (hasChanged) {
+      if (!areIdsEqual(nextIds, originalOrderRef.current)) {
         reorderScheduledBuildingUpgrades({ scheduledUpgradeIds: nextIds });
       }
       lastDragTargetIdRef.current = null;
