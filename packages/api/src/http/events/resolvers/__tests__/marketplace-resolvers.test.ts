@@ -2,6 +2,11 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import {
+  createResourceTransferEventMock,
+  createTradeRouteEventMock,
+} from '@pillage-first/mocks/event';
+import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resolveEvent } from '../../resolve-event';
 
 const NOW = 1_000_000;
@@ -143,20 +148,9 @@ const getVillageResources = (
     }),
   })!;
 
-const insertMarketplaceEvent = (
+const insertEvent = (
   database: Awaited<ReturnType<typeof prepareTestDatabase>>,
-  args: {
-    type: 'resourceTransfer' | 'tradeRoute';
-    villageId: number;
-    targetVillageId: number;
-    originTileId: number;
-    targetTileId: number;
-    startsAt: number;
-    duration: number;
-    merchantAmount?: number;
-    interval?: number;
-    resources?: { wood: number; clay: number; iron: number; wheat: number };
-  },
+  event: GameEvent<'resourceTransfer' | 'tradeRoute'>,
 ) =>
   database.selectValue({
     sql: `
@@ -165,24 +159,18 @@ const insertMarketplaceEvent = (
       RETURNING id;
     `,
     bind: {
-      $type: args.type,
-      $starts_at: args.startsAt,
-      $duration: args.duration,
-      $village_id: args.villageId,
+      $type: event.type,
+      $starts_at: event.startsAt,
+      $duration: event.duration,
+      $village_id: event.villageId,
       $meta: JSON.stringify({
-        targetVillageId: args.targetVillageId,
-        originTileId: args.originTileId,
-        targetTileId: args.targetTileId,
-        resources: args.resources ?? {
-          wood: 100,
-          clay: 50,
-          iron: 25,
-          wheat: 10,
-        },
-        ...(args.merchantAmount === undefined
-          ? {}
-          : { merchantAmount: args.merchantAmount }),
-        ...(args.interval === undefined ? {} : { interval: args.interval }),
+        targetVillageId: event.targetVillageId,
+        originTileId: event.originTileId,
+        targetTileId: event.targetTileId,
+        resources: event.resources,
+        ...(event.type === 'resourceTransfer'
+          ? { merchantAmount: event.merchantAmount }
+          : { interval: event.interval }),
       }),
     },
     schema: z.number(),
@@ -211,16 +199,18 @@ describe('marketplace resolvers', () => {
       resolvesAt,
     );
 
-    const eventId = insertMarketplaceEvent(database, {
-      type: 'resourceTransfer',
-      villageId: sourceVillage.id,
-      targetVillageId: targetVillage.id,
-      originTileId: sourceVillage.tile_id,
-      targetTileId: targetVillage.tileId,
-      startsAt: NOW,
-      duration: 5_000,
-      merchantAmount: 1,
-    });
+    const eventId = insertEvent(
+      database,
+      createResourceTransferEventMock({
+        villageId: sourceVillage.id,
+        targetVillageId: targetVillage.id,
+        originTileId: sourceVillage.tile_id,
+        targetTileId: targetVillage.tileId,
+        startsAt: NOW,
+        duration: 5_000,
+        merchantAmount: 1,
+      }),
+    );
 
     resolveEvent(database, eventId);
 
@@ -377,17 +367,19 @@ describe('marketplace resolvers', () => {
       wheat: 500,
     });
 
-    const eventId = insertMarketplaceEvent(database, {
-      type: 'resourceTransfer',
-      villageId: sourceVillage.id,
-      targetVillageId: sourceVillage.id,
-      originTileId: targetVillage.tileId,
-      targetTileId: sourceVillage.tile_id,
-      startsAt: NOW,
-      duration: 5_000,
-      merchantAmount: 1,
-      resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
-    });
+    const eventId = insertEvent(
+      database,
+      createResourceTransferEventMock({
+        villageId: sourceVillage.id,
+        targetVillageId: sourceVillage.id,
+        originTileId: targetVillage.tileId,
+        targetTileId: sourceVillage.tile_id,
+        startsAt: NOW,
+        duration: 5_000,
+        merchantAmount: 1,
+        resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+      }),
+    );
 
     resolveEvent(database, eventId);
 
@@ -424,17 +416,19 @@ describe('marketplace resolvers', () => {
       wheat: 500,
     });
 
-    const eventId = insertMarketplaceEvent(database, {
-      type: 'tradeRoute',
-      villageId: sourceVillage.id,
-      targetVillageId: targetVillage.id,
-      originTileId: sourceVillage.tile_id,
-      targetTileId: targetVillage.tileId,
-      startsAt: NOW,
-      duration: 0,
-      interval,
-      resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
-    });
+    const eventId = insertEvent(
+      database,
+      createTradeRouteEventMock({
+        villageId: sourceVillage.id,
+        targetVillageId: targetVillage.id,
+        originTileId: sourceVillage.tile_id,
+        targetTileId: targetVillage.tileId,
+        startsAt: NOW,
+        duration: 0,
+        interval,
+        resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
+      }),
+    );
 
     resolveEvent(database, eventId);
 
@@ -548,17 +542,19 @@ describe('marketplace resolvers', () => {
       wheat: 0,
     });
 
-    const eventId = insertMarketplaceEvent(database, {
-      type: 'tradeRoute',
-      villageId: sourceVillage.id,
-      targetVillageId: targetVillage.id,
-      originTileId: sourceVillage.tile_id,
-      targetTileId: targetVillage.tileId,
-      startsAt: NOW,
-      duration: 0,
-      interval,
-      resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
-    });
+    const eventId = insertEvent(
+      database,
+      createTradeRouteEventMock({
+        villageId: sourceVillage.id,
+        targetVillageId: targetVillage.id,
+        originTileId: sourceVillage.tile_id,
+        targetTileId: targetVillage.tileId,
+        startsAt: NOW,
+        duration: 0,
+        interval,
+        resources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      }),
+    );
 
     resolveEvent(database, eventId);
 

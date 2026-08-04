@@ -105,6 +105,42 @@ export const createTroopMovementRaidEventMock = (
   });
 };
 
+export const createResourceTransferEventMock = (
+  overrides: Partial<GameEvent<'resourceTransfer'>> = {},
+): GameEvent<'resourceTransfer'> => {
+  return createGameEventMock('resourceTransfer', {
+    originTileId: 1,
+    targetTileId: 2,
+    targetVillageId: 2,
+    resources: {
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+    },
+    merchantAmount: 1,
+    ...overrides,
+  });
+};
+
+export const createTradeRouteEventMock = (
+  overrides: Partial<GameEvent<'tradeRoute'>> = {},
+): GameEvent<'tradeRoute'> => {
+  return createGameEventMock('tradeRoute', {
+    originTileId: 1,
+    targetTileId: 2,
+    targetVillageId: 2,
+    resources: {
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+    },
+    interval: 6 * 60 * 60 * 1000,
+    ...overrides,
+  });
+};
+
 export const createHeroRevivalEventMock = (
   overrides: Partial<GameEvent<'heroRevival'>> = {},
 ): GameEvent<'heroRevival'> => {
