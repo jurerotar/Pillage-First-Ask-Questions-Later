@@ -9,11 +9,9 @@ on:
     types: [opened, synchronize, reopened]
     branches:
       - master
-      - develop
   push:
     branches:
       - master
-      - develop
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

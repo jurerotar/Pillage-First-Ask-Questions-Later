@@ -1,9 +1,9 @@
 import { env } from '@pillage-first/utils/env';
 import { isStandaloneDisplayMode } from 'app/utils/device';
 
-const allowedBranches = new Set(['master', 'develop']);
+const allowedBranches = new Set(['master']);
 
-// This is only injected by Netlify, so we're safe to run this on development
+// This is only injected by Netlify, so we're safe to run this during local development
 const isAllowedBranch = allowedBranches.has(env.HEAD);
 
 export const initFaro = async () => {

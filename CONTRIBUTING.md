@@ -10,9 +10,8 @@ question to the [Discord server](https://discord.gg/Ep7NKVXUZA).
 
 ### License Agreement
 
-This project is licensed under the GNU Affero General Public License v3.0.
-By contributing to this repository, you agree that your contributions will be licensed under the terms of the project
-license.
+This project is licensed under the GNU Affero General Public License v3.0. By contributing to this repository, you agree
+that your contributions will be licensed under the terms of the project license.
 
 See the [LICENSE.md](/LICENSE.md) or https://gnu.org/licenses/agpl-3.0 for details.
 
@@ -26,13 +25,12 @@ newer.
 3. Run `npm install` at the root of the repository
 4. Run `npm run inject-graphics` at the root of the repository
 5. (Optional) Run `npm run extract-sql-schema`, which generates `schema.sql` and `db.sqlite3` files inside
-   `apps/erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building
-   queries.
+   `apps/erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building queries.
 
 ## 2. Repository
 
-This repository is set up as a monorepo with [Turborepo](https://turborepo.com).
-It currently consists of the following apps & packages:
+This repository is set up as a monorepo with [Turborepo](https://turborepo.com). It currently consists of the following
+apps & packages:
 
 - **apps**
 -
@@ -55,9 +53,8 @@ It currently consists of the following apps & packages:
   - [utils](/packages/utils/README.md) (shared helper functions)
 
 The project follows a **colocation** principle, meaning files related to a feature (components, tests, hooks,... and
-utilities) are kept
-close to each other within the same directory. This approach improves maintainability and makes it easier to find and
-modify related code.
+utilities) are kept close to each other within the same directory. This approach improves maintainability and makes it
+easier to find and modify related code.
 
 ### 2.1 Useful scripts
 
@@ -85,8 +82,7 @@ modify related code.
 - **Localization:**
   [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com) + [i18next-cli](https://github.com/i18next/i18next-cli)
 - **Unit testing:** [Vitest](https://vitest.dev)
-- **Deployment:**
-  Netlify ([Master Deploy](https://pillagefirst.netlify.app) | [Dev Deploy](https://develop--pillagefirst.netlify.app))
+- **Deployment:** Netlify ([Master Deploy](https://pillagefirst.netlify.app)
 - **Version Control:** GitHub ([Repository](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later))
 
 ## 4. Contributing
@@ -101,12 +97,8 @@ requests that were not agreed upon in advance will be automatically closed.
 Run `turbo run dev` at the root of the repository to start a development server, and the app will be available on
 `http://localhost:5173`. A link to it will also be posted to your terminal.
 
-Begin your work either from a `master` branch (typical), or `develop`. Rule of thumb is that breaking changes that
-require database schema changes are typically done from `develop`, while the rest are made from `master`.
-
-Implement your changes, then create a pull request against the upstream repository's `master` or `develop` branches.
-
-Pull requests cannot be merged until all required checks are passing.
+Begin your work from the `master` branch. Implement your changes, then create a pull request against the upstream
+repository's `master` branch. Pull requests cannot be merged until all required checks are passing.
 
 ## 5. Git Hooks
 
@@ -144,5 +136,5 @@ You may run these checks locally.
 
 ## 8. Deployment & CI/CD
 
-The project is hosted on **Netlify**, with separate environments for `master` and `develop` branches and additional
+The project is hosted on **Netlify**, with environments for `master` branch and additional
 builds per branch and PRs. Posting a pull-request will automatically create a new live deployment.
