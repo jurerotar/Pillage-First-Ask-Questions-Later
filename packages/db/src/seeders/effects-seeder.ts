@@ -253,81 +253,68 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   database.exec({
     sql: `
       WITH
-        tribal_effect_keys AS (
-          SELECT DISTINCT
-            building_id,
-            effect_id,
-            type
+        building_effect_data AS MATERIALIZED (
+          SELECT
+            bi.id AS building_id,
+            bd.level,
+            ti.id AS tribe_id,
+            bd.effect_id,
+            COALESCE(tbd.value, bd.value) AS value,
+            et.id AS type_id
           FROM
-            building_data
+            building_data bd
+              JOIN building_ids bi ON bi.building = bd.building_id
+              JOIN effect_type_ids et ON et.type = bd.type
+              CROSS JOIN tribe_ids ti
+              LEFT JOIN building_data tbd ON tbd.building_id = bd.building_id
+                AND tbd.level = bd.level
+                AND tbd.tribe = ti.tribe
+                AND tbd.effect_id = bd.effect_id
+                AND tbd.type = bd.type
+                AND tbd.population IS NULL
           WHERE
-            tribe IS NOT NULL
-            AND population IS NULL
-          )
+            bd.tribe IS NULL
+            AND bd.population IS NULL
+        ),
+
+        building_population_data AS MATERIALIZED (
+          SELECT
+            bi.id AS building_id,
+            bd.level,
+            bd.value
+          FROM
+            building_data bd
+              JOIN building_ids bi ON bi.building = bd.building_id
+          WHERE
+            bd.tribe IS NULL
+            AND bd.population IS NOT NULL
+        )
 
       INSERT INTO
         effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
-      -- Generic building effects that do not have tribal overrides
+      -- Building effects, using tribal overrides when present
       SELECT
-        bd.effect_id,
-        bd.value,
-        et.id,
+        bed.effect_id,
+        bed.value,
+        bed.type_id,
         $local_scope_id,
         $building_source_id,
         bf.village_id,
         bf.field_id
       FROM
         building_fields bf
-          JOIN building_ids bi ON bi.id = bf.building_id
-          JOIN building_data bd ON bd.building_id = bi.building
-            AND bd.level = bf.level
-            AND bd.tribe IS NULL
-            AND bd.population IS NULL
-          LEFT JOIN tribal_effect_keys tek ON tek.building_id = bd.building_id
-            AND tek.effect_id = bd.effect_id
-            AND tek.type = bd.type
-          JOIN effect_type_ids et ON et.type = bd.type
-      WHERE
-        tek.building_id IS NULL
-
-      UNION ALL
-
-      -- Building effects that have tribal overrides
-      SELECT
-        bd.effect_id,
-        COALESCE(tbd.value, bd.value),
-        et.id,
-        $local_scope_id,
-        $building_source_id,
-        bf.village_id,
-        bf.field_id
-      FROM
-        building_fields bf
-          JOIN building_ids bi ON bi.id = bf.building_id
-          JOIN building_data bd ON bd.building_id = bi.building
-            AND bd.level = bf.level
-            AND bd.tribe IS NULL
-            AND bd.population IS NULL
-          JOIN tribal_effect_keys tek ON tek.building_id = bd.building_id
-            AND tek.effect_id = bd.effect_id
-            AND tek.type = bd.type
           JOIN villages v ON v.id = bf.village_id
           JOIN players p ON p.id = v.player_id
-          JOIN tribe_ids ti ON ti.id = p.tribe_id
-          LEFT JOIN building_data tbd ON tbd.building_id = bd.building_id
-            AND tbd.level = bd.level
-            AND tbd.tribe = ti.tribe
-            AND tbd.effect_id = bd.effect_id
-            AND tbd.type = bd.type
-            AND tbd.population IS NULL
-          JOIN effect_type_ids et ON et.type = bd.type
+          JOIN building_effect_data bed ON bed.building_id = bf.building_id
+            AND bed.level = bf.level
+            AND bed.tribe_id = p.tribe_id
 
       UNION ALL
 
       -- Aggregated population effect (negative wheat production)
       SELECT
         $wheat_production_effect_id,
-        SUM(bd.value),
+        SUM(bpd.value),
         $base_type_id,
         $local_scope_id,
         $building_source_id,
@@ -335,13 +322,8 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         0
       FROM
         building_fields bf
-          JOIN building_ids bi ON bi.id = bf.building_id
-          JOIN building_data bd ON bd.building_id = bi.building
-            AND bd.level = bf.level
-            AND bd.tribe IS NULL
-            AND bd.population IS NOT NULL
-      WHERE
-        bd.population IS NOT NULL
+          JOIN building_population_data bpd ON bpd.building_id = bf.building_id
+            AND bpd.level = bf.level
       GROUP BY
         bf.village_id;
     `,
@@ -384,18 +366,27 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   database.exec({
     sql: `
       WITH
-        resource_effects(resource, effect) AS (
-          VALUES
-            ('wood', 'woodProduction'),
-            ('clay', 'clayProduction'),
-            ('iron', 'ironProduction'),
-            ('wheat', 'wheatProduction')
+        resource_effects(resource_id, effect_id) AS (
+          SELECT
+            ri.id,
+            ei.id
+          FROM
+            resource_ids ri
+              JOIN effect_ids ei ON ei.effect = ri.resource || 'Production'
+          WHERE
+            ri.resource IN ('wood', 'clay', 'iron', 'wheat')
+            AND ei.effect IN (
+              'woodProduction',
+              'clayProduction',
+              'ironProduction',
+              'wheatProduction'
+            )
           ),
 
         oasis_production AS (
           SELECT
             tiles.tile_id,
-            re.effect,
+            re.effect_id,
             CASE
               WHEN MAX(o.bonus) = 50 THEN 80
               WHEN MAX(o.bonus) = 25 THEN 40
@@ -408,17 +399,17 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
               ) tiles
               CROSS JOIN resource_effects re
               LEFT JOIN oasis o ON o.tile_id = tiles.tile_id
-              AND o.resource_id = (SELECT id FROM resource_ids WHERE resource = re.resource)
+              AND o.resource_id = re.resource_id
           GROUP BY
             tiles.tile_id,
-            re.effect
+            re.effect_id
           )
 
       INSERT
       INTO
         effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
       SELECT
-        ei.id,
+        op.effect_id,
         op.value,
         $base_type_id,
         $local_scope_id,
@@ -427,7 +418,6 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         op.tile_id
       FROM
         oasis_production op
-          JOIN effect_ids ei ON ei.effect = op.effect
       WHERE
         op.value > 0;
     `,
