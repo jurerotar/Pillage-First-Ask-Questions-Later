@@ -100,6 +100,4 @@ export const occupiedOasisSeeder = (
     const [villageId, tileId] = resultSet;
     stmt.bind({ $village_id: villageId, $tile_id: tileId }).stepReset();
   }
-
-  stmt.finalize();
 };
