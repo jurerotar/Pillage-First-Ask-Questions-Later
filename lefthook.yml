@@ -4,19 +4,21 @@ output: false
 no_tty: true
 
 commit-msg:
-  commands:
-    lint:
-      run: npx commitlint --edit {1}
+  jobs:
+    - name: lint
+      run: ./node_modules/.bin/commitlint --edit "{1}"
 
 pre-commit:
-  commands:
-    localize:
-      run: npx turbo run localize && git add "apps/web/app/localization/locales/*/extracted/*.json"
-    biome:
+  parallel: false
+  jobs:
+    - name: localize
+      glob: "apps/web/**/*.{ts,tsx}"
+      run: ./node_modules/.bin/turbo run localize --filter=@pillage-first/web && git add "apps/web/app/localization/locales/*/extracted/*.json"
+    - name: biome
       stage_fixed: true
-      run: npx turbo run format
+      run: ./node_modules/.bin/biome check --write --staged --no-errors-on-unmatched
 
 pre-push:
-  commands:
-    biome-ci:
-      run: npx turbo run format:check lint:check
+  jobs:
+    - name: biome-ci
+      run: ./node_modules/.bin/turbo run format:check lint:check
