@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
@@ -14,6 +14,7 @@ import {
   getPlayerVillagesWithPopulation,
   getSentReinforcementsByTile,
   getStationedTroopsByTile,
+  getWoundedTroopsByVillage,
   relocateReinforcements,
   relocateSentReinforcements,
   renameVillage,
@@ -189,6 +190,71 @@ describe('player-controllers', () => {
     );
 
     expect(true).toBe(true);
+  });
+
+  test('getWoundedTroopsByVillage should materialize wounded troop decay before returning rows', async () => {
+    const database = await prepareTestDatabase();
+
+    try {
+      const villageId = database.selectValue({
+        sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1;',
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      })!;
+
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2 * 24 * 60 * 60 * 1000));
+
+      database.exec({
+        sql: `
+          DELETE FROM wounded_troops
+          WHERE
+            village_id = $village_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      database.exec({
+        sql: `
+          INSERT INTO wounded_troops (village_id, unit_id, amount, updated_at)
+          VALUES (
+            $village_id,
+            (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+            100,
+            0
+          );
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      const result = getWoundedTroopsByVillage(
+        database,
+        createControllerArgs<'/villages/:villageId/wounded-troops'>({
+          path: { villageId },
+        }),
+      );
+
+      expect(
+        result.find(({ unitId }) => unitId === 'LEGIONNAIRE')?.amount,
+      ).toBe(81);
+
+      const storedAmount = database.selectValue({
+        sql: `
+          SELECT amount
+          FROM wounded_troops
+          WHERE
+            village_id = $village_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      });
+
+      expect(storedAmount).toBe(81);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test('getSentReinforcementsByTile should group current tile reinforcements by stationed village', async () => {

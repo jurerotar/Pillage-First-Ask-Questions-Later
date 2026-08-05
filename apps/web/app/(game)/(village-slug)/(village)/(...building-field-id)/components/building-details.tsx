@@ -251,7 +251,8 @@ const buildingDetailsTabMap = new Map<
   ['STABLE', unitTrainingTabs],
   ['GREAT_STABLE', unitTrainingTabs],
   ['WORKSHOP', unitTrainingTabs],
-  ['HOSPITAL', new Map([['train', HospitalTroopTraining]])],
+  ['HOSPITAL', new Map([['heal', HospitalTroopTraining]])],
+  ['ASCLEPEION', new Map([['heal', HospitalTroopTraining]])],
 ]);
 
 // t('loyalty')
@@ -279,6 +280,7 @@ const buildingDetailsTabMap = new Map<
 // t('hunting-party')
 // t('gathering-expedition')
 // t('cages')
+// t('heal')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();

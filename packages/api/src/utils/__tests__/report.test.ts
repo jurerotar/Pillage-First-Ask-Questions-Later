@@ -67,4 +67,244 @@ describe(insertReport, () => {
     expect(firstInsertedId).toBeGreaterThan(0);
     expect(secondInsertedId).toBeGreaterThan(firstInsertedId);
   });
+
+  test('battle report unit insert trigger should create wounded troops from Hospital losses', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
+      schema: z.strictObject({
+        id: z.number(),
+        tile_id: z.number(),
+      }),
+    })!;
+
+    database.exec({
+      sql: 'DELETE FROM wounded_troops WHERE village_id = $village_id;',
+      bind: { $village_id: village.id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO building_fields (village_id, field_id, building_id, level)
+        VALUES (
+          $village_id,
+          20,
+          (SELECT id FROM building_ids WHERE building = 'HOSPITAL'),
+          1
+        )
+        ON CONFLICT(village_id, field_id) DO UPDATE SET
+          building_id = excluded.building_id,
+          level = excluded.level;
+      `,
+      bind: { $village_id: village.id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        VALUES (
+          10001,
+          $village_id,
+          123456,
+          (SELECT id FROM report_type_ids WHERE report_type = 'battle'),
+          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'attackerSomeLoss')
+        );
+      `,
+      bind: {
+        $village_id: village.id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_reports (
+          id, report_id, origin_tile_id, target_tile_id, is_raid,
+          loot_wood, loot_clay, loot_iron, loot_wheat,
+          can_attacker_see_full_report, attacker_points, defender_points
+        )
+        VALUES (
+          10001,
+          10001,
+          $tile_id,
+          $tile_id,
+          0,
+          0, 0, 0, 0,
+          1,
+          0,
+          0
+        );
+      `,
+      bind: {
+        $tile_id: village.tile_id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
+        VALUES (
+          10001,
+          10001,
+          (SELECT player_id FROM villages WHERE id = $village_id),
+          $tile_id
+        );
+      `,
+      bind: {
+        $village_id: village.id,
+        $tile_id: village.tile_id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after)
+        VALUES
+          (10001, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 100, 50),
+          (10001, (SELECT id FROM unit_ids WHERE unit = 'ROMAN_RAM'), 100, 0);
+      `,
+    });
+
+    const legionnaireWounded = database.selectValue({
+      sql: `
+        SELECT amount
+        FROM wounded_troops
+        WHERE
+          village_id = $village_id
+          AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
+      `,
+      bind: { $village_id: village.id },
+      schema: z.number(),
+    });
+
+    const ramWounded = database.selectValue({
+      sql: `
+        SELECT amount
+        FROM wounded_troops
+        WHERE
+          village_id = $village_id
+          AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'ROMAN_RAM');
+      `,
+      bind: { $village_id: village.id },
+      schema: z.number().nullable(),
+    });
+
+    expect(legionnaireWounded).toBe(20);
+    expect(ramWounded).toBeUndefined();
+  });
+
+  test('battle report unit insert trigger should use Asclepeion wounded rate', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
+      schema: z.strictObject({
+        id: z.number(),
+        tile_id: z.number(),
+      }),
+    })!;
+
+    database.exec({
+      sql: 'DELETE FROM wounded_troops WHERE village_id = $village_id;',
+      bind: { $village_id: village.id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO building_fields (village_id, field_id, building_id, level)
+        VALUES (
+          $village_id,
+          20,
+          (SELECT id FROM building_ids WHERE building = 'ASCLEPEION'),
+          1
+        )
+        ON CONFLICT(village_id, field_id) DO UPDATE SET
+          building_id = excluded.building_id,
+          level = excluded.level;
+      `,
+      bind: { $village_id: village.id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        VALUES (
+          10002,
+          $village_id,
+          123456,
+          (SELECT id FROM report_type_ids WHERE report_type = 'battle'),
+          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'attackerSomeLoss')
+        );
+      `,
+      bind: {
+        $village_id: village.id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_reports (
+          id, report_id, origin_tile_id, target_tile_id, is_raid,
+          loot_wood, loot_clay, loot_iron, loot_wheat,
+          can_attacker_see_full_report, attacker_points, defender_points
+        )
+        VALUES (
+          10002,
+          10002,
+          $tile_id,
+          $tile_id,
+          0,
+          0, 0, 0, 0,
+          1,
+          0,
+          0
+        );
+      `,
+      bind: {
+        $tile_id: village.tile_id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
+        VALUES (
+          10002,
+          10002,
+          (SELECT player_id FROM villages WHERE id = $village_id),
+          $tile_id
+        );
+      `,
+      bind: {
+        $village_id: village.id,
+        $tile_id: village.tile_id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after)
+        VALUES (
+          10002,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          100,
+          50
+        );
+      `,
+    });
+
+    const woundedAmount = database.selectValue({
+      sql: `
+        SELECT amount
+        FROM wounded_troops
+        WHERE
+          village_id = $village_id
+          AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
+      `,
+      bind: { $village_id: village.id },
+      schema: z.number(),
+    });
+
+    expect(woundedAmount).toBe(30);
+  });
 });

@@ -4,6 +4,7 @@ import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import { partition } from '@pillage-first/utils/array';
 import { assessBuildingRequirements } from '@pillage-first/utils/game/building-requirements';
+import { isHospital } from '@pillage-first/utils/guards/building';
 import {
   BuildingActions,
   BuildingBenefits,
@@ -51,8 +52,18 @@ const BuildingConstructionList = ({
     getBuildingEventQueue(buildingFieldId).length > 0;
 
   const buildingsByCategory = useMemo(() => {
-    return buildings.filter(({ category }) => category === buildingCategory);
-  }, [buildingCategory]);
+    return buildings.filter(({ category, id }) => {
+      if (category !== buildingCategory) {
+        return false;
+      }
+
+      if (tribe === 'spartans' && isHospital(id)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [buildingCategory, tribe]);
 
   const assessments = useMemo(() => {
     return new Map<

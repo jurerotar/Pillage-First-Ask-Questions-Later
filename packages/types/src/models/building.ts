@@ -46,6 +46,7 @@ export const buildingIdSchema = z
     'GREAT_STABLE',
     'WORKSHOP',
     'HOSPITAL',
+    'ASCLEPEION',
     'CLAY_PIT',
     'WHEAT_FIELD',
     'WOODCUTTER',
@@ -100,6 +101,7 @@ export type TroopTrainingBuildingId = Extract<
   | 'GREAT_STABLE'
   | 'WORKSHOP'
   | 'HOSPITAL'
+  | 'ASCLEPEION'
   | 'RESIDENCE'
 >;
 

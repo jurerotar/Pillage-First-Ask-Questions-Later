@@ -11,6 +11,7 @@ import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
+import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
@@ -82,6 +83,7 @@ import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?
 import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
 import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
+import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { bookmarksSeeder } from '../seeders/bookmarks-seeder';
 import { buildingDataSeeder } from '../seeders/building-data-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
@@ -97,6 +99,7 @@ import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expediti
 import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
+import { hospitalSeeder } from '../seeders/hospital-seeder';
 import { mapFiltersSeeder } from '../seeders/map-filters-seeder';
 import { metaSeeder } from '../seeders/meta-seeder';
 import { oasisSeeder } from '../seeders/oasis-seeder';
@@ -120,6 +123,7 @@ import { unitIdsSeeder } from '../seeders/unit-ids-seeder';
 import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
+import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
@@ -309,6 +313,12 @@ export const migrateAndSeed = (
     db.exec({ sql: createTroopsTable });
     troopSeeder(db, server);
     db.exec({ sql: createTroopsIndexes });
+
+    // Wounded troops
+    db.exec({ sql: createWoundedTroopsTable });
+    hospitalSeeder(db);
+    db.exec({ sql: createWoundedTroopsIndexes });
+    db.exec({ sql: createBattleReportWoundedTroopsTriggers });
 
     // Effects
     db.exec({ sql: createEffectsTable });
