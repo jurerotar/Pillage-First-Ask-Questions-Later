@@ -4,6 +4,7 @@ import type {
 } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { Effect } from '@pillage-first/types/models/effect';
+import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Village } from '@pillage-first/types/models/village';
 import { buildingMap } from '../buildings';
 
@@ -161,10 +162,11 @@ export type CalculatedCumulativeEffect = {
 export const calculateBuildingEffectValues = (
   building: Building,
   level: number,
+  tribe: Tribe,
 ): CalculatedCumulativeEffect[] => {
   const result: CalculatedCumulativeEffect[] = [];
 
-  for (const effect of building.effects) {
+  for (const effect of building.effects(tribe)) {
     const { effectId, valuesPerLevel } = effect;
 
     const currentLevelValue = valuesPerLevel[level];

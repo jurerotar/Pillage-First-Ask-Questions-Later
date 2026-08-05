@@ -8,6 +8,7 @@ import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { Village } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { assessBuildingRequirements } from '@pillage-first/utils/game/building-requirements';
+import { selectVillageTribeQuery } from '../queries/village-queries';
 
 const buildingLevelRowSchema = z.strictObject({
   buildingId: buildingIdSchema,
@@ -24,13 +25,7 @@ export const assertBuildingConstructionRequirementsAreMet = (
   } = {},
 ): void => {
   const tribe = database.selectValue({
-    sql: `
-      SELECT ti.tribe
-      FROM villages v
-      JOIN players p ON p.id = v.player_id
-      JOIN tribe_ids ti ON ti.id = p.tribe_id
-      WHERE v.id = $village_id;
-    `,
+    sql: selectVillageTribeQuery,
     bind: { $village_id: villageId },
     schema: tribeSchema,
   })!;

@@ -110,7 +110,7 @@ export type Building = {
   buildingDurationBase: number;
   buildingDurationModifier: number;
   buildingDurationReduction: number;
-  effects: BuildingEffect[];
+  effects: (tribe: Tribe) => BuildingEffect[];
   buildingRequirements: BuildingRequirement[];
   baseBuildingCost: number[];
   category: BuildingCategory;

@@ -26,7 +26,7 @@ const createBuilding = (
   buildingDurationBase: 1,
   buildingDurationModifier: 1,
   buildingDurationReduction: 1,
-  effects: [],
+  effects: () => [],
   baseBuildingCost: [1, 1, 1, 1],
   buildingCostCoefficient: 1,
 });

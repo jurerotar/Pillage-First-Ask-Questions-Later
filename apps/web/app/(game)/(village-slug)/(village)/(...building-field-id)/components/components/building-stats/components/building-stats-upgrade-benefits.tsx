@@ -16,6 +16,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -42,10 +43,15 @@ const increasingPercentageBuildingEffects = new Set<Effect['id']>([
 export const BuildingStatsUpgradeBenefits = () => {
   const { t } = useTranslation();
   const { buildingField } = use(BuildingFieldContext);
+  const tribe = useTribe();
   const { buildingId, level } = buildingField!;
   const building = getBuildingDefinition(buildingId);
 
-  const cumulativeEffectsAtLevel1 = calculateBuildingEffectValues(building, 1);
+  const cumulativeEffectsAtLevel1 = calculateBuildingEffectValues(
+    building,
+    1,
+    tribe,
+  );
 
   // In case we have both infantry and cavalry defence, we show combined defence icon instead
   const shouldCombineEffects =
@@ -146,6 +152,7 @@ export const BuildingStatsUpgradeBenefits = () => {
                 const cumulativeEffects = calculateBuildingEffectValues(
                   building,
                   buildingLevel,
+                  tribe,
                 );
 
                 const currentEffectsToShow = shouldCombineEffects

@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.50",
+  "version": "0.4.51",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -22,7 +22,7 @@
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.6",
+    "@biomejs/biome": "2.5.7",
     "@commitlint/cli": "21.2.1",
     "@commitlint/config-conventional": "21.2.0",
     "@playwright/test": "1.62.1",

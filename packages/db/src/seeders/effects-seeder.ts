@@ -244,27 +244,83 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   }
 
   const wheatProductionEffectId = effectIds.get('wheatProduction')!;
+  const baseTypeId = effectTypeIds.get('base')!;
+  const localScopeId = effectScopeIds.get('local')!;
+  const buildingSourceId = effectSourceIds.get('building')!;
+  const troopsSourceId = effectSourceIds.get('troops')!;
+  const oasisSourceId = effectSourceIds.get('oasis')!;
 
   database.exec({
     sql: `
+      WITH
+        tribal_effect_keys AS (
+          SELECT DISTINCT
+            building_id,
+            effect_id,
+            type
+          FROM
+            building_data
+          WHERE
+            tribe IS NOT NULL
+            AND population IS NULL
+          )
+
       INSERT INTO
         effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
-      -- Regular building effects
+      -- Generic building effects that do not have tribal overrides
       SELECT
         bd.effect_id,
         bd.value,
         et.id,
-        (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
-        (SELECT id FROM effect_source_ids WHERE source = 'building'),
+        $local_scope_id,
+        $building_source_id,
         bf.village_id,
         bf.field_id
       FROM
         building_fields bf
           JOIN building_ids bi ON bi.id = bf.building_id
-          JOIN building_data bd ON bd.building_id = bi.building AND bd.level = bf.level
+          JOIN building_data bd ON bd.building_id = bi.building
+            AND bd.level = bf.level
+            AND bd.tribe IS NULL
+            AND bd.population IS NULL
+          LEFT JOIN tribal_effect_keys tek ON tek.building_id = bd.building_id
+            AND tek.effect_id = bd.effect_id
+            AND tek.type = bd.type
           JOIN effect_type_ids et ON et.type = bd.type
       WHERE
-        bd.population IS NULL
+        tek.building_id IS NULL
+
+      UNION ALL
+
+      -- Building effects that have tribal overrides
+      SELECT
+        bd.effect_id,
+        COALESCE(tbd.value, bd.value),
+        et.id,
+        $local_scope_id,
+        $building_source_id,
+        bf.village_id,
+        bf.field_id
+      FROM
+        building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          JOIN building_data bd ON bd.building_id = bi.building
+            AND bd.level = bf.level
+            AND bd.tribe IS NULL
+            AND bd.population IS NULL
+          JOIN tribal_effect_keys tek ON tek.building_id = bd.building_id
+            AND tek.effect_id = bd.effect_id
+            AND tek.type = bd.type
+          JOIN villages v ON v.id = bf.village_id
+          JOIN players p ON p.id = v.player_id
+          JOIN tribe_ids ti ON ti.id = p.tribe_id
+          LEFT JOIN building_data tbd ON tbd.building_id = bd.building_id
+            AND tbd.level = bd.level
+            AND tbd.tribe = ti.tribe
+            AND tbd.effect_id = bd.effect_id
+            AND tbd.type = bd.type
+            AND tbd.population IS NULL
+          JOIN effect_type_ids et ON et.type = bd.type
 
       UNION ALL
 
@@ -272,21 +328,27 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       SELECT
         $wheat_production_effect_id,
         SUM(bd.value),
-        (SELECT id FROM effect_type_ids WHERE type = 'base'),
-        (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
-        (SELECT id FROM effect_source_ids WHERE source = 'building'),
+        $base_type_id,
+        $local_scope_id,
+        $building_source_id,
         bf.village_id,
         0
       FROM
         building_fields bf
           JOIN building_ids bi ON bi.id = bf.building_id
-          JOIN building_data bd ON bd.building_id = bi.building AND bd.level = bf.level
+          JOIN building_data bd ON bd.building_id = bi.building
+            AND bd.level = bf.level
+            AND bd.tribe IS NULL
+            AND bd.population IS NOT NULL
       WHERE
         bd.population IS NOT NULL
       GROUP BY
         bf.village_id;
     `,
     bind: {
+      $base_type_id: baseTypeId,
+      $building_source_id: buildingSourceId,
+      $local_scope_id: localScopeId,
       $wheat_production_effect_id: wheatProductionEffectId,
     },
   });
@@ -298,9 +360,9 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       SELECT
         $wheat_production_effect_id,
         SUM(tr.amount * ud.wheat_consumption),
-        (SELECT id FROM effect_type_ids WHERE type = 'base'),
-        (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
-        (SELECT id FROM effect_source_ids WHERE source = 'troops'),
+        $base_type_id,
+        $local_scope_id,
+        $troops_source_id,
         v.id,
         NULL
       FROM
@@ -312,6 +374,9 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         v.id;
     `,
     bind: {
+      $base_type_id: baseTypeId,
+      $local_scope_id: localScopeId,
+      $troops_source_id: troopsSourceId,
       $wheat_production_effect_id: wheatProductionEffectId,
     },
   });
@@ -355,9 +420,9 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       SELECT
         ei.id,
         op.value,
-        (SELECT id FROM effect_type_ids WHERE type = 'base'),
-        (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
-        (SELECT id FROM effect_source_ids WHERE source = 'oasis'),
+        $base_type_id,
+        $local_scope_id,
+        $oasis_source_id,
         NULL,
         op.tile_id
       FROM
@@ -366,6 +431,11 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       WHERE
         op.value > 0;
     `,
+    bind: {
+      $base_type_id: baseTypeId,
+      $local_scope_id: localScopeId,
+      $oasis_source_id: oasisSourceId,
+    },
   });
 
   batchInsert(

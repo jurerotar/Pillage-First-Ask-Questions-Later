@@ -9,6 +9,7 @@ import {
 } from '@pillage-first/game-assets/utils/buildings';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { selectVillageTribeQuery } from '../../../queries/village-queries';
 import {
   createTradeRoute,
   deleteTradeRoute,
@@ -121,6 +122,12 @@ const setTradeOfficeLevel = (
   villageId: number,
   level: number,
 ) => {
+  const tribe = database.selectValue({
+    sql: selectVillageTribeQuery,
+    bind: { $village_id: villageId },
+    schema: tribeSchema,
+  })!;
+
   database.exec({
     sql: `
       INSERT INTO building_fields (village_id, field_id, building_id, level)
@@ -168,6 +175,7 @@ const setTradeOfficeLevel = (
       $value: calculateBuildingEffectValues(
         getBuildingDefinition('TRADE_OFFICE'),
         level,
+        tribe,
       ).find(({ effectId }) => effectId === 'merchantCapacity')!
         .currentLevelValue,
     },

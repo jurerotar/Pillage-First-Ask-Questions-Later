@@ -13,9 +13,9 @@ import {
 
 describe('buildings utils', () => {
   describe(calculateBuildingEffectValues, () => {
-    test('romal wall effect values', () => {
+    test('roman wall effect values', () => {
       const building = getBuildingDefinition('ROMAN_WALL');
-      const result = calculateBuildingEffectValues(building, 20);
+      const result = calculateBuildingEffectValues(building, 20, 'romans');
       expect(
         result.some(
           (e) =>
@@ -26,7 +26,7 @@ describe('buildings utils', () => {
 
     test('bakery wheat production bonus', () => {
       const building = getBuildingDefinition('BAKERY');
-      const result = calculateBuildingEffectValues(building, 5);
+      const result = calculateBuildingEffectValues(building, 5, 'romans');
       expect(
         result.some(
           (e) =>
@@ -37,7 +37,7 @@ describe('buildings utils', () => {
 
     test('clay pit clay production', () => {
       const building = getBuildingDefinition('CLAY_PIT');
-      const result = calculateBuildingEffectValues(building, 20);
+      const result = calculateBuildingEffectValues(building, 20, 'romans');
       expect(
         result.find((e) => e.effectId === 'clayProduction')!.currentLevelValue,
       ).toBe(3430);
@@ -45,7 +45,7 @@ describe('buildings utils', () => {
 
     test('roman wall values are increasing', () => {
       const building = getBuildingDefinition('ROMAN_WALL');
-      const result = calculateBuildingEffectValues(building, 10);
+      const result = calculateBuildingEffectValues(building, 10, 'romans');
       expect(
         result.find((e) => e.effectId === 'infantryDefence')!
           .areEffectValuesRising,
@@ -54,13 +54,51 @@ describe('buildings utils', () => {
 
     test('bakery wheat production bonus values are increasing', () => {
       const building = getBuildingDefinition('BAKERY');
-      const result = calculateBuildingEffectValues(building, 3);
+      const result = calculateBuildingEffectValues(building, 3, 'romans');
       expect(
         result.find(
           (e) =>
             e.effectId === 'wheatProduction' && e.currentLevelValue === 1.15,
         )!.areEffectValuesRising,
       ).toBe(true);
+    });
+
+    test('trade office merchant capacity is higher for romans', () => {
+      const building = getBuildingDefinition('TRADE_OFFICE');
+
+      const romanEffect = calculateBuildingEffectValues(
+        building,
+        20,
+        'romans',
+      ).find((effect) => effect.effectId === 'merchantCapacity')!;
+
+      const gaulEffect = calculateBuildingEffectValues(
+        building,
+        20,
+        'gauls',
+      ).find((effect) => effect.effectId === 'merchantCapacity')!;
+
+      expect(romanEffect.currentLevelValue).toBe(5);
+      expect(gaulEffect.currentLevelValue).toBe(3);
+    });
+
+    test('cranny capacity is higher for gauls', () => {
+      const building = getBuildingDefinition('CRANNY');
+
+      const gaulEffect = calculateBuildingEffectValues(
+        building,
+        10,
+        'gauls',
+      ).find((effect) => effect.effectId === 'crannyCapacity')!;
+
+      const romanEffect = calculateBuildingEffectValues(
+        building,
+        10,
+        'romans',
+      ).find((effect) => effect.effectId === 'crannyCapacity')!;
+
+      expect(gaulEffect.currentLevelValue).toBe(2000);
+      expect(romanEffect.currentLevelValue).toBe(1000);
     });
   });
 

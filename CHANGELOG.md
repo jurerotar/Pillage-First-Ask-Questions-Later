@@ -1,3 +1,10 @@
+## Version 0.4.51
+
+#### Aug 5, 2026
+
+* [TechnicalImprovement] Reworked our internal building definition system. This allows us to define tribe-specific
+  building effects (namely Cranny & Trade Office).
+
 ## Version 0.4.50
 
 #### Aug 5, 2026

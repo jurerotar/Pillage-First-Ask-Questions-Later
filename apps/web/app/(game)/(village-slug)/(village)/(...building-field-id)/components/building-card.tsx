@@ -74,7 +74,6 @@ const unfinishedBuildings = new Set<Building['id']>([
   'HORSE_DRINKING_TROUGH',
   'RESIDENCE',
   'HOSPITAL',
-  'CRANNY',
   'RALLY_POINT',
   'TOWN_HALL',
   'EMBASSY',
@@ -354,6 +353,7 @@ const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
 export const BuildingBenefits = () => {
   const { t } = useTranslation();
   const { building, buildingId } = use(BuildingCardContext);
+  const tribe = useTribe();
   const { actualLevel, virtualLevel, doesBuildingExist } =
     use(BuildingFieldContext);
 
@@ -368,6 +368,7 @@ export const BuildingBenefits = () => {
   const cumulativeEffects = calculateBuildingEffectValues(
     building,
     actualLevel,
+    tribe,
   );
 
   // In case we have both infantry and cavalry defence, we show combined defence icon instead

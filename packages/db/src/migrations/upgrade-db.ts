@@ -1139,6 +1139,95 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.51', (db) => {
+    db.transaction((tx) => {
+      tx.exec({
+        sql: `
+          UPDATE effects
+          SET
+            value =
+              CASE bf.level
+                WHEN 0 THEN 0
+                WHEN 1 THEN 100
+                WHEN 2 THEN 130
+                WHEN 3 THEN 170
+                WHEN 4 THEN 220
+                WHEN 5 THEN 280
+                WHEN 6 THEN 360
+                WHEN 7 THEN 460
+                WHEN 8 THEN 600
+                WHEN 9 THEN 770
+                WHEN 10 THEN 1000
+                END
+              *
+              CASE
+                WHEN ti.tribe = 'gauls' THEN 2
+                ELSE 1
+                END
+          FROM
+            building_fields bf
+              JOIN building_ids bi ON bi.id = bf.building_id
+              JOIN villages v ON v.id = bf.village_id
+              JOIN players p ON p.id = v.player_id
+              JOIN tribe_ids ti ON ti.id = p.tribe_id
+          WHERE
+            effects.village_id = bf.village_id
+            AND effects.source_specifier = bf.field_id
+            AND bi.building = 'CRANNY'
+            AND effects.effect_id = (
+              SELECT id FROM effect_ids WHERE effect = 'crannyCapacity'
+            )
+            AND effects.type_id = (
+              SELECT id FROM effect_type_ids WHERE type = 'base'
+            )
+            AND effects.scope_id = (
+              SELECT id FROM effect_scope_ids WHERE scope = 'local'
+            )
+            AND effects.source_id = (
+              SELECT id FROM effect_source_ids WHERE source = 'building'
+            );
+        `,
+      });
+
+      tx.exec({
+        sql: `
+          UPDATE effects
+          SET
+            value = ROUND(
+              1 + bf.level *
+              CASE
+                WHEN ti.tribe = 'romans' THEN 0.2
+                ELSE 0.1
+                END,
+              4
+            )
+          FROM
+            building_fields bf
+              JOIN building_ids bi ON bi.id = bf.building_id
+              JOIN villages v ON v.id = bf.village_id
+              JOIN players p ON p.id = v.player_id
+              JOIN tribe_ids ti ON ti.id = p.tribe_id
+          WHERE
+            effects.village_id = bf.village_id
+            AND effects.source_specifier = bf.field_id
+            AND bi.building = 'TRADE_OFFICE'
+            AND effects.effect_id = (
+              SELECT id FROM effect_ids WHERE effect = 'merchantCapacity'
+            )
+            AND effects.type_id = (
+              SELECT id FROM effect_type_ids WHERE type = 'bonus'
+            )
+            AND effects.scope_id = (
+              SELECT id FROM effect_scope_ids WHERE scope = 'local'
+            )
+            AND effects.source_id = (
+              SELECT id FROM effect_source_ids WHERE source = 'building'
+            );
+        `,
+      });
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({

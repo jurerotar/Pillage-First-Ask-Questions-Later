@@ -1,5 +1,6 @@
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import createBuildingDataIndexes from '../indexes/building-data-indexes.sql?raw';
 import createBuildingFieldsIndexes from '../indexes/building-fields-indexes.sql?raw';
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
@@ -159,6 +160,7 @@ export const migrateAndSeed = (
 
     db.exec({ sql: createBuildingDataTable });
     buildingDataSeeder(db);
+    db.exec({ sql: createBuildingDataIndexes });
 
     db.exec({ sql: createResourceFieldCompositionIdsTable });
     resourceFieldCompositionIdsSeeder(db);

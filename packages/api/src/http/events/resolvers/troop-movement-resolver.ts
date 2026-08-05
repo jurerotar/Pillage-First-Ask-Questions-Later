@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { buildingMap } from '@pillage-first/game-assets/buildings';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
+import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
 import {
   type Building,
@@ -283,12 +283,14 @@ export const findNewVillageMovementResolver: Resolver<
 
   const buildingEffects = buildingFields.flatMap(
     ({ field_id, building_id, level }) =>
-      buildingMap.get(building_id)!.effects.map((effect) => ({
-        effectId: effect.effectId,
-        value: effect.valuesPerLevel[level],
-        type: effect.type,
-        sourceSpecifier: field_id,
-      })),
+      getBuildingDefinition(building_id)
+        .effects(tribe)
+        .map((effect) => ({
+          effectId: effect.effectId,
+          value: effect.valuesPerLevel[level],
+          type: effect.type,
+          sourceSpecifier: field_id,
+        })),
   );
 
   database.exec({

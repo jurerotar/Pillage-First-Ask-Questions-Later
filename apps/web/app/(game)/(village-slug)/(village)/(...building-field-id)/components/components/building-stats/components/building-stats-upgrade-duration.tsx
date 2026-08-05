@@ -11,6 +11,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
@@ -34,6 +35,7 @@ export const BuildingStatsUpgradeDuration = () => {
   const { t } = useTranslation();
   const { buildingField } = use(BuildingFieldContext);
   const { effects } = useEffects();
+  const tribe = useTribe();
 
   const [mainBuildingLevel, setMainBuildingLevel] = useState<number>(1);
 
@@ -46,8 +48,9 @@ export const BuildingStatsUpgradeDuration = () => {
 
   const mainBuildingDefinition = getBuildingDefinition('MAIN_BUILDING');
   const buildingDurationModifier =
-    mainBuildingDefinition.effects[0].valuesPerLevel[mainBuildingLevel] *
-    buildingDurationServerEffect.value;
+    mainBuildingDefinition.effects(tribe)[0]!.valuesPerLevel[
+      mainBuildingLevel
+    ] * buildingDurationServerEffect.value;
 
   return (
     <Section>

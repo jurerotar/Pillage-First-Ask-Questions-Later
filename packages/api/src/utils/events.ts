@@ -85,6 +85,7 @@ import { selectIsUnitResearchedQuery } from '../queries/unit-research-queries';
 import {
   selectVillageBuildingLevelQuery,
   selectVillageTileIdQuery,
+  selectVillageTribeQuery,
 } from '../queries/village-queries';
 import {
   calculateAdventureDuration,
@@ -557,15 +558,7 @@ export const validateEventCreationPrerequisites = (
     })!;
 
     const playerTribe = database.selectValue({
-      sql: `
-        SELECT ti.tribe
-        FROM
-          villages v
-            JOIN players p ON p.id = v.player_id
-            JOIN tribe_ids ti ON ti.id = p.tribe_id
-        WHERE
-          v.id = $village_id;
-      `,
+      sql: selectVillageTribeQuery,
       bind: {
         $village_id: villageId,
       },

@@ -5,10 +5,12 @@ import {
 } from '@pillage-first/game-assets/utils/buildings';
 import { specialFieldIds } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../../queries/effect-queries';
+import { selectVillageTribeQuery } from '../../../queries/village-queries';
 import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
 import { createEvents } from '../../../utils/create-event';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
@@ -68,7 +70,13 @@ export const buildingLevelChangeResolver: Resolver<
   }
 
   // Update effects
-  const { effects } = getBuildingDefinition(buildingId);
+  const tribe = database.selectValue({
+    sql: selectVillageTribeQuery,
+    bind: { $village_id: villageId },
+    schema: tribeSchema,
+  })!;
+
+  const effects = getBuildingDefinition(buildingId).effects(tribe);
 
   if (effects.length === 1 || effects.length >= 8) {
     for (const { effectId, valuesPerLevel, type } of effects) {
@@ -184,7 +192,13 @@ export const buildingDestructionResolver: Resolver<
   demolishBuilding(database, villageId, buildingFieldId);
 
   // Remove or reset building effects depending on whether the building can be fully destroyed
-  const { effects } = getBuildingDefinition(buildingId);
+  const tribe = database.selectValue({
+    sql: selectVillageTribeQuery,
+    bind: { $village_id: villageId },
+    schema: tribeSchema,
+  })!;
+
+  const effects = getBuildingDefinition(buildingId).effects(tribe);
 
   const isNonDestroyable = specialFieldIds.some((id) => id === buildingFieldId);
 

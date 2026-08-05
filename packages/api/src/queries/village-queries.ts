@@ -64,6 +64,16 @@ export const selectVillageTileIdQuery = `
     id = $village_id;
 `;
 
+export const selectVillageTribeQuery = `
+  SELECT ti.tribe
+  FROM
+    villages v
+      JOIN players p ON p.id = v.player_id
+      JOIN tribe_ids ti ON ti.id = p.tribe_id
+  WHERE
+    v.id = $village_id;
+`;
+
 export const selectVillageIdAndTileIdQuery = `
   SELECT
     t.id AS tileId,
