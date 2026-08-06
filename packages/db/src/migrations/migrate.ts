@@ -99,7 +99,6 @@ import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expediti
 import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
-import { hospitalSeeder } from '../seeders/hospital-seeder';
 import { mapFiltersSeeder } from '../seeders/map-filters-seeder';
 import { metaSeeder } from '../seeders/meta-seeder';
 import { oasisSeeder } from '../seeders/oasis-seeder';
@@ -316,7 +315,6 @@ export const migrateAndSeed = (
 
     // Wounded troops
     db.exec({ sql: createWoundedTroopsTable });
-    hospitalSeeder(db);
     db.exec({ sql: createWoundedTroopsIndexes });
     db.exec({ sql: createBattleReportWoundedTroopsTriggers });
 
