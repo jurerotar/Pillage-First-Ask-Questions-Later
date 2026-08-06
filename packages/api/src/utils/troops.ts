@@ -61,11 +61,11 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         json_each($troops) AS troop
         JOIN unit_ids
           ON unit_ids.unit = json_extract(troop.value, '$.unitId')
+      WHERE TRUE
       GROUP BY
         unit_ids.id,
         json_extract(troop.value, '$.tileId'),
         json_extract(troop.value, '$.source')
-      HAVING TRUE
       ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
         amount = troops.amount + EXCLUDED.amount;
     `,
