@@ -404,7 +404,7 @@ export const validateEventCreationPrerequisites = (
       throw new Error('Unit training amount must be positive');
     }
 
-    if (!isHealing && unit.researchRequirements.length > 0) {
+    if (unit.researchRequirements.length > 0) {
       const isUnitResearched = database.selectValue({
         sql: selectIsUnitResearchedQuery,
         bind: {
@@ -1156,6 +1156,7 @@ export const runEventCreationSideEffects = (
           amount: event.amount,
         },
       ]);
+
       return;
     }
 

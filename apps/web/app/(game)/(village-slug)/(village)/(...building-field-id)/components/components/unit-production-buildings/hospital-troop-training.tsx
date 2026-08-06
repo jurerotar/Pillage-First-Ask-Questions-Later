@@ -15,6 +15,7 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { TroopTrainingTable } from 'app/(game)/(village-slug)/components/troop-training-table';
+import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
 import { useWoundedTroops } from 'app/(game)/(village-slug)/hooks/use-wounded-troops';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
@@ -23,9 +24,13 @@ export const HospitalTroopTraining = () => {
   const { t } = useTranslation();
   const { buildingField } = use(BuildingFieldContext);
   const { woundedTroops } = useWoundedTroops();
+  const { isUnitResearched } = useUnitResearch();
 
   const buildingId = buildingField!.buildingId as TroopTrainingBuildingId;
   const woundedRecoveryRate = isAsclepeion(buildingId) ? 60 : 40;
+  const researchedWoundedTroops = woundedTroops.filter(({ unitId }) => {
+    return isUnitResearched(unitId);
+  });
 
   return (
     <Section>
@@ -53,14 +58,14 @@ export const HospitalTroopTraining = () => {
       </SectionContent>
       <TroopTrainingTable buildingId={buildingId} />
       <SectionContent>
-        {woundedTroops.length === 0 && (
+        {researchedWoundedTroops.length === 0 && (
           <>
             <Text as="h3">{t('Wounded troops')}</Text>
             <Text>{t('No wounded troops are available for healing.')}</Text>
           </>
         )}
-        {woundedTroops.length > 0 &&
-          woundedTroops.map(({ unitId, amount }) => (
+        {researchedWoundedTroops.length > 0 &&
+          researchedWoundedTroops.map(({ unitId, amount }) => (
             <div
               key={unitId}
               className="p-2 border border-border"
