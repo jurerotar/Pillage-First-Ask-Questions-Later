@@ -375,7 +375,7 @@ describe('events utils', () => {
       );
     });
 
-    test('troopTraining - should allow healing researched-locked wounded troops in Hospital', async () => {
+    test('troopTraining - should throw if healing unit is not researched', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
 
@@ -390,9 +390,9 @@ describe('events utils', () => {
         amount: 5,
       });
 
-      expect(() =>
-        validateEventCreationPrerequisites(database, event),
-      ).not.toThrow();
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Unit is not researched',
+      );
     });
 
     test('troopTraining - should throw if healing more troops than are wounded', async () => {
