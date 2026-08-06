@@ -317,6 +317,94 @@ describe('calculateComputedEffect – woodProduction', () => {
       expect(result.total).toBe(225);
     });
 
+    test('multiple wheat production bonuses are additive within their source group', () => {
+      const wheatField: VillageBuildingEffect = {
+        ...wheatProductionBaseEffectMock,
+        value: 1400,
+      };
+      const grainMill: VillageBuildingEffect = {
+        ...wheatProductionBonusEffectMock,
+        value: 1.25,
+        buildingId: 'GRAIN_MILL',
+        sourceSpecifier: 19,
+      };
+      const bakery: VillageBuildingEffect = {
+        ...wheatProductionBonusEffectMock,
+        value: 1.25,
+        buildingId: 'BAKERY',
+        sourceSpecifier: 20,
+      };
+      const oasisEffects: OasisEffect[] = [21, 22, 23].map(
+        (sourceSpecifier) => ({
+          id: 'wheatProduction',
+          value: 1.5,
+          type: 'bonus',
+          source: 'oasis',
+          scope: 'local',
+          villageId,
+          sourceSpecifier,
+        }),
+      );
+
+      const result = calculateComputedEffect(
+        'wheatProduction',
+        [wheatField, grainMill, bakery, ...oasisEffects],
+        villageId,
+      );
+
+      expect(result.total).toBe(4200);
+      expect(result.buildingWheatLimit).toBe(4200);
+    });
+
+    test('Waterworks boosts summed oasis bonuses after oasis bonuses are added', () => {
+      const wheatField: VillageBuildingEffect = {
+        ...wheatProductionBaseEffectMock,
+        value: 1400,
+      };
+      const grainMill: VillageBuildingEffect = {
+        ...wheatProductionBonusEffectMock,
+        value: 1.25,
+        buildingId: 'GRAIN_MILL',
+        sourceSpecifier: 19,
+      };
+      const bakery: VillageBuildingEffect = {
+        ...wheatProductionBonusEffectMock,
+        value: 1.25,
+        buildingId: 'BAKERY',
+        sourceSpecifier: 20,
+      };
+      const oasisEffects: OasisEffect[] = [21, 22, 23].map(
+        (sourceSpecifier) => ({
+          id: 'wheatProduction',
+          value: 1.5,
+          type: 'bonus',
+          source: 'oasis',
+          scope: 'local',
+          villageId,
+          sourceSpecifier,
+        }),
+      );
+      const waterworks: VillageBuildingEffect = {
+        id: 'wheatProduction',
+        value: 2,
+        type: 'bonus-booster',
+        source: 'building',
+        buildingId: 'WATERWORKS',
+        scope: 'local',
+        villageId,
+        sourceSpecifier: 24,
+      };
+
+      const result = calculateComputedEffect(
+        'wheatProduction',
+        [wheatField, grainMill, bakery, ...oasisEffects, waterworks],
+        villageId,
+      );
+
+      expect(result.total).toBe(6300);
+      expect(result.buildingWheatLimit).toBe(6300);
+    });
+
     test('base + population (negative building base) – total=50, population=50, limit=0', () => {
       const populationEffect = { ...wheatProductionBaseEffectMock, value: -50 };
 
@@ -553,6 +641,48 @@ describe('calculateComputedEffect – woodProduction', () => {
       expect(result.total).toBe(900);
     });
 
+    test('tribal merchant capacity base with multiple bonuses compounds', () => {
+      const tribalMerchantCapacityBase: TribalEffect = {
+        id: 'merchantCapacity',
+        value: 750,
+        type: 'base',
+        source: 'tribe',
+        scope: 'global',
+        sourceSpecifier: null,
+      };
+      const tradeOfficeBonus: VillageBuildingEffect = {
+        id: 'merchantCapacity',
+        value: 1.2,
+        type: 'bonus',
+        source: 'building',
+        buildingId: 'TRADE_OFFICE',
+        scope: 'local',
+        villageId,
+        sourceSpecifier: 37,
+      };
+      const heroMerchantCapacityBonus: HeroEffect = {
+        id: 'merchantCapacity',
+        value: 1.5,
+        type: 'bonus',
+        source: 'hero',
+        scope: 'local',
+        villageId,
+        sourceSpecifier: null,
+      };
+
+      const result = calculateComputedEffect(
+        'merchantCapacity',
+        [
+          tribalMerchantCapacityBase,
+          tradeOfficeBonus,
+          heroMerchantCapacityBonus,
+        ],
+        villageId,
+      );
+
+      expect(result.total).toBe(1350);
+    });
+
     test('troops source base (non-wheat)', () => {
       const troopBase: VillageEffect = {
         id: 'woodProduction',
@@ -614,6 +744,35 @@ describe('calculateComputedEffect – woodProduction', () => {
       );
 
       expect(result.total).toBe(0.9);
+    });
+
+    test('modifier only with multiple bonuses compounds', () => {
+      const buildingBonusEffect: VillageEffect = {
+        id: 'buildingDuration',
+        value: 0.9,
+        type: 'bonus',
+        source: 'building',
+        scope: 'local',
+        villageId,
+        sourceSpecifier: null,
+      };
+      const artifactBonusEffect: ArtifactEffect = {
+        id: 'buildingDuration',
+        value: 0.9,
+        type: 'bonus',
+        source: 'artifact',
+        scope: 'local',
+        villageId,
+        sourceSpecifier: null,
+      };
+
+      const result = calculateComputedEffect(
+        'buildingDuration',
+        [buildingBonusEffect, artifactBonusEffect],
+        villageId,
+      );
+
+      expect(result.total).toBe(0.81);
     });
 
     test('global and server scope effects', () => {
