@@ -611,6 +611,45 @@ export const UnitCost = () => {
   );
 };
 
+export const UnitHealingCost = () => {
+  const { unitId } = use(UnitCardContext);
+  const { t } = useTranslation();
+  const { developerSettings } = useDeveloperSettings();
+  const { baseRecruitmentDuration, baseRecruitmentCost } =
+    getUnitDefinition(unitId);
+  const { total: hospitalTrainingDurationModifier } = useComputedEffect(
+    'hospitalTrainingDuration',
+  );
+
+  const { isFreeUnitTrainingEnabled, isInstantUnitTrainingEnabled } =
+    developerSettings;
+
+  const individualHealingCost = isFreeUnitTrainingEnabled
+    ? [0, 0, 0, 0]
+    : baseRecruitmentCost;
+  const perUnitHealingDuration = isInstantUnitTrainingEnabled
+    ? 0
+    : Math.ceil(
+        hospitalTrainingDurationModifier * baseRecruitmentDuration * 0.5,
+      );
+
+  return (
+    <section className="flex flex-col gap-2 pt-2 border-t border-border">
+      <Text as="h3">{t('Cost and healing duration')}</Text>
+      <div className="flex gap-2 items-start justify-start flex-wrap">
+        <Resources resources={individualHealingCost} />
+        <div className="flex gap-1 items-center">
+          <Icon
+            className="size-5"
+            type="hospitalTrainingDuration"
+          />
+          {formatTime(perUnitHealingDuration)}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export const UnitRecruitment = () => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
