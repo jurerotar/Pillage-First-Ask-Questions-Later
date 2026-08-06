@@ -419,6 +419,133 @@ describe(insertReport, () => {
     expect(woundedCount).toBe(0);
   });
 
+  test('battle report unit insert trigger should not create wounded troops for reinforcements', async () => {
+    const database = await prepareTestDatabase();
+
+    const sourceVillage = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
+      schema: z.strictObject({
+        id: z.number(),
+        tile_id: z.number(),
+      }),
+    })!;
+
+    const battleTileId = database.selectValue({
+      sql: `
+        SELECT tile_id
+        FROM villages
+        WHERE tile_id != $tile_id
+        ORDER BY id
+        LIMIT 1;
+      `,
+      bind: {
+        $tile_id: sourceVillage.tile_id,
+      },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: 'DELETE FROM wounded_troops WHERE village_id = $village_id;',
+      bind: { $village_id: sourceVillage.id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO building_fields (village_id, field_id, building_id, level)
+        VALUES (
+          $village_id,
+          20,
+          (SELECT id FROM building_ids WHERE building = 'HOSPITAL'),
+          1
+        )
+        ON CONFLICT(village_id, field_id) DO UPDATE SET
+          building_id = excluded.building_id,
+          level = excluded.level;
+      `,
+      bind: { $village_id: sourceVillage.id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        VALUES (
+          10005,
+          $village_id,
+          123456,
+          (SELECT id FROM report_type_ids WHERE report_type = 'battle'),
+          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'attackerSomeLoss')
+        );
+      `,
+      bind: {
+        $village_id: sourceVillage.id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_reports (
+          id, report_id, origin_tile_id, target_tile_id, is_raid,
+          loot_wood, loot_clay, loot_iron, loot_wheat,
+          can_attacker_see_full_report, attacker_points, defender_points
+        )
+        VALUES (
+          10005,
+          10005,
+          $battle_tile_id,
+          $battle_tile_id,
+          0,
+          0, 0, 0, 0,
+          1,
+          0,
+          0
+        );
+      `,
+      bind: {
+        $battle_tile_id: battleTileId,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
+        VALUES (
+          10005,
+          10005,
+          (SELECT player_id FROM villages WHERE id = $village_id),
+          $source_tile_id
+        );
+      `,
+      bind: {
+        $village_id: sourceVillage.id,
+        $source_tile_id: sourceVillage.tile_id,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_units (battle_participant_id, unit_id, amount_before, amount_after)
+        VALUES (
+          10005,
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          100,
+          50
+        );
+      `,
+    });
+
+    const woundedCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM wounded_troops
+        WHERE village_id = $village_id;
+      `,
+      bind: { $village_id: sourceVillage.id },
+      schema: z.number(),
+    });
+
+    expect(woundedCount).toBe(0);
+  });
+
   test('battle report unit insert trigger should use Asclepeion wounded rate', async () => {
     const database = await prepareTestDatabase();
 

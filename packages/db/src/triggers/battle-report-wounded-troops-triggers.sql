@@ -50,20 +50,6 @@ WHEN
       'NATARIAN_KNIGHT'
     )
   )
-  AND EXISTS (
-    SELECT 1
-    FROM
-      battle_report_participants brp
-        JOIN villages v ON v.tile_id = brp.tile_id
-          AND v.player_id = brp.player_id
-        JOIN building_fields bf ON bf.village_id = v.id
-          AND bf.level > 0
-        JOIN building_ids bi ON bi.id = bf.building_id
-          AND bi.building IN ('HOSPITAL', 'ASCLEPEION')
-    WHERE
-      brp.id = NEW.battle_participant_id
-      AND brp.player_id = 1
-  )
 BEGIN
   INSERT INTO wounded_troops (village_id, unit_id, amount, updated_at)
   SELECT
@@ -92,6 +78,7 @@ BEGIN
   WHERE
     brp.id = NEW.battle_participant_id
     AND brp.player_id = 1
+    AND brp.tile_id IN (br.origin_tile_id, br.target_tile_id)
   GROUP BY
     v.id, r.timestamp
   HAVING
