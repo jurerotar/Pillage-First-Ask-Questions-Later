@@ -66,6 +66,9 @@
     "./guards/event": {
       "default": "./src/guards/event-guards.ts"
     },
+    "./guards/building": {
+      "default": "./src/guards/building-guards.ts"
+    },
     "./guards/quest": {
       "default": "./src/guards/quest-guards.ts"
     },

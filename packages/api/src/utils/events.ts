@@ -44,11 +44,19 @@ import type {
   TroopMovementEvent,
 } from '@pillage-first/types/models/game-event';
 import { speedSchema } from '@pillage-first/types/models/server';
-import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import {
+  playableTribeSchema,
+  tribeSchema,
+} from '@pillage-first/types/models/tribe';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateTravelDuration } from '@pillage-first/utils/game/troop-movement-duration';
+import {
+  isAsclepeion,
+  isHealingTroopTrainingBuilding,
+  isHospital,
+} from '@pillage-first/utils/guards/building';
 import {
   isAdventureTroopMovementEvent,
   isAnimalCageProductionEvent,
@@ -105,7 +113,13 @@ import {
   assessQueuedTroopCountByIdQuestCompletion,
   assessQueuedTroopCountQuestCompletion,
 } from './quests';
-import { removeTroops, validateTroopMovement } from './troops';
+import {
+  materializeWoundedTroopsAt,
+  removeTroops,
+  removeWoundedTroops,
+  selectWoundedTroopAmount,
+  validateTroopMovement,
+} from './troops';
 import { calculateVillageResourcesAt } from './village';
 import { apiEffectSchema } from './zod/effect-schemas';
 import {
@@ -381,9 +395,14 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isTroopTrainingEvent(event)) {
-    const { villageId, unitId, buildingId } = event;
+    const { villageId, unitId, buildingId, amount } = event;
 
     const unit = getUnitDefinition(unitId);
+    const isHealing = isHealingTroopTrainingBuilding(buildingId);
+
+    if (!Number.isInteger(amount) || amount <= 0) {
+      throw new Error('Unit training amount must be positive');
+    }
 
     if (unit.researchRequirements.length > 0) {
       const isUnitResearched = database.selectValue({
@@ -411,6 +430,40 @@ export const validateEventCreationPrerequisites = (
 
     if (unitTrainingBuildingLevel === null) {
       throw new Error('Unit training building does not exist');
+    }
+
+    if (isHealing) {
+      const tribe = database.selectValue({
+        sql: selectVillageTribeQuery,
+        bind: {
+          $village_id: villageId,
+        },
+        schema: tribeSchema,
+      })!;
+
+      if (isAsclepeion(buildingId) && tribe !== 'spartans') {
+        throw new Error('Asclepeion can only be used by Spartans');
+      }
+
+      if (isHospital(buildingId) && tribe === 'spartans') {
+        throw new Error('Spartans must use the Asclepeion');
+      }
+
+      if (unit.category !== 'infantry' && unit.category !== 'cavalry') {
+        throw new Error('Only infantry and cavalry can be healed');
+      }
+
+      materializeWoundedTroopsAt(database, villageId, Date.now());
+
+      const woundedAmount = selectWoundedTroopAmount(
+        database,
+        villageId,
+        unitId,
+      );
+
+      if (amount > woundedAmount) {
+        throw new Error('Not enough wounded troops available');
+      }
     }
 
     return;
@@ -1094,6 +1147,19 @@ export const runEventCreationSideEffects = (
   if (isTroopTrainingEvent(event)) {
     const now = Date.now();
 
+    if (isHealingTroopTrainingBuilding(event.buildingId)) {
+      materializeWoundedTroopsAt(database, event.villageId, now);
+      removeWoundedTroops(database, [
+        {
+          villageId: event.villageId,
+          unitId: event.unitId,
+          amount: event.amount,
+        },
+      ]);
+
+      return;
+    }
+
     assessQueuedTroopCountQuestCompletion(database, now);
     assessQueuedTroopCountByIdQuestCompletion(database, event.unitId, now);
   }
@@ -1386,7 +1452,7 @@ export const getEventDuration = (
       return 0;
     }
 
-    const { unitId, villageId, durationEffectId } = event;
+    const { unitId, villageId, durationEffectId, buildingId } = event;
 
     const effects = database.selectObjects({
       sql: selectAllRelevantEffectsByIdQuery,
@@ -1405,7 +1471,11 @@ export const getEventDuration = (
 
     const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
-    return total * baseRecruitmentDuration;
+    const durationModifier = isHealingTroopTrainingBuilding(buildingId)
+      ? 0.5
+      : 1;
+
+    return total * baseRecruitmentDuration * durationModifier;
   }
 
   if (isAnimalCageProductionEvent(event)) {

@@ -727,6 +727,43 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1875,
   },
   {
+    id: 'ASCLEPEION',
+    category: 'military',
+    populationCoefficient: 3,
+    culturePointsCoefficient: 5,
+    effects: () => [createTroopDurationEffect('hospitalTrainingDuration')],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
+        type: 'building',
+        buildingId: 'MAIN_BUILDING',
+        level: 5,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'ACADEMY',
+        level: 10,
+      },
+      {
+        id: 4,
+        type: 'tribe',
+        tribe: 'spartans',
+      },
+    ],
+    baseBuildingCost: [320, 280, 420, 360],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 4875,
+    buildingDurationReduction: 1875,
+  },
+  {
     id: 'HUN_WALL',
     category: 'military',
     populationCoefficient: 0,

@@ -26,6 +26,7 @@ export const eventsHistoryCacheKey = 'events-history';
 export const tileTroopsCacheKey = 'tile-troops';
 export const currentVillageCacheKey = 'current-village';
 export const villageTroopsCacheKey = 'village-units';
+export const woundedTroopsCacheKey = 'wounded-units';
 export const sentReinforcementsCacheKey = 'sent-reinforcements';
 export const playerCacheKey = 'player-info';
 export const playerVillagesCacheKey = 'player-villages';

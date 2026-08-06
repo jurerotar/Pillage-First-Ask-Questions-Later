@@ -103,6 +103,75 @@ const setHuntersLodgeLevel = (
   });
 };
 
+const setVillageBuildingLevel = (
+  database: DbFacade,
+  villageId: number,
+  buildingId: string,
+  level: number,
+  fieldId = 20,
+) => {
+  database.exec({
+    sql: `
+      INSERT INTO
+        building_fields (village_id, field_id, building_id, level)
+      SELECT
+        $village_id, $field_id, id, $level
+      FROM
+        building_ids
+      WHERE
+        building = $building_id
+      ON CONFLICT(village_id, field_id) DO UPDATE SET
+        building_id = EXCLUDED.building_id,
+        level = EXCLUDED.level;
+    `,
+    bind: {
+      $village_id: villageId,
+      $field_id: fieldId,
+      $building_id: buildingId,
+      $level: level,
+    },
+  });
+};
+
+const setWoundedTroopAmount = (
+  database: DbFacade,
+  villageId: number,
+  unitId: Unit['id'],
+  amount: number,
+  updatedAt = Date.now() + 60_000,
+) => {
+  database.exec({
+    sql: `
+      DELETE FROM wounded_troops
+      WHERE
+        village_id = $village_id
+        AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);
+    `,
+    bind: {
+      $village_id: villageId,
+      $unit_id: unitId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO wounded_troops (village_id, unit_id, amount, updated_at)
+      VALUES (
+        $village_id,
+        (SELECT id FROM unit_ids WHERE unit = $unit_id),
+        $amount,
+        $updated_at
+      );
+    `,
+    bind: {
+      $village_id: villageId,
+      $unit_id: unitId,
+      $amount: amount,
+      $updated_at: updatedAt,
+    },
+  });
+};
+
 describe('events utils', () => {
   describe(validateEventCreationPrerequisites, () => {
     test('unitImprovement - should throw if smithy is busy', async () => {
@@ -303,6 +372,46 @@ describe('events utils', () => {
 
       expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
         'Unit is not researched',
+      );
+    });
+
+    test('troopTraining - should throw if healing unit is not researched', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'HOSPITAL', 10);
+      setWoundedTroopAmount(database, villageId, 'IMPERIAN', 5);
+
+      const event = createTroopTrainingEventMock({
+        villageId,
+        buildingId: 'HOSPITAL',
+        durationEffectId: 'hospitalTrainingDuration',
+        unitId: 'IMPERIAN',
+        amount: 5,
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Unit is not researched',
+      );
+    });
+
+    test('troopTraining - should throw if healing more troops than are wounded', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'HOSPITAL', 10);
+      setWoundedTroopAmount(database, villageId, 'LEGIONNAIRE', 4);
+
+      const event = createTroopTrainingEventMock({
+        villageId,
+        buildingId: 'HOSPITAL',
+        durationEffectId: 'hospitalTrainingDuration',
+        unitId: 'LEGIONNAIRE',
+        amount: 5,
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Not enough wounded troops available',
       );
     });
 
@@ -1546,6 +1655,37 @@ describe('events utils', () => {
       expect(getAmount('LEGIONNAIRE')).toBe(60);
       expect(getAmount('PRAETORIAN')).toBe(40);
     });
+
+    test('troopTraining - should remove wounded troops when healing is queued', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setWoundedTroopAmount(database, villageId, 'LEGIONNAIRE', 10);
+
+      runEventCreationSideEffects(database, [
+        createTroopTrainingEventMock({
+          villageId,
+          buildingId: 'HOSPITAL',
+          durationEffectId: 'hospitalTrainingDuration',
+          unitId: 'LEGIONNAIRE',
+          amount: 3,
+        }),
+      ]);
+
+      const amount = database.selectValue({
+        sql: `
+          SELECT amount
+          FROM wounded_troops
+          WHERE
+            village_id = $village_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      });
+
+      expect(amount).toBe(7);
+    });
   });
 
   describe(getEventCost, () => {
@@ -1854,6 +1994,34 @@ describe('events utils', () => {
       });
       const result = getEventDuration(database, event);
       expect(result).toBeGreaterThan(0);
+    });
+
+    test('troopTraining - should heal troops in half the normal training duration', async () => {
+      const database = await prepareTestDatabase();
+      setDevFlag(database, 'is_instant_unit_training_enabled', 0);
+      const villageId = getAnyVillageId(database);
+
+      const normalDuration = getEventDuration(
+        database,
+        createTroopTrainingEventMock({
+          villageId,
+          buildingId: 'BARRACKS',
+          durationEffectId: 'hospitalTrainingDuration',
+          unitId: 'LEGIONNAIRE',
+        }),
+      );
+
+      const healingDuration = getEventDuration(
+        database,
+        createTroopTrainingEventMock({
+          villageId,
+          buildingId: 'HOSPITAL',
+          durationEffectId: 'hospitalTrainingDuration',
+          unitId: 'LEGIONNAIRE',
+        }),
+      );
+
+      expect(healingDuration).toBe(normalDuration / 2);
     });
 
     test('animalCageProduction - should return batch duration based on server speed', async () => {

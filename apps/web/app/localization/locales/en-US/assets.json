@@ -616,7 +616,12 @@
     "HOSPITAL": {
       "NAME": "Hospital",
       "NAME_other": "Hospitals",
-      "DESCRIPTION": "The Hospital allows you to treat wounded troops after combat. These can be healed and made ready for war again. Together with regular training in Barracks and Stable your army can recover faster than ever."
+      "DESCRIPTION": "The Hospital allows you to treat wounded troops after combat. These can be healed and made ready for war again. Together with regular training in Barracks and Stable your army can recover faster than ever. Healing costs the same resources as training the unit, but it takes half the normal training time at the same building level."
+    },
+    "ASCLEPEION": {
+      "NAME": "Asclepeion",
+      "NAME_other": "Asclepeions",
+      "DESCRIPTION": "The Asclepeion is the Spartan version of the Hospital. It treats wounded troops after combat and returns a larger share of eligible losses as wounded troops. Healing costs the same resources as training the unit, but it takes half the normal training time at the same building level."
     },
     "HUN_WALL": {
       "NAME": "Makeshift Wall",
