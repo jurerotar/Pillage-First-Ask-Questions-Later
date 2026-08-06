@@ -38,6 +38,7 @@ export const HospitalTroopTraining = () => {
 
   const buildingId = buildingField!.buildingId as TroopTrainingBuildingId;
   const woundedRecoveryRate = isAsclepeion(buildingId) ? 60 : 40;
+
   const healableWoundedTroops: WoundedTroop[] = woundedTroops.filter(
     ({ unitId, amount }) => {
       return amount > 0 && canHealUnit(unitId);
@@ -52,8 +53,11 @@ export const HospitalTroopTraining = () => {
           <div className="flex flex-col gap-2">
             <Text>
               {t(
-                'This building saves {{rate}}% of eligible battle losses as wounded troops. Siege engines, settlers, administrators, and heroes cannot become wounded.',
-                { rate: woundedRecoveryRate },
+                '{{buildingName}} saves {{rate}}% of eligible battle losses as wounded troops. Siege engines, settlers, administrators, and heroes cannot become wounded.',
+                {
+                  buildingName: t(`BUILDINGS.${buildingId}.NAME`),
+                  rate: woundedRecoveryRate,
+                },
               )}
             </Text>
             <Text>
@@ -67,23 +71,27 @@ export const HospitalTroopTraining = () => {
       </SectionContent>
       <TroopTrainingTable buildingId={buildingId} />
       <SectionContent>
-        <Text as="h3">{t('Wounded troops')}</Text>
         {healableWoundedTroops.length === 0 && (
-          <Text>{t('No wounded troops are available for healing.')}</Text>
+          <>
+            <Text as="h3">{t('Wounded troops')}</Text>
+            <Text>{t('No wounded troops are available for healing.')}</Text>
+          </>
         )}
         {healableWoundedTroops.length > 0 && (
-          <div className="grid gap-3">
+          <>
             {healableWoundedTroops.map(({ unitId, amount }) => (
-              <UnitCard
+              <div
                 key={unitId}
-                unitId={unitId}
+                className="p-2 border border-border"
               >
-                <UnitOverview />
-                <UnitAttributes />
-                <UnitHealing woundedAmount={amount} />
-              </UnitCard>
+                <UnitCard unitId={unitId}>
+                  <UnitOverview />
+                  <UnitAttributes />
+                  <UnitHealing woundedAmount={amount} />
+                </UnitCard>
+              </div>
             ))}
-          </div>
+          </>
         )}
       </SectionContent>
     </Section>
