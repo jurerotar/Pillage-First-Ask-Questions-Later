@@ -1,3 +1,10 @@
+## Version 0.4.52
+
+#### Aug 6, 2026
+
+* [Feature] Added Hospital & Spartan Asclepeion buildings. Once combat is added, your losses will be automatically
+  tracked and ready for healing.
+
 ## Version 0.4.51
 
 #### Aug 5, 2026
