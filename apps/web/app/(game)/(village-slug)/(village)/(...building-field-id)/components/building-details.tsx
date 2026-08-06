@@ -1,8 +1,8 @@
 import { type JSX, type LazyExoticComponent, Suspense, use } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Building } from '@pillage-first/types/models/building';
-import { BuildingActions } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-actions';
 import {
+  BuildingActions,
   BuildingBenefits,
   BuildingCard,
   BuildingCost,
@@ -10,8 +10,7 @@ import {
   BuildingUnfinishedNotice,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-card';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
-import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
   Section,
   SectionContent,
@@ -252,7 +251,8 @@ const buildingDetailsTabMap = new Map<
   ['STABLE', unitTrainingTabs],
   ['GREAT_STABLE', unitTrainingTabs],
   ['WORKSHOP', unitTrainingTabs],
-  ['HOSPITAL', new Map([['train', HospitalTroopTraining]])],
+  ['HOSPITAL', new Map([['heal', HospitalTroopTraining]])],
+  ['ASCLEPEION', new Map([['heal', HospitalTroopTraining]])],
 ]);
 
 // t('loyalty')
@@ -280,14 +280,14 @@ const buildingDetailsTabMap = new Map<
 // t('hunting-party')
 // t('gathering-expedition')
 // t('cages')
+// t('heal')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
-  const { buildingField, buildingFieldId } = use(BuildingFieldContext);
+  const { buildingField, buildingFieldId, actualLevel } =
+    use(BuildingFieldContext);
 
   const { buildingId } = buildingField!;
-
-  const { actualLevel } = useBuildingVirtualLevel(buildingFieldId);
 
   const tabs = [
     'default',

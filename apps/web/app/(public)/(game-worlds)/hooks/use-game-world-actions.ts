@@ -96,7 +96,7 @@ const deleteServerData = async (server: Server) => {
 };
 
 export const useGameWorldActions = () => {
-  const { mutate: createGameWorld } = useMutation<
+  const { mutateAsync: createGameWorld } = useMutation<
     void,
     Error,
     { server: Server }
@@ -127,6 +127,9 @@ export const useGameWorldActions = () => {
         a.click();
         a.remove();
         URL.revokeObjectURL(exportUrl);
+      },
+      onSuccess: async (_data, _vars, _onMutateResult, context) => {
+        await invalidateQueries(context, [[availableServerCacheKey]]);
       },
       onError: (error) => {
         let description = error.message;

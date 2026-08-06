@@ -1,7 +1,7 @@
 import { use, useMemo } from 'react';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 
 export const useBuildingVirtualLevel = (
   buildingFieldId: BuildingField['id'],

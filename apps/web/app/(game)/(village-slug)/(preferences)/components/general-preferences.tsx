@@ -23,7 +23,7 @@ import { Separator } from 'app/components/ui/separator';
 import { Switch } from 'app/components/ui/switch';
 import type { AvailableLocale } from 'app/localization/i18n';
 import { loadAppTranslations } from 'app/localization/loaders/app';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
 import {
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
   GRAPHICS_TIME_OF_DAY_COOKIE_NAME,

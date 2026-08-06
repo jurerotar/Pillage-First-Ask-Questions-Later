@@ -179,7 +179,7 @@ export const createDbFacade = (
   }: RunStatementArgs<Result>): Result => {
     const queryPlan = debug ? getDebugQueryPlan({ sql, bind }) : undefined;
 
-    const t0 = performance.now();
+    const t0 = debug ? performance.now() : 0;
     const statement = getStatement(sql);
 
     statement.reset(true);
@@ -190,9 +190,9 @@ export const createDbFacade = (
 
     try {
       const result = execute(statement);
-      const t1 = performance.now();
 
       if (debug) {
+        const t1 = performance.now();
         console.log(
           `DbFacade.${operation} — ${sql} took ${(t1 - t0).toFixed(3)} ms`,
           ...(queryPlan === undefined ? [] : [queryPlan]),
@@ -218,7 +218,7 @@ export const createDbFacade = (
     explain: explainQueryPlan,
 
     selectValue: ({ sql, bind, schema }) => {
-      const row = runStatement({
+      const value = runStatement({
         sql,
         bind,
         operation: 'selectValue',
@@ -228,23 +228,21 @@ export const createDbFacade = (
           if (!isDataAvailable) {
             statement.reset();
 
-            return [];
+            return;
           }
 
-          const row = statement.get([]);
+          const value = statement.get(0);
           statement.reset();
 
-          return row;
+          return value;
         },
       });
 
-      const data = row.at(0);
-
-      if (data === undefined) {
+      if (value === undefined) {
         return;
       }
 
-      return z.parse(schema, data);
+      return z.parse(schema, value);
     },
 
     selectValues: ({ sql, bind, schema }) => {
@@ -256,8 +254,7 @@ export const createDbFacade = (
           const values: SqlValue[] = [];
 
           while (statement.step()) {
-            const row = statement.get([]);
-            values.push(row.at(0)!);
+            values.push(statement.get(0));
           }
 
           statement.reset();

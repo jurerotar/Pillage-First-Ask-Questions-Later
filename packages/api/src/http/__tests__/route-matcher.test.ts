@@ -49,6 +49,56 @@ describe(matchRoute, () => {
     ).toThrow();
   });
 
+  test('accepts complete troop movement event bodies', () => {
+    const result = matchRoute('/events', 'POST', {
+      type: 'troopMovementAttack',
+      villageId: 1,
+      originTileId: 1,
+      targetTileId: 2,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 1,
+          tileId: 1,
+          source: 1,
+        },
+      ],
+    });
+
+    expect(result.body).toStrictEqual({
+      type: 'troopMovementAttack',
+      villageId: 1,
+      originTileId: 1,
+      targetTileId: 2,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 1,
+          tileId: 1,
+          source: 1,
+        },
+      ],
+    });
+  });
+
+  test('rejects troop movement event bodies with incomplete troops', () => {
+    expect(() =>
+      matchRoute('/events', 'POST', {
+        type: 'troopMovementAttack',
+        villageId: 1,
+        originTileId: 1,
+        targetTileId: 2,
+        troops: [
+          {
+            unitId: 'LEGIONNAIRE',
+            amount: 1,
+            source: 1,
+          },
+        ],
+      }),
+    ).toThrow();
+  });
+
   test('handles /me alias', () => {
     // /me is aliased to /players/${PLAYER_ID}, which is /players/1
     const result = matchRoute('/me', 'GET');

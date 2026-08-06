@@ -74,6 +74,20 @@ export const selectStationedTroopsByTileQuery = `
     t.tile_id = $tile_id;
 `;
 
+export const selectWoundedTroopsByVillageQuery = `
+  SELECT
+    ui.unit AS unit_id,
+    wt.amount,
+    wt.updated_at
+  FROM
+    wounded_troops wt
+      JOIN unit_ids ui ON ui.id = wt.unit_id
+  WHERE
+    wt.village_id = $village_id
+  ORDER BY
+    ui.id;
+`;
+
 export const updateVillageNameQuery = `
   UPDATE villages
   SET

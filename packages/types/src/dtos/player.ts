@@ -25,6 +25,12 @@ export const villageTroopDtoSchema = z.strictObject({
   sourceTileType: z.enum(['free', 'oasis']).nullable(),
 });
 
+export const woundedTroopDtoSchema = z.strictObject({
+  unitId: unitIdSchema,
+  amount: z.number(),
+  updatedAt: z.number(),
+});
+
 export const sentReinforcementDtoSchema = z.strictObject({
   targetType: z.enum(['village', 'oasis']),
   village: playerVillageDtoSchema,

@@ -26,7 +26,7 @@ import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { oasisBonusFinderCacheKey } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 import { Icon } from 'app/components/icon';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';

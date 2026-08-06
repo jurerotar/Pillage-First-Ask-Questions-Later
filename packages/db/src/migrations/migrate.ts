@@ -1,5 +1,6 @@
 import type { Server } from '@pillage-first/types/models/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import createBuildingDataIndexes from '../indexes/building-data-indexes.sql?raw';
 import createBuildingFieldsIndexes from '../indexes/building-fields-indexes.sql?raw';
 import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
@@ -10,6 +11,7 @@ import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
+import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
@@ -31,6 +33,7 @@ import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?r
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
+import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-improvement-history-schema.sql?raw';
 import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
@@ -66,6 +69,7 @@ import createQuestsTable from '../schemas/quests-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
+import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
 import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
 import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
 import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
@@ -79,6 +83,7 @@ import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?
 import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
 import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
+import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { bookmarksSeeder } from '../seeders/bookmarks-seeder';
 import { buildingDataSeeder } from '../seeders/building-data-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
@@ -117,6 +122,7 @@ import { unitIdsSeeder } from '../seeders/unit-ids-seeder';
 import { unitImprovementSeeder } from '../seeders/unit-improvement-seeder';
 import { villageSeeder } from '../seeders/village-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
+import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import { setupLoyaltyTriggers } from '../triggers/loyalty-triggers';
@@ -157,6 +163,7 @@ export const migrateAndSeed = (
 
     db.exec({ sql: createBuildingDataTable });
     buildingDataSeeder(db);
+    db.exec({ sql: createBuildingDataIndexes });
 
     db.exec({ sql: createResourceFieldCompositionIdsTable });
     resourceFieldCompositionIdsSeeder(db);
@@ -170,6 +177,9 @@ export const migrateAndSeed = (
     // Statistics
     db.exec({ sql: createUnitTrainingHistoryTable });
     db.exec({ sql: createBuildingLevelChangeHistoryTable });
+    db.exec({
+      sql: createScheduledBuildingConstructionCancellationHistoryTable,
+    });
     db.exec({ sql: createUnitImprovementHistoryTable });
     db.exec({ sql: createUnitResearchHistoryTable });
     db.exec({ sql: createVillageFoundingHistoryTable });
@@ -303,6 +313,11 @@ export const migrateAndSeed = (
     troopSeeder(db, server);
     db.exec({ sql: createTroopsIndexes });
 
+    // Wounded troops
+    db.exec({ sql: createWoundedTroopsTable });
+    db.exec({ sql: createWoundedTroopsIndexes });
+    db.exec({ sql: createBattleReportWoundedTroopsTriggers });
+
     // Effects
     db.exec({ sql: createEffectsTable });
     effectsSeeder(db, server);
@@ -333,6 +348,9 @@ export const migrateAndSeed = (
     // Events
     db.exec({ sql: createEventsTable });
     eventsSeeder(db, server);
+
+    // Scheduled building upgrades
+    db.exec({ sql: createScheduledBuildingUpgradesTable });
 
     // Meta table and write triggers
     db.exec({ sql: createMetaTable });

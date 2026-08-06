@@ -63,10 +63,9 @@ import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-pla
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-slug)/providers/current-village-building-queue-provider';
-import {
-  CurrentVillageStateContext,
-  CurrentVillageStateProvider,
-} from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
+import { CurrentVillageComputedEffectsProvider } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-provider';
+import { CurrentVillageLiveResourcesProvider } from 'app/(game)/(village-slug)/providers/current-village-live-resources-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -158,7 +157,9 @@ const NavigationSideItem = ({
 };
 
 const DesktopPopulation = () => {
-  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+  const { computedWheatProductionEffect } = use(
+    CurrentVillageComputedEffectsContext,
+  );
 
   const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
@@ -236,7 +237,9 @@ const EventLogDesktopItem = () => {
 
 const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
-  const { computedWheatProductionEffect } = use(CurrentVillageStateContext);
+  const { computedWheatProductionEffect } = use(
+    CurrentVillageComputedEffectsContext,
+  );
 
   const { population, buildingWheatLimit } = computedWheatProductionEffect;
 
@@ -861,7 +864,7 @@ const MobileBottomNavigation = ({
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 pb-safe-or-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)] dark:bg-[linear-gradient(0deg,var(--background)_0%,var(--card)_83%,var(--background)_83.1%,var(--background)_84%,transparent_84.1%,transparent_100%)]">
+    <header className="lg:hidden fixed bottom-0 left-0 z-20 pb-safe-or-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)] dark:bg-[linear-gradient(0deg,var(--background)_0%,var(--card)_83%,var(--background)_83.1%,var(--background)_84%,transparent_84.1%,transparent_100%)]">
       <nav
         ref={container}
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
@@ -946,26 +949,30 @@ const GameLayout = memo<Route.ComponentProps>(
     return (
       <div className="[-webkit-touch-callout:none]">
         <VillageSlugProvider villageSlug={villageSlug}>
-          <CurrentVillageStateProvider>
-            <CurrentVillageBuildingQueueContextProvider>
-              <Tooltip id="general-tooltip" />
-              <TopNavigation onDeveloperToolsToggle={toggleModal} />
-              <TroopMovements />
-              <Suspense fallback={<PageFallback />}>
-                <Outlet />
-              </Suspense>
-              <ConstructionQueue />
-              <TroopList />
-              {!isWiderThanLg && (
-                <MobileBottomNavigation onDeveloperToolsToggle={toggleModal} />
-              )}
-              <PreferencesUpdater />
-              <DeveloperToolsConsole
-                isOpen={isOpen}
-                onOpenChange={toggleModal}
-              />
-            </CurrentVillageBuildingQueueContextProvider>
-          </CurrentVillageStateProvider>
+          <CurrentVillageComputedEffectsProvider>
+            <CurrentVillageLiveResourcesProvider>
+              <CurrentVillageBuildingQueueContextProvider>
+                <Tooltip id="general-tooltip" />
+                <TopNavigation onDeveloperToolsToggle={toggleModal} />
+                <TroopMovements />
+                <Suspense fallback={<PageFallback />}>
+                  <Outlet />
+                </Suspense>
+                <ConstructionQueue />
+                <TroopList />
+                {!isWiderThanLg && (
+                  <MobileBottomNavigation
+                    onDeveloperToolsToggle={toggleModal}
+                  />
+                )}
+                <PreferencesUpdater />
+                <DeveloperToolsConsole
+                  isOpen={isOpen}
+                  onOpenChange={toggleModal}
+                />
+              </CurrentVillageBuildingQueueContextProvider>
+            </CurrentVillageLiveResourcesProvider>
+          </CurrentVillageComputedEffectsProvider>
         </VillageSlugProvider>
       </div>
     );

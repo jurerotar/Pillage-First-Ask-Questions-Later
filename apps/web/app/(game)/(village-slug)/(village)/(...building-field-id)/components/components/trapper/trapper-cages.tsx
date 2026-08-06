@@ -22,7 +22,7 @@ import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
@@ -90,7 +90,7 @@ const TrapperCageProductionQueue = () => {
 
 export const TrapperCages = () => {
   const { t } = useTranslation();
-  const currentResources = use(CurrentVillageStateContext);
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { currentVillage } = useCurrentVillage();
   const { serverSpeed } = useServer();
   const { total: trapperCapacity } = useComputedEffect('trapperCapacity');

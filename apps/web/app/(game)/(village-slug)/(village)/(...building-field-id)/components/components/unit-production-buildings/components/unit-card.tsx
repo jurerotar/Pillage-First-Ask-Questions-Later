@@ -25,7 +25,7 @@ import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/
 import type { Unit } from '@pillage-first/types/models/unit';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/academy/utils/unit-research-requirements';
 import { useUnitRecruitmentErrorBag } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/hooks/use-unit-recruitment-error-bag';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
@@ -39,9 +39,12 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/hooks/use-unit-improvement-level';
 import { useUnitResearch } from 'app/(game)/(village-slug)/hooks/use-unit-research';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
-import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
+import {
+  currentVillageCacheKey,
+  woundedTroopsCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
@@ -613,7 +616,7 @@ export const UnitRecruitment = () => {
   const { currentVillage } = useCurrentVillage();
   const { unitId, troopTrainingConfig } = use(UnitCardContext);
   const { developerSettings } = useDeveloperSettings();
-  const currentResources = use(CurrentVillageStateContext);
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
     getUnitDefinition(unitId);
   const durationEffect =
@@ -772,6 +775,149 @@ export const UnitRecruitment = () => {
         </>
       )}
       <ErrorBag errorBag={errorBag} />
+    </section>
+  );
+};
+
+type UnitHealingProps = {
+  woundedAmount: number;
+};
+
+export const UnitHealing = ({ woundedAmount }: UnitHealingProps) => {
+  const { t } = useTranslation();
+  const { currentVillage } = useCurrentVillage();
+  const { unitId } = use(UnitCardContext);
+  const { developerSettings } = useDeveloperSettings();
+  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const { buildingField } = use(BuildingFieldContext);
+  const { total: hospitalTrainingDurationModifier } = useComputedEffect(
+    'hospitalTrainingDuration',
+  );
+  const { createEvent: createTroopTrainingEvent } =
+    useCreateEvent('troopTraining');
+
+  const buildingId = buildingField!.buildingId as TroopTrainingBuildingId;
+  const { baseRecruitmentCost, baseRecruitmentDuration } =
+    getUnitDefinition(unitId);
+
+  const { isFreeUnitTrainingEnabled, isInstantUnitTrainingEnabled } =
+    developerSettings;
+
+  const individualHealingCost = isFreeUnitTrainingEnabled
+    ? [0, 0, 0, 0]
+    : baseRecruitmentCost;
+
+  const maxHealableByResources = isFreeUnitTrainingEnabled
+    ? woundedAmount
+    : calculateMaxUnits(currentResources, individualHealingCost);
+  const maxHealable = Math.min(woundedAmount, maxHealableByResources);
+
+  const form = useForm({ defaultValues: { amount: 0 } });
+  const { register, handleSubmit, setValue, watch } = form;
+  const amount = Math.min(watch('amount'), maxHealable);
+  const perUnitHealingDuration = isInstantUnitTrainingEnabled
+    ? 0
+    : Math.ceil(
+        hospitalTrainingDurationModifier * baseRecruitmentDuration * 0.5,
+      );
+  const totalCost = individualHealingCost.map((cost) => cost * amount);
+
+  const onSubmit = ({ amount }: { amount: number }) => {
+    if (amount <= 0) {
+      return;
+    }
+
+    form.reset();
+
+    createTroopTrainingEvent({
+      batchId: window.crypto.randomUUID(),
+      buildingId,
+      amount,
+      unitId,
+      durationEffectId: 'hospitalTrainingDuration',
+      cachesToClearImmediately: [
+        [currentVillageCacheKey, currentVillage.slug],
+        [woundedTroopsCacheKey, currentVillage.id],
+      ],
+    });
+  };
+
+  const buttonLabel = (() => {
+    if (maxHealable === 0) {
+      return t('Not enough resources');
+    }
+
+    if (amount === 0) {
+      return t('Select the amount of units to heal');
+    }
+
+    return t('Heal {{count}} {{unit}}', {
+      count: amount,
+      unit: t(`UNITS.${unitId}.NAME`, { count: amount }),
+    });
+  })();
+
+  return (
+    <section className="pt-2 flex flex-col gap-2 border-t border-border">
+      <Text as="h3">{t('Heal units')}</Text>
+      <Text>
+        {t('{{count}} wounded {{unit}} available', {
+          count: woundedAmount,
+          unit: t(`UNITS.${unitId}.NAME`, { count: woundedAmount }),
+        })}
+      </Text>
+      <div className="flex items-start gap-2 justify-start flex-wrap">
+        <Resources resources={totalCost} />
+        <div className="flex gap-1 items-center">
+          <Icon
+            className="size-5"
+            type="hospitalTrainingDuration"
+          />
+          {formatTime(perUnitHealingDuration * amount)}
+        </div>
+      </div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-2"
+      >
+        <div className="flex items-center gap-2">
+          <Slider
+            min={0}
+            max={maxHealable}
+            value={[amount]}
+            disabled={maxHealable === 0}
+            onValueChange={([value]) => setValue('amount', value)}
+          />
+          <div className="flex w-30">
+            <Input
+              type="number"
+              min={0}
+              max={maxHealable}
+              {...register('amount', { valueAsNumber: true })}
+              value={amount}
+              disabled={maxHealable === 0}
+              onChange={(e) => setValue('amount', Number(e.target.value))}
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="fit"
+            className="px-1.5 py-1 h-full"
+            disabled={maxHealable === 0}
+            onClick={() => setValue('amount', maxHealable)}
+          >
+            ({maxHealable})
+          </Button>
+        </div>
+        <Button
+          size="fit"
+          type="submit"
+          disabled={maxHealable === 0 || amount === 0}
+        >
+          {buttonLabel}
+        </Button>
+      </form>
     </section>
   );
 };

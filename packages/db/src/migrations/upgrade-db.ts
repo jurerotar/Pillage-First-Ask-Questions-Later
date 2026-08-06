@@ -5,14 +5,17 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
+import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
 import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
 import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
+import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
 import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
+import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTagIdsTable from '../schemas/lookup-tables/report-tag-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
@@ -20,16 +23,21 @@ import createMovementReportUnitsTable from '../schemas/movement-report-units-sch
 import createMovementReportsTable from '../schemas/movement-reports-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
+import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
 import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
 import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
 import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
+import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
+import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { reportOutcomeIdsSeeder } from '../seeders/report-outcome-ids-seeder';
 import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
 import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
+import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
+import { setupHistoryTriggers } from '../triggers/history-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
@@ -41,8 +49,33 @@ const queuedTroopCountQuestThresholds = [
 
 // This function should only contain db upgrades between app's minor version bumps. At that point, these DB changes
 // should already be part of the new schema, so contents of this function should be deleted
-export const upgradeDb = (database: DbFacade): void => {
-  migrateTo('0.4.12', database, (db) => {
+export const upgradeDb = (
+  database: DbFacade,
+  currentDatabaseVersion: number,
+): void => {
+  const targetDatabaseVersion = encodeAppVersionToDatabaseUserVersion(
+    env.VERSION,
+  );
+
+  if (currentDatabaseVersion === targetDatabaseVersion) {
+    return;
+  }
+
+  let databaseVersion = currentDatabaseVersion;
+
+  const migrate = (
+    targetVersion: string,
+    onMigrate: (db: DbFacade) => void,
+  ): void => {
+    databaseVersion = migrateTo(
+      targetVersion,
+      database,
+      onMigrate,
+      databaseVersion,
+    );
+  };
+
+  migrate('0.4.12', (db) => {
     db.exec({
       sql: `
         CREATE TRIGGER IF NOT EXISTS loyalties_delete_capped_entries_after_update
@@ -56,7 +89,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.19', database, (db) => {
+  migrate('0.4.19', (db) => {
     // Normalize legacy village_founding_history timestamps from milliseconds to seconds
     // Some historical rows were inserted by JS in milliseconds. Since triggers now set
     // timestamps via unixepoch() (seconds), convert any ms values at rest.
@@ -75,7 +108,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.22', database, (db) => {
+  migrate('0.4.22', (db) => {
     try {
       db.exec({
         sql: `
@@ -124,7 +157,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.25', database, (db) => {
+  migrate('0.4.25', (db) => {
     try {
       db.exec({
         sql: `
@@ -148,7 +181,7 @@ export const upgradeDb = (database: DbFacade): void => {
     }
   });
 
-  migrateTo('0.4.28', database, (db) => {
+  migrate('0.4.28', (db) => {
     const newBuildingIdsCount = db.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -293,7 +326,7 @@ export const upgradeDb = (database: DbFacade): void => {
     }
   });
 
-  migrateTo('0.4.32', database, (db) => {
+  migrate('0.4.32', (db) => {
     const queuedTroopCount =
       db.selectValue({
         sql: `
@@ -372,7 +405,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.33', database, (db) => {
+  migrate('0.4.33', (db) => {
     const legacyQuests = db.selectObjects({
       sql: `
         SELECT quest_id, completed_at, collected_at
@@ -466,7 +499,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.34', database, (db) => {
+  migrate('0.4.34', (db) => {
     db.exec({
       sql: `
         INSERT INTO
@@ -515,7 +548,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.36', database, (db) => {
+  migrate('0.4.36', (db) => {
     db.exec({
       sql: `
         CREATE TABLE IF NOT EXISTS gatherers_hut_expeditions
@@ -547,7 +580,7 @@ export const upgradeDb = (database: DbFacade): void => {
     });
   });
 
-  migrateTo('0.4.39', database, (db) => {
+  migrate('0.4.39', (db) => {
     db.exec({
       sql: 'PRAGMA foreign_keys = OFF;',
     });
@@ -1042,7 +1075,7 @@ export const upgradeDb = (database: DbFacade): void => {
     }
   });
 
-  migrateTo('0.4.40', database, (db) => {
+  migrate('0.4.40', (db) => {
     try {
       db.exec({ sql: createTrapperCagesTable });
       db.exec({ sql: createTrapperCagesIndexes });
@@ -1053,7 +1086,7 @@ export const upgradeDb = (database: DbFacade): void => {
     setupGlobalWriteTriggers(db);
   });
 
-  migrateTo('0.4.45', database, (db) => {
+  migrate('0.4.45', (db) => {
     db.exec({ sql: createReportOutcomeIdsTable });
     reportOutcomeIdsSeeder(db);
 
@@ -1086,12 +1119,224 @@ export const upgradeDb = (database: DbFacade): void => {
     setupGlobalWriteTriggers(db);
   });
 
-  migrateTo('0.4.47', database, (db) => {
+  migrate('0.4.47', (db) => {
     db.exec({ sql: createReportRetentionTriggers });
   });
 
-  // If all migrations passed, bump it to current version
-  database.exec({
-    sql: `PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};`,
+  migrate('0.4.49', (db) => {
+    db.exec({ sql: createScheduledBuildingUpgradesTable });
+
+    db.exec({
+      sql: createScheduledBuildingConstructionCancellationHistoryTable,
+    });
   });
+
+  migrate('0.4.50', (db) => {
+    db.exec({
+      sql: `
+        UPDATE events
+        SET
+          meta = JSON_REMOVE(meta, '$.merchantAmount')
+        WHERE
+          type = 'tradeRoute'
+          AND meta IS NOT NULL
+          AND JSON_TYPE(meta, '$.merchantAmount') IS NOT NULL;
+      `,
+    });
+  });
+
+  migrate('0.4.51', (db) => {
+    db.transaction((tx) => {
+      tx.exec({
+        sql: `
+          UPDATE effects
+          SET
+            value =
+              CASE bf.level
+                WHEN 0 THEN 0
+                WHEN 1 THEN 100
+                WHEN 2 THEN 130
+                WHEN 3 THEN 170
+                WHEN 4 THEN 220
+                WHEN 5 THEN 280
+                WHEN 6 THEN 360
+                WHEN 7 THEN 460
+                WHEN 8 THEN 600
+                WHEN 9 THEN 770
+                WHEN 10 THEN 1000
+                END
+              *
+              CASE
+                WHEN ti.tribe = 'gauls' THEN 2
+                ELSE 1
+                END
+          FROM
+            building_fields bf
+              JOIN building_ids bi ON bi.id = bf.building_id
+              JOIN villages v ON v.id = bf.village_id
+              JOIN players p ON p.id = v.player_id
+              JOIN tribe_ids ti ON ti.id = p.tribe_id
+          WHERE
+            effects.village_id = bf.village_id
+            AND effects.source_specifier = bf.field_id
+            AND bi.building = 'CRANNY'
+            AND effects.effect_id = (
+              SELECT id FROM effect_ids WHERE effect = 'crannyCapacity'
+            )
+            AND effects.type_id = (
+              SELECT id FROM effect_type_ids WHERE type = 'base'
+            )
+            AND effects.scope_id = (
+              SELECT id FROM effect_scope_ids WHERE scope = 'local'
+            )
+            AND effects.source_id = (
+              SELECT id FROM effect_source_ids WHERE source = 'building'
+            );
+        `,
+      });
+
+      tx.exec({
+        sql: `
+          UPDATE effects
+          SET
+            value = ROUND(
+              1 + bf.level *
+              CASE
+                WHEN ti.tribe = 'romans' THEN 0.2
+                ELSE 0.1
+                END,
+              4
+            )
+          FROM
+            building_fields bf
+              JOIN building_ids bi ON bi.id = bf.building_id
+              JOIN villages v ON v.id = bf.village_id
+              JOIN players p ON p.id = v.player_id
+              JOIN tribe_ids ti ON ti.id = p.tribe_id
+          WHERE
+            effects.village_id = bf.village_id
+            AND effects.source_specifier = bf.field_id
+            AND bi.building = 'TRADE_OFFICE'
+            AND effects.effect_id = (
+              SELECT id FROM effect_ids WHERE effect = 'merchantCapacity'
+            )
+            AND effects.type_id = (
+              SELECT id FROM effect_type_ids WHERE type = 'bonus'
+            )
+            AND effects.scope_id = (
+              SELECT id FROM effect_scope_ids WHERE scope = 'local'
+            )
+            AND effects.source_id = (
+              SELECT id FROM effect_source_ids WHERE source = 'building'
+            );
+        `,
+      });
+    });
+  });
+
+  migrate('0.4.52', (db) => {
+    const tableExists = (tableName: string): boolean => {
+      return db.selectValue({
+        sql: `
+          SELECT EXISTS (
+            SELECT 1
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name = $table_name
+          );
+        `,
+        bind: {
+          $table_name: tableName,
+        },
+        schema: z.coerce.boolean(),
+      })!;
+    };
+
+    if (!tableExists('building_ids')) {
+      if (tableExists('building_ids_new')) {
+        db.exec({
+          sql: 'ALTER TABLE building_ids_new RENAME TO building_ids;',
+        });
+      } else {
+        db.exec({ sql: createBuildingIdsTable });
+        buildingIdsSeeder(db);
+      }
+    }
+
+    db.exec({
+      sql: 'CREATE INDEX IF NOT EXISTS idx_building_ids_building ON building_ids(building);',
+    });
+
+    const hasAsclepeionBuildingId = db.selectValue({
+      sql: `
+        SELECT EXISTS (
+          SELECT 1
+          FROM building_ids
+          WHERE building = 'ASCLEPEION'
+        );
+      `,
+      schema: z.coerce.boolean(),
+    });
+
+    if (!hasAsclepeionBuildingId) {
+      db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+
+      try {
+        db.transaction((tx) => {
+          tx.exec({
+            sql: 'DROP TRIGGER IF EXISTS trg_unit_training_history_delete;',
+          });
+          tx.exec({ sql: 'DROP TABLE IF EXISTS building_ids_new;' });
+
+          tx.exec({
+            sql: `
+              CREATE TABLE building_ids_new
+              (
+                id INTEGER PRIMARY KEY,
+                building TEXT NOT NULL UNIQUE CHECK (building IN ('BARRACKS', 'GREAT_BARRACKS', 'STABLE', 'GREAT_STABLE', 'WORKSHOP', 'HOSPITAL', 'ASCLEPEION', 'CLAY_PIT', 'WHEAT_FIELD', 'WOODCUTTER', 'IRON_MINE', 'BAKERY', 'BRICKYARD', 'GRAIN_MILL', 'GRANARY', 'GREAT_GRANARY', 'IRON_FOUNDRY', 'SAWMILL', 'WAREHOUSE', 'GREAT_WAREHOUSE', 'WATERWORKS', 'ACADEMY', 'ROMAN_WALL', 'TEUTONIC_WALL', 'HEROS_MANSION', 'HUN_WALL', 'GAUL_WALL', 'RALLY_POINT', 'EGYPTIAN_WALL', 'TRAPPER', 'BREWERY', 'COMMAND_CENTER', 'CRANNY', 'HORSE_DRINKING_TROUGH', 'MAIN_BUILDING', 'MARKETPLACE', 'RESIDENCE', 'TOURNAMENT_SQUARE', 'TRADE_OFFICE', 'SMITHY', 'TOWN_HALL', 'EMBASSY', 'TREASURY', 'GATHERERS_HUT', 'HUNTERS_LODGE', 'SPARTAN_WALL', 'NATAR_WALL', 'NATURE_WALL'))
+              ) STRICT;
+            `,
+          });
+
+          tx.exec({
+            sql: `
+              INSERT OR IGNORE INTO building_ids_new (id, building)
+              SELECT id, building
+              FROM building_ids;
+            `,
+          });
+
+          tx.exec({
+            sql: `
+              INSERT OR IGNORE INTO building_ids_new (building)
+              VALUES ('ASCLEPEION');
+            `,
+          });
+
+          tx.exec({ sql: 'DROP TABLE building_ids;' });
+          tx.exec({
+            sql: 'ALTER TABLE building_ids_new RENAME TO building_ids;',
+          });
+          tx.exec({
+            sql: 'CREATE INDEX IF NOT EXISTS idx_building_ids_building ON building_ids(building);',
+          });
+        });
+      } finally {
+        db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+      }
+
+      setupHistoryTriggers(db);
+    }
+
+    db.exec({ sql: createWoundedTroopsTable });
+    db.exec({ sql: createWoundedTroopsIndexes });
+    db.exec({ sql: createBattleReportWoundedTroopsTriggers });
+  });
+
+  // If all migrations passed, bump it to current version
+  if (databaseVersion !== targetDatabaseVersion) {
+    database.exec({
+      sql: `PRAGMA user_version=${targetDatabaseVersion};`,
+    });
+  }
 };

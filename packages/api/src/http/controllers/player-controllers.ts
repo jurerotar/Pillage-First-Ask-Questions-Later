@@ -6,6 +6,7 @@ import {
   playerVillageWithPopulationDtoSchema,
   sentReinforcementDtoSchema,
   villageTroopDtoSchema,
+  woundedTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import { playerSchema } from '@pillage-first/types/models/player';
 import {
@@ -17,6 +18,7 @@ import {
   selectSourceVillageByTileAndCurrentTileQuery,
   selectStationedTroopsByTileQuery,
   selectStationedVillageByTileAndCurrentTileQuery,
+  selectWoundedTroopsByVillageQuery,
   updateVillageNameQuery,
 } from '../../queries/player-queries';
 import { relocateHero } from '../../utils/hero';
@@ -28,18 +30,21 @@ import {
   removeStationedTroops,
   returnStationedTroops,
 } from '../../utils/reinforcements';
+import { materializeWoundedTroopsAt } from '../../utils/troops';
 import { createController } from '../controller';
 import {
   mapPlayerVillage,
   mapPlayerVillageWithPopulation,
   mapSentReinforcements,
   mapVillageTroop,
+  mapWoundedTroop,
 } from './mappers/player-mapper';
 import {
   getPlayerVillagesWithPopulationSchema,
   getSentReinforcementsByTileSchema,
   getStationedTroopsByTileSchema,
   getVillagesByPlayerSchema,
+  getWoundedTroopsByVillageSchema,
   relocateReinforcementsSchema,
   relocateSentReinforcementsSchema,
   returnReinforcementsSchema,
@@ -124,6 +129,29 @@ export const getStationedTroopsByTile = createController(
   });
 
   return rows.map(mapVillageTroop);
+});
+
+export const getWoundedTroopsByVillage = createController(
+  '/villages/:villageId/wounded-troops',
+  {
+    summary: 'Get wounded troops by village',
+    requestParams: {
+      path: z.strictObject({
+        villageId: z.coerce.number(),
+      }),
+    },
+    response: z.array(woundedTroopDtoSchema),
+  },
+)(({ database, path: { villageId } }) => {
+  materializeWoundedTroopsAt(database, villageId, Date.now());
+
+  const rows = database.selectObjects({
+    sql: selectWoundedTroopsByVillageQuery,
+    bind: { $village_id: villageId },
+    schema: getWoundedTroopsByVillageSchema,
+  });
+
+  return rows.map(mapWoundedTroop);
 });
 
 export const renameVillage = createController('/villages/:villageId', 'patch', {

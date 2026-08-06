@@ -37,6 +37,14 @@ export const getStationedTroopsByTileSchema = z
   })
   .meta({ id: 'GetStationedTroopsByTileRow' });
 
+export const getWoundedTroopsByVillageSchema = z
+  .strictObject({
+    unit_id: unitIdSchema,
+    amount: z.number().min(1),
+    updated_at: z.number(),
+  })
+  .meta({ id: 'GetWoundedTroopsByVillageRow' });
+
 export const getSentReinforcementsByTileSchema = z
   .strictObject({
     village_id: z.number(),

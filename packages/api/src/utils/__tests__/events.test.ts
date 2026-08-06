@@ -35,6 +35,7 @@ import {
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
@@ -98,6 +99,75 @@ const setHuntersLodgeLevel = (
     bind: {
       $village_id: villageId,
       $level: level,
+    },
+  });
+};
+
+const setVillageBuildingLevel = (
+  database: DbFacade,
+  villageId: number,
+  buildingId: string,
+  level: number,
+  fieldId = 20,
+) => {
+  database.exec({
+    sql: `
+      INSERT INTO
+        building_fields (village_id, field_id, building_id, level)
+      SELECT
+        $village_id, $field_id, id, $level
+      FROM
+        building_ids
+      WHERE
+        building = $building_id
+      ON CONFLICT(village_id, field_id) DO UPDATE SET
+        building_id = EXCLUDED.building_id,
+        level = EXCLUDED.level;
+    `,
+    bind: {
+      $village_id: villageId,
+      $field_id: fieldId,
+      $building_id: buildingId,
+      $level: level,
+    },
+  });
+};
+
+const setWoundedTroopAmount = (
+  database: DbFacade,
+  villageId: number,
+  unitId: Unit['id'],
+  amount: number,
+  updatedAt = Date.now() + 60_000,
+) => {
+  database.exec({
+    sql: `
+      DELETE FROM wounded_troops
+      WHERE
+        village_id = $village_id
+        AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);
+    `,
+    bind: {
+      $village_id: villageId,
+      $unit_id: unitId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO wounded_troops (village_id, unit_id, amount, updated_at)
+      VALUES (
+        $village_id,
+        (SELECT id FROM unit_ids WHERE unit = $unit_id),
+        $amount,
+        $updated_at
+      );
+    `,
+    bind: {
+      $village_id: villageId,
+      $unit_id: unitId,
+      $amount: amount,
+      $updated_at: updatedAt,
     },
   });
 };
@@ -305,6 +375,46 @@ describe('events utils', () => {
       );
     });
 
+    test('troopTraining - should throw if healing unit is not researched', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'HOSPITAL', 10);
+      setWoundedTroopAmount(database, villageId, 'IMPERIAN', 5);
+
+      const event = createTroopTrainingEventMock({
+        villageId,
+        buildingId: 'HOSPITAL',
+        durationEffectId: 'hospitalTrainingDuration',
+        unitId: 'IMPERIAN',
+        amount: 5,
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Unit is not researched',
+      );
+    });
+
+    test('troopTraining - should throw if healing more troops than are wounded', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'HOSPITAL', 10);
+      setWoundedTroopAmount(database, villageId, 'LEGIONNAIRE', 4);
+
+      const event = createTroopTrainingEventMock({
+        villageId,
+        buildingId: 'HOSPITAL',
+        durationEffectId: 'hospitalTrainingDuration',
+        unitId: 'LEGIONNAIRE',
+        amount: 5,
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Not enough wounded troops available',
+      );
+    });
+
     test('buildingLevelChange - should throw if target level exceeds max level', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
@@ -402,6 +512,77 @@ describe('events utils', () => {
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId,
+            buildingId: 'WAREHOUSE',
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('buildingConstruction - should throw if building requirements are missing', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const buildingFieldId = 25;
+
+      database.exec({
+        sql: `
+          DELETE FROM effects
+          WHERE village_id = $village_id AND source_specifier = $field_id;
+          DELETE FROM building_fields
+          WHERE village_id = $village_id AND field_id = $field_id;
+        `,
+        bind: {
+          $village_id: villageId,
+          $field_id: buildingFieldId,
+        },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingConstructionEventMock({
+            villageId,
+            buildingFieldId,
+            buildingId: 'BARRACKS',
+          }),
+        ),
+      ).toThrow('Building requirements are not met');
+    });
+
+    test('buildingLevelChange - should not check construction requirements for level ups', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const buildingFieldId = 25;
+
+      database.exec({
+        sql: `
+          INSERT OR REPLACE INTO building_fields (
+            village_id,
+            field_id,
+            building_id,
+            level
+          )
+          VALUES (
+            $village_id,
+            $field_id,
+            (SELECT id FROM building_ids WHERE building = 'BARRACKS'),
+            1
+          );
+        `,
+        bind: {
+          $village_id: villageId,
+          $field_id: buildingFieldId,
+        },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId,
+            buildingId: 'BARRACKS',
+            previousLevel: 1,
+            level: 2,
           }),
         ),
       ).not.toThrow();
@@ -488,6 +669,7 @@ describe('events utils', () => {
         createBuildingConstructionEventMock({
           villageId,
           buildingFieldId: 1, // resource field
+          buildingId: 'WOODCUTTER',
         }),
       ]);
 
@@ -497,6 +679,7 @@ describe('events utils', () => {
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 19, // village building
+            buildingId: 'WAREHOUSE',
           }),
         ),
       ).toThrow('Building construction queue is full');
@@ -520,6 +703,7 @@ describe('events utils', () => {
         createBuildingConstructionEventMock({
           villageId,
           buildingFieldId: 1, // resource field
+          buildingId: 'WOODCUTTER',
         }),
       ]);
 
@@ -529,6 +713,7 @@ describe('events utils', () => {
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 19, // village building
+            buildingId: 'WAREHOUSE',
           }),
         ),
       ).not.toThrow();
@@ -552,6 +737,7 @@ describe('events utils', () => {
         createBuildingConstructionEventMock({
           villageId,
           buildingFieldId: 1, // resource field
+          buildingId: 'WOODCUTTER',
         }),
       ]);
 
@@ -561,6 +747,7 @@ describe('events utils', () => {
           createBuildingConstructionEventMock({
             villageId,
             buildingFieldId: 2, // another resource field
+            buildingId: 'WHEAT_FIELD',
           }),
         ),
       ).toThrow('Building construction queue is full');
@@ -584,6 +771,7 @@ describe('events utils', () => {
         createBuildingConstructionEventMock({
           villageId,
           buildingFieldId: 19, // village building
+          buildingId: 'WAREHOUSE',
         }),
       ]);
 
@@ -1467,6 +1655,37 @@ describe('events utils', () => {
       expect(getAmount('LEGIONNAIRE')).toBe(60);
       expect(getAmount('PRAETORIAN')).toBe(40);
     });
+
+    test('troopTraining - should remove wounded troops when healing is queued', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setWoundedTroopAmount(database, villageId, 'LEGIONNAIRE', 10);
+
+      runEventCreationSideEffects(database, [
+        createTroopTrainingEventMock({
+          villageId,
+          buildingId: 'HOSPITAL',
+          durationEffectId: 'hospitalTrainingDuration',
+          unitId: 'LEGIONNAIRE',
+          amount: 3,
+        }),
+      ]);
+
+      const amount = database.selectValue({
+        sql: `
+          SELECT amount
+          FROM wounded_troops
+          WHERE
+            village_id = $village_id
+            AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      });
+
+      expect(amount).toBe(7);
+    });
   });
 
   describe(getEventCost, () => {
@@ -1777,6 +1996,34 @@ describe('events utils', () => {
       expect(result).toBeGreaterThan(0);
     });
 
+    test('troopTraining - should heal troops in half the normal training duration', async () => {
+      const database = await prepareTestDatabase();
+      setDevFlag(database, 'is_instant_unit_training_enabled', 0);
+      const villageId = getAnyVillageId(database);
+
+      const normalDuration = getEventDuration(
+        database,
+        createTroopTrainingEventMock({
+          villageId,
+          buildingId: 'BARRACKS',
+          durationEffectId: 'hospitalTrainingDuration',
+          unitId: 'LEGIONNAIRE',
+        }),
+      );
+
+      const healingDuration = getEventDuration(
+        database,
+        createTroopTrainingEventMock({
+          villageId,
+          buildingId: 'HOSPITAL',
+          durationEffectId: 'hospitalTrainingDuration',
+          unitId: 'LEGIONNAIRE',
+        }),
+      );
+
+      expect(healingDuration).toBe(normalDuration / 2);
+    });
+
     test('animalCageProduction - should return batch duration based on server speed', async () => {
       const database = await prepareTestDatabase();
       database.exec({
@@ -1907,6 +2154,29 @@ describe('events utils', () => {
   });
 
   describe(createEvents, () => {
+    test('should reject incomplete event payloads before persistence', async () => {
+      const database = await prepareTestDatabase();
+
+      expect(() =>
+        createEvents(database, {
+          type: 'gatherersHutGatheringTrip',
+          villageId: 1,
+          troops: [{ unitId: 'PHALANX', amount: 1, source: 1 }],
+        } as never),
+      ).toThrow();
+
+      const eventCount = database.selectValue({
+        sql: `
+          SELECT COUNT(*)
+          FROM events
+          WHERE type = 'gatherersHutGatheringTrip';
+        `,
+        schema: z.number(),
+      });
+
+      expect(eventCount).toBe(0);
+    });
+
     test('troopTraining - should complete queued troop count quests when units are queued', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
@@ -2273,6 +2543,129 @@ describe('events utils', () => {
       expect(resultTimestamp).toBe(now);
 
       vi.useRealTimers();
+    });
+  });
+
+  describe('scheduled building construction', () => {
+    test('has zero duration and consumes no resources while scheduled', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const event = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        buildingFieldId: 20,
+        previousLevel: 1,
+        level: 2,
+      });
+
+      expect(getEventDuration(database, event)).toBe(0);
+      expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
+    });
+
+    test('allows five total active or scheduled constructions and rejects a sixth', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      insertEvents(
+        database,
+        Array.from({ length: 5 }, (_, index) =>
+          createGameEventMock('buildingScheduledConstruction', {
+            id: 90_000 + index,
+            villageId,
+            buildingId: 'MAIN_BUILDING',
+            buildingFieldId: 20 + index,
+            previousLevel: 1,
+            level: 2,
+          }),
+        ),
+      );
+
+      const sixth = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        buildingFieldId: 30,
+        previousLevel: 1,
+        level: 2,
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, sixth)).toThrow(
+        'Building construction queue is full',
+      );
+    });
+
+    test('allows scheduling behind an occupied active construction queue', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      insertEvents(database, [
+        createBuildingLevelChangeEventMock({
+          id: 91_000,
+          villageId,
+          buildingId: 'MAIN_BUILDING',
+          buildingFieldId: 38,
+          previousLevel: 1,
+          level: 2,
+        }),
+      ]);
+
+      const scheduled = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        buildingFieldId: 38,
+        previousLevel: 2,
+        level: 3,
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(database, scheduled),
+      ).not.toThrow();
+    });
+
+    test('allows scheduling level one for an existing level-zero building', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const levelZeroBuilding = database.selectObject({
+        sql: `
+          SELECT bf.field_id AS buildingFieldId, bi.building AS buildingId
+          FROM building_fields bf
+          JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE bf.village_id = $village_id
+            AND bf.level = 0
+          LIMIT 1;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          buildingFieldId: z.number(),
+          buildingId: buildingIdSchema,
+        }),
+      })!;
+      const scheduled = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: levelZeroBuilding.buildingId,
+        buildingFieldId: levelZeroBuilding.buildingFieldId,
+        previousLevel: 0,
+        level: 1,
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(database, scheduled),
+      ).not.toThrow();
+    });
+
+    test('rejects a scheduled level above the building maximum', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const event = createGameEventMock('buildingScheduledConstruction', {
+        villageId,
+        buildingId: 'MAIN_BUILDING',
+        buildingFieldId: 20,
+        previousLevel: 20,
+        level: 21,
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Building level cannot exceed max level',
+      );
     });
   });
 });

@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { trapperCagesCacheKey } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 
 export const useTrapperCageStats = () => {
   const { apiClient } = use(ApiContext);

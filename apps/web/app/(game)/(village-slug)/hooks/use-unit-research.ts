@@ -8,7 +8,7 @@ import type { Unit } from '@pillage-first/types/models/unit';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { unitResearchCacheKey } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 
 export const useUnitResearch = () => {
   const { apiClient } = use(ApiContext);

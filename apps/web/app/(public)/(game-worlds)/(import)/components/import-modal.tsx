@@ -27,6 +27,8 @@ type AvailableWorld = {
   deviceId?: string;
 };
 
+const EMPTY_AVAILABLE_WORLDS: AvailableWorld[] = [];
+
 type Message =
   | { type: 'QUERY_WORLDS' }
   | {
@@ -59,6 +61,7 @@ export const ImportModal = ({
     localPeerId: string;
   } | null>(null);
   const peerRef = useRef<Peer | null>(null);
+  const importCleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -111,6 +114,7 @@ export const ImportModal = ({
     });
 
     return () => {
+      importCleanupRef.current?.();
       peer.destroy();
       peerRef.current = null;
       setDiscoveryData(null);
@@ -120,7 +124,7 @@ export const ImportModal = ({
 
   const isLoading = isDiscoveryLoading && !discoveryData;
 
-  const availableWorlds = discoveryData?.list ?? [];
+  const availableWorlds = discoveryData?.list ?? EMPTY_AVAILABLE_WORLDS;
   const localPeerId = discoveryData?.localPeerId ?? null;
 
   const otherDevices = useMemo(() => {
@@ -141,10 +145,31 @@ export const ImportModal = ({
       return;
     }
 
+    importCleanupRef.current?.();
     setIsImporting(true);
     const toastId = toast.loading('Connecting to device...');
 
     const conn = peerRef.current.connect(peerId);
+    let isPending = true;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const cleanup = () => {
+      if (!isPending) {
+        return;
+      }
+
+      isPending = false;
+      clearTimeout(timeoutId);
+      conn.off('open', handleOpen);
+      conn.off('data', handleData);
+      conn.off('error', handleError);
+      conn.off('close', cleanup);
+      conn.close();
+
+      if (importCleanupRef.current === cleanup) {
+        importCleanupRef.current = null;
+      }
+    };
 
     const handleOpen = () => {
       toast.loading('Requesting game world...', { id: toastId });
@@ -172,7 +197,7 @@ export const ImportModal = ({
           toast.error('Failed to import game world.');
         } finally {
           setIsImporting(false);
-          conn.close();
+          cleanup();
         }
       } else if ((data as { type?: string })?.type === 'error') {
         const errorData = data as { message: string };
@@ -188,7 +213,7 @@ export const ImportModal = ({
 
         toast.error(message, { id: toastId });
         setIsImporting(false);
-        conn.close();
+        cleanup();
       }
     };
 
@@ -202,21 +227,22 @@ export const ImportModal = ({
         description: err.message,
       });
       setIsImporting(false);
+      cleanup();
     };
 
-    conn.on('open', handleOpen);
-    conn.on('data', handleData);
-    conn.on('error', handleError);
-
-    const timeoutId = setTimeout(() => {
-      if (isImporting) {
+    timeoutId = setTimeout(() => {
+      if (isPending) {
         toast.error('Request timed out.', { id: toastId });
         setIsImporting(false);
-        conn.close();
+        cleanup();
       }
     }, 30000); // 30s timeout
 
-    conn.on('close', () => clearTimeout(timeoutId));
+    importCleanupRef.current = cleanup;
+    conn.on('open', handleOpen);
+    conn.on('data', handleData);
+    conn.on('error', handleError);
+    conn.on('close', cleanup);
   };
 
   return (

@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import { use, useEffect } from 'react';
 import { useTextDirection } from 'app/hooks/use-text-direction';
-import { CookieContext } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
 import layoutStyles from '../layout.module.scss';
 
 export const PreferencesUpdater = () => {

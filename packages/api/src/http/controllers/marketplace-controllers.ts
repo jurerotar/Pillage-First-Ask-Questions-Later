@@ -86,17 +86,12 @@ export const createTradeRoute = createController(
     body: { targetVillageId, resources, startHour, intervalHours },
   }) => {
     database.transaction((db) => {
-      const { village, merchant } = getVillageMerchantStats(db, villageId);
+      const { village } = getVillageMerchantStats(db, villageId);
       const targetVillage = getMarketplaceVillage(db, targetVillageId);
 
       if (!targetVillage) {
         throw new Error('Target village does not exist');
       }
-
-      const merchantAmount = getMerchantAmount(
-        resources,
-        merchant.merchantCapacity,
-      );
 
       createEvents<'tradeRoute'>(db, {
         type: 'tradeRoute',
@@ -105,7 +100,6 @@ export const createTradeRoute = createController(
         originTileId: village.tileId,
         targetTileId: targetVillage.tileId,
         resources,
-        merchantAmount,
         interval: intervalHours * HOUR_IN_MILLISECONDS,
         startsAt: getNextTradeRouteStartsAt(startHour),
       });
@@ -133,17 +127,13 @@ export const updateTradeRoute = createController(
     body: { targetVillageId, resources, startHour, intervalHours },
   }) => {
     database.transaction((db) => {
-      const { village, merchant } = getVillageMerchantStats(db, villageId);
+      const { village } = getVillageMerchantStats(db, villageId);
       const targetVillage = getMarketplaceVillage(db, targetVillageId);
 
       if (!targetVillage) {
         throw new Error('Target village does not exist');
       }
 
-      const merchantAmount = getMerchantAmount(
-        resources,
-        merchant.merchantCapacity,
-      );
       const startsAt = getNextTradeRouteStartsAt(startHour);
       const interval = intervalHours * HOUR_IN_MILLISECONDS;
       const nextTradeRoute = {
@@ -153,7 +143,6 @@ export const updateTradeRoute = createController(
         originTileId: village.tileId,
         targetTileId: targetVillage.tileId,
         resources,
-        merchantAmount,
         interval,
       } as const;
 
@@ -179,7 +168,6 @@ export const updateTradeRoute = createController(
             originTileId: village.tileId,
             targetTileId: targetVillage.tileId,
             resources,
-            merchantAmount,
             interval,
           }),
         },

@@ -1,16 +1,14 @@
-import {
-  createContext,
-  type PropsWithChildren,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { type PropsWithChildren, useEffect, useMemo, useState } from 'react';
 import type {
   SkinVariant,
   TimeOfDay,
   UIColorScheme,
 } from '@pillage-first/types/models/preferences';
 import type { AvailableLocale } from 'app/localization/i18n';
+import {
+  CookieContext,
+  type CookieContextType,
+} from 'app/providers/cookie-context';
 import {
   COOKIE_UPDATE_EVENT_NAME,
   GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
@@ -19,15 +17,6 @@ import {
   LOCALE_COOKIE_NAME,
   UI_COLOR_SCHEME_COOKIE_NAME,
 } from 'app/utils/device';
-
-type CookieContextType = {
-  locale: AvailableLocale;
-  skinVariant: SkinVariant;
-  timeOfDay: TimeOfDay;
-  uiColorScheme: UIColorScheme;
-};
-
-export const CookieContext = createContext<CookieContextType>({} as never);
 
 export const CookieProvider = ({ children }: PropsWithChildren) => {
   const [cookies, setCookies] = useState<CookieContextType>({

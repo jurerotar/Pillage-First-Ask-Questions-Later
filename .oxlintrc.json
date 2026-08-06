@@ -112,6 +112,8 @@
         "pattern": {
           "css": "always",
           "sql": "always",
+          "wasm": "always",
+          "md": "always",
           "mdx": "always",
           "scss": "always",
           "json": "always"

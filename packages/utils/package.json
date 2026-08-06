@@ -66,6 +66,9 @@
     "./guards/event": {
       "default": "./src/guards/event-guards.ts"
     },
+    "./guards/building": {
+      "default": "./src/guards/building-guards.ts"
+    },
     "./guards/quest": {
       "default": "./src/guards/quest-guards.ts"
     },
@@ -95,7 +98,7 @@
   },
   "devDependencies": {
     "typescript": "7.0.2",
-    "vite": "8.1.5",
+    "vite": "8.2.0",
     "vitest": "4.1.10",
     "zod": "4.4.3"
   }

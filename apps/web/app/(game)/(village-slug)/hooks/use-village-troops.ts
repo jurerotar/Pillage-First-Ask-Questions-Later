@@ -13,13 +13,18 @@ import {
   troopMovementsCacheKey,
   villageTroopsCacheKey,
 } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
+
+export type SendTroopsEventType = Exclude<
+  TroopMovementEventType,
+  'troopMovementReturn' | 'troopMovementAdventure'
+>;
 
 type SendTroopsArgs = {
   villageId?: Village['id'];
   originTileId?: Village['tileId'];
-  type: TroopMovementEventType;
+  type: SendTroopsEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
   targetTileId: Village['tileId'];
 };

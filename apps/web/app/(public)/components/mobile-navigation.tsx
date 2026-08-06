@@ -38,7 +38,7 @@ export const MobileNavigation = () => {
         <button
           className="p-2 bg-muted rounded-md transition-transform active:scale-95 active:shadow-inner"
           type="button"
-          aria-label="Menu"
+          aria-label={t('Open navigation menu')}
           onClick={openModal}
         >
           <HiOutlineMenu className="text-xl text-foreground" />
@@ -50,7 +50,7 @@ export const MobileNavigation = () => {
                 <button
                   className="absolute -top-2 -right-2 p-2 bg-muted rounded-md transition-transform active:scale-95 active:shadow-inner"
                   type="button"
-                  aria-label="Menu"
+                  aria-label={t('Close navigation menu')}
                   onClick={closeModal}
                 >
                   <IoCloseOutline className="text-xl text-foreground" />

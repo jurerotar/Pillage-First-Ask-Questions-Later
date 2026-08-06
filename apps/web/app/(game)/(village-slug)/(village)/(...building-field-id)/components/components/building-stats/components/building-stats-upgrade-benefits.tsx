@@ -6,18 +6,17 @@ import {
   calculateTotalCulturePointsForLevel,
   calculateTotalPopulationForLevel,
   getBuildingDefinition,
-  getBuildingFieldByBuildingFieldId,
 } from '@pillage-first/game-assets/utils/buildings';
 import type { Effect } from '@pillage-first/types/models/effect';
 import { formatNumber, formatPercentage } from '@pillage-first/utils/format';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
   OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -43,16 +42,16 @@ const increasingPercentageBuildingEffects = new Set<Effect['id']>([
 
 export const BuildingStatsUpgradeBenefits = () => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = use(BuildingFieldContext);
-
-  const { buildingId, level } = getBuildingFieldByBuildingFieldId(
-    currentVillage,
-    buildingFieldId,
-  )!;
+  const { buildingField } = use(BuildingFieldContext);
+  const tribe = useTribe();
+  const { buildingId, level } = buildingField!;
   const building = getBuildingDefinition(buildingId);
 
-  const cumulativeEffectsAtLevel1 = calculateBuildingEffectValues(building, 1);
+  const cumulativeEffectsAtLevel1 = calculateBuildingEffectValues(
+    building,
+    1,
+    tribe,
+  );
 
   // In case we have both infantry and cavalry defence, we show combined defence icon instead
   const shouldCombineEffects =
@@ -153,6 +152,7 @@ export const BuildingStatsUpgradeBenefits = () => {
                 const cumulativeEffects = calculateBuildingEffectValues(
                   building,
                   buildingLevel,
+                  tribe,
                 );
 
                 const currentEffectsToShow = shouldCombineEffects

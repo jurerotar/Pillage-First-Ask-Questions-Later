@@ -10,7 +10,8 @@ import { HeadLinks } from 'app/components/head-links';
 import { Text } from 'app/components/text';
 import { Tooltip } from 'app/components/tooltip';
 import { Toaster } from 'app/components/ui/toaster';
-import { CookieContext, CookieProvider } from 'app/providers/cookie-provider';
+import { CookieContext } from 'app/providers/cookie-context';
+import { CookieProvider } from 'app/providers/cookie-provider';
 
 const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   h1: (props) => (

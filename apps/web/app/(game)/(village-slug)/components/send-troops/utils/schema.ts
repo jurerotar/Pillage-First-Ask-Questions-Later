@@ -13,7 +13,7 @@ export const unitSelectionSchema = z.strictObject({
   category: unitCategorySchema,
 });
 
-export const targetSchema = z.strictObject({
+const targetSchema = z.strictObject({
   tileId: z.coerce
     .number({ error: 'Target tile is required' })
     .int({ error: 'Target tile must be an integer' })
@@ -22,7 +22,7 @@ export const targetSchema = z.strictObject({
   y: z.number().int().optional(),
 });
 
-export const troopFormRefinementOptions = [
+const troopFormRefinementOptions = [
   {
     check: (data: { units: { selected: number; available: number }[] }) =>
       data.units.some((u) => u.selected > 0),

@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { ImportModal } from 'app/(public)/(game-worlds)/(import)/components/import-modal';
 import type {
   ImportGameWorldWorkerPayload,
@@ -10,6 +10,7 @@ import type {
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { PageMetadata } from 'app/(public)/components/page-metadata';
+import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -21,6 +22,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
+import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
 
 type ImportGameWorldSuccess = Extract<
@@ -30,6 +32,7 @@ type ImportGameWorldSuccess = Extract<
 
 const ImportGameWorld = () => {
   const { t } = useTranslation('public');
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const { createGameWorld } = useGameWorldActions();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -57,8 +60,9 @@ const ImportGameWorld = () => {
 
       return result;
     },
-    onSuccess: async ({ server }) => {
-      createGameWorld({ server });
+    onSuccess: async ({ server }, _data, _onMutateResult, context) => {
+      await createGameWorld({ server });
+      await invalidateQueries(context, [[availableServerCacheKey]]);
 
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
@@ -73,6 +77,7 @@ const ImportGameWorld = () => {
       <PageMetadata
         title={title}
         description="Import a previously exported Pillage First! game world from any device and continue playing."
+        pathname={pathname}
       />
       <div className="flex flex-col gap-4 max-w-3xl px-2 lg:px-0 mx-auto">
         <Breadcrumb>

@@ -3,16 +3,15 @@ import { useTranslation } from 'react-i18next';
 import {
   calculateBuildingDurationForLevel,
   getBuildingDefinition,
-  getBuildingFieldByBuildingFieldId,
 } from '@pillage-first/game-assets/utils/buildings';
-import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-provider';
+import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
   OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import {
@@ -34,16 +33,13 @@ import { formatTime } from 'app/utils/time';
 
 export const BuildingStatsUpgradeDuration = () => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-  const { buildingFieldId } = use(BuildingFieldContext);
+  const { buildingField } = use(BuildingFieldContext);
   const { effects } = useEffects();
+  const tribe = useTribe();
 
   const [mainBuildingLevel, setMainBuildingLevel] = useState<number>(1);
 
-  const { buildingId, level } = getBuildingFieldByBuildingFieldId(
-    currentVillage,
-    buildingFieldId,
-  )!;
+  const { buildingId, level } = buildingField!;
   const building = getBuildingDefinition(buildingId);
 
   const buildingDurationServerEffect = effects.find(
@@ -52,8 +48,9 @@ export const BuildingStatsUpgradeDuration = () => {
 
   const mainBuildingDefinition = getBuildingDefinition('MAIN_BUILDING');
   const buildingDurationModifier =
-    mainBuildingDefinition.effects[0].valuesPerLevel[mainBuildingLevel] *
-    buildingDurationServerEffect.value;
+    mainBuildingDefinition.effects(tribe)[0]!.valuesPerLevel[
+      mainBuildingLevel
+    ] * buildingDurationServerEffect.value;
 
   return (
     <Section>

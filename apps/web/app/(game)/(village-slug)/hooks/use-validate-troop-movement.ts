@@ -3,7 +3,7 @@ import { use } from 'react';
 import { z } from 'zod';
 import type { TroopMovementEventType } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 
 type ValidateTroopMovementArgs = {
   type: TroopMovementEventType;

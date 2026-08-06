@@ -75,15 +75,18 @@ type BaseTroopMovementEvent = {
   targetTileId: Tile['id'];
 };
 
-type BaseMerchantMovementEvent = {
+type BaseMerchantRouteEvent = {
   originTileId: Tile['id'];
   targetTileId: Tile['id'];
   targetVillageId: Village['id'];
   resources: Resources;
+};
+
+type BaseMerchantMovementEvent = BaseMerchantRouteEvent & {
   merchantAmount: number;
 };
 
-type TradeRouteEvent = BaseMerchantMovementEvent & {
+type TradeRouteEvent = BaseMerchantRouteEvent & {
   interval: number;
 };
 

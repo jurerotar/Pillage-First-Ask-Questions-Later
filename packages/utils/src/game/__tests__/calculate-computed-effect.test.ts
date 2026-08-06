@@ -519,9 +519,38 @@ describe('calculateComputedEffect – woodProduction', () => {
         villageId,
       );
 
-      // tribe acts as hero bonus
+      // tribe acts as a static game-value bonus
       // total = 100 + floor(100 * 0.5) = 150
       expect(result.total).toBe(150);
+    });
+
+    test('tribal merchant capacity base with building bonus', () => {
+      const tribalMerchantCapacityBase: TribalEffect = {
+        id: 'merchantCapacity',
+        value: 750,
+        type: 'base',
+        source: 'tribe',
+        scope: 'global',
+        sourceSpecifier: null,
+      };
+      const tradeOfficeBonus: VillageBuildingEffect = {
+        id: 'merchantCapacity',
+        value: 1.2,
+        type: 'bonus',
+        source: 'building',
+        buildingId: 'TRADE_OFFICE',
+        scope: 'local',
+        villageId,
+        sourceSpecifier: 37,
+      };
+
+      const result = calculateComputedEffect(
+        'merchantCapacity',
+        [tribalMerchantCapacityBase, tradeOfficeBonus],
+        villageId,
+      );
+
+      expect(result.total).toBe(900);
     });
 
     test('troops source base (non-wheat)', () => {

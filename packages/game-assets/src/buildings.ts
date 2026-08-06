@@ -7,6 +7,7 @@ import type {
   ResourceProductionEffectId,
   TroopTrainingDurationEffectId,
 } from '@pillage-first/types/models/effect';
+import type { Tribe } from '@pillage-first/types/models/tribe';
 
 const createInfantryAndCavalryDefenceEffects = (
   type: Effect['type'],
@@ -104,6 +105,33 @@ const createLinearEffectValues = (
   };
 };
 
+const createCrannyCapacityEffect = (tribe: Tribe): BuildingEffect => {
+  const modifier = tribe === 'gauls' ? 2 : 1;
+
+  return {
+    effectId: 'crannyCapacity',
+    valuesPerLevel: [0, 100, 130, 170, 220, 280, 360, 460, 600, 770, 1000].map(
+      (value) => value * modifier,
+    ),
+    type: 'base',
+  };
+};
+
+const createTradeOfficeMerchantCapacityEffect = (
+  tribe: Tribe,
+): BuildingEffect => {
+  const increasePerLevel = tribe === 'romans' ? 0.2 : 0.1;
+
+  return {
+    effectId: 'merchantCapacity',
+    valuesPerLevel: Array.from(
+      { length: 21 },
+      (_, level) => 1 + level * increasePerLevel,
+    ),
+    type: 'bonus',
+  };
+};
+
 const createGovernmentBuildingDefenceEffects = (): BuildingEffect[] => {
   return createInfantryAndCavalryDefenceEffects(
     'base',
@@ -139,7 +167,7 @@ export const buildings: Building[] = [
     category: 'resource-booster',
     populationCoefficient: 4,
     culturePointsCoefficient: 1,
-    effects: [createResourceBoosterEffect('wheatProduction')],
+    effects: () => [createResourceBoosterEffect('wheatProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -177,7 +205,7 @@ export const buildings: Building[] = [
     category: 'resource-booster',
     populationCoefficient: 3,
     culturePointsCoefficient: 1,
-    effects: [createResourceBoosterEffect('clayProduction')],
+    effects: () => [createResourceBoosterEffect('clayProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -210,7 +238,7 @@ export const buildings: Building[] = [
     populationCoefficient: 2,
     culturePointsCoefficient: 1,
     buildingRequirements: [],
-    effects: [createResourceProductionEffect('clayProduction')],
+    effects: () => [createResourceProductionEffect('clayProduction')],
     baseBuildingCost: [80, 40, 80, 50],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -224,7 +252,7 @@ export const buildings: Building[] = [
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
     buildingRequirements: [],
-    effects: [createResourceProductionEffect('wheatProduction')],
+    effects: () => [createResourceProductionEffect('wheatProduction')],
     baseBuildingCost: [70, 90, 70, 20],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -237,7 +265,7 @@ export const buildings: Building[] = [
     category: 'resource-booster',
     populationCoefficient: 3,
     culturePointsCoefficient: 1,
-    effects: [createResourceBoosterEffect('wheatProduction')],
+    effects: () => [createResourceBoosterEffect('wheatProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -263,7 +291,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 1,
-    effects: [createStorageCapacityEffect('granaryCapacity', 1)],
+    effects: () => [createStorageCapacityEffect('granaryCapacity', 1)],
     buildingRequirements: [
       {
         id: 1,
@@ -289,7 +317,7 @@ export const buildings: Building[] = [
     category: 'resource-booster',
     populationCoefficient: 6,
     culturePointsCoefficient: 1,
-    effects: [createResourceBoosterEffect('ironProduction')],
+    effects: () => [createResourceBoosterEffect('ironProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -322,7 +350,7 @@ export const buildings: Building[] = [
     populationCoefficient: 3,
     culturePointsCoefficient: 1,
     buildingRequirements: [],
-    effects: [createResourceProductionEffect('ironProduction')],
+    effects: () => [createResourceProductionEffect('ironProduction')],
     baseBuildingCost: [100, 80, 30, 60],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -335,7 +363,7 @@ export const buildings: Building[] = [
     category: 'resource-booster',
     populationCoefficient: 4,
     culturePointsCoefficient: 1,
-    effects: [createResourceBoosterEffect('woodProduction')],
+    effects: () => [createResourceBoosterEffect('woodProduction')],
     buildingRequirements: [
       {
         id: 1,
@@ -367,7 +395,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 1,
-    effects: [createStorageCapacityEffect('warehouseCapacity', 1)],
+    effects: () => [createStorageCapacityEffect('warehouseCapacity', 1)],
     buildingRequirements: [
       {
         id: 1,
@@ -393,7 +421,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 2,
-    effects: [
+    effects: () => [
       createOasisBonusBoosterEffect('woodProduction'),
       createOasisBonusBoosterEffect('clayProduction'),
       createOasisBonusBoosterEffect('ironProduction'),
@@ -430,7 +458,7 @@ export const buildings: Building[] = [
     populationCoefficient: 2,
     culturePointsCoefficient: 1,
     buildingRequirements: [],
-    effects: [createResourceProductionEffect('woodProduction')],
+    effects: () => [createResourceProductionEffect('woodProduction')],
     baseBuildingCost: [40, 100, 50, 60],
     buildingCostCoefficient: 1.67,
     maxLevel: 20,
@@ -443,7 +471,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 4,
     culturePointsCoefficient: 4,
-    effects: [],
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -475,7 +503,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 4,
     culturePointsCoefficient: 1,
-    effects: [createTroopDurationEffect('barracksTrainingDuration')],
+    effects: () => [createTroopDurationEffect('barracksTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -507,7 +535,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -547,7 +575,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -587,7 +615,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 4,
     culturePointsCoefficient: 1,
-    effects: [createTroopDurationEffect('greatBarracksTrainingDuration')],
+    effects: () => [createTroopDurationEffect('greatBarracksTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -613,7 +641,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 5,
     culturePointsCoefficient: 2,
-    effects: [createTroopDurationEffect('greatStableTrainingDuration')],
+    effects: () => [createTroopDurationEffect('greatStableTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -639,7 +667,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 2,
     culturePointsCoefficient: 1,
-    effects: [],
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -671,7 +699,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 3,
     culturePointsCoefficient: 4,
-    effects: [createTroopDurationEffect('hospitalTrainingDuration')],
+    effects: () => [createTroopDurationEffect('hospitalTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -699,11 +727,48 @@ export const buildings: Building[] = [
     buildingDurationReduction: 1875,
   },
   {
+    id: 'ASCLEPEION',
+    category: 'military',
+    populationCoefficient: 3,
+    culturePointsCoefficient: 5,
+    effects: () => [createTroopDurationEffect('hospitalTrainingDuration')],
+    buildingRequirements: [
+      {
+        id: 1,
+        type: 'amount',
+        amount: 1,
+      },
+      {
+        id: 2,
+        type: 'building',
+        buildingId: 'MAIN_BUILDING',
+        level: 5,
+      },
+      {
+        id: 3,
+        type: 'building',
+        buildingId: 'ACADEMY',
+        level: 10,
+      },
+      {
+        id: 4,
+        type: 'tribe',
+        tribe: 'spartans',
+      },
+    ],
+    baseBuildingCost: [320, 280, 420, 360],
+    buildingCostCoefficient: 1.28,
+    maxLevel: 20,
+    buildingDurationBase: 1.16,
+    buildingDurationModifier: 4875,
+    buildingDurationReduction: 1875,
+  },
+  {
     id: 'HUN_WALL',
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -743,7 +808,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -783,7 +848,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 1,
     culturePointsCoefficient: 1,
-    effects: [createLinearEffectValues('revealedIncomingTroopsAmount')],
+    effects: () => [createLinearEffectValues('revealedIncomingTroopsAmount')],
     buildingRequirements: [
       {
         id: 1,
@@ -803,7 +868,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 5,
     culturePointsCoefficient: 2,
-    effects: [createTroopDurationEffect('stableTrainingDuration')],
+    effects: () => [createTroopDurationEffect('stableTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -835,7 +900,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 4,
     culturePointsCoefficient: 2,
-    effects: [],
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -867,7 +932,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -907,7 +972,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -947,7 +1012,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -987,7 +1052,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       ...createInfantryAndCavalryDefenceEffects(
         'bonus',
         [
@@ -1027,7 +1092,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 4,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       {
         effectId: 'trapperCapacity',
         valuesPerLevel: [
@@ -1067,7 +1132,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 3,
     culturePointsCoefficient: 3,
-    effects: [createTroopDurationEffect('workshopTrainingDuration')],
+    effects: () => [createTroopDurationEffect('workshopTrainingDuration')],
     buildingRequirements: [
       {
         id: 1,
@@ -1099,7 +1164,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 6,
     culturePointsCoefficient: 4,
-    effects: [
+    effects: () => [
       {
         effectId: 'attack',
         valuesPerLevel: [
@@ -1145,7 +1210,7 @@ export const buildings: Building[] = [
   //   category: 'infrastructure',
   //   populationCoefficient: 1,
   //   culturePointsCoefficient: 2,
-  //   effects: [...createGovernmentBuildingDefenceEffects()],
+  //   effects: () => [...createGovernmentBuildingDefenceEffects()],
   //   buildingRequirements: [
   //     {
   //       id: 1,
@@ -1176,13 +1241,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 0,
     culturePointsCoefficient: 1,
-    effects: [
-      {
-        effectId: 'crannyCapacity',
-        valuesPerLevel: [0, 100, 130, 170, 220, 280, 360, 460, 600, 770, 1000],
-        type: 'base',
-      },
-    ],
+    effects: (tribe) => [createCrannyCapacityEffect(tribe)],
     buildingRequirements: [
       {
         id: 1,
@@ -1202,7 +1261,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 5,
     culturePointsCoefficient: 3,
-    effects: [...createHorseDrinkingTroughEffects()],
+    effects: () => [...createHorseDrinkingTroughEffects()],
     buildingRequirements: [
       {
         id: 1,
@@ -1239,7 +1298,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 2,
     culturePointsCoefficient: 2,
-    effects: [
+    effects: () => [
       {
         effectId: 'buildingDuration',
         valuesPerLevel: [
@@ -1268,7 +1327,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 4,
     culturePointsCoefficient: 3,
-    effects: [createLinearEffectValues('merchantAmount')],
+    effects: () => [createLinearEffectValues('merchantAmount')],
     buildingRequirements: [
       {
         id: 1,
@@ -1306,7 +1365,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 2,
-    effects: [
+    effects: () => [
       ...createGovernmentBuildingDefenceEffects(),
       {
         effectId: 'residenceTrainingDuration',
@@ -1342,7 +1401,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 4,
     culturePointsCoefficient: 6,
-    effects: [],
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -1368,7 +1427,7 @@ export const buildings: Building[] = [
     category: 'military',
     populationCoefficient: 1,
     culturePointsCoefficient: 1,
-    effects: [
+    effects: () => [
       {
         effectId: 'unitSpeedAfter20Fields',
         valuesPerLevel: [
@@ -1403,16 +1462,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 3,
     culturePointsCoefficient: 3,
-    effects: [
-      {
-        effectId: 'merchantCapacity',
-        valuesPerLevel: [
-          1, 1.2, 1.4, 1.6, 1.8, 2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.8,
-          4, 4.2, 4.4, 4.6, 4.8, 5,
-        ],
-        type: 'bonus',
-      },
-    ],
+    effects: (tribe) => [createTradeOfficeMerchantCapacityEffect(tribe)],
     buildingRequirements: [
       {
         id: 1,
@@ -1444,7 +1494,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 3,
     culturePointsCoefficient: 4,
-    effects: [],
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -1470,7 +1520,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 4,
     culturePointsCoefficient: 5,
-    effects: [],
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -1502,7 +1552,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 1,
-    effects: [],
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -1540,7 +1590,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 1,
-    effects: [],
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
@@ -1572,7 +1622,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 1,
-    effects: [createStorageCapacityEffect('granaryCapacity', 3)],
+    effects: () => [createStorageCapacityEffect('granaryCapacity', 3)],
     buildingRequirements: [
       {
         id: 1,
@@ -1604,7 +1654,7 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 1,
-    effects: [createStorageCapacityEffect('warehouseCapacity', 3)],
+    effects: () => [createStorageCapacityEffect('warehouseCapacity', 3)],
     buildingRequirements: [
       {
         id: 1,

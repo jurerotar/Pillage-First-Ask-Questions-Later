@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { TroopMovementEvent } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
+import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   isAdventureTroopMovementEvent,
@@ -13,6 +14,15 @@ import {
   isRelocationTroopMovementEvent,
   isReturnTroopMovementEvent,
 } from '@pillage-first/utils/guards/event';
+
+const WOUNDED_TROOP_DECAY_RATE_PER_DAY = 0.1;
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+
+type WoundedTroopUpdate = {
+  villageId: number;
+  unitId: Unit['id'];
+  amount: number;
+};
 
 export const addTroops = (database: DbFacade, troops: Troop[]) => {
   if (troops.length === 1) {
@@ -51,11 +61,11 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         json_each($troops) AS troop
         JOIN unit_ids
           ON unit_ids.unit = json_extract(troop.value, '$.unitId')
+      WHERE TRUE
       GROUP BY
         unit_ids.id,
         json_extract(troop.value, '$.tileId'),
         json_extract(troop.value, '$.source')
-      HAVING TRUE
       ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
         amount = troops.amount + EXCLUDED.amount;
     `,
@@ -159,6 +169,221 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
       );
     `,
     bind: { $troops: JSON.stringify(troops) },
+  });
+};
+
+export const materializeWoundedTroopsAt = (
+  database: DbFacade,
+  villageId: number,
+  timestamp: number,
+) => {
+  const woundedTroops = database.selectObjects({
+    sql: `
+      SELECT
+        ui.unit AS unit_id,
+        wt.amount,
+        wt.updated_at
+      FROM
+        wounded_troops wt
+          JOIN unit_ids ui ON ui.id = wt.unit_id
+      WHERE
+        wt.village_id = $village_id;
+    `,
+    bind: {
+      $village_id: villageId,
+    },
+    schema: z.strictObject({
+      unit_id: z.string(),
+      amount: z.number(),
+      updated_at: z.number(),
+    }),
+  });
+
+  for (const woundedTroop of woundedTroops) {
+    const elapsed = timestamp - woundedTroop.updated_at;
+
+    if (elapsed <= 0) {
+      continue;
+    }
+
+    const elapsedDays = elapsed / DAY_IN_MILLISECONDS;
+    const remainingAmount = Math.floor(
+      woundedTroop.amount *
+        (1 - WOUNDED_TROOP_DECAY_RATE_PER_DAY) ** elapsedDays,
+    );
+
+    if (remainingAmount <= 0) {
+      database.exec({
+        sql: `
+          DELETE FROM wounded_troops
+          WHERE
+            village_id = $village_id
+            AND unit_id = (
+              SELECT id
+              FROM unit_ids
+              WHERE unit = $unit_id
+            );
+        `,
+        bind: {
+          $village_id: villageId,
+          $unit_id: woundedTroop.unit_id,
+        },
+      });
+
+      continue;
+    }
+
+    if (remainingAmount !== woundedTroop.amount) {
+      database.exec({
+        sql: `
+          UPDATE wounded_troops
+          SET
+            amount = $amount,
+            updated_at = $updated_at
+          WHERE
+            village_id = $village_id
+            AND unit_id = (
+              SELECT id
+              FROM unit_ids
+              WHERE unit = $unit_id
+            );
+        `,
+        bind: {
+          $amount: remainingAmount,
+          $updated_at: timestamp,
+          $village_id: villageId,
+          $unit_id: woundedTroop.unit_id,
+        },
+      });
+    }
+  }
+};
+
+export const selectWoundedTroopAmount = (
+  database: DbFacade,
+  villageId: number,
+  unitId: Unit['id'],
+) => {
+  return (
+    database.selectValue({
+      sql: `
+        SELECT amount
+        FROM wounded_troops
+        WHERE
+          village_id = $village_id
+          AND unit_id = (
+            SELECT id
+            FROM unit_ids
+            WHERE unit = $unit_id
+          );
+      `,
+      bind: {
+        $village_id: villageId,
+        $unit_id: unitId,
+      },
+      schema: z.number().nullable(),
+    }) ?? 0
+  );
+};
+
+export const removeWoundedTroops = (
+  database: DbFacade,
+  woundedTroops: WoundedTroopUpdate[],
+) => {
+  if (woundedTroops.length === 0) {
+    return;
+  }
+
+  if (woundedTroops.length === 1) {
+    const woundedTroop = woundedTroops[0]!;
+    const bind = {
+      $village_id: woundedTroop.villageId,
+      $unit_id: woundedTroop.unitId,
+      $amount: woundedTroop.amount,
+    };
+
+    database.exec({
+      sql: `
+        DELETE FROM wounded_troops
+        WHERE
+          village_id = $village_id
+          AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          AND amount <= $amount;
+      `,
+      bind,
+    });
+
+    database.exec({
+      sql: `
+        UPDATE wounded_troops
+        SET amount = amount - $amount
+        WHERE
+          village_id = $village_id
+          AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)
+          AND amount > $amount;
+      `,
+      bind,
+    });
+
+    return;
+  }
+
+  database.exec({
+    sql: `
+      WITH requested_wounded_troops AS (
+        SELECT
+          json_extract(wounded_troop.value, '$.villageId') AS village_id,
+          unit_ids.id AS unit_id,
+          SUM(json_extract(wounded_troop.value, '$.amount')) AS amount
+        FROM
+          json_each($wounded_troops) AS wounded_troop
+          JOIN unit_ids
+            ON unit_ids.unit = json_extract(wounded_troop.value, '$.unitId')
+        GROUP BY village_id, unit_ids.id
+      )
+      DELETE FROM wounded_troops
+      WHERE EXISTS (
+        SELECT 1
+        FROM requested_wounded_troops
+        WHERE
+          requested_wounded_troops.village_id = wounded_troops.village_id
+          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
+          AND wounded_troops.amount <= requested_wounded_troops.amount
+      );
+    `,
+    bind: { $wounded_troops: JSON.stringify(woundedTroops) },
+  });
+
+  database.exec({
+    sql: `
+      WITH requested_wounded_troops AS (
+        SELECT
+          json_extract(wounded_troop.value, '$.villageId') AS village_id,
+          unit_ids.id AS unit_id,
+          SUM(json_extract(wounded_troop.value, '$.amount')) AS amount
+        FROM
+          json_each($wounded_troops) AS wounded_troop
+          JOIN unit_ids
+            ON unit_ids.unit = json_extract(wounded_troop.value, '$.unitId')
+        GROUP BY village_id, unit_ids.id
+      )
+      UPDATE wounded_troops
+      SET amount = amount - (
+        SELECT requested_wounded_troops.amount
+        FROM requested_wounded_troops
+        WHERE
+          requested_wounded_troops.village_id = wounded_troops.village_id
+          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
+      )
+      WHERE EXISTS (
+        SELECT 1
+        FROM requested_wounded_troops
+        WHERE
+          requested_wounded_troops.village_id = wounded_troops.village_id
+          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
+      );
+    `,
+    bind: { $wounded_troops: JSON.stringify(woundedTroops) },
   });
 };
 

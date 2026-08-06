@@ -5,8 +5,11 @@ import { speedSchema } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { Village } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateDistanceBetweenTiles } from '@pillage-first/utils/map';
+import { selectAllRelevantEffectsByIdQuery } from '../queries/effect-queries';
 import { selectVillageBuildingLevelQuery } from '../queries/village-queries';
+import { apiEffectSchema } from './zod/effect-schemas';
 
 const marketplaceVillageSchema = z.strictObject({
   id: z.number(),
@@ -122,6 +125,22 @@ export const getMerchantMovementDuration = (
   return (distance / (merchantSpeed * speed)) * 3_600_000;
 };
 
+export const getMerchantCapacity = (
+  database: DbFacade,
+  villageId: Village['id'],
+) => {
+  const effects = database.selectObjects({
+    sql: selectAllRelevantEffectsByIdQuery,
+    bind: {
+      $effect_id: 'merchantCapacity',
+      $village_id: villageId,
+    },
+    schema: apiEffectSchema,
+  });
+
+  return calculateComputedEffect('merchantCapacity', effects, villageId).total;
+};
+
 export const getVillageMerchantStats = (
   database: DbFacade,
   villageId: Village['id'],
@@ -132,7 +151,10 @@ export const getVillageMerchantStats = (
 
   return {
     village,
-    merchant,
+    merchant: {
+      ...merchant,
+      merchantCapacity: getMerchantCapacity(database, villageId),
+    },
     marketplaceLevel: getMarketplaceLevel(database, villageId),
     usedMerchantAmount: getUsedMerchantAmount(database, villageId),
   };

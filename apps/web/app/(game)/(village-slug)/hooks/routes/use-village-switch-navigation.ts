@@ -6,7 +6,7 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 
 type BuildingRouteMatch = {
   buildingFieldId: BuildingField['id'];

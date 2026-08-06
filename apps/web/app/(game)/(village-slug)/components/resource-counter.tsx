@@ -8,7 +8,7 @@ import {
 } from '@pillage-first/utils/format';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCalculatedResource } from 'app/(game)/(village-slug)/hooks/use-calculated-resource';
-import { CurrentVillageStateContext } from 'app/(game)/(village-slug)/providers/current-village-state-provider';
+import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 import { Icon } from 'app/components/icon';
 
 type ResourceCounterProps = {
@@ -18,7 +18,7 @@ type ResourceCounterProps = {
 export const ResourceCounter = ({ resource }: ResourceCounterProps) => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
-    use(CurrentVillageStateContext);
+    use(CurrentVillageComputedEffectsContext);
   const storage =
     resource === 'wheat'
       ? computedGranaryCapacityEffect.total

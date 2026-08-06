@@ -97,7 +97,7 @@ export const openWorkerDatabase = async (
       throw new OutdatedDatabaseSchemaError();
     }
 
-    upgradeDb(dbFacade);
+    upgradeDb(dbFacade, version);
 
     return dbFacade;
   } catch (error) {

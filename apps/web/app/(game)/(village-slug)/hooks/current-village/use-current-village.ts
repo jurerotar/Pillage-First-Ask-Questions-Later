@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
-import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-provider';
+import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-context';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
-import { ApiContext } from 'app/(game)/providers/api-provider';
+import { ApiContext } from 'app/(game)/providers/api-context';
 
 export const useCurrentVillage = () => {
   const { apiClient } = use(ApiContext);

@@ -10,7 +10,6 @@ import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   deleteNextDemolitionEventQuery,
-  deleteScheduledBuildingEventsFromEventQuery,
   deleteUnitImprovementEventsFromLevelQuery,
   selectAllVillageEventsByTypeQuery,
   selectAllVillageEventsQuery,
@@ -18,49 +17,18 @@ import {
   selectEventByIdQuery,
   selectEventsByTypeQuery,
   selectTroopMovementEventsQuery,
-  updateEventStartsAtQuery,
 } from '../../queries/event-queries';
+import { deleteScheduledBuildingUpgradesByVillageAndFieldQuery } from '../../queries/scheduled-building-upgrades-queries';
+import { removeBuildingPlaceholder } from '../../utils/building-placeholder';
 import { createEvents } from '../../utils/create-event';
-import { getEventStartTime } from '../../utils/events';
-import { addVillageResourcesAt, demolishBuilding } from '../../utils/village';
+import { promoteNextScheduledBuildingUpgrade } from '../../utils/scheduled-building-upgrades';
+import { addVillageResourcesAt } from '../../utils/village';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
 } from '../../utils/zod/event-schemas';
 import { createController } from '../controller';
 import { triggerKick } from '../events/scheduler/scheduler-signal';
-
-const troopMovementTypes = new Set([
-  'troopMovementReinforcements',
-  'troopMovementRelocation',
-  'troopMovementReturn',
-  'troopMovementFindNewVillage',
-  'troopMovementAttack',
-  'troopMovementRaid',
-  'troopMovementOasisOccupation',
-  'troopMovementAdventure',
-]);
-
-const normalizeCreateEventBody = (
-  body: z.infer<typeof createEventDtoSchema>,
-) => {
-  const eventBody = { ...body } as Record<string, unknown>;
-
-  if (!troopMovementTypes.has(eventBody.type as string)) {
-    return body;
-  }
-
-  return {
-    type: eventBody.type,
-    villageId: eventBody.villageId,
-    troops: eventBody.troops,
-    originTileId: eventBody.originTileId,
-    targetTileId: eventBody.targetTileId,
-    startsAt: eventBody.startsAt,
-    duration: eventBody.duration,
-    originalMovementType: eventBody.originalMovementType,
-  };
-};
 
 export const getVillageEvents = createController(
   '/villages/:villageId/events',
@@ -150,7 +118,7 @@ export const createNewEvents = createController('/events', 'post', {
   summary: 'Create new events',
   requestBody: createEventDtoSchema,
 })(({ database, body }) => {
-  createEvents(database, normalizeCreateEventBody(body) as never);
+  createEvents(database, body as never);
 });
 
 export const cancelConstructionEvent = createController(
@@ -178,69 +146,42 @@ export const cancelConstructionEvent = createController(
       cancelledEventRow!,
     ) as GameEvent<'buildingLevelChange'>;
 
-    const { level, buildingId, villageId, buildingFieldId, resolvesAt } =
-      cancelledEvent;
+    const { level, buildingId, villageId, buildingFieldId } = cancelledEvent;
 
-    // Delete this event and all future events on the same building fields
-    const cancelledScheduledEvents = db.selectObjects({
-      sql: deleteScheduledBuildingEventsFromEventQuery,
+    db.exec({
+      sql: 'DELETE FROM events WHERE id = $event_id;',
+      bind: {
+        $event_id: cancelledEvent.id,
+      },
+    });
+
+    db.exec({
+      sql: deleteScheduledBuildingUpgradesByVillageAndFieldQuery,
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
-        $resolves_at: resolvesAt,
       },
-      schema: z.strictObject({
-        buildingFieldId: z.number(),
-        level: z.number(),
-      }),
     });
 
-    for (const { buildingFieldId, level } of cancelledScheduledEvents) {
-      // If building is currently upgrading to level 1, we need to demolish it
-      if (level === 1) {
-        demolishBuilding(db, villageId, buildingFieldId);
-      }
+    if (level === 1) {
+      removeBuildingPlaceholder(db, villageId, buildingFieldId, buildingId);
     }
 
-    // Remaining building events now need to have their start times adjusted.
-    // Only scheduled construction events need adjusting, since any ongoing events are already ongoing.
-    const scheduledEventRows = db.selectObjects({
-      sql: selectAllVillageEventsByTypeQuery,
-      bind: {
-        $village_id: villageId,
-        $type: 'buildingScheduledConstruction',
-      },
-      schema: baseEventRowSchema,
-    });
+    const now = Date.now();
+    const duration = cancelledEvent.resolvesAt - cancelledEvent.startsAt;
+    const elapsed = Math.max(0, now - cancelledEvent.startsAt);
+    const completionPercentage =
+      duration > 0 ? Math.min(1, elapsed / duration) : 1;
 
-    for (const event of scheduledEventRows.map(mapEventRowToTypedEvent)) {
-      const startsAt = getEventStartTime(db, event);
+    const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
+      buildingId,
+      level,
+      completionPercentage,
+    );
 
-      db.exec({
-        sql: updateEventStartsAtQuery,
-        bind: {
-          $event_id: event.id,
-          $starts_at: startsAt,
-        },
-      });
-    }
+    addVillageResourcesAt(db, villageId, now, resourcesToRefund);
 
-    // If event is already ongoing, refund resources
-    if (cancelledEvent.type === 'buildingLevelChange') {
-      const now = Date.now();
-      const duration = cancelledEvent.resolvesAt - cancelledEvent.startsAt;
-      const elapsed = Math.max(0, now - cancelledEvent.startsAt);
-      const completionPercentage =
-        duration > 0 ? Math.min(1, elapsed / duration) : 1;
-
-      const resourcesToRefund = calculateBuildingCancellationRefundForLevel(
-        buildingId,
-        level,
-        completionPercentage,
-      );
-
-      addVillageResourcesAt(db, villageId, now, resourcesToRefund);
-    }
+    promoteNextScheduledBuildingUpgrade(db, villageId, now, buildingFieldId);
   });
 
   triggerKick();
