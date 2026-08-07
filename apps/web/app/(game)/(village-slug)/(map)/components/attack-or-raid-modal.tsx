@@ -7,12 +7,16 @@ import { useAttackOrRaidForm } from 'app/(game)/(village-slug)/components/send-t
 import { Dialog, DialogContent } from 'app/components/ui/dialog';
 
 type AttackOrRaidModalProps = {
+  action?: 'attack' | 'raid';
+  isActionSelectionEnabled?: boolean;
   isOpen: boolean;
   onClose: () => void;
   targetTileId: Tile['id'];
 };
 
 export const AttackOrRaidModal = ({
+  action = 'attack',
+  isActionSelectionEnabled = true,
   isOpen,
   onClose,
   targetTileId,
@@ -28,7 +32,7 @@ export const AttackOrRaidModal = ({
     onFormSubmit,
     tribe,
   } = useAttackOrRaidForm({
-    action: 'attack',
+    action,
     targetTileId,
     onSuccess: onClose,
   });
@@ -59,7 +63,11 @@ export const AttackOrRaidModal = ({
             disabledUnitTiers={disabledUnitTiers}
             targetSelector="coordinates"
             isTargetSelectorDisabled
-            extraContent={<AttackOrRaidActionSelector />}
+            extraContent={
+              <AttackOrRaidActionSelector
+                isDisabled={!isActionSelectionEnabled}
+              />
+            }
           />
         )}
       </DialogContent>

@@ -2,14 +2,21 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
 import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
+import {
+  calculateTotalCarryCapacity,
+  distributeLoot,
+} from '@pillage-first/game-assets/utils/troops';
 import { buildingFieldsFactory } from '@pillage-first/game-assets/village';
 import {
   type Building,
   buildingIdSchema,
 } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import type { UnitId } from '@pillage-first/types/models/unit';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   insertEffectQuery,
   selectWheatProductionEffectIdQuery,
@@ -29,11 +36,292 @@ import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
 import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
 import {
   insertAdventureReport,
+  insertBattleReport,
   insertMovementReport,
 } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
-import { updateVillageResourcesAt } from '../../../utils/village';
+import {
+  addVillageResourcesAt,
+  calculateVillageResourcesAt,
+  subtractVillageResourcesAt,
+  updateVillageResourcesAt,
+} from '../../../utils/village';
 import type { Resolver } from '../resolver';
+
+type BattleReportUnit = {
+  unitId: UnitId;
+  amountBefore: number;
+  amountAfter: number;
+};
+
+type DefenderReinforcementReportParticipant = {
+  tileId: number;
+  playerId: number | null;
+  units: BattleReportUnit[];
+};
+
+const emptyLoot = (): ResourceBundle => [0, 0, 0, 0];
+
+const stealResourcesFromTarget = (
+  database: DbFacade,
+  targetTileId: number,
+  timestamp: number,
+  carryCapacity: number,
+): ResourceBundle => {
+  if (carryCapacity <= 0) {
+    return emptyLoot();
+  }
+
+  const targetVillageId = database.selectValue({
+    sql: 'SELECT id FROM villages WHERE tile_id = $target_tile_id;',
+    bind: { $target_tile_id: targetTileId },
+    schema: z.number().nullable(),
+  });
+
+  if (targetVillageId != null) {
+    const { currentWood, currentClay, currentIron, currentWheat } =
+      calculateVillageResourcesAt(database, targetVillageId, timestamp);
+    const loot = distributeLoot(
+      [currentWood, currentClay, currentIron, currentWheat],
+      carryCapacity,
+    );
+
+    subtractVillageResourcesAt(database, targetVillageId, timestamp, loot);
+
+    return loot;
+  }
+
+  const resourceSite = database.selectObject({
+    sql: `
+      SELECT wood, clay, iron, wheat
+      FROM resource_sites
+      WHERE tile_id = $target_tile_id;
+    `,
+    bind: { $target_tile_id: targetTileId },
+    schema: z.strictObject({
+      wood: z.number(),
+      clay: z.number(),
+      iron: z.number(),
+      wheat: z.number(),
+    }),
+  });
+
+  if (!resourceSite) {
+    return emptyLoot();
+  }
+
+  const loot = distributeLoot(
+    [
+      resourceSite.wood,
+      resourceSite.clay,
+      resourceSite.iron,
+      resourceSite.wheat,
+    ],
+    carryCapacity,
+  );
+
+  database.exec({
+    sql: `
+      UPDATE resource_sites
+      SET
+        wood = wood - $wood,
+        clay = clay - $clay,
+        iron = iron - $iron,
+        wheat = wheat - $wheat,
+        updated_at = $updated_at
+      WHERE tile_id = $target_tile_id;
+    `,
+    bind: {
+      $target_tile_id: targetTileId,
+      $wood: loot[0],
+      $clay: loot[1],
+      $iron: loot[2],
+      $wheat: loot[3],
+      $updated_at: timestamp,
+    },
+  });
+
+  return loot;
+};
+
+const mapTroopsToBattleReportUnits = (
+  troops: GameEvent<'troopMovementAttack'>['troops'],
+): BattleReportUnit[] => {
+  const amountByUnitId = new Map<UnitId, number>();
+
+  for (const troop of troops) {
+    amountByUnitId.set(
+      troop.unitId,
+      (amountByUnitId.get(troop.unitId) ?? 0) + troop.amount,
+    );
+  }
+
+  return [...amountByUnitId.entries()].map(([unitId, amount]) => ({
+    unitId,
+    amountBefore: amount,
+    amountAfter: amount,
+  }));
+};
+
+const getPlayerIdByVillageId = (
+  database: DbFacade,
+  villageId: number,
+): number => {
+  return database.selectValue({
+    sql: 'SELECT player_id FROM villages WHERE id = $village_id;',
+    bind: { $village_id: villageId },
+    schema: z.number(),
+  })!;
+};
+
+const getTargetOwnerPlayerId = (
+  database: DbFacade,
+  targetTileId: number,
+): number | null => {
+  return (
+    database.selectValue({
+      sql: `
+        SELECT COALESCE(target_v.player_id, oasis_owner_v.player_id)
+        FROM
+          tiles t
+          LEFT JOIN villages target_v ON target_v.tile_id = t.id
+          LEFT JOIN villages oasis_owner_v ON oasis_owner_v.id = (
+            SELECT MAX(village_id)
+            FROM oasis
+            WHERE tile_id = t.id
+          )
+        WHERE t.id = $target_tile_id;
+      `,
+      bind: { $target_tile_id: targetTileId },
+      schema: z.number().nullable(),
+    }) ?? null
+  );
+};
+
+const getHomeDefenderUnits = (
+  database: DbFacade,
+  targetTileId: number,
+): BattleReportUnit[] => {
+  return database
+    .selectObjects({
+      sql: `
+        SELECT ui.unit AS unit_id, SUM(t.amount) AS amount
+        FROM
+          troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+        WHERE
+          t.tile_id = $target_tile_id
+          AND t.source_tile_id = $target_tile_id
+        GROUP BY ui.unit;
+      `,
+      bind: { $target_tile_id: targetTileId },
+      schema: z.strictObject({
+        unit_id: z.string(),
+        amount: z.number(),
+      }),
+    })
+    .map(({ unit_id, amount }) => ({
+      unitId: unit_id as UnitId,
+      amountBefore: amount,
+      amountAfter: amount,
+    }));
+};
+
+const getDefenderReinforcements = (
+  database: DbFacade,
+  targetTileId: number,
+): DefenderReinforcementReportParticipant[] => {
+  const rows = database.selectObjects({
+    sql: `
+      SELECT
+        t.source_tile_id,
+        v.player_id,
+        ui.unit AS unit_id,
+        SUM(t.amount) AS amount
+      FROM
+        troops t
+        JOIN unit_ids ui ON ui.id = t.unit_id
+        LEFT JOIN villages v ON v.tile_id = t.source_tile_id
+      WHERE
+        t.tile_id = $target_tile_id
+        AND t.source_tile_id != $target_tile_id
+      GROUP BY t.source_tile_id, v.player_id, ui.unit;
+    `,
+    bind: { $target_tile_id: targetTileId },
+    schema: z.strictObject({
+      source_tile_id: z.number(),
+      player_id: z.number().nullable(),
+      unit_id: z.string(),
+      amount: z.number(),
+    }),
+  });
+
+  const reinforcementsByTileId = new Map<
+    number,
+    DefenderReinforcementReportParticipant
+  >();
+
+  for (const row of rows) {
+    let reinforcement = reinforcementsByTileId.get(row.source_tile_id);
+
+    if (!reinforcement) {
+      reinforcement = {
+        tileId: row.source_tile_id,
+        playerId: row.player_id,
+        units: [],
+      };
+      reinforcementsByTileId.set(row.source_tile_id, reinforcement);
+    }
+
+    reinforcement.units.push({
+      unitId: row.unit_id as UnitId,
+      amountBefore: row.amount,
+      amountAfter: row.amount,
+    });
+  }
+
+  return [...reinforcementsByTileId.values()];
+};
+
+const resolveNoCombatOffensiveMovement = (
+  database: Parameters<Resolver<GameEvent<'troopMovementAttack'>>>[0],
+  args: GameEvent<'troopMovementAttack'> | GameEvent<'troopMovementRaid'>,
+): ResourceBundle => {
+  const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
+
+  const loot = stealResourcesFromTarget(
+    database,
+    targetTileId,
+    resolvesAt,
+    calculateTotalCarryCapacity(troops),
+  );
+
+  insertBattleReport(database, {
+    villageId,
+    timestamp: resolvesAt,
+    outcome: 'attackerNoLoss',
+    originTileId,
+    targetTileId,
+    isRaid: args.type === 'troopMovementRaid',
+    loot,
+    canAttackerSeeFullReport: true,
+    attackerPoints: 0,
+    defenderPoints: 0,
+    attacker: {
+      playerId: getPlayerIdByVillageId(database, villageId),
+      tileId: originTileId,
+      units: mapTroopsToBattleReportUnits(troops),
+    },
+    defender: {
+      playerId: getTargetOwnerPlayerId(database, targetTileId),
+      tileId: targetTileId,
+      units: getHomeDefenderUnits(database, targetTileId),
+    },
+    reinforcements: getDefenderReinforcements(database, targetTileId),
+  });
+
+  return loot;
+};
 
 export const adventureMovementResolver: Resolver<
   GameEvent<'troopMovementAdventure'>
@@ -432,7 +720,7 @@ export const findNewVillageMovementResolver: Resolver<
 export const returnMovementResolver: Resolver<
   GameEvent<'troopMovementReturn'>
 > = (database, args) => {
-  const { villageId, targetTileId, troops } = args;
+  const { villageId, targetTileId, troops, loot, resolvesAt } = args;
 
   addTroops(
     database,
@@ -441,6 +729,10 @@ export const returnMovementResolver: Resolver<
       tileId: targetTileId,
     })),
   );
+
+  if (loot?.some((amount) => amount > 0)) {
+    addVillageResourcesAt(database, villageId, resolvesAt, loot);
+  }
 
   const targetVillageIds = database.selectValues({
     sql: selectPlayerVillageIdByTileIdQuery,
@@ -565,7 +857,8 @@ export const attackMovementResolver: Resolver<
 > = (database, args) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
-  // TODO: Combat
+  const loot = resolveNoCombatOffensiveMovement(database, args);
+
   createEvents<'troopMovementReturn'>(database, {
     villageId,
     troops,
@@ -574,6 +867,7 @@ export const attackMovementResolver: Resolver<
     startsAt: resolvesAt,
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementAttack',
+    loot,
   });
 
   const targetVillageIds = database.selectValues({
@@ -591,7 +885,8 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
 ) => {
   const { villageId, resolvesAt, troops, originTileId, targetTileId } = args;
 
-  // TODO: Combat
+  const loot = resolveNoCombatOffensiveMovement(database, args);
+
   createEvents<'troopMovementReturn'>(database, {
     villageId,
     troops,
@@ -600,6 +895,7 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
     originTileId: targetTileId,
     type: 'troopMovementReturn',
     originalMovementType: 'troopMovementRaid',
+    loot,
   });
 
   const targetVillageIds = database.selectValues({

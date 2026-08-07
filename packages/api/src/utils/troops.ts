@@ -442,9 +442,20 @@ export const validateTroopMovement = (
     isAttackTroopMovementEvent(troopMovementEvent) ||
     isRaidTroopMovementEvent(troopMovementEvent)
   ) {
-    const isVillageOrOasis = database.selectValue({
+    const targetStatus = database.selectObject({
       sql: `
         SELECT
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              tiles t
+                LEFT JOIN villages v ON v.tile_id = t.id
+                LEFT JOIN oasis o ON o.tile_id = t.id
+            WHERE
+              t.id = $target_tile_id
+              AND v.id IS NOT NULL
+            ) AS is_village,
           EXISTS
           (
             SELECT 1
@@ -458,10 +469,21 @@ export const validateTroopMovement = (
             ) AS is_village_or_oasis;
       `,
       bind: { $target_tile_id: targetTileId },
-      schema: z.coerce.boolean(),
+      schema: z.strictObject({
+        is_village: z.coerce.boolean(),
+        is_village_or_oasis: z.coerce.boolean(),
+      }),
     });
 
-    if (!isVillageOrOasis) {
+    if (
+      isAttackTroopMovementEvent(troopMovementEvent) &&
+      !targetStatus?.is_village
+    ) {
+      errors.push('Target must be a village');
+    } else if (
+      isRaidTroopMovementEvent(troopMovementEvent) &&
+      !targetStatus?.is_village_or_oasis
+    ) {
       errors.push('Target must be a village or an oasis');
     }
   }

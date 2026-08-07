@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { Building } from './building';
 import type { BuildingField } from './building-field';
 import type { TroopTrainingDurationEffectId } from './effect';
-import type { Resources } from './resource';
+import type { ResourceBundle, Resources } from './resource';
 import type { Tile } from './tile';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
@@ -106,6 +106,7 @@ export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
   originalMovementType:
     | TroopMovementEventType
     | 'troopMovementReturnReinforcements';
+  loot?: ResourceBundle;
 };
 
 export const gameEventTypeSchema = z.enum([

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { Tile } from '@pillage-first/types/models/tile';
+import { AttackOrRaidModal } from 'app/(game)/(village-slug)/(map)/components/attack-or-raid-modal';
 import { TroopMovementConfirmationContent } from 'app/(game)/(village-slug)/components/send-troops/components/confirmation-modal';
 import { ReinforcementRelocationActionSelector } from 'app/(game)/(village-slug)/components/send-troops/components/reinforcement-relocation-action-selector';
 import { SendTroopsModalContent } from 'app/(game)/(village-slug)/components/send-troops/components/send-troops-modal';
@@ -8,7 +9,9 @@ import { useReinforcementRelocationTroopForm } from 'app/(game)/(village-slug)/c
 import { Dialog, DialogContent } from 'app/components/ui/dialog';
 
 export type MapSendTroopsAction = {
-  mode: 'found-new-village' | 'reinforcement';
+  mode: 'attack-or-raid' | 'found-new-village' | 'reinforcement';
+  offensiveAction?: 'attack' | 'raid';
+  isOffensiveActionSelectionEnabled?: boolean;
   isRelocationEnabled?: boolean;
   targetTileId: Tile['id'];
 };
@@ -155,12 +158,25 @@ export const MapSendTroopsModal = ({
     return null;
   }
 
-  const key = `${action.mode}-${action.targetTileId}-${action.isRelocationEnabled ?? true}`;
+  const key = `${action.mode}-${action.targetTileId}-${action.offensiveAction ?? 'attack'}-${action.isOffensiveActionSelectionEnabled ?? true}-${action.isRelocationEnabled ?? true}`;
 
   if (action.mode === 'found-new-village') {
     return (
       <FoundNewVillageModal
         key={key}
+        isOpen={isOpen}
+        onClose={onClose}
+        targetTileId={action.targetTileId}
+      />
+    );
+  }
+
+  if (action.mode === 'attack-or-raid') {
+    return (
+      <AttackOrRaidModal
+        key={key}
+        action={action.offensiveAction}
+        isActionSelectionEnabled={action.isOffensiveActionSelectionEnabled}
         isOpen={isOpen}
         onClose={onClose}
         targetTileId={action.targetTileId}
