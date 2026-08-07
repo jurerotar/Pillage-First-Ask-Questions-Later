@@ -423,6 +423,16 @@ const MapPageContents = () => {
             deleteMapMarker={deleteMapMarker}
             mapMarkers={mapMarkers}
             tile={modalArgs.current!}
+            onAttackOrRaid={(tile) => {
+              const isOasis = tile.type === 'oasis';
+
+              openMapSendTroopsModal({
+                mode: 'attack-or-raid',
+                offensiveAction: isOasis ? 'raid' : 'attack',
+                isOffensiveActionSelectionEnabled: !isOasis,
+                targetTileId: tile.id,
+              });
+            }}
             onFoundNewVillage={(tile) => {
               openMapSendTroopsModal({
                 mode: 'found-new-village',

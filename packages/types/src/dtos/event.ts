@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { buildingIdSchema } from '../models/building';
 import { effectIdSchema } from '../models/effect';
 import { gameEventTypeSchema } from '../models/game-event';
+import { resourceBundleSchema } from '../models/resource';
 import { troopSchema } from '../models/troop';
 import { unitIdSchema } from '../models/unit';
 
@@ -164,6 +165,7 @@ export const createEventDtoSchema = z
       type: z.literal('troopMovementReturn'),
       ...troopMovementEventSchema,
       originalMovementType: returnMovementTypeSchema,
+      loot: resourceBundleSchema.optional(),
     }),
     z.strictObject({
       type: z.literal('heroRevival'),
