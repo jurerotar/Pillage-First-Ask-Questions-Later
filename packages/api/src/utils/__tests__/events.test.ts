@@ -1248,7 +1248,7 @@ describe('events utils', () => {
       ).toThrow('No free oasis occupation slots available');
     });
 
-    test('troopMovementAttack - should throw if target is not village', async () => {
+    test('troopMovementAttack - should throw if target is not village or oasis', async () => {
       const database = await prepareTestDatabase();
 
       database.exec({
@@ -1265,7 +1265,7 @@ describe('events utils', () => {
             targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
           }),
         ),
-      ).toThrow('Target must be a village');
+      ).toThrow('Target must be a village or an oasis');
     });
 
     test('troopMovementAttack - should not throw if target is village', async () => {
@@ -1285,7 +1285,7 @@ describe('events utils', () => {
       ).not.toThrow();
     });
 
-    test('troopMovementAttack - should throw if target is oasis', async () => {
+    test('troopMovementAttack - should not throw if target is oasis', async () => {
       const database = await prepareTestDatabase();
       const targetTileId = database.selectValue({
         sql: 'SELECT tile_id FROM oasis LIMIT 1',
@@ -1297,7 +1297,7 @@ describe('events utils', () => {
           database,
           createTroopMovementAttackEventMock({ targetTileId }),
         ),
-      ).toThrow('Target must be a village');
+      ).not.toThrow();
     });
 
     test('troopMovementRaid - should throw if target is not village or oasis', async () => {
