@@ -307,6 +307,7 @@ describe('events utils', () => {
         createUnitResearchEventMock({
           id: 99_101,
           villageId,
+          unitId: 'PHALANX',
           startsAt,
           duration,
         }),
@@ -317,6 +318,7 @@ describe('events utils', () => {
           database,
           createUnitResearchEventMock({
             villageId,
+            unitId: 'PHALANX',
           }),
         ),
       ).toThrow('Academy is busy');
@@ -329,7 +331,7 @@ describe('events utils', () => {
       database.exec({
         sql: `INSERT INTO unit_research (village_id, unit_id)
               VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = $unit))`,
-        bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
+        bind: { $village_id: villageId, $unit: 'PHALANX' },
       });
 
       expect(() =>
@@ -337,6 +339,7 @@ describe('events utils', () => {
           database,
           createUnitResearchEventMock({
             villageId,
+            unitId: 'PHALANX',
           }),
         ),
       ).toThrow('Unit is already researched');
@@ -348,7 +351,7 @@ describe('events utils', () => {
       database.exec({
         sql: `DELETE FROM unit_research
               WHERE village_id = $village_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit)`,
-        bind: { $village_id: villageId, $unit: 'LEGIONNAIRE' },
+        bind: { $village_id: villageId, $unit: 'PHALANX' },
       });
 
       expect(() =>
@@ -356,9 +359,73 @@ describe('events utils', () => {
           database,
           createUnitResearchEventMock({
             villageId,
+            unitId: 'PHALANX',
           }),
         ),
       ).not.toThrow();
+    });
+
+    test('unitResearch - should throw if unit does not belong to village tribe', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitResearchEventMock({
+            villageId,
+            unitId: 'LEGIONNAIRE',
+          }),
+        ),
+      ).toThrow('Unit does not belong to village tribe');
+    });
+
+    test('unitResearch - should throw if research building requirements are missing', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'ACADEMY', 2);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitResearchEventMock({
+            villageId,
+            unitId: 'SWORDSMAN',
+          }),
+        ),
+      ).toThrow('Unit research requirements are not met');
+    });
+
+    test('unitResearch - should not throw if research building requirements are met', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'ACADEMY', 3);
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createUnitResearchEventMock({
+            villageId,
+            unitId: 'SWORDSMAN',
+          }),
+        ),
+      ).not.toThrow();
+    });
+
+    test('troopTraining - should throw if unit does not belong to village tribe', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      const event = createTroopTrainingEventMock({
+        villageId,
+        unitId: 'LEGIONNAIRE',
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Unit does not belong to village tribe',
+      );
     });
 
     test('troopTraining - should throw if unit is not researched', async () => {
@@ -367,11 +434,65 @@ describe('events utils', () => {
 
       const event = createTroopTrainingEventMock({
         villageId,
-        unitId: 'IMPERIAN',
+        unitId: 'SWORDSMAN',
       });
 
       expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
         'Unit is not researched',
+      );
+    });
+
+    test('troopTraining - should throw if training building does not match unit category', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'STABLE', 1);
+
+      const event = createTroopTrainingEventMock({
+        villageId,
+        unitId: 'PHALANX',
+        buildingId: 'STABLE',
+        durationEffectId: 'stableTrainingDuration',
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Unit training building does not match unit category',
+      );
+    });
+
+    test('troopTraining - should throw if duration effect does not match training building', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'BARRACKS', 1);
+
+      const event = createTroopTrainingEventMock({
+        villageId,
+        unitId: 'PHALANX',
+        buildingId: 'BARRACKS',
+        durationEffectId: 'stableTrainingDuration',
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Unit training duration effect does not match building',
+      );
+    });
+
+    test('troopTraining - should throw if recruitment building requirements are missing', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+
+      setVillageBuildingLevel(database, villageId, 'RESIDENCE', 9);
+
+      const event = createTroopTrainingEventMock({
+        villageId,
+        unitId: 'GAUL_SETTLER',
+        buildingId: 'RESIDENCE',
+        durationEffectId: 'residenceTrainingDuration',
+      });
+
+      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
+        'Unit recruitment requirements are not met',
       );
     });
 
@@ -380,13 +501,13 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       setVillageBuildingLevel(database, villageId, 'HOSPITAL', 10);
-      setWoundedTroopAmount(database, villageId, 'IMPERIAN', 5);
+      setWoundedTroopAmount(database, villageId, 'SWORDSMAN', 5);
 
       const event = createTroopTrainingEventMock({
         villageId,
         buildingId: 'HOSPITAL',
         durationEffectId: 'hospitalTrainingDuration',
-        unitId: 'IMPERIAN',
+        unitId: 'SWORDSMAN',
         amount: 5,
       });
 
@@ -400,13 +521,13 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
 
       setVillageBuildingLevel(database, villageId, 'HOSPITAL', 10);
-      setWoundedTroopAmount(database, villageId, 'LEGIONNAIRE', 4);
+      setWoundedTroopAmount(database, villageId, 'PHALANX', 4);
 
       const event = createTroopTrainingEventMock({
         villageId,
         buildingId: 'HOSPITAL',
         durationEffectId: 'hospitalTrainingDuration',
-        unitId: 'LEGIONNAIRE',
+        unitId: 'PHALANX',
         amount: 5,
       });
 

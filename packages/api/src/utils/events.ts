@@ -91,9 +91,9 @@ import {
 import { selectServerMapSizeQuery } from '../queries/server-queries';
 import { selectIsUnitResearchedQuery } from '../queries/unit-research-queries';
 import {
+  selectTribeByVillageId,
   selectVillageBuildingLevelQuery,
   selectVillageTileIdQuery,
-  selectVillageTribeQuery,
 } from '../queries/village-queries';
 import {
   calculateAdventureDuration,
@@ -120,6 +120,12 @@ import {
   selectWoundedTroopAmount,
   validateTroopMovement,
 } from './troops';
+import {
+  areVillageBuildingRequirementsMet,
+  doesTroopTrainingBuildingMatchUnit,
+  doesTroopTrainingDurationEffectMatchBuilding,
+  isUnitInVillageTribe,
+} from './unit-event-validation';
 import { calculateVillageResourcesAt } from './village';
 import { apiEffectSchema } from './zod/effect-schemas';
 import {
@@ -364,6 +370,11 @@ export const validateEventCreationPrerequisites = (
 
   if (isUnitResearchEvent(event)) {
     const { unitId, villageId } = event;
+    const unit = getUnitDefinition(unitId);
+
+    if (!isUnitInVillageTribe(database, villageId, unit)) {
+      throw new Error('Unit does not belong to village tribe');
+    }
 
     const hasOngoingUnitResearchEventsInThisVillage = database.selectValue({
       sql: selectVillageEventExistsByTypeQuery,
@@ -391,6 +402,16 @@ export const validateEventCreationPrerequisites = (
       throw new Error('Unit is already researched');
     }
 
+    if (
+      !areVillageBuildingRequirementsMet(
+        database,
+        villageId,
+        unit.researchRequirements,
+      )
+    ) {
+      throw new Error('Unit research requirements are not met');
+    }
+
     return;
   }
 
@@ -399,6 +420,9 @@ export const validateEventCreationPrerequisites = (
 
     const unit = getUnitDefinition(unitId);
     const isHealing = isHealingTroopTrainingBuilding(buildingId);
+    if (!isUnitInVillageTribe(database, villageId, unit)) {
+      throw new Error('Unit does not belong to village tribe');
+    }
 
     if (!Number.isInteger(amount) || amount <= 0) {
       throw new Error('Unit training amount must be positive');
@@ -432,9 +456,13 @@ export const validateEventCreationPrerequisites = (
       throw new Error('Unit training building does not exist');
     }
 
+    if (!doesTroopTrainingDurationEffectMatchBuilding(event)) {
+      throw new Error('Unit training duration effect does not match building');
+    }
+
     if (isHealing) {
       const tribe = database.selectValue({
-        sql: selectVillageTribeQuery,
+        sql: selectTribeByVillageId,
         bind: {
           $village_id: villageId,
         },
@@ -463,6 +491,20 @@ export const validateEventCreationPrerequisites = (
 
       if (amount > woundedAmount) {
         throw new Error('Not enough wounded troops available');
+      }
+    } else {
+      if (!doesTroopTrainingBuildingMatchUnit(unit, buildingId)) {
+        throw new Error('Unit training building does not match unit category');
+      }
+
+      if (
+        !areVillageBuildingRequirementsMet(
+          database,
+          villageId,
+          unit.recruitmentRequirements,
+        )
+      ) {
+        throw new Error('Unit recruitment requirements are not met');
       }
     }
 
@@ -611,7 +653,7 @@ export const validateEventCreationPrerequisites = (
     })!;
 
     const playerTribe = database.selectValue({
-      sql: selectVillageTribeQuery,
+      sql: selectTribeByVillageId,
       bind: {
         $village_id: villageId,
       },
