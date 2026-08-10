@@ -21,7 +21,7 @@
     "lint/oxlint": "oxlint --type-aware --fix",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
-    "knip:ci": "knip --max-issues 29",
+    "knip": "knip",
     "localize": "i18next-cli extract",
     "type-check": "react-router typegen && tsc",
     "test": "vitest"
@@ -103,6 +103,10 @@
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@6/schema.json",
+    "ignoreBinaries": [
+      "biome",
+      "oxlint"
+    ],
     "entry": [
       "scripts/*.ts",
       "app/**/*page.tsx!",

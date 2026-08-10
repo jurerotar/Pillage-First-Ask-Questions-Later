@@ -23,6 +23,7 @@
     "lint/oxlint": "oxlint --type-aware --fix",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
+    "knip": "knip",
     "test": "vitest",
     "type-check": "tsc"
   },
@@ -30,11 +31,23 @@
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "3.53.0-build1"
+    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
+    "ts-seedrandom": "1.6.0"
   },
   "devDependencies": {
+    "knip": "6.31.0",
     "typescript": "7.0.2",
     "vitest": "4.1.10",
     "zod": "4.4.3"
+  },
+  "knip": {
+    "$schema": "https://unpkg.com/knip@6/schema.json",
+    "ignoreBinaries": [
+      "biome",
+      "oxlint"
+    ],
+    "project": [
+      "src/**/*.ts!"
+    ]
   }
 }

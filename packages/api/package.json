@@ -29,6 +29,7 @@
     "lint/oxlint": "oxlint --type-aware --fix .",
     "format:check": "biome ci --linter-enabled=false",
     "format": "biome check --write --no-errors-on-unmatched",
+    "knip": "knip",
     "type-check": "tsc",
     "test": "vitest"
   },
@@ -40,12 +41,23 @@
     "@sqlite.org/sqlite-wasm": "3.53.0-build1",
     "moderndash": "4.0.2",
     "path-to-regexp": "8.4.2",
+    "ts-seedrandom": "1.6.0",
     "zod": "4.4.3",
     "zod-openapi": "6.0.0"
   },
   "devDependencies": {
-    "openapi-typescript": "7.13.0",
+    "knip": "6.31.0",
     "typescript": "7.0.2",
     "vitest": "4.1.10"
+  },
+  "knip": {
+    "$schema": "https://unpkg.com/knip@6/schema.json",
+    "ignoreBinaries": [
+      "biome",
+      "oxlint"
+    ],
+    "project": [
+      "src/**/*.ts!"
+    ]
   }
 }

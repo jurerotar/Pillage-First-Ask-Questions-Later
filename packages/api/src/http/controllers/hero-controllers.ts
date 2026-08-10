@@ -519,6 +519,7 @@ export const equipHeroItem = createController(
 
     // 4. Handle effects of newly equipped item
     const itemDef = getItemDefinition(itemId);
+
     if (itemDef.effects) {
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',

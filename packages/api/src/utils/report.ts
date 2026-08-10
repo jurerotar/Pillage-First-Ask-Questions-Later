@@ -16,10 +16,7 @@ export type CreateNewReport = Pick<
   'villageId' | 'timestamp' | 'type' | 'outcome' | 'tags'
 >;
 
-export type CreateNewTradeReport = Pick<
-  CreateNewReport,
-  'villageId' | 'timestamp'
-> & {
+type CreateNewTradeReport = Pick<CreateNewReport, 'villageId' | 'timestamp'> & {
   outcome: Extract<
     ReportOutcome,
     'incomingMerchantsArrived' | 'outgoingMerchantsArrived'
@@ -57,7 +54,7 @@ export type CreateNewHuntingPartyReport = Pick<
   amount: number;
 };
 
-export type CreateNewScoutingReport = Pick<
+type CreateNewScoutingReport = Pick<
   CreateNewReport,
   'villageId' | 'timestamp' | 'outcome'
 > & {

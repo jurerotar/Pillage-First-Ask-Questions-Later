@@ -41,9 +41,6 @@
     "vite-plugin-pwa": {
       "vite": "8.2.0"
     },
-    "openapi-typescript": {
-      "typescript": "7.0.2"
-    },
     "@react-router/dev": {
       "typescript": "7.0.2"
     }
