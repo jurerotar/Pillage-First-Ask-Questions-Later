@@ -4,6 +4,11 @@ import type {
   VillageEffect,
 } from '@pillage-first/types/models/effect';
 import type { Village } from '@pillage-first/types/models/village';
+import {
+  isAdditiveBonusEffect,
+  isMultiplicativeBonusEffect,
+  isResourceProductionEffectId,
+} from '../guards/effect-guards';
 
 const assignEffectValue = (
   effect: Effect,
@@ -15,7 +20,14 @@ const assignEffectValue = (
       break;
     }
     case 'bonus': {
-      effectValuesRef.bonus *= effect.value;
+      if (isAdditiveBonusEffect(effect)) {
+        effectValuesRef.bonus += effect.value - 1;
+        break;
+      }
+
+      if (isMultiplicativeBonusEffect(effect)) {
+        effectValuesRef.bonus *= effect.value;
+      }
       break;
     }
     case 'bonus-booster': {
@@ -33,6 +45,36 @@ type EffectValueBreakdown = {
 
 const truncateBonusValue = (value: number): number => {
   return Math.trunc(value + 1e-9);
+};
+
+const getBoostedBonusEffectValue = ({
+  bonus,
+  bonusBooster,
+}: EffectValueBreakdown): number => {
+  return 1 + (bonus - 1) * bonusBooster;
+};
+
+const combineBonusEffectValues = (
+  effectId: Effect['id'],
+  effectValues: EffectValueBreakdown[],
+): number => {
+  if (isResourceProductionEffectId(effectId)) {
+    let totalDelta = 0;
+
+    for (const effectValue of effectValues) {
+      totalDelta += getBoostedBonusEffectValue(effectValue) - 1;
+    }
+
+    return 1 + totalDelta;
+  }
+
+  let total = 1;
+
+  for (const effectValue of effectValues) {
+    total *= getBoostedBonusEffectValue(effectValue);
+  }
+
+  return total;
 };
 
 type GetEffectBreakdownReturn = {
@@ -138,14 +180,13 @@ export const getEffectBreakdown = (
     }
   }
 
-  const combinedDelta =
-    (buildingEffectValues.bonus - 1) * buildingEffectValues.bonusBooster +
-    (oasisEffectValues.bonus - 1) * oasisEffectValues.bonusBooster +
-    (artifactEffectValues.bonus - 1) * artifactEffectValues.bonusBooster +
-    (heroEffectValues.bonus - 1) * heroEffectValues.bonusBooster +
-    (troopEffectValues.bonus - 1) * troopEffectValues.bonusBooster;
-
-  const combinedBonusEffectValue = 1 + combinedDelta;
+  const combinedBonusEffectValue = combineBonusEffectValues(effectId, [
+    buildingEffectValues,
+    oasisEffectValues,
+    artifactEffectValues,
+    heroEffectValues,
+    troopEffectValues,
+  ]);
 
   return {
     serverEffectValue,
@@ -206,13 +247,7 @@ export function calculateComputedEffect(
     effectBreakdown.troopEffectValues.base.length > 0;
 
   if (!hasAnyBaseEffect) {
-    const isEffectResourceProduction =
-      effectId === 'woodProduction' ||
-      effectId === 'clayProduction' ||
-      effectId === 'ironProduction' ||
-      effectId === 'wheatProduction';
-
-    if (isEffectResourceProduction) {
+    if (isResourceProductionEffectId(effectId)) {
       if (effectId === 'wheatProduction') {
         return {
           total: 0,
@@ -291,6 +326,19 @@ export function calculateComputedEffect(
     }
 
     const baseValue = value * serverEffectValue;
+
+    if (!isResourceProductionEffectId(effectId)) {
+      const combinedBonus =
+        effectBreakdown.combinedBonusEffectValue > 1
+          ? truncateBonusValue(
+              baseValue * (effectBreakdown.combinedBonusEffectValue - 1),
+            )
+          : 0;
+
+      summedBuildingEffectBasePositiveValue += baseValue + combinedBonus;
+      continue;
+    }
+
     const buildingBonus =
       buildingEffectValues.bonus > 1
         ? truncateBonusValue(

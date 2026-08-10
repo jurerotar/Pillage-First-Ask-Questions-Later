@@ -5,7 +5,7 @@ import { prepareTestDatabase } from '../../';
 const database = await prepareTestDatabase();
 
 const getCropperCount = (rfc: string) => {
-  const goodCroppersCount = database.selectObjects({
+  const goodCropperTileIds = database.selectValues({
     sql: `
       SELECT
         t.id
@@ -28,10 +28,10 @@ const getCropperCount = (rfc: string) => {
     bind: {
       $rfc: rfc,
     },
-    schema: z.strictObject({ id: z.number() }),
+    schema: z.number(),
   });
 
-  return goodCroppersCount.length;
+  return goodCropperTileIds.length;
 };
 
 describe('guaranteedCroppersSeeder', () => {

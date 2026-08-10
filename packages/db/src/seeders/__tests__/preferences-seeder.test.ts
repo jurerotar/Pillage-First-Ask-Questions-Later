@@ -7,7 +7,7 @@ const database = await prepareTestDatabase();
 
 describe('preferencesSeeder', () => {
   test('preferences row exists for player', () => {
-    const countRow = database.selectObject({
+    const countRow = database.selectValue({
       sql: `
         SELECT COUNT(*) AS cnt
         FROM
@@ -16,9 +16,9 @@ describe('preferencesSeeder', () => {
           player_id = $player_id;
       `,
       bind: { $player_id: PLAYER_ID },
-      schema: z.strictObject({ cnt: z.number() }),
+      schema: z.number(),
     });
 
-    expect(countRow?.cnt).toBeGreaterThan(0);
+    expect(countRow).toBeGreaterThan(0);
   });
 });

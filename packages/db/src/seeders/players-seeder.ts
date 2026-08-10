@@ -4,6 +4,7 @@ import {
   factionSchema,
 } from '@pillage-first/types/models/faction';
 import type { Server } from '@pillage-first/types/models/server';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { batchInsert } from '../utils/batch-insert';
 import { generateNpcPlayers, playerFactory } from './factories/player-factory';
@@ -21,7 +22,7 @@ export const playersSeeder = (database: DbFacade, server: Server): void => {
     sql: 'SELECT id, tribe FROM tribe_ids',
     schema: z.strictObject({
       id: z.number(),
-      tribe: z.string(),
+      tribe: tribeSchema,
     }),
   });
 

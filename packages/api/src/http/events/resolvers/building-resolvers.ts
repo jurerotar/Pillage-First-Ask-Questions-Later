@@ -10,7 +10,7 @@ import {
   updateBuildingEffectQuery,
   updatePopulationEffectQuery,
 } from '../../../queries/effect-queries';
-import { selectVillageTribeQuery } from '../../../queries/village-queries';
+import { selectTribeByVillageId } from '../../../queries/village-queries';
 import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
 import { createEvents } from '../../../utils/create-event';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
@@ -71,7 +71,7 @@ export const buildingLevelChangeResolver: Resolver<
 
   // Update effects
   const tribe = database.selectValue({
-    sql: selectVillageTribeQuery,
+    sql: selectTribeByVillageId,
     bind: { $village_id: villageId },
     schema: tribeSchema,
   })!;
@@ -193,7 +193,7 @@ export const buildingDestructionResolver: Resolver<
 
   // Remove or reset building effects depending on whether the building can be fully destroyed
   const tribe = database.selectValue({
-    sql: selectVillageTribeQuery,
+    sql: selectTribeByVillageId,
     bind: { $village_id: villageId },
     schema: tribeSchema,
   })!;

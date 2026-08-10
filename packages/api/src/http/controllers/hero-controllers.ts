@@ -8,6 +8,7 @@ import {
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
 import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { getPlayerHeroAdventureStateAt } from '../../utils/adventures';
 import { createEvents } from '../../utils/create-event';
 import { updateHeroResourceProductionEffects } from '../../utils/hero';
@@ -278,7 +279,7 @@ export const changeHeroAttributes = createController(
             p.id = $player_id
         `,
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number(), tribe: z.string() }),
+        schema: z.strictObject({ id: z.number(), tribe: tribeSchema }),
       })!;
 
       database.exec({
@@ -393,7 +394,7 @@ export const changeHeroResourceToProduce = createController(
       bind: { $player_id: playerId },
       schema: z.strictObject({
         resource_production: z.number(),
-        tribe: z.string(),
+        tribe: tribeSchema,
       }),
     })!;
 
@@ -519,6 +520,7 @@ export const equipHeroItem = createController(
 
     // 4. Handle effects of newly equipped item
     const itemDef = getItemDefinition(itemId);
+
     if (itemDef.effects) {
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
@@ -646,11 +648,11 @@ export const useHeroItem = createController(
   },
 )(({ database, path: { playerId }, body: { itemId, amount } }) => {
   database.transaction(() => {
-    const heroId = database.selectObject({
+    const heroId = database.selectValue({
       sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number() }),
-    })?.id;
+      schema: z.number(),
+    });
 
     if (heroId === undefined) {
       throw new Error('Hero not found');
@@ -658,11 +660,11 @@ export const useHeroItem = createController(
 
     // Check inventory
     const inventoryAmount =
-      database.selectObject({
+      database.selectValue({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: { $hero_id: heroId, $itemId: itemId },
-        schema: z.strictObject({ amount: z.number() }),
-      })?.amount ?? 0;
+        schema: z.number(),
+      }) ?? 0;
 
     if (inventoryAmount < amount) {
       throw new Error('Not enough items in inventory');
@@ -672,11 +674,11 @@ export const useHeroItem = createController(
 
     if (itemId === 1021) {
       // HEALING_POTION
-      const currentHealth = database.selectObject({
+      const currentHealth = database.selectValue({
         sql: 'SELECT health FROM heroes WHERE id = $hero_id',
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ health: z.number() }),
-      })!.health;
+        schema: z.number(),
+      })!;
 
       const healthNeeded = 100 - currentHealth;
       if (healthNeeded <= 0) {
@@ -692,7 +694,7 @@ export const useHeroItem = createController(
       // BOOK_OF_WISDOM
       itemsToUse = 1;
 
-      const hero = database.selectObject({
+      const hero = database.selectValue({
         sql: `
           SELECT ti.tribe
           FROM
@@ -703,10 +705,10 @@ export const useHeroItem = createController(
             h.id = $hero_id
         `,
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ tribe: z.string() }),
+        schema: z.string(),
       })!;
 
-      const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
+      const initialStrength = hero.toLowerCase() === 'romans' ? 100 : 80;
 
       const villageId = database.selectValue({
         sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
@@ -746,7 +748,7 @@ export const useHeroItem = createController(
       updateHeroResourceProductionEffects({
         database,
         villageId,
-        tribe: hero.tribe,
+        tribe: hero,
         resourceProduction: 0,
         resourceToProduce: 'shared',
       });

@@ -12,15 +12,15 @@ describe('quest-controllers', () => {
   test('getQuests should return quests for a village', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     getQuests(
       database,
       createControllerArgs<'/villages/:villageId/quests'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
       }),
     );
 
@@ -30,9 +30,9 @@ describe('quest-controllers', () => {
   test('getCollectableQuestCount should return collectable quest count', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     // 1. Initially, let's see how many collectable quests there are for this village
@@ -40,7 +40,7 @@ describe('quest-controllers', () => {
     const { collectableQuestCount: initialCount } = getCollectableQuestCount(
       database,
       createControllerArgs<'/villages/:villageId/quests/collectables/count'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
       }),
     );
 
@@ -69,7 +69,7 @@ describe('quest-controllers', () => {
       bind: {
         $quest_id: 'test-village-quest',
         $completed_at: Date.now(),
-        $village_id: village.id,
+        $village_id: villageId,
       },
     });
 
@@ -84,14 +84,14 @@ describe('quest-controllers', () => {
       bind: {
         $quest_id: 'test-other-village-quest',
         $completed_at: Date.now(),
-        $village_id: village.id + 1, // Assumes village.id + 1 exists or doesn't violate FK (test db usually doesn't have strict FKs or we can just use a number)
+        $village_id: villageId + 1, // Assumes village.id + 1 exists or doesn't violate FK (test db usually doesn't have strict FKs or we can just use a number)
       },
     });
 
     const { collectableQuestCount: finalCount } = getCollectableQuestCount(
       database,
       createControllerArgs<'/villages/:villageId/quests/collectables/count'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
       }),
     );
 
@@ -101,15 +101,15 @@ describe('quest-controllers', () => {
   test('collectQuest should collect a quest', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     // Find a quest that is completed but not collected
-    const quest = database.selectObject({
+    const questId = database.selectValue({
       sql: 'SELECT quest_id FROM quests WHERE completed_at IS NOT NULL AND collected_at IS NULL LIMIT 1',
-      schema: z.strictObject({ quest_id: z.string() }),
+      schema: z.string(),
     })!;
 
     collectQuest(
@@ -118,7 +118,7 @@ describe('quest-controllers', () => {
         '/villages/:villageId/quests/:questId/collect',
         'patch'
       >({
-        path: { villageId: village.id, questId: quest.quest_id },
+        path: { villageId: villageId, questId: questId },
       }),
     );
 

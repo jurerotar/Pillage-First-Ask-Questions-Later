@@ -13,10 +13,10 @@ describe(troopTrainingEventResolver, () => {
     const unitId: Unit['id'] = 'LEGIONNAIRE';
 
     // We need to know tile_id of the village to verify troop insertion
-    const village = database.selectObject({
+    const villageTileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
       bind: { $village_id: villageId },
-      schema: z.strictObject({ tile_id: z.number() }),
+      schema: z.number(),
     })!;
 
     const mockEvent = createTroopTrainingEventMock({
@@ -34,13 +34,13 @@ describe(troopTrainingEventResolver, () => {
     troopTrainingEventResolver(database, { ...mockEvent, id: 999 });
 
     // Verify troops table
-    const troop = database.selectObject({
+    const troop = database.selectValue({
       sql: 'SELECT amount FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id) AND tile_id = $tile_id;',
-      bind: { $unit_id: unitId, $tile_id: village.tile_id },
-      schema: z.strictObject({ amount: z.number() }),
+      bind: { $unit_id: unitId, $tile_id: villageTileId },
+      schema: z.number(),
     })!;
 
-    expect(troop.amount).toBeGreaterThanOrEqual(1);
+    expect(troop).toBeGreaterThanOrEqual(1);
 
     const wheatEffectId = database.selectValue({
       sql: selectWheatProductionEffectIdQuery,
@@ -48,7 +48,7 @@ describe(troopTrainingEventResolver, () => {
     })!;
 
     // Verify wheat consumption effect
-    const effect = database.selectObject({
+    const effect = database.selectValue({
       sql: `
         SELECT value
         FROM effects
@@ -57,7 +57,7 @@ describe(troopTrainingEventResolver, () => {
           AND effect_id = $effect_id;
       `,
       bind: { $effect_id: wheatEffectId, $village_id: villageId },
-      schema: z.strictObject({ value: z.number() }),
+      schema: z.number(),
     })!;
 
     expect(effect).toBeDefined();
@@ -107,12 +107,12 @@ describe(troopTrainingEventResolver, () => {
     });
 
     // Check history - should have 1 entry with amount 1
-    const history1 = database.selectObject({
+    const history1 = database.selectValue({
       sql: 'SELECT amount FROM unit_training_history WHERE batch_id = $batch_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);',
       bind: { $batch_id: batchId, $unit_id: unitId },
-      schema: z.strictObject({ amount: z.number() }),
+      schema: z.number(),
     })!;
-    expect(history1.amount).toBe(1);
+    expect(history1).toBe(1);
 
     // Add and resolve another event in the same batch
     database.exec({
@@ -139,11 +139,11 @@ describe(troopTrainingEventResolver, () => {
     });
 
     // Check history - should now have amount 2
-    const history2 = database.selectObject({
+    const history2 = database.selectValue({
       sql: 'SELECT amount FROM unit_training_history WHERE batch_id = $batch_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);',
       bind: { $batch_id: batchId, $unit_id: unitId },
-      schema: z.strictObject({ amount: z.number() }),
+      schema: z.number(),
     })!;
-    expect(history2.amount).toBe(2);
+    expect(history2).toBe(2);
   });
 });

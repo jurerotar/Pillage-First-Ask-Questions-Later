@@ -35,12 +35,12 @@ describe(unitImprovementResolver, () => {
 
     unitImprovementResolver(database, { ...mockEvent, id: 999 });
 
-    const improvement = database.selectObject({
+    const improvement = database.selectValue({
       sql: 'SELECT level FROM unit_improvements WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id);',
       bind: { $unit_id: unitId },
-      schema: z.strictObject({ level: z.number() }),
+      schema: z.number(),
     })!;
 
-    expect(improvement.level).toBeGreaterThanOrEqual(1);
+    expect(improvement).toBeGreaterThanOrEqual(1);
   });
 });

@@ -9,7 +9,7 @@ import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { Village } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { updatePopulationEffectQuery } from '../queries/effect-queries';
-import { selectVillageTribeQuery } from '../queries/village-queries';
+import { selectTribeByVillageId } from '../queries/village-queries';
 import { demolishBuilding } from './village';
 
 export const createBuildingPlaceholder = (
@@ -33,7 +33,7 @@ export const createBuildingPlaceholder = (
   });
 
   const tribe = database.selectValue({
-    sql: selectVillageTribeQuery,
+    sql: selectTribeByVillageId,
     bind: { $village_id: villageId },
     schema: tribeSchema,
   })!;

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { prepareTestDatabase } from '../../';
 
 const database = await prepareTestDatabase();
@@ -30,7 +31,7 @@ describe('heroSeeder', () => {
             JOIN tribe_ids ti ON p.tribe_id = ti.id
       `,
       schema: z.strictObject({
-        tribe: z.string(),
+        tribe: tribeSchema,
         base_attack_power: z.number(),
       }),
     });

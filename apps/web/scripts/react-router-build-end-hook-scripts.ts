@@ -6,7 +6,6 @@ import { load } from 'cheerio';
 import { REACT_ICONS_SPRITE_URL_PLACEHOLDER } from 'react-icons-sprite';
 import { matchRoutes, type RouteObject } from 'react-router';
 import type { Config } from '@react-router/dev/config';
-import changelog from '../../../CHANGELOG.md?raw';
 import {
   buildItemsFromChangelog,
   parseChangelog,
@@ -210,6 +209,7 @@ export const generateStaticFeeds: NonNullable<
   const clientDir = resolve('build/client');
 
   const baseUrl = 'https://pillagefirst.com';
+  const { default: changelog } = await import('../../../CHANGELOG.md?raw');
 
   const changelogEntries = parseChangelog(changelog);
   const items = buildItemsFromChangelog(changelogEntries, baseUrl, 30);

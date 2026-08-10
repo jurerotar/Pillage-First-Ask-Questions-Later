@@ -332,16 +332,16 @@ describe('player-controllers', () => {
   test('renameVillage should rename a village', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     renameVillage(
       database,
       createControllerArgs<'/villages/:villageId', 'patch'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
         body: { name: 'New Village Name' },
       }),
     );
@@ -1995,21 +1995,21 @@ describe('player-controllers', () => {
   test('getPlayerBySlug should return player details by slug', async () => {
     const database = await prepareTestDatabase();
 
-    const player = database.selectObject({
+    const player = database.selectValue({
       sql: 'SELECT slug FROM players WHERE id = $player_id',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ slug: z.string() }),
+      schema: z.string(),
     })!;
 
     const result = getPlayerBySlug(
       database,
       createControllerArgs<'/players/:playerSlug'>({
-        path: { playerSlug: player.slug },
+        path: { playerSlug: player },
       }),
     );
 
     expect(result).toBeDefined();
-    expect(result.slug).toBe(player.slug);
+    expect(result.slug).toBe(player);
     expect(result).toHaveProperty('id');
     expect(result).toHaveProperty('name');
   });

@@ -51,7 +51,7 @@ describe('building resolvers', () => {
       schema: z.strictObject({
         buildingFieldId: z.number(),
         level: z.number(),
-        buildingId: z.string(),
+        buildingId: buildingIdSchema,
       }),
     });
     const resourceField = fields.find(({ buildingFieldId }) => {
@@ -143,7 +143,7 @@ describe('building resolvers', () => {
       schema: z.strictObject({
         buildingFieldId: z.number(),
         level: z.number(),
-        buildingId: z.string(),
+        buildingId: buildingIdSchema,
       }),
     });
     const [activeField, scheduledField] = fields;
@@ -236,7 +236,7 @@ describe('building resolvers', () => {
       schema: z.strictObject({
         buildingFieldId: z.number(),
         level: z.number(),
-        buildingId: z.string(),
+        buildingId: buildingIdSchema,
       }),
     });
     const [failedField, preservedField] = fields;
@@ -388,7 +388,7 @@ describe('building resolvers', () => {
       expect(field).toBeDefined();
 
       // Check population change (population at level 0)
-      const populationEffect = database.selectObject({
+      const populationEffect = database.selectValue({
         sql: `
           SELECT value
           FROM
@@ -406,11 +406,11 @@ describe('building resolvers', () => {
               );
         `,
         bind: { $village_id: villageId },
-        schema: z.strictObject({ value: z.number() }),
+        schema: z.number(),
       })!;
 
       // Main Building level 0 population is 3
-      expect(populationEffect.value).toBe(-3);
+      expect(populationEffect).toBe(-3);
     });
   });
 
@@ -536,19 +536,19 @@ describe('building resolvers', () => {
 
       buildingLevelChangeResolver(database, { ...mockEvent, id: 888 });
 
-      const field = database.selectObject({
+      const field = database.selectValue({
         sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
         bind: { $village_id: villageId, $field_id: buildingFieldId },
-        schema: z.strictObject({ level: z.number() }),
+        schema: z.number(),
       })!;
 
-      expect(field.level).toBe(2);
+      expect(field).toBe(2);
 
       // Verify population change
       // Woodcutter level 1 total population: 1
       // Woodcutter level 2 total population: 2
       // Difference: 1
-      const populationEffect = database.selectObject({
+      const populationEffect = database.selectValue({
         sql: `
           SELECT value
           FROM
@@ -566,10 +566,10 @@ describe('building resolvers', () => {
               );
         `,
         bind: { $village_id: villageId },
-        schema: z.strictObject({ value: z.number() }),
+        schema: z.number(),
       })!;
 
-      expect(populationEffect.value).toBe(-1);
+      expect(populationEffect).toBe(-1);
     });
 
     test('should update non-base building effects (e.g., barracksTrainingDuration)', async () => {
@@ -698,20 +698,20 @@ describe('building resolvers', () => {
 
       buildingLevelChangeResolver(database, mockEvent);
 
-      const field = database.selectObject({
+      const field = database.selectValue({
         sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
         bind: { $village_id: villageId, $field_id: buildingFieldId },
-        schema: z.strictObject({ level: z.number() }),
+        schema: z.number(),
       })!;
 
-      expect(field.level).toBe(2);
+      expect(field).toBe(2);
 
       // Verify population change
       // Woodcutter level 3 total population: 3
       // Woodcutter level 2 total population: 2
       // Difference: -1
       // value = 0 - (-1) = 1
-      const populationEffect = database.selectObject({
+      const populationEffect = database.selectValue({
         sql: `
           SELECT value
           FROM
@@ -729,10 +729,10 @@ describe('building resolvers', () => {
               );
         `,
         bind: { $village_id: villageId },
-        schema: z.strictObject({ value: z.number() }),
+        schema: z.number(),
       })!;
 
-      expect(populationEffect.value).toBe(1);
+      expect(populationEffect).toBe(1);
     });
   });
 
@@ -814,7 +814,7 @@ describe('building resolvers', () => {
       // Barracks level 5 total population: 12
       // For fully destroyable buildings, it subtracts the whole population.
       // value = 0 - (-12) = 12
-      const populationEffect = database.selectObject({
+      const populationEffect = database.selectValue({
         sql: `
           SELECT value
           FROM
@@ -832,10 +832,10 @@ describe('building resolvers', () => {
               );
         `,
         bind: { $village_id: villageId },
-        schema: z.strictObject({ value: z.number() }),
+        schema: z.number(),
       })!;
 
-      expect(populationEffect.value).toBe(12);
+      expect(populationEffect).toBe(12);
     });
 
     test('should reset a non-destroyable building to level 0', async () => {
@@ -882,19 +882,19 @@ describe('building resolvers', () => {
 
       buildingDestructionResolver(database, mockEvent);
 
-      const field = database.selectObject({
+      const field = database.selectValue({
         sql: 'SELECT level FROM building_fields WHERE village_id = $village_id AND field_id = $field_id;',
         bind: { $village_id: villageId, $field_id: buildingFieldId },
-        schema: z.strictObject({ level: z.number() }),
+        schema: z.number(),
       })!;
 
-      expect(field.level).toBe(0);
+      expect(field).toBe(0);
 
       // Verify population change
       // Woodcutter level 10 total population: 16
       // Woodcutter level 0 total population: 0
       // value = 0 - (-16 + 0) = 16
-      const populationEffect = database.selectObject({
+      const populationEffect = database.selectValue({
         sql: `
           SELECT value
           FROM
@@ -912,10 +912,10 @@ describe('building resolvers', () => {
               );
         `,
         bind: { $village_id: villageId },
-        schema: z.strictObject({ value: z.number() }),
+        schema: z.number(),
       })!;
 
-      expect(populationEffect.value).toBe(16);
+      expect(populationEffect).toBe(16);
     });
   });
 });

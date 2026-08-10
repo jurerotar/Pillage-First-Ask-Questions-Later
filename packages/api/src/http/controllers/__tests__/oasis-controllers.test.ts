@@ -84,21 +84,21 @@ describe('oasis-controllers', () => {
       schema: villageRowSchema,
     })!;
 
-    const oasis = database.selectObject({
+    const oasisTileId = database.selectValue({
       sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
-      schema: z.strictObject({ tile_id: z.number() }),
+      schema: z.number(),
     })!;
 
     occupyOasis(
       database,
       createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'post'>({
-        path: { villageId: village.id, oasisId: oasis.tile_id },
+        path: { villageId: village.id, oasisId: oasisTileId },
       }),
     );
 
     const occupyingVillageId = database.selectValue({
       sql: 'SELECT village_id FROM oasis WHERE tile_id = $tile_id',
-      bind: { $tile_id: oasis.tile_id },
+      bind: { $tile_id: oasisTileId },
       schema: z.number().nullable(),
     });
 
@@ -113,15 +113,15 @@ describe('oasis-controllers', () => {
       schema: villageRowSchema,
     })!;
 
-    const oasis = database.selectObject({
+    const oasisTileId = database.selectValue({
       sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
-      schema: z.strictObject({ tile_id: z.number() }),
+      schema: z.number(),
     })!;
 
     database.exec({
       sql: 'UPDATE oasis SET village_id = $village_id WHERE tile_id = $tile_id',
       bind: {
-        $tile_id: oasis.tile_id,
+        $tile_id: oasisTileId,
         $village_id: village.id,
       },
     });
@@ -129,13 +129,13 @@ describe('oasis-controllers', () => {
     abandonOasis(
       database,
       createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'delete'>({
-        path: { villageId: village.id, oasisId: oasis.tile_id },
+        path: { villageId: village.id, oasisId: oasisTileId },
       }),
     );
 
     const occupyingVillageId = database.selectValue({
       sql: 'SELECT village_id FROM oasis WHERE tile_id = $tile_id',
-      bind: { $tile_id: oasis.tile_id },
+      bind: { $tile_id: oasisTileId },
       schema: z.number().nullable(),
     });
 
@@ -163,7 +163,7 @@ describe('oasis-controllers', () => {
       },
     });
 
-    const sourceTileIds = database.selectObjects({
+    const sourceTileIds = database.selectValues({
       sql: `
         SELECT id
         FROM tiles
@@ -178,27 +178,27 @@ describe('oasis-controllers', () => {
         $oasis_tile_id: oasisTileId,
         $owning_tile_id: owningVillage.tile_id,
       },
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     });
 
     expect(sourceTileIds).toHaveLength(2);
 
     const firstSourceVillageId = insertVillage(
       database,
-      sourceTileIds[0].id,
+      sourceTileIds[0],
       owningVillage.player_id,
       'First Oasis Reinforcement Source',
     );
     const secondSourceVillageId = insertVillage(
       database,
-      sourceTileIds[1].id,
+      sourceTileIds[1],
       owningVillage.player_id,
       'Second Oasis Reinforcement Source',
     );
 
-    insertTroops(database, oasisTileId, sourceTileIds[0].id, 'LEGIONNAIRE', 5);
-    insertTroops(database, oasisTileId, sourceTileIds[0].id, 'PRAETORIAN', 2);
-    insertTroops(database, oasisTileId, sourceTileIds[1].id, 'PHALANX', 7);
+    insertTroops(database, oasisTileId, sourceTileIds[0], 'LEGIONNAIRE', 5);
+    insertTroops(database, oasisTileId, sourceTileIds[0], 'PRAETORIAN', 2);
+    insertTroops(database, oasisTileId, sourceTileIds[1], 'PHALANX', 7);
 
     abandonOasis(
       database,
@@ -215,9 +215,9 @@ describe('oasis-controllers', () => {
           AND source_tile_id IN ($first_source_tile_id, $second_source_tile_id);
       `,
       bind: {
-        $first_source_tile_id: sourceTileIds[0].id,
+        $first_source_tile_id: sourceTileIds[0],
         $oasis_tile_id: oasisTileId,
-        $second_source_tile_id: sourceTileIds[1].id,
+        $second_source_tile_id: sourceTileIds[1],
       },
       schema: z.number(),
     });
@@ -262,7 +262,7 @@ describe('oasis-controllers', () => {
         first_amount: 5,
         first_unit_id: 'LEGIONNAIRE',
         origin_tile_id: oasisTileId,
-        target_tile_id: sourceTileIds[0].id,
+        target_tile_id: sourceTileIds[0],
         troop_groups: 2,
         village_id: firstSourceVillageId,
       },
@@ -270,7 +270,7 @@ describe('oasis-controllers', () => {
         first_amount: 7,
         first_unit_id: 'PHALANX',
         origin_tile_id: oasisTileId,
-        target_tile_id: sourceTileIds[1].id,
+        target_tile_id: sourceTileIds[1],
         troop_groups: 1,
         village_id: secondSourceVillageId,
       },

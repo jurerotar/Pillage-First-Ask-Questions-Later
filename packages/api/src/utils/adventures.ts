@@ -70,7 +70,7 @@ const heroAdventureStateSchema = z.strictObject({
   speed: speedSchema,
 });
 
-export const getHeroAdventureStateAt = (
+const getHeroAdventureStateAt = (
   database: DbFacade,
   heroId: number,
   timestamp: number,

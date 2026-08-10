@@ -221,17 +221,15 @@ export const cloneFarmList = createController(
   },
 )(({ database, path: { farmListId }, body: { villageId } }) => {
   database.transaction(() => {
-    const sourceFarmList = database.selectObject({
+    const sourceFarmList = database.selectValue({
       sql: selectFarmListNameQuery,
       bind: { $farm_list_id: farmListId },
-      schema: z.strictObject({
-        name: z.string(),
-      }),
+      schema: z.string(),
     })!;
 
     database.exec({
       sql: insertFarmListQuery,
-      bind: { $village_id: villageId, $name: sourceFarmList.name },
+      bind: { $village_id: villageId, $name: sourceFarmList },
     });
 
     const clonedFarmListId = database.selectValue({

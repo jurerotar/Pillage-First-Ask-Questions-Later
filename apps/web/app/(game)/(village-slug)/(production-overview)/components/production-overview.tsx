@@ -13,9 +13,11 @@ import {
   getEffectBreakdown,
 } from '@pillage-first/utils/game/calculate-computed-effect';
 import {
+  isAdditiveBonusEffect,
   isArtifactEffect,
   isBuildingEffect,
   isHeroEffect,
+  isMultiplicativeBonusEffect,
   isOasisEffect,
   isServerEffect,
 } from '@pillage-first/utils/guards/effect';
@@ -328,7 +330,14 @@ const sumBonusEffects = (effects: Effect[]): number => {
   let total = 1;
 
   for (const effect of effects) {
-    total *= effect.value;
+    if (isAdditiveBonusEffect(effect)) {
+      total += effect.value - 1;
+      continue;
+    }
+
+    if (isMultiplicativeBonusEffect(effect)) {
+      total *= effect.value;
+    }
   }
 
   return total;

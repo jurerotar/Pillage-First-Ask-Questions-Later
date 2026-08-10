@@ -119,7 +119,7 @@ describe('map-controllers', () => {
     // Find a tile with nature troops (animals).
     // Nature troops have IDs from WILD_BOAR to CROCODILE etc.
     // They are seeded into oasis tiles where all rows have no village_id.
-    const tileWithAnimals = database.selectObject({
+    const tileWithAnimalsTileId = database.selectValue({
       sql: `
         SELECT t.id AS tile_id
         FROM tiles t
@@ -131,13 +131,13 @@ describe('map-controllers', () => {
         ) IS NULL
         LIMIT 1
       `,
-      schema: z.strictObject({ tile_id: z.number() }),
+      schema: z.number(),
     })!;
 
     getTileTroops(
       database,
       createControllerArgs<'/tiles/:tileId/troops'>({
-        path: { tileId: tileWithAnimals.tile_id },
+        path: { tileId: tileWithAnimalsTileId },
       }),
     );
 
@@ -148,15 +148,15 @@ describe('map-controllers', () => {
     const database = await prepareTestDatabase();
 
     // Find a tile with bonuses
-    const tileWithBonuses = database.selectObject({
+    const tileWithBonusesTileId = database.selectValue({
       sql: 'SELECT tile_id FROM oasis LIMIT 1',
-      schema: z.strictObject({ tile_id: z.number() }),
+      schema: z.number(),
     })!;
 
     getTileOasisBonuses(
       database,
       createControllerArgs<'/tiles/:tileId/bonuses'>({
-        path: { tileId: tileWithBonuses.tile_id },
+        path: { tileId: tileWithBonusesTileId },
       }),
     );
 
@@ -167,15 +167,15 @@ describe('map-controllers', () => {
     const database = await prepareTestDatabase();
 
     // Find a tile with world items
-    const tileWithItem = database.selectObject({
+    const tileWithItemTileId = database.selectValue({
       sql: 'SELECT tile_id FROM world_items LIMIT 1',
-      schema: z.strictObject({ tile_id: z.number() }),
+      schema: z.number(),
     })!;
 
     getTileWorldItem(
       database,
       createControllerArgs<'/tiles/:tileId/world-item'>({
-        path: { tileId: tileWithItem.tile_id },
+        path: { tileId: tileWithItemTileId },
       }),
     );
 

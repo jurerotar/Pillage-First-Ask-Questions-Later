@@ -20,6 +20,7 @@ import {
 } from '../../events/scheduler/scheduler';
 import { createSchedulerDataSource } from '../../events/scheduler/scheduler-data-source';
 import {
+  adjustVillageLoyalty,
   incrementHeroAdventurePoints,
   levelUpHero,
   spawnHeroItem,
@@ -30,6 +31,54 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('developer-tools-controllers', () => {
   const playerId = PLAYER_ID;
+
+  describe(adjustVillageLoyalty, () => {
+    test('should create the first loyaltyIncrease event when loyalty is adjusted', async () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(1_000_000);
+
+      try {
+        const database = await prepareTestDatabase();
+        const tileId = database.selectValue({
+          sql: 'SELECT tile_id FROM villages WHERE id = 1',
+          schema: z.number(),
+        })!;
+
+        const eventCountBefore = database.selectValue({
+          sql: "SELECT COUNT(*) FROM events WHERE type = 'loyaltyIncrease';",
+          schema: z.number(),
+        });
+
+        expect(eventCountBefore).toBe(0);
+
+        adjustVillageLoyalty(
+          database,
+          createControllerArgs<
+            '/developer-settings/:tileId/adjustLoyalty',
+            'patch'
+          >({
+            path: { tileId },
+            body: { amount: -10 },
+          }),
+        );
+
+        const event = database.selectObject({
+          sql: "SELECT type, starts_at AS startsAt FROM events WHERE type = 'loyaltyIncrease' LIMIT 1;",
+          schema: z.strictObject({
+            type: z.string(),
+            startsAt: z.number(),
+          }),
+        })!;
+
+        expect(event).toStrictEqual({
+          type: 'loyaltyIncrease',
+          startsAt: 1_000_000,
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
 
   describe(updateDeveloperSettings, () => {
     test('should update setting in database', async () => {
@@ -48,14 +97,12 @@ describe('developer-tools-controllers', () => {
         }),
       );
 
-      const settings = database.selectObject({
+      const settings = database.selectValue({
         sql: 'SELECT is_instant_building_construction_enabled FROM developer_settings',
-        schema: z.strictObject({
-          is_instant_building_construction_enabled: z.number(),
-        }),
+        schema: z.number(),
       })!;
 
-      expect(settings.is_instant_building_construction_enabled).toBe(1);
+      expect(settings).toBe(1);
     });
 
     test('should instantly finish building events when isInstantBuildingConstructionEnabled is set to true', async () => {
@@ -202,12 +249,12 @@ describe('developer-tools-controllers', () => {
         }),
       );
 
-      const events = database.selectObjects({
+      const events = database.selectValues({
         sql: "SELECT duration FROM events WHERE type = 'unitImprovement'",
-        schema: z.strictObject({ duration: z.number() }),
+        schema: z.number(),
       });
 
-      expect(events[0].duration).toBe(0);
+      expect(events[0]).toBe(0);
     });
 
     test('should instantly finish research events when isInstantUnitResearchEnabled is set to true', async () => {
@@ -233,12 +280,12 @@ describe('developer-tools-controllers', () => {
         }),
       );
 
-      const events = database.selectObjects({
+      const events = database.selectValues({
         sql: "SELECT duration FROM events WHERE type = 'unitResearch'",
-        schema: z.strictObject({ duration: z.number() }),
+        schema: z.number(),
       });
 
-      expect(events[0].duration).toBe(0);
+      expect(events[0]).toBe(0);
     });
 
     test('should instantly finish travel and hunting party events when isInstantUnitTravelEnabled is set to true', async () => {
@@ -414,12 +461,11 @@ describe('developer-tools-controllers', () => {
     test('should add item to hero inventory', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       spawnHeroItem(
         database,
@@ -471,12 +517,11 @@ describe('developer-tools-controllers', () => {
       vi.useFakeTimers();
       vi.setSystemTime(new Date(now));
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       database.exec({
         sql: `
@@ -538,14 +583,14 @@ describe('developer-tools-controllers', () => {
         }),
       );
 
-      const updatedHero = database.selectObject({
+      const updatedHero = database.selectValue({
         sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ experience: z.number() }),
+        schema: z.number(),
       })!;
 
       // exp for level 0 is 0. nextLevelExp for level 0 is (0+1)*(0+2)*25 = 50
-      expect(updatedHero.experience).toBe(50);
+      expect(updatedHero).toBe(50);
 
       // Level up again
       levelUpHero(
@@ -555,14 +600,14 @@ describe('developer-tools-controllers', () => {
         }),
       );
 
-      const updatedHeroAgain = database.selectObject({
+      const updatedHeroAgain = database.selectValue({
         sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ experience: z.number() }),
+        schema: z.number(),
       })!;
 
       // exp for level 1 is 50. nextLevelExp for level 1 is (1+1)*(1+2)*25 = 150
-      expect(updatedHeroAgain.experience).toBe(150);
+      expect(updatedHeroAgain).toBe(150);
     });
   });
 });
