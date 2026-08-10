@@ -115,6 +115,13 @@ describe(adventureMovementResolver, () => {
       bind: { $hero_id: heroId },
     });
 
+    const regenerationEventCountBefore = database.selectValue({
+      sql: "SELECT COUNT(*) FROM events WHERE type = 'heroHealthRegeneration';",
+      schema: z.number(),
+    });
+
+    expect(regenerationEventCountBefore).toBe(0);
+
     const mockEvent = createTroopMovementAdventureEventMock({
       id: 1,
       startsAt: 1000,
@@ -133,10 +140,10 @@ describe(adventureMovementResolver, () => {
       schema: z.strictObject({ health: z.number(), experience: z.number() }),
     })!;
 
-    const adventures = database.selectObject({
+    const adventures = database.selectValue({
       sql: 'SELECT completed FROM hero_adventures WHERE hero_id = $hero_id;',
       bind: { $hero_id: heroId },
-      schema: z.strictObject({ completed: z.number() }),
+      schema: z.number(),
     })!;
 
     // Damage = 5 - 2 = 3. Health 100 -> 97.
@@ -144,7 +151,7 @@ describe(adventureMovementResolver, () => {
     // Completed = 5 -> 6.
     expect(hero.health).toBe(97);
     expect(hero.experience).toBe(60);
-    expect(adventures.completed).toBe(6);
+    expect(adventures).toBe(6);
 
     const report = database.selectObject({
       sql: `
@@ -204,18 +211,25 @@ describe(adventureMovementResolver, () => {
     );
 
     // Verify quest completion
-    const quest = database.selectObject({
+    const quest = database.selectValue({
       sql: "SELECT completed_at FROM quests WHERE quest_id = 'adventureCount-1';",
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
+      schema: z.number().nullable(),
     });
-    expect(quest?.completed_at).toBe(1500);
+
+    expect(quest).toBe(1500);
 
     const regenerationEvent = database.selectObject({
-      sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
-      schema: z.strictObject({ type: z.string() }),
+      sql: "SELECT type, starts_at AS startsAt FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
+      schema: z.strictObject({
+        type: z.string(),
+        startsAt: z.number(),
+      }),
     })!;
 
-    expect(regenerationEvent.type).toBe('heroHealthRegeneration');
+    expect(regenerationEvent).toStrictEqual({
+      type: 'heroHealthRegeneration',
+      startsAt: mockEvent.resolvesAt,
+    });
   });
 
   test('should handle hero death during adventure', async () => {
@@ -257,10 +271,10 @@ describe(adventureMovementResolver, () => {
       schema: z.strictObject({ health: z.number(), experience: z.number() }),
     })!;
 
-    const adventures = database.selectObject({
+    const adventures = database.selectValue({
       sql: 'SELECT completed FROM hero_adventures WHERE hero_id = $hero_id;',
       bind: { $hero_id: heroId },
-      schema: z.strictObject({ completed: z.number() }),
+      schema: z.number(),
     })!;
 
     // Damage = 5. Health 3 -> 0.
@@ -268,7 +282,7 @@ describe(adventureMovementResolver, () => {
     // Completed stays same.
     expect(hero.health).toBe(0);
     expect(hero.experience).toBe(100);
-    expect(adventures.completed).toBe(5);
+    expect(adventures).toBe(5);
 
     const report = database.selectObject({
       sql: `
@@ -310,9 +324,9 @@ describe(adventureMovementResolver, () => {
       : undefined;
     expect(returnEvent).toBeUndefined();
 
-    const regenerationEvent = database.selectObject({
+    const regenerationEvent = database.selectValue({
       sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
-      schema: z.strictObject({ type: z.string() }),
+      schema: z.string(),
     });
     expect(regenerationEvent).toBeUndefined();
 
@@ -368,22 +382,22 @@ describe(relocationMovementResolver, () => {
     expect(heroVillageId).toBe(targetVillageId);
 
     // Verify hero effects village_id update
-    const effectsVillageIds = database.selectObjects({
+    const effectsVillageIds = database.selectValues({
       sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
-      schema: z.strictObject({ village_id: z.number() }),
+      schema: z.number(),
     });
 
     expect(effectsVillageIds.length).toBeGreaterThan(0);
     for (const effect of effectsVillageIds) {
-      expect(effect.village_id).toBe(targetVillageId);
+      expect(effect).toBe(targetVillageId);
     }
 
     // Verify hero troop location update
-    const heroTroop = database.selectObject({
+    const heroTroopTileId = database.selectValue({
       sql: "SELECT tile_id FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO');",
-      schema: z.strictObject({ tile_id: z.number() }),
+      schema: z.number(),
     })!;
-    expect(heroTroop.tile_id).toBe(targetTileId);
+    expect(heroTroopTileId).toBe(targetTileId);
 
     const movementReport = database.selectObject({
       sql: `
@@ -438,16 +452,14 @@ describe(relocationMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const targetVillage = database.selectObject({
+    const targetVillageTileId = database.selectValue({
       sql: `
         SELECT v.tile_id AS tileId
         FROM villages v
         WHERE v.id = $village_id;
       `,
       bind: { $village_id: targetVillageId },
-      schema: z.strictObject({
-        tileId: z.number(),
-      }),
+      schema: z.number(),
     })!;
 
     setTroopWheatProductionEffectValue(database, sourceVillageId, 20);
@@ -467,7 +479,7 @@ describe(relocationMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
-      targetTileId: targetVillage.tileId,
+      targetTileId: targetVillageTileId,
       troops: [
         {
           unitId: 'LEGIONNAIRE',
@@ -502,16 +514,14 @@ describe(reinforcementMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const targetVillage = database.selectObject({
+    const targetVillageTileId = database.selectValue({
       sql: `
         SELECT v.tile_id AS tileId
         FROM villages v
         WHERE v.id = $village_id;
       `,
       bind: { $village_id: targetVillageId },
-      schema: z.strictObject({
-        tileId: z.number(),
-      }),
+      schema: z.number(),
     })!;
 
     database.exec({
@@ -524,20 +534,20 @@ describe(reinforcementMovementResolver, () => {
       bind: { $village_id: sourceVillageId },
     });
 
-    const sourceHeroEffectsBefore = database.selectObjects({
+    const sourceHeroEffectBeforeVillageIds = database.selectValues({
       sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
       bind: { $village_id: sourceVillageId },
-      schema: z.strictObject({ village_id: z.number() }),
+      schema: z.number(),
     });
 
-    expect(sourceHeroEffectsBefore.length).toBeGreaterThan(0);
+    expect(sourceHeroEffectBeforeVillageIds.length).toBeGreaterThan(0);
 
     const mockEvent = createGameEventMock('troopMovementReinforcements', {
       id: 1,
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
-      targetTileId: targetVillage.tileId,
+      targetTileId: targetVillageTileId,
       troops: [
         {
           unitId: 'HERO',
@@ -550,20 +560,22 @@ describe(reinforcementMovementResolver, () => {
 
     reinforcementMovementResolver(database, mockEvent);
 
-    const sourceHeroEffectsAfter = database.selectObjects({
+    const sourceHeroEffectAfterVillageIds = database.selectValues({
       sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
       bind: { $village_id: sourceVillageId },
-      schema: z.strictObject({ village_id: z.number() }),
+      schema: z.number(),
     });
 
-    const targetHeroEffectsAfter = database.selectObjects({
+    const targetHeroEffectAfterVillageIds = database.selectValues({
       sql: "SELECT village_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND village_id = $village_id;",
       bind: { $village_id: targetVillageId },
-      schema: z.strictObject({ village_id: z.number() }),
+      schema: z.number(),
     });
 
-    expect(sourceHeroEffectsAfter).toHaveLength(sourceHeroEffectsBefore.length);
-    expect(targetHeroEffectsAfter).toHaveLength(0);
+    expect(sourceHeroEffectAfterVillageIds).toHaveLength(
+      sourceHeroEffectBeforeVillageIds.length,
+    );
+    expect(targetHeroEffectAfterVillageIds).toHaveLength(0);
 
     const report = database.selectObject({
       sql: `
@@ -594,7 +606,7 @@ describe(reinforcementMovementResolver, () => {
       report_outcome: 'troopMovement',
       movement_type: 'reinforcement',
       origin_tile_id: sourceTileId,
-      target_tile_id: targetVillage.tileId,
+      target_tile_id: targetVillageTileId,
       unit_id: 'HERO',
       amount: 1,
     });
@@ -612,16 +624,14 @@ describe(reinforcementMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const targetVillage = database.selectObject({
+    const targetVillageTileId = database.selectValue({
       sql: `
         SELECT v.tile_id AS tileId
         FROM villages v
         WHERE v.id = $village_id;
       `,
       bind: { $village_id: targetVillageId },
-      schema: z.strictObject({
-        tileId: z.number(),
-      }),
+      schema: z.number(),
     })!;
 
     database.exec({
@@ -634,7 +644,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
-      targetTileId: targetVillage.tileId,
+      targetTileId: targetVillageTileId,
       troops: [
         {
           unitId: 'HERO',
@@ -663,7 +673,7 @@ describe(reinforcementMovementResolver, () => {
           AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO');
       `,
       bind: {
-        $tile_id: targetVillage.tileId,
+        $tile_id: targetVillageTileId,
         $source_tile_id: sourceTileId,
       },
       schema: z.number(),
@@ -686,16 +696,14 @@ describe(reinforcementMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const targetVillage = database.selectObject({
+    const targetVillageTileId = database.selectValue({
       sql: `
         SELECT v.tile_id AS tileId
         FROM villages v
         WHERE v.id = $village_id;
       `,
       bind: { $village_id: targetVillageId },
-      schema: z.strictObject({
-        tileId: z.number(),
-      }),
+      schema: z.number(),
     })!;
 
     setTroopWheatProductionEffectValue(database, sourceVillageId, 12);
@@ -715,7 +723,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
-      targetTileId: targetVillage.tileId,
+      targetTileId: targetVillageTileId,
       troops: [
         {
           unitId: 'LEGIONNAIRE',
@@ -863,15 +871,13 @@ describe(findNewVillageMovementResolver, () => {
     expect(newVillage.name).toBe('New village');
     expect(newVillage.slug).toBe('v-2'); // 2nd village for player
 
-    const gatheringExpeditionState = database.selectObject({
+    const gatheringExpeditionState = database.selectValue({
       sql: 'SELECT completed FROM gatherers_hut_expeditions WHERE village_id = $village_id;',
       bind: { $village_id: newVillage.id },
-      schema: z.strictObject({
-        completed: z.number(),
-      }),
+      schema: z.number(),
     })!;
 
-    expect(gatheringExpeditionState.completed).toBe(0);
+    expect(gatheringExpeditionState).toBe(0);
 
     // Verify building fields
     const buildingFields = database.selectObjects({
@@ -988,12 +994,12 @@ describe(findNewVillageMovementResolver, () => {
     expect(troopWheatEffects[0].value).toBe(0);
 
     // Verify troop consumption in source village
-    const sourceTroopWheatEffects = database.selectObjects({
+    const sourceTroopWheatEffects = database.selectValues({
       sql: "SELECT e.value FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = 1 AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops') AND ei.effect = 'wheatProduction';",
-      schema: z.strictObject({ value: z.number() }),
+      schema: z.number(),
     });
     // Assuming initial value was 3 (for 3 settlers)
-    expect(sourceTroopWheatEffects[0].value).toBe(0);
+    expect(sourceTroopWheatEffects[0]).toBe(0);
   });
 });
 

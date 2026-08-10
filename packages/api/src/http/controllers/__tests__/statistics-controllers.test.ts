@@ -16,15 +16,15 @@ describe('statistics-controllers', () => {
   test('getPlayerRankings should return correct population (only counting building base effects)', async () => {
     const database = await prepareTestDatabase();
 
-    const player = database.selectObject({
+    const playerId = database.selectValue({
       sql: 'SELECT id FROM players LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
-      bind: { $player_id: player.id },
-      schema: z.strictObject({ id: z.number() }),
+      bind: { $player_id: playerId },
+      schema: z.number(),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -35,7 +35,7 @@ describe('statistics-controllers', () => {
     // Clear existing effects for this village
     database.exec({
       sql: 'DELETE FROM effects WHERE village_id = $village_id',
-      bind: { $village_id: village.id },
+      bind: { $village_id: villageId },
     });
 
     // Seed various effects
@@ -72,7 +72,7 @@ describe('statistics-controllers', () => {
           $type: effect.type,
           $scope: effect.scope,
           $source: effect.source,
-          $village_id: village.id,
+          $village_id: villageId,
           $source_specifier: effect.source_specifier,
         },
       });
@@ -85,7 +85,7 @@ describe('statistics-controllers', () => {
       }),
     );
 
-    const testPlayer = result.find((p) => p.id === player.id)!;
+    const testPlayer = result.find((p) => p.id === playerId)!;
     // population = SUM(-value) for matches. Only -200 matches.
     // -(-200) = 200
     expect(testPlayer.totalPopulation).toBe(200);
@@ -94,9 +94,9 @@ describe('statistics-controllers', () => {
   test('getVillageRankings should return correct population (only counting building base effects)', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -107,7 +107,7 @@ describe('statistics-controllers', () => {
     // Clear existing effects for this village
     database.exec({
       sql: 'DELETE FROM effects WHERE village_id = $village_id',
-      bind: { $village_id: village.id },
+      bind: { $village_id: villageId },
     });
 
     // Seed various effects
@@ -137,7 +137,7 @@ describe('statistics-controllers', () => {
           $type: effect.type,
           $scope: effect.scope,
           $source: effect.source,
-          $village_id: village.id,
+          $village_id: villageId,
           $source_specifier: effect.source_specifier,
         },
       });
@@ -150,7 +150,7 @@ describe('statistics-controllers', () => {
       }),
     );
 
-    const testVillage = result.find((v) => v.id === village.id);
+    const testVillage = result.find((v) => v.id === villageId);
     expect(testVillage).toBeDefined();
     expect(testVillage?.population).toBe(300);
   });

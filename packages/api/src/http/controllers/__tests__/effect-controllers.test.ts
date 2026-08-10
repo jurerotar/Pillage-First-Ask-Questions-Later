@@ -9,15 +9,15 @@ describe('effect-controllers', () => {
     const database = await prepareTestDatabase();
 
     // Find a village to test with
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     getVillageEffects(
       database,
       createControllerArgs<'/villages/:villageId/effects'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
       }),
     );
 

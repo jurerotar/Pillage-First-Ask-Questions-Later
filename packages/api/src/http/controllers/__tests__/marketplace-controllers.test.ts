@@ -9,7 +9,7 @@ import {
 } from '@pillage-first/game-assets/utils/buildings';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { selectVillageTribeQuery } from '../../../queries/village-queries';
+import { selectTribeByVillageId } from '../../../queries/village-queries';
 import {
   createTradeRoute,
   deleteTradeRoute,
@@ -123,7 +123,7 @@ const setTradeOfficeLevel = (
   level: number,
 ) => {
   const tribe = database.selectValue({
-    sql: selectVillageTribeQuery,
+    sql: selectTribeByVillageId,
     bind: { $village_id: villageId },
     schema: tribeSchema,
   })!;

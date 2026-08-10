@@ -439,12 +439,11 @@ describe('hero-controllers', () => {
     test('should equip an item and remove it from inventory', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       const itemId = 1011; // COMMON_HORSE
       const slot = 'horse';
@@ -475,10 +474,10 @@ describe('hero-controllers', () => {
       expect(equipped?.amount).toBe(1);
 
       // Verify removed from inventory
-      const inventory = database.selectObject({
+      const inventory = database.selectValue({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: { $hero_id: heroId, $itemId: String(itemId) },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       });
       expect(inventory).toBeUndefined();
     });
@@ -486,12 +485,11 @@ describe('hero-controllers', () => {
     test('should move existing item to inventory when equipping a different one', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       const oldItemId = 1011; // COMMON_HORSE
       const newItemId = 1012; // UNCOMMON_HORSE
@@ -520,31 +518,30 @@ describe('hero-controllers', () => {
       );
 
       // Verify new item equipped
-      const equipped = database.selectObject({
+      const equippedItemId = database.selectValue({
         sql: 'SELECT item_id FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
         bind: { $hero_id: heroId, $slot: slot },
-        schema: z.strictObject({ item_id: z.number() }),
+        schema: z.number(),
       });
-      expect(equipped?.item_id).toBe(newItemId);
+      expect(equippedItemId).toBe(newItemId);
 
       // Verify old item moved to inventory
-      const inventoryOld = database.selectObject({
+      const inventoryOld = database.selectValue({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: { $hero_id: heroId, $itemId: String(oldItemId) },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       });
-      expect(inventoryOld?.amount).toBe(1);
+      expect(inventoryOld).toBe(1);
     });
 
     test('should add effects when equipping an item with effects', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       const itemId = 1001; // UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED (has effects)
       const slot = 'consumable'; // Using consumable because non-equipable items can't be equipped, but for testing we use a valid slot
@@ -566,23 +563,22 @@ describe('hero-controllers', () => {
       );
 
       // Verify effects added
-      const effects = database.selectObjects({
+      const effectIds = database.selectValues({
         sql: "SELECT effect_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND source_specifier = $itemId",
         bind: { $itemId: itemId },
-        schema: z.strictObject({ effect_id: z.number() }),
+        schema: z.number(),
       });
-      expect(effects.length).toBeGreaterThan(0);
+      expect(effectIds.length).toBeGreaterThan(0);
     });
 
     test('should allow multiple items for consumables slot', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       const itemId = 1021; // HEALING_POTION
       const slot = 'consumable';
@@ -605,12 +601,12 @@ describe('hero-controllers', () => {
       );
 
       // Verify equipped
-      let equipped = database.selectObject({
+      let equipped = database.selectValue({
         sql: 'SELECT amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
         bind: { $hero_id: heroId, $slot: slot },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       });
-      expect(equipped?.amount).toBe(5);
+      expect(equipped).toBe(5);
 
       // Equip another 3 of the SAME item
       equipHeroItem(
@@ -623,20 +619,20 @@ describe('hero-controllers', () => {
         ),
       );
 
-      equipped = database.selectObject({
+      equipped = database.selectValue({
         sql: 'SELECT amount FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
         bind: { $hero_id: heroId, $slot: slot },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       });
-      expect(equipped?.amount).toBe(8);
+      expect(equipped).toBe(8);
 
       // Verify inventory
-      const inventory = database.selectObject({
+      const inventory = database.selectValue({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: { $hero_id: heroId, $itemId: String(itemId) },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       });
-      expect(inventory?.amount).toBe(2);
+      expect(inventory).toBe(2);
     });
   });
 
@@ -644,12 +640,11 @@ describe('hero-controllers', () => {
     test('should unequip an item and move it to inventory', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       const itemId = 1011; // COMMON_HORSE
       const slot = 'horse';
@@ -671,31 +666,30 @@ describe('hero-controllers', () => {
       );
 
       // Verify unequipped
-      const equipped = database.selectObject({
+      const equippedItemId = database.selectValue({
         sql: 'SELECT item_id FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
         bind: { $hero_id: heroId, $slot: slot },
-        schema: z.strictObject({ item_id: z.number() }),
+        schema: z.number(),
       });
-      expect(equipped).toBeUndefined();
+      expect(equippedItemId).toBeUndefined();
 
       // Verify moved to inventory
-      const inventory = database.selectObject({
+      const inventory = database.selectValue({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: { $hero_id: heroId, $itemId: String(itemId) },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       });
-      expect(inventory?.amount).toBe(1);
+      expect(inventory).toBe(1);
     });
 
     test('should remove effects when unequipping an item', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       const itemId = 1001;
       const slot = 'consumable';
@@ -736,12 +730,12 @@ describe('hero-controllers', () => {
       );
 
       // Verify effects removed
-      const effects = database.selectObjects({
+      const effectIds = database.selectValues({
         sql: "SELECT effect_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND source_specifier = $itemId",
         bind: { $itemId: itemId },
-        schema: z.strictObject({ effect_id: z.number() }),
+        schema: z.number(),
       });
-      expect(effects).toHaveLength(0);
+      expect(effectIds).toHaveLength(0);
     });
   });
 
@@ -749,12 +743,11 @@ describe('hero-controllers', () => {
     test('should use healing potion and increase health', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       // Set health to 50
       database.exec({
@@ -780,31 +773,30 @@ describe('hero-controllers', () => {
       );
 
       // Verify health
-      const updatedHero = database.selectObject({
+      const updatedHero = database.selectValue({
         sql: 'SELECT health FROM heroes WHERE id = $hero_id',
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ health: z.number() }),
+        schema: z.number(),
       })!;
-      expect(updatedHero.health).toBe(70);
+      expect(updatedHero).toBe(70);
 
       // Verify inventory
-      const inventory = database.selectObject({
+      const inventory = database.selectValue({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: { $hero_id: heroId, $itemId: String(itemId) },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       })!;
-      expect(inventory.amount).toBe(10);
+      expect(inventory).toBe(10);
     });
 
     test('should not use more healing potions than needed to reach 100 health', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       // Set health to 90
       database.exec({
@@ -830,31 +822,30 @@ describe('hero-controllers', () => {
       );
 
       // Verify health
-      const updatedHero = database.selectObject({
+      const updatedHero = database.selectValue({
         sql: 'SELECT health FROM heroes WHERE id = $hero_id',
         bind: { $hero_id: heroId },
-        schema: z.strictObject({ health: z.number() }),
+        schema: z.number(),
       })!;
-      expect(updatedHero.health).toBe(100);
+      expect(updatedHero).toBe(100);
 
       // Verify inventory (only 10 should be used)
-      const inventory = database.selectObject({
+      const inventory = database.selectValue({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: { $hero_id: heroId, $itemId: String(itemId) },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       })!;
-      expect(inventory.amount).toBe(20);
+      expect(inventory).toBe(20);
     });
 
     test('should use book of wisdom and reset attributes', async () => {
       const database = await prepareTestDatabase();
 
-      const hero = database.selectObject({
+      const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const heroId = hero.id;
 
       // Set attributes to some values
       database.exec({
@@ -934,10 +925,10 @@ describe('hero-controllers', () => {
       expect(effects).toContainEqual({ effect: 'wheatProduction', value: 0 });
 
       // Verify inventory (deleted)
-      const inventory = database.selectObject({
+      const inventory = database.selectValue({
         sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $itemId',
         bind: { $hero_id: heroId, $itemId: String(itemId) },
-        schema: z.strictObject({ amount: z.number() }),
+        schema: z.number(),
       });
       expect(inventory).toBeUndefined();
     });
@@ -975,13 +966,13 @@ describe('hero-controllers', () => {
         }),
       );
 
-      const hero = database.selectObject({
+      const hero = database.selectValue({
         sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
-        schema: z.strictObject({ resource_to_produce: z.string() }),
+        schema: z.string(),
       })!;
 
-      expect(hero.resource_to_produce).toBe('wood');
+      expect(hero).toBe('wood');
 
       const effects = database.selectObjects({
         sql: `

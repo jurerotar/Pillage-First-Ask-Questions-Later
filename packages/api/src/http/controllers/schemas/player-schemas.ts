@@ -76,11 +76,6 @@ export const stationedVillageRowSchema = z.strictObject({
   stationedVillageId: z.number().nullable(),
 });
 
-export const coordinatesRowSchema = z.strictObject({
-  x: z.number(),
-  y: z.number(),
-});
-
 export const troopAmountSchema = z.number().nullable();
 
 const reinforcementTileIdSchema = z.coerce.number().int().min(1);

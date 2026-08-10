@@ -13,11 +13,10 @@ describe('history-controllers', () => {
     test('should return building level change history for a village', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       // Seed some history
       database.exec({
@@ -50,11 +49,10 @@ describe('history-controllers', () => {
     test('should return unit training history for a village', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       // Seed some history
       database.exec({
@@ -87,11 +85,10 @@ describe('history-controllers', () => {
     test('should return combined events history with pagination and filtering', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       // Seed various histories
       database.exec({

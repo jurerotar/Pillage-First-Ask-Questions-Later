@@ -420,7 +420,7 @@ describe('scheduled building upgrade controllers', () => {
       `,
       bind: { $village_id: villageId, $field_id: buildingFieldId },
       schema: z.strictObject({
-        buildingId: z.string(),
+        buildingId: buildingIdSchema,
         level: z.number(),
         scheduled: z.number(),
       }),
@@ -692,7 +692,7 @@ describe('scheduled building upgrade controllers', () => {
       createControllerArgs({
         path: {
           villageId: villageId.toString(),
-          scheduledUpgradeId: cancelledId.toString(),
+          scheduledUpgradeId: cancelledId,
         },
       }),
     );

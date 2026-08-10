@@ -222,12 +222,6 @@ export const selectStationedVillageByTileAndCurrentTileQuery = `
   WHERE cv.tile_id = $current_tile_id;
 `;
 
-export const selectTileCoordinatesQuery = `
-  SELECT x, y
-  FROM tiles
-  WHERE id = $tile_id;
-`;
-
 export const selectTroopAmountQuery = `
   SELECT amount
   FROM troops

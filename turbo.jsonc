@@ -1,6 +1,12 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "globalDependencies": ["package.json", "tsconfig.json", ".editorconfig", "biome.json", ".oxlintrc.json"],
+  "globalDependencies": [
+    "package.json",
+    "tsconfig.json",
+    ".editorconfig",
+    "biome.json",
+    ".oxlintrc.json"
+  ],
   "cacheMaxAge": "7d",
   "cacheMaxSize": "10GB",
   "tasks": {
@@ -18,7 +24,18 @@
     },
     "build": {
       "outputs": ["build/**"],
-      "env": ["COMMIT_REF", "HEAD", "URL", "DEPLOY_URL", "DEPLOY_PRIME_URL", "FARO_APP_ID", "FARO_API_KEY", "FARO_STACK_ID", "FARO_SOURCEMAP_API_URL", "VITE_FARO_INGEST_ENDPOINT"]
+      "env": [
+        "COMMIT_REF",
+        "HEAD",
+        "URL",
+        "DEPLOY_URL",
+        "DEPLOY_PRIME_URL",
+        "FARO_APP_ID",
+        "FARO_API_KEY",
+        "FARO_STACK_ID",
+        "FARO_SOURCEMAP_API_URL",
+        "VITE_FARO_INGEST_ENDPOINT"
+      ]
     },
     "preview": {
       "dependsOn": ["build"],
@@ -26,7 +43,18 @@
     },
     "build:dev": {
       "outputs": ["build/**"],
-      "env": ["COMMIT_REF", "HEAD", "URL", "DEPLOY_URL", "DEPLOY_PRIME_URL", "FARO_APP_ID", "FARO_API_KEY", "FARO_STACK_ID", "FARO_SOURCEMAP_API_URL", "VITE_FARO_INGEST_ENDPOINT"]
+      "env": [
+        "COMMIT_REF",
+        "HEAD",
+        "URL",
+        "DEPLOY_URL",
+        "DEPLOY_PRIME_URL",
+        "FARO_APP_ID",
+        "FARO_API_KEY",
+        "FARO_STACK_ID",
+        "FARO_SOURCEMAP_API_URL",
+        "VITE_FARO_INGEST_ENDPOINT"
+      ]
     },
     "format:check": {},
     "format": {},
@@ -34,6 +62,7 @@
     "lint": {},
     "lint:check/oxlint": {},
     "lint/oxlint": {},
+    "knip": {},
     "test": {},
     "type-check": {},
     "localize": {}

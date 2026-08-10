@@ -15,15 +15,15 @@ describe('village-controllers', () => {
   test('getVillageBySlug should return village details by slug', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const village = database.selectValue({
       sql: 'SELECT slug FROM villages LIMIT 1',
-      schema: z.strictObject({ slug: z.string() }),
+      schema: z.string(),
     })!;
 
     getVillageBySlug(
       database,
       createControllerArgs<'/villages/:villageSlug'>({
-        path: { villageSlug: village.slug },
+        path: { villageSlug: village },
       }),
     );
 
@@ -33,15 +33,15 @@ describe('village-controllers', () => {
   test('getOccupiableOasisInRange should return occupiable oasis in range', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     getOccupiableOasisInRange(
       database,
       createControllerArgs<'/villages/:villageId/occupiable-oasis'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
       }),
     );
 
@@ -51,15 +51,15 @@ describe('village-controllers', () => {
   test('getGatherersHutExpeditions should return completed expedition count', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     const result = getGatherersHutExpeditions(
       database,
       createControllerArgs<'/villages/:villageId/gatherers-hut/expeditions'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
       }),
     );
 
@@ -69,9 +69,9 @@ describe('village-controllers', () => {
   test('getTrapperCageStats should return village cage totals', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     database.exec({
@@ -83,14 +83,14 @@ describe('village-controllers', () => {
           ($village_id, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'));
       `,
       bind: {
-        $village_id: village.id,
+        $village_id: villageId,
       },
     });
 
     const stats = getTrapperCageStats(
       database,
       createControllerArgs<'/villages/:villageId/trapper-cages'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
       }),
     );
 
@@ -105,11 +105,10 @@ describe('village-controllers', () => {
     test('should swap two occupied building fields and update events', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
       const fieldId1 = 19;
       const fieldId2 = 20;
 
@@ -156,37 +155,36 @@ describe('village-controllers', () => {
         }),
       );
 
-      const bf1 = database.selectObject({
+      const bf1 = database.selectValue({
         sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = $f',
         bind: { $v: villageId, $f: fieldId1 },
-        schema: z.strictObject({ building_id: buildingIdSchema }),
+        schema: buildingIdSchema,
       })!;
 
-      const bf2 = database.selectObject({
+      const bf2 = database.selectValue({
         sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = $f',
         bind: { $v: villageId, $f: fieldId2 },
-        schema: z.strictObject({ building_id: buildingIdSchema }),
+        schema: buildingIdSchema,
       })!;
 
-      expect(bf1.building_id).toBe('BARRACKS');
-      expect(bf2.building_id).toBe('MAIN_BUILDING');
+      expect(bf1).toBe('BARRACKS');
+      expect(bf2).toBe('MAIN_BUILDING');
 
-      const event = database.selectObject({
+      const event = database.selectValue({
         sql: 'SELECT meta FROM events WHERE village_id = $v',
         bind: { $v: villageId },
-        schema: z.strictObject({ meta: z.string() }),
+        schema: z.string(),
       });
-      expect(JSON.parse(event!.meta).buildingFieldId).toBe(fieldId2);
+      expect(JSON.parse(event!).buildingFieldId).toBe(fieldId2);
     });
 
     test('should move building effects when rearranging occupied building fields', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       database.exec({
         sql: `
@@ -273,11 +271,10 @@ describe('village-controllers', () => {
     test('should update active events and scheduled upgrades when rearranging fields', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
       const eventStartsAt = 123_456_789;
       const buildingEventTypes = [
         'buildingConstruction',
@@ -374,12 +371,12 @@ describe('village-controllers', () => {
     test('should not update events for other event types, other villages, null targets, or unmatched buildings', async () => {
       const database = await prepareTestDatabase();
 
-      const villages = database.selectObjects({
+      const villageIds = database.selectValues({
         sql: 'SELECT id FROM villages ORDER BY id LIMIT 2',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       });
-      const villageId = villages[0].id;
-      const otherVillageId = villages[1].id;
+      const villageId = villageIds[0];
+      const otherVillageId = villageIds[1];
       const eventStartsAt = 223_456_789;
 
       database.exec({
@@ -490,11 +487,10 @@ describe('village-controllers', () => {
     test('should move building to empty field', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
       const fieldId1 = 19;
       const fieldId2 = 21;
 
@@ -522,30 +518,29 @@ describe('village-controllers', () => {
         }),
       );
 
-      const bf1 = database.selectObject({
+      const bf1 = database.selectValue({
         sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = $f',
         bind: { $v: villageId, $f: fieldId1 },
-        schema: z.strictObject({ building_id: buildingIdSchema }),
+        schema: buildingIdSchema,
       });
 
-      const bf2 = database.selectObject({
+      const bf2 = database.selectValue({
         sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = $f',
         bind: { $v: villageId, $f: fieldId2 },
-        schema: z.strictObject({ building_id: buildingIdSchema }),
+        schema: buildingIdSchema,
       })!;
 
       expect(bf1).toBeUndefined();
-      expect(bf2.building_id).toBe('MAIN_BUILDING');
+      expect(bf2).toBe('MAIN_BUILDING');
     });
 
     test('should not modify non-swappable fields', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 39, (SELECT id FROM building_ids WHERE building = 'RALLY_POINT'), 5)",
@@ -587,11 +582,10 @@ describe('village-controllers', () => {
     test('should keep unaffected swappable fields when updates include null', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 19, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 10)",
@@ -639,10 +633,10 @@ describe('village-controllers', () => {
         }),
       })!;
 
-      const field21 = database.selectObject({
+      const field21 = database.selectValue({
         sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = 21',
         bind: { $v: villageId },
-        schema: z.strictObject({ building_id: buildingIdSchema }),
+        schema: buildingIdSchema,
       });
 
       expect(field19.building_id).toBe('MAIN_BUILDING');
@@ -655,11 +649,10 @@ describe('village-controllers', () => {
     test('should ignore updates outside range 19-38 for both fields and events', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 18, (SELECT id FROM building_ids WHERE building = 'WOODCUTTER'), 9)",
@@ -725,27 +718,26 @@ describe('village-controllers', () => {
         }),
       })!;
 
-      const event = database.selectObject({
+      const event = database.selectValue({
         sql: 'SELECT meta FROM events WHERE village_id = $v',
         bind: { $v: villageId },
-        schema: z.strictObject({ meta: z.string() }),
+        schema: z.string(),
       })!;
 
       expect(field18.building_id).toBe('WOODCUTTER');
       expect(field18.level).toBe(9);
       expect(field39.building_id).toBe('RALLY_POINT');
       expect(field39.level).toBe(3);
-      expect(JSON.parse(event.meta).buildingFieldId).toBe(18);
+      expect(JSON.parse(event).buildingFieldId).toBe(18);
     });
 
     test('should preserve level when moving building between swappable boundary fields', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       database.exec({
         sql: "INSERT OR REPLACE INTO building_fields (village_id, field_id, building_id, level) VALUES ($v, 19, (SELECT id FROM building_ids WHERE building = 'MAIN_BUILDING'), 13)",
@@ -771,10 +763,10 @@ describe('village-controllers', () => {
         }),
       );
 
-      const field19 = database.selectObject({
+      const field19 = database.selectValue({
         sql: 'SELECT bi.building AS building_id FROM building_fields bf JOIN building_ids bi ON bi.id = bf.building_id WHERE bf.village_id = $v AND bf.field_id = 19',
         bind: { $v: villageId },
-        schema: z.strictObject({ building_id: buildingIdSchema }),
+        schema: buildingIdSchema,
       });
 
       const field38 = database.selectObject({
@@ -794,11 +786,10 @@ describe('village-controllers', () => {
     test('should preserve levels when rearranging multiple buildings of the same type', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
       const eventStartsAt = 345_678_901;
 
       database.exec({
@@ -889,13 +880,13 @@ describe('village-controllers', () => {
         },
       ]);
 
-      const event = database.selectObject({
+      const event = database.selectValue({
         sql: 'SELECT meta FROM events WHERE village_id = $v AND starts_at = $starts_at',
         bind: { $v: villageId, $starts_at: eventStartsAt },
-        schema: z.strictObject({ meta: z.string() }),
+        schema: z.string(),
       })!;
 
-      expect(JSON.parse(event.meta)).toMatchObject({
+      expect(JSON.parse(event)).toMatchObject({
         buildingFieldId: 21,
         buildingId: 'GRANARY',
       });
@@ -904,11 +895,10 @@ describe('village-controllers', () => {
     test('should preserve effects when rearranging multiple buildings of the same type', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       database.exec({
         sql: `
@@ -1015,11 +1005,10 @@ describe('village-controllers', () => {
     test('should reject source field that does not match the target building', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       database.exec({
         sql: `
@@ -1058,11 +1047,10 @@ describe('village-controllers', () => {
     test('should reject duplicate source fields', async () => {
       const database = await prepareTestDatabase();
 
-      const village = database.selectObject({
+      const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
-        schema: z.strictObject({ id: z.number() }),
+        schema: z.number(),
       })!;
-      const villageId = village.id;
 
       database.exec({
         sql: `

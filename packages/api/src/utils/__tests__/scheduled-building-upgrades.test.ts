@@ -83,7 +83,7 @@ describe('scheduled building upgrades', () => {
       schema: z.strictObject({
         fieldId: z.number(),
         level: z.number(),
-        buildingId: z.string(),
+        buildingId: buildingIdSchema,
       }),
     });
 
@@ -181,7 +181,7 @@ describe('scheduled building upgrades', () => {
       schema: z.strictObject({
         fieldId: z.number(),
         level: z.number(),
-        buildingId: z.string(),
+        buildingId: buildingIdSchema,
       }),
     })!;
 
@@ -319,7 +319,7 @@ describe('scheduled building upgrades', () => {
       schema: z.strictObject({
         fieldId: z.number(),
         level: z.number(),
-        buildingId: z.string(),
+        buildingId: buildingIdSchema,
       }),
     });
     const resourceField = fields.find(({ fieldId }) => fieldId <= 18)!;

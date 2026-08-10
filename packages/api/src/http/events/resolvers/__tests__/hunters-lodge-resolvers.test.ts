@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { createEvents } from '../../../../utils/create-event';
 import { resolveEvent } from '../../resolve-event';
 
@@ -194,7 +195,7 @@ describe('hunters lodge resolvers', () => {
         $village_id: villageId,
       },
       schema: z.strictObject({
-        unitId: z.string(),
+        unitId: unitIdSchema,
         amount: z.number(),
         sourceTileId: z.number(),
       }),

@@ -63,7 +63,7 @@ export const mapWoundedTroop = (
   });
 };
 
-export const mapSentReinforcement = (
+const mapSentReinforcement = (
   row: z.infer<typeof getSentReinforcementsByTileSchema>,
 ): z.infer<typeof sentReinforcementDtoSchema> => {
   const dto = {

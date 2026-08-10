@@ -7,13 +7,13 @@ const database = await prepareTestDatabase();
 
 describe('unitImprovementSeeder', () => {
   test('upgradable units are seeded with level 0 for player', () => {
-    const improvements = database.selectObjects({
+    const improvements = database.selectValues({
       sql: 'SELECT level FROM unit_improvements WHERE player_id = $player_id;',
       bind: { $player_id: PLAYER_ID },
-      schema: z.strictObject({ level: z.number() }),
+      schema: z.number(),
     });
 
     expect(improvements.length).toBeGreaterThan(0);
-    expect(improvements.every((i) => i.level === 0)).toBe(true);
+    expect(improvements.every((i) => i === 0)).toBe(true);
   });
 });
