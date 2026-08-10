@@ -37,14 +37,14 @@ describe('hero-resolvers', () => {
 
     expect(health).toBe(100);
 
-    const effects = database.selectObjects({
+    const effects = database.selectValues({
       sql: "SELECT ei.effect FROM effects e JOIN effect_ids ei ON e.effect_id = ei.id WHERE e.village_id = $village_id AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       bind: { $village_id: villageId },
-      schema: z.strictObject({ effect: z.string() }),
+      schema: z.string(),
     });
 
     expect(effects).toHaveLength(4);
-    const effectNames = effects.map((e) => e.effect);
+    const effectNames = effects.map((e) => e);
     expect(effectNames).toContain('woodProduction');
     expect(effectNames).toContain('clayProduction');
     expect(effectNames).toContain('ironProduction');
@@ -115,9 +115,9 @@ describe('hero-resolvers', () => {
     expect(health).toBe(100);
 
     // 5. Verify next event is not scheduled
-    const nextEvent = database.selectObject({
+    const nextEvent = database.selectValue({
       sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
-      schema: z.strictObject({ type: z.string() }),
+      schema: z.string(),
     });
     expect(nextEvent).toBeUndefined();
   });

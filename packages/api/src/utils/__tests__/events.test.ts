@@ -2206,17 +2206,19 @@ describe('events utils', () => {
         },
       });
 
-      const initialQuest = database.selectObject({
+      const initialQuest = database.selectValue({
         sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCount-10';",
-        schema: z.strictObject({ completed_at: z.number().nullable() }),
+        schema: z.number().nullable(),
       })!;
-      expect(initialQuest.completed_at).toBe(null);
 
-      const initialUnitQuest = database.selectObject({
+      expect(initialQuest).toBe(null);
+
+      const initialUnitQuest = database.selectValue({
         sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCountById-PHALANX-10';",
-        schema: z.strictObject({ completed_at: z.number().nullable() }),
+        schema: z.number().nullable(),
       })!;
-      expect(initialUnitQuest.completed_at).toBe(null);
+
+      expect(initialUnitQuest).toBe(null);
 
       createEvents<'troopTraining'>(database, {
         type: 'troopTraining',
@@ -2228,23 +2230,26 @@ describe('events utils', () => {
         durationEffectId: 'barracksTrainingDuration',
       });
 
-      const completedQuest = database.selectObject({
+      const completedQuest = database.selectValue({
         sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCount-10';",
-        schema: z.strictObject({ completed_at: z.number().nullable() }),
+        schema: z.number().nullable(),
       })!;
-      expect(completedQuest.completed_at).toBe(now);
 
-      const completedUnitQuest = database.selectObject({
+      expect(completedQuest).toBe(now);
+
+      const completedUnitQuest = database.selectValue({
         sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCountById-PHALANX-10';",
-        schema: z.strictObject({ completed_at: z.number().nullable() }),
+        schema: z.number().nullable(),
       })!;
-      expect(completedUnitQuest.completed_at).toBe(now);
 
-      const otherUnitQuest = database.selectObject({
+      expect(completedUnitQuest).toBe(now);
+
+      const otherUnitQuest = database.selectValue({
         sql: "SELECT completed_at FROM quests WHERE quest_id = 'queuedTroopCountById-SWORDSMAN-10';",
-        schema: z.strictObject({ completed_at: z.number().nullable() }),
+        schema: z.number().nullable(),
       })!;
-      expect(otherUnitQuest.completed_at).toBe(null);
+
+      expect(otherUnitQuest).toBe(null);
 
       vi.useRealTimers();
     });
@@ -2340,6 +2345,7 @@ describe('events utils', () => {
         duration: 60 * 60 * 1000,
         huntingPartyLevel: 2,
       });
+
       expect(resources).toStrictEqual({
         wood: 700,
         clay: 700,

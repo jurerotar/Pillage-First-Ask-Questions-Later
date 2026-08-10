@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 
-export const baseGetBuildingLevelChangeHistorySchema = z.strictObject({
+const baseGetBuildingLevelChangeHistorySchema = z.strictObject({
   field_id: z.number(),
   building: buildingIdSchema,
   previous_level: z.number(),
@@ -15,7 +15,7 @@ export const getBuildingLevelChangeHistoryRowSchema =
     id: 'GetBuildingLevelChangeHistoryRow',
   });
 
-export const baseGetUnitTrainingHistorySchema = z.strictObject({
+const baseGetUnitTrainingHistorySchema = z.strictObject({
   batch_id: z.string(),
   unit: unitIdSchema,
   building: buildingIdSchema,

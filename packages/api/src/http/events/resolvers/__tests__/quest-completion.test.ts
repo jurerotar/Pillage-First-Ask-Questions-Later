@@ -27,12 +27,12 @@ describe('quest completion on building level up', () => {
     });
 
     // 2. Initial state: quest should not be completed
-    const initialQuest = database.selectObject({
+    const initialQuest = database.selectValue({
       sql: 'SELECT completed_at FROM quests WHERE quest_id = $quest_id AND village_id = $village_id',
       bind: { $quest_id: questId, $village_id: villageId },
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
+      schema: z.number().nullable(),
     })!;
-    expect(initialQuest.completed_at).toBe(null);
+    expect(initialQuest).toBe(null);
 
     // 3. Trigger level change to level 1
     const mockEvent = createBuildingLevelChangeEventMock({
@@ -49,13 +49,13 @@ describe('quest completion on building level up', () => {
     buildingLevelChangeResolver(database, mockEvent);
 
     // 4. Check if quest is completed
-    const finalQuest = database.selectObject({
+    const finalQuest = database.selectValue({
       sql: 'SELECT completed_at FROM quests WHERE quest_id = $quest_id AND village_id = $village_id',
       bind: { $quest_id: questId, $village_id: villageId },
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
+      schema: z.number().nullable(),
     })!;
-    expect(finalQuest.completed_at).not.toBe(null);
-    expect(finalQuest.completed_at).toBe(1500);
+    expect(finalQuest).not.toBe(null);
+    expect(finalQuest).toBe(1500);
   });
 
   test('should complete "every" building quest when all buildings reach required level', async () => {
@@ -106,12 +106,12 @@ describe('quest completion on building level up', () => {
     });
 
     // 3. Initial state: quest should not be completed because field 2 is still level 0
-    const initialQuest = database.selectObject({
+    const initialQuest = database.selectValue({
       sql: 'SELECT completed_at FROM quests WHERE quest_id = $quest_id AND village_id = $village_id',
       bind: { $quest_id: questId, $village_id: villageId },
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
+      schema: z.number().nullable(),
     })!;
-    expect(initialQuest.completed_at).toBe(null);
+    expect(initialQuest).toBe(null);
 
     // 4. Trigger level change for field 2 to level 1
     const mockEvent = createBuildingLevelChangeEventMock({
@@ -128,12 +128,12 @@ describe('quest completion on building level up', () => {
     buildingLevelChangeResolver(database, mockEvent);
 
     // 5. Check if quest is completed
-    const finalQuest = database.selectObject({
+    const finalQuest = database.selectValue({
       sql: 'SELECT completed_at FROM quests WHERE quest_id = $quest_id AND village_id = $village_id',
       bind: { $quest_id: questId, $village_id: villageId },
-      schema: z.strictObject({ completed_at: z.number().nullable() }),
+      schema: z.number().nullable(),
     })!;
-    expect(finalQuest.completed_at).not.toBe(null);
-    expect(finalQuest.completed_at).toBe(2500);
+    expect(finalQuest).not.toBe(null);
+    expect(finalQuest).toBe(2500);
   });
 });

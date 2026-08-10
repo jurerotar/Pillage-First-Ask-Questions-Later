@@ -42,12 +42,12 @@ describe('metaSeeder', () => {
       bind: { $player_id: PLAYER_ID },
     });
 
-    const updatedMeta = database.selectObject({
+    const updatedMeta = database.selectValue({
       sql: 'SELECT last_write FROM meta LIMIT 1;',
-      schema: z.strictObject({ last_write: z.number() }),
+      schema: z.number(),
     });
 
     expect(updatedMeta).toBeDefined();
-    expect(updatedMeta?.last_write).toBeGreaterThan(0);
+    expect(updatedMeta).toBeGreaterThan(0);
   });
 });

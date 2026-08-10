@@ -93,7 +93,7 @@ describe('event-controllers', () => {
     cancelConstructionEvent(
       database,
       createControllerArgs<'/events/:eventId', 'delete'>({
-        path: { eventId: eventId.toString() },
+        path: { eventId },
       }),
     );
 
@@ -114,15 +114,15 @@ describe('event-controllers', () => {
   test('getVillageEvents should return events for a village', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     getVillageEvents(
       database,
       createControllerArgs<'/villages/:villageId/events'>({
-        path: { villageId: village.id },
+        path: { villageId: villageId },
       }),
     );
 
@@ -132,15 +132,15 @@ describe('event-controllers', () => {
   test('getVillageEventsByType should return events for a village by type', async () => {
     const database = await prepareTestDatabase();
 
-    const village = database.selectObject({
+    const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
-      schema: z.strictObject({ id: z.number() }),
+      schema: z.number(),
     })!;
 
     getVillageEventsByType(
       database,
       createControllerArgs<'/villages/:villageId/events/:eventType'>({
-        path: { villageId: village.id, eventType: 'buildingLevelChange' },
+        path: { villageId: villageId, eventType: 'buildingLevelChange' },
       }),
     );
 
@@ -208,7 +208,7 @@ describe('event-controllers', () => {
     cancelConstructionEvent(
       database,
       createControllerArgs<'/events/:eventId', 'delete'>({
-        path: { eventId: activeEventId.toString() },
+        path: { eventId: activeEventId },
       }),
     );
 
@@ -347,7 +347,7 @@ describe('event-controllers', () => {
     cancelConstructionEvent(
       database,
       createControllerArgs<'/events/:eventId', 'delete'>({
-        path: { eventId: activeResourceEventId.toString() },
+        path: { eventId: activeResourceEventId },
       }),
     );
 
@@ -507,7 +507,7 @@ describe('event-controllers', () => {
     cancelConstructionEvent(
       database,
       createControllerArgs<'/events/:eventId', 'delete'>({
-        path: { eventId: eventId.toString() },
+        path: { eventId },
       }),
     );
 
@@ -579,7 +579,7 @@ describe('event-controllers', () => {
     cancelConstructionEvent(
       database,
       createControllerArgs<'/events/:eventId', 'delete'>({
-        path: { eventId: eventId.toString() },
+        path: { eventId },
       }),
     );
 
@@ -658,7 +658,7 @@ describe('event-controllers', () => {
     cancelConstructionEvent(
       database,
       createControllerArgs<'/events/:eventId', 'delete'>({
-        path: { eventId: eventId.toString() },
+        path: { eventId },
       }),
     );
 
@@ -737,7 +737,7 @@ describe('event-controllers', () => {
       database,
       createControllerArgs<'/events/unit-improvement-event/:eventId', 'delete'>(
         {
-          path: { eventId: eventId.toString() },
+          path: { eventId },
         },
       ),
     );

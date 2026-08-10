@@ -37,7 +37,7 @@ export const resourceTransferResolver: Resolver<
     resources.wheat,
   ]);
 
-  const playerVillageIds = database.selectObjects({
+  const playerVillageIds = database.selectValues({
     sql: `
       SELECT id FROM villages
       WHERE id IN ($origin_village_id, $target_village_id)
@@ -48,13 +48,13 @@ export const resourceTransferResolver: Resolver<
       $target_village_id: targetVillageId,
       $player_id: PLAYER_ID,
     },
-    schema: z.strictObject({ id: z.number() }),
+    schema: z.number(),
   });
 
-  const ownsOriginVillage = playerVillageIds.some(({ id }) => id === villageId);
+  const ownsOriginVillage = playerVillageIds.some((id) => id === villageId);
 
   const ownsTargetVillage = playerVillageIds.some(
-    ({ id }) => id === targetVillageId,
+    (id) => id === targetVillageId,
   );
 
   if (ownsOriginVillage && !ownsTargetVillage) {

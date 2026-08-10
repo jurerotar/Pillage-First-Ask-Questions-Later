@@ -22,7 +22,7 @@ import { removeBuildingPlaceholder } from './building-placeholder';
 import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
 import { createEvents } from './create-event';
 
-export const scheduledBuildingUpgradeRowSchema = z.strictObject({
+const scheduledBuildingUpgradeRowSchema = z.strictObject({
   id: z.number(),
   buildingId: buildingIdSchema,
   villageId: z.number(),
