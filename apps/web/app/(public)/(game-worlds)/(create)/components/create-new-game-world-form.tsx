@@ -41,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
+import { pushGameWorldCreated } from 'app/instrumentation/product-events';
 import { reportError } from 'app/instrumentation/report-error';
 import { invalidateQueries } from 'app/utils/react-query';
 
@@ -182,6 +183,10 @@ export const CreateNewGameWorldForm = () => {
         values: {
           migration_and_seed_duration: migrationDuration,
         },
+      });
+
+      pushGameWorldCreated(server, {
+        migration_duration_ms: migrationDuration,
       });
 
       await createGameWorld({ server });

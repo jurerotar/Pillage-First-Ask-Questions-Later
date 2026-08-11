@@ -23,6 +23,26 @@ type Attribution = {
   utmTerm?: string;
 };
 
+const getAppInstallMode = ():
+  | 'browser'
+  | 'fullscreen'
+  | 'minimal-ui'
+  | 'standalone' => {
+  if (window.matchMedia('(display-mode: fullscreen)').matches) {
+    return 'fullscreen';
+  }
+
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    return 'standalone';
+  }
+
+  if (window.matchMedia('(display-mode: minimal-ui)').matches) {
+    return 'minimal-ui';
+  }
+
+  return 'browser';
+};
+
 const getStoredVisitorId = (): string | null => {
   try {
     return window.localStorage.getItem(visitorIdLocalStorageKey);
@@ -40,17 +60,23 @@ const setStoredVisitorId = (visitorId: string): void => {
   }
 };
 
-const getVisitorId = (): string => {
+const getVisitor = (): { isReturningVisitor: boolean; visitorId: string } => {
   const storedVisitorId = getStoredVisitorId();
 
   if (storedVisitorId) {
-    return storedVisitorId;
+    return {
+      isReturningVisitor: true,
+      visitorId: storedVisitorId,
+    };
   }
 
   const visitorId = window.crypto.randomUUID();
   setStoredVisitorId(visitorId);
 
-  return visitorId;
+  return {
+    isReturningVisitor: false,
+    visitorId,
+  };
 };
 
 const getStoredAttribution = (): Attribution | null => {
@@ -163,10 +189,17 @@ const toDefinedAttributes = (
 };
 
 const getDashboardSessionAttributes = (): FaroSessionAttributes => {
+  const appInstallMode = getAppInstallMode();
   const attribution = getAttribution();
+  const { isReturningVisitor, visitorId } = getVisitor();
 
   return toDefinedAttributes({
-    client: isStandaloneDisplayMode() ? 'pwa' : 'browser',
+    app_install_mode: appInstallMode,
+    client:
+      isStandaloneDisplayMode() || appInstallMode !== 'browser'
+        ? 'pwa'
+        : 'browser',
+    is_returning_visitor: String(isReturningVisitor),
     landing_page: attribution.landingPage,
     referrer: attribution.referrer,
     referrer_host: attribution.referrerHost,
@@ -177,7 +210,7 @@ const getDashboardSessionAttributes = (): FaroSessionAttributes => {
     utm_medium: attribution.utmMedium,
     utm_source: attribution.utmSource,
     utm_term: attribution.utmTerm,
-    visitor_id: getVisitorId(),
+    visitor_id: visitorId,
   });
 };
 

@@ -20,6 +20,7 @@ import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { HeadLinks } from 'app/components/head-links';
 import { Spinner } from 'app/components/ui/spinner';
 import { Toaster } from 'app/components/ui/toaster';
+import { pushGameWorldOpened } from 'app/instrumentation/product-events';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 import { CookieContext } from 'app/providers/cookie-context';
 import { CookieProvider } from 'app/providers/cookie-provider';
@@ -44,6 +45,8 @@ const addGameWorldAttributesToFaro = (serverSlug: string): void => {
   if (!gameWorld) {
     return;
   }
+
+  pushGameWorldOpened(gameWorld);
 
   const session = faro.api.getSession();
 
