@@ -18,6 +18,9 @@
     "./api-routes": {
       "default": "./src/http/api-routes.ts"
     },
+    "./api-route-types": {
+      "default": "./src/http/api-route-types.generated.d.ts"
+    },
     "./open-api": {
       "default": "./src/open-api.ts"
     }

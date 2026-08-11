@@ -23,7 +23,7 @@
     "format": "biome check --write --no-errors-on-unmatched",
     "knip": "knip",
     "localize": "i18next-cli extract",
-    "type-check": "react-router typegen && tsc",
+    "type-check": "node ../../scripts/generate-api-route-types.ts && react-router typegen && tsc",
     "test": "vitest"
   },
   "dependencies": {
