@@ -1,4 +1,3 @@
-import type { BindableValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import { oasisByAnimalsSearchResultItemDtoSchema } from '@pillage-first/types/dtos/oasis-search';
 import type { NatureUnitId } from '@pillage-first/types/models/unit';
@@ -27,28 +26,20 @@ export const getOasesWithAnimals = createController(
 )(({ database, body }) => {
   const { x, y, animalFilters } = body;
 
-  const sqlBindings: Record<string, BindableValue> = {};
-
   const uniqueFilters = new Map<NatureUnitId, number>();
   for (const { animal, amount } of animalFilters) {
     uniqueFilters.set(animal, Math.max(uniqueFilters.get(animal) ?? 0, amount));
   }
 
-  const filterClauses: string[] = [];
-  for (const [index, [animal, amount]] of [
-    ...uniqueFilters.entries(),
-  ].entries()) {
-    sqlBindings[`$animal_${index}`] = animal;
-    sqlBindings[`$amount_${index}`] = amount;
-
-    filterClauses.push(`
-        (animal_unit = $animal_${index} AND amount >= $amount_${index})
-      `);
-  }
-
   const rows = database.selectObjects({
     sql: `
         WITH
+          requested_animals AS (
+            SELECT
+              JSON_EXTRACT(value, '$[0]') AS animal_unit,
+              JSON_EXTRACT(value, '$[1]') AS requested_amount
+            FROM JSON_EACH($animal_filters)
+          ),
           animal_amounts AS (
             SELECT
               tr.tile_id,
@@ -59,21 +50,18 @@ export const getOasesWithAnimals = createController(
             GROUP BY tr.tile_id, tr.unit_id
           ),
           matching_oases AS (
-            ${
-              filterClauses.length > 0
-                ? `
-                  SELECT tile_id
-                  FROM animal_amounts
-                  WHERE ${filterClauses.join(' OR ')}
-                  GROUP BY tile_id
-                  HAVING COUNT(*) = ${uniqueFilters.size}
-                `
-                : `
-                  SELECT id AS tile_id
-                  FROM tiles
-                  WHERE type_id = 2
-                `
-            }
+            SELECT t.id AS tile_id
+            FROM tiles t
+            WHERE
+              t.type_id = 2
+              AND NOT EXISTS (
+                SELECT 1
+                FROM requested_animals ra
+                LEFT JOIN animal_amounts aa
+                  ON aa.tile_id = t.id
+                  AND aa.animal_unit = ra.animal_unit
+                WHERE COALESCE(aa.amount, 0) < ra.requested_amount
+              )
           ),
           bonuses_by_tile AS (
             SELECT
@@ -106,7 +94,7 @@ export const getOasesWithAnimals = createController(
         ORDER BY distance_squared ASC;
       `,
     bind: {
-      ...sqlBindings,
+      $animal_filters: JSON.stringify([...uniqueFilters.entries()]),
       $tile_x: x,
       $tile_y: y,
     },
