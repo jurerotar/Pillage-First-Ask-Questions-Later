@@ -7,6 +7,7 @@ import {
   UnitAttributes,
   UnitCard,
   UnitHealing,
+  UnitHealingCost,
   UnitOverview,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/unit-production-buildings/components/unit-card';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
@@ -73,6 +74,7 @@ export const HospitalTroopTraining = () => {
               <UnitCard unitId={unitId}>
                 <UnitOverview />
                 <UnitAttributes />
+                <UnitHealingCost />
                 <UnitHealing woundedAmount={amount} />
               </UnitCard>
             </div>
