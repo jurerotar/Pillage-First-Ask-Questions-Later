@@ -108,7 +108,6 @@ import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
 import { reportOutcomeIdsSeeder } from '../seeders/report-outcome-ids-seeder';
-import { reportSeeder } from '../seeders/report-seeder';
 import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
 import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
 import { resourceFieldCompositionIdsSeeder } from '../seeders/resource-field-composition-ids-seeder';
@@ -274,15 +273,9 @@ export const migrateAndSeed = (
     db.exec({ sql: createScoutingReportStructuresTable });
 
     db.exec({ sql: createReportsIndexes });
-    db.exec({
-      sql: `
-        CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
-        ON battle_report_buildings(report_id);
-      `,
-    });
+
     db.exec({ sql: createReportDeleteTriggers });
     db.exec({ sql: createReportRetentionTriggers });
-    reportSeeder(db, server);
 
     // Heroes
     db.exec({ sql: createHeroesTable });
