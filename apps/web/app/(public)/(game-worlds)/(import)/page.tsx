@@ -22,6 +22,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
+import { pushGameWorldImported } from 'app/instrumentation/product-events';
 import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
 
@@ -29,6 +30,11 @@ type ImportGameWorldSuccess = Extract<
   ImportGameWorldWorkerResponse,
   { resolved: true }
 >;
+
+type ImportGameWorldArgs = {
+  data: ArrayBuffer | Blob;
+  source: 'device' | 'file';
+};
 
 const ImportGameWorld = () => {
   const { t } = useTranslation('public');
@@ -42,8 +48,8 @@ const ImportGameWorld = () => {
     mutateAsync: importGameWorld,
     isPending: isImporting,
     error,
-  } = useMutation<ImportGameWorldSuccess, Error, ArrayBuffer | Blob>({
-    mutationFn: async (data) => {
+  } = useMutation<ImportGameWorldSuccess, Error, ImportGameWorldArgs>({
+    mutationFn: async ({ data }) => {
       const buffer = data instanceof Blob ? await data.arrayBuffer() : data;
       const payload: ImportGameWorldWorkerPayload = {
         databaseBuffer: buffer as ArrayBuffer,
@@ -60,7 +66,9 @@ const ImportGameWorld = () => {
 
       return result;
     },
-    onSuccess: async ({ server }, _data, _onMutateResult, context) => {
+    onSuccess: async ({ server }, { source }, _onMutateResult, context) => {
+      pushGameWorldImported(server, { source });
+
       await createGameWorld({ server });
       await invalidateQueries(context, [[availableServerCacheKey]]);
 
@@ -150,7 +158,7 @@ const ImportGameWorld = () => {
                   }
 
                   try {
-                    await importGameWorld(file);
+                    await importGameWorld({ data: file, source: 'file' });
                   } finally {
                     if (fileInputRef.current) {
                       fileInputRef.current.value = '';
@@ -210,7 +218,7 @@ const ImportGameWorld = () => {
         open={isImportModalOpen}
         onOpenChange={setIsImportModalOpen}
         onImport={async (buffer) => {
-          await importGameWorld(buffer);
+          await importGameWorld({ data: buffer, source: 'device' });
         }}
       />
     </PageContents>

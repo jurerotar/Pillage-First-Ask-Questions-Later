@@ -21,5 +21,6 @@ stats.html
 tsconfig.tsbuildinfo
 .turbo
 open-api.json
+packages/api/src/http/api-route-types.generated.d.ts
 apps/web/public/landing
 apps/erd/sql-schema

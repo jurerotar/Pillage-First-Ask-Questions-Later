@@ -14,6 +14,7 @@
     "packages/*"
   ],
   "scripts": {
+    "generate-api-route-types": "node scripts/generate-api-route-types.ts",
     "inject-graphics": "node scripts/inject-graphics.ts",
     "extract-sql-schema": "node scripts/extract-sql-schema.ts",
     "extract-sql-usage": "node scripts/extract-sql-usage.ts",

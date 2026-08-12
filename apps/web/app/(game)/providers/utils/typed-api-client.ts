@@ -1,9 +1,8 @@
 import type { z } from 'zod';
-import type { apiRoutes } from '@pillage-first/api/api-routes';
+import type { ApiRouteController } from '@pillage-first/api/api-route-types';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
 type HttpMethod = 'get' | 'post' | 'patch' | 'delete';
-type ApiRouteController = (typeof apiRoutes)[number]['controller'];
 
 type RoutesByMethod = {
   [TMethod in HttpMethod]: {
@@ -47,7 +46,7 @@ type PathParamsFor<TRoute> =
   ParametersFor<OperationFor<TRoute>> extends {
     path?: infer TPathSchema;
   }
-    ? InferInputSchema<NonNullable<TPathSchema>>
+    ? InferOutputSchema<NonNullable<TPathSchema>>
     : never;
 
 type QueryParamsFor<TRoute> =
@@ -59,53 +58,18 @@ type QueryParamsFor<TRoute> =
 
 type BodySchemaFor<TRoute> =
   OperationFor<TRoute> extends {
-    requestBody?: infer TRequestBody;
+    requestBody?: infer TBodySchema;
   }
-    ? NonNullable<TRequestBody> extends {
-        content: {
-          'application/json': {
-            schema: infer TBodySchema;
-          };
-        };
-      }
-      ? TBodySchema
-      : never
+    ? NonNullable<TBodySchema>
     : never;
 
 type BodyFor<TRoute> = InferInputSchema<BodySchemaFor<TRoute>>;
 
-type JsonSchemaFor<
-  TOperation,
-  TStatusCode extends string,
-> = TOperation extends {
-  responses: {
-    [statusCode in TStatusCode]: {
-      content: {
-        'application/json': {
-          schema: infer TSchema;
-        };
-      };
-    };
-  };
-}
-  ? TSchema
-  : never;
-
 type SuccessResponseFor<TRoute> =
-  OperationFor<TRoute> extends infer TOperation
-    ? TOperation extends { responses: infer TResponses }
-      ? TResponses extends Record<string, unknown>
-        ? '200' extends keyof TResponses
-          ? InferOutputSchema<JsonSchemaFor<TOperation, '200'>>
-          : '201' extends keyof TResponses
-            ? InferOutputSchema<JsonSchemaFor<TOperation, '201'>>
-            : '202' extends keyof TResponses
-              ? InferOutputSchema<JsonSchemaFor<TOperation, '202'>>
-              : '204' extends keyof TResponses
-                ? undefined
-                : never
-        : never
-      : never
+  OperationFor<TRoute> extends { response: infer TResponseSchema }
+    ? TResponseSchema extends undefined
+      ? undefined
+      : InferOutputSchema<TResponseSchema>
     : never;
 
 type ResponseFor<TRoute> = SuccessResponseFor<TRoute>;

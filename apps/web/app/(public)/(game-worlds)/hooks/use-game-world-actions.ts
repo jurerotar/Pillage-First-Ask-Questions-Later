@@ -13,6 +13,12 @@ import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/i
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
+import {
+  pushGameWorldDeleted,
+  pushGameWorldDuplicated,
+  pushGameWorldExported,
+} from 'app/instrumentation/product-events';
+import { reportError } from 'app/instrumentation/report-error';
 import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
 
@@ -33,6 +39,59 @@ const setAvailableServers = (servers: Server[]) => {
 const addAvailableServer = (server: Server) => {
   const servers = getAvailableServers();
   setAvailableServers([...servers, server]);
+};
+
+const removeAvailableServer = (server: Server): Server[] => {
+  const servers = getAvailableServers();
+  const updatedServers = servers.filter(({ id }) => id !== server.id);
+  setAvailableServers(updatedServers);
+
+  return updatedServers;
+};
+
+const isNotFoundError = (error: unknown) =>
+  error instanceof DOMException && error.name === 'NotFoundError';
+
+type ServerStorageStatus = 'empty-directory' | 'missing-directory' | 'present';
+
+const getServerStorageStatus = async (
+  rootHandle: FileSystemDirectoryHandle,
+  server: Server,
+): Promise<ServerStorageStatus> => {
+  let serverDirectoryHandle: FileSystemDirectoryHandle;
+
+  try {
+    serverDirectoryHandle = await rootHandle.getDirectoryHandle(server.slug);
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return 'missing-directory';
+    }
+
+    throw error;
+  }
+
+  for await (const _entry of serverDirectoryHandle.entries()) {
+    return 'present';
+  }
+
+  return 'empty-directory';
+};
+
+const reportMissingServerDatabase = (
+  server: Server,
+  storageStatus: Exclude<ServerStorageStatus, 'present'>,
+): void => {
+  reportError(
+    new Error('Server card references missing game world database'),
+    'Server card references missing game world database',
+    {
+      serverId: server.id,
+      serverName: server.name,
+      serverSlug: server.slug,
+      source: 'deleteGameWorld',
+      storageStatus,
+    },
+  );
 };
 
 const exportServerDatabase = async (server: Server): Promise<ArrayBuffer> => {
@@ -73,8 +132,15 @@ const importGameWorldDatabase = async (
   return result.server;
 };
 
-const deleteServerData = async (server: Server) => {
+const deleteServerData = async (server: Server): Promise<Server[] | null> => {
   const rootHandle = await getRootHandle();
+  const serverStorageStatus = await getServerStorageStatus(rootHandle, server);
+  let missingServerDatabaseReported = false;
+
+  if (serverStorageStatus !== 'present') {
+    reportMissingServerDatabase(server, serverStorageStatus);
+    missingServerDatabaseReported = true;
+  }
 
   try {
     await retryWhenFileSystemLocked(async () => {
@@ -82,17 +148,26 @@ const deleteServerData = async (server: Server) => {
         recursive: true,
       });
     });
-
-    const servers = getAvailableServers();
-    setAvailableServers(servers.filter(({ id }) => id !== server.id));
   } catch (error) {
     if (isFileSystemLockError(error)) {
       toast.error("Server couldn't be deleted", {
         description:
           "The game world can only be deleted if there's no current open instance of it.",
       });
+
+      return null;
+    }
+
+    if (!isNotFoundError(error)) {
+      throw error;
+    }
+
+    if (!missingServerDatabaseReported) {
+      reportMissingServerDatabase(server, 'missing-directory');
     }
   }
+
+  return removeAvailableServer(server);
 };
 
 export const useGameWorldActions = () => {
@@ -128,7 +203,8 @@ export const useGameWorldActions = () => {
         a.remove();
         URL.revokeObjectURL(exportUrl);
       },
-      onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      onSuccess: async (_data, { server }, _onMutateResult, context) => {
+        pushGameWorldExported(server);
         await invalidateQueries(context, [[availableServerCacheKey]]);
       },
       onError: (error) => {
@@ -156,6 +232,7 @@ export const useGameWorldActions = () => {
     },
     onSuccess: async (duplicatedServer, _vars, _onMutateResult, context) => {
       addAvailableServer(duplicatedServer);
+      pushGameWorldDuplicated(duplicatedServer);
       await invalidateQueries(context, [[availableServerCacheKey]]);
       toast.success('Game world duplicated');
     },
@@ -174,12 +251,28 @@ export const useGameWorldActions = () => {
   });
 
   const { mutateAsync: deleteGameWorld, isPending: isDeleteGameWorldPending } =
-    useMutation<void, Error, { server: Server }>({
+    useMutation<Server[] | null, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
-        await deleteServerData(server);
+        return deleteServerData(server);
       },
-      onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      onSuccess: async (
+        updatedServers,
+        { server },
+        _onMutateResult,
+        context,
+      ) => {
+        if (!updatedServers) {
+          return;
+        }
+
+        pushGameWorldDeleted(server);
+        context.client.setQueryData([availableServerCacheKey], updatedServers);
         await invalidateQueries(context, [[availableServerCacheKey]]);
+      },
+      onError: (error) => {
+        toast.error('Failed to delete game world', {
+          description: error.message,
+        });
       },
     });
 

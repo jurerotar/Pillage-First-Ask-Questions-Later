@@ -10,6 +10,7 @@ import { defineConfig as defineVitestConfig } from 'vitest/config';
 import { reactRouter } from '@react-router/dev/vite';
 import repoPackageJson from '../../package.json' with { type: 'json' };
 import packageJson from './package.json' with { type: 'json' };
+import { apiRouteTypesPlugin } from './plugins/vite-plugin-api-route-types';
 
 const graphicsVersion =
   packageJson.dependencies['@pillage-first/graphics'] ?? '0.0.0';
@@ -48,6 +49,7 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
+    !isInTestMode && apiRouteTypesPlugin(),
     reactIconsSprite(),
     // !isInTestMode &&
     //   babel({
