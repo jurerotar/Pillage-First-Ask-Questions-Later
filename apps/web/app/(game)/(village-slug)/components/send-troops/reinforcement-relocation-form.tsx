@@ -41,9 +41,13 @@ export const ReinforcementRelocationForm = () => {
         <TroopSelectionForm
           form={form}
           onSubmit={onFormSubmit}
-          targetSelector="coordinates"
-          extraTargetContent={<ReinforcementRelocationActionSelector />}
-          actions={<Button type="submit">{t('Confirm')}</Button>}
+          target={{
+            selector: 'coordinates',
+            extraContent: <ReinforcementRelocationActionSelector />,
+          }}
+          footer={{
+            content: <Button type="submit">{t('Confirm')}</Button>,
+          }}
         />
         {formData.current ? (
           <TroopMovementConfirmationModal

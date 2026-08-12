@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { Tile } from '@pillage-first/types/models/tile';
+import type { Tribe } from '@pillage-first/types/models/tribe';
 import { AttackOrRaidModal } from 'app/(game)/(village-slug)/(map)/components/attack-or-raid-modal';
 import { TroopMovementConfirmationContent } from 'app/(game)/(village-slug)/components/send-troops/components/confirmation-modal';
 import { ReinforcementRelocationActionSelector } from 'app/(game)/(village-slug)/components/send-troops/components/reinforcement-relocation-action-selector';
@@ -8,12 +9,18 @@ import { useFoundNewVillageTroopForm } from 'app/(game)/(village-slug)/component
 import { useReinforcementRelocationTroopForm } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-reinforcement-relocation-troop-form';
 import { Dialog, DialogContent } from 'app/components/ui/dialog';
 
+type MapSendTroopsTarget = {
+  tileId: Tile['id'];
+  tribe?: Tribe;
+  isUnoccupiedOasis?: boolean;
+};
+
 export type MapSendTroopsAction = {
   mode: 'attack-or-raid' | 'found-new-village' | 'reinforcement';
   offensiveAction?: 'attack' | 'raid';
   isOffensiveActionSelectionEnabled?: boolean;
   isRelocationEnabled?: boolean;
-  targetTileId: Tile['id'];
+  target: MapSendTroopsTarget;
 };
 
 type MapSendTroopsModalProps = {
@@ -67,10 +74,14 @@ const FoundNewVillageModal = ({
             onSubmit={onFormSubmit}
             title={t('Found a new village')}
             form={form}
-            disabledUnitTiers={disabledUnitTiers}
-            maxUnits={maxUnits}
-            targetSelector="coordinates"
-            isTargetSelectorDisabled
+            units={{
+              disabledUnitTiers,
+              maxUnits,
+            }}
+            target={{
+              selector: 'coordinates',
+              isDisabled: true,
+            }}
           />
         )}
       </DialogContent>
@@ -105,6 +116,7 @@ const ReinforceVillageModal = ({
     targetTileId,
     onSuccess: onClose,
   });
+
   const confirmationTitle =
     formData.current?.action === 'reinforcement'
       ? t('Reinforcement')
@@ -135,13 +147,15 @@ const ReinforceVillageModal = ({
                 : t('Reinforcement')
             }
             form={form}
-            targetSelector="coordinates"
-            isTargetSelectorDisabled
-            extraContent={
-              <ReinforcementRelocationActionSelector
-                isRelocationEnabled={isRelocationEnabled}
-              />
-            }
+            target={{
+              selector: 'coordinates',
+              isDisabled: true,
+              extraContent: (
+                <ReinforcementRelocationActionSelector
+                  isRelocationEnabled={isRelocationEnabled}
+                />
+              ),
+            }}
           />
         )}
       </DialogContent>
@@ -158,7 +172,7 @@ export const MapSendTroopsModal = ({
     return null;
   }
 
-  const key = `${action.mode}-${action.targetTileId}-${action.offensiveAction ?? 'attack'}-${action.isOffensiveActionSelectionEnabled ?? true}-${action.isRelocationEnabled ?? true}`;
+  const key = `${action.mode}-${action.target.tileId}-${action.offensiveAction ?? 'attack'}-${action.isOffensiveActionSelectionEnabled ?? true}-${action.isRelocationEnabled ?? true}-${action.target.tribe ?? 'unknown'}-${action.target.isUnoccupiedOasis ?? false}`;
 
   if (action.mode === 'found-new-village') {
     return (
@@ -166,7 +180,7 @@ export const MapSendTroopsModal = ({
         key={key}
         isOpen={isOpen}
         onClose={onClose}
-        targetTileId={action.targetTileId}
+        targetTileId={action.target.tileId}
       />
     );
   }
@@ -179,7 +193,7 @@ export const MapSendTroopsModal = ({
         isActionSelectionEnabled={action.isOffensiveActionSelectionEnabled}
         isOpen={isOpen}
         onClose={onClose}
-        targetTileId={action.targetTileId}
+        target={action.target}
       />
     );
   }
@@ -190,7 +204,7 @@ export const MapSendTroopsModal = ({
       isOpen={isOpen}
       isRelocationEnabled={action.isRelocationEnabled}
       onClose={onClose}
-      targetTileId={action.targetTileId}
+      targetTileId={action.target.tileId}
     />
   );
 };

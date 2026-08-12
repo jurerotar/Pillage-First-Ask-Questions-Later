@@ -1,7 +1,12 @@
 import { z } from 'zod';
 import { buildingIdSchema } from '../models/building';
 import { effectIdSchema } from '../models/effect';
-import { gameEventTypeSchema } from '../models/game-event';
+import {
+  catapultTargetsSchema,
+  gameEventTypeSchema,
+  heroOasisAnimalActionSchema,
+  scoutingTargetSchema,
+} from '../models/game-event';
 import { resourceBundleSchema } from '../models/resource';
 import { troopSchema } from '../models/troop';
 import { unitIdSchema } from '../models/unit';
@@ -46,6 +51,9 @@ const troopMovementEventSchema = {
   troops: z.array(troopSchema),
   originTileId: z.number(),
   targetTileId: z.number(),
+  scoutingTarget: scoutingTargetSchema.optional(),
+  catapultTargets: catapultTargetsSchema.optional(),
+  heroOasisAnimalAction: heroOasisAnimalActionSchema.optional(),
 };
 
 const resourcesSchema = z.strictObject({
