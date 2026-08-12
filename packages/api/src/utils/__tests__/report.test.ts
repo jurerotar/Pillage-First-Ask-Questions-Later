@@ -8,6 +8,9 @@ describe(insertReport, () => {
     const database = await prepareTestDatabase();
 
     database.exec({
+      sql: 'DELETE FROM reports;',
+    });
+    database.exec({
       sql: `
         WITH RECURSIVE sequence(timestamp) AS (
           SELECT 1
@@ -178,6 +181,18 @@ describe(insertReport, () => {
       schema: z.number(),
     });
 
+    const legionnaireHospitalized = database.selectValue({
+      sql: `
+        SELECT bru.amount_hospitalized
+        FROM battle_report_units bru
+          JOIN unit_ids ui ON ui.id = bru.unit_id
+        WHERE
+          bru.battle_participant_id = 10001
+          AND ui.unit = 'LEGIONNAIRE';
+      `,
+      schema: z.number(),
+    });
+
     const ineligibleWoundedCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -192,6 +207,7 @@ describe(insertReport, () => {
     });
 
     expect(legionnaireWounded).toBe(20);
+    expect(legionnaireHospitalized).toBe(20);
     expect(ineligibleWoundedCount).toBe(0);
   });
 

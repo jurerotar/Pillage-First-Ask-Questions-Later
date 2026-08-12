@@ -6,6 +6,7 @@ import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/vers
 import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
+import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
@@ -1330,6 +1331,52 @@ export const upgradeDb = (
 
     db.exec({ sql: createWoundedTroopsTable });
     db.exec({ sql: createWoundedTroopsIndexes });
+    db.exec({ sql: createBattleReportWoundedTroopsTriggers });
+  });
+
+  migrate('0.4.53', (db) => {
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE battle_report_units
+          ADD COLUMN amount_hospitalized INTEGER NOT NULL DEFAULT 0 CHECK (amount_hospitalized >= 0);
+        `,
+      });
+    } catch {
+      // Column already exists on newer or partially migrated databases.
+    }
+
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE battle_report_units
+          ADD COLUMN amount_imprisoned INTEGER NOT NULL DEFAULT 0 CHECK (amount_imprisoned >= 0);
+        `,
+      });
+    } catch {
+      // Column already exists on newer or partially migrated databases.
+    }
+
+    try {
+      db.exec({ sql: createBattleReportBuildingsTable });
+    } catch {
+      // Table already exists on newer or partially migrated databases.
+    }
+
+    db.exec({
+      sql: `
+        CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
+        ON battle_report_buildings(report_id);
+      `,
+    });
+
+    db.exec({
+      sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
+    });
+    db.exec({ sql: createReportDeleteTriggers });
+    db.exec({
+      sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
+    });
     db.exec({ sql: createBattleReportWoundedTroopsTriggers });
   });
 

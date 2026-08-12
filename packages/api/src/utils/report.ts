@@ -91,6 +91,13 @@ type CreateNewBattleReportUnit = {
   unitId: UnitId;
   amountBefore: number;
   amountAfter: number;
+  amountImprisoned?: number;
+};
+
+type CreateNewBattleReportDamagedBuilding = {
+  buildingId: Building['id'];
+  levelBefore: number;
+  levelAfter: number;
 };
 
 type CreateNewBattleReportParticipant = {
@@ -122,6 +129,7 @@ export type CreateNewBattleReport = Pick<
   attacker: CreateNewBattleReportParticipant;
   defender: CreateNewBattleReportParticipant;
   reinforcements?: CreateNewBattleReportParticipant[];
+  damagedBuildings?: CreateNewBattleReportDamagedBuilding[];
 };
 
 export const insertReport = (
@@ -521,13 +529,15 @@ export const insertBattleReport = (
           battle_participant_id,
           unit_id,
           amount_before,
-          amount_after
+          amount_after,
+          amount_imprisoned
         )
         SELECT
           JSON_EXTRACT(unit.value, '$.battleParticipantId'),
           unit_ids.id,
           SUM(JSON_EXTRACT(unit.value, '$.amountBefore')),
-          SUM(JSON_EXTRACT(unit.value, '$.amountAfter'))
+          SUM(JSON_EXTRACT(unit.value, '$.amountAfter')),
+          SUM(COALESCE(JSON_EXTRACT(unit.value, '$.amountImprisoned'), 0))
         FROM
           JSON_EACH($units) AS unit
           JOIN unit_ids
@@ -538,6 +548,35 @@ export const insertBattleReport = (
       `,
       bind: {
         $units: JSON.stringify(unitRows),
+      },
+    });
+  }
+
+  if ((report.damagedBuildings ?? []).length > 0) {
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_buildings (
+          report_id,
+          building_id,
+          level_before,
+          level_after
+        )
+        SELECT
+          $report_id,
+          building_ids.id,
+          JSON_EXTRACT(building.value, '$.levelBefore'),
+          JSON_EXTRACT(building.value, '$.levelAfter')
+        FROM
+          JSON_EACH($damaged_buildings) AS building
+          JOIN building_ids
+            ON building_ids.building = JSON_EXTRACT(
+              building.value,
+              '$.buildingId'
+            );
+      `,
+      bind: {
+        $report_id: reportId,
+        $damaged_buildings: JSON.stringify(report.damagedBuildings),
       },
     });
   }

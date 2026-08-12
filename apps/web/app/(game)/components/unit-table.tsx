@@ -202,6 +202,21 @@ export const UnitTableContentRow = ({
   );
 };
 
+export const UnitTableNoLabelContentRow = ({ children }: PropsWithChildren) => {
+  return (
+    <tbody className="border-b last:border-b-0 dark:border-border">
+      <tr>
+        <td
+          colSpan={100}
+          className="p-2"
+        >
+          {children}
+        </td>
+      </tr>
+    </tbody>
+  );
+};
+
 type UnitTableHiddenRowProps = {
   label: ReactNode;
   troops: TroopLike[];

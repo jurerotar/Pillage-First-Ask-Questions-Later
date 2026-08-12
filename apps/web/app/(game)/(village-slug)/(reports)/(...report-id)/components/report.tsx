@@ -19,8 +19,10 @@ import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/repo
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import {
   UnitTable,
+  UnitTableContentRow,
   UnitTableHiddenRow,
   UnitTableLoot,
+  UnitTableNoLabelContentRow,
   UnitTablePlayer,
   UnitTableRow,
   UnitTableScoutedLoot,
@@ -105,7 +107,13 @@ export const BattleParticipantTable = ({
     report.battle.outcome;
   const { troops, player, village } = participant;
 
-  const { troopsBefore, troopsAfter, troopsLost } = useMemo(() => {
+  const {
+    troopsBefore,
+    troopsAfter,
+    troopsLost,
+    troopsHospitalized,
+    troopsImprisoned,
+  } = useMemo(() => {
     const troopsBefore = sortTroops(
       troops.tribe,
       troops.units.map(({ unitId, amountBefore }) => ({
@@ -130,12 +138,54 @@ export const BattleParticipantTable = ({
       })),
     );
 
+    const troopsHospitalized = sortTroops(
+      troops.tribe,
+      troops.units.map(({ unitId, amountHospitalized }) => ({
+        unitId: unitId,
+        amount: amountHospitalized,
+      })),
+    );
+
+    const troopsImprisoned = sortTroops(
+      troops.tribe,
+      troops.units.map(({ unitId, amountImprisoned }) => ({
+        unitId: unitId,
+        amount: amountImprisoned,
+      })),
+    );
+
     return {
       troopsBefore,
       troopsAfter,
       troopsLost,
+      troopsHospitalized,
+      troopsImprisoned,
     };
   }, [troops]);
+
+  let totalLosses = 0;
+  let totalHospitalized = 0;
+  let totalImprisoned = 0;
+
+  for (const {
+    amountBefore,
+    amountAfter,
+    amountHospitalized,
+    amountImprisoned,
+  } of troops.units) {
+    totalLosses += amountBefore - amountAfter;
+    totalHospitalized += amountHospitalized;
+    totalImprisoned += amountImprisoned;
+  }
+
+  const isReportParticipant = participant.village.id === report.villageId;
+
+  const canSeeTroopDetails =
+    isReportParticipant ||
+    participantRole === 'attacker' ||
+    canAttackerSeeFullReport;
+  const canSeeHospitalizedTroops = isReportParticipant;
+  const canSeeImprisonedTroops = canSeeTroopDetails && totalImprisoned > 0;
 
   return (
     <UnitTable tribe={troops.tribe}>
@@ -150,7 +200,7 @@ export const BattleParticipantTable = ({
       />
       <UnitTableUnitIcons />
 
-      {participantRole !== 'attacker' && !canAttackerSeeFullReport ? (
+      {!canSeeTroopDetails ? (
         <UnitTableHiddenRow
           label={t('Troops')}
           troops={troopsBefore}
@@ -166,19 +216,103 @@ export const BattleParticipantTable = ({
             troops={troopsLost}
             textColor="text-red-500"
           />
+          {canSeeHospitalizedTroops && (
+            <UnitTableRow
+              label={t('Hospitalized')}
+              troops={troopsHospitalized}
+              textColor="text-green-700"
+            />
+          )}
+          {canSeeImprisonedTroops && (
+            <UnitTableRow
+              label={t('Prisoners')}
+              troops={troopsImprisoned}
+              textColor="text-amber-700"
+            />
+          )}
           <UnitTableRow
             label={t('Remaining')}
             troops={troopsAfter}
-            textColor="text-green-700"
           />
+          <UnitTableNoLabelContentRow>
+            <div className="flex justify-end gap-4">
+              <span
+                className="inline-flex items-center gap-2"
+                title={t('Losses')}
+              >
+                <Icon
+                  type="troopLosses"
+                  className="size-4"
+                />
+                {formatNumber(totalLosses)}
+              </span>
+              {canSeeHospitalizedTroops && (
+                <span
+                  className="inline-flex items-center gap-2"
+                  title={t('Hospitalized')}
+                >
+                  <Icon
+                    type="troopsHospitalized"
+                    className="size-4"
+                  />
+                  {formatNumber(totalHospitalized)}
+                </span>
+              )}
+              {canSeeImprisonedTroops && (
+                <span
+                  className="inline-flex items-center gap-2"
+                  title={t('Prisoners')}
+                >
+                  <Icon
+                    type="troopsImprisoned"
+                    className="size-4"
+                  />
+                  {formatNumber(totalImprisoned)}
+                </span>
+              )}
+            </div>
+          </UnitTableNoLabelContentRow>
         </>
       )}
 
       {participantRole === 'attacker' && (
-        <UnitTableLoot
-          loot={loot}
-          totalCarryCapacity={totalCarryCapacity}
-        />
+        <>
+          {report.battle.damagedBuildings.length > 0 && (
+            <UnitTableContentRow label={t('Damaged buildings')}>
+              <div className="flex flex-col gap-1">
+                {report.battle.damagedBuildings.map(
+                  ({ buildingId, levelBefore, levelAfter }) => {
+                    const buildingName = t(`BUILDINGS.${buildingId}.NAME`);
+                    const reportText =
+                      levelAfter === 0
+                        ? t('{{buildingName}} was destroyed', { buildingName })
+                        : t(
+                            '{{buildingName}} was damaged from level {{levelBefore}} to level {{levelAfter}}',
+                            {
+                              buildingName,
+                              levelBefore,
+                              levelAfter,
+                            },
+                          );
+
+                    return (
+                      <Text
+                        key={`${buildingId}:${levelBefore}:${levelAfter}`}
+                        className="text-sm"
+                      >
+                        {reportText}
+                      </Text>
+                    );
+                  },
+                )}
+              </div>
+            </UnitTableContentRow>
+          )}
+          <UnitTableLoot
+            loot={loot}
+            totalCarryCapacity={totalCarryCapacity}
+          />
+        </>
       )}
     </UnitTable>
   );

@@ -1183,6 +1183,8 @@ describe(attackMovementResolver, () => {
       unitId: 'LEGIONNAIRE',
       amountBefore: 10,
       amountAfter: 10,
+      amountHospitalized: 0,
+      amountImprisoned: 0,
     });
     expect(fullReport.battle.defender.village.tileId).toBe(target.tile_id);
 

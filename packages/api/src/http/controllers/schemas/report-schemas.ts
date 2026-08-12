@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportOutcomeSchema,
   reportTypeSchema,
@@ -111,12 +112,21 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   participant_is_reinforcement: z.int(),
   participant_player_name: z.string(),
   participant_player_slug: z.string().nullable(),
+  participant_village_id: z.int().nullable(),
   participant_location_name: z.string(),
   participant_x: z.int(),
   participant_y: z.int(),
   participant_unit_id: unitIdSchema.nullable(),
   participant_amount_before: z.int().nullable(),
   participant_amount_after: z.int().nullable(),
+  participant_amount_hospitalized: z.int().nullable(),
+  participant_amount_imprisoned: z.int().nullable(),
+});
+
+export const battleReportDamagedBuildingRowSchema = z.strictObject({
+  buildingId: buildingIdSchema,
+  levelBefore: z.int(),
+  levelAfter: z.int(),
 });
 
 export const adventureReportRowSchema = baseReportRowSchema.extend({
