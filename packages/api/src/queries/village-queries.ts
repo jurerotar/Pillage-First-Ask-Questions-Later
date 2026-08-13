@@ -64,6 +64,12 @@ export const selectVillageTileIdQuery = `
     id = $village_id;
 `;
 
+export const selectPlayerIdByVillageIdQuery = `
+  SELECT player_id
+  FROM villages
+  WHERE id = $village_id;
+`;
+
 export const selectTribeByVillageId = `
   SELECT ti.tribe
   FROM
