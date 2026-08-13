@@ -822,16 +822,16 @@ const MobileMoreNavigation = () => {
             orientation="horizontal"
             className=""
           />
-          <PopoverClose asChild>
-            <Link
-              target="_blank"
-              to="https://discord.com/invite/Ep7NKVXUZA"
-              className={itemClassName}
-            >
-              <FaDiscord className="text-xl text-[#7289da]" />
-              <span>Discord</span>
-            </Link>
-          </PopoverClose>
+          {/*<PopoverClose asChild>*/}
+          {/*  <Link*/}
+          {/*    target="_blank"*/}
+          {/*    to="https://discord.com/invite/Ep7NKVXUZA"*/}
+          {/*    className={itemClassName}*/}
+          {/*  >*/}
+          {/*    <FaDiscord className="text-xl text-[#7289da]" />*/}
+          {/*    <span>Discord</span>*/}
+          {/*  </Link>*/}
+          {/*</PopoverClose>*/}
           <PopoverClose asChild>
             <Link
               target="_blank"
@@ -870,6 +870,21 @@ const MobileBottomNavigation = ({
         className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
+          <li>
+            <Link
+              target="_blank"
+              to="https://discord.com/invite/Ep7NKVXUZA"
+              aria-label="Discord"
+              title="Discord"
+            >
+              <NavigationSideItem>
+                <FaDiscord className="text-2xl text-[#7289da]" />
+              </NavigationSideItem>
+            </Link>
+          </li>
+          <li>
+            <Separator orientation="vertical" />
+          </li>
           <li>
             <AdventuresNavigationItem />
           </li>
