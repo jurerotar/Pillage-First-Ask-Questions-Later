@@ -333,7 +333,7 @@ const ConstructionQueueContent = () => {
 
   return (
     <aside
-      className="fixed bottom-safe-offset-26 left-0 z-10 flex max-w-[calc(100vw-1rem)] flex-col items-start gap-1 transition-all lg:bottom-14"
+      className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-0 z-10 flex max-w-[calc(100vw-1rem)] flex-col items-start gap-1 transition-all lg:bottom-14"
       ref={containerRef}
     >
       {!isWiderThanLg && selectedEvent && (
