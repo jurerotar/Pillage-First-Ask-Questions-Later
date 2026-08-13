@@ -384,7 +384,7 @@ const OasisTileModalAnimalsSkeleton = () => {
 
 const OasisTileModal = ({
   tile,
-  onAttackOrRaid,
+  onAttackOrRaid: _onAttackOrRaid,
   onReinforceVillage,
 }: OasisTileModalProps) => {
   const { t } = useTranslation();
@@ -393,7 +393,7 @@ const OasisTileModal = ({
 
   const isOccupiable = isOccupiableOasisTile(tile);
   const isOccupied = isOccupiedOasisTile(tile);
-  const canAttackOrRaid =
+  const _canAttackOrRaid =
     isOccupiable && (!isOccupied || tile.owner.id !== PLAYER_ID);
 
   const title = (() => {
@@ -471,17 +471,17 @@ const OasisTileModal = ({
           )}
         </div>
       )}
-      {canAttackOrRaid && (
-        <div className="flex flex-col gap-2">
-          <Text as="h3">{t('Actions')}</Text>
-          <Button
-            variant="textLink"
-            onClick={() => onAttackOrRaid(tile)}
-          >
-            {t('Raid oasis')}
-          </Button>
-        </div>
-      )}
+      {/*{canAttackOrRaid && (*/}
+      {/*  <div className="flex flex-col gap-2">*/}
+      {/*    <Text as="h3">{t('Actions')}</Text>*/}
+      {/*    <Button*/}
+      {/*      variant="textLink"*/}
+      {/*      onClick={() => onAttackOrRaid(tile)}*/}
+      {/*    >*/}
+      {/*      {t('Raid oasis')}*/}
+      {/*    </Button>*/}
+      {/*  </div>*/}
+      {/*)}*/}
     </DialogHeader>
   );
 };
@@ -644,7 +644,7 @@ const SendResourcesAction = ({
 
 const OccupiedOccupiableTileModal = ({
   tile,
-  onAttackOrRaid,
+  onAttackOrRaid: _onAttackOrRaid,
   onReinforceVillage,
   onSendResources,
 }: OccupiedOccupiableTileModalProps) => {
@@ -675,14 +675,14 @@ const OccupiedOccupiableTileModal = ({
       <TileModalPlayerInfo tile={tile} />
       <div className="flex flex-col gap-2">
         <Text as="h3">{t('Actions')}</Text>
-        {!isOwnedByPlayer && (
-          <Button
-            variant="textLink"
-            onClick={() => onAttackOrRaid(tile)}
-          >
-            {t('Attack or raid')}
-          </Button>
-        )}
+        {/*{!isOwnedByPlayer && (*/}
+        {/*  <Button*/}
+        {/*    variant="textLink"*/}
+        {/*    onClick={() => onAttackOrRaid(tile)}*/}
+        {/*  >*/}
+        {/*    {t('Attack or raid')}*/}
+        {/*  </Button>*/}
+        {/*)}*/}
         {isOwnedByPlayer && (
           <Text variant="link">
             <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>
