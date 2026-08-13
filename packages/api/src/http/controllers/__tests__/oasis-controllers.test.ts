@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { abandonOasis, occupyOasis } from '../oasis-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -243,7 +244,7 @@ describe('oasis-controllers', () => {
         village_id: z.number(),
         origin_tile_id: z.number(),
         target_tile_id: z.number(),
-        first_unit_id: z.string(),
+        first_unit_id: unitIdSchema,
         first_amount: z.number(),
         troop_groups: z.number(),
       }),

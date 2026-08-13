@@ -240,4 +240,3 @@ export type GatheringExpeditionReport = z.infer<
   typeof gatheringExpeditionReportSchema
 >;
 export type ScoutingReport = z.infer<typeof scoutingReportSchema>;
-export type ScoutingReportSummary = z.infer<typeof scoutingReportSummarySchema>;

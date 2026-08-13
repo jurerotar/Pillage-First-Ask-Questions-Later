@@ -11,6 +11,12 @@ import {
 } from '@pillage-first/mocks/event';
 import { effectSchema } from '@pillage-first/types/models/effect';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { questIdSchema } from '@pillage-first/types/models/quest';
+import {
+  reportOutcomeSchema,
+  reportTypeSchema,
+} from '@pillage-first/types/models/report';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
 import { removeTroops } from '../../../../utils/troops';
@@ -175,8 +181,8 @@ describe(adventureMovementResolver, () => {
       schema: z.strictObject({
         village_id: z.number(),
         timestamp: z.number(),
-        report_type: z.string(),
-        report_outcome: z.string(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
         adventure_id: z.number(),
         item_id: z.number().nullable(),
         health_before: z.number(),
@@ -416,12 +422,12 @@ describe(relocationMovementResolver, () => {
       schema: z.strictObject({
         village_id: z.int(),
         timestamp: z.int(),
-        report_type: z.string(),
-        report_outcome: z.string(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
         origin_tile_id: z.int(),
         target_tile_id: z.int(),
         movement_type: z.string(),
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.int(),
       }),
     })!;
@@ -591,12 +597,12 @@ describe(reinforcementMovementResolver, () => {
         ORDER BY r.id DESC LIMIT 1;
       `,
       schema: z.strictObject({
-        report_type: z.string(),
-        report_outcome: z.string(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
         movement_type: z.string(),
         origin_tile_id: z.int(),
         target_tile_id: z.int(),
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.int(),
       }),
     })!;
@@ -916,7 +922,7 @@ describe(findNewVillageMovementResolver, () => {
       sql: 'SELECT quest_id, completed_at FROM quests WHERE village_id = $village_id;',
       bind: { $village_id: newVillage.id },
       schema: z.strictObject({
-        quest_id: z.string(),
+        quest_id: questIdSchema,
         completed_at: z.number().nullable(),
       }),
     });
@@ -1132,8 +1138,8 @@ describe(attackMovementResolver, () => {
         id: z.number(),
         village_id: z.number(),
         timestamp: z.number(),
-        report_type: z.string(),
-        report_outcome: z.string(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
         origin_tile_id: z.number(),
         target_tile_id: z.number(),
         is_raid: z.number(),
@@ -1142,7 +1148,7 @@ describe(attackMovementResolver, () => {
         loot_iron: z.number(),
         loot_wheat: z.number(),
         can_attacker_see_full_report: z.number(),
-        attacker_unit_id: z.string(),
+        attacker_unit_id: unitIdSchema,
         amount_before: z.number(),
         amount_after: z.number(),
       }),

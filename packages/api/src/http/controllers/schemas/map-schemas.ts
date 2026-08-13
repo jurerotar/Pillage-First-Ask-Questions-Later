@@ -4,6 +4,7 @@ import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getTilesSchema = z
   .strictObject({
@@ -33,7 +34,7 @@ export const getTilesSchema = z
 
 export const getTileTroopsSchema = z
   .strictObject({
-    unit_id: z.string(),
+    unit_id: unitIdSchema,
     amount: z.number(),
     tile_id: z.number(),
     source_tile_id: z.number(),

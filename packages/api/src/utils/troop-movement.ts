@@ -8,7 +8,7 @@ import {
   type ResourceBundle,
   resourcesSchema,
 } from '@pillage-first/types/models/resource';
-import type { UnitId } from '@pillage-first/types/models/unit';
+import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   selectDefenderReinforcementsByTargetTileIdQuery,
@@ -137,7 +137,7 @@ const getHomeDefenderUnits = (database: DbFacade, targetTileId: number) => {
       sql: selectHomeDefenderUnitsByTargetTileIdQuery,
       bind: { $target_tile_id: targetTileId },
       schema: z.strictObject({
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.number(),
       }),
     })
@@ -158,7 +158,7 @@ const getDefenderReinforcements = (
     schema: z.strictObject({
       source_tile_id: z.number(),
       player_id: z.number().nullable(),
-      unit_id: z.string(),
+      unit_id: unitIdSchema,
       amount: z.number(),
     }),
   });
@@ -179,7 +179,7 @@ const getDefenderReinforcements = (
     }
 
     reinforcement.units.push({
-      unitId: row.unit_id as UnitId,
+      unitId: row.unit_id,
       amountBefore: row.amount,
       amountAfter: row.amount,
     });

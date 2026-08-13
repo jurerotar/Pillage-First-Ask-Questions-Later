@@ -75,6 +75,10 @@ type GlobalQuestId =
   | `killCount-${number}`
   | `unitKillCount-${Unit['id']}-${number}`;
 
+export type QuestId = VillageQuestId | GlobalQuestId;
+
+export const questIdSchema = z.string() as unknown as z.ZodType<QuestId>;
+
 const baseQuestSchema = z.strictObject({
   id: z.string(),
   scope: z.enum(['village', 'global']),

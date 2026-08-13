@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
+import { tileTypeSchema } from '../models/tile';
 import { unitIdSchema } from '../models/unit';
 
 export const playerVillageDtoSchema = z.strictObject({
@@ -22,7 +23,7 @@ export const villageTroopDtoSchema = z.strictObject({
   amount: z.number(),
   tileId: z.number(),
   source: z.number(),
-  sourceTileType: z.enum(['free', 'oasis']).nullable(),
+  sourceTileType: tileTypeSchema.nullable(),
 });
 
 export const woundedTroopDtoSchema = z.strictObject({
