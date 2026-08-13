@@ -1,5 +1,5 @@
 import { env } from '@pillage-first/utils/env';
-import { isStandaloneDisplayMode } from 'app/utils/device';
+import { getDeviceType, isStandaloneDisplayMode } from 'app/utils/device';
 
 const allowedBranches = new Set(['master']);
 const attributionSessionStorageKey = 'pillage-first:faro-attribution';
@@ -199,6 +199,7 @@ const getDashboardSessionAttributes = (): FaroSessionAttributes => {
       isStandaloneDisplayMode() || appInstallMode !== 'browser'
         ? 'pwa'
         : 'browser',
+    device_type: getDeviceType(),
     is_returning_visitor: String(isReturningVisitor),
     landing_page: attribution.landingPage,
     referrer: attribution.referrer,
