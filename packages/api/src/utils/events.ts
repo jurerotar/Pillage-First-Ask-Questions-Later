@@ -1705,7 +1705,7 @@ export const getEventStartTime = (
 
     return database.selectValue({
       sql: `
-        SELECT COALESCE(MAX(resolves_at), $now) AS resolves_at
+        SELECT COALESCE(MAX(resolves_at), $now)
         FROM
           events
         WHERE
@@ -1726,7 +1726,7 @@ export const getEventStartTime = (
 
     return database.selectValue({
       sql: `
-        SELECT COALESCE(MAX(resolves_at), $now) AS resolves_at
+        SELECT COALESCE(MAX(resolves_at), $now)
         FROM
           events
         WHERE
@@ -1748,7 +1748,7 @@ export const getEventStartTime = (
 
     const lastResolvesAtForThisUnitId = database.selectValue({
       sql: `
-        SELECT COALESCE(MAX(resolves_at), $now) AS last_resolves_at
+        SELECT COALESCE(MAX(resolves_at), $now)
         FROM
           events
         WHERE
