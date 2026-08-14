@@ -102,10 +102,6 @@ const returnMovementTypeSchema = gameEventTypeSchema
 export const createEventDtoSchema = z
   .discriminatedUnion('type', [
     z.strictObject({
-      type: z.literal('buildingScheduledConstruction'),
-      ...buildingEventSchema,
-    }),
-    z.strictObject({
       type: z.literal('buildingConstruction'),
       ...buildingEventSchema,
     }),
