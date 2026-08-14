@@ -3,7 +3,6 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
-import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
@@ -590,22 +589,22 @@ export const upgradeDb = (
       db.transaction((tx) => {
         tx.exec({
           sql: `
-          DELETE
-          FROM
-            effects
-          WHERE
-            source = 'oasis'
-            AND EXISTS
-            (
-              SELECT
-                1
-              FROM
-                villages
-              WHERE
-                villages.id = effects.village_id
-                AND villages.player_id != $player_id
-              );
-        `,
+            DELETE
+            FROM
+              effects
+            WHERE
+              source = 'oasis'
+              AND EXISTS
+              (
+                SELECT
+                  1
+                FROM
+                  villages
+                WHERE
+                  villages.id = effects.village_id
+                  AND villages.player_id != $player_id
+                );
+          `,
           bind: {
             $player_id: PLAYER_ID,
           },
@@ -613,145 +612,145 @@ export const upgradeDb = (
 
         tx.exec({
           sql: `
-          DELETE
-          FROM
-            effects
-          WHERE
-            source = 'oasis'
-            AND type = 'base'
-            AND scope = 'village'
-            AND village_id IS NULL;
-        `,
+            DELETE
+            FROM
+              effects
+            WHERE
+              source = 'oasis'
+              AND type = 'base'
+              AND scope = 'village'
+              AND village_id IS NULL;
+          `,
         });
 
         tx.exec({
           sql: `
-          WITH
-            resource_effects(resource, effect) AS (
-              VALUES
-                ('wood', 'woodProduction'),
-                ('clay', 'clayProduction'),
-                ('iron', 'ironProduction'),
-                ('wheat', 'wheatProduction')
-              ),
+            WITH
+              resource_effects(resource, effect) AS (
+                VALUES
+                  ('wood', 'woodProduction'),
+                  ('clay', 'clayProduction'),
+                  ('iron', 'ironProduction'),
+                  ('wheat', 'wheatProduction')
+                ),
 
-            oasis_production AS (
-              SELECT
-                tiles.tile_id,
-                re.effect,
-                CASE
-                  WHEN MAX(o.bonus) = 50 THEN 80
-                  WHEN MAX(o.bonus) = 25 THEN 40
-                  ELSE 10
-                  END AS value
-              FROM
-                (
-                  SELECT DISTINCT tile_id
-                  FROM
-                    oasis
-                  ) tiles
-                  CROSS JOIN resource_effects re
-                  LEFT JOIN oasis o ON o.tile_id = tiles.tile_id
-                  AND o.resource = re.resource
-              GROUP BY
-                tiles.tile_id,
-                re.effect
-              )
+              oasis_production AS (
+                SELECT
+                  tiles.tile_id,
+                  re.effect,
+                  CASE
+                    WHEN MAX(o.bonus) = 50 THEN 80
+                    WHEN MAX(o.bonus) = 25 THEN 40
+                    ELSE 10
+                    END AS value
+                FROM
+                  (
+                    SELECT DISTINCT tile_id
+                    FROM
+                      oasis
+                    ) tiles
+                    CROSS JOIN resource_effects re
+                    LEFT JOIN oasis o ON o.tile_id = tiles.tile_id
+                    AND o.resource = re.resource
+                GROUP BY
+                  tiles.tile_id,
+                  re.effect
+                )
 
-          INSERT
-          INTO
-            effects (effect_id, value, type, scope, source, village_id, source_specifier)
-          SELECT
-            ei.id,
-            op.value,
-            'base',
-            'village',
-            'oasis',
-            NULL,
-            op.tile_id
-          FROM
-            oasis_production op
-              JOIN effect_ids ei ON ei.effect = op.effect
-          WHERE
-            op.value > 0;
-        `,
+            INSERT
+            INTO
+              effects (effect_id, value, type, scope, source, village_id, source_specifier)
+            SELECT
+              ei.id,
+              op.value,
+              'base',
+              'village',
+              'oasis',
+              NULL,
+              op.tile_id
+            FROM
+              oasis_production op
+                JOIN effect_ids ei ON ei.effect = op.effect
+            WHERE
+              op.value > 0;
+          `,
         });
 
         tx.exec({
           sql: `
-          UPDATE effects
-          SET
-            scope = 'local'
-          WHERE
-            scope = 'village';
-        `,
+            UPDATE effects
+            SET
+              scope = 'local'
+            WHERE
+              scope = 'village';
+          `,
         });
 
         tx.exec({
           sql: `
-          CREATE TABLE IF NOT EXISTS effect_type_ids
-          (
-            id INTEGER PRIMARY KEY,
-            type TEXT NOT NULL UNIQUE
-          );
-        `,
+            CREATE TABLE IF NOT EXISTS effect_type_ids
+            (
+              id INTEGER PRIMARY KEY,
+              type TEXT NOT NULL UNIQUE
+            );
+          `,
         });
 
         tx.exec({
           sql: `
-          INSERT OR IGNORE INTO
-            effect_type_ids (id, type)
-          VALUES
-            (1, 'base'         ),
-            (2, 'bonus'        ),
-            (3, 'bonus-booster');
-        `,
+            INSERT OR IGNORE INTO
+              effect_type_ids (id, type)
+            VALUES
+              (1, 'base'         ),
+              (2, 'bonus'        ),
+              (3, 'bonus-booster');
+          `,
         });
 
         tx.exec({
           sql: `
-          CREATE TABLE IF NOT EXISTS effect_scope_ids
-          (
-            id INTEGER PRIMARY KEY,
-            scope TEXT NOT NULL UNIQUE
-          );
-        `,
+            CREATE TABLE IF NOT EXISTS effect_scope_ids
+            (
+              id INTEGER PRIMARY KEY,
+              scope TEXT NOT NULL UNIQUE
+            );
+          `,
         });
 
         tx.exec({
           sql: `
-          INSERT OR IGNORE INTO
-            effect_scope_ids (id, scope)
-          VALUES
-            (1, 'global'),
-            (2, 'local' ),
-            (3, 'server');
-        `,
+            INSERT OR IGNORE INTO
+              effect_scope_ids (id, scope)
+            VALUES
+              (1, 'global'),
+              (2, 'local' ),
+              (3, 'server');
+          `,
         });
 
         tx.exec({
           sql: `
-          CREATE TABLE IF NOT EXISTS effect_source_ids
-          (
-            id INTEGER PRIMARY KEY,
-            source TEXT NOT NULL UNIQUE
-          );
-        `,
+            CREATE TABLE IF NOT EXISTS effect_source_ids
+            (
+              id INTEGER PRIMARY KEY,
+              source TEXT NOT NULL UNIQUE
+            );
+          `,
         });
 
         tx.exec({
           sql: `
             INSERT OR IGNORE INTO
               effect_source_ids (id, source)
-          VALUES
-            (1, 'building'),
-            (2, 'hero'    ),
-            (3, 'oasis'   ),
-            (4, 'artifact'),
-            (5, 'tribe'   ),
-            (6, 'server'  ),
-            (7, 'troops'  );
-        `,
+            VALUES
+              (1, 'building'),
+              (2, 'hero'    ),
+              (3, 'oasis'   ),
+              (4, 'artifact'),
+              (5, 'tribe'   ),
+              (6, 'server'  ),
+              (7, 'troops'  );
+          `,
         });
 
         tx.exec({
@@ -963,101 +962,101 @@ export const upgradeDb = (
 
         tx.exec({
           sql: `
-          DROP INDEX IF EXISTS idx_effects_effect_id;
-        `,
+            DROP INDEX IF EXISTS idx_effects_effect_id;
+          `,
         });
 
         tx.exec({
           sql: `
-          DROP INDEX IF EXISTS idx_effects_village_id;
-        `,
+            DROP INDEX IF EXISTS idx_effects_village_id;
+          `,
         });
 
         tx.exec({
           sql: `
-          DROP INDEX IF EXISTS idx_effects_village_effect_scope_spec;
-        `,
+            DROP INDEX IF EXISTS idx_effects_village_effect_scope_spec;
+          `,
         });
 
         tx.exec({
           sql: `
-          DROP INDEX IF EXISTS idx_effects_wheat_effect_village_value;
-        `,
+            DROP INDEX IF EXISTS idx_effects_wheat_effect_village_value;
+          `,
         });
 
         tx.exec({
           sql: `
-          CREATE TABLE effects_new
-          (
-            id INTEGER PRIMARY KEY,
-            effect_id INTEGER NOT NULL,
-            value REAL NOT NULL,
-            type_id INTEGER NOT NULL,
-            scope_id INTEGER NOT NULL,
-            source_id INTEGER NOT NULL,
-            village_id INTEGER,
-            source_specifier INTEGER,
+            CREATE TABLE effects_new
+            (
+              id INTEGER PRIMARY KEY,
+              effect_id INTEGER NOT NULL,
+              value REAL NOT NULL,
+              type_id INTEGER NOT NULL,
+              scope_id INTEGER NOT NULL,
+              source_id INTEGER NOT NULL,
+              village_id INTEGER,
+              source_specifier INTEGER,
 
-            FOREIGN KEY (effect_id) REFERENCES effect_ids (id),
-            FOREIGN KEY (type_id) REFERENCES effect_type_ids (id),
-            FOREIGN KEY (scope_id) REFERENCES effect_scope_ids (id),
-            FOREIGN KEY (source_id) REFERENCES effect_source_ids (id),
-            FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE ON UPDATE CASCADE
-          );
-        `,
+              FOREIGN KEY (effect_id) REFERENCES effect_ids (id),
+              FOREIGN KEY (type_id) REFERENCES effect_type_ids (id),
+              FOREIGN KEY (scope_id) REFERENCES effect_scope_ids (id),
+              FOREIGN KEY (source_id) REFERENCES effect_source_ids (id),
+              FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE ON UPDATE CASCADE
+            );
+          `,
         });
 
         tx.exec({
           sql: `
-          INSERT INTO
-            effects_new (id, effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
-          SELECT
-            e.id,
-            e.effect_id,
-            e.value,
-            et.id,
-            esc.id,
-            eso.id,
-            e.village_id,
-            e.source_specifier
-          FROM
-            effects e
-              JOIN effect_type_ids et ON et.type = e.type
-              JOIN effect_scope_ids esc ON esc.scope = e.scope
-              JOIN effect_source_ids eso ON eso.source = e.source;
-        `,
+            INSERT INTO
+              effects_new (id, effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+            SELECT
+              e.id,
+              e.effect_id,
+              e.value,
+              et.id,
+              esc.id,
+              eso.id,
+              e.village_id,
+              e.source_specifier
+            FROM
+              effects e
+                JOIN effect_type_ids et ON et.type = e.type
+                JOIN effect_scope_ids esc ON esc.scope = e.scope
+                JOIN effect_source_ids eso ON eso.source = e.source;
+          `,
         });
 
         tx.exec({
           sql: `
-          DROP TABLE effects;
-        `,
+            DROP TABLE effects;
+          `,
         });
 
         tx.exec({
           sql: `
-          ALTER TABLE effects_new
-            RENAME TO effects;
-        `,
+            ALTER TABLE effects_new
+              RENAME TO effects;
+          `,
         });
 
         tx.exec({
           sql: `
-          CREATE INDEX idx_effects_effect_id ON effects (effect_id);
-        `,
+            CREATE INDEX idx_effects_effect_id ON effects (effect_id);
+          `,
         });
 
         tx.exec({
           sql: `
-          CREATE INDEX idx_effects_village_id ON effects (village_id);
-        `,
+            CREATE INDEX idx_effects_village_id ON effects (village_id);
+          `,
         });
 
         tx.exec({
           sql: `
-          CREATE INDEX idx_effects_village_effect_scope_spec
-            ON effects (effect_id, village_id, scope_id, source_specifier);
-        `,
+            CREATE INDEX idx_effects_village_effect_scope_spec
+              ON effects (effect_id, village_id, scope_id, source_specifier);
+          `,
         });
 
         tx.exec({
@@ -1115,8 +1114,6 @@ export const upgradeDb = (
     db.exec({ sql: createScoutingReportUnitsTable });
     db.exec({ sql: createScoutingReportStructuresTable });
 
-    db.exec({ sql: createReportsIndexes });
-    db.exec({ sql: createReportDeleteTriggers });
     setupGlobalWriteTriggers(db);
   });
 
@@ -1166,7 +1163,7 @@ export const upgradeDb = (
                 WHEN 9 THEN 770
                 WHEN 10 THEN 1000
                 END
-              *
+                *
               CASE
                 WHEN ti.tribe = 'gauls' THEN 2
                 ELSE 1
@@ -1182,17 +1179,25 @@ export const upgradeDb = (
             AND effects.source_specifier = bf.field_id
             AND bi.building = 'CRANNY'
             AND effects.effect_id = (
-              SELECT id FROM effect_ids WHERE effect = 'crannyCapacity'
-            )
+              SELECT id
+              FROM effect_ids
+              WHERE effect = 'crannyCapacity'
+              )
             AND effects.type_id = (
-              SELECT id FROM effect_type_ids WHERE type = 'base'
-            )
+              SELECT id
+              FROM effect_type_ids
+              WHERE type = 'base'
+              )
             AND effects.scope_id = (
-              SELECT id FROM effect_scope_ids WHERE scope = 'local'
-            )
+              SELECT id
+              FROM effect_scope_ids
+              WHERE scope = 'local'
+              )
             AND effects.source_id = (
-              SELECT id FROM effect_source_ids WHERE source = 'building'
-            );
+              SELECT id
+              FROM effect_source_ids
+              WHERE source = 'building'
+              );
         `,
       });
 
@@ -1202,12 +1207,12 @@ export const upgradeDb = (
           SET
             value = ROUND(
               1 + bf.level *
-              CASE
-                WHEN ti.tribe = 'romans' THEN 0.2
-                ELSE 0.1
-                END,
+                  CASE
+                    WHEN ti.tribe = 'romans' THEN 0.2
+                    ELSE 0.1
+                    END,
               4
-            )
+                    )
           FROM
             building_fields bf
               JOIN building_ids bi ON bi.id = bf.building_id
@@ -1219,17 +1224,25 @@ export const upgradeDb = (
             AND effects.source_specifier = bf.field_id
             AND bi.building = 'TRADE_OFFICE'
             AND effects.effect_id = (
-              SELECT id FROM effect_ids WHERE effect = 'merchantCapacity'
-            )
+              SELECT id
+              FROM effect_ids
+              WHERE effect = 'merchantCapacity'
+              )
             AND effects.type_id = (
-              SELECT id FROM effect_type_ids WHERE type = 'bonus'
-            )
+              SELECT id
+              FROM effect_type_ids
+              WHERE type = 'bonus'
+              )
             AND effects.scope_id = (
-              SELECT id FROM effect_scope_ids WHERE scope = 'local'
-            )
+              SELECT id
+              FROM effect_scope_ids
+              WHERE scope = 'local'
+              )
             AND effects.source_id = (
-              SELECT id FROM effect_source_ids WHERE source = 'building'
-            );
+              SELECT id
+              FROM effect_source_ids
+              WHERE source = 'building'
+              );
         `,
       });
     });
@@ -1239,12 +1252,16 @@ export const upgradeDb = (
     const tableExists = (tableName: string): boolean => {
       return db.selectValue({
         sql: `
-          SELECT EXISTS (
-            SELECT 1
-            FROM sqlite_master
-            WHERE type = 'table'
-              AND name = $table_name
-          );
+          SELECT
+            EXISTS
+            (
+              SELECT 1
+              FROM
+                sqlite_master
+              WHERE
+                type = 'table'
+                AND name = $table_name
+              );
         `,
         bind: {
           $table_name: tableName,
@@ -1270,11 +1287,15 @@ export const upgradeDb = (
 
     const hasAsclepeionBuildingId = db.selectValue({
       sql: `
-        SELECT EXISTS (
-          SELECT 1
-          FROM building_ids
-          WHERE building = 'ASCLEPEION'
-        );
+        SELECT
+          EXISTS
+          (
+            SELECT 1
+            FROM
+              building_ids
+            WHERE
+              building = 'ASCLEPEION'
+            );
       `,
       schema: z.coerce.boolean(),
     });
@@ -1294,23 +1315,39 @@ export const upgradeDb = (
               CREATE TABLE building_ids_new
               (
                 id INTEGER PRIMARY KEY,
-                building TEXT NOT NULL UNIQUE CHECK (building IN ('BARRACKS', 'GREAT_BARRACKS', 'STABLE', 'GREAT_STABLE', 'WORKSHOP', 'HOSPITAL', 'ASCLEPEION', 'CLAY_PIT', 'WHEAT_FIELD', 'WOODCUTTER', 'IRON_MINE', 'BAKERY', 'BRICKYARD', 'GRAIN_MILL', 'GRANARY', 'GREAT_GRANARY', 'IRON_FOUNDRY', 'SAWMILL', 'WAREHOUSE', 'GREAT_WAREHOUSE', 'WATERWORKS', 'ACADEMY', 'ROMAN_WALL', 'TEUTONIC_WALL', 'HEROS_MANSION', 'HUN_WALL', 'GAUL_WALL', 'RALLY_POINT', 'EGYPTIAN_WALL', 'TRAPPER', 'BREWERY', 'COMMAND_CENTER', 'CRANNY', 'HORSE_DRINKING_TROUGH', 'MAIN_BUILDING', 'MARKETPLACE', 'RESIDENCE', 'TOURNAMENT_SQUARE', 'TRADE_OFFICE', 'SMITHY', 'TOWN_HALL', 'EMBASSY', 'TREASURY', 'GATHERERS_HUT', 'HUNTERS_LODGE', 'SPARTAN_WALL', 'NATAR_WALL', 'NATURE_WALL'))
+                building TEXT NOT NULL UNIQUE CHECK (building IN
+                                                     ('BARRACKS', 'GREAT_BARRACKS', 'STABLE', 'GREAT_STABLE',
+                                                      'WORKSHOP', 'HOSPITAL', 'ASCLEPEION', 'CLAY_PIT', 'WHEAT_FIELD',
+                                                      'WOODCUTTER', 'IRON_MINE', 'BAKERY', 'BRICKYARD', 'GRAIN_MILL',
+                                                      'GRANARY', 'GREAT_GRANARY', 'IRON_FOUNDRY', 'SAWMILL',
+                                                      'WAREHOUSE', 'GREAT_WAREHOUSE', 'WATERWORKS', 'ACADEMY',
+                                                      'ROMAN_WALL', 'TEUTONIC_WALL', 'HEROS_MANSION', 'HUN_WALL',
+                                                      'GAUL_WALL', 'RALLY_POINT', 'EGYPTIAN_WALL', 'TRAPPER', 'BREWERY',
+                                                      'COMMAND_CENTER', 'CRANNY', 'HORSE_DRINKING_TROUGH',
+                                                      'MAIN_BUILDING', 'MARKETPLACE', 'RESIDENCE', 'TOURNAMENT_SQUARE',
+                                                      'TRADE_OFFICE', 'SMITHY', 'TOWN_HALL', 'EMBASSY', 'TREASURY',
+                                                      'GATHERERS_HUT', 'HUNTERS_LODGE', 'SPARTAN_WALL', 'NATAR_WALL',
+                                                      'NATURE_WALL'))
               ) STRICT;
             `,
           });
 
           tx.exec({
             sql: `
-              INSERT OR IGNORE INTO building_ids_new (id, building)
+              INSERT OR IGNORE INTO
+                building_ids_new (id, building)
               SELECT id, building
-              FROM building_ids;
+              FROM
+                building_ids;
             `,
           });
 
           tx.exec({
             sql: `
-              INSERT OR IGNORE INTO building_ids_new (building)
-              VALUES ('ASCLEPEION');
+              INSERT OR IGNORE INTO
+                building_ids_new (building)
+              VALUES
+                ('ASCLEPEION');
             `,
           });
 
@@ -1335,49 +1372,47 @@ export const upgradeDb = (
   });
 
   migrate('0.4.53', (db) => {
-    try {
-      db.exec({
-        sql: `
-          ALTER TABLE battle_report_units
-          ADD COLUMN amount_hospitalized INTEGER NOT NULL DEFAULT 0 CHECK (amount_hospitalized >= 0);
-        `,
-      });
-    } catch {
-      // Column already exists on newer or partially migrated databases.
-    }
+    db.exec({
+      sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
+    });
+
+    db.exec({
+      sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
+    });
 
     try {
       db.exec({
         sql: `
           ALTER TABLE battle_report_units
-          ADD COLUMN amount_imprisoned INTEGER NOT NULL DEFAULT 0 CHECK (amount_imprisoned >= 0);
+            ADD COLUMN amount_hospitalized INTEGER NOT NULL DEFAULT 0 CHECK (amount_hospitalized >= 0);
         `,
       });
-    } catch {
-      // Column already exists on newer or partially migrated databases.
-    }
+    } catch {}
+
+    try {
+      db.exec({
+        sql: `
+          ALTER TABLE battle_report_units
+            ADD COLUMN amount_imprisoned INTEGER NOT NULL DEFAULT 0 CHECK (amount_imprisoned >= 0);
+        `,
+      });
+    } catch {}
 
     try {
       db.exec({ sql: createBattleReportBuildingsTable });
-    } catch {
-      // Table already exists on newer or partially migrated databases.
-    }
+    } catch {}
 
     db.exec({
       sql: `
         CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
-        ON battle_report_buildings(report_id);
+          ON battle_report_buildings (report_id);
       `,
     });
 
-    db.exec({
-      sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
-    });
     db.exec({ sql: createReportDeleteTriggers });
-    db.exec({
-      sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
-    });
     db.exec({ sql: createBattleReportWoundedTroopsTriggers });
+
+    setupGlobalWriteTriggers(db);
   });
 
   // If all migrations passed, bump it to current version
