@@ -11,26 +11,20 @@ import {
 import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
-  selectDefenderReinforcementsByTargetTileIdQuery,
-  selectHomeDefenderUnitsByTargetTileIdQuery,
+  selectBattleReportParticipantsByTargetTileIdQuery,
   selectResourceSiteResourcesByTileIdQuery,
-  selectTargetOwnerPlayerIdByTileIdQuery,
   selectTargetVillageIdByTileIdQuery,
   updateResourceSiteResourcesByTileIdQuery,
 } from '../queries/troop-movement-queries';
-import { selectPlayerIdByVillageIdQuery } from '../queries/village-queries';
-import { insertBattleReport } from './report';
+import { type CreateNewBattleReport, insertBattleReport } from './report';
 import {
   calculateVillageResourcesAt,
   subtractVillageResourcesAt,
 } from './village';
 
-type BattleReportParticipant = NonNullable<
-  Parameters<typeof insertBattleReport>[1]['reinforcements']
->[number];
-type BattleReportUnit = Parameters<
-  typeof insertBattleReport
->[1]['attacker']['units'][number];
+type BattleReportParticipant = CreateNewBattleReport['attacker'];
+type BattleReportUnit = CreateNewBattleReport['attacker']['units'][number];
+type BattleReportParticipantRole = 'attacker' | 'defender' | 'reinforcement';
 
 const emptyLoot = (): ResourceBundle => {
   return [0, 0, 0, 0];
@@ -118,94 +112,83 @@ const stealResourcesFromTarget = (
   return loot;
 };
 
-const getTargetOwnerPlayerId = (
+const getBattleReportParticipants = (
   database: DbFacade,
-  targetTileId: number,
-): number | null => {
-  return (
-    database.selectValue({
-      sql: selectTargetOwnerPlayerIdByTileIdQuery,
-      bind: { $target_tile_id: targetTileId },
-      schema: z.number().nullable(),
-    }) ?? null
-  );
-};
-
-const getHomeDefenderUnits = (database: DbFacade, targetTileId: number) => {
-  return database
-    .selectObjects({
-      sql: selectHomeDefenderUnitsByTargetTileIdQuery,
-      bind: { $target_tile_id: targetTileId },
-      schema: z.strictObject({
-        unit_id: unitIdSchema,
-        amount: z.number(),
-      }),
-    })
-    .map(({ unit_id, amount }) => ({
-      unitId: unit_id as UnitId,
-      amountBefore: amount,
-      amountAfter: amount,
-    }));
-};
-
-const getDefenderReinforcements = (
-  database: DbFacade,
+  villageId: number,
+  originTileId: number,
   targetTileId: number,
 ) => {
   const rows = database.selectObjects({
-    sql: selectDefenderReinforcementsByTargetTileIdQuery,
-    bind: { $target_tile_id: targetTileId },
+    sql: selectBattleReportParticipantsByTargetTileIdQuery,
+    bind: {
+      $village_id: villageId,
+      $origin_tile_id: originTileId,
+      $target_tile_id: targetTileId,
+    },
     schema: z.strictObject({
-      source_tile_id: z.number(),
+      role: z.enum(['attacker', 'defender', 'reinforcement']),
+      tile_id: z.number(),
       player_id: z.number().nullable(),
-      unit_id: unitIdSchema,
-      amount: z.number(),
+      unit_id: unitIdSchema.nullable(),
+      amount: z.number().nullable(),
     }),
   });
 
-  const reinforcementsByTileId = new Map<number, BattleReportParticipant>();
+  const participantsByRoleAndTileId = new Map<
+    `${BattleReportParticipantRole}:${number}`,
+    BattleReportParticipant
+  >();
 
   for (const row of rows) {
-    let reinforcement = reinforcementsByTileId.get(row.source_tile_id);
+    const key = `${row.role}:${row.tile_id}` as const;
+    let participant = participantsByRoleAndTileId.get(key);
 
-    if (!reinforcement) {
-      reinforcement = {
-        tileId: row.source_tile_id,
+    if (!participant) {
+      participant = {
+        tileId: row.tile_id,
         playerId: row.player_id,
         units: [],
       };
 
-      reinforcementsByTileId.set(row.source_tile_id, reinforcement);
+      participantsByRoleAndTileId.set(key, participant);
     }
 
-    reinforcement.units.push({
-      unitId: row.unit_id,
-      amountBefore: row.amount,
-      amountAfter: row.amount,
-    });
+    if (row.unit_id !== null && row.amount !== null) {
+      participant.units.push({
+        unitId: row.unit_id,
+        amountBefore: row.amount,
+        amountAfter: row.amount,
+      });
+    }
   }
 
-  return [...reinforcementsByTileId.values()];
+  const reinforcements: BattleReportParticipant[] = [];
+
+  for (const [key, reinforcement] of participantsByRoleAndTileId) {
+    if (key.startsWith('reinforcement:')) {
+      reinforcements.push(reinforcement);
+    }
+  }
+
+  return {
+    attacker: participantsByRoleAndTileId.get(`attacker:${originTileId}`)!,
+    defender: participantsByRoleAndTileId.get(`defender:${targetTileId}`)!,
+    reinforcements,
+  };
 };
 
-export const resolveNoCombatOffensiveMovement = (
+const insertNoCombatBattleReport = (
   database: DbFacade,
   args: GameEvent<'troopMovementAttack'> | GameEvent<'troopMovementRaid'>,
-): ResourceBundle => {
+  loot: ResourceBundle,
+) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
-
-  const loot = stealResourcesFromTarget(
+  const { attacker, defender, reinforcements } = getBattleReportParticipants(
     database,
+    villageId,
+    originTileId,
     targetTileId,
-    resolvesAt,
-    calculateTotalCarryCapacity(troops),
   );
-
-  const attackerPlayerId = database.selectValue({
-    sql: selectPlayerIdByVillageIdQuery,
-    bind: { $village_id: villageId },
-    schema: z.number(),
-  })!;
 
   insertBattleReport(database, {
     villageId,
@@ -219,17 +202,28 @@ export const resolveNoCombatOffensiveMovement = (
     attackerPoints: 0,
     defenderPoints: 0,
     attacker: {
-      playerId: attackerPlayerId,
-      tileId: originTileId,
+      ...attacker,
       units: mapTroopsToBattleReportUnits(troops),
     },
-    defender: {
-      playerId: getTargetOwnerPlayerId(database, targetTileId),
-      tileId: targetTileId,
-      units: getHomeDefenderUnits(database, targetTileId),
-    },
-    reinforcements: getDefenderReinforcements(database, targetTileId),
+    defender,
+    reinforcements,
   });
+};
+
+export const resolveNoCombatOffensiveMovement = (
+  database: DbFacade,
+  args: GameEvent<'troopMovementAttack'> | GameEvent<'troopMovementRaid'>,
+): ResourceBundle => {
+  const { resolvesAt, targetTileId, troops } = args;
+
+  const loot = stealResourcesFromTarget(
+    database,
+    targetTileId,
+    resolvesAt,
+    calculateTotalCarryCapacity(troops),
+  );
+
+  insertNoCombatBattleReport(database, args, loot);
 
   return loot;
 };

@@ -21,44 +21,73 @@ export const updateResourceSiteResourcesByTileIdQuery = `
   WHERE tile_id = $target_tile_id;
 `;
 
-export const selectTargetOwnerPlayerIdByTileIdQuery = `
-  SELECT COALESCE(target_v.player_id, oasis_owner_v.player_id)
-  FROM
-    tiles t
-    LEFT JOIN villages target_v ON target_v.tile_id = t.id
-    LEFT JOIN villages oasis_owner_v ON oasis_owner_v.id = (
-      SELECT MAX(village_id)
-      FROM oasis
-      WHERE tile_id = t.id
+export const selectBattleReportParticipantsByTargetTileIdQuery = `
+  WITH
+    target_owner AS (
+      SELECT (
+        SELECT COALESCE(target_v.player_id, oasis_owner_v.player_id)
+        FROM
+          tiles t
+          LEFT JOIN villages target_v ON target_v.tile_id = t.id
+          LEFT JOIN villages oasis_owner_v ON oasis_owner_v.id = (
+            SELECT MAX(village_id)
+            FROM oasis
+            WHERE tile_id = t.id
+          )
+        WHERE t.id = $target_tile_id
+      ) AS player_id
+    ),
+    attacker AS (
+      SELECT
+        'attacker' AS role,
+        $origin_tile_id AS tile_id,
+        (
+          SELECT player_id
+          FROM villages
+          WHERE id = $village_id
+        ) AS player_id,
+        NULL AS unit_id,
+        NULL AS amount
+    ),
+    defender AS (
+      SELECT
+        'defender' AS role,
+        $target_tile_id AS tile_id,
+        target_owner.player_id,
+        ui.unit AS unit_id,
+        SUM(t.amount) AS amount
+      FROM
+        target_owner
+        LEFT JOIN troops t
+          ON t.tile_id = $target_tile_id
+          AND t.source_tile_id = $target_tile_id
+        LEFT JOIN unit_ids ui ON ui.id = t.unit_id
+      GROUP BY target_owner.player_id, ui.unit
+    ),
+    reinforcements AS (
+      SELECT
+        'reinforcement' AS role,
+        t.source_tile_id AS tile_id,
+        v.player_id,
+        ui.unit AS unit_id,
+        SUM(t.amount) AS amount
+      FROM
+        troops t
+        JOIN unit_ids ui ON ui.id = t.unit_id
+        LEFT JOIN villages v ON v.tile_id = t.source_tile_id
+      WHERE
+        t.tile_id = $target_tile_id
+        AND t.source_tile_id != $target_tile_id
+      GROUP BY t.source_tile_id, v.player_id, ui.unit
     )
-  WHERE t.id = $target_tile_id;
-`;
-
-export const selectHomeDefenderUnitsByTargetTileIdQuery = `
-  SELECT ui.unit AS unit_id, SUM(t.amount) AS amount
-  FROM
-    troops t
-    JOIN unit_ids ui ON ui.id = t.unit_id
-  WHERE
-    t.tile_id = $target_tile_id
-    AND t.source_tile_id = $target_tile_id
-  GROUP BY ui.unit;
-`;
-
-export const selectDefenderReinforcementsByTargetTileIdQuery = `
-  SELECT
-    t.source_tile_id,
-    v.player_id,
-    ui.unit AS unit_id,
-    SUM(t.amount) AS amount
-  FROM
-    troops t
-    JOIN unit_ids ui ON ui.id = t.unit_id
-    LEFT JOIN villages v ON v.tile_id = t.source_tile_id
-  WHERE
-    t.tile_id = $target_tile_id
-    AND t.source_tile_id != $target_tile_id
-  GROUP BY t.source_tile_id, v.player_id, ui.unit;
+  SELECT *
+  FROM attacker
+  UNION ALL
+  SELECT *
+  FROM defender
+  UNION ALL
+  SELECT *
+  FROM reinforcements;
 `;
 
 export const selectHeroAdventureContextByVillageIdQuery = `
