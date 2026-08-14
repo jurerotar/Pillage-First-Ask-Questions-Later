@@ -17,10 +17,7 @@ import {
   updateResourceSiteResourcesByTileIdQuery,
 } from '../queries/troop-movement-queries';
 import { type CreateNewBattleReport, insertBattleReport } from './report';
-import {
-  calculateVillageResourcesAt,
-  subtractVillageResourcesAt,
-} from './village';
+import { subtractVillageResourcesAt } from './village';
 
 type BattleReportParticipant = CreateNewBattleReport['attacker'];
 type BattleReportUnit = CreateNewBattleReport['attacker']['units'][number];
@@ -69,16 +66,16 @@ const stealResourcesFromTarget = (
   });
 
   if (typeof targetVillageId === 'number') {
-    const { currentWood, currentClay, currentIron, currentWheat } =
-      calculateVillageResourcesAt(database, targetVillageId, timestamp);
-    const loot = distributeLoot(
-      [currentWood, currentClay, currentIron, currentWheat],
-      carryCapacity,
+    return subtractVillageResourcesAt(
+      database,
+      targetVillageId,
+      timestamp,
+      ({ currentWood, currentClay, currentIron, currentWheat }) =>
+        distributeLoot(
+          [currentWood, currentClay, currentIron, currentWheat],
+          carryCapacity,
+        ),
     );
-
-    subtractVillageResourcesAt(database, targetVillageId, timestamp, loot);
-
-    return loot;
   }
 
   const resourceSite = database.selectObject({

@@ -29,6 +29,48 @@ export const selectAllRelevantEffectsQuery = `
     OR e.village_id = $village_id;
 `;
 
+export const selectVillageResourcesRelevantEffectsQuery = `
+  SELECT
+    ei.effect AS id,
+    e.value,
+    et.type,
+    es.scope,
+    eso.source,
+    e.village_id AS villageId,
+    e.source_specifier AS sourceSpecifier,
+    CASE
+      WHEN e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
+        THEN bi.building
+    END AS buildingId
+  FROM
+    effects AS e
+      LEFT JOIN effect_ids AS ei
+                ON ei.id = e.effect_id
+      JOIN effect_type_ids AS et ON et.id = e.type_id
+      JOIN effect_scope_ids AS es ON es.id = e.scope_id
+      JOIN effect_source_ids AS eso ON eso.id = e.source_id
+      LEFT JOIN building_fields AS bf
+                ON e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+                  AND bf.village_id = e.village_id
+                  AND bf.field_id = e.source_specifier
+      LEFT JOIN building_ids AS bi
+                ON bi.id = bf.building_id
+  WHERE
+    ei.effect IN (
+      'warehouseCapacity',
+      'granaryCapacity',
+      'woodProduction',
+      'clayProduction',
+      'ironProduction',
+      'wheatProduction',
+      'unitWheatConsumption'
+    )
+    AND (
+      e.scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
+      OR e.village_id = $village_id
+    );
+`;
+
 export const selectAllRelevantEffectsByIdQuery = `
   SELECT
     ei.effect AS id,

@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
-import { selectAllRelevantEffectsQuery } from '../queries/effect-queries';
+import { selectVillageResourcesRelevantEffectsQuery } from '../queries/effect-queries';
 import { updateResourceSiteResourcesByVillageIdQuery } from '../queries/village-queries';
 import { apiEffectSchema } from './zod/effect-schemas';
 
@@ -65,21 +66,13 @@ type CalculateVillageResourcesAtReturn = {
   previousUpdatedAt: number;
 };
 
-const currentResourcesSchema = z.strictObject({
-  last_updated_at: z.number(),
-  wood: z.number(),
-  clay: z.number(),
-  iron: z.number(),
-  wheat: z.number(),
-});
-
 export const calculateVillageResourcesAt = (
   database: DbFacade,
   villageId: number,
   timestamp: number,
 ): CalculateVillageResourcesAtReturn => {
   const effects = database.selectObjects({
-    sql: selectAllRelevantEffectsQuery,
+    sql: selectVillageResourcesRelevantEffectsQuery,
     bind: {
       $village_id: villageId,
     },
@@ -135,7 +128,9 @@ export const calculateVillageResourcesAt = (
         v.id = $village_id;
     `,
     bind: { $village_id: villageId },
-    schema: currentResourcesSchema,
+    schema: resourcesSchema.extend({
+      last_updated_at: z.number(),
+    }),
   })!;
 
   const {
@@ -286,16 +281,28 @@ export const addVillageResourcesAt = (
   });
 };
 
-export const subtractVillageResourcesAt = (
+export const subtractVillageResourcesAt = <
+  ResourcesToSubtract extends readonly number[],
+>(
   database: DbFacade,
   villageId: number,
   timestamp: number,
-  resourcesToSubtract: number[],
-): void => {
+  getResourcesToSubtract: (
+    currentResources: CalculateVillageResourcesAtReturn,
+  ) => ResourcesToSubtract,
+): ResourcesToSubtract => {
+  const currentResources = calculateVillageResourcesAt(
+    database,
+    villageId,
+    timestamp,
+  );
   const { currentWood, currentClay, currentIron, currentWheat } =
-    calculateVillageResourcesAt(database, villageId, timestamp);
+    currentResources;
 
-  const [subWood, subClay, subIron, subWheat] = resourcesToSubtract;
+  const resourcesToSubtract = getResourcesToSubtract(currentResources);
+
+  const [subWood = 0, subClay = 0, subIron = 0, subWheat = 0] =
+    resourcesToSubtract;
 
   const newWood = Math.max(currentWood - subWood, 0);
   const newClay = Math.max(currentClay - subClay, 0);
@@ -313,4 +320,6 @@ export const subtractVillageResourcesAt = (
       $updated_at: timestamp,
     },
   });
+
+  return resourcesToSubtract;
 };

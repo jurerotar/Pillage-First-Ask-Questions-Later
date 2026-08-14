@@ -70,7 +70,7 @@ export const createEvents = <T extends GameEventType>(
       database,
       villageId!,
       eventResourceSubtractionTimestamp,
-      eventCost,
+      () => eventCost,
     );
   }
 
