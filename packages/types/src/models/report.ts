@@ -43,6 +43,8 @@ export const reportOutcomeSchema = z.enum([
 
 export const reportTagSchema = z.enum(['read', 'archived']);
 
+export const reportSideSchema = z.enum(['attacker', 'defender']);
+
 export const baseReportSchema = z.strictObject({
   id: z.int(),
   villageId: z.int(),
@@ -194,7 +196,7 @@ export const scoutingReportSchema = baseReportSchema.extend({
   summary: scoutingReportSummarySchema,
   scouting: z.strictObject({
     id: z.int(),
-    perspective: z.enum(['attacker', 'defender']),
+    perspective: reportSideSchema,
     successful: z.boolean(),
     target: z.enum(['resources', 'defensiveStructures']),
     attacker: scoutingAttackerTroopsSchema,

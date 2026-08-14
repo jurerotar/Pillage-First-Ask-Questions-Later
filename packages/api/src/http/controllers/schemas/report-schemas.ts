@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportOutcomeSchema,
+  reportSideSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
@@ -107,7 +108,7 @@ export const battleReportRowSchema = baseReportRowSchema.extend({
   participant_id: z.int(),
   participant_player_id: z.int().nullable(),
   participant_tile_id: z.int(),
-  participant_role: z.enum(['attacker', 'defender']),
+  participant_role: reportSideSchema,
   participant_tribe: tribeSchema,
   participant_is_reinforcement: z.int(),
   participant_player_name: z.string(),
@@ -204,7 +205,7 @@ export const gatheringExpeditionReportRowSchema =
 export const scoutingReportRowSchema = baseReportRowSchema.extend({
   type: z.literal('scouting'),
   scouting_id: z.int(),
-  perspective: z.enum(['attacker', 'defender']),
+  perspective: reportSideSchema,
   successful: z.int(),
   scouting_target: z.enum(['resources', 'defensiveStructures']),
   wood: z.int().nullable(),
