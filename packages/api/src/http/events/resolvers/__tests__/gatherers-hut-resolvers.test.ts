@@ -5,6 +5,7 @@ import {
   reportOutcomeSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { createEvents } from '../../../../utils/create-event';
 import { resolveEvent } from '../../resolve-event';
@@ -169,12 +170,7 @@ describe('gatherers hut resolvers', () => {
       bind: {
         $tile_id: villageTileId,
       },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     expect(troopsAfterReturn).toBe(10);

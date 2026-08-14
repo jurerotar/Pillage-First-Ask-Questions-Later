@@ -10,6 +10,7 @@ import {
   createUnitImprovementEventMock,
 } from '@pillage-first/mocks/event';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectEventByIdQuery } from '../../../queries/event-queries';
 import { updateResourceSiteResourcesByVillageIdQuery } from '../../../queries/village-queries';
@@ -519,12 +520,7 @@ describe('event-controllers', () => {
         WHERE v.id = $village_id
       `,
       bind: { $village_id: villageId },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     // 95% of [70, 40, 60, 20] is [66, 38, 57, 19] after trunc
@@ -591,12 +587,7 @@ describe('event-controllers', () => {
         WHERE v.id = $village_id
       `,
       bind: { $village_id: villageId },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     // At 50% completion:
@@ -670,12 +661,7 @@ describe('event-controllers', () => {
         WHERE v.id = $village_id
       `,
       bind: { $village_id: villageId },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     // At 99% completion, capped at 40%:
@@ -751,12 +737,7 @@ describe('event-controllers', () => {
       WHERE v.id = $village_id
     `,
       bind: { $village_id: villageId },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     // Determine the expected refund amount dynamically to avoid test breakage on balance changes

@@ -16,6 +16,7 @@ import {
   reportOutcomeSchema,
   reportTypeSchema,
 } from '@pillage-first/types/models/report';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
@@ -1087,12 +1088,7 @@ describe(attackMovementResolver, () => {
     const targetResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
       bind: { $tile_id: target.tile_id },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     expect(targetResources).toStrictEqual({
@@ -1219,12 +1215,7 @@ describe(attackMovementResolver, () => {
     const originResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
       bind: { $tile_id: originTileId },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     expect(originResources).toStrictEqual({
@@ -1332,12 +1323,7 @@ describe(raidMovementResolver, () => {
     const targetResources = database.selectObject({
       sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
       bind: { $tile_id: targetOasisTileId },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     expect(targetResources).toStrictEqual({

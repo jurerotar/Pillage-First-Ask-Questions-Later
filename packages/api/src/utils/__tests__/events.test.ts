@@ -37,6 +37,7 @@ import {
 } from '@pillage-first/mocks/event';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -2485,12 +2486,7 @@ describe('events utils', () => {
         bind: {
           $village_id: villageId,
         },
-        schema: z.strictObject({
-          wood: z.number(),
-          clay: z.number(),
-          iron: z.number(),
-          wheat: z.number(),
-        }),
+        schema: resourcesSchema,
       })!;
 
       expect(event).toStrictEqual({

@@ -7,6 +7,7 @@ import {
   calculateBuildingEffectValues,
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectTribeByVillageId } from '../../../queries/village-queries';
@@ -215,12 +216,7 @@ const getVillageResources = (database: DbFacade, tileId: number) =>
     bind: {
       $tile_id: tileId,
     },
-    schema: z.strictObject({
-      wood: z.number(),
-      clay: z.number(),
-      iron: z.number(),
-      wheat: z.number(),
-    }),
+    schema: resourcesSchema,
   })!;
 
 const getResourceTransferCount = (database: DbFacade) =>
