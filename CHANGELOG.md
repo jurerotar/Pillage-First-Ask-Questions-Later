@@ -1,6 +1,6 @@
 ## Version 0.4.53
 
-#### Aug 14, 2026
+#### Aug 16, 2026
 
 * [Feature] Battle reports will now display a row for hospitalized and imprisoned troops.
 * [Feature] Battle reports will now include a sum of losses, imprisoned and hospitalized troops.
