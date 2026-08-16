@@ -1380,27 +1380,11 @@ export const upgradeDb = (
       sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
     });
 
-    try {
-      db.exec({
-        sql: `
-          ALTER TABLE battle_report_units
-            ADD COLUMN amount_hospitalized INTEGER NOT NULL DEFAULT 0 CHECK (amount_hospitalized >= 0);
-        `,
-      });
-    } catch {}
+    db.exec({ sql: 'DROP TABLE IF EXISTS battle_report_units;' });
+    db.exec({ sql: 'DROP TABLE IF EXISTS battle_report_buildings;' });
 
-    try {
-      db.exec({
-        sql: `
-          ALTER TABLE battle_report_units
-            ADD COLUMN amount_imprisoned INTEGER NOT NULL DEFAULT 0 CHECK (amount_imprisoned >= 0);
-        `,
-      });
-    } catch {}
-
-    try {
-      db.exec({ sql: createBattleReportBuildingsTable });
-    } catch {}
+    db.exec({ sql: createBattleReportUnitsTable });
+    db.exec({ sql: createBattleReportBuildingsTable });
 
     db.exec({
       sql: `
