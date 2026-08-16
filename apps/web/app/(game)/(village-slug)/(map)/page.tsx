@@ -423,17 +423,37 @@ const MapPageContents = () => {
             deleteMapMarker={deleteMapMarker}
             mapMarkers={mapMarkers}
             tile={modalArgs.current!}
+            onAttackOrRaid={(tile) => {
+              const isOasis = tile.type === 'oasis';
+              const isTargetUnoccupiedOasis =
+                tile.type === 'oasis' && tile.owner === null;
+
+              openMapSendTroopsModal({
+                mode: 'attack-or-raid',
+                offensiveAction: isOasis ? 'raid' : 'attack',
+                isOffensiveActionSelectionEnabled: !isOasis,
+                target: {
+                  tileId: tile.id,
+                  tribe: tile.owner?.tribe,
+                  isUnoccupiedOasis: isTargetUnoccupiedOasis,
+                },
+              });
+            }}
             onFoundNewVillage={(tile) => {
               openMapSendTroopsModal({
                 mode: 'found-new-village',
-                targetTileId: tile.id,
+                target: {
+                  tileId: tile.id,
+                },
               });
             }}
             onReinforceVillage={(tile) => {
               openMapSendTroopsModal({
                 mode: 'reinforcement',
                 isRelocationEnabled: tile.type !== 'oasis',
-                targetTileId: tile.id,
+                target: {
+                  tileId: tile.id,
+                },
               });
             }}
             onSendResources={(tile) => {

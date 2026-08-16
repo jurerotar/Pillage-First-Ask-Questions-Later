@@ -42,11 +42,16 @@ export const FoundNewVillageForm = () => {
         <TroopSelectionForm
           form={form}
           onSubmit={onFormSubmit}
-          targetSelector="coordinates"
-          disabledUnitTiers={disabledUnitTiers}
-          maxUnits={maxUnits}
-          targetWrapperClassName="flex items-end gap-8"
-          actions={<Button type="submit">{t('Confirm')}</Button>}
+          units={{
+            disabledUnitTiers,
+            maxUnits,
+          }}
+          target={{
+            selector: 'coordinates',
+          }}
+          footer={{
+            content: <Button type="submit">{t('Confirm')}</Button>,
+          }}
         />
         {formData.current ? (
           <TroopMovementConfirmationModal

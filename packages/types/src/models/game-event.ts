@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import type { Building } from './building';
+import { type Building, buildingIdSchema } from './building';
 import type { BuildingField } from './building-field';
 import type { TroopTrainingDurationEffectId } from './effect';
-import type { Resources } from './resource';
+import type { ResourceBundle, Resources } from './resource';
 import type { Tile } from './tile';
 import type { Troop } from './troop';
 import type { Unit } from './unit';
@@ -73,6 +73,9 @@ type BaseTroopMovementEvent = {
   troops: Troop[];
   originTileId: Tile['id'];
   targetTileId: Tile['id'];
+  scoutingTarget?: ScoutingTarget;
+  catapultTargets?: CatapultTarget[];
+  heroOasisAnimalAction?: HeroOasisAnimalAction;
 };
 
 type BaseMerchantRouteEvent = {
@@ -102,10 +105,31 @@ export type TroopMovementEventType = Extract<
   | 'troopMovementAdventure'
 >;
 
+export const scoutingTargetSchema = z.enum([
+  'resources',
+  'defensiveStructures',
+]);
+
+export type ScoutingTarget = z.infer<typeof scoutingTargetSchema>;
+
+export const heroOasisAnimalActionSchema = z.enum(['battle', 'capture']);
+
+export type HeroOasisAnimalAction = z.infer<typeof heroOasisAnimalActionSchema>;
+
+export const catapultTargetSchema = z.union([
+  buildingIdSchema,
+  z.literal('random'),
+]);
+
+export type CatapultTarget = z.infer<typeof catapultTargetSchema>;
+
+export const catapultTargetsSchema = z.array(catapultTargetSchema).max(2);
+
 export type ReturnTroopMovementEvent = BaseTroopMovementEvent & {
   originalMovementType:
     | TroopMovementEventType
     | 'troopMovementReturnReinforcements';
+  loot?: ResourceBundle;
 };
 
 export const gameEventTypeSchema = z.enum([

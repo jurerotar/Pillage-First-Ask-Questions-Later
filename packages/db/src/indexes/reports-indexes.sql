@@ -6,3 +6,6 @@ ON reports(village_id, timestamp DESC);
 
 CREATE INDEX idx_battle_report_participants_battle
 ON battle_report_participants(battle_id);
+
+CREATE INDEX idx_battle_report_buildings_report
+  ON battle_report_buildings(report_id);

@@ -20,6 +20,8 @@ BEGIN
     SELECT id FROM battle_reports WHERE report_id = OLD.id
   );
 
+  DELETE FROM battle_report_buildings WHERE report_id = OLD.id;
+
   DELETE FROM movement_report_units
   WHERE movement_report_id IN (
     SELECT id FROM movement_reports WHERE report_id = OLD.id

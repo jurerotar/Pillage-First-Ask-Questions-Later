@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { effectIdSchema } from '@pillage-first/types/models/effect';
 import { getTrapperCageStats } from '../trapper-controllers';
 import {
   getGatherersHutExpeditions,
@@ -251,7 +252,7 @@ describe('village-controllers', () => {
         `,
         bind: { $v: villageId },
         schema: z.strictObject({
-          effect: z.string(),
+          effect: effectIdSchema,
           source_specifier: z.number(),
         }),
       });
@@ -977,7 +978,7 @@ describe('village-controllers', () => {
         `,
         bind: { $v: villageId },
         schema: z.strictObject({
-          effect: z.string(),
+          effect: effectIdSchema,
           value: z.number(),
           source_specifier: z.number(),
         }),

@@ -1,6 +1,12 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import {
+  reportOutcomeSchema,
+  reportTypeSchema,
+} from '@pillage-first/types/models/report';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { createEvents } from '../../../../utils/create-event';
 import { resolveEvent } from '../../resolve-event';
 
@@ -164,12 +170,7 @@ describe('gatherers hut resolvers', () => {
       bind: {
         $tile_id: villageTileId,
       },
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     })!;
 
     expect(troopsAfterReturn).toBe(10);
@@ -206,14 +207,14 @@ describe('gatherers hut resolvers', () => {
       `,
       schema: z.strictObject({
         village_id: z.int(),
-        report_type: z.string(),
-        report_outcome: z.string(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
         village_tile_id: z.int(),
         loot_wood: z.int(),
         loot_clay: z.int(),
         loot_iron: z.int(),
         loot_wheat: z.int(),
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.int(),
       }),
     })!;

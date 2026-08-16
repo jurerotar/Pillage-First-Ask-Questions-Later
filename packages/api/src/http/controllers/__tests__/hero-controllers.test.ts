@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { effectIdSchema } from '@pillage-first/types/models/effect';
 import { insertEffectQuery } from '../../../queries/effect-queries';
 import { resolveEvent } from '../../events/resolve-event';
 import {
@@ -424,7 +425,7 @@ describe('hero-controllers', () => {
           JOIN effect_ids ei ON e.effect_id = ei.id
           WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
-        schema: z.strictObject({ effect: z.string(), value: z.number() }),
+        schema: z.strictObject({ effect: effectIdSchema, value: z.number() }),
       });
 
       // 9 (Others shared) * 20 points = 180
@@ -916,7 +917,7 @@ describe('hero-controllers', () => {
           JOIN effect_ids ei ON e.effect_id = ei.id
           WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
-        schema: z.strictObject({ effect: z.string(), value: z.number() }),
+        schema: z.strictObject({ effect: effectIdSchema, value: z.number() }),
       });
 
       expect(effects).toContainEqual({ effect: 'woodProduction', value: 0 });
@@ -981,7 +982,7 @@ describe('hero-controllers', () => {
           JOIN effect_ids ei ON e.effect_id = ei.id
           WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
-        schema: z.strictObject({ effect: z.string(), value: z.number() }),
+        schema: z.strictObject({ effect: effectIdSchema, value: z.number() }),
       });
 
       // Default resourceProduction is 4. Others focused is 30.
@@ -1026,7 +1027,7 @@ describe('hero-controllers', () => {
           JOIN effect_ids ei ON e.effect_id = ei.id
           WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
-        schema: z.strictObject({ effect: z.string(), value: z.number() }),
+        schema: z.strictObject({ effect: effectIdSchema, value: z.number() }),
       });
 
       // Egyptians have focused production per point = 40. Points is 10.
@@ -1064,7 +1065,7 @@ describe('hero-controllers', () => {
           JOIN effect_ids ei ON e.effect_id = ei.id
           WHERE e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND e.source_specifier = 0
         `,
-        schema: z.strictObject({ effect: z.string(), value: z.number() }),
+        schema: z.strictObject({ effect: effectIdSchema, value: z.number() }),
       });
 
       // Default resourceProduction is 4. Others shared is 9.

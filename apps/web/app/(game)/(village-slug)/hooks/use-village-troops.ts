@@ -1,7 +1,10 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use, useCallback } from 'react';
 import type {
+  CatapultTarget,
   GameEvent,
+  HeroOasisAnimalAction,
+  ScoutingTarget,
   TroopMovementEventType,
 } from '@pillage-first/types/models/game-event';
 import type { Unit } from '@pillage-first/types/models/unit';
@@ -27,6 +30,9 @@ type SendTroopsArgs = {
   type: SendTroopsEventType;
   troops: GameEvent<'troopMovementReinforcements'>['troops'];
   targetTileId: Village['tileId'];
+  scoutingTarget?: ScoutingTarget;
+  catapultTargets?: CatapultTarget[];
+  heroOasisAnimalAction?: HeroOasisAnimalAction;
 };
 
 type RelocateReinforcementsArgs = {
@@ -94,6 +100,9 @@ export const useVillageTroops = () => {
       troops,
       villageId,
       originTileId,
+      scoutingTarget,
+      catapultTargets,
+      heroOasisAnimalAction,
     }: SendTroopsArgs) => {
       await apiClient.post('/events', {
         body: {
@@ -102,6 +111,9 @@ export const useVillageTroops = () => {
           type,
           targetTileId,
           troops,
+          scoutingTarget,
+          catapultTargets,
+          heroOasisAnimalAction,
         },
       });
     },

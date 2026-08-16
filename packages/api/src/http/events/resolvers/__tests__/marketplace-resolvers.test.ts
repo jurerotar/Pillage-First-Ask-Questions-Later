@@ -7,6 +7,11 @@ import {
   createTradeRouteEventMock,
 } from '@pillage-first/mocks/event';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import {
+  reportOutcomeSchema,
+  reportTypeSchema,
+} from '@pillage-first/types/models/report';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { resolveEvent } from '../../resolve-event';
 
 const NOW = 1_000_000;
@@ -140,12 +145,7 @@ const getVillageResources = (
   database.selectObject({
     sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
     bind: { $tile_id: tileId },
-    schema: z.strictObject({
-      wood: z.number(),
-      clay: z.number(),
-      iron: z.number(),
-      wheat: z.number(),
-    }),
+    schema: resourcesSchema,
   })!;
 
 const insertEvent = (
@@ -246,8 +246,8 @@ describe('marketplace resolvers', () => {
         report_id: z.number(),
         village_id: z.number(),
         timestamp: z.number(),
-        report_type: z.string(),
-        report_outcome: z.string(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
         origin_tile_id: z.number(),
         target_tile_id: z.number(),
         wood: z.number(),
@@ -507,7 +507,7 @@ describe('marketplace resolvers', () => {
       },
       schema: z.strictObject({
         village_id: z.number(),
-        report_outcome: z.string(),
+        report_outcome: reportOutcomeSchema,
         origin_tile_id: z.number(),
         target_tile_id: z.number(),
       }),

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { createContext, type PropsWithChildren, use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Tribe } from '@pillage-first/types/models/tribe';
@@ -11,6 +12,7 @@ import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import {
   UnitTable,
+  UnitTableContentRow,
   UnitTableRow,
   UnitTableUnitIcons,
 } from 'app/(game)/components/unit-table';
@@ -38,6 +40,9 @@ type TroopConfirmationContextState = {
   title: string;
   tribe: Tribe;
   backLabel?: string;
+  isConfirmDisabled?: boolean;
+  unitTableDetails?: ReactNode;
+  unitTableDetailsLabel?: ReactNode;
 };
 
 const TroopConfirmationContext = createContext<TroopConfirmationContextState>(
@@ -54,6 +59,10 @@ type TroopMovementConfirmationModalProps = {
   originTileId?: number;
   backLabel?: string;
   hideMovementDetails?: boolean;
+  details?: ReactNode;
+  isConfirmDisabled?: boolean;
+  unitTableDetails?: ReactNode;
+  unitTableDetailsLabel?: ReactNode;
 };
 
 type TroopConfirmationContentProps = PropsWithChildren<{
@@ -63,6 +72,9 @@ type TroopConfirmationContentProps = PropsWithChildren<{
   title: string;
   tribe: Tribe;
   backLabel?: string;
+  isConfirmDisabled?: boolean;
+  unitTableDetails?: ReactNode;
+  unitTableDetailsLabel?: ReactNode;
 }>;
 
 type TroopMovementConfirmationContentProps = {
@@ -74,6 +86,10 @@ type TroopMovementConfirmationContentProps = {
   originTileId?: number;
   backLabel?: string;
   hideMovementDetails?: boolean;
+  details?: ReactNode;
+  isConfirmDisabled?: boolean;
+  unitTableDetails?: ReactNode;
+  unitTableDetailsLabel?: ReactNode;
 };
 
 export const TroopConfirmationContent = ({
@@ -83,6 +99,9 @@ export const TroopConfirmationContent = ({
   title,
   tribe,
   backLabel,
+  isConfirmDisabled,
+  unitTableDetails,
+  unitTableDetailsLabel,
   children,
 }: TroopConfirmationContentProps) => {
   const value = useMemo(
@@ -93,8 +112,21 @@ export const TroopConfirmationContent = ({
       title,
       tribe,
       backLabel,
+      isConfirmDisabled,
+      unitTableDetails,
+      unitTableDetailsLabel,
     }),
-    [backLabel, formData, onBack, onConfirm, title, tribe],
+    [
+      backLabel,
+      formData,
+      isConfirmDisabled,
+      onBack,
+      onConfirm,
+      title,
+      tribe,
+      unitTableDetails,
+      unitTableDetailsLabel,
+    ],
   );
 
   return (
@@ -114,33 +146,36 @@ export const TroopConfirmationHeader = () => {
   );
 };
 
-type TroopConfirmationUnitTableProps = {
-  label?: string;
-};
-
-export const TroopConfirmationUnitTable = ({
-  label,
-}: TroopConfirmationUnitTableProps) => {
+export const TroopConfirmationUnitTable = () => {
   const { t } = useTranslation();
-  const { formData, tribe } = use(TroopConfirmationContext);
+  const { formData, tribe, unitTableDetails, unitTableDetailsLabel } = use(
+    TroopConfirmationContext,
+  );
 
   return (
     <UnitTable tribe={tribe}>
       <UnitTableUnitIcons />
       <UnitTableRow
-        label={label ?? t('Troops')}
+        label={t('Troops')}
         troops={formData.units.map(({ unitId, selected }) => ({
           unitId,
           amount: selected,
         }))}
       />
+      {unitTableDetails && (
+        <UnitTableContentRow label={unitTableDetailsLabel ?? t('Details')}>
+          {unitTableDetails}
+        </UnitTableContentRow>
+      )}
     </UnitTable>
   );
 };
 
 export const TroopConfirmationFooter = () => {
   const { t } = useTranslation();
-  const { onBack, onConfirm, backLabel } = use(TroopConfirmationContext);
+  const { onBack, onConfirm, backLabel, isConfirmDisabled } = use(
+    TroopConfirmationContext,
+  );
 
   return (
     <DialogFooter>
@@ -150,7 +185,12 @@ export const TroopConfirmationFooter = () => {
       >
         {backLabel ?? t('Cancel')}
       </Button>
-      <Button onClick={onConfirm}>{t('Confirm')}</Button>
+      <Button
+        onClick={onConfirm}
+        disabled={isConfirmDisabled}
+      >
+        {t('Confirm')}
+      </Button>
     </DialogFooter>
   );
 };
@@ -252,6 +292,10 @@ export const TroopMovementConfirmationContent = ({
   originTileId,
   backLabel,
   hideMovementDetails = false,
+  details,
+  isConfirmDisabled,
+  unitTableDetails,
+  unitTableDetailsLabel,
 }: TroopMovementConfirmationContentProps) => {
   return (
     <TroopConfirmationContent
@@ -261,6 +305,9 @@ export const TroopMovementConfirmationContent = ({
       title={title}
       tribe={tribe}
       backLabel={backLabel}
+      isConfirmDisabled={isConfirmDisabled}
+      unitTableDetails={unitTableDetails}
+      unitTableDetailsLabel={unitTableDetailsLabel}
     >
       <TroopConfirmationHeader />
 
@@ -275,6 +322,8 @@ export const TroopMovementConfirmationContent = ({
             originTileId={originTileId}
           />
         )}
+
+        {details}
       </div>
 
       <TroopConfirmationFooter />

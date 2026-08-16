@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   insertEffectQuery,
@@ -818,7 +819,7 @@ describe('player-controllers', () => {
       `,
       schema: z.strictObject({
         type: z.string(),
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.number(),
         origin_tile_id: z.number(),
         target_tile_id: z.number(),
@@ -957,7 +958,7 @@ describe('player-controllers', () => {
       `,
       schema: z.strictObject({
         type: z.string(),
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.number(),
       }),
     })!;
@@ -1247,7 +1248,7 @@ describe('player-controllers', () => {
         $source_tile_id: sourceTileId,
       },
       schema: z.strictObject({
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.number(),
       }),
     });
@@ -1265,7 +1266,7 @@ describe('player-controllers', () => {
       `,
       schema: z.strictObject({
         troop_count: z.number(),
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.number(),
       }),
     })!;
@@ -1412,7 +1413,7 @@ describe('player-controllers', () => {
       `,
       schema: z.strictObject({
         type: z.string(),
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.number(),
         origin_tile_id: z.number(),
         target_tile_id: z.number(),

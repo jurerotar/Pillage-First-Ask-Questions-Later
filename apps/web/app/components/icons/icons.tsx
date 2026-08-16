@@ -9,7 +9,12 @@ import {
 } from 'react-icons/bs';
 import { CgTimelapse } from 'react-icons/cg';
 import { FaSpider, FaWarehouse } from 'react-icons/fa';
-import { FaHandshakeAngle, FaPeopleGroup, FaStar } from 'react-icons/fa6';
+import {
+  FaHandshakeAngle,
+  FaPeopleGroup,
+  FaSkull,
+  FaStar,
+} from 'react-icons/fa6';
 import {
   GiBarbedSpear,
   GiBasket,
@@ -36,6 +41,7 @@ import {
 } from 'react-icons/gi';
 import { GrDocumentMissing } from 'react-icons/gr';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
+import { IoBandageSharp } from 'react-icons/io5';
 import { LiaCoinsSolid } from 'react-icons/lia';
 import {
   LuArchive,
@@ -182,7 +188,13 @@ type UnitIconType =
   | NatarTroopIconType
   | NatureTroopIconType;
 
-type OtherIconType = 'freeCrop' | 'population' | 'culturePoints';
+type OtherIconType =
+  | 'freeCrop'
+  | 'population'
+  | 'culturePoints'
+  | 'troopLosses'
+  | 'troopsHospitalized'
+  | 'troopsImprisoned';
 
 type HeroIconType = 'heroRevivalDuration';
 
@@ -204,6 +216,9 @@ export type IconType =
 
 export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   missingIcon: (props) => <GrDocumentMissing {...props} />,
+  troopLosses: (props) => <FaSkull {...props} />,
+  troopsHospitalized: (props) => <IoBandageSharp {...props} />,
+  troopsImprisoned: (props) => <GiWolfTrap {...props} />,
   archived: (props) => <LuArchive {...props} />,
   cancel: (props) => (
     <RxCross2

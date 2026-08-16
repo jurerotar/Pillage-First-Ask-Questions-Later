@@ -22,6 +22,7 @@ type UseTroopMovementFormOptions<T extends FieldValues & BaseTroopFormValues> =
     formOptions: TroopFormOptions<T>;
     getMovementValidationType: (data: T) => MovementValidationType;
     getEventType: (data: T) => SendTroopsEventType;
+    canConfirm?: (data: T) => boolean;
     onSuccess?: () => void;
   };
 
@@ -32,6 +33,7 @@ export const useTroopMovementForm = <
   formOptions,
   getMovementValidationType,
   getEventType,
+  canConfirm,
   onSuccess,
 }: UseTroopMovementFormOptions<T>) => {
   const { sendTroops } = useVillageTroops();
@@ -61,10 +63,16 @@ export const useTroopMovementForm = <
       return;
     }
 
+    const latestFormData = form.getValues();
+
+    if (canConfirm && !canConfirm(latestFormData)) {
+      return;
+    }
+
     sendTroops(
       {
-        type: getEventType(formData.current),
-        ...getBaseEventArgs(formData.current),
+        type: getEventType(latestFormData),
+        ...getBaseEventArgs(latestFormData),
       },
       {
         onSuccess: () => {

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { tileTypeSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const getVillagesByPlayerSchema = z
@@ -29,11 +30,11 @@ export const getPlayerVillagesWithPopulationSchema = z
 
 export const getStationedTroopsByTileSchema = z
   .strictObject({
-    unit_id: z.string(),
+    unit_id: unitIdSchema,
     amount: z.number().min(1),
     tile_id: z.number(),
     source_tile_id: z.number(),
-    source_tile_type: z.enum(['free', 'oasis']).nullable(),
+    source_tile_type: tileTypeSchema.nullable(),
   })
   .meta({ id: 'GetStationedTroopsByTileRow' });
 
@@ -55,16 +56,16 @@ export const getSentReinforcementsByTileSchema = z
     name: z.string(),
     slug: z.string().nullable(),
     resource_field_composition: resourceFieldCompositionSchema,
-    unit_id: z.string(),
+    unit_id: unitIdSchema,
     amount: z.number().min(1),
     source_tile_id: z.number(),
-    source_tile_type: z.enum(['free', 'oasis']).nullable(),
+    source_tile_type: tileTypeSchema.nullable(),
   })
   .meta({ id: 'GetSentReinforcementsByTileRow' });
 
 export const sourceVillageRowSchema = z.strictObject({
   sourceVillageId: z.number().nullable(),
-  sourceTileType: z.enum(['free', 'oasis']).nullable(),
+  sourceTileType: tileTypeSchema.nullable(),
   currentVillageId: z.number(),
   currentTileId: z.number(),
 });
@@ -72,7 +73,7 @@ export const sourceVillageRowSchema = z.strictObject({
 export const stationedVillageRowSchema = z.strictObject({
   currentVillageId: z.number(),
   currentTileId: z.number(),
-  stationedTileType: z.enum(['free', 'oasis']).nullable(),
+  stationedTileType: tileTypeSchema.nullable(),
   stationedVillageId: z.number().nullable(),
 });
 

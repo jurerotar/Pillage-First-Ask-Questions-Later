@@ -241,10 +241,12 @@ export const updateVillageResources = createController(
 
   resources[resourceIndexMap[resource]] = amount;
 
-  const updaterFn =
-    direction === 'add' ? addVillageResourcesAt : subtractVillageResourcesAt;
+  if (direction === 'add') {
+    addVillageResourcesAt(database, villageId, now, resources);
+    return;
+  }
 
-  updaterFn(database, villageId, now, resources);
+  subtractVillageResourcesAt(database, villageId, now, () => resources);
 });
 
 export const incrementHeroAdventurePoints = createController(

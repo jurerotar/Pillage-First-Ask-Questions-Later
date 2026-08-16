@@ -12,6 +12,7 @@ import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw'
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
 import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
+import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
@@ -261,17 +262,20 @@ export const migrateAndSeed = (
     db.exec({ sql: createHuntingPartyReportUnitsTable });
     db.exec({ sql: createGatheringExpeditionReportsTable });
     db.exec({ sql: createGatheringExpeditionReportUnitsTable });
+    db.exec({ sql: createReportTagsTable });
+    db.exec({ sql: createBattleReportsTable });
+    db.exec({ sql: createBattleReportBuildingsTable });
+    db.exec({ sql: createBattleReportParticipantsTable });
+    db.exec({ sql: createBattleReportUnitsTable });
     db.exec({ sql: createScoutingReportsTable });
     db.exec({ sql: createScoutingReportAttackerUnitsTable });
     db.exec({ sql: createScoutingReportUnitsTable });
     db.exec({ sql: createScoutingReportStructuresTable });
+
+    db.exec({ sql: createReportsIndexes });
+
     db.exec({ sql: createReportDeleteTriggers });
     db.exec({ sql: createReportRetentionTriggers });
-    db.exec({ sql: createReportTagsTable });
-
-    db.exec({ sql: createBattleReportsTable });
-    db.exec({ sql: createBattleReportParticipantsTable });
-    db.exec({ sql: createBattleReportUnitsTable });
 
     // Heroes
     db.exec({ sql: createHeroesTable });
@@ -332,7 +336,6 @@ export const migrateAndSeed = (
     db.exec({ sql: createWorldItemsTable });
     worldItemsSeeder(db, server);
     db.exec({ sql: createWorldItemsIndexes });
-    db.exec({ sql: createReportsIndexes });
 
     // Unit research
     db.exec({ sql: createUnitResearchTable });

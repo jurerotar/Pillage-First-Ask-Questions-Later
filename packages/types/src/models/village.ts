@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { coordinatesSchema } from '@pillage-first/types/models/coordinates';
 import { buildingFieldSchema } from './building-field';
+import { resourcesSchema } from './resource';
 import { resourceFieldCompositionSchema } from './resource-field-composition';
 
 // Used mostly in seeders
@@ -24,12 +25,7 @@ export const villageSchema = z
     slug: z.string(),
     coordinates: coordinatesSchema,
     lastUpdatedAt: z.number(),
-    resources: z.strictObject({
-      wood: z.number(),
-      clay: z.number(),
-      iron: z.number(),
-      wheat: z.number(),
-    }),
+    resources: resourcesSchema,
     resourceFieldComposition: resourceFieldCompositionSchema,
     buildingFields: z.array(buildingFieldSchema),
   })

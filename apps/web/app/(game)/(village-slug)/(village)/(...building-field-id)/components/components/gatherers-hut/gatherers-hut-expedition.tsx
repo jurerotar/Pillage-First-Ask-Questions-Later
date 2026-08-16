@@ -306,6 +306,7 @@ export const GatherersHutExpedition = () => {
     isGatheringExpeditionActive ||
     selectedTroopAmount <= 0 ||
     selectedTroopAmount > maxPartySize;
+
   const errorBag = [
     ...getFormErrorBag(form.formState.errors),
     ...(isGatheringExpeditionActive

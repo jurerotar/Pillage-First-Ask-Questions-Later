@@ -56,9 +56,12 @@ export const OasisOccupationForm = () => {
         <TroopSelectionForm
           form={form}
           onSubmit={onFormSubmit}
-          targetSelector="coordinates"
-          targetWrapperClassName="flex items-end gap-8"
-          actions={<Button type="submit">{t('Confirm')}</Button>}
+          target={{
+            selector: 'coordinates',
+          }}
+          footer={{
+            content: <Button type="submit">{t('Confirm')}</Button>,
+          }}
         />
         {formData.current ? (
           <TroopMovementConfirmationModal

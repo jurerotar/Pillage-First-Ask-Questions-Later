@@ -4,7 +4,7 @@ import {
   generateApiRouteTypes,
   isApiRouteTypesInputFile,
   listApiRouteTypesInputFiles,
-} from '../../../scripts/generate-api-route-types';
+} from '../../scripts/generate-api-route-types.ts';
 
 export const apiRouteTypesPlugin = (): Plugin => {
   let pendingRegeneration: NodeJS.Timeout | undefined;

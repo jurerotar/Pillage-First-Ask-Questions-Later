@@ -86,6 +86,7 @@ export const tileSchema = z
 export const occupiableTileSchema = z
   .union([occupiedOccupiableTileSchema, unoccupiedOccupiableTileSchema])
   .meta({ id: 'OccupiableTile' });
+
 export const oasisTileSchema = z
   .union([occupiedOasisTileSchema, unoccupiedOasisTileSchema])
   .meta({ id: 'OasisTile' });

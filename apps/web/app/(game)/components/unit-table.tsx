@@ -177,6 +177,46 @@ export const UnitTableRow = ({
   );
 };
 
+type UnitTableContentRowProps = PropsWithChildren<{
+  label: ReactNode;
+}>;
+
+export const UnitTableContentRow = ({
+  children,
+  label,
+}: UnitTableContentRowProps) => {
+  return (
+    <tbody className="border-b last:border-b-0 dark:border-border">
+      <tr>
+        <td className="px-2 py-1 border-r dark:border-border">
+          <Text className="text-sm font-medium">{label}</Text>
+        </td>
+        <td
+          colSpan={100}
+          className="p-2"
+        >
+          {children}
+        </td>
+      </tr>
+    </tbody>
+  );
+};
+
+export const UnitTableNoLabelContentRow = ({ children }: PropsWithChildren) => {
+  return (
+    <tbody className="border-b last:border-b-0 dark:border-border">
+      <tr>
+        <td
+          colSpan={100}
+          className="p-2"
+        >
+          {children}
+        </td>
+      </tr>
+    </tbody>
+  );
+};
+
 type UnitTableHiddenRowProps = {
   label: ReactNode;
   troops: TroopLike[];

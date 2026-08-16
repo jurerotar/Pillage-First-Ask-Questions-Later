@@ -112,9 +112,13 @@ export const AttackRaidForm = () => {
         <TroopSelectionForm
           form={form}
           onSubmit={onFormSubmit}
-          targetSelector="coordinates"
-          extraTargetContent={<AttackRaidActionSelector />}
-          actions={<Button type="submit">{t('Confirm')}</Button>}
+          target={{
+            selector: 'coordinates',
+            extraContent: <AttackRaidActionSelector />,
+          }}
+          footer={{
+            content: <Button type="submit">{t('Confirm')}</Button>,
+          }}
         />
         {formData.current ? (
           <TroopMovementConfirmationModal
