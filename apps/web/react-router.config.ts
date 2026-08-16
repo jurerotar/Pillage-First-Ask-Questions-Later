@@ -9,6 +9,7 @@ const publicPagesToPrerender = [
   '/',
   '/wiki',
   '/wiki/introduction',
+  '/wiki/interactions',
   '/wiki/game-worlds',
   '/wiki/villages',
   '/wiki/resources',

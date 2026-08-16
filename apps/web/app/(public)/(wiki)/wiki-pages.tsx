@@ -1,6 +1,10 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, use } from 'react';
 import { Link } from 'react-router';
 import { Text } from 'app/components/text';
+import { CookieContext } from 'app/providers/cookie-context';
+import screenshotsData from '../(index)/assets/screenshots.json' with {
+  type: 'json',
+};
 
 type WikiPageContentProps = {
   page: WikiPage;
@@ -75,6 +79,39 @@ const WikiPageLink = ({ page }: { page: WikiPage }) => {
   );
 };
 
+type WikiScreenshotProps = {
+  base: string;
+  alt: string;
+  caption: string;
+};
+
+const WikiScreenshot = ({ base, alt, caption }: WikiScreenshotProps) => {
+  const { uiColorScheme } = use(CookieContext);
+  const { timestamp } = screenshotsData;
+
+  return (
+    <figure className="flex flex-col gap-2">
+      <picture>
+        <source
+          srcSet={`/landing/${base}-${uiColorScheme}-${timestamp}.avif`}
+          type="image/avif"
+        />
+        <img
+          alt={alt}
+          className="block w-full rounded-md border border-border"
+          height={2100}
+          loading="lazy"
+          src={`/landing/${base}-${uiColorScheme}-${timestamp}.jpg`}
+          width={1170}
+        />
+      </picture>
+      <figcaption className="text-sm leading-5 text-muted-foreground">
+        {caption}
+      </figcaption>
+    </figure>
+  );
+};
+
 export const wikiPages = [
   {
     slug: 'introduction',
@@ -107,6 +144,66 @@ export const wikiPages = [
             You can play carefully and build a beautiful production machine, or
             lean into the name and start raiding early. The game gives you the
             systems; your priorities decide the shape of the run.
+          </Text>
+        </WikiSection>
+      </WikiArticle>
+    ),
+  },
+  {
+    slug: 'interactions',
+    title: 'Interactions',
+    summary:
+      'Clicks, long presses, queue controls and the small shortcuts worth knowing.',
+    Content: ({ page }) => (
+      <WikiArticle title={page.title}>
+        <WikiSection title="Village map interactions">
+          <Text>
+            The village map is built for quick repeated actions. Clicking or
+            tapping a building opens its detail page. Clicking an empty building
+            field opens the construction screen, where you pick the building
+            type for that slot.
+          </Text>
+          <Text>
+            On large screens, hovering a building shows the upgrade control when
+            that building can be upgraded. On touch layouts, press and hold an
+            occupied building for one second to start the next upgrade directly.
+            A normal tap still opens the building detail page.
+          </Text>
+          <WikiScreenshot
+            alt="Village view with building fields"
+            base="image-2"
+            caption="The village view is where most direct building interactions happen."
+          />
+        </WikiSection>
+        <WikiSection title="Construction controls">
+          <Text>
+            Building detail pages show costs, duration, requirements and
+            available actions. Use them when you want to inspect the next level
+            before committing resources. Use the long press shortcut when you
+            already know the upgrade is the next thing you want.
+          </Text>
+          <Text>
+            If the field is already busy, starting another level does not begin
+            immediately. It becomes scheduled construction instead and waits
+            behind the current construction for that field.
+          </Text>
+          <WikiScreenshot
+            alt="Building details view"
+            base="image-4"
+            caption="Building pages are the safer place to check costs and requirements before constructing or upgrading."
+          />
+        </WikiSection>
+        <WikiSection title="Queue interactions">
+          <Text>
+            The construction queue shows active construction first and scheduled
+            construction after it. Active construction displays a countdown.
+            Scheduled construction displays as In queue until it can become
+            active.
+          </Text>
+          <Text>
+            Scheduled construction can be cancelled. It can also be reordered by
+            dragging its grip in the construction queue. The queue will reject
+            orders that would build levels for the same field out of order.
           </Text>
         </WikiSection>
       </WikiArticle>
@@ -166,6 +263,11 @@ export const wikiPages = [
             storage, training, research, celebrations, expansion and defensive
             options.
           </Text>
+          <WikiScreenshot
+            alt="Village view"
+            base="image-2"
+            caption="The village view shows building slots, resource fields and active construction state at a glance."
+          />
         </WikiSection>
         <WikiSection title="Expansion">
           <Text>
@@ -205,6 +307,11 @@ export const wikiPages = [
             when you need to spot the weak village, pick the next upgrade, or
             decide where new troops should be trained.
           </Text>
+          <WikiScreenshot
+            alt="Resources view"
+            base="image-1"
+            caption="The resources view is the fastest way to see whether the village economy can pay for your next plan."
+          />
         </WikiSection>
       </WikiArticle>
     ),
@@ -221,12 +328,32 @@ export const wikiPages = [
             Some buildings are economic, some military, and some exist to unlock
             specific systems like research, trade, demolition or expansion.
           </Text>
+          <WikiScreenshot
+            alt="Building view"
+            base="image-4"
+            caption="Building pages show the current level, next upgrade costs, benefits and construction actions."
+          />
         </WikiSection>
         <WikiSection title="Queues">
           <Text>
             Construction takes time, and the queue is one of the main pacing
             systems. The Main Building improves construction speed and gives you
             better control over the village as it grows.
+          </Text>
+        </WikiSection>
+        <WikiSection title="Scheduled construction">
+          <Text>
+            Scheduled construction is created when you start a building level on
+            a field that already has construction queued. The current level
+            stays active, and the extra level waits behind it as an In queue
+            entry.
+          </Text>
+          <Text>
+            This lets you plan several levels for the same field without coming
+            back exactly when the current timer finishes. Scheduled entries can
+            be cancelled from the construction queue. They can also be dragged
+            to reorder them, as long as the order still keeps each building
+            field's levels increasing correctly.
           </Text>
         </WikiSection>
       </WikiArticle>
@@ -291,6 +418,11 @@ export const wikiPages = [
             villages, oases, artifacts and targets worth remembering. The map is
             also where many troop actions start.
           </Text>
+          <WikiScreenshot
+            alt="Map view"
+            base="image-3"
+            caption="The map is where you inspect nearby villages, oases and useful targets."
+          />
         </WikiSection>
         <WikiSection title="Oases and markers">
           <Text>
@@ -370,6 +502,13 @@ export const WikiIndexContent = () => {
             </WikiListItem>
           ))}
         </WikiList>
+      </WikiSection>
+      <WikiSection title="Feature screenshots">
+        <Text>
+          Screenshots are included on individual feature pages where seeing the
+          screen helps more than another paragraph. Start with Villages,
+          Resources, Buildings and Map for the most visual parts of the game.
+        </Text>
       </WikiSection>
       <WikiSection title="Contributing">
         <Text>
