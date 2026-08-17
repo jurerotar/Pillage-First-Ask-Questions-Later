@@ -26,6 +26,11 @@ describe('statistics-controllers', () => {
       bind: { $player_id: playerId },
       schema: z.number(),
     })!;
+    const tileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
+      bind: { $village_id: villageId },
+      schema: z.number(),
+    })!;
 
     const wheatEffectId = database.selectValue({
       sql: selectWheatProductionEffectIdQuery,
@@ -34,8 +39,8 @@ describe('statistics-controllers', () => {
 
     // Clear existing effects for this village
     database.exec({
-      sql: 'DELETE FROM effects WHERE village_id = $village_id',
-      bind: { $village_id: villageId },
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id',
+      bind: { $tile_id: tileId },
     });
 
     // Seed various effects
@@ -72,7 +77,7 @@ describe('statistics-controllers', () => {
           $type: effect.type,
           $scope: effect.scope,
           $source: effect.source,
-          $village_id: villageId,
+          $tile_id: tileId,
           $source_specifier: effect.source_specifier,
         },
       });
@@ -98,6 +103,11 @@ describe('statistics-controllers', () => {
       sql: 'SELECT id FROM villages LIMIT 1',
       schema: z.number(),
     })!;
+    const tileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
+      bind: { $village_id: villageId },
+      schema: z.number(),
+    })!;
 
     const wheatEffectId = database.selectValue({
       sql: selectWheatProductionEffectIdQuery,
@@ -106,8 +116,8 @@ describe('statistics-controllers', () => {
 
     // Clear existing effects for this village
     database.exec({
-      sql: 'DELETE FROM effects WHERE village_id = $village_id',
-      bind: { $village_id: villageId },
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id',
+      bind: { $tile_id: tileId },
     });
 
     // Seed various effects
@@ -137,7 +147,7 @@ describe('statistics-controllers', () => {
           $type: effect.type,
           $scope: effect.scope,
           $source: effect.source,
-          $village_id: villageId,
+          $tile_id: tileId,
           $source_specifier: effect.source_specifier,
         },
       });

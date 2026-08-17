@@ -647,7 +647,8 @@ describe('events utils', () => {
       database.exec({
         sql: `
           DELETE FROM effects
-          WHERE village_id = $village_id AND source_specifier = $field_id;
+          WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+            AND source_specifier = $field_id;
           DELETE FROM building_fields
           WHERE village_id = $village_id AND field_id = $field_id;
         `,

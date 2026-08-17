@@ -715,7 +715,7 @@ describe('hero-controllers', () => {
           $type: 'bonus',
           $scope: 'global',
           $source: 'hero',
-          $village_id: null,
+          $tile_id: null,
           $source_specifier: itemId,
         },
       });

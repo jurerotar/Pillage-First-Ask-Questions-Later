@@ -3,7 +3,10 @@ import { calculateGatherersHutGatheringResources } from '@pillage-first/game-ass
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { insertGatheringExpeditionReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
-import { addVillageResourcesAt } from '../../../utils/village';
+import {
+  addResourceSiteResourcesAt,
+  getVillageTileId,
+} from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const gatherersHutGatheringTripResolver: Resolver<
@@ -21,7 +24,12 @@ export const gatherersHutGatheringTripResolver: Resolver<
 
   addTroops(database, troops);
 
-  addVillageResourcesAt(database, villageId, resolvesAt, loot);
+  addResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, villageId),
+    resolvesAt,
+    loot,
+  );
 
   const village = database.selectObject({
     sql: `

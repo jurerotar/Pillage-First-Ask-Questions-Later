@@ -1,7 +1,10 @@
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../../../queries/effect-queries';
-import { updateVillageResourcesAt } from '../../../utils/village';
+import {
+  getVillageTileId,
+  updateResourceSiteResourcesAt,
+} from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const troopTrainingEventResolver: Resolver<
@@ -53,7 +56,11 @@ export const troopTrainingEventResolver: Resolver<
     },
   });
 
-  updateVillageResourcesAt(database, villageId, resolvesAt);
+  updateResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, villageId),
+    resolvesAt,
+  );
 
   return {
     affectedVillageIds: [villageId],

@@ -120,7 +120,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.tileId],
       ]);
     },
   });
@@ -143,7 +143,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });
@@ -166,8 +166,8 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.tileId],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });
@@ -190,8 +190,8 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [sentReinforcementsCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.tileId],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });

@@ -8,7 +8,7 @@ import {
   getVillageMerchantStats,
 } from '../../../utils/marketplace';
 import { insertTradeReport } from '../../../utils/report';
-import { addVillageResourcesAt } from '../../../utils/village';
+import { addResourceSiteResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const resourceTransferResolver: Resolver<
@@ -30,7 +30,7 @@ export const resourceTransferResolver: Resolver<
     };
   }
 
-  addVillageResourcesAt(database, targetVillageId, resolvesAt, [
+  addResourceSiteResourcesAt(database, targetTileId, resolvesAt, [
     resources.wood,
     resources.clay,
     resources.iron,

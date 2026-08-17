@@ -202,7 +202,7 @@ describe('village-controllers', () => {
           DELETE
           FROM effects
           WHERE
-            village_id = $v
+            tile_id = (SELECT tile_id FROM villages WHERE id = $v)
             AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier IN (19, 20);
         `,
@@ -211,10 +211,10 @@ describe('village-controllers', () => {
 
       database.exec({
         sql: `
-          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
           VALUES
-            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 1500, 1, 2, 1, $v, 19),
-            ((SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration'), 0.9091, 2, 2, 1, $v, 20);
+            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 1500, 1, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 19),
+            ((SELECT id FROM effect_ids WHERE effect = 'barracksTrainingDuration'), 0.9091, 2, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 20);
         `,
         bind: { $v: villageId },
       });
@@ -244,7 +244,7 @@ describe('village-controllers', () => {
           FROM effects e
           JOIN effect_ids ei ON ei.id = e.effect_id
           WHERE
-            e.village_id = $v
+            e.tile_id = (SELECT tile_id FROM villages WHERE id = $v)
             AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND e.source_specifier IN (19, 20)
             AND ei.effect IN ('warehouseCapacity', 'barracksTrainingDuration')
@@ -917,7 +917,7 @@ describe('village-controllers', () => {
           DELETE
           FROM effects
           WHERE
-            village_id = $v
+            tile_id = (SELECT tile_id FROM villages WHERE id = $v)
             AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND source_specifier IN (19, 20, 21, 22);
         `,
@@ -926,11 +926,11 @@ describe('village-controllers', () => {
 
       database.exec({
         sql: `
-          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+          INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
           VALUES
-            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 4000, 1, 2, 1, $v, 19),
-            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 11000, 1, 2, 1, $v, 20),
-            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 6000, 1, 2, 1, $v, 21);
+            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 4000, 1, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 19),
+            ((SELECT id FROM effect_ids WHERE effect = 'granaryCapacity'), 11000, 1, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 20),
+            ((SELECT id FROM effect_ids WHERE effect = 'warehouseCapacity'), 6000, 1, 2, 1, (SELECT tile_id FROM villages WHERE id = $v), 21);
         `,
         bind: { $v: villageId },
       });
@@ -970,7 +970,7 @@ describe('village-controllers', () => {
           FROM effects e
           JOIN effect_ids ei ON ei.id = e.effect_id
           WHERE
-            e.village_id = $v
+            e.tile_id = (SELECT tile_id FROM villages WHERE id = $v)
             AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND e.source_specifier IN (20, 21, 22)
             AND e.value IN (4000, 6000, 11000)

@@ -16,10 +16,7 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { isLocalEffect } from '@pillage-first/utils/guards/effect';
 import { batchInsert } from '../utils/batch-insert';
 
-const heroEffectsFactory = (
-  server: Server,
-  villageId: number,
-): HeroEffect[] => {
+const heroEffectsFactory = (server: Server, tileId: number): HeroEffect[] => {
   const { tribe } = server.playerConfiguration;
   const isEgyptian = tribe === 'egyptians';
   const sharedProductionPerPoint = isEgyptian ? 12 : 9;
@@ -52,7 +49,7 @@ const heroEffectsFactory = (
     ...effect,
     scope: 'local',
     source: 'hero',
-    villageId,
+    tileId,
     sourceSpecifier: 0,
   }));
 };
@@ -208,9 +205,9 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
     }),
   );
 
-  const initialPlayerVillageId = database.selectValue({
+  const initialPlayerVillageTileId = database.selectValue({
     sql: `
-      SELECT id
+      SELECT tile_id
       FROM
         villages
       WHERE
@@ -227,18 +224,18 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   const staticEffects: (HeroEffect | GlobalEffect | ServerEffect)[] = [
     ...serverEffectsFactory(server),
     ...globalEffectsFactory(server),
-    ...heroEffectsFactory(server, initialPlayerVillageId),
+    ...heroEffectsFactory(server, initialPlayerVillageTileId),
   ];
 
   for (const effect of staticEffects) {
-    const villageId = isLocalEffect(effect) ? effect.villageId : null;
+    const tileId = isLocalEffect(effect) ? effect.tileId : null;
     effectsToInsert.push([
       effectIds.get(effect.id)!,
       effect.value,
       effectTypeIds.get(effect.type)!,
       effectScopeIds.get(effect.scope)!,
       effectSourceIds.get(effect.source)!,
-      villageId,
+      tileId,
       effect.sourceSpecifier,
     ] satisfies EffectToInsert);
   }
@@ -291,7 +288,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         )
 
       INSERT INTO
-        effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+        effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
       -- Building effects, using tribal overrides when present
       SELECT
         bed.effect_id,
@@ -299,7 +296,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         bed.type_id,
         $local_scope_id,
         $building_source_id,
-        bf.village_id,
+        v.tile_id,
         bf.field_id
       FROM
         building_fields bf
@@ -318,14 +315,15 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
         $base_type_id,
         $local_scope_id,
         $building_source_id,
-        bf.village_id,
+        v.tile_id,
         0
       FROM
         building_fields bf
+          JOIN villages v ON v.id = bf.village_id
           JOIN building_population_data bpd ON bpd.building_id = bf.building_id
             AND bpd.level = bf.level
       GROUP BY
-        bf.village_id;
+        v.tile_id;
     `,
     bind: {
       $base_type_id: baseTypeId,
@@ -338,14 +336,14 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   database.exec({
     sql: `
       INSERT INTO
-        effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+        effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
       SELECT
         $wheat_production_effect_id,
         SUM(tr.amount * ud.wheat_consumption),
         $base_type_id,
         $local_scope_id,
         $troops_source_id,
-        v.id,
+        v.tile_id,
         NULL
       FROM
         troops AS tr
@@ -353,7 +351,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
           JOIN villages AS v ON tr.tile_id = v.tile_id
           JOIN unit_data ud ON ud.unit_id = ui.unit
       GROUP BY
-        v.id;
+        v.tile_id;
     `,
     bind: {
       $base_type_id: baseTypeId,
@@ -383,6 +381,23 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
             )
           ),
 
+        storage_effects(effect_id) AS (
+          SELECT id
+          FROM effect_ids
+          WHERE effect IN ('warehouseCapacity', 'granaryCapacity')
+          ),
+
+        oasis_capacity AS (
+          SELECT
+            tile_id,
+            CASE
+              WHEN MAX(bonus) = 50 OR COUNT(*) = 2 THEN 2000
+              ELSE 1000
+              END AS value
+          FROM oasis
+          GROUP BY tile_id
+          ),
+
         oasis_production AS (
           SELECT
             tiles.tile_id,
@@ -407,19 +422,33 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
 
       INSERT
       INTO
-        effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+        effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
       SELECT
         op.effect_id,
         op.value,
         $base_type_id,
         $local_scope_id,
         $oasis_source_id,
-        NULL,
+        op.tile_id,
         op.tile_id
       FROM
         oasis_production op
       WHERE
-        op.value > 0;
+        op.value > 0
+
+      UNION ALL
+
+      SELECT
+        se.effect_id,
+        oc.value,
+        $base_type_id,
+        $local_scope_id,
+        $oasis_source_id,
+        oc.tile_id,
+        oc.tile_id
+      FROM
+        oasis_capacity oc
+          CROSS JOIN storage_effects se;
     `,
     bind: {
       $base_type_id: baseTypeId,
@@ -437,7 +466,7 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
       'type_id',
       'scope_id',
       'source_id',
-      'village_id',
+      'tile_id',
       'source_specifier',
     ],
     effectsToInsert,

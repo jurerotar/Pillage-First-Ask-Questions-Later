@@ -5,7 +5,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { insertHeroEffectsQuery } from '../../../queries/effect-queries';
 import { createEvents } from '../../../utils/create-event';
 import { addTroops } from '../../../utils/troops';
-import { updateVillageResourcesAt } from '../../../utils/village';
+import { updateResourceSiteResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
@@ -38,7 +38,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
       }),
     })!;
 
-  updateVillageResourcesAt(database, villageId, resolvesAt);
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 
   database.exec({
     sql: 'UPDATE heroes SET health = 100 WHERE player_id = $player_id;',

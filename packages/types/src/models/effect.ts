@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { Building } from './building';
-import type { Village } from './village';
+import type { Tile } from './tile';
 
 export const effectIdSchema = z
   .enum([
@@ -75,7 +75,7 @@ export const effectSchema = z
     type: effectTypeSchema,
     scope: effectScopeSchema,
     source: effectSourceSchema,
-    villageId: z.number().nullable().optional(),
+    tileId: z.number().nullable().optional(),
     sourceSpecifier: z.number().nullable(),
   })
   .meta({ id: 'Effect' });
@@ -98,7 +98,7 @@ export type TribalEffect = Omit<GlobalEffect, 'source'> & {
 export type VillageEffect = Omit<Effect, 'scope' | 'source'> & {
   scope: 'local';
   source: 'building' | 'oasis' | 'server' | 'troops' | 'hero';
-  villageId: Village['id'];
+  tileId: Tile['id'];
 };
 
 export type HeroEffect = Omit<VillageEffect, 'source'> & {

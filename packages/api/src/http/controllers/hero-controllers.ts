@@ -12,7 +12,10 @@ import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { getPlayerHeroAdventureStateAt } from '../../utils/adventures';
 import { createEvents } from '../../utils/create-event';
 import { updateHeroResourceProductionEffects } from '../../utils/hero';
-import { updateVillageResourcesAt } from '../../utils/village';
+import {
+  getVillageTileId,
+  updateResourceSiteResourcesAt,
+} from '../../utils/village';
 import { createController } from '../controller';
 import {
   mapHero,
@@ -311,7 +314,11 @@ export const changeHeroAttributes = createController(
         schema: z.number(),
       })!;
 
-      updateVillageResourcesAt(database, villageId, Date.now());
+      updateResourceSiteResourcesAt(
+        database,
+        getVillageTileId(database, villageId),
+        Date.now(),
+      );
 
       database.exec({
         sql: `
@@ -404,7 +411,11 @@ export const changeHeroResourceToProduce = createController(
       schema: z.number(),
     })!;
 
-    updateVillageResourcesAt(database, villageId, Date.now());
+    updateResourceSiteResourcesAt(
+      database,
+      getVillageTileId(database, villageId),
+      Date.now(),
+    );
 
     updateHeroResourceProductionEffects({
       database,
@@ -522,8 +533,8 @@ export const equipHeroItem = createController(
     const itemDef = getItemDefinition(itemId);
 
     if (itemDef.effects) {
-      const villageId = database.selectValue({
-        sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
+      const tileId = database.selectValue({
+        sql: 'SELECT tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
         bind: { $player_id: playerId },
         schema: z.number(),
       });
@@ -536,7 +547,7 @@ export const equipHeroItem = createController(
             type_id,
             scope_id,
             source_id,
-            village_id,
+            tile_id,
             source_specifier
           )
           SELECT
@@ -547,7 +558,7 @@ export const equipHeroItem = createController(
             effect_source_ids.id,
             CASE
               WHEN json_extract(effect.value, '$.scope') = 'local'
-                THEN $village_id
+                THEN $tile_id
               ELSE NULL
             END,
             $source_specifier
@@ -564,7 +575,7 @@ export const equipHeroItem = createController(
         `,
         bind: {
           $effects: JSON.stringify(itemDef.effects),
-          $village_id: villageId ?? null,
+          $tile_id: tileId ?? null,
           $source_specifier: itemId,
         },
       });
@@ -716,7 +727,11 @@ export const useHeroItem = createController(
         schema: z.number(),
       })!;
 
-      updateVillageResourcesAt(database, villageId, Date.now());
+      updateResourceSiteResourcesAt(
+        database,
+        getVillageTileId(database, villageId),
+        Date.now(),
+      );
 
       database.exec({
         sql: `

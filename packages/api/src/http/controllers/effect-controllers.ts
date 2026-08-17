@@ -4,22 +4,19 @@ import { selectAllRelevantEffectsQuery } from '../../queries/effect-queries';
 import { apiEffectSchema } from '../../utils/zod/effect-schemas';
 import { createController } from '../controller';
 
-export const getVillageEffects = createController(
-  '/villages/:villageId/effects',
-  {
-    summary: 'Get village effects',
-    requestParams: {
-      path: z.strictObject({
-        villageId: z.coerce.number(),
-      }),
-    },
-    response: z.array(apiEffectDtoSchema),
+export const getTileEffects = createController('/tiles/:tileId/effects', {
+  summary: 'Get tile effects',
+  requestParams: {
+    path: z.strictObject({
+      tileId: z.coerce.number(),
+    }),
   },
-)(({ database, path: { villageId } }) => {
+  response: z.array(apiEffectDtoSchema),
+})(({ database, path: { tileId } }) => {
   return database.selectObjects({
     sql: selectAllRelevantEffectsQuery,
     bind: {
-      $village_id: villageId,
+      $tile_id: tileId,
     },
     schema: apiEffectSchema,
   });

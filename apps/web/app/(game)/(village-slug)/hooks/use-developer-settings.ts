@@ -160,7 +160,7 @@ export const useDeveloperSettings = () => {
       await invalidateQueries(context, [
         [heroCacheKey],
         [villageTroopsCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });

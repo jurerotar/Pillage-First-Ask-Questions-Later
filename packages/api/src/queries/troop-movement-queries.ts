@@ -4,23 +4,6 @@ export const selectTargetVillageIdByTileIdQuery = `
   WHERE tile_id = $target_tile_id;
 `;
 
-export const selectResourceSiteResourcesByTileIdQuery = `
-  SELECT wood, clay, iron, wheat
-  FROM resource_sites
-  WHERE tile_id = $target_tile_id;
-`;
-
-export const updateResourceSiteResourcesByTileIdQuery = `
-  UPDATE resource_sites
-  SET
-    wood = wood - $wood,
-    clay = clay - $clay,
-    iron = iron - $iron,
-    wheat = wheat - $wheat,
-    updated_at = $updated_at
-  WHERE tile_id = $target_tile_id;
-`;
-
 export const selectBattleReportParticipantsByTargetTileIdQuery = `
   WITH
     target_owner AS (
@@ -204,7 +187,7 @@ export const insertBuildingEffectsQuery = `
     type_id,
     scope_id,
     source_id,
-    village_id,
+    tile_id,
     source_specifier
   )
   SELECT
@@ -213,7 +196,7 @@ export const insertBuildingEffectsQuery = `
     effect_type_ids.id,
     effect_scope_ids.id,
     effect_source_ids.id,
-    $village_id,
+    (SELECT tile_id FROM villages WHERE id = $village_id),
     json_extract(effect.value, '$.sourceSpecifier')
   FROM
     json_each($effects) AS effect

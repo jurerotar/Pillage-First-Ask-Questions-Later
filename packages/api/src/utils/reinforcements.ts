@@ -7,7 +7,7 @@ import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../
 import { selectTroopAmountQuery } from '../queries/player-queries';
 import { createEvents } from './create-event';
 import { addTroops, removeTroops } from './troops';
-import { updateVillageResourcesAt } from './village';
+import { getVillageTileId, updateResourceSiteResourcesAt } from './village';
 
 export type ReinforcementTroopSelection = Pick<Troop, 'unitId' | 'amount'>;
 
@@ -20,7 +20,11 @@ export const moveTroopWheatConsumption = (
 ) => {
   const troopsConsumption = calculateTotalUnitWheatConsumption(troops);
 
-  updateVillageResourcesAt(database, sourceVillageId, timestamp);
+  updateResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, sourceVillageId),
+    timestamp,
+  );
 
   database.exec({
     sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
@@ -30,7 +34,11 @@ export const moveTroopWheatConsumption = (
     },
   });
 
-  updateVillageResourcesAt(database, targetVillageId, timestamp);
+  updateResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, targetVillageId),
+    timestamp,
+  );
 
   database.exec({
     sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,

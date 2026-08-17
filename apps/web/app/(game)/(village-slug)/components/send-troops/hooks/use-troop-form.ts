@@ -170,7 +170,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
       troops,
       targetTileId,
       type: type,
-      villageId: currentVillage.id,
+      originTileId: currentVillage.tileId,
     });
 
     form.clearErrors('root');

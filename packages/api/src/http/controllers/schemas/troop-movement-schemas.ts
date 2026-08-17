@@ -5,7 +5,7 @@ import { unitIdSchema } from '@pillage-first/types/models/unit';
 
 export const troopMovementValidationBodySchema = z.strictObject({
   type: gameEventTypeSchema,
-  villageId: z.number(),
+  originTileId: z.number().int().min(1),
   targetTileId: z.number().int().min(1),
   troops: z.array(
     z.strictObject({

@@ -37,7 +37,7 @@ describe('player-controllers', () => {
         FROM effects e
           JOIN effect_ids ei ON e.effect_id = ei.id
         WHERE
-          e.village_id = $village_id
+          e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
@@ -60,7 +60,7 @@ describe('player-controllers', () => {
         DELETE
         FROM effects
         WHERE
-          village_id = $village_id
+          tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND effect_id = $effect_id;
       `,
@@ -75,7 +75,11 @@ describe('player-controllers', () => {
         $type: 'base',
         $scope: 'local',
         $source: 'troops',
-        $village_id: villageId,
+        $tile_id: database.selectValue({
+          sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
+          bind: { $village_id: villageId },
+          schema: z.number(),
+        })!,
         $source_specifier: null,
       },
     });
@@ -113,9 +117,13 @@ describe('player-controllers', () => {
     const database = await prepareTestDatabase();
 
     const village = database.selectObject({
-      sql: 'SELECT id, player_id FROM villages WHERE player_id = $player_id LIMIT 1',
+      sql: 'SELECT id, tile_id, player_id FROM villages WHERE player_id = $player_id LIMIT 1',
       bind: { $player_id: playerId },
-      schema: z.strictObject({ id: z.number(), player_id: z.number() }),
+      schema: z.strictObject({
+        id: z.number(),
+        tile_id: z.number(),
+        player_id: z.number(),
+      }),
     })!;
 
     const wheatEffectId = database.selectValue({
@@ -125,8 +133,8 @@ describe('player-controllers', () => {
 
     // Clear existing effects for this village
     database.exec({
-      sql: 'DELETE FROM effects WHERE village_id = $village_id',
-      bind: { $village_id: village.id },
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id',
+      bind: { $tile_id: village.tile_id },
     });
 
     // Seed various effects
@@ -156,7 +164,7 @@ describe('player-controllers', () => {
           $type: effect.type,
           $scope: effect.scope,
           $source: effect.source,
-          $village_id: village.id,
+          $tile_id: village.tile_id,
           $source_specifier: effect.source_specifier,
         },
       });
@@ -1833,7 +1841,7 @@ describe('player-controllers', () => {
         $type: 'base',
         $scope: 'local',
         $source: 'hero',
-        $village_id: sourceVillageId,
+        $tile_id: sourceTileId,
         $source_specifier: 0,
       },
     });
@@ -1841,7 +1849,7 @@ describe('player-controllers', () => {
     database.exec({
       sql: `
         UPDATE effects
-        SET village_id = $village_id
+        SET tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
         WHERE
           source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')
           AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
@@ -1868,9 +1876,9 @@ describe('player-controllers', () => {
       schema: z.number(),
     });
 
-    const heroEffectVillageIds = database.selectValues({
+    const heroEffectTileIds = database.selectValues({
       sql: `
-        SELECT village_id
+        SELECT tile_id
         FROM effects
         WHERE
           source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')
@@ -1880,8 +1888,8 @@ describe('player-controllers', () => {
     });
 
     expect(heroVillageId).toBe(targetVillage.id);
-    expect(heroEffectVillageIds.length).toBeGreaterThan(0);
-    expect(heroEffectVillageIds.every((id) => id === targetVillage.id)).toBe(
+    expect(heroEffectTileIds.length).toBeGreaterThan(0);
+    expect(heroEffectTileIds.every((id) => id === targetVillage.tile_id)).toBe(
       true,
     );
   });

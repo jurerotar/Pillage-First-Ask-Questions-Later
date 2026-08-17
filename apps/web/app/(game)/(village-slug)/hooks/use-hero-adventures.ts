@@ -47,7 +47,7 @@ export const useHeroAdventures = () => {
         [adventurePointsCacheKey],
         [heroCacheKey],
         [villageTroopsCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.id],
+        [troopMovementsCacheKey, currentVillage.tileId],
       ]);
     },
   });

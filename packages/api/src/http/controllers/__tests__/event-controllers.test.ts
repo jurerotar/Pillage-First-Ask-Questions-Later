@@ -13,7 +13,7 @@ import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectEventByIdQuery } from '../../../queries/event-queries';
-import { updateResourceSiteResourcesByVillageIdQuery } from '../../../queries/village-queries';
+import { updateResourceSiteResourcesByTileIdToValuesQuery } from '../../../queries/village-queries';
 import { insertEvents } from '../../../utils/events';
 import { insertScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
@@ -58,6 +58,13 @@ const createPlayerVillage = (database: DbFacade, name: string) => {
     tileId,
   };
 };
+
+const getVillageTileId = (database: DbFacade, villageId: number) =>
+  database.selectValue({
+    sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+    bind: { $village_id: villageId },
+    schema: z.number(),
+  })!;
 
 describe('event-controllers', () => {
   test.skip('legacy scheduled event cancellation preserves earlier upgrades', async () => {
@@ -469,6 +476,7 @@ describe('event-controllers', () => {
   test('cancelConstructionEvent should refund resources based on completion %', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
+    const tileId = getVillageTileId(database, villageId);
     const now = 1_000_000;
     vi.useFakeTimers();
     vi.setSystemTime(now);
@@ -494,9 +502,9 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: updateResourceSiteResourcesByVillageIdQuery,
+      sql: updateResourceSiteResourcesByTileIdToValuesQuery,
       bind: {
-        $village_id: villageId,
+        $tile_id: tileId,
         $wood: 100,
         $clay: 100,
         $iron: 100,
@@ -535,6 +543,7 @@ describe('event-controllers', () => {
   test('cancelConstructionEvent should refund proportionally when cancelled at 50% completion', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
+    const tileId = getVillageTileId(database, villageId);
     const startsAt = 1_000_000;
     const duration = 100_000;
 
@@ -561,9 +570,9 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: updateResourceSiteResourcesByVillageIdQuery,
+      sql: updateResourceSiteResourcesByTileIdToValuesQuery,
       bind: {
-        $village_id: villageId,
+        $tile_id: tileId,
         $wood: 100,
         $clay: 100,
         $iron: 100,
@@ -609,6 +618,7 @@ describe('event-controllers', () => {
   test('cancelConstructionEvent should refund 40% when cancelled at 99% completion', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
+    const tileId = getVillageTileId(database, villageId);
     const startsAt = 1_000_000;
     const duration = 100_000;
 
@@ -635,9 +645,9 @@ describe('event-controllers', () => {
 
     // Set low resources to avoid warehouse capacity cap
     database.exec({
-      sql: updateResourceSiteResourcesByVillageIdQuery,
+      sql: updateResourceSiteResourcesByTileIdToValuesQuery,
       bind: {
-        $village_id: villageId,
+        $tile_id: tileId,
         $wood: 100,
         $clay: 100,
         $iron: 100,
@@ -682,6 +692,7 @@ describe('event-controllers', () => {
   test('cancelUnitImprovementEvent should delete the event and refund the full upgrade cost', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
+    const tileId = getVillageTileId(database, villageId);
     const startsAt = Date.now();
     const duration = 100_000;
     const unitId = 'PHALANX'; // Using a standard unit ID
@@ -707,9 +718,9 @@ describe('event-controllers', () => {
 
     // Set baseline resources to avoid warehouse capacity caps during refund
     database.exec({
-      sql: updateResourceSiteResourcesByVillageIdQuery,
+      sql: updateResourceSiteResourcesByTileIdToValuesQuery,
       bind: {
-        $village_id: villageId,
+        $tile_id: tileId,
         $wood: 100,
         $clay: 100,
         $iron: 100,

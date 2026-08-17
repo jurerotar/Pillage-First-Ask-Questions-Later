@@ -52,7 +52,7 @@ export const useHero = () => {
     onSuccess: async (_, _args, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [effectsCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.tileId],
         [currentVillageCacheKey, currentVillage.slug],
       ]);
     },
@@ -74,7 +74,7 @@ export const useHero = () => {
     onSuccess: async (_, _args, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [effectsCacheKey, currentVillage.id],
+        [effectsCacheKey, currentVillage.tileId],
         [currentVillageCacheKey, currentVillage.slug],
       ]);
     },

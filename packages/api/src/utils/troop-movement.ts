@@ -5,19 +5,12 @@ import {
   distributeLoot,
 } from '@pillage-first/game-assets/utils/troops';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import {
-  type ResourceBundle,
-  resourcesSchema,
-} from '@pillage-first/types/models/resource';
+import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import { type UnitId, unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import {
-  selectBattleReportParticipantsByTargetTileIdQuery,
-  selectResourceSiteResourcesByTileIdQuery,
-  updateResourceSiteResourcesByTileIdQuery,
-} from '../queries/troop-movement-queries';
+import { selectBattleReportParticipantsByTargetTileIdQuery } from '../queries/troop-movement-queries';
 import { type CreateNewBattleReport, insertBattleReport } from './report';
-import { subtractVillageResourcesAt } from './village';
+import { getVillageTileId, subtractResourceSiteResourcesAt } from './village';
 
 type BattleReportParticipant = CreateNewBattleReport['attacker'];
 type BattleReportUnit = CreateNewBattleReport['attacker']['units'][number];
@@ -62,9 +55,9 @@ const stealResourcesFromTarget = (
   }
 
   if (typeof targetVillageId === 'number') {
-    return subtractVillageResourcesAt(
+    return subtractResourceSiteResourcesAt(
       database,
-      targetVillageId,
+      getVillageTileId(database, targetVillageId),
       timestamp,
       ({ currentWood, currentClay, currentIron, currentWheat }) => {
         const availableResources: ResourceBundle = [
@@ -86,35 +79,16 @@ const stealResourcesFromTarget = (
     );
   }
 
-  const resourceSite = database.selectObject({
-    sql: selectResourceSiteResourcesByTileIdQuery,
-    bind: { $target_tile_id: targetTileId },
-    schema: resourcesSchema,
-  })!;
-
-  const loot = distributeLoot(
-    [
-      resourceSite.wood,
-      resourceSite.clay,
-      resourceSite.iron,
-      resourceSite.wheat,
-    ],
-    carryCapacity,
+  return subtractResourceSiteResourcesAt(
+    database,
+    targetTileId,
+    timestamp,
+    ({ currentWood, currentClay, currentIron, currentWheat }) =>
+      distributeLoot(
+        [currentWood, currentClay, currentIron, currentWheat],
+        carryCapacity,
+      ),
   );
-
-  database.exec({
-    sql: updateResourceSiteResourcesByTileIdQuery,
-    bind: {
-      $target_tile_id: targetTileId,
-      $wood: loot[0],
-      $clay: loot[1],
-      $iron: loot[2],
-      $wheat: loot[3],
-      $updated_at: timestamp,
-    },
-  });
-
-  return loot;
 };
 
 const getBattleReportParticipants = (

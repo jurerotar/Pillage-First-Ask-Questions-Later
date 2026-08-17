@@ -49,33 +49,31 @@ describe('effectsSeeder', () => {
 
     const buildingFields = database.selectObjects({
       sql: `
-        SELECT bf.village_id, bi.building AS building_id, bf.level
+        SELECT v.tile_id, bi.building AS building_id, bf.level
         FROM
           building_fields bf
+            JOIN villages v ON v.id = bf.village_id
             JOIN building_ids bi ON bi.id = bf.building_id
         ORDER BY
-          bf.village_id;
+          v.tile_id;
       `,
       schema: z.strictObject({
-        village_id: z.number(),
+        tile_id: z.number(),
         building_id: buildingIdSchema,
         level: z.number(),
       }),
     });
 
-    const villagePopulations = new Map<number, number>();
-    for (const { village_id, building_id, level } of buildingFields) {
+    const tilePopulations = new Map<number, number>();
+    for (const { tile_id, building_id, level } of buildingFields) {
       const def = getBuildingDefinition(building_id);
       const pop = calculateTotalPopulationForLevel(def.id, level);
-      villagePopulations.set(
-        village_id,
-        (villagePopulations.get(village_id) ?? 0) + pop,
-      );
+      tilePopulations.set(tile_id, (tilePopulations.get(tile_id) ?? 0) + pop);
     }
 
     const effects = database.selectObjects({
       sql: `
-        SELECT village_id, value
+        SELECT tile_id, value
         FROM
           effects
         WHERE
@@ -87,15 +85,15 @@ describe('effectsSeeder', () => {
       `,
       bind: { $effect_id: wheatEffectId },
       schema: z.strictObject({
-        village_id: z.number(),
+        tile_id: z.number(),
         value: z.number(),
       }),
     });
 
-    const effectValues = new Map(effects.map((e) => [e.village_id, e.value]));
+    const effectValues = new Map(effects.map((e) => [e.tile_id, e.value]));
 
-    for (const [villageId, population] of villagePopulations) {
-      expect(effectValues.get(villageId)).toBe(-population);
+    for (const [tileId, population] of tilePopulations) {
+      expect(effectValues.get(tileId)).toBe(-population);
     }
   });
 
@@ -107,32 +105,32 @@ describe('effectsSeeder', () => {
 
     const troopRows = database.selectObjects({
       sql: `
-        SELECT v.id AS village_id, ui.unit AS unit_id, tr.amount
+        SELECT v.tile_id, ui.unit AS unit_id, tr.amount
         FROM
           troops AS tr
             JOIN unit_ids ui ON ui.id = tr.unit_id
             JOIN villages AS v ON tr.tile_id = v.tile_id;
       `,
       schema: z.strictObject({
-        village_id: z.number(),
+        tile_id: z.number(),
         unit_id: unitIdSchema,
         amount: z.number(),
       }),
     });
 
-    const villageTroopConsumption = new Map<number, number>();
-    for (const { village_id, unit_id, amount } of troopRows) {
+    const tileTroopConsumption = new Map<number, number>();
+    for (const { tile_id, unit_id, amount } of troopRows) {
       const { unitWheatConsumption } = getUnitDefinition(unit_id);
-      villageTroopConsumption.set(
-        village_id,
-        (villageTroopConsumption.get(village_id) ?? 0) +
+      tileTroopConsumption.set(
+        tile_id,
+        (tileTroopConsumption.get(tile_id) ?? 0) +
           unitWheatConsumption * amount,
       );
     }
 
     const effects = database.selectObjects({
       sql: `
-        SELECT village_id, value
+        SELECT tile_id, value
         FROM
           effects
         WHERE
@@ -144,19 +142,19 @@ describe('effectsSeeder', () => {
       `,
       bind: { $effect_id: wheatEffectId },
       schema: z.strictObject({
-        village_id: z.number(),
+        tile_id: z.number(),
         value: z.number(),
       }),
     });
 
-    const effectValues = new Map(effects.map((e) => [e.village_id, e.value]));
+    const effectValues = new Map(effects.map((e) => [e.tile_id, e.value]));
 
-    for (const [villageId, consumption] of villageTroopConsumption) {
-      expect(effectValues.get(villageId)).toBe(consumption);
+    for (const [tileId, consumption] of tileTroopConsumption) {
+      expect(effectValues.get(tileId)).toBe(consumption);
     }
   });
 
-  test('seeds oasis base production effects without oasis bonus effects', () => {
+  test('seeds oasis base resource effects without oasis bonus effects', () => {
     const oasisTileCount = database.selectValue({
       sql: 'SELECT COUNT(DISTINCT tile_id) FROM oasis;',
       schema: z.number(),
@@ -166,7 +164,7 @@ describe('effectsSeeder', () => {
       sql: "SELECT COUNT(*) FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis') AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'base');",
       schema: z.number(),
     });
-    expect(oasisBaseEffects).toBe(oasisTileCount * 4);
+    expect(oasisBaseEffects).toBe(oasisTileCount * 6);
 
     const oasisEffects = database.selectValue({
       sql: "SELECT COUNT(*) FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis') AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'bonus');",
@@ -203,7 +201,8 @@ describe('effectsSeeder', () => {
           e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
           AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
-          AND e.village_id IS NULL;
+          AND ei.effect IN ('woodProduction', 'clayProduction', 'ironProduction', 'wheatProduction')
+          AND e.tile_id = e.source_specifier;
       `,
       schema: z.strictObject({
         tile_id: z.number(),
@@ -241,6 +240,62 @@ describe('effectsSeeder', () => {
 
         expect(actualValue).toBe(expectedValue);
       }
+    }
+  });
+
+  test('oasis storage effects match oasis resource limits', () => {
+    const oasisLimits = database.selectObjects({
+      sql: `
+        SELECT
+          tile_id,
+          CASE
+            WHEN MAX(bonus) = 50 OR COUNT(*) = 2 THEN 2000
+            ELSE 1000
+            END AS capacity
+        FROM oasis
+        GROUP BY tile_id;
+      `,
+      schema: z.strictObject({
+        tile_id: z.number(),
+        capacity: z.number(),
+      }),
+    });
+
+    const oasisStorageEffects = database.selectObjects({
+      sql: `
+        SELECT
+          e.source_specifier AS tile_id,
+          ei.effect,
+          e.value
+        FROM
+          effects e
+            JOIN effect_ids ei ON ei.id = e.effect_id
+        WHERE
+          e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
+          AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+          AND ei.effect IN ('warehouseCapacity', 'granaryCapacity')
+          AND e.tile_id = e.source_specifier;
+      `,
+      schema: z.strictObject({
+        tile_id: z.number(),
+        effect: z.enum(['warehouseCapacity', 'granaryCapacity']),
+        value: z.number(),
+      }),
+    });
+
+    const effectsByTileAndEffect = new Map<string, number>();
+    for (const { tile_id, effect, value } of oasisStorageEffects) {
+      effectsByTileAndEffect.set(`${tile_id}-${effect}`, value);
+    }
+
+    for (const { tile_id, capacity } of oasisLimits) {
+      expect(effectsByTileAndEffect.get(`${tile_id}-warehouseCapacity`)).toBe(
+        capacity,
+      );
+      expect(effectsByTileAndEffect.get(`${tile_id}-granaryCapacity`)).toBe(
+        capacity,
+      );
     }
   });
 

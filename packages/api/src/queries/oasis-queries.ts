@@ -12,7 +12,7 @@ export const deleteOasisEffectsQuery = `
     effects
   WHERE
     source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
-    AND village_id = $village_id
+    AND tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
     AND source_specifier = $source_specifier;
 `;
 
