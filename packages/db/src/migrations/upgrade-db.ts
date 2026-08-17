@@ -1638,6 +1638,8 @@ export const upgradeDb = (
 
         CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
           ON battle_report_buildings(report_id);
+
+        DROP INDEX IF EXISTS idx_villages_tile_id;
       `,
     });
 
