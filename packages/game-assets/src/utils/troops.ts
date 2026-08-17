@@ -25,6 +25,25 @@ export const calculateTotalCarryCapacity = (troops: TroopLike[]): number => {
   return totalCarryCapacity;
 };
 
+export const calculateLootableCarryCapacity = (
+  availableResources: ResourceBundle,
+  carryCapacity: number,
+  crannyCapacity: number,
+): number => {
+  let totalAvailableResources = 0;
+
+  for (const amount of availableResources) {
+    totalAvailableResources += amount;
+  }
+
+  const totalLootableResources = Math.max(
+    totalAvailableResources - crannyCapacity,
+    0,
+  );
+
+  return Math.min(carryCapacity, totalLootableResources);
+};
+
 export const distributeLoot = (
   availableResources: ResourceBundle,
   carryCapacity: number,

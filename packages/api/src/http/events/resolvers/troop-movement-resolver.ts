@@ -10,8 +10,10 @@ import {
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
+import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import {
   insertEffectQuery,
+  selectAllRelevantEffectsByIdQuery,
   selectWheatProductionEffectIdQuery,
   updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
 } from '../../../queries/effect-queries';
@@ -27,6 +29,7 @@ import {
   selectHeroAdventureContextByVillageIdQuery,
   selectNewVillageFoundationTileByTileIdAndPlayerIdQuery,
   selectRelocationTargetVillageIdByTileIdQuery,
+  selectTargetVillageIdByTileIdQuery,
   updateCompletedHeroAdventuresByHeroIdQuery,
   updateHeroAfterAdventureByHeroIdQuery,
 } from '../../../queries/troop-movement-queries';
@@ -52,6 +55,7 @@ import {
   addVillageResourcesAt,
   updateVillageResourcesAt,
 } from '../../../utils/village';
+import { apiEffectSchema } from '../../../utils/zod/effect-schemas';
 import type { Resolver } from '../resolver';
 
 export const adventureMovementResolver: Resolver<
@@ -436,7 +440,39 @@ export const attackMovementResolver: Resolver<
 > = (database, args) => {
   const { villageId, resolvesAt, originTileId, targetTileId, troops } = args;
 
-  const loot = resolveNoCombatOffensiveMovement(database, args);
+  let crannyCapacity = 0;
+
+  const targetVillageId = database.selectValue({
+    sql: selectTargetVillageIdByTileIdQuery,
+    bind: { $target_tile_id: targetTileId },
+    schema: z.number().nullable(),
+  })!;
+
+  if (targetVillageId !== null) {
+    const effects = database.selectObjects({
+      sql: selectAllRelevantEffectsByIdQuery,
+      bind: {
+        $effect_id: 'crannyCapacity',
+        $village_id: targetVillageId,
+      },
+      schema: apiEffectSchema,
+    });
+
+    const { total } = calculateComputedEffect(
+      'crannyCapacity',
+      effects,
+      targetVillageId,
+    );
+
+    crannyCapacity = total;
+  }
+
+  const loot = resolveNoCombatOffensiveMovement(
+    database,
+    args,
+    targetVillageId,
+    crannyCapacity,
+  );
 
   createEvents<'troopMovementReturn'>(database, {
     villageId,
@@ -464,7 +500,39 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
 ) => {
   const { villageId, resolvesAt, troops, originTileId, targetTileId } = args;
 
-  const loot = resolveNoCombatOffensiveMovement(database, args);
+  let crannyCapacity = 0;
+
+  const targetVillageId = database.selectValue({
+    sql: selectTargetVillageIdByTileIdQuery,
+    bind: { $target_tile_id: targetTileId },
+    schema: z.number().nullable(),
+  })!;
+
+  if (targetVillageId !== null) {
+    const effects = database.selectObjects({
+      sql: selectAllRelevantEffectsByIdQuery,
+      bind: {
+        $effect_id: 'crannyCapacity',
+        $village_id: targetVillageId,
+      },
+      schema: apiEffectSchema,
+    });
+
+    const { total } = calculateComputedEffect(
+      'crannyCapacity',
+      effects,
+      targetVillageId,
+    );
+
+    crannyCapacity = total;
+  }
+
+  const loot = resolveNoCombatOffensiveMovement(
+    database,
+    args,
+    targetVillageId,
+    crannyCapacity,
+  );
 
   createEvents<'troopMovementReturn'>(database, {
     villageId,

@@ -1066,6 +1066,16 @@ describe(attackMovementResolver, () => {
       },
     });
 
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          village_id = $village_id
+          AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'crannyCapacity');
+      `,
+      bind: { $village_id: target.id },
+    });
+
     const mockEvent = createTroopMovementAttackEventMock({
       id: 4,
       startsAt: 5_000,
@@ -1224,6 +1234,126 @@ describe(attackMovementResolver, () => {
       iron: 100,
       wheat: 100,
     });
+  });
+
+  test('should subtract target village cranny capacity from total loot', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const originTileId = getVillageTileId(database, villageId);
+    const target = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages WHERE id != $village_id LIMIT 1;',
+      bind: { $village_id: villageId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const resolvesAt = 5_500;
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wood = 100, clay = 100, iron = 100, wheat = 100, updated_at = $updated_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: {
+        $tile_id: target.tile_id,
+        $updated_at: resolvesAt,
+      },
+    });
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          village_id = $village_id
+          AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'crannyCapacity');
+      `,
+      bind: { $village_id: target.id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+        VALUES (
+          (SELECT id FROM effect_ids WHERE effect = 'crannyCapacity'),
+          100,
+          (SELECT id FROM effect_type_ids WHERE type = 'base'),
+          (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+          (SELECT id FROM effect_source_ids WHERE source = 'building'),
+          $village_id,
+          19
+        );
+      `,
+      bind: { $village_id: target.id },
+    });
+
+    const mockEvent = createTroopMovementAttackEventMock({
+      id: 6,
+      startsAt: 5_000,
+      duration: 500,
+      villageId,
+      originTileId,
+      targetTileId: target.tile_id,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 10,
+          tileId: originTileId,
+          source: originTileId,
+        },
+      ],
+    });
+
+    attackMovementResolver(database, mockEvent);
+
+    const targetResources = database.selectObject({
+      sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
+      bind: { $tile_id: target.tile_id },
+      schema: resourcesSchema,
+    })!;
+
+    expect(targetResources).toStrictEqual({
+      wood: 25,
+      clay: 25,
+      iron: 25,
+      wheat: 25,
+    });
+
+    const battleReport = database.selectObject({
+      sql: `
+        SELECT
+          br.loot_wood,
+          br.loot_clay,
+          br.loot_iron,
+          br.loot_wheat
+        FROM battle_reports br
+        JOIN reports r ON r.id = br.report_id
+        ORDER BY r.id DESC
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        loot_wood: z.number(),
+        loot_clay: z.number(),
+        loot_iron: z.number(),
+        loot_wheat: z.number(),
+      }),
+    })!;
+
+    expect(battleReport).toStrictEqual({
+      loot_wood: 75,
+      loot_clay: 75,
+      loot_iron: 75,
+      loot_wheat: 75,
+    });
+
+    const returnEventRow = database.selectObject({
+      sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: baseEventRowSchema,
+    })!;
+    const returnEvent = mapEventRowToTypedEvent(
+      returnEventRow,
+    ) as GameEvent<'troopMovementReturn'>;
+
+    expect(returnEvent.loot).toStrictEqual([75, 75, 75, 75]);
   });
 });
 

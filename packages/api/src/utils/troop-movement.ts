@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  calculateLootableCarryCapacity,
   calculateTotalCarryCapacity,
   distributeLoot,
 } from '@pillage-first/game-assets/utils/troops';
@@ -13,7 +14,6 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   selectBattleReportParticipantsByTargetTileIdQuery,
   selectResourceSiteResourcesByTileIdQuery,
-  selectTargetVillageIdByTileIdQuery,
   updateResourceSiteResourcesByTileIdQuery,
 } from '../queries/troop-movement-queries';
 import { type CreateNewBattleReport, insertBattleReport } from './report';
@@ -51,30 +51,38 @@ const mapTroopsToBattleReportUnits = (
 
 const stealResourcesFromTarget = (
   database: DbFacade,
+  targetVillageId: number | null,
   targetTileId: number,
   timestamp: number,
   carryCapacity: number,
+  crannyCapacity: number,
 ): ResourceBundle => {
   if (carryCapacity <= 0) {
     return emptyLoot();
   }
-
-  const targetVillageId = database.selectValue({
-    sql: selectTargetVillageIdByTileIdQuery,
-    bind: { $target_tile_id: targetTileId },
-    schema: z.number().nullable(),
-  });
 
   if (typeof targetVillageId === 'number') {
     return subtractVillageResourcesAt(
       database,
       targetVillageId,
       timestamp,
-      ({ currentWood, currentClay, currentIron, currentWheat }) =>
-        distributeLoot(
-          [currentWood, currentClay, currentIron, currentWheat],
-          carryCapacity,
-        ),
+      ({ currentWood, currentClay, currentIron, currentWheat }) => {
+        const availableResources: ResourceBundle = [
+          currentWood,
+          currentClay,
+          currentIron,
+          currentWheat,
+        ];
+
+        return distributeLoot(
+          availableResources,
+          calculateLootableCarryCapacity(
+            availableResources,
+            carryCapacity,
+            crannyCapacity,
+          ),
+        );
+      },
     );
   }
 
@@ -210,14 +218,18 @@ const insertNoCombatBattleReport = (
 export const resolveNoCombatOffensiveMovement = (
   database: DbFacade,
   args: GameEvent<'troopMovementAttack'> | GameEvent<'troopMovementRaid'>,
+  targetVillageId: number | null,
+  crannyCapacity: number,
 ): ResourceBundle => {
   const { resolvesAt, targetTileId, troops } = args;
 
   const loot = stealResourcesFromTarget(
     database,
+    targetVillageId,
     targetTileId,
     resolvesAt,
     calculateTotalCarryCapacity(troops),
+    crannyCapacity,
   );
 
   insertNoCombatBattleReport(database, args, loot);

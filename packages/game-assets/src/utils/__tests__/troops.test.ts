@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+  calculateLootableCarryCapacity,
   calculateTotalCarryCapacity,
   calculateTotalUnitWheatConsumption,
   distributeLoot,
@@ -50,6 +51,24 @@ describe(calculateTotalCarryCapacity, () => {
         { unitId: 'ROMAN_CATAPULT', amount: 2 },
       ]),
     ).toBe(0);
+  });
+});
+
+describe(calculateLootableCarryCapacity, () => {
+  test('subtracts cranny capacity from total available loot', () => {
+    expect(calculateLootableCarryCapacity([100, 100, 100, 100], 500, 100)).toBe(
+      300,
+    );
+  });
+
+  test('does not exceed troop carry capacity', () => {
+    expect(calculateLootableCarryCapacity([100, 100, 100, 100], 50, 100)).toBe(
+      50,
+    );
+  });
+
+  test('returns 0 when cranny protects all available resources', () => {
+    expect(calculateLootableCarryCapacity([10, 20, 30, 40], 500, 100)).toBe(0);
   });
 });
 
