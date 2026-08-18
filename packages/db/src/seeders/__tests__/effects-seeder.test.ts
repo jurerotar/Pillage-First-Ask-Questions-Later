@@ -6,6 +6,7 @@ import {
 } from '@pillage-first/game-assets/utils/buildings';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { resourceSchema } from '@pillage-first/types/models/resource';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../';
 
@@ -183,7 +184,7 @@ describe('effectsSeeder', () => {
       `,
       schema: z.strictObject({
         tile_id: z.number(),
-        resource: z.enum(['wood', 'clay', 'iron', 'wheat']),
+        resource: resourceSchema,
         bonus: z.number(),
       }),
     });

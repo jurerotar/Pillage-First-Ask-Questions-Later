@@ -96,7 +96,6 @@ import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
 import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expeditions-seeder';
-import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
 import { mapFiltersSeeder } from '../seeders/map-filters-seeder';
@@ -294,9 +293,6 @@ export const migrateAndSeed = (
 
     // Hero inventories
     db.exec({ sql: createHeroInventoriesTable });
-
-    // Guaranteed croppers
-    guaranteedCroppersSeeder(db, server);
 
     // Farm lists
     db.exec({ sql: createFarmListsTable });
