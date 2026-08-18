@@ -119,6 +119,76 @@
   .animate-scale-pulse {
     animation: scale-pulse 1.2s ease-in-out infinite;
   }
+
+  @keyframes api-provider-splash {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes api-provider-splash-logo {
+    0% {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    35%,
+    78% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.86);
+    }
+  }
+
+  @keyframes api-provider-splash-progress {
+    from {
+      transform: translateX(-125%);
+    }
+    to {
+      transform: translateX(225%);
+    }
+  }
+
+  @keyframes api-provider-splash-content-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-api-provider-splash {
+    animation: api-provider-splash 700ms ease-out 350ms both;
+  }
+
+  .animate-api-provider-splash-logo {
+    animation: api-provider-splash-logo 1.2s ease-in-out both;
+  }
+
+  .animate-api-provider-splash-progress {
+    animation: api-provider-splash-progress 1.4s ease-in-out infinite;
+  }
+
+  .api-provider-splash-content {
+    animation: api-provider-splash-content-fade-in 450ms ease-out 120ms both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-api-provider-splash,
+    .animate-api-provider-splash-logo,
+    .animate-api-provider-splash-progress,
+    .api-provider-splash-content {
+      animation: none;
+    }
+  }
 }
 
 @layer base {
