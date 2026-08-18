@@ -94,7 +94,7 @@ describe('troop-movement-controllers', () => {
               unitId: 'LEGIONNAIRE',
               amount: 3,
               tileId: args.originTileId,
-              source: args.originTileId,
+              sourceTileId: args.originTileId,
             },
           ],
           ...(args.originalMovementType

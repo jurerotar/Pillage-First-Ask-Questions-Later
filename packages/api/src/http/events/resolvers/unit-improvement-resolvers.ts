@@ -35,5 +35,6 @@ export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
 
   return {
     affectedVillageIds: playerVillageIds,
+    affectedTileIds: [],
   };
 };

@@ -27,6 +27,7 @@ export const animalCageProductionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [],
   };
 };
 
@@ -68,5 +69,6 @@ export const huntersLodgeHuntResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [huntersLodge.villageTileId],
   };
 };

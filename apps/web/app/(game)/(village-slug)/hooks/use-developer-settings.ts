@@ -159,7 +159,7 @@ export const useDeveloperSettings = () => {
     onSuccess: async (_, _args, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [villageTroopsCacheKey, currentVillage.id],
+        [villageTroopsCacheKey, currentVillage.tileId],
         [effectsCacheKey, currentVillage.tileId],
       ]);
     },

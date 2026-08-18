@@ -110,6 +110,7 @@ export const createEvents = <T extends GameEventType>(
     ...events[0],
     // Creating events doesn't require this, because cache invalidation is already done by the frontend
     affectedVillageIds: [],
+    affectedTileIds: [],
   } satisfies EventApiNotificationEvent);
 
   // Determine if any created events should already be resolved

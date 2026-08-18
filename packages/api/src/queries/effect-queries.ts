@@ -285,7 +285,7 @@ export const updateHeroVillageEffectsByVillageIdQuery = `
     AND tile_id = (SELECT tile_id FROM villages WHERE id = $current_village_id);
 `;
 
-export const updateVillageWheatProductionByTroopsAndVillageIdEffectQuery = `
+export const updateWheatProductionByTroopsAndTileIdEffectQuery = `
   UPDATE effects
   SET
     value = value + $increase_amount
@@ -298,5 +298,5 @@ export const updateVillageWheatProductionByTroopsAndVillageIdEffectQuery = `
         effect = 'wheatProduction'
     )
     AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
-    AND tile_id = (SELECT tile_id FROM villages WHERE id = $village_id);
+    AND tile_id = $tile_id;
 `;

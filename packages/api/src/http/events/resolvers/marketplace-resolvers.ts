@@ -27,6 +27,7 @@ export const resourceTransferResolver: Resolver<
   if (getTotalResourceAmount(resources) === 0) {
     return {
       affectedVillageIds: [villageId],
+      affectedTileIds: [originTileId, targetTileId],
     };
   }
 
@@ -97,6 +98,7 @@ export const resourceTransferResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId, targetVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 
@@ -148,5 +150,6 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
 
   return {
     affectedVillageIds: [villageId, targetVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };

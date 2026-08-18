@@ -101,7 +101,7 @@ export const resolveEvent = (
 
   try {
     const resolver = gameEventResolvers[event.type];
-    const { affectedVillageIds } = (
+    const { affectedVillageIds, affectedTileIds = [] } = (
       resolver as (db: DbFacade, ev: GameEvent) => ResolverResult
     )(database, event);
 
@@ -109,6 +109,7 @@ export const resolveEvent = (
       eventKey: 'event:success',
       ...event,
       affectedVillageIds,
+      affectedTileIds,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
     console.error(error);
@@ -117,6 +118,7 @@ export const resolveEvent = (
       eventKey: 'event:error',
       ...event,
       affectedVillageIds: [],
+      affectedTileIds: [],
     } satisfies EventApiNotificationEvent);
 
     throw error;

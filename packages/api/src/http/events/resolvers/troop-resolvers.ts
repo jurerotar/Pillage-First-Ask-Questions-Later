@@ -1,6 +1,6 @@
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../../../queries/effect-queries';
+import { updateWheatProductionByTroopsAndTileIdEffectQuery } from '../../../queries/effect-queries';
 import {
   getVillageTileId,
   updateResourceSiteResourcesAt,
@@ -12,6 +12,7 @@ export const troopTrainingEventResolver: Resolver<
 > = (database, args) => {
   const { unitId, villageId, resolvesAt } = args;
   const amount = 1;
+  const tileId = getVillageTileId(database, villageId);
 
   database.exec({
     sql: `
@@ -21,7 +22,7 @@ export const troopTrainingEventResolver: Resolver<
           FROM
             villages
           WHERE
-            id = $village_id
+            tile_id = $tile_id
           )
       INSERT
       INTO
@@ -42,27 +43,24 @@ export const troopTrainingEventResolver: Resolver<
     bind: {
       $unit_id: unitId,
       $amount: amount,
-      $village_id: villageId,
+      $tile_id: tileId,
     },
   });
 
   const { unitWheatConsumption } = getUnitDefinition(unitId);
 
   database.exec({
-    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    sql: updateWheatProductionByTroopsAndTileIdEffectQuery,
     bind: {
       $increase_amount: unitWheatConsumption,
-      $village_id: villageId,
+      $tile_id: tileId,
     },
   });
 
-  updateResourceSiteResourcesAt(
-    database,
-    getVillageTileId(database, villageId),
-    resolvesAt,
-  );
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [tileId],
   };
 };

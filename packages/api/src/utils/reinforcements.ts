@@ -3,47 +3,40 @@ import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/u
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { troopAmountSchema } from '../http/controllers/schemas/player-schemas';
-import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../queries/effect-queries';
+import { updateWheatProductionByTroopsAndTileIdEffectQuery } from '../queries/effect-queries';
 import { selectTroopAmountQuery } from '../queries/player-queries';
+import { selectVillageIdByTileIdQuery } from '../queries/village-queries';
 import { createEvents } from './create-event';
 import { addTroops, removeTroops } from './troops';
-import { getVillageTileId, updateResourceSiteResourcesAt } from './village';
+import { updateResourceSiteResourcesAt } from './village';
 
 export type ReinforcementTroopSelection = Pick<Troop, 'unitId' | 'amount'>;
 
 export const moveTroopWheatConsumption = (
   database: DbFacade,
   troops: ReinforcementTroopSelection[],
-  sourceVillageId: number,
-  targetVillageId: number,
+  sourceTileId: number,
+  targetTileId: number,
   timestamp: number,
 ) => {
   const troopsConsumption = calculateTotalUnitWheatConsumption(troops);
 
-  updateResourceSiteResourcesAt(
-    database,
-    getVillageTileId(database, sourceVillageId),
-    timestamp,
-  );
+  updateResourceSiteResourcesAt(database, sourceTileId, timestamp);
 
   database.exec({
-    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    sql: updateWheatProductionByTroopsAndTileIdEffectQuery,
     bind: {
-      $village_id: sourceVillageId,
+      $tile_id: sourceTileId,
       $increase_amount: -troopsConsumption,
     },
   });
 
-  updateResourceSiteResourcesAt(
-    database,
-    getVillageTileId(database, targetVillageId),
-    timestamp,
-  );
+  updateResourceSiteResourcesAt(database, targetTileId, timestamp);
 
   database.exec({
-    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    sql: updateWheatProductionByTroopsAndTileIdEffectQuery,
     bind: {
-      $village_id: targetVillageId,
+      $tile_id: targetTileId,
       $increase_amount: troopsConsumption,
     },
   });
@@ -148,7 +141,6 @@ export const moveStationedTroops = (
 
 export const returnStationedTroops = (
   database: DbFacade,
-  eventVillageId: number,
   originTileId: number,
   targetTileId: number,
   homeTileId: number,
@@ -163,6 +155,16 @@ export const returnStationedTroops = (
 
   assertTroopsAvailable(database, selectedTroops);
   removeTroops(database, selectedTroops);
+
+  const eventVillageId = database.selectValue({
+    sql: selectVillageIdByTileIdQuery,
+    bind: { $tile_id: targetTileId },
+    schema: z.number().nullable(),
+  });
+
+  if (eventVillageId == null) {
+    throw new Error('Target village not found');
+  }
 
   createEvents<'troopMovementReturn'>(database, {
     type: 'troopMovementReturn',

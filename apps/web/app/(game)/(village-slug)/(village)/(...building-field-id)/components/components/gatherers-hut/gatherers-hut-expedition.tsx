@@ -372,7 +372,7 @@ export const GatherersHutExpedition = () => {
         troops: data.troops,
         cachesToClearImmediately: [
           [currentVillageCacheKey],
-          [villageTroopsCacheKey, currentVillage.id],
+          [villageTroopsCacheKey, currentVillage.tileId],
         ],
       },
       {

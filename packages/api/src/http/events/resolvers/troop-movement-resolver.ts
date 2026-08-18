@@ -15,7 +15,7 @@ import {
   insertEffectQuery,
   selectAllRelevantEffectsByIdQuery,
   selectWheatProductionEffectIdQuery,
-  updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+  updateWheatProductionByTroopsAndTileIdEffectQuery,
 } from '../../../queries/effect-queries';
 import {
   insertBuildingEffectsQuery,
@@ -95,6 +95,7 @@ export const adventureMovementResolver: Resolver<
 
     return {
       affectedVillageIds: [villageId],
+      affectedTileIds: [originTileId],
     };
   }
 
@@ -125,6 +126,7 @@ export const adventureMovementResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 
@@ -139,13 +141,14 @@ export const oasisOccupationMovementResolver: Resolver<
 
   return {
     affectedVillageIds: [...targetVillageId],
+    affectedTileIds: [args.targetTileId],
   };
 };
 
 export const findNewVillageMovementResolver: Resolver<
   GameEvent<'troopMovementFindNewVillage'>
 > = (database, args) => {
-  const { targetTileId, resolvesAt, villageId } = args;
+  const { originTileId, targetTileId, resolvesAt, villageId } = args;
 
   // tileId here represents a tile_id where the new village will be founded
   const {
@@ -292,10 +295,10 @@ export const findNewVillageMovementResolver: Resolver<
 
   // Reduce troop consumption in the source village by 3 (since 3 settlers are consumed)
   database.exec({
-    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    sql: updateWheatProductionByTroopsAndTileIdEffectQuery,
     bind: {
       $increase_amount: -3,
-      $village_id: villageId,
+      $tile_id: originTileId,
     },
   });
 
@@ -320,13 +323,15 @@ export const findNewVillageMovementResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId, newVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 
 export const returnMovementResolver: Resolver<
   GameEvent<'troopMovementReturn'>
 > = (database, args) => {
-  const { villageId, targetTileId, troops, loot, resolvesAt } = args;
+  const { villageId, originTileId, targetTileId, troops, loot, resolvesAt } =
+    args;
 
   addTroops(
     database,
@@ -348,13 +353,14 @@ export const returnMovementResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId, ...targetVillageIds],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 
 export const relocationMovementResolver: Resolver<
   GameEvent<'troopMovementRelocation'>
 > = (database, args) => {
-  const { targetTileId, troops, resolvesAt, villageId } = args;
+  const { originTileId, targetTileId, troops, resolvesAt, villageId } = args;
 
   const targetVillageId = database.selectValue({
     sql: selectRelocationTargetVillageIdByTileIdQuery,
@@ -383,20 +389,21 @@ export const relocationMovementResolver: Resolver<
   moveTroopWheatConsumption(
     database,
     troops,
-    villageId,
-    targetVillageId,
+    originTileId,
+    targetTileId,
     resolvesAt,
   );
 
   return {
     affectedVillageIds: [villageId, targetVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 
 export const reinforcementMovementResolver: Resolver<
   GameEvent<'troopMovementReinforcements'>
 > = (database, args) => {
-  const { targetTileId, troops, resolvesAt, villageId } = args;
+  const { originTileId, targetTileId, troops, resolvesAt, villageId } = args;
 
   const { tileType: targetTileType, villageId: targetVillageId } =
     database.selectObject({
@@ -426,8 +433,8 @@ export const reinforcementMovementResolver: Resolver<
     moveTroopWheatConsumption(
       database,
       troops,
-      villageId,
-      targetVillageId,
+      originTileId,
+      targetTileId,
       resolvesAt,
     );
   }
@@ -437,6 +444,7 @@ export const reinforcementMovementResolver: Resolver<
       villageId,
       targetTileType === 'oasis' ? null : targetVillageId,
     ],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 
@@ -499,7 +507,10 @@ export const attackMovementResolver: Resolver<
     schema: z.number(),
   });
 
-  return { affectedVillageIds: [villageId, ...targetVillageIds] };
+  return {
+    affectedVillageIds: [villageId, ...targetVillageIds],
+    affectedTileIds: [originTileId, targetTileId],
+  };
 };
 
 export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
@@ -562,5 +573,8 @@ export const raidMovementResolver: Resolver<GameEvent<'troopMovementRaid'>> = (
     schema: z.number(),
   });
 
-  return { affectedVillageIds: [villageId, ...targetVillageIds] };
+  return {
+    affectedVillageIds: [villageId, ...targetVillageIds],
+    affectedTileIds: [originTileId, targetTileId],
+  };
 };

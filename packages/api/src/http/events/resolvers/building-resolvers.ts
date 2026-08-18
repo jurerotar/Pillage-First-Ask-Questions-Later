@@ -158,6 +158,7 @@ export const buildingLevelChangeResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [getVillageTileId(database, villageId)],
   };
 };
 
@@ -187,6 +188,7 @@ export const buildingConstructionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [getVillageTileId(database, villageId)],
   };
 };
 
@@ -321,6 +323,7 @@ export const buildingDestructionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [getVillageTileId(database, villageId)],
   };
 };
 
@@ -337,5 +340,6 @@ export const buildingScheduledConstructionEventResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [],
   };
 };

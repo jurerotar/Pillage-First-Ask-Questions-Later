@@ -366,6 +366,7 @@ describe(relocationMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: initialVillageId,
+      originTileId: sourceTileId,
       targetTileId,
       troops: [
         {
@@ -486,6 +487,7 @@ describe(relocationMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetVillageTileId,
       troops: [
         {
@@ -554,6 +556,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetVillageTileId,
       troops: [
         {
@@ -651,6 +654,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetVillageTileId,
       troops: [
         {
@@ -730,6 +734,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetVillageTileId,
       troops: [
         {
@@ -794,6 +799,7 @@ describe(reinforcementMovementResolver, () => {
       startsAt: 1000,
       duration: 500,
       villageId: sourceVillageId,
+      originTileId: sourceTileId,
       targetTileId: targetOasisTileId,
       troops: [
         {
@@ -853,11 +859,14 @@ describe(findNewVillageMovementResolver, () => {
     // Set initial troop consumption for source village to 3 (3 settlers)
     setTroopWheatProductionEffectValue(database, 1, 3);
 
+    const sourceTileId = getVillageTileId(database, 1);
+
     const mockEvent = createTroopMovementFindNewVillageEventMock({
       id: 1,
       startsAt: 1000,
       duration: 1000,
       villageId: 1, // existing village
+      originTileId: sourceTileId,
       targetTileId: targetTile.id,
       troops: [],
     });

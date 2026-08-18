@@ -67,5 +67,6 @@ export const gatherersHutGatheringTripResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [village.tile_id],
   };
 };
