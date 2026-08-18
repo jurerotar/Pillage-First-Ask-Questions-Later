@@ -246,11 +246,16 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   const buildingSourceId = effectSourceIds.get('building')!;
   const troopsSourceId = effectSourceIds.get('troops')!;
   const oasisSourceId = effectSourceIds.get('oasis')!;
+  const warehouseCapacityEffectId = effectIds.get('warehouseCapacity')!;
+  const granaryCapacityEffectId = effectIds.get('granaryCapacity')!;
+  const woodProductionEffectId = effectIds.get('woodProduction')!;
+  const clayProductionEffectId = effectIds.get('clayProduction')!;
+  const ironProductionEffectId = effectIds.get('ironProduction')!;
 
   database.exec({
     sql: `
       WITH
-        building_effect_data AS MATERIALIZED (
+        building_effect_data AS (
           SELECT
             bi.id AS building_id,
             bd.level,
@@ -272,8 +277,35 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
           WHERE
             bd.tribe IS NULL
             AND bd.population IS NULL
-        ),
+        )
 
+      INSERT INTO
+        effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
+      SELECT
+        bed.effect_id,
+        bed.value,
+        bed.type_id,
+        $local_scope_id,
+        $building_source_id,
+        v.tile_id,
+        bf.field_id
+      FROM
+        building_fields bf
+          JOIN villages v ON v.id = bf.village_id
+          JOIN players p ON p.id = v.player_id
+          JOIN building_effect_data bed ON bed.building_id = bf.building_id
+            AND bed.level = bf.level
+            AND bed.tribe_id = p.tribe_id;
+    `,
+    bind: {
+      $building_source_id: buildingSourceId,
+      $local_scope_id: localScopeId,
+    },
+  });
+
+  database.exec({
+    sql: `
+      WITH
         building_population_data AS MATERIALIZED (
           SELECT
             bi.id AS building_id,
@@ -289,26 +321,6 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
 
       INSERT INTO
         effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
-      -- Building effects, using tribal overrides when present
-      SELECT
-        bed.effect_id,
-        bed.value,
-        bed.type_id,
-        $local_scope_id,
-        $building_source_id,
-        v.tile_id,
-        bf.field_id
-      FROM
-        building_fields bf
-          JOIN villages v ON v.id = bf.village_id
-          JOIN players p ON p.id = v.player_id
-          JOIN building_effect_data bed ON bed.building_id = bf.building_id
-            AND bed.level = bf.level
-            AND bed.tribe_id = p.tribe_id
-
-      UNION ALL
-
-      -- Aggregated population effect (negative wheat production)
       SELECT
         $wheat_production_effect_id,
         SUM(bpd.value),
@@ -364,96 +376,116 @@ export const effectsSeeder = (database: DbFacade, server: Server): void => {
   database.exec({
     sql: `
       WITH
-        resource_effects(resource_id, effect_id) AS (
+        oasis_by_tile AS MATERIALIZED (
           SELECT
-            ri.id,
-            ei.id
+            o.tile_id,
+            MAX(CASE WHEN ri.resource = 'wood' THEN o.bonus END) AS wood_bonus,
+            MAX(CASE WHEN ri.resource = 'clay' THEN o.bonus END) AS clay_bonus,
+            MAX(CASE WHEN ri.resource = 'iron' THEN o.bonus END) AS iron_bonus,
+            MAX(CASE WHEN ri.resource = 'wheat' THEN o.bonus END) AS wheat_bonus,
+            MAX(o.bonus) AS max_bonus,
+            COUNT(*) AS bonus_count
           FROM
-            resource_ids ri
-              JOIN effect_ids ei ON ei.effect = ri.resource || 'Production'
-          WHERE
-            ri.resource IN ('wood', 'clay', 'iron', 'wheat')
-            AND ei.effect IN (
-              'woodProduction',
-              'clayProduction',
-              'ironProduction',
-              'wheatProduction'
-            )
-          ),
-
-        storage_effects(effect_id) AS (
-          SELECT id
-          FROM effect_ids
-          WHERE effect IN ('warehouseCapacity', 'granaryCapacity')
-          ),
-
-        oasis_capacity AS (
-          SELECT
-            tile_id,
-            CASE
-              WHEN MAX(bonus) = 50 OR COUNT(*) = 2 THEN 2000
-              ELSE 1000
-              END AS value
-          FROM oasis
-          GROUP BY tile_id
-          ),
-
-        oasis_production AS (
-          SELECT
-            tiles.tile_id,
-            re.effect_id,
-            CASE
-              WHEN MAX(o.bonus) = 50 THEN 80
-              WHEN MAX(o.bonus) = 25 THEN 40
-              ELSE 10
-              END AS value
-          FROM
-            (
-              SELECT DISTINCT tile_id
-              FROM oasis
-              ) tiles
-              CROSS JOIN resource_effects re
-              LEFT JOIN oasis o ON o.tile_id = tiles.tile_id
-              AND o.resource_id = re.resource_id
+            oasis o
+              JOIN resource_ids ri ON ri.id = o.resource_id
           GROUP BY
-            tiles.tile_id,
-            re.effect_id
+            o.tile_id
+          ),
+
+        oasis_effects_to_insert(effect_id, value, tile_id) AS (
+          SELECT
+            $wood_production_effect_id,
+            CASE
+              WHEN wood_bonus = 50 THEN 80
+              WHEN wood_bonus = 25 THEN 40
+              ELSE 10
+              END,
+            tile_id
+          FROM oasis_by_tile
+
+          UNION ALL
+
+          SELECT
+            $clay_production_effect_id,
+            CASE
+              WHEN clay_bonus = 50 THEN 80
+              WHEN clay_bonus = 25 THEN 40
+              ELSE 10
+              END,
+            tile_id
+          FROM oasis_by_tile
+
+          UNION ALL
+
+          SELECT
+            $iron_production_effect_id,
+            CASE
+              WHEN iron_bonus = 50 THEN 80
+              WHEN iron_bonus = 25 THEN 40
+              ELSE 10
+              END,
+            tile_id
+          FROM oasis_by_tile
+
+          UNION ALL
+
+          SELECT
+            $wheat_production_effect_id,
+            CASE
+              WHEN wheat_bonus = 50 THEN 80
+              WHEN wheat_bonus = 25 THEN 40
+              ELSE 10
+              END,
+            tile_id
+          FROM oasis_by_tile
+
+          UNION ALL
+
+          SELECT
+            $warehouse_capacity_effect_id,
+            CASE
+              WHEN max_bonus = 50 OR bonus_count = 2 THEN 2000
+              ELSE 1000
+              END,
+            tile_id
+          FROM oasis_by_tile
+
+          UNION ALL
+
+          SELECT
+            $granary_capacity_effect_id,
+            CASE
+              WHEN max_bonus = 50 OR bonus_count = 2 THEN 2000
+              ELSE 1000
+              END,
+            tile_id
+          FROM oasis_by_tile
           )
 
       INSERT
       INTO
         effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
       SELECT
-        op.effect_id,
-        op.value,
+        oeti.effect_id,
+        oeti.value,
         $base_type_id,
         $local_scope_id,
         $oasis_source_id,
-        op.tile_id,
-        op.tile_id
+        oeti.tile_id,
+        oeti.tile_id
       FROM
-        oasis_production op
-      WHERE
-        op.value > 0
-
-      UNION ALL
-
-      SELECT
-        se.effect_id,
-        oc.value,
-        $base_type_id,
-        $local_scope_id,
-        $oasis_source_id,
-        oc.tile_id,
-        oc.tile_id
-      FROM
-        oasis_capacity oc
-          CROSS JOIN storage_effects se;
+        oasis_effects_to_insert oeti;
     `,
     bind: {
       $base_type_id: baseTypeId,
+      $clay_production_effect_id: clayProductionEffectId,
+      $granary_capacity_effect_id: granaryCapacityEffectId,
+      $iron_production_effect_id: ironProductionEffectId,
       $local_scope_id: localScopeId,
       $oasis_source_id: oasisSourceId,
+      $warehouse_capacity_effect_id: warehouseCapacityEffectId,
+      $wheat_production_effect_id: wheatProductionEffectId,
+      $wood_production_effect_id: woodProductionEffectId,
     },
   });
 
