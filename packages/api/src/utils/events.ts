@@ -584,7 +584,10 @@ export const validateEventCreationPrerequisites = (
         );
       }
 
-      if (troop.tileId !== villageTileId || troop.source !== villageTileId) {
+      if (
+        troop.tileId !== villageTileId ||
+        troop.sourceTileId !== villageTileId
+      ) {
         throw new Error('Gathering trips can only include idle home troops');
       }
 
@@ -1602,7 +1605,6 @@ export const getEventDuration = (
     })!;
 
     return calculateTravelDuration({
-      originVillageId: villageId,
       targetTileId,
       originTileId,
       mapSize,

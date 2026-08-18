@@ -338,7 +338,7 @@ export const GatherersHutExpedition = () => {
           unitId,
           amount: selected,
           tileId: currentVillage.tileId,
-          source: currentVillage.tileId,
+          sourceTileId: currentVillage.tileId,
         });
       }
     }

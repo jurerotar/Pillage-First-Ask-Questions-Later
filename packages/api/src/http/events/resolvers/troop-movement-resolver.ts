@@ -372,7 +372,7 @@ export const relocationMovementResolver: Resolver<
     troops.map((troop) => ({
       ...troop,
       tileId: targetTileId,
-      source: targetTileId,
+      sourceTileId: targetTileId,
     })),
   );
 

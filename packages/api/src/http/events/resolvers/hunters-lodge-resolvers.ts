@@ -54,7 +54,7 @@ export const huntersLodgeHuntResolver: Resolver<
       unitId,
       amount: 1,
       tileId: huntersLodge.villageTileId,
-      source: huntersLodge.sourceTileId,
+      sourceTileId: huntersLodge.sourceTileId,
     },
   ]);
 

@@ -241,7 +241,7 @@ export const startHeroAdventure = createController(
         unitId: 'HERO',
         amount: 1,
         tileId,
-        source: sourceTileId,
+        sourceTileId,
       },
     ],
   });

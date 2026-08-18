@@ -1497,6 +1497,20 @@ export const upgradeDb = (
 
     db.exec({
       sql: `
+        UPDATE effects
+        SET tile_id = source_specifier
+        WHERE
+          source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+          AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+          AND tile_id IS NULL
+          AND source_specifier IN (SELECT id FROM tiles);
+
+        DELETE FROM effects
+        WHERE
+          source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+          AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+          AND tile_id IS NULL;
+
         WITH
           effect_context(type_id, scope_id, source_id) AS (
             SELECT

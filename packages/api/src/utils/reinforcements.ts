@@ -52,16 +52,16 @@ export const moveTroopWheatConsumption = (
 const toTroops = ({
   troops,
   tileId,
-  source,
+  sourceTileId,
 }: {
   troops: ReinforcementTroopSelection[];
   tileId: number;
-  source: number;
+  sourceTileId: number;
 }): Troop[] =>
   troops.map((troop) => ({
     ...troop,
     tileId,
-    source,
+    sourceTileId,
   }));
 
 const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
@@ -72,7 +72,7 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
       bind: {
         $unit_id: troop.unitId,
         $tile_id: troop.tileId,
-        $source_tile_id: troop.source,
+        $source_tile_id: troop.sourceTileId,
       },
       schema: troopAmountSchema,
     });
@@ -89,7 +89,7 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
         SELECT
           unit_ids.id AS unit_id,
           json_extract(troop.value, '$.tileId') AS tile_id,
-          json_extract(troop.value, '$.source') AS source_tile_id,
+          json_extract(troop.value, '$.sourceTileId') AS source_tile_id,
           SUM(json_extract(troop.value, '$.amount')) AS amount
         FROM
           json_each($troops) AS troop
@@ -125,13 +125,13 @@ const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
 export const moveStationedTroops = (
   database: DbFacade,
   troops: ReinforcementTroopSelection[],
-  source: Pick<Troop, 'tileId' | 'source'>,
-  target: Pick<Troop, 'tileId' | 'source'>,
+  source: Pick<Troop, 'tileId' | 'sourceTileId'>,
+  target: Pick<Troop, 'tileId' | 'sourceTileId'>,
 ) => {
   const sourceTroops = toTroops({
     troops,
     tileId: source.tileId,
-    source: source.source,
+    sourceTileId: source.sourceTileId,
   });
 
   assertTroopsAvailable(database, sourceTroops);
@@ -141,7 +141,7 @@ export const moveStationedTroops = (
     toTroops({
       troops,
       tileId: target.tileId,
-      source: target.source,
+      sourceTileId: target.sourceTileId,
     }),
   );
 };
@@ -158,7 +158,7 @@ export const returnStationedTroops = (
   const selectedTroops = toTroops({
     troops,
     tileId: originTileId,
-    source: homeTileId,
+    sourceTileId: homeTileId,
   });
 
   assertTroopsAvailable(database, selectedTroops);
@@ -178,12 +178,12 @@ export const returnStationedTroops = (
 export const removeStationedTroops = (
   database: DbFacade,
   troops: ReinforcementTroopSelection[],
-  source: Pick<Troop, 'tileId' | 'source'>,
+  source: Pick<Troop, 'tileId' | 'sourceTileId'>,
 ) => {
   const selectedTroops = toTroops({
     troops,
     tileId: source.tileId,
-    source: source.source,
+    sourceTileId: source.sourceTileId,
   });
 
   assertTroopsAvailable(database, selectedTroops);

@@ -62,7 +62,7 @@ type GroupedProductionEffects = {
 
 type StationedTroopLike = TroopLike & {
   tileId: number;
-  source: number;
+  sourceTileId: number;
 };
 
 const createEffectBucket = <T extends Effect>(): EffectBucket<T> => ({
@@ -284,7 +284,7 @@ const getReinforcementConsumption = (
       continue;
     }
 
-    if (troop.source === currentVillageTileId) {
+    if (troop.sourceTileId === currentVillageTileId) {
       continue;
     }
 

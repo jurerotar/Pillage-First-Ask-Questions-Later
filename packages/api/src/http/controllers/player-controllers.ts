@@ -245,8 +245,8 @@ export const relocateReinforcements = createController(
     moveStationedTroops(
       db,
       troops,
-      { tileId: currentTileId, source: sourceTileId },
-      { tileId: currentTileId, source: currentTileId },
+      { tileId: currentTileId, sourceTileId },
+      { tileId: currentTileId, sourceTileId: currentTileId },
     );
 
     if (hasHero(troops)) {
@@ -285,7 +285,7 @@ export const returnReinforcements = createController(
     if (animalTroops.length > 0) {
       removeStationedTroops(db, animalTroops, {
         tileId: currentTileId,
-        source: sourceTileId,
+        sourceTileId,
       });
     }
 
@@ -414,8 +414,8 @@ export const relocateSentReinforcements = createController(
     moveStationedTroops(
       db,
       troops,
-      { tileId: stationedTileId, source: currentTileId },
-      { tileId: stationedTileId, source: stationedTileId },
+      { tileId: stationedTileId, sourceTileId: currentTileId },
+      { tileId: stationedTileId, sourceTileId: stationedTileId },
     );
 
     if (hasHero(troops)) {

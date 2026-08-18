@@ -119,7 +119,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
         unitId: unit.unitId,
         amount: unit.selected,
         tileId: currentVillage.tileId,
-        source: currentVillage.tileId,
+        sourceTileId: currentVillage.tileId,
       });
     }
 

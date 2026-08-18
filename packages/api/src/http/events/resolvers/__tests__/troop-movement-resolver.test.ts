@@ -136,7 +136,7 @@ describe(adventureMovementResolver, () => {
       villageId,
       originTileId: getVillageTileId(database, villageId),
       targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     });
 
     adventureMovementResolver(database, mockEvent);
@@ -267,7 +267,7 @@ describe(adventureMovementResolver, () => {
       villageId,
       originTileId: getVillageTileId(database, villageId),
       targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+      troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     });
 
     adventureMovementResolver(database, mockEvent);
@@ -372,7 +372,7 @@ describe(relocationMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId: sourceTileId,
         },
       ],
     });
@@ -492,7 +492,7 @@ describe(relocationMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId: sourceTileId,
         },
       ],
     });
@@ -560,7 +560,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId: sourceTileId,
         },
       ],
     });
@@ -657,7 +657,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId: sourceTileId,
         },
       ],
     });
@@ -736,7 +736,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId: sourceTileId,
         },
       ],
     });
@@ -800,7 +800,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          source: sourceTileId,
+          sourceTileId: sourceTileId,
         },
       ],
     });
@@ -1021,7 +1021,9 @@ describe(attackMovementResolver, () => {
       duration: 500,
       villageId,
       originTileId: getVillageTileId(database, villageId),
-      troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
+      troops: [
+        { unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, sourceTileId: 1 },
+      ],
       targetTileId: getTileIdByCoordinates(database, { x: 0, y: 1 }),
     });
 
@@ -1088,7 +1090,7 @@ describe(attackMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: 10,
           tileId: originTileId,
-          source: originTileId,
+          sourceTileId: originTileId,
         },
       ],
     });
@@ -1298,7 +1300,7 @@ describe(attackMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: 10,
           tileId: originTileId,
-          source: originTileId,
+          sourceTileId: originTileId,
         },
       ],
     });
@@ -1368,7 +1370,9 @@ describe(raidMovementResolver, () => {
       duration: 200,
       villageId,
       originTileId: getVillageTileId(database, villageId),
-      troops: [{ unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, source: 1 }],
+      troops: [
+        { unitId: 'LEGIONNAIRE', amount: 5, tileId: 1, sourceTileId: 1 },
+      ],
       targetTileId: getTileIdByCoordinates(database, { x: 0, y: 1 }),
     });
 
@@ -1443,7 +1447,7 @@ describe(raidMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: 4,
           tileId: originTileId,
-          source: originTileId,
+          sourceTileId: originTileId,
         },
       ],
     });
@@ -1586,7 +1590,7 @@ describe(raidMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: 1,
           tileId: originTileId,
-          source: originTileId,
+          sourceTileId: originTileId,
         },
       ],
     });

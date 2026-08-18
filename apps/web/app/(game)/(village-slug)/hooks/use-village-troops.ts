@@ -88,8 +88,9 @@ export const useVillageTroops = () => {
 
   const getDeployableTroops = useCallback(() => {
     return villageTroops.filter(
-      ({ tileId, source }) =>
-        tileId === currentVillage.tileId && source === currentVillage.tileId,
+      ({ tileId, sourceTileId }) =>
+        tileId === currentVillage.tileId &&
+        sourceTileId === currentVillage.tileId,
     );
   }, [villageTroops, currentVillage]);
 

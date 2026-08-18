@@ -27,7 +27,7 @@ const TroopListContent = () => {
 
   const [ownTroops, reinforcements] = partition<Troop>(
     currentVillagePlayerTroops,
-    ({ tileId, source }) => tileId === source,
+    ({ tileId, sourceTileId }) => tileId === sourceTileId,
   );
 
   return (
