@@ -72,3 +72,9 @@ export const getDeviceId = (): string => {
 
   return deviceId;
 };
+
+export const wait = (duration: number): Promise<void> => {
+  return new Promise((resolve) => {
+    globalThis.setTimeout(resolve, duration);
+  });
+};

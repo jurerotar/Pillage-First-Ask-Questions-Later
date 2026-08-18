@@ -33,7 +33,7 @@ export const ApiProviderFallback = () => {
         />
         <div className="animate-api-provider-splash-logo flex w-full max-w-56 flex-col gap-3 sm:max-w-xs">
           <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-            <div className="animate-api-provider-splash-progress h-full w-1/2 rounded-full bg-linear-to-r from-amber-500 via-orange-500 to-amber-500" />
+            <div className="animate-api-provider-splash-progress h-full w-1/2 rounded-full bg-linear-to-r from-yellow-500 via-amber-400 to-yellow-500" />
           </div>
         </div>
       </div>

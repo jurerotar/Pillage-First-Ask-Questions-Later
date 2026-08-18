@@ -1,14 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query';
 import type { Server } from '@pillage-first/types/models/server';
 import { getApiWorkerHandle } from 'app/(game)/providers/utils/api-worker-manager';
-
-const MIN_API_PROVIDER_SPLASH_DURATION_MS = 1_200;
-
-const wait = (duration: number): Promise<void> => {
-  return new Promise((resolve) => {
-    globalThis.setTimeout(resolve, duration);
-  });
-};
+import { wait } from 'app/utils/device';
 
 export const useApiWorker = (serverSlug: Server['slug']) => {
   const { data: apiWorkerHandle } = useSuspenseQuery({
@@ -16,7 +9,8 @@ export const useApiWorker = (serverSlug: Server['slug']) => {
     queryFn: async () => {
       const [apiWorkerHandle] = await Promise.all([
         getApiWorkerHandle(serverSlug),
-        wait(MIN_API_PROVIDER_SPLASH_DURATION_MS),
+        // Minimal splash duration
+        wait(1_200),
       ]);
 
       return apiWorkerHandle;
