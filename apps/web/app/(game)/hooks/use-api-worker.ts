@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import type { Server } from '@pillage-first/types/models/server';
 import { getApiWorkerHandle } from 'app/(game)/providers/utils/api-worker-manager';
 
-const MIN_API_PROVIDER_SPLASH_DURATION_MS = 3_000;
+const MIN_API_PROVIDER_SPLASH_DURATION_MS = 1_200;
 
 const wait = (duration: number): Promise<void> => {
   return new Promise((resolve) => {
