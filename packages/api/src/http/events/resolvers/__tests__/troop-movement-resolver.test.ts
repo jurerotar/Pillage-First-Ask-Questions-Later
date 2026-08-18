@@ -1518,6 +1518,89 @@ describe(raidMovementResolver, () => {
     ) as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.loot).toStrictEqual([80, 20, 0, 100]);
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          (
+            tile_id = $tile_id
+            OR scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
+          )
+          AND effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN (
+              'warehouseCapacity',
+              'granaryCapacity',
+              'woodProduction',
+              'clayProduction',
+              'ironProduction',
+              'wheatProduction'
+            )
+          );
+      `,
+      bind: { $tile_id: originTileId },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
+        SELECT
+          ei.id,
+          CASE
+            WHEN ei.effect IN ('warehouseCapacity', 'granaryCapacity') THEN 1000
+            ELSE 20
+            END,
+          (SELECT id FROM effect_type_ids WHERE type = 'base'),
+          (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+          (SELECT id FROM effect_source_ids WHERE source = 'building'),
+          $tile_id,
+          0
+        FROM effect_ids ei
+        WHERE ei.effect IN (
+          'warehouseCapacity',
+          'granaryCapacity',
+          'woodProduction',
+          'clayProduction',
+          'ironProduction',
+          'wheatProduction'
+        );
+      `,
+      bind: { $tile_id: originTileId },
+    });
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET
+          wood = 930,
+          clay = 950,
+          iron = 990,
+          wheat = 850,
+          updated_at = $updated_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: {
+        $tile_id: originTileId,
+        $updated_at: returnEvent.resolvesAt - 3_600_000,
+      },
+    });
+
+    returnMovementResolver(database, returnEvent);
+
+    const originResources = database.selectObject({
+      sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
+      bind: { $tile_id: originTileId },
+      schema: resourcesSchema,
+    })!;
+
+    expect(originResources).toStrictEqual({
+      wood: 1000,
+      clay: 990,
+      iron: 1000,
+      wheat: 970,
+    });
   });
 
   test('should calculate latest oasis resources from production and storage effects before looting', async () => {
@@ -1617,6 +1700,129 @@ describe(raidMovementResolver, () => {
       clay: 27,
       iron: 28,
       wheat: 28,
+    });
+
+    const returnEventRow = database.selectObject({
+      sql: "SELECT id, type, starts_at, duration, (starts_at + duration) AS resolves_at, meta, village_id FROM events WHERE type = 'troopMovementReturn' LIMIT 1;",
+      schema: baseEventRowSchema,
+    })!;
+    const returnEvent = mapEventRowToTypedEvent(
+      returnEventRow,
+    ) as GameEvent<'troopMovementReturn'>;
+
+    expect(returnEvent.loot).toStrictEqual([13, 13, 12, 12]);
+  });
+
+  test('should cap latest oasis resources at the 2000 storage limit before looting', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const originTileId = getVillageTileId(database, villageId);
+    const targetOasisTileId = database.selectValue({
+      sql: `
+        SELECT DISTINCT o.tile_id
+        FROM oasis o
+        JOIN resource_sites rs ON rs.tile_id = o.tile_id
+        WHERE o.village_id IS NULL
+        LIMIT 1;
+      `,
+      schema: z.number(),
+    })!;
+
+    const resolvesAt = 7_500;
+
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wood = 1990, clay = 1990, iron = 1990, wheat = 1990, updated_at = $updated_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: {
+        $tile_id: targetOasisTileId,
+        $updated_at: resolvesAt - 3_600_000,
+      },
+    });
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE
+          (
+            tile_id = $tile_id
+            OR scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
+          )
+          AND effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN (
+              'warehouseCapacity',
+              'granaryCapacity',
+              'woodProduction',
+              'clayProduction',
+              'ironProduction',
+              'wheatProduction'
+            )
+          );
+      `,
+      bind: { $tile_id: targetOasisTileId },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
+        SELECT
+          ei.id,
+          CASE
+            WHEN ei.effect IN ('warehouseCapacity', 'granaryCapacity') THEN 2000
+            ELSE 40
+            END,
+          (SELECT id FROM effect_type_ids WHERE type = 'base'),
+          (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+          (SELECT id FROM effect_source_ids WHERE source = 'oasis'),
+          $tile_id,
+          $tile_id
+        FROM effect_ids ei
+        WHERE ei.effect IN (
+          'warehouseCapacity',
+          'granaryCapacity',
+          'woodProduction',
+          'clayProduction',
+          'ironProduction',
+          'wheatProduction'
+        );
+      `,
+      bind: { $tile_id: targetOasisTileId },
+    });
+
+    const mockEvent = createTroopMovementRaidEventMock({
+      id: 8,
+      startsAt: 7_000,
+      duration: 500,
+      villageId,
+      originTileId,
+      targetTileId: targetOasisTileId,
+      troops: [
+        {
+          unitId: 'LEGIONNAIRE',
+          amount: 1,
+          tileId: originTileId,
+          sourceTileId: originTileId,
+        },
+      ],
+    });
+
+    raidMovementResolver(database, mockEvent);
+
+    const targetResources = database.selectObject({
+      sql: 'SELECT wood, clay, iron, wheat FROM resource_sites WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetOasisTileId },
+      schema: resourcesSchema,
+    })!;
+
+    expect(targetResources).toStrictEqual({
+      wood: 1987,
+      clay: 1987,
+      iron: 1988,
+      wheat: 1988,
     });
 
     const returnEventRow = database.selectObject({
