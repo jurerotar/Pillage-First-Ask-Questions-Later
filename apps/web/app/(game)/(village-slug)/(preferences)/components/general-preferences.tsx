@@ -1,7 +1,6 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
-  SkinVariant,
   TimeOfDay,
   UIColorScheme,
 } from '@pillage-first/types/models/preferences';
@@ -25,7 +24,6 @@ import type { AvailableLocale } from 'app/localization/i18n';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 import { CookieContext } from 'app/providers/cookie-context';
 import {
-  GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
   GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
   LOCALE_COOKIE_NAME,
   setCookie,
@@ -35,7 +33,7 @@ import {
 export const GeneralPreferences = () => {
   const { t, i18n } = useTranslation();
   const { updatePreference, preferences } = usePreferences();
-  const { locale, skinVariant, uiColorScheme, timeOfDay } = use(CookieContext);
+  const { locale, uiColorScheme, timeOfDay } = use(CookieContext);
 
   return (
     <Section>
@@ -129,31 +127,6 @@ export const GeneralPreferences = () => {
               <SelectContent>
                 <SelectItem value="day">{t('Day')}</SelectItem>
                 <SelectItem value="night">{t('Night')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">{t('Graphic set')}</span>
-            <span>{t('Select your preferred graphic set')}</span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Select
-              value={skinVariant}
-              onValueChange={async (value: SkinVariant) => {
-                await setCookie<SkinVariant>(
-                  GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
-                  value,
-                );
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">{t('Default')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

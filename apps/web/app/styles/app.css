@@ -72,6 +72,7 @@
 }
 
 @theme inline {
+  --default-transition-duration: 300ms;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

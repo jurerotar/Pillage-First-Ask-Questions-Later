@@ -146,7 +146,7 @@ const LayoutContent = memo<Route.ComponentProps>(
           <HeadLinks />
           <Links />
         </head>
-        <body className="bg-background text-foreground transition-colors duration-300">
+        <body className="bg-background text-foreground transition-colors">
           <QueryClientProvider client={queryClient}>
             <Suspense fallback={<ApiProviderFallback />}>
               <div className="api-provider-splash-content">

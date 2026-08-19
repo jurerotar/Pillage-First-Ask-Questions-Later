@@ -33,7 +33,7 @@ export const InformationPopover = ({
           title={ariaLabel}
           variant="outline"
         >
-          <FaCircleInfo className="size-4" />
+          <FaCircleInfo className="size-4 transition-colors" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
