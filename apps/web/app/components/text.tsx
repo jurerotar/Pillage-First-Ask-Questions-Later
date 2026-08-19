@@ -40,12 +40,7 @@ export const Text = ({
   return createElement(
     as,
     {
-      className: clsx(
-        variantStyles[variant],
-        elementStyles[as],
-        'transition-colors',
-        className,
-      ),
+      className: clsx(variantStyles[variant], elementStyles[as], className),
       ...props,
     },
     children,

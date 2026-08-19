@@ -33,9 +33,14 @@ export const GeneralPreferences = () => {
   return (
     <Section>
       <SectionContent>
-        <Text as="h2">{t('Appearance')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Appearance')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">{t('UI color scheme')}</span>
             <span>
               {t('Select a light or dark theme for the interface appearance.')}
@@ -61,9 +66,14 @@ export const GeneralPreferences = () => {
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>
-        <Text as="h2">{t('Localization')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Localization')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">{t('Locale')}</span>
             <span>{t('Select your preferred language.')}</span>
           </Text>
@@ -89,9 +99,14 @@ export const GeneralPreferences = () => {
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>
-        <Text as="h2">{t('Display')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Display')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">{t('Building names display')}</span>
             <span>
               {t(
@@ -114,9 +129,14 @@ export const GeneralPreferences = () => {
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>
-        <Text as="h2">{t('Functionality')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Functionality')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">
               {t('Navigation after building upgrade')}
             </span>
@@ -144,7 +164,7 @@ export const GeneralPreferences = () => {
         </div>
         <Separator orientation="horizontal" />
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">
               {t('Navigation after unit research')}
             </span>
@@ -172,7 +192,7 @@ export const GeneralPreferences = () => {
         </div>
         <Separator orientation="horizontal" />
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">
               {t('Navigation after unit improvement')}
             </span>
@@ -198,7 +218,7 @@ export const GeneralPreferences = () => {
         </div>
         <Separator orientation="horizontal" />
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">
               {t('Navigation after send units')}
             </span>
@@ -224,9 +244,14 @@ export const GeneralPreferences = () => {
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>
-        <Text as="h2">{t('Development tooling')}</Text>
+        <Text
+          as="h2"
+          className="transition-colors"
+        >
+          {t('Development tooling')}
+        </Text>
         <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
             <span className="font-medium">{t('Developer console')}</span>
             <span>{t('Enables the developer console button.')}</span>
           </Text>
