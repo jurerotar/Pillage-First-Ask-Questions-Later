@@ -140,7 +140,7 @@ const LayoutContent = memo<Route.ComponentProps>(
     return (
       <html
         lang={i18n.language}
-        className={uiColorScheme === 'dark' ? 'dark' : ''}
+        className={uiColorScheme}
       >
         <head>
           <HeadLinks />

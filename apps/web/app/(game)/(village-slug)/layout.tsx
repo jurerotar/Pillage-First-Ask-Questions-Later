@@ -140,7 +140,7 @@ const NavigationSideItem = ({
         className={clsx(
           'bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60',
           'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-[#f1f1f1] dark:border-border relative',
-          'transition-[background-color,border-color,color,box-shadow,transform] active:scale-95 active:shadow-inner',
+          'transition-[background-color,border-color,box-shadow,transform] active:scale-95 active:shadow-inner',
           'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
           'lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
           'lg:dark:from-[#404040] lg:dark:to-[#303030] lg:dark:hover:from-[#4a4a4a] lg:dark:hover:to-[#3a3a3a]',
@@ -200,7 +200,7 @@ const VillageOverviewDesktopItem = () => {
       tabIndex={0}
       className={clsx(
         'flex items-center justify-center shadow-md rounded-md p-1.5 border border-[#f1f1f1] dark:border-border relative',
-        'transition-[background-color,border-color,color,box-shadow,transform] active:scale-95 active:shadow-inner',
+        'transition-[background-color,border-color,box-shadow,transform] active:scale-95 active:shadow-inner',
       )}
     >
       <span className="lg:bg-background rounded-md flex items-center justify-center">
@@ -223,7 +223,7 @@ const EventLogDesktopItem = () => {
       tabIndex={0}
       className={clsx(
         'flex items-center justify-center shadow-md rounded-md p-1.5 border border-[#f1f1f1] dark:border-border relative',
-        'transition-[background-color,border-color,color,box-shadow,transform] active:scale-95 active:shadow-inner',
+        'transition-[background-color,border-color,box-shadow,transform] active:scale-95 active:shadow-inner',
       )}
     >
       <span className="lg:bg-background rounded-md flex items-center justify-center">
@@ -245,7 +245,7 @@ const VillageOverviewMobileItem = () => {
     <Link
       to="overview"
       tabIndex={0}
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-[#f1f1f1] dark:border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60 transition-[background-color,border-color,color,box-shadow,transform] active:scale-95"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-[#f1f1f1] dark:border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60 transition-[background-color,border-color,box-shadow,transform] active:scale-95"
       aria-label={t('Village overview')}
     >
       <span className="flex items-center justify-center">
@@ -254,7 +254,7 @@ const VillageOverviewMobileItem = () => {
       <span className="inline-flex items-center justify-between bg-background dark:bg-muted px-0.5 absolute top-0 left-8 h-4 w-9 rounded-full border border-[#f1f1f1] dark:border-border shadow-md">
         <Icon
           type="population"
-          className="size-3 transition-colors"
+          className="size-3"
         />
         <span className="text-foreground text-2xs">
           {formatNumber(population)}
@@ -293,12 +293,12 @@ const HeroNavigationItem = () => {
     <Link
       to="hero"
       tabIndex={0}
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-[#f1f1f1] dark:border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60 transition-[background-color,border-color,color,box-shadow,transform] active:scale-95"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-[#f1f1f1] dark:border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60 transition-[background-color,border-color,box-shadow,transform] active:scale-95"
       aria-label={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
-        {isHeroAlive && <MdFace className="text-2xl transition-colors" />}
-        {!isHeroAlive && <FaSkull className="text-2xl transition-colors" />}
+        {isHeroAlive && <MdFace className="text-2xl" />}
+        {!isHeroAlive && <FaSkull className="text-2xl" />}
       </span>
       {isLevelUpAvailable && (
         <span className="absolute text-center size-4 bg-background dark:bg-muted top-0 -right-1.5 rounded-full border border-[#f1f1f1] dark:border-border shadow-md">
@@ -368,7 +368,7 @@ const DesktopTopRowItem = ({
       className="
         px-3 py-0.5 border-2 border-white rounded-sm bg-linear-to-t bg-card
         flex items-center justify-center
-        transition-[background-color,border-color,color,box-shadow,transform] active:scale-95 active:shadow-inner
+        transition-[background-color,border-color,box-shadow,transform] active:scale-95 active:shadow-inner
         lg:hover:bg-gray-50 dark:border-border dark:lg:hover:bg-muted
       "
       {...rest}
@@ -395,7 +395,7 @@ const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
             ? 'from-[#7da100] to-[#c7e94f] lg:hover:from-[#728f00] lg:hover:to-[#b8dc45] dark:from-[#5d7a00] dark:to-[#8fb020] dark:lg:hover:from-[#4a6100] dark:lg:hover:to-[#738e1a]'
             : 'from-[#b8b2a9] to-[#f1f0ee] lg:hover:from-[#aba5a0] lg:hover:to-[#e8e7e5] dark:from-[#2a2a2a] dark:to-[#404040] dark:lg:hover:from-[#222222] dark:lg:hover:to-[#333333]',
           'bg-linear-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
-          'transition-[background-color,border-color,color,box-shadow,transform] transform-gpu active:scale-95',
+          'transition-[background-color,border-color,box-shadow,transform] transform-gpu active:scale-95',
         )
       }
       {...rest}
@@ -861,10 +861,10 @@ const MobileBottomNavigation = ({
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 z-20 pb-safe-or-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)] dark:bg-[linear-gradient(0deg,var(--background)_0%,var(--card)_83%,var(--background)_83.1%,var(--background)_84%,transparent_84.1%,transparent_100%)] transition-[background,bottom]">
+    <header className="lg:hidden fixed bottom-0 left-0 z-20 pb-safe-or-8 w-full transition-[bottom] before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)] before:transition-opacity after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(0deg,var(--background)_0%,var(--card)_83%,var(--background)_83.1%,var(--background)_84%,transparent_84.1%,transparent_100%)] after:opacity-0 after:transition-opacity dark:before:opacity-0 dark:after:opacity-100">
       <nav
         ref={container}
-        className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
+        className="relative z-10 flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
           <li>

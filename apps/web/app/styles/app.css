@@ -42,6 +42,8 @@
   --success: oklch(0.7 0.18 145);
   --warning: oklch(0.7 0.18 60);
   --link: oklch(0.6432 0.2313 142.62);
+  --default-transition-duration: 300ms;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark {
@@ -107,6 +109,14 @@
 }
 
 @layer utilities {
+  .transition-colors {
+    transition-property:
+      color, background-color, border-color, outline-color,
+      text-decoration-color, fill, stroke;
+    transition-duration: var(--default-transition-duration);
+    transition-timing-function: var(--default-transition-timing-function);
+  }
+
   @keyframes scale-pulse {
     0%,
     100% {

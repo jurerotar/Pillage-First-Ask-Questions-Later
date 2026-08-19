@@ -37,6 +37,9 @@ export const setCookie = async <T extends string>(
       expires: expires.getTime(),
       path: '/',
     });
+
+    const event = new Event(COOKIE_UPDATE_EVENT_NAME);
+    document.dispatchEvent(event);
     return;
   }
 
