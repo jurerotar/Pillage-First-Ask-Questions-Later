@@ -1,16 +1,12 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import type {
-  TimeOfDay,
-  UIColorScheme,
-} from '@pillage-first/types/models/preferences';
+import type { UIColorScheme } from '@pillage-first/types/models/preferences';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Text } from 'app/components/text';
-import { Button } from 'app/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -24,7 +20,6 @@ import type { AvailableLocale } from 'app/localization/i18n';
 import { loadAppTranslations } from 'app/localization/loaders/app';
 import { CookieContext } from 'app/providers/cookie-context';
 import {
-  GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
   LOCALE_COOKIE_NAME,
   setCookie,
   UI_COLOR_SCHEME_COOKIE_NAME,
@@ -33,48 +28,10 @@ import {
 export const GeneralPreferences = () => {
   const { t, i18n } = useTranslation();
   const { updatePreference, preferences } = usePreferences();
-  const { locale, uiColorScheme, timeOfDay } = use(CookieContext);
+  const { locale, uiColorScheme } = use(CookieContext);
 
   return (
     <Section>
-      <SectionContent>
-        <Text as="h2">{t('Gameplay')}</Text>
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Offline attacks (in development)')}
-            </span>
-            <span>
-              {t(
-                "Select whether enemies can trigger attacks against you while you're offline.",
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              disabled
-              checked
-            />
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Vacation mode (in development)')}
-            </span>
-            <span>
-              {t(
-                'While in vacation mode, game pauses completely. You may enable vacation mode or resume gameplay at any time.',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Button disabled>{t('Enable vacation mode')}</Button>
-          </div>
-        </div>
-      </SectionContent>
-      <Separator orientation="horizontal" />
       <SectionContent>
         <Text as="h2">{t('Appearance')}</Text>
         <div className="flex gap-2">
@@ -101,36 +58,6 @@ export const GeneralPreferences = () => {
             </Select>
           </div>
         </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">{t('Graphics color scheme')}</span>
-            <span>
-              {t(
-                'Select a daytime or nighttime setting to adjust the overall visual atmosphere.',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Select
-              value={timeOfDay}
-              onValueChange={async (value: TimeOfDay) => {
-                await setCookie<TimeOfDay>(
-                  GRAPHICS_TIME_OF_DAY_COOKIE_NAME,
-                  value,
-                );
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="day">{t('Day')}</SelectItem>
-                <SelectItem value="night">{t('Night')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
       </SectionContent>
       <Separator orientation="horizontal" />
       <SectionContent>
@@ -142,6 +69,7 @@ export const GeneralPreferences = () => {
           </Text>
           <div className="flex flex-1 justify-end items-center">
             <Select
+              disabled
               value={locale}
               onValueChange={async (value: AvailableLocale) => {
                 await setCookie(LOCALE_COOKIE_NAME, value);
@@ -156,57 +84,6 @@ export const GeneralPreferences = () => {
                 <SelectItem value="en-US">English</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </div>
-      </SectionContent>
-      <Separator orientation="horizontal" />
-      <SectionContent>
-        <Text as="h2">{t('Accessibility')}</Text>
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Additional accessibility features (in development)')}
-            </span>
-            <span>
-              {t('Enables accessibility enhancements for better usability.')}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              disabled
-              onCheckedChange={() =>
-                updatePreference({
-                  preferenceName: 'isAccessibilityModeEnabled',
-                  value: !preferences.isAccessibilityModeEnabled,
-                })
-              }
-              checked={preferences.isAccessibilityModeEnabled}
-            />
-          </div>
-        </div>
-        <Separator orientation="horizontal" />
-        <div className="flex gap-2">
-          <Text className="flex flex-4 gap-1 flex-col">
-            <span className="font-medium">
-              {t('Reduced motion (in development)')}
-            </span>
-            <span>
-              {t(
-                'Disables certain animations and effects for a smoother experience.',
-              )}
-            </span>
-          </Text>
-          <div className="flex flex-1 justify-end items-center">
-            <Switch
-              disabled
-              onCheckedChange={() =>
-                updatePreference({
-                  preferenceName: 'isReducedMotionModeEnabled',
-                  value: !preferences.isReducedMotionModeEnabled,
-                })
-              }
-              checked={preferences.isReducedMotionModeEnabled}
-            />
           </div>
         </div>
       </SectionContent>
