@@ -31,7 +31,7 @@ export const TabList = ({
   return (
     <TabsPrimitive.List
       className={clsx(
-        'flex -mb-px overflow-x-scroll md:overflow-x-visible md:flex-wrap scrollbar-hidden transition-[background-color,border-color]',
+        'flex -mb-px overflow-x-scroll md:overflow-x-visible md:flex-wrap scrollbar-hidden transition-colors',
         className,
       )}
       {...props}
@@ -51,7 +51,7 @@ export const Tab = ({
       className={clsx(
         `
         flex whitespace-nowrap text-center justify-center p-2 px-4 cursor-pointer
-        border border-border transition-[background-color,border-color,color,box-shadow,transform]
+        border border-border transition-colors
         hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]
         data-[state=active]:border-b-0 data-[state=active]:bg-input
         `,
@@ -73,10 +73,7 @@ export const TabPanel = ({
   return (
     <TabsPrimitive.Content
       value={value}
-      className={clsx(
-        'border border-border p-2 transition-[background-color,border-color]',
-        className,
-      )}
+      className={clsx('border border-border p-2 transition-colors', className)}
       {...props}
     >
       {children}

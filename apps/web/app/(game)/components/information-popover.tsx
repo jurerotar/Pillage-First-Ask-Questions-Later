@@ -29,7 +29,10 @@ export const InformationPopover = ({
       <PopoverTrigger asChild>
         <Button
           aria-label={ariaLabel}
-          className={clsx('absolute top-0 right-0', className)}
+          className={clsx(
+            'absolute top-0 right-0 transition-colors!',
+            className,
+          )}
           title={ariaLabel}
           variant="outline"
         >
