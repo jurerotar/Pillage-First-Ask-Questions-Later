@@ -51,7 +51,8 @@ export const Tab = ({
       className={clsx(
         `
         flex whitespace-nowrap text-center justify-center p-2 px-4 cursor-pointer
-        border border-border transition-[background-color,border-color]
+        border border-border transition-[background-color,border-color,color,box-shadow,transform]
+        hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]
         data-[state=active]:border-b-0 data-[state=active]:bg-input
         `,
         className,
