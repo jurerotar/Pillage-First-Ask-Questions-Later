@@ -163,6 +163,11 @@ const SmithyUnitImprovement = lazyWithRetry(async () => ({
     .SmithyUnitImprovement,
 }));
 
+const SmithyUnitUpgradeDuration = lazyWithRetry(async () => ({
+  default: (await import('./components/smithy/smithy-unit-upgrade-duration'))
+    .SmithyUnitUpgradeDuration,
+}));
+
 const HerosMansionOasis = lazyWithRetry(async () => ({
   default: (await import('./components/heros-mansion/heros-mansion-oasis'))
     .HerosMansionOasis,
@@ -241,7 +246,13 @@ const buildingDetailsTabMap = new Map<
     ]),
   ],
   ['ACADEMY', new Map([['unit-research', AcademyUnitResearch]])],
-  ['SMITHY', new Map([['unit-improvement', SmithyUnitImprovement]])],
+  [
+    'SMITHY',
+    new Map([
+      ['unit-improvement', SmithyUnitImprovement],
+      ['unit-upgrade-duration', SmithyUnitUpgradeDuration],
+    ]),
+  ],
   ['RESIDENCE', residenceTabs],
   ['COMMAND_CENTER', residenceTabs],
   ['HEROS_MANSION', new Map([['oasis', HerosMansionOasis]])],
@@ -271,6 +282,7 @@ const buildingDetailsTabMap = new Map<
 // t('trade-routes')
 // t('unit-research')
 // t('unit-improvement')
+// t('unit-upgrade-duration')
 // t('oasis')
 // t('celebration')
 // t('celebrations')

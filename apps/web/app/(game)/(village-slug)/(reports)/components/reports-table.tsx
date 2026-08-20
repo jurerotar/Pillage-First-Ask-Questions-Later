@@ -5,6 +5,7 @@ import { LuEllipsis } from 'react-icons/lu';
 import { Link } from 'react-router';
 import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import type { BaseReport } from '@pillage-first/types/models/report';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import type { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -82,7 +83,7 @@ export const ReportsTable = ({
   const hasSelectedReports = selectedReportIds.length > 0;
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -198,6 +199,6 @@ export const ReportsTable = ({
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };

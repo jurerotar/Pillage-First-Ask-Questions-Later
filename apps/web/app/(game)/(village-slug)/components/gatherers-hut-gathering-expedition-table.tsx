@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import { formatNumber } from '@pillage-first/utils/format';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
@@ -20,7 +21,7 @@ export const GatherersHutGatheringExpeditionTable = () => {
   );
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -64,6 +65,6 @@ export const GatherersHutGatheringExpeditionTable = () => {
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };

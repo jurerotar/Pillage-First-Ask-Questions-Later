@@ -16,6 +16,7 @@ import type {
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import {
   UnitTable,
@@ -387,7 +388,7 @@ export const BattleStatisticsTable = () => {
   ];
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -416,7 +417,7 @@ export const BattleStatisticsTable = () => {
           ))}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 
@@ -516,7 +517,7 @@ export const TradeReportTable = () => {
   } = report.summary;
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -578,7 +579,7 @@ export const TradeReportTable = () => {
           </TableRow>
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 
@@ -798,7 +799,7 @@ export const AdventureReportTable = () => {
   const formattedHealthDifference = `${healthDifference > 0 ? '+' : ''}${healthDifference}%`;
 
   return (
-    <div className="overflow-x-scroll scrollbar-hidden">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -850,7 +851,7 @@ export const AdventureReportTable = () => {
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 

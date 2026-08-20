@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { TroopTrainingBuildingId } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { Text } from 'app/components/text';
@@ -57,7 +58,7 @@ export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
     .join(', ');
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -121,6 +122,6 @@ export const TroopTrainingTable = ({ buildingId }: TroopTrainingTableProps) => {
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };

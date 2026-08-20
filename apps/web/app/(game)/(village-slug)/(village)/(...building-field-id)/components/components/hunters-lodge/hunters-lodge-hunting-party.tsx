@@ -9,6 +9,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -80,7 +81,7 @@ const HuntingPartyTierTable = ({
   );
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -125,7 +126,7 @@ const HuntingPartyTierTable = ({
           })}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 
@@ -139,7 +140,7 @@ const ActiveHuntingPartyTable = ({ events }: ActiveHuntingPartyTableProps) => {
   const { isFreeHuntingPartiesEnabled } = developerSettings;
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -182,7 +183,7 @@ const ActiveHuntingPartyTable = ({ events }: ActiveHuntingPartyTableProps) => {
           })}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 
