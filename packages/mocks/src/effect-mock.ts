@@ -7,10 +7,10 @@ import type {
 } from '@pillage-first/types/models/effect';
 import { villageMock } from './village-mock';
 
-const villageId = villageMock.id;
+const tileId = villageMock.tileId;
 
 export const woodProductionBaseEffectMock: VillageBuildingEffect = {
-  villageId,
+  tileId,
   scope: 'local',
   source: 'building',
   value: 100,
@@ -21,7 +21,7 @@ export const woodProductionBaseEffectMock: VillageBuildingEffect = {
 };
 
 export const woodProductionBonusEffectMock: VillageBuildingEffect = {
-  villageId,
+  tileId,
   scope: 'local',
   source: 'building',
   value: 1.25,
@@ -32,7 +32,7 @@ export const woodProductionBonusEffectMock: VillageBuildingEffect = {
 };
 
 export const woodProductionBonusBoosterEffectMock: VillageBuildingEffect = {
-  villageId,
+  tileId,
   scope: 'local',
   source: 'building',
   value: 2,
@@ -52,7 +52,7 @@ export const woodProductionServerEffectMock: ServerEffect = {
 };
 
 export const woodProductionHeroBaseEffectMock: HeroEffect = {
-  villageId,
+  tileId,
   id: 'woodProduction',
   scope: 'local',
   source: 'hero',
@@ -62,7 +62,7 @@ export const woodProductionHeroBaseEffectMock: HeroEffect = {
 };
 
 export const woodProductionHeroBonusEffectMock: HeroEffect = {
-  villageId,
+  tileId,
   id: 'woodProduction',
   scope: 'local',
   source: 'hero',
@@ -72,7 +72,7 @@ export const woodProductionHeroBonusEffectMock: HeroEffect = {
 };
 
 export const woodProductionArtifactEffectMock: ArtifactEffect = {
-  villageId,
+  tileId,
   id: 'woodProduction',
   scope: 'local',
   source: 'artifact',
@@ -82,7 +82,7 @@ export const woodProductionArtifactEffectMock: ArtifactEffect = {
 };
 
 export const woodProductionOasisEffectMock: OasisEffect = {
-  villageId,
+  tileId,
   id: 'woodProduction',
   scope: 'local',
   source: 'oasis',
@@ -92,7 +92,7 @@ export const woodProductionOasisEffectMock: OasisEffect = {
 };
 
 export const wheatProductionBaseEffectMock: VillageBuildingEffect = {
-  villageId,
+  tileId,
   scope: 'local',
   source: 'building',
   value: 100,
@@ -103,7 +103,7 @@ export const wheatProductionBaseEffectMock: VillageBuildingEffect = {
 };
 
 export const wheatProductionBonusEffectMock: VillageBuildingEffect = {
-  villageId,
+  tileId,
   scope: 'local',
   source: 'building',
   value: 1.25,
@@ -114,7 +114,7 @@ export const wheatProductionBonusEffectMock: VillageBuildingEffect = {
 };
 
 export const wheatProductionBonusBoosterEffectMock: VillageBuildingEffect = {
-  villageId,
+  tileId,
   scope: 'local',
   source: 'building',
   value: 2,
@@ -125,7 +125,7 @@ export const wheatProductionBonusBoosterEffectMock: VillageBuildingEffect = {
 };
 
 export const wheatProductionHeroBaseEffectMock: HeroEffect = {
-  villageId,
+  tileId,
   id: 'wheatProduction',
   scope: 'local',
   source: 'hero',
@@ -135,7 +135,7 @@ export const wheatProductionHeroBaseEffectMock: HeroEffect = {
 };
 
 export const wheatProductionHeroBonusEffectMock: HeroEffect = {
-  villageId,
+  tileId,
   id: 'wheatProduction',
   scope: 'local',
   source: 'hero',
@@ -154,7 +154,7 @@ export const wheatProductionServerEffectMock: ServerEffect = {
 };
 
 export const unitSpeedHeroBonusEffectMock: HeroEffect = {
-  villageId,
+  tileId,
   id: 'unitSpeed',
   scope: 'local',
   source: 'hero',
@@ -164,7 +164,7 @@ export const unitSpeedHeroBonusEffectMock: HeroEffect = {
 };
 
 export const unitSpeedAfter20FieldsHeroBonusEffectMock: HeroEffect = {
-  villageId,
+  tileId,
   id: 'unitSpeedAfter20Fields',
   scope: 'local',
   source: 'hero',
@@ -174,7 +174,7 @@ export const unitSpeedAfter20FieldsHeroBonusEffectMock: HeroEffect = {
 };
 
 export const unitSpeedAfter20FieldsHugeHeroBonusEffectMock: HeroEffect = {
-  villageId,
+  tileId,
   id: 'unitSpeedAfter20Fields',
   scope: 'local',
   source: 'hero',

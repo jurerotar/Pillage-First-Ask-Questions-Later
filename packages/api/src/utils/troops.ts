@@ -44,7 +44,7 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         $unit_id: troop.unitId,
         $amount: troop.amount,
         $tile_id: troop.tileId,
-        $source_tile_id: troop.source,
+        $source_tile_id: troop.sourceTileId,
       },
     });
     return;
@@ -57,7 +57,7 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         unit_ids.id,
         SUM(json_extract(troop.value, '$.amount')),
         json_extract(troop.value, '$.tileId'),
-        json_extract(troop.value, '$.source')
+        json_extract(troop.value, '$.sourceTileId')
       FROM
         json_each($troops) AS troop
         JOIN unit_ids
@@ -66,7 +66,7 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
       GROUP BY
         unit_ids.id,
         json_extract(troop.value, '$.tileId'),
-        json_extract(troop.value, '$.source')
+        json_extract(troop.value, '$.sourceTileId')
       ON CONFLICT (unit_id, tile_id, source_tile_id) DO UPDATE SET
         amount = troops.amount + EXCLUDED.amount;
     `,
@@ -81,7 +81,7 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
       $unit_id: troop.unitId,
       $amount: troop.amount,
       $tile_id: troop.tileId,
-      $source_tile_id: troop.source,
+      $source_tile_id: troop.sourceTileId,
     };
     database.exec({
       sql: `
@@ -115,7 +115,7 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
         SELECT
           unit_ids.id AS unit_id,
           json_extract(troop.value, '$.tileId') AS tile_id,
-          json_extract(troop.value, '$.source') AS source_tile_id,
+          json_extract(troop.value, '$.sourceTileId') AS source_tile_id,
           SUM(json_extract(troop.value, '$.amount')) AS amount
         FROM
           json_each($troops) AS troop
@@ -143,7 +143,7 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
         SELECT
           unit_ids.id AS unit_id,
           json_extract(troop.value, '$.tileId') AS tile_id,
-          json_extract(troop.value, '$.source') AS source_tile_id,
+          json_extract(troop.value, '$.sourceTileId') AS source_tile_id,
           SUM(json_extract(troop.value, '$.amount')) AS amount
         FROM
           json_each($troops) AS troop
@@ -152,22 +152,12 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
         GROUP BY unit_ids.id, tile_id, source_tile_id
       )
       UPDATE troops
-      SET amount = amount - (
-        SELECT requested_troops.amount
-        FROM requested_troops
-        WHERE
-          requested_troops.unit_id = troops.unit_id
-          AND requested_troops.tile_id = troops.tile_id
-          AND requested_troops.source_tile_id = troops.source_tile_id
-      )
-      WHERE EXISTS (
-        SELECT 1
-        FROM requested_troops
-        WHERE
-          requested_troops.unit_id = troops.unit_id
-          AND requested_troops.tile_id = troops.tile_id
-          AND requested_troops.source_tile_id = troops.source_tile_id
-      );
+      SET amount = troops.amount - requested_troops.amount
+      FROM requested_troops
+      WHERE
+        requested_troops.unit_id = troops.unit_id
+        AND requested_troops.tile_id = troops.tile_id
+        AND requested_troops.source_tile_id = troops.source_tile_id;
     `,
     bind: { $troops: JSON.stringify(troops) },
   });
@@ -369,20 +359,11 @@ export const removeWoundedTroops = (
         GROUP BY village_id, unit_ids.id
       )
       UPDATE wounded_troops
-      SET amount = amount - (
-        SELECT requested_wounded_troops.amount
-        FROM requested_wounded_troops
-        WHERE
-          requested_wounded_troops.village_id = wounded_troops.village_id
-          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
-      )
-      WHERE EXISTS (
-        SELECT 1
-        FROM requested_wounded_troops
-        WHERE
-          requested_wounded_troops.village_id = wounded_troops.village_id
-          AND requested_wounded_troops.unit_id = wounded_troops.unit_id
-      );
+      SET amount = wounded_troops.amount - requested_wounded_troops.amount
+      FROM requested_wounded_troops
+      WHERE
+        requested_wounded_troops.village_id = wounded_troops.village_id
+        AND requested_wounded_troops.unit_id = wounded_troops.unit_id;
     `,
     bind: { $wounded_troops: JSON.stringify(woundedTroops) },
   });

@@ -64,16 +64,16 @@ export const CookieProvider = ({ children }: PropsWithChildren) => {
 
     if (cookieStore) {
       cookieStore.addEventListener('change', updateCookies);
-    } else {
-      document.addEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
     }
+
+    document.addEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
 
     return () => {
       if (cookieStore) {
         cookieStore.removeEventListener('change', updateCookies);
-      } else {
-        document.removeEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
       }
+
+      document.removeEventListener(COOKIE_UPDATE_EVENT_NAME, updateCookies);
     };
   }, []);
 

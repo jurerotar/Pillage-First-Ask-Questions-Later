@@ -27,5 +27,6 @@ export const trapperCageProductionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [],
   };
 };

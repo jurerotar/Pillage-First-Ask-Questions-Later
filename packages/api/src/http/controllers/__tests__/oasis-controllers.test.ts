@@ -92,8 +92,8 @@ describe('oasis-controllers', () => {
 
     occupyOasis(
       database,
-      createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'post'>({
-        path: { villageId: village.id, oasisId: oasisTileId },
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: village.tile_id, oasisTileId },
       }),
     );
 
@@ -129,8 +129,8 @@ describe('oasis-controllers', () => {
 
     abandonOasis(
       database,
-      createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'delete'>({
-        path: { villageId: village.id, oasisId: oasisTileId },
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'delete'>({
+        path: { tileId: village.tile_id, oasisTileId },
       }),
     );
 
@@ -203,8 +203,8 @@ describe('oasis-controllers', () => {
 
     abandonOasis(
       database,
-      createControllerArgs<'/villages/:villageId/oasis/:oasisId', 'delete'>({
-        path: { villageId: owningVillage.id, oasisId: oasisTileId },
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'delete'>({
+        path: { tileId: owningVillage.tile_id, oasisTileId },
       }),
     );
 

@@ -44,7 +44,7 @@ export const selectPlayerVillagesWithPopulationQuery = `
     villages v
       JOIN tiles t ON t.id = v.tile_id
       LEFT JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
-      LEFT JOIN effects e ON e.village_id = v.id
+      LEFT JOIN effects e ON e.tile_id = v.tile_id
         AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
         AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
         AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')

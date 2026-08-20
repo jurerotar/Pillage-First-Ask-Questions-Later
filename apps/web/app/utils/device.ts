@@ -37,6 +37,9 @@ export const setCookie = async <T extends string>(
       expires: expires.getTime(),
       path: '/',
     });
+
+    const event = new Event(COOKIE_UPDATE_EVENT_NAME);
+    document.dispatchEvent(event);
     return;
   }
 
@@ -71,4 +74,10 @@ export const getDeviceId = (): string => {
   }
 
   return deviceId;
+};
+
+export const wait = (duration: number): Promise<void> => {
+  return new Promise((resolve) => {
+    globalThis.setTimeout(resolve, duration);
+  });
 };

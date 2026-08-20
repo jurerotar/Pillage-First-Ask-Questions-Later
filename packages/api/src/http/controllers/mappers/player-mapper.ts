@@ -47,7 +47,7 @@ export const mapVillageTroop = (
     unitId: row.unit_id,
     amount: row.amount,
     tileId: row.tile_id,
-    source: row.source_tile_id,
+    sourceTileId: row.source_tile_id,
     sourceTileType: row.source_tile_type,
   };
   return villageTroopDtoSchema.parse(dto);

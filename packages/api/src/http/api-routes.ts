@@ -17,7 +17,7 @@ import {
   updateDeveloperSettings,
   updateVillageResources,
 } from './controllers/developer-tools-controllers';
-import { getVillageEffects } from './controllers/effect-controllers';
+import { getTileEffects } from './controllers/effect-controllers';
 import {
   cancelConstructionEvent,
   cancelDemolitionEvent,
@@ -220,7 +220,7 @@ export const apiRoutes = [
   createRoute(getStationedTroopsByTile),
   createRoute(getWoundedTroopsByVillage),
   createRoute(getSentReinforcementsByTile),
-  createRoute(getVillageEffects),
+  createRoute(getTileEffects),
   createRoute(getVillageEvents),
   createRoute(getVillageEventsByType),
   createRoute(renameVillage),

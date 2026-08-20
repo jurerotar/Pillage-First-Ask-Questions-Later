@@ -108,7 +108,7 @@ describe('gatherers hut resolvers', () => {
           unitId: 'PHALANX',
           amount: 5,
           tileId: villageTileId,
-          source: villageTileId,
+          sourceTileId: villageTileId,
         },
       ],
     });

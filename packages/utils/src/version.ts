@@ -19,6 +19,27 @@ export const parseDatabaseUserVersion = (
   return [major, minor, patch];
 };
 
+const SUPPORTED_DATABASE_PATCH_VERSIONS = 20;
+
+export const isSupportedDatabaseUserVersion = (
+  databaseUserVersion: number,
+  appVersion: string,
+): boolean => {
+  const [databaseMajor, databaseMinor, databasePatch] =
+    parseDatabaseUserVersion(databaseUserVersion);
+  const [appMajor, appMinor, appPatch] = parseAppVersion(appVersion);
+
+  if (databaseMajor !== appMajor || databaseMinor !== appMinor) {
+    return false;
+  }
+
+  const patchVersionLag = appPatch - databasePatch;
+
+  return (
+    patchVersionLag >= 0 && patchVersionLag < SUPPORTED_DATABASE_PATCH_VERSIONS
+  );
+};
+
 export const encodeAppVersionToDatabaseUserVersion = (
   version: string,
 ): number => {

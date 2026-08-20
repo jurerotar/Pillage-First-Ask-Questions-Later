@@ -17,6 +17,7 @@ import {
   seededRandomIntFromInterval,
 } from '@pillage-first/utils/random';
 import { batchInsert } from '../utils/batch-insert';
+import { generateOasisBonusesForTiles } from '../utils/oasis-bonus-generator';
 
 type TileModel = {
   id: number;
@@ -301,6 +302,103 @@ const assignOasisAndFreeTileComposition = (
   });
 };
 
+const guaranteedCropperTargets: [ResourceFieldComposition, number][] = [
+  ['00018', 4],
+  ['11115', 12],
+  ['3339', 20],
+];
+
+// There should be at least some "good" croppers. This means 18c/15c/9c with 150% bonus.
+const applyGuaranteedCropperCompositions = (
+  server: Server,
+  tiles: TileModel[],
+): TileModel[] => {
+  const freeTiles: TileModel[] = [];
+  const oasisBonusSourceTiles: { id: number; oasis_graphics: number }[] = [];
+  const freeTilesByCoordinates = new Map<`${number}-${number}`, TileModel>();
+  const oasisTilesById = new Map<number, TileModel>();
+  const tileById = new Map<number, TileModel>();
+  const nearbyWheatOasisCountByTileId = new Map<number, number>();
+  const eligibleTileIds: number[] = [];
+  const cropperTileIds = new Map<ResourceFieldComposition, Set<number>>();
+
+  for (const [rfc] of guaranteedCropperTargets) {
+    cropperTileIds.set(rfc, new Set<number>());
+  }
+
+  for (const tile of tiles) {
+    if (tile.type === 'free') {
+      freeTiles.push(tile);
+      freeTilesByCoordinates.set(`${tile.x}-${tile.y}`, tile);
+      tileById.set(tile.id, tile);
+      continue;
+    }
+
+    oasisTilesById.set(tile.id, tile);
+
+    oasisBonusSourceTiles.push({
+      id: tile.id,
+      oasis_graphics: tile.oasis_graphics!,
+    });
+  }
+
+  for (const { tileId, resource, bonus } of generateOasisBonusesForTiles(
+    server,
+    oasisBonusSourceTiles,
+  )) {
+    if (resource !== 'wheat' || bonus !== 50) {
+      continue;
+    }
+
+    const oasisTile = oasisTilesById.get(tileId)!;
+
+    for (let x = oasisTile.x - 3; x <= oasisTile.x + 3; x += 1) {
+      for (let y = oasisTile.y - 3; y <= oasisTile.y + 3; y += 1) {
+        const tile = freeTilesByCoordinates.get(`${x}-${y}`);
+
+        if (!tile) {
+          continue;
+        }
+
+        nearbyWheatOasisCountByTileId.set(
+          tile.id,
+          (nearbyWheatOasisCountByTileId.get(tile.id) ?? 0) + 1,
+        );
+      }
+    }
+  }
+
+  for (const { id, resource_field_composition } of freeTiles) {
+    if ((nearbyWheatOasisCountByTileId.get(id) ?? 0) < 3) {
+      continue;
+    }
+
+    const cropperTileIdSet = cropperTileIds.get(resource_field_composition!);
+
+    if (cropperTileIdSet) {
+      cropperTileIdSet.add(id);
+      continue;
+    }
+
+    eligibleTileIds.push(id);
+  }
+
+  const prng = prngMulberry32(server.seed);
+
+  for (const [rfc, targetCount] of guaranteedCropperTargets) {
+    const tileIds = cropperTileIds.get(rfc)!;
+
+    while (tileIds.size < targetCount && eligibleTileIds.length > 0) {
+      const index = Math.floor(prng() * eligibleTileIds.length);
+      const [id] = eligibleTileIds.splice(index, 1);
+      tileIds.add(id);
+      tileById.get(id)!.resource_field_composition = rfc;
+    }
+  }
+
+  return tiles;
+};
+
 export const tilesSeeder = (database: DbFacade, server: Server): void => {
   const emptyTiles = generateGrid(server);
   const tilesWithShapedOasisFields = generateShapedOasisFields(
@@ -309,6 +407,10 @@ export const tilesSeeder = (database: DbFacade, server: Server): void => {
   );
   const tilesWithSingleOasisAndFreeTileTypes =
     assignOasisAndFreeTileComposition(server, tilesWithShapedOasisFields);
+  const tilesWithGuaranteedCroppers = applyGuaranteedCropperCompositions(
+    server,
+    tilesWithSingleOasisAndFreeTileTypes,
+  );
 
   const rfcRows = database.selectObjects({
     sql: 'SELECT resource_field_composition, id FROM resource_field_composition_ids;',
@@ -334,7 +436,7 @@ export const tilesSeeder = (database: DbFacade, server: Server): void => {
     tileTypeRows.map((t) => [t.type, t.id]),
   );
 
-  const rows = tilesWithSingleOasisAndFreeTileTypes.map((tile) => {
+  const rows = tilesWithGuaranteedCroppers.map((tile) => {
     const { id, x, y, type, resource_field_composition, oasis_graphics } = tile;
 
     const rfcId = type === 'free' ? rfcs[resource_field_composition!] : null;

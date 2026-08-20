@@ -70,6 +70,25 @@ const getTileIdByCoordinates = (
   })!;
 };
 
+const getAnyVillageWithTile = (
+  database: DbFacade,
+): { id: number; tileId: number } => {
+  return database.selectObject({
+    sql: `
+      SELECT id, tile_id AS tileId
+      FROM villages
+      WHERE player_id = $player_id
+      ORDER BY id
+      LIMIT 1;
+    `,
+    bind: { $player_id: PLAYER_ID },
+    schema: z.strictObject({
+      id: z.number(),
+      tileId: z.number(),
+    }),
+  })!;
+};
+
 const setDevFlag = (database: DbFacade, column: string, value: number) => {
   database.exec({
     sql: `UPDATE developer_settings SET ${column} = $value`,
@@ -647,7 +666,8 @@ describe('events utils', () => {
       database.exec({
         sql: `
           DELETE FROM effects
-          WHERE village_id = $village_id AND source_specifier = $field_id;
+          WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+            AND source_specifier = $field_id;
           DELETE FROM building_fields
           WHERE village_id = $village_id AND field_id = $field_id;
         `,
@@ -1280,7 +1300,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('No free oasis occupation slots available');
@@ -1317,7 +1337,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).not.toThrow();
@@ -1363,7 +1383,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('No free oasis occupation slots available');
@@ -1506,7 +1526,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('Target must be an oasis');
@@ -1602,7 +1622,7 @@ describe('events utils', () => {
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
             originalMovementType: 'troopMovementReturnReinforcements',
             troops: [
-              { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 },
+              { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, sourceTileId: 1 },
             ],
           }),
         ),
@@ -1725,7 +1745,7 @@ describe('events utils', () => {
             unitId: 'LEGIONNAIRE',
             amount: 40,
             tileId: villageTileId,
-            source: villageTileId,
+            sourceTileId: villageTileId,
           },
         ],
       });
@@ -1778,7 +1798,7 @@ describe('events utils', () => {
               unitId: 'LEGIONNAIRE',
               amount: 40,
               tileId: villageTileId,
-              source: villageTileId,
+              sourceTileId: villageTileId,
             },
           ],
         }),
@@ -1789,7 +1809,7 @@ describe('events utils', () => {
               unitId: 'PRAETORIAN',
               amount: 60,
               tileId: villageTileId,
-              source: villageTileId,
+              sourceTileId: villageTileId,
             },
           ],
         }),
@@ -2148,6 +2168,82 @@ describe('events utils', () => {
       expect(result).toBeGreaterThan(0);
     });
 
+    test('troopMovementAttack - should apply local speed effects by origin tile id', async () => {
+      const database = await prepareTestDatabase();
+      const village = getAnyVillageWithTile(database);
+
+      expect(village.id).not.toBe(village.tileId);
+
+      const targetTileId = database.selectValue({
+        sql: `
+          SELECT id
+          FROM tiles
+          WHERE id != $origin_tile_id
+          ORDER BY
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) *
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) +
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id)) *
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id))
+          LIMIT 1;
+        `,
+        bind: { $origin_tile_id: village.tileId },
+        schema: z.number(),
+      })!;
+
+      const event = createTroopMovementAttackEventMock({
+        villageId: village.id,
+        originTileId: village.tileId,
+        targetTileId,
+        troops: [
+          {
+            unitId: 'LEGIONNAIRE',
+            amount: 10,
+            tileId: village.tileId,
+            sourceTileId: village.tileId,
+          },
+        ],
+      });
+
+      database.exec({
+        sql: `
+          DELETE FROM effects
+          WHERE effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields')
+          );
+        `,
+      });
+
+      const durationWithoutBonus = getEventDuration(database, event);
+
+      database.exec({
+        sql: `
+          INSERT INTO effects (
+            effect_id,
+            value,
+            type_id,
+            scope_id,
+            source_id,
+            tile_id,
+            source_specifier
+          )
+          VALUES (
+            (SELECT id FROM effect_ids WHERE effect = 'unitSpeed'),
+            2,
+            (SELECT id FROM effect_type_ids WHERE type = 'bonus'),
+            (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+            (SELECT id FROM effect_source_ids WHERE source = 'hero'),
+            $tile_id,
+            NULL
+          );
+        `,
+        bind: { $tile_id: village.tileId },
+      });
+
+      expect(getEventDuration(database, event)).toBe(durationWithoutBonus / 2);
+    });
+
     test('troopTraining - should heal troops in half the normal training duration', async () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_instant_unit_training_enabled', 0);
@@ -2313,7 +2409,7 @@ describe('events utils', () => {
         createEvents(database, {
           type: 'gatherersHutGatheringTrip',
           villageId: 1,
-          troops: [{ unitId: 'PHALANX', amount: 1, source: 1 }],
+          troops: [{ unitId: 'PHALANX', amount: 1, sourceTileId: 1 }],
         } as never),
       ).toThrow();
 

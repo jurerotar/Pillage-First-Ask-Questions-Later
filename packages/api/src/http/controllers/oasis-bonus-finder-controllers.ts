@@ -130,9 +130,6 @@ export const getTilesWithBonuses = createController(
         src_village(x, y) AS (
           VALUES ($tile_x, $tile_y)
         ),
-        cropper_resource_field_compositions(resource_field_composition) AS (
-          VALUES ('3339'), ('11115'), ('00018')
-        ),
         requested_slot_bonuses AS (
           SELECT
             CAST(key AS INTEGER) AS request_id,
@@ -172,10 +169,7 @@ export const getTilesWithBonuses = createController(
             AND (
               (
                 $rfc_param = 'any-cropper'
-                AND rfc.resource_field_composition IN (
-                  SELECT resource_field_composition
-                  FROM cropper_resource_field_compositions
-                )
+                AND rfc.resource_field_composition IN ('3339', '11115', '00018')
               )
               OR (
                 $rfc_param <> 'any-cropper'
@@ -205,12 +199,6 @@ export const getTilesWithBonuses = createController(
           )
         ),
         valid_candidates AS (
-          SELECT c.id AS candidate_tile
-          FROM candidates c
-          WHERE (SELECT value FROM active_slot_count) = 0
-
-          UNION
-
           SELECT m1.candidate_tile
           FROM active_slot_count active_slots
           JOIN ranked_slots r1 ON r1.slot_rank = 1
@@ -254,21 +242,6 @@ export const getTilesWithBonuses = createController(
             sm.candidate_tile,
             sm.oasis_tile
           FROM slot_matches sm
-          WHERE (SELECT value FROM active_slot_count) > 0
-
-          UNION
-
-          SELECT DISTINCT
-            c.id AS candidate_tile,
-            o.tile_id AS oasis_tile
-          FROM candidates c
-          JOIN tiles ot
-            ON ot.x BETWEEN c.x - 3 AND c.x + 3
-            AND ot.y BETWEEN c.y - 3 AND c.y + 3
-          JOIN oasis o ON o.tile_id = ot.id
-          WHERE
-            (SELECT value FROM active_slot_count) = 0
-            AND o.village_id IS NOT NULL
         ),
         candidate_oasis_owners AS (
           SELECT

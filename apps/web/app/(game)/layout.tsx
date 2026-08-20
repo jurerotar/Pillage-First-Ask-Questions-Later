@@ -15,10 +15,12 @@ import type { Route } from '@react-router/types/app/(game)/+types/layout';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { Notifier } from 'app/(game)/components/notifier';
 import { serverExistAndLockMiddleware } from 'app/(game)/middleware/server-already-open-middleware';
-import { ApiProvider } from 'app/(game)/providers/api-provider';
+import {
+  ApiProvider,
+  ApiProviderFallback,
+} from 'app/(game)/providers/api-provider';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import { HeadLinks } from 'app/components/head-links';
-import { Spinner } from 'app/components/ui/spinner';
 import { Toaster } from 'app/components/ui/toaster';
 import { pushGameWorldOpened } from 'app/instrumentation/product-events';
 import { loadAppTranslations } from 'app/localization/loaders/app';
@@ -91,14 +93,6 @@ export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
   serverExistAndLockMiddleware,
 ];
 
-const LayoutFallback = () => {
-  return (
-    <div className="h-dvh w-full flex items-center justify-center bg-background!">
-      <Spinner size="large" />
-    </div>
-  );
-};
-
 const LayoutContent = memo<Route.ComponentProps>(
   ({ params, loaderData }) => {
     const { serverSlug } = params;
@@ -146,19 +140,21 @@ const LayoutContent = memo<Route.ComponentProps>(
     return (
       <html
         lang={i18n.language}
-        className={uiColorScheme === 'dark' ? 'dark' : ''}
+        className={uiColorScheme}
       >
         <head>
           <HeadLinks />
           <Links />
         </head>
-        <body className="bg-background text-foreground transition-colors duration-300">
+        <body className="bg-background text-foreground transition-colors">
           <QueryClientProvider client={queryClient}>
-            <Suspense fallback={<LayoutFallback />}>
-              <ApiProvider serverSlug={serverSlug}>
-                <Outlet />
-                <Notifier serverSlug={serverSlug} />
-              </ApiProvider>
+            <Suspense fallback={<ApiProviderFallback />}>
+              <div className="api-provider-splash-content">
+                <ApiProvider serverSlug={serverSlug}>
+                  <Outlet />
+                  <Notifier serverSlug={serverSlug} />
+                </ApiProvider>
+              </div>
             </Suspense>
             <Toaster
               position={toasterPosition}

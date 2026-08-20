@@ -134,12 +134,12 @@ export const useSendResourcesForm = ({
 
   const { mutate: transferResources, isPending } = useMutation({
     mutationFn: async () => {
-      await apiClient.post('/villages/:villageId/transfer-resources', {
+      await apiClient.post('/tiles/:tileId/transfer-resources', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
         body: {
-          targetVillageId: targetVillageId!,
+          targetTileId: targetVillage!.tileId,
           resources: selectedResources,
         },
       });

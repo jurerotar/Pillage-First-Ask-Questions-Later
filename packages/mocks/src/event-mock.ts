@@ -56,7 +56,7 @@ export const createTroopMovementAdventureEventMock = (
   return createGameEventMock('troopMovementAdventure', {
     originTileId: 1,
     targetTileId: 1,
-    troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+    troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };
@@ -67,7 +67,7 @@ export const createTroopMovementRelocationEventMock = (
   return createGameEventMock('troopMovementRelocation', {
     originTileId: 1,
     targetTileId: 1,
-    troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+    troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };
@@ -89,7 +89,7 @@ export const createTroopMovementAttackEventMock = (
   return createGameEventMock('troopMovementAttack', {
     originTileId: 1,
     targetTileId: 1,
-    troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
+    troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };
@@ -100,7 +100,7 @@ export const createTroopMovementRaidEventMock = (
   return createGameEventMock('troopMovementRaid', {
     originTileId: 1,
     targetTileId: 1,
-    troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, source: 1 }],
+    troops: [{ unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, sourceTileId: 1 }],
     ...overrides,
   });
 };

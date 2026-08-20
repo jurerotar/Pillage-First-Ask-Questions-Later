@@ -28,5 +28,6 @@ export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = (
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [],
   };
 };

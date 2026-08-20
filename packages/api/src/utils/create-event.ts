@@ -19,7 +19,7 @@ import {
   validateEventCreationPrerequisites,
   validateEventCreationResources,
 } from './events';
-import { subtractVillageResourcesAt } from './village';
+import { getVillageTileId, subtractResourceSiteResourcesAt } from './village';
 
 type CreateNewEventsArgs<T extends GameEventType> = Omit<
   GameEvent<T>,
@@ -66,9 +66,9 @@ export const createEvents = <T extends GameEventType>(
 
     const { villageId } = sampleEvent;
 
-    subtractVillageResourcesAt(
+    subtractResourceSiteResourcesAt(
       database,
-      villageId!,
+      getVillageTileId(database, villageId!),
       eventResourceSubtractionTimestamp,
       () => eventCost,
     );
@@ -110,6 +110,7 @@ export const createEvents = <T extends GameEventType>(
     ...events[0],
     // Creating events doesn't require this, because cache invalidation is already done by the frontend
     affectedVillageIds: [],
+    affectedTileIds: [],
   } satisfies EventApiNotificationEvent);
 
   // Determine if any created events should already be resolved

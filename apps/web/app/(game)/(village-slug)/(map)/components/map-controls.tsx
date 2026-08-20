@@ -35,7 +35,7 @@ const MagnificationButton = ({
       onClick={onClick}
       disabled={isDisabled}
       className={clsx(
-        'rounded-md p-2 disabled:text-muted-foreground/50 text-muted-foreground hover:bg-accent transition-colors duration-300 border border-border',
+        'rounded-md p-2 disabled:text-muted-foreground/50 text-muted-foreground hover:bg-accent transition-colors border border-border',
         isDisabled && 'bg-muted',
       )}
       data-testid={`map-controls-magnification-${direction}-button`}

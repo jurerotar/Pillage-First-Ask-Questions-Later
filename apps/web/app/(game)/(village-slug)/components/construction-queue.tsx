@@ -56,7 +56,7 @@ const ConstructionQueueBuilding = ({
   return (
     <div
       className={clsx(
-        'relative flex items-center gap-2 overflow-hidden rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-opacity non-selectable',
+        'relative flex items-center gap-2 overflow-hidden rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 shadow-xs transition-[background-color,border-color,color,opacity] non-selectable',
         isDragging && 'opacity-60',
         dropTargetStatus === 'valid' &&
           "before:pointer-events-none before:absolute before:inset-0 before:bg-emerald-400/20 before:content-['']",
@@ -85,7 +85,7 @@ const ConstructionQueueBuilding = ({
         />
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col border-x border-border px-2">
+      <div className="flex min-w-0 flex-1 flex-col border-x border-border px-2 transition-colors">
         <span className="inline-flex items-center gap-1 whitespace-nowrap">
           <b className="truncate">
             {t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
@@ -142,7 +142,7 @@ const CompactConstructionQueueBuilding = ({
       aria-label={t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
       aria-pressed={isSelected}
       className={clsx(
-        'relative flex flex-col overflow-hidden rounded-xs border bg-background non-selectable',
+        'relative flex flex-col overflow-hidden rounded-xs border bg-background transition-[background-color,border-color,color,opacity] non-selectable',
         isSelected ? 'border-foreground' : 'border-border',
         isDragging && 'opacity-60',
         dropTargetStatus === 'valid' &&
@@ -173,7 +173,7 @@ const CompactConstructionQueueBuilding = ({
         <>
           <LuConstruction className="box-content px-2.5 pb-4 pt-1 text-2xl text-muted-foreground" />
           <Countdown
-            className="absolute bottom-0 left-0 w-full border-t border-border bg-background text-center text-2xs leading-none"
+            className="absolute bottom-0 left-0 w-full border-t border-border bg-background text-center text-2xs leading-none transition-colors"
             endsAt={buildingEvent.startsAt + buildingEvent.duration}
           />
         </>
@@ -333,7 +333,7 @@ const ConstructionQueueContent = () => {
 
   return (
     <aside
-      className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-0 z-10 flex max-w-[calc(100vw-1rem)] flex-col items-start gap-1 transition-all lg:bottom-14"
+      className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-0 z-10 flex max-w-[calc(100vw-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color] lg:bottom-14"
       ref={containerRef}
     >
       {!isWiderThanLg && selectedEvent && (
@@ -343,7 +343,7 @@ const ConstructionQueueContent = () => {
           onCancel={cancelBuildingUpgradeQueueEntry}
         />
       )}
-      <ul className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-all lg:flex-col lg:items-stretch lg:overflow-visible">
+      <ul className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color] lg:flex-col lg:items-stretch lg:overflow-visible">
         {visibleSlots.map((slot) =>
           slot.type === 'building' ? (
             <ConstructionQueueEventSlot

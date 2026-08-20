@@ -339,7 +339,7 @@ export const GatherersHutExpedition = () => {
           unitId,
           amount: selected,
           tileId: currentVillage.tileId,
-          source: currentVillage.tileId,
+          sourceTileId: currentVillage.tileId,
         });
       }
     }
@@ -373,7 +373,7 @@ export const GatherersHutExpedition = () => {
         troops: data.troops,
         cachesToClearImmediately: [
           [currentVillageCacheKey],
-          [villageTroopsCacheKey, currentVillage.id],
+          [villageTroopsCacheKey, currentVillage.tileId],
         ],
       },
       {

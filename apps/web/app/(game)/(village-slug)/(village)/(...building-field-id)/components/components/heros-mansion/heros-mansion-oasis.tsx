@@ -104,7 +104,7 @@ const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
       <TableCell>
         <Button
           size="fit"
-          onClick={() => abandonOasis({ oasisId: occupiedOasis.oasis.id })}
+          onClick={() => abandonOasis({ oasisTileId: occupiedOasis.oasis.id })}
         >
           {t('Abandon oasis')}
         </Button>
@@ -132,10 +132,10 @@ const OccupiableOasisSlotActions = ({
 
   const isHeroAvailable = useMemo(() => {
     return villageTroops.some(
-      ({ unitId, tileId, source }) =>
+      ({ unitId, tileId, sourceTileId }) =>
         unitId === 'HERO' &&
         tileId === currentVillage.tileId &&
-        source === currentVillage.tileId,
+        sourceTileId === currentVillage.tileId,
     );
   }, [villageTroops, currentVillage.tileId]);
 
@@ -156,7 +156,7 @@ const OccupiableOasisSlotActions = ({
   return (
     <Button
       size="fit"
-      onClick={() => occupyOasis({ oasisId: oasis.id })}
+      onClick={() => occupyOasis({ oasisTileId: oasis.id })}
     >
       {t('Occupy')}
     </Button>

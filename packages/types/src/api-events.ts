@@ -1,6 +1,7 @@
 import type { Building } from './models/building';
 import type { BuildingField } from './models/building-field';
 import type { GameEvent, GameEventType } from './models/game-event';
+import type { Tile } from './models/tile';
 import type { Village } from './models/village';
 
 type EventKey =
@@ -30,6 +31,7 @@ export type EventApiNotificationEvent<
 > = GameEvent<T> & {
   eventKey: EventKey;
   affectedVillageIds: (Village['id'] | null)[];
+  affectedTileIds: Tile['id'][];
 };
 
 export type ScheduledBuildingConstructionCancellationReason =

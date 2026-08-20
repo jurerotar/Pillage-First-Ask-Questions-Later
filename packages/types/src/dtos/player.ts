@@ -22,7 +22,7 @@ export const villageTroopDtoSchema = z.strictObject({
   unitId: unitIdSchema,
   amount: z.number(),
   tileId: z.number(),
-  source: z.number(),
+  sourceTileId: z.number(),
   sourceTileType: tileTypeSchema.nullable(),
 });
 

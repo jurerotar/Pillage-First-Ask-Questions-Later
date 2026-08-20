@@ -119,7 +119,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
         unitId: unit.unitId,
         amount: unit.selected,
         tileId: currentVillage.tileId,
-        source: currentVillage.tileId,
+        sourceTileId: currentVillage.tileId,
       });
     }
 
@@ -170,7 +170,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
       troops,
       targetTileId,
       type: type,
-      villageId: currentVillage.id,
+      originTileId: currentVillage.tileId,
     });
 
     form.clearErrors('root');

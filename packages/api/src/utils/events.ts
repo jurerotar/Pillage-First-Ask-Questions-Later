@@ -125,7 +125,7 @@ import {
   doesTroopTrainingDurationEffectMatchBuilding,
   isUnitInVillageTribe,
 } from './unit-event-validation';
-import { calculateVillageResourcesAt } from './village';
+import { calculateResourceSiteResourcesAt, getVillageTileId } from './village';
 import { apiEffectSchema } from './zod/effect-schemas';
 import {
   baseEventRowSchema,
@@ -584,7 +584,10 @@ export const validateEventCreationPrerequisites = (
         );
       }
 
-      if (troop.tileId !== villageTileId || troop.source !== villageTileId) {
+      if (
+        troop.tileId !== villageTileId ||
+        troop.sourceTileId !== villageTileId
+      ) {
         throw new Error('Gathering trips can only include idle home troops');
       }
 
@@ -779,10 +782,17 @@ export const validateEventCreationPrerequisites = (
         },
         schema: apiEffectSchema,
       });
+      const tileId = database.selectValue({
+        sql: selectVillageTileIdQuery,
+        bind: {
+          $village_id: villageId,
+        },
+        schema: z.number(),
+      })!;
       const { total: freeCrop } = calculateComputedEffect(
         'wheatProduction',
         wheatProductionEffects,
-        villageId,
+        tileId,
       );
       const requiredFreeCrop = calculatePopulationDifference(
         buildingId,
@@ -1025,7 +1035,11 @@ export const validateEventCreationResources = (
   const { villageId, startsAt } = event;
   const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
   const { currentWood, currentClay, currentIron, currentWheat } =
-    calculateVillageResourcesAt(database, villageId!, startsAt);
+    calculateResourceSiteResourcesAt(
+      database,
+      getVillageTileId(database, villageId!),
+      startsAt,
+    );
 
   return !(
     woodCost > currentWood ||
@@ -1306,11 +1320,18 @@ export const getEventDuration = (
       },
       schema: apiEffectSchema,
     });
+    const tileId = database.selectValue({
+      sql: selectVillageTileIdQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    })!;
 
     const { total } = calculateComputedEffect(
       'buildingDuration',
       effects,
-      villageId,
+      tileId,
     );
 
     const baseBuildingDuration = calculateBuildingDurationForLevel(
@@ -1341,11 +1362,18 @@ export const getEventDuration = (
       },
       schema: apiEffectSchema,
     });
+    const tileId = database.selectValue({
+      sql: selectVillageTileIdQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    })!;
 
     const { total: unitResearchDurationModifier } = calculateComputedEffect(
       'unitResearchDuration',
       effects,
-      villageId,
+      tileId,
     );
 
     return unitResearchDurationModifier * calculateUnitResearchDuration(unitId);
@@ -1371,11 +1399,18 @@ export const getEventDuration = (
       },
       schema: apiEffectSchema,
     });
+    const tileId = database.selectValue({
+      sql: selectVillageTileIdQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    })!;
 
     const { total: unitImprovementDurationModifier } = calculateComputedEffect(
       'unitImprovementDuration',
       effects,
-      villageId,
+      tileId,
     );
 
     return (
@@ -1404,11 +1439,18 @@ export const getEventDuration = (
       },
       schema: apiEffectSchema,
     });
+    const tileId = database.selectValue({
+      sql: selectVillageTileIdQuery,
+      bind: {
+        $village_id: villageId,
+      },
+      schema: z.number(),
+    })!;
 
     const { total } = calculateComputedEffect(
       durationEffectId,
       effects,
-      villageId,
+      tileId,
     );
 
     const { baseRecruitmentDuration } = getUnitDefinition(unitId);
@@ -1563,7 +1605,6 @@ export const getEventDuration = (
     })!;
 
     return calculateTravelDuration({
-      originVillageId: villageId,
       targetTileId,
       originTileId,
       mapSize,

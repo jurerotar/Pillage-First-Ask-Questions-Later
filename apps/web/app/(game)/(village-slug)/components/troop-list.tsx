@@ -27,11 +27,11 @@ const TroopListContent = () => {
 
   const [ownTroops, reinforcements] = partition<Troop>(
     currentVillagePlayerTroops,
-    ({ tileId, source }) => tileId === source,
+    ({ tileId, sourceTileId }) => tileId === sourceTileId,
   );
 
   return (
-    <aside className="fixed right-0 bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs transition-[bottom]">
+    <aside className="fixed right-0 bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] lg:bottom-14 flex lg:flex-col gap-1 bg-background/80 p-1 shadow-xs border-border rounded-r-none rounded-xs [contain:paint] transition-[background-color,border-color,bottom,color]">
       <div
         data-tooltip-id={tooltipId}
         className="flex flex-col relative cursor-pointer transition-colors"

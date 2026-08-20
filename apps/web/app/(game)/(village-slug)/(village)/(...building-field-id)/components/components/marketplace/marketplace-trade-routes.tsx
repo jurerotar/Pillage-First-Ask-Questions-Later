@@ -301,9 +301,9 @@ const ActiveTradeRoutes = ({
 
   const { mutate: deleteTradeRoute, isPending } = useMutation({
     mutationFn: async (eventId: number) => {
-      await apiClient.delete('/villages/:villageId/trade-routes/:eventId', {
+      await apiClient.delete('/tiles/:tileId/trade-routes/:eventId', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
           eventId,
         },
       });
@@ -465,12 +465,16 @@ export const MarketplaceTradeRoutes = () => {
 
   const { mutate: createTradeRoute, isPending } = useMutation({
     mutationFn: async (values: MarketplaceTradeRouteFormValues) => {
-      await apiClient.post('/villages/:villageId/trade-routes', {
+      const targetVillage = targetVillages.find(
+        (village) => village.id === values.targetVillageId,
+      )!;
+
+      await apiClient.post('/tiles/:tileId/trade-routes', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
         body: {
-          targetVillageId: values.targetVillageId!,
+          targetTileId: targetVillage.tileId,
           resources: values.resources,
           startHour: values.startHour,
           intervalHours: values.intervalHours,
@@ -492,13 +496,17 @@ export const MarketplaceTradeRoutes = () => {
 
   const { mutate: updateTradeRoute, isPending: isUpdatePending } = useMutation({
     mutationFn: async (values: MarketplaceTradeRouteFormValues) => {
-      await apiClient.patch('/villages/:villageId/trade-routes/:eventId', {
+      const targetVillage = targetVillages.find(
+        (village) => village.id === values.targetVillageId,
+      )!;
+
+      await apiClient.patch('/tiles/:tileId/trade-routes/:eventId', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
           eventId: editingTradeRoute!.id,
         },
         body: {
-          targetVillageId: values.targetVillageId!,
+          targetTileId: targetVillage.tileId,
           resources: values.resources,
           startHour: values.startHour,
           intervalHours: values.intervalHours,

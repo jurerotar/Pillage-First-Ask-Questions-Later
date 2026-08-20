@@ -117,16 +117,19 @@ export const buildingFieldsSeeder = (
         tribe,
         resource_field_composition,
       );
+
       villageTemplateRows.push([village_id, templateId]);
       continue;
     }
 
     const villageSize = getVillageSize(server.configuration.mapSize, x, y);
+
     const templateId = getTemplateId(
       villageSize,
       tribe,
       resource_field_composition,
     );
+
     villageTemplateRows.push([village_id, templateId]);
   }
 
@@ -141,6 +144,7 @@ export const buildingFieldsSeeder = (
       ) STRICT;
     `,
   });
+
   database.exec({
     sql: `
       CREATE TEMPORARY TABLE village_building_field_templates
@@ -151,37 +155,35 @@ export const buildingFieldsSeeder = (
     `,
   });
 
-  try {
-    batchInsert(
-      database,
-      'building_field_templates',
-      ['template_id', 'field_id', 'building_id', 'level'],
-      templateFieldRows,
-    );
+  batchInsert(
+    database,
+    'building_field_templates',
+    ['template_id', 'field_id', 'building_id', 'level'],
+    templateFieldRows,
+  );
 
-    batchInsert(
-      database,
-      'village_building_field_templates',
-      ['village_id', 'template_id'],
-      villageTemplateRows,
-    );
+  batchInsert(
+    database,
+    'village_building_field_templates',
+    ['village_id', 'template_id'],
+    villageTemplateRows,
+  );
 
-    database.exec({
-      sql: `
-        INSERT INTO
-          building_fields (village_id, field_id, building_id, level)
-        SELECT
-          vbft.village_id,
-          bft.field_id,
-          bft.building_id,
-          bft.level
-        FROM
-          village_building_field_templates vbft
-            JOIN building_field_templates bft ON bft.template_id = vbft.template_id;
-      `,
-    });
-  } finally {
-    database.exec({ sql: 'DROP TABLE village_building_field_templates;' });
-    database.exec({ sql: 'DROP TABLE building_field_templates;' });
-  }
+  database.exec({
+    sql: `
+      INSERT INTO
+        building_fields (village_id, field_id, building_id, level)
+      SELECT
+        vbft.village_id,
+        bft.field_id,
+        bft.building_id,
+        bft.level
+      FROM
+        village_building_field_templates vbft
+          JOIN building_field_templates bft ON bft.template_id = vbft.template_id;
+    `,
+  });
+
+  database.exec({ sql: 'DROP TABLE village_building_field_templates;' });
+  database.exec({ sql: 'DROP TABLE building_field_templates;' });
 };

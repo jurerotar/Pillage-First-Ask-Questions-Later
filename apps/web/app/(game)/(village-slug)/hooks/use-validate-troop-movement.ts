@@ -9,7 +9,7 @@ type ValidateTroopMovementArgs = {
   type: TroopMovementEventType;
   troops: Troop[];
   targetTileId: number;
-  villageId: number;
+  originTileId: number;
 };
 
 const validateTroopMovementSchema = z.strictObject({

@@ -7,7 +7,7 @@ import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
 
 type AbandonOasisArgs = {
-  oasisId: Tile['id'];
+  oasisTileId: Tile['id'];
 };
 
 const occupiableOasisInRangeCacheKey = 'occupiable-oasis-in-range';
@@ -17,7 +17,7 @@ export const useOccupiableOasisInRange = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: occupiableOasisInRange } = useSuspenseQuery({
-    queryKey: [occupiableOasisInRangeCacheKey, currentVillage.id],
+    queryKey: [occupiableOasisInRangeCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await apiClient.get(
         '/villages/:villageId/occupiable-oasis',
@@ -33,35 +33,35 @@ export const useOccupiableOasisInRange = () => {
   });
 
   const { mutate: abandonOasis } = useMutation<void, Error, AbandonOasisArgs>({
-    mutationFn: async ({ oasisId }) => {
-      await apiClient.delete('/villages/:villageId/oasis/:oasisId', {
+    mutationFn: async ({ oasisTileId }) => {
+      await apiClient.delete('/tiles/:tileId/oasis/:oasisTileId', {
         path: {
-          villageId: currentVillage.id,
-          oasisId,
+          tileId: currentVillage.tileId,
+          oasisTileId,
         },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [occupiableOasisInRangeCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [occupiableOasisInRangeCacheKey, currentVillage.tileId],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });
 
   const { mutate: occupyOasis } = useMutation<void, Error, AbandonOasisArgs>({
-    mutationFn: async ({ oasisId }) => {
-      await apiClient.post('/villages/:villageId/oasis/:oasisId', {
+    mutationFn: async ({ oasisTileId }) => {
+      await apiClient.post('/tiles/:tileId/oasis/:oasisTileId', {
         path: {
-          villageId: currentVillage.id,
-          oasisId,
+          tileId: currentVillage.tileId,
+          oasisTileId,
         },
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [occupiableOasisInRangeCacheKey, currentVillage.id],
-        [effectsCacheKey, currentVillage.id],
+        [occupiableOasisInRangeCacheKey, currentVillage.tileId],
+        [effectsCacheKey, currentVillage.tileId],
       ]);
     },
   });

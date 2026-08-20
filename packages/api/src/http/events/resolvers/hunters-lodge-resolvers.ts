@@ -27,6 +27,7 @@ export const animalCageProductionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [],
   };
 };
 
@@ -54,7 +55,7 @@ export const huntersLodgeHuntResolver: Resolver<
       unitId,
       amount: 1,
       tileId: huntersLodge.villageTileId,
-      source: huntersLodge.sourceTileId,
+      sourceTileId: huntersLodge.sourceTileId,
     },
   ]);
 
@@ -68,5 +69,6 @@ export const huntersLodgeHuntResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [huntersLodge.villageTileId],
   };
 };

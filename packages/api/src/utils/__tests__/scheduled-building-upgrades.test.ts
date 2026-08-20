@@ -731,7 +731,7 @@ describe('scheduled building upgrades', () => {
     database.exec({
       sql: `
         DELETE FROM effects
-        WHERE village_id = $village_id
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $placeholder_field_id;
         DELETE FROM building_fields
         WHERE village_id = $village_id
@@ -790,7 +790,7 @@ describe('scheduled building upgrades', () => {
              AND field_id = $placeholder_field_id) AS placeholderFields,
           (SELECT COUNT(*)
            FROM effects
-           WHERE village_id = $village_id
+           WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
              AND source_specifier = $placeholder_field_id
              AND source_id = (
                SELECT id FROM effect_source_ids WHERE source = 'building'
@@ -826,7 +826,7 @@ describe('scheduled building upgrades', () => {
     database.exec({
       sql: `
         DELETE FROM effects
-        WHERE village_id = $village_id
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
         WHERE village_id = $village_id
@@ -905,7 +905,7 @@ describe('scheduled building upgrades', () => {
         sql: `
           UPDATE effects
           SET value = $value
-          WHERE village_id = $village_id
+          WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
             AND effect_id = (
               SELECT id FROM effect_ids WHERE effect = 'wheatProduction'
             );

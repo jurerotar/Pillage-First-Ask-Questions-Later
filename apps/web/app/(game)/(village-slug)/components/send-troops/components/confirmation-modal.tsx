@@ -217,7 +217,6 @@ const TroopConfirmationMovementDetails = ({
 
   const travelDuration = useMemo(() => {
     return calculateTravelDuration({
-      originVillageId: currentVillage.id,
       originTileId: resolvedOriginTileId,
       targetTileId: formData.target.tileId,
       mapSize,
@@ -225,7 +224,7 @@ const TroopConfirmationMovementDetails = ({
         unitId: t.unitId,
         amount: t.selected,
         tileId: currentVillage.tileId,
-        source: currentVillage.tileId,
+        sourceTileId: currentVillage.tileId,
       })),
       effects,
     });

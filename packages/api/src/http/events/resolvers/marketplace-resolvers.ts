@@ -8,7 +8,7 @@ import {
   getVillageMerchantStats,
 } from '../../../utils/marketplace';
 import { insertTradeReport } from '../../../utils/report';
-import { addVillageResourcesAt } from '../../../utils/village';
+import { addResourceSiteResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const resourceTransferResolver: Resolver<
@@ -27,10 +27,11 @@ export const resourceTransferResolver: Resolver<
   if (getTotalResourceAmount(resources) === 0) {
     return {
       affectedVillageIds: [villageId],
+      affectedTileIds: [originTileId, targetTileId],
     };
   }
 
-  addVillageResourcesAt(database, targetVillageId, resolvesAt, [
+  addResourceSiteResourcesAt(database, targetTileId, resolvesAt, [
     resources.wood,
     resources.clay,
     resources.iron,
@@ -97,6 +98,7 @@ export const resourceTransferResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId, targetVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 
@@ -148,5 +150,6 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
 
   return {
     affectedVillageIds: [villageId, targetVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };

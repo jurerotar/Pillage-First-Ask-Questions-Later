@@ -46,8 +46,8 @@ export const useHeroAdventures = () => {
       await invalidateQueries(context, [
         [adventurePointsCacheKey],
         [heroCacheKey],
-        [villageTroopsCacheKey, currentVillage.id],
-        [troopMovementsCacheKey, currentVillage.id],
+        [villageTroopsCacheKey, currentVillage.tileId],
+        [troopMovementsCacheKey, currentVillage.tileId],
       ]);
     },
   });

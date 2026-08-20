@@ -6,7 +6,6 @@ import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from '../indexes/players-indexes.sql?raw';
 import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
-import createResourceSitesIndexes from '../indexes/resource-sites-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
@@ -97,7 +96,6 @@ import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
 import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expeditions-seeder';
-import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
 import { mapFiltersSeeder } from '../seeders/map-filters-seeder';
@@ -296,9 +294,6 @@ export const migrateAndSeed = (
     // Hero inventories
     db.exec({ sql: createHeroInventoriesTable });
 
-    // Guaranteed croppers
-    guaranteedCroppersSeeder(db, server);
-
     // Farm lists
     db.exec({ sql: createFarmListsTable });
     db.exec({ sql: createFarmListTilesTable });
@@ -330,7 +325,6 @@ export const migrateAndSeed = (
     // Resource sites
     db.exec({ sql: createResourceSitesTable });
     resourceSitesSeeder(db, server);
-    db.exec({ sql: createResourceSitesIndexes });
 
     // World items
     db.exec({ sql: createWorldItemsTable });

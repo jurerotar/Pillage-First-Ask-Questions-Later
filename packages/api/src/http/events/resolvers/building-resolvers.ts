@@ -17,7 +17,8 @@ import { assessBuildingQuestCompletion } from '../../../utils/quests';
 import { promoteNextScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
   demolishBuilding,
-  updateVillageResourcesAt,
+  getVillageTileId,
+  updateResourceSiteResourcesAt,
 } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
@@ -111,7 +112,9 @@ export const buildingLevelChangeResolver: Resolver<
         AND effects.source_id = (
           SELECT id FROM effect_source_ids WHERE source = 'building'
         )
-        AND effects.village_id = $village_id
+        AND effects.tile_id = (
+          SELECT tile_id FROM villages WHERE id = $village_id
+        )
         AND effects.source_specifier = $source_specifier;
     `,
       bind: {
@@ -147,10 +150,15 @@ export const buildingLevelChangeResolver: Resolver<
     );
   }
 
-  updateVillageResourcesAt(database, villageId, resolvesAt);
+  updateResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, villageId),
+    resolvesAt,
+  );
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [getVillageTileId(database, villageId)],
   };
 };
 
@@ -180,6 +188,7 @@ export const buildingConstructionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [getVillageTileId(database, villageId)],
   };
 };
 
@@ -237,7 +246,9 @@ export const buildingDestructionResolver: Resolver<
           AND effects.source_id = (
             SELECT id FROM effect_source_ids WHERE source = 'building'
           )
-          AND effects.village_id = $village_id
+          AND effects.tile_id = (
+            SELECT tile_id FROM villages WHERE id = $village_id
+          )
           AND effects.source_specifier = $source_specifier;
       `,
         bind: {
@@ -260,7 +271,7 @@ export const buildingDestructionResolver: Resolver<
         sql: `
           DELETE FROM effects
           WHERE
-            village_id = $village_id
+            tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
             AND effect_id = (
               SELECT id FROM effect_ids WHERE effect = $effect_id
             )
@@ -277,7 +288,7 @@ export const buildingDestructionResolver: Resolver<
         sql: `
         DELETE
         FROM effects
-        WHERE village_id = $village_id
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND effect_id IN (
             SELECT effect_ids.id
             FROM
@@ -312,6 +323,7 @@ export const buildingDestructionResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [getVillageTileId(database, villageId)],
   };
 };
 
@@ -328,5 +340,6 @@ export const buildingScheduledConstructionEventResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [],
   };
 };

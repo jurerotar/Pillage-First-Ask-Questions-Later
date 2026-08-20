@@ -24,7 +24,6 @@ export const returnOasisReinforcements = (
   const troopsBySourceTileId = new Map<
     number,
     {
-      sourceVillageId: number;
       troops: ReinforcementTroopSelection[];
     }
   >();
@@ -35,7 +34,6 @@ export const returnOasisReinforcements = (
     }
 
     const sourceGroup = troopsBySourceTileId.get(troop.source_tile_id) ?? {
-      sourceVillageId: troop.source_village_id,
       troops: [],
     };
 
@@ -46,18 +44,7 @@ export const returnOasisReinforcements = (
     troopsBySourceTileId.set(troop.source_tile_id, sourceGroup);
   }
 
-  for (const [
-    sourceTileId,
-    { sourceVillageId, troops },
-  ] of troopsBySourceTileId) {
-    returnStationedTroops(
-      db,
-      sourceVillageId,
-      oasisId,
-      sourceTileId,
-      sourceTileId,
-      troops,
-      now,
-    );
+  for (const [sourceTileId, { troops }] of troopsBySourceTileId) {
+    returnStationedTroops(db, oasisId, sourceTileId, sourceTileId, troops, now);
   }
 };

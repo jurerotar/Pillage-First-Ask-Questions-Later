@@ -534,10 +534,10 @@ const FoundNewVillageAction = ({
   const settlerUnitId = getSettlerUnitIdByTribe(tribe);
 
   const hasAtLeast3Settlers = villageTroops.some(
-    ({ unitId, amount, source }) => {
+    ({ unitId, amount, sourceTileId }) => {
       return (
         unitId === settlerUnitId &&
-        source === currentVillage.tileId &&
+        sourceTileId === currentVillage.tileId &&
         amount >= 3
       );
     },

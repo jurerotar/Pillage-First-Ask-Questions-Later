@@ -34,7 +34,7 @@ const getCropperCount = (rfc: string) => {
   return goodCropperTileIds.length;
 };
 
-describe('guaranteedCroppersSeeder', () => {
+describe('guaranteed croppers', () => {
   test('seeds at least 4 00018 tiles with 150% wheat bonus', () => {
     expect(getCropperCount('00018')).toBeGreaterThanOrEqual(4);
   });

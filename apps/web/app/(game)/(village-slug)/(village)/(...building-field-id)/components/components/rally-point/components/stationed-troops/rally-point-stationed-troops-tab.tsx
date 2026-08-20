@@ -28,7 +28,7 @@ export const RallyPointStationedTroopsTab = () => {
   const [ownTroops] = useMemo(() => {
     return partition(
       villageTroops,
-      (troop) => troop.source === currentVillage.tileId,
+      (troop) => troop.sourceTileId === currentVillage.tileId,
     );
   }, [villageTroops, currentVillage.tileId]);
 

@@ -1,14 +1,17 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import type { Resource } from '@pillage-first/types/models/resource';
+import {
+  type Resource,
+  resourceSchema,
+} from '@pillage-first/types/models/resource';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
 import { getTilesWithBonuses } from '../oasis-bonus-finder-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 const oasisBonusRowSchema = z.strictObject({
   tile_id: z.number(),
-  resource: z.enum(['wood', 'clay', 'iron', 'wheat']),
+  resource: resourceSchema,
   bonus: z.union([z.literal(25), z.literal(50)]),
 });
 

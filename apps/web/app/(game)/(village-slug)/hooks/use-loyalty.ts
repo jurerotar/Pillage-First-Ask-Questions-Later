@@ -9,11 +9,11 @@ export const useLoyalty = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: loyalty } = useSuspenseQuery({
-    queryKey: [loyaltyCacheKey, currentVillage.id],
+    queryKey: [loyaltyCacheKey, currentVillage.tileId],
     queryFn: async () => {
       const { data } = await apiClient.get('/tiles/:tileId/loyalty', {
         path: {
-          tileId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
       });
 
