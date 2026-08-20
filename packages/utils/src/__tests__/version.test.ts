@@ -41,7 +41,7 @@ describe('version utils', () => {
   });
 
   describe(isSupportedDatabaseUserVersion, () => {
-    test('should support the current patch and nine previous patches in the same minor version', () => {
+    test('should support the current patch and nineteen previous patches in the same minor version', () => {
       expect(
         isSupportedDatabaseUserVersion(
           encodeAppVersionToDatabaseUserVersion('1.2.55'),
@@ -50,13 +50,13 @@ describe('version utils', () => {
       ).toBe(true);
       expect(
         isSupportedDatabaseUserVersion(
-          encodeAppVersionToDatabaseUserVersion('1.2.46'),
+          encodeAppVersionToDatabaseUserVersion('1.2.36'),
           '1.2.55',
         ),
       ).toBe(true);
       expect(
         isSupportedDatabaseUserVersion(
-          encodeAppVersionToDatabaseUserVersion('1.2.45'),
+          encodeAppVersionToDatabaseUserVersion('1.2.35'),
           '1.2.55',
         ),
       ).toBe(false);
