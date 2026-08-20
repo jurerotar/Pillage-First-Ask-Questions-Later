@@ -9,6 +9,7 @@ import { calculateMaxUnits } from '@pillage-first/game-assets/utils/units';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -47,7 +48,7 @@ const TrapperCageProductionQueue = () => {
   const { eventsByType } = useEventsByType('trapperCageProduction');
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -84,7 +85,7 @@ const TrapperCageProductionQueue = () => {
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 

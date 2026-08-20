@@ -1,3 +1,12 @@
+## Version 0.4.54
+
+#### Aug 20, 2026
+
+* [Feature] Smithy received a small update. It will now show a unit upgrade duration table, allowing you to more easily
+  plan unit upgrades.
+* [BugFix] Rebalanced Smithy unit upgrade duration. Unit upgrades should now be much faster.
+* [UIUXImprovement] Horizontally overflowing tables are now scrollable with mouse.
+
 ## Version 0.4.53
 
 #### Aug 16, 2026
@@ -5,10 +14,10 @@
 * [Feature] Battle reports will now display a row for hospitalized and imprisoned troops.
 * [Feature] Battle reports will now include a sum of losses, imprisoned and hospitalized troops.
 * [Feature] Battle reports will now include a list of damaged buildings.
-* [Feature] Preparatory work for attacks and raids. When attacking with only scouts, confirmation modal
-  will now display scouting target. When your attack includes catapults, you'll now have the option of selecting
-  targets. When attacking an unoccupied oasis with a hero and your hero has cages equipped, you'll now have the option
-  of selecting either a battle or capture mode.
+* [Feature] Preparatory work for attacks and raids. When attacking with only scouts, confirmation modal will now display
+  scouting target. When your attack includes catapults, you'll now have the option of selecting targets. When attacking
+  an unoccupied oasis with a hero and your hero has cages equipped, you'll now have the option of selecting either a
+  battle or capture mode.
 * [UIUXImprovement] For PWA-installations, toast notifications will now no longer render out of bounds, and construction
   list & troop list will no longer render with incorrect bottom offset.
 * [TechnicalImprovement] Large cleanup of the backend to improve type safety and remove redundant code branches.

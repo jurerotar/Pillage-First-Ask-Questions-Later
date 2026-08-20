@@ -99,13 +99,13 @@ export const calculateUnitUpgradeDurationForLevel = (
 ): number => {
   const { baseRecruitmentDuration } = getUnitDefinition(unitId);
 
-  const unitUpgradeDurationModifier = 1.35;
+  const unitUpgradeDurationModifier = 1.15;
 
   return (
     Math.ceil(
       (baseRecruitmentDuration * unitUpgradeDurationModifier ** (level - 1)) /
-        5,
-    ) * 30
+        10,
+    ) * 10
   );
 };
 

@@ -14,6 +14,7 @@ import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -92,7 +93,7 @@ const ActiveGatheringPartyTable = ({
   const { t } = useTranslation();
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -134,7 +135,7 @@ const ActiveGatheringPartyTable = ({
           })}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 

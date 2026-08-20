@@ -65,7 +65,7 @@ describe('units', () => {
 
   test('calculateUnitUpgradeDurationForLevel returns correct duration at level 2', () => {
     const result = calculateUnitUpgradeDurationForLevel(mockUnitId, 2);
-    expect(result).toBe(14_256_000);
+    expect(result).toBe(2_024_000);
   });
 
   test('upgrade cost increases consistently with level', () => {
