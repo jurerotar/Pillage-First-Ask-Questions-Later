@@ -1399,22 +1399,22 @@ export const upgradeDb = (
     setupGlobalWriteTriggers(db);
   });
 
-  migrate('0.4.54', (db) => {
-    db.exec({
-      sql: `
-        DROP INDEX IF EXISTS idx_effects_effect_id;
-        DROP INDEX IF EXISTS idx_effects_village_id;
-        DROP INDEX IF EXISTS idx_effects_tile_id;
-        DROP INDEX IF EXISTS idx_effects_village_effect_scope_spec;
-        DROP INDEX IF EXISTS idx_effects_effect_village_scope_spec;
-        DROP INDEX IF EXISTS idx_effects_effect_tile_scope_spec;
-        DROP INDEX IF EXISTS idx_effects_tile_effect_scope_spec;
-        DROP INDEX IF EXISTS idx_effects_resource_village;
-        DROP INDEX IF EXISTS idx_effects_resource_tile;
-        DROP INDEX IF EXISTS idx_effects_wheat_effect_village_value;
-        DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;
-      `,
-    });
+  migrate('0.4.55', (db) => {
+    for (const sql of [
+      'DROP INDEX IF EXISTS idx_effects_effect_id;',
+      'DROP INDEX IF EXISTS idx_effects_village_id;',
+      'DROP INDEX IF EXISTS idx_effects_tile_id;',
+      'DROP INDEX IF EXISTS idx_effects_village_effect_scope_spec;',
+      'DROP INDEX IF EXISTS idx_effects_effect_village_scope_spec;',
+      'DROP INDEX IF EXISTS idx_effects_effect_tile_scope_spec;',
+      'DROP INDEX IF EXISTS idx_effects_tile_effect_scope_spec;',
+      'DROP INDEX IF EXISTS idx_effects_resource_village;',
+      'DROP INDEX IF EXISTS idx_effects_resource_tile;',
+      'DROP INDEX IF EXISTS idx_effects_wheat_effect_village_value;',
+      'DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;',
+    ]) {
+      db.exec({ sql });
+    }
 
     db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
 
@@ -1477,23 +1477,26 @@ export const upgradeDb = (
       db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
     }
 
-    db.exec({
-      sql: `
-        CREATE INDEX IF NOT EXISTS idx_effects_effect_id ON effects(effect_id);
-        CREATE INDEX IF NOT EXISTS idx_effects_tile_id ON effects(tile_id);
-
+    for (const sql of [
+      'CREATE INDEX IF NOT EXISTS idx_effects_effect_id ON effects(effect_id);',
+      'CREATE INDEX IF NOT EXISTS idx_effects_tile_id ON effects(tile_id);',
+      `
         CREATE INDEX IF NOT EXISTS idx_effects_tile_effect_scope_spec
           ON effects(effect_id, tile_id, scope_id, source_specifier);
-
+      `,
+      `
         CREATE INDEX IF NOT EXISTS idx_effects_resource_tile
           ON effects(tile_id, effect_id, scope_id)
           WHERE tile_id IS NOT NULL;
-
+      `,
+      `
         CREATE INDEX IF NOT EXISTS idx_effects_wheat_effect_tile_value
           ON effects(effect_id, tile_id, value)
           WHERE scope_id = 2 AND source_specifier = 0 AND effect_id = 1;
       `,
-    });
+    ]) {
+      db.exec({ sql });
+    }
 
     db.exec({
       sql: `
@@ -1504,13 +1507,21 @@ export const upgradeDb = (
           AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
           AND tile_id IS NULL
           AND source_specifier IN (SELECT id FROM tiles);
+      `,
+    });
 
+    db.exec({
+      sql: `
         DELETE FROM effects
         WHERE
           source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
           AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
           AND tile_id IS NULL;
+      `,
+    });
 
+    db.exec({
+      sql: `
         WITH
           effect_context(type_id, scope_id, source_id) AS (
             SELECT
@@ -1634,30 +1645,34 @@ export const upgradeDb = (
       `,
     });
 
-    db.exec({
-      sql: `
-        DROP INDEX IF EXISTS idx_building_fields_building_id;
-
+    for (const sql of [
+      'DROP INDEX IF EXISTS idx_building_fields_building_id;',
+      `
         CREATE INDEX IF NOT EXISTS idx_building_fields_building_id_level
           ON building_fields(building_id, level);
-
+      `,
+      `
         CREATE INDEX IF NOT EXISTS idx_reports_timestamp
           ON reports(timestamp DESC);
-
+      `,
+      `
         CREATE INDEX IF NOT EXISTS idx_reports_village_timestamp
           ON reports(village_id, timestamp DESC);
-
+      `,
+      `
         CREATE INDEX IF NOT EXISTS idx_battle_report_participants_battle
           ON battle_report_participants(battle_id);
-
+      `,
+      `
         CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
           ON battle_report_buildings(report_id);
-
-        DROP INDEX IF EXISTS idx_unit_ids_unit;
-        DROP INDEX IF EXISTS idx_resource_sites_tile_id;
-        DROP INDEX IF EXISTS idx_villages_tile_id;
       `,
-    });
+      'DROP INDEX IF EXISTS idx_unit_ids_unit;',
+      'DROP INDEX IF EXISTS idx_resource_sites_tile_id;',
+      'DROP INDEX IF EXISTS idx_villages_tile_id;',
+    ]) {
+      db.exec({ sql });
+    }
 
     setupGlobalWriteTriggers(db);
   });
