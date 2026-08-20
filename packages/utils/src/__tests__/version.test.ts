@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
   encodeAppVersionToDatabaseUserVersion,
+  isSupportedDatabaseUserVersion,
   parseAppVersion,
   parseDatabaseUserVersion,
 } from '../version';
@@ -36,6 +37,68 @@ describe('version utils', () => {
         10_020_030,
       );
       expect(encodeAppVersionToDatabaseUserVersion('0.0.1')).toBe(1);
+    });
+  });
+
+  describe(isSupportedDatabaseUserVersion, () => {
+    test('should support the current patch and nine previous patches in the same minor version', () => {
+      expect(
+        isSupportedDatabaseUserVersion(
+          encodeAppVersionToDatabaseUserVersion('1.2.55'),
+          '1.2.55',
+        ),
+      ).toBe(true);
+      expect(
+        isSupportedDatabaseUserVersion(
+          encodeAppVersionToDatabaseUserVersion('1.2.46'),
+          '1.2.55',
+        ),
+      ).toBe(true);
+      expect(
+        isSupportedDatabaseUserVersion(
+          encodeAppVersionToDatabaseUserVersion('1.2.45'),
+          '1.2.55',
+        ),
+      ).toBe(false);
+    });
+
+    test('should not support database versions from a different major or minor version', () => {
+      expect(
+        isSupportedDatabaseUserVersion(
+          encodeAppVersionToDatabaseUserVersion('1.1.55'),
+          '1.2.55',
+        ),
+      ).toBe(false);
+      expect(
+        isSupportedDatabaseUserVersion(
+          encodeAppVersionToDatabaseUserVersion('2.2.55'),
+          '1.2.55',
+        ),
+      ).toBe(false);
+    });
+
+    test('should reset the patch window when the app minor version changes', () => {
+      expect(
+        isSupportedDatabaseUserVersion(
+          encodeAppVersionToDatabaseUserVersion('1.2.55'),
+          '1.3.1',
+        ),
+      ).toBe(false);
+      expect(
+        isSupportedDatabaseUserVersion(
+          encodeAppVersionToDatabaseUserVersion('1.3.0'),
+          '1.3.1',
+        ),
+      ).toBe(true);
+    });
+
+    test('should not support database versions from a newer patch', () => {
+      expect(
+        isSupportedDatabaseUserVersion(
+          encodeAppVersionToDatabaseUserVersion('1.2.56'),
+          '1.2.55',
+        ),
+      ).toBe(false);
     });
   });
 });

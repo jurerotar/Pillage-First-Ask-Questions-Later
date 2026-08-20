@@ -1,3 +1,20 @@
+## Version 0.4.55
+
+#### Aug 20, 2026
+
+* [Feature] As part of preparatory work for attacks and raids, added a resource replenishment functionality to oasis.
+* [UIUXImprovement] Added a splash screen while the game is loading.
+* [UIUXImprovement] Preferences cleanup. Only usable preference settings are now visible.
+* [Performance] Optimized villages seeder, reducing its execution time by ~ 60%.
+* [Performance] Optimized effects seeder, reducing its execution time by ~ 50%.
+* [Performance] Removed guaranteed croppers seeder by reimplementing its functionality as part of tiles generation. This
+  reduced game world creation time by ~ 15%.
+* [Performance] Removed unnecessary database indexes.
+* [Performance] Dropped support for migrating older game worlds. Only last 20 minor versions are now supported. This
+  allows us to spend less time worrying about migrating older game worlds while in development.
+* [TechnicalImprovement] Reworked database schema. New schema simplifies how resource replenishment is handled much
+  easier with fewer exceptions.
+
 ## Version 0.4.54
 
 #### Aug 20, 2026
