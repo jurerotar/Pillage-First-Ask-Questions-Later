@@ -348,7 +348,7 @@ describe(adventureMovementResolver, () => {
 });
 
 describe(relocationMovementResolver, () => {
-  test('should update village_id of hero and its effects upon relocation', async () => {
+  test('should update hero village_id and hero effects tile_id upon relocation', async () => {
     const database = await prepareTestDatabase();
 
     const initialVillageId = 1;
@@ -389,7 +389,7 @@ describe(relocationMovementResolver, () => {
     });
     expect(heroVillageId).toBe(targetVillageId);
 
-    // Verify hero effects village_id update
+    // Verify hero effects tile_id update
     const effectTileIds = database.selectValues({
       sql: "SELECT tile_id FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero');",
       schema: z.number(),
