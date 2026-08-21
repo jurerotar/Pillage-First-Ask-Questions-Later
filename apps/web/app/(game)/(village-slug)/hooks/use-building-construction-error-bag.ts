@@ -43,6 +43,34 @@ type GetBuildingConstructionStatusArgs = {
   isInstantBuildingConstructionEnabled: boolean;
 };
 
+type BuildingConstructionResourceChecks = Pick<
+  GetBuildingConstructionStatusArgs,
+  | 'hasEnoughFreeCrop'
+  | 'hasEnoughGranaryCapacity'
+  | 'hasEnoughResources'
+  | 'hasEnoughWarehouseCapacity'
+>;
+
+type GetScheduledBuildingConstructionResourceChecksArgs =
+  BuildingConstructionResourceChecks & {
+    isScheduling: boolean;
+  };
+
+export const getScheduledBuildingConstructionResourceChecks = ({
+  hasEnoughFreeCrop,
+  hasEnoughGranaryCapacity,
+  hasEnoughResources,
+  hasEnoughWarehouseCapacity,
+  isScheduling,
+}: GetScheduledBuildingConstructionResourceChecksArgs): BuildingConstructionResourceChecks => {
+  return {
+    hasEnoughFreeCrop,
+    hasEnoughGranaryCapacity,
+    hasEnoughResources: isScheduling || hasEnoughResources,
+    hasEnoughWarehouseCapacity,
+  };
+};
+
 const getBuildingConstructionStatus = ({
   hasAvailableBuildingQueueSlot,
   hasEnoughFreeCrop,
@@ -138,12 +166,17 @@ export const useBuildingConstructionStatus = (
     buildingUpgradeEvents.length < 5 &&
     !downgradedBuildingByFieldId.has(buildingFieldId);
 
+  const resourceChecks = getScheduledBuildingConstructionResourceChecks({
+    hasEnoughFreeCrop,
+    hasEnoughGranaryCapacity,
+    hasEnoughResources,
+    hasEnoughWarehouseCapacity,
+    isScheduling,
+  });
+
   return getBuildingConstructionStatus({
     hasAvailableBuildingQueueSlot,
-    hasEnoughFreeCrop: isScheduling || hasEnoughFreeCrop,
-    hasEnoughGranaryCapacity: isScheduling || hasEnoughGranaryCapacity,
-    hasEnoughResources: isScheduling || hasEnoughResources,
-    hasEnoughWarehouseCapacity: isScheduling || hasEnoughWarehouseCapacity,
+    ...resourceChecks,
     isFreeBuildingConstructionEnabled,
     isInstantBuildingConstructionEnabled,
   });
@@ -182,10 +215,10 @@ export const useBuildingConstructionErrorBag = (
   } = developerSettings;
 
   const errorBag = [
-    ...(!isFreeBuildingConstructionEnabled && !isScheduling
+    ...(!isFreeBuildingConstructionEnabled
       ? [
           ...hasEnoughFreeCropErrorBag,
-          ...hasEnoughResourcesErrorBag,
+          ...(!isScheduling ? hasEnoughResourcesErrorBag : []),
           ...hasEnoughWarehouseCapacityErrorBag,
           ...hasEnoughGranaryCapacityErrorBag,
         ]
@@ -194,13 +227,17 @@ export const useBuildingConstructionErrorBag = (
       ? [...hasHasAvailableBuildingQueueSlotErrorBag]
       : []),
   ];
+  const resourceChecks = getScheduledBuildingConstructionResourceChecks({
+    hasEnoughFreeCrop,
+    hasEnoughGranaryCapacity,
+    hasEnoughResources,
+    hasEnoughWarehouseCapacity,
+    isScheduling,
+  });
 
   const status = getBuildingConstructionStatus({
     hasAvailableBuildingQueueSlot,
-    hasEnoughFreeCrop: isScheduling || hasEnoughFreeCrop,
-    hasEnoughGranaryCapacity: isScheduling || hasEnoughGranaryCapacity,
-    hasEnoughResources: isScheduling || hasEnoughResources,
-    hasEnoughWarehouseCapacity: isScheduling || hasEnoughWarehouseCapacity,
+    ...resourceChecks,
     isFreeBuildingConstructionEnabled,
     isInstantBuildingConstructionEnabled,
   });

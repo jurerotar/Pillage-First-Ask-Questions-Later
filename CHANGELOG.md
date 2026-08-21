@@ -1,3 +1,11 @@
+## Version 0.4.56
+
+#### Aug 21, 2026
+
+* [BugFix] Fixed an issue where scheduled building construction would allow resource fields to be queued even when
+  warehouse or granary capacity was too low to ever afford the upgrade.
+* [BugFix] Fixed an issue where troop list wasn't showing up.
+
 ## Version 0.4.55
 
 #### Aug 20, 2026
