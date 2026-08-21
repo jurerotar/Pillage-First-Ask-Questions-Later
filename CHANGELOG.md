@@ -3,6 +3,7 @@
 #### Aug 21, 2026
 
 * [BugFix] Fixed an issue where some already scheduled troop return movements could fail to resolve.
+* [UIUXImprovement] Reworked map filters into an expandable control to reduce UI clutter.
 
 ## Version 0.4.56
 

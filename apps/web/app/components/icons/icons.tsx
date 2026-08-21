@@ -63,6 +63,7 @@ import {
   TbBat,
   TbBorderCorners,
   TbBrandSpeedtest,
+  TbFilter,
   TbLaurelWreath,
   TbShieldPlus,
   TbTooltip,
@@ -119,7 +120,8 @@ type ReportIconType =
   | 'huntingParty'
   | 'gatheringExpedition';
 
-type MapControlsIconType =
+type MapFiltersIconType =
+  | 'mapFiltersToggle'
   | 'mapMagnificationIncrease'
   | 'mapMagnificationDecrease'
   | 'mapReputationToggle'
@@ -205,7 +207,7 @@ export type IconType =
   | ReportIconType
   | ResourceCombinationIconType
   | ResourceIconType
-  | MapControlsIconType
+  | MapFiltersIconType
   | TreasureTileIconType
   | VillageIconType
   | UnitIconType
@@ -253,6 +255,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   wheatWheat: (props) => icons.wheat(props),
 
   // Map controls
+  mapFiltersToggle: (props) => <TbFilter {...props} />,
   mapMagnificationIncrease: (props) => <TiPlus {...props} />,
   mapMagnificationDecrease: (props) => <TiMinus {...props} />,
   mapReputationToggle: (props) => <TbBorderCorners {...props} />,

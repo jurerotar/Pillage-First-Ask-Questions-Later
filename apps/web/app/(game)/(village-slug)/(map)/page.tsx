@@ -24,7 +24,7 @@ import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { Tile } from '@pillage-first/types/models/tile';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
-import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
+import { MapFilters } from 'app/(game)/(village-slug)/(map)/components/map-filters';
 import {
   MapRulerCell,
   MapRulerGridCell,
@@ -547,7 +547,7 @@ const MapPageContents = () => {
           overscanCount={1}
         />
       </div>
-      <MapControls />
+      <MapFilters />
     </main>
   );
 };
