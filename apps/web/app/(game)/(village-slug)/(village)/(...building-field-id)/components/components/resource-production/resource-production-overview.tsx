@@ -30,23 +30,21 @@ export const ResourceProductionOverview = () => {
   )!;
 
   return (
-    <>
-      <Section>
-        <SectionContent>
-          <Bookmark tab="production-overview" />
-          <InformationPopover ariaLabel={t('Production overview')}>
-            <Text>
-              {t(
-                'Review how base production, bonuses, oasis effects, hero bonuses and artifacts contribute to each resource.',
-              )}
-            </Text>
-          </InformationPopover>
-          <Text as="h2">{t('Production overview')}</Text>
-        </SectionContent>
-        <SectionContent>
-          <ProductionOverview effectId={effectId} />
-        </SectionContent>
-      </Section>
-    </>
+    <Section>
+      <SectionContent>
+        <Bookmark tab="production-overview" />
+        <InformationPopover ariaLabel={t('Production overview')}>
+          <Text>
+            {t(
+              'Review how base production, bonuses, oasis effects, hero bonuses and artifacts contribute to each resource.',
+            )}
+          </Text>
+        </InformationPopover>
+        <Text as="h2">{t('Production overview')}</Text>
+      </SectionContent>
+      <SectionContent>
+        <ProductionOverview effectId={effectId} />
+      </SectionContent>
+    </Section>
   );
 };
