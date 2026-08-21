@@ -66,6 +66,8 @@ import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 import { CurrentVillageComputedEffectsProvider } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-provider';
 import { CurrentVillageLiveResourcesProvider } from 'app/(game)/(village-slug)/providers/current-village-live-resources-provider';
+import { GameLayoutContext } from 'app/(game)/(village-slug)/providers/game-layout-context';
+import { GameLayoutProvider } from 'app/(game)/(village-slug)/providers/game-layout-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -524,17 +526,44 @@ const MapNavigationItem = () => {
 };
 
 const ResourceCounters = () => {
-  return (
+  const { t } = useTranslation();
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { areMobileDetailsVisible, setAreMobileDetailsVisible } =
+    use(GameLayoutContext);
+  const showDetails = isWiderThanLg || areMobileDetailsVisible;
+
+  const counters = (
     <div className="flex w-full lg:border-none py-0.5 mx-auto gap-1 lg:gap-2">
       {(['wood', 'clay', 'iron', 'wheat'] satisfies Resource[]).map(
         (resource: Resource, index) => (
           <Fragment key={resource}>
-            <ResourceCounter resource={resource} />
+            <ResourceCounter
+              resource={resource}
+              showDetails={showDetails}
+            />
             {index !== 3 && <span className="w-0.5 h-full bg-border" />}
           </Fragment>
         ),
       )}
     </div>
+  );
+
+  if (isWiderThanLg) {
+    return counters;
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={t('Resources')}
+      aria-expanded={areMobileDetailsVisible}
+      className="flex w-full rounded-sm text-left"
+      onClick={() => {
+        setAreMobileDetailsVisible((value) => !value);
+      }}
+    >
+      {counters}
+    </button>
   );
 };
 
@@ -966,24 +995,26 @@ const GameLayout = memo<Route.ComponentProps>(
           <CurrentVillageComputedEffectsProvider>
             <CurrentVillageLiveResourcesProvider>
               <CurrentVillageBuildingQueueContextProvider>
-                <Tooltip id="general-tooltip" />
-                <TopNavigation onDeveloperToolsToggle={toggleModal} />
-                <TroopMovements />
-                <Suspense fallback={<PageFallback />}>
-                  <Outlet />
-                </Suspense>
-                <ConstructionQueue />
-                <TroopList />
-                {!isWiderThanLg && (
-                  <MobileBottomNavigation
-                    onDeveloperToolsToggle={toggleModal}
+                <GameLayoutProvider>
+                  <Tooltip id="general-tooltip" />
+                  <TopNavigation onDeveloperToolsToggle={toggleModal} />
+                  <TroopMovements />
+                  <Suspense fallback={<PageFallback />}>
+                    <Outlet />
+                  </Suspense>
+                  <ConstructionQueue />
+                  <TroopList />
+                  {!isWiderThanLg && (
+                    <MobileBottomNavigation
+                      onDeveloperToolsToggle={toggleModal}
+                    />
+                  )}
+                  <PreferencesUpdater />
+                  <DeveloperToolsConsole
+                    isOpen={isOpen}
+                    onOpenChange={toggleModal}
                   />
-                )}
-                <PreferencesUpdater />
-                <DeveloperToolsConsole
-                  isOpen={isOpen}
-                  onOpenChange={toggleModal}
-                />
+                </GameLayoutProvider>
               </CurrentVillageBuildingQueueContextProvider>
             </CurrentVillageLiveResourcesProvider>
           </CurrentVillageComputedEffectsProvider>

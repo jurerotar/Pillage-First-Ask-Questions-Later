@@ -7,6 +7,7 @@ import { OasisBonusFinderLink } from 'app/(game)/(village-slug)/(map)/components
 import { useMapFilters } from 'app/(game)/(village-slug)/(map)/hooks/use-map-filters';
 import { MapContext } from 'app/(game)/(village-slug)/(map)/providers/map-context';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
+import { GameLayoutContext } from 'app/(game)/(village-slug)/providers/game-layout-context';
 import { Icon } from 'app/components/icon';
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 
@@ -62,6 +63,7 @@ const MagnificationButton = ({
 export const MapFilters = () => {
   const { t } = useTranslation();
   const canHover = useMediaQuery('(hover: hover) and (pointer: fine)');
+  const { areMobileDetailsVisible } = use(GameLayoutContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const containerRef = useClickOutside<HTMLFieldSetElement>(() => {
     setIsExpanded(false);
@@ -86,7 +88,12 @@ export const MapFilters = () => {
   ].flatMap((v) => (v ? [v] : []));
 
   return (
-    <div className="pointer-events-none fixed top-31 standalone:top-31 lg:top-23 right-2 md:right-4 flex flex-col items-end gap-2">
+    <div
+      className={clsx(
+        areMobileDetailsVisible ? 'top-31' : 'top-26',
+        'pointer-events-none fixed lg:top-23 right-2 md:right-4 flex flex-col items-end gap-2 transition-[top] ease-out',
+      )}
+    >
       <div className="flex items-start justify-end gap-2">
         <div className="flex flex-col items-end gap-2">
           <fieldset

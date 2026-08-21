@@ -48,6 +48,14 @@ const BuildingStats = lazyWithRetry(async () => ({
     .BuildingStats,
 }));
 
+const ResourceProductionOverview = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      './components/resource-production/resource-production-overview'
+    )
+  ).ResourceProductionOverview,
+}));
+
 const MainBuildingVillageManagement = lazyWithRetry(async () => ({
   default: (
     await import('./components/main-building/main-building-village-management')
@@ -203,10 +211,26 @@ const unitTrainingTabs = new Map<
   LazyExoticComponent<() => JSX.Element>
 >([['train', UnitTraining]]);
 
+const resourceProductionTabs = new Map<
+  string,
+  LazyExoticComponent<() => JSX.Element>
+>([['production-overview', ResourceProductionOverview]]);
+
+const resourceProductionBuildingIds = new Set<Building['id']>([
+  'WOODCUTTER',
+  'CLAY_PIT',
+  'IRON_MINE',
+  'WHEAT_FIELD',
+]);
+
 const buildingDetailsTabMap = new Map<
   Building['id'],
   Map<string, LazyExoticComponent<() => JSX.Element>>
 >([
+  ['WOODCUTTER', resourceProductionTabs],
+  ['CLAY_PIT', resourceProductionTabs],
+  ['IRON_MINE', resourceProductionTabs],
+  ['WHEAT_FIELD', resourceProductionTabs],
   [
     'MAIN_BUILDING',
     new Map([['village-management', MainBuildingVillageManagement]]),
@@ -293,6 +317,7 @@ const buildingDetailsTabMap = new Map<
 // t('gathering-expedition')
 // t('cages')
 // t('heal')
+// t('production-overview')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
@@ -301,11 +326,14 @@ export const BuildingDetails = () => {
 
   const { buildingId } = buildingField!;
 
+  const shouldShowBuildingSpecificTabs =
+    actualLevel !== 0 || resourceProductionBuildingIds.has(buildingId);
+
   const tabs = [
     'default',
-    ...(actualLevel === 0
-      ? []
-      : (buildingDetailsTabMap.get(buildingId)?.keys() ?? [])),
+    ...(shouldShowBuildingSpecificTabs
+      ? (buildingDetailsTabMap.get(buildingId)?.keys() ?? [])
+      : []),
     'upgrade-cost',
   ];
 
