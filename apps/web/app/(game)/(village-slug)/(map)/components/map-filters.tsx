@@ -37,7 +37,7 @@ const MagnificationButton = ({
       onClick={onClick}
       disabled={isDisabled}
       className={clsx(
-        'size-8 rounded-md p-2 disabled:text-muted-foreground/50 text-muted-foreground hover:bg-accent transition-colors border border-border',
+        'inline-flex size-8 items-center justify-center rounded-md p-2 disabled:text-muted-foreground/50 text-muted-foreground hover:bg-accent transition-colors border border-border',
         isDisabled && 'bg-muted',
       )}
       data-testid={`map-controls-magnification-${direction}-button`}
@@ -273,7 +273,7 @@ export const MapFilters = () => {
                 aria-expanded={isExpanded}
                 aria-label={t('Map filters')}
                 className={clsx(
-                  'size-8 rounded-md border border-border bg-background p-2 text-muted-foreground transition-colors hover:bg-accent',
+                  'inline-flex size-8 items-center justify-center rounded-md border border-border bg-background p-2 text-muted-foreground transition-colors hover:bg-accent',
                   isExpanded && 'bg-accent text-accent-foreground',
                 )}
                 data-tooltip-id="general-tooltip"
