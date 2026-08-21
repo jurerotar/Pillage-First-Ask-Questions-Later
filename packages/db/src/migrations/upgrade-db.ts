@@ -1199,6 +1199,53 @@ export const upgradeDb = (
     setupGlobalWriteTriggers(db);
   });
 
+  migrate('0.4.57', (db) => {
+    db.exec({
+      sql: `
+        UPDATE events
+        SET
+          meta = JSON_SET(
+            meta,
+            '$.troops',
+            JSON((
+              SELECT JSON_GROUP_ARRAY(JSON(updated_troop))
+              FROM (
+                SELECT
+                  CASE
+                    WHEN (
+                      JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
+                      OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
+                    )
+                    AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
+                    THEN JSON_SET(
+                      troop.value,
+                      '$.sourceTileId',
+                      JSON_EXTRACT(troop.value, '$.tileId')
+                    )
+                    ELSE troop.value
+                  END AS updated_troop
+                FROM JSON_EACH(events.meta, '$.troops') AS troop
+                ORDER BY CAST(troop.key AS INTEGER)
+              )
+            ))
+          )
+        WHERE
+          meta IS NOT NULL
+          AND JSON_TYPE(meta, '$.troops') = 'array'
+          AND EXISTS (
+            SELECT 1
+            FROM JSON_EACH(events.meta, '$.troops') AS troop
+            WHERE
+              (
+                JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
+                OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
+              )
+              AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
+          );
+      `,
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({

@@ -1,3 +1,9 @@
+## Version 0.4.57
+
+#### Aug 21, 2026
+
+* [BugFix] Fixed an issue where some already scheduled troop return movements could fail to resolve.
+
 ## Version 0.4.56
 
 #### Aug 21, 2026
