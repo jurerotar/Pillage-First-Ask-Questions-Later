@@ -496,7 +496,7 @@ const MapPageContents = () => {
       />
       <Grid
         key={tileSize}
-        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll transition-[height] duration-300 ease-out"
+        className="scrollbar-hidden bg-[#8EBF64]"
         gridRef={setMapGrid}
         columnCount={gridSize}
         columnWidth={tileSize}
@@ -514,7 +514,7 @@ const MapPageContents = () => {
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 non-selectable pointer-events-none">
         <List
-          className="scrollbar-hidden will-change-scroll transition-[height] duration-300 ease-out"
+          className="scrollbar-hidden"
           listRef={setLeftMapRuler}
           rowHeight={tileSize}
           rowCount={gridSize}
