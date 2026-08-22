@@ -70,38 +70,6 @@ export const upgradeDb = (
     );
   };
 
-  migrate('0.4.36', (db) => {
-    db.exec({
-      sql: `
-        CREATE TABLE IF NOT EXISTS gatherers_hut_expeditions
-        (
-          village_id INTEGER PRIMARY KEY,
-          completed INTEGER NOT NULL DEFAULT 0 CHECK (completed >= 0),
-
-          FOREIGN KEY (village_id) REFERENCES villages (id)
-            ON DELETE CASCADE
-            ON UPDATE CASCADE
-        ) STRICT;
-      `,
-    });
-
-    db.exec({
-      sql: `
-        INSERT INTO
-          gatherers_hut_expeditions (village_id, completed)
-        SELECT id, 0
-        FROM
-          villages
-        WHERE
-          player_id = $player_id
-        ON CONFLICT(village_id) DO NOTHING;
-      `,
-      bind: {
-        $player_id: PLAYER_ID,
-      },
-    });
-  });
-
   migrate('0.4.39', (db) => {
     db.exec({
       sql: 'PRAGMA foreign_keys = OFF;',
@@ -702,23 +670,31 @@ export const upgradeDb = (
             AND bi.building = 'CRANNY'
             AND effects.effect_id = (
               SELECT id
-              FROM effect_ids
-              WHERE effect = 'crannyCapacity'
+              FROM
+                effect_ids
+              WHERE
+                effect = 'crannyCapacity'
               )
             AND effects.type_id = (
               SELECT id
-              FROM effect_type_ids
-              WHERE type = 'base'
+              FROM
+                effect_type_ids
+              WHERE
+                type = 'base'
               )
             AND effects.scope_id = (
               SELECT id
-              FROM effect_scope_ids
-              WHERE scope = 'local'
+              FROM
+                effect_scope_ids
+              WHERE
+                scope = 'local'
               )
             AND effects.source_id = (
               SELECT id
-              FROM effect_source_ids
-              WHERE source = 'building'
+              FROM
+                effect_source_ids
+              WHERE
+                source = 'building'
               );
         `,
       });
@@ -747,23 +723,31 @@ export const upgradeDb = (
             AND bi.building = 'TRADE_OFFICE'
             AND effects.effect_id = (
               SELECT id
-              FROM effect_ids
-              WHERE effect = 'merchantCapacity'
+              FROM
+                effect_ids
+              WHERE
+                effect = 'merchantCapacity'
               )
             AND effects.type_id = (
               SELECT id
-              FROM effect_type_ids
-              WHERE type = 'bonus'
+              FROM
+                effect_type_ids
+              WHERE
+                type = 'bonus'
               )
             AND effects.scope_id = (
               SELECT id
-              FROM effect_scope_ids
-              WHERE scope = 'local'
+              FROM
+                effect_scope_ids
+              WHERE
+                scope = 'local'
               )
             AND effects.source_id = (
               SELECT id
-              FROM effect_source_ids
-              WHERE source = 'building'
+              FROM
+                effect_source_ids
+              WHERE
+                source = 'building'
               );
         `,
       });
@@ -968,16 +952,8 @@ export const upgradeDb = (
 
         tx.exec({
           sql: `
-            INSERT INTO effects (
-              id,
-              effect_id,
-              value,
-              type_id,
-              scope_id,
-              source_id,
-              tile_id,
-              source_specifier
-            )
+            INSERT INTO
+              effects (id, effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
             SELECT
               e.id,
               e.effect_id,
@@ -1004,17 +980,7 @@ export const upgradeDb = (
       'CREATE INDEX IF NOT EXISTS idx_effects_tile_id ON effects(tile_id);',
       `
         CREATE INDEX IF NOT EXISTS idx_effects_tile_effect_scope_spec
-          ON effects(effect_id, tile_id, scope_id, source_specifier);
-      `,
-      `
-        CREATE INDEX IF NOT EXISTS idx_effects_resource_tile
-          ON effects(tile_id, effect_id, scope_id)
-          WHERE tile_id IS NOT NULL;
-      `,
-      `
-        CREATE INDEX IF NOT EXISTS idx_effects_wheat_effect_tile_value
-          ON effects(effect_id, tile_id, value)
-          WHERE scope_id = 2 AND source_specifier = 0 AND effect_id = 1;
+          ON effects (effect_id, tile_id, scope_id, source_specifier);
       `,
     ]) {
       db.exec({ sql });
@@ -1023,21 +989,43 @@ export const upgradeDb = (
     db.exec({
       sql: `
         UPDATE effects
-        SET tile_id = source_specifier
+        SET
+          tile_id = source_specifier
         WHERE
-          source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
-          AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+          source_id = (
+            SELECT id
+            FROM effect_source_ids
+            WHERE source = 'oasis'
+            )
+          AND scope_id = (
+            SELECT id
+            FROM effect_scope_ids
+            WHERE scope = 'local'
+            )
           AND tile_id IS NULL
-          AND source_specifier IN (SELECT id FROM tiles);
+          AND source_specifier IN (
+            SELECT id
+            FROM tiles
+            );
       `,
     });
 
     db.exec({
       sql: `
-        DELETE FROM effects
+        DELETE
+        FROM
+          effects
         WHERE
-          source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
-          AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+          source_id = (
+            SELECT id
+            FROM effect_source_ids
+            WHERE source = 'oasis'
+            )
+          AND scope_id = (
+            SELECT id
+            FROM effect_scope_ids
+            WHERE scope = 'local'
+            )
           AND tile_id IS NULL;
       `,
     });
@@ -1047,23 +1035,37 @@ export const upgradeDb = (
         WITH
           effect_context(type_id, scope_id, source_id) AS (
             SELECT
-              (SELECT id FROM effect_type_ids WHERE type = 'base'),
-              (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
-              (SELECT id FROM effect_source_ids WHERE source = 'oasis')
-          ),
+              (
+                SELECT id
+                FROM effect_type_ids
+                WHERE type = 'base'
+                ),
+              (
+                SELECT id
+                FROM effect_scope_ids
+                WHERE scope = 'local'
+                ),
+              (
+                SELECT id
+                FROM effect_source_ids
+                WHERE source = 'oasis'
+                )
+            ),
 
           effect_lookup(effect, effect_id) AS (
             SELECT effect, id
-            FROM effect_ids
-            WHERE effect IN (
-              'warehouseCapacity',
-              'granaryCapacity',
-              'woodProduction',
-              'clayProduction',
-              'ironProduction',
-              'wheatProduction'
-            )
-          ),
+            FROM
+              effect_ids
+            WHERE
+              effect IN (
+                         'warehouseCapacity',
+                         'granaryCapacity',
+                         'woodProduction',
+                         'clayProduction',
+                         'ironProduction',
+                         'wheatProduction'
+                )
+            ),
 
           resource_effects(resource_id, effect_id) AS (
             SELECT
@@ -1074,13 +1076,15 @@ export const upgradeDb = (
                 JOIN effect_lookup el ON el.effect = ri.resource || 'Production'
             WHERE
               ri.resource IN ('wood', 'clay', 'iron', 'wheat')
-          ),
+            ),
 
           storage_effects(effect_id) AS (
             SELECT effect_id
-            FROM effect_lookup
-            WHERE effect IN ('warehouseCapacity', 'granaryCapacity')
-          ),
+            FROM
+              effect_lookup
+            WHERE
+              effect IN ('warehouseCapacity', 'granaryCapacity')
+            ),
 
           oasis_capacity AS (
             SELECT
@@ -1089,9 +1093,10 @@ export const upgradeDb = (
                 WHEN MAX(bonus) = 50 OR COUNT(*) = 2 THEN 2000
                 ELSE 1000
                 END AS value
-            FROM oasis
+            FROM
+              oasis
             GROUP BY tile_id
-          ),
+            ),
 
           oasis_production AS (
             SELECT
@@ -1105,23 +1110,26 @@ export const upgradeDb = (
             FROM
               (
                 SELECT DISTINCT tile_id
-                FROM oasis
-              ) tiles
+                FROM
+                  oasis
+                ) tiles
                 CROSS JOIN resource_effects re
                 LEFT JOIN oasis o ON o.tile_id = tiles.tile_id
-                  AND o.resource_id = re.resource_id
+                AND o.resource_id = re.resource_id
             GROUP BY
               tiles.tile_id,
               re.effect_id
-          ),
+            ),
 
           oasis_effects_to_insert(effect_id, value, tile_id) AS (
             SELECT
               op.effect_id,
               op.value,
               op.tile_id
-            FROM oasis_production op
-            WHERE op.value > 0
+            FROM
+              oasis_production op
+            WHERE
+              op.value > 0
 
             UNION ALL
 
@@ -1132,17 +1140,11 @@ export const upgradeDb = (
             FROM
               oasis_capacity oc
                 CROSS JOIN storage_effects se
-          )
+            )
 
-        INSERT INTO effects (
-          effect_id,
-          value,
-          type_id,
-          scope_id,
-          source_id,
-          tile_id,
-          source_specifier
-        )
+        INSERT
+        INTO
+          effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
         SELECT
           oeti.effect_id,
           oeti.value,
@@ -1151,19 +1153,23 @@ export const upgradeDb = (
           ec.source_id,
           oeti.tile_id,
           oeti.tile_id
-        FROM oasis_effects_to_insert oeti
-          CROSS JOIN effect_context ec
-        WHERE NOT EXISTS (
-          SELECT 1
-          FROM effects e
-          WHERE
-            e.effect_id = oeti.effect_id
-            AND e.type_id = ec.type_id
-            AND e.scope_id = ec.scope_id
-            AND e.source_id = ec.source_id
-            AND e.tile_id = oeti.tile_id
-            AND e.source_specifier = oeti.tile_id
-        );
+        FROM
+          oasis_effects_to_insert oeti
+            CROSS JOIN effect_context ec
+        WHERE
+          NOT EXISTS
+          (
+            SELECT 1
+            FROM
+              effects e
+            WHERE
+              e.effect_id = oeti.effect_id
+              AND e.type_id = ec.type_id
+              AND e.scope_id = ec.scope_id
+              AND e.source_id = ec.source_id
+              AND e.tile_id = oeti.tile_id
+              AND e.source_specifier = oeti.tile_id
+            );
       `,
     });
 
@@ -1171,23 +1177,23 @@ export const upgradeDb = (
       'DROP INDEX IF EXISTS idx_building_fields_building_id;',
       `
         CREATE INDEX IF NOT EXISTS idx_building_fields_building_id_level
-          ON building_fields(building_id, level);
+          ON building_fields (building_id, level);
       `,
       `
         CREATE INDEX IF NOT EXISTS idx_reports_timestamp
-          ON reports(timestamp DESC);
+          ON reports (timestamp DESC);
       `,
       `
         CREATE INDEX IF NOT EXISTS idx_reports_village_timestamp
-          ON reports(village_id, timestamp DESC);
+          ON reports (village_id, timestamp DESC);
       `,
       `
         CREATE INDEX IF NOT EXISTS idx_battle_report_participants_battle
-          ON battle_report_participants(battle_id);
+          ON battle_report_participants (battle_id);
       `,
       `
         CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
-          ON battle_report_buildings(report_id);
+          ON battle_report_buildings (report_id);
       `,
       'DROP INDEX IF EXISTS idx_unit_ids_unit;',
       'DROP INDEX IF EXISTS idx_resource_sites_tile_id;',
@@ -1209,40 +1215,58 @@ export const upgradeDb = (
             '$.troops',
             JSON((
               SELECT JSON_GROUP_ARRAY(JSON(updated_troop))
-              FROM (
-                SELECT
-                  CASE
-                    WHEN (
-                      JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
-                      OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
-                    )
-                    AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
-                    THEN JSON_SET(
-                      troop.value,
-                      '$.sourceTileId',
-                      JSON_EXTRACT(troop.value, '$.tileId')
-                    )
-                    ELSE troop.value
-                  END AS updated_troop
-                FROM JSON_EACH(events.meta, '$.troops') AS troop
-                ORDER BY CAST(troop.key AS INTEGER)
-              )
-            ))
-          )
+              FROM
+                (
+                  SELECT
+                    CASE
+                      WHEN (
+                             JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
+                               OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
+                             )
+                        AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
+                        THEN JSON_SET(
+                        troop.value,
+                        '$.sourceTileId',
+                        JSON_EXTRACT(troop.value, '$.tileId')
+                             )
+                      ELSE troop.value
+                      END AS updated_troop
+                  FROM
+                    JSON_EACH(events.meta, '$.troops') AS troop
+                  ORDER BY CAST(troop.key AS INTEGER)
+                  )
+              ))
+                 )
         WHERE
           meta IS NOT NULL
           AND JSON_TYPE(meta, '$.troops') = 'array'
-          AND EXISTS (
+          AND EXISTS
+          (
             SELECT 1
-            FROM JSON_EACH(events.meta, '$.troops') AS troop
+            FROM
+              JSON_EACH(events.meta, '$.troops') AS troop
             WHERE
               (
                 JSON_TYPE(troop.value, '$.sourceTileId') IS NULL
-                OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
-              )
+                  OR JSON_TYPE(troop.value, '$.sourceTileId') = 'null'
+                )
               AND JSON_TYPE(troop.value, '$.tileId') IN ('integer', 'real')
-          );
+            );
       `,
+    });
+  });
+
+  migrate('0.4.58', (db) => {
+    db.exec({
+      sql: `
+        CREATE INDEX IF NOT EXISTS idx_effects_resource_site_resources
+          ON effects (effect_id, scope_id, tile_id, source_specifier, source_id, type_id, value);
+      `,
+    });
+
+    db.exec({ sql: 'DROP INDEX IF EXISTS idx_effects_resource_tile;' });
+    db.exec({
+      sql: 'DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;',
     });
   });
 
