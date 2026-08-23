@@ -1,28 +1,37 @@
 import { prngMulberry32 } from 'ts-seedrandom';
 import { z } from 'zod';
 import type { Server } from '@pillage-first/types/models/server';
-import type { VillageSize } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { seededRandomIntFromInterval } from '@pillage-first/utils/random';
-import { getVillageSize } from '../utils/village-size';
 
-const villageSizeToMaxOasisAmountMap = new Map<VillageSize, number>([
-  ['xxs', 0],
-  ['xs', 0],
-  ['sm', 0],
-  ['md', 1],
-  ['lg', 1],
-  ['xl', 2],
-  ['2xl', 2],
-  ['3xl', 3],
-  ['4xl', 3],
-]);
+const villageSchema = z.strictObject({
+  id: z.number(),
+  x: z.number(),
+  y: z.number(),
+  hero_mansion_level: z.number(),
+});
 
-const schema = z.strictObject({
+const oasisSchema = z.strictObject({
   id: z.number(),
   x: z.number(),
   y: z.number(),
 });
+
+const getOasisSlots = (heroMansionLevel: number): number => {
+  if (heroMansionLevel >= 20) {
+    return 3;
+  }
+
+  if (heroMansionLevel >= 15) {
+    return 2;
+  }
+
+  if (heroMansionLevel >= 10) {
+    return 1;
+  }
+
+  return 0;
+};
 
 export const occupiedOasisSeeder = (
   database: DbFacade,
@@ -31,8 +40,24 @@ export const occupiedOasisSeeder = (
   const prng = prngMulberry32(server.seed);
 
   const villageFields = database.selectObjects({
-    sql: 'SELECT villages.id, x, y FROM tiles INNER JOIN villages ON tiles.id = villages.tile_id;',
-    schema,
+    sql: `
+      SELECT
+        villages.id,
+        x,
+        y,
+        COALESCE(MAX(building_fields.level), 0) AS hero_mansion_level
+      FROM
+        tiles
+          INNER JOIN villages ON tiles.id = villages.tile_id
+          LEFT JOIN building_fields
+            ON building_fields.village_id = villages.id
+            AND building_fields.building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION')
+      GROUP BY
+        villages.id,
+        x,
+        y;
+    `,
+    schema: villageSchema,
   });
 
   const occupiableOasis = database.selectObjects({
@@ -43,19 +68,18 @@ export const occupiedOasisSeeder = (
       WHERE
         type_id = (SELECT id FROM tile_type_ids WHERE type = 'oasis');
     `,
-    schema,
+    schema: oasisSchema,
   });
 
   const occupiableOasisMap = new Map<
     `${number}-${number}`,
-    z.infer<typeof schema>
+    z.infer<typeof oasisSchema>
   >(occupiableOasis.map((oasis) => [`${oasis.x}-${oasis.y}`, oasis]));
 
   const oasisByVillages: [number, number][] = [];
 
-  for (const { id: villageId, x, y } of villageFields) {
-    const villageSize = getVillageSize(server.configuration.mapSize, x, y);
-    const maxOasisAmount = villageSizeToMaxOasisAmountMap.get(villageSize)!;
+  for (const { hero_mansion_level, id: villageId, x, y } of villageFields) {
+    const maxOasisAmount = getOasisSlots(hero_mansion_level);
 
     if (maxOasisAmount === 0) {
       continue;

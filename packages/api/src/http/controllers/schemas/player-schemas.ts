@@ -25,6 +25,7 @@ export const getPlayerVillagesWithPopulationSchema = z
     slug: z.string().nullable(),
     resource_field_composition: resourceFieldCompositionSchema,
     population: z.number(),
+    occupied_oasis_json: z.string(),
   })
   .meta({ id: 'GetPlayerVillagesWithPopulationRow' });
 

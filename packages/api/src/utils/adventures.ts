@@ -85,7 +85,7 @@ const getHeroAdventureStateAt = (
         s.speed
       FROM
         hero_adventures ha
-          JOIN servers s ON 1 = 1
+          CROSS JOIN servers s
       WHERE
         ha.hero_id = $hero_id
     `,
