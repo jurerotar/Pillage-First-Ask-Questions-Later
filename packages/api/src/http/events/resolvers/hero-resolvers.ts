@@ -24,7 +24,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
         servers.speed AS speed
       FROM heroes
       JOIN villages ON heroes.village_id = villages.id
-      JOIN servers ON 1 = 1
+      CROSS JOIN servers
       WHERE heroes.player_id = $player_id;
     `,
       bind: {
@@ -98,7 +98,7 @@ export const heroHealthRegenerationResolver: Resolver<
         servers.speed AS speed
       FROM heroes
       JOIN villages ON villages.id = heroes.village_id
-      JOIN servers ON 1 = 1
+      CROSS JOIN servers
       WHERE heroes.player_id = $player_id;
     `,
       bind: {

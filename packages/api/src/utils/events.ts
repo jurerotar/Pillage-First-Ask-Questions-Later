@@ -1643,7 +1643,7 @@ export const getEventDuration = (
         SELECT h.experience, s.speed
         FROM
           heroes h
-            JOIN servers s ON 1 = 1
+            CROSS JOIN servers s
         WHERE
           h.player_id = $player_id;
       `,
@@ -1660,7 +1660,7 @@ export const getEventDuration = (
 
   if (isHeroHealthRegenerationEvent(event)) {
     const { healthRegeneration, speed } = database.selectObject({
-      sql: 'SELECT health_regeneration AS healthRegeneration, servers.speed FROM heroes JOIN servers ON 1 = 1 WHERE player_id = $player_id;',
+      sql: 'SELECT health_regeneration AS healthRegeneration, servers.speed FROM heroes CROSS JOIN servers WHERE player_id = $player_id;',
       bind: { $player_id: PLAYER_ID },
       schema: z.strictObject({
         healthRegeneration: z.number(),

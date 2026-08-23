@@ -60,9 +60,9 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         json_extract(troop.value, '$.sourceTileId')
       FROM
         json_each($troops) AS troop
-        JOIN unit_ids
-          ON unit_ids.unit = json_extract(troop.value, '$.unitId')
-      WHERE TRUE
+        CROSS JOIN unit_ids
+      WHERE
+        unit_ids.unit = json_extract(troop.value, '$.unitId')
       GROUP BY
         unit_ids.id,
         json_extract(troop.value, '$.tileId'),
