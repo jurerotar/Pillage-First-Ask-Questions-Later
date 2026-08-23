@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../';
 
 const database = await prepareTestDatabase();
@@ -175,6 +176,97 @@ describe('oasisSeeder', () => {
     });
 
     expect(occupiedCount).toBeGreaterThan(0);
+  });
+
+  test('occupied oasis count does not exceed hero mansion slots', () => {
+    const invalidVillageCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM (
+          SELECT
+            v.id,
+            COUNT(DISTINCT o.tile_id) AS occupied_oasis,
+            CASE
+              WHEN COALESCE(MAX(bf.level), 0) >= 20 THEN 3
+              WHEN COALESCE(MAX(bf.level), 0) >= 15 THEN 2
+              WHEN COALESCE(MAX(bf.level), 0) >= 10 THEN 1
+              ELSE 0
+            END AS oasis_slots
+          FROM
+            villages v
+              LEFT JOIN oasis o ON o.village_id = v.id
+              LEFT JOIN building_fields bf
+                ON bf.village_id = v.id
+                AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION')
+          GROUP BY
+            v.id
+          HAVING
+            occupied_oasis > oasis_slots
+        );
+      `,
+      schema: z.number(),
+    });
+
+    expect(invalidVillageCount).toBe(0);
+  });
+
+  test('villages without level 10 hero mansion do not occupy oasis', () => {
+    const invalidVillageCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM (
+          SELECT
+            v.id,
+            COUNT(DISTINCT o.tile_id) AS occupied_oasis,
+            COALESCE(MAX(bf.level), 0) AS hero_mansion_level
+          FROM
+            villages v
+              JOIN oasis o ON o.village_id = v.id
+              LEFT JOIN building_fields bf
+                ON bf.village_id = v.id
+                AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION')
+          GROUP BY
+            v.id
+          HAVING
+            occupied_oasis > 0
+            AND hero_mansion_level < 10
+        );
+      `,
+      schema: z.number(),
+    });
+
+    expect(invalidVillageCount).toBe(0);
+  });
+
+  test('npc villages can occupy multiple oasis when hero mansion level allows it', () => {
+    const multiOasisVillageCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM (
+          SELECT
+            v.id,
+            COUNT(DISTINCT o.tile_id) AS occupied_oasis,
+            COALESCE(MAX(bf.level), 0) AS hero_mansion_level
+          FROM
+            villages v
+              JOIN oasis o ON o.village_id = v.id
+              JOIN building_fields bf
+                ON bf.village_id = v.id
+                AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'HEROS_MANSION')
+          WHERE
+            v.player_id != $player_id
+          GROUP BY
+            v.id
+          HAVING
+            occupied_oasis > 1
+            AND hero_mansion_level >= 15
+        );
+      `,
+      bind: { $player_id: PLAYER_ID },
+      schema: z.number(),
+    });
+
+    expect(multiOasisVillageCount).toBeGreaterThan(0);
   });
 
   test('every oasis has at least one bonus record', () => {

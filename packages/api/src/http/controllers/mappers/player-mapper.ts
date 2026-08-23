@@ -1,4 +1,5 @@
-import type { z } from 'zod';
+import { z } from 'zod';
+import { oasisDtoSchema } from '@pillage-first/types/dtos/oasis';
 import {
   playerVillageDtoSchema,
   playerVillageWithPopulationDtoSchema,
@@ -32,10 +33,15 @@ export const mapPlayerVillage = (
 export const mapPlayerVillageWithPopulation = (
   row: z.infer<typeof getPlayerVillagesWithPopulationSchema>,
 ): z.infer<typeof playerVillageWithPopulationDtoSchema> => {
+  const occupiedOasis = z
+    .array(oasisDtoSchema)
+    .parse(JSON.parse(row.occupied_oasis_json));
+
   const base = mapPlayerVillage(row);
   const dto = {
     ...base,
     population: row.population,
+    occupiedOasis,
   };
   return playerVillageWithPopulationDtoSchema.parse(dto);
 };

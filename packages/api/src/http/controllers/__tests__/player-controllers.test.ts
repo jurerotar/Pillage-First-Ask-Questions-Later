@@ -182,6 +182,77 @@ describe('player-controllers', () => {
     expect(testVillage.population).toBe(400);
   });
 
+  test('getPlayerVillagesWithPopulation should include all occupied oasis for each village', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: `
+        SELECT id, tile_id
+        FROM villages
+        WHERE player_id = $player_id
+        ORDER BY id
+        LIMIT 1
+      `,
+      bind: { $player_id: playerId },
+      schema: z.strictObject({
+        id: z.number(),
+        tile_id: z.number(),
+      }),
+    })!;
+
+    const oases = database.selectObjects({
+      sql: `
+        SELECT tile_id, COUNT(*) AS bonus_count
+        FROM oasis
+        GROUP BY tile_id
+        ORDER BY tile_id
+        LIMIT 2
+      `,
+      schema: z.strictObject({
+        tile_id: z.number(),
+        bonus_count: z.number(),
+      }),
+    });
+
+    database.exec({
+      sql: 'UPDATE oasis SET village_id = NULL;',
+    });
+
+    for (const oasis of oases) {
+      database.exec({
+        sql: `
+          UPDATE oasis
+          SET village_id = $village_id
+          WHERE tile_id = $tile_id;
+        `,
+        bind: {
+          $tile_id: oasis.tile_id,
+          $village_id: village.id,
+        },
+      });
+    }
+
+    const result = getPlayerVillagesWithPopulation(
+      database,
+      createControllerArgs<'/players/:playerId/villages-with-population'>({
+        path: { playerId },
+      }),
+    );
+
+    const testVillage = result.find(({ id }) => id === village.id)!;
+
+    expect(testVillage.occupiedOasis).toHaveLength(oases.length);
+
+    for (const oasis of oases) {
+      const occupiedOasis = testVillage.occupiedOasis.find(
+        ({ id }) => id === oasis.tile_id,
+      );
+
+      expect(occupiedOasis).toBeDefined();
+      expect(occupiedOasis!.bonuses).toHaveLength(oasis.bonus_count);
+    }
+  });
+
   test('getStationedTroopsByTile should return stationed troops by tile', async () => {
     const database = await prepareTestDatabase();
 

@@ -3,6 +3,7 @@ import { coordinatesSchema } from '../models/coordinates';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
 import { tileTypeSchema } from '../models/tile';
 import { unitIdSchema } from '../models/unit';
+import { oasisDtoSchema } from './oasis';
 
 export const playerVillageDtoSchema = z.strictObject({
   id: z.number(),
@@ -16,6 +17,7 @@ export const playerVillageDtoSchema = z.strictObject({
 export const playerVillageWithPopulationDtoSchema =
   playerVillageDtoSchema.extend({
     population: z.number(),
+    occupiedOasis: z.array(oasisDtoSchema),
   });
 
 export const villageTroopDtoSchema = z.strictObject({
