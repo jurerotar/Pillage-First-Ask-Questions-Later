@@ -2,15 +2,16 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import type { Tile } from '@pillage-first/types/models/tile';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { effectsCacheKey } from 'app/(game)/constants/query-keys';
+import {
+  effectsCacheKey,
+  occupiableOasisInRangeCacheKey,
+} from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
 
 type AbandonOasisArgs = {
   oasisTileId: Tile['id'];
 };
-
-const occupiableOasisInRangeCacheKey = 'occupiable-oasis-in-range';
 
 export const useOccupiableOasisInRange = () => {
   const { apiClient } = use(ApiContext);
@@ -32,7 +33,11 @@ export const useOccupiableOasisInRange = () => {
     },
   });
 
-  const { mutate: abandonOasis } = useMutation<void, Error, AbandonOasisArgs>({
+  const { mutate: abandonOasis, isPending: isAbandoningOasis } = useMutation<
+    void,
+    Error,
+    AbandonOasisArgs
+  >({
     mutationFn: async ({ oasisTileId }) => {
       await apiClient.delete('/tiles/:tileId/oasis/:oasisTileId', {
         path: {
@@ -49,7 +54,11 @@ export const useOccupiableOasisInRange = () => {
     },
   });
 
-  const { mutate: occupyOasis } = useMutation<void, Error, AbandonOasisArgs>({
+  const { mutate: occupyOasis, isPending: isOccupyingOasis } = useMutation<
+    void,
+    Error,
+    AbandonOasisArgs
+  >({
     mutationFn: async ({ oasisTileId }) => {
       await apiClient.post('/tiles/:tileId/oasis/:oasisTileId', {
         path: {
@@ -69,6 +78,8 @@ export const useOccupiableOasisInRange = () => {
   return {
     occupiableOasisInRange,
     abandonOasis,
+    isAbandoningOasis,
     occupyOasis,
+    isOccupyingOasis,
   };
 };

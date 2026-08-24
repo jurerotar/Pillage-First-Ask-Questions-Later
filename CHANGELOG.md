@@ -1,3 +1,9 @@
+## Version 0.4.59
+
+#### Aug 24, 2026
+
+* [BugFix] Fixed horizontally scrollable tables hijacking clicks on buttons and links.
+
 ## Version 0.4.58
 
 #### Aug 23, 2026

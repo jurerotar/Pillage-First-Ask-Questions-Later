@@ -115,4 +115,31 @@ describe(OverflowContainer, () => {
 
     expect(handleClick).not.toHaveBeenCalled();
   });
+
+  test('does not hijack clicks that start on interactive children', () => {
+    const { button, overflowContainer } = renderOverflowContainer();
+    const handleClick = vi.fn();
+
+    button.addEventListener('click', handleClick);
+
+    fireEvent.pointerDown(button, {
+      button: 0,
+      clientX: 100,
+      pointerId: 1,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(overflowContainer, {
+      clientX: 40,
+      pointerId: 1,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerUp(overflowContainer, {
+      pointerId: 1,
+      pointerType: 'mouse',
+    });
+    fireEvent.click(button);
+
+    expect(overflowContainer.scrollLeft).toBe(0);
+    expect(handleClick).toHaveBeenCalledOnce();
+  });
 });
