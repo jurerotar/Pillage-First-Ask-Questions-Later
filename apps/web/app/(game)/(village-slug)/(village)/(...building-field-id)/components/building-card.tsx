@@ -7,7 +7,7 @@ import {
   use,
   useMemo,
 } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
   type CalculatedCumulativeEffect,
@@ -511,26 +511,36 @@ export const BuildingRequirements = () => {
           (assessedRequirement: AssessedBuildingRequirement, index) => (
             <Fragment key={assessedRequirement.id}>
               <li className="whitespace-nowrap">
-                <Text
-                  className={clsx(
-                    assessedRequirement.fulfilled &&
-                      'text-muted-foreground line-through',
-                  )}
-                >
+                <Text>
                   {assessedRequirement.type === 'amount' &&
                     instanceAlreadyExists && (
-                      <Trans>
-                        <VillageBuildingLink buildingId={buildingId} /> level{' '}
-                        {{ level: maxLevel }}
-                      </Trans>
+                      <>
+                        <VillageBuildingLink buildingId={buildingId} />{' '}
+                        <span
+                          className={clsx(
+                            !assessedRequirement.fulfilled &&
+                              'text-destructive',
+                          )}
+                        >
+                          {t('level {{level}}', { level: maxLevel })}
+                        </span>
+                      </>
                     )}
                   {assessedRequirement.type === 'building' && (
-                    <Trans>
+                    <>
                       <VillageBuildingLink
                         buildingId={assessedRequirement.buildingId}
                       />{' '}
-                      level {{ level: assessedRequirement.level }}
-                    </Trans>
+                      <span
+                        className={clsx(
+                          !assessedRequirement.fulfilled && 'text-destructive',
+                        )}
+                      >
+                        {t('level {{level}}', {
+                          level: assessedRequirement.level,
+                        })}
+                      </span>
+                    </>
                   )}
                   {index !== requirementsToDisplay.length - 1 && ','}
                 </Text>

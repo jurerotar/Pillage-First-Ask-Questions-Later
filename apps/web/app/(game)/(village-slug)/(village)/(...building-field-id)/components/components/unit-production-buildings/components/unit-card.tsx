@@ -7,7 +7,7 @@ import {
   useMemo,
 } from 'react';
 import { useForm } from 'react-hook-form';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
   calculateMaxUnits,
@@ -565,18 +565,15 @@ export const UnitRequirements = () => {
           <Fragment key={assessedRequirement.buildingId}>
             <li className="whitespace-nowrap">
               <Text>
+                <VillageBuildingLink
+                  buildingId={assessedRequirement.buildingId}
+                />{' '}
                 <span
                   className={clsx(
-                    assessedRequirement.fulfilled &&
-                      'text-muted-foreground line-through',
+                    !assessedRequirement.fulfilled && 'text-destructive',
                   )}
                 >
-                  <Trans>
-                    <VillageBuildingLink
-                      buildingId={assessedRequirement.buildingId}
-                    />{' '}
-                    level {{ level: assessedRequirement.level }}
-                  </Trans>
+                  {t('level {{level}}', { level: assessedRequirement.level })}
                 </span>
                 {index !== assessedRequirements.length - 1 && ','}
               </Text>
