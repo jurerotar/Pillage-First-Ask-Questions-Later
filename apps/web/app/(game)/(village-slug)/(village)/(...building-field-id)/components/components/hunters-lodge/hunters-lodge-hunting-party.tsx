@@ -19,6 +19,7 @@ import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
@@ -73,6 +74,7 @@ const HuntingPartyTierTable = ({
 }: HuntingPartyTierTableProps) => {
   const { t } = useTranslation();
   const { serverSpeed } = useServer();
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { developerSettings } = useDeveloperSettings();
   const { isFreeHuntingPartiesEnabled, isInstantUnitTravelEnabled } =
     developerSettings;
@@ -109,7 +111,10 @@ const HuntingPartyTierTable = ({
                 </TableCell>
                 <TableCell>
                   <span className="inline-flex gap-2">
-                    <Resources resources={cost} />
+                    <Resources
+                      availableResources={currentResources}
+                      resources={cost}
+                    />
                   </span>
                 </TableCell>
                 <TableCell>{formatTime(duration)}</TableCell>
