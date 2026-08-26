@@ -233,7 +233,6 @@ export const migrateAndSeed = (
     // Villages
     db.exec({ sql: createVillagesTable });
     villageSeeder(db, server);
-    occupiedOasisSeeder(db, server);
 
     // Gatherers Hut expeditions
     db.exec({ sql: createGatherersHutExpeditionsTable });
@@ -301,6 +300,7 @@ export const migrateAndSeed = (
     // Building fields
     db.exec({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
+    occupiedOasisSeeder(db, server);
     db.exec({ sql: createBuildingFieldsIndexes });
 
     // Trapper cages

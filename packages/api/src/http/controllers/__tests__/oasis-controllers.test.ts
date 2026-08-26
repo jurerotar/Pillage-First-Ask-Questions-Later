@@ -106,6 +106,71 @@ describe('oasis-controllers', () => {
     expect(occupyingVillageId).toBe(village.id);
   });
 
+  test('occupyOasis should move oasis effects from previous owner', async () => {
+    const database = await prepareTestDatabase();
+
+    const [previousOwner, nextOwner] = database.selectObjects({
+      sql: 'SELECT id, player_id, tile_id FROM villages ORDER BY id LIMIT 2',
+      schema: villageRowSchema,
+    });
+
+    const oasisTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
+      schema: z.number(),
+    })!;
+
+    occupyOasis(
+      database,
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: previousOwner!.tile_id, oasisTileId },
+      }),
+    );
+
+    occupyOasis(
+      database,
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: nextOwner!.tile_id, oasisTileId },
+      }),
+    );
+
+    const previousOwnerEffectCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM
+          effects
+        WHERE
+          tile_id = $tile_id
+          AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+          AND source_specifier = $oasis_tile_id;
+      `,
+      bind: {
+        $tile_id: previousOwner!.tile_id,
+        $oasis_tile_id: oasisTileId,
+      },
+      schema: z.number(),
+    });
+
+    const nextOwnerEffectCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM
+          effects
+        WHERE
+          tile_id = $tile_id
+          AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+          AND source_specifier = $oasis_tile_id;
+      `,
+      bind: {
+        $tile_id: nextOwner!.tile_id,
+        $oasis_tile_id: oasisTileId,
+      },
+      schema: z.number(),
+    });
+
+    expect(previousOwnerEffectCount).toBe(0);
+    expect(nextOwnerEffectCount).toBeGreaterThan(0);
+  });
+
   test('abandonOasis should abandon an oasis', async () => {
     const database = await prepareTestDatabase();
 

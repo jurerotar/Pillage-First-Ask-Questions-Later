@@ -31,6 +31,7 @@ import {
   adventureMovementResolver,
   attackMovementResolver,
   findNewVillageMovementResolver,
+  oasisOccupationMovementResolver,
   raidMovementResolver,
   reinforcementMovementResolver,
   relocationMovementResolver,
@@ -98,6 +99,71 @@ const getVillageTileId = (database: DbFacade, villageId: number) =>
     bind: { $village_id: villageId },
     schema: z.number(),
   })!;
+
+describe(oasisOccupationMovementResolver, () => {
+  test('should occupy oasis and send troops back', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const originTileId = getVillageTileId(database, villageId);
+    const targetTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1;',
+      schema: z.number(),
+    })!;
+    const resolvesAt = Date.now();
+
+    oasisOccupationMovementResolver(
+      database,
+      createGameEventMock('troopMovementOasisOccupation', {
+        villageId,
+        originTileId,
+        targetTileId,
+        startsAt: resolvesAt - 1_000,
+        duration: 1_000,
+        resolvesAt,
+        troops: [
+          {
+            unitId: 'HERO',
+            amount: 1,
+            tileId: originTileId,
+            sourceTileId: originTileId,
+          },
+        ],
+      }),
+    );
+
+    const occupyingVillageId = database.selectValue({
+      sql: 'SELECT village_id FROM oasis WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetTileId },
+      schema: z.number().nullable(),
+    });
+
+    const returnEvent = database.selectObject({
+      sql: `
+        SELECT
+          JSON_EXTRACT(meta, '$.originTileId') AS origin_tile_id,
+          JSON_EXTRACT(meta, '$.targetTileId') AS target_tile_id,
+          JSON_EXTRACT(meta, '$.originalMovementType') AS original_movement_type
+        FROM
+          events
+        WHERE
+          type = 'troopMovementReturn'
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
+        original_movement_type: z.string(),
+      }),
+    })!;
+
+    expect(occupyingVillageId).toBe(villageId);
+    expect(returnEvent).toStrictEqual({
+      origin_tile_id: targetTileId,
+      target_tile_id: originTileId,
+      original_movement_type: 'troopMovementOasisOccupation',
+    });
+  });
+});
 
 describe(adventureMovementResolver, () => {
   test('should handle hero surviving adventure', async () => {

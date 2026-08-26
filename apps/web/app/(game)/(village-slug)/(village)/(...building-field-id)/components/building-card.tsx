@@ -33,6 +33,7 @@ import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-
 import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -163,6 +164,7 @@ export const BuildingCost = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { virtualLevel, doesBuildingExist } = use(BuildingFieldContext);
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
@@ -187,7 +189,10 @@ export const BuildingCost = () => {
             : t('Building construction cost')}
         </Text>
         <div className="flex gap-2">
-          <Resources resources={nextLevelResourceCost} />
+          <Resources
+            availableResources={currentResources}
+            resources={nextLevelResourceCost}
+          />
         </div>
       </section>
       <section className="flex flex-col flex-wrap gap-2 pt-2 border-t border-border justify-center">

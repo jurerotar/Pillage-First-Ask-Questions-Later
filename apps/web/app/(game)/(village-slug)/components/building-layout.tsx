@@ -38,6 +38,30 @@ type DragScrollState = {
 
 const dragActivationDistance = 4;
 
+const interactiveSelector = [
+  'a',
+  'button',
+  'input',
+  'select',
+  'textarea',
+  '[role="button"]',
+  '[role="link"]',
+  '[contenteditable="true"]',
+].join(',');
+
+const isInteractiveElement = (
+  target: EventTarget | null,
+  container: HTMLElement,
+) => {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+
+  const interactiveElement = target.closest(interactiveSelector);
+
+  return interactiveElement !== null && container.contains(interactiveElement);
+};
+
 export const OverflowContainer = ({ children }: PropsWithChildren) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStateRef = useRef<DragScrollState | null>(null);
@@ -88,6 +112,7 @@ export const OverflowContainer = ({ children }: PropsWithChildren) => {
           container === null ||
           event.pointerType !== 'mouse' ||
           event.button !== 0 ||
+          isInteractiveElement(event.target, event.currentTarget) ||
           container.scrollWidth <= container.clientWidth
         ) {
           return;

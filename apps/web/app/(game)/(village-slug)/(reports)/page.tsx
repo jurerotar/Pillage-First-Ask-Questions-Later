@@ -11,13 +11,6 @@ import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-para
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { useReportFilters } from './hooks/use-report-filters';
 
@@ -42,15 +35,6 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
   return (
     <PageContents>
       <title>{title}</title>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{t('Reports')}</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('Reports')}
         className="top-2 right-2"

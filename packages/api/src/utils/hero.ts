@@ -145,7 +145,7 @@ export const createHeroHealthRegenerationEventByVillageId = (
         heroes.health_regeneration AS healthRegeneration,
         servers.speed AS speed
       FROM heroes
-      JOIN servers ON 1 = 1
+      CROSS JOIN servers
       WHERE heroes.player_id = (
         SELECT player_id
         FROM villages

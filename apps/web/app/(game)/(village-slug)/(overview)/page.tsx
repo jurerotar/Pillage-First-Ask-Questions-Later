@@ -19,13 +19,6 @@ import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import { Separator } from 'app/components/ui/separator';
 
 const OverviewPage = ({ params }: Route.ComponentProps) => {
@@ -113,15 +106,6 @@ const OverviewPage = ({ params }: Route.ComponentProps) => {
   return (
     <PageContents>
       <title>{title}</title>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{t('Village overview')}</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('Village overview')}
         className="top-2 right-2"

@@ -43,6 +43,7 @@ import {
   onHeroDeath,
   relocateHero,
 } from '../../../utils/hero';
+import { occupyOasisForVillage } from '../../../utils/oasis';
 import { assessAdventureCountQuestCompletion } from '../../../utils/quests';
 import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
 import {
@@ -133,15 +134,29 @@ export const adventureMovementResolver: Resolver<
 export const oasisOccupationMovementResolver: Resolver<
   GameEvent<'troopMovementOasisOccupation'>
 > = (database, args) => {
-  const targetVillageId = database.selectValues({
-    sql: selectPlayerVillageIdByTileIdQuery,
-    bind: { $tile_id: args.targetTileId, $player_id: PLAYER_ID },
-    schema: z.number(),
+  const { originTileId, targetTileId, resolvesAt, troops, villageId, type } =
+    args;
+
+  const { previousOwnerVillageId } = occupyOasisForVillage(
+    database,
+    villageId,
+    targetTileId,
+    resolvesAt,
+  );
+
+  createEvents<'troopMovementReturn'>(database, {
+    villageId,
+    originTileId: targetTileId,
+    startsAt: resolvesAt,
+    targetTileId: originTileId,
+    type: 'troopMovementReturn',
+    originalMovementType: type,
+    troops,
   });
 
   return {
-    affectedVillageIds: [...targetVillageId],
-    affectedTileIds: [args.targetTileId],
+    affectedVillageIds: [villageId, previousOwnerVillageId],
+    affectedTileIds: [originTileId, targetTileId],
   };
 };
 

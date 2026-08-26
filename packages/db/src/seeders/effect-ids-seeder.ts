@@ -4,7 +4,7 @@ import { batchInsert } from '../utils/batch-insert';
 
 export const effectIdsSeeder = (database: DbFacade): void => {
   const effectIds = [
-    // !! wheatProduction must always remain at the top, because we use its id of 1 as a partial index in effects table !!
+    // !! wheatProduction must always remain at the top because hot map queries use its stable id of 1 !!
     'wheatProduction',
     ...effectIdSchema.options.filter((option) => option !== 'wheatProduction'),
   ];

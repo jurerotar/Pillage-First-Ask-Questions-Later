@@ -8,15 +8,9 @@ import { usePlayerVillages } from 'app/(game)/(village-slug)/(players)/(...playe
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { InformationPopover } from 'app/(game)/components/information-popover';
+import { Icon } from 'app/components/icon';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import {
   Table,
   TableBody,
@@ -37,6 +31,16 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
 
   const totalVillages = playerVillages.length;
 
+  const totalOccupiedOasis = useMemo<number>(() => {
+    let summedOasis = 0;
+
+    for (const { occupiedOasis } of playerVillages) {
+      summedOasis += occupiedOasis.length;
+    }
+
+    return summedOasis;
+  }, [playerVillages]);
+
   const totalPopulation = useMemo<number>(() => {
     let summedPopulation = 0;
 
@@ -50,23 +54,6 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
   return (
     <PageContents>
       <title>{title}</title>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to="../village">{t('Village')}</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink to="../statistics">
-              {t('Statistics')}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            {t('Player - {{playerSlug}}', { playerSlug })}
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('{{playerName}}', { playerName: player.name })}
         className="top-2 right-2"
@@ -120,6 +107,19 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
               className="p-1"
             >
               <Text className="text-left font-medium">
+                {t('Occupied oasis')}
+              </Text>
+            </th>
+            <td className="p-1">
+              <Text>{totalOccupiedOasis}</Text>
+            </td>
+          </tr>
+          <tr>
+            <th
+              scope="row"
+              className="p-1"
+            >
+              <Text className="text-left font-medium">
                 {t('Total population')}
               </Text>
             </th>
@@ -131,6 +131,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
       </table>
 
       <div className="flex flex-col justify-center gap-2">
+        <Text as="h2">{t('Villages')}</Text>
         <OverflowContainer>
           <Table>
             <TableHeader>
@@ -147,6 +148,9 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
                 <TableHeaderCell>
                   <Text>{t('Resources')}</Text>
                 </TableHeaderCell>
+                <TableHeaderCell>
+                  <Text>{t('Occupied oasis')}</Text>
+                </TableHeaderCell>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -155,6 +159,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
                   id,
                   name,
                   coordinates,
+                  occupiedOasis,
                   population,
                   resourceFieldComposition,
                 }) => (
@@ -192,6 +197,30 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
                           />
                         </span>
                       </Text>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        {occupiedOasis.map((oasis, index) => (
+                          <Text
+                            className="inline-flex items-center gap-2 whitespace-nowrap"
+                            key={oasis.id}
+                          >
+                            {index > 0 && <span>,</span>}
+                            {oasis.bonuses.map(({ resource, bonus }) => (
+                              <span
+                                className="inline-flex items-center gap-1"
+                                key={resource}
+                              >
+                                <Icon
+                                  type={resource}
+                                  className="flex size-5"
+                                />
+                                {bonus}%
+                              </span>
+                            ))}
+                          </Text>
+                        ))}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ),

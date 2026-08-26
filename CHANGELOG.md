@@ -1,3 +1,18 @@
+## Version 0.4.59
+
+#### Aug 24, 2026
+
+* [BugFix] Fixed horizontally scrollable tables hijacking clicks on buttons and links.
+
+## Version 0.4.58
+
+#### Aug 23, 2026
+
+* [UIUXImprovement] Player pages now show occupied oasis in the village list.
+* [BugFix] Fixed NPC oasis occupation seeding so villages occupy oasis based on their Hero's Mansion level, allowing
+  villages with sufficient Hero's Mansion levels to occupy multiple oasis.
+* [Performance] Updated database indexes to improve query performance.
+
 ## Version 0.4.57
 
 #### Aug 21, 2026

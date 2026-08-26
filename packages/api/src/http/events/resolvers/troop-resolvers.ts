@@ -16,28 +16,20 @@ export const troopTrainingEventResolver: Resolver<
 
   database.exec({
     sql: `
-      WITH
-        v AS (
-          SELECT tile_id
-          FROM
-            villages
-          WHERE
-            tile_id = $tile_id
-          )
       INSERT
       INTO
         troops (unit_id, amount, tile_id, source_tile_id)
-      SELECT (
-        SELECT id
-        FROM unit_ids
-        WHERE unit = $unit_id
-        ), $amount, v.tile_id, v.tile_id
-      FROM
-        v
-      WHERE
-        TRUE ON CONFLICT(unit_id, tile_id, source_tile_id)
-        DO
-      UPDATE SET
+      VALUES (
+        (
+          SELECT id
+          FROM unit_ids
+          WHERE unit = $unit_id
+        ),
+        $amount,
+        $tile_id,
+        $tile_id
+      )
+      ON CONFLICT(unit_id, tile_id, source_tile_id) DO UPDATE SET
         amount = amount + excluded.amount;
     `,
     bind: {

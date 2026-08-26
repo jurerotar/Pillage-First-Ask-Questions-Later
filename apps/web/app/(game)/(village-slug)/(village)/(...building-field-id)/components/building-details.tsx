@@ -18,13 +18,6 @@ import {
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { lazyWithRetry } from 'app/utils/imports';
@@ -321,8 +314,7 @@ const buildingDetailsTabMap = new Map<
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
-  const { buildingField, buildingFieldId, actualLevel } =
-    use(BuildingFieldContext);
+  const { buildingField, actualLevel } = use(BuildingFieldContext);
 
   const { buildingId } = buildingField!;
 
@@ -343,21 +335,8 @@ export const BuildingDetails = () => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
-  const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
-
   return (
     <>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to={backlinkTarget}>
-              {buildingFieldId > 18 ? t('Village') : t('Resources')}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{t(`BUILDINGS.${buildingId}.NAME`)}</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('Building details')}
         className="top-2 right-2"
