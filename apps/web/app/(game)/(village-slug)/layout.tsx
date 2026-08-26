@@ -636,7 +636,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
   const { preferences } = usePreferences();
 
   return (
-    <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200 dark:from-muted/60 dark:via-card dark:to-muted/60">
+    <header className="flex flex-col w-full px-2 pb-1 lg:p-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200 dark:from-muted/60 dark:via-card dark:to-muted/60">
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
           <div className="hidden lg:flex w-full bg-muted py-1 px-2">
@@ -991,7 +991,7 @@ const GameLayout = memo<Route.ComponentProps>(
 
     return (
       <div className="[-webkit-touch-callout:none]">
-        <VillageSlugProvider villageSlug={villageSlug}>
+        <VillageSlugProvider villageSlug={villageSlug!}>
           <CurrentVillageComputedEffectsProvider>
             <CurrentVillageLiveResourcesProvider>
               <CurrentVillageBuildingQueueContextProvider>

@@ -65,7 +65,7 @@ const RULER_SIZE = 20;
 const DRAG_CLICK_THRESHOLD = 3;
 const DESKTOP_MAP_CHROME_HEIGHT = 80;
 const MOBILE_BOTTOM_NAVIGATION_HEIGHT = 90;
-const MOBILE_EXPANDED_TOP_HEADER_HEIGHT = 128;
+const MOBILE_EXPANDED_TOP_HEADER_HEIGHT = 123;
 const MOBILE_COMPACT_TOP_HEADER_HEIGHT = 108;
 
 const MapPageContents = () => {
@@ -496,7 +496,7 @@ const MapPageContents = () => {
       />
       <Grid
         key={tileSize}
-        className="scrollbar-hidden bg-[#8EBF64]"
+        className="scrollbar-hidden bg-[#8EBF64] transition-[height] duration-300 ease-out lg:transition-none"
         gridRef={setMapGrid}
         columnCount={gridSize}
         columnWidth={tileSize}
@@ -514,7 +514,7 @@ const MapPageContents = () => {
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 non-selectable pointer-events-none">
         <List
-          className="scrollbar-hidden"
+          className="scrollbar-hidden transition-[height] duration-300 ease-out lg:transition-none"
           listRef={setLeftMapRuler}
           rowHeight={tileSize}
           rowCount={gridSize}

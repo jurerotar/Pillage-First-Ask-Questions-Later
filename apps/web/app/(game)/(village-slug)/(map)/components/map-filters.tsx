@@ -90,7 +90,7 @@ export const MapFilters = () => {
   return (
     <div
       className={clsx(
-        areMobileDetailsVisible ? 'top-31' : 'top-26',
+        areMobileDetailsVisible ? 'top-29' : 'top-25',
         'pointer-events-none fixed lg:top-23 right-2 md:right-4 flex flex-col items-end gap-2 transition-[top] ease-out',
       )}
     >
