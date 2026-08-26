@@ -162,7 +162,7 @@ export const UnitOverview = () => {
   const { t } = useTranslation();
 
   return (
-    <section>
+    <section className="flex flex-col gap-2">
       <div className="inline-flex gap-2 items-center font-semibold">
         <Icon
           className="size-6"
@@ -170,6 +170,7 @@ export const UnitOverview = () => {
         />
         <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
       </div>
+      <Text>{t(`UNITS.${unitId}.SUMMARY`)}</Text>
     </section>
   );
 };
