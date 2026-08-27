@@ -11,11 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from 'app/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger, } from 'app/components/ui/popover';
 
 type TabsContextValue = {
   onValueChange: (value: string) => void;
@@ -131,10 +127,9 @@ export const TabList = ({
     if (moreButton) {
       moreButton.style.display = '';
     }
-    const moreWidth = (moreButton?.offsetWidth ?? 80) + gap;
 
     // Find how many tabs fit alongside the More button
-    let usedWidth = moreWidth;
+    let usedWidth = (moreButton?.offsetWidth ?? 80) + gap;
     let count = 0;
 
     for (const w of tabWidths) {
