@@ -1,8 +1,15 @@
 ## Version 0.4.59
 
-#### Aug 24, 2026
+#### Aug 27, 2026
 
+* [UIUXImprovement] Highlighted missing resources in cost displays.
+* [UIUXImprovement] Removed breadcrumbs to reduce UI bloat.
 * [BugFix] Fixed horizontally scrollable tables hijacking clicks on buttons and links.
+* [BugFix] Fixed resource availability estimates showing a ready time when resource production is negative or a missing
+  resource cannot grow.
+* [BugFix] Fixed mobile touch interactions causing hero resource production dropdowns to close immediately, village
+  building fields to queue upgrades while scrolling, and long-pressed building fields to sometimes queue duplicate
+  upgrades.
 
 ## Version 0.4.58
 
