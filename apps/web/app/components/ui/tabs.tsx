@@ -5,13 +5,41 @@ import {
   type ComponentProps,
   createContext,
   isValidElement,
+  type ReactElement,
+  type ReactNode,
   useCallback,
   useContext,
-  useEffect,
+  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
-import { Popover, PopoverContent, PopoverTrigger, } from 'app/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
+
+const TAB_GAP_WIDTH = 4;
+const MORE_BUTTON_FALLBACK_WIDTH = 80;
+
+const tabClassName = clsx(
+  'inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all cursor-pointer',
+  'text-foreground/70 hover:text-foreground',
+  'focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none',
+  'disabled:pointer-events-none disabled:opacity-50',
+  'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+);
+
+const getMoreButtonClassName = (isActive: boolean) => {
+  return clsx(
+    'inline-flex items-center justify-center gap-1 rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all outline-none cursor-pointer',
+    'hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50',
+    isActive
+      ? 'bg-background text-foreground shadow-sm'
+      : 'text-muted-foreground',
+  );
+};
 
 type TabsContextValue = {
   onValueChange: (value: string) => void;
@@ -23,12 +51,12 @@ const TabsContext = createContext<TabsContextValue | null>(null);
 type TabsProps = ComponentProps<typeof TabsPrimitive.Root>;
 
 export const Tabs = ({
-                       children,
-                       value,
-                       onValueChange,
-                       defaultValue,
-                       ...props
-                     }: TabsProps) => {
+  children,
+  value,
+  onValueChange,
+  defaultValue,
+  ...props
+}: TabsProps) => {
   const [internalValue, setInternalValue] = useState(defaultValue ?? '');
   const currentValue = value ?? internalValue;
 
@@ -41,11 +69,13 @@ export const Tabs = ({
     },
     [value, onValueChange],
   );
+  const contextValue = useMemo(
+    () => ({ onValueChange: handleValueChange, value: currentValue }),
+    [currentValue, handleValueChange],
+  );
 
   return (
-    <TabsContext.Provider
-      value={{ onValueChange: handleValueChange, value: currentValue }}
-    >
+    <TabsContext.Provider value={contextValue}>
       <TabsPrimitive.Root
         value={currentValue}
         onValueChange={handleValueChange}
@@ -57,119 +87,110 @@ export const Tabs = ({
   );
 };
 
-type OverflowTab = {
+type TabElementProps = ComponentProps<typeof TabsPrimitive.Trigger>;
+
+type TabItem = {
+  child: ReactElement<TabElementProps>;
+  label: ReactNode;
   value: string;
-  label: string;
+};
+
+const getTabItems = (children: ReactNode): TabItem[] => {
+  const items: TabItem[] = [];
+
+  for (const child of Children.toArray(children)) {
+    if (!isValidElement<TabElementProps>(child)) {
+      continue;
+    }
+
+    if (typeof child.props.value !== 'string') {
+      continue;
+    }
+
+    items.push({
+      child,
+      label: child.props.children,
+      value: child.props.value,
+    });
+  }
+
+  return items;
 };
 
 export const TabList = ({
-                          children,
-                          className,
-                          ...props
-                        }: ComponentProps<typeof TabsPrimitive.List>) => {
+  children,
+  className,
+  ...props
+}: ComponentProps<typeof TabsPrimitive.List>) => {
   const tabsContext = useContext(TabsContext);
   const containerRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState<number | null>(null);
-  const [overflowTabs, setOverflowTabs] = useState<OverflowTab[]>([]);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
-  const childArray = Children.toArray(children).filter(isValidElement);
+  const tabItems = useMemo(() => getTabItems(children), [children]);
+  const tabCount = tabItems.length;
 
-  const calculateOverflow = useCallback(() => {
+  useLayoutEffect(() => {
     const container = containerRef.current;
     if (!container) {
       return;
     }
 
-    const containerWidth = container.offsetWidth;
-    const tabElements = Array.from(
-      container.querySelectorAll<HTMLElement>('[data-slot="tab"]'),
-    );
-    const moreButton = container.querySelector<HTMLElement>(
-      '[data-slot="tab-more"]',
-    );
+    const calculateOverflow = () => {
+      const containerWidth = container.offsetWidth;
+      const tabElements = container.querySelectorAll<HTMLElement>(
+        '[data-slot="tab-measure"]',
+      );
+      const moreButton = container.querySelector<HTMLElement>(
+        '[data-slot="tab-more-measure"]',
+      );
 
-    if (tabElements.length === 0) {
-      return;
-    }
-
-    // Temporarily show all tabs and hide "More" to measure natural sizes
-    for (const tab of tabElements) {
-      tab.style.display = '';
-    }
-    if (moreButton) {
-      moreButton.style.display = 'none';
-    }
-
-    // Measure each tab's width individually
-    const tabWidths: number[] = [];
-    for (const el of tabElements) {
-      tabWidths.push(el.offsetWidth);
-    }
-
-    // Check if everything fits on one line
-    let totalWidth = 0;
-    for (const w of tabWidths) {
-      totalWidth += w;
-    }
-
-    // Account for gap between items (gap-1 = 0.25rem = 4px typically)
-    const gap = 4;
-    const totalWithGaps = totalWidth + gap * (tabElements.length - 1);
-
-    if (totalWithGaps <= containerWidth) {
-      setVisibleCount(null);
-      setOverflowTabs([]);
-      return;
-    }
-
-    // Measure More button width
-    if (moreButton) {
-      moreButton.style.display = '';
-    }
-
-    // Find how many tabs fit alongside the More button
-    let usedWidth = (moreButton?.offsetWidth ?? 80) + gap;
-    let count = 0;
-
-    for (const w of tabWidths) {
-      if (usedWidth + w + gap <= containerWidth) {
-        usedWidth += w + gap;
-        count++;
-      } else {
-        break;
+      if (
+        containerWidth === 0 ||
+        tabElements.length === 0 ||
+        tabElements.length !== tabCount
+      ) {
+        return;
       }
-    }
 
-    // Ensure at least 1 tab is visible
-    count = Math.max(1, count);
-    setVisibleCount(count);
+      let totalWidth = 0;
+      for (const tabElement of tabElements) {
+        totalWidth += tabElement.offsetWidth;
+      }
+      totalWidth += TAB_GAP_WIDTH * Math.max(0, tabElements.length - 1);
 
-    // Hide overflow tabs in the DOM
-    for (let i = count; i < tabElements.length; i++) {
-      tabElements[i].style.display = 'none';
-    }
-
-    // Extract overflow tab data from the DOM
-    const overflow: OverflowTab[] = [];
-    for (let i = count; i < tabElements.length; i++) {
-      const el = tabElements[i];
-      const tabValue = el.getAttribute('data-value') ?? '';
-      if (tabValue) {
-        overflow.push({
-          value: tabValue,
-          label: el.textContent ?? '',
+      if (totalWidth <= containerWidth) {
+        setVisibleCount((currentVisibleCount) => {
+          return currentVisibleCount === null ? currentVisibleCount : null;
         });
+        return;
       }
-    }
-    setOverflowTabs(overflow);
-  }, []);
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) {
-      return;
-    }
+      let usedWidth = moreButton?.offsetWidth ?? MORE_BUTTON_FALLBACK_WIDTH;
+      let count = 0;
+
+      for (const tabElement of tabElements) {
+        const nextWidth = usedWidth + tabElement.offsetWidth + TAB_GAP_WIDTH;
+
+        if (nextWidth > containerWidth) {
+          break;
+        }
+
+        usedWidth = nextWidth;
+        count++;
+      }
+
+      const nextVisibleCount = Math.min(
+        Math.max(1, count),
+        tabElements.length - 1,
+      );
+
+      setVisibleCount((currentVisibleCount) => {
+        return currentVisibleCount === nextVisibleCount
+          ? currentVisibleCount
+          : nextVisibleCount;
+      });
+    };
 
     const observer = new ResizeObserver(() => {
       calculateOverflow();
@@ -181,16 +202,13 @@ export const TabList = ({
     return () => {
       observer.disconnect();
     };
-  }, [calculateOverflow]);
+  }, [tabCount]);
 
-  // Recalculate when the number of children changes (e.g. dynamic tabs)
-  const childCount = childArray.length;
-  // biome-ignore lint/correctness/useExhaustiveDependencies: childCount is an intentional trigger for dynamic tab changes
-  useEffect(() => {
-    calculateOverflow();
-  }, [childCount, calculateOverflow]);
-
-  const hasOverflow = visibleCount !== null && overflowTabs.length > 0;
+  const visibleTabs =
+    visibleCount === null ? tabItems : tabItems.slice(0, visibleCount);
+  const overflowTabs =
+    visibleCount === null ? [] : tabItems.slice(visibleCount);
+  const hasOverflow = overflowTabs.length > 0;
   const isOverflowActive =
     hasOverflow &&
     tabsContext &&
@@ -200,41 +218,27 @@ export const TabList = ({
     <TabsPrimitive.List
       ref={containerRef}
       className={clsx(
-        'inline-flex max-w-full items-center gap-1 overflow-hidden rounded-lg bg-muted p-1 text-muted-foreground transition-colors',
+        'relative inline-flex max-w-full items-center gap-1 overflow-hidden rounded-lg bg-muted p-1 text-muted-foreground transition-colors',
         className,
       )}
+      data-slot="tab-list"
       {...props}
     >
-      {children}
+      {visibleTabs.map((tab) => tab.child)}
       {hasOverflow && (
         <Popover
           open={isMoreOpen}
           onOpenChange={setIsMoreOpen}
         >
-          <PopoverTrigger
-            data-slot="tab-more"
-            className={clsx(
-              'inline-flex items-center justify-center gap-1 rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all outline-none cursor-pointer',
-              'hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50',
-              isOverflowActive
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground',
-            )}
-          >
-            More
-            <svg
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-              className="size-3.5"
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className={getMoreButtonClassName(Boolean(isOverflowActive))}
+              data-slot="tab-more"
             >
-              <path
-                fillRule="evenodd"
-                d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
-                clipRule="evenodd"
-              />
-            </svg>
+              More
+              <MoreIcon />
+            </button>
           </PopoverTrigger>
           <PopoverContent
             align="end"
@@ -263,35 +267,44 @@ export const TabList = ({
           </PopoverContent>
         </Popover>
       )}
-      {!hasOverflow && (
-        <div
-          data-slot="tab-more"
-          className="hidden"
-        />
-      )}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 left-0 flex h-0 max-w-none gap-1 overflow-hidden opacity-0"
+      >
+        {tabItems.map((tab) => (
+          <span
+            key={tab.value}
+            className={clsx(tabClassName, tab.child.props.className)}
+            data-slot="tab-measure"
+            data-value={tab.value}
+          >
+            {tab.label}
+          </span>
+        ))}
+        <span
+          className={getMoreButtonClassName(false)}
+          data-slot="tab-more-measure"
+        >
+          More
+          <MoreIcon />
+        </span>
+      </div>
     </TabsPrimitive.List>
   );
 };
 
 export const Tab = ({
-                      children,
-                      className,
-                      value,
-                      ...props
-                    }: ComponentProps<typeof TabsPrimitive.Trigger>) => {
+  children,
+  className,
+  value,
+  ...props
+}: ComponentProps<typeof TabsPrimitive.Trigger>) => {
   return (
     <TabsPrimitive.Trigger
       value={value}
       data-slot="tab"
       data-value={value}
-      className={clsx(
-        'inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all cursor-pointer',
-        'text-foreground/70 hover:text-foreground',
-        'focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none',
-        'disabled:pointer-events-none disabled:opacity-50',
-        'data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
-        className,
-      )}
+      className={clsx(tabClassName, className)}
       {...props}
     >
       {children}
@@ -300,11 +313,11 @@ export const Tab = ({
 };
 
 export const TabPanel = ({
-                           children,
-                           className,
-                           value,
-                           ...props
-                         }: ComponentProps<typeof TabsPrimitive.Content>) => {
+  children,
+  className,
+  value,
+  ...props
+}: ComponentProps<typeof TabsPrimitive.Content>) => {
   return (
     <TabsPrimitive.Content
       value={value}
@@ -316,5 +329,23 @@ export const TabPanel = ({
     >
       {children}
     </TabsPrimitive.Content>
+  );
+};
+
+const MoreIcon = () => {
+  return (
+    <svg
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      className="size-3.5"
+    >
+      <path
+        fillRule="evenodd"
+        d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
+        clipRule="evenodd"
+      />
+    </svg>
   );
 };
