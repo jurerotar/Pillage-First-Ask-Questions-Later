@@ -84,7 +84,7 @@ export const calculateUnitUpgradeCostForLevel = (
 ): number[] => {
   const { baseRecruitmentCost } = getUnitDefinition(unitId);
 
-  const unitUpgradeCostModifier = 1.35;
+  const unitUpgradeCostModifier = 1.2;
 
   return baseRecruitmentCost.map(
     (resource) =>
