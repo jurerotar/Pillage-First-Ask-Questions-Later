@@ -1,3 +1,4 @@
+import 'zod/compile';
 import type {
   ApiNotificationEvent,
   ControllerErrorEvent,
