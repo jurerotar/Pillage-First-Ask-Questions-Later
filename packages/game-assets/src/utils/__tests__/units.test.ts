@@ -15,9 +15,12 @@ import {
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
+  calculateUpgradedValue,
+  getSmithyUpgradeableUnitsByTribe,
   getUnitByTribeAndTier,
   getUnitDefinition,
   getUnitsByTribe,
+  isSmithyUpgradeableUnit,
 } from '../units';
 
 describe('units', () => {
@@ -43,6 +46,20 @@ describe('units', () => {
     const unit = getUnitByTribeAndTier('romans', mockUnit.tier);
     expect(unit.tier).toBe(mockUnit.tier);
     expect(getUnitsByTribe('romans')).toContain(unit);
+  });
+
+  test('isSmithyUpgradeableUnit excludes administration units', () => {
+    expect(isSmithyUpgradeableUnit(getUnitDefinition('ROMAN_CHIEF'))).toBe(
+      false,
+    );
+    expect(isSmithyUpgradeableUnit(mockUnit)).toBe(true);
+  });
+
+  test('getSmithyUpgradeableUnitsByTribe excludes administration units', () => {
+    const smithyUnits = getSmithyUpgradeableUnitsByTribe('romans');
+
+    expect(smithyUnits).not.toContain(getUnitDefinition('ROMAN_CHIEF'));
+    expect(smithyUnits).toContain(mockUnit);
   });
 
   test('calculateMaxUnits returns correct max number of units', () => {
@@ -81,6 +98,10 @@ describe('units', () => {
     const level2 = calculateUnitUpgradeDurationForLevel(mockUnitId, 2);
     const level3 = calculateUnitUpgradeDurationForLevel(mockUnitId, 3);
     expect(level3).toBeGreaterThan(level2);
+  });
+
+  test('calculateUpgradedValue returns unit attribute value for upgrade level', () => {
+    expect(calculateUpgradedValue(mockUnit.attack, 2)).toBe(30.9);
   });
 
   test('calculateUnitResearchCost returns correct values', () => {
