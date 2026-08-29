@@ -60,7 +60,7 @@ describe('units', () => {
 
   test('calculateUnitUpgradeCostForLevel returns correct cost at level 2', () => {
     const result = calculateUnitUpgradeCostForLevel(mockUnitId, 2);
-    expect(result).toStrictEqual([675, 880, 1080, 475]);
+    expect(result).toStrictEqual([600, 780, 960, 420]);
   });
 
   test('calculateUnitUpgradeDurationForLevel returns correct duration at level 2', () => {
