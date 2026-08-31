@@ -1,3 +1,12 @@
+## Version 0.4.60
+
+#### Aug 29, 2026
+
+* [Feature] Smithy's upgrade tables were moved to a new Unit upgrade table tab. This tab displays level, upgrade cost,
+  upgrade duration and attributes tables.
+* [UIUXImprovement] Restyled tabs across the app with a cleaner segmented appearance and added a "More" popover for tabs
+  that do not fit in the available space.
+
 ## Version 0.4.59
 
 #### Aug 27, 2026

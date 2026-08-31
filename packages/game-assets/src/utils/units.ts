@@ -50,6 +50,14 @@ export const getUnitsByTribeWithHero = (tribe: Tribe): Unit[] => {
   return [...getUnitsByTribe(tribe), getUnitDefinition('HERO')];
 };
 
+export const isSmithyUpgradeableUnit = ({ category }: Unit): boolean => {
+  return category !== 'administration';
+};
+
+export const getSmithyUpgradeableUnitsByTribe = (tribe: Tribe): Unit[] => {
+  return getUnitsByTribe(tribe).filter(isSmithyUpgradeableUnit);
+};
+
 export const getSettlerUnitIdByTribe = (tribe: Tribe): Unit['id'] => {
   const unitsByTribe = getUnitsByTribe(tribe);
   return unitsByTribe.find(({ tier }) => tier === 'settler')!.id;
@@ -84,7 +92,7 @@ export const calculateUnitUpgradeCostForLevel = (
 ): number[] => {
   const { baseRecruitmentCost } = getUnitDefinition(unitId);
 
-  const unitUpgradeCostModifier = 1.35;
+  const unitUpgradeCostModifier = 1.2;
 
   return baseRecruitmentCost.map(
     (resource) =>
@@ -107,6 +115,13 @@ export const calculateUnitUpgradeDurationForLevel = (
         10,
     ) * 10
   );
+};
+
+export const calculateUpgradedValue = (
+  value: number,
+  level: number,
+): number => {
+  return Math.round(value * 1.015 ** level * 10) / 10;
 };
 
 export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {

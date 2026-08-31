@@ -208,6 +208,41 @@
     overflow-y: scroll;
   }
 
+  /*:where(*/
+  /*  h1,*/
+  /*  h2,*/
+  /*  h3,*/
+  /*  h4,*/
+  /*  h5,*/
+  /*  h6,*/
+  /*  p,*/
+  /*  span,*/
+  /*  a,*/
+  /*  button,*/
+  /*  label,*/
+  /*  legend,*/
+  /*  li,*/
+  /*  dt,*/
+  /*  dd,*/
+  /*  th,*/
+  /*  td,*/
+  /*  input,*/
+  /*  textarea,*/
+  /*  select,*/
+  /*  option,*/
+  /*  summary,*/
+  /*  figcaption,*/
+  /*  blockquote,*/
+  /*  code,*/
+  /*  pre,*/
+  /*  small,*/
+  /*  strong,*/
+  /*  em*/
+  /*) {*/
+  /*  text-box-trim: trim-both;*/
+  /*  text-box-edge: cap alphabetic;*/
+  /*}*/
+
   /* RTL Support */
   [dir="rtl"] {
     direction: rtl;
