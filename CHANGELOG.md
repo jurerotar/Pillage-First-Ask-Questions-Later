@@ -1,3 +1,11 @@
+## Version 0.4.61
+
+#### Aug 31, 2026
+
+* [UIUXImprovement] Made the mobile village header collapsible, allowing resource details to be hidden when you need
+  more space for the current view. You can collapse or expand the header by clicking on it. Since clicking on the header
+  previously took you to Production Overview, we have now moved it to resource production building tabs.
+
 ## Version 0.4.60
 
 #### Aug 29, 2026
