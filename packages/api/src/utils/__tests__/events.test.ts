@@ -35,8 +35,8 @@ import {
   createUnitImprovementEventMock,
   createUnitResearchEventMock,
 } from '@pillage-first/mocks/event';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -67,6 +67,25 @@ const getTileIdByCoordinates = (
     sql: 'SELECT id FROM tiles WHERE x = $x AND y = $y;',
     bind: { $x: coordinates.x, $y: coordinates.y },
     schema: z.number(),
+  })!;
+};
+
+const getAnyVillageWithTile = (
+  database: DbFacade,
+): { id: number; tileId: number } => {
+  return database.selectObject({
+    sql: `
+      SELECT id, tile_id AS tileId
+      FROM villages
+      WHERE player_id = $player_id
+      ORDER BY id
+      LIMIT 1;
+    `,
+    bind: { $player_id: PLAYER_ID },
+    schema: z.strictObject({
+      id: z.number(),
+      tileId: z.number(),
+    }),
   })!;
 };
 
@@ -647,7 +666,8 @@ describe('events utils', () => {
       database.exec({
         sql: `
           DELETE FROM effects
-          WHERE village_id = $village_id AND source_specifier = $field_id;
+          WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+            AND source_specifier = $field_id;
           DELETE FROM building_fields
           WHERE village_id = $village_id AND field_id = $field_id;
         `,
@@ -1280,7 +1300,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('No free oasis occupation slots available');
@@ -1317,7 +1337,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).not.toThrow();
@@ -1363,7 +1383,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('No free oasis occupation slots available');
@@ -1406,6 +1426,21 @@ describe('events utils', () => {
       ).not.toThrow();
     });
 
+    test('troopMovementAttack - should not throw if target is oasis', async () => {
+      const database = await prepareTestDatabase();
+      const targetTileId = database.selectValue({
+        sql: 'SELECT tile_id FROM oasis LIMIT 1',
+        schema: z.number(),
+      })!;
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementAttackEventMock({ targetTileId }),
+        ),
+      ).not.toThrow();
+    });
+
     test('troopMovementRaid - should throw if target is not village or oasis', async () => {
       const database = await prepareTestDatabase();
 
@@ -1424,6 +1459,21 @@ describe('events utils', () => {
           }),
         ),
       ).toThrow('Target must be a village or an oasis');
+    });
+
+    test('troopMovementRaid - should not throw if target is oasis', async () => {
+      const database = await prepareTestDatabase();
+      const targetTileId = database.selectValue({
+        sql: 'SELECT tile_id FROM oasis LIMIT 1',
+        schema: z.number(),
+      })!;
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createTroopMovementRaidEventMock({ targetTileId }),
+        ),
+      ).not.toThrow();
     });
 
     test('troopMovementFindNewVillage - should throw if target is occupied', async () => {
@@ -1476,7 +1526,7 @@ describe('events utils', () => {
           createGameEventMock('troopMovementOasisOccupation', {
             villageId,
             targetTileId: getTileIdByCoordinates(database, { x: 2, y: 2 }),
-            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, source: 1 }],
+            troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
           }),
         ),
       ).toThrow('Target must be an oasis');
@@ -1563,15 +1613,16 @@ describe('events utils', () => {
       ).toThrow('Troops can not be relocated to oasis');
     });
 
-    test('other events - should not throw by default', async () => {
+    test('return troop movements - should not throw by default', async () => {
       const database = await prepareTestDatabase();
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createGameEventMock('troopMovementAttack', {
+          createGameEventMock('troopMovementReturn', {
             targetTileId: getTileIdByCoordinates(database, { x: 1, y: 1 }),
+            originalMovementType: 'troopMovementReturnReinforcements',
             troops: [
-              { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, source: 1 },
+              { unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, sourceTileId: 1 },
             ],
           }),
         ),
@@ -1694,7 +1745,7 @@ describe('events utils', () => {
             unitId: 'LEGIONNAIRE',
             amount: 40,
             tileId: villageTileId,
-            source: villageTileId,
+            sourceTileId: villageTileId,
           },
         ],
       });
@@ -1747,7 +1798,7 @@ describe('events utils', () => {
               unitId: 'LEGIONNAIRE',
               amount: 40,
               tileId: villageTileId,
-              source: villageTileId,
+              sourceTileId: villageTileId,
             },
           ],
         }),
@@ -1758,7 +1809,7 @@ describe('events utils', () => {
               unitId: 'PRAETORIAN',
               amount: 60,
               tileId: villageTileId,
-              source: villageTileId,
+              sourceTileId: villageTileId,
             },
           ],
         }),
@@ -2117,6 +2168,82 @@ describe('events utils', () => {
       expect(result).toBeGreaterThan(0);
     });
 
+    test('troopMovementAttack - should apply local speed effects by origin tile id', async () => {
+      const database = await prepareTestDatabase();
+      const village = getAnyVillageWithTile(database);
+
+      expect(village.id).not.toBe(village.tileId);
+
+      const targetTileId = database.selectValue({
+        sql: `
+          SELECT id
+          FROM tiles
+          WHERE id != $origin_tile_id
+          ORDER BY
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) *
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) +
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id)) *
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id))
+          LIMIT 1;
+        `,
+        bind: { $origin_tile_id: village.tileId },
+        schema: z.number(),
+      })!;
+
+      const event = createTroopMovementAttackEventMock({
+        villageId: village.id,
+        originTileId: village.tileId,
+        targetTileId,
+        troops: [
+          {
+            unitId: 'LEGIONNAIRE',
+            amount: 10,
+            tileId: village.tileId,
+            sourceTileId: village.tileId,
+          },
+        ],
+      });
+
+      database.exec({
+        sql: `
+          DELETE FROM effects
+          WHERE effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields')
+          );
+        `,
+      });
+
+      const durationWithoutBonus = getEventDuration(database, event);
+
+      database.exec({
+        sql: `
+          INSERT INTO effects (
+            effect_id,
+            value,
+            type_id,
+            scope_id,
+            source_id,
+            tile_id,
+            source_specifier
+          )
+          VALUES (
+            (SELECT id FROM effect_ids WHERE effect = 'unitSpeed'),
+            2,
+            (SELECT id FROM effect_type_ids WHERE type = 'bonus'),
+            (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
+            (SELECT id FROM effect_source_ids WHERE source = 'hero'),
+            $tile_id,
+            NULL
+          );
+        `,
+        bind: { $tile_id: village.tileId },
+      });
+
+      expect(getEventDuration(database, event)).toBe(durationWithoutBonus / 2);
+    });
+
     test('troopTraining - should heal troops in half the normal training duration', async () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_instant_unit_training_enabled', 0);
@@ -2282,7 +2409,7 @@ describe('events utils', () => {
         createEvents(database, {
           type: 'gatherersHutGatheringTrip',
           villageId: 1,
-          troops: [{ unitId: 'PHALANX', amount: 1, source: 1 }],
+          troops: [{ unitId: 'PHALANX', amount: 1, sourceTileId: 1 }],
         } as never),
       ).toThrow();
 
@@ -2454,12 +2581,7 @@ describe('events utils', () => {
         bind: {
           $village_id: villageId,
         },
-        schema: z.strictObject({
-          wood: z.number(),
-          clay: z.number(),
-          iron: z.number(),
-          wheat: z.number(),
-        }),
+        schema: resourcesSchema,
       })!;
 
       expect(event).toStrictEqual({
@@ -2539,33 +2661,6 @@ describe('events utils', () => {
       );
 
       expect(startTime).toBe(2500);
-    });
-
-    test('scheduledBuildingEvent - should return resolvesAt from database', async () => {
-      const database = await prepareTestDatabase();
-      const villageId = getAnyVillageId(database);
-
-      const startsAt = 3000;
-      const duration = 400;
-      insertEvents(database, [
-        createBuildingLevelChangeEventMock({
-          id: 66_001,
-          villageId,
-          startsAt,
-          duration,
-        }),
-      ]);
-
-      const startTime = getEventStartTime(
-        database,
-        createGameEventMock('buildingScheduledConstruction', {
-          villageId,
-          level: 2,
-          previousLevel: 1,
-        }),
-      );
-
-      expect(startTime).toBe(3400);
     });
 
     test('returnTroopMovement - should return now for manually triggered return', async () => {
@@ -2670,129 +2765,6 @@ describe('events utils', () => {
       expect(resultTimestamp).toBe(now);
 
       vi.useRealTimers();
-    });
-  });
-
-  describe('scheduled building construction', () => {
-    test('has zero duration and consumes no resources while scheduled', async () => {
-      const database = await prepareTestDatabase();
-      const villageId = getAnyVillageId(database);
-      const event = createGameEventMock('buildingScheduledConstruction', {
-        villageId,
-        buildingId: 'MAIN_BUILDING',
-        buildingFieldId: 20,
-        previousLevel: 1,
-        level: 2,
-      });
-
-      expect(getEventDuration(database, event)).toBe(0);
-      expect(getEventCost(database, event)).toEqual([0, 0, 0, 0]);
-    });
-
-    test('allows five total active or scheduled constructions and rejects a sixth', async () => {
-      const database = await prepareTestDatabase();
-      const villageId = getAnyVillageId(database);
-
-      insertEvents(
-        database,
-        Array.from({ length: 5 }, (_, index) =>
-          createGameEventMock('buildingScheduledConstruction', {
-            id: 90_000 + index,
-            villageId,
-            buildingId: 'MAIN_BUILDING',
-            buildingFieldId: 20 + index,
-            previousLevel: 1,
-            level: 2,
-          }),
-        ),
-      );
-
-      const sixth = createGameEventMock('buildingScheduledConstruction', {
-        villageId,
-        buildingId: 'MAIN_BUILDING',
-        buildingFieldId: 30,
-        previousLevel: 1,
-        level: 2,
-      });
-
-      expect(() => validateEventCreationPrerequisites(database, sixth)).toThrow(
-        'Building construction queue is full',
-      );
-    });
-
-    test('allows scheduling behind an occupied active construction queue', async () => {
-      const database = await prepareTestDatabase();
-      const villageId = getAnyVillageId(database);
-
-      insertEvents(database, [
-        createBuildingLevelChangeEventMock({
-          id: 91_000,
-          villageId,
-          buildingId: 'MAIN_BUILDING',
-          buildingFieldId: 38,
-          previousLevel: 1,
-          level: 2,
-        }),
-      ]);
-
-      const scheduled = createGameEventMock('buildingScheduledConstruction', {
-        villageId,
-        buildingId: 'MAIN_BUILDING',
-        buildingFieldId: 38,
-        previousLevel: 2,
-        level: 3,
-      });
-
-      expect(() =>
-        validateEventCreationPrerequisites(database, scheduled),
-      ).not.toThrow();
-    });
-
-    test('allows scheduling level one for an existing level-zero building', async () => {
-      const database = await prepareTestDatabase();
-      const villageId = getAnyVillageId(database);
-      const levelZeroBuilding = database.selectObject({
-        sql: `
-          SELECT bf.field_id AS buildingFieldId, bi.building AS buildingId
-          FROM building_fields bf
-          JOIN building_ids bi ON bi.id = bf.building_id
-          WHERE bf.village_id = $village_id
-            AND bf.level = 0
-          LIMIT 1;
-        `,
-        bind: { $village_id: villageId },
-        schema: z.strictObject({
-          buildingFieldId: z.number(),
-          buildingId: buildingIdSchema,
-        }),
-      })!;
-      const scheduled = createGameEventMock('buildingScheduledConstruction', {
-        villageId,
-        buildingId: levelZeroBuilding.buildingId,
-        buildingFieldId: levelZeroBuilding.buildingFieldId,
-        previousLevel: 0,
-        level: 1,
-      });
-
-      expect(() =>
-        validateEventCreationPrerequisites(database, scheduled),
-      ).not.toThrow();
-    });
-
-    test('rejects a scheduled level above the building maximum', async () => {
-      const database = await prepareTestDatabase();
-      const villageId = getAnyVillageId(database);
-      const event = createGameEventMock('buildingScheduledConstruction', {
-        villageId,
-        buildingId: 'MAIN_BUILDING',
-        buildingFieldId: 20,
-        previousLevel: 20,
-        level: 21,
-      });
-
-      expect(() => validateEventCreationPrerequisites(database, event)).toThrow(
-        'Building level cannot exceed max level',
-      );
     });
   });
 });

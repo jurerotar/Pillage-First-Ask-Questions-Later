@@ -48,7 +48,7 @@ export const createBuildingPlaceholder = (
         type_id,
         scope_id,
         source_id,
-        village_id,
+        tile_id,
         source_specifier
       )
       SELECT
@@ -57,7 +57,7 @@ export const createBuildingPlaceholder = (
         effect_type_ids.id,
         effect_scope_ids.id,
         effect_source_ids.id,
-        $village_id,
+        (SELECT tile_id FROM villages WHERE id = $village_id),
         $source_specifier
       FROM
         json_each($effects) AS effect
@@ -131,7 +131,7 @@ export const removeBuildingPlaceholder = (
   database.exec({
     sql: `
       DELETE FROM effects
-      WHERE village_id = $village_id
+      WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
         AND source_specifier = $building_field_id
         AND source_id = (
           SELECT id FROM effect_source_ids WHERE source = 'building'

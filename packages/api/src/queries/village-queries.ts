@@ -1,4 +1,4 @@
-export const updateResourceSiteResourcesByVillageIdQuery = `
+export const updateResourceSiteResourcesByTileIdToValuesQuery = `
   UPDATE resource_sites
   SET
     wood = $wood,
@@ -6,14 +6,7 @@ export const updateResourceSiteResourcesByVillageIdQuery = `
     iron = $iron,
     wheat = $wheat,
     updated_at = $updated_at
-  WHERE
-    tile_id = (
-      SELECT tile_id
-      FROM
-        villages
-      WHERE
-        id = $village_id
-      );
+  WHERE tile_id = $tile_id;
 `;
 
 export const selectVillageBySlugQuery = `
@@ -62,6 +55,20 @@ export const selectVillageTileIdQuery = `
     villages
   WHERE
     id = $village_id;
+`;
+
+export const selectVillageIdByTileIdQuery = `
+  SELECT id
+  FROM
+    villages
+  WHERE
+    tile_id = $tile_id;
+`;
+
+export const selectPlayerIdByVillageIdQuery = `
+  SELECT player_id
+  FROM villages
+  WHERE id = $village_id;
 `;
 
 export const selectTribeByVillageId = `
@@ -436,7 +443,7 @@ export const updateRearrangedBuildingFieldEffectsQuery = `
     WHERE mf.source_field_id = effects.source_specifier
   )
   WHERE
-    village_id = $village_id
+    tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
     AND scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
     AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
     AND source_specifier IN (

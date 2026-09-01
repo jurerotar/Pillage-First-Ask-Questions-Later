@@ -245,8 +245,8 @@ export const relocateReinforcements = createController(
     moveStationedTroops(
       db,
       troops,
-      { tileId: currentTileId, source: sourceTileId },
-      { tileId: currentTileId, source: currentTileId },
+      { tileId: currentTileId, sourceTileId },
+      { tileId: currentTileId, sourceTileId: currentTileId },
     );
 
     if (hasHero(troops)) {
@@ -269,15 +269,14 @@ export const returnReinforcements = createController(
   },
 )(({ database, path: { tileId }, body: { sourceTileId, troops } }) => {
   database.transaction((db) => {
-    const { currentTileId, currentVillageId, sourceVillageId } =
-      db.selectObject({
-        sql: selectSourceVillageByTileAndCurrentTileQuery,
-        bind: {
-          $source_tile_id: sourceTileId,
-          $current_tile_id: tileId,
-        },
-        schema: sourceVillageRowSchema,
-      })!;
+    const { currentTileId, sourceVillageId } = db.selectObject({
+      sql: selectSourceVillageByTileAndCurrentTileQuery,
+      bind: {
+        $source_tile_id: sourceTileId,
+        $current_tile_id: tileId,
+      },
+      schema: sourceVillageRowSchema,
+    })!;
 
     const animalTroops = troops.filter(isAnimalTroop);
     const returningTroops = troops.filter((troop) => !isAnimalTroop(troop));
@@ -285,7 +284,7 @@ export const returnReinforcements = createController(
     if (animalTroops.length > 0) {
       removeStationedTroops(db, animalTroops, {
         tileId: currentTileId,
-        source: sourceTileId,
+        sourceTileId,
       });
     }
 
@@ -301,7 +300,6 @@ export const returnReinforcements = createController(
 
     returnStationedTroops(
       db,
-      sourceVillageId,
       currentTileId,
       sourceTileId,
       sourceTileId,
@@ -312,8 +310,8 @@ export const returnReinforcements = createController(
     moveTroopWheatConsumption(
       db,
       returningTroops,
-      currentVillageId,
-      sourceVillageId,
+      currentTileId,
+      sourceTileId,
       now,
     );
   });
@@ -333,19 +331,15 @@ export const returnSentReinforcements = createController(
   },
 )(({ database, path: { tileId }, body: { stationedTileId, troops } }) => {
   database.transaction((db) => {
-    const {
-      currentTileId,
-      currentVillageId,
-      stationedTileType,
-      stationedVillageId,
-    } = db.selectObject({
-      sql: selectStationedVillageByTileAndCurrentTileQuery,
-      bind: {
-        $stationed_tile_id: stationedTileId,
-        $current_tile_id: tileId,
-      },
-      schema: stationedVillageRowSchema,
-    })!;
+    const { currentTileId, stationedTileType, stationedVillageId } =
+      db.selectObject({
+        sql: selectStationedVillageByTileAndCurrentTileQuery,
+        bind: {
+          $stationed_tile_id: stationedTileId,
+          $current_tile_id: tileId,
+        },
+        schema: stationedVillageRowSchema,
+      })!;
 
     if (stationedVillageId === null) {
       throw new Error('Stationed tile not found');
@@ -355,7 +349,6 @@ export const returnSentReinforcements = createController(
 
     returnStationedTroops(
       db,
-      currentVillageId,
       stationedTileId,
       currentTileId,
       currentTileId,
@@ -367,8 +360,8 @@ export const returnSentReinforcements = createController(
       moveTroopWheatConsumption(
         db,
         troops,
-        stationedVillageId,
-        currentVillageId,
+        stationedTileId,
+        currentTileId,
         now,
       );
     }
@@ -414,8 +407,8 @@ export const relocateSentReinforcements = createController(
     moveStationedTroops(
       db,
       troops,
-      { tileId: stationedTileId, source: currentTileId },
-      { tileId: stationedTileId, source: stationedTileId },
+      { tileId: stationedTileId, sourceTileId: currentTileId },
+      { tileId: stationedTileId, sourceTileId: stationedTileId },
     );
 
     if (hasHero(troops)) {

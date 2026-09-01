@@ -30,13 +30,6 @@ import { ApiContext } from 'app/(game)/providers/api-context';
 import { Icon } from 'app/components/icon';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
 import {
   Form,
@@ -283,17 +276,6 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
   return (
     <PageContents>
       <title>{title}</title>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to={`../map?x=${coordinates.x}&y=${coordinates.y}`}>
-              {t('Map')}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{t('Oasis bonus finder')}</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('Oasis bonus finder')}
         className="top-2 right-2"

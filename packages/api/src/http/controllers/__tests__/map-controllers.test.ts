@@ -33,8 +33,8 @@ describe('map-controllers', () => {
 
     // 2. Clear existing effects for this village to have a clean state
     database.exec({
-      sql: 'DELETE FROM effects WHERE village_id = $village_id',
-      bind: { $village_id: village.id },
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id',
+      bind: { $tile_id: village.tile_id },
     });
 
     // 3. Seed various effects
@@ -98,7 +98,7 @@ describe('map-controllers', () => {
           $type: effect.type,
           $scope: effect.scope,
           $source: effect.source,
-          $village_id: village.id,
+          $tile_id: village.tile_id,
           $source_specifier: effect.source_specifier,
         },
       });

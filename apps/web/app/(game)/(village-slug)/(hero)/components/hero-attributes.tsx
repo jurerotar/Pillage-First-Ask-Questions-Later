@@ -254,7 +254,14 @@ export const HeroAttributes = () => {
       {isHeroAlive && (
         <>
           <SectionContent>
-            <div className="flex justify-between items-center">
+            <InformationPopover ariaLabel={t('Ability points')}>
+              <Text>
+                {t(
+                  'Ability points can be used to improve your hero. Hero starts their journey with 4 ability points. Each time a hero gains a level they earn 4 additional ability points that can be used to increase any of the four abilities. Each ability can only be increased a hundred times.',
+                )}
+              </Text>
+            </InformationPopover>
+            <div className="flex flex-wrap justify-between items-center gap-x-4 gap-y-2 pr-12">
               <Text as="h2">{t('Ability points')}</Text>
               {isLevelUpAvailable && (
                 <Text className="text-primary font-bold">
@@ -262,11 +269,6 @@ export const HeroAttributes = () => {
                 </Text>
               )}
             </div>
-            <Text>
-              {t(
-                'Ability points can be used to improve your hero. Hero starts their journey with 4 ability points. Each time a hero gains a level they earn 4 additional ability points that can be used to increase any of the four abilities. Each ability can only be increased a hundred times.',
-              )}
-            </Text>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mt-2">
               {(

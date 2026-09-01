@@ -1,3 +1,4 @@
+// biome-ignore-all lint/suspicious/noConsole: This script intentionally logs progress while generating screenshots.
 import {
   copyFileSync,
   existsSync,
@@ -22,6 +23,8 @@ const SCREENSHOT_BASE_NAMES = [
   'image-5',
 ];
 const THEMES = ['light', 'dark'];
+const PAGE_READY_TIMEOUT_MS = 60_000;
+const PAGE_SETTLE_MS = 5_000;
 
 // Generate a timestamp for the image filenames
 const timestamp = new Date()
@@ -48,10 +51,50 @@ const convertToAvif = async (filePath: string) => {
   await sharp(filePath).avif({ quality: 60, lossless: false }).toFile(avifPath);
 };
 
+const waitForPageReady = async (page: Page) => {
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(PAGE_SETTLE_MS);
+};
+
+const gotoAndWaitForPageReady = async (page: Page, url: string) => {
+  await page.goto(url);
+  await waitForPageReady(page);
+};
+
+const disableDeveloperTools = async (page: Page) => {
+  console.log('Disabling developer tools...');
+  const preferencesUrl = page.url().replace('/resources', '/preferences');
+  await gotoAndWaitForPageReady(page, preferencesUrl);
+
+  const developerConsoleSwitch = page
+    .getByText('Developer console', { exact: true })
+    .locator('xpath=ancestor::div[contains(@class, "flex gap-2")][1]')
+    .getByRole('switch');
+
+  await developerConsoleSwitch.waitFor({
+    state: 'visible',
+    timeout: PAGE_READY_TIMEOUT_MS,
+  });
+
+  const isChecked =
+    (await developerConsoleSwitch.getAttribute('aria-checked')) === 'true';
+
+  if (isChecked) {
+    await developerConsoleSwitch.click();
+    await waitForPageReady(page);
+  }
+
+  const resourcesUrl = page.url().replace('/preferences', '/resources');
+  await gotoAndWaitForPageReady(page, resourcesUrl);
+};
+
 const generateScreenshotsForTheme = async (page: Page, themeSuffix = '') => {
   const suffix = themeSuffix ? `-${themeSuffix}` : '';
 
   // Take Resources screenshot
+  await page
+    .locator('[data-building-field-id="1"]')
+    .waitFor({ state: 'visible', timeout: PAGE_READY_TIMEOUT_MS });
   console.log(`Taking resources screenshot${suffix}...`);
   await page.screenshot({
     path: join(ASSETS_DIR, `image-1${suffix}-${timestamp}.jpg`),
@@ -63,8 +106,7 @@ const generateScreenshotsForTheme = async (page: Page, themeSuffix = '') => {
   // Navigate to Village
   console.log(`Navigating to Village${suffix}...`);
   const villageUrl = page.url().replace('/resources', '/village/38');
-  await page.goto(villageUrl);
-  await page.waitForLoadState('networkidle');
+  await gotoAndWaitForPageReady(page, villageUrl);
   console.log(`Taking village screenshot${suffix}...`);
   await page.screenshot({
     path: join(ASSETS_DIR, `image-2${suffix}-${timestamp}.jpg`),
@@ -75,8 +117,7 @@ const generateScreenshotsForTheme = async (page: Page, themeSuffix = '') => {
   // Navigate to Map
   console.log(`Navigating to Map${suffix}...`);
   const mapUrl = page.url().replace('/village/38', '/map');
-  await page.goto(mapUrl);
-  await page.waitForLoadState('networkidle');
+  await gotoAndWaitForPageReady(page, mapUrl);
   console.log(`Taking map screenshot${suffix}...`);
   await page.screenshot({
     path: join(ASSETS_DIR, `image-3${suffix}-${timestamp}.jpg`),
@@ -84,11 +125,10 @@ const generateScreenshotsForTheme = async (page: Page, themeSuffix = '') => {
     quality: 90,
   });
 
-  // Navigate to /resources/5
+  // Navigate to /village
   console.log(`Navigating to /village${suffix}...`);
-  const resource5Url = page.url().replace('/map', '/village');
-  await page.goto(resource5Url);
-  await page.waitForLoadState('networkidle');
+  const villageOverviewUrl = page.url().replace('/map', '/village');
+  await gotoAndWaitForPageReady(page, villageOverviewUrl);
   console.log(`Taking village screenshot${suffix}...`);
   await page.screenshot({
     path: join(ASSETS_DIR, `image-4${suffix}-${timestamp}.jpg`),
@@ -96,11 +136,10 @@ const generateScreenshotsForTheme = async (page: Page, themeSuffix = '') => {
     quality: 90,
   });
 
-  // Navigate to /resources/9
+  // Navigate to Statistics
   console.log(`Navigating to /statistics${suffix}...`);
-  const resource9Url = page.url().replace('/village', '/statistics');
-  await page.goto(resource9Url);
-  await page.waitForLoadState('networkidle');
+  const statisticsUrl = page.url().replace('/village', '/statistics');
+  await gotoAndWaitForPageReady(page, statisticsUrl);
   console.log(`Taking statistics screenshot${suffix}...`);
   await page.screenshot({
     path: join(ASSETS_DIR, `image-5${suffix}-${timestamp}.jpg`),
@@ -140,34 +179,29 @@ const generateScreenshots = async () => {
     console.log('Redirected to game.');
 
     // Wait for the game to load
-    await page.waitForLoadState('networkidle');
+    await waitForPageReady(page);
 
-    await page.waitForTimeout(1000); // Wait for potential transitions
+    await disableDeveloperTools(page);
 
     // 1. Generate Light Mode Screenshots
     await generateScreenshotsForTheme(page, 'light');
 
     // 2. Switch to Dark Mode
-    console.log('Switching to Dark Mode...');
+    console.log('Navigating to Preferences...');
     const preferencesUrl = page.url().replace('/statistics', '/preferences');
-    await page.goto(preferencesUrl);
-    await page.waitForLoadState('networkidle');
+    await gotoAndWaitForPageReady(page, preferencesUrl);
 
     // Find the UI color scheme select and change it to dark
     // Based on the code, it's a Select component
+    console.log('Switching to Dark Mode...');
     await page.click('button:has-text("Light")');
     await page.click('div[role="option"]:has-text("Dark")');
 
-    // Also change Graphics color scheme to Night for full dark mode effect
-    await page.click('button:has-text("Day")');
-    await page.click('div[role="option"]:has-text("Night")');
-
-    await page.waitForTimeout(1000); // Wait for potential transitions
+    await waitForPageReady(page);
 
     // Navigate back to resources to start dark mode screenshots
     const resourcesUrl = page.url().replace('/preferences', '/resources');
-    await page.goto(resourcesUrl);
-    await page.waitForLoadState('networkidle');
+    await gotoAndWaitForPageReady(page, resourcesUrl);
 
     // 3. Generate Dark Mode Screenshots
     await generateScreenshotsForTheme(page, 'dark');

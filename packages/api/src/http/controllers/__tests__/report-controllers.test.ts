@@ -13,6 +13,9 @@ const prepareReportsTestDatabase = async () => {
   const database = await prepareTestDatabase();
 
   database.exec({
+    sql: 'DELETE FROM reports;',
+  });
+  database.exec({
     sql: `
       INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
       VALUES
@@ -64,6 +67,19 @@ const prepareReportsTestDatabase = async () => {
       VALUES
         (1, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 10, 8),
         (2, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 5, 0);
+    `,
+  });
+  database.exec({
+    sql: `
+      INSERT INTO battle_report_buildings (
+        report_id,
+        building_id,
+        level_before,
+        level_after
+      )
+      VALUES
+        (1, (SELECT id FROM building_ids WHERE building = 'RALLY_POINT'), 10, 4),
+        (1, (SELECT id FROM building_ids WHERE building = 'WHEAT_FIELD'), 8, 0);
     `,
   });
   database.exec({
@@ -346,6 +362,13 @@ describe('report-controllers', () => {
     expect(reports.find(({ type }) => type === 'battle')).toHaveProperty(
       'battle.attacker.troops.units',
     );
+    expect(reports.find(({ type }) => type === 'battle')).toHaveProperty(
+      'battle.damagedBuildings',
+      [
+        { buildingId: 'RALLY_POINT', levelBefore: 10, levelAfter: 4 },
+        { buildingId: 'WHEAT_FIELD', levelBefore: 8, levelAfter: 0 },
+      ],
+    );
     expect(reports.find(({ type }) => type === 'adventure')).toHaveProperty(
       'adventureId',
     );
@@ -503,6 +526,7 @@ describe('report-controllers', () => {
           (SELECT COUNT(*) FROM movement_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS movements,
           (SELECT COUNT(*) FROM trade_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS trades,
           (SELECT COUNT(*) FROM battle_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS battles,
+          (SELECT COUNT(*) FROM battle_report_buildings WHERE report_id IN (SELECT value FROM json_each($ids))) AS battle_buildings,
           (SELECT COUNT(*) FROM hunting_party_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS hunting_parties,
           (SELECT COUNT(*) FROM gathering_expedition_reports WHERE report_id IN (SELECT value FROM json_each($ids))) AS gathering_expeditions,
           (SELECT COUNT(*) FROM report_tags WHERE report_id IN (SELECT value FROM json_each($ids))) AS tags;
@@ -514,6 +538,7 @@ describe('report-controllers', () => {
         movements: z.int(),
         trades: z.int(),
         battles: z.int(),
+        battle_buildings: z.int(),
         hunting_parties: z.int(),
         gathering_expeditions: z.int(),
         tags: z.int(),
@@ -526,6 +551,7 @@ describe('report-controllers', () => {
       movements: 0,
       trades: 0,
       battles: 0,
+      battle_buildings: 0,
       hunting_parties: 0,
       gathering_expeditions: 0,
       tags: 0,

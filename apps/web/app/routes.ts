@@ -66,10 +66,6 @@ export default [
                   id: 'village-building-field-id-page',
                 },
               ),
-              route(
-                'production-overview',
-                '(game)/(village-slug)/(production-overview)/page.tsx',
-              ),
               route('hero', '(game)/(village-slug)/(hero)/page.tsx'),
               route(
                 'preferences',

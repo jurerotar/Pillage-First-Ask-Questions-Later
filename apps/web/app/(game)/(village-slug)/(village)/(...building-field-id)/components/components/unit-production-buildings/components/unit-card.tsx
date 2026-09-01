@@ -15,6 +15,7 @@ import {
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
+  calculateUpgradedValue,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
 import type {
@@ -184,10 +185,6 @@ type UnitAttributes = Record<
   number
 >;
 
-const calculateUpgradedValue = (value: number, level: number) => {
-  return Math.round(value * 1.015 ** level * 10) / 10;
-};
-
 export const UnitAttributes = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
@@ -268,6 +265,7 @@ export const UnitAttributes = () => {
 export const UnitResearch = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { isUnitResearched } = useUnitResearch();
   const { developerSettings } = useDeveloperSettings();
   const { total: unitResearchDurationModifier } = useComputedEffect(
@@ -369,6 +367,7 @@ export const UnitResearch = () => {
         <Text as="h3">{t('Research cost and duration')}</Text>
         <div className="flex gap-2 items-center flex-wrap">
           <Resources
+            availableResources={currentResources}
             className="flex-wrap"
             resources={researchCost}
           />
@@ -405,6 +404,7 @@ export const UnitResearch = () => {
 export const UnitImprovement = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { developerSettings } = useDeveloperSettings();
   const { currentVillage } = useCurrentVillage();
   const { total: unitImprovementDurationModifier } = useComputedEffect(
@@ -511,7 +511,10 @@ export const UnitImprovement = () => {
           })}
         </Text>
         <div className="flex gap-2 items-center flex-wrap">
-          <Resources resources={upgradeCost} />
+          <Resources
+            availableResources={currentResources}
+            resources={upgradeCost}
+          />
           <div className="flex items-center gap-1">
             <Icon
               className="size-5"
@@ -585,6 +588,7 @@ export const UnitRequirements = () => {
 export const UnitCost = () => {
   const { unitId, troopTrainingConfig } = use(UnitCardContext);
   const { t } = useTranslation();
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { baseRecruitmentDuration, baseRecruitmentCost } =
     getUnitDefinition(unitId);
   const durationEffect =
@@ -595,7 +599,10 @@ export const UnitCost = () => {
     <section className="flex flex-col gap-2 pt-2 border-t border-border">
       <Text as="h3">{t('Cost and training duration')}</Text>
       <div className="flex gap-2 items-start justify-start flex-wrap">
-        <Resources resources={baseRecruitmentCost} />
+        <Resources
+          availableResources={currentResources}
+          resources={baseRecruitmentCost}
+        />
         <div className="flex gap-1 items-center">
           <Icon
             className="size-5"
@@ -750,7 +757,10 @@ export const UnitRecruitment = () => {
       {errorBag.length === 0 && (
         <>
           <div className="flex items-start gap-2 justify-start flex-wrap">
-            <Resources resources={totalCost} />
+            <Resources
+              availableResources={currentResources}
+              resources={totalCost}
+            />
             <div className="flex gap-1 items-center">
               <Icon
                 className="size-5"
@@ -906,7 +916,10 @@ export const UnitHealing = ({ woundedAmount }: UnitHealingProps) => {
         })}
       </Text>
       <div className="flex items-start gap-2 justify-start flex-wrap">
-        <Resources resources={totalCost} />
+        <Resources
+          availableResources={currentResources}
+          resources={totalCost}
+        />
         <div className="flex gap-1 items-center">
           <Icon
             className="size-5"

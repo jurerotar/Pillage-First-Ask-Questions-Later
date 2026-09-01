@@ -61,7 +61,7 @@ export type HeroItem = {
   // Base price of null indicates item can't be bought or sold
   basePrice: number | null;
   // Source specifier is item id
-  effects?: Omit<Effect, 'sourceSpecifier' | 'villageId'>[];
+  effects?: Omit<Effect, 'sourceSpecifier' | 'tileId'>[];
   heroBonus?: HeroBonus[];
 };
 

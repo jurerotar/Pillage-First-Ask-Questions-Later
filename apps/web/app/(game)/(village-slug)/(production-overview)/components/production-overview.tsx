@@ -62,7 +62,7 @@ type GroupedProductionEffects = {
 
 type StationedTroopLike = TroopLike & {
   tileId: number;
-  source: number;
+  sourceTileId: number;
 };
 
 const createEffectBucket = <T extends Effect>(): EffectBucket<T> => ({
@@ -284,7 +284,7 @@ const getReinforcementConsumption = (
       continue;
     }
 
-    if (troop.source === currentVillageTileId) {
+    if (troop.sourceTileId === currentVillageTileId) {
       continue;
     }
 
@@ -481,7 +481,7 @@ export const ProductionOverview = ({
   const computedProductionEffect = calculateComputedEffect(
     effectId,
     effects,
-    currentVillage.id,
+    currentVillage.tileId,
   );
 
   const groupedEffects = groupProductionEffects(effects, effectId);
@@ -597,8 +597,11 @@ export const ProductionOverview = ({
 
   const unitWheatConsumptionModifier =
     effectId === 'wheatProduction'
-      ? getEffectBreakdown('unitWheatConsumption', effects, currentVillage.id)
-          .combinedBonusEffectValue
+      ? getEffectBreakdown(
+          'unitWheatConsumption',
+          effects,
+          currentVillage.tileId,
+        ).combinedBonusEffectValue
       : 1;
 
   const baseTroopEffectsWithConsumptionModifier =

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   unitCategorySchema,
   unitIdSchema,
@@ -81,8 +82,23 @@ export const reinforcementRelocationFormSchema = baseTroopFormSchema.extend({
   action: z.enum(['reinforcement', 'relocation']),
 });
 
+export const scoutingTargetSchema = z.enum([
+  'resources',
+  'defensiveStructures',
+]);
+
+export const heroOasisAnimalActionSchema = z.enum(['battle', 'capture']);
+
+export const catapultTargetSchema = z.union([
+  buildingIdSchema,
+  z.literal('random'),
+]);
+
 export const attackOrRaidFormSchema = baseTroopFormSchema.extend({
   action: z.enum(['attack', 'raid']),
+  scoutingTarget: scoutingTargetSchema.optional(),
+  catapultTargets: z.array(catapultTargetSchema).max(2).optional(),
+  heroOasisAnimalAction: heroOasisAnimalActionSchema.optional(),
 });
 
 export type UnitSelection = z.infer<typeof unitSelectionSchema>;

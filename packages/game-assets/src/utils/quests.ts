@@ -4,6 +4,7 @@ import type {
   QuestRequirement,
   QuestReward,
 } from '@pillage-first/types/models/quest';
+import type { NatureUnitId } from '@pillage-first/types/models/unit';
 
 const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['WOODCUTTER', 100],
@@ -100,6 +101,42 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     ];
   }
 
+  if (questId.startsWith('captureAnimalCountById')) {
+    const cnt = questId.split('-').at(2)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'hero-exp',
+        amount: count * 10,
+      },
+    ];
+  }
+
+  if (questId.startsWith('captureAnimalKindCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'hero-exp',
+        amount: count * 10,
+      },
+    ];
+  }
+
+  if (questId.startsWith('gatheredResourceCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'hero-exp',
+        amount: Math.max(1, Math.floor(count / 100)),
+      },
+    ];
+  }
+
   const [matcher, buildingId, lvl] = questId.split('-') as [
     'oneOf' | 'every',
     Building['id'],
@@ -189,6 +226,47 @@ export const getQuestRequirements = (
     return [
       {
         type: 'unit-kill-count',
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('captureAnimalCountById')) {
+    const [, unitId, cnt] = questId.split('-') as [
+      'captureAnimalCountById',
+      NatureUnitId,
+      string,
+    ];
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'capture-animal-count-by-id',
+        unitId: unitId!,
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('captureAnimalKindCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'capture-animal-kind-count',
+        count,
+      },
+    ];
+  }
+
+  if (questId.startsWith('gatheredResourceCount')) {
+    const cnt = questId.split('-').at(1)!;
+    const count = Number.parseInt(cnt, 10);
+
+    return [
+      {
+        type: 'gathered-resource-count',
         count,
       },
     ];

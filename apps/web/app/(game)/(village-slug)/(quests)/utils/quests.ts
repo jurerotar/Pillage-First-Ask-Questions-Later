@@ -11,6 +11,8 @@ type QuestGroup = {
   doneQuests: number;
 };
 
+const buildingQuestGroupIds = new Set(['oneOf', 'every']);
+
 export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
   const map = new Map<string, { quest: Quest; order: number }[]>();
 
@@ -87,9 +89,15 @@ export const getQuestTexts = (id: Quest['id'], t: TFunction) => {
 
   const capitalizedQuestGroupId = kebabCase(questGroupId).toUpperCase();
 
-  const asset = ['oneOf', 'every'].includes(questGroupId)
-    ? t(`BUILDINGS.${specifier}.NAME`, { count })
-    : t(`UNITS.${specifier}.NAME`, { count });
+  let asset: string | undefined;
+
+  if (specifier) {
+    const assetNamespace = buildingQuestGroupIds.has(questGroupId)
+      ? 'BUILDINGS'
+      : 'UNITS';
+
+    asset = t(`${assetNamespace}.${specifier}.NAME`, { count });
+  }
 
   return {
     title: t(`QUESTS.${capitalizedQuestGroupId}.NAME`, {

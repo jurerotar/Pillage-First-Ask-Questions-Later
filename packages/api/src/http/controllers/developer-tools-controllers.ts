@@ -8,8 +8,9 @@ import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
 import { onHeroDeath } from '../../utils/hero';
 import { adjustLoyalty, createLoyaltyIncreaseEvent } from '../../utils/loyalty';
 import {
-  addVillageResourcesAt,
-  subtractVillageResourcesAt,
+  addResourceSiteResourcesAt,
+  getVillageTileId,
+  subtractResourceSiteResourcesAt,
 } from '../../utils/village';
 import { createController } from '../controller';
 import { triggerKick } from '../events/scheduler/scheduler-signal';
@@ -240,11 +241,14 @@ export const updateVillageResources = createController(
   };
 
   resources[resourceIndexMap[resource]] = amount;
+  const tileId = getVillageTileId(database, villageId);
 
-  const updaterFn =
-    direction === 'add' ? addVillageResourcesAt : subtractVillageResourcesAt;
+  if (direction === 'add') {
+    addResourceSiteResourcesAt(database, tileId, now, resources);
+    return;
+  }
 
-  updaterFn(database, villageId, now, resources);
+  subtractResourceSiteResourcesAt(database, tileId, now, () => resources);
 });
 
 export const incrementHeroAdventurePoints = createController(

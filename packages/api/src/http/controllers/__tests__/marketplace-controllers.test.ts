@@ -7,6 +7,7 @@ import {
   calculateBuildingEffectValues,
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { selectTribeByVillageId } from '../../../queries/village-queries';
@@ -148,7 +149,7 @@ const setTradeOfficeLevel = (
     sql: `
       DELETE
       FROM effects
-      WHERE village_id = $village_id
+      WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
         AND source_specifier = 37
         AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building');
     `,
@@ -159,14 +160,14 @@ const setTradeOfficeLevel = (
 
   database.exec({
     sql: `
-      INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, village_id, source_specifier)
+      INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
       VALUES (
         (SELECT id FROM effect_ids WHERE effect = 'merchantCapacity'),
         $value,
         (SELECT id FROM effect_type_ids WHERE type = 'bonus'),
         (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
         (SELECT id FROM effect_source_ids WHERE source = 'building'),
-        $village_id,
+        (SELECT tile_id FROM villages WHERE id = $village_id),
         37
       );
     `,
@@ -215,12 +216,7 @@ const getVillageResources = (database: DbFacade, tileId: number) =>
     bind: {
       $tile_id: tileId,
     },
-    schema: z.strictObject({
-      wood: z.number(),
-      clay: z.number(),
-      iron: z.number(),
-      wheat: z.number(),
-    }),
+    schema: resourcesSchema,
   })!;
 
 const getResourceTransferCount = (database: DbFacade) =>
@@ -265,10 +261,10 @@ describe('marketplace-controllers', () => {
 
     transferResources(
       database,
-      createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>({
-        path: { villageId: sourceVillage.id },
+      createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+        path: { tileId: sourceVillage.tileId },
         body: {
-          targetVillageId: targetVillage.id,
+          targetTileId: targetVillage.tileId,
           resources: {
             wood: 100,
             clay: 50,
@@ -357,20 +353,18 @@ describe('marketplace-controllers', () => {
     expect(() =>
       transferResources(
         database,
-        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
-          {
-            path: { villageId: sourceVillage.id },
-            body: {
-              targetVillageId: targetVillage.id,
-              resources: {
-                wood: merchantCapacity + 1,
-                clay: 0,
-                iron: 0,
-                wheat: 0,
-              },
+        createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+          path: { tileId: sourceVillage.tileId },
+          body: {
+            targetTileId: targetVillage.tileId,
+            resources: {
+              wood: merchantCapacity + 1,
+              clay: 0,
+              iron: 0,
+              wheat: 0,
             },
           },
-        ),
+        }),
       ),
     ).toThrow('Not enough free merchants');
   });
@@ -401,10 +395,10 @@ describe('marketplace-controllers', () => {
 
     transferResources(
       database,
-      createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>({
-        path: { villageId: sourceVillage.id },
+      createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+        path: { tileId: sourceVillage.tileId },
         body: {
-          targetVillageId: targetVillage.id,
+          targetTileId: targetVillage.tileId,
           resources: {
             wood: baseMerchantCapacity + 1,
             clay: 0,
@@ -449,15 +443,13 @@ describe('marketplace-controllers', () => {
     expect(() =>
       transferResources(
         database,
-        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
-          {
-            path: { villageId: sourceVillage.id },
-            body: {
-              targetVillageId: targetVillage.id,
-              resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
-            },
+        createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+          path: { tileId: sourceVillage.tileId },
+          body: {
+            targetTileId: targetVillage.tileId,
+            resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
           },
-        ),
+        }),
       ),
     ).toThrow('Not enough free merchants');
 
@@ -497,8 +489,8 @@ describe('marketplace-controllers', () => {
         $village_id: sourceVillage.id,
         $meta: JSON.stringify({
           originTileId: targetVillage.tileId,
-          targetTileId: sourceVillage.tileId,
           targetVillageId: sourceVillage.id,
+          targetTileId: sourceVillage.tileId,
           resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
           merchantAmount: 1,
         }),
@@ -508,15 +500,13 @@ describe('marketplace-controllers', () => {
     expect(() =>
       transferResources(
         database,
-        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
-          {
-            path: { villageId: sourceVillage.id },
-            body: {
-              targetVillageId: targetVillage.id,
-              resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
-            },
+        createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+          path: { tileId: sourceVillage.tileId },
+          body: {
+            targetTileId: targetVillage.tileId,
+            resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
           },
-        ),
+        }),
       ),
     ).toThrow('Not enough free merchants');
   });
@@ -551,8 +541,8 @@ describe('marketplace-controllers', () => {
         $village_id: targetVillage.id,
         $meta: JSON.stringify({
           originTileId: targetVillage.tileId,
-          targetTileId: sourceVillage.tileId,
           targetVillageId: sourceVillage.id,
+          targetTileId: sourceVillage.tileId,
           resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
           merchantAmount: 1,
         }),
@@ -562,15 +552,13 @@ describe('marketplace-controllers', () => {
     expect(() =>
       transferResources(
         database,
-        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
-          {
-            path: { villageId: sourceVillage.id },
-            body: {
-              targetVillageId: targetVillage.id,
-              resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
-            },
+        createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+          path: { tileId: sourceVillage.tileId },
+          body: {
+            targetTileId: targetVillage.tileId,
+            resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
           },
-        ),
+        }),
       ),
     ).not.toThrow();
 
@@ -610,15 +598,13 @@ describe('marketplace-controllers', () => {
     expect(() =>
       transferResources(
         database,
-        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
-          {
-            path: { villageId: sourceVillage.id },
-            body: {
-              targetVillageId: targetVillage.id,
-              resources: { wood: 11, clay: 0, iron: 0, wheat: 0 },
-            },
+        createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+          path: { tileId: sourceVillage.tileId },
+          body: {
+            targetTileId: targetVillage.tileId,
+            resources: { wood: 11, clay: 0, iron: 0, wheat: 0 },
           },
-        ),
+        }),
       ),
     ).toThrow('Not enough resources');
 
@@ -638,8 +624,8 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const missingVillageId = database.selectValue({
-      sql: 'SELECT MAX(id) + 1 FROM villages;',
+    const missingVillageTileId = database.selectValue({
+      sql: 'SELECT MAX(id) + 1 FROM tiles;',
       schema: z.number(),
     })!;
 
@@ -654,15 +640,13 @@ describe('marketplace-controllers', () => {
     expect(() =>
       transferResources(
         database,
-        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
-          {
-            path: { villageId: sourceVillage.id },
-            body: {
-              targetVillageId: missingVillageId,
-              resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
-            },
+        createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+          path: { tileId: sourceVillage.tileId },
+          body: {
+            targetTileId: missingVillageTileId,
+            resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
           },
-        ),
+        }),
       ),
     ).toThrow('Target village does not exist');
 
@@ -681,9 +665,9 @@ describe('marketplace-controllers', () => {
     vi.setSystemTime(NOW);
 
     const sourceVillage = getPlayerVillage(database);
-    const foreignVillageId = database.selectValue({
+    const foreignVillageTileId = database.selectValue({
       sql: `
-        SELECT id
+        SELECT tile_id
         FROM villages
         WHERE player_id != $player_id
         LIMIT 1;
@@ -697,15 +681,13 @@ describe('marketplace-controllers', () => {
     expect(() =>
       transferResources(
         database,
-        createControllerArgs<'/villages/:villageId/transfer-resources', 'post'>(
-          {
-            path: { villageId: sourceVillage.id },
-            body: {
-              targetVillageId: foreignVillageId,
-              resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
-            },
+        createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+          path: { tileId: sourceVillage.tileId },
+          body: {
+            targetTileId: foreignVillageTileId,
+            resources: { wood: 1, clay: 0, iron: 0, wheat: 0 },
           },
-        ),
+        }),
       ),
     ).toThrow('Target village does not exist or does not belong to player');
   });
@@ -730,10 +712,10 @@ describe('marketplace-controllers', () => {
 
     createTradeRoute(
       database,
-      createControllerArgs<'/villages/:villageId/trade-routes', 'post'>({
-        path: { villageId: sourceVillage.id },
+      createControllerArgs<'/tiles/:tileId/trade-routes', 'post'>({
+        path: { tileId: sourceVillage.tileId },
         body: {
-          targetVillageId: targetVillage.id,
+          targetTileId: targetVillage.tileId,
           startHour,
           intervalHours: 6,
           resources: {
@@ -820,10 +802,10 @@ describe('marketplace-controllers', () => {
 
     createTradeRoute(
       database,
-      createControllerArgs<'/villages/:villageId/trade-routes', 'post'>({
-        path: { villageId: sourceVillage.id },
+      createControllerArgs<'/tiles/:tileId/trade-routes', 'post'>({
+        path: { tileId: sourceVillage.tileId },
         body: {
-          targetVillageId: targetVillage.id,
+          targetTileId: targetVillage.tileId,
           startHour,
           intervalHours: 6,
           resources: {
@@ -877,12 +859,9 @@ describe('marketplace-controllers', () => {
 
     deleteTradeRoute(
       database,
-      createControllerArgs<
-        '/villages/:villageId/trade-routes/:eventId',
-        'delete'
-      >({
+      createControllerArgs<'/tiles/:tileId/trade-routes/:eventId', 'delete'>({
         path: {
-          villageId: sourceVillage.id,
+          tileId: sourceVillage.tileId,
           eventId,
         },
       }),
@@ -937,16 +916,13 @@ describe('marketplace-controllers', () => {
 
     updateTradeRoute(
       database,
-      createControllerArgs<
-        '/villages/:villageId/trade-routes/:eventId',
-        'patch'
-      >({
+      createControllerArgs<'/tiles/:tileId/trade-routes/:eventId', 'patch'>({
         path: {
-          villageId: sourceVillage.id,
+          tileId: sourceVillage.tileId,
           eventId,
         },
         body: {
-          targetVillageId: updatedTargetVillage.id,
+          targetTileId: updatedTargetVillage.tileId,
           startHour,
           intervalHours: 12,
           resources: {

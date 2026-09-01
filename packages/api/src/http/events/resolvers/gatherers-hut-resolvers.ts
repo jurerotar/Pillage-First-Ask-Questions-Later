@@ -1,9 +1,13 @@
 import { z } from 'zod';
 import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { assessGatheredResourceCountQuestCompletion } from '../../../utils/quests';
 import { insertGatheringExpeditionReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
-import { addVillageResourcesAt } from '../../../utils/village';
+import {
+  addResourceSiteResourcesAt,
+  getVillageTileId,
+} from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const gatherersHutGatheringTripResolver: Resolver<
@@ -21,7 +25,12 @@ export const gatherersHutGatheringTripResolver: Resolver<
 
   addTroops(database, troops);
 
-  addVillageResourcesAt(database, villageId, resolvesAt, loot);
+  addResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, villageId),
+    resolvesAt,
+    loot,
+  );
 
   const village = database.selectObject({
     sql: `
@@ -45,6 +54,8 @@ export const gatherersHutGatheringTripResolver: Resolver<
     units: troops,
   });
 
+  assessGatheredResourceCountQuestCompletion(database, resolvesAt);
+
   database.exec({
     sql: `
       INSERT INTO gatherers_hut_expeditions (village_id, completed)
@@ -59,5 +70,6 @@ export const gatherersHutGatheringTripResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [village.tile_id],
   };
 };

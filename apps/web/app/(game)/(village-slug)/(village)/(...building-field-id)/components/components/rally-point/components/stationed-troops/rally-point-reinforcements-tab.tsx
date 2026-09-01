@@ -58,16 +58,19 @@ export const RallyPointReinforcementsTab = () => {
       playerVillages.map((village) => [village.tileId, village] as const),
     );
     type VillageTroop = (typeof villageTroops)[number];
-    const troopsBySource = new Map<VillageTroop['source'], VillageTroop[]>();
+    const troopsBySource = new Map<
+      VillageTroop['sourceTileId'],
+      VillageTroop[]
+    >();
 
     for (const troop of villageTroops) {
-      if (troop.source === currentVillage.tileId) {
+      if (troop.sourceTileId === currentVillage.tileId) {
         continue;
       }
 
-      const sourceTroops = troopsBySource.get(troop.source) ?? [];
+      const sourceTroops = troopsBySource.get(troop.sourceTileId) ?? [];
       sourceTroops.push(troop);
-      troopsBySource.set(troop.source, sourceTroops);
+      troopsBySource.set(troop.sourceTileId, sourceTroops);
     }
 
     return [...troopsBySource.entries()].map(([sourceTileId, troops]) => {

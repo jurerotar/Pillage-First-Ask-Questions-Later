@@ -9,6 +9,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -18,6 +19,7 @@ import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
@@ -72,6 +74,7 @@ const HuntingPartyTierTable = ({
 }: HuntingPartyTierTableProps) => {
   const { t } = useTranslation();
   const { serverSpeed } = useServer();
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { developerSettings } = useDeveloperSettings();
   const { isFreeHuntingPartiesEnabled, isInstantUnitTravelEnabled } =
     developerSettings;
@@ -80,7 +83,7 @@ const HuntingPartyTierTable = ({
   );
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -108,7 +111,10 @@ const HuntingPartyTierTable = ({
                 </TableCell>
                 <TableCell>
                   <span className="inline-flex gap-2">
-                    <Resources resources={cost} />
+                    <Resources
+                      availableResources={currentResources}
+                      resources={cost}
+                    />
                   </span>
                 </TableCell>
                 <TableCell>{formatTime(duration)}</TableCell>
@@ -125,7 +131,7 @@ const HuntingPartyTierTable = ({
           })}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 
@@ -139,7 +145,7 @@ const ActiveHuntingPartyTable = ({ events }: ActiveHuntingPartyTableProps) => {
   const { isFreeHuntingPartiesEnabled } = developerSettings;
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -182,7 +188,7 @@ const ActiveHuntingPartyTable = ({ events }: ActiveHuntingPartyTableProps) => {
           })}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 

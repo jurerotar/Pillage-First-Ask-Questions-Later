@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { createUnitResearchEventMock } from '@pillage-first/mocks/event';
-import type { Unit } from '@pillage-first/types/models/unit';
+import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import { selectVillageResearchedUnitsQuery } from '../../../../queries/unit-queries';
 import { unitResearchResolver } from '../unit-research-resolvers';
 
@@ -27,7 +27,7 @@ describe(unitResearchResolver, () => {
         sql: selectVillageResearchedUnitsQuery,
         bind: { $village_id: villageId },
         schema: z.strictObject({
-          unit_id: z.string(),
+          unit_id: unitIdSchema,
           village_id: z.number(),
         }),
       })

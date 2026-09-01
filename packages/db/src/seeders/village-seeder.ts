@@ -9,6 +9,7 @@ import type { Server } from '@pillage-first/types/models/server';
 import type { VillageSize } from '@pillage-first/types/models/village';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { FenwickTree } from '@pillage-first/utils/fenwick-tree';
+import { calculateGridLayout } from '@pillage-first/utils/map';
 import {
   seededRandomArrayElement,
   seededRandomIntFromInterval,
@@ -28,12 +29,6 @@ type VillageInsertRow = [
   tileId: number,
   playerId: number,
 ];
-
-const occupiableFieldSchema = z.strictObject({
-  id: z.number(),
-  x: z.number(),
-  y: z.number(),
-});
 
 const baseVillageRadius = {
   xxs: 0,
@@ -64,14 +59,6 @@ const computeScaledRadius = (base: number, mapSize: number) => {
   return Math.max(0, Math.round(base * scale));
 };
 
-const coordKey = ({ x, y }: Pick<OccupiableField, 'x' | 'y'>): string => {
-  return `${x}-${y}`;
-};
-
-const coordKeyFromCoordinates = (x: number, y: number): string => {
-  return `${x}-${y}`;
-};
-
 const shuffleInPlace = (prng: PRNGFunction, values: unknown[]): void => {
   for (let i = values.length - 1; i > 0; i -= 1) {
     const j = Math.floor(prng() * (i + 1));
@@ -83,10 +70,31 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
   const usableRadius = server.configuration.mapSize / 2;
+  const { gridSize, halfSize } = calculateGridLayout(
+    server.configuration.mapSize,
+  );
   const CENTER_BIAS_EXPONENT = 1;
 
-  const normalizedDistanceForTile = (tile: OccupiableField) => {
-    const dist = Math.hypot(tile.x, tile.y);
+  const getCoordinatesByTileId = (tileId: number) => {
+    const index = tileId - 1;
+    const column = index % gridSize;
+    const row = Math.floor(index / gridSize);
+
+    return {
+      x: -halfSize + column,
+      y: halfSize - row,
+    };
+  };
+
+  const getTileIdByCoordinates = (x: number, y: number) => {
+    const column = x + halfSize;
+    const row = halfSize - y;
+
+    return row * gridSize + column + 1;
+  };
+
+  const normalizedDistanceForCoordinates = (x: number, y: number) => {
+    const dist = Math.hypot(x, y);
     return Math.min(1, dist / usableRadius);
   };
 
@@ -125,30 +133,38 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
     schema: z.number(),
   });
 
-  const occupiableFields = database.selectObjects({
+  const occupiableTileIds = database.selectValues({
     sql: `
-      SELECT t.id, t.x, t.y
+      SELECT t.id
       FROM
         tiles AS t
       WHERE
         t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
         AND NOT (t.x = 0 AND t.y = 0);
     `,
-    schema: occupiableFieldSchema,
+    schema: z.number(),
   });
 
+  const getOccupiableFieldByIndex = (index: number): OccupiableField => {
+    const id = occupiableTileIds[index];
+    const { x, y } = getCoordinatesByTileId(id);
+    return {
+      id,
+      x,
+      y,
+    };
+  };
+
   // keep arrays static for indexing
-  const n = occupiableFields.length;
-  const fields = [...occupiableFields];
+  const n = occupiableTileIds.length;
 
   // precompute weights (static per tile)
   const weights = new Float64Array(n);
 
   for (let i = 0; i < n; i += 1) {
-    const t = fields[i];
-    const norm = normalizedDistanceForTile(t);
-    const w = (1 - norm) ** CENTER_BIAS_EXPONENT;
-    weights[i] = w;
+    const { x, y } = getCoordinatesByTileId(occupiableTileIds[i]);
+    const norm = normalizedDistanceForCoordinates(x, y);
+    weights[i] = (1 - norm) ** CENTER_BIAS_EXPONENT;
   }
 
   // Fenwick for weighted sampling
@@ -165,11 +181,11 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
     indexToActivePos[activeIndices[pos]] = pos;
   }
 
-  // coord -> index map
-  const coordToIndex = new Map<string, number>();
+  // tile ID -> index map
+  const tileIdToIndex = new Map<number, number>();
 
   for (let i = 0; i < n; i += 1) {
-    coordToIndex.set(coordKey(fields[i]), i);
+    tileIdToIndex.set(occupiableTileIds[i], i);
   }
 
   const removeIndex = (index: number) => {
@@ -198,8 +214,8 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
       weights[index] = 0;
     }
 
-    // remove coord map too
-    coordToIndex.delete(coordKey(fields[index]));
+    // remove tile ID map too
+    tileIdToIndex.delete(occupiableTileIds[index]);
     return true;
   };
 
@@ -222,7 +238,9 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
     if (!(total > 0)) {
       // fallback uniform
       const idx = pickRandomActiveIndexAndRemove();
-      return typeof idx === 'number' ? fields[idx] : undefined;
+      return typeof idx === 'number'
+        ? getOccupiableFieldByIndex(idx)
+        : undefined;
     }
 
     const r = prng() * total;
@@ -248,14 +266,14 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
         } else {
           // no active found (shouldn't happen because total > 0) -> uniform fallback
           const uni = pickRandomActiveIndexAndRemove();
-          return uni === undefined ? undefined : fields[uni];
+          return uni === undefined ? undefined : getOccupiableFieldByIndex(uni);
         }
       }
     }
 
     // Now remove chosen index
     removeIndex(idx);
-    return fields[idx];
+    return getOccupiableFieldByIndex(idx);
   };
 
   const playerToOccupiedFields: [number, OccupiableField][] = [];
@@ -322,13 +340,14 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
         }
         const nx = startingTile.x + dx;
         const ny = startingTile.y + dy;
-        const idx = coordToIndex.get(coordKeyFromCoordinates(nx, ny));
+        const tileId = getTileIdByCoordinates(nx, ny);
+        const idx = tileIdToIndex.get(tileId);
         if (idx === undefined) {
           continue;
         }
         // claim it
         removeIndex(idx);
-        playerToOccupiedFields.push([playerId, fields[idx]]);
+        playerToOccupiedFields.push([playerId, getOccupiableFieldByIndex(idx)]);
         need -= 1;
       }
     }
@@ -345,7 +364,7 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
           activeIndices.length - 1,
         );
         const idx = activeIndices[pos];
-        const c = fields[idx];
+        const c = getOccupiableFieldByIndex(idx);
         const dx = c.x - startingTile.x;
         const dy = c.y - startingTile.y;
         const d2 = dx * dx + dy * dy;
@@ -361,11 +380,14 @@ export const villageSeeder = (database: DbFacade, server: Server): void => {
         if (idx === undefined) {
           break;
         }
-        playerToOccupiedFields.push([playerId, fields[idx]]);
+        playerToOccupiedFields.push([playerId, getOccupiableFieldByIndex(idx)]);
       } else {
         // claim candidate
         removeIndex(candidateIdx);
-        playerToOccupiedFields.push([playerId, fields[candidateIdx]]);
+        playerToOccupiedFields.push([
+          playerId,
+          getOccupiableFieldByIndex(candidateIdx),
+        ]);
       }
       need -= 1;
     }

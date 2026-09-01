@@ -60,7 +60,7 @@ describe(matchRoute, () => {
           unitId: 'LEGIONNAIRE',
           amount: 1,
           tileId: 1,
-          source: 1,
+          sourceTileId: 1,
         },
       ],
     });
@@ -75,7 +75,7 @@ describe(matchRoute, () => {
           unitId: 'LEGIONNAIRE',
           amount: 1,
           tileId: 1,
-          source: 1,
+          sourceTileId: 1,
         },
       ],
     });
@@ -92,7 +92,7 @@ describe(matchRoute, () => {
           {
             unitId: 'LEGIONNAIRE',
             amount: 1,
-            source: 1,
+            sourceTileId: 1,
           },
         ],
       }),

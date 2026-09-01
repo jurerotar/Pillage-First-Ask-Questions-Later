@@ -24,7 +24,7 @@ import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { Tile } from '@pillage-first/types/models/tile';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(map)/+types/page';
 import { Cell } from 'app/(game)/(village-slug)/(map)/components/cell';
-import { MapControls } from 'app/(game)/(village-slug)/(map)/components/map-controls';
+import { MapFilters } from 'app/(game)/(village-slug)/(map)/components/map-filters';
 import {
   MapRulerCell,
   MapRulerGridCell,
@@ -46,6 +46,7 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 import { useMap } from 'app/(game)/(village-slug)/hooks/use-map';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
+import { GameLayoutContext } from 'app/(game)/(village-slug)/providers/game-layout-context';
 import { PageContents } from 'app/components/page-contents';
 import { Tooltip } from 'app/components/tooltip';
 import { Dialog } from 'app/components/ui/dialog';
@@ -62,6 +63,10 @@ const TileDialog = lazy(async () => ({
 // Height/width of ruler on the left-bottom.
 const RULER_SIZE = 20;
 const DRAG_CLICK_THRESHOLD = 3;
+const DESKTOP_MAP_CHROME_HEIGHT = 80;
+const MOBILE_BOTTOM_NAVIGATION_HEIGHT = 90;
+const MOBILE_EXPANDED_TOP_HEADER_HEIGHT = 123;
+const MOBILE_COMPACT_TOP_HEADER_HEIGHT = 107;
 
 const MapPageContents = () => {
   const [searchParams] = useSearchParams();
@@ -86,6 +91,7 @@ const MapPageContents = () => {
   const { map } = useMap();
   const { height, width } = useWindowSize();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { areMobileDetailsVisible } = use(GameLayoutContext);
   const { mapFilters } = useMapFilters();
   const { mapMarkers, createMapMarker, deleteMapMarker } = useMapMarkers();
   const { gridSize, tileSize, magnification } = use(MapContext);
@@ -107,18 +113,14 @@ const MapPageContents = () => {
   const [bottomMapRuler, setBottomMapRuler] =
     useState<GridImperativeAPI | null>(null);
 
-  /**
-   * List of individual contributions
-   * Desktop:
-   *  - Header is 80px tall
-   * Mobile:
-   *  - Top navigation is 128px tall
-   *   - Navigation section is 63px tall
-   *   - Resource section is 57px tall
-   *  - Bottom navigation is 90px tall (108px in reality, but top 18px are transparent)
-   *  - If app is opened in PWA mode, add another 48px to account for the space fill at the top
-   */
-  const mapHeight = isWiderThanLg ? height - 80 : height - 218;
+  const topHeaderHeight = areMobileDetailsVisible
+    ? MOBILE_EXPANDED_TOP_HEADER_HEIGHT
+    : MOBILE_COMPACT_TOP_HEADER_HEIGHT;
+  const mobileMapChromeHeight =
+    topHeaderHeight + MOBILE_BOTTOM_NAVIGATION_HEIGHT;
+  const mapHeight = isWiderThanLg
+    ? height - DESKTOP_MAP_CHROME_HEIGHT
+    : height - mobileMapChromeHeight;
 
   const isScrolling = useRef<boolean>(false);
   const [isDragScrolling, setIsDragScrolling] = useState<boolean>(false);
@@ -423,17 +425,37 @@ const MapPageContents = () => {
             deleteMapMarker={deleteMapMarker}
             mapMarkers={mapMarkers}
             tile={modalArgs.current!}
+            onAttackOrRaid={(tile) => {
+              const isOasis = tile.type === 'oasis';
+              const isTargetUnoccupiedOasis =
+                tile.type === 'oasis' && tile.owner === null;
+
+              openMapSendTroopsModal({
+                mode: 'attack-or-raid',
+                offensiveAction: isOasis ? 'raid' : 'attack',
+                isOffensiveActionSelectionEnabled: !isOasis,
+                target: {
+                  tileId: tile.id,
+                  tribe: tile.owner?.tribe,
+                  isUnoccupiedOasis: isTargetUnoccupiedOasis,
+                },
+              });
+            }}
             onFoundNewVillage={(tile) => {
               openMapSendTroopsModal({
                 mode: 'found-new-village',
-                targetTileId: tile.id,
+                target: {
+                  tileId: tile.id,
+                },
               });
             }}
             onReinforceVillage={(tile) => {
               openMapSendTroopsModal({
                 mode: 'reinforcement',
                 isRelocationEnabled: tile.type !== 'oasis',
-                targetTileId: tile.id,
+                target: {
+                  tileId: tile.id,
+                },
               });
             }}
             onSendResources={(tile) => {
@@ -474,7 +496,7 @@ const MapPageContents = () => {
       />
       <Grid
         key={tileSize}
-        className="scrollbar-hidden bg-[#8EBF64] will-change-scroll"
+        className="scrollbar-hidden bg-[#8EBF64] transition-[height] duration-300 ease-out lg:transition-none"
         gridRef={setMapGrid}
         columnCount={gridSize}
         columnWidth={tileSize}
@@ -492,7 +514,7 @@ const MapPageContents = () => {
       {/* Y-axis ruler */}
       <div className="absolute left-0 top-0 non-selectable pointer-events-none">
         <List
-          className="scrollbar-hidden will-change-scroll"
+          className="scrollbar-hidden transition-[height] duration-300 ease-out lg:transition-none"
           listRef={setLeftMapRuler}
           rowHeight={tileSize}
           rowCount={gridSize}
@@ -527,7 +549,7 @@ const MapPageContents = () => {
           overscanCount={1}
         />
       </div>
-      <MapControls />
+      <MapFilters />
     </main>
   );
 };

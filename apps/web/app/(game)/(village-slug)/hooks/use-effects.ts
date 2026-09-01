@@ -9,11 +9,11 @@ export const useEffects = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: effects } = useSuspenseQuery({
-    queryKey: [effectsCacheKey, currentVillage.id],
+    queryKey: [effectsCacheKey, currentVillage.tileId],
     queryFn: async () => {
-      const { data } = await apiClient.get('/villages/:villageId/effects', {
+      const { data } = await apiClient.get('/tiles/:tileId/effects', {
         path: {
-          villageId: currentVillage.id,
+          tileId: currentVillage.tileId,
         },
       });
 

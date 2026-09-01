@@ -94,7 +94,7 @@ describe('troop-movement-controllers', () => {
               unitId: 'LEGIONNAIRE',
               amount: 3,
               tileId: args.originTileId,
-              source: args.originTileId,
+              sourceTileId: args.originTileId,
             },
           ],
           ...(args.originalMovementType
@@ -114,7 +114,7 @@ describe('troop-movement-controllers', () => {
       createControllerArgs<'/troop-movements/validate', 'post'>({
         body: {
           type: 'troopMovementAttack',
-          villageId: village.id,
+          originTileId: village.tile_id,
           targetTileId: 999_999,
           troops: [{ unitId: 'LEGIONNAIRE', amount: 1 }],
         },
@@ -152,8 +152,8 @@ describe('troop-movement-controllers', () => {
 
     const result = getVillageTroopMovements(
       database,
-      createControllerArgs<'/villages/:villageId/troop-movements'>({
-        path: { villageId: currentVillage.id },
+      createControllerArgs<'/tiles/:tileId/troop-movements'>({
+        path: { tileId: currentVillage.tile_id },
       }),
     );
 
@@ -199,8 +199,8 @@ describe('troop-movement-controllers', () => {
 
     const result = getVillageTroopMovementStats(
       database,
-      createControllerArgs<'/villages/:villageId/troop-movements/stats'>({
-        path: { villageId: currentVillage.id },
+      createControllerArgs<'/tiles/:tileId/troop-movements/stats'>({
+        path: { tileId: currentVillage.tile_id },
       }),
     );
 

@@ -119,7 +119,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
         unitId: unit.unitId,
         amount: unit.selected,
         tileId: currentVillage.tileId,
-        source: currentVillage.tileId,
+        sourceTileId: currentVillage.tileId,
       });
     }
 
@@ -129,6 +129,18 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
   const getBaseEventArgs = (data: T) => ({
     troops: formatTroopsForSubmission(data.units),
     targetTileId: data.target.tileId,
+    ...('scoutingTarget' in data && data.scoutingTarget !== undefined
+      ? { scoutingTarget: data.scoutingTarget }
+      : {}),
+    ...('catapultTargets' in data &&
+    data.catapultTargets !== undefined &&
+    data.catapultTargets.length > 0
+      ? { catapultTargets: data.catapultTargets }
+      : {}),
+    ...('heroOasisAnimalAction' in data &&
+    data.heroOasisAnimalAction !== undefined
+      ? { heroOasisAnimalAction: data.heroOasisAnimalAction }
+      : {}),
   });
 
   const validateTroopMovementAsync = async (
@@ -152,10 +164,13 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
 
     const type = movementTypeMap[movementType];
 
+    const { troops, targetTileId } = getBaseEventArgs(data);
+
     const { errors } = await validateTroopMovement({
-      ...getBaseEventArgs(data),
+      troops,
+      targetTileId,
       type: type,
-      villageId: currentVillage.id,
+      originTileId: currentVillage.tileId,
     });
 
     form.clearErrors('root');

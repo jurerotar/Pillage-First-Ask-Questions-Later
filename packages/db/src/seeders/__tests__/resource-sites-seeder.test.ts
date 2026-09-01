@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
+import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { prepareTestDatabase } from '../../';
 
 const database = await prepareTestDatabase();
@@ -82,12 +83,7 @@ describe('resourceSitesSeeder', () => {
           t.x = 0
           AND t.y = 0;
       `,
-      schema: z.strictObject({
-        wood: z.number(),
-        clay: z.number(),
-        iron: z.number(),
-        wheat: z.number(),
-      }),
+      schema: resourcesSchema,
     });
 
     expect(row?.wood).toBe(750);

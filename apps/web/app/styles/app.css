@@ -42,6 +42,8 @@
   --success: oklch(0.7 0.18 145);
   --warning: oklch(0.7 0.18 60);
   --link: oklch(0.6432 0.2313 142.62);
+  --default-transition-duration: 300ms;
+  --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark {
@@ -72,6 +74,7 @@
 }
 
 @theme inline {
+  --default-transition-duration: 300ms;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -106,6 +109,14 @@
 }
 
 @layer utilities {
+  .transition-colors {
+    transition-property:
+      color, background-color, border-color, outline-color,
+      text-decoration-color, fill, stroke;
+    transition-duration: var(--default-transition-duration);
+    transition-timing-function: var(--default-transition-timing-function);
+  }
+
   @keyframes scale-pulse {
     0%,
     100% {
@@ -119,6 +130,72 @@
   .animate-scale-pulse {
     animation: scale-pulse 1.2s ease-in-out infinite;
   }
+
+  @keyframes api-provider-splash {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes api-provider-splash-logo {
+    0% {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    35%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes api-provider-splash-progress {
+    from {
+      transform: translateX(-125%);
+    }
+    to {
+      transform: translateX(225%);
+    }
+  }
+
+  @keyframes api-provider-splash-content-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-api-provider-splash {
+    animation: api-provider-splash 700ms ease-out 350ms both;
+  }
+
+  .animate-api-provider-splash-logo {
+    animation: api-provider-splash-logo 1.2s ease-in-out both;
+  }
+
+  .animate-api-provider-splash-progress {
+    animation: api-provider-splash-progress 1.4s ease-in-out infinite;
+  }
+
+  .api-provider-splash-content {
+    animation: api-provider-splash-content-fade-in 450ms ease-out 120ms both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-api-provider-splash,
+    .animate-api-provider-splash-logo,
+    .animate-api-provider-splash-progress,
+    .api-provider-splash-content {
+      animation: none;
+    }
+  }
 }
 
 @layer base {
@@ -130,6 +207,41 @@
     @apply bg-background text-foreground;
     overflow-y: scroll;
   }
+
+  /*:where(*/
+  /*  h1,*/
+  /*  h2,*/
+  /*  h3,*/
+  /*  h4,*/
+  /*  h5,*/
+  /*  h6,*/
+  /*  p,*/
+  /*  span,*/
+  /*  a,*/
+  /*  button,*/
+  /*  label,*/
+  /*  legend,*/
+  /*  li,*/
+  /*  dt,*/
+  /*  dd,*/
+  /*  th,*/
+  /*  td,*/
+  /*  input,*/
+  /*  textarea,*/
+  /*  select,*/
+  /*  option,*/
+  /*  summary,*/
+  /*  figcaption,*/
+  /*  blockquote,*/
+  /*  code,*/
+  /*  pre,*/
+  /*  small,*/
+  /*  strong,*/
+  /*  em*/
+  /*) {*/
+  /*  text-box-trim: trim-both;*/
+  /*  text-box-edge: cap alphabetic;*/
+  /*}*/
 
   /* RTL Support */
   [dir="rtl"] {

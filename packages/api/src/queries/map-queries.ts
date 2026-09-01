@@ -49,7 +49,7 @@ export const selectVillageAndFirstOasisTileIdsQuery = `
 export const selectMapTilesQuery = `
   WITH
     effects_wheat AS (
-      SELECT e.village_id, SUM(-e.value) AS wheat_production_sum
+      SELECT e.tile_id, SUM(-e.value) AS wheat_production_sum
       FROM
         effects e
       WHERE
@@ -58,7 +58,7 @@ export const selectMapTilesQuery = `
         AND e.scope_id = 2
         AND e.source_id = 1
         AND e.source_specifier = 0
-      GROUP BY e.village_id
+      GROUP BY e.tile_id
     ),
 
     world_items_single AS (
@@ -127,8 +127,8 @@ export const selectMapTilesQuery = `
       LEFT JOIN tribe_ids ti ON p.tribe_id = ti.id
       LEFT JOIN faction_ids fi ON fi.id = p.faction_id
       LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
-      LEFT JOIN effects_wheat ew ON ew.village_id = v.id
-      LEFT JOIN effects_wheat ew_owner ON ew_owner.village_id = v_owner.id
+      LEFT JOIN effects_wheat ew ON ew.tile_id = v.tile_id
+      LEFT JOIN effects_wheat ew_owner ON ew_owner.tile_id = v_owner.tile_id
       LEFT JOIN world_items_single wi ON wi.tile_id = t.id
 
   ;

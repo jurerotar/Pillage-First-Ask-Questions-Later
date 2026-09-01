@@ -32,11 +32,16 @@ export function useComputedEffect(
   const { currentVillage } = useCurrentVillage();
 
   const fetcher = () => {
-    return calculateComputedEffect(effectId, effects, currentVillage.id);
+    return calculateComputedEffect(effectId, effects, currentVillage.tileId);
   };
 
   const { data: computedEffect } = useQuery({
-    queryKey: [computedEffectCacheKey, effectId, currentVillage.id, effects],
+    queryKey: [
+      computedEffectCacheKey,
+      effectId,
+      currentVillage.tileId,
+      effects,
+    ],
     queryFn: fetcher,
     initialData: fetcher,
     staleTime: Number.POSITIVE_INFINITY,

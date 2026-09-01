@@ -8,7 +8,10 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateDistanceBetweenTiles } from '@pillage-first/utils/map';
 import { selectAllRelevantEffectsByIdQuery } from '../queries/effect-queries';
-import { selectVillageBuildingLevelQuery } from '../queries/village-queries';
+import {
+  selectVillageBuildingLevelQuery,
+  selectVillageTileIdQuery,
+} from '../queries/village-queries';
 import { apiEffectSchema } from './zod/effect-schemas';
 
 const marketplaceVillageSchema = z.strictObject({
@@ -38,6 +41,30 @@ export const getMarketplaceVillage = (
     `,
     bind: {
       $village_id: villageId,
+    },
+    schema: marketplaceVillageSchema,
+  });
+
+export const getMarketplaceVillageByTileId = (
+  database: DbFacade,
+  tileId: Village['tileId'],
+) =>
+  database.selectObject({
+    sql: `
+      SELECT
+        v.id,
+        v.tile_id AS tileId,
+        v.player_id AS playerId,
+        ti.tribe
+      FROM
+        villages v
+          JOIN players p ON p.id = v.player_id
+          JOIN tribe_ids ti ON ti.id = p.tribe_id
+      WHERE
+        v.tile_id = $tile_id;
+    `,
+    bind: {
+      $tile_id: tileId,
     },
     schema: marketplaceVillageSchema,
   });
@@ -129,6 +156,14 @@ export const getMerchantCapacity = (
   database: DbFacade,
   villageId: Village['id'],
 ) => {
+  const tileId = database.selectValue({
+    sql: selectVillageTileIdQuery,
+    bind: {
+      $village_id: villageId,
+    },
+    schema: z.number(),
+  })!;
+
   const effects = database.selectObjects({
     sql: selectAllRelevantEffectsByIdQuery,
     bind: {
@@ -138,7 +173,7 @@ export const getMerchantCapacity = (
     schema: apiEffectSchema,
   });
 
-  return calculateComputedEffect('merchantCapacity', effects, villageId).total;
+  return calculateComputedEffect('merchantCapacity', effects, tileId).total;
 };
 
 export const getVillageMerchantStats = (
@@ -157,5 +192,23 @@ export const getVillageMerchantStats = (
     },
     marketplaceLevel: getMarketplaceLevel(database, villageId),
     usedMerchantAmount: getUsedMerchantAmount(database, villageId),
+  };
+};
+
+export const getVillageMerchantStatsByTileId = (
+  database: DbFacade,
+  tileId: Village['tileId'],
+) => {
+  const village = getMarketplaceVillageByTileId(database, tileId)!;
+  const merchant = merchantsMap.get(village.tribe)!;
+
+  return {
+    village,
+    merchant: {
+      ...merchant,
+      merchantCapacity: getMerchantCapacity(database, village.id),
+    },
+    marketplaceLevel: getMarketplaceLevel(database, village.id),
+    usedMerchantAmount: getUsedMerchantAmount(database, village.id),
   };
 };

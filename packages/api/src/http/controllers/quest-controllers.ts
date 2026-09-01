@@ -12,7 +12,10 @@ import {
   selectVillageQuestsQuery,
 } from '../../queries/quest-queries';
 import { addHeroExperience } from '../../utils/hero';
-import { addVillageResourcesAt } from '../../utils/village';
+import {
+  addResourceSiteResourcesAt,
+  getVillageTileId,
+} from '../../utils/village';
 import { createController } from '../controller';
 import { mapQuestRowToDto } from './mappers/quest-mapper';
 import { getQuestsRowSchema } from './schemas/quest-schemas';
@@ -92,12 +95,12 @@ export const collectQuest = createController(
     if (isResourceQuestReward(reward)) {
       const { amount } = reward;
 
-      addVillageResourcesAt(database, villageId, Date.now(), [
-        amount,
-        amount,
-        amount,
-        amount,
-      ]);
+      addResourceSiteResourcesAt(
+        database,
+        getVillageTileId(database, villageId),
+        Date.now(),
+        [amount, amount, amount, amount],
+      );
       continue;
     }
 

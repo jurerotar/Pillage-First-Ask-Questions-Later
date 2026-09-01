@@ -1,3 +1,4 @@
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   calculateHeroLevel,
@@ -16,6 +17,7 @@ import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-t
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useReviveHero } from 'app/(game)/(village-slug)/hooks/use-revive-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -29,6 +31,7 @@ export const HeroRevival = () => {
   const { reviveHero } = useReviveHero();
   const { server } = useServer();
   const { currentVillage } = useCurrentVillage();
+  const currentResources = use(CurrentVillageLiveResourcesContext);
   const { eventsByType: heroRevivalEvents } = useEventsByType('heroRevival');
 
   const { isInstantHeroReviveEnabled, isFreeHeroReviveEnabled } =
@@ -84,7 +87,10 @@ export const HeroRevival = () => {
       {!isReviving && (
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
-            <Resources resources={revivalCost} />
+            <Resources
+              availableResources={currentResources}
+              resources={revivalCost}
+            />
           </div>
           <div className="flex items-center gap-1">
             <Icon type="heroRevivalDuration" />

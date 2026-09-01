@@ -9,16 +9,13 @@ export const useVillageTroopMovements = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: troopMovements } = useSuspenseQuery({
-    queryKey: [troopMovementsCacheKey, currentVillage.id],
+    queryKey: [troopMovementsCacheKey, currentVillage.tileId],
     queryFn: async () => {
-      const { data } = await apiClient.get(
-        '/villages/:villageId/troop-movements',
-        {
-          path: {
-            villageId: currentVillage.id,
-          },
+      const { data } = await apiClient.get('/tiles/:tileId/troop-movements', {
+        path: {
+          tileId: currentVillage.tileId,
         },
-      );
+      });
 
       return data;
     },

@@ -66,6 +66,8 @@ import { CurrentVillageBuildingQueueContextProvider } from 'app/(game)/(village-
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 import { CurrentVillageComputedEffectsProvider } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-provider';
 import { CurrentVillageLiveResourcesProvider } from 'app/(game)/(village-slug)/providers/current-village-live-resources-provider';
+import { GameLayoutContext } from 'app/(game)/(village-slug)/providers/game-layout-context';
+import { GameLayoutProvider } from 'app/(game)/(village-slug)/providers/game-layout-provider';
 import { VillageSlugProvider } from 'app/(game)/(village-slug)/providers/village-slug-provider';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -140,9 +142,9 @@ const NavigationSideItem = ({
         className={clsx(
           'bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60',
           'flex items-center justify-center shadow-md rounded-md px-3 py-2 border border-[#f1f1f1] dark:border-border relative',
-          'transition-transform active:scale-95 active:shadow-inner',
+          'transition-[background-color,border-color,transform] active:scale-95 active:shadow-inner',
           'lg:size-12 lg:p-0 lg:rounded-full lg:shadow lg:border-0 lg:from-[#a3a3a3] lg:to-[#c8c8c8]',
-          'lg:transition-colors lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
+          'lg:hover:from-[#9a9a9a] lg:hover:to-[#bfbfbf]',
           'lg:dark:from-[#404040] lg:dark:to-[#303030] lg:dark:hover:from-[#4a4a4a] lg:dark:hover:to-[#3a3a3a]',
           className,
         )}
@@ -200,8 +202,7 @@ const VillageOverviewDesktopItem = () => {
       tabIndex={0}
       className={clsx(
         'flex items-center justify-center shadow-md rounded-md p-1.5 border border-[#f1f1f1] dark:border-border relative',
-        'transition-transform active:scale-95 active:shadow-inner',
-        'lg:transition-colors',
+        'transition-[background-color,border-color,transform] active:scale-95 active:shadow-inner',
       )}
     >
       <span className="lg:bg-background rounded-md flex items-center justify-center">
@@ -224,8 +225,7 @@ const EventLogDesktopItem = () => {
       tabIndex={0}
       className={clsx(
         'flex items-center justify-center shadow-md rounded-md p-1.5 border border-[#f1f1f1] dark:border-border relative',
-        'transition-transform active:scale-95 active:shadow-inner',
-        'lg:transition-colors',
+        'transition-[background-color,border-color,transform] active:scale-95 active:shadow-inner',
       )}
     >
       <span className="lg:bg-background rounded-md flex items-center justify-center">
@@ -247,7 +247,7 @@ const VillageOverviewMobileItem = () => {
     <Link
       to="overview"
       tabIndex={0}
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-[#f1f1f1] dark:border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60 transition-transform active:scale-95"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-[#f1f1f1] dark:border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60 transition-[background-color,border-color,transform] active:scale-95"
       aria-label={t('Village overview')}
     >
       <span className="flex items-center justify-center">
@@ -295,7 +295,7 @@ const HeroNavigationItem = () => {
     <Link
       to="hero"
       tabIndex={0}
-      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-[#f1f1f1] dark:border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60 transition-transform active:scale-95"
+      className="flex items-center justify-center shadow-md rounded-full p-2.5 border border-[#f1f1f1] dark:border-border relative bg-linear-to-t from-[#f2f2f2] to-[#ffffff] dark:from-muted/40 dark:to-muted/60 transition-[background-color,border-color,transform] active:scale-95"
       aria-label={t('Hero')}
     >
       <span className="lg:size-10 flex items-center justify-center">
@@ -370,8 +370,8 @@ const DesktopTopRowItem = ({
       className="
         px-3 py-0.5 border-2 border-white rounded-sm bg-linear-to-t bg-card
         flex items-center justify-center
-        transition-transform active:scale-95 active:shadow-inner
-        lg:transition-colors lg:hover:bg-gray-50 dark:border-border dark:lg:hover:bg-muted
+        transition-[background-color,border-color,transform] active:scale-95 active:shadow-inner
+        lg:hover:bg-gray-50 dark:border-border dark:lg:hover:bg-muted
       "
       {...rest}
     >
@@ -394,16 +394,17 @@ const NavigationMainItem = ({ children, ...rest }: NavigationMainItemProps) => {
       className={({ isActive }) =>
         clsx(
           isActive
-            ? 'from-[#7da100] to-[#c7e94f] lg:hover:from-[#728f00] lg:hover:to-[#b8dc45] dark:from-[#5d7a00] dark:to-[#8fb020] dark:lg:hover:from-[#4a6100] dark:lg:hover:to-[#738e1a]'
-            : 'from-[#b8b2a9] to-[#f1f0ee] lg:hover:from-[#aba5a0] lg:hover:to-[#e8e7e5] dark:from-[#2a2a2a] dark:to-[#404040] dark:lg:hover:from-[#222222] dark:lg:hover:to-[#333333]',
-          'bg-linear-to-t size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
-          'transition-transform transform-gpu active:scale-95',
-          'lg:transition-colors',
+            ? 'before:from-[#7da100] before:to-[#c7e94f] lg:hover:before:from-[#728f00] lg:hover:before:to-[#b8dc45] after:from-[#5d7a00] after:to-[#8fb020] lg:hover:after:from-[#4a6100] lg:hover:after:to-[#738e1a]'
+            : 'before:from-[#b8b2a9] before:to-[#f1f0ee] lg:hover:before:from-[#aba5a0] lg:hover:before:to-[#e8e7e5] after:from-[#2a2a2a] after:to-[#404040] lg:hover:after:from-[#222222] lg:hover:after:to-[#333333]',
+          'relative isolate overflow-hidden size-14 lg:size-18 rounded-full flex items-center justify-center shadow-lg lg:shadow-none',
+          'before:absolute before:inset-0 before:bg-linear-to-t before:transition-opacity before:content-[""]',
+          'after:absolute after:inset-0 after:bg-linear-to-t after:opacity-0 after:transition-opacity after:content-[""]',
+          'dark:before:opacity-0 dark:after:opacity-100 transition-transform transform-gpu active:scale-95',
         )
       }
       {...rest}
     >
-      <span className="size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
+      <span className="relative z-10 size-12 lg:size-15 bg-background rounded-full flex items-center justify-center">
         {children}
       </span>
     </NavLink>
@@ -525,17 +526,44 @@ const MapNavigationItem = () => {
 };
 
 const ResourceCounters = () => {
-  return (
+  const { t } = useTranslation();
+  const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
+  const { areMobileDetailsVisible, setAreMobileDetailsVisible } =
+    use(GameLayoutContext);
+  const showDetails = isWiderThanLg || areMobileDetailsVisible;
+
+  const counters = (
     <div className="flex w-full lg:border-none py-0.5 mx-auto gap-1 lg:gap-2">
       {(['wood', 'clay', 'iron', 'wheat'] satisfies Resource[]).map(
         (resource: Resource, index) => (
           <Fragment key={resource}>
-            <ResourceCounter resource={resource} />
+            <ResourceCounter
+              resource={resource}
+              showDetails={showDetails}
+            />
             {index !== 3 && <span className="w-0.5 h-full bg-border" />}
           </Fragment>
         ),
       )}
     </div>
+  );
+
+  if (isWiderThanLg) {
+    return counters;
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={t('Resources')}
+      aria-expanded={areMobileDetailsVisible}
+      className="flex w-full rounded-sm text-left"
+      onClick={() => {
+        setAreMobileDetailsVisible((value) => !value);
+      }}
+    >
+      {counters}
+    </button>
   );
 };
 
@@ -608,7 +636,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
   const { preferences } = usePreferences();
 
   return (
-    <header className="flex flex-col w-full p-2 pt-0 lg:p-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200 dark:from-muted/60 dark:via-card dark:to-muted/60">
+    <header className="flex flex-col w-full px-2 pb-1 lg:p-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200 dark:from-muted/60 dark:via-card dark:to-muted/60">
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
           <div className="hidden lg:flex w-full bg-muted py-1 px-2">
@@ -763,7 +791,7 @@ type MobileBottomNavigationProps = {
 const MobileMoreNavigation = () => {
   const { t } = useTranslation();
   const itemClassName =
-    'flex w-full items-center gap-3 rounded-sm px-3 py-2 text-sm font-medium hover:bg-muted focus-visible:bg-muted focus-visible:outline-none';
+    'flex w-full items-center gap-3 rounded-sm px-3 py-2 text-sm font-medium hover:bg-muted focus-visible:bg-muted focus-visible:outline-none transition-colors';
 
   return (
     <Popover>
@@ -822,16 +850,16 @@ const MobileMoreNavigation = () => {
             orientation="horizontal"
             className=""
           />
-          <PopoverClose asChild>
-            <Link
-              target="_blank"
-              to="https://discord.com/invite/Ep7NKVXUZA"
-              className={itemClassName}
-            >
-              <FaDiscord className="text-xl text-[#7289da]" />
-              <span>Discord</span>
-            </Link>
-          </PopoverClose>
+          {/*<PopoverClose asChild>*/}
+          {/*  <Link*/}
+          {/*    target="_blank"*/}
+          {/*    to="https://discord.com/invite/Ep7NKVXUZA"*/}
+          {/*    className={itemClassName}*/}
+          {/*  >*/}
+          {/*    <FaDiscord className="text-xl text-[#7289da]" />*/}
+          {/*    <span>Discord</span>*/}
+          {/*  </Link>*/}
+          {/*</PopoverClose>*/}
           <PopoverClose asChild>
             <Link
               target="_blank"
@@ -864,12 +892,27 @@ const MobileBottomNavigation = ({
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="lg:hidden fixed bottom-0 left-0 z-20 pb-safe-or-8 w-full bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)] dark:bg-[linear-gradient(0deg,var(--background)_0%,var(--card)_83%,var(--background)_83.1%,var(--background)_84%,transparent_84.1%,transparent_100%)]">
+    <header className="isolate lg:hidden fixed bottom-0 left-0 z-20 pb-safe-or-8 w-full [contain:paint] transition-[bottom] before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)] before:transition-opacity after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(0deg,var(--background)_0%,var(--card)_83%,var(--background)_83.1%,var(--background)_84%,transparent_84.1%,transparent_100%)] after:opacity-0 after:transition-opacity dark:before:opacity-0 dark:after:opacity-100">
       <nav
         ref={container}
-        className="flex flex-col w-full overflow-x-scroll scrollbar-hidden"
+        className="relative z-10 flex flex-col w-full overflow-x-scroll scrollbar-hidden"
       >
         <ul className="flex w-fit gap-2 justify-between items-center px-2 pt-5 pb-2 mx-auto">
+          <li>
+            <Link
+              target="_blank"
+              to="https://discord.com/invite/Ep7NKVXUZA"
+              aria-label="Discord"
+              title="Discord"
+            >
+              <NavigationSideItem>
+                <FaDiscord className="text-2xl text-[#7289da]" />
+              </NavigationSideItem>
+            </Link>
+          </li>
+          <li>
+            <Separator orientation="vertical" />
+          </li>
           <li>
             <AdventuresNavigationItem />
           </li>
@@ -948,28 +991,30 @@ const GameLayout = memo<Route.ComponentProps>(
 
     return (
       <div className="[-webkit-touch-callout:none]">
-        <VillageSlugProvider villageSlug={villageSlug}>
+        <VillageSlugProvider villageSlug={villageSlug!}>
           <CurrentVillageComputedEffectsProvider>
             <CurrentVillageLiveResourcesProvider>
               <CurrentVillageBuildingQueueContextProvider>
-                <Tooltip id="general-tooltip" />
-                <TopNavigation onDeveloperToolsToggle={toggleModal} />
-                <TroopMovements />
-                <Suspense fallback={<PageFallback />}>
-                  <Outlet />
-                </Suspense>
-                <ConstructionQueue />
-                <TroopList />
-                {!isWiderThanLg && (
-                  <MobileBottomNavigation
-                    onDeveloperToolsToggle={toggleModal}
+                <GameLayoutProvider>
+                  <Tooltip id="general-tooltip" />
+                  <TopNavigation onDeveloperToolsToggle={toggleModal} />
+                  <TroopMovements />
+                  <Suspense fallback={<PageFallback />}>
+                    <Outlet />
+                  </Suspense>
+                  <ConstructionQueue />
+                  <TroopList />
+                  {!isWiderThanLg && (
+                    <MobileBottomNavigation
+                      onDeveloperToolsToggle={toggleModal}
+                    />
+                  )}
+                  <PreferencesUpdater />
+                  <DeveloperToolsConsole
+                    isOpen={isOpen}
+                    onOpenChange={toggleModal}
                   />
-                )}
-                <PreferencesUpdater />
-                <DeveloperToolsConsole
-                  isOpen={isOpen}
-                  onOpenChange={toggleModal}
-                />
+                </GameLayoutProvider>
               </CurrentVillageBuildingQueueContextProvider>
             </CurrentVillageLiveResourcesProvider>
           </CurrentVillageComputedEffectsProvider>

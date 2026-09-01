@@ -41,6 +41,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
+import { pushGameWorldCreated } from 'app/instrumentation/product-events';
 import { reportError } from 'app/instrumentation/report-error';
 import { invalidateQueries } from 'app/utils/react-query';
 
@@ -182,6 +183,10 @@ export const CreateNewGameWorldForm = () => {
         values: {
           migration_and_seed_duration: migrationDuration,
         },
+      });
+
+      pushGameWorldCreated(server, {
+        migration_duration_ms: migrationDuration,
       });
 
       await createGameWorld({ server });
@@ -486,7 +491,7 @@ export const CreateNewGameWorldForm = () => {
                 aria-hidden="true"
               >
                 <div
-                  className="w-full rounded-full bg-success transition-[height] duration-500"
+                  className="w-full rounded-full bg-success transition-[height]"
                   style={{ height: `${generationProgress}%` }}
                 />
               </div>
@@ -506,7 +511,7 @@ export const CreateNewGameWorldForm = () => {
                     >
                       <div
                         className={clsx(
-                          'size-3 rounded-full transition-colors duration-300',
+                          'size-3 rounded-full transition-colors',
                           isCompleted ? 'bg-success' : 'bg-muted-foreground/30',
                           isCurrent && 'bg-muted-foreground/60 animate-pulse',
                         )}
@@ -514,7 +519,7 @@ export const CreateNewGameWorldForm = () => {
                     </div>
                     <Text
                       className={clsx(
-                        'text-sm transition-colors duration-300',
+                        'text-sm transition-colors',
                         isCompleted && 'text-foreground font-medium',
                         isCurrent && 'text-primary font-bold',
                         !isCompleted && !isCurrent && 'text-muted-foreground',

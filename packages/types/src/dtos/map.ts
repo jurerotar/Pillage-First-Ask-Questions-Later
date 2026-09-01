@@ -54,7 +54,7 @@ export const mapTileTroopDtoSchema = z.strictObject({
   unitId: unitIdSchema,
   amount: z.number(),
   tileId: z.number(),
-  source: z.number(),
+  sourceTileId: z.number(),
 });
 
 export const mapTileOasisBonusDtoSchema = z.strictObject({

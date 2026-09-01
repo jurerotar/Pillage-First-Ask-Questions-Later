@@ -8,6 +8,13 @@ type ToasterStyle = NonNullable<ToasterProps['style']> & {
   '--normal-border': string;
 };
 
+const safeAreaOffset = {
+  top: 'calc(env(safe-area-inset-top, 0px) + 1rem)',
+  right: 'calc(env(safe-area-inset-right, 0px) + 1rem)',
+  bottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)',
+  left: 'calc(env(safe-area-inset-left, 0px) + 1rem)',
+} satisfies ToasterProps['offset'];
+
 const toasterStyle: ToasterStyle = {
   '--normal-bg': 'var(--popover)',
   '--normal-text': 'var(--popover-foreground)',
@@ -21,6 +28,8 @@ export const Toaster = (props: ToasterProps) => {
     <Sonner
       className="toaster group"
       theme={uiColorScheme}
+      offset={safeAreaOffset}
+      mobileOffset={safeAreaOffset}
       style={toasterStyle}
       {...props}
     />

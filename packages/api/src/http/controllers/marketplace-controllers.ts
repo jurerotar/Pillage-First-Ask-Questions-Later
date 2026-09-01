@@ -2,9 +2,9 @@ import { z } from 'zod';
 import { createEvents } from '../../utils/create-event';
 import { validateEventCreationPrerequisites } from '../../utils/events';
 import {
-  getMarketplaceVillage,
+  getMarketplaceVillageByTileId,
   getMerchantAmount,
-  getVillageMerchantStats,
+  getVillageMerchantStatsByTileId,
 } from '../../utils/marketplace';
 import { createController } from '../controller';
 import { triggerKick } from '../events/scheduler/scheduler-signal';
@@ -29,22 +29,22 @@ const getNextTradeRouteStartsAt = (startHour: number) => {
 };
 
 export const transferResources = createController(
-  '/villages/:villageId/transfer-resources',
+  '/tiles/:tileId/transfer-resources',
   'post',
   {
     summary: 'Transfer resources between player villages',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
+        tileId: z.coerce.number(),
       }),
     },
     requestBody: transferResourcesBodySchema,
   },
-)(({ database, path: { villageId }, body: { targetVillageId, resources } }) => {
+)(({ database, path: { tileId }, body: { targetTileId, resources } }) => {
   database.transaction((db) => {
-    const { village, merchant } = getVillageMerchantStats(db, villageId);
+    const { village, merchant } = getVillageMerchantStatsByTileId(db, tileId);
 
-    const targetVillage = getMarketplaceVillage(db, targetVillageId);
+    const targetVillage = getMarketplaceVillageByTileId(db, targetTileId);
 
     if (!targetVillage) {
       throw new Error('Target village does not exist');
@@ -57,8 +57,8 @@ export const transferResources = createController(
 
     createEvents<'resourceTransfer'>(db, {
       type: 'resourceTransfer',
-      villageId,
-      targetVillageId,
+      villageId: village.id,
+      targetVillageId: targetVillage.id,
       originTileId: village.tileId,
       targetTileId: targetVillage.tileId,
       resources,
@@ -68,13 +68,13 @@ export const transferResources = createController(
 });
 
 export const createTradeRoute = createController(
-  '/villages/:villageId/trade-routes',
+  '/tiles/:tileId/trade-routes',
   'post',
   {
     summary: 'Create a marketplace trade route',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
+        tileId: z.coerce.number(),
       }),
     },
     requestBody: createTradeRouteBodySchema,
@@ -82,12 +82,12 @@ export const createTradeRoute = createController(
 )(
   ({
     database,
-    path: { villageId },
-    body: { targetVillageId, resources, startHour, intervalHours },
+    path: { tileId },
+    body: { targetTileId, resources, startHour, intervalHours },
   }) => {
     database.transaction((db) => {
-      const { village } = getVillageMerchantStats(db, villageId);
-      const targetVillage = getMarketplaceVillage(db, targetVillageId);
+      const { village } = getVillageMerchantStatsByTileId(db, tileId);
+      const targetVillage = getMarketplaceVillageByTileId(db, targetTileId);
 
       if (!targetVillage) {
         throw new Error('Target village does not exist');
@@ -95,8 +95,8 @@ export const createTradeRoute = createController(
 
       createEvents<'tradeRoute'>(db, {
         type: 'tradeRoute',
-        villageId,
-        targetVillageId,
+        villageId: village.id,
+        targetVillageId: targetVillage.id,
         originTileId: village.tileId,
         targetTileId: targetVillage.tileId,
         resources,
@@ -108,13 +108,13 @@ export const createTradeRoute = createController(
 );
 
 export const updateTradeRoute = createController(
-  '/villages/:villageId/trade-routes/:eventId',
+  '/tiles/:tileId/trade-routes/:eventId',
   'patch',
   {
     summary: 'Update a marketplace trade route',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
+        tileId: z.coerce.number(),
         eventId: z.coerce.number(),
       }),
     },
@@ -123,12 +123,12 @@ export const updateTradeRoute = createController(
 )(
   ({
     database,
-    path: { villageId, eventId },
-    body: { targetVillageId, resources, startHour, intervalHours },
+    path: { tileId, eventId },
+    body: { targetTileId, resources, startHour, intervalHours },
   }) => {
     database.transaction((db) => {
-      const { village } = getVillageMerchantStats(db, villageId);
-      const targetVillage = getMarketplaceVillage(db, targetVillageId);
+      const { village } = getVillageMerchantStatsByTileId(db, tileId);
+      const targetVillage = getMarketplaceVillageByTileId(db, targetTileId);
 
       if (!targetVillage) {
         throw new Error('Target village does not exist');
@@ -138,8 +138,8 @@ export const updateTradeRoute = createController(
       const interval = intervalHours * HOUR_IN_MILLISECONDS;
       const nextTradeRoute = {
         type: 'tradeRoute',
-        villageId,
-        targetVillageId,
+        villageId: village.id,
+        targetVillageId: targetVillage.id,
         originTileId: village.tileId,
         targetTileId: targetVillage.tileId,
         resources,
@@ -161,10 +161,10 @@ export const updateTradeRoute = createController(
         `,
         bind: {
           $event_id: eventId,
-          $village_id: villageId,
+          $village_id: village.id,
           $starts_at: startsAt,
           $meta: JSON.stringify({
-            targetVillageId,
+            targetVillageId: targetVillage.id,
             originTileId: village.tileId,
             targetTileId: targetVillage.tileId,
             resources,
@@ -184,18 +184,24 @@ export const updateTradeRoute = createController(
 );
 
 export const deleteTradeRoute = createController(
-  '/villages/:villageId/trade-routes/:eventId',
+  '/tiles/:tileId/trade-routes/:eventId',
   'delete',
   {
     summary: 'Delete a marketplace trade route',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
+        tileId: z.coerce.number(),
         eventId: z.coerce.number(),
       }),
     },
   },
-)(({ database, path: { villageId, eventId } }) => {
+)(({ database, path: { tileId, eventId } }) => {
+  const village = getMarketplaceVillageByTileId(database, tileId);
+
+  if (!village) {
+    throw new Error('Village does not exist');
+  }
+
   database.exec({
     sql: `
       DELETE
@@ -206,7 +212,7 @@ export const deleteTradeRoute = createController(
     `,
     bind: {
       $event_id: eventId,
-      $village_id: villageId,
+      $village_id: village.id,
     },
   });
 

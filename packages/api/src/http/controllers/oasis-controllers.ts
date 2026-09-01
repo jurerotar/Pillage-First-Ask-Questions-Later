@@ -1,103 +1,81 @@
 import { z } from 'zod';
-import { resourceSchema } from '@pillage-first/types/models/resource';
-import { insertEffectByEffectNameQuery } from '../../queries/effect-queries';
-import { selectTileOasisBonusesQuery } from '../../queries/map-queries';
 import {
   abandonOasisQuery,
   deleteOasisEffectsQuery,
-  occupyOasisQuery,
 } from '../../queries/oasis-queries';
-import { returnOasisReinforcements } from '../../utils/oasis';
-import { updateVillageResourcesAt } from '../../utils/village';
+import { selectVillageIdByTileIdQuery } from '../../queries/village-queries';
+import {
+  occupyOasisForVillage,
+  returnOasisReinforcements,
+} from '../../utils/oasis';
+import { updateResourceSiteResourcesAt } from '../../utils/village';
 import { createController } from '../controller';
 
 export const occupyOasis = createController(
-  '/villages/:villageId/oasis/:oasisId',
+  '/tiles/:tileId/oasis/:oasisTileId',
   'post',
   {
     summary: 'Occupy oasis',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
-        oasisId: z.coerce.number(),
+        tileId: z.coerce.number(),
+        oasisTileId: z.coerce.number(),
       }),
     },
   },
-)(({ database, path: { oasisId, villageId } }) => {
+)(({ database, path: { oasisTileId, tileId } }) => {
   database.transaction((db) => {
-    updateVillageResourcesAt(db, villageId, Date.now());
-
-    const oasisFieldsRows = db.selectObjects({
-      sql: selectTileOasisBonusesQuery,
+    const villageId = db.selectValue({
+      sql: selectVillageIdByTileIdQuery,
       bind: {
-        $tile_id: oasisId,
+        $tile_id: tileId,
       },
-      schema: z.strictObject({
-        resource: resourceSchema,
-        bonus: z.number(),
-      }),
-    });
+      schema: z.number(),
+    })!;
 
-    for (const { resource, bonus } of oasisFieldsRows) {
-      const effectId = `${resource}Production`;
-      const value = bonus === 25 ? 1.25 : 1.5;
-
-      db.exec({
-        sql: insertEffectByEffectNameQuery,
-        bind: {
-          $effect_name: effectId,
-          $value: value,
-          $type: 'bonus',
-          $scope: 'local',
-          $source: 'oasis',
-          $village_id: villageId,
-          $source_specifier: oasisId,
-        },
-      });
-    }
-
-    db.exec({
-      sql: occupyOasisQuery,
-      bind: {
-        $oasis_tile_id: oasisId,
-        $village_id: villageId,
-      },
-    });
+    occupyOasisForVillage(db, villageId, oasisTileId, Date.now());
   });
 });
 
 export const abandonOasis = createController(
-  '/villages/:villageId/oasis/:oasisId',
+  '/tiles/:tileId/oasis/:oasisTileId',
   'delete',
   {
     summary: 'Abandon oasis',
     requestParams: {
       path: z.strictObject({
-        villageId: z.coerce.number(),
-        oasisId: z.coerce.number(),
+        tileId: z.coerce.number(),
+        oasisTileId: z.coerce.number(),
       }),
     },
   },
-)(({ database, path: { oasisId, villageId } }) => {
+)(({ database, path: { oasisTileId, tileId } }) => {
   database.transaction((db) => {
     const now = Date.now();
+    const villageId = db.selectValue({
+      sql: selectVillageIdByTileIdQuery,
+      bind: {
+        $tile_id: tileId,
+      },
+      schema: z.number(),
+    })!;
 
-    updateVillageResourcesAt(db, villageId, now);
+    updateResourceSiteResourcesAt(db, tileId, now);
 
-    returnOasisReinforcements(db, oasisId, villageId, now);
+    returnOasisReinforcements(db, oasisTileId, villageId, now);
 
     db.exec({
       sql: deleteOasisEffectsQuery,
       bind: {
         $village_id: villageId,
-        $source_specifier: oasisId,
+        $source_specifier: oasisTileId,
       },
     });
 
     db.exec({
       sql: abandonOasisQuery,
       bind: {
-        $oasis_tile_id: oasisId,
+        $oasis_tile_id: oasisTileId,
         $village_id: villageId,
       },
     });

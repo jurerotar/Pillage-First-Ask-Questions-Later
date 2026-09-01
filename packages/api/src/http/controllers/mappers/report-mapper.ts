@@ -1,7 +1,10 @@
 import type { z } from 'zod';
 import { unitsMap } from '@pillage-first/game-assets/units';
 import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
-import type { BattleType } from '@pillage-first/types/models/battle';
+import type {
+  BattleDamagedBuilding,
+  BattleType,
+} from '@pillage-first/types/models/battle';
 import type { BattleReportSummary } from '@pillage-first/types/models/report';
 import {
   type movementReportUnitSchema,
@@ -105,7 +108,10 @@ export const mapReportListingRowToDto = (
     tags: JSON.parse(row.tags_json),
   });
 
-export const mapBattleReportRowToDto = (rows: BattleReportRow[]) => {
+export const mapBattleReportRowToDto = (
+  rows: BattleReportRow[],
+  damagedBuildings: BattleDamagedBuilding[],
+) => {
   const row = rows[0]!;
 
   const participants = new Map<number, BattleType['attacker']>();
@@ -136,6 +142,7 @@ export const mapBattleReportRowToDto = (rows: BattleReportRow[]) => {
           slug: participantRow.participant_player_slug ?? undefined,
         },
         village: {
+          id: participantRow.participant_village_id,
           tileId: participantRow.participant_tile_id,
           name: participantRow.participant_location_name,
           coordinates: {
@@ -169,6 +176,8 @@ export const mapBattleReportRowToDto = (rows: BattleReportRow[]) => {
         unitId: participantRow.participant_unit_id,
         amountBefore: participantRow.participant_amount_before,
         amountAfter: participantRow.participant_amount_after,
+        amountHospitalized: participantRow.participant_amount_hospitalized ?? 0,
+        amountImprisoned: participantRow.participant_amount_imprisoned ?? 0,
       });
 
       const unit = unitsMap.get(participantRow.participant_unit_id);
@@ -211,6 +220,7 @@ export const mapBattleReportRowToDto = (rows: BattleReportRow[]) => {
       totalCarryCapacity,
       canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
     },
+    damagedBuildings,
     statistics: { attacker: attackerStatistics, defender: defenderStatistics },
   };
 

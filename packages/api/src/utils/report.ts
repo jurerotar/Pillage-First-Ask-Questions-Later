@@ -6,7 +6,10 @@ import type {
   BaseReport,
   ReportOutcome,
 } from '@pillage-first/types/models/report';
-import type { Resources } from '@pillage-first/types/models/resource';
+import type {
+  ResourceBundle,
+  Resources,
+} from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -82,6 +85,51 @@ type CreateNewScoutingReport = Pick<
   };
   resources?: Resources;
   defensiveStructures?: { buildingId: Building['id']; level: number }[];
+};
+
+type CreateNewBattleReportUnit = {
+  unitId: UnitId;
+  amountBefore: number;
+  amountAfter: number;
+  amountImprisoned?: number;
+};
+
+type CreateNewBattleReportDamagedBuilding = {
+  buildingId: Building['id'];
+  levelBefore: number;
+  levelAfter: number;
+};
+
+type CreateNewBattleReportParticipant = {
+  playerId: number | null;
+  tileId: number;
+  units: CreateNewBattleReportUnit[];
+};
+
+export type CreateNewBattleReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  outcome: Extract<
+    ReportOutcome,
+    | 'attackerNoLoss'
+    | 'attackerSomeLoss'
+    | 'attackerFullLoss'
+    | 'defenderNoLoss'
+    | 'defenderSomeLoss'
+    | 'defenderFullLoss'
+  >;
+  originTileId: number;
+  targetTileId: number;
+  isRaid: boolean;
+  loot: ResourceBundle;
+  canAttackerSeeFullReport: boolean;
+  attackerPoints: number;
+  defenderPoints: number;
+  attacker: CreateNewBattleReportParticipant;
+  defender: CreateNewBattleReportParticipant;
+  reinforcements?: CreateNewBattleReportParticipant[];
+  damagedBuildings?: CreateNewBattleReportDamagedBuilding[];
 };
 
 export const insertReport = (
@@ -365,6 +413,175 @@ export const insertMovementReport = (
       $troops: JSON.stringify(troops),
     },
   });
+};
+
+export const insertBattleReport = (
+  database: DbFacade,
+  report: CreateNewBattleReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'battle',
+    outcome: report.outcome,
+    tags: [],
+  });
+
+  const battleReportId = database.selectValue({
+    sql: `
+      INSERT INTO battle_reports (
+        report_id,
+        origin_tile_id,
+        target_tile_id,
+        is_raid,
+        loot_wood,
+        loot_clay,
+        loot_iron,
+        loot_wheat,
+        can_attacker_see_full_report,
+        attacker_points,
+        defender_points
+      )
+      VALUES (
+        $report_id,
+        $origin_tile_id,
+        $target_tile_id,
+        $is_raid,
+        $loot_wood,
+        $loot_clay,
+        $loot_iron,
+        $loot_wheat,
+        $can_attacker_see_full_report,
+        $attacker_points,
+        $defender_points
+      )
+      RETURNING id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $origin_tile_id: report.originTileId,
+      $target_tile_id: report.targetTileId,
+      $is_raid: report.isRaid ? 1 : 0,
+      $loot_wood: report.loot[0],
+      $loot_clay: report.loot[1],
+      $loot_iron: report.loot[2],
+      $loot_wheat: report.loot[3],
+      $can_attacker_see_full_report: report.canAttackerSeeFullReport ? 1 : 0,
+      $attacker_points: report.attackerPoints,
+      $defender_points: report.defenderPoints,
+    },
+    schema: z.int(),
+  })!;
+
+  const participants = [
+    report.attacker,
+    report.defender,
+    ...(report.reinforcements ?? []),
+  ];
+
+  const firstBattleParticipantId = database.selectValue({
+    sql: 'SELECT COALESCE(MAX(id), 0) + 1 FROM battle_report_participants;',
+    schema: z.int(),
+  })!;
+
+  const participantRows = participants.map((participant, index) => ({
+    id: firstBattleParticipantId + index,
+    playerId: participant.playerId,
+    tileId: participant.tileId,
+  }));
+
+  database.exec({
+    sql: `
+      INSERT INTO battle_report_participants (id, battle_id, player_id, tile_id)
+      SELECT
+        JSON_EXTRACT(participant.value, '$.id'),
+        $battle_id,
+        JSON_EXTRACT(participant.value, '$.playerId'),
+        JSON_EXTRACT(participant.value, '$.tileId')
+      FROM JSON_EACH($participants) AS participant;
+    `,
+    bind: {
+      $battle_id: battleReportId,
+      $participants: JSON.stringify(participantRows),
+    },
+  });
+
+  const unitRows: (CreateNewBattleReportUnit & {
+    battleParticipantId: number;
+  })[] = [];
+
+  for (let index = 0; index < participants.length; index += 1) {
+    const participant = participants[index]!;
+    const battleParticipantId = firstBattleParticipantId + index;
+
+    for (const unit of participant.units) {
+      unitRows.push({
+        ...unit,
+        battleParticipantId,
+      });
+    }
+  }
+
+  if (unitRows.length > 0) {
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_units (
+          battle_participant_id,
+          unit_id,
+          amount_before,
+          amount_after,
+          amount_imprisoned
+        )
+        SELECT
+          JSON_EXTRACT(unit.value, '$.battleParticipantId'),
+          unit_ids.id,
+          SUM(JSON_EXTRACT(unit.value, '$.amountBefore')),
+          SUM(JSON_EXTRACT(unit.value, '$.amountAfter')),
+          SUM(COALESCE(JSON_EXTRACT(unit.value, '$.amountImprisoned'), 0))
+        FROM
+          JSON_EACH($units) AS unit
+          JOIN unit_ids
+            ON unit_ids.unit = JSON_EXTRACT(unit.value, '$.unitId')
+        GROUP BY
+          JSON_EXTRACT(unit.value, '$.battleParticipantId'),
+          unit_ids.id;
+      `,
+      bind: {
+        $units: JSON.stringify(unitRows),
+      },
+    });
+  }
+
+  if ((report.damagedBuildings ?? []).length > 0) {
+    database.exec({
+      sql: `
+        INSERT INTO battle_report_buildings (
+          report_id,
+          building_id,
+          level_before,
+          level_after
+        )
+        SELECT
+          $report_id,
+          building_ids.id,
+          JSON_EXTRACT(building.value, '$.levelBefore'),
+          JSON_EXTRACT(building.value, '$.levelAfter')
+        FROM
+          JSON_EACH($damaged_buildings) AS building
+          JOIN building_ids
+            ON building_ids.building = JSON_EXTRACT(
+              building.value,
+              '$.buildingId'
+            );
+      `,
+      bind: {
+        $report_id: reportId,
+        $damaged_buildings: JSON.stringify(report.damagedBuildings),
+      },
+    });
+  }
+
+  return reportId;
 };
 
 export const insertTradeReport = (

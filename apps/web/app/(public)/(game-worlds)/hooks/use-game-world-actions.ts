@@ -13,6 +13,11 @@ import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/i
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
 import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
+import {
+  pushGameWorldDeleted,
+  pushGameWorldDuplicated,
+  pushGameWorldExported,
+} from 'app/instrumentation/product-events';
 import { reportError } from 'app/instrumentation/report-error';
 import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
@@ -198,7 +203,8 @@ export const useGameWorldActions = () => {
         a.remove();
         URL.revokeObjectURL(exportUrl);
       },
-      onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      onSuccess: async (_data, { server }, _onMutateResult, context) => {
+        pushGameWorldExported(server);
         await invalidateQueries(context, [[availableServerCacheKey]]);
       },
       onError: (error) => {
@@ -226,6 +232,7 @@ export const useGameWorldActions = () => {
     },
     onSuccess: async (duplicatedServer, _vars, _onMutateResult, context) => {
       addAvailableServer(duplicatedServer);
+      pushGameWorldDuplicated(duplicatedServer);
       await invalidateQueries(context, [[availableServerCacheKey]]);
       toast.success('Game world duplicated');
     },
@@ -248,11 +255,17 @@ export const useGameWorldActions = () => {
       mutationFn: async ({ server }) => {
         return deleteServerData(server);
       },
-      onSuccess: async (updatedServers, _vars, _onMutateResult, context) => {
+      onSuccess: async (
+        updatedServers,
+        { server },
+        _onMutateResult,
+        context,
+      ) => {
         if (!updatedServers) {
           return;
         }
 
+        pushGameWorldDeleted(server);
         context.client.setQueryData([availableServerCacheKey], updatedServers);
         await invalidateQueries(context, [[availableServerCacheKey]]);
       },

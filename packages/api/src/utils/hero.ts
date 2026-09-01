@@ -14,7 +14,7 @@ import {
 } from '../queries/effect-queries';
 import { updateHeroVillageByCurrentVillageQuery } from '../queries/hero-queries';
 import { createEvents } from './create-event';
-import { updateVillageResourcesAt } from './village';
+import { getVillageTileId, updateResourceSiteResourcesAt } from './village';
 
 const resourceProductionEffectIds = [
   'woodProduction',
@@ -65,7 +65,11 @@ export const onHeroDeath = (database: DbFacade, timestamp: number) => {
     schema: z.number(),
   })!;
 
-  updateVillageResourcesAt(database, villageId, timestamp);
+  updateResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, villageId),
+    timestamp,
+  );
 
   database.exec({
     sql: deleteHeroEffectsQuery,
@@ -119,7 +123,9 @@ export const updateHeroResourceProductionEffects = ({
           SELECT id FROM effect_source_ids WHERE source = 'hero'
         )
         AND effects.source_specifier = 0
-        AND effects.village_id = $village_id;
+        AND effects.tile_id = (
+          SELECT tile_id FROM villages WHERE id = $village_id
+        );
     `,
     bind: {
       $effects: JSON.stringify(effects),
@@ -139,7 +145,7 @@ export const createHeroHealthRegenerationEventByVillageId = (
         heroes.health_regeneration AS healthRegeneration,
         servers.speed AS speed
       FROM heroes
-      JOIN servers ON 1 = 1
+      CROSS JOIN servers
       WHERE heroes.player_id = (
         SELECT player_id
         FROM villages
@@ -174,8 +180,16 @@ export const relocateHero = (
   targetVillageId: number,
   timestamp: number,
 ) => {
-  updateVillageResourcesAt(database, currentVillageId, timestamp);
-  updateVillageResourcesAt(database, targetVillageId, timestamp);
+  updateResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, currentVillageId),
+    timestamp,
+  );
+  updateResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, targetVillageId),
+    timestamp,
+  );
 
   database.exec({
     sql: updateHeroVillageByCurrentVillageQuery,

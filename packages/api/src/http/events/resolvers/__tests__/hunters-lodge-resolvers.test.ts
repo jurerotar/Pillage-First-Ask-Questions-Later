@@ -2,6 +2,10 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
+import {
+  reportOutcomeSchema,
+  reportTypeSchema,
+} from '@pillage-first/types/models/report';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { createEvents } from '../../../../utils/create-event';
 import { resolveEvent } from '../../resolve-event';
@@ -149,7 +153,7 @@ describe('hunters lodge resolvers', () => {
           effects e
             JOIN effect_ids ei ON ei.id = e.effect_id
         WHERE
-          e.village_id = $village_id
+          e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
@@ -208,7 +212,7 @@ describe('hunters lodge resolvers', () => {
           effects e
             JOIN effect_ids ei ON ei.id = e.effect_id
         WHERE
-          e.village_id = $village_id
+          e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'troops')
           AND ei.effect = 'wheatProduction';
       `,
@@ -244,10 +248,10 @@ describe('hunters lodge resolvers', () => {
       schema: z.strictObject({
         village_id: z.int(),
         timestamp: z.int(),
-        report_type: z.string(),
-        report_outcome: z.string(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
         village_tile_id: z.int(),
-        unit_id: z.string(),
+        unit_id: unitIdSchema,
         amount: z.int(),
       }),
     })!;
@@ -263,5 +267,23 @@ describe('hunters lodge resolvers', () => {
       unit_id: caughtAnimals[0].unitId,
       amount: 1,
     });
+
+    const completedCaptureQuestCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM quests
+        WHERE
+          village_id IS NULL
+          AND completed_at IS NOT NULL
+          AND quest_id IN (
+            'captureAnimalCountById-RAT-1',
+            'captureAnimalCountById-SPIDER-1',
+            'captureAnimalCountById-SERPENT-1'
+          );
+      `,
+      schema: z.number(),
+    });
+
+    expect(completedCaptureQuestCount).toBe(1);
   });
 });

@@ -12,10 +12,7 @@ import {
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
 import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
-import {
-  parseAppVersion,
-  parseDatabaseUserVersion,
-} from '@pillage-first/utils/version';
+import { isSupportedDatabaseUserVersion } from '@pillage-first/utils/version';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
@@ -82,18 +79,10 @@ export const openWorkerDatabase = async (
 
     const version = dbFacade.selectValue({
       sql: 'PRAGMA user_version',
-      schema: z.number().nullable(),
-    });
+      schema: z.number(),
+    })!;
 
-    // TODO: This check can be removed in a couple of weeks, since all newly-created game worlds will have user_version
-    if (!version) {
-      throw new OutdatedDatabaseSchemaError();
-    }
-
-    const [, dbMinor] = parseDatabaseUserVersion(version);
-    const [, appMinor] = parseAppVersion(env.VERSION);
-
-    if (dbMinor !== appMinor) {
+    if (!isSupportedDatabaseUserVersion(version, env.VERSION)) {
       throw new OutdatedDatabaseSchemaError();
     }
 

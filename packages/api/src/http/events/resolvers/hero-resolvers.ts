@@ -5,7 +5,7 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { insertHeroEffectsQuery } from '../../../queries/effect-queries';
 import { createEvents } from '../../../utils/create-event';
 import { addTroops } from '../../../utils/troops';
-import { updateVillageResourcesAt } from '../../../utils/village';
+import { updateResourceSiteResourcesAt } from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
@@ -24,7 +24,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
         servers.speed AS speed
       FROM heroes
       JOIN villages ON heroes.village_id = villages.id
-      JOIN servers ON 1 = 1
+      CROSS JOIN servers
       WHERE heroes.player_id = $player_id;
     `,
       bind: {
@@ -38,7 +38,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
       }),
     })!;
 
-  updateVillageResourcesAt(database, villageId, resolvesAt);
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 
   database.exec({
     sql: 'UPDATE heroes SET health = 100 WHERE player_id = $player_id;',
@@ -55,7 +55,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
       unitId: 'HERO',
       amount: 1,
       tileId: tileId,
-      source: tileId,
+      sourceTileId: tileId,
     },
   ]);
 
@@ -73,6 +73,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [tileId],
   };
 };
 
@@ -86,16 +87,18 @@ export const heroHealthRegenerationResolver: Resolver<
     bind: { $player_id: PLAYER_ID },
   });
 
-  const { health, healthRegeneration, speed, villageId } =
+  const { health, healthRegeneration, speed, tileId, villageId } =
     database.selectObject({
       sql: `
       SELECT
         heroes.health AS health,
+        villages.tile_id AS tileId,
         heroes.village_id AS villageId,
         heroes.health_regeneration AS healthRegeneration,
         servers.speed AS speed
       FROM heroes
-      JOIN servers ON 1 = 1
+      JOIN villages ON villages.id = heroes.village_id
+      CROSS JOIN servers
       WHERE heroes.player_id = $player_id;
     `,
       bind: {
@@ -103,6 +106,7 @@ export const heroHealthRegenerationResolver: Resolver<
       },
       schema: z.strictObject({
         health: z.number(),
+        tileId: z.number(),
         villageId: z.number(),
         healthRegeneration: z.number(),
         speed: z.number(),
@@ -113,6 +117,7 @@ export const heroHealthRegenerationResolver: Resolver<
   if (health === 100) {
     return {
       affectedVillageIds: [villageId],
+      affectedTileIds: [tileId],
     };
   }
 
@@ -130,5 +135,6 @@ export const heroHealthRegenerationResolver: Resolver<
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [tileId],
   };
 };

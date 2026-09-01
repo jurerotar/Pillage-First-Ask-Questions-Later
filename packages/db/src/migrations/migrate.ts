@@ -6,12 +6,12 @@ import createEffectsIndexes from '../indexes/effects-indexes.sql?raw';
 import createOasisBonusesIndexes from '../indexes/oasis-indexes.sql?raw';
 import createPlayersIndexes from '../indexes/players-indexes.sql?raw';
 import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
-import createResourceSitesIndexes from '../indexes/resource-sites-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
 import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
+import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
@@ -96,7 +96,6 @@ import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
 import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expeditions-seeder';
-import { guaranteedCroppersSeeder } from '../seeders/guaranteed-croppers-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
 import { mapFiltersSeeder } from '../seeders/map-filters-seeder';
@@ -234,7 +233,6 @@ export const migrateAndSeed = (
     // Villages
     db.exec({ sql: createVillagesTable });
     villageSeeder(db, server);
-    occupiedOasisSeeder(db, server);
 
     // Gatherers Hut expeditions
     db.exec({ sql: createGatherersHutExpeditionsTable });
@@ -261,17 +259,20 @@ export const migrateAndSeed = (
     db.exec({ sql: createHuntingPartyReportUnitsTable });
     db.exec({ sql: createGatheringExpeditionReportsTable });
     db.exec({ sql: createGatheringExpeditionReportUnitsTable });
+    db.exec({ sql: createReportTagsTable });
+    db.exec({ sql: createBattleReportsTable });
+    db.exec({ sql: createBattleReportBuildingsTable });
+    db.exec({ sql: createBattleReportParticipantsTable });
+    db.exec({ sql: createBattleReportUnitsTable });
     db.exec({ sql: createScoutingReportsTable });
     db.exec({ sql: createScoutingReportAttackerUnitsTable });
     db.exec({ sql: createScoutingReportUnitsTable });
     db.exec({ sql: createScoutingReportStructuresTable });
+
+    db.exec({ sql: createReportsIndexes });
+
     db.exec({ sql: createReportDeleteTriggers });
     db.exec({ sql: createReportRetentionTriggers });
-    db.exec({ sql: createReportTagsTable });
-
-    db.exec({ sql: createBattleReportsTable });
-    db.exec({ sql: createBattleReportParticipantsTable });
-    db.exec({ sql: createBattleReportUnitsTable });
 
     // Heroes
     db.exec({ sql: createHeroesTable });
@@ -292,9 +293,6 @@ export const migrateAndSeed = (
     // Hero inventories
     db.exec({ sql: createHeroInventoriesTable });
 
-    // Guaranteed croppers
-    guaranteedCroppersSeeder(db, server);
-
     // Farm lists
     db.exec({ sql: createFarmListsTable });
     db.exec({ sql: createFarmListTilesTable });
@@ -302,6 +300,7 @@ export const migrateAndSeed = (
     // Building fields
     db.exec({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
+    occupiedOasisSeeder(db, server);
     db.exec({ sql: createBuildingFieldsIndexes });
 
     // Trapper cages
@@ -326,13 +325,11 @@ export const migrateAndSeed = (
     // Resource sites
     db.exec({ sql: createResourceSitesTable });
     resourceSitesSeeder(db, server);
-    db.exec({ sql: createResourceSitesIndexes });
 
     // World items
     db.exec({ sql: createWorldItemsTable });
     worldItemsSeeder(db, server);
     db.exec({ sql: createWorldItemsIndexes });
-    db.exec({ sql: createReportsIndexes });
 
     // Unit research
     db.exec({ sql: createUnitResearchTable });

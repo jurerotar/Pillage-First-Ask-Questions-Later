@@ -3,7 +3,7 @@ import type {
   VillageBuildingEffect,
   VillageEffect,
 } from '@pillage-first/types/models/effect';
-import type { Village } from '@pillage-first/types/models/village';
+import type { Tile } from '@pillage-first/types/models/tile';
 import {
   isAdditiveBonusEffect,
   isMultiplicativeBonusEffect,
@@ -90,7 +90,7 @@ type GetEffectBreakdownReturn = {
 export const getEffectBreakdown = (
   effectId: Effect['id'],
   effects: Effect[],
-  currentVillageId: Village['id'],
+  currentTileId: Tile['id'],
 ): GetEffectBreakdownReturn => {
   let serverEffectValue = 1;
 
@@ -132,7 +132,7 @@ export const getEffectBreakdown = (
     const shouldEffectApplyToCurrentVillage =
       effect.scope === 'global' ||
       effect.scope === 'server' ||
-      (effect as VillageEffect).villageId === currentVillageId;
+      (effect as VillageEffect).tileId === currentTileId;
 
     if (!shouldEffectApplyToCurrentVillage) {
       continue;
@@ -211,25 +211,21 @@ export type WheatProductionEffectReturn = ComputedEffectReturn & {
 export function calculateComputedEffect(
   effectId: 'wheatProduction',
   effects: Effect[],
-  currentVillageId: Village['id'],
+  currentTileId: Tile['id'],
 ): WheatProductionEffectReturn;
 
 export function calculateComputedEffect(
   effectId: Effect['id'],
   effects: Effect[],
-  currentVillageId: Village['id'],
+  currentTileId: Tile['id'],
 ): ComputedEffectReturn;
 
 export function calculateComputedEffect(
   effectId: Effect['id'],
   effects: Effect[],
-  currentVillageId: Village['id'],
+  currentTileId: Tile['id'],
 ): ComputedEffectReturn | WheatProductionEffectReturn {
-  const effectBreakdown = getEffectBreakdown(
-    effectId,
-    effects,
-    currentVillageId,
-  );
+  const effectBreakdown = getEffectBreakdown(effectId, effects, currentTileId);
 
   const {
     serverEffectValue,
@@ -380,7 +376,7 @@ export function calculateComputedEffect(
     const unitWheatConsumptionBreakdown = getEffectBreakdown(
       'unitWheatConsumption',
       effects,
-      currentVillageId,
+      currentTileId,
     );
 
     const total =

@@ -224,6 +224,7 @@ export const selectBattleReportQuery = `
     CASE WHEN bp.tile_id NOT IN (b.origin_tile_id, b.target_tile_id) THEN 1 ELSE 0 END AS participant_is_reinforcement,
     COALESCE(participant_p.name, oasis_p.name, 'Nature') AS participant_player_name,
     COALESCE(participant_p.slug, oasis_p.slug) AS participant_player_slug,
+    participant_v.id AS participant_village_id,
     CASE
       WHEN participant_v.id IS NOT NULL THEN participant_v.name
       WHEN participant_o.village_id IS NOT NULL THEN 'Occupied oasis'
@@ -233,7 +234,9 @@ export const selectBattleReportQuery = `
     participant_t.y AS participant_y,
     participant_ui.unit AS participant_unit_id,
     bru.amount_before AS participant_amount_before,
-    bru.amount_after AS participant_amount_after
+    bru.amount_after AS participant_amount_after,
+    bru.amount_hospitalized AS participant_amount_hospitalized,
+    bru.amount_imprisoned AS participant_amount_imprisoned
   FROM report r
   JOIN battle_reports b ON b.report_id = r.id
   JOIN tiles origin_t ON origin_t.id = b.origin_tile_id
@@ -256,6 +259,16 @@ export const selectBattleReportQuery = `
   LEFT JOIN battle_report_units bru ON bru.battle_participant_id = bp.id
   LEFT JOIN unit_ids participant_ui ON participant_ui.id = bru.unit_id
   ;
+`;
+
+export const selectBattleReportDamagedBuildingsQuery = `
+  SELECT
+    bi.building AS buildingId,
+    brb.level_before AS levelBefore,
+    brb.level_after AS levelAfter
+  FROM battle_report_buildings brb
+  JOIN building_ids bi ON bi.id = brb.building_id
+  WHERE brb.report_id = $report_id;
 `;
 
 export const selectAdventureReportQuery = `

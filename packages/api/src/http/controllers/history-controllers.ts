@@ -7,6 +7,7 @@ import {
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   selectBuildingLevelChangeHistoryQuery,
+  selectEventsHistoryQuery,
   selectUnitTrainingHistoryQuery,
 } from '../../queries/history-queries';
 import { createController } from '../controller';
@@ -116,126 +117,12 @@ export const getEventsHistory = createController(
   const scope = searchParams.get('scope') ?? 'village';
   const types = searchParams.getAll('types');
 
-  const villageFilter =
-    scope === 'village'
-      ? 'WHERE village_id = $village_id'
-      : 'WHERE village_id IN (SELECT id FROM villages WHERE player_id = (SELECT player_id FROM villages WHERE id = $village_id))';
-
-  const queries = [];
-
-  if (types.length === 0 || types.includes('construction')) {
-    queries.push(`
-      SELECT
-        'construction-' || id AS id,
-        village_id AS villageId,
-        'construction' AS type,
-        timestamp,
-        json_object(
-          'fieldId', field_id,
-          'building', (SELECT building FROM building_ids WHERE id = building_id),
-          'status', 'completed',
-          'previousLevel', previous_level,
-          'newLevel', new_level
-        ) AS data
-      FROM building_level_change_history
-      ${villageFilter}
-    `);
-
-    queries.push(`
-      SELECT
-        'construction-cancellation-' || id AS id,
-        village_id AS villageId,
-        'construction' AS type,
-        timestamp,
-        json_object(
-          'fieldId', field_id,
-          'building', (SELECT building FROM building_ids WHERE id = building_id),
-          'status', 'cancelled',
-          'level', level
-        ) AS data
-      FROM scheduled_building_construction_cancellation_history
-      ${villageFilter}
-    `);
-  }
-
-  if (types.length === 0 || types.includes('training')) {
-    queries.push(`
-      SELECT
-        'training-' || id AS id,
-        village_id AS villageId,
-        'training' AS type,
-        timestamp,
-        json_object(
-          'batchId', batch_id,
-          'unit', (SELECT unit FROM unit_ids WHERE id = unit_id),
-          'building', (SELECT building FROM building_ids WHERE id = building_id),
-          'amount', amount
-        ) AS data
-      FROM unit_training_history
-      ${villageFilter}
-    `);
-  }
-
-  if (types.length === 0 || types.includes('improvement')) {
-    queries.push(`
-      SELECT
-        'improvement-' || id AS id,
-        (SELECT id FROM villages WHERE player_id = unit_improvement_history.player_id LIMIT 1) AS villageId,
-        'improvement' AS type,
-        timestamp,
-        json_object(
-          'unit', (SELECT unit FROM unit_ids WHERE id = unit_id),
-          'previousLevel', previous_level,
-          'newLevel', new_level
-        ) AS data
-      FROM unit_improvement_history
-      WHERE player_id = (SELECT player_id FROM villages WHERE id = $village_id)
-    `);
-  }
-
-  if (types.length === 0 || types.includes('research')) {
-    queries.push(`
-      SELECT
-        'research-' || id AS id,
-        village_id AS villageId,
-        'research' AS type,
-        timestamp,
-        json_object(
-          'unit', (SELECT unit FROM unit_ids WHERE id = unit_id)
-        ) AS data
-      FROM unit_research_history
-      ${villageFilter}
-    `);
-  }
-
-  if (types.length === 0 || types.includes('founding')) {
-    queries.push(`
-      SELECT
-        'founding-' || id AS id,
-        village_id AS villageId,
-        'founding' AS type,
-        timestamp,
-        json_object(
-          'tileId', tile_id,
-          'x', x,
-          'y', y
-        ) AS data
-      FROM village_founding_history
-      ${villageFilter}
-    `);
-  }
-
-  const sql = `
-    SELECT * FROM (
-      ${queries.join(' UNION ALL ')}
-    )
-    ORDER BY timestamp DESC
-  `;
-
   return database.selectObjects({
-    sql,
+    sql: selectEventsHistoryQuery,
     bind: {
       $village_id: villageId,
+      $scope: scope,
+      $types: JSON.stringify(types),
     },
     schema: getEventsHistorySchema,
   });

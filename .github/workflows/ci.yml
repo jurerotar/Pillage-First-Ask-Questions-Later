@@ -37,6 +37,9 @@ jobs:
       - name: Setup environment (node + install)
         uses: ./.github/actions/node-setup
 
+      - name: Generate API route types
+        run: npm run generate-api-route-types
+
       - name: Run type check
         run: npx turbo run type-check
 

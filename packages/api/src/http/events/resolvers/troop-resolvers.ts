@@ -1,7 +1,10 @@
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { updateVillageWheatProductionByTroopsAndVillageIdEffectQuery } from '../../../queries/effect-queries';
-import { updateVillageResourcesAt } from '../../../utils/village';
+import { updateWheatProductionByTroopsAndTileIdEffectQuery } from '../../../queries/effect-queries';
+import {
+  getVillageTileId,
+  updateResourceSiteResourcesAt,
+} from '../../../utils/village';
 import type { Resolver } from '../resolver';
 
 export const troopTrainingEventResolver: Resolver<
@@ -9,53 +12,47 @@ export const troopTrainingEventResolver: Resolver<
 > = (database, args) => {
   const { unitId, villageId, resolvesAt } = args;
   const amount = 1;
+  const tileId = getVillageTileId(database, villageId);
 
   database.exec({
     sql: `
-      WITH
-        v AS (
-          SELECT tile_id
-          FROM
-            villages
-          WHERE
-            id = $village_id
-          )
       INSERT
       INTO
         troops (unit_id, amount, tile_id, source_tile_id)
-      SELECT (
-        SELECT id
-        FROM unit_ids
-        WHERE unit = $unit_id
-        ), $amount, v.tile_id, v.tile_id
-      FROM
-        v
-      WHERE
-        TRUE ON CONFLICT(unit_id, tile_id, source_tile_id)
-        DO
-      UPDATE SET
+      VALUES (
+        (
+          SELECT id
+          FROM unit_ids
+          WHERE unit = $unit_id
+        ),
+        $amount,
+        $tile_id,
+        $tile_id
+      )
+      ON CONFLICT(unit_id, tile_id, source_tile_id) DO UPDATE SET
         amount = amount + excluded.amount;
     `,
     bind: {
       $unit_id: unitId,
       $amount: amount,
-      $village_id: villageId,
+      $tile_id: tileId,
     },
   });
 
   const { unitWheatConsumption } = getUnitDefinition(unitId);
 
   database.exec({
-    sql: updateVillageWheatProductionByTroopsAndVillageIdEffectQuery,
+    sql: updateWheatProductionByTroopsAndTileIdEffectQuery,
     bind: {
       $increase_amount: unitWheatConsumption,
-      $village_id: villageId,
+      $tile_id: tileId,
     },
   });
 
-  updateVillageResourcesAt(database, villageId, resolvesAt);
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],
+    affectedTileIds: [tileId],
   };
 };

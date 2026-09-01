@@ -147,10 +147,13 @@ export const RelocateTroopsModal = (props: RelocateTroopsModalProps) => {
         <TroopSelectionForm
           form={form}
           onSubmit={onSubmit}
-          maxUnits={maxUnits}
-          formClassName="space-y-4"
-          isSubmitDisabled={!hasSelectedTroops}
-          onCancel={onClose}
+          units={{
+            maxUnits,
+          }}
+          footer={{
+            isSubmitDisabled: !hasSelectedTroops,
+            onCancel: onClose,
+          }}
         />
       </DialogContent>
     </Dialog>

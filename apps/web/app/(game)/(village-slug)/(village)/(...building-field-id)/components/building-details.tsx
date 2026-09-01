@@ -18,13 +18,6 @@ import {
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from 'app/components/ui/breadcrumb';
 import { Skeleton } from 'app/components/ui/skeleton';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 import { lazyWithRetry } from 'app/utils/imports';
@@ -46,6 +39,14 @@ const BuildingTabFallback = () => {
 const BuildingStats = lazyWithRetry(async () => ({
   default: (await import('./components/building-stats/building-stats'))
     .BuildingStats,
+}));
+
+const ResourceProductionOverview = lazyWithRetry(async () => ({
+  default: (
+    await import(
+      './components/resource-production/resource-production-overview'
+    )
+  ).ResourceProductionOverview,
 }));
 
 const MainBuildingVillageManagement = lazyWithRetry(async () => ({
@@ -163,6 +164,11 @@ const SmithyUnitImprovement = lazyWithRetry(async () => ({
     .SmithyUnitImprovement,
 }));
 
+const SmithyUnitUpgradeTable = lazyWithRetry(async () => ({
+  default: (await import('./components/smithy/smithy-unit-upgrade-table'))
+    .SmithyUnitUpgradeTable,
+}));
+
 const HerosMansionOasis = lazyWithRetry(async () => ({
   default: (await import('./components/heros-mansion/heros-mansion-oasis'))
     .HerosMansionOasis,
@@ -198,10 +204,26 @@ const unitTrainingTabs = new Map<
   LazyExoticComponent<() => JSX.Element>
 >([['train', UnitTraining]]);
 
+const resourceProductionTabs = new Map<
+  string,
+  LazyExoticComponent<() => JSX.Element>
+>([['production-overview', ResourceProductionOverview]]);
+
+const resourceProductionBuildingIds = new Set<Building['id']>([
+  'WOODCUTTER',
+  'CLAY_PIT',
+  'IRON_MINE',
+  'WHEAT_FIELD',
+]);
+
 const buildingDetailsTabMap = new Map<
   Building['id'],
   Map<string, LazyExoticComponent<() => JSX.Element>>
 >([
+  ['WOODCUTTER', resourceProductionTabs],
+  ['CLAY_PIT', resourceProductionTabs],
+  ['IRON_MINE', resourceProductionTabs],
+  ['WHEAT_FIELD', resourceProductionTabs],
   [
     'MAIN_BUILDING',
     new Map([['village-management', MainBuildingVillageManagement]]),
@@ -241,7 +263,13 @@ const buildingDetailsTabMap = new Map<
     ]),
   ],
   ['ACADEMY', new Map([['unit-research', AcademyUnitResearch]])],
-  ['SMITHY', new Map([['unit-improvement', SmithyUnitImprovement]])],
+  [
+    'SMITHY',
+    new Map([
+      ['unit-improvement', SmithyUnitImprovement],
+      ['unit-upgrade-table', SmithyUnitUpgradeTable],
+    ]),
+  ],
   ['RESIDENCE', residenceTabs],
   ['COMMAND_CENTER', residenceTabs],
   ['HEROS_MANSION', new Map([['oasis', HerosMansionOasis]])],
@@ -271,6 +299,7 @@ const buildingDetailsTabMap = new Map<
 // t('trade-routes')
 // t('unit-research')
 // t('unit-improvement')
+// t('unit-upgrade-table')
 // t('oasis')
 // t('celebration')
 // t('celebrations')
@@ -281,19 +310,22 @@ const buildingDetailsTabMap = new Map<
 // t('gathering-expedition')
 // t('cages')
 // t('heal')
+// t('production-overview')
 
 export const BuildingDetails = () => {
   const { t } = useTranslation();
-  const { buildingField, buildingFieldId, actualLevel } =
-    use(BuildingFieldContext);
+  const { buildingField, actualLevel } = use(BuildingFieldContext);
 
   const { buildingId } = buildingField!;
 
+  const shouldShowBuildingSpecificTabs =
+    actualLevel !== 0 || resourceProductionBuildingIds.has(buildingId);
+
   const tabs = [
     'default',
-    ...(actualLevel === 0
-      ? []
-      : (buildingDetailsTabMap.get(buildingId)?.keys() ?? [])),
+    ...(shouldShowBuildingSpecificTabs
+      ? (buildingDetailsTabMap.get(buildingId)?.keys() ?? [])
+      : []),
     'upgrade-cost',
   ];
 
@@ -303,21 +335,8 @@ export const BuildingDetails = () => {
 
   const { tabIndex, navigateToTab } = useTabParam(tabs);
 
-  const backlinkTarget = buildingFieldId > 18 ? '../village' : '../resources';
-
   return (
     <>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink to={backlinkTarget}>
-              {buildingFieldId > 18 ? t('Village') : t('Resources')}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>{t(`BUILDINGS.${buildingId}.NAME`)}</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
       <InformationPopover
         ariaLabel={t('Building details')}
         className="top-2 right-2"

@@ -39,12 +39,58 @@ export const selectPlayerVillagesWithPopulationQuery = `
     v.name,
     v.slug,
     rfc.resource_field_composition AS resource_field_composition,
-    COALESCE(SUM(CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END), 0) AS population
+    COALESCE(SUM(CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END), 0) AS population,
+    COALESCE(
+      (
+        SELECT JSON_GROUP_ARRAY(
+          JSON_OBJECT(
+            'id',
+            oasis_data.tile_id,
+            'coordinates',
+            JSON_OBJECT(
+              'x',
+              oasis_data.coordinates_x,
+              'y',
+              oasis_data.coordinates_y
+            ),
+            'bonuses',
+            JSON(oasis_data.bonuses_json)
+          )
+        )
+        FROM (
+          SELECT
+            o.tile_id,
+            ot.x AS coordinates_x,
+            ot.y AS coordinates_y,
+            JSON_GROUP_ARRAY(
+              JSON_OBJECT(
+                'resource',
+                ri.resource,
+                'bonus',
+                o.bonus
+              )
+            ) AS bonuses_json
+          FROM
+            oasis o
+              JOIN tiles ot ON ot.id = o.tile_id
+              JOIN resource_ids ri ON ri.id = o.resource_id
+          WHERE
+            o.village_id = v.id
+          GROUP BY
+            o.tile_id,
+            ot.x,
+            ot.y
+          ORDER BY
+            o.tile_id
+        ) oasis_data
+      ),
+      '[]'
+    ) AS occupied_oasis_json
   FROM
     villages v
       JOIN tiles t ON t.id = v.tile_id
       LEFT JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
-      LEFT JOIN effects e ON e.village_id = v.id
+      LEFT JOIN effects e ON e.tile_id = v.tile_id
         AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
         AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
         AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')

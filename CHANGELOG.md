@@ -1,3 +1,105 @@
+## Version 0.4.62
+
+#### Sep 1, 2026
+
+* [Feature] Added Hunter's Lodge quests for capturing animals.
+* [Feature] Added Gatherer's Hut quests for total resources gathered through gathering expeditions.
+
+## Version 0.4.61
+
+#### Aug 31, 2026
+
+* [UIUXImprovement] Made the mobile village header collapsible, allowing resource details to be hidden when you need
+  more space for the current view. You can collapse or expand the header by clicking on it. Since clicking on the header
+  previously took you to Production Overview, we have now moved it to resource production building tabs.
+
+## Version 0.4.60
+
+#### Aug 29, 2026
+
+* [Feature] Smithy's upgrade tables were moved to a new Unit upgrade table tab. This tab displays level, upgrade cost,
+  upgrade duration and attributes tables.
+* [UIUXImprovement] Restyled tabs across the app with a cleaner segmented appearance and added a "More" popover for tabs
+  that do not fit in the available space.
+
+## Version 0.4.59
+
+#### Aug 27, 2026
+
+* [UIUXImprovement] Highlighted missing resources in cost displays.
+* [UIUXImprovement] Removed breadcrumbs to reduce UI bloat.
+* [BugFix] Fixed horizontally scrollable tables hijacking clicks on buttons and links.
+* [BugFix] Fixed resource availability estimates showing a ready time when resource production is negative or a missing
+  resource cannot grow.
+* [BugFix] Fixed mobile touch interactions causing hero resource production dropdowns to close immediately, village
+  building fields to queue upgrades while scrolling, and long-pressed building fields to sometimes queue duplicate
+  upgrades.
+
+## Version 0.4.58
+
+#### Aug 23, 2026
+
+* [UIUXImprovement] Player pages now show occupied oasis in the village list.
+* [BugFix] Fixed NPC oasis occupation seeding so villages occupy oasis based on their Hero's Mansion level, allowing
+  villages with sufficient Hero's Mansion levels to occupy multiple oasis.
+* [Performance] Updated database indexes to improve query performance.
+
+## Version 0.4.57
+
+#### Aug 21, 2026
+
+* [BugFix] Fixed an issue where some already scheduled troop return movements could fail to resolve.
+* [UIUXImprovement] Reworked map filters into an expandable control to reduce UI clutter.
+
+## Version 0.4.56
+
+#### Aug 21, 2026
+
+* [BugFix] Fixed an issue where scheduled building construction would allow resource fields to be queued even when
+  warehouse or granary capacity was too low to ever afford the upgrade.
+* [BugFix] Fixed an issue where troop list wasn't showing up.
+
+## Version 0.4.55
+
+#### Aug 20, 2026
+
+* [Feature] As part of preparatory work for attacks and raids, added a resource replenishment functionality to oasis.
+* [UIUXImprovement] Added a splash screen while the game is loading.
+* [UIUXImprovement] Preferences cleanup. Only usable preference settings are now visible.
+* [Performance] Optimized villages seeder, reducing its execution time by ~ 60%.
+* [Performance] Optimized effects seeder, reducing its execution time by ~ 50%.
+* [Performance] Removed guaranteed croppers seeder by reimplementing its functionality as part of tiles generation. This
+  reduced game world creation time by ~ 15%.
+* [Performance] Removed unnecessary database indexes.
+* [Performance] Dropped support for migrating older game worlds. Only last 20 minor versions are now supported. This
+  allows us to spend less time worrying about migrating older game worlds while in development.
+* [TechnicalImprovement] Reworked database schema. New schema simplifies how resource replenishment is handled much
+  easier with fewer exceptions.
+
+## Version 0.4.54
+
+#### Aug 20, 2026
+
+* [Feature] Smithy received a small update. It will now show a unit upgrade duration table, allowing you to more easily
+  plan unit upgrades.
+* [BugFix] Rebalanced Smithy unit upgrade duration. Unit upgrades should now be much faster.
+* [UIUXImprovement] Horizontally overflowing tables are now scrollable with mouse.
+
+## Version 0.4.53
+
+#### Aug 16, 2026
+
+* [Feature] Battle reports will now display a row for hospitalized and imprisoned troops.
+* [Feature] Battle reports will now include a sum of losses, imprisoned and hospitalized troops.
+* [Feature] Battle reports will now include a list of damaged buildings.
+* [Feature] Preparatory work for attacks and raids. When attacking with only scouts, confirmation modal will now display
+  scouting target. When your attack includes catapults, you'll now have the option of selecting targets. When attacking
+  an unoccupied oasis with a hero and your hero has cages equipped, you'll now have the option of selecting either a
+  battle or capture mode.
+* [UIUXImprovement] For PWA-installations, toast notifications will now no longer render out of bounds, and construction
+  list & troop list will no longer render with incorrect bottom offset.
+* [TechnicalImprovement] Large cleanup of the backend to improve type safety and remove redundant code branches.
+
 ## Version 0.4.52
 
 #### Aug 6, 2026

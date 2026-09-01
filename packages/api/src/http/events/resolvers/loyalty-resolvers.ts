@@ -23,6 +23,19 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
     schema: z.number(),
   });
 
+  const affectedTileIds = database.selectValues({
+    sql: `
+      SELECT DISTINCT l.tile_id
+      FROM
+        loyalties l
+          JOIN villages v ON v.tile_id = l.tile_id
+      WHERE
+        v.player_id = $player_id;
+    `,
+    bind: { $player_id: PLAYER_ID },
+    schema: z.number(),
+  });
+
   database.exec({
     sql: `
       UPDATE loyalties
@@ -63,5 +76,6 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
 
   return {
     affectedVillageIds: affectedIds,
+    affectedTileIds,
   };
 };

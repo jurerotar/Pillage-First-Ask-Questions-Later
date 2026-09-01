@@ -1,8 +1,17 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
+import {
+  assessCaptureAnimalKindCountQuestCompletion,
+  assessGatheredResourceCountQuestCompletion,
+} from '../../../../utils/quests';
+import {
+  insertGatheringExpeditionReport,
+  insertHuntingPartyReport,
+} from '../../../../utils/report';
 import { buildingLevelChangeResolver } from '../building-resolvers';
 
 describe('quest completion on building level up', () => {
@@ -135,5 +144,92 @@ describe('quest completion on building level up', () => {
     })!;
     expect(finalQuest).not.toBe(null);
     expect(finalQuest).toBe(2500);
+  });
+
+  test('should complete one-of-each animal quest when every catchable animal was captured', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const timestamp = 3000;
+    const villageTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+      bind: { $village_id: villageId },
+      schema: z.number(),
+    })!;
+
+    for (const unitId of getHunterLodgeCatchableAnimals(5)) {
+      insertHuntingPartyReport(database, {
+        villageId,
+        timestamp,
+        villageTileId,
+        unitId,
+        amount: 1,
+      });
+    }
+
+    assessCaptureAnimalKindCountQuestCompletion(database, timestamp);
+
+    const completedQuest = database.selectValue({
+      sql: `
+        SELECT completed_at
+        FROM quests
+        WHERE
+          village_id IS NULL
+          AND quest_id = $quest_id;
+      `,
+      bind: {
+        $quest_id: `captureAnimalKindCount-${getHunterLodgeCatchableAnimals(5).length}`,
+      },
+      schema: z.number().nullable(),
+    });
+
+    expect(completedQuest).toBe(timestamp);
+  });
+
+  test('should complete gathered resource quest from total gathered loot', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const timestamp = 4000;
+    const village = database.selectObject({
+      sql: `
+        SELECT v.tile_id, p.tribe_id
+        FROM villages v
+        JOIN players p ON p.id = v.player_id
+        WHERE v.id = $village_id;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        tile_id: z.number(),
+        tribe_id: z.number(),
+      }),
+    })!;
+
+    insertGatheringExpeditionReport(database, {
+      villageId,
+      timestamp,
+      villageTileId: village.tile_id,
+      tribeId: village.tribe_id,
+      loot: [25, 25, 25, 25],
+      units: [
+        {
+          unitId: 'PHALANX',
+          amount: 25,
+        },
+      ],
+    });
+
+    assessGatheredResourceCountQuestCompletion(database, timestamp);
+
+    const completedQuest = database.selectValue({
+      sql: `
+        SELECT completed_at
+        FROM quests
+        WHERE
+          village_id IS NULL
+          AND quest_id = 'gatheredResourceCount-100';
+      `,
+      schema: z.number().nullable(),
+    });
+
+    expect(completedQuest).toBe(timestamp);
   });
 });

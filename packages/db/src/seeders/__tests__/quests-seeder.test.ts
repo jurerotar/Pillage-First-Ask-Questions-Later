@@ -32,7 +32,26 @@ describe('questsSeeder', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('global quests include queuedTroopCount, adventureCount, killCount, unitKillCount', () => {
+  test("hunter's lodge and gatherer's hut quests are only global", () => {
+    const villageQuestCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM
+          quests
+        WHERE
+          village_id IS NOT NULL
+          AND (
+            quest_id LIKE '%-HUNTERS_LODGE-%'
+            OR quest_id LIKE '%-GATHERERS_HUT-%'
+          );
+      `,
+      schema: z.number(),
+    });
+
+    expect(villageQuestCount).toBe(0);
+  });
+
+  test('global quests include queuedTroopCount, adventureCount, killCount, unitKillCount, hunting and gathering', () => {
     const queuedTroopCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -84,6 +103,45 @@ describe('questsSeeder', () => {
       schema: z.number(),
     });
     expect(unitKillCount).toBeGreaterThan(0);
+
+    const captureAnimalCountById = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM
+          quests
+        WHERE
+          village_id IS NULL
+          AND quest_id LIKE 'captureAnimalCountById-%';
+      `,
+      schema: z.number(),
+    });
+    expect(captureAnimalCountById).toBeGreaterThan(0);
+
+    const captureAnimalKindCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM
+          quests
+        WHERE
+          village_id IS NULL
+          AND quest_id LIKE 'captureAnimalKindCount-%';
+      `,
+      schema: z.number(),
+    });
+    expect(captureAnimalKindCount).toBeGreaterThan(0);
+
+    const gatheredResourceCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM
+          quests
+        WHERE
+          village_id IS NULL
+          AND quest_id LIKE 'gatheredResourceCount-%';
+      `,
+      schema: z.number(),
+    });
+    expect(gatheredResourceCount).toBeGreaterThan(0);
   });
 
   test('queuedTroopCountById quests exist and only for the player tribe units', () => {

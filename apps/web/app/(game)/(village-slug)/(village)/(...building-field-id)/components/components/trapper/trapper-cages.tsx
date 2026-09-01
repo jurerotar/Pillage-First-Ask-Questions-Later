@@ -9,6 +9,7 @@ import { calculateMaxUnits } from '@pillage-first/game-assets/utils/units';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
+  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
@@ -47,7 +48,7 @@ const TrapperCageProductionQueue = () => {
   const { eventsByType } = useEventsByType('trapperCageProduction');
 
   return (
-    <div className="scrollbar-hidden overflow-x-scroll">
+    <OverflowContainer>
       <Table>
         <TableHeader>
           <TableRow>
@@ -84,7 +85,7 @@ const TrapperCageProductionQueue = () => {
           )}
         </TableBody>
       </Table>
-    </div>
+    </OverflowContainer>
   );
 };
 
@@ -216,7 +217,10 @@ export const TrapperCages = () => {
             <section className="flex flex-col gap-2">
               <Text as="h3">{t('Cost and production duration')}</Text>
               <div className="flex gap-2 items-start justify-start flex-wrap">
-                <Resources resources={individualCageCost} />
+                <Resources
+                  availableResources={currentResources}
+                  resources={individualCageCost}
+                />
                 <div className="flex gap-1 items-center">
                   <Icon
                     className="size-5"
@@ -229,7 +233,10 @@ export const TrapperCages = () => {
             <section className="pt-2 flex flex-col gap-2 border-t border-border">
               <Text as="h3">{t('Build cages')}</Text>
               <div className="flex items-start gap-2 justify-start flex-wrap">
-                <Resources resources={totalCost} />
+                <Resources
+                  availableResources={currentResources}
+                  resources={totalCost}
+                />
                 <div className="flex gap-1 items-center">
                   <Icon
                     className="size-5"
