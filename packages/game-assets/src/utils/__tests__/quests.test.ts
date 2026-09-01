@@ -30,6 +30,34 @@ describe('quest utils', () => {
       });
     });
 
+    test('captureAnimalCountById requirement parsed correctly', () => {
+      const reqs = getQuestRequirements('captureAnimalCountById-RAT-5');
+      expect(reqs).toHaveLength(1);
+      expect(reqs[0]).toStrictEqual({
+        type: 'capture-animal-count-by-id',
+        unitId: 'RAT',
+        count: 5,
+      });
+    });
+
+    test('captureAnimalKindCount requirement parsed correctly', () => {
+      const reqs = getQuestRequirements('captureAnimalKindCount-10');
+      expect(reqs).toHaveLength(1);
+      expect(reqs[0]).toStrictEqual({
+        type: 'capture-animal-kind-count',
+        count: 10,
+      });
+    });
+
+    test('gatheredResourceCount requirement parsed correctly', () => {
+      const reqs = getQuestRequirements('gatheredResourceCount-100');
+      expect(reqs).toHaveLength(1);
+      expect(reqs[0]).toStrictEqual({
+        type: 'gathered-resource-count',
+        count: 100,
+      });
+    });
+
     test('building requirement parsed correctly (oneOf)', () => {
       const reqs = getQuestRequirements('oneOf-WOODCUTTER-4');
       expect(reqs).toHaveLength(1);
@@ -78,6 +106,33 @@ describe('quest utils', () => {
       expect(rewards[0]).toStrictEqual({
         type: 'hero-exp',
         amount: 4 * 10,
+      });
+    });
+
+    test('captureAnimalCountById rewards produce hero-exp = count * 10', () => {
+      const rewards = getQuestRewards('captureAnimalCountById-RAT-5');
+      expect(rewards).toHaveLength(1);
+      expect(rewards[0]).toStrictEqual({
+        type: 'hero-exp',
+        amount: 5 * 10,
+      });
+    });
+
+    test('captureAnimalKindCount rewards produce hero-exp = count * 10', () => {
+      const rewards = getQuestRewards('captureAnimalKindCount-10');
+      expect(rewards).toHaveLength(1);
+      expect(rewards[0]).toStrictEqual({
+        type: 'hero-exp',
+        amount: 10 * 10,
+      });
+    });
+
+    test('gatheredResourceCount rewards produce scaled hero-exp', () => {
+      const rewards = getQuestRewards('gatheredResourceCount-500');
+      expect(rewards).toHaveLength(1);
+      expect(rewards[0]).toStrictEqual({
+        type: 'hero-exp',
+        amount: 5,
       });
     });
 

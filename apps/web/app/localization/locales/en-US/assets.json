@@ -879,6 +879,21 @@
       "DESCRIPTION": "Defeat a total of {{count}} enemy {{asset}} in battle.",
       "GROUP": "Defeat units"
     },
+    "CAPTURE-ANIMAL-COUNT-BY-ID": {
+      "NAME": "Capture {{count}} {{asset}}",
+      "DESCRIPTION": "Capture a total of {{count}} {{asset}} with the Hunter's Lodge.",
+      "GROUP": "Capture animals"
+    },
+    "CAPTURE-ANIMAL-KIND-COUNT": {
+      "NAME": "Capture one of each animal",
+      "DESCRIPTION": "Capture at least one of every animal type with the Hunter's Lodge.",
+      "GROUP": "Capture animals"
+    },
+    "GATHERED-RESOURCE-COUNT": {
+      "NAME": "Gather {{count}} resources",
+      "DESCRIPTION": "Gather a total of {{count}} resources with Gatherer's Hut expeditions.",
+      "GROUP": "Gather resources"
+    },
     "ONE-OF": {
       "NAME": "{{asset}} to level {{count}}",
       "DESCRIPTION": "Upgrade the {{asset}} to level {{count}}.",

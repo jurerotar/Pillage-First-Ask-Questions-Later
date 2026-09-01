@@ -1,3 +1,10 @@
+## Version 0.4.62
+
+#### Sep 1, 2026
+
+* [Feature] Added Hunter's Lodge quests for capturing animals.
+* [Feature] Added Gatherer's Hut quests for total resources gathered through gathering expeditions.
+
 ## Version 0.4.61
 
 #### Aug 31, 2026

@@ -7,6 +7,10 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { randomArrayElement } from '@pillage-first/utils/random';
 import { insertAnimalCagesIntoHeroInventoryQuery } from '../../../queries/hero-queries';
 import { selectVillageAndFirstOasisTileIdsQuery } from '../../../queries/map-queries';
+import {
+  assessCaptureAnimalCountByIdQuestCompletion,
+  assessCaptureAnimalKindCountQuestCompletion,
+} from '../../../utils/quests';
 import { insertHuntingPartyReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import type { Resolver } from '../resolver';
@@ -66,6 +70,9 @@ export const huntersLodgeHuntResolver: Resolver<
     unitId,
     amount: 1,
   });
+
+  assessCaptureAnimalCountByIdQuestCompletion(database, unitId, resolvesAt);
+  assessCaptureAnimalKindCountQuestCompletion(database, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],

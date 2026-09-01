@@ -231,6 +231,19 @@ describe('gatherers hut resolvers', () => {
       amount: 5,
     });
 
+    const completedGatheringQuest = database.selectValue({
+      sql: `
+        SELECT completed_at
+        FROM quests
+        WHERE
+          village_id IS NULL
+          AND quest_id = 'gatheredResourceCount-20';
+      `,
+      schema: z.number().nullable(),
+    });
+
+    expect(completedGatheringQuest).toBe(now);
+
     vi.useRealTimers();
   });
 });
