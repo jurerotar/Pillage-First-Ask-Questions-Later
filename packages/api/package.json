@@ -45,13 +45,13 @@
     "moderndash": "4.0.2",
     "path-to-regexp": "8.4.2",
     "ts-seedrandom": "1.6.0",
-    "zod": "4.4.3",
-    "zod-openapi": "6.0.0"
+    "zod": "4.5.4",
+    "zod-openapi": "6.0.2"
   },
   "devDependencies": {
-    "knip": "6.32.1",
+    "knip": "6.33.0",
     "typescript": "7.0.2",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@6/schema.json",

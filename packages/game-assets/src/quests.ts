@@ -5,10 +5,11 @@ import type {
 } from '@pillage-first/types/models/quest';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
 import type { PlayableTribe } from '@pillage-first/types/models/tribe';
-import type { Unit } from '@pillage-first/types/models/unit';
+import type { NatureUnitId, Unit } from '@pillage-first/types/models/unit';
 import type { Village } from '@pillage-first/types/models/village';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import { units } from './units';
+import { getHunterLodgeCatchableAnimals } from './utils/hunters-lodge';
 import { getUnitsByTribe } from './utils/units';
 
 type VillageQuestDefinition = {
@@ -102,6 +103,58 @@ const createUnitKillCountQuests = (): GlobalQuestDefinition[] => {
     });
 };
 
+const createCaptureAnimalCountByIdQuest = (
+  unitId: NatureUnitId,
+  count: number,
+): GlobalQuestDefinition => {
+  return {
+    id: `captureAnimalCountById-${unitId}-${count}`,
+    scope: 'global',
+  };
+};
+
+const createCaptureAnimalCountByIdQuests = (): GlobalQuestDefinition[] => {
+  const captureCounts = [1, 3, 5, 10, 20, 50];
+
+  return getHunterLodgeCatchableAnimals(5).flatMap((unitId) => {
+    return captureCounts.flatMap((captureCount) => {
+      return createCaptureAnimalCountByIdQuest(unitId, captureCount);
+    });
+  });
+};
+
+const createCaptureAnimalKindCountQuest = (
+  count: number,
+): GlobalQuestDefinition => {
+  return {
+    id: `captureAnimalKindCount-${count}`,
+    scope: 'global',
+  };
+};
+
+const createCaptureAnimalKindCountQuests = (): GlobalQuestDefinition[] => {
+  return [
+    createCaptureAnimalKindCountQuest(getHunterLodgeCatchableAnimals(5).length),
+  ];
+};
+
+const createGatheredResourceCountQuest = (
+  count: number,
+): GlobalQuestDefinition => {
+  return {
+    id: `gatheredResourceCount-${count}`,
+    scope: 'global',
+  };
+};
+
+const createGatheredResourceCountQuests = (): GlobalQuestDefinition[] => {
+  const resourceCounts = [20, 100, 500, 1000, 5000, 10_000, 50_000, 100_000];
+
+  return resourceCounts.flatMap((resourceCount) => {
+    return createGatheredResourceCountQuest(resourceCount);
+  });
+};
+
 const createQueuedTroopCountByIdQuest = (
   unitId: Unit['id'],
   count: number,
@@ -147,6 +200,9 @@ export const globalQuests: GlobalQuestDefinition[] = [
   ...createQueuedTroopCountQuests(),
   ...createUnitKillCountQuests(),
   ...createKillCountQuests(),
+  ...createCaptureAnimalCountByIdQuests(),
+  ...createCaptureAnimalKindCountQuests(),
+  ...createGatheredResourceCountQuests(),
 ];
 
 export const getVillageQuests = (
@@ -298,16 +354,6 @@ export const getVillageQuests = (
     createBuildingQuest('CRANNY', 3),
     createBuildingQuest('CRANNY', 7),
     createBuildingQuest('CRANNY', 10),
-    // Gatherer's Hut
-    createBuildingQuest('GATHERERS_HUT', 1),
-    createBuildingQuest('GATHERERS_HUT', 5),
-    createBuildingQuest('GATHERERS_HUT', 10),
-    createBuildingQuest('GATHERERS_HUT', 15),
-    createBuildingQuest('GATHERERS_HUT', 20),
-    // Hunter's Lodge
-    createBuildingQuest('HUNTERS_LODGE', 1),
-    createBuildingQuest('HUNTERS_LODGE', 3),
-    createBuildingQuest('HUNTERS_LODGE', 5),
   ];
 };
 

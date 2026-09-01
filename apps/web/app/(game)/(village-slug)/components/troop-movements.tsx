@@ -1,11 +1,12 @@
 import { clsx } from 'clsx';
-import { Suspense, useMemo } from 'react';
+import { Suspense, use, useMemo } from 'react';
 import { Link } from 'react-router';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useGameLayoutState } from 'app/(game)/(village-slug)/hooks/use-game-layout-state';
 import { useVillageTroopMovements } from 'app/(game)/(village-slug)/hooks/use-village-troop-movements';
+import { GameLayoutContext } from 'app/(game)/(village-slug)/providers/game-layout-context';
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icons';
 import { Separator } from 'app/components/ui/separator';
@@ -199,6 +200,7 @@ const partitionTroopMovementEvents = (
 const TroopMovementsContent = () => {
   const { currentVillage } = useCurrentVillage();
   const { troopMovements } = useVillageTroopMovements();
+  const { areMobileDetailsVisible } = use(GameLayoutContext);
 
   const {
     findNewVillageMovementEvents,
@@ -220,7 +222,12 @@ const TroopMovementsContent = () => {
   }, [rallyPoint]);
 
   return (
-    <aside className="flex flex-col gap-1 lg:gap-2 fixed left-0 top-30 lg:top-40 z-20">
+    <aside
+      className={clsx(
+        areMobileDetailsVisible ? 'top-29' : 'top-25',
+        'flex flex-col gap-1 lg:gap-2 fixed left-0 lg:top-40 z-20 transition-[top] ease-out',
+      )}
+    >
       <TroopMovement
         type="findNewVillage"
         events={findNewVillageMovementEvents}

@@ -267,5 +267,23 @@ describe('hunters lodge resolvers', () => {
       unit_id: caughtAnimals[0].unitId,
       amount: 1,
     });
+
+    const completedCaptureQuestCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM quests
+        WHERE
+          village_id IS NULL
+          AND completed_at IS NOT NULL
+          AND quest_id IN (
+            'captureAnimalCountById-RAT-1',
+            'captureAnimalCountById-SPIDER-1',
+            'captureAnimalCountById-SERPENT-1'
+          );
+      `,
+      schema: z.number(),
+    });
+
+    expect(completedCaptureQuestCount).toBe(1);
   });
 });

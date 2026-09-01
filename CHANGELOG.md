@@ -1,3 +1,27 @@
+## Version 0.4.62
+
+#### Sep 1, 2026
+
+* [Feature] Added Hunter's Lodge quests for capturing animals.
+* [Feature] Added Gatherer's Hut quests for total resources gathered through gathering expeditions.
+
+## Version 0.4.61
+
+#### Aug 31, 2026
+
+* [UIUXImprovement] Made the mobile village header collapsible, allowing resource details to be hidden when you need
+  more space for the current view. You can collapse or expand the header by clicking on it. Since clicking on the header
+  previously took you to Production Overview, we have now moved it to resource production building tabs.
+
+## Version 0.4.60
+
+#### Aug 29, 2026
+
+* [Feature] Smithy's upgrade tables were moved to a new Unit upgrade table tab. This tab displays level, upgrade cost,
+  upgrade duration and attributes tables.
+* [UIUXImprovement] Restyled tabs across the app with a cleaner segmented appearance and added a "More" popover for tabs
+  that do not fit in the available space.
+
 ## Version 0.4.59
 
 #### Aug 27, 2026

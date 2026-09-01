@@ -4,6 +4,7 @@ import { type PropsWithChildren, useEffect, useMemo } from 'react';
 import type { EventApiNotificationEvent } from '@pillage-first/types/api-events';
 import type { Server } from '@pillage-first/types/models/server';
 import { useApiWorker } from 'app/(game)/hooks/use-api-worker';
+import { useUpdateGameWorldVersionLabel } from 'app/(game)/hooks/use-update-game-world-version-label';
 import {
   ApiContext,
   type ApiContextReturn,
@@ -48,6 +49,8 @@ export const ApiProvider = ({
   const queryClient = useQueryClient();
   const { apiWorker, subscribeToApiWorkerNotifications } =
     useApiWorker(serverSlug);
+
+  useUpdateGameWorldVersionLabel(serverSlug, !!apiWorker);
 
   useEffect(() => {
     if (!apiWorker) {

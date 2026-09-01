@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { units } from '@pillage-first/game-assets/units';
+import { getSmithyUpgradeableUnitsByTribe } from '@pillage-first/game-assets/utils/units';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/bookmark';
 import {
-  UnitAttributes,
   UnitCard,
   UnitImprovement,
   UnitOverview,
@@ -22,13 +21,9 @@ export const SmithyUnitImprovement = () => {
   const tribe = useTribe();
   const { isUnitResearched } = useUnitResearch();
 
-  const upgradableUnits = units.filter(({ category, tribe: unitTribe, id }) => {
-    return (
-      category !== 'administration' &&
-      unitTribe === tribe &&
-      isUnitResearched(id)
-    );
-  });
+  const upgradableUnits = getSmithyUpgradeableUnitsByTribe(tribe).filter(
+    ({ id }) => isUnitResearched(id),
+  );
 
   return (
     <Section>
@@ -54,7 +49,6 @@ export const SmithyUnitImprovement = () => {
           >
             <UnitCard unitId={id}>
               <UnitOverview />
-              <UnitAttributes />
               <UnitImprovement />
             </UnitCard>
           </div>

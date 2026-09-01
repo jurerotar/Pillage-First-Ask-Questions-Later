@@ -1,6 +1,5 @@
 import { clsx } from 'clsx';
 import { use } from 'react';
-import { Link } from 'react-router';
 import type { Resource } from '@pillage-first/types/models/resource';
 import {
   formatNumberWithCommas,
@@ -13,9 +12,13 @@ import { Icon } from 'app/components/icon';
 
 type ResourceCounterProps = {
   resource: Resource;
+  showDetails?: boolean;
 };
 
-export const ResourceCounter = ({ resource }: ResourceCounterProps) => {
+export const ResourceCounter = ({
+  resource,
+  showDetails = true,
+}: ResourceCounterProps) => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
     use(CurrentVillageComputedEffectsContext);
@@ -44,11 +47,7 @@ export const ResourceCounter = ({ resource }: ResourceCounterProps) => {
     : truncateToShortForm(hourlyProduction);
 
   return (
-    <Link
-      to={{ pathname: 'production-overview', search: `?tab=${resource}` }}
-      tabIndex={0}
-      className="flex w-full flex-col gap-1 focus:outline-hidden focus:ring-2 focus:ring-black/80 ring-offset-2 rounded-sm"
-    >
+    <div className="flex w-full flex-col gap-1">
       <div className="flex w-full items-center justify-between">
         <Icon
           className="size-4 lg:size-6"
@@ -77,14 +76,26 @@ export const ResourceCounter = ({ resource }: ResourceCounterProps) => {
           }}
         />
       </div>
-      <div className="flex justify-between lg:justify-end items-center">
-        <span className="inline-flex lg:hidden text-2xs md:text-xs">
-          {formattedStorageCapacity}
-        </span>
-        <span className="inline-flex text-2xs md:text-xs">
-          {formattedHourlyProduction}/h
-        </span>
+      <div
+        aria-hidden={!showDetails}
+        className={clsx(
+          showDetails
+            ? 'grid-rows-[1fr] opacity-100'
+            : 'grid-rows-[0fr] opacity-0',
+          'grid transition-all duration-300 ease-out lg:grid-rows-[1fr] lg:opacity-100',
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="flex justify-between lg:justify-end items-center">
+            <span className="inline-flex lg:hidden text-2xs md:text-xs">
+              {formattedStorageCapacity}
+            </span>
+            <span className="inline-flex text-2xs md:text-xs">
+              {formattedHourlyProduction}/h
+            </span>
+          </div>
+        </div>
       </div>
-    </Link>
+    </div>
   );
 };

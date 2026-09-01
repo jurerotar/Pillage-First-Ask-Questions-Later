@@ -15,6 +15,7 @@ import {
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
+  calculateUpgradedValue,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
 import type {
@@ -184,10 +185,6 @@ type UnitAttributes = Record<
   | 'unitWheatConsumption',
   number
 >;
-
-const calculateUpgradedValue = (value: number, level: number) => {
-  return Math.round(value * 1.015 ** level * 10) / 10;
-};
 
 export const UnitAttributes = () => {
   const { unitId } = use(UnitCardContext);

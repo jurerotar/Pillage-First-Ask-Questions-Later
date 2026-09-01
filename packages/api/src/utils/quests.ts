@@ -1,6 +1,7 @@
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { Building } from '@pillage-first/types/models/building';
-import type { Unit } from '@pillage-first/types/models/unit';
+import type { NatureUnitId, Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const assessAdventureCountQuestCompletion = (
@@ -123,6 +124,131 @@ export const assessQueuedTroopCountByIdQuestCompletion = (
     bind: {
       $completed_at: timestamp,
       $unit_id: unitId,
+      $player_id: PLAYER_ID,
+    },
+  });
+};
+
+export const assessCaptureAnimalCountByIdQuestCompletion = (
+  database: DbFacade,
+  unitId: NatureUnitId,
+  timestamp: number,
+): void => {
+  database.exec({
+    sql: `
+      UPDATE quests
+      SET
+        completed_at = $completed_at
+      WHERE
+        completed_at IS NULL
+        AND village_id IS NULL
+        AND quest_id LIKE 'captureAnimalCountById-' || $unit_id || '-%'
+        AND substr(quest_id, length('captureAnimalCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
+        AND (
+          SELECT COALESCE(SUM(hpru.amount), 0)
+          FROM hunting_party_report_units hpru
+          JOIN unit_ids ui ON ui.id = hpru.unit_id
+          JOIN hunting_party_reports hpr ON hpr.id = hpru.hunting_party_report_id
+          JOIN reports r ON r.id = hpr.report_id
+          JOIN villages v ON v.id = r.village_id
+          WHERE
+            v.player_id = $player_id
+            AND ui.unit = $unit_id
+        ) >= CAST (
+        substr(
+        quest_id
+        , length('captureAnimalCountById-' || $unit_id || '-') + 1) AS INTEGER);
+    `,
+    bind: {
+      $completed_at: timestamp,
+      $unit_id: unitId,
+      $player_id: PLAYER_ID,
+    },
+  });
+};
+
+export const assessCaptureAnimalKindCountQuestCompletion = (
+  database: DbFacade,
+  timestamp: number,
+): void => {
+  database.exec({
+    sql: `
+      UPDATE quests
+      SET
+        completed_at = $completed_at
+      WHERE
+        completed_at IS NULL
+        AND village_id IS NULL
+        AND quest_id LIKE 'captureAnimalKindCount-%'
+        AND substr(quest_id, length('captureAnimalKindCount-') + 1) GLOB '[0-9]*'
+        AND (
+          SELECT COUNT(*)
+          FROM (
+            SELECT ui.unit
+            FROM hunting_party_report_units hpru
+            JOIN unit_ids ui ON ui.id = hpru.unit_id
+            JOIN hunting_party_reports hpr ON hpr.id = hpru.hunting_party_report_id
+            JOIN reports r ON r.id = hpr.report_id
+            JOIN villages v ON v.id = r.village_id
+            WHERE
+              v.player_id = $player_id
+              AND ui.unit IN (
+                SELECT value
+                FROM json_each($unit_ids)
+              )
+            GROUP BY ui.unit
+            HAVING SUM(hpru.amount) > 0
+          )
+        ) >= CAST (
+        substr(
+        quest_id
+        , LENGTH (
+        'captureAnimalKindCount-') + 1) AS INTEGER);
+    `,
+    bind: {
+      $completed_at: timestamp,
+      $player_id: PLAYER_ID,
+      $unit_ids: JSON.stringify(getHunterLodgeCatchableAnimals(5)),
+    },
+  });
+};
+
+export const assessGatheredResourceCountQuestCompletion = (
+  database: DbFacade,
+  timestamp: number,
+): void => {
+  database.exec({
+    sql: `
+      UPDATE quests
+      SET
+        completed_at = $completed_at
+      WHERE
+        completed_at IS NULL
+        AND village_id IS NULL
+        AND quest_id LIKE 'gatheredResourceCount-%'
+        AND substr(quest_id, length('gatheredResourceCount-') + 1) GLOB '[0-9]*'
+        AND (
+          SELECT COALESCE(
+            SUM(
+              ger.loot_wood +
+              ger.loot_clay +
+              ger.loot_iron +
+              ger.loot_wheat
+            ),
+            0
+          )
+          FROM gathering_expedition_reports ger
+          JOIN reports r ON r.id = ger.report_id
+          JOIN villages v ON v.id = r.village_id
+          WHERE v.player_id = $player_id
+        ) >= CAST (
+        substr(
+        quest_id
+        , LENGTH (
+        'gatheredResourceCount-') + 1) AS INTEGER);
+    `,
+    bind: {
+      $completed_at: timestamp,
       $player_id: PLAYER_ID,
     },
   });

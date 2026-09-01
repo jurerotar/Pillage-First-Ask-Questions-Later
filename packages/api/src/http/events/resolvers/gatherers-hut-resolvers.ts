@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { calculateGatherersHutGatheringResources } from '@pillage-first/game-assets/utils/gatherers-hut';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { assessGatheredResourceCountQuestCompletion } from '../../../utils/quests';
 import { insertGatheringExpeditionReport } from '../../../utils/report';
 import { addTroops } from '../../../utils/troops';
 import {
@@ -52,6 +53,8 @@ export const gatherersHutGatheringTripResolver: Resolver<
     loot,
     units: troops,
   });
+
+  assessGatheredResourceCountQuestCompletion(database, resolvesAt);
 
   database.exec({
     sql: `
