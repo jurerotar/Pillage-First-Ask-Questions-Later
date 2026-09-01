@@ -134,8 +134,8 @@ const BuildingConstructionList = ({
                 <BuildingUnfinishedNotice />
                 <BuildingBenefits />
                 <BuildingCost />
-                <BuildingActions />
                 <BuildingRequirements />
+                <BuildingActions />
               </BuildingCard>
             </div>
           ))}
