@@ -50,13 +50,14 @@ type HorsePartKey =
   | 'harnessRope';
 type HorseColorSet = Record<HorsePartKey, string>;
 type HorseColorsByClass = Record<string, HorseColorSet>;
+type HorseColorOverrides = Partial<HorseColorSet>;
+type HorseColorOverridesByClass = Record<string, HorseColorOverrides>;
 type UpdateHorseColorSet = (className: string, colors: HorseColorSet) => void;
 type HorseColorControl = {
   key: string;
   label: string;
   partKeys: HorsePartKey[];
 };
-const horsePupilColor = '#FFFFFF';
 
 const horseParts: {
   key: HorsePartKey;
@@ -198,29 +199,8 @@ const joinedHorsePartGroups: HorsePartKey[][] = [
   ['maneBack', 'maneFront'],
 ];
 
-const defaultHorseColors: HorseColorSet = {
-  base: '#423A36',
-  baseBottom: '#2E2521',
-  baseMiddle: '#40332D',
-  earsBack: '#686562',
-  earsFront: '#2D2824',
-  eye: '#2E2521',
-  eyeLidBottom: '#2E2521',
-  eyeLidMiddle: '#2E2521',
-  eyeLidTop: '#2E2521',
-  eyeLidTopDetail: '#2E2521',
-  eyePupil: horsePupilColor,
-  headFront: '#40332D',
-  maneBack: '#000000',
-  maneFront: '#000000',
-  mouthLine: '#2E2521',
-  nose: '#2E2521',
-  noseDetail: '#40332D',
-  harnessRope: '#FFFFFF',
-};
-
 const normalizeHorseColorSet = (colors: HorseColorSet): HorseColorSet => {
-  const normalizedColors = { ...colors, eyePupil: horsePupilColor };
+  const normalizedColors = { ...colors };
 
   joinedHorsePartGroups.forEach(([sourceKey, ...joinedKeys]) => {
     joinedKeys.forEach((joinedKey) => {
@@ -283,31 +263,44 @@ const parseInitialHorseColors = (): HorseColorsByClass => {
   const matches = iconClassesSource.matchAll(classPattern);
 
   return Object.fromEntries(
-    [...matches].map((match) => {
+    [...matches].flatMap<[string, HorseColorSet]>((match) => {
       const [, className, colorList] = match;
-      const colors = { ...defaultHorseColors };
       const colorValues = colorList
         .split(',')
         .map((color) => normalizeColor(color.trim()));
 
-      horseParts.forEach(({ key }, index) => {
-        colors[key] = colorValues[index] ?? colors[key];
-      });
-      return [className, normalizeHorseColorSet(colors)];
+      if (colorValues.length < horseParts.length) {
+        return [];
+      }
+
+      const colors = Object.fromEntries(
+        horseParts.map(({ key }, index) => [key, colorValues[index]]),
+      ) as HorseColorSet;
+
+      return [[className, normalizeHorseColorSet(colors)]];
     }),
   );
 };
 
 const initialHorseColorsByClass = parseInitialHorseColors();
 
+const getInitialHorseColors = (className: string): HorseColorSet => {
+  const colors = initialHorseColorsByClass[className];
+
+  if (colors === undefined) {
+    throw new Error(
+      `Missing horse icon color defaults for .${className} in icons.module.scss.`,
+    );
+  }
+
+  return colors;
+};
+
 const initialCavalryColors = Object.fromEntries(
   cavalryUnits.map((unit) => {
     const className = toClassName(unit.id);
 
-    return [
-      className,
-      initialHorseColorsByClass[className] ?? defaultHorseColors,
-    ];
+    return [className, getInitialHorseColors(className)];
   }),
 );
 
@@ -345,13 +338,37 @@ const normalizePersistedCavalryColors = (
   return Object.fromEntries(
     cavalryUnits.map((unit) => {
       const className = toClassName(unit.id);
-      const fallbackColors =
-        initialHorseColorsByClass[className] ?? defaultHorseColors;
+      const fallbackColors = getInitialHorseColors(className);
 
       return [
         className,
         mergeHorseColorSet(persistedColors[className], fallbackColors),
       ];
+    }),
+  );
+};
+
+const getCavalryColorOverrides = (
+  colorsByClass: HorseColorsByClass,
+): HorseColorOverridesByClass => {
+  return Object.fromEntries(
+    cavalryUnits.flatMap<[string, HorseColorOverrides]>((unit) => {
+      const className = toClassName(unit.id);
+      const defaultColors = getInitialHorseColors(className);
+      const colors = normalizeHorseColorSet(
+        colorsByClass[className] ?? defaultColors,
+      );
+      const overrides: HorseColorOverrides = {};
+
+      horseParts.forEach(({ key }) => {
+        if (colors[key].toLowerCase() !== defaultColors[key].toLowerCase()) {
+          overrides[key] = colors[key];
+        }
+      });
+
+      return Object.keys(overrides).length === 0
+        ? []
+        : [[className, overrides]];
     }),
   );
 };
@@ -386,9 +403,16 @@ const storeCavalryColors = (colorsByClass: HorseColorsByClass) => {
   }
 
   try {
+    const overridesByClass = getCavalryColorOverrides(colorsByClass);
+
+    if (Object.keys(overridesByClass).length === 0) {
+      window.localStorage.removeItem(horseColorsStorageKey);
+      return;
+    }
+
     window.localStorage.setItem(
       horseColorsStorageKey,
-      JSON.stringify(colorsByClass),
+      JSON.stringify(overridesByClass),
     );
   } catch {
     // Persistence is best-effort for this design-system tool.
@@ -396,9 +420,11 @@ const storeCavalryColors = (colorsByClass: HorseColorsByClass) => {
 };
 
 const getLocalStorageExport = (colorsByClass: HorseColorsByClass) => {
+  const overridesByClass = getCavalryColorOverrides(colorsByClass);
+
   return JSON.stringify(
     {
-      [horseColorsStorageKey]: JSON.stringify(colorsByClass),
+      [horseColorsStorageKey]: JSON.stringify(overridesByClass),
     },
     null,
     2,
@@ -440,7 +466,7 @@ const getClassesSource = (colorsByClass: HorseColorsByClass) => {
     .map((unit) => {
       const className = toClassName(unit.id);
       const colors = normalizeHorseColorSet(
-        colorsByClass[className] ?? defaultHorseColors,
+        colorsByClass[className] ?? getInitialHorseColors(className),
       );
       const mixinColors = horseParts
         .map(({ key }) => serializeColor(colors[key]))
@@ -500,10 +526,7 @@ const CavalryUnitColorCard = memo(
       pendingColorsRef.current = defaultColors;
 
       horseParts.forEach(({ key, cssVariable }) => {
-        const color =
-          key === 'eyePupil' ? defaultHorseColors.eyePupil : defaultColors[key];
-
-        previewRef.current?.style.setProperty(cssVariable, color);
+        previewRef.current?.style.setProperty(cssVariable, defaultColors[key]);
       });
 
       horseColorControls.forEach(({ key, partKeys }) => {
@@ -677,10 +700,7 @@ const CavalryColorPicker = () => {
     try {
       const nextColorsByClass = parseLocalStorageImport(importedStorage);
 
-      window.localStorage.setItem(
-        horseColorsStorageKey,
-        JSON.stringify(nextColorsByClass),
-      );
+      storeCavalryColors(nextColorsByClass);
       setColorsByClass(nextColorsByClass);
       setStorageStatus('Overwrote localStorage colors from import.');
     } catch {
@@ -694,7 +714,8 @@ const CavalryColorPicker = () => {
         <div>
           <h1 className="text-2xl font-semibold">Cavalry icon colors</h1>
           <p className="text-sm text-muted-foreground">
-            Units are grouped by tribe and seeded from icons.module.scss.
+            Defaults come from icons.module.scss. Local storage contains only
+            your overrides.
           </p>
         </div>
         <div className="flex flex-col items-start gap-2 sm:items-end">
@@ -750,9 +771,8 @@ const CavalryColorPicker = () => {
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {tribeUnits.map((unit) => {
                   const className = toClassName(unit.id);
-                  const colors = colorsByClass[className] ?? defaultHorseColors;
-                  const defaultColors =
-                    initialHorseColorsByClass[className] ?? defaultHorseColors;
+                  const defaultColors = getInitialHorseColors(className);
+                  const colors = colorsByClass[className] ?? defaultColors;
                   const iconType = unitIdToUnitIconMapper(unit.id) as IconType;
 
                   return (

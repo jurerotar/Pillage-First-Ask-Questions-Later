@@ -18,7 +18,7 @@ $horse-metal: #b8b8b8;
   $mouth-line,
   $nose,
   $nose-detail,
-  $harness-rope: white,
+  $harness-rope,
 ) {
   & :global(#PillageFirstHorse-base) {
     fill: $base;
@@ -61,7 +61,7 @@ $horse-metal: #b8b8b8;
   }
 
   & :global(#PillageFirstHorse-eye-pupil) {
-    fill: white;
+    fill: $eye-pupil;
   }
 
   & :global(#PillageFirstHorse-head-front) {
