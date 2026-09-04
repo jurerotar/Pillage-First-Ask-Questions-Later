@@ -1,3 +1,40 @@
+@use "sass:map";
+
+.roman-scout-icon,
+.roman-settler {
+  color: map.get($tribeColors, 'romans');
+}
+
+.gaul-scout-icon,
+.gaul-settler {
+  color: map.get($tribeColors, 'gauls');
+}
+
+.teutonic-scout-icon,
+.teutonic-settler {
+  color: map.get($tribeColors, 'teutons');
+}
+
+.hun-scout-icon,
+.hun-settler {
+  color: map.get($tribeColors, 'huns');
+}
+
+.egyptian-scout-icon,
+.egyptian-settler {
+  color: map.get($tribeColors, 'egyptians');
+}
+
+.spartan-scout-icon,
+.spartan-settler {
+  color: map.get($tribeColors, 'spartans');
+}
+
+.natarian-scout-icon,
+.natarian-settler {
+  color: map.get($tribeColors, 'natars');
+}
+
 .roman-scout {
   @include horseIconColorSet(#a7794f, #755136, #916742, #8d6748, #5b3926, #1d1714, #5b3926, #5b3926, #5b3926, #5b3926, #ffffff, #b8895e, #3a2417, #3a2417, #2a1b14, #2f2019, #60412d, #9f1d1d)
 }
@@ -31,7 +68,7 @@
 }
 
 .teutonic-knight {
-  @include horseIconColorSet(#e6e1d9, #b8afa5, #d2cabf, #cbc3b8, #90877d, #1d1714, #90877d, #90877d, #90877d, #90877d, #ffffff, #f3efe8, #d7d0c8, #d7d0c8, #635a53, #91887f, #b9afa5, #6b4a2e)
+  @include horseIconColorSet(#44474c, #25272b, #36393e, #3d4045, #202226, #1d1714, #202226, #202226, #202226, #202226, #ffffff, #55585e, #191b1f, #191b1f, #15171a, #272a2f, #393d43, #6b4a2e)
 }
 
 .egyptian-scout {
@@ -59,7 +96,7 @@
 }
 
 .marauder {
-  @include horseIconColorSet(#2f2925, #171311, #25201d, #292421, #15110f, #1d1714, #15110f, #15110f, #15110f, #15110f, #ffffff, #403832, #e9ded0, #e9ded0, #0f0c0a, #181310, #2c2622, #8a3a16)
+  @include horseIconColorSet(#51453d, #2d2521, #41362f, #493d35, #261f1b, #1d1714, #261f1b, #261f1b, #261f1b, #261f1b, #ffffff, #65554a, #e9ded0, #e9ded0, #1d1714, #302722, #493c34, #8a3a16)
 }
 
 .elpida-rider {
@@ -79,5 +116,5 @@
 }
 
 .natarian-knight {
-  @include horseIconColorSet(#242126, #111013, #1c191e, #211f23, #0f0d11, #1d1714, #0f0d11, #0f0d11, #0f0d11, #0f0d11, #ffffff, #343038, #c9c0d1, #c9c0d1, #0b090c, #141117, #26222b, #2f2f2f)
+  @include horseIconColorSet(#242126, #111013, #1c191e, #211f23, #0f0d11, #1d1714, #0f0d11, #0f0d11, #0f0d11, #0f0d11, #ffffff, #343038, #27232c, #27232c, #0b090c, #141117, #26222b, #2f2f2f)
 }
