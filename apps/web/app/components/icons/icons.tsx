@@ -21,28 +21,28 @@ import {
   GiBattleAxe,
   GiBearHead,
   GiBoar,
-  GiBowman,
+  GiBowArrow,
+  GiBroadsword,
   GiCrocJaws,
-  GiCrownOfThorns,
+  GiCrossedSwords,
   GiCurvyKnife,
   GiElephant,
   GiFist,
   GiGreekTemple,
-  GiGuards,
-  GiHoodedFigure,
   GiHuntingHorn,
   GiLeatherBoot,
-  GiPikeman,
   GiPointyHat,
   GiRallyTheTroops,
   GiRat,
+  GiRoundShield,
   GiSaberToothedCatHead,
   GiSandSnake,
+  GiShield,
   GiSiegeRam,
+  GiSpearHook,
   GiSpikedMace,
   GiSpyglass,
   GiSwapBag,
-  GiSwordman,
   GiTiedScroll,
   GiWolfHead,
   GiWolfTrap,
@@ -521,7 +521,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
 
   // Gaul troops
   phalanx: (props) => <GiBarbedSpear {...props} />,
-  swordsman: (props) => <GiSwordman {...props} />,
+  swordsman: (props) => <GiBroadsword {...props} />,
   gaulScout: (props) => (
     <GiTiedScroll
       {...props}
@@ -600,7 +600,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
 
   // Egyptian troops
   slaveMilitia: (props) => <GiFist {...props} />,
-  ashWarden: (props) => <GiGuards {...props} />,
+  ashWarden: (props) => <GiRoundShield {...props} />,
   khopeshWarrior: (props) => <GiCurvyKnife {...props} />,
   egyptianScout: (props) => (
     <GiTiedScroll
@@ -636,8 +636,8 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   ),
 
   // Hun troops
-  mercenary: (props) => <GiHoodedFigure {...props} />,
-  bowman: (props) => <GiBowman {...props} />,
+  mercenary: (props) => <GiCrossedSwords {...props} />,
+  bowman: (props) => <GiBowArrow {...props} />,
   hunScout: (props) => (
     <GiTiedScroll
       {...props}
@@ -715,9 +715,9 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   ),
 
   // Natarian troops
-  pikeman: (props) => <GiPikeman {...props} />,
-  thornedWarrior: (props) => <GiCrownOfThorns {...props} />,
-  guardsman: (props) => <GiGuards {...props} />,
+  pikeman: (props) => <GiSpearHook {...props} />,
+  thornedWarrior: (props) => <GiSpikedMace {...props} />,
+  guardsman: (props) => <GiShield {...props} />,
   axerider: (props) => (
     <PillageFirstHorse
       {...props}
