@@ -3,11 +3,15 @@ import { useTranslation } from 'react-i18next';
 import {
   Bar,
   BarChart,
+  type BarShapeProps,
   CartesianGrid,
   Legend,
   Pie,
   PieChart,
+  type PieSectorShapeProps,
+  Rectangle,
   ResponsiveContainer,
+  Sector,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -35,6 +39,60 @@ import {
 } from 'app/components/ui/table';
 
 const overviewTribes = tribeSchema.exclude(['nature', 'spartans']).options;
+
+const getShapeFill = ({
+  fill,
+  payload,
+}: {
+  fill?: string;
+  payload?: { fill?: string };
+}) => payload?.fill ?? fill ?? '#94a3b8';
+
+const ChartPieSector = ({
+  className,
+  cornerRadius,
+  cx,
+  cy,
+  endAngle,
+  fill,
+  innerRadius,
+  outerRadius,
+  payload,
+  startAngle,
+}: PieSectorShapeProps) => (
+  <Sector
+    className={className}
+    cornerRadius={cornerRadius}
+    cx={cx}
+    cy={cy}
+    endAngle={endAngle}
+    fill={getShapeFill({ fill, payload })}
+    innerRadius={innerRadius}
+    outerRadius={outerRadius}
+    startAngle={startAngle}
+  />
+);
+
+const ChartBarRectangle = ({
+  className,
+  fill,
+  height,
+  payload,
+  radius,
+  width,
+  x,
+  y,
+}: BarShapeProps) => (
+  <Rectangle
+    className={className}
+    fill={getShapeFill({ fill, payload })}
+    height={height}
+    radius={radius}
+    width={width}
+    x={x}
+    y={y}
+  />
+);
 
 export const GameWorldOverview = () => {
   const { t } = useTranslation();
@@ -162,6 +220,7 @@ export const GameWorldOverview = () => {
               cy="50%"
               outerRadius={80}
               label
+              shape={ChartPieSector}
             />
             <Legend />
           </PieChart>
@@ -181,6 +240,7 @@ export const GameWorldOverview = () => {
               cy="50%"
               outerRadius={80}
               label
+              shape={ChartPieSector}
             />
             <Legend />
           </PieChart>
@@ -199,6 +259,7 @@ export const GameWorldOverview = () => {
             <Bar
               dataKey="value"
               name={t('Players')}
+              shape={ChartBarRectangle}
             />
           </BarChart>
         </ResponsiveContainer>
@@ -216,6 +277,7 @@ export const GameWorldOverview = () => {
             <Bar
               dataKey="value"
               name={t('Villages')}
+              shape={ChartBarRectangle}
             />
           </BarChart>
         </ResponsiveContainer>

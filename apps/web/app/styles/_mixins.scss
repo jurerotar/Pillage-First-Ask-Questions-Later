@@ -21,106 +21,111 @@ $horse-metal: #b8b8b8;
   $harness-rope,
 ) {
   & :global(#PillageFirstHorse-base) {
-    fill: $base;
+    fill: $base !important;
   }
 
   & :global(#PillageFirstHorse-base-bottom) {
-    fill: $base-bottom;
+    fill: $base-bottom !important;
   }
 
   & :global(#PillageFirstHorse-base-middle) {
-    fill: $base-middle;
+    fill: $base-middle !important;
   }
 
   & :global(#PillageFirstHorse-ears-back) {
-    fill: $ears-back;
+    fill: $ears-back !important;
   }
 
   & :global(#PillageFirstHorse-ears-front) {
-    fill: $ears-front;
+    fill: $ears-front !important;
   }
 
   & :global(#PillageFirstHorse-eye) {
-    fill: $eye;
+    fill: $eye !important;
   }
 
   & :global(#PillageFirstHorse-eye-lid-bottom) {
-    fill: $eye-lid-bottom;
+    fill: $eye-lid-bottom !important;
   }
 
   & :global(#PillageFirstHorse-eye-lid-middle) {
-    fill: $eye-lid-middle;
+    fill: $eye-lid-middle !important;
   }
 
   & :global(#PillageFirstHorse-eye-lid-top) {
-    fill: $eye-lid-top;
+    fill: $eye-lid-top !important;
   }
 
   & :global(#PillageFirstHorse-eye-lid-top-detail) {
-    fill: $eye-lid-top-detail;
+    fill: $eye-lid-top-detail !important;
   }
 
   & :global(#PillageFirstHorse-eye-pupil) {
-    fill: $eye-pupil;
+    fill: $eye-pupil !important;
   }
 
   & :global(#PillageFirstHorse-head-front) {
-    fill: $head-front;
+    fill: $head-front !important;
   }
 
   & :global(#PillageFirstHorse-mane-back) {
-    fill: $mane-back;
+    fill: $mane-back !important;
   }
 
   & :global(#PillageFirstHorse-mane-front) {
-    fill: $mane-front;
+    fill: $mane-front !important;
   }
 
   & :global(#PillageFirstHorse-mouth-line) {
-    fill: $mouth-line;
+    fill: $mouth-line !important;
   }
 
   & :global(#PillageFirstHorse-nose) {
-    fill: $nose;
+    fill: $nose !important;
   }
 
   & :global(#PillageFirstHorse-nose-detail) {
-    fill: $nose-detail;
+    fill: $nose-detail !important;
   }
 
   & :global(#PillageFirstHorse-harness-body-straps) {
-    fill: $harness-rope;
+    fill: $harness-rope !important;
   }
 
   & :global(#PillageFirstHorse-harness-brow-strap_1_) {
-    fill: $harness-rope;
+    fill: $harness-rope !important;
   }
 
   & :global(#PillageFirstHorse-harness-face-strap_1_) {
-    fill: $harness-rope;
+    fill: $harness-rope !important;
   }
 
   & :global(#PillageFirstHorse-harness-nose-buckle) {
-    fill: $harness-rope;
+    fill: $harness-rope !important;
+  }
+
+  & :global(.PillageFirstHorse-st8),
+  & :global(.PillageFirstHorse-st9) {
+    fill: $harness-rope !important;
   }
 
   & :global(#PillageFirstHorse-harness-nose-ring) {
-    fill: none;
-    stroke: $horse-metal;
-    stroke-width: 8;
+    fill: none !important;
+    stroke: $horse-metal !important;
+    stroke-width: 8 !important;
   }
 
   & :global(#PillageFirstHorse-harness-nose-ring_1_) {
-    fill: none;
-    stroke: $horse-metal;
-    stroke-width: 8;
+    fill: none !important;
+    stroke: $horse-metal !important;
+    stroke-width: 8 !important;
   }
 
   & :global(#PillageFirstHorse-harness-brow-ring-top-detail) {
-    fill: $horse-metal;
+    fill: $horse-metal !important;
   }
 
   & :global(#PillageFirstHorse-harness-brow-ring-bottom-detail) {
-    fill: $horse-metal;
+    fill: $horse-metal !important;
   }
 }
