@@ -17,7 +17,7 @@ const actionMocks = vi.hoisted(() => ({
   duplicateGameWorld: vi.fn(),
   exportGameWorld: vi.fn(),
   renameGameWorld: vi.fn().mockResolvedValue([]),
-  toggleGameWorldPin: vi.fn(),
+  toggleGameWorldStar: vi.fn(),
 }));
 
 vi.mock('app/(public)/(game-worlds)/hooks/use-game-world-actions', () => ({
@@ -26,7 +26,7 @@ vi.mock('app/(public)/(game-worlds)/hooks/use-game-world-actions', () => ({
     isDeleteGameWorldPending: false,
     isDuplicateGameWorldPending: false,
     isExportGameWorldPending: false,
-    isPinGameWorldPending: false,
+    isStarGameWorldPending: false,
     isRenameGameWorldPending: false,
   }),
 }));
@@ -68,10 +68,12 @@ describe(ServerCard, () => {
       <MemoryRouter>
         <ServerCard
           server={server}
-          isPinned={false}
+          isStarred={true}
         />
       </MemoryRouter>,
     );
+
+    expect(screen.getByLabelText('Starred game world')).toBeTruthy();
 
     fireEvent.click(screen.getByRole('button', { name: 'Rename game world' }));
 
@@ -91,7 +93,7 @@ describe(ServerCard, () => {
     });
   });
 
-  test('offers template creation, seed copying, and pinning actions', async () => {
+  test('offers template creation, seed copying, and starring actions', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
@@ -102,7 +104,7 @@ describe(ServerCard, () => {
       <MemoryRouter>
         <ServerCard
           server={server}
-          isPinned={false}
+          isStarred={false}
         />
       </MemoryRouter>,
     );
@@ -120,9 +122,9 @@ describe(ServerCard, () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Game world actions' }));
     fireEvent.click(
-      await screen.findByRole('button', { name: 'Pin game world' }),
+      await screen.findByRole('button', { name: 'Star game world' }),
     );
 
-    expect(actionMocks.toggleGameWorldPin).toHaveBeenCalledWith({ server });
+    expect(actionMocks.toggleGameWorldStar).toHaveBeenCalledWith({ server });
   });
 });

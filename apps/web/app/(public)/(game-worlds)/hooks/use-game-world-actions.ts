@@ -10,7 +10,7 @@ import type {
   ImportGameWorldWorkerResponse,
 } from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker';
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
-import { getPinnedServerIds } from 'app/(public)/(game-worlds)/utils/game-world-listing';
+import { getStarredServerIds } from 'app/(public)/(game-worlds)/utils/game-world-listing';
 import type {
   RenameGameWorldWorkerPayload,
   RenameGameWorldWorkerResponse,
@@ -18,7 +18,7 @@ import type {
 import RenameGameWorldWorker from 'app/(public)/(game-worlds)/workers/rename-game-world-worker?worker&url';
 import {
   availableServerCacheKey,
-  pinnedServerIdsCacheKey,
+  starredServerIdsCacheKey,
 } from 'app/(public)/constants/query-keys';
 import type { ExportServerWorkerReturn } from 'app/(public)/workers/export-server-worker';
 import ExportServerWorker from 'app/(public)/workers/export-server-worker?worker&url';
@@ -45,9 +45,9 @@ const setAvailableServers = (servers: Server[]) => {
   window.localStorage.setItem(availableServerCacheKey, JSON.stringify(servers));
 };
 
-const setPinnedServerIds = (serverIds: string[]) => {
+const setStarredServerIds = (serverIds: string[]) => {
   window.localStorage.setItem(
-    pinnedServerIdsCacheKey,
+    starredServerIdsCacheKey,
     JSON.stringify(serverIds),
   );
 };
@@ -281,8 +281,8 @@ export const useGameWorldActions = () => {
         const updatedServers = await deleteServerData(server);
 
         if (updatedServers) {
-          setPinnedServerIds(
-            getPinnedServerIds().filter((serverId) => serverId !== server.id),
+          setStarredServerIds(
+            getStarredServerIds().filter((serverId) => serverId !== server.id),
           );
         }
 
@@ -345,26 +345,28 @@ export const useGameWorldActions = () => {
       },
     });
 
-  const { mutateAsync: toggleGameWorldPin, isPending: isPinGameWorldPending } =
-    useMutation<string[], Error, { server: Server }>({
-      mutationFn: async ({ server }) => {
-        const pinnedServerIds = getPinnedServerIds();
-        const updatedPinnedServerIds = pinnedServerIds.includes(server.id)
-          ? pinnedServerIds.filter((serverId) => serverId !== server.id)
-          : [...pinnedServerIds, server.id];
+  const {
+    mutateAsync: toggleGameWorldStar,
+    isPending: isStarGameWorldPending,
+  } = useMutation<string[], Error, { server: Server }>({
+    mutationFn: async ({ server }) => {
+      const starredServerIds = getStarredServerIds();
+      const updatedStarredServerIds = starredServerIds.includes(server.id)
+        ? starredServerIds.filter((serverId) => serverId !== server.id)
+        : [...starredServerIds, server.id];
 
-        setPinnedServerIds(updatedPinnedServerIds);
-        return updatedPinnedServerIds;
-      },
-      onSuccess: async (_data, _vars, _onMutateResult, context) => {
-        await invalidateQueries(context, [[availableServerCacheKey]]);
-      },
-      onError: (error) => {
-        toast.error('Failed to update pinned game worlds', {
-          description: error.message,
-        });
-      },
-    });
+      setStarredServerIds(updatedStarredServerIds);
+      return updatedStarredServerIds;
+    },
+    onSuccess: async (_data, _vars, _onMutateResult, context) => {
+      await invalidateQueries(context, [[availableServerCacheKey]]);
+    },
+    onError: (error) => {
+      toast.error('Failed to update starred game worlds', {
+        description: error.message,
+      });
+    },
+  });
 
   return {
     createGameWorld,
@@ -376,7 +378,7 @@ export const useGameWorldActions = () => {
     isDeleteGameWorldPending,
     renameGameWorld,
     isRenameGameWorldPending,
-    toggleGameWorldPin,
-    isPinGameWorldPending,
+    toggleGameWorldStar,
+    isStarGameWorldPending,
   };
 };

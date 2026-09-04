@@ -2,24 +2,24 @@ import type { Server } from '@pillage-first/types/models/server';
 import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 import {
   availableServerCacheKey,
-  pinnedServerIdsCacheKey,
+  starredServerIdsCacheKey,
 } from 'app/(public)/constants/query-keys';
 import { reportError } from 'app/instrumentation/report-error';
 
 const gameWorldOpfsDirectory = 'pillage-first-ask-questions-later';
 
-export const getPinnedServerIds = (): string[] => {
+export const getStarredServerIds = (): string[] => {
   if (typeof window === 'undefined') {
     return [];
   }
 
   try {
-    const pinnedServerIds: unknown = JSON.parse(
-      window.localStorage.getItem(pinnedServerIdsCacheKey) ?? '[]',
+    const starredServerIds: unknown = JSON.parse(
+      window.localStorage.getItem(starredServerIdsCacheKey) ?? '[]',
     );
 
-    return Array.isArray(pinnedServerIds)
-      ? pinnedServerIds.filter(
+    return Array.isArray(starredServerIds)
+      ? starredServerIds.filter(
           (serverId): serverId is string => typeof serverId === 'string',
         )
       : [];
@@ -28,15 +28,16 @@ export const getPinnedServerIds = (): string[] => {
   }
 };
 
-export const sortGameWorldsByPinned = (
+export const sortGameWorldsByStarred = (
   servers: Server[],
-  pinnedServerIds: string[],
+  starredServerIds: string[],
 ): Server[] => {
-  const pinnedServerIdSet = new Set(pinnedServerIds);
+  const starredServerIdSet = new Set(starredServerIds);
 
   return servers.toSorted(
     (a, b) =>
-      Number(pinnedServerIdSet.has(b.id)) - Number(pinnedServerIdSet.has(a.id)),
+      Number(starredServerIdSet.has(b.id)) -
+      Number(starredServerIdSet.has(a.id)),
   );
 };
 
@@ -50,7 +51,7 @@ export const getGameWorldListing = (): Server[] => {
       window.localStorage.getItem(availableServerCacheKey) ?? '[]',
     );
 
-    return sortGameWorldsByPinned(servers, getPinnedServerIds());
+    return sortGameWorldsByStarred(servers, getStarredServerIds());
   } catch {
     return [];
   }

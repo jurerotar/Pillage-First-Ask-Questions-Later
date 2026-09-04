@@ -6,7 +6,7 @@ import {
   FaEllipsisVertical,
   FaPen,
   FaSpinner,
-  FaThumbtack,
+  FaStar,
   FaTrash,
   FaWandMagicSparkles,
   FaXmark,
@@ -33,10 +33,10 @@ import { daysSince } from 'app/utils/time';
 
 type ServerCardProps = {
   server: Server;
-  isPinned: boolean;
+  isStarred: boolean;
 };
 
-export const ServerCard = ({ server, isPinned }: ServerCardProps) => {
+export const ServerCard = ({ server, isStarred }: ServerCardProps) => {
   const intl = useIntl();
   const navigate = useNavigate();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
@@ -51,8 +51,8 @@ export const ServerCard = ({ server, isPinned }: ServerCardProps) => {
     isDeleteGameWorldPending,
     renameGameWorld,
     isRenameGameWorldPending,
-    toggleGameWorldPin,
-    isPinGameWorldPending,
+    toggleGameWorldStar,
+    isStarGameWorldPending,
   } = useGameWorldActions();
 
   const isActionPending =
@@ -60,7 +60,7 @@ export const ServerCard = ({ server, isPinned }: ServerCardProps) => {
     isDuplicateGameWorldPending ||
     isDeleteGameWorldPending ||
     isRenameGameWorldPending ||
-    isPinGameWorldPending;
+    isStarGameWorldPending;
 
   const handleRename = async () => {
     const trimmedName = name.trim();
@@ -199,11 +199,11 @@ export const ServerCard = ({ server, isPinned }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
-                void toggleGameWorldPin({ server });
+                void toggleGameWorldStar({ server });
               }}
             >
-              <FaThumbtack className="text-gray-400 size-3.5" />
-              {isPinned ? 'Unpin game world' : 'Pin game world'}
+              <FaStar className="text-gray-400 size-3.5" />
+              {isStarred ? 'Unstar game world' : 'Star game world'}
             </Button>
             <Button
               className="h-8 justify-start gap-2 px-2 text-xs text-red-500 hover:text-red-500"
@@ -282,10 +282,10 @@ export const ServerCard = ({ server, isPinned }: ServerCardProps) => {
         ) : (
           <>
             <Text as="h2">{server.name}</Text>
-            {isPinned && (
-              <FaThumbtack
-                aria-label="Pinned game world"
-                className="size-3.5 text-muted-foreground"
+            {isStarred && (
+              <FaStar
+                aria-label="Starred game world"
+                className="size-3.5 text-yellow-500"
               />
             )}
             <Button

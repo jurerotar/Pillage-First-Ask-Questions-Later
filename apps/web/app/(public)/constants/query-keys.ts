@@ -1,2 +1,2 @@
 export const availableServerCacheKey = 'available-servers';
-export const pinnedServerIdsCacheKey = 'pinned-server-ids';
+export const starredServerIdsCacheKey = 'starred-server-ids';

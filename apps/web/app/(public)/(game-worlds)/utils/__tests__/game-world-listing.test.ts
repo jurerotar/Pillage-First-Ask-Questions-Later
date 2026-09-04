@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import type { Server } from '@pillage-first/types/models/server';
-import { sortGameWorldsByPinned } from 'app/(public)/(game-worlds)/utils/game-world-listing';
+import { sortGameWorldsByStarred } from 'app/(public)/(game-worlds)/utils/game-world-listing';
 
 const createServer = (id: string): Server => ({
   id,
@@ -19,11 +19,11 @@ const createServer = (id: string): Server => ({
   },
 });
 
-describe(sortGameWorldsByPinned, () => {
-  test('moves pinned worlds first and preserves the order within each group', () => {
+describe(sortGameWorldsByStarred, () => {
+  test('moves starred worlds first and preserves the order within each group', () => {
     const servers = [createServer('a'), createServer('b'), createServer('c')];
 
-    expect(sortGameWorldsByPinned(servers, ['c'])).toEqual([
+    expect(sortGameWorldsByStarred(servers, ['c'])).toEqual([
       servers[2],
       servers[0],
       servers[1],
