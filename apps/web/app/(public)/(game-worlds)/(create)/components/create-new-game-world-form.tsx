@@ -6,7 +6,7 @@ import { randomInt } from 'moderndash';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { z } from 'zod';
 import {
   npcVillageNameAdjectives,
@@ -73,6 +73,27 @@ const generateSeed = (length = 10): string => {
 };
 
 type CreateServerFormValues = z.infer<typeof createServerFormSchema>;
+type CreateServerFormInput = z.input<typeof createServerFormSchema>;
+
+export const getCreateServerFormDefaultValues = (
+  gameWorldTemplate?: Server,
+): CreateServerFormInput => ({
+  seed: gameWorldTemplate?.seed ?? '',
+  name: gameWorldTemplate ? `${gameWorldTemplate.name} copy` : '',
+  configuration: {
+    speed:
+      `${gameWorldTemplate?.configuration.speed ?? 1}` as CreateServerFormInput['configuration']['speed'],
+    mapSize:
+      `${gameWorldTemplate?.configuration.mapSize ?? 100}` as CreateServerFormInput['configuration']['mapSize'],
+  },
+  playerConfiguration: {
+    name: gameWorldTemplate?.playerConfiguration.name ?? 'Player',
+    tribe: gameWorldTemplate?.playerConfiguration.tribe ?? 'gauls',
+  },
+  gameplay: {
+    areOfflineNpcAttacksEnabled: true,
+  },
+});
 
 const createServerFromFormValues = (values: CreateServerFormValues) => {
   const id = crypto.randomUUID();
@@ -94,6 +115,9 @@ type MutateArgs = {
 export const CreateNewGameWorldForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const gameWorldTemplate = (state as { gameWorldTemplate?: Server } | null)
+    ?.gameWorldTemplate;
   const { createGameWorld, deleteGameWorld } = useGameWorldActions();
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
   const generationOverviewRef = useRef<HTMLDivElement>(null);
@@ -196,23 +220,9 @@ export const CreateNewGameWorldForm = () => {
     onError: (_, { server }) => deleteGameWorld({ server }),
   });
 
-  const form = useForm<CreateServerFormValues>({
+  const form = useForm<CreateServerFormInput, unknown, CreateServerFormValues>({
     resolver: zodResolver(createServerFormSchema),
-    defaultValues: {
-      seed: '',
-      name: '',
-      configuration: {
-        speed: '1',
-        mapSize: '100',
-      },
-      playerConfiguration: {
-        name: 'Player',
-        tribe: 'gauls',
-      },
-      gameplay: {
-        areOfflineNpcAttacksEnabled: true,
-      },
-    },
+    defaultValues: getCreateServerFormDefaultValues(gameWorldTemplate),
   });
 
   const onSubmit = (values: CreateServerFormValues) => {
@@ -223,6 +233,10 @@ export const CreateNewGameWorldForm = () => {
   };
 
   useEffect(() => {
+    if (gameWorldTemplate) {
+      return;
+    }
+
     const adjectiveIndex = randomInt(0, npcVillageNameAdjectives.length - 1);
     const nounIndex = randomInt(0, npcVillageNameNouns.length - 1);
 
@@ -231,7 +245,7 @@ export const CreateNewGameWorldForm = () => {
 
     form.setValue('seed', generateSeed());
     form.setValue('name', `${adjective}${noun}`);
-  }, [form]);
+  }, [form, gameWorldTemplate]);
 
   useEffect(() => {
     if (!isPending) {

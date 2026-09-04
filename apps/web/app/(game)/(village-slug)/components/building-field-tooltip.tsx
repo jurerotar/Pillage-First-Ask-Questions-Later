@@ -1,9 +1,13 @@
+import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getBuildingDataForLevel } from '@pillage-first/game-assets/utils/buildings';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
+import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
+import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
+import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { Icon } from 'app/components/icon';
 import { formatTime } from 'app/utils/time';
 
@@ -20,6 +24,12 @@ export const BuildingFieldTooltip = ({
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { virtualLevel, isUpgrading, isDowngrading } =
     useBuildingVirtualLevel(buildingFieldId);
+  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const { canUpgrade, errorBag } = useBuildingConstructionErrorBag(
+    buildingId,
+    virtualLevel,
+    buildingFieldId,
+  );
 
   const upgradingToLevel = virtualLevel;
 
@@ -64,7 +74,10 @@ export const BuildingFieldTooltip = ({
             :
           </span>
           <div className="flex gap-2">
-            <Resources resources={nextLevelResourceCost} />
+            <Resources
+              resources={nextLevelResourceCost}
+              availableResources={currentResources}
+            />
           </div>
           <span className="flex gap-1">
             <Icon
@@ -73,6 +86,7 @@ export const BuildingFieldTooltip = ({
             />
             {formattedTime}
           </span>
+          {!canUpgrade && <ErrorBag errorBag={errorBag} />}
         </>
       )}
     </div>

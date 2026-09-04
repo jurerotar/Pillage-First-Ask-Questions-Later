@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import {
+  FaCheck,
+  FaCopy,
   FaDownload,
   FaEllipsisVertical,
+  FaPen,
   FaSpinner,
+  FaThumbtack,
   FaTrash,
+  FaWandMagicSparkles,
+  FaXmark,
 } from 'react-icons/fa6';
 import { IoCopyOutline } from 'react-icons/io5';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
+import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import { parseAppVersion } from '@pillage-first/utils/version';
@@ -15,6 +22,7 @@ import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
 import { Badge } from 'app/components/ui/badge';
 import { Button } from 'app/components/ui/button';
+import { Input } from 'app/components/ui/input';
 import {
   Popover,
   PopoverContent,
@@ -25,11 +33,15 @@ import { daysSince } from 'app/utils/time';
 
 type ServerCardProps = {
   server: Server;
+  isPinned: boolean;
 };
 
-export const ServerCard = ({ server }: ServerCardProps) => {
+export const ServerCard = ({ server, isPinned }: ServerCardProps) => {
   const intl = useIntl();
+  const navigate = useNavigate();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [name, setName] = useState(server.name);
   const {
     exportGameWorld,
     isExportGameWorldPending,
@@ -37,12 +49,44 @@ export const ServerCard = ({ server }: ServerCardProps) => {
     isDuplicateGameWorldPending,
     deleteGameWorld,
     isDeleteGameWorldPending,
+    renameGameWorld,
+    isRenameGameWorldPending,
+    toggleGameWorldPin,
+    isPinGameWorldPending,
   } = useGameWorldActions();
 
   const isActionPending =
     isExportGameWorldPending ||
     isDuplicateGameWorldPending ||
-    isDeleteGameWorldPending;
+    isDeleteGameWorldPending ||
+    isRenameGameWorldPending ||
+    isPinGameWorldPending;
+
+  const handleRename = async () => {
+    const trimmedName = name.trim();
+
+    if (!trimmedName || trimmedName === server.name) {
+      setName(server.name);
+      setIsRenaming(false);
+      return;
+    }
+
+    try {
+      await renameGameWorld({ server, name: trimmedName });
+      setIsRenaming(false);
+    } catch {
+      // The mutation displays the error toast.
+    }
+  };
+
+  const handleCopySeed = async () => {
+    try {
+      await navigator.clipboard.writeText(server.seed);
+      toast.success('Seed copied to clipboard');
+    } catch {
+      toast.error('Failed to copy seed');
+    }
+  };
 
   const appVersion = env.VERSION;
 
@@ -124,6 +168,44 @@ export const ServerCard = ({ server }: ServerCardProps) => {
                 : 'Duplicate game world'}
             </Button>
             <Button
+              className="h-8 justify-start gap-2 px-2 text-xs"
+              disabled={isActionPending}
+              variant="ghost"
+              onClick={() => {
+                setIsActionsOpen(false);
+                void navigate('/game-worlds/create', {
+                  state: { gameWorldTemplate: server },
+                });
+              }}
+            >
+              <FaWandMagicSparkles className="text-gray-400 size-3.5" />
+              Create from same settings
+            </Button>
+            <Button
+              className="h-8 justify-start gap-2 px-2 text-xs"
+              disabled={isActionPending}
+              variant="ghost"
+              onClick={() => {
+                setIsActionsOpen(false);
+                void handleCopySeed();
+              }}
+            >
+              <FaCopy className="text-gray-400 size-3.5" />
+              Copy seed
+            </Button>
+            <Button
+              className="h-8 justify-start gap-2 px-2 text-xs"
+              disabled={isActionPending}
+              variant="ghost"
+              onClick={() => {
+                setIsActionsOpen(false);
+                void toggleGameWorldPin({ server });
+              }}
+            >
+              <FaThumbtack className="text-gray-400 size-3.5" />
+              {isPinned ? 'Unpin game world' : 'Pin game world'}
+            </Button>
+            <Button
               className="h-8 justify-start gap-2 px-2 text-xs text-red-500 hover:text-red-500"
               disabled={isActionPending}
               variant="ghost"
@@ -144,7 +226,85 @@ export const ServerCard = ({ server }: ServerCardProps) => {
           </div>
         </PopoverContent>
       </Popover>
-      <Text as="h2">{server.name}</Text>
+      <div className="flex items-center gap-1 pr-10 min-h-8">
+        {isRenaming ? (
+          <form
+            className="flex items-center gap-1 w-full"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleRename();
+            }}
+          >
+            <Input
+              aria-label="Game world name"
+              autoFocus
+              className="h-8"
+              disabled={isRenameGameWorldPending}
+              maxLength={100}
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') {
+                  setName(server.name);
+                  setIsRenaming(false);
+                }
+              }}
+            />
+            <Button
+              aria-label="Save game world name"
+              className="size-8 shrink-0"
+              disabled={isRenameGameWorldPending || !name.trim()}
+              size="icon"
+              type="submit"
+              variant="ghost"
+            >
+              {isRenameGameWorldPending ? (
+                <FaSpinner className="animate-spin" />
+              ) : (
+                <FaCheck />
+              )}
+            </Button>
+            <Button
+              aria-label="Cancel renaming game world"
+              className="size-8 shrink-0"
+              disabled={isRenameGameWorldPending}
+              size="icon"
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setName(server.name);
+                setIsRenaming(false);
+              }}
+            >
+              <FaXmark />
+            </Button>
+          </form>
+        ) : (
+          <>
+            <Text as="h2">{server.name}</Text>
+            {isPinned && (
+              <FaThumbtack
+                aria-label="Pinned game world"
+                className="size-3.5 text-muted-foreground"
+              />
+            )}
+            <Button
+              aria-label="Rename game world"
+              className="size-7"
+              disabled={isActionPending}
+              size="icon"
+              variant="ghost"
+              onClick={() => {
+                setName(server.name);
+                setIsActionsOpen(false);
+                setIsRenaming(true);
+              }}
+            >
+              <FaPen className="size-3.5" />
+            </Button>
+          </>
+        )}
+      </div>
       <div className="flex gap-2 flex-wrap">
         <Badge variant="successive">{server.configuration.speed}x</Badge>
         <Badge variant="successive">{server.playerConfiguration.tribe}</Badge>

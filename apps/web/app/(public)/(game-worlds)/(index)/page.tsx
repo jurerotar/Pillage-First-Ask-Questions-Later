@@ -25,7 +25,7 @@ export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
 const MyGameWorldsPage = () => {
   const { t } = useTranslation('public');
   const { pathname } = useLocation();
-  const { gameWorldListing } = useGameWorldListing();
+  const { gameWorldListing, pinnedServerIds } = useGameWorldListing();
 
   const title = t('{{title}} | Pillage First!', { title: 'Game worlds' });
 
@@ -65,6 +65,7 @@ const MyGameWorldsPage = () => {
                 <ServerCard
                   key={server.id}
                   server={server}
+                  isPinned={pinnedServerIds.includes(server.id)}
                 />
               ))}
             {gameWorldListing.length === 0 && (

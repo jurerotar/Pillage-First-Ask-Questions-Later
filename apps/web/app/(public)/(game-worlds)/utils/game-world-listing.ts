@@ -1,9 +1,44 @@
 import type { Server } from '@pillage-first/types/models/server';
 import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
-import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
+import {
+  availableServerCacheKey,
+  pinnedServerIdsCacheKey,
+} from 'app/(public)/constants/query-keys';
 import { reportError } from 'app/instrumentation/report-error';
 
 const gameWorldOpfsDirectory = 'pillage-first-ask-questions-later';
+
+export const getPinnedServerIds = (): string[] => {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const pinnedServerIds: unknown = JSON.parse(
+      window.localStorage.getItem(pinnedServerIdsCacheKey) ?? '[]',
+    );
+
+    return Array.isArray(pinnedServerIds)
+      ? pinnedServerIds.filter(
+          (serverId): serverId is string => typeof serverId === 'string',
+        )
+      : [];
+  } catch {
+    return [];
+  }
+};
+
+export const sortGameWorldsByPinned = (
+  servers: Server[],
+  pinnedServerIds: string[],
+): Server[] => {
+  const pinnedServerIdSet = new Set(pinnedServerIds);
+
+  return servers.toSorted(
+    (a, b) =>
+      Number(pinnedServerIdSet.has(b.id)) - Number(pinnedServerIdSet.has(a.id)),
+  );
+};
 
 export const getGameWorldListing = (): Server[] => {
   if (typeof window === 'undefined') {
@@ -11,9 +46,11 @@ export const getGameWorldListing = (): Server[] => {
   }
 
   try {
-    return JSON.parse(
+    const servers = JSON.parse(
       window.localStorage.getItem(availableServerCacheKey) ?? '[]',
     );
+
+    return sortGameWorldsByPinned(servers, getPinnedServerIds());
   } catch {
     return [];
   }
