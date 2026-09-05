@@ -1,25 +1,67 @@
-@mixin horseIconColorSet($base, $eye, $neck-front, $muzzle, $mane-front, $mane-back) {
-  & :global(#base) {
-    fill: $base;
+$horse-metal: #b8b8b8;
+$horse-eye-pupil: #ffffff;
+$horse-eye: #1d1714;
+
+@mixin horseIconColorSet(
+  $base,
+  $base-bottom,
+  $ears-back,
+  $ears-front,
+  $eye-lid-bottom,
+  $eye-lid-middle,
+  $eye-lid-top,
+  $eye-lid-top-detail,
+  $head-front,
+  $mane-back,
+  $mane-front,
+  $mouth-line,
+  $nose,
+  $nose-detail,
+  $harness-rope,
+) {
+  $horse-part-colors: (
+    "base": $base,
+    "base-bottom": $base-bottom,
+    "ears-back": $ears-back,
+    "ears-front": $ears-front,
+    "eye": $horse-eye,
+    "eye-lid-bottom": $eye-lid-bottom,
+    "eye-lid-middle": $eye-lid-middle,
+    "eye-lid-top": $eye-lid-top,
+    "eye-lid-top-detail": $eye-lid-top-detail,
+    "eye-pupil": $horse-eye-pupil,
+    "head-front": $head-front,
+    "mane-back": $mane-back,
+    "mane-front": $mane-front,
+    "mouth-line": $mouth-line,
+    "nose": $nose,
+    "nose-detail": $nose-detail,
+  );
+
+  @each $part, $color in $horse-part-colors {
+    & :global(#PillageFirstHorse-#{$part}) {
+      fill: $color !important;
+    }
   }
 
-  & :global(#eye_1_) {
-    fill: $eye;
+  & :global(#PillageFirstHorse-harness-body-straps),
+  & :global(#PillageFirstHorse-harness-brow-strap_1_),
+  & :global(#PillageFirstHorse-harness-face-strap_1_),
+  & :global(#PillageFirstHorse-harness-nose-buckle),
+  & :global(.PillageFirstHorse-st8),
+  & :global(.PillageFirstHorse-st9) {
+    fill: $harness-rope !important;
   }
 
-  & :global(#neck-front_1_) {
-    fill: $neck-front;
+  & :global(#PillageFirstHorse-harness-nose-ring),
+  & :global(#PillageFirstHorse-harness-nose-ring_1_) {
+    fill: none !important;
+    stroke: $horse-metal !important;
+    stroke-width: 8 !important;
   }
 
-  & :global(#muzzle_1_) {
-    fill: $muzzle;
-  }
-
-  & :global(#mane-front_1_) {
-    fill: $mane-front;
-  }
-
-  & :global(#mane-back_1_) {
-    fill: $mane-back;
+  & :global(#PillageFirstHorse-harness-brow-ring-top-detail),
+  & :global(#PillageFirstHorse-harness-brow-ring-bottom-detail) {
+    fill: $horse-metal !important;
   }
 }

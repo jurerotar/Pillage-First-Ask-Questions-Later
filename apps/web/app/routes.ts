@@ -21,6 +21,10 @@ export default [
       route('create', '(public)/(game-worlds)/(create)/page.tsx'),
       route('import', '(public)/(game-worlds)/(import)/page.tsx'),
     ]),
+    // Design system
+    ...prefix('design-system', [
+      ...prefix('icons', [index('(design-system)/(icons)/page.tsx')]),
+    ]),
     route('*', '(public)/(not-found)/page.tsx', {
       id: 'public-not-found-page',
     }),
