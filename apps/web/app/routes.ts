@@ -23,13 +23,7 @@ export default [
     ]),
     // Design system
     ...prefix('design-system', [
-      ...prefix('icons', [
-        index('(design-system)/(icons)/page.tsx'),
-        route(
-          'color-picker',
-          '(design-system)/(icons)/(color-picker)/page.tsx',
-        ),
-      ]),
+      ...prefix('icons', [index('(design-system)/(icons)/page.tsx')]),
     ]),
     route('*', '(public)/(not-found)/page.tsx', {
       id: 'public-not-found-page',

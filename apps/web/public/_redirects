@@ -10,7 +10,6 @@
 /frequently-asked-questions       /frequently-asked-questions/index.html          200
 /latest-updates                   /latest-updates/index.html                      200
 /design-system/icons              /design-system/icons/index.html                 200
-/design-system/icons/color-picker /design-system/icons/color-picker/index.html    200
 /not-found                        /not-found/index.html                           404!
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===

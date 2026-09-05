@@ -36,85 +36,85 @@
 }
 
 .roman-scout {
-  @include horseIconColorSet(#a7794f, #755136, #916742, #8d6748, #5b3926, #1d1714, #5b3926, #5b3926, #5b3926, #5b3926, #ffffff, #b8895e, #3a2417, #3a2417, #2a1b14, #2f2019, #60412d, #9f1d1d)
+  @include horseIconColorSet(#a7794f, #755136, #8d6748, #5b3926, #5b3926, #5b3926, #5b3926, #5b3926, #b8895e, #3a2417, #3a2417, #2a1b14, #2f2019, #60412d, #9f1d1d)
 }
 
 .equites-imperatoris {
-  @include horseIconColorSet(#6a4429, #452a19, #57361f, #5a3a25, #332016, #1d1714, #332016, #332016, #332016, #332016, #ffffff, #7b5132, #20130d, #20130d, #1b100b, #261812, #3a2418, #9f1d1d)
+  @include horseIconColorSet(#6a4429, #452a19, #5a3a25, #332016, #332016, #332016, #332016, #332016, #7b5132, #20130d, #20130d, #1b100b, #261812, #3a2418, #9f1d1d)
 }
 
 .equites-caesaris {
-  @include horseIconColorSet(#d9d0c5, #a99d91, #c5baae, #beb4aa, #82776e, #1d1714, #82776e, #82776e, #82776e, #82776e, #ffffff, #ebe4dc, #eee3d3, #eee3d3, #5b514b, #8b8178, #b8ada2, #9f1d1d)
+  @include horseIconColorSet(#d9d0c5, #a99d91, #beb4aa, #82776e, #82776e, #82776e, #82776e, #82776e, #ebe4dc, #eee3d3, #eee3d3, #5b514b, #8b8178, #b8ada2, #9f1d1d)
 }
 
 .gaul-scout {
-  @include horseIconColorSet(#b28047, #7c5630, #9a6b3a, #9a7047, #5f3b22, #1d1714, #5f3b22, #5f3b22, #5f3b22, #5f3b22, #ffffff, #c08f57, #3b2617, #3b2617, #2a1a11, #3f2a1d, #704b30, #5f7f2f)
+  @include horseIconColorSet(#b28047, #7c5630, #9a7047, #5f3b22, #5f3b22, #5f3b22, #5f3b22, #5f3b22, #c08f57, #3b2617, #3b2617, #2a1a11, #3f2a1d, #704b30, #5f7f2f)
 }
 
 .theutates-thunder {
-  @include horseIconColorSet(#c3b7aa, #8b8075, #aea296, #a89c91, #746a61, #1d1714, #746a61, #746a61, #746a61, #746a61, #ffffff, #d4cabf, #2f2925, #2f2925, #544b44, #786f67, #9d9288, #5f7f2f)
+  @include horseIconColorSet(#c3b7aa, #8b8075, #a89c91, #746a61, #746a61, #746a61, #746a61, #746a61, #d4cabf, #2f2925, #2f2925, #544b44, #786f67, #9d9288, #5f7f2f)
 }
 
 .druidrider {
-  @include horseIconColorSet(#dcc7ad, #b49a7c, #cdb494, #c7af91, #90775e, #1d1714, #90775e, #90775e, #90775e, #90775e, #ffffff, #ead7bf, #75604b, #75604b, #695542, #978068, #bba187, #5f7f2f)
+  @include horseIconColorSet(#dcc7ad, #b49a7c, #c7af91, #90775e, #90775e, #90775e, #90775e, #90775e, #ead7bf, #75604b, #75604b, #695542, #978068, #bba187, #5f7f2f)
 }
 
 .haeduan {
-  @include horseIconColorSet(#8b5a34, #56351f, #724627, #715033, #3f291a, #1d1714, #3f291a, #3f291a, #3f291a, #3f291a, #ffffff, #a06b3f, #e6d3b9, #e6d3b9, #2b1b12, #382419, #614028, #5f7f2f)
+  @include horseIconColorSet(#8b5a34, #56351f, #715033, #3f291a, #3f291a, #3f291a, #3f291a, #3f291a, #a06b3f, #e6d3b9, #e6d3b9, #2b1b12, #382419, #614028, #5f7f2f)
 }
 
 .paladin {
-  @include horseIconColorSet(#a77b52, #745236, #906744, #8d694b, #573a27, #1d1714, #573a27, #573a27, #573a27, #573a27, #ffffff, #b98b60, #392617, #392617, #2a1c13, #4b3425, #715039, #6b4a2e)
+  @include horseIconColorSet(#a77b52, #745236, #8d694b, #573a27, #573a27, #573a27, #573a27, #573a27, #b98b60, #392617, #392617, #2a1c13, #4b3425, #715039, #6b4a2e)
 }
 
 .teutonic-knight {
-  @include horseIconColorSet(#44474c, #25272b, #36393e, #3d4045, #202226, #1d1714, #202226, #202226, #202226, #202226, #ffffff, #55585e, #191b1f, #191b1f, #15171a, #272a2f, #393d43, #6b4a2e)
+  @include horseIconColorSet(#44474c, #25272b, #3d4045, #202226, #202226, #202226, #202226, #202226, #55585e, #191b1f, #191b1f, #15171a, #272a2f, #393d43, #6b4a2e)
 }
 
 .egyptian-scout {
-  @include horseIconColorSet(#efe6d7, #c3b29f, #dfd0bd, #dbcbb8, #9b8873, #1d1714, #9b8873, #9b8873, #9b8873, #9b8873, #ffffff, #f8efe1, #f2e7d0, #f2e7d0, #6f5e4f, #9a8877, #cbbba8, #c7a66a)
+  @include horseIconColorSet(#efe6d7, #c3b29f, #dbcbb8, #9b8873, #9b8873, #9b8873, #9b8873, #9b8873, #f8efe1, #f2e7d0, #f2e7d0, #6f5e4f, #9a8877, #cbbba8, #c7a66a)
 }
 
 .anhur-guard {
-  @include horseIconColorSet(#c79a68, #8f6742, #af7d4f, #ad835d, #6b4a2d, #1d1714, #6b4a2d, #6b4a2d, #6b4a2d, #6b4a2d, #ffffff, #d8aa76, #3d2a1b, #3d2a1b, #302016, #493222, #7a5638, #c7a66a)
+  @include horseIconColorSet(#c79a68, #8f6742, #ad835d, #6b4a2d, #6b4a2d, #6b4a2d, #6b4a2d, #6b4a2d, #d8aa76, #3d2a1b, #3d2a1b, #302016, #493222, #7a5638, #c7a66a)
 }
 
 .resheph-chariot {
-  @include horseIconColorSet(#d7cec3, #9d9287, #c3b8ac, #b9afa5, #7d746b, #1d1714, #7d746b, #7d746b, #7d746b, #7d746b, #ffffff, #eee6dd, #2f2925, #2f2925, #514942, #746c64, #9b9188, #c7a66a)
+  @include horseIconColorSet(#d7cec3, #9d9287, #b9afa5, #7d746b, #7d746b, #7d746b, #7d746b, #7d746b, #eee6dd, #2f2925, #2f2925, #514942, #746c64, #9b9188, #c7a66a)
 }
 
 .hun-scout {
-  @include horseIconColorSet(#8b5428, #5a3417, #74441f, #744b2d, #462714, #1d1714, #462714, #462714, #462714, #462714, #ffffff, #9d6331, #2d1708, #2d1708, #241307, #351d0d, #5f391b, #8a3a16)
+  @include horseIconColorSet(#8b5428, #5a3417, #744b2d, #462714, #462714, #462714, #462714, #462714, #9d6331, #2d1708, #2d1708, #241307, #351d0d, #5f391b, #8a3a16)
 }
 
 .steppe-rider {
-  @include horseIconColorSet(#b88a55, #815f39, #9f7547, #9b7650, #614225, #1d1714, #614225, #614225, #614225, #614225, #ffffff, #c79a63, #efe1cb, #efe1cb, #3d2818, #513824, #7f5d3b, #8a3a16)
+  @include horseIconColorSet(#b88a55, #815f39, #9b7650, #614225, #614225, #614225, #614225, #614225, #c79a63, #efe1cb, #efe1cb, #3d2818, #513824, #7f5d3b, #8a3a16)
 }
 
 .marksman {
-  @include horseIconColorSet(#8c623a, #594020, #75502f, #76543a, #46301a, #1d1714, #46301a, #46301a, #46301a, #46301a, #ffffff, #9d7146, #6f4728, #6f4728, #2a1b0e, #3c2919, #604326, #8a3a16)
+  @include horseIconColorSet(#8c623a, #594020, #76543a, #46301a, #46301a, #46301a, #46301a, #46301a, #9d7146, #6f4728, #6f4728, #2a1b0e, #3c2919, #604326, #8a3a16)
 }
 
 .marauder {
-  @include horseIconColorSet(#5f3a1f, #371f0f, #4f2e17, #51331e, #2d190c, #1d1714, #2d190c, #2d190c, #2d190c, #2d190c, #ffffff, #734726, #1e0f06, #1e0f06, #170b04, #251207, #3f2412, #8a3a16)
+  @include horseIconColorSet(#5f3a1f, #371f0f, #51331e, #2d190c, #2d190c, #2d190c, #2d190c, #2d190c, #734726, #1e0f06, #1e0f06, #170b04, #251207, #3f2412, #8a3a16)
 }
 
 .elpida-rider {
-  @include horseIconColorSet(#8b8783, #5c5854, #74706c, #7d7873, #4b4743, #1d1714, #4b4743, #4b4743, #4b4743, #4b4743, #ffffff, #aaa39c, #eee6dc, #eee6dc, #34302d, #4d4945, #6d6863, #b8860b)
+  @include horseIconColorSet(#8b8783, #5c5854, #7d7873, #4b4743, #4b4743, #4b4743, #4b4743, #4b4743, #aaa39c, #eee6dc, #eee6dc, #34302d, #4d4945, #6d6863, #b8860b)
 }
 
 .corinthian-crusher {
-  @include horseIconColorSet(#6d3f24, #3f2414, #5a341d, #604128, #2c190e, #1d1714, #2c190e, #2c190e, #2c190e, #2c190e, #ffffff, #84502e, #1d1009, #1d1009, #1a0e08, #28170d, #472916, #b8860b)
+  @include horseIconColorSet(#6d3f24, #3f2414, #604128, #2c190e, #2c190e, #2c190e, #2c190e, #2c190e, #84502e, #1d1009, #1d1009, #1a0e08, #28170d, #472916, #b8860b)
 }
 
 .natarian-scout {
-  @include horseIconColorSet(#6a6668, #403c3e, #575254, #5d585a, #343032, #1d1714, #343032, #343032, #343032, #343032, #ffffff, #7b7678, #211d20, #211d20, #1a1719, #2a2528, #504a4e, #2f2f2f)
+  @include horseIconColorSet(#6a6668, #403c3e, #5d585a, #343032, #343032, #343032, #343032, #343032, #7b7678, #211d20, #211d20, #1a1719, #2a2528, #504a4e, #2f2f2f)
 }
 
 .axerider {
-  @include horseIconColorSet(#67635f, #403d3a, #55514d, #595550, #302e2c, #1d1714, #302e2c, #302e2c, #302e2c, #302e2c, #ffffff, #77726c, #292725, #292725, #242220, #393633, #514d49, #2f2f2f)
+  @include horseIconColorSet(#67635f, #403d3a, #595550, #302e2c, #302e2c, #302e2c, #302e2c, #302e2c, #77726c, #292725, #292725, #242220, #393633, #514d49, #2f2f2f)
 }
 
 .natarian-knight {
-  @include horseIconColorSet(#242126, #111013, #1c191e, #211f23, #0f0d11, #1d1714, #0f0d11, #0f0d11, #0f0d11, #0f0d11, #ffffff, #343038, #000000, #000000, #0b090c, #141117, #26222b, #2f2f2f)
+  @include horseIconColorSet(#242126, #111013, #211f23, #0f0d11, #0f0d11, #0f0d11, #0f0d11, #0f0d11, #343038, #000000, #000000, #0b090c, #141117, #26222b, #2f2f2f)
 }

@@ -11,7 +11,6 @@ const publicPagesToPrerender = [
   '/game-worlds/create',
   '/game-worlds/import',
   '/design-system/icons',
-  '/design-system/icons/color-picker',
   '/frequently-asked-questions',
   '/get-involved',
   '/latest-updates',
