@@ -14,12 +14,12 @@ export const FACTION_COLORS: Record<Faction, string> = {
 };
 
 export const TRIBE_COLORS: Record<Tribe, string> = {
-  romans: '#b22222',
-  gauls: '#0b6fab',
-  teutons: '#2d3748',
-  huns: '#b9732f',
-  egyptians: '#c68600',
-  spartans: '#8b0000',
+  romans: '#9f1d1d',
+  gauls: '#5f7f2f',
+  teutons: '#6b4a2e',
+  huns: '#8a3a16',
+  egyptians: '#c7a66a',
+  spartans: '#b8860b',
   nature: '#10b981',
-  natars: '#1f2937',
+  natars: '#2f2f2f',
 };
