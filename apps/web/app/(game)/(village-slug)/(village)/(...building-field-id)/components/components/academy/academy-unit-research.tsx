@@ -53,7 +53,7 @@ export const AcademyUnitResearch = () => {
                 <div className="p-2 border border-border">
                   <UnitCard unitId={id}>
                     <UnitOverview />
-                    {!isResearched && <UnitCost />}
+                    {isResearched && <UnitCost />}
 
                     <UnitResearch />
                     {!isResearched && !canResearch && <UnitRequirements />}

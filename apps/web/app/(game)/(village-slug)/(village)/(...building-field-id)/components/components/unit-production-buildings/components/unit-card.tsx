@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { t } from 'i18next';
 import {
   createContext,
   Fragment,
@@ -132,7 +133,6 @@ type UnitCardProps = {
 export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
   const { unitId, children } = props;
 
-  const { t } = useTranslation();
   const { buildingField } = use(BuildingFieldContext);
   const troopTrainingConfig =
     buildingField == null
@@ -171,7 +171,6 @@ export const UnitOverview = () => {
         />
         <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
       </div>
-      <Text>{t(`UNITS.${unitId}.SUMMARY`)}</Text>
     </section>
   );
 };
@@ -383,9 +382,6 @@ export const UnitResearch = () => {
       </section>
       {canResearch && (
         <section className="flex flex-col gap-2">
-          <Text as="h3">{t('Available actions')}</Text>
-          <ErrorBag errorBag={errorBag} />
-
           <Button
             onClick={researchUnit}
             variant="default"
@@ -396,6 +392,7 @@ export const UnitResearch = () => {
               unit: t(`UNITS.${unitId}.NAME`),
             })}
           </Button>
+          <ErrorBag errorBag={errorBag} />
         </section>
       )}
     </>
@@ -526,8 +523,6 @@ export const UnitImprovement = () => {
         </div>
       </section>
       <section className="flex flex-col gap-2">
-        <Text as="h3">{t('Available actions')}</Text>
-        <ErrorBag errorBag={errorBag} />
         <Button
           size="fit"
           variant="default"
@@ -536,6 +531,7 @@ export const UnitImprovement = () => {
         >
           {t('Upgrade to level {{level}}', { level: unitVirtualLevel + 1 })}
         </Button>
+        <ErrorBag errorBag={errorBag} />
       </section>
     </>
   );

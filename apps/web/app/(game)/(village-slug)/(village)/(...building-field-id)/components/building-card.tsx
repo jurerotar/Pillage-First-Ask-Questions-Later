@@ -130,14 +130,13 @@ export const BuildingOverview = () => {
 
   return (
     <section className="flex flex-col gap-2">
-      <div className="flex flex-col gap-1 max-w-4/5">
+      <div className="flex flex-col gap-1 md:max-w-4/5">
         <Text
           as="h2"
           className="inline-flex"
         >
           {t(`BUILDINGS.${building.id}.NAME`)}
         </Text>
-        <Text>{t(`BUILDINGS.${building.id}.SUMMARY`)}</Text>
       </div>
       {(isUpgrading || isDowngrading) && (
         <span className="inline-flex text-warning">
