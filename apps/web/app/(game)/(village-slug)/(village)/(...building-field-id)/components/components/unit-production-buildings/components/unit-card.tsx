@@ -735,6 +735,15 @@ export const UnitRecruitment = () => {
     });
   };
 
+  if (errorBag.length > 0) {
+    return (
+      <section className="flex flex-col gap-2">
+        <Text as="h3">{t('Train')}</Text>
+        <ErrorBag errorBag={errorBag} />
+      </section>
+    );
+  }
+
   return (
     <section className="flex flex-col gap-2">
       <Text as="h3">{t('Train')}</Text>
