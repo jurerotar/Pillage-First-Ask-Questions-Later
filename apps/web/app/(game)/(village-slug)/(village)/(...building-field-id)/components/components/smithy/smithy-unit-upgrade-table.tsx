@@ -84,7 +84,7 @@ export const SmithyUnitUpgradeTable = () => {
             setSelectedUnitId(value as Unit['id']);
           }}
         >
-          <SelectTrigger className="w-full sm:w-72">
+          <SelectTrigger className="w-fit">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

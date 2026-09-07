@@ -5,10 +5,11 @@ import type { Building } from '@pillage-first/types/models/building';
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
 
 export const getHasEnoughFreeCrop = (
+  buildingId: Building['id'],
   populationDifference: number,
   buildingWheatLimit: number,
 ): boolean => {
-  if (populationDifference === 0) {
+  if (buildingId === 'WHEAT_FIELD' || populationDifference === 0) {
     return true;
   }
   return buildingWheatLimit >= populationDifference;
@@ -32,7 +33,9 @@ export const useHasEnoughFreeCrop = (
 
   const errorBag: string[] = [];
 
-  if (!getHasEnoughFreeCrop(populationDifference, buildingWheatLimit)) {
+  if (
+    !getHasEnoughFreeCrop(buildingId, populationDifference, buildingWheatLimit)
+  ) {
     const missingFreeCrop = Math.abs(buildingWheatLimit - populationDifference);
     errorBag.push(
       t('Your wheat production is too low. Increase it by {{amount}}.', {

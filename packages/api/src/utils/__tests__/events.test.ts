@@ -729,6 +729,62 @@ describe('events utils', () => {
       ).not.toThrow();
     });
 
+    test('buildingLevelChange - wheat fields should not require free crop', async () => {
+      const database = await prepareTestDatabase();
+      const villageId = getAnyVillageId(database);
+      const buildingFieldId = database.selectValue({
+        sql: `
+          SELECT bf.field_id
+          FROM
+            building_fields bf
+              JOIN building_ids bi ON bi.id = bf.building_id
+          WHERE
+            bf.village_id = $village_id
+            AND bi.building = 'WHEAT_FIELD'
+          LIMIT 1;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      })!;
+
+      database.exec({
+        sql: `
+          UPDATE effects
+          SET value = -100000
+          WHERE
+            tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+            AND effect_id = (
+              SELECT id FROM effect_ids WHERE effect = 'wheatProduction'
+            )
+            AND source_id = (
+              SELECT id FROM effect_source_ids WHERE source = 'building'
+            )
+            AND source_specifier = 0;
+        `,
+        bind: { $village_id: villageId },
+      });
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({
+            villageId,
+            buildingFieldId,
+            buildingId: 'WHEAT_FIELD',
+            previousLevel: 5,
+            level: 6,
+          }),
+        ),
+      ).not.toThrow();
+
+      expect(() =>
+        validateEventCreationPrerequisites(
+          database,
+          createBuildingLevelChangeEventMock({ villageId }),
+        ),
+      ).toThrow('Not enough free crop');
+    });
+
     test('troopMovementAdventure - should throw if no adventure points are available', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);

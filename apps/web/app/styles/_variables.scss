@@ -17,6 +17,17 @@ $resources: "wood", "clay", "iron", "wheat";
 
 $tribes: "romans", "gauls", "teutons", "huns", "egyptians", "nature", "natars", "spartans";
 
+$tribeColors: (
+  'romans':    #9f1d1d,
+  'gauls':     #5f7f2f,
+  'teutons':   #6b4a2e,
+  'huns':      #8a3a16,
+  'egyptians': #c7a66a,
+  'nature':    #10b981,
+  'natars':    #2f2f2f,
+  'spartans':  #b8860b,
+);
+
 $villageSizes: "xs", "sm", "md", "lg";
 
 $factionReputationColors: (

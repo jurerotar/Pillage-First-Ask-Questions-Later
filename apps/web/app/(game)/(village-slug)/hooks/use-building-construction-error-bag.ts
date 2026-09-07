@@ -145,6 +145,7 @@ export const useBuildingConstructionStatus = (
   } = developerSettings;
 
   const hasEnoughFreeCrop = getHasEnoughFreeCrop(
+    buildingId,
     nextLevelPopulation - population,
     computedWheatProductionEffect.buildingWheatLimit,
   );

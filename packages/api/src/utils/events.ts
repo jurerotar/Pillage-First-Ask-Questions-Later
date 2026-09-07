@@ -800,7 +800,7 @@ export const validateEventCreationPrerequisites = (
         level,
       );
 
-      if (freeCrop < requiredFreeCrop) {
+      if (buildingId !== 'WHEAT_FIELD' && freeCrop < requiredFreeCrop) {
         throw new Error('Not enough free crop');
       }
     }

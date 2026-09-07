@@ -78,7 +78,6 @@ const unfinishedBuildings = new Set<Building['id']>([
   'TOWN_HALL',
   'EMBASSY',
   'COMMAND_CENTER',
-  'TRAPPER',
   'MARKETPLACE',
 ]);
 
