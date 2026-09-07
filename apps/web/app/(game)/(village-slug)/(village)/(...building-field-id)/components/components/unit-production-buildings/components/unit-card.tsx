@@ -158,7 +158,11 @@ export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
   );
 };
 
-export const UnitOverview = () => {
+type UnitOverviewProps = {
+  showUnitLevel?: boolean;
+};
+
+export const UnitOverview = ({ showUnitLevel = false }: UnitOverviewProps) => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
 
@@ -170,8 +174,24 @@ export const UnitOverview = () => {
           type={unitIdToUnitIconMapper(unitId)}
         />
         <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
+        {showUnitLevel && <UnitImprovementLevel />}
       </div>
     </section>
+  );
+};
+
+export const UnitImprovementLevel = () => {
+  const { unitId } = use(UnitCardContext);
+  const { t } = useTranslation();
+  const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
+
+  const ongoingUpgradeCount = unitVirtualLevel - unitLevel;
+
+  return (
+    <Text className="text-warning font-medium text-sm">
+      {t('level {{unitLevel}}', { unitLevel })}
+      {ongoingUpgradeCount > 0 && <span> (+ {ongoingUpgradeCount})</span>}
+    </Text>
   );
 };
 
@@ -215,13 +235,6 @@ export const UnitAttributes = () => {
       <Text as="h3">
         {t('Attributes at level {{level}}', { level: unitLevel })}
       </Text>
-      {unitLevel !== unitVirtualLevel && (
-        <Text className="text-warning">
-          {t('Currently being upgraded to level {{level}}', {
-            level: unitVirtualLevel,
-          })}
-        </Text>
-      )}
       <div className="flex gap-2 items-center">
         <div className="flex gap-2 flex-wrap">
           {Object.entries(dynamicAttributes).map(([key, value]) => (
@@ -722,26 +735,9 @@ export const UnitRecruitment = () => {
     });
   };
 
-  const buttonLabel = (() => {
-    if (errorBag.length > 0) {
-      return t('Missing requirements');
-    }
-    if (maxUnits === 0) {
-      return t('Not enough resources');
-    }
-    if (amount === 0) {
-      return t('Select the amount of units to train');
-    }
-
-    return t('Train {{count}} {{unit}}', {
-      count: amount,
-      unit: t(`UNITS.${unitId}.NAME`, { count: amount }),
-    });
-  })();
-
   return (
     <section className="flex flex-col gap-2">
-      <Text as="h3">{t('Total cost')}</Text>
+      <Text as="h3">{t('Train')}</Text>
       <div className="flex items-start gap-2 justify-start flex-wrap">
         <Resources
           availableResources={currentResources}
@@ -804,7 +800,7 @@ export const UnitRecruitment = () => {
           type="submit"
           disabled={maxUnits === 0 || amount === 0 || errorBag.length > 0}
         >
-          {buttonLabel}
+          {t('Train')}
         </Button>
       </form>
       <ErrorBag errorBag={errorBag} />
