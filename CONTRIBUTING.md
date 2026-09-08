@@ -82,7 +82,7 @@ easier to find and modify related code.
 - **Localization:**
   [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com) + [i18next-cli](https://github.com/i18next/i18next-cli)
 - **Unit testing:** [Vitest](https://vitest.dev)
-- **Deployment:** Netlify ([Master Deploy](https://pillagefirst.netlify.app)
+- **Deployment:** Netlify ([Master Deploy](https://pillagefirst.com)
 - **Version Control:** GitHub ([Repository](https://github.com/jurerotar/Pillage-First-Ask-Questions-Later))
 
 ## 4. Contributing
