@@ -72,7 +72,7 @@ export const HospitalTroopTraining = () => {
               className="p-2 border border-border"
             >
               <UnitCard unitId={unitId}>
-                <UnitOverview />
+                <UnitOverview showUnitLevel />
                 <UnitAttributes />
                 <UnitHealingCost />
                 <UnitHealing woundedAmount={amount} />

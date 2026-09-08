@@ -195,7 +195,7 @@ export const HuntersLodgeAnimalCages = () => {
                 </div>
               </div>
             </section>
-            <section className="pt-2 flex flex-col gap-2 border-t border-border">
+            <section className="flex flex-col gap-2">
               <Text as="h3">{t('Build cages')}</Text>
               <div className="flex items-start gap-2 justify-start flex-wrap">
                 <Resources

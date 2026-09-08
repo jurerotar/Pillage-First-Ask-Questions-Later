@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { t } from 'i18next';
 import {
   createContext,
   Fragment,
@@ -7,7 +8,7 @@ import {
   useMemo,
 } from 'react';
 import { useForm } from 'react-hook-form';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
   calculateMaxUnits,
@@ -132,7 +133,6 @@ type UnitCardProps = {
 export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
   const { unitId, children } = props;
 
-  const { t } = useTranslation();
   const { buildingField } = use(BuildingFieldContext);
   const troopTrainingConfig =
     buildingField == null
@@ -158,20 +158,40 @@ export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
   );
 };
 
-export const UnitOverview = () => {
+type UnitOverviewProps = {
+  showUnitLevel?: boolean;
+};
+
+export const UnitOverview = ({ showUnitLevel = false }: UnitOverviewProps) => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
 
   return (
-    <section>
+    <section className="flex flex-col gap-2">
       <div className="inline-flex gap-2 items-center font-semibold">
         <Icon
           className="size-6"
           type={unitIdToUnitIconMapper(unitId)}
         />
         <Text as="h2">{t(`UNITS.${unitId}.NAME`)}</Text>
+        {showUnitLevel && <UnitImprovementLevel />}
       </div>
     </section>
+  );
+};
+
+export const UnitImprovementLevel = () => {
+  const { unitId } = use(UnitCardContext);
+  const { t } = useTranslation();
+  const { unitLevel, unitVirtualLevel } = useUnitImprovementLevel(unitId);
+
+  const ongoingUpgradeCount = unitVirtualLevel - unitLevel;
+
+  return (
+    <Text className="text-warning font-medium text-sm">
+      {t('level {{unitLevel}}', { unitLevel })}
+      {ongoingUpgradeCount > 0 && <span> (+ {ongoingUpgradeCount})</span>}
+    </Text>
   );
 };
 
@@ -211,17 +231,10 @@ export const UnitAttributes = () => {
   };
 
   return (
-    <section className="flex flex-col gap-2 pt-2 border-t border-border">
+    <section className="flex flex-col gap-2">
       <Text as="h3">
         {t('Attributes at level {{level}}', { level: unitLevel })}
       </Text>
-      {unitLevel !== unitVirtualLevel && (
-        <Text className="text-warning">
-          {t('Currently being upgraded to level {{level}}', {
-            level: unitVirtualLevel,
-          })}
-        </Text>
-      )}
       <div className="flex gap-2 items-center">
         <div className="flex gap-2 flex-wrap">
           {Object.entries(dynamicAttributes).map(([key, value]) => (
@@ -314,7 +327,7 @@ export const UnitResearch = () => {
 
   if (isThisUnitCurrentlyBeingResearched) {
     return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+      <section className="flex flex-col gap-2">
         <Text as="h3">{t('Research')}</Text>
         <Text className="text-green-600">
           {t('{{unit}} is currently being researched', {
@@ -327,7 +340,7 @@ export const UnitResearch = () => {
 
   if (hasResearched) {
     return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+      <section className="flex flex-col gap-2">
         <Text as="h3">{t('Research')}</Text>
         <Text className="text-green-600">
           {t('{{unit}} researched', {
@@ -363,7 +376,7 @@ export const UnitResearch = () => {
 
   return (
     <>
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+      <section className="flex flex-col gap-2">
         <Text as="h3">{t('Research cost and duration')}</Text>
         <div className="flex gap-2 items-center flex-wrap">
           <Resources
@@ -381,10 +394,7 @@ export const UnitResearch = () => {
         </div>
       </section>
       {canResearch && (
-        <section className="flex flex-col gap-2 pt-2 border-t border-border">
-          <Text as="h3">{t('Available actions')}</Text>
-          <ErrorBag errorBag={errorBag} />
-
+        <section className="flex flex-col gap-2">
           <Button
             onClick={researchUnit}
             variant="default"
@@ -395,6 +405,7 @@ export const UnitResearch = () => {
               unit: t(`UNITS.${unitId}.NAME`),
             })}
           </Button>
+          <ErrorBag errorBag={errorBag} />
         </section>
       )}
     </>
@@ -491,7 +502,7 @@ export const UnitImprovement = () => {
 
   if (isMaxLevel) {
     return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+      <section className="flex flex-col gap-2">
         <Text as="h3">{t('Improvement')}</Text>
         <Text className="text-green-600">
           {t('{{unit}} is fully upgraded', {
@@ -504,7 +515,7 @@ export const UnitImprovement = () => {
 
   return (
     <>
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
+      <section className="flex flex-col gap-2">
         <Text as="h3">
           {t('Improvement cost and duration for level {{level}}', {
             level: unitVirtualLevel + 1,
@@ -524,9 +535,7 @@ export const UnitImprovement = () => {
           </div>
         </div>
       </section>
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
-        <Text as="h3">{t('Available actions')}</Text>
-        <ErrorBag errorBag={errorBag} />
+      <section className="flex flex-col gap-2">
         <Button
           size="fit"
           variant="default"
@@ -535,6 +544,7 @@ export const UnitImprovement = () => {
         >
           {t('Upgrade to level {{level}}', { level: unitVirtualLevel + 1 })}
         </Button>
+        <ErrorBag errorBag={errorBag} />
       </section>
     </>
   );
@@ -555,25 +565,22 @@ export const UnitRequirements = () => {
   }
 
   return (
-    <section className="pt-2 flex flex-col gap-2 border-t border-border">
+    <section className="flex flex-col gap-2">
       <Text as="h3">{t('Requirements')}</Text>
       <ul className="flex gap-2 flex-wrap">
         {assessedRequirements.map((assessedRequirement, index) => (
           <Fragment key={assessedRequirement.buildingId}>
             <li className="whitespace-nowrap">
               <Text>
+                <VillageBuildingLink
+                  buildingId={assessedRequirement.buildingId}
+                />{' '}
                 <span
                   className={clsx(
-                    assessedRequirement.fulfilled &&
-                      'text-muted-foreground line-through',
+                    !assessedRequirement.fulfilled && 'text-destructive',
                   )}
                 >
-                  <Trans>
-                    <VillageBuildingLink
-                      buildingId={assessedRequirement.buildingId}
-                    />{' '}
-                    level {{ level: assessedRequirement.level }}
-                  </Trans>
+                  {t('level {{level}}', { level: assessedRequirement.level })}
                 </span>
                 {index !== assessedRequirements.length - 1 && ','}
               </Text>
@@ -596,7 +603,7 @@ export const UnitCost = () => {
   const { total: trainingDurationModifier } = useComputedEffect(durationEffect);
 
   return (
-    <section className="flex flex-col gap-2 pt-2 border-t border-border">
+    <section className="flex flex-col gap-2">
       <Text as="h3">{t('Cost and training duration')}</Text>
       <div className="flex gap-2 items-start justify-start flex-wrap">
         <Resources
@@ -706,13 +713,7 @@ export const UnitRecruitment = () => {
 
   const form = useForm({ defaultValues: { amount: 0 } });
 
-  if (troopTrainingConfig === null) {
-    throw new Error(
-      'UnitRecruitment must be rendered in a troop-training building context.',
-    );
-  }
-
-  const { buildingId } = troopTrainingConfig;
+  const { buildingId } = troopTrainingConfig!;
   const { register, handleSubmit, setValue, watch } = form;
   const amount = watch('amount');
   const duration = Math.trunc(total * individualUnitRecruitmentDuration);
@@ -734,95 +735,83 @@ export const UnitRecruitment = () => {
     });
   };
 
-  const buttonLabel = (() => {
-    if (errorBag.length > 0) {
-      return t('Missing requirements');
-    }
-    if (maxUnits === 0) {
-      return t('Not enough resources');
-    }
-    if (amount === 0) {
-      return t('Select the amount of units to train');
-    }
-
-    return t('Train {{count}} {{unit}}', {
-      count: amount,
-      unit: t(`UNITS.${unitId}.NAME`, { count: amount }),
-    });
-  })();
+  if (errorBag.length > 0) {
+    return (
+      <section className="flex flex-col gap-2">
+        <Text as="h3">{t('Train')}</Text>
+        <ErrorBag errorBag={errorBag} />
+      </section>
+    );
+  }
 
   return (
-    <section className="pt-2 flex flex-col gap-2 border-t border-border">
-      <Text as="h3">{t('Train units')}</Text>
-      {errorBag.length === 0 && (
-        <>
-          <div className="flex items-start gap-2 justify-start flex-wrap">
-            <Resources
-              availableResources={currentResources}
-              resources={totalCost}
+    <section className="flex flex-col gap-2">
+      <Text as="h3">{t('Train')}</Text>
+      <div className="flex items-start gap-2 justify-start flex-wrap">
+        <Resources
+          availableResources={currentResources}
+          resources={totalCost}
+        />
+        <div className="flex gap-1 items-center">
+          <Icon
+            className="size-5"
+            type={durationEffect}
+          />
+          {formattedDuration}
+        </div>
+        <div className="flex gap-1 items-center">
+          <Icon
+            className="size-5"
+            subIcon="negativeChange"
+            type="unitWheatConsumption"
+          />
+          {unitWheatConsumption * amount}
+        </div>
+      </div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-2"
+      >
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <Slider
+              min={0}
+              max={maxUnits}
+              value={[amount]}
+              disabled={maxUnits === 0 || errorBag.length > 0}
+              onValueChange={([val]) => setValue('amount', val)}
             />
-            <div className="flex gap-1 items-center">
-              <Icon
-                className="size-5"
-                type={durationEffect}
+            <div className="flex w-30">
+              <Input
+                type="number"
+                min={0}
+                max={maxUnits}
+                {...register('amount', { valueAsNumber: true })}
+                value={amount}
+                disabled={maxUnits === 0 || errorBag.length > 0}
+                onChange={(e) => setValue('amount', Number(e.target.value))}
               />
-              {formattedDuration}
-            </div>
-            <div className="flex gap-1 items-center">
-              <Icon
-                className="size-5"
-                subIcon="negativeChange"
-                type="unitWheatConsumption"
-              />
-              {unitWheatConsumption * amount}
-            </div>
-          </div>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-2"
-          >
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <Slider
-                  min={0}
-                  max={maxUnits}
-                  value={[amount]}
-                  disabled={maxUnits === 0 || errorBag.length > 0}
-                  onValueChange={([val]) => setValue('amount', val)}
-                />
-                <div className="flex w-30">
-                  <Input
-                    type="number"
-                    min={0}
-                    max={maxUnits}
-                    {...register('amount', { valueAsNumber: true })}
-                    value={amount}
-                    disabled={maxUnits === 0 || errorBag.length > 0}
-                    onChange={(e) => setValue('amount', Number(e.target.value))}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="fit"
-                  className="px-1.5 py-1 h-full"
-                  disabled={maxUnits === 0 || errorBag.length > 0}
-                  onClick={() => setValue('amount', maxUnits)}
-                >
-                  ({maxUnits})
-                </Button>
-              </div>
             </div>
             <Button
+              type="button"
+              variant="outline"
               size="fit"
-              type="submit"
-              disabled={maxUnits === 0 || amount === 0 || errorBag.length > 0}
+              className="px-1.5 py-1 h-full"
+              disabled={maxUnits === 0 || errorBag.length > 0}
+              onClick={() => setValue('amount', maxUnits)}
             >
-              {buttonLabel}
+              ({maxUnits})
             </Button>
-          </form>
-        </>
-      )}
+          </div>
+        </div>
+        <Button
+          size="fit"
+          type="submit"
+          disabled={maxUnits === 0 || amount === 0 || errorBag.length > 0}
+        >
+          {t('Train')}
+        </Button>
+      </form>
       <ErrorBag errorBag={errorBag} />
     </section>
   );
@@ -907,7 +896,7 @@ export const UnitHealing = ({ woundedAmount }: UnitHealingProps) => {
   })();
 
   return (
-    <section className="pt-2 flex flex-col gap-2 border-t border-border">
+    <section className="flex flex-col gap-2">
       <Text as="h3">{t('Heal units')}</Text>
       <Text>
         {t('{{count}} wounded {{unit}} available', {

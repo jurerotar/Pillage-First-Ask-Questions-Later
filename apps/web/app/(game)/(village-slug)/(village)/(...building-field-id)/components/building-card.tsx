@@ -7,7 +7,7 @@ import {
   use,
   useMemo,
 } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
   type CalculatedCumulativeEffect,
@@ -107,7 +107,7 @@ export const BuildingCard = ({
 
   return (
     <BuildingCardContext value={value}>
-      <article className="flex flex-col gap-2 relative [&>section:nth-of-type(2)]:pt-0! [&>section:nth-of-type(2)]:border-t-0!">
+      <article className="flex flex-col gap-2 relative">
         <InformationPopover ariaLabel={t(`BUILDINGS.${building.id}.NAME`)}>
           <Text>{t(`BUILDINGS.${building.id}.DESCRIPTION`)}</Text>
         </InformationPopover>
@@ -130,12 +130,14 @@ export const BuildingOverview = () => {
 
   return (
     <section className="flex flex-col gap-2">
-      <Text
-        as="h2"
-        className="inline-flex"
-      >
-        {t(`BUILDINGS.${building.id}.NAME`)}
-      </Text>
+      <div className="flex flex-col gap-1 md:max-w-4/5">
+        <Text
+          as="h2"
+          className="inline-flex"
+        >
+          {t(`BUILDINGS.${building.id}.NAME`)}
+        </Text>
+      </div>
       {(isUpgrading || isDowngrading) && (
         <span className="inline-flex text-warning">
           {t(
@@ -162,7 +164,7 @@ export const BuildingOverview = () => {
 export const BuildingCost = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { virtualLevel, doesBuildingExist } = use(BuildingFieldContext);
+  const { virtualLevel } = use(BuildingFieldContext);
   const currentResources = use(CurrentVillageLiveResourcesContext);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
@@ -178,34 +180,22 @@ export const BuildingCost = () => {
   }
 
   return (
-    <>
-      <section className="flex flex-col pt-2 flex-wrap gap-2 justify-center border-t border-border">
-        <Text as="h3">
-          {doesBuildingExist
-            ? t('Cost to upgrade to level {{level}}', {
-                level: virtualLevel + 1,
-              })
-            : t('Building construction cost')}
-        </Text>
-        <div className="flex gap-2">
-          <Resources
-            availableResources={currentResources}
-            resources={nextLevelResourceCost}
+    <section className="flex flex-col flex-wrap gap-2 justify-center">
+      <Text as="h3">{t('Cost and duration')}</Text>
+      <div className="flex gap-2 items-center flex-wrap">
+        <Resources
+          availableResources={currentResources}
+          resources={nextLevelResourceCost}
+        />
+        <span className="flex gap-1 items-center">
+          <Icon
+            type="buildingDuration"
+            className="size-5"
           />
-        </div>
-      </section>
-      <section className="flex flex-col flex-wrap gap-2 pt-2 border-t border-border justify-center">
-        <Text as="h3">
-          {t('Construction duration for level {{level}}', {
-            level: virtualLevel + 1,
-          })}
-        </Text>
-        <span className="flex gap-1">
-          <Icon type="buildingDuration" />
           {formattedTime}
         </span>
-      </section>
-    </>
+      </div>
+    </section>
   );
 };
 
@@ -515,33 +505,43 @@ export const BuildingRequirements = () => {
   });
 
   return (
-    <section className="flex flex-col border-t border-border pt-2 gap-2">
+    <section className="flex flex-col gap-2">
       <Text as="h3">{t('Requirements')}</Text>
       <ul className="flex gap-x-2 flex-wrap">
         {requirementsToDisplay.map(
           (assessedRequirement: AssessedBuildingRequirement, index) => (
             <Fragment key={assessedRequirement.id}>
               <li className="whitespace-nowrap">
-                <Text
-                  className={clsx(
-                    assessedRequirement.fulfilled &&
-                      'text-muted-foreground line-through',
-                  )}
-                >
+                <Text>
                   {assessedRequirement.type === 'amount' &&
                     instanceAlreadyExists && (
-                      <Trans>
-                        <VillageBuildingLink buildingId={buildingId} /> level{' '}
-                        {{ level: maxLevel }}
-                      </Trans>
+                      <>
+                        <VillageBuildingLink buildingId={buildingId} />{' '}
+                        <span
+                          className={clsx(
+                            !assessedRequirement.fulfilled &&
+                              'text-destructive',
+                          )}
+                        >
+                          {t('level {{level}}', { level: maxLevel })}
+                        </span>
+                      </>
                     )}
                   {assessedRequirement.type === 'building' && (
-                    <Trans>
+                    <>
                       <VillageBuildingLink
                         buildingId={assessedRequirement.buildingId}
                       />{' '}
-                      level {{ level: assessedRequirement.level }}
-                    </Trans>
+                      <span
+                        className={clsx(
+                          !assessedRequirement.fulfilled && 'text-destructive',
+                        )}
+                      >
+                        {t('level {{level}}', {
+                          level: assessedRequirement.level,
+                        })}
+                      </span>
+                    </>
                   )}
                   {index !== requirementsToDisplay.length - 1 && ','}
                 </Text>
@@ -573,7 +573,6 @@ const BuildingCardActionsConstruction = ({
 
   return (
     <>
-      <ErrorBag errorBag={errorBag} />
       <Button
         data-testid="building-actions-construct-building-button"
         variant="default"
@@ -583,6 +582,7 @@ const BuildingCardActionsConstruction = ({
       >
         {t('Construct')}
       </Button>
+      <ErrorBag errorBag={errorBag} />
     </>
   );
 };
@@ -608,7 +608,6 @@ const BuildingCardActionsUpgrade = ({
 
   return (
     <>
-      <ErrorBag errorBag={errorBag} />
       <Button
         data-testid="building-actions-upgrade-building-button"
         variant="default"
@@ -618,12 +617,12 @@ const BuildingCardActionsUpgrade = ({
       >
         {t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
       </Button>
+      <ErrorBag errorBag={errorBag} />
     </>
   );
 };
 
 export const BuildingActions = () => {
-  const { t } = useTranslation();
   const {
     buildingId,
     building,
@@ -699,8 +698,7 @@ export const BuildingActions = () => {
     }
 
     return (
-      <section className="flex flex-col gap-2 pt-2 border-t border-border">
-        <Text as="h3">{t('Available actions')}</Text>
+      <section className="flex flex-col gap-2">
         <BuildingCardActionsConstruction
           buildingId={buildingId}
           onBuildingConstruction={onBuildingConstruction}
@@ -721,8 +719,7 @@ export const BuildingActions = () => {
   }
 
   return (
-    <section className="flex flex-col gap-2 pt-2 border-t border-border">
-      <Text as="h3">{t('Available actions')}</Text>
+    <section className="flex flex-col gap-2">
       <BuildingCardActionsUpgrade
         buildingLevel={virtualLevel}
         onBuildingUpgrade={onBuildingUpgrade}

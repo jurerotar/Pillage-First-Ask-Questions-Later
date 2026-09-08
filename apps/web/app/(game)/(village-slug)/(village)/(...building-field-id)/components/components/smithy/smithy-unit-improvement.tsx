@@ -48,7 +48,7 @@ export const SmithyUnitImprovement = () => {
             className="p-2 border border-border"
           >
             <UnitCard unitId={id}>
-              <UnitOverview />
+              <UnitOverview showUnitLevel />
               <UnitImprovement />
             </UnitCard>
           </div>

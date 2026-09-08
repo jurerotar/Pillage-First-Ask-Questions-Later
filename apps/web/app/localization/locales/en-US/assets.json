@@ -501,7 +501,7 @@
     "CLAY_PIT": {
       "NAME": "Clay Pit",
       "NAME_other": "Clay Pits",
-      "DESCRIPTION": "Clay is produced here. By increasing its level, you increase the production of clay. Clay pit can be extended to level 20. Clay production can additionally be increased by occupying clay oasis."
+      "DESCRIPTION": "Clay is produced here. By increasing its level, you increase the production of clay."
     },
     "GATHERERS_HUT": {
       "NAME": "Gatherer's Hut",
@@ -526,7 +526,7 @@
     "WHEAT_FIELD": {
       "NAME": "Wheat Field",
       "NAME_other": "Wheat Fields",
-      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat. Wheat Field can be extended to level 20. Wheat production can additionally be increased by occupying wheat oasis."
+      "DESCRIPTION": "Wheat is produced here. By increasing its level you increase the production of wheat."
     },
     "GRAIN_MILL": {
       "NAME": "Grain Mill",
@@ -551,7 +551,7 @@
     "IRON_MINE": {
       "NAME": "Iron Mine",
       "NAME_other": "Iron Mines",
-      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron. Iron Mine can be extended to level 20. Iron production can additionally be increased by occupying mountain oasis."
+      "DESCRIPTION": "Iron is produced here. By increasing its level you increase the production of iron."
     },
     "SAWMILL": {
       "NAME": "Sawmill",
@@ -576,7 +576,7 @@
     "WOODCUTTER": {
       "NAME": "Woodcutter",
       "NAME_other": "Woodcutters",
-      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood. Woodcutter can be extended to level 20. Wood production can additionally be increased by occupying forrest oasis."
+      "DESCRIPTION": "Wood is produced here. By increasing its level you increase the production of wood."
     },
     "ACADEMY": {
       "NAME": "Academy",
@@ -611,7 +611,7 @@
     "HEROS_MANSION": {
       "NAME": "Hero's Mansion",
       "NAME_other": "Hero's Mansions",
-      "DESCRIPTION": "The Hero's Mansion is the home of your glorious hero. At building levels 10, 15 and 20, you can use your hero to annex an unoccupied oasis to your village, one per each of these levels respectively. Depending on the oasis, you will get a production increase for a certain type of resource (or even two resources, from some oases)."
+      "DESCRIPTION": "The Hero's Mansion is the home of your glorious hero. At building levels 10, 15 and 20, you can use your hero to annex an unoccupied oasis to your village, one per each of these levels respectively. Depending on the oasis, you will get a production increase for a certain type of resource."
     },
     "HOSPITAL": {
       "NAME": "Hospital",
@@ -636,7 +636,7 @@
     "RALLY_POINT": {
       "NAME": "Rally Point",
       "NAME_other": "Rally Points",
-      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages. The Rally Point can only be built on the green grassland below and to the right of your Main Building. If there are less attacking units than the level of the Rally Point, you can see the type of unit attacking."
+      "DESCRIPTION": "Your village's troops gather here. From here, you can send them out to conquer, raid or reinforce other villages. If there are less attacking units than the level of the Rally Point, you can see the type of unit attacking."
     },
     "STABLE": {
       "NAME": "Stable",
@@ -681,7 +681,7 @@
     "MAIN_BUILDING": {
       "NAME": "Main Building",
       "NAME_other": "Main Buildings",
-      "DESCRIPTION": "The village's master builders live in the Main Building. The higher its level, the faster your master builders complete the construction of new buildings."
+      "DESCRIPTION": "The village's master builders live in the Main Building. The higher its level, the faster your builders complete the construction of new buildings."
     },
     "MARKETPLACE": {
       "NAME": "Marketplace",
@@ -691,7 +691,7 @@
     "RESIDENCE": {
       "NAME": "Residence",
       "NAME_other": "Residences",
-      "DESCRIPTION": "The Residence protects the village against enemy conquests. You can build one Residence per village. Units that can found a new village or conquer existing villages can be trained here. Additionally, the Residence provides an expansion slot at levels 10 and 20 each."
+      "DESCRIPTION": "The Residence protects the village against enemy conquests. Units that can found a new village or conquer existing villages can be trained here."
     },
     "TREASURY": {
       "NAME": "Treasury",

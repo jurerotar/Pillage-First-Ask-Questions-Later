@@ -84,7 +84,7 @@ export const UnitTraining = () => {
             value={id}
           >
             <UnitCard unitId={id}>
-              <UnitOverview />
+              <UnitOverview showUnitLevel />
               <UnitAttributes />
               <UnitCost />
               <UnitRequirements />
