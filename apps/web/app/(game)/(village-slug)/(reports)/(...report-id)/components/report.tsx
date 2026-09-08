@@ -1,6 +1,7 @@
 import { createContext, type PropsWithChildren, use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { LuArrowLeft } from 'react-icons/lu';
+import { Link, useLocation } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
 import type { BattleParticipant } from '@pillage-first/types/models/battle';
@@ -34,6 +35,7 @@ import {
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
+import { buttonVariants } from 'app/components/ui/cvas/button-cva';
 import {
   Table,
   TableBody,
@@ -53,6 +55,24 @@ const ReportContext = createContext<ReportContextState>(
 
 type ReportProps = {
   report: ReportType;
+};
+
+export const ReportsBackButton = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
+
+  return (
+    <Link
+      to={{
+        pathname: '../reports',
+        search: location.search,
+      }}
+      className={buttonVariants({ variant: 'outline', size: 'sm' })}
+    >
+      <LuArrowLeft />
+      {t('Back')}
+    </Link>
+  );
 };
 
 export const Report = ({

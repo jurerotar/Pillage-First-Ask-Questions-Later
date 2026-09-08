@@ -348,7 +348,11 @@ describe('report-controllers', () => {
       ),
     );
 
-    expect(new Set(reports.map(({ type }) => type))).toStrictEqual(
+    expect(reports).not.toContain(null);
+
+    const existingReports = reports.filter((report) => report !== null);
+
+    expect(new Set(existingReports.map(({ type }) => type))).toStrictEqual(
       new Set([
         'battle',
         'adventure',
@@ -359,44 +363,43 @@ describe('report-controllers', () => {
       ]),
     );
 
-    expect(reports.find(({ type }) => type === 'battle')).toHaveProperty(
-      'battle.attacker.troops.units',
-    );
-    expect(reports.find(({ type }) => type === 'battle')).toHaveProperty(
-      'battle.damagedBuildings',
-      [
-        { buildingId: 'RALLY_POINT', levelBefore: 10, levelAfter: 4 },
-        { buildingId: 'WHEAT_FIELD', levelBefore: 8, levelAfter: 0 },
-      ],
-    );
-    expect(reports.find(({ type }) => type === 'adventure')).toHaveProperty(
-      'adventureId',
-    );
-    expect(reports.find(({ type }) => type === 'movement')).toHaveProperty(
-      'movement.units',
-    );
-    expect(reports.find(({ type }) => type === 'trade')).toHaveProperty(
+    expect(
+      existingReports.find(({ type }) => type === 'battle'),
+    ).toHaveProperty('battle.attacker.troops.units');
+    expect(
+      existingReports.find(({ type }) => type === 'battle'),
+    ).toHaveProperty('battle.damagedBuildings', [
+      { buildingId: 'RALLY_POINT', levelBefore: 10, levelAfter: 4 },
+      { buildingId: 'WHEAT_FIELD', levelBefore: 8, levelAfter: 0 },
+    ]);
+    expect(
+      existingReports.find(({ type }) => type === 'adventure'),
+    ).toHaveProperty('adventureId');
+    expect(
+      existingReports.find(({ type }) => type === 'movement'),
+    ).toHaveProperty('movement.units');
+    expect(existingReports.find(({ type }) => type === 'trade')).toHaveProperty(
       'trade.resources',
     );
-    expect(reports.find(({ type }) => type === 'huntingParty')).toHaveProperty(
-      'units',
-    );
     expect(
-      reports.find(({ type }) => type === 'gatheringExpedition'),
+      existingReports.find(({ type }) => type === 'huntingParty'),
+    ).toHaveProperty('units');
+    expect(
+      existingReports.find(({ type }) => type === 'gatheringExpedition'),
     ).toHaveProperty('loot');
   });
 
-  test('should reject missing reports', async () => {
+  test('should return null for missing reports', async () => {
     const database = await prepareReportsTestDatabase();
 
-    expect(() =>
+    expect(
       getReport(
         database,
         createControllerArgs<'/reports/:reportId'>({
           path: { reportId: -1 },
         }),
       ),
-    ).toThrow('Report -1 not found');
+    ).toBeNull();
   });
 
   test('should update tags for multiple reports to their requested state', async () => {

@@ -2086,11 +2086,24 @@ describe('player-controllers', () => {
       createControllerArgs<'/players/:playerSlug'>({
         path: { playerSlug: player },
       }),
-    );
+    )!;
 
     expect(result).toBeDefined();
     expect(result.slug).toBe(player);
     expect(result).toHaveProperty('id');
     expect(result).toHaveProperty('name');
+  });
+
+  test('getPlayerBySlug should return null if player does not exist', async () => {
+    const database = await prepareTestDatabase();
+
+    const result = getPlayerBySlug(
+      database,
+      createControllerArgs<'/players/:playerSlug'>({
+        path: { playerSlug: 'missing-player' },
+      }),
+    );
+
+    expect(result).toBeNull();
   });
 });

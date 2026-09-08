@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import {
   isAdventureReport,
   isBattleReport,
@@ -11,7 +11,6 @@ import {
 } from '@pillage-first/utils/guards/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
-import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { useReport } from '../../hooks/use-report';
@@ -26,6 +25,7 @@ import {
   MovementReportTable,
   Report,
   ReportHeader,
+  ReportsBackButton,
   ScoutingReportTables,
   TradeReportTable,
 } from './components/report';
@@ -33,6 +33,7 @@ import {
 const ReportPage = ({ params }: Route.ComponentProps) => {
   const { reportId: reportIdParam, villageSlug, serverSlug } = params;
   const { t } = useTranslation();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const reportId = Number.parseInt(reportIdParam, 10);
@@ -41,65 +42,79 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
 
   const title = `${t('Report - {{reportId}}', { reportId })}  | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
+  if (!report) {
+    return (
+      <PageContents>
+        <title>{title}</title>
+        <div className="flex flex-col gap-2">
+          <Text as="h1">{t('Report not found')}</Text>
+          <Text>
+            {t(
+              'This report could not be found. It may have been deleted or is no longer available.',
+            )}
+          </Text>
+        </div>
+        <div className="flex justify-start">
+          <ReportsBackButton />
+        </div>
+      </PageContents>
+    );
+  }
+
   return (
     <PageContents>
       <title>{title}</title>
-      <InformationPopover
-        ariaLabel={t('Report - {{reportId}}', { reportId })}
-        className="top-2 right-2"
-      >
-        <Text>{t('Review the selected in-game report.')}</Text>
-      </InformationPopover>
-      {!report && <Text as="h1">Report not found</Text>}
-      {report && (
-        <>
-          <Report report={report}>
-            <ReportHeader />
-            {isBattleReport(report) && (
-              <>
-                <BattleParticipantTable
-                  participant={report.battle.attacker}
-                  participantRole="attacker"
-                />
-                <BattleParticipantTable
-                  participant={report.battle.defender}
-                  participantRole="defender"
-                />
-                {report.battle.outcome.canAttackerSeeFullReport &&
-                  report.battle.defender.reinforcements.map((participant) => (
-                    <BattleParticipantTable
-                      key={participant.player.id}
-                      participant={participant}
-                      participantRole="reinforcement"
-                    />
-                  ))}
-                <BattleStatisticsTable />
-              </>
-            )}
-            {isAdventureReport(report) && (
-              <>
-                <AdventureHeroTable />
-                <AdventureReportTable />
-              </>
-            )}
-            {isTradeReport(report) && <TradeReportTable />}
-            {isScoutingReport(report) && <ScoutingReportTables />}
-            {isMovementReport(report) && <MovementReportTable />}
-            {isHuntingPartyReport(report) && <HuntingPartyReportTable />}
-            {isGatheringExpeditionReport(report) && (
-              <GatheringExpeditionReportTable />
-            )}
-          </Report>
-          <div className="flex justify-end">
-            <ReportsListActions
-              reports={[report]}
-              updateReports={updateReports}
-              deleteReports={deleteReports}
-              onDelete={() => navigate('../reports')}
+      <Report report={report}>
+        <ReportHeader />
+        {isBattleReport(report) && (
+          <>
+            <BattleParticipantTable
+              participant={report.battle.attacker}
+              participantRole="attacker"
             />
-          </div>
-        </>
-      )}
+            <BattleParticipantTable
+              participant={report.battle.defender}
+              participantRole="defender"
+            />
+            {report.battle.outcome.canAttackerSeeFullReport &&
+              report.battle.defender.reinforcements.map((participant) => (
+                <BattleParticipantTable
+                  key={participant.player.id}
+                  participant={participant}
+                  participantRole="reinforcement"
+                />
+              ))}
+            <BattleStatisticsTable />
+          </>
+        )}
+        {isAdventureReport(report) && (
+          <>
+            <AdventureHeroTable />
+            <AdventureReportTable />
+          </>
+        )}
+        {isTradeReport(report) && <TradeReportTable />}
+        {isScoutingReport(report) && <ScoutingReportTables />}
+        {isMovementReport(report) && <MovementReportTable />}
+        {isHuntingPartyReport(report) && <HuntingPartyReportTable />}
+        {isGatheringExpeditionReport(report) && (
+          <GatheringExpeditionReportTable />
+        )}
+      </Report>
+      <div className="flex items-center justify-between gap-2">
+        <ReportsBackButton />
+        <ReportsListActions
+          reports={[report]}
+          updateReports={updateReports}
+          deleteReports={deleteReports}
+          onDelete={() =>
+            navigate({
+              pathname: '../reports',
+              search: location.search,
+            })
+          }
+        />
+      </div>
     </PageContents>
   );
 };

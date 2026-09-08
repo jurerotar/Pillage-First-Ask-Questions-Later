@@ -178,15 +178,17 @@ export const getPlayerBySlug = createController('/players/:playerSlug', {
       playerSlug: playerSchema.shape.slug,
     }),
   },
-  response: playerSchema,
+  response: playerSchema.nullable(),
 })(({ database, path: { playerSlug } }) => {
-  return database.selectObject({
-    sql: selectPlayerBySlugQuery,
-    bind: {
-      $player_slug: playerSlug,
-    },
-    schema: playerSchema,
-  })!;
+  return (
+    database.selectObject({
+      sql: selectPlayerBySlugQuery,
+      bind: {
+        $player_slug: playerSlug,
+      },
+      schema: playerSchema,
+    }) ?? null
+  );
 });
 
 export const getSentReinforcementsByTile = createController(
