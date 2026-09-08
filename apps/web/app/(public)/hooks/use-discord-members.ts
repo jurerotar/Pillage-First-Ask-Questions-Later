@@ -11,7 +11,7 @@ export const useDiscordMembers = () => {
       return data;
     },
     placeholderData: {
-      memberCount: 217,
+      memberCount: 364,
     },
   });
 };
