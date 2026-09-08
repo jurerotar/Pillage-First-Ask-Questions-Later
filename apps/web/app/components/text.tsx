@@ -6,7 +6,7 @@ type TextElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
 const elementStyles: Record<TextElement, string> = {
   h1: 'text-2xl lg:text-3xl text-foreground',
   h2: 'text-xl font-medium text-foreground',
-  h3: 'font-medium text-foreground',
+  h3: 'font-medium text-foreground text-lg',
   h4: 'text-foreground',
   h5: 'text-foreground',
   h6: 'text-foreground',

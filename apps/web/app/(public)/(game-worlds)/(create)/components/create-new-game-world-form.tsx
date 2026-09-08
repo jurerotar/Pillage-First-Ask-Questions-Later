@@ -15,6 +15,7 @@ import {
 import type { Server } from '@pillage-first/types/models/server';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { env } from '@pillage-first/utils/env';
+import { useBrowserStorageQuota } from 'app/(public)/(game-worlds)/(create)/hooks/use-browser-storage-quota';
 import type {
   CreateNewGameWorldWorkerPayload,
   CreateNewGameWorldWorkerResponse,
@@ -96,6 +97,11 @@ export const CreateNewGameWorldForm = () => {
   const navigate = useNavigate();
   const { createGameWorld, deleteGameWorld } = useGameWorldActions();
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
+  const {
+    checkStorageQuota,
+    hasUnavailableStorageQuota,
+    isCheckingStorageQuota,
+  } = useBrowserStorageQuota();
   const generationOverviewRef = useRef<HTMLDivElement>(null);
 
   const steps = [
@@ -215,7 +221,13 @@ export const CreateNewGameWorldForm = () => {
     },
   });
 
-  const onSubmit = (values: CreateServerFormValues) => {
+  const onSubmit = async (values: CreateServerFormValues) => {
+    const isStorageUnavailable = await checkStorageQuota();
+
+    if (isStorageUnavailable) {
+      return;
+    }
+
     const server = createServerFromFormValues(values);
 
     // @ts-expect-error - Not an error, values for speed and mapSize are already cast as numbers
@@ -248,23 +260,36 @@ export const CreateNewGameWorldForm = () => {
 
   return (
     <div className="relative">
-      <div className={clsx(isPending && 'blur-sm pointer-events-none')}>
+      <div
+        className={clsx(
+          'flex flex-col gap-2 p-2 shadow-xl rounded-md border border-border',
+          (isPending || hasUnavailableStorageQuota) &&
+            'blur-sm pointer-events-none',
+        )}
+      >
+        <Text as="h2">Configuration</Text>
+
+        <Alert variant="error">
+          The game is still in development. Updates may make existing worlds
+          incompatible, so please use it for testing only until release.
+        </Alert>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 p-2 shadow-xl rounded-md border border-border"
+            className="flex flex-col gap-4"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col gap-6">
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <Text as="h2">Game world configuration</Text>
+                    <Text as="h3">Game world</Text>
                   </div>
                   <FormField
                     control={form.control}
                     name="seed"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Seed</FormLabel>
                         <FormControl>
                           <Input
@@ -283,7 +308,7 @@ export const CreateNewGameWorldForm = () => {
                     name="name"
                     disabled={isPending || isSuccess}
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input
@@ -300,7 +325,7 @@ export const CreateNewGameWorldForm = () => {
                     control={form.control}
                     name="configuration.mapSize"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Size</FormLabel>
                         <Select
                           disabled={isPending || isSuccess}
@@ -326,7 +351,7 @@ export const CreateNewGameWorldForm = () => {
                     control={form.control}
                     name="configuration.speed"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Speed</FormLabel>
                         <Select
                           disabled={isPending || isSuccess}
@@ -354,16 +379,16 @@ export const CreateNewGameWorldForm = () => {
               </div>
 
               <div className="flex flex-col gap-6">
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   <div className="flex flex-col">
-                    <Text as="h2">Player configuration</Text>
+                    <Text as="h3">Player</Text>
                   </div>
                   <FormField
                     control={form.control}
                     name="playerConfiguration.name"
                     disabled={isPending || isSuccess}
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -377,7 +402,7 @@ export const CreateNewGameWorldForm = () => {
                     control={form.control}
                     name="playerConfiguration.tribe"
                     render={({ field }) => (
-                      <FormItem className="space-y-2">
+                      <FormItem className="flex flex-col gap-2">
                         <FormLabel>Tribe</FormLabel>
                         <Select
                           disabled={isPending || isSuccess}
@@ -408,7 +433,7 @@ export const CreateNewGameWorldForm = () => {
             {/*  <summary className="py-2 underline hover:cursor-pointer">*/}
             {/*    Advanced options*/}
             {/*  </summary>*/}
-            {/*  <div className="space-y-4 px-2">*/}
+            {/*  <div className="flex flex-col gap-4 px-2">*/}
             {/*    <div className="flex flex-col">*/}
             {/*      <Text*/}
             {/*        className="text-lg"*/}
@@ -454,7 +479,13 @@ export const CreateNewGameWorldForm = () => {
             <div className="flex justify-end">
               <Button
                 size="fit"
-                disabled={isPending || isSuccess || isError}
+                disabled={
+                  isPending ||
+                  isSuccess ||
+                  isError ||
+                  isCheckingStorageQuota ||
+                  hasUnavailableStorageQuota
+                }
                 type="submit"
               >
                 Create world
@@ -463,13 +494,47 @@ export const CreateNewGameWorldForm = () => {
           </form>
         </Form>
       </div>
+      {hasUnavailableStorageQuota && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-xs z-10 rounded-md">
+          <div className="flex flex-col gap-4 p-4 shadow-2xl rounded-lg border border-border bg-background max-w-sm w-full mx-4">
+            <div className="flex flex-col gap-2">
+              <Text
+                as="h2"
+                className="text-lg font-bold"
+              >
+                Browser storage is unavailable
+              </Text>
+              <Alert variant="error">
+                Pillage First! requires browser storage to function properly.
+                Your browser does not allow data storage. Game worlds cannot be
+                created in this browser mode.'
+                <br />
+                <br />
+                In Safari, turn off Private Browsing or allow website storage,
+                then try again.
+              </Alert>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                size="fit"
+                disabled={isCheckingStorageQuota}
+                onClick={() => {
+                  void checkStorageQuota();
+                }}
+              >
+                {t('Check again')}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       {isPending && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-xs z-10 rounded-md">
           <div
             ref={generationOverviewRef}
             className="flex flex-col gap-4 p-6 shadow-2xl rounded-lg border border-border bg-background max-w-sm w-full mx-4"
           >
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Text
                 as="h2"
                 className="text-lg font-bold"
