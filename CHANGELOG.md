@@ -1,3 +1,15 @@
+## Version 0.4.63
+
+#### Sep 8, 2026
+
+* [Feature] Added healing cost and duration details to the Hospital wounded troop training section.
+* [Feature] Wheat fields no longer require free crop to upgrade.
+* [UIUXImprovement] Updated cavalry icons.
+* [UIUXImprovement] Cleaned up building and unit cards by removing section borders and combining cost and duration
+  details into a single section.
+* [UIUXImprovement] Building field tooltips now highlight missing resources.
+* [BugFix] Fixed missing report and player detail routes so unavailable records don't throw an error.
+
 ## Version 0.4.62
 
 #### Sep 1, 2026

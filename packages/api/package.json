@@ -49,9 +49,9 @@
     "zod-openapi": "6.0.2"
   },
   "devDependencies": {
-    "knip": "6.33.0",
+    "knip": "6.34.0",
     "typescript": "7.0.2",
-    "vitest": "4.1.11"
+    "vitest": "5.0.0"
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@6/schema.json",

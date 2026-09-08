@@ -5,6 +5,7 @@ const vitestConfig: ViteUserConfig = defineConfig({
     root: './',
     watch: false,
     reporters: ['default'],
+    fsModuleCache: true,
   },
 });
 
