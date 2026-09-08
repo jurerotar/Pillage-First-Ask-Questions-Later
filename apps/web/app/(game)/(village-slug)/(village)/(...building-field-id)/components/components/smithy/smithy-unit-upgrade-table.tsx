@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  calculateSmithyImprovedUnitValue,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
-  calculateUpgradedValue,
   getSmithyUpgradeableUnitsByTribe,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
@@ -159,7 +159,11 @@ export const SmithyUnitUpgradeTable = () => {
                         key={id}
                         className="text-center"
                       >
-                        {calculateUpgradedValue(value, level)}
+                        {calculateSmithyImprovedUnitValue({
+                          baseValue: value,
+                          level,
+                          upkeep: selectedUnit.unitWheatConsumption,
+                        }).toFixed(1)}
                       </TableCell>
                     ))}
                   </TableRow>

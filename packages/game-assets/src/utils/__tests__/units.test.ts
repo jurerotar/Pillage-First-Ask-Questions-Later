@@ -11,11 +11,11 @@ import {
 } from '../../units';
 import {
   calculateMaxUnits,
+  calculateSmithyImprovedUnitValue,
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
-  calculateUpgradedValue,
   getSmithyUpgradeableUnitsByTribe,
   getUnitByTribeAndTier,
   getUnitDefinition,
@@ -100,8 +100,14 @@ describe('units', () => {
     expect(level3).toBeGreaterThan(level2);
   });
 
-  test('calculateUpgradedValue returns unit attribute value for upgrade level', () => {
-    expect(calculateUpgradedValue(mockUnit.attack, 2)).toBe(30.9);
+  test('calculateSmithyImprovedUnitValue returns unit attribute value for upgrade level', () => {
+    expect(
+      calculateSmithyImprovedUnitValue({
+        baseValue: mockUnit.attack,
+        level: 2,
+        upkeep: mockUnit.unitWheatConsumption,
+      }),
+    ).toBeCloseTo(31.02, 2);
   });
 
   test('calculateUnitResearchCost returns correct values', () => {

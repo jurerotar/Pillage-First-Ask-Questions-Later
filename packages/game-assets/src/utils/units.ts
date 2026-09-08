@@ -117,11 +117,20 @@ export const calculateUnitUpgradeDurationForLevel = (
   );
 };
 
-export const calculateUpgradedValue = (
-  value: number,
-  level: number,
-): number => {
-  return Math.round(value * 1.015 ** level * 10) / 10;
+export const calculateSmithyImprovedUnitValue = ({
+  baseValue,
+  level,
+  upkeep,
+}: {
+  baseValue: number;
+  level: number;
+  upkeep: number;
+}): number => {
+  if (level <= 0 || baseValue <= 0) {
+    return baseValue;
+  }
+
+  return baseValue + (baseValue + (300 * upkeep) / 7) * (1.007 ** level - 1);
 };
 
 export const calculateUnitResearchCost = (unitId: Unit['id']): number[] => {

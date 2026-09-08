@@ -12,11 +12,11 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import {
   calculateMaxUnits,
+  calculateSmithyImprovedUnitValue,
   calculateUnitResearchCost,
   calculateUnitResearchDuration,
   calculateUnitUpgradeCostForLevel,
   calculateUnitUpgradeDurationForLevel,
-  calculateUpgradedValue,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
 import type {
@@ -252,7 +252,11 @@ export const UnitAttributes = () => {
                     unitLevel !== unitVirtualLevel && 'text-warning',
                   )}
                 >
-                  {calculateUpgradedValue(value, unitVirtualLevel)}
+                  {calculateSmithyImprovedUnitValue({
+                    baseValue: value,
+                    level: unitVirtualLevel,
+                    upkeep: unit.unitWheatConsumption,
+                  }).toFixed(1)}
                 </span>
               </Text>
             </span>
