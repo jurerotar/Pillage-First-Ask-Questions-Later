@@ -114,7 +114,7 @@ export const getReport = createController('/reports/:reportId', {
       reportId: z.coerce.number(),
     }),
   },
-  response: reportSchema,
+  response: reportSchema.nullable(),
 })(({ database, path: { reportId } }) => {
   const reportInfo = database.selectObject({
     sql: selectReportTypeQuery,
@@ -123,7 +123,7 @@ export const getReport = createController('/reports/:reportId', {
   });
 
   if (!reportInfo) {
-    throw new Error(`Report ${reportId} not found`);
+    return null;
   }
 
   const bind = { $report_id: reportId };

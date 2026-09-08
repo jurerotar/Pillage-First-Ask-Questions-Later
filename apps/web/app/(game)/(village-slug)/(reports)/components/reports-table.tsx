@@ -2,7 +2,7 @@ import { clsx } from 'clsx';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuEllipsis } from 'react-icons/lu';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import type { BaseReport } from '@pillage-first/types/models/report';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
@@ -79,6 +79,7 @@ export const ReportsTable = ({
   clearSelectedReports,
 }: ReportsTableProps) => {
   const { t } = useTranslation();
+  const location = useLocation();
   const { locale } = use(CookieContext);
   const hasSelectedReports = selectedReportIds.length > 0;
 
@@ -128,7 +129,10 @@ export const ReportsTable = ({
               <TableCell className="text-left">
                 <Link
                   onClick={() => onOpenReport(report)}
-                  to={`../reports/${report.id}`}
+                  to={{
+                    pathname: `../reports/${report.id}`,
+                    search: location.search,
+                  }}
                 >
                   <Text
                     className={clsx(

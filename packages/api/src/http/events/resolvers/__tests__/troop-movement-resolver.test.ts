@@ -1261,7 +1261,7 @@ describe(attackMovementResolver, () => {
       createControllerArgs<'/reports/:reportId'>({
         path: { reportId: battleReport.id },
       }),
-    );
+    )!;
 
     if (fullReport.type !== 'battle') {
       throw new Error('Expected battle report');

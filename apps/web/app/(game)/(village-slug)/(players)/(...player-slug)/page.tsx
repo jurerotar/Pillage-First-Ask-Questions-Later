@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
+import type { Player } from '@pillage-first/types/models/player';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(players)/(...player-slug)/+types/page';
 import { usePlayer } from 'app/(game)/(village-slug)/(players)/(...player-slug)/hooks/use-player';
@@ -20,14 +21,13 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 
-const PlayerPage = ({ params }: Route.ComponentProps) => {
-  const { serverSlug, villageSlug, playerSlug } = params;
+type PlayerDetailsProps = {
+  player: Player;
+};
 
+const PlayerDetails = ({ player }: PlayerDetailsProps) => {
   const { t } = useTranslation();
-  const { player } = usePlayer(playerSlug);
   const { playerVillages } = usePlayerVillages(player.id);
-
-  const title = `${t('{{playerName}}', { playerName: player.name })} | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
   const totalVillages = playerVillages.length;
 
@@ -52,8 +52,7 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
   }, [playerVillages]);
 
   return (
-    <PageContents>
-      <title>{title}</title>
+    <>
       <InformationPopover
         ariaLabel={t('{{playerName}}', { playerName: player.name })}
         className="top-2 right-2"
@@ -229,6 +228,36 @@ const PlayerPage = ({ params }: Route.ComponentProps) => {
           </Table>
         </OverflowContainer>
       </div>
+    </>
+  );
+};
+
+const PlayerPage = ({ params }: Route.ComponentProps) => {
+  const { serverSlug, villageSlug, playerSlug } = params;
+
+  const { t } = useTranslation();
+  const { player } = usePlayer(playerSlug);
+
+  const title = player
+    ? `${t('{{playerName}}', { playerName: player.name })} | Pillage First! - ${serverSlug} - ${villageSlug}`
+    : `${t('Player not found')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
+
+  if (!player) {
+    return (
+      <PageContents>
+        <title>{title}</title>
+        <div className="flex flex-col gap-2">
+          <Text as="h1">{t('Player not found')}</Text>
+          <Text>{t('This player could not be found.')}</Text>
+        </div>
+      </PageContents>
+    );
+  }
+
+  return (
+    <PageContents>
+      <title>{title}</title>
+      <PlayerDetails player={player} />
     </PageContents>
   );
 };
