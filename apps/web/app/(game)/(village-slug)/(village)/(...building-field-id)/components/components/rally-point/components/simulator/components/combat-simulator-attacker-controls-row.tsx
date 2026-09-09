@@ -18,6 +18,7 @@ import {
   CombatSimulatorContext,
   type CombatSimulatorMode,
 } from '../providers/combat-simulator-context';
+import { CombatSimulatorAttackerTroopControlsRows } from './combat-simulator-troop-controls-rows';
 
 export const CombatSimulatorAttackerControlsRow = () => {
   const { t } = useTranslation();
@@ -36,7 +37,7 @@ export const CombatSimulatorAttackerControlsRow = () => {
       <thead>
         <tr className="bg-red-800/80 text-white dark:bg-red-950/60 dark:text-red-50">
           <th
-            className="p-2 py-1 text-left font-semibold"
+            className="p-2 text-left font-semibold"
             colSpan={12}
           >
             <div className="flex items-center justify-between">
@@ -49,7 +50,7 @@ export const CombatSimulatorAttackerControlsRow = () => {
                     setCombatMode(value as CombatSimulatorMode);
                   }}
                 >
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     <RadioGroupItem
                       aria-label={t('Attack')}
                       className="border-white text-white"
@@ -63,7 +64,7 @@ export const CombatSimulatorAttackerControlsRow = () => {
                       {t('Attack')}
                     </label>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
                     <RadioGroupItem
                       aria-label={t('Raid')}
                       className="border-white text-white"
@@ -95,7 +96,7 @@ export const CombatSimulatorAttackerControlsRow = () => {
         </tr>
         <tr>
           <th
-            className="p-2 text-left font-medium"
+            className="p-2 text-left font-medium border-b border-border"
             colSpan={12}
           >
             <div className="flex items-center justify-between">
@@ -120,7 +121,7 @@ export const CombatSimulatorAttackerControlsRow = () => {
                 </SelectContent>
               </Select>
               <label
-                className="flex cursor-pointer items-center gap-1"
+                className="flex cursor-pointer items-center gap-2"
                 data-tooltip-content={populationLabel}
                 data-tooltip-id="general-tooltip"
                 htmlFor="combat-simulator-attacker-population"
@@ -153,6 +154,7 @@ export const CombatSimulatorAttackerControlsRow = () => {
           </th>
         </tr>
       </thead>
+      <CombatSimulatorAttackerTroopControlsRows />
     </UnitTable>
   );
 };

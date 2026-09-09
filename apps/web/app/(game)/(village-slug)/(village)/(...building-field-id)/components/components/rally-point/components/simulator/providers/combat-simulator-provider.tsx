@@ -51,6 +51,7 @@ const normalizeTroops = (
 ): CombatSimulatorTroop[] => {
   return troops.map((troop) => ({
     ...troop,
+    amount: clampInteger(troop.amount, 0, Number.MAX_SAFE_INTEGER),
     smithyImprovementLevel: clampInteger(troop.smithyImprovementLevel, 0, 20),
   }));
 };

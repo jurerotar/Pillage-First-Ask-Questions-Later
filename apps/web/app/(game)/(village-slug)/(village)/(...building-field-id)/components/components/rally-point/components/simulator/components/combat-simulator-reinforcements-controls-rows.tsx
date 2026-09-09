@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
+import { CombatSimulatorReinforcementTroopControlsRows } from './combat-simulator-troop-controls-rows';
 
 export const CombatSimulatorReinforcementsControlsRows = () => {
   const { t } = useTranslation();
@@ -54,7 +55,7 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
             </tr>
             <tr>
               <th
-                className="p-2 text-left font-medium"
+                className="p-2 text-left font-medium border-b border-border"
                 colSpan={12}
               >
                 <div className="flex items-center justify-between">
@@ -85,6 +86,9 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
               </th>
             </tr>
           </thead>
+          <CombatSimulatorReinforcementTroopControlsRows
+            reinforcementId={reinforcement.id}
+          />
         </UnitTable>
       ))}
     </>

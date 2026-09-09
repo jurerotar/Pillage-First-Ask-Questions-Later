@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
+import { CombatSimulatorDefenderTroopControlsRows } from './combat-simulator-troop-controls-rows';
 
 export const CombatSimulatorDefenderControlsRow = () => {
   const { t } = useTranslation();
@@ -36,7 +37,7 @@ export const CombatSimulatorDefenderControlsRow = () => {
       <thead>
         <tr className="bg-blue-400 text-white dark:bg-blue-800/60 dark:text-blue-50">
           <th
-            className="p-2 py-1 text-left font-semibold"
+            className="p-2 text-left font-semibold"
             colSpan={12}
           >
             <div className="flex items-center justify-between">
@@ -72,7 +73,7 @@ export const CombatSimulatorDefenderControlsRow = () => {
         </tr>
         <tr>
           <th
-            className="p-2 py-1 text-left font-medium"
+            className="p-2 text-left font-medium border-b border-border"
             colSpan={12}
           >
             <div className="flex items-center justify-between">
@@ -96,9 +97,9 @@ export const CombatSimulatorDefenderControlsRow = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
                 <label
-                  className="flex cursor-pointer items-center gap-1"
+                  className="flex cursor-pointer items-center gap-2"
                   data-tooltip-content={populationLabel}
                   data-tooltip-id="general-tooltip"
                   htmlFor="combat-simulator-defender-population"
@@ -128,7 +129,7 @@ export const CombatSimulatorDefenderControlsRow = () => {
                   />
                 </label>
                 <label
-                  className="flex cursor-pointer items-center gap-1"
+                  className="flex cursor-pointer items-center gap-2"
                   data-tooltip-content={wallLevelLabel}
                   data-tooltip-id="general-tooltip"
                   htmlFor="combat-simulator-defender-wall-level"
@@ -186,6 +187,7 @@ export const CombatSimulatorDefenderControlsRow = () => {
           </th>
         </tr>
       </thead>
+      <CombatSimulatorDefenderTroopControlsRows />
     </UnitTable>
   );
 };
