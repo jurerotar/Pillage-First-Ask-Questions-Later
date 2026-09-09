@@ -57,7 +57,7 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
               </tr>
               <tr>
                 <th
-                  className="p-2 text-left font-medium border-b border-border"
+                  className="p-2 text-left font-medium"
                   colSpan={12}
                 >
                   <div className="flex items-center justify-between">
