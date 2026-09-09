@@ -123,7 +123,7 @@ export const CombatSimulatorAttackerControlsRow = () => {
                   </SelectContent>
                 </Select>
                 <label
-                  className="flex cursor-pointer items-center gap-2"
+                  className="flex cursor-pointer items-center gap-1"
                   data-tooltip-content={populationLabel}
                   data-tooltip-id="general-tooltip"
                   htmlFor="combat-simulator-attacker-population"

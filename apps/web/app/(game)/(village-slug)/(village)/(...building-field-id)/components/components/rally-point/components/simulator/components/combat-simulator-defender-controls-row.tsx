@@ -99,9 +99,9 @@ export const CombatSimulatorDefenderControlsRow = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <label
-                    className="flex cursor-pointer items-center gap-2"
+                    className="flex cursor-pointer items-center gap-1"
                     data-tooltip-content={populationLabel}
                     data-tooltip-id="general-tooltip"
                     htmlFor="combat-simulator-defender-population"
@@ -131,7 +131,7 @@ export const CombatSimulatorDefenderControlsRow = () => {
                     />
                   </label>
                   <label
-                    className="flex cursor-pointer items-center gap-2"
+                    className="flex cursor-pointer items-center gap-1"
                     data-tooltip-content={wallLevelLabel}
                     data-tooltip-id="general-tooltip"
                     htmlFor="combat-simulator-defender-wall-level"
