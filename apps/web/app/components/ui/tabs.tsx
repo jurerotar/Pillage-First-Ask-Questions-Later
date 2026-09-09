@@ -26,7 +26,7 @@ const TAB_GAP_WIDTH = 4;
 const MORE_BUTTON_FALLBACK_WIDTH = 80;
 
 const tabClassName = clsx(
-  'inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all cursor-pointer',
+  'inline-flex items-center justify-center rounded-md px-2 py-1 text-sm font-medium whitespace-nowrap transition-all cursor-pointer',
   'text-foreground/70 hover:text-foreground',
   'focus-visible:ring-[3px] focus-visible:ring-ring/50 outline-none',
   'disabled:pointer-events-none disabled:opacity-50',
@@ -255,7 +255,7 @@ export const TabList = ({
                 key={tab.value}
                 type="button"
                 className={clsx(
-                  'w-full rounded-md px-3 py-1.5 text-left text-sm font-medium transition-colors cursor-pointer',
+                  'w-full rounded-md px-2 py-1 text-left text-sm font-medium transition-colors cursor-pointer',
                   'hover:bg-accent hover:text-accent-foreground',
                   'focus-visible:outline-none focus-visible:ring-ring/50 focus-visible:ring-[3px]',
                   tabsContext?.value === tab.value

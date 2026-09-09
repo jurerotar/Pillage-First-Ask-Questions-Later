@@ -1,5 +1,4 @@
 import {
-  createContext,
   type PropsWithChildren,
   useCallback,
   useMemo,
@@ -8,130 +7,20 @@ import {
 } from 'react';
 import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units';
 import type { Tribe } from '@pillage-first/types/models/tribe';
-import type { TroopLike } from '@pillage-first/types/models/troop';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-
-export type CombatSimulatorHeroStats = {
-  hp: number;
-  strength: number;
-  attackBonus: number;
-  defenceBonus: number;
-  mounted: boolean;
-};
-
-export type CombatSimulatorTroop = TroopLike & {
-  smithyImprovementLevel: number;
-};
-
-type CombatSimulatorAttackerVillage = {
-  population: number;
-};
-
-type CombatSimulatorDefenderVillage = CombatSimulatorAttackerVillage & {
-  wallLevel: number;
-  residenceLevel: number;
-};
-
-type CombatSimulatorParticipant<TVillage> = {
-  tribe: Tribe;
-  troops: CombatSimulatorTroop[];
-  heroStats: CombatSimulatorHeroStats;
-  village: TVillage;
-};
-
-export type CombatSimulatorAttacker =
-  CombatSimulatorParticipant<CombatSimulatorAttackerVillage>;
-
-export type CombatSimulatorReinforcement =
-  CombatSimulatorParticipant<CombatSimulatorAttackerVillage> & {
-    id: string;
-  };
-
-export type CombatSimulatorDefender =
-  CombatSimulatorParticipant<CombatSimulatorDefenderVillage> & {
-    reinforcements: CombatSimulatorReinforcement[];
-  };
-
-export type CombatSimulatorState = {
-  attacker: CombatSimulatorAttacker;
-  defender: CombatSimulatorDefender;
-};
-
-export type CombatSimulatorParticipantReference =
-  | { role: 'attacker' }
-  | { role: 'defender' }
-  | {
-      role: 'reinforcement';
-      reinforcementId: CombatSimulatorReinforcement['id'];
-    };
-
-export type CombatSimulatorRemovableParticipantReference = Extract<
-  CombatSimulatorParticipantReference,
-  { role: 'reinforcement' }
->;
-
-export type CombatSimulatorContextValue = {
-  state: CombatSimulatorState;
-  setAttackerTribe: (tribe: Tribe) => void;
-  setDefenderTribe: (tribe: Tribe) => void;
-  swapAttackerAndPrimaryDefender: () => void;
-  setAttackerTroops: (troops: TroopLike[]) => void;
-  setDefenderTroops: (troops: TroopLike[]) => void;
-  setAttackerSmithyImprovementLevel: (
-    unitId: UnitId,
-    smithyImprovementLevel: number,
-  ) => void;
-  setDefenderSmithyImprovementLevel: (
-    unitId: UnitId,
-    smithyImprovementLevel: number,
-  ) => void;
-  setAttackerHeroStats: (heroStats: CombatSimulatorHeroStats) => void;
-  setDefenderHeroStats: (heroStats: CombatSimulatorHeroStats) => void;
-  setAttackerVillagePopulation: (population: number) => void;
-  setDefenderVillagePopulation: (population: number) => void;
-  setDefenderWallLevel: (wallLevel: number) => void;
-  setDefenderResidenceLevel: (residenceLevel: number) => void;
-  clearAttackerData: () => void;
-  clearDefenderData: () => void;
-  clearParticipantData: (
-    participant: CombatSimulatorParticipantReference,
-  ) => void;
-  addDefenderReinforcement: (tribe?: Tribe) => void;
-  removeParticipant: (
-    participant: CombatSimulatorRemovableParticipantReference,
-  ) => void;
-  removeDefenderReinforcement: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-  ) => void;
-  setDefenderReinforcementTribe: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-    tribe: Tribe,
-  ) => void;
-  setDefenderReinforcementTroops: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-    troops: TroopLike[],
-  ) => void;
-  setDefenderReinforcementSmithyImprovementLevel: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-    unitId: UnitId,
-    smithyImprovementLevel: number,
-  ) => void;
-  setDefenderReinforcementHeroStats: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-    heroStats: CombatSimulatorHeroStats,
-  ) => void;
-  setDefenderReinforcementVillagePopulation: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-    population: number,
-  ) => void;
-  clearDefenderReinforcementData: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-  ) => void;
-};
-
-export const CombatSimulatorContext =
-  createContext<CombatSimulatorContextValue | null>(null);
+import {
+  CombatSimulatorContext,
+  type CombatSimulatorContextValue,
+  type CombatSimulatorHeroStats,
+  type CombatSimulatorMode,
+  type CombatSimulatorParticipant,
+  type CombatSimulatorParticipantReference,
+  type CombatSimulatorReinforcement,
+  type CombatSimulatorRemovableParticipantReference,
+  type CombatSimulatorState,
+  type CombatSimulatorTroop,
+} from './combat-simulator-context';
 
 const DEFAULT_HERO_STATS = {
   hp: 100,
@@ -150,19 +39,19 @@ const createEmptyTroops = (tribe: Tribe): CombatSimulatorTroop[] => {
 };
 
 const clampInteger = (value: number, min: number, max: number) => {
+  if (!Number.isFinite(value)) {
+    return min;
+  }
+
   return Math.max(min, Math.min(max, Math.trunc(value)));
 };
 
-const normalizeTroops = (troops: TroopLike[]): CombatSimulatorTroop[] => {
+const normalizeTroops = (
+  troops: CombatSimulatorTroop[],
+): CombatSimulatorTroop[] => {
   return troops.map((troop) => ({
     ...troop,
-    smithyImprovementLevel: clampInteger(
-      typeof troop.smithyImprovementLevel === 'number'
-        ? troop.smithyImprovementLevel
-        : 0,
-      0,
-      20,
-    ),
+    smithyImprovementLevel: clampInteger(troop.smithyImprovementLevel, 0, 20),
   }));
 };
 
@@ -171,14 +60,16 @@ const setTroopSmithyImprovementLevel = (
   unitId: UnitId,
   smithyImprovementLevel: number,
 ): CombatSimulatorTroop[] => {
-  return troops.map((troop) =>
-    troop.unitId === unitId
-      ? {
-          ...troop,
-          smithyImprovementLevel: clampInteger(smithyImprovementLevel, 0, 20),
-        }
-      : troop,
-  );
+  return troops.map((troop) => {
+    if (troop.unitId === unitId) {
+      return {
+        ...troop,
+        smithyImprovementLevel: clampInteger(smithyImprovementLevel, 0, 20),
+      };
+    }
+
+    return troop;
+  });
 };
 
 const createParticipant = <TVillage,>(
@@ -197,6 +88,7 @@ const createInitialCombatSimulatorState = (
   initialTribe: Tribe,
 ): CombatSimulatorState => {
   return {
+    combatMode: 'raid',
     attacker: createParticipant(initialTribe, { population: 100 }),
     defender: {
       ...createParticipant(initialTribe, {
@@ -215,6 +107,13 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
   const [state, setState] = useState<CombatSimulatorState>(() =>
     createInitialCombatSimulatorState(initialTribe),
   );
+
+  const setCombatMode = useCallback((combatMode: CombatSimulatorMode) => {
+    setState((prevState) => ({
+      ...prevState,
+      combatMode,
+    }));
+  }, []);
 
   const setAttackerTribe = useCallback((tribe: Tribe) => {
     setState((prevState) => ({
@@ -238,37 +137,14 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     }));
   }, []);
 
-  const swapAttackerAndPrimaryDefender = useCallback(() => {
-    setState((prevState) => ({
-      attacker: {
-        tribe: prevState.defender.tribe,
-        troops: prevState.defender.troops,
-        heroStats: prevState.defender.heroStats,
-        village: {
-          population: prevState.defender.village.population,
-        },
-      },
-      defender: {
-        ...prevState.defender,
-        tribe: prevState.attacker.tribe,
-        troops: prevState.attacker.troops,
-        heroStats: prevState.attacker.heroStats,
-        village: {
-          ...prevState.defender.village,
-          population: prevState.attacker.village.population,
-        },
-      },
-    }));
-  }, []);
-
-  const setAttackerTroops = useCallback((troops: TroopLike[]) => {
+  const setAttackerTroops = useCallback((troops: CombatSimulatorTroop[]) => {
     setState((prevState) => ({
       ...prevState,
       attacker: { ...prevState.attacker, troops: normalizeTroops(troops) },
     }));
   }, []);
 
-  const setDefenderTroops = useCallback((troops: TroopLike[]) => {
+  const setDefenderTroops = useCallback((troops: CombatSimulatorTroop[]) => {
     setState((prevState) => ({
       ...prevState,
       defender: { ...prevState.defender, troops: normalizeTroops(troops) },
@@ -336,7 +212,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
         ...prevState.attacker,
         village: {
           ...prevState.attacker.village,
-          population: Math.max(0, Math.trunc(population)),
+          population: clampInteger(population, 0, Number.MAX_SAFE_INTEGER),
         },
       },
     }));
@@ -349,7 +225,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
         ...prevState.defender,
         village: {
           ...prevState.defender.village,
-          population: Math.max(0, Math.trunc(population)),
+          population: clampInteger(population, 0, Number.MAX_SAFE_INTEGER),
         },
       },
     }));
@@ -532,7 +408,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
   const setDefenderReinforcementTroops = useCallback(
     (
       reinforcementId: CombatSimulatorReinforcement['id'],
-      troops: TroopLike[],
+      troops: CombatSimulatorTroop[],
     ) => {
       setState((prevState) => ({
         ...prevState,
@@ -616,7 +492,11 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
                     ...reinforcement,
                     village: {
                       ...reinforcement.village,
-                      population: Math.max(0, Math.trunc(population)),
+                      population: clampInteger(
+                        population,
+                        0,
+                        Number.MAX_SAFE_INTEGER,
+                      ),
                     },
                   }
                 : reinforcement,
@@ -650,12 +530,12 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     [],
   );
 
-  const value = useMemo(
+  const value = useMemo<CombatSimulatorContextValue>(
     () => ({
       state,
+      setCombatMode,
       setAttackerTribe,
       setDefenderTribe,
-      swapAttackerAndPrimaryDefender,
       setAttackerTroops,
       setDefenderTroops,
       setAttackerSmithyImprovementLevel,
@@ -681,9 +561,9 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     }),
     [
       state,
+      setCombatMode,
       setAttackerTribe,
       setDefenderTribe,
-      swapAttackerAndPrimaryDefender,
       setAttackerTroops,
       setDefenderTroops,
       setAttackerSmithyImprovementLevel,
