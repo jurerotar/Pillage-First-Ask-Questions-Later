@@ -56,6 +56,18 @@ const normalizeTroops = (
   }));
 };
 
+const normalizeHeroStats = (
+  heroStats: CombatSimulatorHeroStats,
+): CombatSimulatorHeroStats => {
+  return {
+    ...heroStats,
+    hp: clampInteger(heroStats.hp, 1, 100),
+    strength: clampInteger(heroStats.strength, 0, 100),
+    attackBonus: clampInteger(heroStats.attackBonus, 0, 100),
+    defenceBonus: clampInteger(heroStats.defenceBonus, 0, 100),
+  };
+};
+
 const setTroopSmithyImprovementLevel = (
   troops: CombatSimulatorTroop[],
   unitId: UnitId,
@@ -190,7 +202,10 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     (heroStats: CombatSimulatorHeroStats) => {
       setState((prevState) => ({
         ...prevState,
-        attacker: { ...prevState.attacker, heroStats },
+        attacker: {
+          ...prevState.attacker,
+          heroStats: normalizeHeroStats(heroStats),
+        },
       }));
     },
     [],
@@ -200,7 +215,10 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     (heroStats: CombatSimulatorHeroStats) => {
       setState((prevState) => ({
         ...prevState,
-        defender: { ...prevState.defender, heroStats },
+        defender: {
+          ...prevState.defender,
+          heroStats: normalizeHeroStats(heroStats),
+        },
       }));
     },
     [],
@@ -468,7 +486,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
           reinforcements: prevState.defender.reinforcements.map(
             (reinforcement) =>
               reinforcement.id === reinforcementId
-                ? { ...reinforcement, heroStats }
+                ? { ...reinforcement, heroStats: normalizeHeroStats(heroStats) }
                 : reinforcement,
           ),
         },

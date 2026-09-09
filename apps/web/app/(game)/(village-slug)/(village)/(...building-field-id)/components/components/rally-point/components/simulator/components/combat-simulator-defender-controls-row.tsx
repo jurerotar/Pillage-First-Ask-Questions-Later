@@ -15,7 +15,10 @@ import {
 } from 'app/components/ui/select';
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
 import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
-import { CombatSimulatorDefenderTroopControlsRows } from './combat-simulator-troop-controls-rows';
+import {
+  CombatSimulatorDefenderHeroStatsControlsRow,
+  CombatSimulatorDefenderTroopControlsRows,
+} from './combat-simulator-troop-controls-rows';
 import { LevelInputPopover } from './level-input-popover';
 
 export const CombatSimulatorDefenderControlsRow = () => {
@@ -172,6 +175,7 @@ export const CombatSimulatorDefenderControlsRow = () => {
       <UnitTable tribe={state.defender.tribe}>
         <CombatSimulatorDefenderTroopControlsRows />
       </UnitTable>
+      <CombatSimulatorDefenderHeroStatsControlsRow />
     </div>
   );
 };

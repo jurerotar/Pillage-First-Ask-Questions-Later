@@ -19,7 +19,10 @@ import {
   type CombatSimulatorMode,
 } from '../providers/combat-simulator-context';
 import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
-import { CombatSimulatorAttackerTroopControlsRows } from './combat-simulator-troop-controls-rows';
+import {
+  CombatSimulatorAttackerHeroStatsControlsRow,
+  CombatSimulatorAttackerTroopControlsRows,
+} from './combat-simulator-troop-controls-rows';
 
 export const CombatSimulatorAttackerControlsRow = () => {
   const { t } = useTranslation();
@@ -160,6 +163,7 @@ export const CombatSimulatorAttackerControlsRow = () => {
       <UnitTable tribe={state.attacker.tribe}>
         <CombatSimulatorAttackerTroopControlsRows />
       </UnitTable>
+      <CombatSimulatorAttackerHeroStatsControlsRow />
     </div>
   );
 };
