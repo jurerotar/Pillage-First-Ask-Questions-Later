@@ -5,8 +5,9 @@ export const inputVariants = cva(
   {
     variants: {
       size: {
-        default: 'h-9 w-full px-3 py-1',
-        fit: 'h-9 w-fit px-1',
+        default: 'h-8 w-full px-3 py-1',
+        fit: 'h-8 w-fit px-1',
+        numericDoubleDigit: 'h-8 w-8 px-1',
       },
       hideSpinner: {
         true: 'no-spinner',

@@ -6,6 +6,7 @@ import { randomInt } from 'moderndash';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { LuRefreshCcw } from 'react-icons/lu';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import {
@@ -287,24 +288,6 @@ export const CreateNewGameWorldForm = () => {
                   </div>
                   <FormField
                     control={form.control}
-                    name="seed"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Seed</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={isPending || isSuccess}
-                            placeholder="abc123"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
                     name="name"
                     disabled={isPending || isSuccess}
                     render={({ field }) => (
@@ -323,58 +306,92 @@ export const CreateNewGameWorldForm = () => {
 
                   <FormField
                     control={form.control}
-                    name="configuration.mapSize"
+                    name="seed"
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Size</FormLabel>
-                        <Select
-                          disabled={isPending || isSuccess}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
+                        <FormLabel>Seed</FormLabel>
+                        <div className="relative">
                           <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
+                            <Input
+                              className="pr-9"
+                              disabled={isPending || isSuccess}
+                              placeholder="abc123"
+                              {...field}
+                            />
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="100">100x100</SelectItem>
-                            <SelectItem value="200">200x200</SelectItem>
-                          </SelectContent>
-                        </Select>
+                          <button
+                            aria-label={t('Randomize seed')}
+                            className="absolute inset-y-px right-px flex w-8 items-center justify-center rounded-r-md text-muted-foreground transition-colors hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50"
+                            disabled={isPending || isSuccess}
+                            onClick={() => {
+                              field.onChange(generateSeed());
+                            }}
+                            type="button"
+                          >
+                            <LuRefreshCcw className="size-4" />
+                          </button>
+                        </div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="configuration.speed"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Speed</FormLabel>
-                        <Select
-                          disabled={isPending || isSuccess}
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">1x</SelectItem>
-                            <SelectItem value="2">2x</SelectItem>
-                            <SelectItem value="3">3x</SelectItem>
-                            <SelectItem value="5">5x</SelectItem>
-                            <SelectItem value="10">10x</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                    <FormField
+                      control={form.control}
+                      name="configuration.mapSize"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col gap-2">
+                          <FormLabel>Size</FormLabel>
+                          <Select
+                            disabled={isPending || isSuccess}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="100">100x100</SelectItem>
+                              <SelectItem value="200">200x200</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="configuration.speed"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col gap-2">
+                          <FormLabel>Speed</FormLabel>
+                          <Select
+                            disabled={isPending || isSuccess}
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="1">1x</SelectItem>
+                              <SelectItem value="2">2x</SelectItem>
+                              <SelectItem value="3">3x</SelectItem>
+                              <SelectItem value="5">5x</SelectItem>
+                              <SelectItem value="10">10x</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
 

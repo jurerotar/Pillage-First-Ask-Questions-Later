@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import type { ComponentProps } from 'react';
 import { inputVariants } from 'app/components/ui/cvas/input-cva';
 
-export type InputProps = ComponentProps<'input'> &
+export type InputProps = Omit<ComponentProps<'input'>, 'size'> &
   VariantProps<typeof inputVariants>;
 
 export const Input = ({
