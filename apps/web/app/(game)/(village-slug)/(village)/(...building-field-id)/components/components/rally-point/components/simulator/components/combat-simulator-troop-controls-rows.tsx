@@ -15,6 +15,7 @@ import {
   type CombatSimulatorReinforcement,
   type CombatSimulatorTroop,
 } from '../providers/combat-simulator-context';
+import { LevelInputPopover } from './level-input-popover';
 
 type CombatSimulatorTroopControlsParticipant =
   | { role: 'attacker' }
@@ -108,6 +109,10 @@ const CombatSimulatorTroopControlsRows = ({
   const amountLabel = t('Amount');
   const smithyImprovementLevelLabel = t('Smithy improvement level');
   const heroLabel = t('Include hero');
+  const participantInputId =
+    participant.role === 'reinforcement'
+      ? `reinforcement-${participant.reinforcementId}`
+      : participant.role;
 
   return (
     <>
@@ -197,20 +202,19 @@ const CombatSimulatorTroopControlsRows = ({
                 className={`h-8 p-1 text-center ${isLastUnit ? '' : 'border-r dark:border-border'}`}
               >
                 {upgradableUnitIds.has(unit.id) && (
-                  <Input
-                    aria-label={smithyImprovementLevelLabel}
-                    autoComplete="off"
+                  <LevelInputPopover
                     className="mx-auto px-1 max-w-12 text-center"
-                    hideSpinner
-                    max={20}
-                    min={0}
-                    size="fit"
-                    type="number"
+                    id={`combat-simulator-${participantInputId}-${unit.id}-smithy-improvement-level`}
+                    inputSize="fit"
+                    label={smithyImprovementLevelLabel}
+                    title={t('{{unitName}} level', {
+                      unitName: t(`UNITS.${unit.id}.NAME`),
+                    })}
                     value={troop?.smithyImprovementLevel ?? 0}
-                    onChange={(event) => {
+                    onValueChange={(value) => {
                       participantData.onSmithyImprovementLevelChange(
                         unit.id,
-                        event.currentTarget.valueAsNumber,
+                        value,
                       );
                     }}
                   />

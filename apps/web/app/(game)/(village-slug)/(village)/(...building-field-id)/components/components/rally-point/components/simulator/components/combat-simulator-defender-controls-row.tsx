@@ -16,6 +16,7 @@ import {
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
 import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
 import { CombatSimulatorDefenderTroopControlsRows } from './combat-simulator-troop-controls-rows';
+import { LevelInputPopover } from './level-input-popover';
 
 export const CombatSimulatorDefenderControlsRow = () => {
   const { t } = useTranslation();
@@ -130,60 +131,38 @@ export const CombatSimulatorDefenderControlsRow = () => {
                       }}
                     />
                   </label>
-                  <label
+                  <span
                     className="flex cursor-pointer items-center gap-1"
                     data-tooltip-content={wallLevelLabel}
                     data-tooltip-id="general-tooltip"
-                    htmlFor="combat-simulator-defender-wall-level"
                   >
                     <span className="inline-flex items-center justify-center">
                       <span className="sr-only">{wallLevelLabel}</span>
                       <LuCastle className="size-4 md:size-5" />
                     </span>
-                    <Input
-                      aria-label={wallLevelLabel}
-                      autoComplete="off"
-                      className="px-1 text-center"
-                      hideSpinner
+                    <LevelInputPopover
                       id="combat-simulator-defender-wall-level"
-                      max={20}
-                      min={0}
-                      size="numericDoubleDigit"
-                      type="number"
+                      label={wallLevelLabel}
                       value={state.defender.village.wallLevel}
-                      onChange={(event) => {
-                        setDefenderWallLevel(event.currentTarget.valueAsNumber);
-                      }}
+                      onValueChange={setDefenderWallLevel}
                     />
-                  </label>
-                  <label
+                  </span>
+                  <span
                     className="flex cursor-pointer items-center gap-1"
                     data-tooltip-content={residenceLevelLabel}
                     data-tooltip-id="general-tooltip"
-                    htmlFor="combat-simulator-defender-residence-level"
                   >
                     <span className="inline-flex items-center justify-center">
                       <span className="sr-only">{residenceLevelLabel}</span>
                       <LuHouse className="size-4 md:size-5" />
                     </span>
-                    <Input
-                      aria-label={residenceLevelLabel}
-                      autoComplete="off"
-                      className="px-1 text-center"
-                      hideSpinner
+                    <LevelInputPopover
                       id="combat-simulator-defender-residence-level"
-                      max={20}
-                      min={0}
-                      size="numericDoubleDigit"
-                      type="number"
+                      label={residenceLevelLabel}
                       value={state.defender.village.residenceLevel}
-                      onChange={(event) => {
-                        setDefenderResidenceLevel(
-                          event.currentTarget.valueAsNumber,
-                        );
-                      }}
+                      onValueChange={setDefenderResidenceLevel}
                     />
-                  </label>
+                  </span>
                 </div>
               </div>
             </th>

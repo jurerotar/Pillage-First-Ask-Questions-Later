@@ -44,6 +44,7 @@
   "{{unit}} is currently being researched": "{{unit}} is currently being researched",
   "{{unit}} is fully upgraded": "{{unit}} is fully upgraded",
   "{{unit}} researched": "{{unit}} researched",
+  "{{unitName}} level": "{{unitName}} level",
   "{{unitName}} level {{level}} upgrade started in {{villageName}}": "{{unitName}} level {{level}} upgrade started in {{villageName}}",
   "{{unitName}} level {{previousLevel}} to level {{level}}.": "{{unitName}} level {{previousLevel}} to level {{level}}.",
   "{{unitName}} requires {{buildingName}} of level {{level}} or higher to train.": "{{unitName}} requires {{buildingName}} of level {{level}} or higher to train.",
