@@ -849,6 +849,456 @@
       "NAME": "Revival potion",
       "NAME_other": "Revival potions",
       "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_WOOD": {
+      "NAME": "Worn Leather Boots of Wood",
+      "NAME_other": "Worn Leather Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_CLAY": {
+      "NAME": "Worn Leather Boots of Clay",
+      "NAME_other": "Worn Leather Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_IRON": {
+      "NAME": "Worn Leather Boots of Iron",
+      "NAME_other": "Worn Leather Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_CROP": {
+      "NAME": "Worn Leather Boots of Crop",
+      "NAME_other": "Worn Leather Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Leather Boots of Wood Production",
+      "NAME_other": "Worn Leather Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Leather Boots of Clay Production",
+      "NAME_other": "Worn Leather Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Leather Boots of Iron Production",
+      "NAME_other": "Worn Leather Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Leather Boots of Crop Production",
+      "NAME_other": "Worn Leather Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_STRENGTH": {
+      "NAME": "Worn Leather Boots of Strength",
+      "NAME_other": "Worn Leather Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BOOTS_OF_PROTECTION": {
+      "NAME": "Worn Leather Boots of Protection",
+      "NAME_other": "Worn Leather Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_WOOD": {
+      "NAME": "Worn Mail Boots of Wood",
+      "NAME_other": "Worn Mail Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_CLAY": {
+      "NAME": "Worn Mail Boots of Clay",
+      "NAME_other": "Worn Mail Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_IRON": {
+      "NAME": "Worn Mail Boots of Iron",
+      "NAME_other": "Worn Mail Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_CROP": {
+      "NAME": "Worn Mail Boots of Crop",
+      "NAME_other": "Worn Mail Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Mail Boots of Wood Production",
+      "NAME_other": "Worn Mail Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Mail Boots of Clay Production",
+      "NAME_other": "Worn Mail Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Mail Boots of Iron Production",
+      "NAME_other": "Worn Mail Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Mail Boots of Crop Production",
+      "NAME_other": "Worn Mail Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_STRENGTH": {
+      "NAME": "Worn Mail Boots of Strength",
+      "NAME_other": "Worn Mail Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BOOTS_OF_PROTECTION": {
+      "NAME": "Worn Mail Boots of Protection",
+      "NAME_other": "Worn Mail Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_WOOD": {
+      "NAME": "Worn Plate Boots of Wood",
+      "NAME_other": "Worn Plate Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_CLAY": {
+      "NAME": "Worn Plate Boots of Clay",
+      "NAME_other": "Worn Plate Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_IRON": {
+      "NAME": "Worn Plate Boots of Iron",
+      "NAME_other": "Worn Plate Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_CROP": {
+      "NAME": "Worn Plate Boots of Crop",
+      "NAME_other": "Worn Plate Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Plate Boots of Wood Production",
+      "NAME_other": "Worn Plate Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Plate Boots of Clay Production",
+      "NAME_other": "Worn Plate Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Plate Boots of Iron Production",
+      "NAME_other": "Worn Plate Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Plate Boots of Crop Production",
+      "NAME_other": "Worn Plate Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_STRENGTH": {
+      "NAME": "Worn Plate Boots of Strength",
+      "NAME_other": "Worn Plate Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BOOTS_OF_PROTECTION": {
+      "NAME": "Worn Plate Boots of Protection",
+      "NAME_other": "Worn Plate Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_WOOD": {
+      "NAME": "Sturdy Leather Boots of Wood",
+      "NAME_other": "Sturdy Leather Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_CLAY": {
+      "NAME": "Sturdy Leather Boots of Clay",
+      "NAME_other": "Sturdy Leather Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_IRON": {
+      "NAME": "Sturdy Leather Boots of Iron",
+      "NAME_other": "Sturdy Leather Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_CROP": {
+      "NAME": "Sturdy Leather Boots of Crop",
+      "NAME_other": "Sturdy Leather Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Leather Boots of Wood Production",
+      "NAME_other": "Sturdy Leather Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Leather Boots of Clay Production",
+      "NAME_other": "Sturdy Leather Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Leather Boots of Iron Production",
+      "NAME_other": "Sturdy Leather Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Leather Boots of Crop Production",
+      "NAME_other": "Sturdy Leather Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_STRENGTH": {
+      "NAME": "Sturdy Leather Boots of Strength",
+      "NAME_other": "Sturdy Leather Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BOOTS_OF_PROTECTION": {
+      "NAME": "Sturdy Leather Boots of Protection",
+      "NAME_other": "Sturdy Leather Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_WOOD": {
+      "NAME": "Sturdy Mail Boots of Wood",
+      "NAME_other": "Sturdy Mail Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_CLAY": {
+      "NAME": "Sturdy Mail Boots of Clay",
+      "NAME_other": "Sturdy Mail Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_IRON": {
+      "NAME": "Sturdy Mail Boots of Iron",
+      "NAME_other": "Sturdy Mail Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_CROP": {
+      "NAME": "Sturdy Mail Boots of Crop",
+      "NAME_other": "Sturdy Mail Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Mail Boots of Wood Production",
+      "NAME_other": "Sturdy Mail Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Mail Boots of Clay Production",
+      "NAME_other": "Sturdy Mail Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Mail Boots of Iron Production",
+      "NAME_other": "Sturdy Mail Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Mail Boots of Crop Production",
+      "NAME_other": "Sturdy Mail Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_STRENGTH": {
+      "NAME": "Sturdy Mail Boots of Strength",
+      "NAME_other": "Sturdy Mail Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BOOTS_OF_PROTECTION": {
+      "NAME": "Sturdy Mail Boots of Protection",
+      "NAME_other": "Sturdy Mail Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_WOOD": {
+      "NAME": "Sturdy Plate Boots of Wood",
+      "NAME_other": "Sturdy Plate Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_CLAY": {
+      "NAME": "Sturdy Plate Boots of Clay",
+      "NAME_other": "Sturdy Plate Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_IRON": {
+      "NAME": "Sturdy Plate Boots of Iron",
+      "NAME_other": "Sturdy Plate Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_CROP": {
+      "NAME": "Sturdy Plate Boots of Crop",
+      "NAME_other": "Sturdy Plate Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Plate Boots of Wood Production",
+      "NAME_other": "Sturdy Plate Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Plate Boots of Clay Production",
+      "NAME_other": "Sturdy Plate Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Plate Boots of Iron Production",
+      "NAME_other": "Sturdy Plate Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Plate Boots of Crop Production",
+      "NAME_other": "Sturdy Plate Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_STRENGTH": {
+      "NAME": "Sturdy Plate Boots of Strength",
+      "NAME_other": "Sturdy Plate Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BOOTS_OF_PROTECTION": {
+      "NAME": "Sturdy Plate Boots of Protection",
+      "NAME_other": "Sturdy Plate Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_WOOD": {
+      "NAME": "Reinforced Leather Boots of Wood",
+      "NAME_other": "Reinforced Leather Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_CLAY": {
+      "NAME": "Reinforced Leather Boots of Clay",
+      "NAME_other": "Reinforced Leather Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_IRON": {
+      "NAME": "Reinforced Leather Boots of Iron",
+      "NAME_other": "Reinforced Leather Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_CROP": {
+      "NAME": "Reinforced Leather Boots of Crop",
+      "NAME_other": "Reinforced Leather Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Leather Boots of Wood Production",
+      "NAME_other": "Reinforced Leather Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Leather Boots of Clay Production",
+      "NAME_other": "Reinforced Leather Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Leather Boots of Iron Production",
+      "NAME_other": "Reinforced Leather Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Leather Boots of Crop Production",
+      "NAME_other": "Reinforced Leather Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_STRENGTH": {
+      "NAME": "Reinforced Leather Boots of Strength",
+      "NAME_other": "Reinforced Leather Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BOOTS_OF_PROTECTION": {
+      "NAME": "Reinforced Leather Boots of Protection",
+      "NAME_other": "Reinforced Leather Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_WOOD": {
+      "NAME": "Reinforced Mail Boots of Wood",
+      "NAME_other": "Reinforced Mail Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_CLAY": {
+      "NAME": "Reinforced Mail Boots of Clay",
+      "NAME_other": "Reinforced Mail Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_IRON": {
+      "NAME": "Reinforced Mail Boots of Iron",
+      "NAME_other": "Reinforced Mail Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_CROP": {
+      "NAME": "Reinforced Mail Boots of Crop",
+      "NAME_other": "Reinforced Mail Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Mail Boots of Wood Production",
+      "NAME_other": "Reinforced Mail Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Mail Boots of Clay Production",
+      "NAME_other": "Reinforced Mail Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Mail Boots of Iron Production",
+      "NAME_other": "Reinforced Mail Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Mail Boots of Crop Production",
+      "NAME_other": "Reinforced Mail Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_STRENGTH": {
+      "NAME": "Reinforced Mail Boots of Strength",
+      "NAME_other": "Reinforced Mail Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BOOTS_OF_PROTECTION": {
+      "NAME": "Reinforced Mail Boots of Protection",
+      "NAME_other": "Reinforced Mail Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_WOOD": {
+      "NAME": "Reinforced Plate Boots of Wood",
+      "NAME_other": "Reinforced Plate Boots of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_CLAY": {
+      "NAME": "Reinforced Plate Boots of Clay",
+      "NAME_other": "Reinforced Plate Boots of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_IRON": {
+      "NAME": "Reinforced Plate Boots of Iron",
+      "NAME_other": "Reinforced Plate Boots of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_CROP": {
+      "NAME": "Reinforced Plate Boots of Crop",
+      "NAME_other": "Reinforced Plate Boots of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Plate Boots of Wood Production",
+      "NAME_other": "Reinforced Plate Boots of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Plate Boots of Clay Production",
+      "NAME_other": "Reinforced Plate Boots of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Plate Boots of Iron Production",
+      "NAME_other": "Reinforced Plate Boots of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Plate Boots of Crop Production",
+      "NAME_other": "Reinforced Plate Boots of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_STRENGTH": {
+      "NAME": "Reinforced Plate Boots of Strength",
+      "NAME_other": "Reinforced Plate Boots of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BOOTS_OF_PROTECTION": {
+      "NAME": "Reinforced Plate Boots of Protection",
+      "NAME_other": "Reinforced Plate Boots of Protection",
+      "DESCRIPTION": ""
     }
   },
   "QUESTS": {

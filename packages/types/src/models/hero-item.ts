@@ -22,8 +22,10 @@ export type HeroItemSlot =
   | 'consumable'
   | 'non-equipable';
 
-type UppercaseHeroItemRarity<Item extends string> =
-  `${Uppercase<HeroItemRarity>}_${Item}`;
+type UppercaseHeroItemRarity<
+  Item extends string,
+  Rarity extends HeroItemRarity = HeroItemRarity,
+> = `${Uppercase<Rarity>}_${Item}`;
 
 type HeroHorseItemId = UppercaseHeroItemRarity<'HORSE'>;
 
@@ -45,12 +47,35 @@ type CivilArtifactId =
 
 export type ArtifactId = MilitaryArtifactId | CivilArtifactId;
 
+type HeroEquipmentArmorTypeId = 'LEATHER' | 'MAIL' | 'PLATE';
+
+type HeroEquipmentBootEffectId =
+  | 'WOOD'
+  | 'CLAY'
+  | 'IRON'
+  | 'CROP'
+  | 'WOOD_PRODUCTION'
+  | 'CLAY_PRODUCTION'
+  | 'IRON_PRODUCTION'
+  | 'CROP_PRODUCTION'
+  | 'STRENGTH'
+  | 'PROTECTION';
+
+export type HeroEquipmentItemId = UppercaseHeroItemRarity<
+  `${HeroEquipmentArmorTypeId}_BOOTS_OF_${HeroEquipmentBootEffectId}`,
+  Exclude<HeroItemRarity, 'epic'>
+>;
+
 type HeroBonus = {
-  attribute: 'power' | 'speed';
+  attribute: 'power' | 'speed' | 'damageReduction';
   value: number;
 };
 
-type HeroItemId = HeroHorseItemId | HeroConsumableItemId | ArtifactId;
+type HeroItemId =
+  | HeroHorseItemId
+  | HeroConsumableItemId
+  | ArtifactId
+  | HeroEquipmentItemId;
 
 export type HeroItem = {
   id: number;
@@ -63,6 +88,12 @@ export type HeroItem = {
   // Source specifier is item id
   effects?: Omit<Effect, 'sourceSpecifier' | 'tileId'>[];
   heroBonus?: HeroBonus[];
+};
+
+export type HeroEquipmentItem = HeroItem & {
+  name: HeroEquipmentItemId;
+  slot: Extract<HeroItemSlot, 'boots'>;
+  category: Extract<HeroItemCategory, 'wearable'>;
 };
 
 export const heroItemSchema = z
