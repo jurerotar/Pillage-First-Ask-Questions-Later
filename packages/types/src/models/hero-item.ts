@@ -42,6 +42,7 @@ type ArtifactRarity = Uppercase<Exclude<HeroItemRarity, 'common'>>;
 
 type MilitaryArtifactId =
   `${ArtifactRarity}_ARTIFACT_MILITARY_${'TROOP_TRAVEL_SPEED' | 'TROOP_CARRYING_CAPACITY' | 'TROOP_TRAINING_REDUCTION' | 'TROOP_WHEAT_CONSUMPTION_REDUCTION'}`;
+
 type CivilArtifactId =
   `${ArtifactRarity}_ARTIFACT_CIVIL_${'BUILD_TIME_REDUCTION' | 'OASIS_PRODUCTION_BONUS' | 'RESOURCE_PRODUCTION_BONUS' | 'ENABLE_GREAT_BUILDINGS'}`;
 
@@ -49,7 +50,15 @@ export type ArtifactId = MilitaryArtifactId | CivilArtifactId;
 
 type HeroEquipmentArmorTypeId = 'LEATHER' | 'MAIL' | 'PLATE';
 
-type HeroEquipmentBootEffectId =
+type HeroArmorEquipmentItemKindId =
+  | 'HELMET'
+  | 'BODY_ARMOR'
+  | 'LEG_GUARDS'
+  | 'BOOTS';
+
+type HeroHandEquipmentItemKindId = 'SWORD' | 'SHIELD';
+
+type HeroEquipmentEffectId =
   | 'WOOD'
   | 'CLAY'
   | 'IRON'
@@ -61,10 +70,19 @@ type HeroEquipmentBootEffectId =
   | 'STRENGTH'
   | 'PROTECTION';
 
-export type HeroEquipmentItemId = UppercaseHeroItemRarity<
-  `${HeroEquipmentArmorTypeId}_BOOTS_OF_${HeroEquipmentBootEffectId}`,
+type HeroArmorEquipmentItemId = UppercaseHeroItemRarity<
+  `${HeroEquipmentArmorTypeId}_${HeroArmorEquipmentItemKindId}_OF_${HeroEquipmentEffectId}`,
   Exclude<HeroItemRarity, 'epic'>
 >;
+
+type HeroHandEquipmentItemId = UppercaseHeroItemRarity<
+  HeroHandEquipmentItemKindId,
+  Exclude<HeroItemRarity, 'epic'>
+>;
+
+export type HeroEquipmentItemId =
+  | HeroArmorEquipmentItemId
+  | HeroHandEquipmentItemId;
 
 type HeroBonus = {
   attribute: 'power' | 'speed' | 'damageReduction';
@@ -92,7 +110,10 @@ export type HeroItem = {
 
 export type HeroEquipmentItem = HeroItem & {
   name: HeroEquipmentItemId;
-  slot: Extract<HeroItemSlot, 'boots'>;
+  slot: Extract<
+    HeroItemSlot,
+    'head' | 'torso' | 'legs' | 'boots' | 'right-hand' | 'left-hand'
+  >;
   category: Extract<HeroItemCategory, 'wearable'>;
 };
 

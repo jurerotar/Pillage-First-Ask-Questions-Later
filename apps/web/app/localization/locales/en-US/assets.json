@@ -900,6 +900,156 @@
       "NAME_other": "Worn Leather Boots of Protection",
       "DESCRIPTION": ""
     },
+    "COMMON_LEATHER_HELMET_OF_WOOD": {
+      "NAME": "Worn Leather Helmet of Wood",
+      "NAME_other": "Worn Leather Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_CLAY": {
+      "NAME": "Worn Leather Helmet of Clay",
+      "NAME_other": "Worn Leather Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_IRON": {
+      "NAME": "Worn Leather Helmet of Iron",
+      "NAME_other": "Worn Leather Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_CROP": {
+      "NAME": "Worn Leather Helmet of Crop",
+      "NAME_other": "Worn Leather Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Leather Helmet of Wood Production",
+      "NAME_other": "Worn Leather Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Leather Helmet of Clay Production",
+      "NAME_other": "Worn Leather Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Leather Helmet of Iron Production",
+      "NAME_other": "Worn Leather Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Leather Helmet of Crop Production",
+      "NAME_other": "Worn Leather Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_STRENGTH": {
+      "NAME": "Worn Leather Helmet of Strength",
+      "NAME_other": "Worn Leather Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_HELMET_OF_PROTECTION": {
+      "NAME": "Worn Leather Helmet of Protection",
+      "NAME_other": "Worn Leather Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Worn Leather Body Armor of Wood",
+      "NAME_other": "Worn Leather Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Worn Leather Body Armor of Clay",
+      "NAME_other": "Worn Leather Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_IRON": {
+      "NAME": "Worn Leather Body Armor of Iron",
+      "NAME_other": "Worn Leather Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_CROP": {
+      "NAME": "Worn Leather Body Armor of Crop",
+      "NAME_other": "Worn Leather Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Leather Body Armor of Wood Production",
+      "NAME_other": "Worn Leather Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Leather Body Armor of Clay Production",
+      "NAME_other": "Worn Leather Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Leather Body Armor of Iron Production",
+      "NAME_other": "Worn Leather Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Leather Body Armor of Crop Production",
+      "NAME_other": "Worn Leather Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Worn Leather Body Armor of Strength",
+      "NAME_other": "Worn Leather Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Worn Leather Body Armor of Protection",
+      "NAME_other": "Worn Leather Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Worn Leather Leg Guards of Wood",
+      "NAME_other": "Worn Leather Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Worn Leather Leg Guards of Clay",
+      "NAME_other": "Worn Leather Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_IRON": {
+      "NAME": "Worn Leather Leg Guards of Iron",
+      "NAME_other": "Worn Leather Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_CROP": {
+      "NAME": "Worn Leather Leg Guards of Crop",
+      "NAME_other": "Worn Leather Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Leather Leg Guards of Wood Production",
+      "NAME_other": "Worn Leather Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Leather Leg Guards of Clay Production",
+      "NAME_other": "Worn Leather Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Leather Leg Guards of Iron Production",
+      "NAME_other": "Worn Leather Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Leather Leg Guards of Crop Production",
+      "NAME_other": "Worn Leather Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Worn Leather Leg Guards of Strength",
+      "NAME_other": "Worn Leather Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Worn Leather Leg Guards of Protection",
+      "NAME_other": "Worn Leather Leg Guards of Protection",
+      "DESCRIPTION": ""
+    },
     "COMMON_MAIL_BOOTS_OF_WOOD": {
       "NAME": "Worn Mail Boots of Wood",
       "NAME_other": "Worn Mail Boots of Wood",
@@ -948,6 +1098,156 @@
     "COMMON_MAIL_BOOTS_OF_PROTECTION": {
       "NAME": "Worn Mail Boots of Protection",
       "NAME_other": "Worn Mail Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_WOOD": {
+      "NAME": "Worn Mail Helmet of Wood",
+      "NAME_other": "Worn Mail Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_CLAY": {
+      "NAME": "Worn Mail Helmet of Clay",
+      "NAME_other": "Worn Mail Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_IRON": {
+      "NAME": "Worn Mail Helmet of Iron",
+      "NAME_other": "Worn Mail Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_CROP": {
+      "NAME": "Worn Mail Helmet of Crop",
+      "NAME_other": "Worn Mail Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Mail Helmet of Wood Production",
+      "NAME_other": "Worn Mail Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Mail Helmet of Clay Production",
+      "NAME_other": "Worn Mail Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Mail Helmet of Iron Production",
+      "NAME_other": "Worn Mail Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Mail Helmet of Crop Production",
+      "NAME_other": "Worn Mail Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_STRENGTH": {
+      "NAME": "Worn Mail Helmet of Strength",
+      "NAME_other": "Worn Mail Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_HELMET_OF_PROTECTION": {
+      "NAME": "Worn Mail Helmet of Protection",
+      "NAME_other": "Worn Mail Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Worn Mail Body Armor of Wood",
+      "NAME_other": "Worn Mail Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Worn Mail Body Armor of Clay",
+      "NAME_other": "Worn Mail Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_IRON": {
+      "NAME": "Worn Mail Body Armor of Iron",
+      "NAME_other": "Worn Mail Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_CROP": {
+      "NAME": "Worn Mail Body Armor of Crop",
+      "NAME_other": "Worn Mail Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Mail Body Armor of Wood Production",
+      "NAME_other": "Worn Mail Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Mail Body Armor of Clay Production",
+      "NAME_other": "Worn Mail Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Mail Body Armor of Iron Production",
+      "NAME_other": "Worn Mail Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Mail Body Armor of Crop Production",
+      "NAME_other": "Worn Mail Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Worn Mail Body Armor of Strength",
+      "NAME_other": "Worn Mail Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Worn Mail Body Armor of Protection",
+      "NAME_other": "Worn Mail Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Worn Mail Leg Guards of Wood",
+      "NAME_other": "Worn Mail Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Worn Mail Leg Guards of Clay",
+      "NAME_other": "Worn Mail Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_IRON": {
+      "NAME": "Worn Mail Leg Guards of Iron",
+      "NAME_other": "Worn Mail Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_CROP": {
+      "NAME": "Worn Mail Leg Guards of Crop",
+      "NAME_other": "Worn Mail Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Mail Leg Guards of Wood Production",
+      "NAME_other": "Worn Mail Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Mail Leg Guards of Clay Production",
+      "NAME_other": "Worn Mail Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Mail Leg Guards of Iron Production",
+      "NAME_other": "Worn Mail Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Mail Leg Guards of Crop Production",
+      "NAME_other": "Worn Mail Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Worn Mail Leg Guards of Strength",
+      "NAME_other": "Worn Mail Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Worn Mail Leg Guards of Protection",
+      "NAME_other": "Worn Mail Leg Guards of Protection",
       "DESCRIPTION": ""
     },
     "COMMON_PLATE_BOOTS_OF_WOOD": {
@@ -1000,6 +1300,156 @@
       "NAME_other": "Worn Plate Boots of Protection",
       "DESCRIPTION": ""
     },
+    "COMMON_PLATE_HELMET_OF_WOOD": {
+      "NAME": "Worn Plate Helmet of Wood",
+      "NAME_other": "Worn Plate Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_CLAY": {
+      "NAME": "Worn Plate Helmet of Clay",
+      "NAME_other": "Worn Plate Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_IRON": {
+      "NAME": "Worn Plate Helmet of Iron",
+      "NAME_other": "Worn Plate Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_CROP": {
+      "NAME": "Worn Plate Helmet of Crop",
+      "NAME_other": "Worn Plate Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Plate Helmet of Wood Production",
+      "NAME_other": "Worn Plate Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Plate Helmet of Clay Production",
+      "NAME_other": "Worn Plate Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Plate Helmet of Iron Production",
+      "NAME_other": "Worn Plate Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Plate Helmet of Crop Production",
+      "NAME_other": "Worn Plate Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_STRENGTH": {
+      "NAME": "Worn Plate Helmet of Strength",
+      "NAME_other": "Worn Plate Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_HELMET_OF_PROTECTION": {
+      "NAME": "Worn Plate Helmet of Protection",
+      "NAME_other": "Worn Plate Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Worn Plate Body Armor of Wood",
+      "NAME_other": "Worn Plate Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Worn Plate Body Armor of Clay",
+      "NAME_other": "Worn Plate Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_IRON": {
+      "NAME": "Worn Plate Body Armor of Iron",
+      "NAME_other": "Worn Plate Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_CROP": {
+      "NAME": "Worn Plate Body Armor of Crop",
+      "NAME_other": "Worn Plate Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Plate Body Armor of Wood Production",
+      "NAME_other": "Worn Plate Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Plate Body Armor of Clay Production",
+      "NAME_other": "Worn Plate Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Plate Body Armor of Iron Production",
+      "NAME_other": "Worn Plate Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Plate Body Armor of Crop Production",
+      "NAME_other": "Worn Plate Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Worn Plate Body Armor of Strength",
+      "NAME_other": "Worn Plate Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Worn Plate Body Armor of Protection",
+      "NAME_other": "Worn Plate Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Worn Plate Leg Guards of Wood",
+      "NAME_other": "Worn Plate Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Worn Plate Leg Guards of Clay",
+      "NAME_other": "Worn Plate Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_IRON": {
+      "NAME": "Worn Plate Leg Guards of Iron",
+      "NAME_other": "Worn Plate Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_CROP": {
+      "NAME": "Worn Plate Leg Guards of Crop",
+      "NAME_other": "Worn Plate Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Worn Plate Leg Guards of Wood Production",
+      "NAME_other": "Worn Plate Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Worn Plate Leg Guards of Clay Production",
+      "NAME_other": "Worn Plate Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Worn Plate Leg Guards of Iron Production",
+      "NAME_other": "Worn Plate Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Worn Plate Leg Guards of Crop Production",
+      "NAME_other": "Worn Plate Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Worn Plate Leg Guards of Strength",
+      "NAME_other": "Worn Plate Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Worn Plate Leg Guards of Protection",
+      "NAME_other": "Worn Plate Leg Guards of Protection",
+      "DESCRIPTION": ""
+    },
     "UNCOMMON_LEATHER_BOOTS_OF_WOOD": {
       "NAME": "Sturdy Leather Boots of Wood",
       "NAME_other": "Sturdy Leather Boots of Wood",
@@ -1048,6 +1498,156 @@
     "UNCOMMON_LEATHER_BOOTS_OF_PROTECTION": {
       "NAME": "Sturdy Leather Boots of Protection",
       "NAME_other": "Sturdy Leather Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_WOOD": {
+      "NAME": "Sturdy Leather Helmet of Wood",
+      "NAME_other": "Sturdy Leather Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_CLAY": {
+      "NAME": "Sturdy Leather Helmet of Clay",
+      "NAME_other": "Sturdy Leather Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_IRON": {
+      "NAME": "Sturdy Leather Helmet of Iron",
+      "NAME_other": "Sturdy Leather Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_CROP": {
+      "NAME": "Sturdy Leather Helmet of Crop",
+      "NAME_other": "Sturdy Leather Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Leather Helmet of Wood Production",
+      "NAME_other": "Sturdy Leather Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Leather Helmet of Clay Production",
+      "NAME_other": "Sturdy Leather Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Leather Helmet of Iron Production",
+      "NAME_other": "Sturdy Leather Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Leather Helmet of Crop Production",
+      "NAME_other": "Sturdy Leather Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_STRENGTH": {
+      "NAME": "Sturdy Leather Helmet of Strength",
+      "NAME_other": "Sturdy Leather Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_HELMET_OF_PROTECTION": {
+      "NAME": "Sturdy Leather Helmet of Protection",
+      "NAME_other": "Sturdy Leather Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Sturdy Leather Body Armor of Wood",
+      "NAME_other": "Sturdy Leather Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Sturdy Leather Body Armor of Clay",
+      "NAME_other": "Sturdy Leather Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_IRON": {
+      "NAME": "Sturdy Leather Body Armor of Iron",
+      "NAME_other": "Sturdy Leather Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_CROP": {
+      "NAME": "Sturdy Leather Body Armor of Crop",
+      "NAME_other": "Sturdy Leather Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Leather Body Armor of Wood Production",
+      "NAME_other": "Sturdy Leather Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Leather Body Armor of Clay Production",
+      "NAME_other": "Sturdy Leather Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Leather Body Armor of Iron Production",
+      "NAME_other": "Sturdy Leather Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Leather Body Armor of Crop Production",
+      "NAME_other": "Sturdy Leather Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Sturdy Leather Body Armor of Strength",
+      "NAME_other": "Sturdy Leather Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Sturdy Leather Body Armor of Protection",
+      "NAME_other": "Sturdy Leather Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Sturdy Leather Leg Guards of Wood",
+      "NAME_other": "Sturdy Leather Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Sturdy Leather Leg Guards of Clay",
+      "NAME_other": "Sturdy Leather Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_IRON": {
+      "NAME": "Sturdy Leather Leg Guards of Iron",
+      "NAME_other": "Sturdy Leather Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_CROP": {
+      "NAME": "Sturdy Leather Leg Guards of Crop",
+      "NAME_other": "Sturdy Leather Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Leather Leg Guards of Wood Production",
+      "NAME_other": "Sturdy Leather Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Leather Leg Guards of Clay Production",
+      "NAME_other": "Sturdy Leather Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Leather Leg Guards of Iron Production",
+      "NAME_other": "Sturdy Leather Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Leather Leg Guards of Crop Production",
+      "NAME_other": "Sturdy Leather Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Sturdy Leather Leg Guards of Strength",
+      "NAME_other": "Sturdy Leather Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Sturdy Leather Leg Guards of Protection",
+      "NAME_other": "Sturdy Leather Leg Guards of Protection",
       "DESCRIPTION": ""
     },
     "UNCOMMON_MAIL_BOOTS_OF_WOOD": {
@@ -1100,6 +1700,156 @@
       "NAME_other": "Sturdy Mail Boots of Protection",
       "DESCRIPTION": ""
     },
+    "UNCOMMON_MAIL_HELMET_OF_WOOD": {
+      "NAME": "Sturdy Mail Helmet of Wood",
+      "NAME_other": "Sturdy Mail Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_CLAY": {
+      "NAME": "Sturdy Mail Helmet of Clay",
+      "NAME_other": "Sturdy Mail Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_IRON": {
+      "NAME": "Sturdy Mail Helmet of Iron",
+      "NAME_other": "Sturdy Mail Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_CROP": {
+      "NAME": "Sturdy Mail Helmet of Crop",
+      "NAME_other": "Sturdy Mail Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Mail Helmet of Wood Production",
+      "NAME_other": "Sturdy Mail Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Mail Helmet of Clay Production",
+      "NAME_other": "Sturdy Mail Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Mail Helmet of Iron Production",
+      "NAME_other": "Sturdy Mail Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Mail Helmet of Crop Production",
+      "NAME_other": "Sturdy Mail Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_STRENGTH": {
+      "NAME": "Sturdy Mail Helmet of Strength",
+      "NAME_other": "Sturdy Mail Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_HELMET_OF_PROTECTION": {
+      "NAME": "Sturdy Mail Helmet of Protection",
+      "NAME_other": "Sturdy Mail Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Sturdy Mail Body Armor of Wood",
+      "NAME_other": "Sturdy Mail Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Sturdy Mail Body Armor of Clay",
+      "NAME_other": "Sturdy Mail Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_IRON": {
+      "NAME": "Sturdy Mail Body Armor of Iron",
+      "NAME_other": "Sturdy Mail Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_CROP": {
+      "NAME": "Sturdy Mail Body Armor of Crop",
+      "NAME_other": "Sturdy Mail Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Mail Body Armor of Wood Production",
+      "NAME_other": "Sturdy Mail Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Mail Body Armor of Clay Production",
+      "NAME_other": "Sturdy Mail Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Mail Body Armor of Iron Production",
+      "NAME_other": "Sturdy Mail Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Mail Body Armor of Crop Production",
+      "NAME_other": "Sturdy Mail Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Sturdy Mail Body Armor of Strength",
+      "NAME_other": "Sturdy Mail Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Sturdy Mail Body Armor of Protection",
+      "NAME_other": "Sturdy Mail Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Sturdy Mail Leg Guards of Wood",
+      "NAME_other": "Sturdy Mail Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Sturdy Mail Leg Guards of Clay",
+      "NAME_other": "Sturdy Mail Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_IRON": {
+      "NAME": "Sturdy Mail Leg Guards of Iron",
+      "NAME_other": "Sturdy Mail Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_CROP": {
+      "NAME": "Sturdy Mail Leg Guards of Crop",
+      "NAME_other": "Sturdy Mail Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Mail Leg Guards of Wood Production",
+      "NAME_other": "Sturdy Mail Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Mail Leg Guards of Clay Production",
+      "NAME_other": "Sturdy Mail Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Mail Leg Guards of Iron Production",
+      "NAME_other": "Sturdy Mail Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Mail Leg Guards of Crop Production",
+      "NAME_other": "Sturdy Mail Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Sturdy Mail Leg Guards of Strength",
+      "NAME_other": "Sturdy Mail Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Sturdy Mail Leg Guards of Protection",
+      "NAME_other": "Sturdy Mail Leg Guards of Protection",
+      "DESCRIPTION": ""
+    },
     "UNCOMMON_PLATE_BOOTS_OF_WOOD": {
       "NAME": "Sturdy Plate Boots of Wood",
       "NAME_other": "Sturdy Plate Boots of Wood",
@@ -1148,6 +1898,156 @@
     "UNCOMMON_PLATE_BOOTS_OF_PROTECTION": {
       "NAME": "Sturdy Plate Boots of Protection",
       "NAME_other": "Sturdy Plate Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_WOOD": {
+      "NAME": "Sturdy Plate Helmet of Wood",
+      "NAME_other": "Sturdy Plate Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_CLAY": {
+      "NAME": "Sturdy Plate Helmet of Clay",
+      "NAME_other": "Sturdy Plate Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_IRON": {
+      "NAME": "Sturdy Plate Helmet of Iron",
+      "NAME_other": "Sturdy Plate Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_CROP": {
+      "NAME": "Sturdy Plate Helmet of Crop",
+      "NAME_other": "Sturdy Plate Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Plate Helmet of Wood Production",
+      "NAME_other": "Sturdy Plate Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Plate Helmet of Clay Production",
+      "NAME_other": "Sturdy Plate Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Plate Helmet of Iron Production",
+      "NAME_other": "Sturdy Plate Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Plate Helmet of Crop Production",
+      "NAME_other": "Sturdy Plate Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_STRENGTH": {
+      "NAME": "Sturdy Plate Helmet of Strength",
+      "NAME_other": "Sturdy Plate Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_HELMET_OF_PROTECTION": {
+      "NAME": "Sturdy Plate Helmet of Protection",
+      "NAME_other": "Sturdy Plate Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Sturdy Plate Body Armor of Wood",
+      "NAME_other": "Sturdy Plate Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Sturdy Plate Body Armor of Clay",
+      "NAME_other": "Sturdy Plate Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_IRON": {
+      "NAME": "Sturdy Plate Body Armor of Iron",
+      "NAME_other": "Sturdy Plate Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_CROP": {
+      "NAME": "Sturdy Plate Body Armor of Crop",
+      "NAME_other": "Sturdy Plate Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Plate Body Armor of Wood Production",
+      "NAME_other": "Sturdy Plate Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Plate Body Armor of Clay Production",
+      "NAME_other": "Sturdy Plate Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Plate Body Armor of Iron Production",
+      "NAME_other": "Sturdy Plate Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Plate Body Armor of Crop Production",
+      "NAME_other": "Sturdy Plate Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Sturdy Plate Body Armor of Strength",
+      "NAME_other": "Sturdy Plate Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Sturdy Plate Body Armor of Protection",
+      "NAME_other": "Sturdy Plate Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Sturdy Plate Leg Guards of Wood",
+      "NAME_other": "Sturdy Plate Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Sturdy Plate Leg Guards of Clay",
+      "NAME_other": "Sturdy Plate Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_IRON": {
+      "NAME": "Sturdy Plate Leg Guards of Iron",
+      "NAME_other": "Sturdy Plate Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_CROP": {
+      "NAME": "Sturdy Plate Leg Guards of Crop",
+      "NAME_other": "Sturdy Plate Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Sturdy Plate Leg Guards of Wood Production",
+      "NAME_other": "Sturdy Plate Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Sturdy Plate Leg Guards of Clay Production",
+      "NAME_other": "Sturdy Plate Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Sturdy Plate Leg Guards of Iron Production",
+      "NAME_other": "Sturdy Plate Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Sturdy Plate Leg Guards of Crop Production",
+      "NAME_other": "Sturdy Plate Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Sturdy Plate Leg Guards of Strength",
+      "NAME_other": "Sturdy Plate Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Sturdy Plate Leg Guards of Protection",
+      "NAME_other": "Sturdy Plate Leg Guards of Protection",
       "DESCRIPTION": ""
     },
     "RARE_LEATHER_BOOTS_OF_WOOD": {
@@ -1200,6 +2100,156 @@
       "NAME_other": "Reinforced Leather Boots of Protection",
       "DESCRIPTION": ""
     },
+    "RARE_LEATHER_HELMET_OF_WOOD": {
+      "NAME": "Reinforced Leather Helmet of Wood",
+      "NAME_other": "Reinforced Leather Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_CLAY": {
+      "NAME": "Reinforced Leather Helmet of Clay",
+      "NAME_other": "Reinforced Leather Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_IRON": {
+      "NAME": "Reinforced Leather Helmet of Iron",
+      "NAME_other": "Reinforced Leather Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_CROP": {
+      "NAME": "Reinforced Leather Helmet of Crop",
+      "NAME_other": "Reinforced Leather Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Leather Helmet of Wood Production",
+      "NAME_other": "Reinforced Leather Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Leather Helmet of Clay Production",
+      "NAME_other": "Reinforced Leather Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Leather Helmet of Iron Production",
+      "NAME_other": "Reinforced Leather Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Leather Helmet of Crop Production",
+      "NAME_other": "Reinforced Leather Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_STRENGTH": {
+      "NAME": "Reinforced Leather Helmet of Strength",
+      "NAME_other": "Reinforced Leather Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_HELMET_OF_PROTECTION": {
+      "NAME": "Reinforced Leather Helmet of Protection",
+      "NAME_other": "Reinforced Leather Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Reinforced Leather Body Armor of Wood",
+      "NAME_other": "Reinforced Leather Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Reinforced Leather Body Armor of Clay",
+      "NAME_other": "Reinforced Leather Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_IRON": {
+      "NAME": "Reinforced Leather Body Armor of Iron",
+      "NAME_other": "Reinforced Leather Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_CROP": {
+      "NAME": "Reinforced Leather Body Armor of Crop",
+      "NAME_other": "Reinforced Leather Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Leather Body Armor of Wood Production",
+      "NAME_other": "Reinforced Leather Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Leather Body Armor of Clay Production",
+      "NAME_other": "Reinforced Leather Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Leather Body Armor of Iron Production",
+      "NAME_other": "Reinforced Leather Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Leather Body Armor of Crop Production",
+      "NAME_other": "Reinforced Leather Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Reinforced Leather Body Armor of Strength",
+      "NAME_other": "Reinforced Leather Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Reinforced Leather Body Armor of Protection",
+      "NAME_other": "Reinforced Leather Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Reinforced Leather Leg Guards of Wood",
+      "NAME_other": "Reinforced Leather Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Reinforced Leather Leg Guards of Clay",
+      "NAME_other": "Reinforced Leather Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_IRON": {
+      "NAME": "Reinforced Leather Leg Guards of Iron",
+      "NAME_other": "Reinforced Leather Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_CROP": {
+      "NAME": "Reinforced Leather Leg Guards of Crop",
+      "NAME_other": "Reinforced Leather Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Leather Leg Guards of Wood Production",
+      "NAME_other": "Reinforced Leather Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Leather Leg Guards of Clay Production",
+      "NAME_other": "Reinforced Leather Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Leather Leg Guards of Iron Production",
+      "NAME_other": "Reinforced Leather Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Leather Leg Guards of Crop Production",
+      "NAME_other": "Reinforced Leather Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Reinforced Leather Leg Guards of Strength",
+      "NAME_other": "Reinforced Leather Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Reinforced Leather Leg Guards of Protection",
+      "NAME_other": "Reinforced Leather Leg Guards of Protection",
+      "DESCRIPTION": ""
+    },
     "RARE_MAIL_BOOTS_OF_WOOD": {
       "NAME": "Reinforced Mail Boots of Wood",
       "NAME_other": "Reinforced Mail Boots of Wood",
@@ -1250,6 +2300,156 @@
       "NAME_other": "Reinforced Mail Boots of Protection",
       "DESCRIPTION": ""
     },
+    "RARE_MAIL_HELMET_OF_WOOD": {
+      "NAME": "Reinforced Mail Helmet of Wood",
+      "NAME_other": "Reinforced Mail Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_CLAY": {
+      "NAME": "Reinforced Mail Helmet of Clay",
+      "NAME_other": "Reinforced Mail Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_IRON": {
+      "NAME": "Reinforced Mail Helmet of Iron",
+      "NAME_other": "Reinforced Mail Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_CROP": {
+      "NAME": "Reinforced Mail Helmet of Crop",
+      "NAME_other": "Reinforced Mail Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Mail Helmet of Wood Production",
+      "NAME_other": "Reinforced Mail Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Mail Helmet of Clay Production",
+      "NAME_other": "Reinforced Mail Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Mail Helmet of Iron Production",
+      "NAME_other": "Reinforced Mail Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Mail Helmet of Crop Production",
+      "NAME_other": "Reinforced Mail Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_STRENGTH": {
+      "NAME": "Reinforced Mail Helmet of Strength",
+      "NAME_other": "Reinforced Mail Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_HELMET_OF_PROTECTION": {
+      "NAME": "Reinforced Mail Helmet of Protection",
+      "NAME_other": "Reinforced Mail Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Reinforced Mail Body Armor of Wood",
+      "NAME_other": "Reinforced Mail Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Reinforced Mail Body Armor of Clay",
+      "NAME_other": "Reinforced Mail Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_IRON": {
+      "NAME": "Reinforced Mail Body Armor of Iron",
+      "NAME_other": "Reinforced Mail Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_CROP": {
+      "NAME": "Reinforced Mail Body Armor of Crop",
+      "NAME_other": "Reinforced Mail Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Mail Body Armor of Wood Production",
+      "NAME_other": "Reinforced Mail Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Mail Body Armor of Clay Production",
+      "NAME_other": "Reinforced Mail Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Mail Body Armor of Iron Production",
+      "NAME_other": "Reinforced Mail Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Mail Body Armor of Crop Production",
+      "NAME_other": "Reinforced Mail Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Reinforced Mail Body Armor of Strength",
+      "NAME_other": "Reinforced Mail Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Reinforced Mail Body Armor of Protection",
+      "NAME_other": "Reinforced Mail Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Reinforced Mail Leg Guards of Wood",
+      "NAME_other": "Reinforced Mail Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Reinforced Mail Leg Guards of Clay",
+      "NAME_other": "Reinforced Mail Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_IRON": {
+      "NAME": "Reinforced Mail Leg Guards of Iron",
+      "NAME_other": "Reinforced Mail Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_CROP": {
+      "NAME": "Reinforced Mail Leg Guards of Crop",
+      "NAME_other": "Reinforced Mail Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Mail Leg Guards of Wood Production",
+      "NAME_other": "Reinforced Mail Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Mail Leg Guards of Clay Production",
+      "NAME_other": "Reinforced Mail Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Mail Leg Guards of Iron Production",
+      "NAME_other": "Reinforced Mail Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Mail Leg Guards of Crop Production",
+      "NAME_other": "Reinforced Mail Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Reinforced Mail Leg Guards of Strength",
+      "NAME_other": "Reinforced Mail Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Reinforced Mail Leg Guards of Protection",
+      "NAME_other": "Reinforced Mail Leg Guards of Protection",
+      "DESCRIPTION": ""
+    },
     "RARE_PLATE_BOOTS_OF_WOOD": {
       "NAME": "Reinforced Plate Boots of Wood",
       "NAME_other": "Reinforced Plate Boots of Wood",
@@ -1298,6 +2498,186 @@
     "RARE_PLATE_BOOTS_OF_PROTECTION": {
       "NAME": "Reinforced Plate Boots of Protection",
       "NAME_other": "Reinforced Plate Boots of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_WOOD": {
+      "NAME": "Reinforced Plate Helmet of Wood",
+      "NAME_other": "Reinforced Plate Helmet of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_CLAY": {
+      "NAME": "Reinforced Plate Helmet of Clay",
+      "NAME_other": "Reinforced Plate Helmet of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_IRON": {
+      "NAME": "Reinforced Plate Helmet of Iron",
+      "NAME_other": "Reinforced Plate Helmet of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_CROP": {
+      "NAME": "Reinforced Plate Helmet of Crop",
+      "NAME_other": "Reinforced Plate Helmet of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Plate Helmet of Wood Production",
+      "NAME_other": "Reinforced Plate Helmet of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Plate Helmet of Clay Production",
+      "NAME_other": "Reinforced Plate Helmet of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Plate Helmet of Iron Production",
+      "NAME_other": "Reinforced Plate Helmet of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Plate Helmet of Crop Production",
+      "NAME_other": "Reinforced Plate Helmet of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_STRENGTH": {
+      "NAME": "Reinforced Plate Helmet of Strength",
+      "NAME_other": "Reinforced Plate Helmet of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_HELMET_OF_PROTECTION": {
+      "NAME": "Reinforced Plate Helmet of Protection",
+      "NAME_other": "Reinforced Plate Helmet of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_WOOD": {
+      "NAME": "Reinforced Plate Body Armor of Wood",
+      "NAME_other": "Reinforced Plate Body Armor of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_CLAY": {
+      "NAME": "Reinforced Plate Body Armor of Clay",
+      "NAME_other": "Reinforced Plate Body Armor of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_IRON": {
+      "NAME": "Reinforced Plate Body Armor of Iron",
+      "NAME_other": "Reinforced Plate Body Armor of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_CROP": {
+      "NAME": "Reinforced Plate Body Armor of Crop",
+      "NAME_other": "Reinforced Plate Body Armor of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Plate Body Armor of Wood Production",
+      "NAME_other": "Reinforced Plate Body Armor of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Plate Body Armor of Clay Production",
+      "NAME_other": "Reinforced Plate Body Armor of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Plate Body Armor of Iron Production",
+      "NAME_other": "Reinforced Plate Body Armor of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Plate Body Armor of Crop Production",
+      "NAME_other": "Reinforced Plate Body Armor of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_STRENGTH": {
+      "NAME": "Reinforced Plate Body Armor of Strength",
+      "NAME_other": "Reinforced Plate Body Armor of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR_OF_PROTECTION": {
+      "NAME": "Reinforced Plate Body Armor of Protection",
+      "NAME_other": "Reinforced Plate Body Armor of Protection",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_WOOD": {
+      "NAME": "Reinforced Plate Leg Guards of Wood",
+      "NAME_other": "Reinforced Plate Leg Guards of Wood",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_CLAY": {
+      "NAME": "Reinforced Plate Leg Guards of Clay",
+      "NAME_other": "Reinforced Plate Leg Guards of Clay",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_IRON": {
+      "NAME": "Reinforced Plate Leg Guards of Iron",
+      "NAME_other": "Reinforced Plate Leg Guards of Iron",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_CROP": {
+      "NAME": "Reinforced Plate Leg Guards of Crop",
+      "NAME_other": "Reinforced Plate Leg Guards of Crop",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_WOOD_PRODUCTION": {
+      "NAME": "Reinforced Plate Leg Guards of Wood Production",
+      "NAME_other": "Reinforced Plate Leg Guards of Wood Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_CLAY_PRODUCTION": {
+      "NAME": "Reinforced Plate Leg Guards of Clay Production",
+      "NAME_other": "Reinforced Plate Leg Guards of Clay Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_IRON_PRODUCTION": {
+      "NAME": "Reinforced Plate Leg Guards of Iron Production",
+      "NAME_other": "Reinforced Plate Leg Guards of Iron Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_CROP_PRODUCTION": {
+      "NAME": "Reinforced Plate Leg Guards of Crop Production",
+      "NAME_other": "Reinforced Plate Leg Guards of Crop Production",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_STRENGTH": {
+      "NAME": "Reinforced Plate Leg Guards of Strength",
+      "NAME_other": "Reinforced Plate Leg Guards of Strength",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_LEG_GUARDS_OF_PROTECTION": {
+      "NAME": "Reinforced Plate Leg Guards of Protection",
+      "NAME_other": "Reinforced Plate Leg Guards of Protection",
+      "DESCRIPTION": ""
+    },
+    "COMMON_SWORD": {
+      "NAME": "Worn Sword",
+      "NAME_other": "Worn Sword",
+      "DESCRIPTION": ""
+    },
+    "COMMON_SHIELD": {
+      "NAME": "Worn Shield",
+      "NAME_other": "Worn Shield",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_SWORD": {
+      "NAME": "Sturdy Sword",
+      "NAME_other": "Sturdy Sword",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_SHIELD": {
+      "NAME": "Sturdy Shield",
+      "NAME_other": "Sturdy Shield",
+      "DESCRIPTION": ""
+    },
+    "RARE_SWORD": {
+      "NAME": "Reinforced Sword",
+      "NAME_other": "Reinforced Sword",
+      "DESCRIPTION": ""
+    },
+    "RARE_SHIELD": {
+      "NAME": "Reinforced Shield",
+      "NAME_other": "Reinforced Shield",
       "DESCRIPTION": ""
     }
   },

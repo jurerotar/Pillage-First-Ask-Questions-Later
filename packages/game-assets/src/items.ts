@@ -687,2067 +687,302 @@ const consumables: HeroItem[] = [
   },
 ];
 
-// All boots begin with the 104_ prefix
-const boots: HeroEquipmentItem[] = [
+type EquipmentItemKind = {
+  id: 'BOOTS' | 'HELMET' | 'BODY_ARMOR' | 'LEG_GUARDS';
+  slot: HeroEquipmentItem['slot'];
+};
+
+type EquipmentRarity = {
+  id: Extract<HeroEquipmentItem['rarity'], 'common' | 'uncommon' | 'rare'>;
+  power: number;
+  damageReduction: number;
+  flatResourceProduction: number;
+  percentageResourceProduction: number;
+  basePrice: number;
+};
+
+type EquipmentArmorType = {
+  id: 'LEATHER' | 'MAIL' | 'PLATE';
+  powerMultiplier: number;
+  damageReductionMultiplier: number;
+};
+
+type HandEquipmentItemKind = {
+  id: 'SWORD' | 'SHIELD';
+  slot: Extract<HeroEquipmentItem['slot'], 'right-hand' | 'left-hand'>;
+  bonusAttribute: Extract<
+    NonNullable<HeroEquipmentItem['heroBonus']>[number]['attribute'],
+    'power' | 'damageReduction'
+  >;
+  value: (rarity: EquipmentRarity) => number;
+};
+
+type EquipmentEffect =
+  | {
+      id: 'WOOD' | 'CLAY' | 'IRON' | 'CROP';
+      resourceProductionId:
+        | 'woodProduction'
+        | 'clayProduction'
+        | 'ironProduction'
+        | 'wheatProduction';
+      type: 'base';
+    }
+  | {
+      id:
+        | 'WOOD_PRODUCTION'
+        | 'CLAY_PRODUCTION'
+        | 'IRON_PRODUCTION'
+        | 'CROP_PRODUCTION';
+      resourceProductionId:
+        | 'woodProduction'
+        | 'clayProduction'
+        | 'ironProduction'
+        | 'wheatProduction';
+      type: 'bonus';
+    }
+  | {
+      id: 'STRENGTH' | 'PROTECTION';
+    };
+
+const equipmentItemKinds: EquipmentItemKind[] = [
+  { id: 'BOOTS', slot: 'boots' },
+  { id: 'HELMET', slot: 'head' },
+  { id: 'BODY_ARMOR', slot: 'torso' },
+  { id: 'LEG_GUARDS', slot: 'legs' },
+];
+
+const equipmentRarities: EquipmentRarity[] = [
   {
-    id: 104001,
-    name: 'COMMON_LEATHER_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
+    id: 'common',
+    power: 150,
+    damageReduction: 2,
+    flatResourceProduction: 50,
+    percentageResourceProduction: 1.025,
     basePrice: 500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
   },
   {
-    id: 104002,
-    name: 'COMMON_LEATHER_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104003,
-    name: 'COMMON_LEATHER_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104004,
-    name: 'COMMON_LEATHER_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104005,
-    name: 'COMMON_LEATHER_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104006,
-    name: 'COMMON_LEATHER_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104007,
-    name: 'COMMON_LEATHER_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104008,
-    name: 'COMMON_LEATHER_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104009,
-    name: 'COMMON_LEATHER_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 100,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104010,
-    name: 'COMMON_LEATHER_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104011,
-    name: 'COMMON_MAIL_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104012,
-    name: 'COMMON_MAIL_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104013,
-    name: 'COMMON_MAIL_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104014,
-    name: 'COMMON_MAIL_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104015,
-    name: 'COMMON_MAIL_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104016,
-    name: 'COMMON_MAIL_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104017,
-    name: 'COMMON_MAIL_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104018,
-    name: 'COMMON_MAIL_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104019,
-    name: 'COMMON_MAIL_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 175,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104020,
-    name: 'COMMON_MAIL_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 75,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104021,
-    name: 'COMMON_PLATE_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-    ],
-  },
-  {
-    id: 104022,
-    name: 'COMMON_PLATE_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-    ],
-  },
-  {
-    id: 104023,
-    name: 'COMMON_PLATE_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-    ],
-  },
-  {
-    id: 104024,
-    name: 'COMMON_PLATE_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 50,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-    ],
-  },
-  {
-    id: 104025,
-    name: 'COMMON_PLATE_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-    ],
-  },
-  {
-    id: 104026,
-    name: 'COMMON_PLATE_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-    ],
-  },
-  {
-    id: 104027,
-    name: 'COMMON_PLATE_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-    ],
-  },
-  {
-    id: 104028,
-    name: 'COMMON_PLATE_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.025,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-    ],
-  },
-  {
-    id: 104029,
-    name: 'COMMON_PLATE_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 250,
-      },
-    ],
-  },
-  {
-    id: 104030,
-    name: 'COMMON_PLATE_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'common',
-    category: 'wearable',
-    basePrice: 500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104031,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
+    id: 'uncommon',
+    power: 300,
+    damageReduction: 4,
+    flatResourceProduction: 100,
+    percentageResourceProduction: 1.05,
     basePrice: 1500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
   },
   {
-    id: 104032,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104033,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104034,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104035,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104036,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104037,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104038,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104039,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 100,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104040,
-    name: 'UNCOMMON_LEATHER_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 5,
-      },
-    ],
-  },
-  {
-    id: 104041,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104042,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104043,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104044,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104045,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104046,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104047,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104048,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104049,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 250,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 2,
-      },
-    ],
-  },
-  {
-    id: 104050,
-    name: 'UNCOMMON_MAIL_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 150,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104051,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-    ],
-  },
-  {
-    id: 104052,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-    ],
-  },
-  {
-    id: 104053,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-    ],
-  },
-  {
-    id: 104054,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 100,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-    ],
-  },
-  {
-    id: 104055,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-    ],
-  },
-  {
-    id: 104056,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-    ],
-  },
-  {
-    id: 104057,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-    ],
-  },
-  {
-    id: 104058,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.05,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-    ],
-  },
-  {
-    id: 104059,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 400,
-      },
-    ],
-  },
-  {
-    id: 104060,
-    name: 'UNCOMMON_PLATE_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'uncommon',
-    category: 'wearable',
-    basePrice: 1500,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 300,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
-  },
-  {
-    id: 104061,
-    name: 'RARE_LEATHER_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
+    id: 'rare',
+    power: 450,
+    damageReduction: 6,
+    flatResourceProduction: 150,
+    percentageResourceProduction: 1.075,
     basePrice: 3000,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104062,
-    name: 'RARE_LEATHER_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104063,
-    name: 'RARE_LEATHER_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104064,
-    name: 'RARE_LEATHER_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104065,
-    name: 'RARE_LEATHER_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104066,
-    name: 'RARE_LEATHER_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104067,
-    name: 'RARE_LEATHER_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104068,
-    name: 'RARE_LEATHER_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104069,
-    name: 'RARE_LEATHER_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 100,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 6,
-      },
-    ],
-  },
-  {
-    id: 104070,
-    name: 'RARE_LEATHER_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    heroBonus: [
-      {
-        attribute: 'damageReduction',
-        value: 7,
-      },
-    ],
-  },
-  {
-    id: 104071,
-    name: 'RARE_MAIL_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104072,
-    name: 'RARE_MAIL_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104073,
-    name: 'RARE_MAIL_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104074,
-    name: 'RARE_MAIL_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104075,
-    name: 'RARE_MAIL_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104076,
-    name: 'RARE_MAIL_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104077,
-    name: 'RARE_MAIL_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104078,
-    name: 'RARE_MAIL_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104079,
-    name: 'RARE_MAIL_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 325,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 3,
-      },
-    ],
-  },
-  {
-    id: 104080,
-    name: 'RARE_MAIL_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 225,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 4,
-      },
-    ],
-  },
-  {
-    id: 104081,
-    name: 'RARE_PLATE_BOOTS_OF_WOOD',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-    ],
-  },
-  {
-    id: 104082,
-    name: 'RARE_PLATE_BOOTS_OF_CLAY',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-    ],
-  },
-  {
-    id: 104083,
-    name: 'RARE_PLATE_BOOTS_OF_IRON',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-    ],
-  },
-  {
-    id: 104084,
-    name: 'RARE_PLATE_BOOTS_OF_CROP',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 150,
-        scope: 'local',
-        source: 'hero',
-        type: 'base',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-    ],
-  },
-  {
-    id: 104085,
-    name: 'RARE_PLATE_BOOTS_OF_WOOD_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'woodProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-    ],
-  },
-  {
-    id: 104086,
-    name: 'RARE_PLATE_BOOTS_OF_CLAY_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'clayProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-    ],
-  },
-  {
-    id: 104087,
-    name: 'RARE_PLATE_BOOTS_OF_IRON_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'ironProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-    ],
-  },
-  {
-    id: 104088,
-    name: 'RARE_PLATE_BOOTS_OF_CROP_PRODUCTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    effects: [
-      {
-        id: 'wheatProduction',
-        value: 1.075,
-        scope: 'local',
-        source: 'hero',
-        type: 'bonus',
-      },
-    ],
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-    ],
-  },
-  {
-    id: 104089,
-    name: 'RARE_PLATE_BOOTS_OF_STRENGTH',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 550,
-      },
-    ],
-  },
-  {
-    id: 104090,
-    name: 'RARE_PLATE_BOOTS_OF_PROTECTION',
-    slot: 'boots',
-    rarity: 'rare',
-    category: 'wearable',
-    basePrice: 3000,
-    heroBonus: [
-      {
-        attribute: 'power',
-        value: 450,
-      },
-      {
-        attribute: 'damageReduction',
-        value: 1,
-      },
-    ],
   },
 ];
+
+const equipmentArmorTypes: EquipmentArmorType[] = [
+  {
+    id: 'LEATHER',
+    powerMultiplier: 0,
+    damageReductionMultiplier: 1,
+  },
+  {
+    id: 'MAIL',
+    powerMultiplier: 0.5,
+    damageReductionMultiplier: 0.5,
+  },
+  {
+    id: 'PLATE',
+    powerMultiplier: 1,
+    damageReductionMultiplier: 0,
+  },
+];
+
+const handEquipmentItemKinds: HandEquipmentItemKind[] = [
+  {
+    id: 'SWORD',
+    slot: 'right-hand',
+    bonusAttribute: 'power',
+    value: (rarity) => rarity.power,
+  },
+  {
+    id: 'SHIELD',
+    slot: 'left-hand',
+    bonusAttribute: 'damageReduction',
+    value: (rarity) => rarity.damageReduction,
+  },
+];
+
+const equipmentEffects: EquipmentEffect[] = [
+  {
+    id: 'WOOD',
+    resourceProductionId: 'woodProduction',
+    type: 'base',
+  },
+  {
+    id: 'CLAY',
+    resourceProductionId: 'clayProduction',
+    type: 'base',
+  },
+  {
+    id: 'IRON',
+    resourceProductionId: 'ironProduction',
+    type: 'base',
+  },
+  {
+    id: 'CROP',
+    resourceProductionId: 'wheatProduction',
+    type: 'base',
+  },
+  {
+    id: 'WOOD_PRODUCTION',
+    resourceProductionId: 'woodProduction',
+    type: 'bonus',
+  },
+  {
+    id: 'CLAY_PRODUCTION',
+    resourceProductionId: 'clayProduction',
+    type: 'bonus',
+  },
+  {
+    id: 'IRON_PRODUCTION',
+    resourceProductionId: 'ironProduction',
+    type: 'bonus',
+  },
+  {
+    id: 'CROP_PRODUCTION',
+    resourceProductionId: 'wheatProduction',
+    type: 'bonus',
+  },
+  { id: 'STRENGTH' },
+  { id: 'PROTECTION' },
+];
+
+const getEquipmentName = (
+  rarity: EquipmentRarity,
+  armorType: EquipmentArmorType,
+  itemKind: EquipmentItemKind,
+  effect: EquipmentEffect,
+): HeroEquipmentItem['name'] => {
+  return `${rarity.id.toUpperCase()}_${armorType.id}_${itemKind.id}_OF_${effect.id}` as HeroEquipmentItem['name'];
+};
+
+const getEquipmentEffects = (
+  rarity: EquipmentRarity,
+  effect: EquipmentEffect,
+): HeroEquipmentItem['effects'] => {
+  if (!('resourceProductionId' in effect)) {
+    return undefined;
+  }
+
+  return [
+    {
+      id: effect.resourceProductionId,
+      value:
+        effect.type === 'base'
+          ? rarity.flatResourceProduction
+          : rarity.percentageResourceProduction,
+      scope: 'local',
+      source: 'hero',
+      type: effect.type,
+    },
+  ];
+};
+
+const getEquipmentHeroBonus = (
+  rarity: EquipmentRarity,
+  armorType: EquipmentArmorType,
+  effect: EquipmentEffect,
+): NonNullable<HeroEquipmentItem['heroBonus']> => {
+  const power =
+    rarity.power * armorType.powerMultiplier +
+    (effect.id === 'STRENGTH' ? 100 : 0);
+  const damageReduction =
+    rarity.damageReduction * armorType.damageReductionMultiplier +
+    (effect.id === 'PROTECTION' ? 1 : 0);
+
+  return [
+    ...(power > 0 ? [{ attribute: 'power' as const, value: power }] : []),
+    ...(damageReduction > 0
+      ? [{ attribute: 'damageReduction' as const, value: damageReduction }]
+      : []),
+  ];
+};
+
+const getEquipmentItemId = (index: number): HeroEquipmentItem['id'] =>
+  104001 + index;
+
+const getHandEquipmentName = (
+  rarity: EquipmentRarity,
+  itemKind: HandEquipmentItemKind,
+): HeroEquipmentItem['name'] => {
+  return `${rarity.id.toUpperCase()}_${itemKind.id}` as HeroEquipmentItem['name'];
+};
+
+// All equipment begins with the 104_ prefix
+const equipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
+  equipmentArmorTypes.flatMap((armorType) =>
+    equipmentItemKinds.flatMap((itemKind) =>
+      equipmentEffects.map((effect, effectIndex) => {
+        const item: HeroEquipmentItem = {
+          id: getEquipmentItemId(
+            equipmentEffects.length *
+              (equipmentItemKinds.length *
+                (equipmentArmorTypes.length *
+                  equipmentRarities.indexOf(rarity) +
+                  equipmentArmorTypes.indexOf(armorType)) +
+                equipmentItemKinds.indexOf(itemKind)) +
+              effectIndex,
+          ),
+          name: getEquipmentName(rarity, armorType, itemKind, effect),
+          slot: itemKind.slot,
+          rarity: rarity.id,
+          category: 'wearable',
+          basePrice: rarity.basePrice,
+        };
+
+        const effects = getEquipmentEffects(rarity, effect);
+        const heroBonus = getEquipmentHeroBonus(rarity, armorType, effect);
+
+        if (effects !== undefined) {
+          item.effects = effects;
+        }
+
+        if (heroBonus.length > 0) {
+          item.heroBonus = heroBonus;
+        }
+
+        return item;
+      }),
+    ),
+  ),
+);
+
+const handEquipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
+  handEquipmentItemKinds.map((itemKind, itemKindIndex) => ({
+    id: getEquipmentItemId(
+      equipment.length +
+        handEquipmentItemKinds.length * equipmentRarities.indexOf(rarity) +
+        itemKindIndex,
+    ),
+    name: getHandEquipmentName(rarity, itemKind),
+    slot: itemKind.slot,
+    rarity: rarity.id,
+    category: 'wearable',
+    basePrice: rarity.basePrice,
+    heroBonus: [
+      {
+        attribute: itemKind.bonusAttribute,
+        value: itemKind.value(rarity),
+      },
+    ],
+  })),
+);
 
 export const items: HeroItem[] = [
   ...artifacts,
   ...horses,
   ...consumables,
-  ...boots,
+  ...equipment,
+  ...handEquipment,
 ];
 
 // Use this for faster lookups
