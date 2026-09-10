@@ -20,7 +20,7 @@ const useTiles = () => {
     queryKey: [tilesCacheKey],
     queryFn: async () => {
       // TODO: This query is *really* heavy.
-      // What we should do is remove all the non-static parts (world items, troop movements,...) so that this query can be permanently cached.
+      // What we should do is remove all the non-static parts so that this query can be permanently cached.
       const { data } = await apiClient.get('/tiles');
 
       return data;

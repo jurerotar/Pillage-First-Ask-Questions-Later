@@ -7,6 +7,5 @@ export const getMapFiltersRowSchema = z
     should_show_troop_movements: z.number(),
     should_show_wheat_fields: z.number(),
     should_show_tile_tooltips: z.number(),
-    should_show_treasure_icons: z.number(),
   })
   .meta({ id: 'GetMapFiltersRow' });

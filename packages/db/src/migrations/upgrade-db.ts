@@ -937,6 +937,22 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.64', (db) => {
+    db.exec({
+      sql: `
+        DELETE
+        FROM
+          world_items
+        WHERE
+          item_id IN (1026, 1027, 1028, 1029);
+      `,
+    });
+
+    db.exec({
+      sql: 'ALTER TABLE map_filters DROP COLUMN should_show_treasure_icons;',
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({

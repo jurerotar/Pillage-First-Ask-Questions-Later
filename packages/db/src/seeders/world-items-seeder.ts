@@ -24,11 +24,7 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
 
   const results: [HeroItem['id'], number, number][] = [];
 
-  const miscellaneousCategories = new Set([
-    'consumable',
-    'resource',
-    'currency',
-  ]);
+  const miscellaneousCategories = new Set(['consumable', 'currency']);
 
   const miscellaneousHeroItems: HeroItem[] = [];
   const epicHeroItems: HeroItem[] = [];

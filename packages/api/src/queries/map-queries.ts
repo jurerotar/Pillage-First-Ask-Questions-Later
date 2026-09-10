@@ -59,13 +59,6 @@ export const selectMapTilesQuery = `
         AND e.source_id = 1
         AND e.source_specifier = 0
       GROUP BY e.tile_id
-    ),
-
-    world_items_single AS (
-      SELECT tile_id, MIN(item_id) AS item_id
-      FROM
-        world_items
-      GROUP BY tile_id
     )
 
   SELECT
@@ -102,10 +95,6 @@ export const selectMapTilesQuery = `
     END AS population,
 
     CASE
-      WHEN t.type_id = 1 THEN wi.item_id
-    END AS item_id,
-
-    CASE
       WHEN t.type_id = 2 THEN 1
       ELSE 0
     END AS oasis_is_occupiable
@@ -129,7 +118,6 @@ export const selectMapTilesQuery = `
       LEFT JOIN resource_field_composition_ids rfc ON rfc.id = t.resource_field_composition_id
       LEFT JOIN effects_wheat ew ON ew.tile_id = v.tile_id
       LEFT JOIN effects_wheat ew_owner ON ew_owner.tile_id = v_owner.tile_id
-      LEFT JOIN world_items_single wi ON wi.tile_id = t.id
 
   ;
 `;

@@ -60,7 +60,6 @@ export const mapTile = (
         // RFC should be present for free tiles; coalesce to a valid default if missing
         resourceFieldComposition: row.rfc ?? '4446',
       },
-      item: row.item_id === null ? null : { id: row.item_id },
     };
     return mapTileDtoSchema.parse(dto);
   }

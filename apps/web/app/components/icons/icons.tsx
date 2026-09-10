@@ -50,7 +50,6 @@ import {
 import { GrDocumentMissing } from 'react-icons/gr';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
 import { IoBandageSharp } from 'react-icons/io5';
-import { LiaCoinsSolid } from 'react-icons/lia';
 import {
   LuArchive,
   LuClock,
@@ -65,8 +64,6 @@ import {
   PiWarehouseBold,
 } from 'react-icons/pi';
 import { RxCross2 } from 'react-icons/rx';
-import { SiArtifacthub } from 'react-icons/si';
-import { SlChemistry } from 'react-icons/sl';
 import {
   TbBat,
   TbBorderCorners,
@@ -138,17 +135,9 @@ type MapFiltersIconType =
   | 'mapTroopMovementsToggle'
   | 'mapWheatFieldIconToggle'
   | 'mapTileTooltipToggle'
-  | 'mapTreasureIconToggle'
   | 'mapMarker';
 
 type CommonIconType = 'archived' | 'cancel';
-
-type TreasureTileIconType =
-  | 'treasureTileItem'
-  | 'treasureTileResources'
-  | 'treasureTileArtifact'
-  | 'treasureTileCurrency'
-  | 'treasureTileMiscellaneous';
 
 type ResourceCombinationIconType =
   | 'woodWheat'
@@ -220,7 +209,6 @@ export type IconType =
   | ResourceCombinationIconType
   | ResourceIconType
   | MapFiltersIconType
-  | TreasureTileIconType
   | VillageIconType
   | UnitIconType
   | OtherIconType
@@ -275,15 +263,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   mapTroopMovementsToggle: (props) => <LuSwords {...props} />,
   mapWheatFieldIconToggle: (props) => icons.wheat(props),
   mapTileTooltipToggle: (props) => <TbTooltip {...props} />,
-  mapTreasureIconToggle: (props) => <SiArtifacthub {...props} />,
   mapMarker: (props) => <PiFlagPennantFill {...props} />,
-
-  // Map treasures
-  treasureTileItem: (props) => <LuSword {...props} />,
-  treasureTileResources: (props) => <PillageFirstWood {...props} />,
-  treasureTileArtifact: (props) => <SiArtifacthub {...props} />,
-  treasureTileCurrency: (props) => <LiaCoinsSolid {...props} />,
-  treasureTileMiscellaneous: (props) => <SlChemistry {...props} />,
 
   // Reports
   attackerNoLoss: (props) => (
