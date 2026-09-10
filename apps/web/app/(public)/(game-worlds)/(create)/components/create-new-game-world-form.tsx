@@ -528,17 +528,6 @@ export const CreateNewGameWorldForm = () => {
                 Private Mode, then try again.
               </Alert>
             </div>
-            <div className="flex justify-end">
-              <Button
-                size="fit"
-                disabled={isCheckingStorageQuota}
-                onClick={() => {
-                  void checkStorageQuota();
-                }}
-              >
-                {t('Check again')}
-              </Button>
-            </div>
           </div>
         </div>
       )}
