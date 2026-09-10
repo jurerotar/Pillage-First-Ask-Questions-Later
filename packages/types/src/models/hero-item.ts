@@ -29,7 +29,9 @@ type HeroConsumableItemId =
   | 'BOOK_OF_WISDOM'
   | 'ANIMAL_CAGE'
   | 'REVIVAL_POTION'
-  | 'EXPERIENCE_SCROLL';
+  | 'EXPERIENCE_SCROLL'
+  | 'ADVENTURE_MAP'
+  | 'LOYALTY_SEAL';
 
 type ArtifactRarity = Uppercase<Exclude<HeroItemRarity, 'common'>>;
 

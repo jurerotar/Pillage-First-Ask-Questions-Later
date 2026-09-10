@@ -653,6 +653,22 @@ const consumables: HeroItem[] = [
     category: 'consumable',
     basePrice: 50,
   },
+  {
+    id: 1031,
+    name: 'ADVENTURE_MAP',
+    slot: 'non-equipable',
+    rarity: 'common',
+    category: 'consumable',
+    basePrice: 200,
+  },
+  {
+    id: 1032,
+    name: 'LOYALTY_SEAL',
+    slot: 'non-equipable',
+    rarity: 'common',
+    category: 'consumable',
+    basePrice: 75,
+  },
 ];
 
 type EquipmentRarity = {

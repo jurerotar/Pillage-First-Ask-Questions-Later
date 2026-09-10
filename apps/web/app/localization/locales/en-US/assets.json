@@ -850,6 +850,16 @@
       "NAME_other": "Revival potions",
       "DESCRIPTION": ""
     },
+    "ADVENTURE_MAP": {
+      "NAME": "Adventure map",
+      "NAME_other": "Adventure maps",
+      "DESCRIPTION": ""
+    },
+    "LOYALTY_SEAL": {
+      "NAME": "Loyalty seal",
+      "NAME_other": "Loyalty seals",
+      "DESCRIPTION": ""
+    },
     "COMMON_LEATHER_BOOTS_OF_WOOD": {
       "NAME": "Worn Leather Boots of Wood",
       "NAME_other": "Worn Leather Boots of Wood",
