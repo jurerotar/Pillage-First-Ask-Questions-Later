@@ -74,14 +74,12 @@ export const MapFilters = () => {
     shouldShowTroopMovements,
     shouldShowWheatFields,
     shouldShowTileTooltips,
-    shouldShowTreasureIcons,
     toggleMapFilter,
   } = useMapFilters();
 
   const activeValues = [
     shouldShowFactionReputation ? 'shouldShowFactionReputation' : null,
     shouldShowOasisIcons ? 'shouldShowOasisIcons' : null,
-    shouldShowTreasureIcons ? 'shouldShowTreasureIcons' : null,
     shouldShowTroopMovements ? 'shouldShowTroopMovements' : null,
     shouldShowWheatFields ? 'shouldShowWheatFields' : null,
     shouldShowTileTooltips ? 'shouldShowTileTooltips' : null,
@@ -178,28 +176,6 @@ export const MapFilters = () => {
                   <Icon
                     className="grayscale"
                     type="mapOasisIconsToggle"
-                    shouldShowTooltip={false}
-                  />
-                </ToggleGroupItem>
-
-                <ToggleGroupItem
-                  value="shouldShowTreasureIcons"
-                  onClick={() =>
-                    toggleMapFilter({
-                      filterName: 'shouldShowTreasureIcons',
-                      value: !shouldShowTreasureIcons,
-                    })
-                  }
-                  aria-label={t('Toggle treasure villages icons display')}
-                  data-tooltip-id="general-tooltip"
-                  data-tooltip-content={t(
-                    'Toggle treasure villages icons display',
-                  )}
-                  data-testid="map-filters-toggle-treasures-button"
-                >
-                  <Icon
-                    className="grayscale"
-                    type="mapTreasureIconToggle"
                     shouldShowTooltip={false}
                   />
                 </ToggleGroupItem>

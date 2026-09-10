@@ -31,11 +31,6 @@ export const mapTileDtoSchema = z.discriminatedUnion('type', [
     attributes: z.strictObject({
       resourceFieldComposition: resourceFieldCompositionSchema,
     }),
-    item: z
-      .strictObject({
-        id: z.number(),
-      })
-      .nullable(),
   }),
   z.strictObject({
     id: z.number(),

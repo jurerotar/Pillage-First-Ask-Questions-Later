@@ -121,15 +121,7 @@ type TileTooltipWorldItemProps = {
 const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
   const { t } = useTranslation();
 
-  const { category, name } = getItemDefinition(item.id);
-
-  if (category === 'resource') {
-    return (
-      <span>
-        {formatNumber(item.amount)}x {t('resources')}
-      </span>
-    );
-  }
+  const { name } = getItemDefinition(item.id);
 
   return (
     <span>
