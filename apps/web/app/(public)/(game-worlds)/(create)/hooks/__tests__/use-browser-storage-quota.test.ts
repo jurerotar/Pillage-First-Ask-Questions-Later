@@ -5,14 +5,27 @@ type MockStorageOptions = {
   quota?: number;
   rejectOpfsWrite?: boolean;
   omitOpfs?: boolean;
+  throwOnWritableClose?: boolean;
+  throwOnRemoveEntry?: boolean;
 };
 
 const stubBrowserStorage = ({
   quota = 1024,
   rejectOpfsWrite = false,
   omitOpfs = false,
+  throwOnWritableClose = false,
+  throwOnRemoveEntry = false,
 }: MockStorageOptions = {}) => {
-  const close = vi.fn(async () => {});
+  const close = vi.fn(() => {
+    if (throwOnWritableClose) {
+      throw new DOMException(
+        'The operation failed for an unknown transient reason (e.g. out of memory).',
+        'UnknownError',
+      );
+    }
+
+    return Promise.resolve();
+  });
   const write = vi.fn(async () => {
     if (rejectOpfsWrite) {
       throw new DOMException(
@@ -21,7 +34,16 @@ const stubBrowserStorage = ({
       );
     }
   });
-  const removeEntry = vi.fn(async () => {});
+  const removeEntry = vi.fn(() => {
+    if (throwOnRemoveEntry) {
+      throw new DOMException(
+        'The operation failed for an unknown transient reason (e.g. out of memory).',
+        'UnknownError',
+      );
+    }
+
+    return Promise.resolve();
+  });
   const createWritable = vi.fn(async () => ({
     close,
     write,
@@ -84,5 +106,24 @@ describe(hasUnavailableBrowserStorage, () => {
     stubBrowserStorage({ quota: 1_048_576_000, rejectOpfsWrite: true });
 
     await expect(hasUnavailableBrowserStorage()).resolves.toBe(true);
+  });
+
+  test('returns true when OPFS write and cleanup both fail', async () => {
+    stubBrowserStorage({
+      quota: 1_048_576_000,
+      rejectOpfsWrite: true,
+      throwOnWritableClose: true,
+      throwOnRemoveEntry: true,
+    });
+
+    await expect(hasUnavailableBrowserStorage()).resolves.toBe(true);
+  });
+
+  test('returns false when OPFS writes succeed but cleanup fails', async () => {
+    stubBrowserStorage({
+      throwOnRemoveEntry: true,
+    });
+
+    await expect(hasUnavailableBrowserStorage()).resolves.toBe(false);
   });
 });

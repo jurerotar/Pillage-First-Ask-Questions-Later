@@ -1,6 +1,31 @@
 import { useCallback, useEffect, useState } from 'react';
 import { reportError } from 'app/instrumentation/report-error';
 
+const closeWritable = async (
+  writable: FileSystemWritableFileStream | null,
+): Promise<void> => {
+  if (!writable) {
+    return;
+  }
+
+  try {
+    await writable.close();
+  } catch {}
+};
+
+const removeStorageProbeDirectory = async (
+  root: FileSystemDirectoryHandle | null,
+  directoryName: string,
+): Promise<void> => {
+  if (!root) {
+    return;
+  }
+
+  try {
+    await root.removeEntry(directoryName, { recursive: true });
+  } catch {}
+};
+
 const checkOpfsWriteAccess = async (): Promise<boolean> => {
   if (!navigator.storage?.getDirectory) {
     return false;
@@ -27,8 +52,8 @@ const checkOpfsWriteAccess = async (): Promise<boolean> => {
   } catch {
     return false;
   } finally {
-    await writable?.close().catch(() => {});
-    await root?.removeEntry(directoryName, { recursive: true }).catch(() => {});
+    await closeWritable(writable);
+    await removeStorageProbeDirectory(root, directoryName);
   }
 };
 
