@@ -50,11 +50,7 @@ export type ArtifactId = MilitaryArtifactId | CivilArtifactId;
 
 type HeroEquipmentArmorTypeId = 'LEATHER' | 'MAIL' | 'PLATE';
 
-type HeroArmorEquipmentItemKindId =
-  | 'HELMET'
-  | 'BODY_ARMOR'
-  | 'LEG_GUARDS'
-  | 'BOOTS';
+type HeroArmorEquipmentItemKindId = 'BODY_ARMOR' | 'LEG_GUARDS';
 
 type HeroHandEquipmentItemKindId = 'SWORD' | 'SHIELD';
 
@@ -75,6 +71,16 @@ type HeroArmorEquipmentItemId = UppercaseHeroItemRarity<
   Exclude<HeroItemRarity, 'epic'>
 >;
 
+type HeroBootsEquipmentItemId = UppercaseHeroItemRarity<
+  'BOOTS',
+  Exclude<HeroItemRarity, 'epic'>
+>;
+
+type HeroHelmetEquipmentItemId = UppercaseHeroItemRarity<
+  'HELMET',
+  Exclude<HeroItemRarity, 'epic'>
+>;
+
 type HeroHandEquipmentItemId = UppercaseHeroItemRarity<
   HeroHandEquipmentItemKindId,
   Exclude<HeroItemRarity, 'epic'>
@@ -82,10 +88,12 @@ type HeroHandEquipmentItemId = UppercaseHeroItemRarity<
 
 export type HeroEquipmentItemId =
   | HeroArmorEquipmentItemId
+  | HeroBootsEquipmentItemId
+  | HeroHelmetEquipmentItemId
   | HeroHandEquipmentItemId;
 
 type HeroBonus = {
-  attribute: 'power' | 'speed' | 'damageReduction';
+  attribute: 'power' | 'speed' | 'damageReduction' | 'experienceModifier';
   value: number;
 };
 

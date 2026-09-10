@@ -572,6 +572,61 @@ describe('hero-controllers', () => {
       expect(effectIds.length).toBeGreaterThan(0);
     });
 
+    test('should apply helmet experience modifier to gained experience', async () => {
+      const database = await prepareTestDatabase();
+
+      const heroId = database.selectValue({
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      })!;
+
+      const helmetItemId = 104013; // RARE_HELMET
+      const scrollItemId = 1030; // EXPERIENCE_SCROLL
+
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(helmetItemId) },
+      });
+
+      equipHeroItem(
+        database,
+        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
+          {
+            path: { playerId },
+            body: { itemId: helmetItemId, slot: 'head', amount: 1 },
+          },
+        ),
+      );
+
+      const experienceModifier = database.selectValue({
+        sql: 'SELECT experience_modifier FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.number(),
+      });
+      expect(experienceModifier).toBe(15);
+
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(scrollItemId) },
+      });
+
+      useHeroItem(
+        database,
+        createControllerArgs<'/players/:playerId/hero/item', 'post'>({
+          path: { playerId },
+          body: { itemId: scrollItemId, amount: 1 },
+        }),
+      );
+
+      const experience = database.selectValue({
+        sql: 'SELECT experience FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.number(),
+      });
+      expect(experience).toBe(12);
+    });
+
     test('should allow multiple items for consumables slot', async () => {
       const database = await prepareTestDatabase();
 

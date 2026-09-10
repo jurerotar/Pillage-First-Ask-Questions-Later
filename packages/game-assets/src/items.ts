@@ -688,7 +688,7 @@ const consumables: HeroItem[] = [
 ];
 
 type EquipmentItemKind = {
-  id: 'BOOTS' | 'HELMET' | 'BODY_ARMOR' | 'LEG_GUARDS';
+  id: 'BODY_ARMOR' | 'LEG_GUARDS';
   slot: HeroEquipmentItem['slot'];
 };
 
@@ -745,11 +745,13 @@ type EquipmentEffect =
     };
 
 const equipmentItemKinds: EquipmentItemKind[] = [
-  { id: 'BOOTS', slot: 'boots' },
-  { id: 'HELMET', slot: 'head' },
   { id: 'BODY_ARMOR', slot: 'torso' },
   { id: 'LEG_GUARDS', slot: 'legs' },
 ];
+
+const equipmentItemKindOffset = 2;
+const equipmentItemKindCount =
+  equipmentItemKinds.length + equipmentItemKindOffset;
 
 const equipmentRarities: EquipmentRarity[] = [
   {
@@ -910,6 +912,18 @@ const getEquipmentHeroBonus = (
 const getEquipmentItemId = (index: number): HeroEquipmentItem['id'] =>
   104001 + index;
 
+const getBootsEquipmentName = (
+  rarity: EquipmentRarity,
+): HeroEquipmentItem['name'] => {
+  return `${rarity.id.toUpperCase()}_BOOTS` as HeroEquipmentItem['name'];
+};
+
+const getHelmetEquipmentName = (
+  rarity: EquipmentRarity,
+): HeroEquipmentItem['name'] => {
+  return `${rarity.id.toUpperCase()}_HELMET` as HeroEquipmentItem['name'];
+};
+
 const getHandEquipmentName = (
   rarity: EquipmentRarity,
   itemKind: HandEquipmentItemKind,
@@ -918,6 +932,36 @@ const getHandEquipmentName = (
 };
 
 // All equipment begins with the 104_ prefix
+const boots: HeroEquipmentItem[] = equipmentRarities.map((rarity, index) => ({
+  id: getEquipmentItemId(index),
+  name: getBootsEquipmentName(rarity),
+  slot: 'boots',
+  rarity: rarity.id,
+  category: 'wearable',
+  basePrice: rarity.basePrice,
+  heroBonus: [
+    {
+      attribute: 'speed',
+      value: 3 + 2 * index,
+    },
+  ],
+}));
+
+const helmets: HeroEquipmentItem[] = equipmentRarities.map((rarity, index) => ({
+  id: getEquipmentItemId(equipmentEffects.length + index),
+  name: getHelmetEquipmentName(rarity),
+  slot: 'head',
+  rarity: rarity.id,
+  category: 'wearable',
+  basePrice: rarity.basePrice,
+  heroBonus: [
+    {
+      attribute: 'experienceModifier',
+      value: 5 * (index + 1),
+    },
+  ],
+}));
+
 const equipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
   equipmentArmorTypes.flatMap((armorType) =>
     equipmentItemKinds.flatMap((itemKind) =>
@@ -925,10 +969,11 @@ const equipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
         const item: HeroEquipmentItem = {
           id: getEquipmentItemId(
             equipmentEffects.length *
-              (equipmentItemKinds.length *
+              (equipmentItemKindCount *
                 (equipmentArmorTypes.length *
                   equipmentRarities.indexOf(rarity) +
                   equipmentArmorTypes.indexOf(armorType)) +
+                equipmentItemKindOffset +
                 equipmentItemKinds.indexOf(itemKind)) +
               effectIndex,
           ),
@@ -959,7 +1004,10 @@ const equipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
 const handEquipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
   handEquipmentItemKinds.map((itemKind, itemKindIndex) => ({
     id: getEquipmentItemId(
-      equipment.length +
+      equipmentRarities.length *
+        equipmentArmorTypes.length *
+        equipmentItemKindCount *
+        equipmentEffects.length +
         handEquipmentItemKinds.length * equipmentRarities.indexOf(rarity) +
         itemKindIndex,
     ),
@@ -981,6 +1029,8 @@ export const items: HeroItem[] = [
   ...artifacts,
   ...horses,
   ...consumables,
+  ...boots,
+  ...helmets,
   ...equipment,
   ...handEquipment,
 ];
