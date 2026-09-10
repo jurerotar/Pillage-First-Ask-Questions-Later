@@ -87,6 +87,7 @@ import {
   selectAllVillageEventsByTypeQuery,
   selectVillageEventExistsByTypeQuery,
 } from '../queries/event-queries';
+import { selectHeroSpeedQuery } from '../queries/hero-queries';
 import { selectServerMapSizeQuery } from '../queries/server-queries';
 import { selectIsUnitResearchedQuery } from '../queries/unit-research-queries';
 import {
@@ -1604,12 +1605,18 @@ export const getEventDuration = (
       schema: z.number(),
     })!;
 
+    const heroSpeed = database.selectValue({
+      sql: selectHeroSpeedQuery,
+      schema: z.number(),
+    })!;
+
     return calculateTravelDuration({
       targetTileId,
       originTileId,
       mapSize,
       troops,
       effects,
+      heroSpeed,
     });
   }
 

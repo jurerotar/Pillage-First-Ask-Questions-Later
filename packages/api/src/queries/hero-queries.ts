@@ -9,6 +9,12 @@ export const updateHeroVillageByCurrentVillageQuery = `
     );
 `;
 
+export const selectHeroSpeedQuery = `
+  SELECT speed
+  FROM heroes
+  LIMIT 1;
+`;
+
 export const insertAnimalCagesIntoHeroInventoryQuery = `
   INSERT INTO
     hero_inventory (hero_id, item_id, amount)

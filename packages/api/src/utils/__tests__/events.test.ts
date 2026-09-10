@@ -2300,6 +2300,68 @@ describe('events utils', () => {
       expect(getEventDuration(database, event)).toBe(durationWithoutBonus / 2);
     });
 
+    test('troopMovementAttack - should use current hero speed for hero movements', async () => {
+      const database = await prepareTestDatabase();
+      const village = getAnyVillageWithTile(database);
+
+      const targetTileId = database.selectValue({
+        sql: `
+          SELECT id
+          FROM tiles
+          WHERE id != $origin_tile_id
+          ORDER BY
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) *
+            (x - (SELECT x FROM tiles WHERE id = $origin_tile_id)) +
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id)) *
+            (y - (SELECT y FROM tiles WHERE id = $origin_tile_id))
+          LIMIT 1;
+        `,
+        bind: { $origin_tile_id: village.tileId },
+        schema: z.number(),
+      })!;
+
+      const event = createTroopMovementAttackEventMock({
+        villageId: village.id,
+        originTileId: village.tileId,
+        targetTileId,
+        troops: [
+          {
+            unitId: 'HERO',
+            amount: 1,
+            tileId: village.tileId,
+            sourceTileId: village.tileId,
+          },
+        ],
+      });
+
+      database.exec({
+        sql: `
+          DELETE FROM effects
+          WHERE effect_id IN (
+            SELECT id
+            FROM effect_ids
+            WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields')
+          );
+        `,
+      });
+
+      database.exec({
+        sql: 'UPDATE heroes SET speed = 5 WHERE player_id = $player_id;',
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      const durationWithSpeedFive = getEventDuration(database, event);
+
+      database.exec({
+        sql: 'UPDATE heroes SET speed = 10 WHERE player_id = $player_id;',
+        bind: { $player_id: PLAYER_ID },
+      });
+
+      expect(getEventDuration(database, event)).toBeCloseTo(
+        durationWithSpeedFive / 2,
+      );
+    });
+
     test('troopTraining - should heal troops in half the normal training duration', async () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_instant_unit_training_enabled', 0);

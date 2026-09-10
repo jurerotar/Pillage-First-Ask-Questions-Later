@@ -9,6 +9,7 @@ import {
 } from '@pillage-first/utils/map';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useEffects } from 'app/(game)/(village-slug)/hooks/use-effects';
+import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import {
   UnitTable,
@@ -207,6 +208,7 @@ const TroopConfirmationMovementDetails = ({
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
   const { effects } = useEffects();
+  const { hero } = useHero();
   const { mapSize } = useServer();
 
   const resolvedOriginTileId = originTileId ?? currentVillage.tileId;
@@ -227,10 +229,12 @@ const TroopConfirmationMovementDetails = ({
         sourceTileId: currentVillage.tileId,
       })),
       effects,
+      heroSpeed: hero.stats.speed,
     });
   }, [
     currentVillage,
     formData.target.tileId,
+    hero.stats.speed,
     mapSize,
     resolvedOriginTileId,
     selectedTroops,
