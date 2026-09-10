@@ -9,6 +9,7 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   seededRandomArrayElement,
   seededRandomArrayElements,
+  seededRandomIntFromInterval,
 } from '@pillage-first/utils/random';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
@@ -19,6 +20,33 @@ const rowSchema = z.strictObject({
   y: z.number(),
 });
 
+type ItemAmountRange = [min: number, max: number];
+
+export const stackableHeroItemAmountRanges = new Map<
+  HeroItem['name'],
+  ItemAmountRange
+>([
+  ['HEALING_POTION', [3, 10]],
+  ['ANIMAL_CAGE', [2, 6]],
+  ['EXPERIENCE_SCROLL', [1, 4]],
+  ['LOYALTY_SEAL', [1, 3]],
+  ['SILVER', [50, 150]],
+]);
+
+const getWorldItemAmount = (
+  prng: Parameters<typeof seededRandomIntFromInterval>[0],
+  item: HeroItem,
+): number => {
+  const amountRange = stackableHeroItemAmountRanges.get(item.name);
+
+  if (!amountRange) {
+    return 1;
+  }
+
+  const [min, max] = amountRange;
+  return seededRandomIntFromInterval(prng, min, max);
+};
+
 export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
@@ -27,7 +55,6 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
   const miscellaneousCategories = new Set(['consumable', 'currency']);
 
   const miscellaneousHeroItems: HeroItem[] = [];
-  const epicHeroItems: HeroItem[] = [];
   const rareHeroItems: HeroItem[] = [];
   const uncommonHeroItems: HeroItem[] = [];
   const commonHeroItems: HeroItem[] = [];
@@ -39,10 +66,6 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
     }
 
     switch (item.rarity) {
-      case 'epic': {
-        epicHeroItems.push(item);
-        break;
-      }
       case 'rare': {
         rareHeroItems.push(item);
         break;
@@ -84,46 +107,24 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
     };
   });
 
-  // Artifacts
-  const epicHeroItemCandidates = rowsWithSize.filter(
-    ({ size }) => size === '4xl',
-  );
-  const epicHeroItemTiles = seededRandomArrayElements(
-    prng,
-    epicHeroItemCandidates,
-    epicHeroItems.length,
-  );
-
-  const epicHeroItemWorldItems: WorldItem[] = epicHeroItemTiles.map(
-    (tile, index) => {
-      const { id } = epicHeroItems[index];
-      return {
-        id,
-        amount: 1,
-        tileId: tile.tile_id,
-      };
-    },
-  );
-
   // Rare hero items
   const rareHeroItemCandidates = rowsWithSize.filter((tile) =>
-    ['3xl', '2xl'].includes(tile.size),
+    ['4xl', '3xl', '2xl'].includes(tile.size),
   );
   const rareHeroItemTiles = seededRandomArrayElements(
     prng,
     rareHeroItemCandidates,
-    rareHeroItems.length,
+    rareHeroItems.length * 2,
   );
-  const rareHeroWorldItems: WorldItem[] = rareHeroItemTiles.map(
-    (tile, index) => {
-      const { id } = rareHeroItems[index];
-      return {
-        id,
-        tileId: tile.tile_id,
-        amount: 1,
-      };
-    },
-  );
+  const rareHeroWorldItems: WorldItem[] = rareHeroItemTiles.map((tile) => {
+    const item = seededRandomArrayElement(prng, rareHeroItems);
+
+    return {
+      id: item.id,
+      tileId: tile.tile_id,
+      amount: 1,
+    };
+  });
 
   // Uncommon hero items
   const uncommonHeroItemCandidates = rowsWithSize.filter((tile) =>
@@ -132,13 +133,14 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
   const uncommonHeroItemTiles = seededRandomArrayElements(
     prng,
     uncommonHeroItemCandidates,
-    uncommonHeroItems.length,
+    uncommonHeroItems.length * 3,
   );
   const uncommonHeroWorldItems: WorldItem[] = uncommonHeroItemTiles.map(
-    (tile, index) => {
-      const { id } = uncommonHeroItems[index];
+    (tile) => {
+      const item = seededRandomArrayElement(prng, uncommonHeroItems);
+
       return {
-        id,
+        id: item.id,
         tileId: tile.tile_id,
         amount: 1,
       };
@@ -152,57 +154,53 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
   const commonHeroItemTiles = seededRandomArrayElements(
     prng,
     commonHeroItemCandidates,
-    commonHeroItems.length,
+    commonHeroItems.length * 4,
   );
-  const commonHeroWorldItems: WorldItem[] = commonHeroItemTiles.map(
-    (tile, index) => {
-      const { id } = commonHeroItems[index];
-      return {
-        id,
-        tileId: tile.tile_id,
-        amount: 1,
-      };
-    },
-  );
+  const commonHeroWorldItems: WorldItem[] = commonHeroItemTiles.map((tile) => {
+    const item = seededRandomArrayElement(prng, commonHeroItems);
 
-  // Consumable hero items
+    return {
+      id: item.id,
+      tileId: tile.tile_id,
+      amount: 1,
+    };
+  });
+
+  // Non-wearable hero items
   const tilesWithWorldItems = [
-    ...epicHeroItemWorldItems,
     ...rareHeroWorldItems,
     ...uncommonHeroWorldItems,
     ...commonHeroWorldItems,
   ];
 
   const occupiedIds = new Set(tilesWithWorldItems.map(({ tileId }) => tileId));
-  const consumableHeroItemCandidates = rowsWithSize.filter(({ tile_id }) => {
+  const miscellaneousHeroItemCandidates = rowsWithSize.filter(({ tile_id }) => {
     return !occupiedIds.has(tile_id);
   });
   // Half of remaining villages should have non-wearable items
-  const amountOfVillagesToPick = consumableHeroItemCandidates.length / 2;
-  const consumableHeroItemTiles = seededRandomArrayElements(
+  const amountOfVillagesToPick = miscellaneousHeroItemCandidates.length / 2;
+  const miscellaneousHeroItemTiles = seededRandomArrayElements(
     prng,
-    consumableHeroItemCandidates,
+    miscellaneousHeroItemCandidates,
     amountOfVillagesToPick,
   );
-  const consumableHeroWorldItems: WorldItem[] = consumableHeroItemTiles.map(
-    (tile) => {
-      const { id } = seededRandomArrayElement(prng, miscellaneousHeroItems);
+
+  const miscellaneousHeroWorldItems: WorldItem[] =
+    miscellaneousHeroItemTiles.map((tile) => {
+      const item = seededRandomArrayElement(prng, miscellaneousHeroItems);
 
       return {
-        id,
+        id: item.id,
         tileId: tile.tile_id,
-        // TODO: All of these amounts should increase the further we get from the center
-        amount: 1,
+        amount: getWorldItemAmount(prng, item),
       };
-    },
-  );
+    });
 
   const allWorldItems: WorldItem[] = [
-    ...epicHeroItemWorldItems,
     ...rareHeroWorldItems,
     ...uncommonHeroWorldItems,
     ...commonHeroWorldItems,
-    ...consumableHeroWorldItems,
+    ...miscellaneousHeroWorldItems,
   ];
 
   for (const wi of allWorldItems) {

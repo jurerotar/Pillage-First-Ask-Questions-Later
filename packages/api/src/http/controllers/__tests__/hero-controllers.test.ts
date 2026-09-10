@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { artifacts } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { effectIdSchema } from '@pillage-first/types/models/effect';
 import { insertEffectQuery } from '../../../queries/effect-queries';
@@ -544,7 +545,7 @@ describe('hero-controllers', () => {
         schema: z.number(),
       })!;
 
-      const itemId = 1001; // UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED (has effects)
+      const itemId = artifacts[0].id;
       const slot = 'consumable'; // Using consumable because non-equipable items can't be equipped, but for testing we use a valid slot
 
       // Seed inventory

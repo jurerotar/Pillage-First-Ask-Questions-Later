@@ -33,15 +33,25 @@ type HeroConsumableItemId =
   | 'ADVENTURE_MAP'
   | 'LOYALTY_SEAL';
 
-type ArtifactRarity = Uppercase<Exclude<HeroItemRarity, 'common'>>;
+type ArtifactRarity = Uppercase<
+  Extract<HeroItemRarity, 'common' | 'uncommon' | 'rare'>
+>;
+
+type ResourceArtifactResource = 'WOOD' | 'CLAY' | 'IRON' | 'WHEAT';
+
+type ResourceArtifactId =
+  `${ArtifactRarity}_ARTIFACT_${ResourceArtifactResource}_PRODUCTION${'' | '_BONUS'}`;
 
 type MilitaryArtifactId =
-  `${ArtifactRarity}_ARTIFACT_MILITARY_${'TROOP_TRAVEL_SPEED' | 'TROOP_CARRYING_CAPACITY' | 'TROOP_TRAINING_REDUCTION' | 'TROOP_WHEAT_CONSUMPTION_REDUCTION'}`;
+  `${ArtifactRarity}_ARTIFACT_${'TROOP_TRAINING_REDUCTION' | 'UNIT_SPEED' | 'UNIT_SPEED_AFTER_20_FIELDS'}`;
 
 type CivilArtifactId =
-  `${ArtifactRarity}_ARTIFACT_CIVIL_${'BUILD_TIME_REDUCTION' | 'OASIS_PRODUCTION_BONUS' | 'RESOURCE_PRODUCTION_BONUS' | 'ENABLE_GREAT_BUILDINGS'}`;
+  `${ArtifactRarity}_ARTIFACT_${'BUILD_TIME_REDUCTION' | 'CRANNY_CAPACITY' | 'REVEALED_INCOMING_TROOPS' | 'MERCHANT_CAPACITY' | 'UNIT_IMPROVEMENT_DURATION'}`;
 
-export type ArtifactId = MilitaryArtifactId | CivilArtifactId;
+export type ArtifactId =
+  | ResourceArtifactId
+  | MilitaryArtifactId
+  | CivilArtifactId;
 
 type HeroEquipmentArmorTypeId = 'LEATHER' | 'MAIL' | 'PLATE';
 
