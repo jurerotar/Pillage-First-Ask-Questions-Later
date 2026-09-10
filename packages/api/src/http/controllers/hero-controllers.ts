@@ -672,11 +672,7 @@ export const useHeroItem = createController(
       sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
       bind: { $player_id: playerId },
       schema: z.number(),
-    });
-
-    if (heroId === undefined) {
-      throw new Error('Hero not found');
-    }
+    })!;
 
     // Check inventory
     const inventoryAmount =
@@ -725,7 +721,7 @@ export const useHeroItem = createController(
             h.id = $hero_id
         `,
         bind: { $hero_id: heroId },
-        schema: z.string(),
+        schema: tribeSchema,
       })!;
 
       const initialStrength = hero.toLowerCase() === 'romans' ? 100 : 80;
