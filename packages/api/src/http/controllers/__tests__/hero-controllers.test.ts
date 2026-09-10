@@ -627,6 +627,57 @@ describe('hero-controllers', () => {
       expect(experience).toBe(12);
     });
 
+    test('should update health regeneration when equipping and unequipping leg guards', async () => {
+      const database = await prepareTestDatabase();
+
+      const heroId = database.selectValue({
+        sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      })!;
+
+      const itemId = 104033; // RARE_LEG_GUARDS
+
+      database.exec({
+        sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
+        bind: { $hero_id: heroId, $itemId: String(itemId) },
+      });
+
+      equipHeroItem(
+        database,
+        createControllerArgs<'/players/:playerId/hero/equipped-items', 'patch'>(
+          {
+            path: { playerId },
+            body: { itemId, slot: 'legs', amount: 1 },
+          },
+        ),
+      );
+
+      const equippedHealthRegeneration = database.selectValue({
+        sql: 'SELECT health_regeneration FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.number(),
+      });
+      expect(equippedHealthRegeneration).toBe(40);
+
+      unequipHeroItem(
+        database,
+        createControllerArgs<
+          '/players/:playerId/hero/equipped-items/:slot',
+          'delete'
+        >({
+          path: { playerId, slot: 'legs' },
+        }),
+      );
+
+      const unequippedHealthRegeneration = database.selectValue({
+        sql: 'SELECT health_regeneration FROM heroes WHERE id = $hero_id',
+        bind: { $hero_id: heroId },
+        schema: z.number(),
+      });
+      expect(unequippedHealthRegeneration).toBe(10);
+    });
+
     test('should allow multiple items for consumables slot', async () => {
       const database = await prepareTestDatabase();
 

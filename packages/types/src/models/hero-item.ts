@@ -50,24 +50,10 @@ export type ArtifactId = MilitaryArtifactId | CivilArtifactId;
 
 type HeroEquipmentArmorTypeId = 'LEATHER' | 'MAIL' | 'PLATE';
 
-type HeroArmorEquipmentItemKindId = 'BODY_ARMOR' | 'LEG_GUARDS';
-
 type HeroHandEquipmentItemKindId = 'SWORD' | 'SHIELD';
 
-type HeroEquipmentEffectId =
-  | 'WOOD'
-  | 'CLAY'
-  | 'IRON'
-  | 'CROP'
-  | 'WOOD_PRODUCTION'
-  | 'CLAY_PRODUCTION'
-  | 'IRON_PRODUCTION'
-  | 'CROP_PRODUCTION'
-  | 'STRENGTH'
-  | 'PROTECTION';
-
 type HeroArmorEquipmentItemId = UppercaseHeroItemRarity<
-  `${HeroEquipmentArmorTypeId}_${HeroArmorEquipmentItemKindId}_OF_${HeroEquipmentEffectId}`,
+  `${HeroEquipmentArmorTypeId}_BODY_ARMOR`,
   Exclude<HeroItemRarity, 'epic'>
 >;
 
@@ -81,6 +67,11 @@ type HeroHelmetEquipmentItemId = UppercaseHeroItemRarity<
   Exclude<HeroItemRarity, 'epic'>
 >;
 
+type HeroLegGuardsEquipmentItemId = UppercaseHeroItemRarity<
+  'LEG_GUARDS',
+  Exclude<HeroItemRarity, 'epic'>
+>;
+
 type HeroHandEquipmentItemId = UppercaseHeroItemRarity<
   HeroHandEquipmentItemKindId,
   Exclude<HeroItemRarity, 'epic'>
@@ -90,10 +81,16 @@ export type HeroEquipmentItemId =
   | HeroArmorEquipmentItemId
   | HeroBootsEquipmentItemId
   | HeroHelmetEquipmentItemId
+  | HeroLegGuardsEquipmentItemId
   | HeroHandEquipmentItemId;
 
 type HeroBonus = {
-  attribute: 'power' | 'speed' | 'damageReduction' | 'experienceModifier';
+  attribute:
+    | 'power'
+    | 'speed'
+    | 'damageReduction'
+    | 'experienceModifier'
+    | 'healthRegeneration';
   value: number;
 };
 

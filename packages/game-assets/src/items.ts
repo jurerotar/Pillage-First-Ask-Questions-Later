@@ -687,17 +687,10 @@ const consumables: HeroItem[] = [
   },
 ];
 
-type EquipmentItemKind = {
-  id: 'BODY_ARMOR' | 'LEG_GUARDS';
-  slot: HeroEquipmentItem['slot'];
-};
-
 type EquipmentRarity = {
   id: Extract<HeroEquipmentItem['rarity'], 'common' | 'uncommon' | 'rare'>;
   power: number;
   damageReduction: number;
-  flatResourceProduction: number;
-  percentageResourceProduction: number;
   basePrice: number;
 };
 
@@ -717,65 +710,27 @@ type HandEquipmentItemKind = {
   value: (rarity: EquipmentRarity) => number;
 };
 
-type EquipmentEffect =
-  | {
-      id: 'WOOD' | 'CLAY' | 'IRON' | 'CROP';
-      resourceProductionId:
-        | 'woodProduction'
-        | 'clayProduction'
-        | 'ironProduction'
-        | 'wheatProduction';
-      type: 'base';
-    }
-  | {
-      id:
-        | 'WOOD_PRODUCTION'
-        | 'CLAY_PRODUCTION'
-        | 'IRON_PRODUCTION'
-        | 'CROP_PRODUCTION';
-      resourceProductionId:
-        | 'woodProduction'
-        | 'clayProduction'
-        | 'ironProduction'
-        | 'wheatProduction';
-      type: 'bonus';
-    }
-  | {
-      id: 'STRENGTH' | 'PROTECTION';
-    };
-
-const equipmentItemKinds: EquipmentItemKind[] = [
-  { id: 'BODY_ARMOR', slot: 'torso' },
-  { id: 'LEG_GUARDS', slot: 'legs' },
-];
-
 const equipmentItemKindOffset = 2;
-const equipmentItemKindCount =
-  equipmentItemKinds.length + equipmentItemKindOffset;
+const equipmentItemKindCount = 4;
+const equipmentEffectCount = 10;
 
 const equipmentRarities: EquipmentRarity[] = [
   {
     id: 'common',
     power: 150,
     damageReduction: 2,
-    flatResourceProduction: 50,
-    percentageResourceProduction: 1.025,
     basePrice: 500,
   },
   {
     id: 'uncommon',
     power: 300,
     damageReduction: 4,
-    flatResourceProduction: 100,
-    percentageResourceProduction: 1.05,
     basePrice: 1500,
   },
   {
     id: 'rare',
     power: 450,
     damageReduction: 6,
-    flatResourceProduction: 150,
-    percentageResourceProduction: 1.075,
     basePrice: 3000,
   },
 ];
@@ -813,93 +768,20 @@ const handEquipmentItemKinds: HandEquipmentItemKind[] = [
   },
 ];
 
-const equipmentEffects: EquipmentEffect[] = [
-  {
-    id: 'WOOD',
-    resourceProductionId: 'woodProduction',
-    type: 'base',
-  },
-  {
-    id: 'CLAY',
-    resourceProductionId: 'clayProduction',
-    type: 'base',
-  },
-  {
-    id: 'IRON',
-    resourceProductionId: 'ironProduction',
-    type: 'base',
-  },
-  {
-    id: 'CROP',
-    resourceProductionId: 'wheatProduction',
-    type: 'base',
-  },
-  {
-    id: 'WOOD_PRODUCTION',
-    resourceProductionId: 'woodProduction',
-    type: 'bonus',
-  },
-  {
-    id: 'CLAY_PRODUCTION',
-    resourceProductionId: 'clayProduction',
-    type: 'bonus',
-  },
-  {
-    id: 'IRON_PRODUCTION',
-    resourceProductionId: 'ironProduction',
-    type: 'bonus',
-  },
-  {
-    id: 'CROP_PRODUCTION',
-    resourceProductionId: 'wheatProduction',
-    type: 'bonus',
-  },
-  { id: 'STRENGTH' },
-  { id: 'PROTECTION' },
-];
-
-const getEquipmentName = (
+const getBodyArmorEquipmentName = (
   rarity: EquipmentRarity,
   armorType: EquipmentArmorType,
-  itemKind: EquipmentItemKind,
-  effect: EquipmentEffect,
 ): HeroEquipmentItem['name'] => {
-  return `${rarity.id.toUpperCase()}_${armorType.id}_${itemKind.id}_OF_${effect.id}` as HeroEquipmentItem['name'];
+  return `${rarity.id.toUpperCase()}_${armorType.id}_BODY_ARMOR` as HeroEquipmentItem['name'];
 };
 
-const getEquipmentEffects = (
-  rarity: EquipmentRarity,
-  effect: EquipmentEffect,
-): HeroEquipmentItem['effects'] => {
-  if (!('resourceProductionId' in effect)) {
-    return undefined;
-  }
-
-  return [
-    {
-      id: effect.resourceProductionId,
-      value:
-        effect.type === 'base'
-          ? rarity.flatResourceProduction
-          : rarity.percentageResourceProduction,
-      scope: 'local',
-      source: 'hero',
-      type: effect.type,
-    },
-  ];
-};
-
-const getEquipmentHeroBonus = (
+const getBodyArmorHeroBonus = (
   rarity: EquipmentRarity,
   armorType: EquipmentArmorType,
-  effect: EquipmentEffect,
 ): NonNullable<HeroEquipmentItem['heroBonus']> => {
-  const power =
-    rarity.power * armorType.powerMultiplier +
-    (effect.id === 'STRENGTH' ? 100 : 0);
+  const power = rarity.power * armorType.powerMultiplier;
   const damageReduction =
-    rarity.damageReduction * armorType.damageReductionMultiplier +
-    (effect.id === 'PROTECTION' ? 1 : 0);
+    rarity.damageReduction * armorType.damageReductionMultiplier;
 
   return [
     ...(power > 0 ? [{ attribute: 'power' as const, value: power }] : []),
@@ -922,6 +804,12 @@ const getHelmetEquipmentName = (
   rarity: EquipmentRarity,
 ): HeroEquipmentItem['name'] => {
   return `${rarity.id.toUpperCase()}_HELMET` as HeroEquipmentItem['name'];
+};
+
+const getLegGuardsEquipmentName = (
+  rarity: EquipmentRarity,
+): HeroEquipmentItem['name'] => {
+  return `${rarity.id.toUpperCase()}_LEG_GUARDS` as HeroEquipmentItem['name'];
 };
 
 const getHandEquipmentName = (
@@ -948,7 +836,7 @@ const boots: HeroEquipmentItem[] = equipmentRarities.map((rarity, index) => ({
 }));
 
 const helmets: HeroEquipmentItem[] = equipmentRarities.map((rarity, index) => ({
-  id: getEquipmentItemId(equipmentEffects.length + index),
+  id: getEquipmentItemId(equipmentEffectCount + index),
   name: getHelmetEquipmentName(rarity),
   slot: 'head',
   rarity: rarity.id,
@@ -962,43 +850,47 @@ const helmets: HeroEquipmentItem[] = equipmentRarities.map((rarity, index) => ({
   ],
 }));
 
-const equipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
-  equipmentArmorTypes.flatMap((armorType) =>
-    equipmentItemKinds.flatMap((itemKind) =>
-      equipmentEffects.map((effect, effectIndex) => {
-        const item: HeroEquipmentItem = {
-          id: getEquipmentItemId(
-            equipmentEffects.length *
-              (equipmentItemKindCount *
-                (equipmentArmorTypes.length *
-                  equipmentRarities.indexOf(rarity) +
-                  equipmentArmorTypes.indexOf(armorType)) +
-                equipmentItemKindOffset +
-                equipmentItemKinds.indexOf(itemKind)) +
-              effectIndex,
-          ),
-          name: getEquipmentName(rarity, armorType, itemKind, effect),
-          slot: itemKind.slot,
-          rarity: rarity.id,
-          category: 'wearable',
-          basePrice: rarity.basePrice,
-        };
-
-        const effects = getEquipmentEffects(rarity, effect);
-        const heroBonus = getEquipmentHeroBonus(rarity, armorType, effect);
-
-        if (effects !== undefined) {
-          item.effects = effects;
-        }
-
-        if (heroBonus.length > 0) {
-          item.heroBonus = heroBonus;
-        }
-
-        return item;
-      }),
+const legGuards: HeroEquipmentItem[] = equipmentRarities.map(
+  (rarity, index) => ({
+    id: getEquipmentItemId(
+      equipmentEffectCount * (equipmentItemKindOffset + 1) + index,
     ),
-  ),
+    name: getLegGuardsEquipmentName(rarity),
+    slot: 'legs',
+    rarity: rarity.id,
+    category: 'wearable',
+    basePrice: rarity.basePrice,
+    heroBonus: [
+      {
+        attribute: 'healthRegeneration',
+        value: 10 * (index + 1),
+      },
+    ],
+  }),
+);
+
+const bodyArmor: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
+  equipmentArmorTypes.map((armorType, armorTypeIndex) => {
+    const heroBonus = getBodyArmorHeroBonus(rarity, armorType);
+    const item: HeroEquipmentItem = {
+      id: getEquipmentItemId(
+        equipmentEffectCount * equipmentItemKindOffset +
+          equipmentArmorTypes.length * equipmentRarities.indexOf(rarity) +
+          armorTypeIndex,
+      ),
+      name: getBodyArmorEquipmentName(rarity, armorType),
+      slot: 'torso',
+      rarity: rarity.id,
+      category: 'wearable',
+      basePrice: rarity.basePrice,
+    };
+
+    if (heroBonus.length > 0) {
+      item.heroBonus = heroBonus;
+    }
+
+    return item;
+  }),
 );
 
 const handEquipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
@@ -1007,7 +899,7 @@ const handEquipment: HeroEquipmentItem[] = equipmentRarities.flatMap((rarity) =>
       equipmentRarities.length *
         equipmentArmorTypes.length *
         equipmentItemKindCount *
-        equipmentEffects.length +
+        equipmentEffectCount +
         handEquipmentItemKinds.length * equipmentRarities.indexOf(rarity) +
         itemKindIndex,
     ),
@@ -1031,7 +923,8 @@ export const items: HeroItem[] = [
   ...consumables,
   ...boots,
   ...helmets,
-  ...equipment,
+  ...legGuards,
+  ...bodyArmor,
   ...handEquipment,
 ];
 

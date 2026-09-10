@@ -33,6 +33,7 @@ const resourceProductionEffectByResource = {
 } satisfies Record<Resource, ResourceProductionEffectId>;
 
 const baseHeroSpeed = 6;
+const baseHeroHealthRegeneration = 10;
 
 const getHeroInitialStrength = (tribe: string): number =>
   tribe.toLowerCase() === 'romans' ? 100 : 80;
@@ -58,6 +59,7 @@ const getHeroEquipmentBonuses = (database: DbFacade, heroId: number) => {
     speed: 0,
     damageReduction: 0,
     experienceModifier: 0,
+    healthRegeneration: 0,
   };
 
   for (const { item_id: itemId } of equippedItems) {
@@ -101,6 +103,7 @@ export const updateHeroEquipmentBonuses = (
       UPDATE heroes
       SET
         base_attack_power = $initial_strength + ($strength_per_point * $attack_power) + $power_bonus,
+        health_regeneration = $base_health_regeneration + $health_regeneration_bonus,
         damage_reduction = $damage_reduction_bonus,
         experience_modifier = $experience_modifier_bonus,
         speed = $base_speed + $speed_bonus
@@ -113,6 +116,8 @@ export const updateHeroEquipmentBonuses = (
       $strength_per_point: initialStrength,
       $attack_power: hero.attack_power,
       $power_bonus: equipmentBonuses.power,
+      $base_health_regeneration: baseHeroHealthRegeneration,
+      $health_regeneration_bonus: equipmentBonuses.healthRegeneration,
       $damage_reduction_bonus: equipmentBonuses.damageReduction,
       $experience_modifier_bonus: equipmentBonuses.experienceModifier,
       $base_speed: baseHeroSpeed,
