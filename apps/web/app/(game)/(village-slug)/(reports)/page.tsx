@@ -7,30 +7,29 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
-import { useReportFilters } from './hooks/use-report-filters';
-
-const reportTabs = ['global', 'unread', 'archived', 'village'] as const;
+import { useFilteredReports } from './hooks/use-filtered-reports';
 
 const ReportsPage = ({ params }: Route.ComponentProps) => {
   const { serverSlug, villageSlug } = params;
 
   const { t } = useTranslation();
-  const { tabIndex, navigateToTab } = useTabParam(reportTabs, 'reports-tab');
   const {
-    filters: reportFilters,
-    onFiltersChange: onReportFiltersChange,
+    scope,
+    reports,
+    updateReports,
+    deleteReports,
+    reportFilters,
+    onReportFiltersChange,
     page,
     handlePageChange,
-  } = useReportFilters();
+    navigateToTab,
+  } = useFilteredReports();
 
   const title = `${t('Reports')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
-
-  const selectedTab = reportTabs[tabIndex] ?? reportTabs[0];
 
   return (
     <PageContents>
@@ -56,7 +55,7 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
         </SectionContent>
         <SectionContent>
           <Tabs
-            value={selectedTab}
+            value={scope}
             onValueChange={navigateToTab}
           >
             <TabList>
@@ -65,61 +64,17 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
               <Tab value="archived">{t('Archived')}</Tab>
               <Tab value="village">{t('This village')}</Tab>
             </TabList>
-            <TabPanel value="global">
+            <TabPanel value={scope}>
               <Section>
                 <SectionContent>
-                  <ReportsListHeader scope="global" />
+                  <ReportsListHeader scope={scope} />
                 </SectionContent>
                 <SectionContent>
                   <ReportsList
-                    scope="global"
+                    reports={reports}
                     page={page}
-                    reportFilters={reportFilters}
-                    handlePageChange={handlePageChange}
-                  />
-                </SectionContent>
-              </Section>
-            </TabPanel>
-            <TabPanel value="unread">
-              <Section>
-                <SectionContent>
-                  <ReportsListHeader scope="unread" />
-                </SectionContent>
-                <SectionContent>
-                  <ReportsList
-                    scope="unread"
-                    page={page}
-                    reportFilters={reportFilters}
-                    handlePageChange={handlePageChange}
-                  />
-                </SectionContent>
-              </Section>
-            </TabPanel>
-            <TabPanel value="archived">
-              <Section>
-                <SectionContent>
-                  <ReportsListHeader scope="archived" />
-                </SectionContent>
-                <SectionContent>
-                  <ReportsList
-                    scope="archived"
-                    page={page}
-                    reportFilters={reportFilters}
-                    handlePageChange={handlePageChange}
-                  />
-                </SectionContent>
-              </Section>
-            </TabPanel>
-            <TabPanel value="village">
-              <Section>
-                <SectionContent>
-                  <ReportsListHeader scope="village" />
-                </SectionContent>
-                <SectionContent>
-                  <ReportsList
-                    scope="village"
-                    page={page}
-                    reportFilters={reportFilters}
+                    updateReports={updateReports}
+                    deleteReports={deleteReports}
                     handlePageChange={handlePageChange}
                   />
                 </SectionContent>

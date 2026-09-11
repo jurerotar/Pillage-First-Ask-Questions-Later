@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import {
   isAdventureReport,
   isBattleReport,
@@ -11,12 +10,12 @@ import {
   isTradeReport,
 } from '@pillage-first/utils/guards/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
-import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { useReport } from '../../hooks/use-report';
 import { ReportsListActions } from '../components/reports-list-actions';
 import { useAdjacentReports } from '../hooks/use-adjacent-reports';
+import { useFilteredReports } from '../hooks/use-filtered-reports';
 import {
   AdventureHeroTable,
   AdventureReportTable,
@@ -38,21 +37,14 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   const reportId = Number.parseInt(reportIdParam, 10);
   const { report } = useReport(reportId);
-  const { updateReports, deleteReports } = useReports();
+  const { reports, updateReports, deleteReports } = useFilteredReports();
   const { previousReportId, nextReportId } = useAdjacentReports(
     reportId,
-    searchParams,
+    reports,
   );
-
-  useEffect(() => {
-    if (report && !report.tags.includes('read')) {
-      updateReports({ reportIds: [report.id], tags: { read: true } });
-    }
-  }, [report, updateReports]);
 
   const title = `${t('Report - {{reportId}}', { reportId })}  | Pillage First! - ${serverSlug} - ${villageSlug}`;
 

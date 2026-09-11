@@ -1,31 +1,9 @@
-import type {
-  ReportListingDto,
-  ReportListingFilter,
-} from '@pillage-first/types/dtos/report';
-import { reportListingFilterSchema } from '@pillage-first/types/dtos/report';
-import {
-  type ReportScope,
-  useReports,
-} from 'app/(game)/(village-slug)/hooks/use-reports';
-
-const isReportScope = (value: string | null): value is ReportScope =>
-  value === 'global' ||
-  value === 'unread' ||
-  value === 'archived' ||
-  value === 'village';
-
-const isReportListingFilter = (value: string): value is ReportListingFilter =>
-  reportListingFilterSchema.safeParse(value).success;
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 
 export const useAdjacentReports = (
   currentReportId: number,
-  searchParams: URLSearchParams,
+  reports: ReportListingDto[],
 ) => {
-  const tabParam = searchParams.get('reports-tab');
-  const scope: ReportScope = isReportScope(tabParam) ? tabParam : 'global';
-  const filters = searchParams.getAll('scope').filter(isReportListingFilter);
-
-  const { reports } = useReports(scope, filters);
   const currentIndex = reports.findIndex(
     (report: ReportListingDto) => report.id === currentReportId,
   );
