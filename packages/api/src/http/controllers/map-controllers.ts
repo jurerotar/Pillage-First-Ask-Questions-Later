@@ -4,7 +4,6 @@ import {
   mapTileDtoSchema,
   mapTileOasisBonusDtoSchema,
   mapTileTroopDtoSchema,
-  mapTileWorldItemDtoSchema,
 } from '@pillage-first/types/dtos/map';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import {
@@ -14,7 +13,6 @@ import {
   selectPlayerMapMarkersQuery,
   selectTileOasisBonusesQuery,
   selectTileTroopsQuery,
-  selectTileWorldItemQuery,
 } from '../../queries/map-queries';
 import { selectServerMapSizeQuery } from '../../queries/server-queries';
 import { createController } from '../controller';
@@ -23,14 +21,12 @@ import {
   mapTile,
   mapTileOasisBonus,
   mapTileTroop,
-  mapTileWorldItem,
 } from './mappers/map-mapper';
 import {
   getMapMarkersSchema,
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
-  getTileWorldItemSchema,
 } from './schemas/map-schemas';
 
 export const getMapMarkers = createController(
@@ -182,25 +178,4 @@ export const getTileOasisBonuses = createController('/tiles/:tileId/bonuses', {
   });
 
   return rows.map(mapTileOasisBonus);
-});
-
-export const getTileWorldItem = createController('/tiles/:tileId/world-item', {
-  summary: 'Get world item on a tile',
-  requestParams: {
-    path: z.strictObject({
-      tileId: z.coerce.number(),
-    }),
-  },
-  response: mapTileWorldItemDtoSchema.nullable(),
-})(({ database, path: { tileId } }) => {
-  const row =
-    database.selectObject({
-      sql: selectTileWorldItemQuery,
-      bind: {
-        $tile_id: tileId,
-      },
-      schema: getTileWorldItemSchema,
-    }) ?? null;
-
-  return row ? mapTileWorldItem(row) : null;
 });

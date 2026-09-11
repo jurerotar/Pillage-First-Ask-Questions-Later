@@ -147,12 +147,3 @@ export const selectTileOasisBonusesQuery = `
   WHERE
     o.tile_id = $tile_id;
 `;
-
-export const selectTileWorldItemQuery = `
-  SELECT item_id, amount
-  FROM
-    world_items
-  WHERE
-    tile_id = $tile_id
-  LIMIT 1;
-`;
