@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import {
   isAdventureReport,
   isBattleReport,
@@ -15,6 +16,7 @@ import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { useReport } from '../../hooks/use-report';
 import { ReportsListActions } from '../components/reports-list-actions';
+import { useAdjacentReports } from '../hooks/use-adjacent-reports';
 import {
   AdventureHeroTable,
   AdventureReportTable,
@@ -25,6 +27,7 @@ import {
   MovementReportTable,
   Report,
   ReportHeader,
+  ReportNavigationButtons,
   ReportsBackButton,
   ScoutingReportTables,
   TradeReportTable,
@@ -35,10 +38,21 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const reportId = Number.parseInt(reportIdParam, 10);
   const { report } = useReport(reportId);
   const { updateReports, deleteReports } = useReports();
+  const { previousReportId, nextReportId } = useAdjacentReports(
+    reportId,
+    searchParams,
+  );
+
+  useEffect(() => {
+    if (report && !report.tags.includes('read')) {
+      updateReports({ reportIds: [report.id], tags: { read: true } });
+    }
+  }, [report, updateReports]);
 
   const title = `${t('Report - {{reportId}}', { reportId })}  | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -102,7 +116,13 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
         )}
       </Report>
       <div className="flex items-center justify-between gap-2">
-        <ReportsBackButton />
+        <div className="flex items-center gap-2">
+          <ReportsBackButton />
+          <ReportNavigationButtons
+            previousReportId={previousReportId}
+            nextReportId={nextReportId}
+          />
+        </div>
         <ReportsListActions
           reports={[report]}
           updateReports={updateReports}

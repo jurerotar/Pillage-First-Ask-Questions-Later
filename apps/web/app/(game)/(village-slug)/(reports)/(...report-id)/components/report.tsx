@@ -1,6 +1,6 @@
 import { createContext, type PropsWithChildren, use, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuArrowLeft } from 'react-icons/lu';
+import { LuArrowLeft, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import { Link, useLocation } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
@@ -74,6 +74,71 @@ export const ReportsBackButton = () => {
     </Link>
   );
 };
+
+type ReportNavigationButtonProps = {
+  direction: 'previous' | 'next';
+  reportId: number | null;
+};
+
+export const ReportNavigationButton = ({
+  direction,
+  reportId,
+}: ReportNavigationButtonProps) => {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const isPrevious = direction === 'previous';
+  const isDisabled = reportId === null;
+  const Icon = isPrevious ? LuChevronLeft : LuChevronRight;
+  const label = t(isPrevious ? 'Previous' : 'Next');
+
+  const className = buttonVariants({ variant: 'outline', size: 'sm' })
+
+  const content = (
+    <>
+      {isPrevious && <Icon />}
+      {label}
+      {!isPrevious && <Icon />}
+    </>
+  );
+
+  if (isDisabled) {
+    return (
+      <button
+        type="button"
+        disabled
+        className={className}
+        title={label}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      to={{ pathname: `../reports/${reportId}`, search: location.search }}
+      className={className}
+      title={label}
+    >
+      {content}
+    </Link>
+  );
+};
+
+type ReportNavigationButtonsProps = {
+  previousReportId: number | null;
+  nextReportId: number | null;
+};
+
+export const ReportNavigationButtons = ({
+  previousReportId,
+  nextReportId,
+}: ReportNavigationButtonsProps) => (
+  <div className="flex items-center gap-1">
+    <ReportNavigationButton direction="previous" reportId={previousReportId} />
+    <ReportNavigationButton direction="next" reportId={nextReportId} />
+  </div>
+);
 
 export const Report = ({
   report,
