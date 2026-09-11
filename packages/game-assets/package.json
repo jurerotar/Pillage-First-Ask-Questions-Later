@@ -39,6 +39,9 @@
     "./merchants": {
       "default": "./src/merchants.ts"
     },
+    "./loot-tables": {
+      "default": "./src/loot-tables.ts"
+    },
     "./utils/troops": {
       "default": "./src/utils/troops.ts"
     },
