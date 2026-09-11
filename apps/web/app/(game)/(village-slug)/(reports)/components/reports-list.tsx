@@ -1,7 +1,4 @@
-import type {
-  ReportListingDto,
-  ReportListingFilter,
-} from '@pillage-first/types/dtos/report';
+import type { ReportListingFilter } from '@pillage-first/types/dtos/report';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import {
@@ -40,12 +37,6 @@ export const ReportsList = ({
     clearSelectedReports,
   } = useReportSelection(pagination.currentPageItems);
 
-  const markAsRead = (report: ReportListingDto) => {
-    if (!report.tags.includes('read')) {
-      updateReports({ reportIds: [report.id], tags: { read: true } });
-    }
-  };
-
   return (
     <Section>
       <ReportsTable
@@ -55,7 +46,6 @@ export const ReportsList = ({
         allVisibleReportsSelected={allVisibleReportsSelected}
         onToggleReport={toggleSelectedReport}
         onToggleVisibleReports={toggleVisibleReports}
-        onOpenReport={markAsRead}
         updateReports={updateReports}
         deleteReports={deleteReports}
         clearSelectedReports={clearSelectedReports}
