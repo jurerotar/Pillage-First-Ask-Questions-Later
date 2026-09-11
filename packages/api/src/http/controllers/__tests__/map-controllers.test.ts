@@ -11,7 +11,6 @@ import {
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
-  getTileWorldItem,
   removeMapMarker,
 } from '../map-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -157,25 +156,6 @@ describe('map-controllers', () => {
       database,
       createControllerArgs<'/tiles/:tileId/bonuses'>({
         path: { tileId: tileWithBonusesTileId },
-      }),
-    );
-
-    expect(true).toBe(true);
-  });
-
-  test('getTileWorldItem should return world item for a tile with world items', async () => {
-    const database = await prepareTestDatabase();
-
-    // Find a tile with world items
-    const tileWithItemTileId = database.selectValue({
-      sql: 'SELECT tile_id FROM world_items LIMIT 1',
-      schema: z.number(),
-    })!;
-
-    getTileWorldItem(
-      database,
-      createControllerArgs<'/tiles/:tileId/world-item'>({
-        path: { tileId: tileWithItemTileId },
       }),
     );
 

@@ -715,119 +715,259 @@
     }
   },
   "ITEMS": {
-    "UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
-      "NAME": "Weathered artifact of speed",
-      "NAME_other": "Weathered artifacts of speed",
+    "COMMON_ARTIFACT_WOOD_PRODUCTION": {
+      "NAME": "Weathered wood production artifact",
+      "NAME_other": "Weathered wood production artifacts",
       "DESCRIPTION": ""
     },
-    "UNCOMMON_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
-      "NAME": "Weathered artifact of carrying",
-      "NAME_other": "Weathered artifacts of carrying",
+    "COMMON_ARTIFACT_WOOD_PRODUCTION_BONUS": {
+      "NAME": "Weathered wood production bonus artifact",
+      "NAME_other": "Weathered wood production bonus artifacts",
       "DESCRIPTION": ""
     },
-    "UNCOMMON_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
+    "COMMON_ARTIFACT_CLAY_PRODUCTION": {
+      "NAME": "Weathered clay production artifact",
+      "NAME_other": "Weathered clay production artifacts",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_CLAY_PRODUCTION_BONUS": {
+      "NAME": "Weathered clay production bonus artifact",
+      "NAME_other": "Weathered clay production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_IRON_PRODUCTION": {
+      "NAME": "Weathered iron production artifact",
+      "NAME_other": "Weathered iron production artifacts",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_IRON_PRODUCTION_BONUS": {
+      "NAME": "Weathered iron production bonus artifact",
+      "NAME_other": "Weathered iron production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_WHEAT_PRODUCTION": {
+      "NAME": "Weathered wheat production artifact",
+      "NAME_other": "Weathered wheat production artifacts",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_WHEAT_PRODUCTION_BONUS": {
+      "NAME": "Weathered wheat production bonus artifact",
+      "NAME_other": "Weathered wheat production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_WOOD_PRODUCTION": {
+      "NAME": "Honed wood production artifact",
+      "NAME_other": "Honed wood production artifacts",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_WOOD_PRODUCTION_BONUS": {
+      "NAME": "Honed wood production bonus artifact",
+      "NAME_other": "Honed wood production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_CLAY_PRODUCTION": {
+      "NAME": "Honed clay production artifact",
+      "NAME_other": "Honed clay production artifacts",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_CLAY_PRODUCTION_BONUS": {
+      "NAME": "Honed clay production bonus artifact",
+      "NAME_other": "Honed clay production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_IRON_PRODUCTION": {
+      "NAME": "Honed iron production artifact",
+      "NAME_other": "Honed iron production artifacts",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_IRON_PRODUCTION_BONUS": {
+      "NAME": "Honed iron production bonus artifact",
+      "NAME_other": "Honed iron production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_WHEAT_PRODUCTION": {
+      "NAME": "Honed wheat production artifact",
+      "NAME_other": "Honed wheat production artifacts",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_WHEAT_PRODUCTION_BONUS": {
+      "NAME": "Honed wheat production bonus artifact",
+      "NAME_other": "Honed wheat production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_WOOD_PRODUCTION": {
+      "NAME": "Natarian wood production artifact",
+      "NAME_other": "Natarian wood production artifacts",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_WOOD_PRODUCTION_BONUS": {
+      "NAME": "Natarian wood production bonus artifact",
+      "NAME_other": "Natarian wood production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_CLAY_PRODUCTION": {
+      "NAME": "Natarian clay production artifact",
+      "NAME_other": "Natarian clay production artifacts",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_CLAY_PRODUCTION_BONUS": {
+      "NAME": "Natarian clay production bonus artifact",
+      "NAME_other": "Natarian clay production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_IRON_PRODUCTION": {
+      "NAME": "Natarian iron production artifact",
+      "NAME_other": "Natarian iron production artifacts",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_IRON_PRODUCTION_BONUS": {
+      "NAME": "Natarian iron production bonus artifact",
+      "NAME_other": "Natarian iron production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_WHEAT_PRODUCTION": {
+      "NAME": "Natarian wheat production artifact",
+      "NAME_other": "Natarian wheat production artifacts",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_WHEAT_PRODUCTION_BONUS": {
+      "NAME": "Natarian wheat production bonus artifact",
+      "NAME_other": "Natarian wheat production bonus artifacts",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_BUILD_TIME_REDUCTION": {
+      "NAME": "Weathered artifact of construction",
+      "NAME_other": "Weathered artifacts of construction",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_BUILD_TIME_REDUCTION": {
+      "NAME": "Honed artifact of construction",
+      "NAME_other": "Honed artifacts of construction",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_BUILD_TIME_REDUCTION": {
+      "NAME": "Natarian artifact of construction",
+      "NAME_other": "Natarian artifacts of construction",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_CRANNY_CAPACITY": {
+      "NAME": "Weathered artifact of concealment",
+      "NAME_other": "Weathered artifacts of concealment",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_CRANNY_CAPACITY": {
+      "NAME": "Honed artifact of concealment",
+      "NAME_other": "Honed artifacts of concealment",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_CRANNY_CAPACITY": {
+      "NAME": "Natarian artifact of concealment",
+      "NAME_other": "Natarian artifacts of concealment",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_TROOP_TRAINING_REDUCTION": {
       "NAME": "Weathered artifact of training",
       "NAME_other": "Weathered artifacts of training",
       "DESCRIPTION": ""
     },
-    "UNCOMMON_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
-      "NAME": "Weathered artifact of hunger",
-      "NAME_other": "Weathered artifacts of hunger",
-      "DESCRIPTION": ""
-    },
-    "UNCOMMON_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
-      "NAME": "Weathered artifact of building",
-      "NAME_other": "Weathered artifacts of building",
-      "DESCRIPTION": ""
-    },
-    "UNCOMMON_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
-      "NAME": "Weathered artifact of oasis",
-      "NAME_other": "Weathered artifacts of oasis",
-      "DESCRIPTION": ""
-    },
-    "UNCOMMON_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
-      "NAME": "Weathered artifact of resources",
-      "NAME_other": "Weathered artifacts of resources",
-      "DESCRIPTION": ""
-    },
-    "RARE_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
-      "NAME": "Honed artifact of speed",
-      "NAME_other": "Honed artifacts of speed",
-      "DESCRIPTION": ""
-    },
-    "RARE_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
-      "NAME": "Honed artifact of carrying",
-      "NAME_other": "Honed artifacts of carrying",
-      "DESCRIPTION": ""
-    },
-    "RARE_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
+    "UNCOMMON_ARTIFACT_TROOP_TRAINING_REDUCTION": {
       "NAME": "Honed artifact of training",
       "NAME_other": "Honed artifacts of training",
       "DESCRIPTION": ""
     },
-    "RARE_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
-      "NAME": "Honed artifact of hunger",
-      "NAME_other": "Honed artifacts of hunger",
-      "DESCRIPTION": ""
-    },
-    "RARE_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
-      "NAME": "Honed artifact of building",
-      "NAME_other": "Honed artifacts of building",
-      "DESCRIPTION": ""
-    },
-    "RARE_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
-      "NAME": "Honed artifact of oasis",
-      "NAME_other": "Honed artifacts of oasis",
-      "DESCRIPTION": ""
-    },
-    "RARE_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
-      "NAME": "Honed artifact of resources",
-      "NAME_other": "Honed artifacts of resources",
-      "DESCRIPTION": ""
-    },
-    "EPIC_ARTIFACT_MILITARY_TROOP_TRAVEL_SPEED": {
-      "NAME": "Natarian artifact of speed",
-      "NAME_other": "Natarian artifacts of speed",
-      "DESCRIPTION": ""
-    },
-    "EPIC_ARTIFACT_MILITARY_TROOP_CARRYING_CAPACITY": {
-      "NAME": "Natarian artifact of carrying",
-      "NAME_other": "Natarian artifacts of carrying",
-      "DESCRIPTION": ""
-    },
-    "EPIC_ARTIFACT_MILITARY_TROOP_TRAINING_REDUCTION": {
+    "RARE_ARTIFACT_TROOP_TRAINING_REDUCTION": {
       "NAME": "Natarian artifact of training",
       "NAME_other": "Natarian artifacts of training",
       "DESCRIPTION": ""
     },
-    "EPIC_ARTIFACT_MILITARY_TROOP_WHEAT_CONSUMPTION_REDUCTION": {
-      "NAME": "Natarian artifact of hunger",
-      "NAME_other": "Natarian artifacts of hunger",
+    "COMMON_ARTIFACT_REVEALED_INCOMING_TROOPS": {
+      "NAME": "Weathered artifact of warning",
+      "NAME_other": "Weathered artifacts of warning",
       "DESCRIPTION": ""
     },
-    "EPIC_ARTIFACT_CIVIL_BUILD_TIME_REDUCTION": {
-      "NAME": "Natarian artifact of building",
-      "NAME_other": "Natarian artifacts of building",
+    "UNCOMMON_ARTIFACT_REVEALED_INCOMING_TROOPS": {
+      "NAME": "Honed artifact of warning",
+      "NAME_other": "Honed artifacts of warning",
       "DESCRIPTION": ""
     },
-    "EPIC_ARTIFACT_CIVIL_OASIS_PRODUCTION_BONUS": {
-      "NAME": "Natarian artifact of oasis",
-      "NAME_other": "Natarian artifacts of oasis",
+    "RARE_ARTIFACT_REVEALED_INCOMING_TROOPS": {
+      "NAME": "Natarian artifact of warning",
+      "NAME_other": "Natarian artifacts of warning",
       "DESCRIPTION": ""
     },
-    "EPIC_ARTIFACT_CIVIL_RESOURCE_PRODUCTION_BONUS": {
-      "NAME": "Natarian artifact of resources",
-      "NAME_other": "Natarian artifacts of resources",
+    "COMMON_ARTIFACT_MERCHANT_CAPACITY": {
+      "NAME": "Weathered artifact of hauling",
+      "NAME_other": "Weathered artifacts of hauling",
       "DESCRIPTION": ""
     },
-    "EPIC_ARTIFACT_CIVIL_ENABLE_GREAT_BUILDINGS": {
-      "NAME": "Natarian artifact of storage",
-      "NAME_other": "Natarian artifacts of storage",
+    "UNCOMMON_ARTIFACT_MERCHANT_CAPACITY": {
+      "NAME": "Honed artifact of hauling",
+      "NAME_other": "Honed artifacts of hauling",
       "DESCRIPTION": ""
     },
-    "SILVER": {
-      "NAME": "Silver",
-      "NAME_other": "Silver",
+    "RARE_ARTIFACT_MERCHANT_CAPACITY": {
+      "NAME": "Natarian artifact of hauling",
+      "NAME_other": "Natarian artifacts of hauling",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_UNIT_IMPROVEMENT_DURATION": {
+      "NAME": "Weathered artifact of forging",
+      "NAME_other": "Weathered artifacts of forging",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_UNIT_IMPROVEMENT_DURATION": {
+      "NAME": "Honed artifact of forging",
+      "NAME_other": "Honed artifacts of forging",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_UNIT_IMPROVEMENT_DURATION": {
+      "NAME": "Natarian artifact of forging",
+      "NAME_other": "Natarian artifacts of forging",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_UNIT_SPEED": {
+      "NAME": "Weathered artifact of marching",
+      "NAME_other": "Weathered artifacts of marching",
+      "DESCRIPTION": ""
+    },
+    "COMMON_ARTIFACT_UNIT_SPEED_AFTER_20_FIELDS": {
+      "NAME": "Weathered artifact of endurance",
+      "NAME_other": "Weathered artifacts of endurance",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_UNIT_SPEED": {
+      "NAME": "Honed artifact of marching",
+      "NAME_other": "Honed artifacts of marching",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_ARTIFACT_UNIT_SPEED_AFTER_20_FIELDS": {
+      "NAME": "Honed artifact of endurance",
+      "NAME_other": "Honed artifacts of endurance",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_UNIT_SPEED": {
+      "NAME": "Natarian artifact of marching",
+      "NAME_other": "Natarian artifacts of marching",
+      "DESCRIPTION": ""
+    },
+    "RARE_ARTIFACT_UNIT_SPEED_AFTER_20_FIELDS": {
+      "NAME": "Natarian artifact of endurance",
+      "NAME_other": "Natarian artifacts of endurance",
+      "DESCRIPTION": ""
+    },
+    "COMMON_HORSE": {
+      "NAME": "Common horse",
+      "NAME_other": "Common horses",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_HORSE": {
+      "NAME": "Uncommon horse",
+      "NAME_other": "Uncommon horses",
+      "DESCRIPTION": ""
+    },
+    "RARE_HORSE": {
+      "NAME": "Rare horse",
+      "NAME_other": "Rare horses",
       "DESCRIPTION": ""
     },
     "HEALING_POTION": {
@@ -848,6 +988,146 @@
     "REVIVAL_POTION": {
       "NAME": "Revival potion",
       "NAME_other": "Revival potions",
+      "DESCRIPTION": ""
+    },
+    "SILVER": {
+      "NAME": "Silver",
+      "NAME_other": "Silver",
+      "DESCRIPTION": ""
+    },
+    "EXPERIENCE_SCROLL": {
+      "NAME": "Experience scroll",
+      "NAME_other": "Experience scrolls",
+      "DESCRIPTION": ""
+    },
+    "ADVENTURE_MAP": {
+      "NAME": "Adventure map",
+      "NAME_other": "Adventure maps",
+      "DESCRIPTION": ""
+    },
+    "LOYALTY_SEAL": {
+      "NAME": "Loyalty seal",
+      "NAME_other": "Loyalty seals",
+      "DESCRIPTION": ""
+    },
+    "COMMON_BOOTS": {
+      "NAME": "Worn Boots",
+      "NAME_other": "Worn Boots",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_BOOTS": {
+      "NAME": "Sturdy Boots",
+      "NAME_other": "Sturdy Boots",
+      "DESCRIPTION": ""
+    },
+    "RARE_BOOTS": {
+      "NAME": "Reinforced Boots",
+      "NAME_other": "Reinforced Boots",
+      "DESCRIPTION": ""
+    },
+    "COMMON_HELMET": {
+      "NAME": "Worn Helmet",
+      "NAME_other": "Worn Helmets",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_HELMET": {
+      "NAME": "Sturdy Helmet",
+      "NAME_other": "Sturdy Helmets",
+      "DESCRIPTION": ""
+    },
+    "RARE_HELMET": {
+      "NAME": "Reinforced Helmet",
+      "NAME_other": "Reinforced Helmets",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEG_GUARDS": {
+      "NAME": "Worn Leg Guards",
+      "NAME_other": "Worn Leg Guards",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEG_GUARDS": {
+      "NAME": "Sturdy Leg Guards",
+      "NAME_other": "Sturdy Leg Guards",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEG_GUARDS": {
+      "NAME": "Reinforced Leg Guards",
+      "NAME_other": "Reinforced Leg Guards",
+      "DESCRIPTION": ""
+    },
+    "COMMON_LEATHER_BODY_ARMOR": {
+      "NAME": "Worn Leather Body Armor",
+      "NAME_other": "Worn Leather Body Armor",
+      "DESCRIPTION": ""
+    },
+    "COMMON_MAIL_BODY_ARMOR": {
+      "NAME": "Worn Mail Body Armor",
+      "NAME_other": "Worn Mail Body Armor",
+      "DESCRIPTION": ""
+    },
+    "COMMON_PLATE_BODY_ARMOR": {
+      "NAME": "Worn Plate Body Armor",
+      "NAME_other": "Worn Plate Body Armor",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_LEATHER_BODY_ARMOR": {
+      "NAME": "Sturdy Leather Body Armor",
+      "NAME_other": "Sturdy Leather Body Armor",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_MAIL_BODY_ARMOR": {
+      "NAME": "Sturdy Mail Body Armor",
+      "NAME_other": "Sturdy Mail Body Armor",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_PLATE_BODY_ARMOR": {
+      "NAME": "Sturdy Plate Body Armor",
+      "NAME_other": "Sturdy Plate Body Armor",
+      "DESCRIPTION": ""
+    },
+    "RARE_LEATHER_BODY_ARMOR": {
+      "NAME": "Reinforced Leather Body Armor",
+      "NAME_other": "Reinforced Leather Body Armor",
+      "DESCRIPTION": ""
+    },
+    "RARE_MAIL_BODY_ARMOR": {
+      "NAME": "Reinforced Mail Body Armor",
+      "NAME_other": "Reinforced Mail Body Armor",
+      "DESCRIPTION": ""
+    },
+    "RARE_PLATE_BODY_ARMOR": {
+      "NAME": "Reinforced Plate Body Armor",
+      "NAME_other": "Reinforced Plate Body Armor",
+      "DESCRIPTION": ""
+    },
+    "COMMON_SWORD": {
+      "NAME": "Worn Sword",
+      "NAME_other": "Worn Sword",
+      "DESCRIPTION": ""
+    },
+    "COMMON_SHIELD": {
+      "NAME": "Worn Shield",
+      "NAME_other": "Worn Shield",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_SWORD": {
+      "NAME": "Sturdy Sword",
+      "NAME_other": "Sturdy Sword",
+      "DESCRIPTION": ""
+    },
+    "UNCOMMON_SHIELD": {
+      "NAME": "Sturdy Shield",
+      "NAME_other": "Sturdy Shield",
+      "DESCRIPTION": ""
+    },
+    "RARE_SWORD": {
+      "NAME": "Reinforced Sword",
+      "NAME_other": "Reinforced Sword",
+      "DESCRIPTION": ""
+    },
+    "RARE_SHIELD": {
+      "NAME": "Reinforced Shield",
+      "NAME_other": "Reinforced Shield",
       "DESCRIPTION": ""
     }
   },

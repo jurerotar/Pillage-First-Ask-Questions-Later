@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { onHeroDeath } from '../hero';
+import { addHeroExperience, onHeroDeath } from '../hero';
 
 describe('hero utils resolvers', () => {
   test('onHeroDeath should remove heroHealthRegeneration events', async () => {
@@ -25,5 +25,21 @@ describe('hero utils resolvers', () => {
       schema: z.number(),
     });
     expect(eventCount).toBe(0);
+  });
+
+  test('addHeroExperience should apply experience modifier', async () => {
+    const database = await prepareTestDatabase();
+
+    database.exec({
+      sql: 'UPDATE heroes SET experience_modifier = 15;',
+    });
+
+    addHeroExperience(database, 10);
+
+    const experience = database.selectValue({
+      sql: 'SELECT experience FROM heroes LIMIT 1;',
+      schema: z.number(),
+    });
+    expect(experience).toBe(12);
   });
 });

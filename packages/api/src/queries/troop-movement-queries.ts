@@ -97,13 +97,17 @@ export const updateHeroAfterAdventureByHeroIdQuery = `
       experience +
       CASE
         WHEN MAX(0, health - MAX(0, 5 - damage_reduction)) > 0
-          THEN (
-                 SELECT completed + 1
-                 FROM
-                   hero_adventures
-                 WHERE
-                   hero_id = heroes.id
-                 ) * 10
+          THEN CAST(
+            ROUND(
+              (
+                SELECT completed + 1
+                FROM
+                  hero_adventures
+                WHERE
+                  hero_id = heroes.id
+              ) * 10 * (1 + experience_modifier / 100.0)
+            ) AS INTEGER
+          )
         ELSE 0
         END
   WHERE id = $hero_id

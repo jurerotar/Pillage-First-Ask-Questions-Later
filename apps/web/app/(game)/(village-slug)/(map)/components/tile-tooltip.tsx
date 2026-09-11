@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import type { MapMarker } from '@pillage-first/types/models/map-marker';
 import type {
   OasisTile,
@@ -8,7 +7,6 @@ import type {
   OccupiedOccupiableTile,
   Tile,
 } from '@pillage-first/types/models/tile';
-import { formatNumber } from '@pillage-first/utils/format';
 import {
   isOasisTile,
   isOccupiableOasisTile,
@@ -22,7 +20,6 @@ import {
 } from '@pillage-first/utils/math';
 import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-troops';
-import { useTileWorldItem } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-world-item';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
@@ -111,22 +108,6 @@ const TileTooltipPlayerInfo = ({ tile }: TileTooltipProps) => {
         {t('Population')} - {population}
       </span>
     </>
-  );
-};
-
-type TileTooltipWorldItemProps = {
-  item: NonNullable<ReturnType<typeof useTileWorldItem>['worldItem']>;
-};
-
-const TileTooltipWorldItem = ({ item }: TileTooltipWorldItemProps) => {
-  const { t } = useTranslation();
-
-  const { name } = getItemDefinition(item.id);
-
-  return (
-    <span>
-      {formatNumber(item.amount)}x {t(`ITEMS.${name}.NAME`)}
-    </span>
   );
 };
 
@@ -236,7 +217,6 @@ const OccupiedOccupiableTileTooltip = ({
   tile,
 }: OccupiedOccupiableTileTooltipProps) => {
   const { name } = tile.ownerVillage;
-  const { worldItem } = useTileWorldItem(tile.id);
 
   return (
     <>
@@ -244,11 +224,6 @@ const OccupiedOccupiableTileTooltip = ({
       <TileTooltipLocation tile={tile} />
       <TileTooltipResources tile={tile} />
       <TileTooltipPlayerInfo tile={tile} />
-      {!!worldItem && (
-        <div className="flex flex-col gap-1 border-t border-border py-1">
-          <TileTooltipWorldItem item={worldItem} />
-        </div>
-      )}
     </>
   );
 };

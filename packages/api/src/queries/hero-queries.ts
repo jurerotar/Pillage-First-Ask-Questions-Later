@@ -15,7 +15,7 @@ export const selectHeroSpeedQuery = `
   LIMIT 1;
 `;
 
-export const insertAnimalCagesIntoHeroInventoryQuery = `
+export const insertHeroItemIntoHeroInventoryQuery = `
   INSERT INTO
     hero_inventory (hero_id, item_id, amount)
   SELECT h.id, $item_id, $amount

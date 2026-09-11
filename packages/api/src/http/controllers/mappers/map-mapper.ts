@@ -4,14 +4,12 @@ import {
   mapTileDtoSchema,
   mapTileOasisBonusDtoSchema,
   mapTileTroopDtoSchema,
-  mapTileWorldItemDtoSchema,
 } from '@pillage-first/types/dtos/map';
 import type {
   getMapMarkersSchema,
   getTileOasisBonusesSchema,
   getTilesSchema,
   getTileTroopsSchema,
-  getTileWorldItemSchema,
 } from '../schemas/map-schemas';
 
 export const mapTile = (
@@ -97,17 +95,6 @@ export const mapTileOasisBonus = (
   return mapTileOasisBonusDtoSchema.parse({
     resource: row.resource,
     bonus: row.bonus,
-  });
-};
-
-export const mapTileWorldItem = (
-  row: z.infer<typeof getTileWorldItemSchema>,
-): z.infer<typeof mapTileWorldItemDtoSchema> => {
-  return mapTileWorldItemDtoSchema.parse({
-    id: row.item_id,
-    coordinates: { x: 0, y: 0 },
-    distance: 0,
-    amount: row.amount,
   });
 };
 
