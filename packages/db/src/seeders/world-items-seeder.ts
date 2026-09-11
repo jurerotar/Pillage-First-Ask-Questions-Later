@@ -29,8 +29,8 @@ export const stackableHeroItemAmountRanges = new Map<
 >([
   ['HEALING_POTION', [3, 10]],
   ['ANIMAL_CAGE', [2, 6]],
-  ['EXPERIENCE_SCROLL', [1, 4]],
-  ['LOYALTY_SEAL', [1, 3]],
+  ['EXPERIENCE_SCROLL', [2, 10]],
+  ['LOYALTY_SEAL', [1, 8]],
   ['SILVER', [50, 150]],
 ]);
 
@@ -232,8 +232,8 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
     },
   );
 
-  // Third of remaining villages should have miscellaneous items
-  const amountOfVillagesToPick = miscellaneousHeroItemTileCandidates.length / 3;
+  // Half of remaining villages should have miscellaneous items
+  const amountOfVillagesToPick = miscellaneousHeroItemTileCandidates.length / 2;
 
   const miscellaneousHeroItemTiles = seededRandomArrayElements(
     prng,
