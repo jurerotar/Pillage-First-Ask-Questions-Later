@@ -1,6 +1,18 @@
-import { createContext, type PropsWithChildren, use, useMemo } from 'react';
+import {
+  createContext,
+  type PropsWithChildren,
+  type ReactNode,
+  use,
+  useMemo,
+} from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuArrowLeft, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
+import {
+  LuArrowLeft,
+  LuChevronLeft,
+  LuChevronRight,
+  LuChevronsLeft,
+  LuChevronsRight,
+} from 'react-icons/lu';
 import { Link, useLocation } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
@@ -60,6 +72,7 @@ type ReportProps = {
 export const ReportsBackButton = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const label = t('Back');
 
   return (
     <Link
@@ -67,39 +80,32 @@ export const ReportsBackButton = () => {
         pathname: '../reports',
         search: location.search,
       }}
-      className={buttonVariants({ variant: 'outline', size: 'sm' })}
+      className={buttonVariants({ variant: 'outline', size: 'icon' })}
+      aria-label={label}
+      title={label}
+      data-tooltip-id="general-tooltip"
+      data-tooltip-content={label}
     >
       <LuArrowLeft />
-      {t('Back')}
     </Link>
   );
 };
 
 type ReportNavigationButtonProps = {
-  direction: 'previous' | 'next';
+  children: ReactNode;
+  label: string;
   reportId: number | null;
 };
 
 export const ReportNavigationButton = ({
-  direction,
+  children,
+  label,
   reportId,
 }: ReportNavigationButtonProps) => {
-  const { t } = useTranslation();
   const location = useLocation();
-  const isPrevious = direction === 'previous';
   const isDisabled = reportId === null;
-  const Icon = isPrevious ? LuChevronLeft : LuChevronRight;
-  const label = t(isPrevious ? 'Previous' : 'Next');
 
-  const className = buttonVariants({ variant: 'outline', size: 'sm' })
-
-  const content = (
-    <>
-      {isPrevious && <Icon />}
-      {label}
-      {!isPrevious && <Icon />}
-    </>
-  );
+  const className = buttonVariants({ variant: 'outline', size: 'icon' });
 
   if (isDisabled) {
     return (
@@ -107,9 +113,12 @@ export const ReportNavigationButton = ({
         type="button"
         disabled
         className={className}
+        aria-label={label}
         title={label}
+        data-tooltip-id="general-tooltip"
+        data-tooltip-content={label}
       >
-        {content}
+        {children}
       </button>
     );
   }
@@ -118,9 +127,12 @@ export const ReportNavigationButton = ({
     <Link
       to={{ pathname: `../reports/${reportId}`, search: location.search }}
       className={className}
+      aria-label={label}
       title={label}
+      data-tooltip-id="general-tooltip"
+      data-tooltip-content={label}
     >
-      {content}
+      {children}
     </Link>
   );
 };
@@ -128,17 +140,51 @@ export const ReportNavigationButton = ({
 type ReportNavigationButtonsProps = {
   previousReportId: number | null;
   nextReportId: number | null;
+  previousUnreadReportId: number | null;
+  nextUnreadReportId: number | null;
 };
 
 export const ReportNavigationButtons = ({
   previousReportId,
   nextReportId,
-}: ReportNavigationButtonsProps) => (
-  <div className="flex items-center gap-1">
-    <ReportNavigationButton direction="previous" reportId={previousReportId} />
-    <ReportNavigationButton direction="next" reportId={nextReportId} />
-  </div>
-);
+  previousUnreadReportId,
+  nextUnreadReportId,
+}: ReportNavigationButtonsProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex flex-1 items-center justify-between gap-2">
+      <div className="flex items-center gap-1">
+        <ReportNavigationButton
+          label={t('Previous unread')}
+          reportId={previousUnreadReportId}
+        >
+          <LuChevronsLeft />
+        </ReportNavigationButton>
+        <ReportNavigationButton
+          label={t('Previous')}
+          reportId={previousReportId}
+        >
+          <LuChevronLeft />
+        </ReportNavigationButton>
+      </div>
+      <div className="flex items-center gap-1">
+        <ReportNavigationButton
+          label={t('Next')}
+          reportId={nextReportId}
+        >
+          <LuChevronRight />
+        </ReportNavigationButton>
+        <ReportNavigationButton
+          label={t('Next unread')}
+          reportId={nextUnreadReportId}
+        >
+          <LuChevronsRight />
+        </ReportNavigationButton>
+      </div>
+    </div>
+  );
+};
 
 export const Report = ({
   report,
@@ -158,19 +204,26 @@ export const Report = ({
   );
 };
 
-export const ReportHeader = () => {
+type ReportHeaderProps = {
+  actions?: ReactNode;
+};
+
+export const ReportHeader = ({ actions }: ReportHeaderProps) => {
   const { t } = useTranslation();
   const { report } = use(ReportContext);
 
   return (
     <div className="flex flex-col gap-2">
       <Text as="h1">{getReportSubject(report, t)}</Text>
-      <Text
-        as="span"
-        className="text-foreground-muted"
-      >
-        {new Date(report.timestamp).toLocaleString()}
-      </Text>
+      <div className="flex items-center justify-between gap-2">
+        <Text
+          as="span"
+          className="text-foreground-muted"
+        >
+          {new Date(report.timestamp).toLocaleString()}
+        </Text>
+        {actions}
+      </div>
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { LuEllipsis } from 'react-icons/lu';
 import { useLocation, useNavigate } from 'react-router';
 import {
   isAdventureReport,
@@ -12,6 +13,12 @@ import {
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
 import { useReport } from '../../hooks/use-report';
 import { ReportsListActions } from '../components/reports-list-actions';
 import { useAdjacentReports } from '../hooks/use-adjacent-reports';
@@ -39,12 +46,14 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
   const navigate = useNavigate();
 
   const reportId = Number.parseInt(reportIdParam, 10);
-  const { report } = useReport(reportId);
   const { reports, updateReports, deleteReports } = useFilteredReports();
-  const { previousReportId, nextReportId } = useAdjacentReports(
-    reportId,
-    reports,
-  );
+  const { report } = useReport(reportId);
+  const {
+    previousReportId,
+    nextReportId,
+    previousUnreadReportId,
+    nextUnreadReportId,
+  } = useAdjacentReports(reportId, reports);
 
   const title = `${t('Report - {{reportId}}', { reportId })}  | Pillage First! - ${serverSlug} - ${villageSlug}`;
 
@@ -71,7 +80,40 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
     <PageContents>
       <title>{title}</title>
       <Report report={report}>
-        <ReportHeader />
+        <ReportHeader
+          actions={
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  aria-label={t('Actions')}
+                  title={t('Actions')}
+                  variant="outline"
+                  size="sm"
+                >
+                  <LuEllipsis />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="w-auto rounded-lg p-1 shadow-xl"
+                side="bottom"
+              >
+                <ReportsListActions
+                  reports={[report]}
+                  updateReports={updateReports}
+                  deleteReports={deleteReports}
+                  onDelete={() =>
+                    navigate({
+                      pathname: '../reports',
+                      search: location.search,
+                    })
+                  }
+                  isPopoverActions
+                />
+              </PopoverContent>
+            </Popover>
+          }
+        />
         {isBattleReport(report) && (
           <>
             <BattleParticipantTable
@@ -107,24 +149,15 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
           <GatheringExpeditionReportTable />
         )}
       </Report>
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <ReportsBackButton />
-          <ReportNavigationButtons
-            previousReportId={previousReportId}
-            nextReportId={nextReportId}
-          />
         </div>
-        <ReportsListActions
-          reports={[report]}
-          updateReports={updateReports}
-          deleteReports={deleteReports}
-          onDelete={() =>
-            navigate({
-              pathname: '../reports',
-              search: location.search,
-            })
-          }
+        <ReportNavigationButtons
+          previousReportId={previousReportId}
+          nextReportId={nextReportId}
+          previousUnreadReportId={previousUnreadReportId}
+          nextUnreadReportId={nextUnreadReportId}
         />
       </div>
     </PageContents>
