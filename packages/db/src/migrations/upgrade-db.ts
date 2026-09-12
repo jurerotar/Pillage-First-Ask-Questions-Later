@@ -12,6 +12,9 @@ import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
 import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
 import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
+import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
+import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
+import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
 import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
 import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
@@ -970,6 +973,10 @@ export const upgradeDb = (
     })!;
 
     worldItemsSeeder(db, server);
+
+    db.exec({ sql: createHeroAuctionBuyListingsTable });
+    db.exec({ sql: createHeroAuctionSellListingsTable });
+    db.exec({ sql: createHeroAuctionHistoryTable });
   });
 
   // If all migrations passed, bump it to current version

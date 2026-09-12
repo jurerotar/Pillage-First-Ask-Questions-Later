@@ -10,6 +10,7 @@ const auctionFilterSlots: HeroItemSlot[] = [
   'left-hand',
   'horse',
   'consumable',
+  'non-equipable',
 ];
 
 export const useAuctionFilters = () => {

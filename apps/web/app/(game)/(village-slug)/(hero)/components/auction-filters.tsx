@@ -4,6 +4,8 @@ import {
   GiBroadsword,
   GiChestArmor,
   GiHealthPotion,
+  GiHorseHead,
+  GiOpenTreasureChest,
   GiShield,
   GiVikingHelmet,
 } from 'react-icons/gi';
@@ -85,10 +87,26 @@ export const AuctionFilters = ({
 
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
+          data-tooltip-content={t('Horse')}
+          value="horse"
+        >
+          <GiHorseHead className="size-4" />
+        </ToggleGroupItem>
+
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
           data-tooltip-content={t('Consumable')}
           value="consumable"
         >
           <GiHealthPotion className="size-4" />
+        </ToggleGroupItem>
+
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
+          data-tooltip-content={t('Artifact')}
+          value="non-equipable"
+        >
+          <GiOpenTreasureChest className="size-4" />
         </ToggleGroupItem>
       </ToggleGroup>
     </SectionContent>

@@ -14,7 +14,14 @@ import {
   deleteHeroEffectsQuery,
   updateHeroVillageEffectsByVillageIdQuery,
 } from '../queries/effect-queries';
-import { updateHeroVillageByCurrentVillageQuery } from '../queries/hero-queries';
+import {
+  deleteHeroInventoryItemByHeroIdAndItemIdQuery,
+  insertHeroItemIntoHeroInventoryByHeroIdQuery,
+  selectHeroIdByPlayerIdQuery,
+  selectHeroInventoryAmountByHeroIdAndItemIdQuery,
+  updateHeroInventoryItemAmountByHeroIdAndItemIdQuery,
+  updateHeroVillageByCurrentVillageQuery,
+} from '../queries/hero-queries';
 import { createEvents } from './create-event';
 import { getVillageTileId, updateResourceSiteResourcesAt } from './village';
 
@@ -34,6 +41,84 @@ const resourceProductionEffectByResource = {
 
 const baseHeroSpeed = 6;
 const baseHeroHealthRegeneration = 10;
+
+export const getHeroIdByPlayerId = (
+  database: DbFacade,
+  playerId: number,
+): number => {
+  return database.selectValue({
+    sql: selectHeroIdByPlayerIdQuery,
+    bind: { $player_id: playerId },
+    schema: z.number(),
+  })!;
+};
+
+export const getHeroInventoryAmount = (
+  database: DbFacade,
+  heroId: number,
+  itemId: number,
+): number => {
+  return (
+    database.selectValue({
+      sql: selectHeroInventoryAmountByHeroIdAndItemIdQuery,
+      bind: {
+        $hero_id: heroId,
+        $item_id: itemId,
+      },
+      schema: z.number(),
+    }) ?? 0
+  );
+};
+
+export const addHeroInventoryItem = (
+  database: DbFacade,
+  heroId: number,
+  itemId: number,
+  amount: number,
+): void => {
+  database.exec({
+    sql: insertHeroItemIntoHeroInventoryByHeroIdQuery,
+    bind: {
+      $hero_id: heroId,
+      $item_id: itemId,
+      $amount: amount,
+    },
+  });
+};
+
+export const removeHeroInventoryItem = (
+  database: DbFacade,
+  heroId: number,
+  itemId: number,
+  amount: number,
+): void => {
+  const inventoryAmount = getHeroInventoryAmount(database, heroId, itemId);
+
+  if (inventoryAmount < amount) {
+    throw new Error('Not enough items in inventory');
+  }
+
+  if (inventoryAmount === amount) {
+    database.exec({
+      sql: deleteHeroInventoryItemByHeroIdAndItemIdQuery,
+      bind: {
+        $hero_id: heroId,
+        $item_id: itemId,
+      },
+    });
+
+    return;
+  }
+
+  database.exec({
+    sql: updateHeroInventoryItemAmountByHeroIdAndItemIdQuery,
+    bind: {
+      $hero_id: heroId,
+      $item_id: itemId,
+      $amount: amount,
+    },
+  });
+};
 
 const getHeroInitialStrength = (tribe: string): number =>
   tribe.toLowerCase() === 'romans' ? 100 : 80;
