@@ -162,6 +162,16 @@ const DesktopNavigationContent = () => {
                 />
               </Link>
               <Link
+                to="/wiki"
+                className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+              >
+                <DropdownLinkContent
+                  label={t('Wiki')}
+                  description={t('Learn about the game')}
+                  icon={<GrHelpBook />}
+                />
+              </Link>
+              <Link
                 to="/get-involved"
                 className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
               >
@@ -171,13 +181,6 @@ const DesktopNavigationContent = () => {
                   icon={<PiHandshakeBold />}
                 />
               </Link>
-              <div className="flex items-start gap-3 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors opacity-50">
-                <DropdownLinkContent
-                  label={t('Wiki (coming soon)')}
-                  description={t('Learn about the game')}
-                  icon={<GrHelpBook />}
-                />
-              </div>
             </NavMenu>
 
             <NavLink to="/latest-updates">{t('Latest updates')}</NavLink>

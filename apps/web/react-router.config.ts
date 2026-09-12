@@ -7,6 +7,18 @@ import {
 
 const publicPagesToPrerender = [
   '/',
+  '/wiki',
+  '/wiki/introduction',
+  '/wiki/interactions',
+  '/wiki/game-worlds',
+  '/wiki/villages',
+  '/wiki/resources',
+  '/wiki/buildings',
+  '/wiki/troops',
+  '/wiki/hero',
+  '/wiki/map',
+  '/wiki/quests',
+  '/wiki/reports',
   '/game-worlds',
   '/game-worlds/create',
   '/game-worlds/import',
