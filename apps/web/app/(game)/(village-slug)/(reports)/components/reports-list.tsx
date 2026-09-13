@@ -1,10 +1,7 @@
-import type { ReportListingFilter } from '@pillage-first/types/dtos/report';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import { Section } from 'app/(game)/(village-slug)/components/building-layout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
-import {
-  type ReportScope,
-  useReports,
-} from 'app/(game)/(village-slug)/hooks/use-reports';
+import type { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { Pagination } from 'app/components/ui/pagination';
 import { useReportSelection } from '../hooks/use-report-selection';
 import { ReportsTable } from './reports-table';
@@ -12,22 +9,20 @@ import { ReportsTable } from './reports-table';
 const REPORTS_PER_PAGE = 20;
 
 type ReportsListProps = {
-  scope: ReportScope;
+  reports: ReportListingDto[];
   page: number;
-  reportFilters: ReportListingFilter[];
+  updateReports: ReturnType<typeof useReports>['updateReports'];
+  deleteReports: ReturnType<typeof useReports>['deleteReports'];
   handlePageChange: (newPage: number | ((prev: number) => number)) => void;
 };
 
 export const ReportsList = ({
-  scope,
+  reports,
   page,
-  reportFilters,
+  updateReports,
+  deleteReports,
   handlePageChange,
 }: ReportsListProps) => {
-  const { reports, updateReports, deleteReports } = useReports(
-    scope,
-    reportFilters,
-  );
   const pagination = usePagination(reports, REPORTS_PER_PAGE, page);
   const {
     selectedReportIds,
