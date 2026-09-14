@@ -89,7 +89,7 @@ const LayoutContent = () => {
         <HeadLinks />
         <Links />
       </head>
-      <body className="bg-background text-foreground transition-colors">
+      <body className="bg-background px-safe text-foreground transition-colors">
         <DesktopNavigation />
         <MobileNavigation />
         <Tooltip id="public-tooltip" />
