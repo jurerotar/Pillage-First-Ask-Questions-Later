@@ -1,3 +1,11 @@
+## Version 0.4.65
+
+#### Sep 13, 2026
+
+* [UIUXImprovement] Updated scout and scouting report icons.
+* [BugFix] Fixed an issue where browser notifications could get stuck waiting for service worker readiness.
+* [BugFix] Fixed browser storage availability checks so game world creation detects browsers that block OPFS writes.
+
 ## Version 0.4.64
 
 #### Sep 10, 2026

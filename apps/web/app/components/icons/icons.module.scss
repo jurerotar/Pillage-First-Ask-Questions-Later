@@ -1,8 +1,26 @@
 @use "sass:map";
 
+@mixin scrollIconBindingColor($color) {
+  [id$='-binding'] {
+    fill: $color !important;
+  }
+}
+
+.scout-report-icon {
+  @include scrollIconBindingColor(currentColor);
+}
+
+.roman-scout-icon {
+  @include scrollIconBindingColor(map.get($tribeColors, 'romans'));
+}
+
 .roman-scout-icon,
 .roman-settler {
   color: map.get($tribeColors, 'romans');
+}
+
+.gaul-scout-icon {
+  @include scrollIconBindingColor(map.get($tribeColors, 'gauls'));
 }
 
 .gaul-scout-icon,
@@ -10,9 +28,17 @@
   color: map.get($tribeColors, 'gauls');
 }
 
+.teutonic-scout-icon {
+  @include scrollIconBindingColor(map.get($tribeColors, 'teutons'));
+}
+
 .teutonic-scout-icon,
 .teutonic-settler {
   color: map.get($tribeColors, 'teutons');
+}
+
+.hun-scout-icon {
+  @include scrollIconBindingColor(map.get($tribeColors, 'huns'));
 }
 
 .hun-scout-icon,
@@ -20,14 +46,26 @@
   color: map.get($tribeColors, 'huns');
 }
 
+.egyptian-scout-icon {
+  @include scrollIconBindingColor(map.get($tribeColors, 'egyptians'));
+}
+
 .egyptian-scout-icon,
 .egyptian-settler {
   color: map.get($tribeColors, 'egyptians');
 }
 
+.spartan-scout-icon {
+  @include scrollIconBindingColor(map.get($tribeColors, 'spartans'));
+}
+
 .spartan-scout-icon,
 .spartan-settler {
   color: map.get($tribeColors, 'spartans');
+}
+
+.natarian-scout-icon {
+  @include scrollIconBindingColor(map.get($tribeColors, 'natars'));
 }
 
 .natarian-scout-icon,

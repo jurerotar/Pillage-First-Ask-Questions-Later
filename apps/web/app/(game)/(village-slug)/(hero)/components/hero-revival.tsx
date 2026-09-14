@@ -5,6 +5,7 @@ import {
   calculateHeroRevivalCost,
   calculateHeroRevivalTime,
 } from '@pillage-first/game-assets/utils/hero';
+import { useReviveHero } from 'app/(game)/(village-slug)/(hero)/hooks/use-revive-hero';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
@@ -15,7 +16,6 @@ import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/cur
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { useReviveHero } from 'app/(game)/(village-slug)/hooks/use-revive-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
