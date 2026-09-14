@@ -19,3 +19,4 @@ I am grateful to our contributors for dedicating their time and effort in to mak
 * [erayzeki](https://github.com/erayzeki)
 * [shivamAmrutia](https://github.com/shivamAmrutia)
 * [egggTime](https://github.com/egggTime)
+* [loopyfs](https://github.com/loopyfs)
