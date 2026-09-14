@@ -777,7 +777,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
           <HeroNavigationItem />
         </div>
       )}
-      <div className="flex relative rounded-md px-2 lg:absolute top-full lg:-bottom-16 left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-5 shadow-lg">
+      <div className="flex relative rounded-b-md px-2 lg:absolute top-full lg:-bottom-16 left-1/2 -translate-x-1/2 bg-card max-w-xl w-full lg:z-5 shadow-lg dark:shadow-none">
         <ResourceCounters />
       </div>
     </header>
