@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import {
   LuArrowLeftRight,
-  LuEye,
   LuScale,
   LuShieldCheck,
   LuSword,
@@ -39,7 +38,11 @@ export const ReportFilters = ({
           data-tooltip-content={t('Toggle scouting reports')}
           value="scouting"
         >
-          <LuEye className="size-4" />
+          <Icon
+            className="size-4 !text-current"
+            shouldShowTooltip={false}
+            type="scoutAttackerNoLoss"
+          />
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
