@@ -89,7 +89,7 @@ export const MapFilters = () => {
     <div
       className={clsx(
         areMobileDetailsVisible ? 'top-29' : 'top-25',
-        'pointer-events-none fixed lg:top-23 right-2 md:right-4 flex flex-col items-end gap-2 transition-[top] ease-out',
+        'pointer-events-none fixed lg:top-23 right-safe-or-2 md:right-safe-or-4 flex flex-col items-end gap-2 transition-[right,top] ease-out',
       )}
     >
       <div className="flex items-start justify-end gap-2">

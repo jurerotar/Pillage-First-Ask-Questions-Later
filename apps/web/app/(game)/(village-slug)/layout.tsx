@@ -636,7 +636,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
   const { preferences } = usePreferences();
 
   return (
-    <header className="flex flex-col w-full px-2 pb-1 lg:p-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200 dark:from-muted/60 dark:via-card dark:to-muted/60">
+    <header className="flex flex-col w-full px-safe-or-2 pb-1 lg:px-safe lg:py-0 relative bg-linear-to-r from-gray-200 via-white to-gray-200 dark:from-muted/60 dark:via-card dark:to-muted/60">
       {isWiderThanLg && (
         <div className="flex-col hidden lg:flex shadow-sm bg-card">
           <div className="hidden lg:flex w-full bg-muted py-1 px-2">
@@ -771,7 +771,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
         </div>
       )}
       {!isWiderThanLg && (
-        <div className="flex justify-between items-center text-center lg:hidden h-14 w-full gap-8">
+        <div className="flex justify-between items-center text-center lg:hidden h-14 w-full max-w-xl mx-auto gap-8">
           <VillageOverviewMobileItem />
           <VillageSelect />
           <HeroNavigationItem />
@@ -892,7 +892,7 @@ const MobileBottomNavigation = ({
   // we just have a transparent container and some very hacky gradient to make it look like it works.
   // There's also massive Tailwind brain rot on display here. :S
   return (
-    <header className="isolate lg:hidden fixed bottom-0 left-0 z-20 pb-safe-or-8 w-full [contain:paint] transition-[bottom] before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)] before:transition-opacity after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(0deg,var(--background)_0%,var(--card)_83%,var(--background)_83.1%,var(--background)_84%,transparent_84.1%,transparent_100%)] after:opacity-0 after:transition-opacity dark:before:opacity-0 dark:after:opacity-100">
+    <header className="isolate lg:hidden fixed bottom-0 left-0 z-20 w-full px-safe pb-safe-or-8 [contain:paint] transition-[bottom] before:pointer-events-none before:absolute before:inset-0 before:bg-[linear-gradient(0deg,rgba(255,255,255,1)_0%,rgba(232,232,232,1)_83%,rgba(255,255,255,1)_83.1%,rgba(255,255,255,1)_84%,rgba(255,255,255,0)_84.1%,rgba(255,255,255,0)_100%)] before:transition-opacity after:pointer-events-none after:absolute after:inset-0 after:bg-[linear-gradient(0deg,var(--background)_0%,var(--card)_83%,var(--background)_83.1%,var(--background)_84%,transparent_84.1%,transparent_100%)] after:opacity-0 after:transition-opacity dark:before:opacity-0 dark:after:opacity-100">
       <nav
         ref={container}
         className="relative z-10 flex flex-col w-full overflow-x-scroll scrollbar-hidden"
