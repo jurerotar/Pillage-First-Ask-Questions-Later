@@ -6,11 +6,11 @@ import { getBuildingDefinition } from '@pillage-first/game-assets/utils/building
 import type { BuildingField as BuildingFieldType } from '@pillage-first/types/models/building-field';
 import type { BuildingEvent } from '@pillage-first/types/models/game-event';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
+import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/(village)/components/building-upgrade-indicator';
 import buildingFieldStyles from 'app/(game)/(village-slug)/(village)/components/occupied-building-field.module.scss';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { VillageMapContext } from 'app/(game)/(village-slug)/(village)/providers/village-map-context';
-import { BuildingUpgradeIndicator } from 'app/(game)/(village-slug)/components/building-upgrade-indicator';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { useBuildingConstructionStatus } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
 import { BuildingUpgradeStatusContext } from 'app/(game)/(village-slug)/providers/building-upgrade-status-provider';

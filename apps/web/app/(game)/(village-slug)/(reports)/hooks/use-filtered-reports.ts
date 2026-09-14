@@ -1,6 +1,6 @@
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useReports } from 'app/(game)/(village-slug)/hooks/use-reports';
-import { reportTabs } from '../constants';
+import { reportTabs } from '../constants/report-tabs';
 import { useReportFilters } from './use-report-filters';
 
 export const useFilteredReports = () => {

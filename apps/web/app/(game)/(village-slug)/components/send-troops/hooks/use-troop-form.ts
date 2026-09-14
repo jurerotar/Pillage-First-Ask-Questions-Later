@@ -11,10 +11,10 @@ import type { z } from 'zod';
 import type { TroopMovementEventType } from '@pillage-first/types/models/game-event';
 import type { Troop } from '@pillage-first/types/models/troop';
 import type { Unit } from '@pillage-first/types/models/unit';
+import { useValidateTroopMovement } from 'app/(game)/(village-slug)/components/send-troops/hooks/use-validate-troop-movement';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
-import { useValidateTroopMovement } from 'app/(game)/(village-slug)/hooks/use-validate-troop-movement';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import type { BaseTroopFormValues, UnitSelection } from '../utils/schema';
 import {
