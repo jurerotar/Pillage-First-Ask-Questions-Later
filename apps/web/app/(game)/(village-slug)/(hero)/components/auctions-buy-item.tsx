@@ -5,6 +5,7 @@ import { formatNumber } from '@pillage-first/utils/format';
 import { AuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/auction-filters';
 import { useAuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-auction-filters';
 import { useHeroAuctionBuyListings } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-hero-auctions';
+import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
 import {
   getAuctionWearableOwnershipStatus,
   isAuctionItemVisible,
@@ -107,7 +108,7 @@ export const AuctionsBuyItem = () => {
                 return (
                   <TableRow key={listing.id}>
                     <TableCell>
-                      <div className="flex flex-col items-center gap-1">
+                      <ItemTooltip item={item}>
                         <span>{t(`ITEMS.${item.name}.NAME`)}</span>
                         {ownershipStatus && (
                           <Badge
@@ -120,7 +121,7 @@ export const AuctionsBuyItem = () => {
                             {t(statusLabelByStatus[ownershipStatus])}
                           </Badge>
                         )}
-                      </div>
+                      </ItemTooltip>
                     </TableCell>
                     <TableCell>{formatNumber(listing.amount)}</TableCell>
                     <TableCell>{formatNumber(listing.price)}</TableCell>

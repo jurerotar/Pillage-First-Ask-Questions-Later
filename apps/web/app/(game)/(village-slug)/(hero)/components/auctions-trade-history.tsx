@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { formatNumber } from '@pillage-first/utils/format';
 import { useHeroAuctionHistory } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-hero-auction-history';
+import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
 import {
   Section,
   SectionContent,
@@ -68,7 +69,11 @@ export const AuctionsTradeHistory = () => {
                     <TableCell>
                       {historyEntry.type === 'buy' ? t('Buy') : t('Sell')}
                     </TableCell>
-                    <TableCell>{t(`ITEMS.${item.name}.NAME`)}</TableCell>
+                    <TableCell>
+                      <ItemTooltip item={item}>
+                        {t(`ITEMS.${item.name}.NAME`)}
+                      </ItemTooltip>
+                    </TableCell>
                     <TableCell>{formatNumber(historyEntry.amount)}</TableCell>
                     <TableCell>{formatNumber(historyEntry.price)}</TableCell>
                     <TableCell>

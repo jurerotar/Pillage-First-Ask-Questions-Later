@@ -112,6 +112,7 @@ const VillagePage = (props: Route.ComponentProps) => {
         }}
         hidden={!isWiderThanLg}
         render={renderTooltip}
+        className="text-xs"
       />
       <main className="flex flex-col items-center justify-center mx-auto lg:mt-20 lg:mb-0 max-h-[calc(100dvh-12rem)] standalone:max-h-[calc(100dvh-15rem)] h-screen lg:h-auto lg:max-h-none overflow-x-hidden">
         <VillageMapContext value={villageMapContextValue}>

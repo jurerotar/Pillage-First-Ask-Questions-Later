@@ -5,6 +5,7 @@ import { formatNumber } from '@pillage-first/utils/format';
 import { AuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/auction-filters';
 import { useAuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-auction-filters';
 import { useHeroAuctionSellListings } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-hero-auctions';
+import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
 import {
   isAuctionItemVisible,
   isAuctionSellableItem,
@@ -101,7 +102,11 @@ export const AuctionsSellItem = () => {
 
                 return (
                   <TableRow key={inventoryItem.id}>
-                    <TableCell>{t(`ITEMS.${item.name}.NAME`)}</TableCell>
+                    <TableCell>
+                      <ItemTooltip item={item}>
+                        {t(`ITEMS.${item.name}.NAME`)}
+                      </ItemTooltip>
+                    </TableCell>
                     <TableCell>{formatNumber(inventoryItem.amount)}</TableCell>
                     <TableCell>
                       <Input
@@ -183,7 +188,11 @@ export const AuctionsSellItem = () => {
 
                 return (
                   <TableRow key={listing.id}>
-                    <TableCell>{t(`ITEMS.${item.name}.NAME`)}</TableCell>
+                    <TableCell>
+                      <ItemTooltip item={item}>
+                        {t(`ITEMS.${item.name}.NAME`)}
+                      </ItemTooltip>
+                    </TableCell>
                     <TableCell>{formatNumber(listing.amount)}</TableCell>
                     <TableCell>{formatNumber(listing.price)}</TableCell>
                     <TableCell>
