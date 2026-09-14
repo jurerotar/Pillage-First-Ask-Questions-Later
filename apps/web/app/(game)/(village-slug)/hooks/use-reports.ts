@@ -1,5 +1,7 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import type {
   ReportListingDto,
   ReportListingFilter,
@@ -21,6 +23,7 @@ export const useReports = (
 ) => {
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
+  const { t } = useTranslation();
 
   const { data: reports } = useSuspenseQuery({
     queryKey: [reportListingsCacheKey, currentVillage.id, scope, filters],
@@ -81,6 +84,12 @@ export const useReports = (
           exact: true,
         });
       }
+
+      toast.success(
+        reportIds.length === 1
+          ? t('Report deleted')
+          : t('{{count}} reports deleted', { count: reportIds.length }),
+      );
     },
   });
 

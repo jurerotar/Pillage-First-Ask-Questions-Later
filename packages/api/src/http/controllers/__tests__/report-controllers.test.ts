@@ -402,6 +402,33 @@ describe('report-controllers', () => {
     ).toBeNull();
   });
 
+  test('should mark reports as read when their details are viewed', async () => {
+    const database = await prepareReportsTestDatabase();
+
+    const report = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({
+        path: { reportId: 2 },
+      }),
+    );
+
+    expect(report?.tags).toContain('read');
+
+    const hasReadTag = database.selectValue({
+      sql: `
+        SELECT EXISTS (
+          SELECT 1
+          FROM report_tags rt
+          JOIN report_tag_ids rti ON rti.id = rt.report_tag_id
+          WHERE rt.report_id = 2 AND rti.tag = 'read'
+        );
+      `,
+      schema: z.coerce.boolean(),
+    });
+
+    expect(hasReadTag).toBe(true);
+  });
+
   test('should update tags for multiple reports to their requested state', async () => {
     const database = await prepareReportsTestDatabase();
 

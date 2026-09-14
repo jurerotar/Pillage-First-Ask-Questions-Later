@@ -126,6 +126,14 @@ export const getReport = createController('/reports/:reportId', {
     return null;
   }
 
+  database.exec({
+    sql: insertReportTagsQuery,
+    bind: {
+      $report_ids: JSON.stringify([reportId]),
+      $tags: JSON.stringify({ read: true }),
+    },
+  });
+
   const bind = { $report_id: reportId };
 
   if (reportInfo.type === 'battle') {
