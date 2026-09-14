@@ -43,7 +43,6 @@ import {
   GiSpikedMace,
   GiSpyglass,
   GiSwapBag,
-  GiTiedScroll,
   GiWolfHead,
   GiWolfTrap,
 } from 'react-icons/gi';
@@ -82,6 +81,7 @@ import {
   PillageFirstHorse,
   PillageFirstInfantryDefence,
   PillageFirstIron,
+  PillageFirstScroll,
   PillageFirstWheat,
   PillageFirstWheatOff,
   PillageFirstWood,
@@ -303,39 +303,63 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     />
   ),
   scoutAttackerNoLoss: (props) => (
-    <GiSpyglass
+    <PillageFirstScroll
       {...props}
-      className={clsx('text-green-500 dark:text-green-400', props.className)}
+      className={clsx(
+        styles['scout-report-icon'],
+        'text-green-500 dark:text-green-400',
+        props.className,
+      )}
     />
   ),
   scoutAttackerSomeLoss: (props) => (
-    <GiSpyglass
+    <PillageFirstScroll
       {...props}
-      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+      className={clsx(
+        styles['scout-report-icon'],
+        'text-yellow-500 dark:text-yellow-400',
+        props.className,
+      )}
     />
   ),
   scoutAttackerFullLoss: (props) => (
-    <GiSpyglass
+    <PillageFirstScroll
       {...props}
-      className={clsx('text-red-500', props.className)}
+      className={clsx(
+        styles['scout-report-icon'],
+        'text-red-500',
+        props.className,
+      )}
     />
   ),
   scoutDefenderNoLoss: (props) => (
-    <GiSpyglass
+    <PillageFirstScroll
       {...props}
-      className={clsx('text-green-500 dark:text-green-400', props.className)}
+      className={clsx(
+        styles['scout-report-icon'],
+        'text-green-500 dark:text-green-400',
+        props.className,
+      )}
     />
   ),
   scoutDefenderSomeLoss: (props) => (
-    <GiSpyglass
+    <PillageFirstScroll
       {...props}
-      className={clsx('text-yellow-500 dark:text-yellow-400', props.className)}
+      className={clsx(
+        styles['scout-report-icon'],
+        'text-yellow-500 dark:text-yellow-400',
+        props.className,
+      )}
     />
   ),
   scoutDefenderFullLoss: (props) => (
-    <GiSpyglass
+    <PillageFirstScroll
       {...props}
-      className={clsx('text-red-500', props.className)}
+      className={clsx(
+        styles['scout-report-icon'],
+        'text-red-500',
+        props.className,
+      )}
     />
   ),
   outgoingMerchantsArrived: (props) => (
@@ -467,7 +491,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   praetorian: (props) => <LuSword {...props} />,
   imperian: (props) => <LuSword {...props} />,
   romanScout: (props) => (
-    <GiTiedScroll
+    <PillageFirstScroll
       {...props}
       className={clsx(styles['roman-scout-icon'], props.className)}
     />
@@ -503,7 +527,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   phalanx: (props) => <GiBarbedSpear {...props} />,
   swordsman: (props) => <GiBroadsword {...props} />,
   gaulScout: (props) => (
-    <GiTiedScroll
+    <PillageFirstScroll
       {...props}
       className={clsx(styles['gaul-scout-icon'], props.className)}
     />
@@ -546,7 +570,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   spearman: (props) => <GiBarbedSpear {...props} />,
   axeman: (props) => <GiBattleAxe {...props} />,
   teutonicScout: (props) => (
-    <GiTiedScroll
+    <PillageFirstScroll
       {...props}
       className={clsx(styles['teutonic-scout-icon'], props.className)}
     />
@@ -583,7 +607,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   ashWarden: (props) => <GiRoundShield {...props} />,
   khopeshWarrior: (props) => <GiCurvyKnife {...props} />,
   egyptianScout: (props) => (
-    <GiTiedScroll
+    <PillageFirstScroll
       {...props}
       className={clsx(styles['egyptian-scout-icon'], props.className)}
     />
@@ -619,7 +643,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   mercenary: (props) => <GiCrossedSwords {...props} />,
   bowman: (props) => <GiBowArrow {...props} />,
   hunScout: (props) => (
-    <GiTiedScroll
+    <PillageFirstScroll
       {...props}
       className={clsx(styles['hun-scout-icon'], props.className)}
     />
@@ -662,7 +686,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   shieldsman: (props) => <LuShield {...props} />,
   twinsteelTherion: (props) => <LuSwords {...props} />,
   spartanScout: (props) => (
-    <GiTiedScroll
+    <PillageFirstScroll
       {...props}
       className={clsx(styles['spartan-scout-icon'], props.className)}
     />
@@ -705,7 +729,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     />
   ),
   natarianScout: (props) => (
-    <GiTiedScroll
+    <PillageFirstScroll
       {...props}
       className={clsx(styles['natarian-scout-icon'], props.className)}
     />

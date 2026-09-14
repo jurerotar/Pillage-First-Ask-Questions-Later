@@ -10,6 +10,7 @@
     "oxc",
     "promise"
   ],
+  "jsPlugins": ["./plugins/oxlint/file-colocation-plugin.ts"],
   "categories": {
     "correctness": "error",
     "pedantic": "error",
@@ -18,10 +19,7 @@
     "restriction": "error",
     "suspicious": "error"
   },
-  "ignorePatterns": [
-    ".turbo",
-    "node_modules"
-  ],
+  "ignorePatterns": [".turbo", "node_modules"],
   "rules": {
     "eslint/no-await-in-loop": "warn",
     "eslint/id-length": "off",
@@ -30,9 +28,7 @@
     "eslint/no-console": [
       "error",
       {
-        "allow": [
-          "error"
-        ]
+        "allow": ["error"]
       }
     ],
     "eslint/max-lines-per-function": "off",
@@ -55,9 +51,7 @@
     "eslint/no-implicit-coercion": [
       "error",
       {
-        "allow": [
-          "!!"
-        ]
+        "allow": ["!!"]
       }
     ],
     "eslint/no-unused-vars": [
@@ -78,10 +72,7 @@
     "typescript/no-unnecessary-type-arguments": "off",
     "typescript/consistent-return": "off",
     "typescript/prefer-readonly-parameter-types": "off",
-    "typescript/consistent-type-definitions": [
-      "error",
-      "type"
-    ],
+    "typescript/consistent-type-definitions": ["error", "type"],
     "typescript/no-confusing-void-expression": [
       "off",
       {
@@ -128,7 +119,7 @@
     "vitest/prefer-to-be-falsy": "off",
     "vitest/max-expects": "off",
     "vitest/prefer-expect-assertions": "off",
-    "vitest/consistent-test-it": ["error", {"fn": "test"}],
+    "vitest/consistent-test-it": ["error", { "fn": "test" }],
     "jest/valid-expect": "off",
     "jest/valid-title": "off",
     "jest/require-hook": "off",
@@ -151,13 +142,24 @@
     "oxc/no-map-spread": "off",
     "promise/avoid-new": "off",
     "promise/no-multiple-resolved": "off",
-    "promise/prefer-await-to-callbacks": "off"
+    "promise/prefer-await-to-callbacks": "off",
+    "file-colocation-plugin/colocation": [
+      "warn",
+      {
+        "ignore": [
+          "app/components/head-links.tsx",
+          "app/components/icon.tsx",
+          "app/components/page-contents.tsx",
+          "app/components/text.tsx",
+          "app/components/tooltip.tsx",
+          "app/components/webrtc-advertiser.tsx"
+        ]
+      }
+    ]
   },
   "overrides": [
     {
-      "files": [
-        "**/*.config.ts"
-      ],
+      "files": ["**/*.config.ts"],
       "rules": {
         "import/no-nodejs-modules": "off",
         "import/no-default-export": "off",

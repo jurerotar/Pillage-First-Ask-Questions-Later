@@ -22,15 +22,15 @@ import {
   type AssessedBuildingRequirement,
   assessBuildingRequirements,
 } from '@pillage-first/utils/game/building-requirements';
+import { useEffectServerValue } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/hooks/use-effect-server-value';
+import { VillageBuildingLink } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/village-building-link';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
-import { VillageBuildingLink } from 'app/(game)/(village-slug)/components/village-building-link';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { useEffectServerValue } from 'app/(game)/(village-slug)/hooks/use-effect-server-value';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';

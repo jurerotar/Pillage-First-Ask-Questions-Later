@@ -60,7 +60,6 @@ type ReportsTableProps = {
   allVisibleReportsSelected: boolean;
   onToggleReport: (reportId: BaseReport['id']) => void;
   onToggleVisibleReports: () => void;
-  onOpenReport: (report: ReportListingDto) => void;
   updateReports: ReturnType<typeof useReports>['updateReports'];
   deleteReports: ReturnType<typeof useReports>['deleteReports'];
   clearSelectedReports: () => void;
@@ -73,7 +72,6 @@ export const ReportsTable = ({
   allVisibleReportsSelected,
   onToggleReport,
   onToggleVisibleReports,
-  onOpenReport,
   updateReports,
   deleteReports,
   clearSelectedReports,
@@ -128,7 +126,6 @@ export const ReportsTable = ({
               </TableCell>
               <TableCell className="text-left">
                 <Link
-                  onClick={() => onOpenReport(report)}
                   to={{
                     pathname: `../reports/${report.id}`,
                     search: location.search,
