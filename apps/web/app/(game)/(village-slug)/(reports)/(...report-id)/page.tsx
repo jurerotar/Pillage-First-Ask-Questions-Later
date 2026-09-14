@@ -19,7 +19,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from 'app/components/ui/popover';
-import { useReport } from '../../hooks/use-report';
 import { ReportsListActions } from '../components/reports-list-actions';
 import { useAdjacentReports } from '../hooks/use-adjacent-reports';
 import { useFilteredReports } from '../hooks/use-filtered-reports';
@@ -38,6 +37,7 @@ import {
   ScoutingReportTables,
   TradeReportTable,
 } from './components/report';
+import { useReport } from './hooks/use-report';
 
 const ReportPage = ({ params }: Route.ComponentProps) => {
   const { reportId: reportIdParam, villageSlug, serverSlug } = params;
