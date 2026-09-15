@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
-import { CombatSimulatorAttackerControlsRow } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/simulator/components/combat-simulator-attacker-controls-row';
-import { CombatSimulatorDefenderControlsRow } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/simulator/components/combat-simulator-defender-controls-row';
-import { CombatSimulatorReinforcementsControlsRows } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/simulator/components/combat-simulator-reinforcements-controls-rows';
-import { CombatSimulatorProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/rally-point/components/simulator/providers/combat-simulator-provider';
+import { CombatSimulatorAttackerControlsRow } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-attacker-controls-row';
+import { CombatSimulatorDefenderControlsRow } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-defender-controls-row';
+import { CombatSimulatorReinforcementsControlsRows } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-reinforcements-controls-rows';
+import { CombatSimulatorProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/providers/combat-simulator-provider';
 import {
   Section,
   SectionContent,
