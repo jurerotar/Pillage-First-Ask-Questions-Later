@@ -389,6 +389,93 @@ describe('report-controllers', () => {
     ).toHaveProperty('loot');
   });
 
+  test('should include item details in battle and scouting report DTOs', async () => {
+    const database = await prepareReportsTestDatabase();
+    const scoutingReportId = 7;
+
+    database.exec({
+      sql: `
+        UPDATE battle_reports
+        SET item_id = 1021, item_amount = 3
+        WHERE report_id = 1;
+      `,
+    });
+    database.exec({
+      sql: `
+        INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
+        VALUES (${scoutingReportId}, (SELECT id FROM villages ORDER BY id LIMIT 1), 7000,
+          (SELECT id FROM report_type_ids WHERE report_type = 'scouting'),
+          (SELECT id FROM report_outcome_ids WHERE report_outcome = 'scoutAttackerNoLoss'));
+      `,
+    });
+    database.exec({
+      sql: `
+        INSERT INTO scouting_reports (
+          id,
+          report_id,
+          origin_tile_id,
+          target_tile_id,
+          perspective,
+          successful,
+          scouting_target,
+          wood,
+          clay,
+          iron,
+          wheat,
+          item_id,
+          item_amount
+        )
+        VALUES (
+          1,
+          ${scoutingReportId},
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1),
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+          'attacker',
+          1,
+          'resources',
+          10,
+          20,
+          30,
+          40,
+          1022,
+          1
+        );
+      `,
+    });
+    database.exec({
+      sql: `
+        INSERT INTO scouting_report_attacker_units (scouting_report_id, unit_id, amount_before, amount_after)
+        VALUES (1, (SELECT id FROM unit_ids WHERE unit = 'ROMAN_SCOUT'), 10, 10);
+      `,
+    });
+    database.exec({
+      sql: `
+        INSERT INTO scouting_report_units (scouting_report_id, role, tile_id, unit_id, amount)
+        VALUES (1, 'defender',
+          (SELECT tile_id FROM villages ORDER BY id LIMIT 1 OFFSET 1),
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 20);
+      `,
+    });
+
+    const battleReport = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({
+        path: { reportId: 1 },
+      }),
+    );
+    const scoutingReport = getReport(
+      database,
+      createControllerArgs<'/reports/:reportId'>({
+        path: { reportId: scoutingReportId },
+      }),
+    );
+
+    expect(battleReport).toHaveProperty('battle.outcome.itemId', 1021);
+    expect(battleReport).toHaveProperty('battle.outcome.itemAmount', 3);
+    expect(scoutingReport).toHaveProperty('scouting.itemId', 1022);
+    expect(scoutingReport).toHaveProperty('scouting.itemAmount', 1);
+  });
+
   test('should return null for missing reports', async () => {
     const database = await prepareReportsTestDatabase();
 

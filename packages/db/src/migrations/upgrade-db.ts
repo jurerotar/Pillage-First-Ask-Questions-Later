@@ -13,6 +13,7 @@ import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-lis
 import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
+import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
@@ -906,6 +907,29 @@ export const upgradeDb = (
   });
 
   migrate('0.4.66', (db) => {
+    db.exec({
+      sql: 'ALTER TABLE battle_reports ADD COLUMN item_id INTEGER;',
+    });
+    db.exec({
+      sql: 'ALTER TABLE battle_reports ADD COLUMN item_amount INTEGER CHECK (item_amount > 0);',
+    });
+
+    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+    db.exec({ sql: 'PRAGMA legacy_alter_table = ON;' });
+
+    try {
+      db.transaction((tx) => {
+        tx.exec({
+          sql: 'ALTER TABLE scouting_reports RENAME TO scouting_reports_old;',
+        });
+        tx.exec({ sql: createScoutingReportsTable });
+        tx.exec({ sql: 'DROP TABLE scouting_reports_old;' });
+      });
+    } finally {
+      db.exec({ sql: 'PRAGMA legacy_alter_table = OFF;' });
+      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+    }
+
     db.exec({
       sql: `
         DELETE

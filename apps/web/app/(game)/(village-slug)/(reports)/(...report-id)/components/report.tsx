@@ -235,6 +235,43 @@ type BattleParticipantTableProps = {
   participantRole: 'attacker' | 'defender' | 'reinforcement';
 };
 
+type ReportItemProps = {
+  itemId: number;
+  itemAmount: number;
+};
+
+const ReportItem = ({ itemId, itemAmount }: ReportItemProps) => {
+  const { t } = useTranslation();
+  const item = getItemDefinition(itemId);
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span>{formatNumber(itemAmount)}x</span>
+      <ItemTooltip item={item}>{t(`ITEMS.${item.name}.NAME`)}</ItemTooltip>
+    </span>
+  );
+};
+
+const ReportItemFooterRow = ({ children }: PropsWithChildren) => {
+  const { t } = useTranslation();
+
+  return (
+    <tfoot className="border-t dark:border-border">
+      <tr>
+        <td className="p-2">
+          <Text className="text-sm font-medium">{t('Item')}</Text>
+        </td>
+        <td
+          colSpan={100}
+          className="p-2 text-left"
+        >
+          {children}
+        </td>
+      </tr>
+    </tfoot>
+  );
+};
+
 export const BattleParticipantTable = ({
   participant,
   participantRole,
@@ -452,6 +489,15 @@ export const BattleParticipantTable = ({
             loot={loot}
             totalCarryCapacity={totalCarryCapacity}
           />
+          {report.battle.outcome.itemId !== null &&
+            report.battle.outcome.itemAmount !== null && (
+              <ReportItemFooterRow>
+                <ReportItem
+                  itemId={report.battle.outcome.itemId}
+                  itemAmount={report.battle.outcome.itemAmount}
+                />
+              </ReportItemFooterRow>
+            )}
         </>
       )}
     </UnitTable>
@@ -844,6 +890,16 @@ export const ScoutingReportTables = () => {
             ))}
           </tfoot>
         )}
+        {!hideIntelligence &&
+          scouting.itemId !== null &&
+          scouting.itemAmount !== null && (
+            <ReportItemFooterRow>
+              <ReportItem
+                itemId={scouting.itemId}
+                itemAmount={scouting.itemAmount}
+              />
+            </ReportItemFooterRow>
+          )}
       </UnitTable>
       {!hideIntelligence &&
         scouting.defender.reinforcements.map((reinforcement) => {
@@ -934,7 +990,6 @@ export const AdventureReportTable = () => {
   const healthDifference = healthAfter - healthBefore;
   const hasHeroDied = healthAfter === 0;
   const experienceGained = hasHeroDied ? 0 : adventureId * 10;
-  const item = itemId === null ? null : getItemDefinition(itemId);
 
   const formattedHealthDifference = `${healthDifference > 0 ? '+' : ''}${healthDifference}%`;
 
@@ -983,15 +1038,13 @@ export const AdventureReportTable = () => {
                 {t('Item')}
               </TableCell>
               <TableCell className="text-left">
-                {item === null ? (
+                {itemId === null || itemAmount === null ? (
                   t('Hero found nothing.')
                 ) : (
-                  <span className="inline-flex items-center gap-1">
-                    <span>{formatNumber(itemAmount!)}x</span>
-                    <ItemTooltip item={item}>
-                      {t(`ITEMS.${item.name}.NAME`)}
-                    </ItemTooltip>
-                  </span>
+                  <ReportItem
+                    itemId={itemId}
+                    itemAmount={itemAmount}
+                  />
                 )}
               </TableCell>
             </TableRow>
