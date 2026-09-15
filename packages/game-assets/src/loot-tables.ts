@@ -4,21 +4,11 @@ import {
   type LootTableAmount,
   lootAmountRange,
 } from '@pillage-first/utils/loot-table';
-import { items } from './items';
+import { getItemByName } from './utils/items';
 
 export type AdventureLoot = {
   itemId: HeroItem['id'];
   amount: LootTableAmount;
-};
-
-const getAdventureLootItemId = (itemName: HeroItem['name']): HeroItem['id'] => {
-  const item = items.find(({ name }) => name === itemName);
-
-  if (!item) {
-    throw new Error(`Adventure loot item not found: ${itemName}`);
-  }
-
-  return item.id;
 };
 
 const adventureLoot = (
@@ -26,7 +16,7 @@ const adventureLoot = (
   amount: LootTableAmount = 1,
 ): AdventureLoot => {
   return {
-    itemId: getAdventureLootItemId(itemName),
+    itemId: getItemByName(itemName).id,
     amount,
   };
 };
