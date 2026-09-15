@@ -27,8 +27,6 @@ export const getTilesSchema = z
     village_name: z.string().nullable(),
     village_slug: z.string().nullable(),
     population: z.number().nullable(),
-
-    item_id: z.number().nullable(),
   })
   .meta({ id: 'GetTilesRow' });
 

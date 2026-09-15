@@ -522,25 +522,11 @@ export const CreateNewGameWorldForm = () => {
                 Browser storage is unavailable
               </Text>
               <Alert variant="error">
-                Pillage First! requires browser storage to function properly.
-                Your browser does not allow data storage. Game worlds cannot be
-                created in this browser mode.'
-                <br />
-                <br />
-                In Safari, turn off Private Browsing or allow website storage,
-                then try again.
+                Pillage First! requires access to browser storage to function
+                properly. Your browser does not allow data storage. This issue
+                happens most often in iOS Safari's Private Mode. Please turn off
+                Private Mode, then try again.
               </Alert>
-            </div>
-            <div className="flex justify-end">
-              <Button
-                size="fit"
-                disabled={isCheckingStorageQuota}
-                onClick={() => {
-                  void checkStorageQuota();
-                }}
-              >
-                {t('Check again')}
-              </Button>
             </div>
           </div>
         </div>

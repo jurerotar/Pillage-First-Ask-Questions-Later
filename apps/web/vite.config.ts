@@ -27,7 +27,6 @@ const manifest: Partial<ManifestOptions> = {
   display: 'standalone',
   background_color: '#111111',
   theme_color: '#ffffff',
-  orientation: 'portrait',
   icons: [
     {
       src: `/favicon/web-app-manifest-192x192.png?v=${graphicsVersion}`,

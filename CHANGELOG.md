@@ -1,3 +1,19 @@
+## Version 0.4.65
+
+#### Sep 13, 2026
+
+* [UIUXImprovement] Updated scout and scouting report icons.
+* [BugFix] Fixed an issue where browser notifications could get stuck waiting for service worker readiness.
+* [BugFix] Fixed browser storage availability checks so game world creation detects browsers that block OPFS writes.
+
+## Version 0.4.64
+
+#### Sep 10, 2026
+
+* [Feature] World items are no longer displayed on the map. Instead, you'll be able to scout NPC villages to figure out
+  which villages carry lootable items.
+* [BugFix] Fixed an issue where hero speed wasn't taken into account when calculating troop movement duration.
+
 ## Version 0.4.63
 
 #### Sep 8, 2026

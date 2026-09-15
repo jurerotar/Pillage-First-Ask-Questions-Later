@@ -33,11 +33,6 @@ const baseOccupiableTileSchema = baseTileSchema
     attributes: z.strictObject({
       resourceFieldComposition: resourceFieldCompositionSchema,
     }),
-    item: z
-      .strictObject({
-        id: z.number(),
-      })
-      .nullable(),
   })
   .meta({ id: 'BaseOccupiableTile' });
 

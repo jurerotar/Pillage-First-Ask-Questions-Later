@@ -26,6 +26,7 @@ describe(calculateTravelDuration, () => {
       { unitId: 'LEGIONNAIRE', amount: 10, sourceTileId: 1, tileId: 1 },
     ] satisfies Troop[],
     effects: [] satisfies Effect[],
+    heroSpeed: 7,
   };
 
   test('should calculate duration correctly for distance <= 20 with no bonuses', () => {
@@ -113,5 +114,15 @@ describe(calculateTravelDuration, () => {
     });
 
     expect(duration).toBe(6_000_000);
+  });
+
+  test('should use hero speed for hero movements', () => {
+    const duration = calculateTravelDuration({
+      ...defaultArgs,
+      troops: [{ unitId: 'HERO', amount: 1, sourceTileId: 1, tileId: 1 }],
+      heroSpeed: 10,
+    });
+
+    expect(duration).toBe(3_600_000);
   });
 });

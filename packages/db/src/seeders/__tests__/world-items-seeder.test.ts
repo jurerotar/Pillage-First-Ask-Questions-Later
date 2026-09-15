@@ -26,5 +26,11 @@ describe('worldItemsSeeder', () => {
       schema: z.number(),
     });
     expect(count).toBeGreaterThan(0);
+
+    const resourceItemCount = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM world_items WHERE item_id IN (1026, 1027, 1028, 1029);',
+      schema: z.number(),
+    });
+    expect(resourceItemCount).toBe(0);
   });
 });

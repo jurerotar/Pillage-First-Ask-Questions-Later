@@ -54,6 +54,27 @@ type NotificationInfo = {
   body?: string;
 };
 
+const showBrowserNotification = async (
+  title: string,
+  options?: NotificationOptions,
+): Promise<void> => {
+  if (
+    !('Notification' in window) ||
+    window.Notification.permission !== 'granted'
+  ) {
+    return;
+  }
+
+  const registration = await navigator.serviceWorker.getRegistration();
+
+  if (registration) {
+    await registration.showNotification(title, options);
+    return;
+  }
+
+  new window.Notification(title, options);
+};
+
 const getTileCoordinates = (
   tileId: number,
   mapSize: Server['configuration']['mapSize'],
@@ -555,9 +576,7 @@ export const Notifier = ({ serverSlug }: NotifierProps) => {
           preferences.shouldShowNotificationsOnAcademyResearchCompletion);
 
       if (shouldShowNotification && notificationTitle) {
-        const registration = await navigator.serviceWorker.ready;
-
-        await registration.showNotification(notificationTitle, { body });
+        await showBrowserNotification(notificationTitle, { body });
       }
     };
 

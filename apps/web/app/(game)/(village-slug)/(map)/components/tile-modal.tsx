@@ -29,7 +29,7 @@ import {
 } from '@pillage-first/utils/math';
 import { useOasisBonuses } from 'app/(game)/(village-slug)/(map)/hooks/use-oasis-bonuses';
 import { useTileTroops } from 'app/(game)/(village-slug)/(map)/hooks/use-tile-troops';
-import { useMarketplaceMerchants } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/components/marketplace/hooks/use-marketplace-merchants';
+import { useMarketplaceMerchants } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/marketplace/hooks/use-marketplace-merchants';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useGameNavigation } from 'app/(game)/(village-slug)/hooks/routes/use-game-navigation';

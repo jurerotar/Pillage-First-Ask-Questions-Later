@@ -4,7 +4,6 @@ import type { MapFilters } from '@pillage-first/types/models/map-filters';
 import type { MapMarker } from '@pillage-first/types/models/map-marker';
 import type { Preferences } from '@pillage-first/types/models/preferences';
 import { decodeGraphicsProperty } from '@pillage-first/utils/map';
-import { TreasureIcon } from 'app/(game)/(village-slug)/(map)/components/treasure-icon';
 import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import {
   BORDER_TILES_OASIS_VARIANTS,
@@ -41,11 +40,7 @@ type CellIconsProps = CellBaseProps & {
 
 const CellIcons = (props: CellIconsProps) => {
   const { tile, mapFilters, magnification, mapMarkers } = props;
-  const {
-    shouldShowTreasureIcons,
-    shouldShowOasisIcons,
-    shouldShowWheatFields,
-  } = mapFilters;
+  const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
 
   const marker = mapMarkers.find((marker) => marker.tileId === tile.id);
 
@@ -108,15 +103,6 @@ const CellIcons = (props: CellIconsProps) => {
           shouldShowTooltip={false}
         />
       </BorderIndicator>
-    );
-  }
-
-  if (shouldShowTreasureIcons && tile.type === 'free' && tile.item !== null) {
-    return (
-      <TreasureIcon
-        className={tileIconClasses}
-        itemId={tile.item.id}
-      />
     );
   }
 

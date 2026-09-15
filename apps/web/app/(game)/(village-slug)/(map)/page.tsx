@@ -483,6 +483,7 @@ const MapPageContents = () => {
       />
       <Tooltip
         anchorSelect="[data-tile-id]"
+        className="text-xs!"
         closeEvents={{
           mouseleave: true,
         }}

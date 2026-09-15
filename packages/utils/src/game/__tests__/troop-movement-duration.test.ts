@@ -16,6 +16,7 @@ import { calculateTravelDuration } from '../troop-movement-duration';
 const origin: Village['coordinates'] = { x: 0, y: 0 };
 const mapSize = 100;
 const originTileId = coordinatesToTileId(origin, mapSize);
+const heroSpeed = 7;
 
 describe(calculateTravelDuration, () => {
   test('uses the slowest unit speed when multiple troops are sent (<= 20 tiles, no effects)', () => {
@@ -56,6 +57,7 @@ describe(calculateTravelDuration, () => {
       mapSize,
       troops,
       effects,
+      heroSpeed,
     });
 
     expect(ms).toBeCloseTo(expectedMs, 6);
@@ -89,6 +91,7 @@ describe(calculateTravelDuration, () => {
       mapSize,
       troops,
       effects,
+      heroSpeed,
     });
 
     expect(ms).toBeCloseTo(expectedMs, 6);
@@ -129,6 +132,7 @@ describe(calculateTravelDuration, () => {
       mapSize,
       troops,
       effects,
+      heroSpeed,
     });
 
     expect(ms).toBeCloseTo(expectedMs, 6);
@@ -148,10 +152,46 @@ describe(calculateTravelDuration, () => {
       mapSize,
       troops: [{ unitId: unit.id, amount: 1, tileId: 0, sourceTileId: 0 }],
       effects: [effect],
+      heroSpeed,
     });
 
     const { unitSpeed } = getUnitDefinition(unit.id);
     const expectedMs = (20 / (unitSpeed * effect.value)) * 3_600_000;
+
+    expect(ms).toBeCloseTo(expectedMs, 6);
+  });
+
+  test('uses hero speed for hero movements', () => {
+    const target: Village['coordinates'] = { x: 10, y: 0 };
+    const expectedMs = (10 / 10) * 3_600_000;
+
+    const ms = calculateTravelDuration({
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
+      troops: [{ unitId: 'HERO', amount: 1, tileId: 0, sourceTileId: 0 }],
+      effects: [],
+      heroSpeed: 10,
+    });
+
+    expect(ms).toBeCloseTo(expectedMs, 6);
+  });
+
+  test('includes hero speed when selecting the slowest moving unit', () => {
+    const target: Village['coordinates'] = { x: 10, y: 0 };
+    const expectedMs = (10 / 4) * 3_600_000;
+
+    const ms = calculateTravelDuration({
+      originTileId,
+      targetTileId: coordinatesToTileId(target, mapSize),
+      mapSize,
+      troops: [
+        { unitId: 'LEGIONNAIRE', amount: 1, tileId: 0, sourceTileId: 0 },
+        { unitId: 'HERO', amount: 1, tileId: 0, sourceTileId: 0 },
+      ],
+      effects: [],
+      heroSpeed: 4,
+    });
 
     expect(ms).toBeCloseTo(expectedMs, 6);
   });

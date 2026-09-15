@@ -3,7 +3,6 @@ type MapFilterName =
   | 'shouldShowOasisIcons'
   | 'shouldShowTroopMovements'
   | 'shouldShowWheatFields'
-  | 'shouldShowTileTooltips'
-  | 'shouldShowTreasureIcons';
+  | 'shouldShowTileTooltips';
 
 export type MapFilters = Record<MapFilterName, boolean>;

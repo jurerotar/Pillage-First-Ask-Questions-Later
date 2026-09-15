@@ -1,15 +1,9 @@
 import { z } from 'zod';
 import type { Effect } from './effect';
-import type { Resources } from './resource';
 
 export type HeroItemRarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
-type HeroItemCategory =
-  | 'consumable'
-  | 'currency'
-  | 'resource'
-  | 'wearable'
-  | 'artifact';
+type HeroItemCategory = 'consumable' | 'currency' | 'wearable' | 'artifact';
 
 export type HeroItemSlot =
   | 'head'
@@ -33,8 +27,7 @@ type HeroConsumableItemId =
   | 'BOOK_OF_WISDOM'
   | 'ANIMAL_CAGE'
   | 'REVIVAL_POTION'
-  | 'EXPERIENCE_SCROLL'
-  | Uppercase<keyof Resources>;
+  | 'EXPERIENCE_SCROLL';
 
 type ArtifactRarity = Uppercase<Exclude<HeroItemRarity, 'common'>>;
 
