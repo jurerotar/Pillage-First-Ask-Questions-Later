@@ -28,6 +28,7 @@ import type {
   TroopMovementReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
+import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
@@ -933,6 +934,7 @@ export const AdventureReportTable = () => {
   const healthDifference = healthAfter - healthBefore;
   const hasHeroDied = healthAfter === 0;
   const experienceGained = hasHeroDied ? 0 : adventureId * 10;
+  const item = itemId === null ? null : getItemDefinition(itemId);
 
   const formattedHealthDifference = `${healthDifference > 0 ? '+' : ''}${healthDifference}%`;
 
@@ -981,9 +983,16 @@ export const AdventureReportTable = () => {
                 {t('Item')}
               </TableCell>
               <TableCell className="text-left">
-                {itemId === null
-                  ? t('Hero found nothing.')
-                  : `${formatNumber(itemAmount!)}x ${t(`ITEMS.${getItemDefinition(itemId).name}.NAME`)}`}
+                {item === null ? (
+                  t('Hero found nothing.')
+                ) : (
+                  <span className="inline-flex items-center gap-1">
+                    <span>{formatNumber(itemAmount!)}x</span>
+                    <ItemTooltip item={item}>
+                      {t(`ITEMS.${item.name}.NAME`)}
+                    </ItemTooltip>
+                  </span>
+                )}
               </TableCell>
             </TableRow>
           )}
