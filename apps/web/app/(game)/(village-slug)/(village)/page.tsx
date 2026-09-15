@@ -107,6 +107,7 @@ const VillagePage = (props: Route.ComponentProps) => {
       <title>{title}</title>
       <Tooltip
         anchorSelect="[data-building-field-id]"
+        className="text-xs!"
         closeEvents={{
           mouseleave: true,
         }}

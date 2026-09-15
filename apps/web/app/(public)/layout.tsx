@@ -92,7 +92,10 @@ const LayoutContent = () => {
       <body className="bg-background px-safe text-foreground transition-colors">
         <DesktopNavigation />
         <MobileNavigation />
-        <Tooltip id="public-tooltip" />
+        <Tooltip
+          id="public-tooltip"
+          className="text-xs!"
+        />
         <MDXProvider components={mdxComponents}>
           <Outlet />
         </MDXProvider>

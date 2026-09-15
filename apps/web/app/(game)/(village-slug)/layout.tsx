@@ -996,7 +996,10 @@ const GameLayout = memo<Route.ComponentProps>(
             <CurrentVillageLiveResourcesProvider>
               <CurrentVillageBuildingQueueContextProvider>
                 <GameLayoutProvider>
-                  <Tooltip id="general-tooltip" />
+                  <Tooltip
+                    id="general-tooltip"
+                    className="text-xs!"
+                  />
                   <TopNavigation onDeveloperToolsToggle={toggleModal} />
                   <TroopMovements />
                   <Suspense fallback={<PageFallback />}>
