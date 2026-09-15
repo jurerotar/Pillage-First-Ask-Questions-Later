@@ -62,7 +62,6 @@ import {
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
-  getTileWorldItem,
   removeMapMarker,
 } from './controllers/map-controllers';
 import {
@@ -181,7 +180,6 @@ export const apiRoutes = [
   createRoute(getTiles),
   createRoute(getTileTroops),
   createRoute(getTileOasisBonuses),
-  createRoute(getTileWorldItem),
   createRoute(getMapMarkers),
   createRoute(addMapMarker),
   createRoute(removeMapMarker),

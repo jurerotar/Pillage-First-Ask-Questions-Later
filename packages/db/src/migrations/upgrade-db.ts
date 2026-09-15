@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
@@ -11,6 +12,7 @@ import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema
 import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
+import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
@@ -898,6 +900,23 @@ export const upgradeDb = (
     db.exec({
       sql: 'ALTER TABLE map_filters DROP COLUMN should_show_treasure_icons;',
     });
+  });
+
+  migrate('0.4.66', (db) => {
+    db.exec({
+      sql: `
+        DELETE
+        FROM
+          world_items;
+      `,
+    });
+
+    const server = db.selectObject({
+      sql: 'SELECT * FROM servers LIMIT 1;',
+      schema: serverDbSchema,
+    })!;
+
+    worldItemsSeeder(db, server);
   });
 
   // If all migrations passed, bump it to current version

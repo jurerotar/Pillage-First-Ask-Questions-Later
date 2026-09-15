@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { items } from '@pillage-first/game-assets/items';
 import { icons } from 'app/components/icons/icons';
 import enUSAssets from '../en-US/assets.json' with { type: 'json' };
 
@@ -6,6 +7,20 @@ const locales = [{ locale: 'en-US', data: enUSAssets }];
 
 // map to array-of-tuples [locale, data] so describe.each can use %s for the locale string
 const localesArr = locales.map(({ locale, data }) => [locale, data] as const);
+
+const getMissingKeys = (
+  requiredKeys: string[],
+  candidateKeys: string[],
+): string[] => {
+  return requiredKeys.filter((key) => !candidateKeys.includes(key));
+};
+
+const getUnexpectedKeys = (
+  allowedKeys: string[],
+  candidateKeys: string[],
+): string[] => {
+  return candidateKeys.filter((key) => !allowedKeys.includes(key));
+};
 
 describe('localization completeness check for assets.json', () => {
   describe.each(localesArr)('locale: %s', (_locale, data) => {
@@ -66,6 +81,21 @@ describe('localization completeness check for assets.json', () => {
           `BUILDINGS.${buildingKey}.DESCRIPTION is empty`,
         ).not.toBe('');
       }
+    });
+
+    test('items should match game asset item definitions', () => {
+      const itemDefinitionKeys = items.map((item) => item.name).sort();
+      const localizedItemKeys = Object.keys(data.ITEMS).sort();
+
+      expect(
+        getMissingKeys(itemDefinitionKeys, localizedItemKeys),
+        'Missing ITEMS keys',
+      ).toEqual([]);
+
+      expect(
+        getUnexpectedKeys(itemDefinitionKeys, localizedItemKeys),
+        'Unexpected ITEMS keys',
+      ).toEqual([]);
     });
 
     test('items should have NAME, NAME_other and DESCRIPTION set', () => {

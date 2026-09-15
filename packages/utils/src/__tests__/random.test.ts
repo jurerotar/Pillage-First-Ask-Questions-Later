@@ -4,6 +4,7 @@ import {
   seededRandomArrayElement,
   seededRandomArrayElements,
   seededRandomIntFromInterval,
+  seededShuffle,
 } from '../random';
 
 describe('random utils', () => {
@@ -23,6 +24,27 @@ describe('random utils', () => {
       expect(seededRandomArrayElement(prng, array)).toBe('c');
       expect(seededRandomArrayElement(prng, array)).toBe('a');
       expect(seededRandomArrayElement(prng, array)).toBe('c');
+    });
+  });
+
+  describe(seededShuffle, () => {
+    test('should shuffle the array deterministically', () => {
+      const array = ['a', 'b', 'c', 'd', 'e'];
+      const prng = prngMulberry32('seed');
+      expect(seededShuffle(prng, array)).toStrictEqual([
+        'e',
+        'a',
+        'c',
+        'b',
+        'd',
+      ]);
+    });
+
+    test('should not mutate the original array', () => {
+      const array = ['a', 'b', 'c', 'd', 'e'];
+      const prng = prngMulberry32('seed');
+      seededShuffle(prng, array);
+      expect(array).toStrictEqual(['a', 'b', 'c', 'd', 'e']);
     });
   });
 

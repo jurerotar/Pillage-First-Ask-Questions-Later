@@ -11,7 +11,10 @@ import { heroLoadoutSlotSchema } from '@pillage-first/types/models/hero-loadout'
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { getPlayerHeroAdventureStateAt } from '../../utils/adventures';
 import { createEvents } from '../../utils/create-event';
-import { updateHeroResourceProductionEffects } from '../../utils/hero';
+import {
+  updateHeroEquipmentBonuses,
+  updateHeroResourceProductionEffects,
+} from '../../utils/hero';
 import {
   getVillageTileId,
   updateResourceSiteResourcesAt,
@@ -340,6 +343,8 @@ export const changeHeroAttributes = createController(
         },
       });
 
+      updateHeroEquipmentBonuses(database, hero.id);
+
       const resourceToProduce = database.selectValue({
         sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',
         bind: { $player_id: playerId },
@@ -580,6 +585,8 @@ export const equipHeroItem = createController(
         },
       });
     }
+
+    updateHeroEquipmentBonuses(database, heroId);
   });
 });
 
@@ -638,6 +645,8 @@ export const unequipHeroItem = createController(
         sql: 'DELETE FROM hero_equipped_items WHERE hero_id = $hero_id AND slot = $slot',
         bind: { $hero_id: heroId, $slot: slot },
       });
+
+      updateHeroEquipmentBonuses(database, heroId);
     }
   });
 });
@@ -663,11 +672,7 @@ export const useHeroItem = createController(
       sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
       bind: { $player_id: playerId },
       schema: z.number(),
-    });
-
-    if (heroId === undefined) {
-      throw new Error('Hero not found');
-    }
+    })!;
 
     // Check inventory
     const inventoryAmount =
@@ -716,7 +721,7 @@ export const useHeroItem = createController(
             h.id = $hero_id
         `,
         bind: { $hero_id: heroId },
-        schema: z.string(),
+        schema: tribeSchema,
       })!;
 
       const initialStrength = hero.toLowerCase() === 'romans' ? 100 : 80;
@@ -760,6 +765,8 @@ export const useHeroItem = createController(
         bind: { $hero_id: heroId, $initialStrength: initialStrength },
       });
 
+      updateHeroEquipmentBonuses(database, heroId);
+
       updateHeroResourceProductionEffects({
         database,
         villageId,
@@ -776,7 +783,7 @@ export const useHeroItem = createController(
         sql: `
           UPDATE heroes
           SET
-            experience = experience + $experienceToAdd
+            experience = experience + CAST(ROUND($experienceToAdd * (1 + experience_modifier / 100.0)) AS INTEGER)
           WHERE
             id = $hero_id
         `,

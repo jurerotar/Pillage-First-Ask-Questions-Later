@@ -24,6 +24,9 @@
     "./random": {
       "default": "./src/random.ts"
     },
+    "./loot-table": {
+      "default": "./src/loot-table.ts"
+    },
     "./format": {
       "default": "./src/format.ts"
     },

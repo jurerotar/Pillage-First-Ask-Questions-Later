@@ -46,13 +46,6 @@ export const getTileOasisBonusesSchema = z
   })
   .meta({ id: 'GetTileOasisBonusesRow' });
 
-export const getTileWorldItemSchema = z
-  .strictObject({
-    item_id: z.number(),
-    amount: z.number(),
-  })
-  .meta({ id: 'GetTileWorldItemRow' });
-
 export const getMapMarkersSchema = z
   .strictObject({
     tile_id: z.number(),
