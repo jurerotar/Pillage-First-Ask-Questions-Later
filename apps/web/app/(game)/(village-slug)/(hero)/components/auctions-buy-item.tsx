@@ -1,21 +1,62 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { silverItem } from '@pillage-first/game-assets/items';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
+import { formatNumber } from '@pillage-first/utils/format';
 import { AuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/auction-filters';
 import { useAuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-auction-filters';
+import { useHeroAuctionBuyListings } from 'app/(game)/(village-slug)/(hero)/components/hooks/use-hero-auctions';
+import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
+import {
+  getAuctionWearableOwnershipStatus,
+  isAuctionItemVisible,
+} from 'app/(game)/(village-slug)/(hero)/components/utils/auction-items';
 import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { useHeroInventory } from 'app/(game)/(village-slug)/hooks/use-hero-inventory';
+import { useHeroLoadout } from 'app/(game)/(village-slug)/hooks/use-hero-loadout';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
-import { Alert } from 'app/components/ui/alert';
+import { Badge } from 'app/components/ui/badge';
+import { Button } from 'app/components/ui/button';
 import { Pagination } from 'app/components/ui/pagination';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableHeaderCell,
+  TableRow,
+} from 'app/components/ui/table';
+
+// t('owned')
+// t('better-owned')
+// t('equipped')
+// t('better-equipped')
 
 export const AuctionsBuyItem = () => {
   const { t } = useTranslation();
 
   const { page, handlePageChange, ...auctionFilters } = useAuctionFilters();
-  const pagination = usePagination([], 20, page);
+  const { buyListings, buyListing, isBuyingListing } =
+    useHeroAuctionBuyListings();
+  const { heroInventory } = useHeroInventory();
+  const { heroLoadout } = useHeroLoadout();
+
+  const silverAmount =
+    heroInventory.find(({ id }) => id === silverItem.id)?.amount ?? 0;
+
+  const filteredListings = useMemo(() => {
+    return buyListings.filter(({ itemId }) =>
+      isAuctionItemVisible(itemId, auctionFilters.auctionFilters),
+    );
+  }, [buyListings, auctionFilters.auctionFilters]);
+
+  const pagination = usePagination(filteredListings, 20, page);
 
   return (
     <Section>
@@ -30,9 +71,78 @@ export const AuctionsBuyItem = () => {
         <Text as="h2">{t('Buy items')}</Text>
       </SectionContent>
       <AuctionFilters {...auctionFilters} />
-      <Alert variant="warning">
-        {t('This page is still under development')}
-      </Alert>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell>{t('Item')}</TableHeaderCell>
+              <TableHeaderCell>{t('Amount')}</TableHeaderCell>
+              <TableHeaderCell>{t('Price')}</TableHeaderCell>
+              <TableHeaderCell>{t('Expires in')}</TableHeaderCell>
+              <TableHeaderCell>{t('Action')}</TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pagination.currentPageItems.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={5}
+                  className="text-muted-foreground"
+                >
+                  {t('No auction listings match your filters')}
+                </TableCell>
+              </TableRow>
+            ) : (
+              pagination.currentPageItems.map((listing) => {
+                const item = getItemDefinition(listing.itemId);
+                const canAffordListing = silverAmount >= listing.price;
+                const ownershipStatus = getAuctionWearableOwnershipStatus(
+                  listing.itemId,
+                  heroInventory,
+                  heroLoadout,
+                );
+
+                return (
+                  <TableRow key={listing.id}>
+                    <TableCell>
+                      <ItemTooltip item={item}>
+                        <span>{t(`ITEMS.${item.name}.NAME`)}</span>
+                        {ownershipStatus && (
+                          <Badge
+                            variant={
+                              ownershipStatus.includes('equipped')
+                                ? 'successive'
+                                : 'secondary'
+                            }
+                          >
+                            {t(ownershipStatus)}
+                          </Badge>
+                        )}
+                      </ItemTooltip>
+                    </TableCell>
+                    <TableCell>{formatNumber(listing.amount)}</TableCell>
+                    <TableCell>{formatNumber(listing.price)}</TableCell>
+                    <TableCell>
+                      <Countdown endsAt={listing.expiresAt} />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        disabled={!canAffordListing || isBuyingListing}
+                        onClick={() => {
+                          buyListing(listing.id);
+                        }}
+                      >
+                        {t('Buy')}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </div>
       <div className="flex w-full justify-end">
         <Pagination
           {...pagination}

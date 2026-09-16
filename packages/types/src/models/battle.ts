@@ -49,11 +49,21 @@ export const battleDefenderSchema = battleParticipantSchema.extend({
   reinforcements: z.array(battleParticipantSchema),
 });
 
-export const battleOutcomeSchema = z.strictObject({
-  loot: resourceBundleSchema,
-  totalCarryCapacity: z.int(),
-  canAttackerSeeFullReport: z.boolean(),
-});
+export const battleOutcomeSchema = z
+  .strictObject({
+    loot: resourceBundleSchema,
+    totalCarryCapacity: z.int(),
+    canAttackerSeeFullReport: z.boolean(),
+    itemId: z.int().nullable(),
+    itemAmount: z.int().positive().nullable(),
+  })
+  .refine(
+    ({ itemId, itemAmount }) => (itemId === null) === (itemAmount === null),
+    {
+      message: 'Item id and amount must either both be set or both be null',
+      path: ['itemAmount'],
+    },
+  );
 
 export const battleDamagedBuildingSchema = z.strictObject({
   buildingId: buildingIdSchema,

@@ -11,6 +11,10 @@ CREATE TABLE scouting_reports
   clay INTEGER CHECK (clay >= 0),
   iron INTEGER CHECK (iron >= 0),
   wheat INTEGER CHECK (wheat >= 0),
+  item_id INTEGER,
+  item_amount INTEGER CHECK (item_amount > 0),
+
+  CHECK ((item_id IS NULL) = (item_amount IS NULL)),
 
   FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,
   FOREIGN KEY (origin_tile_id) REFERENCES tiles (id),

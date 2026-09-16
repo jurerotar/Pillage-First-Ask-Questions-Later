@@ -219,6 +219,8 @@ export const mapBattleReportRowToDto = (
       loot: [row.loot_wood, row.loot_clay, row.loot_iron, row.loot_wheat],
       totalCarryCapacity,
       canAttackerSeeFullReport: Boolean(row.can_attacker_see_full_report),
+      itemId: row.item_id,
+      itemAmount: row.item_amount,
     },
     damagedBuildings,
     statistics: { attacker: attackerStatistics, defender: defenderStatistics },
@@ -389,6 +391,8 @@ export const mapScoutingReportRowToDto = (
         hideIntelligence || row.wood == null
           ? null
           : [row.wood, row.clay, row.iron, row.wheat],
+      itemId: hideIntelligence ? null : row.item_id,
+      itemAmount: hideIntelligence ? null : row.item_amount,
       defensiveStructures: hideIntelligence ? [] : defensiveStructures,
     },
   });

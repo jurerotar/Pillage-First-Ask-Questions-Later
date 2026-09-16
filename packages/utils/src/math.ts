@@ -17,3 +17,7 @@ export const roundToNDecimalPoints = (number: number, n = 2): number => {
 export const roundTo5 = (n: number): number => {
   return Math.round(n / 5) * 5;
 };
+
+export const randomInt = (min: number, max: number): number => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};

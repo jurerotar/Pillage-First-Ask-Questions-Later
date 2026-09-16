@@ -15,6 +15,7 @@ import {
   updateHeroEquipmentBonuses,
   updateHeroResourceProductionEffects,
 } from '../../utils/hero';
+import { syncHeroAuctionState } from '../../utils/hero-auctions';
 import {
   getVillageTileId,
   updateResourceSiteResourcesAt,
@@ -129,21 +130,20 @@ export const getHeroInventory = createController(
     },
     response: z.array(heroInventoryEntryDtoSchema),
   },
-)(({ database }) => {
+)(({ database, path: { playerId } }) => {
+  const heroId = syncHeroAuctionState(database, playerId, Date.now());
+
   const rows = database.selectObjects({
     sql: `
       SELECT i.item_id, i.amount
       FROM
         hero_inventory i
       WHERE
-        i.hero_id = (
-          SELECT h.id
-          FROM
-            heroes h
-          ORDER BY h.id
-          LIMIT 1
-          )
+        i.hero_id = $hero_id
     `,
+    bind: {
+      $hero_id: heroId,
+    },
     schema: getHeroInventorySchema,
   });
 

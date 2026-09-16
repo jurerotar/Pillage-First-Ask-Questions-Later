@@ -39,6 +39,13 @@ import {
   updateFarmList,
 } from './controllers/farm-list-controllers';
 import {
+  buyHeroAuctionListing,
+  getHeroAuctionBuyListings,
+  getHeroAuctionHistory,
+  getHeroAuctionSellListings,
+  sellHeroAuctionItem,
+} from './controllers/hero-auction-controllers';
+import {
   changeHeroAttributes,
   changeHeroResourceToProduce,
   equipHeroItem,
@@ -154,7 +161,11 @@ export const apiRoutes = [
   createRoute(adjustVillageLoyalty),
 
   // Auctions
-  // createRoute(getAuctions),
+  createRoute(getHeroAuctionBuyListings),
+  createRoute(buyHeroAuctionListing),
+  createRoute(getHeroAuctionSellListings),
+  createRoute(sellHeroAuctionItem),
+  createRoute(getHeroAuctionHistory),
 
   // Hero
   createRoute(getHero),

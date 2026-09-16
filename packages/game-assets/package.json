@@ -21,6 +21,9 @@
     "./items": {
       "default": "./src/items.ts"
     },
+    "./auctions": {
+      "default": "./src/auctions.ts"
+    },
     "./quests": {
       "default": "./src/quests.ts"
     },
@@ -56,6 +59,9 @@
     },
     "./utils/items": {
       "default": "./src/utils/items.ts"
+    },
+    "./utils/auctions": {
+      "default": "./src/utils/auctions.ts"
     },
     "./utils/adventures": {
       "default": "./src/utils/adventures.ts"

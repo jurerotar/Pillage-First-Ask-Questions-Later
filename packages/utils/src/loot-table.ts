@@ -1,3 +1,5 @@
+import { randomInt } from './math';
+
 declare const lootTableBrand: unique symbol;
 
 export type LootTableAmountRange = readonly [number, number];
@@ -108,7 +110,7 @@ const resolveLootTableAmount = (amount: LootTableAmount): number => {
 
   const [min, max] = amount;
 
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  return randomInt(min, max);
 };
 
 const resolveLootTableResult = <T extends LootTableResult>(

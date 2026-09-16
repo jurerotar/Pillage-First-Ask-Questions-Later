@@ -599,6 +599,8 @@ export const items: HeroItem[] = [
   ...handEquipment,
 ];
 
+export const silverItem = items.find(({ name }) => name === 'SILVER')!;
+
 // Use this for faster lookups
 export const itemsMap = new Map<HeroItem['id'], HeroItem>(
   items.map((heroItem) => [heroItem.id, heroItem]),

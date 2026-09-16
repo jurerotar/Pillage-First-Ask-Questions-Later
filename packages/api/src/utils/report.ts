@@ -14,6 +14,11 @@ import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
+type ReportItem = {
+  itemId?: number | null;
+  itemAmount?: number | null;
+};
+
 export type CreateNewReport = Pick<
   BaseReport,
   'villageId' | 'timestamp' | 'type' | 'outcome' | 'tags'
@@ -84,6 +89,8 @@ type CreateNewScoutingReport = Pick<
     }[];
   };
   resources?: Resources;
+  itemId?: number | null;
+  itemAmount?: number | null;
   defensiveStructures?: { buildingId: Building['id']; level: number }[];
 };
 
@@ -109,28 +116,29 @@ type CreateNewBattleReportParticipant = {
 export type CreateNewBattleReport = Pick<
   CreateNewReport,
   'villageId' | 'timestamp'
-> & {
-  outcome: Extract<
-    ReportOutcome,
-    | 'attackerNoLoss'
-    | 'attackerSomeLoss'
-    | 'attackerFullLoss'
-    | 'defenderNoLoss'
-    | 'defenderSomeLoss'
-    | 'defenderFullLoss'
-  >;
-  originTileId: number;
-  targetTileId: number;
-  isRaid: boolean;
-  loot: ResourceBundle;
-  canAttackerSeeFullReport: boolean;
-  attackerPoints: number;
-  defenderPoints: number;
-  attacker: CreateNewBattleReportParticipant;
-  defender: CreateNewBattleReportParticipant;
-  reinforcements?: CreateNewBattleReportParticipant[];
-  damagedBuildings?: CreateNewBattleReportDamagedBuilding[];
-};
+> &
+  ReportItem & {
+    outcome: Extract<
+      ReportOutcome,
+      | 'attackerNoLoss'
+      | 'attackerSomeLoss'
+      | 'attackerFullLoss'
+      | 'defenderNoLoss'
+      | 'defenderSomeLoss'
+      | 'defenderFullLoss'
+    >;
+    originTileId: number;
+    targetTileId: number;
+    isRaid: boolean;
+    loot: ResourceBundle;
+    canAttackerSeeFullReport: boolean;
+    attackerPoints: number;
+    defenderPoints: number;
+    attacker: CreateNewBattleReportParticipant;
+    defender: CreateNewBattleReportParticipant;
+    reinforcements?: CreateNewBattleReportParticipant[];
+    damagedBuildings?: CreateNewBattleReportDamagedBuilding[];
+  };
 
 export const insertReport = (
   database: DbFacade,
@@ -438,6 +446,8 @@ export const insertBattleReport = (
         loot_clay,
         loot_iron,
         loot_wheat,
+        item_id,
+        item_amount,
         can_attacker_see_full_report,
         attacker_points,
         defender_points
@@ -451,6 +461,8 @@ export const insertBattleReport = (
         $loot_clay,
         $loot_iron,
         $loot_wheat,
+        $item_id,
+        $item_amount,
         $can_attacker_see_full_report,
         $attacker_points,
         $defender_points
@@ -466,6 +478,8 @@ export const insertBattleReport = (
       $loot_clay: report.loot[1],
       $loot_iron: report.loot[2],
       $loot_wheat: report.loot[3],
+      $item_id: report.itemId ?? null,
+      $item_amount: report.itemAmount ?? null,
       $can_attacker_see_full_report: report.canAttackerSeeFullReport ? 1 : 0,
       $attacker_points: report.attackerPoints,
       $defender_points: report.defenderPoints,
@@ -636,10 +650,10 @@ export const insertScoutingReport = (
       sql: `
         INSERT INTO
           scouting_reports (report_id, origin_tile_id, target_tile_id, perspective, successful, scouting_target, wood,
-                            clay, iron, wheat)
+                            clay, iron, wheat, item_id, item_amount)
         VALUES
           ($report_id, $origin_tile_id, $target_tile_id, $perspective, $successful, $target, $wood, $clay, $iron,
-           $wheat)
+           $wheat, $item_id, $item_amount)
         RETURNING id;
       `,
       bind: {
@@ -653,6 +667,8 @@ export const insertScoutingReport = (
         $clay: report.resources?.clay ?? null,
         $iron: report.resources?.iron ?? null,
         $wheat: report.resources?.wheat ?? null,
+        $item_id: report.itemId ?? null,
+        $item_amount: report.itemAmount ?? null,
       },
       schema: z.int(),
     })!;
