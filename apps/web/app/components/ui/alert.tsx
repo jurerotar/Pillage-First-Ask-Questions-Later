@@ -40,7 +40,7 @@ export const Alert = ({ variant = 'warning', children }: AlertProps) => {
         aria-hidden="true"
         className="float-left mr-3 mt-0.5 size-5 shrink-0 sm:float-none"
       />
-      {children}
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 };

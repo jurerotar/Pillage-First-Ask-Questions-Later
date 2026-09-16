@@ -4,6 +4,8 @@ import { getDeviceType, isStandaloneDisplayMode } from 'app/utils/device';
 const allowedBranches = new Set(['master']);
 const attributionSessionStorageKey = 'pillage-first:faro-attribution';
 const visitorIdLocalStorageKey = 'pillage-first:faro-visitor-id';
+const browserExtensionErrorPattern =
+  /\b(?:chrome|moz|safari-web)-extension:\/\//;
 
 // This is only injected by Netlify, so we're safe to run this during local development
 const isAllowedBranch = allowedBranches.has(env.HEAD);
@@ -234,7 +236,7 @@ export const initFaro = async () => {
       release: env.COMMIT_REF,
       environment: env.MODE,
     },
-    ignoreErrors: [/^Script error\./],
+    ignoreErrors: [/^Script error\./, browserExtensionErrorPattern],
     instrumentations: [
       ...getWebInstrumentations({
         captureConsole: false,

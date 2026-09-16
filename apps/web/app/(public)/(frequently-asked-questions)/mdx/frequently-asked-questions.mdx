@@ -1,6 +1,6 @@
 # Frequently asked questions
 
-<section>
+<section id="project-roadmap" className="scroll-mt-4">
   ## Is there a project roadmap available?
 
   Due to the nature of this project (I get work on it only in my free time), I'm not willing to commit to any specific
@@ -26,7 +26,7 @@
   ...)
 </section>
 
-<section>
+<section id="game-design-differences-between-travian-and-pillage-first" className="scroll-mt-4">
   ## Are there game design differences between Travian and Pillage First!?
 
   There's a couple of differences with Travian, and a lot more are on the way.
@@ -50,7 +50,7 @@
   you so wish.
 </section>
 
-<section>
+<section id="multiplayer" className="scroll-mt-4">
   ## Can this project be converted to multiplayer?
 
   **Yes!** This project was actually rebuilt from the ground up to make it as compatible as possible with a potential
@@ -66,7 +66,7 @@
   **If you're passionate about backend development and want to help bring multiplayer to life, feel free to reach out!**
 </section>
 
-<section>
+<section id="how-game-continues-running-when-closed" className="scroll-mt-4">
   ## How does the game continue running if the app is closed?
 
   In a nutshell, whenever you open a game world, we simulate every event that would have taken place, had the app been
@@ -79,7 +79,7 @@
   whether an attack has been triggered is to actually open the game.
 </section>
 
-<section>
+<section id="why-not-stick-with-original" className="scroll-mt-4">
   ## Why not stick with the original?
 
   While I love Travian, I (and many more like me) just don't have the time to commit to it anymore. Pulling
@@ -90,7 +90,7 @@
   I want this game to be a **more accessible, customizable and time-friendly version of Travian**.
 </section>
 
-<section>
+<section id="copyright-violations" className="scroll-mt-4">
   ## Is this project in danger of being taken down due to copyright violations?
 
   We've made a lot of effort to differentiate this game from Travian. Even though Pillage First! is inspired by Travian,
@@ -105,7 +105,7 @@
   We also include legal notices on the page to explicitly differentiate this project from Travian.
 </section>
 
-<section>
+<section id="game-continues-after-closing-app" className="scroll-mt-4">
   ## Does the game continue even if I close the app?
 
   **Yes!** You're free to close the app at any time and the game will pick off right next time you open it again! Units
@@ -113,7 +113,7 @@
   they would if you kept the app running.
 </section>
 
-<section>
+<section id="game-world-stability-between-releases" className="scroll-mt-4">
   ## Are game worlds stable between new releases?
 
   **Sometimes, but most often not**. Despite this project being developed in my free-time only, we still have a
@@ -121,18 +121,17 @@
   completely safe and don't affect the underlying data structures that the app requires, but not always. Sometimes, even
   minor changes break the game world, either completely, or partially.
   <br />
-  * **Until full release** - Until the full release of the game, I don't intend to keep worlds compatible between
-  changes.
-  This means game worlds should be expected to break relatively regularly and should only be used for testing the game
-  out. I can't afford to spend time migrating old game states to new structures to keep compatibility, due to this
-  slowing down development quite a bit.
+  * **Until full release** - Until the full release of the game, we'll do our best to keep game worlds compatible
+  between releases, but in case this isn't possible, we will not go out of our way to do so. Doing this would slow down
+  development. This means game worlds should be expected to break eventually and should only be used for testing the
+  game out.
 
   * **After full release** - After the game is officially released, I will commit to keeping game worlds stable between
   releases. This means that with each a game change, I'll also provide a script to migrate old game states to new ones.
   This process should be completely transparent to users.
 </section>
 
-<section>
+<section id="why-single-player" className="scroll-mt-4">
   ## Why single-player?
 
   There are a few key reasons I chose to focus on single-player:
@@ -159,7 +158,7 @@
   experience is consistent regardless of connection quality.
 </section>
 
-<section>
+<section id="in-game-wiki" className="scroll-mt-4">
   ## Is there an in-game Wiki available?
 
   Not yet, but I can (officially?) confirm there's one in the making!
@@ -168,7 +167,7 @@
   durations), hero (exp tables and revive cost) and some general advice and tips.
 </section>
 
-<section>
+<section id="highest-supporter-game-world-speed" className="scroll-mt-4">
   ## Is 10x the highest supporter game world speed?
 
   Yes. This might get revised upwards in the future. The limiting factor here is players' own devices. Since the app
@@ -177,4 +176,36 @@
 
   A 10x speed appears stable even on lower-end devices, which is why this speed was determined to be the higher limit
   for now.
+</section>
+
+<section id="mobile-application" className="scroll-mt-4">
+  ## Are there plans to build a mobile application as well?
+
+  No. The app is already fully responsive and is play-tested in both desktop and mobile environments. It is also
+  installable as a progressive web app (PWA) to simplify accessing the app from your devices' home screen.
+</section>
+
+<section id="pay-to-win-elements" className="scroll-mt-4">
+  ## Are there any pay-to-win elements or microtransactions in the game?
+
+  No. The game does not provide any way to spend money. There are no ads, donations, sponsors, paid features, or other
+  forms of monetization, nor any plans to introduce any.
+</section>
+
+<section id="development-funding" className="scroll-mt-4">
+  ## How is development funded?
+
+  It isn't. Pillage First! is a passion project developed in my and fellow contributors' free time. Hosting is (at the
+  time of writing) generously provided by Netlify. CI/CD pipelines are generously provided by GitHub. Domain renewal
+  cost and other expenses are taken care of by the development team.
+</section>
+
+<section id="updating-game-worlds-to-latest-version" className="scroll-mt-4">
+  ## Updating game worlds to latest version of the app
+
+  New versions of the app often bring new features or reworks of the existing ones and introduce breaking changes as a
+  result. This makes older game world incompatible with latest app version. Game worlds automatically update to the
+  latest version of the app each time they're opened. While in development, we have a policy of only supporting game
+  worlds that aren't more than 20 releases older than the latest release. This many releases usually happen over the
+  course of a month or so.
 </section>

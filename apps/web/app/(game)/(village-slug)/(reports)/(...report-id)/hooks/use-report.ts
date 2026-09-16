@@ -30,12 +30,22 @@ export const useReport = (reportId: BaseReport['id']) => {
       });
 
       queryClient.setQueriesData<ReportListingDto[]>(
-        { queryKey: [reportListingsCacheKey] },
-        (reports) => {
-          return reports!.map((report) =>
-            report.id === reportId ? markRead(report) : report,
-          );
+        {
+          queryKey: [reportListingsCacheKey],
+          predicate: (query) => query.queryKey[2] === 'unread',
         },
+        (reports) => reports!.filter(({ id }) => id !== reportId),
+      );
+
+      queryClient.setQueriesData<ReportListingDto[]>(
+        {
+          queryKey: [reportListingsCacheKey],
+          predicate: (query) => query.queryKey[2] !== 'unread',
+        },
+        (reports) =>
+          reports!.map((report) =>
+            report.id === reportId ? markRead(report) : report,
+          ),
       );
 
       return data;
