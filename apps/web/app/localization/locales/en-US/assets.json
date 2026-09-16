@@ -718,417 +718,417 @@
     "COMMON_ARTIFACT_WOOD_PRODUCTION": {
       "NAME": "Weathered wood production artifact",
       "NAME_other": "Weathered wood production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 50 wood production in this village."
     },
     "COMMON_ARTIFACT_WOOD_PRODUCTION_BONUS": {
       "NAME": "Weathered wood production bonus artifact",
       "NAME_other": "Weathered wood production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases wood production by 5% in this village."
     },
     "COMMON_ARTIFACT_CLAY_PRODUCTION": {
       "NAME": "Weathered clay production artifact",
       "NAME_other": "Weathered clay production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 50 clay production in this village."
     },
     "COMMON_ARTIFACT_CLAY_PRODUCTION_BONUS": {
       "NAME": "Weathered clay production bonus artifact",
       "NAME_other": "Weathered clay production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases clay production by 5% in this village."
     },
     "COMMON_ARTIFACT_IRON_PRODUCTION": {
       "NAME": "Weathered iron production artifact",
       "NAME_other": "Weathered iron production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 50 iron production in this village."
     },
     "COMMON_ARTIFACT_IRON_PRODUCTION_BONUS": {
       "NAME": "Weathered iron production bonus artifact",
       "NAME_other": "Weathered iron production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases iron production by 5% in this village."
     },
     "COMMON_ARTIFACT_WHEAT_PRODUCTION": {
       "NAME": "Weathered wheat production artifact",
       "NAME_other": "Weathered wheat production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 50 wheat production in this village."
     },
     "COMMON_ARTIFACT_WHEAT_PRODUCTION_BONUS": {
       "NAME": "Weathered wheat production bonus artifact",
       "NAME_other": "Weathered wheat production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases wheat production by 5% in this village."
     },
     "UNCOMMON_ARTIFACT_WOOD_PRODUCTION": {
       "NAME": "Honed wood production artifact",
       "NAME_other": "Honed wood production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 100 wood production in this village."
     },
     "UNCOMMON_ARTIFACT_WOOD_PRODUCTION_BONUS": {
       "NAME": "Honed wood production bonus artifact",
       "NAME_other": "Honed wood production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases wood production by 7.5% in this village."
     },
     "UNCOMMON_ARTIFACT_CLAY_PRODUCTION": {
       "NAME": "Honed clay production artifact",
       "NAME_other": "Honed clay production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 100 clay production in this village."
     },
     "UNCOMMON_ARTIFACT_CLAY_PRODUCTION_BONUS": {
       "NAME": "Honed clay production bonus artifact",
       "NAME_other": "Honed clay production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases clay production by 7.5% in this village."
     },
     "UNCOMMON_ARTIFACT_IRON_PRODUCTION": {
       "NAME": "Honed iron production artifact",
       "NAME_other": "Honed iron production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 100 iron production in this village."
     },
     "UNCOMMON_ARTIFACT_IRON_PRODUCTION_BONUS": {
       "NAME": "Honed iron production bonus artifact",
       "NAME_other": "Honed iron production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases iron production by 7.5% in this village."
     },
     "UNCOMMON_ARTIFACT_WHEAT_PRODUCTION": {
       "NAME": "Honed wheat production artifact",
       "NAME_other": "Honed wheat production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 100 wheat production in this village."
     },
     "UNCOMMON_ARTIFACT_WHEAT_PRODUCTION_BONUS": {
       "NAME": "Honed wheat production bonus artifact",
       "NAME_other": "Honed wheat production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases wheat production by 7.5% in this village."
     },
     "RARE_ARTIFACT_WOOD_PRODUCTION": {
       "NAME": "Natarian wood production artifact",
       "NAME_other": "Natarian wood production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 150 wood production in this village."
     },
     "RARE_ARTIFACT_WOOD_PRODUCTION_BONUS": {
       "NAME": "Natarian wood production bonus artifact",
       "NAME_other": "Natarian wood production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases wood production by 10% in this village."
     },
     "RARE_ARTIFACT_CLAY_PRODUCTION": {
       "NAME": "Natarian clay production artifact",
       "NAME_other": "Natarian clay production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 150 clay production in this village."
     },
     "RARE_ARTIFACT_CLAY_PRODUCTION_BONUS": {
       "NAME": "Natarian clay production bonus artifact",
       "NAME_other": "Natarian clay production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases clay production by 10% in this village."
     },
     "RARE_ARTIFACT_IRON_PRODUCTION": {
       "NAME": "Natarian iron production artifact",
       "NAME_other": "Natarian iron production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 150 iron production in this village."
     },
     "RARE_ARTIFACT_IRON_PRODUCTION_BONUS": {
       "NAME": "Natarian iron production bonus artifact",
       "NAME_other": "Natarian iron production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases iron production by 10% in this village."
     },
     "RARE_ARTIFACT_WHEAT_PRODUCTION": {
       "NAME": "Natarian wheat production artifact",
       "NAME_other": "Natarian wheat production artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Adds 150 wheat production in this village."
     },
     "RARE_ARTIFACT_WHEAT_PRODUCTION_BONUS": {
       "NAME": "Natarian wheat production bonus artifact",
       "NAME_other": "Natarian wheat production bonus artifacts",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases wheat production by 10% in this village."
     },
     "COMMON_ARTIFACT_BUILD_TIME_REDUCTION": {
       "NAME": "Weathered artifact of construction",
       "NAME_other": "Weathered artifacts of construction",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces building construction time by 10% in this village."
     },
     "UNCOMMON_ARTIFACT_BUILD_TIME_REDUCTION": {
       "NAME": "Honed artifact of construction",
       "NAME_other": "Honed artifacts of construction",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces building construction time by 20% in this village."
     },
     "RARE_ARTIFACT_BUILD_TIME_REDUCTION": {
       "NAME": "Natarian artifact of construction",
       "NAME_other": "Natarian artifacts of construction",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces building construction time by 30% in this village."
     },
     "COMMON_ARTIFACT_CRANNY_CAPACITY": {
       "NAME": "Weathered artifact of concealment",
       "NAME_other": "Weathered artifacts of concealment",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases cranny capacity by 1,000 in this village."
     },
     "UNCOMMON_ARTIFACT_CRANNY_CAPACITY": {
       "NAME": "Honed artifact of concealment",
       "NAME_other": "Honed artifacts of concealment",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases cranny capacity by 2,000 in this village."
     },
     "RARE_ARTIFACT_CRANNY_CAPACITY": {
       "NAME": "Natarian artifact of concealment",
       "NAME_other": "Natarian artifacts of concealment",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases cranny capacity by 3,000 in this village."
     },
     "COMMON_ARTIFACT_TROOP_TRAINING_REDUCTION": {
       "NAME": "Weathered artifact of training",
       "NAME_other": "Weathered artifacts of training",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces troop training time by 10% in this village."
     },
     "UNCOMMON_ARTIFACT_TROOP_TRAINING_REDUCTION": {
       "NAME": "Honed artifact of training",
       "NAME_other": "Honed artifacts of training",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces troop training time by 20% in this village."
     },
     "RARE_ARTIFACT_TROOP_TRAINING_REDUCTION": {
       "NAME": "Natarian artifact of training",
       "NAME_other": "Natarian artifacts of training",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces troop training time by 30% in this village."
     },
     "COMMON_ARTIFACT_REVEALED_INCOMING_TROOPS": {
       "NAME": "Weathered artifact of warning",
       "NAME_other": "Weathered artifacts of warning",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reveals up to 20 troops in incoming attacks."
     },
     "UNCOMMON_ARTIFACT_REVEALED_INCOMING_TROOPS": {
       "NAME": "Honed artifact of warning",
       "NAME_other": "Honed artifacts of warning",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reveals up to 50 troops in incoming attacks."
     },
     "RARE_ARTIFACT_REVEALED_INCOMING_TROOPS": {
       "NAME": "Natarian artifact of warning",
       "NAME_other": "Natarian artifacts of warning",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reveals up to 100 troops in incoming attacks."
     },
     "COMMON_ARTIFACT_MERCHANT_CAPACITY": {
       "NAME": "Weathered artifact of hauling",
       "NAME_other": "Weathered artifacts of hauling",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases merchant capacity by 10% in this village."
     },
     "UNCOMMON_ARTIFACT_MERCHANT_CAPACITY": {
       "NAME": "Honed artifact of hauling",
       "NAME_other": "Honed artifacts of hauling",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases merchant capacity by 20% in this village."
     },
     "RARE_ARTIFACT_MERCHANT_CAPACITY": {
       "NAME": "Natarian artifact of hauling",
       "NAME_other": "Natarian artifacts of hauling",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases merchant capacity by 30% in this village."
     },
     "COMMON_ARTIFACT_UNIT_IMPROVEMENT_DURATION": {
       "NAME": "Weathered artifact of forging",
       "NAME_other": "Weathered artifacts of forging",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces smithy upgrade time by 10% in this village."
     },
     "UNCOMMON_ARTIFACT_UNIT_IMPROVEMENT_DURATION": {
       "NAME": "Honed artifact of forging",
       "NAME_other": "Honed artifacts of forging",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces smithy upgrade time by 30% in this village."
     },
     "RARE_ARTIFACT_UNIT_IMPROVEMENT_DURATION": {
       "NAME": "Natarian artifact of forging",
       "NAME_other": "Natarian artifacts of forging",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces smithy upgrade time by 50% in this village."
     },
     "COMMON_ARTIFACT_UNIT_SPEED": {
       "NAME": "Weathered artifact of marching",
       "NAME_other": "Weathered artifacts of marching",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases unit speed by 5% from this village."
     },
     "COMMON_ARTIFACT_UNIT_SPEED_AFTER_20_FIELDS": {
       "NAME": "Weathered artifact of endurance",
       "NAME_other": "Weathered artifacts of endurance",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases unit speed by 5% after 20 fields."
     },
     "UNCOMMON_ARTIFACT_UNIT_SPEED": {
       "NAME": "Honed artifact of marching",
       "NAME_other": "Honed artifacts of marching",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases unit speed by 10% from this village."
     },
     "UNCOMMON_ARTIFACT_UNIT_SPEED_AFTER_20_FIELDS": {
       "NAME": "Honed artifact of endurance",
       "NAME_other": "Honed artifacts of endurance",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases unit speed by 10% after 20 fields."
     },
     "RARE_ARTIFACT_UNIT_SPEED": {
       "NAME": "Natarian artifact of marching",
       "NAME_other": "Natarian artifacts of marching",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases unit speed by 15% from this village."
     },
     "RARE_ARTIFACT_UNIT_SPEED_AFTER_20_FIELDS": {
       "NAME": "Natarian artifact of endurance",
       "NAME_other": "Natarian artifacts of endurance",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases unit speed by 15% after 20 fields."
     },
     "COMMON_HORSE": {
       "NAME": "Common horse",
       "NAME_other": "Common horses",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero speed by 7."
     },
     "UNCOMMON_HORSE": {
       "NAME": "Uncommon horse",
       "NAME_other": "Uncommon horses",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero speed by 9."
     },
     "RARE_HORSE": {
       "NAME": "Rare horse",
       "NAME_other": "Rare horses",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero speed by 11."
     },
     "HEALING_POTION": {
       "NAME": "Healing potion",
       "NAME_other": "Healing potions",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Restores 1 hero health per potion."
     },
     "BOOK_OF_WISDOM": {
       "NAME": "Book of Wisdom",
       "NAME_other": "Books of Wisdom",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Resets hero attributes for redistribution."
     },
     "ANIMAL_CAGE": {
       "NAME": "Animal cage",
       "NAME_other": "Animal cages",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Lets your hero capture animals from oases."
     },
     "REVIVAL_POTION": {
       "NAME": "Revival potion",
       "NAME_other": "Revival potions",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Revives a fallen hero."
     },
     "SILVER": {
       "NAME": "Silver",
       "NAME_other": "Silver",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Currency used for hero auctions."
     },
     "EXPERIENCE_SCROLL": {
       "NAME": "Experience scroll",
       "NAME_other": "Experience scrolls",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Grants 10 hero experience."
     },
     "ADVENTURE_MAP": {
       "NAME": "Adventure map",
       "NAME_other": "Adventure maps",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reveals a new hero adventure."
     },
     "LOYALTY_SEAL": {
       "NAME": "Loyalty seal",
       "NAME_other": "Loyalty seals",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Restores loyalty to a village."
     },
     "COMMON_BOOTS": {
       "NAME": "Worn Boots",
       "NAME_other": "Worn Boots",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero speed by 3."
     },
     "UNCOMMON_BOOTS": {
       "NAME": "Sturdy Boots",
       "NAME_other": "Sturdy Boots",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero speed by 5."
     },
     "RARE_BOOTS": {
       "NAME": "Reinforced Boots",
       "NAME_other": "Reinforced Boots",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero speed by 7."
     },
     "COMMON_HELMET": {
       "NAME": "Worn Helmet",
       "NAME_other": "Worn Helmets",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero experience gains by 5%."
     },
     "UNCOMMON_HELMET": {
       "NAME": "Sturdy Helmet",
       "NAME_other": "Sturdy Helmets",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero experience gains by 10%."
     },
     "RARE_HELMET": {
       "NAME": "Reinforced Helmet",
       "NAME_other": "Reinforced Helmets",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero experience gains by 15%."
     },
     "COMMON_LEG_GUARDS": {
       "NAME": "Worn Leg Guards",
       "NAME_other": "Worn Leg Guards",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Regenerates 10 hero health per day."
     },
     "UNCOMMON_LEG_GUARDS": {
       "NAME": "Sturdy Leg Guards",
       "NAME_other": "Sturdy Leg Guards",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Regenerates 20 hero health per day."
     },
     "RARE_LEG_GUARDS": {
       "NAME": "Reinforced Leg Guards",
       "NAME_other": "Reinforced Leg Guards",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Regenerates 30 hero health per day."
     },
     "COMMON_LEATHER_BODY_ARMOR": {
       "NAME": "Worn Leather Body Armor",
       "NAME_other": "Worn Leather Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces hero damage taken by 2 points."
     },
     "COMMON_MAIL_BODY_ARMOR": {
       "NAME": "Worn Mail Body Armor",
       "NAME_other": "Worn Mail Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 75 and reduces damage taken by 1 point."
     },
     "COMMON_PLATE_BODY_ARMOR": {
       "NAME": "Worn Plate Body Armor",
       "NAME_other": "Worn Plate Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 150."
     },
     "UNCOMMON_LEATHER_BODY_ARMOR": {
       "NAME": "Sturdy Leather Body Armor",
       "NAME_other": "Sturdy Leather Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces hero damage taken by 4 points."
     },
     "UNCOMMON_MAIL_BODY_ARMOR": {
       "NAME": "Sturdy Mail Body Armor",
       "NAME_other": "Sturdy Mail Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 150 and reduces damage taken by 2 points."
     },
     "UNCOMMON_PLATE_BODY_ARMOR": {
       "NAME": "Sturdy Plate Body Armor",
       "NAME_other": "Sturdy Plate Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 300."
     },
     "RARE_LEATHER_BODY_ARMOR": {
       "NAME": "Reinforced Leather Body Armor",
       "NAME_other": "Reinforced Leather Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces hero damage taken by 6 points."
     },
     "RARE_MAIL_BODY_ARMOR": {
       "NAME": "Reinforced Mail Body Armor",
       "NAME_other": "Reinforced Mail Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 225 and reduces damage taken by 3 points."
     },
     "RARE_PLATE_BODY_ARMOR": {
       "NAME": "Reinforced Plate Body Armor",
       "NAME_other": "Reinforced Plate Body Armor",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 450."
     },
     "COMMON_SWORD": {
       "NAME": "Worn Sword",
       "NAME_other": "Worn Sword",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 150."
     },
     "COMMON_SHIELD": {
       "NAME": "Worn Shield",
       "NAME_other": "Worn Shield",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces hero damage taken by 2 points."
     },
     "UNCOMMON_SWORD": {
       "NAME": "Sturdy Sword",
       "NAME_other": "Sturdy Sword",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 300."
     },
     "UNCOMMON_SHIELD": {
       "NAME": "Sturdy Shield",
       "NAME_other": "Sturdy Shield",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces hero damage taken by 4 points."
     },
     "RARE_SWORD": {
       "NAME": "Reinforced Sword",
       "NAME_other": "Reinforced Sword",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Increases hero's strength by 450."
     },
     "RARE_SHIELD": {
       "NAME": "Reinforced Shield",
       "NAME_other": "Reinforced Shield",
-      "DESCRIPTION": ""
+      "DESCRIPTION": "Reduces hero damage taken by 6 points."
     }
   },
   "QUESTS": {

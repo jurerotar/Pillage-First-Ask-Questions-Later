@@ -117,8 +117,10 @@ describe('localization completeness check for assets.json', () => {
           itemData.NAME_other,
           `ITEMS.${itemKey}.NAME_other is empty`,
         ).not.toBe('');
-        // TODO: Fill in the DESCRIPTION fields
-        // expect(itemData.NAME, `ITEMS.${itemKey}.DESCRIPTION is empty`).not.toBe('');
+        expect(
+          itemData.DESCRIPTION,
+          `ITEMS.${itemKey}.DESCRIPTION is empty`,
+        ).not.toBe('');
       }
     });
 
