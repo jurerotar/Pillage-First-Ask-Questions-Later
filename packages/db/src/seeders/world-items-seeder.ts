@@ -9,6 +9,8 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   seededRandomArrayElement,
   seededRandomArrayElements,
+  seededRandomIntFromInterval,
+  seededShuffle,
 } from '@pillage-first/utils/random';
 import { batchInsert } from '../utils/batch-insert';
 import { getVillageSize } from '../utils/village-size';
@@ -19,6 +21,33 @@ const rowSchema = z.strictObject({
   y: z.number(),
 });
 
+type ItemAmountRange = [min: number, max: number];
+
+export const stackableHeroItemAmountRanges = new Map<
+  HeroItem['name'],
+  ItemAmountRange
+>([
+  ['HEALING_POTION', [3, 10]],
+  ['ANIMAL_CAGE', [2, 6]],
+  ['EXPERIENCE_SCROLL', [2, 10]],
+  ['LOYALTY_SEAL', [1, 8]],
+  ['SILVER', [50, 150]],
+]);
+
+const getWorldItemAmount = (
+  prng: Parameters<typeof seededRandomIntFromInterval>[0],
+  item: HeroItem,
+): number => {
+  const amountRange = stackableHeroItemAmountRanges.get(item.name);
+
+  if (!amountRange) {
+    return 1;
+  }
+
+  const [min, max] = amountRange;
+  return seededRandomIntFromInterval(prng, min, max);
+};
+
 export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
   const prng = prngMulberry32(server.seed);
 
@@ -26,11 +55,13 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
 
   const miscellaneousCategories = new Set(['consumable', 'currency']);
 
-  const miscellaneousHeroItems: HeroItem[] = [];
-  const epicHeroItems: HeroItem[] = [];
+  const rareArtefacts: HeroItem[] = [];
+  const uncommonArtefacts: HeroItem[] = [];
+  const commonArtefacts: HeroItem[] = [];
   const rareHeroItems: HeroItem[] = [];
   const uncommonHeroItems: HeroItem[] = [];
   const commonHeroItems: HeroItem[] = [];
+  const miscellaneousHeroItems: HeroItem[] = [];
 
   for (const item of items) {
     if (miscellaneousCategories.has(item.category)) {
@@ -38,11 +69,24 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
       continue;
     }
 
-    switch (item.rarity) {
-      case 'epic': {
-        epicHeroItems.push(item);
-        break;
+    if (item.category === 'artifact') {
+      switch (item.rarity) {
+        case 'rare': {
+          rareArtefacts.push(item);
+          break;
+        }
+        case 'uncommon': {
+          uncommonArtefacts.push(item);
+          break;
+        }
+        case 'common': {
+          commonArtefacts.push(item);
+          break;
+        }
       }
+    }
+
+    switch (item.rarity) {
       case 'rare': {
         rareHeroItems.push(item);
         break;
@@ -84,61 +128,58 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
     };
   });
 
-  // Artifacts
-  const epicHeroItemCandidates = rowsWithSize.filter(
-    ({ size }) => size === '4xl',
-  );
-  const epicHeroItemTiles = seededRandomArrayElements(
-    prng,
-    epicHeroItemCandidates,
-    epicHeroItems.length,
-  );
-
-  const epicHeroItemWorldItems: WorldItem[] = epicHeroItemTiles.map(
-    (tile, index) => {
-      const { id } = epicHeroItems[index];
-      return {
-        id,
-        amount: 1,
-        tileId: tile.tile_id,
-      };
-    },
-  );
-
   // Rare hero items
-  const rareHeroItemCandidates = rowsWithSize.filter((tile) =>
-    ['3xl', '2xl'].includes(tile.size),
+  const rareHeroItemTileCandidates = rowsWithSize.filter((tile) =>
+    ['4xl', '3xl', '2xl'].includes(tile.size),
   );
+
+  const rareItemPool = seededShuffle(prng, [
+    ...rareHeroItems,
+    ...rareHeroItems,
+    ...rareArtefacts,
+  ]);
+
   const rareHeroItemTiles = seededRandomArrayElements(
     prng,
-    rareHeroItemCandidates,
-    rareHeroItems.length,
-  );
-  const rareHeroWorldItems: WorldItem[] = rareHeroItemTiles.map(
-    (tile, index) => {
-      const { id } = rareHeroItems[index];
-      return {
-        id,
-        tileId: tile.tile_id,
-        amount: 1,
-      };
-    },
+    rareHeroItemTileCandidates,
+    rareItemPool.length,
   );
 
+  const rareHeroWorldItems: WorldItem[] = rareHeroItemTiles.map((tile) => {
+    const item = seededRandomArrayElement(prng, rareHeroItems);
+
+    return {
+      id: item.id,
+      tileId: tile.tile_id,
+      amount: 1,
+    };
+  });
+
   // Uncommon hero items
-  const uncommonHeroItemCandidates = rowsWithSize.filter((tile) =>
+  const uncommonHeroItemTileCandidates = rowsWithSize.filter((tile) =>
     ['xl', 'lg'].includes(tile.size),
   );
+
+  const uncommonItemPool = seededShuffle(prng, [
+    ...uncommonHeroItems,
+    ...uncommonHeroItems,
+    ...uncommonHeroItems,
+    ...uncommonArtefacts,
+    ...uncommonArtefacts,
+  ]);
+
   const uncommonHeroItemTiles = seededRandomArrayElements(
     prng,
-    uncommonHeroItemCandidates,
-    uncommonHeroItems.length,
+    uncommonHeroItemTileCandidates,
+    uncommonItemPool.length,
   );
+
   const uncommonHeroWorldItems: WorldItem[] = uncommonHeroItemTiles.map(
-    (tile, index) => {
-      const { id } = uncommonHeroItems[index];
+    (tile) => {
+      const item = seededRandomArrayElement(prng, uncommonHeroItems);
+
       return {
-        id,
+        id: item.id,
         tileId: tile.tile_id,
         amount: 1,
       };
@@ -146,63 +187,76 @@ export const worldItemsSeeder = (database: DbFacade, server: Server): void => {
   );
 
   // Common hero items
-  const commonHeroItemCandidates = rowsWithSize.filter((tile) =>
+  const commonHeroItemTileCandidates = rowsWithSize.filter((tile) =>
     ['md', 'sm'].includes(tile.size),
   );
+
+  const commonItemPool = seededShuffle(prng, [
+    ...commonHeroItems,
+    ...commonHeroItems,
+    ...commonHeroItems,
+    ...commonHeroItems,
+    ...commonArtefacts,
+    ...commonArtefacts,
+    ...commonArtefacts,
+  ]);
+
   const commonHeroItemTiles = seededRandomArrayElements(
     prng,
-    commonHeroItemCandidates,
-    commonHeroItems.length,
-  );
-  const commonHeroWorldItems: WorldItem[] = commonHeroItemTiles.map(
-    (tile, index) => {
-      const { id } = commonHeroItems[index];
-      return {
-        id,
-        tileId: tile.tile_id,
-        amount: 1,
-      };
-    },
+    commonHeroItemTileCandidates,
+    commonItemPool.length,
   );
 
-  // Consumable hero items
+  const commonHeroWorldItems: WorldItem[] = commonHeroItemTiles.map((tile) => {
+    const item = seededRandomArrayElement(prng, commonHeroItems);
+
+    return {
+      id: item.id,
+      tileId: tile.tile_id,
+      amount: 1,
+    };
+  });
+
+  // Non-wearable hero items
   const tilesWithWorldItems = [
-    ...epicHeroItemWorldItems,
     ...rareHeroWorldItems,
     ...uncommonHeroWorldItems,
     ...commonHeroWorldItems,
   ];
 
   const occupiedIds = new Set(tilesWithWorldItems.map(({ tileId }) => tileId));
-  const consumableHeroItemCandidates = rowsWithSize.filter(({ tile_id }) => {
-    return !occupiedIds.has(tile_id);
-  });
-  // Half of remaining villages should have non-wearable items
-  const amountOfVillagesToPick = consumableHeroItemCandidates.length / 2;
-  const consumableHeroItemTiles = seededRandomArrayElements(
-    prng,
-    consumableHeroItemCandidates,
-    amountOfVillagesToPick,
-  );
-  const consumableHeroWorldItems: WorldItem[] = consumableHeroItemTiles.map(
-    (tile) => {
-      const { id } = seededRandomArrayElement(prng, miscellaneousHeroItems);
 
-      return {
-        id,
-        tileId: tile.tile_id,
-        // TODO: All of these amounts should increase the further we get from the center
-        amount: 1,
-      };
+  const miscellaneousHeroItemTileCandidates = rowsWithSize.filter(
+    ({ tile_id }) => {
+      return !occupiedIds.has(tile_id);
     },
   );
 
+  // Half of remaining villages should have miscellaneous items
+  const amountOfVillagesToPick = miscellaneousHeroItemTileCandidates.length / 2;
+
+  const miscellaneousHeroItemTiles = seededRandomArrayElements(
+    prng,
+    miscellaneousHeroItemTileCandidates,
+    amountOfVillagesToPick,
+  );
+
+  const miscellaneousHeroWorldItems: WorldItem[] =
+    miscellaneousHeroItemTiles.map((tile) => {
+      const item = seededRandomArrayElement(prng, miscellaneousHeroItems);
+
+      return {
+        id: item.id,
+        tileId: tile.tile_id,
+        amount: getWorldItemAmount(prng, item),
+      };
+    });
+
   const allWorldItems: WorldItem[] = [
-    ...epicHeroItemWorldItems,
     ...rareHeroWorldItems,
     ...uncommonHeroWorldItems,
     ...commonHeroWorldItems,
-    ...consumableHeroWorldItems,
+    ...miscellaneousHeroWorldItems,
   ];
 
   for (const wi of allWorldItems) {

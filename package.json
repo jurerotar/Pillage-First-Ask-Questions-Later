@@ -23,24 +23,24 @@
     "generate-screenshots": "node scripts/generate-screenshots.ts"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.12",
+    "@biomejs/biome": "2.5.14",
     "@commitlint/cli": "21.2.2",
     "@commitlint/config-conventional": "21.2.2",
     "@playwright/test": "1.63.0",
-    "lefthook": "2.1.12",
-    "oxlint": "1.82.0",
+    "lefthook": "2.1.14",
+    "oxlint": "1.83.0",
     "oxlint-tsgolint": "7.0.2001",
     "playwright": "1.63.0",
     "sharp": "0.35.4",
-    "turbo": "2.10.12",
+    "turbo": "2.10.13",
     "typescript": "7.0.2"
   },
   "overrides": {
     "vite-plugin-devtools-json": {
-      "vite": "8.2.2"
+      "vite": "8.3.0"
     },
     "vite-plugin-pwa": {
-      "vite": "8.2.2"
+      "vite": "8.3.0"
     },
     "@react-router/dev": {
       "typescript": "7.0.2"

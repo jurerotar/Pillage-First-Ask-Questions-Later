@@ -37,3 +37,34 @@ export const getHeroInventorySchema = z
     amount: z.number().int().positive(),
   })
   .meta({ id: 'GetHeroInventoryRow' });
+
+export const getHeroAuctionBuyListingSchema = z
+  .strictObject({
+    id: z.number(),
+    item_id: z.number(),
+    amount: z.number().int().positive(),
+    price: z.number().int().positive(),
+    expires_at: z.number(),
+  })
+  .meta({ id: 'GetHeroAuctionBuyListingRow' });
+
+export const getHeroAuctionSellListingSchema = z
+  .strictObject({
+    id: z.number(),
+    item_id: z.number(),
+    amount: z.number().int().positive(),
+    price: z.number().int().positive(),
+    sells_at: z.number(),
+  })
+  .meta({ id: 'GetHeroAuctionSellListingRow' });
+
+export const getHeroAuctionHistoryEntrySchema = z
+  .strictObject({
+    id: z.number(),
+    type: z.enum(['buy', 'sell']),
+    item_id: z.number(),
+    amount: z.number().int().positive(),
+    price: z.number().int().positive(),
+    completed_at: z.number(),
+  })
+  .meta({ id: 'GetHeroAuctionHistoryEntryRow' });

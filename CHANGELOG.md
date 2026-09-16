@@ -1,3 +1,18 @@
+## Version 0.4.66
+
+#### Sep 16, 2026
+
+* [Feature] Heroes will now be able to acquire items from adventures.
+* [Feature] Reworked hero items and artefacts.
+* [Feature] Implemented hero item auctions. You're now able to buy and sell hero items.
+* [Feature] Added previous/next report and previous/next unread report navigation buttons.
+* [UIUXImprovement] Improved landscape orientation layouts.
+* [UIUXImprovement] Updated the public layout with safer viewport offsets.
+* [BugFix] Fixed outdated game worlds being enterable from server cards.
+* [BugFix] Fixed read reports being included in unread report cache queries.
+* [BugFix] Fixed building overview bookmarks not being clickable.
+* [BugFix] Fixed Firefox storage error detection for browsers that block OPFS writes.
+
 ## Version 0.4.65
 
 #### Sep 13, 2026

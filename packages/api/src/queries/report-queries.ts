@@ -214,6 +214,7 @@ export const selectBattleReportQuery = `
     b.id AS battle_id,
     b.origin_tile_id, b.target_tile_id,
     b.loot_wood, b.loot_clay, b.loot_iron, b.loot_wheat,
+    b.item_id, b.item_amount,
     b.can_attacker_see_full_report,
     b.attacker_points, b.defender_points,
     bp.id AS participant_id,
@@ -386,6 +387,7 @@ export const selectScoutingReportQuery = `
   ${reportCte}
   SELECT ${reportColumns}, sr.id AS scouting_id, sr.perspective,
     sr.successful, sr.scouting_target, sr.wood, sr.clay, sr.iron, sr.wheat,
+    sr.item_id, sr.item_amount,
     origin_p.name AS origin_player_name, origin_p.slug AS origin_player_slug,
     origin_v.name AS origin_name, origin_t.x AS origin_x, origin_t.y AS origin_y,
     target_p.name AS target_player_name, target_p.slug AS target_player_slug,

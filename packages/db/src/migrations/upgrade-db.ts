@@ -1,16 +1,22 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
+import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
+import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
+import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
 import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
+import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
+import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
@@ -898,6 +904,50 @@ export const upgradeDb = (
     db.exec({
       sql: 'ALTER TABLE map_filters DROP COLUMN should_show_treasure_icons;',
     });
+  });
+
+  migrate('0.4.66', (db) => {
+    db.exec({
+      sql: 'ALTER TABLE battle_reports ADD COLUMN item_id INTEGER;',
+    });
+    db.exec({
+      sql: 'ALTER TABLE battle_reports ADD COLUMN item_amount INTEGER CHECK (item_amount > 0);',
+    });
+
+    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+    db.exec({ sql: 'PRAGMA legacy_alter_table = ON;' });
+
+    try {
+      db.transaction((tx) => {
+        tx.exec({
+          sql: 'ALTER TABLE scouting_reports RENAME TO scouting_reports_old;',
+        });
+        tx.exec({ sql: createScoutingReportsTable });
+        tx.exec({ sql: 'DROP TABLE scouting_reports_old;' });
+      });
+    } finally {
+      db.exec({ sql: 'PRAGMA legacy_alter_table = OFF;' });
+      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+    }
+
+    db.exec({
+      sql: `
+        DELETE
+        FROM
+          world_items;
+      `,
+    });
+
+    const server = db.selectObject({
+      sql: 'SELECT * FROM servers LIMIT 1;',
+      schema: serverDbSchema,
+    })!;
+
+    worldItemsSeeder(db, server);
+
+    db.exec({ sql: createHeroAuctionBuyListingsTable });
+    db.exec({ sql: createHeroAuctionSellListingsTable });
+    db.exec({ sql: createHeroAuctionHistoryTable });
   });
 
   // If all migrations passed, bump it to current version
