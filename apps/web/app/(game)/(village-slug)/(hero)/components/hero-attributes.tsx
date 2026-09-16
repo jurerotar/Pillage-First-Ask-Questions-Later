@@ -34,6 +34,11 @@ import {
 } from 'app/components/ui/select';
 import { Slider } from 'app/components/ui/slider';
 
+// t('attackPower')
+// t('resourceProduction')
+// t('attackBonus')
+// t('defenceBonus')
+
 export const HeroAttributes = () => {
   const { t } = useTranslation();
   const {
@@ -119,13 +124,6 @@ export const HeroAttributes = () => {
     });
   };
 
-  const attributeLabels = {
-    attackPower: t('Attack power'),
-    resourceProduction: t('Resource production'),
-    attackBonus: t('Attack bonus'),
-    defenceBonus: t('Defence bonus'),
-  };
-
   return (
     <Section>
       <SectionContent>
@@ -151,19 +149,18 @@ export const HeroAttributes = () => {
                 "Your hero's home village is set to the current village. Should your hero die, it can only be revived from here.",
               )}
             {!isHeroHomeVillageCurrent && (
-              <Trans>
-                Your hero's home village is set to{' '}
-                <Text
-                  as="span"
-                  variant="link"
-                >
-                  <Link to={getNewVillageUrl(heroHomeVillage.slug)}>
-                    {heroHomeVillage.name}
-                  </Link>
-                </Text>
-                . Should your hero die, it can only be revived from its home
-                village.
-              </Trans>
+              <Trans
+                i18nKey="Your hero's home village is set to <villageLink>{{name}}</villageLink>. Should your hero die, it can only be revived from its home village."
+                values={{ name: heroHomeVillage.name }}
+                components={{
+                  villageLink: (
+                    <Link
+                      className="text-link font-medium"
+                      to={getNewVillageUrl(heroHomeVillage.slug)}
+                    />
+                  ),
+                }}
+              />
             )}
           </span>
         </div>
@@ -282,7 +279,7 @@ export const HeroAttributes = () => {
                 >
                   <div className="flex justify-between items-center">
                     <Text className="text-xs font-medium text-muted-foreground uppercase">
-                      {attributeLabels[key]}
+                      {t(key)}
                     </Text>
                     <Text className="font-bold text-sm">
                       {attributes[key]} / 100

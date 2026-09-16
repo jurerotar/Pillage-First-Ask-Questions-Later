@@ -34,12 +34,10 @@ import {
 
 const silverItemId = 1025;
 
-const statusLabelByStatus = {
-  owned: 'Owned',
-  'better-owned': 'Better item owned',
-  equipped: 'Equipped',
-  'better-equipped': 'Better item equipped',
-} as const;
+// t('owned')
+// t('better-owned')
+// t('equipped')
+// t('better-equipped')
 
 export const AuctionsBuyItem = () => {
   const { t } = useTranslation();
@@ -118,7 +116,7 @@ export const AuctionsBuyItem = () => {
                                 : 'secondary'
                             }
                           >
-                            {t(statusLabelByStatus[ownershipStatus])}
+                            {t(ownershipStatus)}
                           </Badge>
                         )}
                       </ItemTooltip>
