@@ -6,10 +6,10 @@ import {
 } from '@pillage-first/types/dtos/hero';
 import {
   buyHeroAuctionListingById,
-  createHeroAuctionSellListing,
   getHeroAuctionBuyListingRows,
   getHeroAuctionHistoryRows,
   getHeroAuctionSellListingRows,
+  sellHeroItem,
 } from '../../utils/hero-auctions';
 import { createController } from '../controller';
 import {
@@ -81,10 +81,11 @@ export const sellHeroAuctionItem = createController(
     requestBody: z.strictObject({
       itemId: z.number(),
       amount: z.number().int().positive(),
+      mode: z.enum(['instant', 'auction']),
     }),
   },
-)(({ database, path: { playerId }, body: { itemId, amount } }) => {
-  createHeroAuctionSellListing(database, playerId, itemId, amount, Date.now());
+)(({ database, path: { playerId }, body: { itemId, amount, mode } }) => {
+  sellHeroItem(database, playerId, itemId, amount, mode, Date.now());
 });
 
 export const getHeroAuctionHistory = createController(

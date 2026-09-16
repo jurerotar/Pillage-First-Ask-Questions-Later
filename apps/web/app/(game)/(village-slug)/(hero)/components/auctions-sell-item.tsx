@@ -23,6 +23,12 @@ import { Button } from 'app/components/ui/button';
 import { Input } from 'app/components/ui/input';
 import { Pagination } from 'app/components/ui/pagination';
 import {
+  Popover,
+  PopoverClose,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
+import {
   Table,
   TableBody,
   TableCell,
@@ -30,6 +36,17 @@ import {
   TableHeaderCell,
   TableRow,
 } from 'app/components/ui/table';
+
+const getEstimatedPriceRange = (
+  basePrice: number,
+  amount: number,
+  priceModifier: number,
+) => {
+  return {
+    minimum: Math.max(1, Math.round(basePrice * amount * priceModifier * 0.9)),
+    maximum: Math.max(1, Math.round(basePrice * amount * priceModifier * 1.1)),
+  };
+};
 
 export const AuctionsSellItem = () => {
   const { t } = useTranslation();
@@ -56,7 +73,7 @@ export const AuctionsSellItem = () => {
         <InformationPopover ariaLabel={t('Sell items')}>
           <Text>
             {t(
-              'List your hero items for others to bid on. Turn unused gear or consumables into silver.',
+              'Sell hero items immediately for quick silver, or list them on auction for a better return after 24 hours.',
             )}
           </Text>
         </InformationPopover>
@@ -70,7 +87,6 @@ export const AuctionsSellItem = () => {
               <TableHeaderCell>{t('Item')}</TableHeaderCell>
               <TableHeaderCell>{t('Available')}</TableHeaderCell>
               <TableHeaderCell>{t('Sell amount')}</TableHeaderCell>
-              <TableHeaderCell>{t('Estimated price')}</TableHeaderCell>
               <TableHeaderCell>{t('Action')}</TableHeaderCell>
             </TableRow>
           </TableHeader>
@@ -78,7 +94,7 @@ export const AuctionsSellItem = () => {
             {pagination.currentPageItems.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={4}
                   className="text-muted-foreground"
                 >
                   {t('No inventory items match your filters')}
@@ -91,13 +107,15 @@ export const AuctionsSellItem = () => {
                   inventoryItem.amount,
                   sellAmounts[inventoryItem.id] ?? 1,
                 );
-                const minimumPrice = Math.max(
-                  1,
-                  Math.round(item.basePrice! * amount * 0.18),
+                const instantPrice = getEstimatedPriceRange(
+                  item.basePrice!,
+                  amount,
+                  0.2,
                 );
-                const maximumPrice = Math.max(
-                  1,
-                  Math.round(item.basePrice! * amount * 0.22),
+                const auctionPrice = getEstimatedPriceRange(
+                  item.basePrice!,
+                  amount,
+                  0.4,
                 );
 
                 return (
@@ -130,21 +148,60 @@ export const AuctionsSellItem = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      {formatNumber(minimumPrice)}-{formatNumber(maximumPrice)}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        disabled={isSellingItem}
-                        onClick={() => {
-                          sellItem({
-                            itemId: inventoryItem.id,
-                            amount,
-                          });
-                        }}
-                      >
-                        {t('Sell')}
-                      </Button>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            size="sm"
+                            disabled={isSellingItem}
+                          >
+                            {t('Sell')}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          align="end"
+                          className="w-48 rounded-lg p-2 shadow-xl"
+                        >
+                          <div className="flex flex-col gap-2">
+                            <PopoverClose asChild>
+                              <Button
+                                disabled={isSellingItem}
+                                onClick={() => {
+                                  sellItem({
+                                    itemId: inventoryItem.id,
+                                    amount,
+                                    mode: 'instant',
+                                  });
+                                }}
+                              >
+                                <span>{t('Sell now')}</span>
+                                <span className="font-normal">
+                                  {formatNumber(instantPrice.minimum)}-
+                                  {formatNumber(instantPrice.maximum)}
+                                </span>
+                              </Button>
+                            </PopoverClose>
+                            <PopoverClose asChild>
+                              <Button
+                                variant="outline"
+                                disabled={isSellingItem}
+                                onClick={() => {
+                                  sellItem({
+                                    itemId: inventoryItem.id,
+                                    amount,
+                                    mode: 'auction',
+                                  });
+                                }}
+                              >
+                                <span>{t('Auction')}</span>
+                                <span className="font-normal">
+                                  {formatNumber(auctionPrice.minimum)}-
+                                  {formatNumber(auctionPrice.maximum)}
+                                </span>
+                              </Button>
+                            </PopoverClose>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </TableCell>
                   </TableRow>
                 );

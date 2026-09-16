@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
-  calculateSellPrice,
+  calculateAuctionSellPrice,
+  calculateInstantSellPrice,
   createAuctionHouseBuyListing,
   getAuctionableItem,
 } from '@pillage-first/game-assets/utils/auctions';
@@ -18,6 +19,7 @@ import {
   insertCompletedHeroAuctionSellListingsSilverQuery,
   insertHeroAuctionBuyHistoryEntryQuery,
   insertHeroAuctionBuyListingsQuery,
+  insertHeroAuctionSellHistoryEntryQuery,
   insertHeroAuctionSellListingQuery,
   selectAvailableHeroAuctionBuyListingByIdQuery,
   selectHeroAuctionBuyListingCountQuery,
@@ -34,6 +36,8 @@ import {
 const silverItemId = 1025;
 const activeBuyListingCount = 100;
 const sellDuration = 24 * 60 * 60 * 1000;
+
+export type HeroAuctionSellMode = 'instant' | 'auction';
 
 const createBuyListings = (
   database: DbFacade,
@@ -187,19 +191,41 @@ export const getHeroAuctionSellListingRows = (
   });
 };
 
-export const createHeroAuctionSellListing = (
+export const sellHeroItem = (
   database: DbFacade,
   playerId: number,
   itemId: number,
   amount: number,
+  mode: HeroAuctionSellMode,
   now: number,
 ) => {
   const heroId = syncHeroAuctionState(database, playerId, now);
   const item = getAuctionableItem(itemId);
-  const price = calculateSellPrice(item, amount);
-  const sellsAt = now + sellDuration;
+  const price =
+    mode === 'instant'
+      ? calculateInstantSellPrice(item, amount)
+      : calculateAuctionSellPrice(item, amount);
 
   removeHeroInventoryItem(database, heroId, itemId, amount);
+
+  if (mode === 'instant') {
+    addHeroInventoryItem(database, heroId, silverItemId, price);
+
+    database.exec({
+      sql: insertHeroAuctionSellHistoryEntryQuery,
+      bind: {
+        $hero_id: heroId,
+        $item_id: itemId,
+        $amount: amount,
+        $price: price,
+        $completed_at: now,
+      },
+    });
+
+    return;
+  }
+
+  const sellsAt = now + sellDuration;
 
   return database.selectObject({
     sql: insertHeroAuctionSellListingQuery,

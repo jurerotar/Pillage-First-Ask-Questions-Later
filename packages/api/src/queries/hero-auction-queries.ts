@@ -98,6 +98,13 @@ export const insertHeroAuctionBuyHistoryEntryQuery = `
     ($hero_id, 'buy', $item_id, $amount, $price, $completed_at);
 `;
 
+export const insertHeroAuctionSellHistoryEntryQuery = `
+  INSERT INTO
+    hero_auction_history (hero_id, type, item_id, amount, price, completed_at)
+  VALUES
+    ($hero_id, 'sell', $item_id, $amount, $price, $completed_at);
+`;
+
 export const selectHeroAuctionSellListingsByHeroIdQuery = `
   SELECT id, item_id, amount, price, sells_at
   FROM

@@ -39,10 +39,23 @@ export const calculateBuyPrice = (item: HeroItem, amount: number): number => {
   );
 };
 
-export const calculateSellPrice = (item: HeroItem, amount: number): number => {
+export const calculateInstantSellPrice = (
+  item: HeroItem,
+  amount: number,
+): number => {
   return Math.max(
     1,
     Math.round(item.basePrice! * amount * 0.2 * randomPriceModifier()),
+  );
+};
+
+export const calculateAuctionSellPrice = (
+  item: HeroItem,
+  amount: number,
+): number => {
+  return Math.max(
+    1,
+    Math.round(item.basePrice! * amount * 0.4 * randomPriceModifier()),
   );
 };
 

@@ -132,7 +132,7 @@ describe('hero-auction-controllers', () => {
     expect(activeListingAmount).toBe(100);
   });
 
-  test('sellHeroAuctionItem should complete after 24 hours on demand', async () => {
+  test('sellHeroAuctionItem should sell immediately for silver', async () => {
     const database = await prepareTestDatabase();
     const heroId = getHeroId(database);
     const itemId = 1022;
@@ -154,7 +154,91 @@ describe('hero-auction-controllers', () => {
       database,
       createControllerArgs<'/players/:playerId/hero/auctions/sell', 'post'>({
         path: { playerId },
-        body: { itemId, amount: 2 },
+        body: { itemId, amount: 2, mode: 'instant' },
+      }),
+    );
+
+    const pendingListingCount = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM hero_auction_sell_listings WHERE hero_id = $hero_id',
+      bind: { $hero_id: heroId },
+      schema: z.number(),
+    })!;
+
+    const remainingItemAmount = database.selectValue({
+      sql: `
+        SELECT amount
+        FROM
+          hero_inventory
+        WHERE
+          hero_id = $hero_id
+          AND item_id = $item_id;
+      `,
+      bind: {
+        $hero_id: heroId,
+        $item_id: itemId,
+      },
+      schema: z.number(),
+    })!;
+
+    const silverAmount = database.selectValue({
+      sql: `
+        SELECT amount
+        FROM
+          hero_inventory
+        WHERE
+          hero_id = $hero_id
+          AND item_id = $item_id;
+      `,
+      bind: {
+        $hero_id: heroId,
+        $item_id: silverItemId,
+      },
+      schema: z.number(),
+    })!;
+
+    const history = getHeroAuctionHistory(
+      database,
+      createControllerArgs<'/players/:playerId/hero/auctions/history'>({
+        path: { playerId },
+      }),
+    );
+
+    expect(pendingListingCount).toBe(0);
+    expect(remainingItemAmount).toBe(1);
+    expect(silverAmount).toBeGreaterThan(0);
+    expect(history).toContainEqual(
+      expect.objectContaining({
+        type: 'sell',
+        itemId,
+        amount: 2,
+        price: silverAmount,
+      }),
+    );
+  });
+
+  test('sellHeroAuctionItem should complete auction sales after 24 hours on demand', async () => {
+    const database = await prepareTestDatabase();
+    const heroId = getHeroId(database);
+    const itemId = 1022;
+
+    database.exec({
+      sql: `
+        INSERT INTO
+          hero_inventory (hero_id, item_id, amount)
+        VALUES
+          ($hero_id, $item_id, 3);
+      `,
+      bind: {
+        $hero_id: heroId,
+        $item_id: itemId,
+      },
+    });
+
+    sellHeroAuctionItem(
+      database,
+      createControllerArgs<'/players/:playerId/hero/auctions/sell', 'post'>({
+        path: { playerId },
+        body: { itemId, amount: 2, mode: 'auction' },
       }),
     );
 

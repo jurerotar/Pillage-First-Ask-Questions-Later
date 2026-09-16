@@ -16,6 +16,7 @@ import { invalidateQueries } from 'app/utils/react-query';
 type SellHeroItemArgs = {
   itemId: number;
   amount: number;
+  mode: 'instant' | 'auction';
 };
 
 export const useHeroAuctionBuyListings = () => {
@@ -112,7 +113,7 @@ export const useHeroAuctionSellListings = () => {
     Error,
     SellHeroItemArgs
   >({
-    mutationFn: async ({ itemId, amount }) => {
+    mutationFn: async ({ itemId, amount, mode }) => {
       await apiClient.post('/players/:playerId/hero/auctions/sell', {
         path: {
           playerId: player.id,
@@ -120,6 +121,7 @@ export const useHeroAuctionSellListings = () => {
         body: {
           itemId,
           amount,
+          mode,
         },
       });
     },
