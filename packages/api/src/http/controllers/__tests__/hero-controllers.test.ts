@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { artifacts } from '@pillage-first/game-assets/items';
+import { artifacts, silverItem } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { effectIdSchema } from '@pillage-first/types/models/effect';
 import { insertEffectQuery } from '../../../queries/effect-queries';
@@ -100,7 +100,7 @@ describe('hero-controllers', () => {
     })!;
 
     expect(inventory).toContainEqual({
-      id: 1025,
+      id: silverItem.id,
       amount: 123,
     });
     expect(pendingSaleCount).toBe(0);

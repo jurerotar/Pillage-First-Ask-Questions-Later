@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { silverItem } from '@pillage-first/game-assets/items';
 import {
   calculateAuctionSellPrice,
   calculateInstantSellPrice,
@@ -33,7 +34,6 @@ import {
   removeHeroInventoryItem,
 } from './hero';
 
-const silverItemId = 1025;
 const activeBuyListingCount = 100;
 const sellDuration = 24 * 60 * 60 * 1000;
 
@@ -86,7 +86,7 @@ const completeHeroAuctionSellListings = (
     sql: insertCompletedHeroAuctionSellListingsSilverQuery,
     bind: {
       $hero_id: heroId,
-      $silver_item_id: silverItemId,
+      $silver_item_id: silverItem.id,
       $now: now,
     },
   });
@@ -155,7 +155,7 @@ export const buyHeroAuctionListingById = (
     throw new Error('Auction listing is no longer available');
   }
 
-  removeHeroInventoryItem(database, heroId, silverItemId, listing.price);
+  removeHeroInventoryItem(database, heroId, silverItem.id, listing.price);
   addHeroInventoryItem(database, heroId, listing.item_id, listing.amount);
 
   database.exec({
@@ -209,7 +209,7 @@ export const sellHeroItem = (
   removeHeroInventoryItem(database, heroId, itemId, amount);
 
   if (mode === 'instant') {
-    addHeroInventoryItem(database, heroId, silverItemId, price);
+    addHeroInventoryItem(database, heroId, silverItem.id, price);
 
     database.exec({
       sql: insertHeroAuctionSellHistoryEntryQuery,

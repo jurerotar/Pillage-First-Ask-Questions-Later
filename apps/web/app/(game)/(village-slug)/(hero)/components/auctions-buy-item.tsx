@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { silverItem } from '@pillage-first/game-assets/items';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { formatNumber } from '@pillage-first/utils/format';
 import { AuctionFilters } from 'app/(game)/(village-slug)/(hero)/components/auction-filters';
@@ -32,8 +33,6 @@ import {
   TableRow,
 } from 'app/components/ui/table';
 
-const silverItemId = 1025;
-
 // t('owned')
 // t('better-owned')
 // t('equipped')
@@ -49,7 +48,7 @@ export const AuctionsBuyItem = () => {
   const { heroLoadout } = useHeroLoadout();
 
   const silverAmount =
-    heroInventory.find(({ id }) => id === silverItemId)?.amount ?? 0;
+    heroInventory.find(({ id }) => id === silverItem.id)?.amount ?? 0;
 
   const filteredListings = useMemo(() => {
     return buyListings.filter(({ itemId }) =>

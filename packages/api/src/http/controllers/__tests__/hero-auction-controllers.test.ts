@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { silverItem } from '@pillage-first/game-assets/items';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
   buyHeroAuctionListing,
@@ -13,7 +14,6 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('hero-auction-controllers', () => {
   const playerId = PLAYER_ID;
-  const silverItemId = 1025;
 
   const getHeroId = (
     database: Awaited<ReturnType<typeof prepareTestDatabase>>,
@@ -56,7 +56,7 @@ describe('hero-auction-controllers', () => {
       `,
       bind: {
         $hero_id: heroId,
-        $item_id: silverItemId,
+        $item_id: silverItem.id,
       },
     });
 
@@ -104,7 +104,7 @@ describe('hero-auction-controllers', () => {
       `,
       bind: {
         $hero_id: heroId,
-        $item_id: silverItemId,
+        $item_id: silverItem.id,
       },
       schema: z.number(),
     })!;
@@ -191,7 +191,7 @@ describe('hero-auction-controllers', () => {
       `,
       bind: {
         $hero_id: heroId,
-        $item_id: silverItemId,
+        $item_id: silverItem.id,
       },
       schema: z.number(),
     })!;
@@ -314,7 +314,7 @@ describe('hero-auction-controllers', () => {
       `,
       bind: {
         $hero_id: heroId,
-        $item_id: silverItemId,
+        $item_id: silverItem.id,
       },
       schema: z.number(),
     })!;

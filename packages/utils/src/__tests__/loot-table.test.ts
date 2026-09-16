@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
+import { silverItem } from '@pillage-first/game-assets/items';
 import { defineLootTable, rollLootTable } from '../loot-table';
 
 const mockRandom = (rolls: number[]): void => {
@@ -68,7 +69,7 @@ describe(rollLootTable, () => {
         {
           percentage: 100,
           result: {
-            itemId: 1025,
+            itemId: silverItem.id,
             amount: [10, 20] as const,
           },
         },
@@ -76,7 +77,7 @@ describe(rollLootTable, () => {
     );
 
     expect(result).toStrictEqual({
-      itemId: 1025,
+      itemId: silverItem.id,
       amount: 15,
     });
   });
@@ -93,7 +94,7 @@ describe(rollLootTable, () => {
             {
               percentage: 100,
               result: {
-                itemId: 1025,
+                itemId: silverItem.id,
                 amount: [10, 20] as const,
               },
             },
@@ -103,7 +104,7 @@ describe(rollLootTable, () => {
     );
 
     expect(result).toStrictEqual({
-      itemId: 1025,
+      itemId: silverItem.id,
       amount: 20,
     });
   });
