@@ -28,6 +28,9 @@ import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expe
 import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
 import createHeroAdventureReportsTable from '../schemas/hero-adventure-reports-schema.sql?raw';
 import createHeroAdventuresTable from '../schemas/hero-adventures-schema.sql?raw';
+import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
+import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
+import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
 import createHeroEquippedItemsTable from '../schemas/hero-equipped-items-schema.sql?raw';
 import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?raw';
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
@@ -292,6 +295,11 @@ export const migrateAndSeed = (
 
     // Hero inventories
     db.exec({ sql: createHeroInventoriesTable });
+
+    // Hero auctions
+    db.exec({ sql: createHeroAuctionBuyListingsTable });
+    db.exec({ sql: createHeroAuctionSellListingsTable });
+    db.exec({ sql: createHeroAuctionHistoryTable });
 
     // Farm lists
     db.exec({ sql: createFarmListsTable });

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { adventureLootTable } from '@pillage-first/game-assets/loot-tables';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { newVillageQuestsFactory } from '@pillage-first/game-assets/quests';
 import { getBuildingDefinition } from '@pillage-first/game-assets/utils/buildings';
@@ -11,12 +12,14 @@ import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
+import { rollLootTable } from '@pillage-first/utils/loot-table';
 import {
   insertEffectQuery,
   selectAllRelevantEffectsByIdQuery,
   selectWheatProductionEffectIdQuery,
   updateWheatProductionByTroopsAndTileIdEffectQuery,
 } from '../../../queries/effect-queries';
+import { insertHeroItemIntoHeroInventoryQuery } from '../../../queries/hero-queries';
 import {
   insertBuildingEffectsQuery,
   insertBuildingFieldsQuery,
@@ -81,12 +84,26 @@ export const adventureMovementResolver: Resolver<
     schema: z.number(),
   })!;
 
+  const adventureLoot =
+    healthAfter > 0 ? rollLootTable(adventureLootTable) : null;
+
+  if (adventureLoot) {
+    database.exec({
+      sql: insertHeroItemIntoHeroInventoryQuery,
+      bind: {
+        $village_id: villageId,
+        $item_id: adventureLoot.itemId,
+        $amount: adventureLoot.amount,
+      },
+    });
+  }
+
   insertAdventureReport(database, {
     villageId,
     timestamp: resolvesAt,
     adventureId,
-    itemId: null,
-    itemAmount: null,
+    itemId: adventureLoot?.itemId ?? null,
+    itemAmount: adventureLoot?.amount ?? null,
     healthBefore,
     healthAfter,
   });

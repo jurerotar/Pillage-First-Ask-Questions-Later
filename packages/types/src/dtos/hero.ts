@@ -37,3 +37,28 @@ export const heroInventoryEntryDtoSchema = z.strictObject({
   id: z.number(),
   amount: z.number(),
 });
+
+export const heroAuctionBuyListingDtoSchema = z.strictObject({
+  id: z.number(),
+  itemId: z.number(),
+  amount: z.number().int().positive(),
+  price: z.number().int().positive(),
+  expiresAt: z.number(),
+});
+
+export const heroAuctionSellListingDtoSchema = z.strictObject({
+  id: z.number(),
+  itemId: z.number(),
+  amount: z.number().int().positive(),
+  price: z.number().int().positive(),
+  sellsAt: z.number(),
+});
+
+export const heroAuctionHistoryEntryDtoSchema = z.strictObject({
+  id: z.number(),
+  type: z.enum(['buy', 'sell']),
+  itemId: z.number(),
+  amount: z.number().int().positive(),
+  price: z.number().int().positive(),
+  completedAt: z.number(),
+});

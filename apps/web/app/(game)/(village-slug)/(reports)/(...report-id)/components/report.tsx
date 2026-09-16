@@ -28,6 +28,7 @@ import type {
   TroopMovementReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
+import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
 import { getReportSubject } from 'app/(game)/(village-slug)/(reports)/utils/report-subject';
 import { OverflowContainer } from 'app/(game)/(village-slug)/components/building-layout';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
@@ -232,6 +233,43 @@ type BattleParticipantTableProps = {
   participant: BattleParticipant;
   // It cannot be named "role" because it overlaps with native HTML attribute
   participantRole: 'attacker' | 'defender' | 'reinforcement';
+};
+
+type ReportItemProps = {
+  itemId: number;
+  itemAmount: number;
+};
+
+const ReportItem = ({ itemId, itemAmount }: ReportItemProps) => {
+  const { t } = useTranslation();
+  const item = getItemDefinition(itemId);
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span>{formatNumber(itemAmount)}x</span>
+      <ItemTooltip item={item}>{t(`ITEMS.${item.name}.NAME`)}</ItemTooltip>
+    </span>
+  );
+};
+
+const ReportItemFooterRow = ({ children }: PropsWithChildren) => {
+  const { t } = useTranslation();
+
+  return (
+    <tfoot className="border-t dark:border-border">
+      <tr>
+        <td className="p-2">
+          <Text className="text-sm font-medium">{t('Item')}</Text>
+        </td>
+        <td
+          colSpan={100}
+          className="p-2 text-left"
+        >
+          {children}
+        </td>
+      </tr>
+    </tfoot>
+  );
 };
 
 export const BattleParticipantTable = ({
@@ -451,6 +489,15 @@ export const BattleParticipantTable = ({
             loot={loot}
             totalCarryCapacity={totalCarryCapacity}
           />
+          {report.battle.outcome.itemId !== null &&
+            report.battle.outcome.itemAmount !== null && (
+              <ReportItemFooterRow>
+                <ReportItem
+                  itemId={report.battle.outcome.itemId}
+                  itemAmount={report.battle.outcome.itemAmount}
+                />
+              </ReportItemFooterRow>
+            )}
         </>
       )}
     </UnitTable>
@@ -843,6 +890,16 @@ export const ScoutingReportTables = () => {
             ))}
           </tfoot>
         )}
+        {!hideIntelligence &&
+          scouting.itemId !== null &&
+          scouting.itemAmount !== null && (
+            <ReportItemFooterRow>
+              <ReportItem
+                itemId={scouting.itemId}
+                itemAmount={scouting.itemAmount}
+              />
+            </ReportItemFooterRow>
+          )}
       </UnitTable>
       {!hideIntelligence &&
         scouting.defender.reinforcements.map((reinforcement) => {
@@ -981,9 +1038,14 @@ export const AdventureReportTable = () => {
                 {t('Item')}
               </TableCell>
               <TableCell className="text-left">
-                {itemId === null
-                  ? t('Hero found nothing.')
-                  : `${formatNumber(itemAmount!)}x ${t(`ITEMS.${getItemDefinition(itemId).name}.NAME`)}`}
+                {itemId === null || itemAmount === null ? (
+                  t('Hero found nothing.')
+                ) : (
+                  <ReportItem
+                    itemId={itemId}
+                    itemAmount={itemAmount}
+                  />
+                )}
               </TableCell>
             </TableRow>
           )}

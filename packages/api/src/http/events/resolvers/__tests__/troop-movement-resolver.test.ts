@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import {
@@ -37,6 +37,18 @@ import {
   relocationMovementResolver,
   returnMovementResolver,
 } from '../troop-movement-resolver';
+
+const mockRandom = (rolls: number[]): void => {
+  const remainingRolls = [...rolls];
+
+  vi.spyOn(Math, 'random').mockImplementation(() => {
+    return remainingRolls.shift() ?? 0;
+  });
+};
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 const getTroopWheatProductionEffectValue = (
   database: DbFacade,
@@ -205,6 +217,8 @@ describe(adventureMovementResolver, () => {
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     });
 
+    mockRandom([0.1, 0.7, 0.75]);
+
     adventureMovementResolver(database, mockEvent);
 
     const hero = database.selectObject({
@@ -235,6 +249,7 @@ describe(adventureMovementResolver, () => {
           roi.report_outcome,
           har.adventure_id,
           har.item_id,
+          har.item_amount,
           har.health_before,
           har.health_after
         FROM
@@ -252,6 +267,7 @@ describe(adventureMovementResolver, () => {
         report_outcome: reportOutcomeSchema,
         adventure_id: z.number(),
         item_id: z.number().nullable(),
+        item_amount: z.number().nullable(),
         health_before: z.number(),
         health_after: z.number(),
       }),
@@ -263,10 +279,19 @@ describe(adventureMovementResolver, () => {
       report_type: 'adventure',
       report_outcome: 'heroAdventure',
       adventure_id: 6,
-      item_id: null,
+      item_id: 1030,
+      item_amount: 9,
       health_before: 100,
       health_after: 97,
     });
+
+    const inventoryAmount = database.selectValue({
+      sql: 'SELECT amount FROM hero_inventory WHERE hero_id = $hero_id AND item_id = $item_id;',
+      bind: { $hero_id: heroId, $item_id: report.item_id },
+      schema: z.number(),
+    });
+
+    expect(inventoryAmount).toBe(report.item_amount);
 
     // Check if return event was created
     const returnEventRow = database.selectObject({
@@ -362,6 +387,7 @@ describe(adventureMovementResolver, () => {
         SELECT
           har.adventure_id,
           har.item_id,
+          har.item_amount,
           har.health_before,
           har.health_after
         FROM
@@ -373,6 +399,7 @@ describe(adventureMovementResolver, () => {
       schema: z.strictObject({
         adventure_id: z.number(),
         item_id: z.number().nullable(),
+        item_amount: z.number().nullable(),
         health_before: z.number(),
         health_after: z.number(),
       }),
@@ -381,9 +408,18 @@ describe(adventureMovementResolver, () => {
     expect(report).toEqual({
       adventure_id: 6,
       item_id: null,
+      item_amount: null,
       health_before: 3,
       health_after: 0,
     });
+
+    const inventoryCount = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM hero_inventory WHERE hero_id = $hero_id;',
+      bind: { $hero_id: heroId },
+      schema: z.number(),
+    });
+
+    expect(inventoryCount).toBe(0);
 
     // Check if return event was NOT created
     const returnEventRow = database.selectObject({

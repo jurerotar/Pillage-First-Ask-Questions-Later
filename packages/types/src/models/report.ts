@@ -194,23 +194,33 @@ const scoutingReinforcementSchema = scoutingTroopsSchema.extend({
 export const scoutingReportSchema = baseReportSchema.extend({
   type: z.literal('scouting'),
   summary: scoutingReportSummarySchema,
-  scouting: z.strictObject({
-    id: z.int(),
-    perspective: reportSideSchema,
-    successful: z.boolean(),
-    target: z.enum(['resources', 'defensiveStructures']),
-    attacker: scoutingAttackerTroopsSchema,
-    defender: scoutingTroopsSchema.extend({
-      reinforcements: z.array(scoutingReinforcementSchema),
-    }),
-    resources: resourceBundleSchema.nullable(),
-    defensiveStructures: z.array(
-      z.strictObject({
-        buildingId: buildingIdSchema,
-        level: z.int().nonnegative(),
+  scouting: z
+    .strictObject({
+      id: z.int(),
+      perspective: reportSideSchema,
+      successful: z.boolean(),
+      target: z.enum(['resources', 'defensiveStructures']),
+      attacker: scoutingAttackerTroopsSchema,
+      defender: scoutingTroopsSchema.extend({
+        reinforcements: z.array(scoutingReinforcementSchema),
       }),
+      resources: resourceBundleSchema.nullable(),
+      itemId: z.int().nullable(),
+      itemAmount: z.int().positive().nullable(),
+      defensiveStructures: z.array(
+        z.strictObject({
+          buildingId: buildingIdSchema,
+          level: z.int().nonnegative(),
+        }),
+      ),
+    })
+    .refine(
+      ({ itemId, itemAmount }) => (itemId === null) === (itemAmount === null),
+      {
+        message: 'Item id and amount must either both be set or both be null',
+        path: ['itemAmount'],
+      },
     ),
-  }),
 });
 
 export const reportSchema = z

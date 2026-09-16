@@ -5,7 +5,7 @@ import {
 } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { randomArrayElement } from '@pillage-first/utils/random';
-import { insertAnimalCagesIntoHeroInventoryQuery } from '../../../queries/hero-queries';
+import { insertHeroItemIntoHeroInventoryQuery } from '../../../queries/hero-queries';
 import { selectVillageAndFirstOasisTileIdsQuery } from '../../../queries/map-queries';
 import {
   assessCaptureAnimalCountByIdQuestCompletion,
@@ -21,7 +21,7 @@ export const animalCageProductionResolver: Resolver<
   const { cageAmount, villageId } = args;
 
   database.exec({
-    sql: insertAnimalCagesIntoHeroInventoryQuery,
+    sql: insertHeroItemIntoHeroInventoryQuery,
     bind: {
       $village_id: villageId,
       $item_id: ANIMAL_CAGE_ITEM_ID,

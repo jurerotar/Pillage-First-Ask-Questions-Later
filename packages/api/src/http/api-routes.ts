@@ -39,6 +39,13 @@ import {
   updateFarmList,
 } from './controllers/farm-list-controllers';
 import {
+  buyHeroAuctionListing,
+  getHeroAuctionBuyListings,
+  getHeroAuctionHistory,
+  getHeroAuctionSellListings,
+  sellHeroAuctionItem,
+} from './controllers/hero-auction-controllers';
+import {
   changeHeroAttributes,
   changeHeroResourceToProduce,
   equipHeroItem,
@@ -62,7 +69,6 @@ import {
   getTileOasisBonuses,
   getTiles,
   getTileTroops,
-  getTileWorldItem,
   removeMapMarker,
 } from './controllers/map-controllers';
 import {
@@ -155,7 +161,11 @@ export const apiRoutes = [
   createRoute(adjustVillageLoyalty),
 
   // Auctions
-  // createRoute(getAuctions),
+  createRoute(getHeroAuctionBuyListings),
+  createRoute(buyHeroAuctionListing),
+  createRoute(getHeroAuctionSellListings),
+  createRoute(sellHeroAuctionItem),
+  createRoute(getHeroAuctionHistory),
 
   // Hero
   createRoute(getHero),
@@ -181,7 +191,6 @@ export const apiRoutes = [
   createRoute(getTiles),
   createRoute(getTileTroops),
   createRoute(getTileOasisBonuses),
-  createRoute(getTileWorldItem),
   createRoute(getMapMarkers),
   createRoute(addMapMarker),
   createRoute(removeMapMarker),

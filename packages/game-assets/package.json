@@ -21,6 +21,9 @@
     "./items": {
       "default": "./src/items.ts"
     },
+    "./auctions": {
+      "default": "./src/auctions.ts"
+    },
     "./quests": {
       "default": "./src/quests.ts"
     },
@@ -39,6 +42,9 @@
     "./merchants": {
       "default": "./src/merchants.ts"
     },
+    "./loot-tables": {
+      "default": "./src/loot-tables.ts"
+    },
     "./utils/troops": {
       "default": "./src/utils/troops.ts"
     },
@@ -53,6 +59,9 @@
     },
     "./utils/items": {
       "default": "./src/utils/items.ts"
+    },
+    "./utils/auctions": {
+      "default": "./src/utils/auctions.ts"
     },
     "./utils/adventures": {
       "default": "./src/utils/adventures.ts"
@@ -92,6 +101,6 @@
   },
   "devDependencies": {
     "typescript": "7.0.2",
-    "vitest": "5.0.0"
+    "vitest": "5.0.1"
   }
 }
