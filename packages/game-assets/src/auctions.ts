@@ -90,11 +90,7 @@ export const auctionHouseItemLootTable = defineLootTable([
 ]);
 
 export const rollAuctionHouseItem = (): HeroItem => {
-  const loot = rollLootTable(auctionHouseItemLootTable);
-
-  if (!loot) {
-    throw new Error('Auction house loot table did not resolve an item');
-  }
+  const loot = rollLootTable(auctionHouseItemLootTable)!;
 
   return getItemDefinition(loot.itemId);
 };
