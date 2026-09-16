@@ -1,5 +1,8 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import {
   heroAuctionBuyListingsCacheKey,
@@ -18,6 +21,7 @@ type SellHeroItemArgs = {
 export const useHeroAuctionBuyListings = () => {
   const { apiClient } = use(ApiContext);
   const { player } = useMe();
+  const { t } = useTranslation();
 
   const { data: buyListings } = useSuspenseQuery({
     queryKey: [heroAuctionBuyListingsCacheKey],
@@ -48,12 +52,31 @@ export const useHeroAuctionBuyListings = () => {
         },
       });
     },
-    onSuccess: async (_, _args, _onMutateResult, context) => {
+    onSuccess: async (_, listingId, _onMutateResult, context) => {
+      const boughtListing = buyListings.find(({ id }) => id === listingId);
+
       await invalidateQueries(context, [
         [heroAuctionBuyListingsCacheKey],
         [heroAuctionHistoryCacheKey],
         [heroInventoryCacheKey],
       ]);
+
+      if (!boughtListing) {
+        toast.success(t('Item bought'));
+        return;
+      }
+
+      const item = getItemDefinition(boughtListing.itemId);
+      const itemName = t(`ITEMS.${item.name}.NAME`, {
+        count: boughtListing.amount,
+      });
+
+      toast.success(
+        t('Bought {{count}} {{itemName}}', {
+          count: boughtListing.amount,
+          itemName,
+        }),
+      );
     },
   });
 

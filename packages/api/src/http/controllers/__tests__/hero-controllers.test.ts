@@ -62,6 +62,50 @@ describe('hero-controllers', () => {
     expect(true).toBe(true);
   });
 
+  test('getHeroInventory should complete expired auction sales before returning inventory', async () => {
+    const database = await prepareTestDatabase();
+    const heroId = database.selectValue({
+      sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        INSERT INTO
+          hero_auction_sell_listings (hero_id, item_id, amount, price, sells_at)
+        VALUES
+          ($hero_id, $item_id, $amount, $price, $sells_at);
+      `,
+      bind: {
+        $hero_id: heroId,
+        $item_id: 1022,
+        $amount: 2,
+        $price: 123,
+        $sells_at: Date.now() - 1,
+      },
+    });
+
+    const inventory = getHeroInventory(
+      database,
+      createControllerArgs<'/players/:playerId/hero/inventory'>({
+        path: { playerId },
+      }),
+    );
+
+    const pendingSaleCount = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM hero_auction_sell_listings WHERE hero_id = $hero_id',
+      bind: { $hero_id: heroId },
+      schema: z.number(),
+    })!;
+
+    expect(inventory).toContainEqual({
+      id: 1025,
+      amount: 123,
+    });
+    expect(pendingSaleCount).toBe(0);
+  });
+
   test('getHeroAdventures should return adventures status', async () => {
     const database = await prepareTestDatabase();
 
