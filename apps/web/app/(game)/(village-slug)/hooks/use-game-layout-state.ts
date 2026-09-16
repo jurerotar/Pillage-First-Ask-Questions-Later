@@ -3,7 +3,9 @@ import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-que
 
 export const useGameLayoutState = () => {
   const matches = useMatches();
-  const isWiderThanMd = useMediaQuery('(min-width: 768px)');
+  const hasSidebarViewport = useMediaQuery(
+    '(min-width: 768px) and (min-height: 768px)',
+  );
 
   const isResourcesPageExact = matches.some(
     (match) => match?.id === 'resources-page',
@@ -13,7 +15,7 @@ export const useGameLayoutState = () => {
   );
 
   const shouldShowSidebars =
-    isWiderThanMd || isVillagePageExact || isResourcesPageExact;
+    hasSidebarViewport || isVillagePageExact || isResourcesPageExact;
 
   return {
     shouldShowSidebars,

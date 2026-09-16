@@ -9,7 +9,10 @@ import { IoCopyOutline } from 'react-icons/io5';
 import { Link } from 'react-router';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
-import { parseAppVersion } from '@pillage-first/utils/version';
+import {
+  encodeAppVersionToDatabaseUserVersion,
+  isSupportedDatabaseUserVersion,
+} from '@pillage-first/utils/version';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -50,11 +53,10 @@ export const ServerCard = ({ server }: ServerCardProps) => {
 
   const gameWorldVersion = server.version ?? '0.0.0';
 
-  const [appMajor, appMinor] = parseAppVersion(appVersion);
-  const [gameWorldMajor, gameWorldMinor] = parseAppVersion(gameWorldVersion);
-
-  const shouldDisplayGameWorldOutdatedAlert =
-    appMajor !== gameWorldMajor || appMinor !== gameWorldMinor;
+  const shouldDisplayGameWorldOutdatedAlert = !isSupportedDatabaseUserVersion(
+    encodeAppVersionToDatabaseUserVersion(gameWorldVersion),
+    appVersion,
+  );
 
   return (
     <div
@@ -151,7 +153,13 @@ export const ServerCard = ({ server }: ServerCardProps) => {
         <Badge variant="successive">
           {server.configuration.mapSize}x{server.configuration.mapSize}
         </Badge>
-        <Badge variant="successive">v{gameWorldVersion}</Badge>
+        <Badge
+          variant={
+            shouldDisplayGameWorldOutdatedAlert ? 'destructive' : 'successive'
+          }
+        >
+          v{gameWorldVersion}
+        </Badge>
       </div>
       <div className="flex gap-2 flex-wrap">
         <span className="flex gap-2">
@@ -167,20 +175,22 @@ export const ServerCard = ({ server }: ServerCardProps) => {
       </div>
       {shouldDisplayGameWorldOutdatedAlert && (
         <Alert variant="error">
-          This game world is incompatible with the latest version of the app. In
-          case of error, create a new game world. Check the{' '}
+          This game world is incompatible with the latest version of the app.
+          Check out{' '}
           <Link
             className="underline"
-            to="../latest-updates"
+            to="/frequently-asked-questions#updating-game-worlds-to-latest-version"
           >
-            latest updates page
+            frequently asked questions
           </Link>{' '}
           for more information.
         </Alert>
       )}
-      <Link to={`/game/${server.slug}/v-1/resources`}>
-        <Button variant="default">Enter server</Button>
-      </Link>
+      {!shouldDisplayGameWorldOutdatedAlert && (
+        <Link to={`/game/${server.slug}/v-1/resources`}>
+          <Button variant="default">Enter</Button>
+        </Link>
+      )}
     </div>
   );
 };
