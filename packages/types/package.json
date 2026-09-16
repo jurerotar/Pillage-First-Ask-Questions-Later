@@ -170,8 +170,8 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "@sqlite.org/sqlite-wasm": "3.53.0-build1",
-    "zod": "4.5.4"
+    "@sqlite.org/sqlite-wasm": "3.53.4-build1",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "typescript": "7.0.2"
