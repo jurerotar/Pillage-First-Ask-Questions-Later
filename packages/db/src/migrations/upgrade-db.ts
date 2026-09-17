@@ -948,7 +948,9 @@ export const upgradeDb = (
     db.exec({ sql: createHeroAuctionBuyListingsTable });
     db.exec({ sql: createHeroAuctionSellListingsTable });
     db.exec({ sql: createHeroAuctionHistoryTable });
+  });
 
+  migrate('0.4.67', (db) => {
     db.transaction((tx) => {
       tx.exec({
         sql: `
