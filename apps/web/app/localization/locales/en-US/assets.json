@@ -1180,7 +1180,7 @@
       "GROUP": "{{asset}}"
     },
     "EVERY": {
-      "NAME": "All {{asset}} level {{count}}",
+      "NAME": "All {{asset}} to level {{count}}",
       "DESCRIPTION": "Upgrade all {{asset}} to level {{count}}.",
       "GROUP": "All {{asset}}"
     }
