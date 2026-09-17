@@ -948,6 +948,60 @@ export const upgradeDb = (
     db.exec({ sql: createHeroAuctionBuyListingsTable });
     db.exec({ sql: createHeroAuctionSellListingsTable });
     db.exec({ sql: createHeroAuctionHistoryTable });
+
+    db.transaction((tx) => {
+      tx.exec({
+        sql: `
+          UPDATE effects
+          SET
+            value = 1 + (o.bonus / 100.0) * (
+              -- Waterworks now lives in occupied oasis bonus rows instead of
+              -- generic building effects; normalize existing saved worlds.
+              1 + 0.05 * COALESCE((
+                SELECT MAX(bf.level)
+                FROM
+                  villages v
+                    JOIN building_fields bf ON bf.village_id = v.id
+                    JOIN building_ids bi ON bi.id = bf.building_id
+                WHERE
+                  v.tile_id = effects.tile_id
+                  AND bi.building = 'WATERWORKS'
+              ), 0)
+            )
+          FROM
+            oasis o
+              JOIN resource_ids ri ON ri.id = o.resource_id
+              JOIN effect_ids ei ON ei.effect = ri.resource || 'Production'
+          WHERE
+            effects.effect_id = ei.id
+            AND effects.type_id = (SELECT id FROM effect_type_ids WHERE type = 'bonus')
+            AND effects.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+            AND effects.source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+            AND effects.source_specifier = o.tile_id;
+        `,
+      });
+
+      tx.exec({
+        sql: `
+          DELETE
+          FROM
+            effects
+          WHERE
+            source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
+            AND EXISTS (
+              SELECT 1
+              FROM
+                villages v
+                  JOIN building_fields bf ON bf.village_id = v.id
+                  JOIN building_ids bi ON bi.id = bf.building_id
+              WHERE
+                v.tile_id = effects.tile_id
+                AND bf.field_id = effects.source_specifier
+                AND bi.building = 'WATERWORKS'
+            );
+        `,
+      });
+    });
   });
 
   // If all migrations passed, bump it to current version

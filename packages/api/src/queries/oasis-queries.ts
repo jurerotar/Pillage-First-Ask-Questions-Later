@@ -28,13 +28,23 @@ export const selectOasisOccupationContextQuery = `
 `;
 
 export const insertOasisEffectsForVillageQuery = `
+  WITH waterworks_bonus_multiplier(value) AS (
+    SELECT
+      -- Waterworks adds 5% of the oasis bonus per level. We store that
+      -- adjusted value on the oasis effect so computed-effect math stays generic.
+      1 + 0.05 * COALESCE(MAX(bf.level), 0)
+    FROM
+      villages v
+        LEFT JOIN building_fields bf ON bf.village_id = v.id
+          AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'WATERWORKS')
+    WHERE
+      v.tile_id = $village_tile_id
+  )
+
   INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
   SELECT
     ei.id,
-    CASE
-      WHEN o.bonus = 25 THEN 1.25
-      ELSE 1.5
-    END,
+    1 + (o.bonus / 100.0) * wbm.value,
     (SELECT id FROM effect_type_ids WHERE type = 'bonus'),
     (SELECT id FROM effect_scope_ids WHERE scope = 'local'),
     (SELECT id FROM effect_source_ids WHERE source = 'oasis'),
@@ -44,8 +54,39 @@ export const insertOasisEffectsForVillageQuery = `
     oasis o
       JOIN resource_ids ri ON ri.id = o.resource_id
       JOIN effect_ids ei ON ei.effect = ri.resource || 'Production'
+      CROSS JOIN waterworks_bonus_multiplier wbm
   WHERE
     o.tile_id = $oasis_tile_id;
+`;
+
+export const updateOasisEffectsForVillageQuery = `
+  WITH waterworks_bonus_multiplier(value) AS (
+    SELECT
+      -- Keep existing occupied oasis effects in sync with Waterworks. The
+      -- multiplier lives here because Waterworks only affects oasis bonuses.
+      1 + 0.05 * COALESCE(MAX(bf.level), 0)
+    FROM
+      building_fields bf
+    WHERE
+      bf.village_id = $village_id
+      AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'WATERWORKS')
+  )
+
+  UPDATE effects
+  SET
+    value = 1 + (o.bonus / 100.0) * wbm.value
+  FROM
+    oasis o
+      JOIN resource_ids ri ON ri.id = o.resource_id
+      JOIN effect_ids ei ON ei.effect = ri.resource || 'Production'
+      CROSS JOIN waterworks_bonus_multiplier wbm
+  WHERE
+    effects.effect_id = ei.id
+    AND effects.type_id = (SELECT id FROM effect_type_ids WHERE type = 'bonus')
+    AND effects.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+    AND effects.source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+    AND effects.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+    AND effects.source_specifier = o.tile_id;
 `;
 
 export const deleteOasisEffectsQuery = `

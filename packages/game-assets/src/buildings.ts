@@ -54,19 +54,6 @@ const createResourceBoosterEffect = (
   };
 };
 
-const createOasisBonusBoosterEffect = (
-  effectId: ResourceProductionEffectId,
-): BuildingEffect => {
-  return {
-    effectId,
-    valuesPerLevel: [
-      1, 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5, 1.55, 1.6, 1.65,
-      1.7, 1.75, 1.8, 1.85, 1.9, 1.95, 2,
-    ],
-    type: 'bonus-booster',
-  };
-};
-
 const createTroopDurationEffect = (
   effectId: TroopTrainingDurationEffectId,
 ): BuildingEffect => {
@@ -421,12 +408,9 @@ export const buildings: Building[] = [
     category: 'infrastructure',
     populationCoefficient: 1,
     culturePointsCoefficient: 2,
-    effects: () => [
-      createOasisBonusBoosterEffect('woodProduction'),
-      createOasisBonusBoosterEffect('clayProduction'),
-      createOasisBonusBoosterEffect('ironProduction'),
-      createOasisBonusBoosterEffect('wheatProduction'),
-    ],
+    // Waterworks modifies occupied oasis bonus rows directly when an oasis is
+    // captured or the building level changes, so it has no generic effect rows.
+    effects: () => [],
     buildingRequirements: [
       {
         id: 1,
