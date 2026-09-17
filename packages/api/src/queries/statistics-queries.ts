@@ -152,6 +152,125 @@ export const selectVillageRankingsQuery = `
     population DESC, village_id;
 `;
 
+export const selectStatisticsComparisonVillagesQuery = `
+  SELECT
+    v.id AS village_id,
+    v.name AS village_name,
+    t.id AS tile_id,
+    t.x AS coordinates_x,
+    t.y AS coordinates_y,
+    p.id AS player_id,
+    p.name AS player_name,
+    p.slug AS player_slug,
+    ti.tribe,
+    fi.faction
+  FROM
+    villages v
+      JOIN tiles t ON t.id = v.tile_id
+      JOIN players p ON p.id = v.player_id
+      JOIN tribe_ids ti ON ti.id = p.tribe_id
+      JOIN faction_ids fi ON fi.id = p.faction_id
+  ORDER BY
+    v.id;
+`;
+
+export const selectStatisticsComparisonEffectsQuery = `
+  SELECT
+    ei.effect AS id,
+    e.value,
+    et.type,
+    es.scope,
+    eso.source,
+    e.tile_id AS tileId,
+    e.source_specifier AS sourceSpecifier
+  FROM
+    effects AS e
+      JOIN effect_ids AS ei ON ei.id = e.effect_id
+      JOIN effect_type_ids AS et ON et.id = e.type_id
+      JOIN effect_scope_ids AS es ON es.id = e.scope_id
+      JOIN effect_source_ids AS eso ON eso.id = e.source_id
+  WHERE
+    ei.effect IN (
+      'woodProduction',
+      'clayProduction',
+      'ironProduction',
+      'wheatProduction',
+      'unitWheatConsumption'
+    );
+`;
+
+export const selectStatisticsComparisonTroopsQuery = `
+  WITH
+    stationary_troops AS (
+      SELECT
+        source_v.id AS village_id,
+        source_v.player_id,
+        ui.unit AS unit_id,
+        SUM(t.amount) AS amount
+      FROM
+        troops t
+          JOIN unit_ids ui ON ui.id = t.unit_id
+          JOIN villages source_v ON source_v.tile_id = t.source_tile_id
+      GROUP BY
+        source_v.id,
+        source_v.player_id,
+        ui.unit
+    ),
+    moving_troops AS (
+      SELECT
+        source_v.id AS village_id,
+        source_v.player_id,
+        JSON_EXTRACT(troop.value, '$.unitId') AS unit_id,
+        SUM(CAST(JSON_EXTRACT(troop.value, '$.amount') AS INTEGER)) AS amount
+      FROM
+        events e,
+        JSON_EACH(e.meta, '$.troops') AS troop
+          JOIN villages source_v
+            ON source_v.tile_id = CAST(JSON_EXTRACT(troop.value, '$.sourceTileId') AS INTEGER)
+      WHERE
+        e.type IN (
+          'troopMovementReinforcements',
+          'troopMovementRelocation',
+          'troopMovementReturn',
+          'troopMovementFindNewVillage',
+          'troopMovementAttack',
+          'troopMovementRaid',
+          'troopMovementOasisOccupation',
+          'troopMovementAdventure'
+        )
+      GROUP BY
+        source_v.id,
+        source_v.player_id,
+        JSON_EXTRACT(troop.value, '$.unitId')
+    ),
+    all_troops AS (
+      SELECT * FROM stationary_troops
+      UNION ALL
+      SELECT * FROM moving_troops
+    )
+  SELECT
+    village_id,
+    player_id,
+    unit_id,
+    SUM(amount) AS amount
+  FROM
+    all_troops
+  GROUP BY
+    village_id,
+    player_id,
+    unit_id;
+`;
+
+export const selectStatisticsComparisonUnitImprovementsQuery = `
+  SELECT
+    ui.player_id,
+    unit_ids.unit AS unit_id,
+    ui.level
+  FROM
+    unit_improvements ui
+      JOIN unit_ids ON unit_ids.id = ui.unit_id;
+`;
+
 export const selectPlayerStatsByTribeAndFactionQuery = `
   SELECT
     ti.tribe AS tribe,

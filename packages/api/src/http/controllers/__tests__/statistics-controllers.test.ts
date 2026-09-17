@@ -8,6 +8,7 @@ import {
 import {
   getGameWorldOverview,
   getPlayerRankings,
+  getProductionAndPowerStatistics,
   getVillageRankings,
 } from '../statistics-controllers';
 import { createControllerArgs } from './utils/controller-args';
@@ -174,5 +175,98 @@ describe('statistics-controllers', () => {
     );
 
     expect(true).toBe(true);
+  });
+
+  test('getProductionAndPowerStatistics should count stationed and moving troops', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, tile_id, player_id FROM villages WHERE player_id = 1 LIMIT 1',
+      schema: z.strictObject({
+        id: z.number(),
+        tile_id: z.number(),
+        player_id: z.number(),
+      }),
+    })!;
+
+    database.exec({ sql: 'DELETE FROM troops' });
+    database.exec({
+      sql: `
+        DELETE FROM events
+        WHERE type IN (
+          'troopMovementReinforcements',
+          'troopMovementRelocation',
+          'troopMovementReturn',
+          'troopMovementFindNewVillage',
+          'troopMovementAttack',
+          'troopMovementRaid',
+          'troopMovementOasisOccupation',
+          'troopMovementAdventure'
+        );
+      `,
+    });
+    database.exec({ sql: 'UPDATE unit_improvements SET level = 0' });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
+        VALUES (
+          (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+          2,
+          $tile_id,
+          $tile_id
+        );
+      `,
+      bind: { $tile_id: village.tile_id },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES (
+          'troopMovementAttack',
+          0,
+          1000,
+          $village_id,
+          $meta
+        );
+      `,
+      bind: {
+        $village_id: village.id,
+        $meta: JSON.stringify({
+          originTileId: village.tile_id,
+          targetTileId: village.tile_id,
+          troops: [
+            {
+              unitId: 'LEGIONNAIRE',
+              amount: 3,
+              tileId: village.tile_id,
+              sourceTileId: village.tile_id,
+            },
+          ],
+        }),
+      },
+    });
+
+    const result = getProductionAndPowerStatistics(
+      database,
+      createControllerArgs<'/statistics/production-and-power'>({
+        query: {
+          villageId: village.id,
+        },
+      }),
+    );
+
+    expect(result.village.id).toBe(village.id);
+    expect(result.kingdom.id).toBe(village.player_id);
+    expect(result.kingdomCount).toBeGreaterThan(0);
+    expect(result.villageCount).toBeGreaterThan(0);
+    expect(result.village.attackPower).toBe(200);
+    expect(result.village.infantryDefencePower).toBe(175);
+    expect(result.village.cavalryDefencePower).toBe(250);
+    expect(result.village.totalDefencePower).toBe(425);
+    expect(result.kingdom.attackPower).toBeGreaterThanOrEqual(
+      result.village.attackPower,
+    );
   });
 });

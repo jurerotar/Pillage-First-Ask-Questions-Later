@@ -124,6 +124,7 @@ import { getServer } from './controllers/server-controllers';
 import {
   getGameWorldOverview,
   getPlayerRankings,
+  getProductionAndPowerStatistics,
   getVillageRankings,
 } from './controllers/statistics-controllers';
 import { getTrapperCageStats } from './controllers/trapper-controllers';
@@ -278,6 +279,7 @@ export const apiRoutes = [
   createRoute(getPlayerRankings),
   createRoute(getVillageRankings),
   createRoute(getGameWorldOverview),
+  createRoute(getProductionAndPowerStatistics),
 
   // Reputations
   createRoute(getReputations),

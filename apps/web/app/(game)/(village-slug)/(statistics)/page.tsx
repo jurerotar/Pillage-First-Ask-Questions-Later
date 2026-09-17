@@ -9,10 +9,15 @@ import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
-const tabs = ['population', 'villages', 'overview'];
+const tabs = ['population', 'villages', 'production-and-power', 'overview'];
 
 const GameWorldOverview = lazy(async () => ({
   default: (await import('./components/game-world-overview')).GameWorldOverview,
+}));
+
+const ProductionAndPowerComparison = lazy(async () => ({
+  default: (await import('./components/production-and-power-comparison'))
+    .ProductionAndPowerComparison,
 }));
 
 const StatisticsPage = ({ params }: Route.ComponentProps) => {
@@ -33,7 +38,7 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
       >
         <Text>
           {t(
-            'Review player rankings, village rankings and game world overview statistics.',
+            'Review player rankings, village rankings, production, power and game world overview statistics.',
           )}
         </Text>
       </InformationPopover>
@@ -47,6 +52,7 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
         <TabList>
           <Tab value="population">{t('Population')}</Tab>
           <Tab value="villages">{t('Villages')}</Tab>
+          <Tab value="production-and-power">{t('Production and power')}</Tab>
           <Tab value="overview">{t('Overview')}</Tab>
         </TabList>
         <TabPanel value="population">
@@ -54,6 +60,11 @@ const StatisticsPage = ({ params }: Route.ComponentProps) => {
         </TabPanel>
         <TabPanel value="villages">
           <VillageRankings />
+        </TabPanel>
+        <TabPanel value="production-and-power">
+          <Suspense fallback={null}>
+            <ProductionAndPowerComparison />
+          </Suspense>
         </TabPanel>
         <TabPanel value="overview">
           <Suspense fallback={null}>
