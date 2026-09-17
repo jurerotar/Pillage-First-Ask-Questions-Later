@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { buildingLevelChangeResolver } from '../../events/resolvers/building-resolvers';
 import { abandonOasis, occupyOasis } from '../oasis-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -74,6 +76,69 @@ describe('oasis-controllers', () => {
         $unit_id: unitId,
         $amount: amount,
       },
+    });
+  };
+
+  const upsertWaterworks = (
+    database: DbFacade,
+    villageId: number,
+    buildingFieldId: number,
+    level: number,
+  ) => {
+    database.exec({
+      sql: `
+        INSERT INTO building_fields (village_id, field_id, building_id, level)
+        VALUES (
+          $village_id,
+          $field_id,
+          (SELECT id FROM building_ids WHERE building = 'WATERWORKS'),
+          $level
+        )
+        ON CONFLICT(village_id, field_id)
+        DO UPDATE SET
+          building_id = excluded.building_id,
+          level = excluded.level;
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+        $level: level,
+      },
+    });
+  };
+
+  const selectOccupiedOasisBonusEffects = (
+    database: DbFacade,
+    villageTileId: number,
+    oasisTileId: number,
+  ) => {
+    return database.selectObjects({
+      sql: `
+        SELECT
+          e.value,
+          o.bonus
+        FROM
+          effects e
+            JOIN effect_ids ei ON ei.id = e.effect_id
+            JOIN resource_ids ri ON ei.effect = ri.resource || 'Production'
+            JOIN oasis o ON o.resource_id = ri.id
+              AND o.tile_id = e.source_specifier
+        WHERE
+          e.tile_id = $village_tile_id
+          AND e.source_specifier = $oasis_tile_id
+          AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'bonus')
+          AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis')
+        ORDER BY
+          ei.effect;
+      `,
+      bind: {
+        $village_tile_id: villageTileId,
+        $oasis_tile_id: oasisTileId,
+      },
+      schema: z.strictObject({
+        value: z.number(),
+        bonus: z.number(),
+      }),
     });
   };
 
@@ -169,6 +234,87 @@ describe('oasis-controllers', () => {
 
     expect(previousOwnerEffectCount).toBe(0);
     expect(nextOwnerEffectCount).toBeGreaterThan(0);
+  });
+
+  test('occupyOasis should apply current Waterworks multiplier to oasis effects', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
+      schema: villageRowSchema,
+    })!;
+
+    upsertWaterworks(database, village.id, 19, 20);
+
+    const oasisTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
+      schema: z.number(),
+    })!;
+
+    occupyOasis(
+      database,
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: village.tile_id, oasisTileId },
+      }),
+    );
+
+    const effects = selectOccupiedOasisBonusEffects(
+      database,
+      village.tile_id,
+      oasisTileId,
+    );
+
+    expect(effects.length).toBeGreaterThan(0);
+
+    for (const { value, bonus } of effects) {
+      expect(value).toBe(1 + (bonus / 100) * 2);
+    }
+  });
+
+  test('Waterworks level changes should update occupied oasis effects', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
+      schema: villageRowSchema,
+    })!;
+
+    const oasisTileId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis WHERE village_id IS NULL LIMIT 1',
+      schema: z.number(),
+    })!;
+
+    occupyOasis(
+      database,
+      createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
+        path: { tileId: village.tile_id, oasisTileId },
+      }),
+    );
+
+    upsertWaterworks(database, village.id, 19, 1);
+
+    buildingLevelChangeResolver(
+      database,
+      createBuildingLevelChangeEventMock({
+        villageId: village.id,
+        buildingId: 'WATERWORKS',
+        buildingFieldId: 19,
+        previousLevel: 1,
+        level: 20,
+      }),
+    );
+
+    const effects = selectOccupiedOasisBonusEffects(
+      database,
+      village.tile_id,
+      oasisTileId,
+    );
+
+    expect(effects.length).toBeGreaterThan(0);
+
+    for (const { value, bonus } of effects) {
+      expect(value).toBe(1 + (bonus / 100) * 2);
+    }
   });
 
   test('abandonOasis should abandon an oasis', async () => {

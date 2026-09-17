@@ -35,15 +35,6 @@ type Handlers = {
 };
 
 export const cachesToClearOnResolve: Handlers = {
-  buildingScheduledConstruction: ({ affectedVillageIds }) => {
-    return [
-      [currentVillageCacheKey],
-      ...affectedVillageIds.flatMap((villageId) => [
-        [eventsCacheKey, 'buildingScheduledConstruction', villageId],
-        [eventsCacheKey, 'buildingLevelChange', villageId],
-      ]),
-    ];
-  },
   buildingConstruction: ({ affectedVillageIds }) => {
     return [
       [currentVillageCacheKey],

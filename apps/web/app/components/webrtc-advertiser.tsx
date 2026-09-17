@@ -39,11 +39,13 @@ const withReconnect = (fn: () => void, delay = 5000) => {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   const retry = () => {
-    if (cancelled) {
+    if (cancelled || timeoutId !== undefined) {
       return;
     }
 
     timeoutId = setTimeout(() => {
+      timeoutId = undefined;
+
       if (!cancelled) {
         fn();
       }
@@ -60,6 +62,23 @@ const withReconnect = (fn: () => void, delay = 5000) => {
       }
     },
   };
+};
+
+const connectToPeer = (
+  peer: Peer,
+  peerId: string,
+  context: Record<string, string>,
+): DataConnection | null => {
+  try {
+    return peer.connect(peerId);
+  } catch (error) {
+    reportError(error, 'Failed to create WebRTC connection', {
+      ...context,
+      source: 'WebRTCAdvertiser',
+    });
+
+    return null;
+  }
 };
 
 export const WebRTCAdvertiser = () => {
@@ -135,7 +154,16 @@ export const WebRTCAdvertiser = () => {
           return;
         }
 
-        const conn = peer.connect(BROADCAST_CHANNEL);
+        const existingConn = registryConnectionRef.current;
+        existingConn?.off('open');
+        existingConn?.off('error');
+        existingConn?.off('close');
+        existingConn?.close();
+
+        const conn = connectToPeer(peer, BROADCAST_CHANNEL, {
+          phase: 'announceRegistry',
+        });
+
         if (!conn) {
           retry();
           return;
@@ -146,11 +174,26 @@ export const WebRTCAdvertiser = () => {
           conn.send(createAnnounceMessage(id));
         });
 
-        conn.on('error', retry);
+        conn.on('error', () => {
+          if (registryConnectionRef.current === conn) {
+            registryConnectionRef.current = null;
+          }
+
+          conn.off('open');
+          conn.off('error');
+          conn.off('close');
+          conn.close();
+          retry();
+        });
+
         conn.on('close', () => {
           if (registryConnectionRef.current === conn) {
             registryConnectionRef.current = null;
           }
+
+          conn.off('open');
+          conn.off('error');
+          conn.off('close');
           retry();
         });
       };

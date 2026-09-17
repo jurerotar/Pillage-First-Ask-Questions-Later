@@ -6,7 +6,6 @@ import { calculateUnitUpgradeCostForLevel } from '@pillage-first/game-assets/uti
 import {
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
-  createGameEventMock,
   createUnitImprovementEventMock,
 } from '@pillage-first/mocks/event';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
@@ -67,58 +66,6 @@ const getVillageTileId = (database: DbFacade, villageId: number) =>
   })!;
 
 describe('event-controllers', () => {
-  test.skip('legacy scheduled event cancellation preserves earlier upgrades', async () => {
-    const database = await prepareTestDatabase();
-    const villageId = 1;
-    const startsAt = 5_000;
-
-    insertEvents(
-      database,
-      [2, 3, 4].map((level) =>
-        createGameEventMock('buildingScheduledConstruction', {
-          villageId,
-          buildingId: 'MAIN_BUILDING',
-          buildingFieldId: 38,
-          previousLevel: level - 1,
-          level,
-          startsAt,
-          duration: 0,
-          resolvesAt: startsAt,
-        }),
-      ),
-    );
-
-    const eventId = database.selectValue({
-      sql: `
-        SELECT id
-        FROM events
-        WHERE type = 'buildingScheduledConstruction'
-          AND CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER) = 3;
-      `,
-      schema: z.number(),
-    })!;
-
-    cancelConstructionEvent(
-      database,
-      createControllerArgs<'/events/:eventId', 'delete'>({
-        path: { eventId },
-      }),
-    );
-
-    const remainingLevels = database.selectValues({
-      sql: `
-        SELECT CAST(JSON_EXTRACT(meta, '$.level') AS INTEGER)
-        FROM events
-        WHERE type = 'buildingScheduledConstruction'
-          AND CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) = 38
-        ORDER BY id;
-      `,
-      schema: z.number(),
-    });
-
-    expect(remainingLevels).toEqual([2]);
-  });
-
   test('getVillageEvents should return events for a village', async () => {
     const database = await prepareTestDatabase();
 

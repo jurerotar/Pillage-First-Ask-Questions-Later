@@ -13,6 +13,7 @@ import {
 import { selectTribeByVillageId } from '../../../queries/village-queries';
 import { createBuildingPlaceholder } from '../../../utils/building-placeholder';
 import { createEvents } from '../../../utils/create-event';
+import { updateOasisEffectsForVillage } from '../../../utils/oasis';
 import { assessBuildingQuestCompletion } from '../../../utils/quests';
 import { promoteNextScheduledBuildingUpgrade } from '../../../utils/scheduled-building-upgrades';
 import {
@@ -131,6 +132,16 @@ export const buildingLevelChangeResolver: Resolver<
     });
   }
 
+  if (buildingId === 'WATERWORKS') {
+    updateResourceSiteResourcesAt(
+      database,
+      getVillageTileId(database, villageId),
+      resolvesAt,
+    );
+
+    updateOasisEffectsForVillage(database, villageId);
+  }
+
   const isLevelIncreasing = previousLevel < level;
 
   if (isLevelIncreasing) {
@@ -150,11 +161,13 @@ export const buildingLevelChangeResolver: Resolver<
     );
   }
 
-  updateResourceSiteResourcesAt(
-    database,
-    getVillageTileId(database, villageId),
-    resolvesAt,
-  );
+  if (buildingId !== 'WATERWORKS') {
+    updateResourceSiteResourcesAt(
+      database,
+      getVillageTileId(database, villageId),
+      resolvesAt,
+    );
+  }
 
   return {
     affectedVillageIds: [villageId],
@@ -321,25 +334,20 @@ export const buildingDestructionResolver: Resolver<
     },
   });
 
+  if (buildingId === 'WATERWORKS') {
+    // Use the old stored oasis bonuses up to the destruction timestamp, then
+    // remove the Waterworks contribution from future production.
+    updateResourceSiteResourcesAt(
+      database,
+      getVillageTileId(database, villageId),
+      args.resolvesAt,
+    );
+
+    updateOasisEffectsForVillage(database, villageId);
+  }
+
   return {
     affectedVillageIds: [villageId],
     affectedTileIds: [getVillageTileId(database, villageId)],
-  };
-};
-
-export const buildingScheduledConstructionEventResolver: Resolver<
-  GameEvent<'buildingScheduledConstruction'>
-> = (database, args) => {
-  const { villageId, resolvesAt, buildingFieldId } = args;
-  promoteNextScheduledBuildingUpgrade(
-    database,
-    villageId,
-    resolvesAt,
-    buildingFieldId,
-  );
-
-  return {
-    affectedVillageIds: [villageId],
-    affectedTileIds: [],
   };
 };

@@ -16,14 +16,21 @@ export type ApiNotificationEvent = {
   eventKey: EventKey;
 };
 
+export type SerializedError = {
+  name: string;
+  message: string;
+  stack?: string;
+  cause?: SerializedError | string;
+};
+
 export type DatabaseInitializationErrorEvent = {
   eventKey: EventKey;
-  error: Error;
+  error: SerializedError;
 };
 
 export type ControllerErrorEvent = {
   eventKey: EventKey;
-  error: Error;
+  error: SerializedError;
 };
 
 export type EventApiNotificationEvent<

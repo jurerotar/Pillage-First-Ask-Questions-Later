@@ -1,6 +1,7 @@
 import { clsx } from 'clsx';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuCheck } from 'react-icons/lu';
 import { getQuestRewards } from '@pillage-first/game-assets/utils/quests';
 import type {
   Quest,
@@ -10,11 +11,11 @@ import {
   isHeroExperienceQuestReward,
   isQuestCollectable,
   isResourceQuestReward,
-  wasQuestCollected,
 } from '@pillage-first/utils/guards/quest';
 import {
   getQuestTexts,
   groupQuestsById,
+  type QuestGroup,
 } from 'app/(game)/(village-slug)/(quests)/utils/quests';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { usePagination } from 'app/(game)/(village-slug)/hooks/use-pagination';
@@ -41,41 +42,130 @@ const QuestReward = ({ reward }: QuestRewardProps) => {
   return null;
 };
 
+type QuestProgressMeterProps = {
+  stages: QuestProgressStage[];
+  label: string;
+};
+
+type QuestProgressStage = 'completed' | 'current' | 'upcoming';
+
+const getQuestProgressStages = (quests: Quest[]): QuestProgressStage[] => {
+  const currentQuestIndex = quests.findIndex(
+    (quest) => quest.collectedAt === null,
+  );
+
+  return quests.map((quest, index) => {
+    if (quest.collectedAt !== null) {
+      return 'completed';
+    }
+
+    if (index === currentQuestIndex) {
+      return 'current';
+    }
+
+    return 'upcoming';
+  });
+};
+
+const questProgressStageStyles: Record<QuestProgressStage, string> = {
+  completed: 'bg-success',
+  current: 'bg-warning',
+  upcoming: 'bg-muted',
+};
+
+const QuestProgressMeter = ({ stages, label }: QuestProgressMeterProps) => {
+  const totalQuests = stages.length;
+
+  if (totalQuests === 0) {
+    return null;
+  }
+
+  const completedQuests = stages.filter(
+    (stage) => stage === 'completed',
+  ).length;
+
+  const segmentIds = Array.from(
+    { length: totalQuests },
+    (_, index) => `quest-progress-segment-${index + 1}`,
+  );
+
+  return (
+    <div className="flex w-full items-center gap-2">
+      <div
+        aria-label={label}
+        aria-valuemax={totalQuests}
+        aria-valuemin={0}
+        aria-valuenow={completedQuests}
+        className="grid h-2 w-full flex-1 gap-0.5 overflow-hidden rounded-full"
+        role="progressbar"
+        style={{
+          gridTemplateColumns: `repeat(${totalQuests}, minmax(0, 1fr))`,
+        }}
+      >
+        {stages.map((stage, index) => (
+          <div
+            className={clsx('flex flex-1', questProgressStageStyles[stage])}
+            key={segmentIds[index]}
+          />
+        ))}
+      </div>
+      <Text className="shrink-0 text-xs tabular-nums text-muted-foreground">
+        {completedQuests}/{totalQuests}
+      </Text>
+    </div>
+  );
+};
+
 type QuestListItemProps = {
   quest: Quest;
+  questGroup: QuestGroup;
+  showRewards: boolean;
   onComplete: (questId: Quest['id']) => void;
 };
 
-const QuestListItem = ({ quest, onComplete }: QuestListItemProps) => {
+const QuestListItem = ({
+  quest,
+  questGroup,
+  showRewards,
+  onComplete,
+}: QuestListItemProps) => {
   const { t } = useTranslation();
   const isCollectable = isQuestCollectable(quest);
-  const isCollected = wasQuestCollected(quest);
+  const isDone = isCollectable || questGroup.allCollected;
   const { title, description } = getQuestTexts(quest.id, t);
 
   const rewards = getQuestRewards(quest.id);
 
   return (
-    <div
-      className={clsx(
-        'border rounded-xs p-2 shadow-xs',
-        isCollected && 'opacity-50',
-        isCollectable && 'bg-yellow-100 dark:bg-yellow-900/30',
-      )}
-    >
+    <div className="border rounded-xs p-2 shadow-xs">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
-        <div className="flex flex-col gap-2">
-          <Text className="font-semibold">{title}</Text>
-          <Text>{description}</Text>
-          <div className="inline-flex gap-2 flex-wrap">
-            <Text className="font-medium">{t('Reward')}:</Text>
-
-            {rewards.map((reward) => (
-              <QuestReward
-                key={reward.type}
-                reward={reward}
+        <div className="flex flex-col gap-2 w-full md:w-4/6">
+          <div className="flex items-center gap-1.5">
+            <Text className="font-semibold">{title}</Text>
+            {isDone && (
+              <LuCheck
+                aria-label={t('Quest completed')}
+                className="size-4 text-success"
               />
-            ))}
+            )}
           </div>
+          <Text>{description}</Text>
+          <QuestProgressMeter
+            label={t('Quest progress')}
+            stages={getQuestProgressStages(questGroup.quests)}
+          />
+          {showRewards && (
+            <div className="inline-flex gap-2 flex-wrap">
+              <Text className="font-medium">{t('Reward')}:</Text>
+
+              {rewards.map((reward) => (
+                <QuestReward
+                  key={reward.type}
+                  reward={reward}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {isCollectable && (
@@ -100,7 +190,7 @@ type QuestListProps = {
 export const QuestList = ({ quests }: QuestListProps) => {
   const { completeQuest } = useQuests();
 
-  const questsToShow = useMemo(() => {
+  const questGroupsToShow = useMemo(() => {
     const grouped = groupQuestsById(quests);
 
     const sortedGroups = grouped.sort((a, b) => {
@@ -123,31 +213,38 @@ export const QuestList = ({ quests }: QuestListProps) => {
       return 0;
     });
 
-    const result: Quest[] = [];
+    const questGroupsToShow: { quest: Quest; questGroup: QuestGroup }[] = [];
 
     for (const sortedGroup of sortedGroups) {
-      for (const quest of sortedGroup.quests) {
-        if (quest.collectedAt !== null) {
-          continue;
-        }
+      const firstUncollectedQuest = sortedGroup.quests.find(
+        (quest) => quest.collectedAt === null,
+      );
+      const quest = firstUncollectedQuest ?? sortedGroup.quests.at(-1);
 
-        result.push(quest);
-        break;
+      if (!quest) {
+        continue;
       }
+
+      questGroupsToShow.push({ quest, questGroup: sortedGroup });
     }
 
-    return result;
+    return questGroupsToShow;
   }, [quests]);
 
-  const pagination = usePagination<Quest>(questsToShow, 10);
+  const pagination = usePagination<{ quest: Quest; questGroup: QuestGroup }>(
+    questGroupsToShow,
+    10,
+  );
 
   return (
     <>
       <div className="flex flex-col gap-2">
-        {pagination.currentPageItems.map((quest) => (
+        {pagination.currentPageItems.map(({ quest, questGroup }) => (
           <QuestListItem
             key={quest.id}
             quest={quest}
+            questGroup={questGroup}
+            showRewards={!questGroup.allCollected}
             onComplete={(questId) => completeQuest({ questId })}
           />
         ))}

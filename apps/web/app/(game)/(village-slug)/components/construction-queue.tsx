@@ -1,13 +1,13 @@
 import { faro } from '@grafana/faro-web-sdk';
 import { useClickOutside } from '@mantine/hooks';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { Suspense, use, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ImHammer } from 'react-icons/im';
 import { IoIosArrowRoundForward } from 'react-icons/io';
 import {
-  LuChevronLeft,
-  LuChevronRight,
+  LuChevronDown,
+  LuChevronUp,
   LuConstruction,
   LuGripVertical,
 } from 'react-icons/lu';
@@ -184,7 +184,7 @@ const CompactConstructionQueueBuilding = ({
 
 type ConstructionQueueEventSlotProps = {
   event: BuildingUpgradeQueueEntry;
-  isDesktop: boolean;
+  showDetails: boolean;
   draggedId: number | null;
   dropSourceId: number | null;
   selectedEventKey: string | null;
@@ -196,7 +196,7 @@ type ConstructionQueueEventSlotProps = {
 
 const ConstructionQueueEventSlot = ({
   event,
-  isDesktop,
+  showDetails,
   draggedId,
   dropSourceId,
   selectedEventKey,
@@ -217,7 +217,7 @@ const ConstructionQueueEventSlot = ({
 
   return (
     <li data-scheduled-upgrade-id={isScheduledEvent ? event.id : undefined}>
-      {isDesktop ? (
+      {showDetails ? (
         <ConstructionQueueBuilding
           buildingEvent={event}
           dropTargetStatus={dropTargetStatus}
@@ -329,46 +329,57 @@ const ConstructionQueueContent = () => {
     }),
   ];
 
-  const visibleSlots = isWiderThanLg || isExtended ? slots : slots.slice(0, 1);
+  const visibleSlots = isWiderThanLg ? slots : slots.slice(0, 1);
+
+  const renderSlot = (slot: (typeof slots)[number], showDetails: boolean) =>
+    slot.type === 'building' ? (
+      <ConstructionQueueEventSlot
+        dragHandlers={dragHandlers}
+        dropSourceId={dropSourceId}
+        draggedId={draggedId}
+        event={slot.event}
+        key={getBuildingUpgradeQueueEntryKey(slot.event)}
+        onCancel={cancelBuildingUpgradeQueueEntry}
+        onSelect={(event) => {
+          const key = getBuildingUpgradeQueueEntryKey(event);
+          setSelectedEventKey((current) => (current === key ? null : key));
+        }}
+        selectedEventKey={selectedEventKey}
+        showDetails={showDetails}
+        validDropTargetIds={validDropTargetIds}
+      />
+    ) : (
+      <li key={slot.id}>
+        <ImHammer className={iconClassName} />
+      </li>
+    );
 
   return (
     <aside
       className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-safe z-10 flex max-w-[calc(100vw-var(--twsa-safe-area-inset-left)-var(--twsa-safe-area-inset-right)-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color,left] lg:bottom-14"
       ref={containerRef}
     >
-      {!isWiderThanLg && selectedEvent && (
+      {!isWiderThanLg && !isExtended && selectedEvent && (
         <ConstructionQueueBuilding
           buildingEvent={selectedEvent}
           isDragging={false}
           onCancel={cancelBuildingUpgradeQueueEntry}
         />
       )}
-      <ul className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color] lg:flex-col lg:items-stretch lg:overflow-visible">
-        {visibleSlots.map((slot) =>
-          slot.type === 'building' ? (
-            <ConstructionQueueEventSlot
-              dragHandlers={dragHandlers}
-              dropSourceId={dropSourceId}
-              draggedId={draggedId}
-              event={slot.event}
-              isDesktop={isWiderThanLg}
-              key={getBuildingUpgradeQueueEntryKey(slot.event)}
-              onCancel={cancelBuildingUpgradeQueueEntry}
-              onSelect={(event) => {
-                const key = getBuildingUpgradeQueueEntryKey(event);
-                setSelectedEventKey((current) =>
-                  current === key ? null : key,
-                );
-              }}
-              selectedEventKey={selectedEventKey}
-              validDropTargetIds={validDropTargetIds}
-            />
-          ) : (
-            <li key={slot.id}>
-              <ImHammer className={iconClassName} />
-            </li>
-          ),
+      {!isWiderThanLg && isExtended && (
+        <ul className="flex max-w-full flex-col items-stretch gap-1 overflow-visible rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color]">
+          {slots.map((slot) => renderSlot(slot, true))}
+        </ul>
+      )}
+      <ul
+        className={clsx(
+          'flex max-w-full gap-1 rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color] lg:flex-col lg:items-stretch lg:overflow-visible',
+          isWiderThanLg
+            ? 'flex-col items-stretch overflow-visible'
+            : 'items-center overflow-x-auto',
         )}
+      >
+        {visibleSlots.map((slot) => renderSlot(slot, isWiderThanLg))}
 
         {!isWiderThanLg && (
           <li className="shrink-0">
@@ -378,11 +389,18 @@ const ConstructionQueueContent = () => {
                   ? t('Close construction queue')
                   : t('Expand construction queue')
               }
-              className="box-content rounded-xs border border-border bg-muted py-2.5 text-2xl text-muted-foreground transition-colors"
+              className="inline-flex flex-col items-center gap-0.5 rounded-xs border border-border bg-muted px-0.5 py-1 text-muted-foreground transition-colors"
               onClick={() => setIsExtended(!isExtended)}
               type="button"
             >
-              {isExtended ? <LuChevronLeft /> : <LuChevronRight />}
+              {isExtended ? (
+                <LuChevronDown className="text-2xl" />
+              ) : (
+                <LuChevronUp className="text-2xl" />
+              )}
+              <span className="min-w-7 text-center text-xs font-semibold tabular-nums leading-none">
+                {orderedEvents.length}/{totalSlotsCount}
+              </span>
             </button>
           </li>
         )}

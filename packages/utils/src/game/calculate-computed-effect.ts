@@ -1,8 +1,4 @@
-import type {
-  Effect,
-  VillageBuildingEffect,
-  VillageEffect,
-} from '@pillage-first/types/models/effect';
+import type { Effect, VillageEffect } from '@pillage-first/types/models/effect';
 import type { Tile } from '@pillage-first/types/models/tile';
 import {
   isAdditiveBonusEffect,
@@ -151,13 +147,6 @@ export const getEffectBreakdown = (
         break;
       }
       case 'building': {
-        const buildingEffect = effect as VillageBuildingEffect;
-
-        // "Waterworks" is special, because it applies an oasis effect instead of a building one
-        if (buildingEffect.buildingId === 'WATERWORKS') {
-          assignEffectValue(buildingEffect, oasisEffectValues);
-          break;
-        }
         assignEffectValue(effect, buildingEffectValues);
         break;
       }

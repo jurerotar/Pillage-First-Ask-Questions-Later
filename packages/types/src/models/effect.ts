@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type { Building } from './building';
 import type { Tile } from './tile';
 
 export const effectIdSchema = z
@@ -106,8 +105,7 @@ export type HeroEffect = Omit<VillageEffect, 'source'> & {
 };
 
 export type VillageBuildingEffect = Omit<VillageEffect, 'source'> & {
-  source: 'building' | 'oasis';
-  buildingId: Building['id'];
+  source: 'building';
 };
 
 export type ArtifactEffect = Omit<VillageEffect, 'source'> & {

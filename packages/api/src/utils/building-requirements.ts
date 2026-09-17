@@ -58,7 +58,6 @@ export const assertBuildingConstructionRequirementsAreMet = (
         WHERE e.village_id = $village_id
           AND (
             e.type = 'buildingConstruction'
-            OR e.type = 'buildingScheduledConstruction'
             OR (
               e.type = 'buildingLevelChange'
               AND CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) >

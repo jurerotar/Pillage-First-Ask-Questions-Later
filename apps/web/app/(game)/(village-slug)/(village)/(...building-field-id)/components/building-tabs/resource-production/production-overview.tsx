@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
@@ -343,36 +344,11 @@ const sumBonusEffects = (effects: Effect[]): number => {
   return total;
 };
 
-const getBuildingBonusBoosterValue = (
-  buildingBonusBoosterEffects: VillageBuildingEffect[],
-): number => {
+const getBonusBoosterValue = (bonusBoosterEffects: Effect[]): number => {
   let total = 1;
 
-  for (const effect of buildingBonusBoosterEffects) {
-    if (effect.buildingId === 'WATERWORKS') {
-      continue;
-    }
-
+  for (const effect of bonusBoosterEffects) {
     total *= effect.value;
-  }
-
-  return total;
-};
-
-const getOasisBonusBoosterValue = (
-  oasisBonusBoosterEffects: Effect[],
-  buildingBonusBoosterEffects: VillageBuildingEffect[],
-): number => {
-  let total = 1;
-
-  for (const effect of oasisBonusBoosterEffects) {
-    total *= effect.value;
-  }
-
-  for (const effect of buildingBonusBoosterEffects) {
-    if (effect.buildingId === 'WATERWORKS') {
-      total *= effect.value;
-    }
   }
 
   return total;
@@ -484,6 +460,15 @@ export const ProductionOverview = ({
     currentVillage.tileId,
   );
 
+  const buildingFieldById = useMemo(() => {
+    return new Map(
+      currentVillage.buildingFields.map((buildingField) => [
+        buildingField.id,
+        buildingField,
+      ]),
+    );
+  }, [currentVillage]);
+
   const groupedEffects = groupProductionEffects(effects, effectId);
   const { serverEffectValue } = groupedEffects;
 
@@ -510,24 +495,23 @@ export const ProductionOverview = ({
   const { base: troopBaseEffects } = groupedEffects.troop;
 
   const summedBuildingBonusEffectValue = sumBonusEffects(buildingBonusEffects);
-  const summedBuildingBonusBoosterEffectValue = getBuildingBonusBoosterValue(
+  const summedBuildingBonusBoosterEffectValue = getBonusBoosterValue(
     buildingBonusBoosterEffects,
   );
 
   const summedHeroBonusEffectValue = sumBonusEffects(heroBonusEffects);
-  const summedHeroBonusBoosterEffectValue = sumBonusEffects(
+  const summedHeroBonusBoosterEffectValue = getBonusBoosterValue(
     heroBonusBoosterEffects,
   );
 
   const summedArtifactBonusEffectValue = sumBonusEffects(artifactBonusEffects);
-  const summedArtifactBonusBoosterEffectValue = sumBonusEffects(
+  const summedArtifactBonusBoosterEffectValue = getBonusBoosterValue(
     artifactBonusBoosterEffects,
   );
 
   const summedOasisBonusEffectValue = sumBonusEffects(oasisBonusEffects);
-  const summedOasisBonusBoosterEffectValue = getOasisBonusBoosterValue(
+  const summedOasisBonusBoosterEffectValue = getBonusBoosterValue(
     oasisBonusBoosterEffects,
-    buildingBonusBoosterEffects,
   );
 
   const boostedBuildingBonusEffects: VillageBuildingEffect[] =
@@ -729,19 +713,25 @@ export const ProductionOverview = ({
                     },
                   )}
                   {boostedBuildingBonusEffects.map(
-                    ({ value, sourceSpecifier, buildingId }) => (
-                      <TableRow key={sourceSpecifier}>
-                        <TableCell>
-                          <Text>{t('Building')}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>{formatBonus(value - 1)}%</Text>
-                        </TableCell>
-                      </TableRow>
-                    ),
+                    ({ value, sourceSpecifier }) => {
+                      const { buildingId } = buildingFieldById.get(
+                        sourceSpecifier!,
+                      )!;
+
+                      return (
+                        <TableRow key={sourceSpecifier}>
+                          <TableCell>
+                            <Text>{t('Building')}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{t(`BUILDINGS.${buildingId}.NAME`)}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{formatBonus(value - 1)}%</Text>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    },
                   )}
                 </>
               )}
@@ -849,28 +839,36 @@ export const ProductionOverview = ({
                     },
                   )}
                   {baseBuildingEffectsWithServerModifier.map(
-                    ({ value, sourceSpecifier, buildingId }, index) => (
-                      <TableRow key={sourceSpecifier}>
-                        <TableCell>
-                          <Text>{t('Building')}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>
-                            {buildingId
-                              ? t(`BUILDINGS.${buildingId}.NAME`)
-                              : t('Population')}
-                          </Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>{value}</Text>
-                        </TableCell>
-                        <TableCell>
-                          <Text>
-                            {absoluteBonusBuildingEffectValues[index]}
-                          </Text>
-                        </TableCell>
-                      </TableRow>
-                    ),
+                    ({ value, sourceSpecifier }, index) => {
+                      const buildingField = buildingFieldById.get(
+                        sourceSpecifier!,
+                      );
+
+                      return (
+                        <TableRow key={sourceSpecifier}>
+                          <TableCell>
+                            <Text>{t('Building')}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>
+                              {buildingField
+                                ? t(
+                                    `BUILDINGS.${buildingField.buildingId}.NAME`,
+                                  )
+                                : t('Population')}
+                            </Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>{value}</Text>
+                          </TableCell>
+                          <TableCell>
+                            <Text>
+                              {absoluteBonusBuildingEffectValues[index]}
+                            </Text>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    },
                   )}
                   {baseTroopEffectsWithConsumptionModifier.map(
                     ({ value, sourceSpecifier }) => (

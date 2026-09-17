@@ -35,7 +35,7 @@
     "ts-seedrandom": "1.6.0"
   },
   "devDependencies": {
-    "knip": "6.35.1",
+    "knip": "6.36.0",
     "typescript": "7.0.2",
     "vitest": "5.0.1",
     "zod": "4.6.5"

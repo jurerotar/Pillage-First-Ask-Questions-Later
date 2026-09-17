@@ -289,13 +289,11 @@ describe('calculateComputedEffect – woodProduction', () => {
       const grainMill: VillageBuildingEffect = {
         ...wheatProductionBonusEffectMock,
         value: 1.25,
-        buildingId: 'GRAIN_MILL',
         sourceSpecifier: 19,
       };
       const bakery: VillageBuildingEffect = {
         ...wheatProductionBonusEffectMock,
         value: 1.25,
-        buildingId: 'BAKERY',
         sourceSpecifier: 20,
       };
       const oasisEffects: OasisEffect[] = [21, 22, 23].map(
@@ -320,7 +318,7 @@ describe('calculateComputedEffect – woodProduction', () => {
       expect(result.buildingWheatLimit).toBe(4200);
     });
 
-    test('Waterworks boosts summed oasis bonuses after oasis bonuses are added', () => {
+    test('uses already boosted oasis bonus effects', () => {
       const wheatField: VillageBuildingEffect = {
         ...wheatProductionBaseEffectMock,
         value: 1400,
@@ -328,19 +326,17 @@ describe('calculateComputedEffect – woodProduction', () => {
       const grainMill: VillageBuildingEffect = {
         ...wheatProductionBonusEffectMock,
         value: 1.25,
-        buildingId: 'GRAIN_MILL',
         sourceSpecifier: 19,
       };
       const bakery: VillageBuildingEffect = {
         ...wheatProductionBonusEffectMock,
         value: 1.25,
-        buildingId: 'BAKERY',
         sourceSpecifier: 20,
       };
       const oasisEffects: OasisEffect[] = [21, 22, 23].map(
         (sourceSpecifier) => ({
           id: 'wheatProduction',
-          value: 1.5,
+          value: 2,
           type: 'bonus',
           source: 'oasis',
           scope: 'local',
@@ -348,20 +344,10 @@ describe('calculateComputedEffect – woodProduction', () => {
           sourceSpecifier,
         }),
       );
-      const waterworks: VillageBuildingEffect = {
-        id: 'wheatProduction',
-        value: 2,
-        type: 'bonus-booster',
-        source: 'building',
-        buildingId: 'WATERWORKS',
-        scope: 'local',
-        tileId,
-        sourceSpecifier: 24,
-      };
 
       const result = calculateComputedEffect(
         'wheatProduction',
-        [wheatField, grainMill, bakery, ...oasisEffects, waterworks],
+        [wheatField, grainMill, bakery, ...oasisEffects],
         tileId,
       );
 
@@ -521,23 +507,33 @@ describe('calculateComputedEffect – woodProduction', () => {
       expect(result.total).toBeGreaterThanOrEqual(134);
     });
 
-    test('waterworks special case (applies to oasis)', () => {
-      const waterworksEffect: VillageBuildingEffect = {
+    test('waterworks is not special-cased during calculation', () => {
+      const oasisBonus: OasisEffect = {
         id: 'woodProduction',
         value: 1.25,
         type: 'bonus',
+        source: 'oasis',
+        scope: 'local',
+        tileId,
+        sourceSpecifier: null,
+      };
+      const waterworksEffect: VillageBuildingEffect = {
+        id: 'woodProduction',
+        value: 2,
+        type: 'bonus-booster',
         source: 'building',
-        buildingId: 'WATERWORKS',
         scope: 'local',
         tileId,
         sourceSpecifier: null,
       };
 
-      const effects = [woodProductionBaseEffectMock, waterworksEffect];
+      const effects = [
+        woodProductionBaseEffectMock,
+        oasisBonus,
+        waterworksEffect,
+      ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
 
-      // waterworks acts as oasis bonus
-      // total = 100 + floor(100 * 0.25) = 125
       expect(result.total).toBe(125);
     });
 
@@ -574,7 +570,6 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 1.2,
         type: 'bonus',
         source: 'building',
-        buildingId: 'TRADE_OFFICE',
         scope: 'local',
         tileId,
         sourceSpecifier: 37,
@@ -603,7 +598,6 @@ describe('calculateComputedEffect – woodProduction', () => {
         value: 1.2,
         type: 'bonus',
         source: 'building',
-        buildingId: 'TRADE_OFFICE',
         scope: 'local',
         tileId,
         sourceSpecifier: 37,
