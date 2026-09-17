@@ -80,7 +80,6 @@ export const updateDeveloperSettings = createController(
       case 'isInstantBuildingConstructionEnabled': {
         eventTypes = [
           'buildingLevelChange',
-          'buildingScheduledConstruction',
           'buildingConstruction',
           'buildingDestruction',
         ];

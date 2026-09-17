@@ -351,20 +351,3 @@ export const buildingDestructionResolver: Resolver<
     affectedTileIds: [getVillageTileId(database, villageId)],
   };
 };
-
-export const buildingScheduledConstructionEventResolver: Resolver<
-  GameEvent<'buildingScheduledConstruction'>
-> = (database, args) => {
-  const { villageId, resolvesAt, buildingFieldId } = args;
-  promoteNextScheduledBuildingUpgrade(
-    database,
-    villageId,
-    resolvesAt,
-    buildingFieldId,
-  );
-
-  return {
-    affectedVillageIds: [villageId],
-    affectedTileIds: [],
-  };
-};
