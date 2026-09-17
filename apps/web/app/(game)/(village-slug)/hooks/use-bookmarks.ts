@@ -16,7 +16,7 @@ export const useBookmarks = () => {
   const { currentVillage } = useCurrentVillage();
 
   const { data: bookmarks } = useSuspenseQuery({
-    queryKey: [bookmarksCacheKey],
+    queryKey: [bookmarksCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await apiClient.get('/villages/:villageId/bookmarks', {
         path: {
@@ -46,7 +46,9 @@ export const useBookmarks = () => {
       });
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
-      await invalidateQueries(context, [[bookmarksCacheKey]]);
+      await invalidateQueries(context, [
+        [bookmarksCacheKey, currentVillage.id],
+      ]);
     },
   });
 
