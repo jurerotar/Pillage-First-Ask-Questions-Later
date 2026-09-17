@@ -65,14 +65,27 @@ const showBrowserNotification = async (
     return;
   }
 
-  const registration = await navigator.serviceWorker.getRegistration();
+  const registration =
+    'serviceWorker' in navigator && navigator.serviceWorker.controller
+      ? await navigator.serviceWorker.getRegistration()
+      : undefined;
 
   if (registration) {
     await registration.showNotification(title, options);
     return;
   }
 
-  new window.Notification(title, options);
+  try {
+    new window.Notification(title, options);
+  } catch (error) {
+    const isIllegalConstructorError =
+      error instanceof TypeError &&
+      error.message.includes('Illegal constructor');
+
+    if (!isIllegalConstructorError) {
+      throw error;
+    }
+  }
 };
 
 const getTileCoordinates = (
