@@ -1,3 +1,16 @@
+## Version 0.4.67
+
+#### Sep 17, 2026
+
+* [Feature] Added quest progression meters. Quest groups now show how many steps have been completed and which step is
+  currently active.
+* [UIUXImprovement] Reworked the mobile construction queue into a vertical expanded layout with a visible queue counter.
+* [BugFix] Fixed browser notifications throwing an Illegal constructor error when service worker notifications are not
+  available.
+* [BugFix] Fixed device discovery and game world imports failing when WebRTC peer connections cannot be created.
+* [TechnicalImprovement] Reworked Waterworks effects, improving hot-path queries by ~ 4%.
+* [TechnicalImprovement] Removed deprecated scheduled building construction resolver code.
+
 ## Version 0.4.66
 
 #### Sep 16, 2026
