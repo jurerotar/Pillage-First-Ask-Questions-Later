@@ -47,6 +47,40 @@ type ImportModalProps = {
   onImport: (buffer: ArrayBuffer) => Promise<void>;
 };
 
+const createPeer = (): Peer | null => {
+  try {
+    return new Peer({
+      config: {
+        iceServers: [],
+      },
+    });
+  } catch (error) {
+    reportError(error, 'Failed to create import peer', {
+      phase: 'createPeer',
+      source: 'ImportModal',
+    });
+
+    return null;
+  }
+};
+
+const connectToPeer = (
+  peer: Peer,
+  peerId: string,
+  phase: string,
+): ReturnType<Peer['connect']> | null => {
+  try {
+    return peer.connect(peerId);
+  } catch (error) {
+    reportError(error, 'Failed to create import connection', {
+      phase,
+      source: 'ImportModal',
+    });
+
+    return null;
+  }
+};
+
 export const ImportModal = ({
   open,
   onOpenChange,
@@ -68,17 +102,24 @@ export const ImportModal = ({
       return;
     }
 
-    const peer = new Peer({
-      config: {
-        iceServers: [],
-      },
-    });
+    const peer = createPeer();
+    if (peer === null) {
+      toast.error('Failed to start device discovery.');
+      return;
+    }
+
     peerRef.current = peer;
 
     setIsDiscoveryLoading(true);
 
     peer.on('open', (id) => {
-      const conn = peer.connect(BROADCAST_CHANNEL);
+      const conn = connectToPeer(peer, BROADCAST_CHANNEL, 'discovery');
+
+      if (conn === null) {
+        toast.error('Failed to discover devices.');
+        setIsDiscoveryLoading(false);
+        return;
+      }
 
       conn.on('open', () => {
         conn.send({ type: 'QUERY_WORLDS' } satisfies Message);
@@ -149,7 +190,14 @@ export const ImportModal = ({
     setIsImporting(true);
     const toastId = toast.loading('Connecting to device...');
 
-    const conn = peerRef.current.connect(peerId);
+    const conn = connectToPeer(peerRef.current, peerId, 'connection');
+
+    if (conn === null) {
+      toast.error('Failed to connect to device', { id: toastId });
+      setIsImporting(false);
+      return;
+    }
+
     let isPending = true;
     let timeoutId: ReturnType<typeof setTimeout>;
 
