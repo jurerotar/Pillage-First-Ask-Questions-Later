@@ -1,3 +1,4 @@
+import { deserializeError } from '@pillage-first/utils/errors';
 import { isControllerMessageErrorNotificationMessageEvent } from 'app/(game)/providers/guards/api-notification-event-guards';
 
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
@@ -29,7 +30,7 @@ export const createWorkerFetcher = (worker: Worker) => {
         if (isControllerMessageErrorNotificationMessageEvent(event)) {
           const { error } = data;
 
-          reject(error);
+          reject(deserializeError(error));
           return;
         }
 

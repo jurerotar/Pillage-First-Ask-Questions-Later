@@ -1,3 +1,5 @@
+import type { SerializedError } from '@pillage-first/types/api-events';
+
 export class OutdatedDatabaseSchemaError extends Error {
   static readonly name = 'OutdatedDatabaseSchemaError';
 
@@ -19,3 +21,30 @@ export class BuildingConstructionQueueFullError extends Error {
     Object.setPrototypeOf(this, BuildingConstructionQueueFullError.prototype);
   }
 }
+
+export const serializeError = (error: unknown): SerializedError => {
+  if (!(error instanceof Error)) {
+    return { name: 'Error', message: String(error) };
+  }
+
+  return {
+    name: error.name,
+    message: error.message,
+    ...(error.stack && { stack: error.stack }),
+    ...(error.cause !== undefined && {
+      cause:
+        error.cause instanceof Error
+          ? serializeError(error.cause)
+          : String(error.cause),
+    }),
+  };
+};
+
+export const deserializeError = ({ cause, ...error }: SerializedError): Error =>
+  Object.assign(
+    new Error(error.message, {
+      cause:
+        typeof cause === 'object' && cause ? deserializeError(cause) : cause,
+    }),
+    error,
+  );

@@ -4,6 +4,7 @@ import type {
   ControllerErrorEvent,
   DatabaseInitializationErrorEvent,
 } from '@pillage-first/types/api-events';
+import { serializeError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
   cancelScheduling,
@@ -69,7 +70,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         postWorkerMessage(
           {
             eventKey: 'event:database-initialization-error',
-            error: error as Error,
+            error: serializeError(error),
           } satisfies DatabaseInitializationErrorEvent,
           { force: true },
         );
@@ -115,7 +116,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         console.error(error);
         const errorEvent = {
           eventKey: 'event:error',
-          error: error as Error,
+          error: serializeError(error),
         } satisfies ControllerErrorEvent;
 
         port.postMessage(errorEvent);
