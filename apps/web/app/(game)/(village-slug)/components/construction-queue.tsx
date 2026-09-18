@@ -8,11 +8,14 @@ import { IoIosArrowRoundForward } from 'react-icons/io';
 import {
   LuChevronDown,
   LuChevronUp,
+  LuClock,
   LuConstruction,
   LuGripVertical,
 } from 'react-icons/lu';
 import { MdCancel } from 'react-icons/md';
+import { calculateBuildingCostForLevel } from '@pillage-first/game-assets/utils/buildings';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
+import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useMediaQuery } from 'app/(game)/(village-slug)/hooks/dom/use-media-query';
 import { useCancelConstruction } from 'app/(game)/(village-slug)/hooks/use-cancel-construction';
 import {
@@ -35,6 +38,48 @@ const iconClassName =
 
 type DropTargetStatus = 'valid' | 'invalid';
 
+const getBuildingUpgradeCost = ({
+  buildingId,
+  level,
+}: Pick<BuildingUpgradeQueueEntry, 'buildingId' | 'level'>): number[] =>
+  calculateBuildingCostForLevel(buildingId, level);
+
+const getTotalBuildingUpgradeCost = (
+  events: Pick<BuildingUpgradeQueueEntry, 'buildingId' | 'level'>[],
+): number[] => {
+  const totalCost = [0, 0, 0, 0];
+
+  for (const event of events) {
+    const eventCost = getBuildingUpgradeCost(event);
+
+    for (const [index, cost] of eventCost.entries()) {
+      totalCost[index] += cost;
+    }
+  }
+
+  return totalCost;
+};
+
+type ConstructionQueueCostProps = {
+  label: string;
+  resources: number[];
+};
+
+const ConstructionQueueCost = ({
+  label,
+  resources,
+}: ConstructionQueueCostProps) => (
+  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+    <span>{label}:</span>
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-foreground">
+      <Resources
+        iconClassName="size-4"
+        resources={resources}
+      />
+    </span>
+  </span>
+);
+
 type ConstructionQueueBuildingProps = {
   buildingEvent: BuildingUpgradeQueueEntry;
   isDragging?: boolean;
@@ -52,6 +97,9 @@ const ConstructionQueueBuilding = ({
 }: ConstructionQueueBuildingProps) => {
   const { t } = useTranslation();
   const isScheduledEvent = buildingEvent.type === 'scheduledBuildingUpgrade';
+  const scheduledEventCost = isScheduledEvent
+    ? getBuildingUpgradeCost(buildingEvent)
+    : null;
 
   return (
     <div
@@ -87,6 +135,12 @@ const ConstructionQueueBuilding = ({
 
       <div className="flex min-w-0 flex-1 flex-col border-x border-border px-2 transition-colors">
         <span className="inline-flex items-center gap-1 whitespace-nowrap">
+          {isScheduledEvent && (
+            <LuClock
+              aria-label={t('Scheduled construction')}
+              className="shrink-0 text-sm text-muted-foreground"
+            />
+          )}
           <b className="truncate">
             {t(`BUILDINGS.${buildingEvent.buildingId}.NAME`)}
           </b>
@@ -95,15 +149,19 @@ const ConstructionQueueBuilding = ({
             {buildingEvent.level})
           </span>
         </span>
-        <span className="text-sm">
-          {isScheduledEvent ? (
-            t('In queue')
-          ) : (
+        {!isScheduledEvent && (
+          <span className="text-sm">
             <Countdown
               endsAt={buildingEvent.startsAt + buildingEvent.duration}
             />
-          )}
-        </span>
+          </span>
+        )}
+        {scheduledEventCost && (
+          <ConstructionQueueCost
+            label={t('Cost')}
+            resources={scheduledEventCost}
+          />
+        )}
       </div>
 
       <button
@@ -276,6 +334,11 @@ const ConstructionQueueContent = () => {
     reorderScheduledBuildingUpgrades,
   );
 
+  const totalScheduledConstructionCost = useMemo(
+    () => getTotalBuildingUpgradeCost(orderedScheduledEvents),
+    [orderedScheduledEvents],
+  );
+
   const cancelBuildingUpgradeQueueEntry = useCallback(
     (buildingEvent: BuildingUpgradeQueueEntry) => {
       if (buildingEvent.type === 'scheduledBuildingUpgrade') {
@@ -331,6 +394,15 @@ const ConstructionQueueContent = () => {
 
   const visibleSlots = isWiderThanLg ? slots : slots.slice(0, 1);
 
+  const totalCost = orderedScheduledEvents.length > 0 && (
+    <div className="rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 ml-1 shadow-xs transition-[background-color,border-color,color]">
+      <ConstructionQueueCost
+        label={t('Scheduled cost')}
+        resources={totalScheduledConstructionCost}
+      />
+    </div>
+  );
+
   const renderSlot = (slot: (typeof slots)[number], showDetails: boolean) =>
     slot.type === 'building' ? (
       <ConstructionQueueEventSlot
@@ -359,6 +431,7 @@ const ConstructionQueueContent = () => {
       className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-safe z-10 flex max-w-[calc(100vw-var(--twsa-safe-area-inset-left)-var(--twsa-safe-area-inset-right)-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color,left] lg:bottom-14"
       ref={containerRef}
     >
+      {isWiderThanLg && totalCost}
       {!isWiderThanLg && !isExtended && selectedEvent && (
         <ConstructionQueueBuilding
           buildingEvent={selectedEvent}
@@ -367,9 +440,12 @@ const ConstructionQueueContent = () => {
         />
       )}
       {!isWiderThanLg && isExtended && (
-        <ul className="flex max-w-full flex-col items-stretch gap-1 overflow-visible rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color]">
-          {slots.map((slot) => renderSlot(slot, true))}
-        </ul>
+        <>
+          {totalCost}
+          <ul className="flex max-w-full flex-col items-stretch gap-1 overflow-visible rounded-xs rounded-l-none border-border bg-background/80 p-1 shadow-xs transition-[background-color,border-color,color]">
+            {slots.map((slot) => renderSlot(slot, true))}
+          </ul>
+        </>
       )}
       <ul
         className={clsx(
