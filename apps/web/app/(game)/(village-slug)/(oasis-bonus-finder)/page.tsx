@@ -12,9 +12,11 @@ import {
 } from '@pillage-first/types/models/resource-field-composition';
 import {
   calculateGridLayout,
+  decodeGraphicsProperty,
   parseResourcesFromRFC,
 } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
+import { BorderIndicator } from 'app/(game)/(village-slug)/components/border-indicator';
 import {
   OverflowContainer,
   Section,
@@ -31,6 +33,7 @@ import { Icon } from 'app/components/icon';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import { Checkbox } from 'app/components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -195,6 +198,8 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
     firstOasisBonus: bonusSetSchema,
     secondOasisBonus: bonusSetSchema,
     thirdOasisBonus: bonusSetSchema,
+    showOccupiedTiles: z.boolean(),
+    onlyUseUnoccupiedOases: z.boolean(),
   });
 
   const title = `${t('Oasis bonus finder')} | Pillage First! - ${serverSlug} - ${villageSlug}`;
@@ -213,6 +218,9 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
     NO_OASIS_BONUS_KEY) as OasisBonus | typeof NO_OASIS_BONUS_KEY;
   const thirdOasisBonus = (searchParams.get('third-bonus') ??
     NO_OASIS_BONUS_KEY) as OasisBonus | typeof NO_OASIS_BONUS_KEY;
+  const showOccupiedTiles = searchParams.get('show-occupied-tiles') !== 'false';
+  const onlyUseUnoccupiedOases =
+    searchParams.get('only-unoccupied-oases') !== 'false';
 
   const form = useForm<z.infer<typeof bonusFinderFormSchema>>({
     resolver: zodResolver(bonusFinderFormSchema),
@@ -225,6 +233,8 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
       firstOasisBonus,
       secondOasisBonus,
       thirdOasisBonus,
+      showOccupiedTiles,
+      onlyUseUnoccupiedOases,
     },
   });
 
@@ -242,6 +252,8 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
       firstOasisBonus,
       secondOasisBonus,
       thirdOasisBonus,
+      showOccupiedTiles,
+      onlyUseUnoccupiedOases,
     ],
     queryFn: async () => {
       const values = form.getValues();
@@ -256,6 +268,8 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
             secondOasis: parseOasisBonus(values.secondOasisBonus),
             thirdOasis: parseOasisBonus(values.thirdOasisBonus),
           },
+          showOccupiedTiles: values.showOccupiedTiles,
+          onlyUseUnoccupiedOases: values.onlyUseUnoccupiedOases,
         },
       });
 
@@ -512,6 +526,66 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   )}
                 />
               </div>
+              <div className="flex flex-col gap-3">
+                <FormField
+                  control={form.control}
+                  name="showOccupiedTiles"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            const value = checked === true;
+                            field.onChange(value);
+                            setSearchParams(
+                              (prev) => {
+                                prev.set(
+                                  'show-occupied-tiles',
+                                  value.toString(),
+                                );
+                                return prev;
+                              },
+                              { replace: true },
+                            );
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel>{t('Show occupied tiles')}</FormLabel>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="onlyUseUnoccupiedOases"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            const value = checked === true;
+                            field.onChange(value);
+                            setSearchParams(
+                              (prev) => {
+                                prev.set(
+                                  'only-unoccupied-oases',
+                                  value.toString(),
+                                );
+                                return prev;
+                              },
+                              { replace: true },
+                            );
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel>
+                        {t('Only take unoccupied oasis into account')}
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              </div>
               <div className="flex md:justify-end">
                 <Button
                   size="fit"
@@ -551,6 +625,9 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                     <Text>{t('Owner village')}</Text>
                   </TableHeaderCell>
                   <TableHeaderCell>
+                    <Text>{t('Oasis')}</Text>
+                  </TableHeaderCell>
+                  <TableHeaderCell>
                     <Text>{t('Distance')}</Text>
                   </TableHeaderCell>
                 </TableRow>
@@ -560,7 +637,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                   <TableRow>
                     <TableCell
                       className="text-left"
-                      colSpan={5}
+                      colSpan={6}
                     >
                       <Text>{t('Define your criteria and click search.')}</Text>
                     </TableCell>
@@ -573,7 +650,8 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                         tileId,
                         coordinates,
                         resourceFieldComposition,
-                        oasisOwners,
+                        ownerVillage,
+                        nearbyOases,
                         distance,
                       },
                       index,
@@ -581,17 +659,6 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                       const resources = parseResourcesFromRFC(
                         resourceFieldComposition,
                       );
-                      const ownerVillages = [
-                        ...new Map(
-                          oasisOwners
-                            .map(({ ownerVillage }) => ownerVillage)
-                            .filter((ownerVillage) => ownerVillage !== null)
-                            .map((ownerVillage) => [
-                              ownerVillage.id,
-                              ownerVillage,
-                            ]),
-                        ).values(),
-                      ];
 
                       return (
                         <TableRow key={tileId}>
@@ -621,25 +688,58 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                             </Text>
                           </TableCell>
                           <TableCell>
-                            {ownerVillages.length === 0 && <Text>/</Text>}
-                            {ownerVillages.length > 0 && (
-                              <div className="flex flex-col gap-1">
-                                {ownerVillages.map((ownerVillage) => (
-                                  <Text
-                                    key={ownerVillage.id}
-                                    variant="link"
-                                  >
-                                    <Link
-                                      to={
-                                        ownerVillage.slug === null
-                                          ? `../map?x=${ownerVillage.coordinates.x}&y=${ownerVillage.coordinates.y}`
-                                          : `/game/${serverSlug}/${ownerVillage.slug}/resources`
-                                      }
-                                    >
-                                      {ownerVillage.name}
-                                    </Link>
-                                  </Text>
-                                ))}
+                            {ownerVillage === null && <Text>/</Text>}
+                            {ownerVillage !== null && (
+                              <Text variant="link">
+                                <Link
+                                  to={`../map?x=${ownerVillage.coordinates.x}&y=${ownerVillage.coordinates.y}`}
+                                >
+                                  {ownerVillage.name}
+                                </Link>
+                              </Text>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {nearbyOases.length === 0 && <Text>/</Text>}
+                            {nearbyOases.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {nearbyOases.map(
+                                  ({
+                                    tileId: oasisTileId,
+                                    coordinates: oasisCoordinates,
+                                    oasisGraphics,
+                                    isOccupied,
+                                  }) => {
+                                    const { oasisResource } =
+                                      decodeGraphicsProperty(oasisGraphics);
+
+                                    return (
+                                      <Link
+                                        key={oasisTileId}
+                                        to={`../map?x=${oasisCoordinates.x}&y=${oasisCoordinates.y}`}
+                                        aria-label={t(
+                                          isOccupied
+                                            ? 'Occupied oasis at ({{x}} | {{y}})'
+                                            : 'Unoccupied oasis at ({{x}} | {{y}})',
+                                          {
+                                            x: oasisCoordinates.x,
+                                            y: oasisCoordinates.y,
+                                          },
+                                        )}
+                                      >
+                                        <BorderIndicator
+                                          variant={isOccupied ? 'red' : 'green'}
+                                        >
+                                          <Icon
+                                            className="size-4"
+                                            type={oasisResource}
+                                            shouldShowTooltip={false}
+                                          />
+                                        </BorderIndicator>
+                                      </Link>
+                                    );
+                                  },
+                                )}
                               </div>
                             )}
                           </TableCell>

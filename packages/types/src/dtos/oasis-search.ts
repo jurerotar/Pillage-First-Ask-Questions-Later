@@ -4,16 +4,18 @@ import { resourceSchema } from '../models/resource';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
 import { natureUnitIdSchema } from '../models/unit';
 
-export const oasisOwnerDtoSchema = z.strictObject({
-  oasisTileId: z.number(),
-  ownerVillage: z
-    .strictObject({
-      id: z.number(),
-      name: z.string(),
-      slug: z.string().nullable(),
-      coordinates: coordinatesSchema,
-    })
-    .nullable(),
+export const oasisByBonusSearchResultOasisDtoSchema = z.strictObject({
+  tileId: z.number(),
+  coordinates: coordinatesSchema,
+  oasisGraphics: z.number(),
+  isOccupied: z.boolean(),
+});
+
+export const oasisByBonusSearchResultOwnerVillageDtoSchema = z.strictObject({
+  id: z.number(),
+  name: z.string(),
+  slug: z.string().nullable(),
+  coordinates: coordinatesSchema,
 });
 
 export const oasisByBonusSearchResultItemDtoSchema = z
@@ -21,7 +23,8 @@ export const oasisByBonusSearchResultItemDtoSchema = z
     tileId: z.number(),
     coordinates: coordinatesSchema,
     resourceFieldComposition: resourceFieldCompositionSchema,
-    oasisOwners: z.array(oasisOwnerDtoSchema),
+    ownerVillage: oasisByBonusSearchResultOwnerVillageDtoSchema.nullable(),
+    nearbyOases: z.array(oasisByBonusSearchResultOasisDtoSchema),
     distance: z.number(),
   })
   .meta({ id: 'OasisByBonusSearchResultItemDto' });
