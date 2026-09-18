@@ -613,6 +613,8 @@
   "Save changes": "Save changes",
   "Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time.": "Schedule recurring marketplace transfers from this village to one of your other villages. Each transfer only starts if enough resources and free merchants are available at that time.",
   "Scheduled {{building}} construction was cancelled": "Scheduled {{building}} construction was cancelled",
+  "Scheduled construction": "Scheduled construction",
+  "Scheduled cost": "Scheduled cost",
   "Scheduled trade routes": "Scheduled trade routes",
   "Search": "Search",
   "Search for": "Search for",
