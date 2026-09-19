@@ -12,7 +12,6 @@ import {
 } from '@pillage-first/types/models/resource-field-composition';
 import {
   calculateGridLayout,
-  decodeGraphicsProperty,
   parseResourcesFromRFC,
 } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(hero)/+types/page';
@@ -30,6 +29,7 @@ import { InformationPopover } from 'app/(game)/components/information-popover';
 import { oasisBonusFinderCacheKey } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { Icon } from 'app/components/icon';
+import { getOasisBonusIconType } from 'app/components/icons/utils/icons';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -707,38 +707,37 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                                   ({
                                     tileId: oasisTileId,
                                     coordinates: oasisCoordinates,
-                                    oasisGraphics,
+                                    resource,
+                                    bonusType,
                                     isOccupied,
-                                  }) => {
-                                    const { oasisResource } =
-                                      decodeGraphicsProperty(oasisGraphics);
-
-                                    return (
-                                      <Link
-                                        key={oasisTileId}
-                                        to={`../map?x=${oasisCoordinates.x}&y=${oasisCoordinates.y}`}
-                                        aria-label={t(
-                                          isOccupied
-                                            ? 'Occupied oasis at ({{x}} | {{y}})'
-                                            : 'Unoccupied oasis at ({{x}} | {{y}})',
-                                          {
-                                            x: oasisCoordinates.x,
-                                            y: oasisCoordinates.y,
-                                          },
-                                        )}
+                                  }) => (
+                                    <Link
+                                      key={oasisTileId}
+                                      to={`../map?x=${oasisCoordinates.x}&y=${oasisCoordinates.y}`}
+                                      aria-label={t(
+                                        isOccupied
+                                          ? 'Occupied oasis at ({{x}} | {{y}})'
+                                          : 'Unoccupied oasis at ({{x}} | {{y}})',
+                                        {
+                                          x: oasisCoordinates.x,
+                                          y: oasisCoordinates.y,
+                                        },
+                                      )}
+                                    >
+                                      <BorderIndicator
+                                        variant={isOccupied ? 'red' : 'green'}
                                       >
-                                        <BorderIndicator
-                                          variant={isOccupied ? 'red' : 'green'}
-                                        >
-                                          <Icon
-                                            className="size-4"
-                                            type={oasisResource}
-                                            shouldShowTooltip={false}
-                                          />
-                                        </BorderIndicator>
-                                      </Link>
-                                    );
-                                  },
+                                        <Icon
+                                          className="size-4"
+                                          type={getOasisBonusIconType(
+                                            resource,
+                                            bonusType,
+                                          )}
+                                          shouldShowTooltip={false}
+                                        />
+                                      </BorderIndicator>
+                                    </Link>
+                                  ),
                                 )}
                               </div>
                             )}

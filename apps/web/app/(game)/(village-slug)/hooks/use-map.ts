@@ -53,7 +53,7 @@ const useBorderTiles = () => {
           type: 'oasis',
           attributes: {
             oasisGraphics: BORDER_TILES_OASIS_GRAPHICS[index % 4],
-            isOccupiable: false,
+            bonusType: null,
           },
           owner: null,
           ownerVillage: null,

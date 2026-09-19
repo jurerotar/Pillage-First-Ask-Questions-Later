@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
+import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
 
 export const buildingFieldRowSchema = z.strictObject({
   field_id: z.number(),
@@ -36,8 +38,8 @@ export const getOccupiableOasisInRangeRowSchema = z
     tile_id: z.number(),
     tile_coordinates_x: z.number(),
     tile_coordinates_y: z.number(),
-    bonuses_json: z.string(),
-    oasis_graphics: z.number(),
+    resource: resourceSchema,
+    bonus_type: oasisBonusTypeSchema,
     occupying_village_id: z.number().nullable(),
     occupying_village_coordinates_x: z.number().nullable(),
     occupying_village_coordinates_y: z.number().nullable(),

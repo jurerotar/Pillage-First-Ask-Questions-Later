@@ -46,12 +46,21 @@ export const selectOccupiableOasesQuery = `
     o.tile_id AS oasis_tile_id,
     ot.x AS oasis_x,
     ot.y AS oasis_y,
-    ot.oasis_graphics AS oasis_graphics,
+    COALESCE(
+      MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END),
+      MAX(ri.resource)
+    ) AS resource,
+    CASE
+      WHEN COUNT(*) = 1 AND MAX(o.bonus) = 25 THEN 1
+      WHEN COUNT(*) = 2 AND MIN(o.bonus) = 25 AND MAX(o.bonus) = 25 THEN 2
+      WHEN COUNT(*) = 1 AND MAX(o.bonus) = 50 THEN 3
+      ELSE NULL
+    END AS bonus_type,
     MAX(CASE WHEN o.village_id IS NOT NULL THEN 1 ELSE 0 END) AS is_occupied
   FROM oasis o
   JOIN tiles ot ON ot.id = o.tile_id
-  WHERE ot.oasis_graphics IS NOT NULL
-  GROUP BY o.tile_id, ot.x, ot.y, ot.oasis_graphics
+  JOIN resource_ids ri ON ri.id = o.resource_id
+  GROUP BY o.tile_id, ot.x, ot.y
   ORDER BY o.tile_id;
 `;
 

@@ -10,6 +10,10 @@ import { OverflowContainer } from 'app/(game)/(village-slug)/components/building
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
+import {
+  getOasisBonusIconType,
+  getOasisBonusLabel,
+} from 'app/components/icons/utils/icons';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import {
@@ -205,18 +209,16 @@ const PlayerDetails = ({ player }: PlayerDetailsProps) => {
                             key={oasis.id}
                           >
                             {index > 0 && <span>,</span>}
-                            {oasis.bonuses.map(({ resource, bonus }) => (
-                              <span
-                                className="inline-flex items-center gap-1"
-                                key={resource}
-                              >
-                                <Icon
-                                  type={resource}
-                                  className="flex size-5"
-                                />
-                                {bonus}%
-                              </span>
-                            ))}
+                            <span className="inline-flex items-center gap-1">
+                              <Icon
+                                type={getOasisBonusIconType(
+                                  oasis.resource,
+                                  oasis.bonusType,
+                                )}
+                                className="flex size-5"
+                              />
+                              {getOasisBonusLabel(oasis.bonusType)}
+                            </span>
                           </Text>
                         ))}
                       </div>

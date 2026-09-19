@@ -2,12 +2,14 @@ import { z } from 'zod';
 import { coordinatesSchema } from '../models/coordinates';
 import { resourceSchema } from '../models/resource';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
+import { oasisBonusTypeSchema } from '../models/tile';
 import { natureUnitIdSchema } from '../models/unit';
 
 export const oasisByBonusSearchResultOasisDtoSchema = z.strictObject({
   tileId: z.number(),
   coordinates: coordinatesSchema,
-  oasisGraphics: z.number(),
+  resource: resourceSchema,
+  bonusType: oasisBonusTypeSchema,
   isOccupied: z.boolean(),
 });
 
@@ -33,12 +35,8 @@ export const oasisByAnimalsSearchResultItemDtoSchema = z
   .strictObject({
     tileId: z.number(),
     coordinates: coordinatesSchema,
-    bonuses: z.array(
-      z.strictObject({
-        resource: resourceSchema,
-        bonus: z.number(),
-      }),
-    ),
+    resource: resourceSchema,
+    bonusType: oasisBonusTypeSchema,
     animals: z.array(
       z.strictObject({
         unitId: natureUnitIdSchema,
