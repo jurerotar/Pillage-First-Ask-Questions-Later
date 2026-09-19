@@ -143,7 +143,7 @@ const OasisBonusSelectContent = () => {
 
   return (
     <SelectContent>
-      <SelectItem value={NO_OASIS_BONUS_KEY}>{t('No oasis bonus')}</SelectItem>
+      <SelectItem value={NO_OASIS_BONUS_KEY}>{t('Any oasis bonus')}</SelectItem>
       {oasisBonuses.map((oasisBonus) => {
         const [
           firstBonusValue,
