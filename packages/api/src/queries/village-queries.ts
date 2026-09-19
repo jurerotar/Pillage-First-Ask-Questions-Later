@@ -129,14 +129,23 @@ export const selectOccupiableOasisInRangeQuery = `
         ot.id AS tile_id,
         ot.x AS x,
         ot.y AS y,
-        ot.oasis_graphics AS oasis_graphics,
-        JSON_GROUP_ARRAY(o.bonus) AS bonuses_json,
+        COALESCE(
+          MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END),
+          MAX(ri.resource)
+        ) AS resource,
+        CASE
+          WHEN COUNT(*) = 1 AND MAX(o.bonus) = 25 THEN 1
+          WHEN COUNT(*) = 2 AND MIN(o.bonus) = 25 AND MAX(o.bonus) = 25 THEN 2
+          WHEN COUNT(*) = 1 AND MAX(o.bonus) = 50 THEN 3
+          ELSE NULL
+        END AS bonus_type,
         MAX(o.village_id) AS occupying_village_id
       FROM
         tiles ot
           JOIN tile_type_ids ott ON ott.id = ot.type_id
           JOIN src_village sv ON 1 = 1
           JOIN oasis o ON o.tile_id = ot.id
+          JOIN resource_ids ri ON ri.id = o.resource_id
       WHERE
         ott.type = 'oasis'
         AND ot.x BETWEEN sv.vx - $radius AND sv.vx + $radius
@@ -148,8 +157,8 @@ export const selectOccupiableOasisInRangeQuery = `
     oa.tile_id,
     oa.x AS tile_coordinates_x,
     oa.y AS tile_coordinates_y,
-    oa.oasis_graphics,
-    oa.bonuses_json,
+    oa.resource,
+    oa.bonus_type,
     oa.occupying_village_id,
     v2.name AS occupying_village_name,
     v2.slug AS occupying_village_slug,

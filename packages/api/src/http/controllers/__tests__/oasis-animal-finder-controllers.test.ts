@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { resourceSchema } from '@pillage-first/types/models/resource';
+import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
 import { getOasesWithAnimals } from '../oasis-animal-finder-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
@@ -35,7 +37,8 @@ describe('oasis-animal-finder-controllers', () => {
 
     const first = lowThreshold[0];
 
-    expect(first.bonuses.length).toBeGreaterThan(0);
+    expect(resourceSchema.safeParse(first.resource).success).toBe(true);
+    expect(oasisBonusTypeSchema.safeParse(first.bonusType).success).toBe(true);
     expect(first.animals.length).toBeGreaterThan(0);
     expect(first.animals.some(({ unitId }) => unitId === 'RAT')).toBe(true);
 

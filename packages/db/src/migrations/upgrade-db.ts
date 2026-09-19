@@ -21,7 +21,6 @@ import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-w
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
-import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
 const huntersLodgeQuestAnimalUnitIds = [
@@ -81,10 +80,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.47', (db) => {
-    db.exec({ sql: createReportRetentionTriggers });
-  });
 
   migrate('0.4.49', (db) => {
     db.exec({ sql: createScheduledBuildingUpgradesTable });

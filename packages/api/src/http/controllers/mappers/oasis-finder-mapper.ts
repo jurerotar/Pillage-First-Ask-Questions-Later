@@ -22,12 +22,12 @@ const dedupeOases = (oases: OasisByBonusSearchResultOasisDto[]) => {
 export const mapOasisWithAnimalsRowToDto = (
   row: z.infer<typeof getOasesWithAnimalsRowSchema>,
 ) => {
-  const bonuses = JSON.parse(row.bonuses_json);
   const animals = JSON.parse(row.animals_json);
   return oasisByAnimalsSearchResultItemDtoSchema.parse({
     tileId: row.tile_id,
     coordinates: { x: row.coordinates_x, y: row.coordinates_y },
-    bonuses,
+    resource: row.resource,
+    bonusType: row.bonus_type,
     animals,
     distance: roundToNDecimalPoints(Math.sqrt(row.distance_squared), 2),
   });
@@ -72,7 +72,8 @@ export const mapNearbyOasisRowToDto = (
       x: row.oasis_x,
       y: row.oasis_y,
     },
-    oasisGraphics: row.oasis_graphics,
+    resource: row.resource,
+    bonusType: row.bonus_type,
     isOccupied: row.is_occupied === 1,
   };
 };

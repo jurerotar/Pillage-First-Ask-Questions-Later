@@ -70,7 +70,7 @@ export const mapTile = (
     ownerVillage,
     attributes: {
       oasisGraphics: row.oasis_graphics ?? 0,
-      isOccupiable: row.oasis_is_occupiable === 1,
+      bonusType: row.oasis_bonus_type,
     },
   };
 

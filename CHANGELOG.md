@@ -1,3 +1,16 @@
+## Version 0.4.68
+
+#### Sep 19, 2026
+
+* [Feature] Added a set of new resource combination icons. We now have custom icons for 50% oasis bonuses and 25% + 25%
+  resource + wheat bonuses.
+* [Feature] Added upcoming resource cost to scheduled buildings list.
+* [UIUXImprovement] Reworked Oasis Bonus Finder. It now shows oasis occupation status and bonuses more accurately.
+* [BugFix] Fixed browser notifications throwing an Illegal constructor error when service worker notifications are not
+  available.
+* [BugFix] Fixed a modal overflow when confirming Gatherer's Hut expeditions.
+* [BugFix] Fixed React Query cache getting garbage collected over longer playing sessions, resulting in an error.
+
 ## Version 0.4.67
 
 #### Sep 17, 2026
