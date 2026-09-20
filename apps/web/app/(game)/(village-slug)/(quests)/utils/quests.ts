@@ -2,13 +2,14 @@ import type { TFunction } from 'i18next';
 import { kebabCase } from 'moderndash';
 import type { Quest } from '@pillage-first/types/models/quest';
 
-type QuestGroup = {
+export type QuestGroup = {
   groupKey: string;
   quests: Quest[];
   hasCollectible: boolean;
   allCollected: boolean;
   totalQuests: number;
   doneQuests: number;
+  collectedQuests: number;
 };
 
 const buildingQuestGroupIds = new Set(['oneOf', 'every']);
@@ -43,6 +44,7 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
     let hasCollectible = false;
     let allCollected = true;
     let doneQuests = 0;
+    let collectedQuests = 0;
 
     for (let i = 0; i < questsWithOrder.length; i++) {
       const quest = questsWithOrder[i].quest;
@@ -54,6 +56,10 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
 
       if (completed) {
         doneQuests += 1;
+      }
+
+      if (collected) {
+        collectedQuests += 1;
       }
 
       if (completed && !collected) {
@@ -74,6 +80,7 @@ export const groupQuestsById = (quests: Quest[]): QuestGroup[] => {
       allCollected,
       totalQuests,
       doneQuests,
+      collectedQuests,
     });
   }
 
@@ -92,11 +99,15 @@ export const getQuestTexts = (id: Quest['id'], t: TFunction) => {
   let asset: string | undefined;
 
   if (specifier) {
-    const assetNamespace = buildingQuestGroupIds.has(questGroupId)
-      ? 'BUILDINGS'
-      : 'UNITS';
+    const isBuildingQuest = buildingQuestGroupIds.has(questGroupId);
+    const assetNamespace = isBuildingQuest ? 'BUILDINGS' : 'UNITS';
+    const assetCount = isBuildingQuest
+      ? questGroupId === 'every'
+        ? 2
+        : 1
+      : count;
 
-    asset = t(`${assetNamespace}.${specifier}.NAME`, { count });
+    asset = t(`${assetNamespace}.${specifier}.NAME`, { count: assetCount });
   }
 
   return {

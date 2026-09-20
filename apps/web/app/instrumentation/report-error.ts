@@ -16,7 +16,21 @@ const toError = (error: unknown, fallbackMessage: string): Error => {
     'message' in error &&
     error.message
   ) {
-    return new Error(String(error.message));
+    const result = new Error(String(error.message));
+
+    if ('name' in error && error.name) {
+      result.name = String(error.name);
+    }
+
+    if ('stack' in error && error.stack) {
+      result.stack = String(error.stack);
+    }
+
+    if ('cause' in error && error.cause) {
+      result.cause = error.cause;
+    }
+
+    return result;
   }
 
   return new Error(fallbackMessage);

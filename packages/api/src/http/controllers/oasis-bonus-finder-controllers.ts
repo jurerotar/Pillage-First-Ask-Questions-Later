@@ -21,6 +21,8 @@ export const getTilesWithBonuses = createController(
         secondOasis: oasisBonusSlotSchema,
         thirdOasis: oasisBonusSlotSchema,
       }),
+      showOccupiedTiles: z.boolean(),
+      onlyUseUnoccupiedOases: z.boolean(),
     }),
     response: z.array(oasisByBonusSearchResultItemDtoSchema),
   },

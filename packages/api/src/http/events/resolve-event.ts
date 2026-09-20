@@ -14,7 +14,6 @@ import {
   buildingConstructionResolver,
   buildingDestructionResolver,
   buildingLevelChangeResolver,
-  buildingScheduledConstructionEventResolver,
 } from './resolvers/building-resolvers';
 import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-resolvers';
 import {
@@ -53,7 +52,6 @@ const gameEventResolvers = {
   buildingLevelChange: buildingLevelChangeResolver,
   buildingConstruction: buildingConstructionResolver,
   buildingDestruction: buildingDestructionResolver,
-  buildingScheduledConstruction: buildingScheduledConstructionEventResolver,
   troopTraining: troopTrainingEventResolver,
   troopMovementReinforcements: reinforcementMovementResolver,
   troopMovementRelocation: relocationMovementResolver,

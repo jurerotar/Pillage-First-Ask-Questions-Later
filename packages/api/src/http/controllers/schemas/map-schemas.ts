@@ -2,7 +2,10 @@ import { z } from 'zod';
 import { factionSchema } from '@pillage-first/types/models/faction';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
-import { tileTypeSchema } from '@pillage-first/types/models/tile';
+import {
+  oasisBonusTypeSchema,
+  tileTypeSchema,
+} from '@pillage-first/types/models/tile';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 
@@ -15,7 +18,7 @@ export const getTilesSchema = z
 
     rfc: resourceFieldCompositionSchema.nullable(),
     oasis_graphics: z.number().nullable(),
-    oasis_is_occupiable: z.number().nullable(),
+    oasis_bonus_type: oasisBonusTypeSchema,
 
     player_id: z.number().nullable(),
     player_slug: z.string().nullable(),

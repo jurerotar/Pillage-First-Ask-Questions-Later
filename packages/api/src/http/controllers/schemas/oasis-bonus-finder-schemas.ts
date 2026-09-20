@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
 
 export const oasisBonusSchema = z.strictObject({
   bonus: z.union([z.literal(25), z.literal(50)]),
@@ -15,20 +16,22 @@ export const getTilesWithBonusesRowSchema = z
     coordinates_x: z.number(),
     coordinates_y: z.number(),
     resource_field_composition: resourceFieldCompositionSchema,
-    oasis_owners_json: z.string(),
+    owner_village_id: z.number().nullable(),
+    owner_village_name: z.string().nullable(),
+    owner_village_slug: z.string().nullable(),
+    owner_village_x: z.number().nullable(),
+    owner_village_y: z.number().nullable(),
     distance_squared: z.number(),
   })
   .meta({ id: 'GetTilesWithBonusesRow' });
 
-export const ownedOasisRowSchema = z
+export const nearbyOasisRowSchema = z
   .strictObject({
     oasis_tile_id: z.number(),
     oasis_x: z.number(),
     oasis_y: z.number(),
-    owner_village_id: z.number(),
-    owner_village_name: z.string(),
-    owner_village_slug: z.string().nullable(),
-    owner_village_x: z.number(),
-    owner_village_y: z.number(),
+    resource: resourceSchema,
+    bonus_type: oasisBonusTypeSchema,
+    is_occupied: z.number(),
   })
-  .meta({ id: 'OwnedOasisRow' });
+  .meta({ id: 'NearbyOasisRow' });

@@ -11,14 +11,20 @@ export const selectTilesByResourceFieldCompositionQuery = `
     t.x AS coordinates_x,
     t.y AS coordinates_y,
     rfc.resource_field_composition AS resource_field_composition,
-    '[]' AS oasis_owners_json,
+    v.id AS owner_village_id,
+    v.name AS owner_village_name,
+    v.slug AS owner_village_slug,
+    t.x AS owner_village_x,
+    t.y AS owner_village_y,
     ((t.x - sv.x) * (t.x - sv.x) + (t.y - sv.y) * (t.y - sv.y)) AS distance_squared
   FROM tiles t
   LEFT JOIN resource_field_composition_ids rfc
     ON rfc.id = t.resource_field_composition_id
+  LEFT JOIN villages v ON v.tile_id = t.id
   CROSS JOIN src_village sv
   WHERE
     t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
+    AND ($show_occupied_tiles = 1 OR v.id IS NULL)
     AND (
       (
         $rfc_param = 'any-cropper'
@@ -35,21 +41,26 @@ export const selectTilesByResourceFieldCompositionQuery = `
   ORDER BY distance_squared ASC;
 `;
 
-export const selectOwnedOasesQuery = `
+export const selectOccupiableOasesQuery = `
   SELECT
     o.tile_id AS oasis_tile_id,
     ot.x AS oasis_x,
     ot.y AS oasis_y,
-    ov.id AS owner_village_id,
-    ov.name AS owner_village_name,
-    ov.slug AS owner_village_slug,
-    vt.x AS owner_village_x,
-    vt.y AS owner_village_y
+    COALESCE(
+      MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END),
+      MAX(ri.resource)
+    ) AS resource,
+    CASE
+      WHEN COUNT(*) = 1 AND MAX(o.bonus) = 25 THEN 1
+      WHEN COUNT(*) = 2 AND MIN(o.bonus) = 25 AND MAX(o.bonus) = 25 THEN 2
+      WHEN COUNT(*) = 1 AND MAX(o.bonus) = 50 THEN 3
+      ELSE NULL
+    END AS bonus_type,
+    MAX(CASE WHEN o.village_id IS NOT NULL THEN 1 ELSE 0 END) AS is_occupied
   FROM oasis o
   JOIN tiles ot ON ot.id = o.tile_id
-  JOIN villages ov ON ov.id = o.village_id
-  JOIN tiles vt ON vt.id = ov.tile_id
-  WHERE o.village_id IS NOT NULL
+  JOIN resource_ids ri ON ri.id = o.resource_id
+  GROUP BY o.tile_id, ot.x, ot.y
   ORDER BY o.tile_id;
 `;
 
@@ -88,12 +99,17 @@ export const selectTilesByOasisBonusesQuery = `
         t.id,
         t.x,
         t.y,
-        rfc.resource_field_composition
+        rfc.resource_field_composition,
+        v.id AS owner_village_id,
+        v.name AS owner_village_name,
+        v.slug AS owner_village_slug
       FROM tiles t
       LEFT JOIN resource_field_composition_ids rfc
         ON rfc.id = t.resource_field_composition_id
+      LEFT JOIN villages v ON v.tile_id = t.id
       WHERE
         t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
+        AND ($show_occupied_tiles = 1 OR v.id IS NULL)
         AND (
           (
             $rfc_param = 'any-cropper'
@@ -115,6 +131,7 @@ export const selectTilesByOasisBonusesQuery = `
         ON ot.x BETWEEN c.x - 3 AND c.x + 3
         AND ot.y BETWEEN c.y - 3 AND c.y + 3
       JOIN oasis o ON o.tile_id = ot.id
+        AND ($only_unoccupied_oases = 0 OR o.village_id IS NULL)
       JOIN resource_ids ri ON ri.id = o.resource_id
       JOIN requested_slot_bonuses rsb
         ON rsb.resource = ri.resource
@@ -164,68 +181,17 @@ export const selectTilesByOasisBonusesQuery = `
         AND m3.oasis_tile <> m1.oasis_tile
         AND m3.oasis_tile <> m2.oasis_tile
       WHERE active_slots.value = 3
-    ),
-    candidate_oasis_matches AS (
-      SELECT DISTINCT
-        sm.candidate_tile,
-        sm.oasis_tile
-      FROM slot_matches sm
-    ),
-    candidate_oasis_owners AS (
-      SELECT
-        m.candidate_tile,
-        m.oasis_tile,
-        ov.id AS owner_village_id,
-        ov.name AS owner_village_name,
-        ov.slug AS owner_village_slug,
-        vt.x AS owner_village_x,
-        vt.y AS owner_village_y
-      FROM candidate_oasis_matches m
-      JOIN oasis oo ON oo.tile_id = m.oasis_tile
-      LEFT JOIN villages ov ON ov.id = oo.village_id
-      LEFT JOIN tiles vt ON vt.id = ov.tile_id
     )
   SELECT
     c.id AS tile_id,
     c.x AS coordinates_x,
     c.y AS coordinates_y,
     c.resource_field_composition AS resource_field_composition,
-    (
-      SELECT COALESCE(
-        JSON_GROUP_ARRAY(
-          JSON_OBJECT(
-            'oasisTileId', matched.oasis_tile,
-            'ownerVillage', JSON(
-              CASE
-                WHEN matched.owner_village_id IS NULL THEN 'null'
-                ELSE JSON_OBJECT(
-                  'id', matched.owner_village_id,
-                  'name', matched.owner_village_name,
-                  'slug', matched.owner_village_slug,
-                  'coordinates', JSON_OBJECT(
-                    'x', matched.owner_village_x,
-                    'y', matched.owner_village_y
-                  )
-                )
-              END
-            )
-          )
-        ),
-        '[]'
-      )
-      FROM (
-        SELECT
-          oasis_tile,
-          owner_village_id,
-          owner_village_name,
-          owner_village_slug,
-          owner_village_x,
-          owner_village_y
-        FROM candidate_oasis_owners
-        WHERE candidate_tile = c.id
-        ORDER BY oasis_tile
-      ) matched
-    ) AS oasis_owners_json,
+    c.owner_village_id,
+    c.owner_village_name,
+    c.owner_village_slug,
+    c.x AS owner_village_x,
+    c.y AS owner_village_y,
     ((c.x - sv.x) * (c.x - sv.x) + (c.y - sv.y) * (c.y - sv.y)) AS distance_squared
   FROM candidates c
   JOIN valid_candidates vc ON vc.candidate_tile = c.id

@@ -6,11 +6,7 @@ export const selectAllRelevantEffectsQuery = `
     es.scope,
     eso.source,
     e.tile_id AS tileId,
-    e.source_specifier AS sourceSpecifier,
-    CASE
-      WHEN e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
-        THEN bi.building
-      END AS buildingId
+    e.source_specifier AS sourceSpecifier
   FROM
     effects AS e
       LEFT JOIN effect_ids AS ei
@@ -18,13 +14,6 @@ export const selectAllRelevantEffectsQuery = `
       JOIN effect_type_ids AS et ON et.id = e.type_id
       JOIN effect_scope_ids AS es ON es.id = e.scope_id
       JOIN effect_source_ids AS eso ON eso.id = e.source_id
-      LEFT JOIN villages AS ev ON ev.tile_id = e.tile_id
-      LEFT JOIN building_fields AS bf
-                ON e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
-                  AND bf.village_id = ev.id
-                  AND bf.field_id = e.source_specifier
-      LEFT JOIN building_ids AS bi
-                ON bi.id = bf.building_id
   WHERE
     e.scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
     OR e.tile_id = $tile_id;
@@ -38,11 +27,7 @@ export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
     es.scope,
     eso.source,
     e.tile_id AS tileId,
-    e.source_specifier AS sourceSpecifier,
-    CASE
-      WHEN e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
-        THEN bi.building
-    END AS buildingId
+    e.source_specifier AS sourceSpecifier
   FROM
     effects AS e
       LEFT JOIN effect_ids AS ei
@@ -50,13 +35,6 @@ export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
       JOIN effect_type_ids AS et ON et.id = e.type_id
       JOIN effect_scope_ids AS es ON es.id = e.scope_id
       JOIN effect_source_ids AS eso ON eso.id = e.source_id
-      LEFT JOIN villages AS ev ON ev.tile_id = e.tile_id
-      LEFT JOIN building_fields AS bf
-                ON e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
-                  AND bf.village_id = ev.id
-                  AND bf.field_id = e.source_specifier
-      LEFT JOIN building_ids AS bi
-                ON bi.id = bf.building_id
   WHERE
     ei.effect IN (
       'warehouseCapacity',
@@ -81,12 +59,7 @@ export const selectAllRelevantEffectsByIdQuery = `
     es.scope,
     eso.source,
     e.tile_id AS tileId,
-    e.source_specifier AS sourceSpecifier,
-    CASE
-      WHEN e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
-        AND e.source_specifier BETWEEN 1 AND 40
-        THEN bi.building
-      END AS buildingId
+    e.source_specifier AS sourceSpecifier
   FROM
     effects AS e
       LEFT JOIN effect_ids AS ei
@@ -94,13 +67,6 @@ export const selectAllRelevantEffectsByIdQuery = `
       JOIN effect_type_ids AS et ON et.id = e.type_id
       JOIN effect_scope_ids AS es ON es.id = e.scope_id
       JOIN effect_source_ids AS eso ON eso.id = e.source_id
-      LEFT JOIN villages AS ev ON ev.tile_id = e.tile_id
-      LEFT JOIN building_fields AS bf
-                ON e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
-                  AND bf.village_id = ev.id
-                  AND bf.field_id = e.source_specifier
-      LEFT JOIN building_ids AS bi
-                ON bi.id = bf.building_id
   WHERE
     (ei.effect = $effect_id)
     AND (e.scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server')) OR e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id));

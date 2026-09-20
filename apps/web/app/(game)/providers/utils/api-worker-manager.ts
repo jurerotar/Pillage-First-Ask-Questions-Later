@@ -1,6 +1,9 @@
 import ApiWorker from '@pillage-first/api?worker&url';
 import type { Server } from '@pillage-first/types/models/server';
-import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
+import {
+  deserializeError,
+  OutdatedDatabaseSchemaError,
+} from '@pillage-first/utils/errors';
 import {
   isDatabaseInitializationErrorNotificationMessageEvent,
   isDatabaseInitializationSuccessNotificationMessageEvent,
@@ -108,12 +111,14 @@ const createWorkerWithReadySignal = (
         port1.close();
         worker.terminate();
 
-        if (error.name === OutdatedDatabaseSchemaError.name) {
+        const deserializedError = deserializeError(error);
+
+        if (deserializedError.name === OutdatedDatabaseSchemaError.name) {
           reject(new OutdatedDatabaseSchemaError());
           return;
         }
 
-        reject(error);
+        reject(deserializedError);
       }
     };
 

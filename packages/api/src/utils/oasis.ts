@@ -7,6 +7,7 @@ import {
   occupyOasisQuery,
   selectOasisOccupationContextQuery,
   selectOasisReinforcementsToReturnQuery,
+  updateOasisEffectsForVillageQuery,
 } from '../queries/oasis-queries';
 import {
   type ReinforcementTroopSelection,
@@ -23,6 +24,18 @@ const oasisOccupationContextSchema = z.strictObject({
   previous_owner_village_id: z.number().nullable(),
   previous_owner_tile_id: z.number().nullable(),
 });
+
+export const updateOasisEffectsForVillage = (
+  db: DbFacade,
+  villageId: number,
+): void => {
+  db.exec({
+    sql: updateOasisEffectsForVillageQuery,
+    bind: {
+      $village_id: villageId,
+    },
+  });
+};
 
 export const occupyOasisForVillage = (
   db: DbFacade,

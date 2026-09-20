@@ -47,7 +47,6 @@ import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { Dialog, DialogContent } from 'app/components/ui/dialog';
 import { Form } from 'app/components/ui/form';
-import { Separator } from 'app/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -171,10 +170,10 @@ const GatheringExpeditionConfirmationModal = ({
         >
           <TroopConfirmationHeader />
 
-          <div className="space-y-3">
-            <TroopConfirmationUnitTable />
-
-            <Separator orientation="horizontal" />
+          <div className="min-w-0 space-y-3">
+            <div className="flex min-w-0 flex-col gap-4">
+              <TroopConfirmationUnitTable />
+            </div>
 
             <div className="space-y-2 dark:border-border">
               <div className="flex justify-between gap-4">
@@ -442,12 +441,15 @@ export const GatherersHutExpedition = () => {
                       <Resources resources={expectedResources} />
                     </div>
                   </div>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitDisabled}
-                  >
-                    {t('Start')}
-                  </Button>
+                  <div className="flex w-full justify-end">
+                    <Button
+                      type="submit"
+                      size="fit"
+                      disabled={isSubmitDisabled}
+                    >
+                      {t('Start')}
+                    </Button>
+                  </div>
                 </div>
               </fieldset>
 

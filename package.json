@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.65",
+  "version": "0.4.68",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -29,10 +29,10 @@
     "@playwright/test": "1.63.0",
     "lefthook": "2.1.14",
     "oxlint": "1.83.0",
-    "oxlint-tsgolint": "7.0.2001",
+    "oxlint-tsgolint": "7.0.2002",
     "playwright": "1.63.0",
     "sharp": "0.35.4",
-    "turbo": "2.10.13",
+    "turbo": "2.11.2",
     "typescript": "7.0.2"
   },
   "overrides": {

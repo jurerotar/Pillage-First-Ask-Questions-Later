@@ -71,6 +71,7 @@ export const selectMapTilesQuery = `
     END AS type,
     rfc.resource_field_composition AS rfc,
     t.oasis_graphics AS oasis_graphics,
+    o.bonus_type AS oasis_bonus_type,
     CASE
       WHEN t.type_id = 1 THEN v.id
       WHEN t.type_id = 2 THEN v_owner.id
@@ -92,18 +93,21 @@ export const selectMapTilesQuery = `
     CASE
       WHEN t.type_id = 1 AND v.id IS NOT NULL THEN COALESCE(ew.wheat_production_sum, 0)
       WHEN t.type_id = 2 AND v_owner.id IS NOT NULL THEN COALESCE(ew_owner.wheat_production_sum, 0)
-    END AS population,
-
-    CASE
-      WHEN t.type_id = 2 THEN 1
-      ELSE 0
-    END AS oasis_is_occupiable
+    END AS population
 
   FROM
     tiles t
       LEFT JOIN villages v ON v.tile_id = t.id
       LEFT JOIN (
-        SELECT tile_id, MAX(village_id) AS village_id
+        SELECT
+          tile_id,
+          MAX(village_id) AS village_id,
+          CASE
+            WHEN COUNT(*) = 1 AND MAX(bonus) = 25 THEN 1
+            WHEN COUNT(*) = 2 AND MIN(bonus) = 25 AND MAX(bonus) = 25 THEN 2
+            WHEN COUNT(*) = 1 AND MAX(bonus) = 50 THEN 3
+            ELSE NULL
+          END AS bonus_type
         FROM
           oasis
         GROUP BY tile_id

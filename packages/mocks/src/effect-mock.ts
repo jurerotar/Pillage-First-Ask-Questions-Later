@@ -16,7 +16,6 @@ export const woodProductionBaseEffectMock: VillageBuildingEffect = {
   value: 100,
   id: 'woodProduction',
   sourceSpecifier: 1,
-  buildingId: 'WOODCUTTER',
   type: 'base',
 };
 
@@ -27,7 +26,6 @@ export const woodProductionBonusEffectMock: VillageBuildingEffect = {
   value: 1.25,
   id: 'woodProduction',
   sourceSpecifier: 30,
-  buildingId: 'SAWMILL',
   type: 'bonus',
 };
 
@@ -38,7 +36,6 @@ export const woodProductionBonusBoosterEffectMock: VillageBuildingEffect = {
   value: 2,
   id: 'woodProduction',
   sourceSpecifier: 30,
-  buildingId: 'SAWMILL',
   type: 'bonus-booster',
 };
 
@@ -98,7 +95,6 @@ export const wheatProductionBaseEffectMock: VillageBuildingEffect = {
   value: 100,
   id: 'wheatProduction',
   sourceSpecifier: 1,
-  buildingId: 'WHEAT_FIELD',
   type: 'base',
 };
 
@@ -109,7 +105,6 @@ export const wheatProductionBonusEffectMock: VillageBuildingEffect = {
   value: 1.25,
   id: 'wheatProduction',
   sourceSpecifier: 30,
-  buildingId: 'GRAIN_MILL',
   type: 'bonus',
 };
 
@@ -120,7 +115,6 @@ export const wheatProductionBonusBoosterEffectMock: VillageBuildingEffect = {
   value: 2,
   id: 'wheatProduction',
   sourceSpecifier: 30,
-  buildingId: 'SAWMILL',
   type: 'bonus-booster',
 };
 

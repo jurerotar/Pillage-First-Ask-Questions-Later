@@ -8,7 +8,11 @@ export const buildingFieldIdIsInRangeMiddleware: Route.ClientMiddlewareFunction 
     const buildingFieldId = Number.parseInt(buildingFieldIdParam, 10);
 
     // Redirect to 404 if user attempts to open a non-existent building-field-id
-    if (buildingFieldId < 1 || buildingFieldId > 40) {
+    if (
+      !Number.isInteger(buildingFieldId) ||
+      buildingFieldId < 1 ||
+      buildingFieldId > 40
+    ) {
       throw redirect('/');
     }
   };
