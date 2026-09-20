@@ -86,6 +86,8 @@ type BaseMerchantRouteEvent = {
 
 type BaseMerchantMovementEvent = BaseMerchantRouteEvent & {
   merchantAmount: number;
+  repeatRemaining: number;
+  repeatResources: Resources;
 };
 
 type TradeRouteEvent = BaseMerchantRouteEvent & {

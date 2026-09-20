@@ -1,3 +1,14 @@
+## Version 0.4.69
+
+#### Sep 20, 2026
+
+* [Feature] Added repeated resource transfers. When sending resources from the Marketplace, you can now repeat the same
+  merchant transfer up to 5 times. Follow-up transfers start after merchants return, and the repeat chain stops if the
+  village no longer has enough resources.
+* [Feature] Added total outbound and inbound resource summaries to the merchant movement table.
+* [UIUXImprovement] Reworked Hunter's Lodge party size selection to use radio buttons.
+* [BugFix] Fixed Oasis Bonus Finder select label.
+
 ## Version 0.4.68
 
 #### Sep 19, 2026

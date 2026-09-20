@@ -381,6 +381,8 @@ describe('event-controllers', () => {
           targetVillageId: targetVillage.id,
           resources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
           merchantAmount: 1,
+          repeatRemaining: 0,
+          repeatResources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
         }),
         $incoming_meta: JSON.stringify({
           originTileId: targetVillage.tileId,
@@ -388,6 +390,8 @@ describe('event-controllers', () => {
           targetVillageId: sourceVillage.id,
           resources: { wood: 10, clay: 25, iron: 50, wheat: 100 },
           merchantAmount: 1,
+          repeatRemaining: 0,
+          repeatResources: { wood: 10, clay: 25, iron: 50, wheat: 100 },
         }),
         $unrelated_meta: JSON.stringify({
           originTileId: targetVillage.tileId,
@@ -395,6 +399,8 @@ describe('event-controllers', () => {
           targetVillageId: unrelatedVillage.id,
           resources: { wood: 1, clay: 1, iron: 1, wheat: 1 },
           merchantAmount: 1,
+          repeatRemaining: 0,
+          repeatResources: { wood: 1, clay: 1, iron: 1, wheat: 1 },
         }),
       },
     });

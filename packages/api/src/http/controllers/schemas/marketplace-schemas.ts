@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const transferResourcesBodySchema = z.strictObject({
+const resourceTransferPayloadSchema = z.strictObject({
   targetTileId: z.number().int().positive(),
   resources: z.strictObject({
     wood: z.number().int().min(0),
@@ -10,7 +10,13 @@ export const transferResourcesBodySchema = z.strictObject({
   }),
 });
 
-export const createTradeRouteBodySchema = transferResourcesBodySchema.extend({
+export const transferResourcesBodySchema = resourceTransferPayloadSchema.extend(
+  {
+    repeatCount: z.number().int().min(1).max(5).optional(),
+  },
+);
+
+export const createTradeRouteBodySchema = resourceTransferPayloadSchema.extend({
   startHour: z.number().int().min(0).max(23),
   intervalHours: z.number().int().positive(),
 });

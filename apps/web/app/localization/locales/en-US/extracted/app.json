@@ -563,6 +563,7 @@
   "Rename current village. Name cannot exceed 30 characters.": "Rename current village. Name cannot exceed 30 characters.",
   "Rename village": "Rename village",
   "Reorder scheduled construction": "Reorder scheduled construction",
+  "Repeat": "Repeat",
   "Repeat every": "Repeat every",
   "Report - {{reportId}}": "Report - {{reportId}}",
   "Report deleted": "Report deleted",
