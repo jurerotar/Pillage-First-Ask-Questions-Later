@@ -3,6 +3,7 @@ import { coordinatesSchema } from '../models/coordinates';
 import { factionSchema } from '../models/faction';
 import { resourceSchema } from '../models/resource';
 import { resourceFieldCompositionSchema } from '../models/resource-field-composition';
+import { oasisBonusTypeSchema } from '../models/tile';
 import { tribeSchema } from '../models/tribe';
 import { unitIdSchema } from '../models/unit';
 
@@ -40,7 +41,7 @@ export const mapTileDtoSchema = z.discriminatedUnion('type', [
     ownerVillage: z.union([mapOwnerVillageDtoSchema, z.null()]),
     attributes: z.strictObject({
       oasisGraphics: z.number(),
-      isOccupiable: z.boolean(),
+      bonusType: oasisBonusTypeSchema,
     }),
   }),
 ]);

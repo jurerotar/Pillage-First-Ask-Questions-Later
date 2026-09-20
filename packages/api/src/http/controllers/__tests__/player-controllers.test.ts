@@ -2,6 +2,8 @@ import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { resourceSchema } from '@pillage-first/types/models/resource';
+import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -202,15 +204,28 @@ describe('player-controllers', () => {
 
     const oases = database.selectObjects({
       sql: `
-        SELECT tile_id, COUNT(*) AS bonus_count
-        FROM oasis
-        GROUP BY tile_id
-        ORDER BY tile_id
+        SELECT
+          o.tile_id,
+          COALESCE(
+            MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END),
+            MAX(ri.resource)
+          ) AS resource,
+          CASE
+            WHEN COUNT(*) = 1 AND MAX(o.bonus) = 25 THEN 1
+            WHEN COUNT(*) = 2 AND MIN(o.bonus) = 25 AND MAX(o.bonus) = 25 THEN 2
+            WHEN COUNT(*) = 1 AND MAX(o.bonus) = 50 THEN 3
+            ELSE NULL
+          END AS bonus_type
+        FROM oasis o
+          JOIN resource_ids ri ON ri.id = o.resource_id
+        GROUP BY o.tile_id
+        ORDER BY o.tile_id
         LIMIT 2
       `,
       schema: z.strictObject({
         tile_id: z.number(),
-        bonus_count: z.number(),
+        resource: resourceSchema,
+        bonus_type: oasisBonusTypeSchema,
       }),
     });
 
@@ -249,7 +264,8 @@ describe('player-controllers', () => {
       );
 
       expect(occupiedOasis).toBeDefined();
-      expect(occupiedOasis!.bonuses).toHaveLength(oasis.bonus_count);
+      expect(occupiedOasis!.resource).toBe(oasis.resource);
+      expect(occupiedOasis!.bonusType).toBe(oasis.bonus_type);
     }
   });
 

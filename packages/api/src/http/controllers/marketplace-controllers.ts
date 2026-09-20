@@ -40,32 +40,40 @@ export const transferResources = createController(
     },
     requestBody: transferResourcesBodySchema,
   },
-)(({ database, path: { tileId }, body: { targetTileId, resources } }) => {
-  database.transaction((db) => {
-    const { village, merchant } = getVillageMerchantStatsByTileId(db, tileId);
+)(
+  ({
+    database,
+    path: { tileId },
+    body: { targetTileId, resources, repeatCount = 1 },
+  }) => {
+    database.transaction((db) => {
+      const { village, merchant } = getVillageMerchantStatsByTileId(db, tileId);
 
-    const targetVillage = getMarketplaceVillageByTileId(db, targetTileId);
+      const targetVillage = getMarketplaceVillageByTileId(db, targetTileId);
 
-    if (!targetVillage) {
-      throw new Error('Target village does not exist');
-    }
+      if (!targetVillage) {
+        throw new Error('Target village does not exist');
+      }
 
-    const merchantAmount = getMerchantAmount(
-      resources,
-      merchant.merchantCapacity,
-    );
+      const merchantAmount = getMerchantAmount(
+        resources,
+        merchant.merchantCapacity,
+      );
 
-    createEvents<'resourceTransfer'>(db, {
-      type: 'resourceTransfer',
-      villageId: village.id,
-      targetVillageId: targetVillage.id,
-      originTileId: village.tileId,
-      targetTileId: targetVillage.tileId,
-      resources,
-      merchantAmount,
+      createEvents<'resourceTransfer'>(db, {
+        type: 'resourceTransfer',
+        villageId: village.id,
+        targetVillageId: targetVillage.id,
+        originTileId: village.tileId,
+        targetTileId: targetVillage.tileId,
+        resources,
+        merchantAmount,
+        repeatRemaining: repeatCount - 1,
+        repeatResources: resources,
+      });
     });
-  });
-});
+  },
+);
 
 export const createTradeRoute = createController(
   '/tiles/:tileId/trade-routes',

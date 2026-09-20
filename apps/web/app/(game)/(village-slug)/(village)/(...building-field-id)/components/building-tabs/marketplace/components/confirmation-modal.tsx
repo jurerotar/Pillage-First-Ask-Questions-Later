@@ -19,6 +19,7 @@ type ResourceTransferConfirmationContentProps = {
   onConfirm: () => void;
   targetVillage: VillageOption | undefined;
   resources: ResourcesType;
+  repeatCount: number;
   duration: number;
   merchantAmount: number;
   isPending: boolean;
@@ -29,6 +30,7 @@ export const ResourceTransferConfirmationContent = ({
   onConfirm,
   targetVillage,
   resources,
+  repeatCount,
   duration,
   merchantAmount,
   isPending,
@@ -65,6 +67,10 @@ export const ResourceTransferConfirmationContent = ({
           <div className="flex justify-between gap-4">
             <Text className="text-muted-foreground">{t('Duration')}:</Text>
             <Text className="font-medium">{formatTime(duration)}</Text>
+          </div>
+          <div className="flex justify-between gap-4">
+            <Text className="text-muted-foreground">{t('Repeat')}:</Text>
+            <Text className="font-medium">{formatNumber(repeatCount)}x</Text>
           </div>
           <div className="flex justify-between gap-4">
             <Text className="text-muted-foreground">

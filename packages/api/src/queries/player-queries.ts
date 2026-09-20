@@ -53,8 +53,10 @@ export const selectPlayerVillagesWithPopulationQuery = `
               'y',
               oasis_data.coordinates_y
             ),
-            'bonuses',
-            JSON(oasis_data.bonuses_json)
+            'resource',
+            oasis_data.resource,
+            'bonusType',
+            oasis_data.bonus_type
           )
         )
         FROM (
@@ -62,14 +64,16 @@ export const selectPlayerVillagesWithPopulationQuery = `
             o.tile_id,
             ot.x AS coordinates_x,
             ot.y AS coordinates_y,
-            JSON_GROUP_ARRAY(
-              JSON_OBJECT(
-                'resource',
-                ri.resource,
-                'bonus',
-                o.bonus
-              )
-            ) AS bonuses_json
+            COALESCE(
+              MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END),
+              MAX(ri.resource)
+            ) AS resource,
+            CASE
+              WHEN COUNT(*) = 1 AND MAX(o.bonus) = 25 THEN 1
+              WHEN COUNT(*) = 2 AND MIN(o.bonus) = 25 AND MAX(o.bonus) = 25 THEN 2
+              WHEN COUNT(*) = 1 AND MAX(o.bonus) = 50 THEN 3
+              ELSE NULL
+            END AS bonus_type
           FROM
             oasis o
               JOIN tiles ot ON ot.id = o.tile_id

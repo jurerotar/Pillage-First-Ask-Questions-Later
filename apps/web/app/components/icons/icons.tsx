@@ -77,16 +77,24 @@ import {
   PillageFirstCatapult,
   PillageFirstCavalryDefence,
   PillageFirstClay,
+  PillageFirstClayClay,
   PillageFirstDefence,
   PillageFirstHorse,
   PillageFirstInfantryDefence,
   PillageFirstIron,
+  PillageFirstIronIron,
   PillageFirstScroll,
   PillageFirstWheat,
+  PillageFirstWheatClay,
+  PillageFirstWheatIron,
   PillageFirstWheatOff,
+  PillageFirstWheatWheat,
+  PillageFirstWheatWood,
   PillageFirstWood,
+  PillageFirstWoodWood,
 } from '@pillage-first/graphics';
 import type { Effect } from '@pillage-first/types/models/effect';
+import type { Resource } from '@pillage-first/types/models/resource';
 import type {
   EgyptianUnitId,
   GaulUnitId,
@@ -139,7 +147,7 @@ type MapFiltersIconType =
 
 type CommonIconType = 'archived' | 'cancel';
 
-type ResourceCombinationIconType =
+export type ResourceCombinationIconType =
   | 'woodWheat'
   | 'clayWheat'
   | 'ironWheat'
@@ -147,8 +155,6 @@ type ResourceCombinationIconType =
   | 'clayClay'
   | 'ironIron'
   | 'wheatWheat';
-
-type ResourceIconType = 'wood' | 'clay' | 'iron' | 'wheat';
 
 type VillageIconType = 'populationCropConsumption' | 'troopsCropConsumption';
 
@@ -207,7 +213,7 @@ export type IconType =
   | UnitAttributeType
   | ReportIconType
   | ResourceCombinationIconType
-  | ResourceIconType
+  | Resource
   | MapFiltersIconType
   | VillageIconType
   | UnitIconType
@@ -246,13 +252,13 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   clay: (props) => <PillageFirstClay {...props} />,
   iron: (props) => <PillageFirstIron {...props} />,
   wheat: (props) => <PillageFirstWheat {...props} />,
-  woodWheat: (props) => icons.wood(props),
-  clayWheat: (props) => icons.clay(props),
-  ironWheat: (props) => icons.iron(props),
-  woodWood: (props) => icons.wood(props),
-  clayClay: (props) => icons.clay(props),
-  ironIron: (props) => icons.iron(props),
-  wheatWheat: (props) => icons.wheat(props),
+  woodWheat: (props) => <PillageFirstWheatWood {...props} />,
+  clayWheat: (props) => <PillageFirstWheatClay {...props} />,
+  ironWheat: (props) => <PillageFirstWheatIron {...props} />,
+  woodWood: (props) => <PillageFirstWoodWood {...props} />,
+  clayClay: (props) => <PillageFirstClayClay {...props} />,
+  ironIron: (props) => <PillageFirstIronIron {...props} />,
+  wheatWheat: (props) => <PillageFirstWheatWheat {...props} />,
 
   // Map controls
   mapFiltersToggle: (props) => <TbFilter {...props} />,

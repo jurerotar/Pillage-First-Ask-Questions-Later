@@ -1,4 +1,3 @@
-import { clsx } from 'clsx';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
@@ -15,6 +14,10 @@ import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { useVillageTroops } from 'app/(game)/(village-slug)/hooks/use-village-troops';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
+import {
+  getOasisBonusIconType,
+  getOasisBonusLabel,
+} from 'app/components/icons/utils/icons';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import {
@@ -65,6 +68,26 @@ type OccupiableOasis = ReturnType<
   typeof useOccupiableOasisInRange
 >['occupiableOasisInRange'][number];
 
+type OasisBonusIconsProps = {
+  oasis: OccupiableOasis['oasis'];
+};
+
+const OasisBonusIcons = ({ oasis }: OasisBonusIconsProps) => {
+  if (oasis.bonusType === null) {
+    return null;
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <Icon
+        type={getOasisBonusIconType(oasis.resource, oasis.bonusType)}
+        className="flex size-5"
+      />
+      {getOasisBonusLabel(oasis.bonusType)}
+    </span>
+  );
+};
+
 type OccupiedOasisSlotProps = {
   occupiedOasis: OccupiableOasis;
 };
@@ -85,21 +108,7 @@ const OccupiedOasisSlot = ({ occupiedOasis }: OccupiedOasisSlotProps) => {
         </Text>
       </TableCell>
       <TableCell className="whitespace-nowrap">
-        {occupiedOasis.oasis.bonuses.map(({ resource, bonus }, index) => (
-          <span
-            className={clsx(
-              'inline-flex items-center gap-1',
-              index > 0 && 'ml-2',
-            )}
-            key={resource}
-          >
-            <Icon
-              type={resource}
-              className="flex size-5"
-            />
-            {bonus}%
-          </span>
-        ))}
+        <OasisBonusIcons oasis={occupiedOasis.oasis} />
       </TableCell>
       <TableCell>
         <Button
@@ -204,21 +213,7 @@ const OccupiableOasisSlot = ({
         </Text>
       </TableCell>
       <TableCell className="whitespace-nowrap">
-        {oasis.bonuses.map(({ resource, bonus }, index) => (
-          <span
-            className={clsx(
-              'inline-flex items-center gap-1',
-              index > 0 && 'ml-2',
-            )}
-            key={resource}
-          >
-            <Icon
-              type={resource}
-              className="flex size-5"
-            />
-            {bonus}%
-          </span>
-        ))}
+        <OasisBonusIcons oasis={oasis} />
       </TableCell>
       <TableCell>
         <OccupiableOasisSlotActions

@@ -1,3 +1,25 @@
+## Version 0.4.69
+
+#### Sep 20, 2026
+
+* [Feature] Added repeated resource transfers. When sending resources from the Marketplace, you can now repeat the same
+  merchant transfer up to 5 times. Follow-up transfers start after merchants return, and the repeat chain stops if the
+  village no longer has enough resources.
+* [Feature] Added total outbound and inbound resource summaries to the merchant movement table.
+* [UIUXImprovement] Reworked Hunter's Lodge party size selection to use radio buttons.
+* [BugFix] Fixed Oasis Bonus Finder select label.
+
+## Version 0.4.68
+
+#### Sep 19, 2026
+
+* [Feature] Added a set of new resource combination icons. We now have custom icons for 50% oasis bonuses and 25% + 25%
+  resource + wheat bonuses.
+* [Feature] Added scheduled buildings resource cost preview to building construction list.
+* [UIUXImprovement] Reworked Oasis Bonus Finder. It now shows oasis occupation status and bonuses more accurately.
+* [BugFix] Fixed a modal overflow on confirming Gatherer's Hut expeditions.
+* [BugFix] Fixed React Query cache getting garbage collected over longer playing sessions, resulting in an error.
+
 ## Version 0.4.67
 
 #### Sep 17, 2026

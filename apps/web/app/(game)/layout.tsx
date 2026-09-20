@@ -106,6 +106,7 @@ const LayoutContent = memo<Route.ComponentProps>(
       return new QueryClient({
         defaultOptions: {
           queries: {
+            gcTime: Number.POSITIVE_INFINITY,
             networkMode: 'always',
             retry: false,
           },

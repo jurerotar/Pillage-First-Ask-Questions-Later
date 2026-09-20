@@ -10,9 +10,7 @@ import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
-import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
-import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
@@ -21,7 +19,6 @@ import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-w
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import { setupHistoryTriggers } from '../triggers/history-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
-import createReportRetentionTriggers from '../triggers/report-retention-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
 const huntersLodgeQuestAnimalUnitIds = [
@@ -81,18 +78,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.47', (db) => {
-    db.exec({ sql: createReportRetentionTriggers });
-  });
-
-  migrate('0.4.49', (db) => {
-    db.exec({ sql: createScheduledBuildingUpgradesTable });
-
-    db.exec({
-      sql: createScheduledBuildingConstructionCancellationHistoryTable,
-    });
-  });
 
   migrate('0.4.50', (db) => {
     db.exec({
@@ -1003,6 +988,32 @@ export const upgradeDb = (
             );
         `,
       });
+    });
+  });
+
+  migrate('0.4.69', (db) => {
+    db.exec({
+      sql: `
+        UPDATE events
+        SET
+          meta = JSON_SET(
+            COALESCE(meta, '{}'),
+            '$.repeatRemaining',
+            COALESCE(JSON_EXTRACT(meta, '$.repeatRemaining'), 0),
+            '$.repeatResources',
+            JSON(COALESCE(
+              JSON_EXTRACT(meta, '$.repeatResources'),
+              JSON_EXTRACT(meta, '$.resources'),
+              '{"wood":0,"clay":0,"iron":0,"wheat":0}'
+            ))
+          )
+        WHERE
+          type = 'resourceTransfer'
+          AND (
+            JSON_TYPE(meta, '$.repeatRemaining') IS NULL
+            OR JSON_TYPE(meta, '$.repeatResources') IS NULL
+          );
+      `,
     });
   });
 

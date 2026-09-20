@@ -2,22 +2,21 @@ import type { z } from 'zod';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
-  mapOwnedOasisRowToOasisOwnerDto,
+  mapNearbyOasisRowToDto,
   mapTileWithBonusesRowToDto,
-  parseOasisOwnersJson,
 } from '../http/controllers/mappers/oasis-finder-mapper';
 import {
   getTilesWithBonusesRowSchema,
+  nearbyOasisRowSchema,
   type oasisBonusSlotSchema,
-  ownedOasisRowSchema,
 } from '../http/controllers/schemas/oasis-bonus-finder-schemas';
 import {
-  selectOwnedOasesQuery,
+  selectOccupiableOasesQuery,
   selectTilesByOasisBonusesQuery,
   selectTilesByResourceFieldCompositionQuery,
 } from '../queries/oasis-bonus-finder-queries';
 
-type OwnedOasisRow = z.infer<typeof ownedOasisRowSchema>;
+type NearbyOasisRow = z.infer<typeof nearbyOasisRowSchema>;
 type TileWithBonusesRow = z.infer<typeof getTilesWithBonusesRowSchema>;
 type OasisBonusSearchSlot = z.infer<typeof oasisBonusSlotSchema>;
 
@@ -30,30 +29,32 @@ type GetTilesWithBonusesArgs = {
     secondOasis: OasisBonusSearchSlot;
     thirdOasis: OasisBonusSearchSlot;
   };
+  showOccupiedTiles: boolean;
+  onlyUseUnoccupiedOases: boolean;
 };
 
-export const createOwnedOasesByCoordinates = (ownedOases: OwnedOasisRow[]) => {
-  const ownedOasesByCoordinates = new Map<string, OwnedOasisRow[]>();
+export const createOasesByCoordinates = (oases: NearbyOasisRow[]) => {
+  const oasesByCoordinates = new Map<string, NearbyOasisRow[]>();
 
-  for (const oasis of ownedOases) {
+  for (const oasis of oases) {
     const key = `${oasis.oasis_x},${oasis.oasis_y}`;
-    const existingOases = ownedOasesByCoordinates.get(key);
+    const existingOases = oasesByCoordinates.get(key);
 
     if (existingOases) {
       existingOases.push(oasis);
     } else {
-      ownedOasesByCoordinates.set(key, [oasis]);
+      oasesByCoordinates.set(key, [oasis]);
     }
   }
 
-  return ownedOasesByCoordinates;
+  return oasesByCoordinates;
 };
 
-export const getNearbyOwnedOasisOwners = (
+export const getNearbyOases = (
   row: TileWithBonusesRow,
-  ownedOasesByCoordinates: Map<string, OwnedOasisRow[]>,
+  oasesByCoordinates: Map<string, NearbyOasisRow[]>,
 ) => {
-  const nearbyOwnedOases: OwnedOasisRow[] = [];
+  const nearbyOases: NearbyOasisRow[] = [];
 
   for (
     let oasisX = row.coordinates_x - 3;
@@ -65,19 +66,26 @@ export const getNearbyOwnedOasisOwners = (
       oasisY <= row.coordinates_y + 3;
       oasisY += 1
     ) {
-      const oases = ownedOasesByCoordinates.get(`${oasisX},${oasisY}`) ?? [];
-      nearbyOwnedOases.push(...oases);
+      const oases = oasesByCoordinates.get(`${oasisX},${oasisY}`) ?? [];
+      nearbyOases.push(...oases);
     }
   }
 
-  return nearbyOwnedOases
+  return nearbyOases
     .sort((a, b) => a.oasis_tile_id - b.oasis_tile_id)
-    .map(mapOwnedOasisRowToOasisOwnerDto);
+    .map(mapNearbyOasisRowToDto);
 };
 
 export const getTilesWithBonuses = (
   database: DbFacade,
-  { x, y, resourceFieldComposition, bonuses }: GetTilesWithBonusesArgs,
+  {
+    x,
+    y,
+    resourceFieldComposition,
+    bonuses,
+    showOccupiedTiles,
+    onlyUseUnoccupiedOases,
+  }: GetTilesWithBonusesArgs,
 ) => {
   const { firstOasis, secondOasis, thirdOasis } = bonuses;
 
@@ -94,24 +102,22 @@ export const getTilesWithBonuses = (
         $tile_x: x,
         $tile_y: y,
         $rfc_param: resourceFieldComposition,
+        $show_occupied_tiles: showOccupiedTiles ? 1 : 0,
       },
       schema: getTilesWithBonusesRowSchema,
     });
 
-    const ownedOases = database.selectObjects({
-      sql: selectOwnedOasesQuery,
-      schema: ownedOasisRowSchema,
+    const oases = database.selectObjects({
+      sql: selectOccupiableOasesQuery,
+      schema: nearbyOasisRowSchema,
     });
 
-    const ownedOasesByCoordinates = createOwnedOasesByCoordinates(ownedOases);
+    const oasesByCoordinates = createOasesByCoordinates(oases);
 
     return rows.map((row) => {
-      const oasisOwners = getNearbyOwnedOasisOwners(
-        row,
-        ownedOasesByCoordinates,
-      );
+      const nearbyOases = getNearbyOases(row, oasesByCoordinates);
 
-      return mapTileWithBonusesRowToDto(row, oasisOwners);
+      return mapTileWithBonusesRowToDto(row, nearbyOases);
     });
   }
 
@@ -122,13 +128,22 @@ export const getTilesWithBonuses = (
       $tile_y: y,
       $rfc_param: resourceFieldComposition,
       $requested_slot_bonuses: JSON.stringify(requestedSlotBonuses),
+      $show_occupied_tiles: showOccupiedTiles ? 1 : 0,
+      $only_unoccupied_oases: onlyUseUnoccupiedOases ? 1 : 0,
     },
     schema: getTilesWithBonusesRowSchema,
   });
 
-  return rows.map((row) => {
-    const oasisOwners = parseOasisOwnersJson(row.oasis_owners_json);
+  const oases = database.selectObjects({
+    sql: selectOccupiableOasesQuery,
+    schema: nearbyOasisRowSchema,
+  });
 
-    return mapTileWithBonusesRowToDto(row, oasisOwners);
+  const oasesByCoordinates = createOasesByCoordinates(oases);
+
+  return rows.map((row) => {
+    const nearbyOases = getNearbyOases(row, oasesByCoordinates);
+
+    return mapTileWithBonusesRowToDto(row, nearbyOases);
   });
 };

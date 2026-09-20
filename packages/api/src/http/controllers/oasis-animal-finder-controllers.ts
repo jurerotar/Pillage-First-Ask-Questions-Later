@@ -66,7 +66,16 @@ export const getOasesWithAnimals = createController(
           bonuses_by_tile AS (
             SELECT
               o.tile_id,
-              JSON_GROUP_ARRAY(JSON_OBJECT('resource', ri.resource, 'bonus', o.bonus)) AS bonuses_json
+              COALESCE(
+                MAX(CASE WHEN ri.resource <> 'wheat' THEN ri.resource END),
+                MAX(ri.resource)
+              ) AS resource,
+              CASE
+                WHEN COUNT(*) = 1 AND MAX(o.bonus) = 25 THEN 1
+                WHEN COUNT(*) = 2 AND MIN(o.bonus) = 25 AND MAX(o.bonus) = 25 THEN 2
+                WHEN COUNT(*) = 1 AND MAX(o.bonus) = 50 THEN 3
+                ELSE NULL
+              END AS bonus_type
             FROM oasis o
             JOIN resource_ids ri ON ri.id = o.resource_id
             GROUP BY o.tile_id
@@ -82,12 +91,13 @@ export const getOasesWithAnimals = createController(
           t.id AS tile_id,
           t.x AS coordinates_x,
           t.y AS coordinates_y,
-          COALESCE(b.bonuses_json, '[]') AS bonuses_json,
+          b.resource,
+          b.bonus_type,
           COALESCE(a.animals_json, '[]') AS animals_json,
           ((t.x - $tile_x) * (t.x - $tile_x) + (t.y - $tile_y) * (t.y - $tile_y)) AS distance_squared
         FROM matching_oases mo
         JOIN tiles t ON t.id = mo.tile_id
-        LEFT JOIN bonuses_by_tile b ON b.tile_id = t.id
+        JOIN bonuses_by_tile b ON b.tile_id = t.id
         LEFT JOIN animals_by_tile a ON a.tile_id = t.id
         WHERE
           t.type_id = 2

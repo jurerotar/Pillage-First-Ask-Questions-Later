@@ -11,6 +11,7 @@ import {
 } from 'app/(game)/(village-slug)/hooks/use-map';
 import type { useReputations } from 'app/(game)/(village-slug)/hooks/use-reputations';
 import { Icon } from 'app/components/icon';
+import { getOasisBonusIconType } from 'app/components/icons/utils/icons';
 import cellStyles from './cell.module.scss';
 
 type Tile = ReturnType<typeof useMap>['map'][0];
@@ -87,7 +88,7 @@ const CellIcons = (props: CellIconsProps) => {
   if (
     shouldShowOasisIcons &&
     tile.type === 'oasis' &&
-    tile.attributes.isOccupiable
+    tile.attributes.bonusType !== null
   ) {
     const { oasisResource } = decodeGraphicsProperty(
       tile.attributes.oasisGraphics,
@@ -99,7 +100,7 @@ const CellIcons = (props: CellIconsProps) => {
         variant={tile.owner !== null ? 'red' : 'green'}
       >
         <Icon
-          type={oasisResource}
+          type={getOasisBonusIconType(oasisResource, tile.attributes.bonusType)}
           shouldShowTooltip={false}
         />
       </BorderIndicator>
@@ -171,7 +172,7 @@ export const Cell = ({
   const tile = map[tileIndex];
   const isBorderTile =
     tile.type === 'oasis' &&
-    !tile.attributes.isOccupiable &&
+    tile.attributes.bonusType === null &&
     BORDER_TILES_OASIS_VARIANTS.has(tile.attributes.oasisGraphics);
 
   const className = isBorderTile
