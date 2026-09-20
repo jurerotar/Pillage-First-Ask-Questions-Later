@@ -19,10 +19,6 @@ export const getOasisBonusIconType = (
 };
 
 export const getOasisBonusLabel = (bonusType: OasisBonusType): string => {
-  if (bonusType === 2) {
-    return '25% + 25%';
-  }
-
   if (bonusType === 3) {
     return '50%';
   }

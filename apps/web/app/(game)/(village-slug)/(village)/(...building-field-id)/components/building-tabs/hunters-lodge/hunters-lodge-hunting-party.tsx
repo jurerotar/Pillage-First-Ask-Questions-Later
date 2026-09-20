@@ -1,4 +1,5 @@
-import { use } from 'react';
+import { clsx } from 'clsx';
+import { use, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   calculateHuntersLodgeHuntCost,
@@ -6,6 +7,7 @@ import {
   getHunterLodgeCatchableAnimals,
 } from '@pillage-first/game-assets/utils/hunters-lodge';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import {
@@ -14,7 +16,6 @@ import {
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
-import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
@@ -26,6 +27,7 @@ import { Icon } from 'app/components/icon';
 import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
+import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
 import {
   Table,
   TableBody,
@@ -63,14 +65,40 @@ const EligibleAnimals = ({ level }: EligibleAnimalsProps) => {
   );
 };
 
+type WheatCostProps = {
+  amount: number;
+  availableAmount?: number;
+};
+
+const WheatCost = ({ amount, availableAmount }: WheatCostProps) => {
+  const isMissing = availableAmount !== undefined && amount > availableAmount;
+
+  return (
+    <span
+      className={clsx(
+        'inline-flex items-center gap-1',
+        isMissing && 'text-destructive',
+      )}
+    >
+      <Icon
+        type="wheat"
+        className="size-5"
+      />
+      {formatNumber(amount)}
+    </span>
+  );
+};
+
 type HuntingPartyTierTableProps = {
   level: number;
-  onStartHunt: (partyLevel: number) => void;
+  selectedPartyLevel: number | null;
+  onSelectPartyLevel: (partyLevel: number) => void;
 };
 
 const HuntingPartyTierTable = ({
   level,
-  onStartHunt,
+  selectedPartyLevel,
+  onSelectPartyLevel,
 }: HuntingPartyTierTableProps) => {
   const { t } = useTranslation();
   const { serverSpeed } = useServer();
@@ -84,53 +112,68 @@ const HuntingPartyTierTable = ({
 
   return (
     <OverflowContainer>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHeaderCell>{t('Party')}</TableHeaderCell>
-            <TableHeaderCell>{t('Animals')}</TableHeaderCell>
-            <TableHeaderCell>{t('Cost')}</TableHeaderCell>
-            <TableHeaderCell>{t('Duration')}</TableHeaderCell>
-            <TableHeaderCell>{t('Action')}</TableHeaderCell>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {eligibleParties.map((party) => {
-            const cost = isFreeHuntingPartiesEnabled
-              ? [0, 0, 0, 0]
-              : calculateHuntersLodgeHuntCost(party.level);
-            const duration = isInstantUnitTravelEnabled
-              ? 0
-              : calculateHuntersLodgeHuntDuration(party.level, serverSpeed);
+      <RadioGroup
+        value={selectedPartyLevel?.toString()}
+        onValueChange={(value) => onSelectPartyLevel(Number(value))}
+      >
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHeaderCell className="w-10">
+                <span className="sr-only">{t('Selection')}</span>
+              </TableHeaderCell>
+              <TableHeaderCell>{t('Party')}</TableHeaderCell>
+              <TableHeaderCell>{t('Animals')}</TableHeaderCell>
+              <TableHeaderCell>{t('Cost')}</TableHeaderCell>
+              <TableHeaderCell>{t('Duration')}</TableHeaderCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {eligibleParties.map((party) => {
+              const wheatCost = isFreeHuntingPartiesEnabled
+                ? 0
+                : calculateHuntersLodgeHuntCost(party.level)[3];
+              const duration = isInstantUnitTravelEnabled
+                ? 0
+                : calculateHuntersLodgeHuntDuration(party.level, serverSpeed);
+              const isSelected = selectedPartyLevel === party.level;
+              const radioValue = party.level.toString();
 
-            return (
-              <TableRow key={party.level}>
-                <TableCell>{t(party.name)}</TableCell>
-                <TableCell>
-                  <EligibleAnimals level={party.level} />
-                </TableCell>
-                <TableCell>
-                  <span className="inline-flex gap-2">
-                    <Resources
-                      availableResources={currentResources}
-                      resources={cost}
+              return (
+                <TableRow
+                  key={party.level}
+                  aria-selected={isSelected}
+                  className={clsx(
+                    'cursor-pointer',
+                    isSelected && 'bg-muted hover:bg-muted',
+                  )}
+                  onClick={() => onSelectPartyLevel(party.level)}
+                >
+                  <TableCell>
+                    <RadioGroupItem
+                      value={radioValue}
+                      aria-label={t('{{partyName}} hunting party', {
+                        partyName: t(party.name),
+                      })}
                     />
-                  </span>
-                </TableCell>
-                <TableCell>{formatTime(duration)}</TableCell>
-                <TableCell>
-                  <Button
-                    onClick={() => onStartHunt(party.level)}
-                    size="fit"
-                  >
-                    {t('Start')}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+                  </TableCell>
+                  <TableCell>{t(party.name)}</TableCell>
+                  <TableCell>
+                    <EligibleAnimals level={party.level} />
+                  </TableCell>
+                  <TableCell>
+                    <WheatCost
+                      amount={wheatCost}
+                      availableAmount={currentResources.wheat}
+                    />
+                  </TableCell>
+                  <TableCell>{formatTime(duration)}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </RadioGroup>
     </OverflowContainer>
   );
 };
@@ -168,17 +211,15 @@ const ActiveHuntingPartyTable = ({ events }: ActiveHuntingPartyTableProps) => {
                   <EligibleAnimals level={event.huntingPartyLevel} />
                 </TableCell>
                 <TableCell>
-                  <span className="inline-flex gap-2">
-                    <Resources
-                      resources={
-                        isFreeHuntingPartiesEnabled
-                          ? [0, 0, 0, 0]
-                          : calculateHuntersLodgeHuntCost(
-                              event.huntingPartyLevel,
-                            )
-                      }
-                    />
-                  </span>
+                  <WheatCost
+                    amount={
+                      isFreeHuntingPartiesEnabled
+                        ? 0
+                        : calculateHuntersLodgeHuntCost(
+                            event.huntingPartyLevel,
+                          )[3]
+                    }
+                  />
                 </TableCell>
                 <TableCell>
                   <Countdown endsAt={event.resolvesAt} />
@@ -198,6 +239,9 @@ export const HuntersLodgeHuntingParty = () => {
   const { eventsByType } = useEventsByType('huntersLodgeHunt');
   const { createEvent: createHuntersLodgeHunt } =
     useCreateEvent('huntersLodgeHunt');
+  const [selectedPartyLevel, setSelectedPartyLevel] = useState<number | null>(
+    null,
+  );
 
   const level = buildingField?.level ?? 0;
   const isHuntingPartyActive = eventsByType.length > 0;
@@ -220,15 +264,30 @@ export const HuntersLodgeHuntingParty = () => {
           <ActiveHuntingPartyTable events={eventsByType} />
         )}
         {!isHuntingPartyActive && (
-          <HuntingPartyTierTable
-            level={level}
-            onStartHunt={(huntingPartyLevel) => {
-              createHuntersLodgeHunt({
-                huntingPartyLevel,
-                cachesToClearImmediately: [[currentVillageCacheKey]],
-              });
-            }}
-          />
+          <div className="flex flex-col gap-3">
+            <HuntingPartyTierTable
+              level={level}
+              selectedPartyLevel={selectedPartyLevel}
+              onSelectPartyLevel={setSelectedPartyLevel}
+            />
+            <Button
+              disabled={selectedPartyLevel == null}
+              size="fit"
+              className="self-end"
+              onClick={() => {
+                if (selectedPartyLevel == null) {
+                  return;
+                }
+
+                createHuntersLodgeHunt({
+                  huntingPartyLevel: selectedPartyLevel,
+                  cachesToClearImmediately: [[currentVillageCacheKey]],
+                });
+              }}
+            >
+              {t('Start')}
+            </Button>
+          </div>
         )}
       </SectionContent>
     </Section>
