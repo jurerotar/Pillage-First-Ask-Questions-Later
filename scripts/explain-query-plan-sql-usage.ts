@@ -14,6 +14,7 @@ const server = await createServer({
   logLevel: 'error',
   root: repoRoot,
   server: {
+    hmr: false,
     middlewareMode: true,
   },
 });
