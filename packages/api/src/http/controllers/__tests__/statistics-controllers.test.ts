@@ -265,8 +265,26 @@ describe('statistics-controllers', () => {
     expect(result.village.infantryDefencePower).toBe(175);
     expect(result.village.cavalryDefencePower).toBe(250);
     expect(result.village.totalDefencePower).toBe(425);
+    expect(result.village.attackPowerAverage).toBeTypeOf('number');
+    expect(result.village.infantryDefencePowerAverage).toBeTypeOf('number');
+    expect(result.village.cavalryDefencePowerAverage).toBeTypeOf('number');
+    expect(result.village.totalDefencePowerAverage).toBeTypeOf('number');
+    expect(result.village.woodProductionAverage).toBeTypeOf('number');
+    expect(result.village.clayProductionAverage).toBeTypeOf('number');
+    expect(result.village.ironProductionAverage).toBeTypeOf('number');
+    expect(result.village.wheatProductionAverage).toBeTypeOf('number');
+    expect(result.village.productionAverage).toBeTypeOf('number');
     expect(result.kingdom.attackPower).toBeGreaterThanOrEqual(
       result.village.attackPower,
     );
+    expect(result.kingdom.attackPowerAverage).toBeTypeOf('number');
+    expect(result.kingdom.infantryDefencePowerAverage).toBeTypeOf('number');
+    expect(result.kingdom.cavalryDefencePowerAverage).toBeTypeOf('number');
+    expect(result.kingdom.totalDefencePowerAverage).toBeTypeOf('number');
+    expect(result.kingdom.woodProductionAverage).toBeTypeOf('number');
+    expect(result.kingdom.clayProductionAverage).toBeTypeOf('number');
+    expect(result.kingdom.ironProductionAverage).toBeTypeOf('number');
+    expect(result.kingdom.wheatProductionAverage).toBeTypeOf('number');
+    expect(result.kingdom.productionAverage).toBeTypeOf('number');
   });
 });

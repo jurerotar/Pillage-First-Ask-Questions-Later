@@ -27,6 +27,15 @@ const statisticsComparisonPowerSchema = {
   infantryDefencePowerRank: z.number(),
   cavalryDefencePowerRank: z.number(),
   totalDefencePowerRank: z.number(),
+  woodProductionAverage: z.number(),
+  clayProductionAverage: z.number(),
+  ironProductionAverage: z.number(),
+  wheatProductionAverage: z.number(),
+  productionAverage: z.number(),
+  attackPowerAverage: z.number(),
+  infantryDefencePowerAverage: z.number(),
+  cavalryDefencePowerAverage: z.number(),
+  totalDefencePowerAverage: z.number(),
 };
 
 export const playerRankingItemDtoSchema = z

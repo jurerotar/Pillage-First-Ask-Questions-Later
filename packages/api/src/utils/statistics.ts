@@ -59,6 +59,18 @@ type RankingFields = {
   totalDefencePowerRank: number;
 };
 
+type AverageFields = {
+  woodProductionAverage: number;
+  clayProductionAverage: number;
+  ironProductionAverage: number;
+  wheatProductionAverage: number;
+  productionAverage: number;
+  attackPowerAverage: number;
+  infantryDefencePowerAverage: number;
+  cavalryDefencePowerAverage: number;
+  totalDefencePowerAverage: number;
+};
+
 type VillageStatisticsComparison = z.infer<
   typeof statisticsComparisonVillageRowSchema
 > & {
@@ -307,6 +319,58 @@ const calculateRankingFields = <T extends StatisticsComparisonTotals>(
   ),
 });
 
+const calculateAverage = <T>(
+  items: T[],
+  valueSelector: (item: T) => number,
+): number => {
+  if (items.length === 0) {
+    return 0;
+  }
+
+  let total = 0;
+
+  for (const item of items) {
+    total += valueSelector(item);
+  }
+
+  return total / items.length;
+};
+
+const calculateAverageFields = (
+  items: StatisticsComparisonTotals[],
+): AverageFields => ({
+  woodProductionAverage: calculateAverage(
+    items,
+    (item) => item.production.wood,
+  ),
+  clayProductionAverage: calculateAverage(
+    items,
+    (item) => item.production.clay,
+  ),
+  ironProductionAverage: calculateAverage(
+    items,
+    (item) => item.production.iron,
+  ),
+  wheatProductionAverage: calculateAverage(
+    items,
+    (item) => item.production.wheat,
+  ),
+  productionAverage: calculateAverage(items, (item) => item.production.total),
+  attackPowerAverage: calculateAverage(items, (item) => item.attackPower),
+  infantryDefencePowerAverage: calculateAverage(
+    items,
+    (item) => item.infantryDefencePower,
+  ),
+  cavalryDefencePowerAverage: calculateAverage(
+    items,
+    (item) => item.cavalryDefencePower,
+  ),
+  totalDefencePowerAverage: calculateAverage(
+    items,
+    (item) => item.totalDefencePower,
+  ),
+});
+
 const truncatePowerTotals = <T extends PowerTotals>(item: T): T => {
   item.attackPower = Math.trunc(item.attackPower);
   item.infantryDefencePower = Math.trunc(item.infantryDefencePower);
@@ -319,6 +383,7 @@ const truncatePowerTotals = <T extends PowerTotals>(item: T): T => {
 const mapKingdomStatisticsComparisonItem = (
   kingdom: KingdomStatisticsComparison,
   rankingFields: RankingFields,
+  averageFields: AverageFields,
 ) => ({
   id: kingdom.id,
   name: kingdom.name,
@@ -332,11 +397,13 @@ const mapKingdomStatisticsComparisonItem = (
   cavalryDefencePower: kingdom.cavalryDefencePower,
   totalDefencePower: kingdom.totalDefencePower,
   ...rankingFields,
+  ...averageFields,
 });
 
 const mapVillageStatisticsComparisonItem = (
   village: VillageStatisticsComparison,
   rankingFields: RankingFields,
+  averageFields: AverageFields,
 ) => ({
   id: village.village_id,
   name: village.village_name,
@@ -353,6 +420,7 @@ const mapVillageStatisticsComparisonItem = (
   cavalryDefencePower: village.cavalryDefencePower,
   totalDefencePower: village.totalDefencePower,
   ...rankingFields,
+  ...averageFields,
 });
 
 export const calculateProductionAndPowerStatistics = (
@@ -489,6 +557,7 @@ export const calculateProductionAndPowerStatistics = (
     kingdom: mapKingdomStatisticsComparisonItem(
       currentKingdom,
       calculateRankingFields(kingdomItems, currentKingdom, ({ id }) => id),
+      calculateAverageFields(kingdomItems),
     ),
     village: mapVillageStatisticsComparisonItem(
       currentVillage,
@@ -497,6 +566,7 @@ export const calculateProductionAndPowerStatistics = (
         currentVillage,
         ({ village_id }) => village_id,
       ),
+      calculateAverageFields(villageItems),
     ),
     kingdomCount: kingdomItems.length,
     villageCount: villageItems.length,
