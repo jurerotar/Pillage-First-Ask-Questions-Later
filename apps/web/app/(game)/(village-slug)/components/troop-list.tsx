@@ -44,6 +44,7 @@ const TroopListContent = () => {
         id={tooltipId}
         className="z-20! rounded-xs! px-2! py-1! bg-background! text-foreground! border border-border transition-colors"
         classNameArrow="border-r border-b border-border transition-colors"
+        clickable
         place="top-start"
         {...(isWiderThanLg && {
           isOpen: true,
