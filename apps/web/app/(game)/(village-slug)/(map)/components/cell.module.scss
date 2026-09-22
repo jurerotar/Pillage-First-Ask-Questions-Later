@@ -36,6 +36,24 @@
   }
 }
 
+@each $skinVariantSelector, $imagesPath in $skinVariantPaths {
+  :global(html.skin-variant-#{$skinVariantSelector}) {
+    $base: '#{$imagesPath}/map/villages';
+
+    .occupied-tile {
+      @each $tribe in $tribes {
+        &-#{$tribe} {
+          @each $villageSize in "sm", "md", "lg" {
+            &-#{$villageSize} {
+              background-image: url('#{$base}/#{$tribe}/#{$villageSize}.avif?v=#{$graphics-version}');
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 // Unoccupied occupiable tiles
 @each $skinVariantSelector, $imagesPath in $skinVariantPaths {
   :global(html.skin-variant-#{$skinVariantSelector}) {

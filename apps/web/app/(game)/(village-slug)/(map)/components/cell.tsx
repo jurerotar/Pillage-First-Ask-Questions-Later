@@ -39,6 +39,18 @@ type CellIconsProps = CellBaseProps & {
   tile: NonNullable<Tile>;
 };
 
+const getOccupiedVillageSize = (population: number): 'sm' | 'md' | 'lg' => {
+  if (population < 250) {
+    return 'sm';
+  }
+
+  if (population < 750) {
+    return 'md';
+  }
+
+  return 'lg';
+};
+
 const CellIcons = (props: CellIconsProps) => {
   const { tile, mapFilters, magnification, mapMarkers } = props;
   const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
@@ -125,13 +137,15 @@ const getTileClassNames = (
   }
 
   if (tile.type === 'free' && tile.owner !== null) {
-    const { faction } = tile.owner;
+    const { faction, tribe } = tile.owner;
+    const villageSize = getOccupiedVillageSize(tile.ownerVillage!.population);
     const reputationLevel =
       faction === 'player' ? 'player' : getReputation(faction).reputationLevel;
 
     return clsx(
       cellStyles.tile,
       cellStyles['occupied-tile'],
+      cellStyles[`occupied-tile-${tribe}-${villageSize}`],
       cellStyles[`occupied-tile-magnification-${magnification}`],
       shouldShowFactionReputation &&
         cellStyles[`occupied-tile-reputation-${reputationLevel}`],
