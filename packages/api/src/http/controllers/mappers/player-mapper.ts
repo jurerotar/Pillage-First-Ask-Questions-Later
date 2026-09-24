@@ -5,6 +5,7 @@ import {
   playerVillageWithPopulationDtoSchema,
   sentReinforcementDtoSchema,
   villageTroopDtoSchema,
+  villageUnitCountDtoSchema,
   woundedTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import type {
@@ -12,6 +13,7 @@ import type {
   getSentReinforcementsByTileSchema,
   getStationedTroopsByTileSchema,
   getVillagesByPlayerSchema,
+  getVillageUnitCountSchema,
   getWoundedTroopsByVillageSchema,
 } from '../schemas/player-schemas';
 
@@ -57,6 +59,16 @@ export const mapVillageTroop = (
     sourceTileType: row.source_tile_type,
   };
   return villageTroopDtoSchema.parse(dto);
+};
+
+export const mapVillageUnitCount = (
+  row: z.infer<typeof getVillageUnitCountSchema>,
+): z.infer<typeof villageUnitCountDtoSchema> => {
+  return villageUnitCountDtoSchema.parse({
+    atHome: row.at_home,
+    inTransit: row.in_transit,
+    stationedAway: row.stationed_away,
+  });
 };
 
 export const mapWoundedTroop = (

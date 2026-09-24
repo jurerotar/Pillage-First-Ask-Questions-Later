@@ -15,6 +15,7 @@ import {
   sentReinforcementsCacheKey,
   troopMovementsCacheKey,
   villageTroopsCacheKey,
+  villageUnitCountCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -121,6 +122,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
         [troopMovementsCacheKey, currentVillage.tileId],
       ]);
     },
@@ -144,6 +146,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
         [effectsCacheKey, currentVillage.tileId],
       ]);
     },
@@ -167,6 +170,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [villageTroopsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
         [troopMovementsCacheKey, currentVillage.tileId],
         [effectsCacheKey, currentVillage.tileId],
       ]);
@@ -191,6 +195,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [sentReinforcementsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
         [troopMovementsCacheKey, currentVillage.tileId],
         [effectsCacheKey, currentVillage.tileId],
       ]);
@@ -215,6 +220,7 @@ export const useVillageTroops = () => {
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
         [sentReinforcementsCacheKey, currentVillage.tileId],
+        [villageUnitCountCacheKey, currentVillage.id],
       ]);
     },
   });

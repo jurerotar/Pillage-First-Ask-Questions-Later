@@ -17,6 +17,7 @@ import {
   getPlayerVillagesWithPopulation,
   getSentReinforcementsByTile,
   getStationedTroopsByTile,
+  getVillageUnitCount,
   getWoundedTroopsByVillage,
   relocateReinforcements,
   relocateSentReinforcements,
@@ -286,6 +287,174 @@ describe('player-controllers', () => {
     );
 
     expect(true).toBe(true);
+  });
+
+  test('getVillageUnitCount should count stored and moving troops from the village', async () => {
+    const database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
+      bind: { $player_id: playerId },
+      schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
+    })!;
+
+    const otherTileId = database.selectValue({
+      sql: 'SELECT id FROM tiles WHERE id != $tile_id LIMIT 1;',
+      bind: { $tile_id: village.tile_id },
+      schema: z.number(),
+    })!;
+
+    const foreignSourceTileId = database.selectValue({
+      sql: `
+        SELECT tile_id
+        FROM villages
+        WHERE tile_id != $tile_id
+        LIMIT 1;
+      `,
+      bind: { $tile_id: village.tile_id },
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        DELETE FROM troops
+        WHERE unit_id IN (
+          SELECT id
+          FROM unit_ids
+          WHERE unit IN ('LEGIONNAIRE', 'PRAETORIAN')
+        );
+      `,
+    });
+
+    database.exec({
+      sql: `
+        DELETE FROM events
+        WHERE JSON_TYPE(meta, '$.troops') = 'array';
+      `,
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO troops (tile_id, source_tile_id, unit_id, amount)
+        VALUES
+          (
+            $village_tile_id,
+            $village_tile_id,
+            (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+            3
+          ),
+          (
+            $other_tile_id,
+            $village_tile_id,
+            (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+            4
+          ),
+          (
+            $village_tile_id,
+            $foreign_source_tile_id,
+            (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'),
+            5
+          ),
+          (
+            $other_tile_id,
+            $village_tile_id,
+            (SELECT id FROM unit_ids WHERE unit = 'PRAETORIAN'),
+            8
+          );
+      `,
+      bind: {
+        $village_tile_id: village.tile_id,
+        $other_tile_id: otherTileId,
+        $foreign_source_tile_id: foreignSourceTileId,
+      },
+    });
+
+    database.exec({
+      sql: `
+        INSERT INTO events (type, starts_at, duration, village_id, meta)
+        VALUES
+          (
+            'troopMovementRaid',
+            0,
+            100,
+            $village_id,
+            $legionnaire_movement_meta
+          ),
+          (
+            'troopMovementRaid',
+            0,
+            100,
+            $village_id,
+            $foreign_movement_meta
+          ),
+          (
+            'gatherersHutGatheringTrip',
+            0,
+            100,
+            $village_id,
+            $praetorian_movement_meta
+          );
+      `,
+      bind: {
+        $village_id: village.id,
+        $legionnaire_movement_meta: JSON.stringify({
+          troops: [
+            {
+              unitId: 'LEGIONNAIRE',
+              amount: 6,
+              tileId: village.tile_id,
+              sourceTileId: village.tile_id,
+            },
+          ],
+        }),
+        $foreign_movement_meta: JSON.stringify({
+          troops: [
+            {
+              unitId: 'LEGIONNAIRE',
+              amount: 7,
+              tileId: foreignSourceTileId,
+              sourceTileId: foreignSourceTileId,
+            },
+          ],
+        }),
+        $praetorian_movement_meta: JSON.stringify({
+          troops: [
+            {
+              unitId: 'PRAETORIAN',
+              amount: 2,
+              tileId: village.tile_id,
+              sourceTileId: village.tile_id,
+            },
+          ],
+        }),
+      },
+    });
+
+    const legionnaireResult = getVillageUnitCount(
+      database,
+      createControllerArgs<'/villages/:villageId/units/:unitId/counts'>({
+        path: { villageId: village.id, unitId: 'LEGIONNAIRE' },
+      }),
+    );
+
+    expect(legionnaireResult).toEqual({
+      atHome: 3,
+      inTransit: 6,
+      stationedAway: 4,
+    });
+
+    const praetorianResult = getVillageUnitCount(
+      database,
+      createControllerArgs<'/villages/:villageId/units/:unitId/counts'>({
+        path: { villageId: village.id, unitId: 'PRAETORIAN' },
+      }),
+    );
+
+    expect(praetorianResult).toEqual({
+      atHome: 0,
+      inTransit: 2,
+      stationedAway: 8,
+    });
   });
 
   test('getWoundedTroopsByVillage should materialize wounded troop decay before returning rows', async () => {

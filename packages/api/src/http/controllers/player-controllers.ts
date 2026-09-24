@@ -6,9 +6,11 @@ import {
   playerVillageWithPopulationDtoSchema,
   sentReinforcementDtoSchema,
   villageTroopDtoSchema,
+  villageUnitCountDtoSchema,
   woundedTroopDtoSchema,
 } from '@pillage-first/types/dtos/player';
 import { playerSchema } from '@pillage-first/types/models/player';
+import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   selectPlayerByIdQuery,
   selectPlayerBySlugQuery,
@@ -18,6 +20,7 @@ import {
   selectSourceVillageByTileAndCurrentTileQuery,
   selectStationedTroopsByTileQuery,
   selectStationedVillageByTileAndCurrentTileQuery,
+  selectVillageUnitCountQuery,
   selectWoundedTroopsByVillageQuery,
   updateVillageNameQuery,
 } from '../../queries/player-queries';
@@ -37,6 +40,7 @@ import {
   mapPlayerVillageWithPopulation,
   mapSentReinforcements,
   mapVillageTroop,
+  mapVillageUnitCount,
   mapWoundedTroop,
 } from './mappers/player-mapper';
 import {
@@ -44,6 +48,7 @@ import {
   getSentReinforcementsByTileSchema,
   getStationedTroopsByTileSchema,
   getVillagesByPlayerSchema,
+  getVillageUnitCountSchema,
   getWoundedTroopsByVillageSchema,
   relocateReinforcementsSchema,
   relocateSentReinforcementsSchema,
@@ -129,6 +134,28 @@ export const getStationedTroopsByTile = createController(
   });
 
   return rows.map(mapVillageTroop);
+});
+
+export const getVillageUnitCount = createController(
+  '/villages/:villageId/units/:unitId/counts',
+  {
+    summary: 'Get counts for a unit originating from a village',
+    requestParams: {
+      path: z.strictObject({
+        villageId: z.coerce.number(),
+        unitId: unitIdSchema,
+      }),
+    },
+    response: villageUnitCountDtoSchema,
+  },
+)(({ database, path: { villageId, unitId } }) => {
+  const row = database.selectObject({
+    sql: selectVillageUnitCountQuery,
+    bind: { $village_id: villageId, $unit_id: unitId },
+    schema: getVillageUnitCountSchema,
+  })!;
+
+  return mapVillageUnitCount(row);
 });
 
 export const getWoundedTroopsByVillage = createController(

@@ -28,6 +28,12 @@ export const villageTroopDtoSchema = z.strictObject({
   sourceTileType: tileTypeSchema.nullable(),
 });
 
+export const villageUnitCountDtoSchema = z.strictObject({
+  atHome: z.number(),
+  inTransit: z.number(),
+  stationedAway: z.number(),
+});
+
 export const woundedTroopDtoSchema = z.strictObject({
   unitId: unitIdSchema,
   amount: z.number(),
