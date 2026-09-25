@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { paths } from '../../open-api';
 import { compiledApiRoutes } from '../api-routes';
 
-const httpMethods = new Set(['get', 'post', 'put', 'delete', 'patch']);
+const httpMethods = new Set(['get', 'post', 'put', 'delete', 'patch', 'query']);
 
 const hasInvalidPathFormat = (path: string) =>
   !path.startsWith('/') || (path.length > 1 && path.endsWith('/'));
@@ -77,6 +77,17 @@ describe('api-route definitions', () => {
     });
 
     expect(shadowedRoutes).toStrictEqual([]);
+  });
+
+  test('registers QUERY routes for body-backed search endpoints', () => {
+    const queryRouteKeys = compiledApiRoutes
+      .filter(({ method }) => method === 'QUERY')
+      .map(({ method, path }) => `${method} ${path}`);
+
+    expect(queryRouteKeys).toStrictEqual([
+      'QUERY /search/oases/by-bonus',
+      'QUERY /search/oases/by-animals',
+    ]);
   });
 
   test('every registered route has a matching OpenAPI operation', () => {
