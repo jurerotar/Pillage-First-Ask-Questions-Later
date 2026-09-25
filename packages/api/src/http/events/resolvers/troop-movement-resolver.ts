@@ -52,6 +52,7 @@ import { moveTroopWheatConsumption } from '../../../utils/reinforcements';
 import {
   insertAdventureReport,
   insertMovementReport,
+  insertVillageFoundedReport,
 } from '../../../utils/report';
 import { resolveNoCombatOffensiveMovement } from '../../../utils/troop-movement';
 import { addTroops } from '../../../utils/troops';
@@ -351,6 +352,13 @@ export const findNewVillageMovementResolver: Resolver<
       // JS stores values in ms, other history table triggers store it in seconds
       $timestamp: Math.trunc(resolvesAt / 1000),
     },
+  });
+
+  insertVillageFoundedReport(database, {
+    villageId,
+    timestamp: resolvesAt,
+    originTileId,
+    targetTileId: tileId,
   });
 
   return {

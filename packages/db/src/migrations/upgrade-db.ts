@@ -11,7 +11,12 @@ import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listi
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
+import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
+import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
+import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
+import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
+import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
@@ -1015,6 +1020,76 @@ export const upgradeDb = (
           );
       `,
     });
+  });
+
+  migrate('0.4.70', (db) => {
+    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
+    db.exec({ sql: 'PRAGMA legacy_alter_table = ON;' });
+
+    try {
+      db.transaction((tx) => {
+        tx.exec({
+          sql: 'DROP INDEX IF EXISTS idx_report_type_ids_report_type;',
+        });
+        tx.exec({
+          sql: 'ALTER TABLE report_type_ids RENAME TO report_type_ids_old;',
+        });
+        tx.exec({ sql: createReportTypeIdsTable });
+        tx.exec({
+          sql: `
+            INSERT INTO report_type_ids (id, report_type)
+            SELECT id, report_type
+            FROM report_type_ids_old;
+          `,
+        });
+        tx.exec({
+          sql: `
+            INSERT OR IGNORE INTO report_type_ids (report_type)
+            VALUES
+              ('unitResearch'),
+              ('unitImprovement'),
+              ('villageFounded');
+          `,
+        });
+        tx.exec({ sql: 'DROP TABLE report_type_ids_old;' });
+
+        tx.exec({
+          sql: 'ALTER TABLE report_outcome_ids RENAME TO report_outcome_ids_old;',
+        });
+        tx.exec({ sql: createReportOutcomeIdsTable });
+        tx.exec({
+          sql: `
+            INSERT INTO report_outcome_ids (id, report_outcome)
+            SELECT id, report_outcome
+            FROM report_outcome_ids_old;
+          `,
+        });
+        tx.exec({
+          sql: `
+            INSERT OR IGNORE INTO report_outcome_ids (report_outcome)
+            VALUES
+              ('unitResearched'),
+              ('unitImproved'),
+              ('villageFounded');
+          `,
+        });
+        tx.exec({ sql: 'DROP TABLE report_outcome_ids_old;' });
+      });
+    } finally {
+      db.exec({ sql: 'PRAGMA legacy_alter_table = OFF;' });
+      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
+    }
+
+    db.exec({ sql: createUnitResearchReportsTable });
+    db.exec({ sql: createUnitImprovementReportsTable });
+    db.exec({ sql: createVillageFoundingReportsTable });
+
+    db.exec({
+      sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
+    });
+    db.exec({ sql: createReportDeleteTriggers });
+
+    setupGlobalWriteTriggers(db);
   });
 
   // If all migrations passed, bump it to current version

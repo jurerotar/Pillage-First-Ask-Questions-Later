@@ -94,6 +94,36 @@ export const ReportFilters = ({
         </ToggleGroupItem>
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
+          data-tooltip-content={t('Toggle unit research reports')}
+          value="unitResearch"
+        >
+          <Icon
+            className="size-4 !text-current"
+            type="unitResearchDuration"
+          />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
+          data-tooltip-content={t('Toggle unit improvement reports')}
+          value="unitImprovement"
+        >
+          <Icon
+            className="size-4 !text-current"
+            type="unitImprovementDuration"
+          />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
+          data-tooltip-content={t('Toggle village founding reports')}
+          value="villageFounded"
+        >
+          <Icon
+            className="size-4 !text-current"
+            type="findNewVillage"
+          />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
           data-tooltip-content={t(
             'Toggle combat reports in which you lost no troops',
           )}

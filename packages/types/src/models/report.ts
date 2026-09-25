@@ -14,6 +14,9 @@ export const reportTypeSchema = z.enum([
   'huntingParty',
   'gatheringExpedition',
   'scouting',
+  'unitResearch',
+  'unitImprovement',
+  'villageFounded',
 ]);
 
 export const battleResultIdSchema = z.enum([
@@ -39,6 +42,9 @@ export const reportOutcomeSchema = z.enum([
   'troopMovement',
   'huntingParty',
   'gatheringExpedition',
+  'unitResearched',
+  'unitImproved',
+  'villageFounded',
 ]);
 
 export const reportTagSchema = z.enum(['read', 'archived']);
@@ -223,6 +229,37 @@ export const scoutingReportSchema = baseReportSchema.extend({
     ),
 });
 
+const unitReportSummarySchema = z.strictObject({
+  villageId: z.int(),
+  villageName: z.string(),
+  villageCoordinates: coordinatesSchema,
+});
+
+export const unitResearchReportSchema = baseReportSchema.extend({
+  type: z.literal('unitResearch'),
+  summary: unitReportSummarySchema,
+  unitId: unitIdSchema,
+});
+
+export const unitImprovementReportSchema = baseReportSchema.extend({
+  type: z.literal('unitImprovement'),
+  summary: unitReportSummarySchema,
+  unitId: unitIdSchema,
+  level: z.int().positive(),
+});
+
+export const villageFoundedReportSchema = baseReportSchema.extend({
+  type: z.literal('villageFounded'),
+  summary: z.strictObject({
+    originName: z.string(),
+    originCoordinates: coordinatesSchema,
+    targetName: z.string(),
+    targetCoordinates: coordinatesSchema,
+  }),
+  originTileId: z.int(),
+  targetTileId: z.int(),
+});
+
 export const reportSchema = z
   .discriminatedUnion('type', [
     battleReportSchema,
@@ -232,6 +269,9 @@ export const reportSchema = z
     huntingPartyReportSchema,
     gatheringExpeditionReportSchema,
     scoutingReportSchema,
+    unitResearchReportSchema,
+    unitImprovementReportSchema,
+    villageFoundedReportSchema,
   ])
   .meta({ id: 'Report' });
 
@@ -252,3 +292,6 @@ export type GatheringExpeditionReport = z.infer<
   typeof gatheringExpeditionReportSchema
 >;
 export type ScoutingReport = z.infer<typeof scoutingReportSchema>;
+export type UnitResearchReport = z.infer<typeof unitResearchReportSchema>;
+export type UnitImprovementReport = z.infer<typeof unitImprovementReportSchema>;
+export type VillageFoundedReport = z.infer<typeof villageFoundedReportSchema>;

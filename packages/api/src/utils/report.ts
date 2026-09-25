@@ -62,6 +62,29 @@ export type CreateNewHuntingPartyReport = Pick<
   amount: number;
 };
 
+export type CreateNewUnitResearchReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  unitId: UnitId;
+};
+
+export type CreateNewUnitImprovementReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  unitId: UnitId;
+  level: number;
+};
+
+export type CreateNewVillageFoundedReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  originTileId: number;
+  targetTileId: number;
+};
+
 type CreateNewScoutingReport = Pick<
   CreateNewReport,
   'villageId' | 'timestamp' | 'outcome'
@@ -350,6 +373,100 @@ export const insertHuntingPartyReport = (
       $hunting_party_report_id: huntingPartyReportId,
       $unit_id: report.unitId,
       $amount: report.amount,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertUnitResearchReport = (
+  database: DbFacade,
+  report: CreateNewUnitResearchReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'unitResearch',
+    outcome: 'unitResearched',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO unit_research_reports (report_id, village_id, unit_id)
+      SELECT $report_id, $village_id, id
+      FROM unit_ids
+      WHERE unit = $unit_id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_id: report.villageId,
+      $unit_id: report.unitId,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertUnitImprovementReport = (
+  database: DbFacade,
+  report: CreateNewUnitImprovementReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'unitImprovement',
+    outcome: 'unitImproved',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO unit_improvement_reports (report_id, village_id, unit_id, level)
+      SELECT $report_id, $village_id, id, $level
+      FROM unit_ids
+      WHERE unit = $unit_id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_id: report.villageId,
+      $unit_id: report.unitId,
+      $level: report.level,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertVillageFoundedReport = (
+  database: DbFacade,
+  report: CreateNewVillageFoundedReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'villageFounded',
+    outcome: 'villageFounded',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO village_founding_reports (
+        report_id,
+        origin_tile_id,
+        target_tile_id
+      )
+      VALUES (
+        $report_id,
+        $origin_tile_id,
+        $target_tile_id
+      );
+    `,
+    bind: {
+      $report_id: reportId,
+      $origin_tile_id: report.originTileId,
+      $target_tile_id: report.targetTileId,
     },
   });
 

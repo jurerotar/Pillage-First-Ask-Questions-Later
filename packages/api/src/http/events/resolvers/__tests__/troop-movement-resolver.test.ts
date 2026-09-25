@@ -989,6 +989,37 @@ describe(findNewVillageMovementResolver, () => {
     expect(newVillage.name).toBe('New village');
     expect(newVillage.slug).toBe('v-2'); // 2nd village for player
 
+    const villageFoundedReport = database.selectObject({
+      sql: `
+        SELECT r.village_id, r.timestamp, rti.report_type, roi.report_outcome,
+          vfr.origin_tile_id, vfr.target_tile_id
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN village_founding_reports vfr ON vfr.report_id = r.id
+        WHERE rti.report_type = 'villageFounded'
+        ORDER BY r.id DESC
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        village_id: z.number(),
+        timestamp: z.number(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
+      }),
+    })!;
+
+    expect(villageFoundedReport).toStrictEqual({
+      village_id: mockEvent.villageId,
+      timestamp: mockEvent.resolvesAt,
+      report_type: 'villageFounded',
+      report_outcome: 'villageFounded',
+      origin_tile_id: mockEvent.originTileId,
+      target_tile_id: targetTile.id,
+    });
+
     const gatheringExpeditionState = database.selectValue({
       sql: 'SELECT completed FROM gatherers_hut_expeditions WHERE village_id = $village_id;',
       bind: { $village_id: newVillage.id },

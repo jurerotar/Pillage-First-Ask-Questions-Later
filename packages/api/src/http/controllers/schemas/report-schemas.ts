@@ -230,6 +230,35 @@ export const scoutingReportRowSchema = baseReportRowSchema.extend({
   defender_tribe: tribeSchema,
 });
 
+export const unitResearchReportRowSchema = baseReportRowSchema.extend({
+  type: z.literal('unitResearch'),
+  unit_id: unitIdSchema,
+  village_name: z.string(),
+  village_x: z.int(),
+  village_y: z.int(),
+});
+
+export const unitImprovementReportRowSchema = baseReportRowSchema.extend({
+  type: z.literal('unitImprovement'),
+  unit_id: unitIdSchema,
+  level: z.int().positive(),
+  village_name: z.string(),
+  village_x: z.int(),
+  village_y: z.int(),
+});
+
+export const villageFoundedReportRowSchema = baseReportRowSchema.extend({
+  type: z.literal('villageFounded'),
+  origin_tile_id: z.int(),
+  target_tile_id: z.int(),
+  origin_name: z.string(),
+  origin_x: z.int(),
+  origin_y: z.int(),
+  target_name: z.string(),
+  target_x: z.int(),
+  target_y: z.int(),
+});
+
 export const getReportsRowSchema = z
   .discriminatedUnion('type', [
     battleReportRowSchema,
@@ -239,5 +268,8 @@ export const getReportsRowSchema = z
     huntingPartyReportRowSchema,
     gatheringExpeditionReportRowSchema,
     scoutingReportRowSchema,
+    unitResearchReportRowSchema,
+    unitImprovementReportRowSchema,
+    villageFoundedReportRowSchema,
   ])
   .meta({ id: 'GetReportsRow' });

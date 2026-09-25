@@ -42,3 +42,21 @@ export const isGatheringExpeditionReport = <T extends ReportLike>(
 export const isScoutingReport = <T extends ReportLike>(
   report: T,
 ): report is Extract<T, { type: 'scouting' }> => report.type === 'scouting';
+
+export const isUnitResearchReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'unitResearch' }> => {
+  return report.type === 'unitResearch';
+};
+
+export const isUnitImprovementReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'unitImprovement' }> => {
+  return report.type === 'unitImprovement';
+};
+
+export const isVillageFoundedReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'villageFounded' }> => {
+  return report.type === 'villageFounded';
+};

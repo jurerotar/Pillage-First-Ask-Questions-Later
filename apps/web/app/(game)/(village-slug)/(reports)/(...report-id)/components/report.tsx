@@ -26,6 +26,9 @@ import type {
   ScoutingReport,
   TradeReport,
   TroopMovementReport,
+  UnitImprovementReport,
+  UnitResearchReport,
+  VillageFoundedReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
 import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
@@ -1075,5 +1078,158 @@ export const AdventureHeroTable = () => {
         troops={troops}
       />
     </UnitTable>
+  );
+};
+
+export const UnitResearchReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as UnitResearchReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Unit research')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">{t('Unit')}</TableCell>
+            <TableCell className="text-left">
+              {t(`UNITS.${report.unitId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const UnitImprovementReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as UnitImprovementReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Unit improvement')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">{t('Unit')}</TableCell>
+            <TableCell className="text-left">
+              {t(`UNITS.${report.unitId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Level')}
+            </TableCell>
+            <TableCell className="text-left">{report.level}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const VillageFoundedReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as VillageFoundedReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Village founded')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Origin')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.originCoordinates.x}&y=${report.summary.originCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.originName} (
+                {report.summary.originCoordinates.x}|
+                {report.summary.originCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('New village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.targetCoordinates.x}&y=${report.summary.targetCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.targetName} (
+                {report.summary.targetCoordinates.x}|
+                {report.summary.targetCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
   );
 };

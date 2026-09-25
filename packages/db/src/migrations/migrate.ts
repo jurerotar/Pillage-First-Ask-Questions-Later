@@ -82,8 +82,11 @@ import createTilesTable from '../schemas/tiles-schema.sql?raw';
 import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
+import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
+import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
 import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
+import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
 import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
@@ -271,6 +274,9 @@ export const migrateAndSeed = (
     db.exec({ sql: createScoutingReportAttackerUnitsTable });
     db.exec({ sql: createScoutingReportUnitsTable });
     db.exec({ sql: createScoutingReportStructuresTable });
+    db.exec({ sql: createUnitResearchReportsTable });
+    db.exec({ sql: createUnitImprovementReportsTable });
+    db.exec({ sql: createVillageFoundingReportsTable });
 
     db.exec({ sql: createReportsIndexes });
 

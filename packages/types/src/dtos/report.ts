@@ -8,6 +8,9 @@ import {
   reportTypeSchema,
   scoutingReportSchema,
   tradeReportSchema,
+  unitImprovementReportSchema,
+  unitResearchReportSchema,
+  villageFoundedReportSchema,
 } from '../models/report';
 
 export const reportListingFilterSchema = z.enum([
@@ -44,6 +47,9 @@ export const reportListingDtoSchema = z.discriminatedUnion('type', [
     loot: true,
   }),
   scoutingReportSchema.omit({ scouting: true }),
+  unitResearchReportSchema,
+  unitImprovementReportSchema,
+  villageFoundedReportSchema.omit({ originTileId: true, targetTileId: true }),
 ]);
 
 export type ReportListingDto = z.infer<typeof reportListingDtoSchema>;

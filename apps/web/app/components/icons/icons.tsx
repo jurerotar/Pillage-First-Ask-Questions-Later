@@ -132,7 +132,10 @@ type ReportIconType =
   | 'heroAdventure'
   | 'troopMovement'
   | 'huntingParty'
-  | 'gatheringExpedition';
+  | 'gatheringExpedition'
+  | 'unitResearched'
+  | 'unitImproved'
+  | 'villageFounded';
 
 type MapFiltersIconType =
   | 'mapFiltersToggle'
@@ -399,6 +402,9 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
       className={clsx('text-mauve-600', props.className)}
     />
   ),
+  unitResearched: (props) => icons.unitResearchDuration(props),
+  unitImproved: (props) => icons.unitImprovementDuration(props),
+  villageFounded: (props) => icons.findNewVillage(props),
 
   // Effects
 

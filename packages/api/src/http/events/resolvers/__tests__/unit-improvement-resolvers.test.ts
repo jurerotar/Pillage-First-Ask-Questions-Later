@@ -2,7 +2,11 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { createUnitImprovementEventMock } from '@pillage-first/mocks/event';
-import type { Unit } from '@pillage-first/types/models/unit';
+import {
+  reportOutcomeSchema,
+  reportTypeSchema,
+} from '@pillage-first/types/models/report';
+import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import { unitImprovementResolver } from '../unit-improvement-resolvers';
 
 describe(unitImprovementResolver, () => {
@@ -42,5 +46,40 @@ describe(unitImprovementResolver, () => {
     })!;
 
     expect(improvement).toBeGreaterThanOrEqual(1);
+
+    const report = database.selectObject({
+      sql: `
+        SELECT r.village_id, uir.village_id AS detail_village_id,
+          r.timestamp, rti.report_type, roi.report_outcome, ui.unit AS unit_id,
+          uir.level
+        FROM reports r
+        JOIN report_type_ids rti ON rti.id = r.type_id
+        JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+        JOIN unit_improvement_reports uir ON uir.report_id = r.id
+        JOIN unit_ids ui ON ui.id = uir.unit_id
+        WHERE rti.report_type = 'unitImprovement'
+        ORDER BY r.id DESC
+        LIMIT 1;
+      `,
+      schema: z.strictObject({
+        village_id: z.number(),
+        detail_village_id: z.number(),
+        timestamp: z.number(),
+        report_type: reportTypeSchema,
+        report_outcome: reportOutcomeSchema,
+        unit_id: unitIdSchema,
+        level: z.number(),
+      }),
+    })!;
+
+    expect(report).toStrictEqual({
+      village_id: villageId,
+      detail_village_id: villageId,
+      timestamp: mockEvent.resolvesAt,
+      report_type: 'unitImprovement',
+      report_outcome: 'unitImproved',
+      unit_id: unitId,
+      level: mockEvent.level,
+    });
   });
 });

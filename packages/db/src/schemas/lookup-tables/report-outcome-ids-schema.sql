@@ -19,6 +19,9 @@ CREATE TABLE report_outcome_ids
         'heroAdventure',
         'troopMovement',
         'huntingParty',
-        'gatheringExpedition'
+        'gatheringExpedition',
+        'unitResearched',
+        'unitImproved',
+        'villageFounded'
     ))
 ) STRICT;

@@ -25,6 +25,9 @@ import {
   selectReportTypeQuery,
   selectScoutingReportQuery,
   selectTradeReportQuery,
+  selectUnitImprovementReportQuery,
+  selectUnitResearchReportQuery,
+  selectVillageFoundedReportQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
 import {
@@ -36,6 +39,9 @@ import {
   mapReportListingRowToDto,
   mapScoutingReportRowToDto,
   mapTradeReportRowToDto,
+  mapUnitImprovementReportRowToDto,
+  mapUnitResearchReportRowToDto,
+  mapVillageFoundedReportRowToDto,
 } from './mappers/report-mapper';
 import {
   adventureReportRowSchema,
@@ -48,6 +54,9 @@ import {
   movementReportRowSchema,
   scoutingReportRowSchema,
   tradeReportRowSchema,
+  unitImprovementReportRowSchema,
+  unitResearchReportRowSchema,
+  villageFoundedReportRowSchema,
 } from './schemas/report-schemas';
 
 export const getReports = createController('/reports', {
@@ -94,6 +103,11 @@ export const getReports = createController('/reports', {
         ? 1
         : 0,
       $include_scouting: reportTypes.includes('scouting') ? 1 : 0,
+      $include_unit_research: reportTypes.includes('unitResearch') ? 1 : 0,
+      $include_unit_improvement: reportTypes.includes('unitImprovement')
+        ? 1
+        : 0,
+      $include_village_founded: reportTypes.includes('villageFounded') ? 1 : 0,
       $exclude_no_loss:
         reportFilters.length === 0 || reportFilters.includes('noLoss') ? 0 : 1,
       $exclude_own_trades:
@@ -265,6 +279,36 @@ export const getReport = createController('/reports/:reportId', {
     });
 
     return mapScoutingReportRowToDto(row, attackerUnits, units, structures);
+  }
+
+  if (reportInfo.type === 'unitResearch') {
+    const row = database.selectObject({
+      sql: selectUnitResearchReportQuery,
+      bind,
+      schema: unitResearchReportRowSchema,
+    })!;
+
+    return mapUnitResearchReportRowToDto(row);
+  }
+
+  if (reportInfo.type === 'unitImprovement') {
+    const row = database.selectObject({
+      sql: selectUnitImprovementReportQuery,
+      bind,
+      schema: unitImprovementReportRowSchema,
+    })!;
+
+    return mapUnitImprovementReportRowToDto(row);
+  }
+
+  if (reportInfo.type === 'villageFounded') {
+    const row = database.selectObject({
+      sql: selectVillageFoundedReportQuery,
+      bind,
+      schema: villageFoundedReportRowSchema,
+    })!;
+
+    return mapVillageFoundedReportRowToDto(row);
   }
 
   const row = database.selectObject({
