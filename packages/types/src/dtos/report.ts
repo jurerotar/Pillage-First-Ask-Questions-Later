@@ -6,6 +6,7 @@ import {
   huntingPartyReportSchema,
   movementReportSchema,
   reportTypeSchema,
+  scheduledConstructionCancellationReportSchema,
   scoutingReportSchema,
   tradeReportSchema,
   unitImprovementReportSchema,
@@ -50,6 +51,7 @@ export const reportListingDtoSchema = z.discriminatedUnion('type', [
   unitResearchReportSchema,
   unitImprovementReportSchema,
   villageFoundedReportSchema.omit({ originTileId: true, targetTileId: true }),
+  scheduledConstructionCancellationReportSchema,
 ]);
 
 export type ReportListingDto = z.infer<typeof reportListingDtoSchema>;

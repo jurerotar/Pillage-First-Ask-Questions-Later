@@ -23,6 +23,7 @@ import type {
   GatheringExpeditionReport,
   HuntingPartyReport,
   Report as ReportType,
+  ScheduledConstructionCancellationReport,
   ScoutingReport,
   TradeReport,
   TroopMovementReport,
@@ -1227,6 +1228,78 @@ export const VillageFoundedReportTable = () => {
                 {report.summary.targetCoordinates.y})
               </Link>
             </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const ScheduledConstructionCancellationReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as ScheduledConstructionCancellationReport;
+  const reason =
+    report.reason === 'missing-resources'
+      ? t('Not enough resources')
+      : t('Building requirements are not met');
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Scheduled construction cancelled')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Building')}
+            </TableCell>
+            <TableCell className="text-left">
+              {t(`BUILDINGS.${report.buildingId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Level')}
+            </TableCell>
+            <TableCell className="text-left">{report.level}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Field')}
+            </TableCell>
+            <TableCell className="text-left">
+              {report.buildingFieldId}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Reason')}
+            </TableCell>
+            <TableCell className="text-left">{reason}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

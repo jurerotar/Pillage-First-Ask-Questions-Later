@@ -135,7 +135,8 @@ type ReportIconType =
   | 'gatheringExpedition'
   | 'unitResearched'
   | 'unitImproved'
-  | 'villageFounded';
+  | 'villageFounded'
+  | 'scheduledConstructionCancelled';
 
 type MapFiltersIconType =
   | 'mapFiltersToggle'
@@ -405,6 +406,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   unitResearched: (props) => icons.unitResearchDuration(props),
   unitImproved: (props) => icons.unitImprovementDuration(props),
   villageFounded: (props) => icons.findNewVillage(props),
+  scheduledConstructionCancelled: (props) => <GrDocumentMissing {...props} />,
 
   // Effects
 

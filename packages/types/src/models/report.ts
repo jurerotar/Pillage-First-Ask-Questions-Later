@@ -17,6 +17,7 @@ export const reportTypeSchema = z.enum([
   'unitResearch',
   'unitImprovement',
   'villageFounded',
+  'scheduledConstructionCancellation',
 ]);
 
 export const battleResultIdSchema = z.enum([
@@ -45,6 +46,7 @@ export const reportOutcomeSchema = z.enum([
   'unitResearched',
   'unitImproved',
   'villageFounded',
+  'scheduledConstructionCancelled',
 ]);
 
 export const reportTagSchema = z.enum(['read', 'archived']);
@@ -260,6 +262,21 @@ export const villageFoundedReportSchema = baseReportSchema.extend({
   targetTileId: z.int(),
 });
 
+export const scheduledConstructionCancellationReasonSchema = z.enum([
+  'missing-resources',
+  'missing-requirements',
+]);
+
+export const scheduledConstructionCancellationReportSchema =
+  baseReportSchema.extend({
+    type: z.literal('scheduledConstructionCancellation'),
+    summary: unitReportSummarySchema,
+    buildingId: buildingIdSchema,
+    buildingFieldId: z.int(),
+    level: z.int().positive(),
+    reason: scheduledConstructionCancellationReasonSchema,
+  });
+
 export const reportSchema = z
   .discriminatedUnion('type', [
     battleReportSchema,
@@ -272,6 +289,7 @@ export const reportSchema = z
     unitResearchReportSchema,
     unitImprovementReportSchema,
     villageFoundedReportSchema,
+    scheduledConstructionCancellationReportSchema,
   ])
   .meta({ id: 'Report' });
 
@@ -295,3 +313,9 @@ export type ScoutingReport = z.infer<typeof scoutingReportSchema>;
 export type UnitResearchReport = z.infer<typeof unitResearchReportSchema>;
 export type UnitImprovementReport = z.infer<typeof unitImprovementReportSchema>;
 export type VillageFoundedReport = z.infer<typeof villageFoundedReportSchema>;
+export type ScheduledConstructionCancellationReason = z.infer<
+  typeof scheduledConstructionCancellationReasonSchema
+>;
+export type ScheduledConstructionCancellationReport = z.infer<
+  typeof scheduledConstructionCancellationReportSchema
+>;

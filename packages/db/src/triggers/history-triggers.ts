@@ -50,44 +50,4 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
       END;
     `,
   });
-
-  db.exec({
-    sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_unit_improvement_history_update
-      AFTER UPDATE OF level ON unit_improvements
-      WHEN OLD.level <> NEW.level
-      BEGIN
-        INSERT INTO unit_improvement_history
-          (player_id, unit_id, previous_level, new_level, timestamp)
-        VALUES
-          (OLD.player_id, OLD.unit_id, OLD.level, NEW.level, unixepoch());
-      END;
-    `,
-  });
-
-  db.exec({
-    sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_unit_improvement_history_insert
-      AFTER INSERT ON unit_improvements
-      BEGIN
-        INSERT INTO unit_improvement_history
-          (player_id, unit_id, previous_level, new_level, timestamp)
-        VALUES
-          (NEW.player_id, NEW.unit_id, 0, NEW.level, unixepoch());
-      END;
-    `,
-  });
-
-  db.exec({
-    sql: `
-      CREATE TRIGGER IF NOT EXISTS trg_unit_research_history_insert
-      AFTER INSERT ON unit_research
-      BEGIN
-        INSERT INTO unit_research_history
-          (village_id, unit_id, timestamp)
-        VALUES
-          (NEW.village_id, NEW.unit_id, unixepoch());
-      END;
-    `,
-  });
 };

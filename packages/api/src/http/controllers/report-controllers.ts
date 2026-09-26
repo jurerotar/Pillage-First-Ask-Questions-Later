@@ -23,6 +23,7 @@ import {
   selectMovementReportQuery,
   selectReportListingsQuery,
   selectReportTypeQuery,
+  selectScheduledConstructionCancellationReportQuery,
   selectScoutingReportQuery,
   selectTradeReportQuery,
   selectUnitImprovementReportQuery,
@@ -37,6 +38,7 @@ import {
   mapHuntingPartyReportRowToDto,
   mapMovementReportRowToDto,
   mapReportListingRowToDto,
+  mapScheduledConstructionCancellationReportRowToDto,
   mapScoutingReportRowToDto,
   mapTradeReportRowToDto,
   mapUnitImprovementReportRowToDto,
@@ -52,6 +54,7 @@ import {
   getReportTypeRowSchema,
   huntingPartyReportRowSchema,
   movementReportRowSchema,
+  scheduledConstructionCancellationReportRowSchema,
   scoutingReportRowSchema,
   tradeReportRowSchema,
   unitImprovementReportRowSchema,
@@ -108,6 +111,11 @@ export const getReports = createController('/reports', {
         ? 1
         : 0,
       $include_village_founded: reportTypes.includes('villageFounded') ? 1 : 0,
+      $include_scheduled_construction_cancellation: reportTypes.includes(
+        'scheduledConstructionCancellation',
+      )
+        ? 1
+        : 0,
       $exclude_no_loss:
         reportFilters.length === 0 || reportFilters.includes('noLoss') ? 0 : 1,
       $exclude_own_trades:
@@ -309,6 +317,16 @@ export const getReport = createController('/reports/:reportId', {
     })!;
 
     return mapVillageFoundedReportRowToDto(row);
+  }
+
+  if (reportInfo.type === 'scheduledConstructionCancellation') {
+    const row = database.selectObject({
+      sql: selectScheduledConstructionCancellationReportQuery,
+      bind,
+      schema: scheduledConstructionCancellationReportRowSchema,
+    })!;
+
+    return mapScheduledConstructionCancellationReportRowToDto(row);
   }
 
   const row = database.selectObject({

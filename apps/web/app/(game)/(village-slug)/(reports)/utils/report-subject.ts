@@ -7,6 +7,7 @@ import {
   isGatheringExpeditionReport,
   isHuntingPartyReport,
   isMovementReport,
+  isScheduledConstructionCancellationReport,
   isScoutingReport,
   isTradeReport,
   isUnitImprovementReport,
@@ -155,6 +156,19 @@ export const getReportSubject = (
         targetName: report.summary.targetName,
         targetX: report.summary.targetCoordinates.x,
         targetY: report.summary.targetCoordinates.y,
+      },
+    );
+  }
+
+  if (isScheduledConstructionCancellationReport(report)) {
+    return t(
+      '{{buildingName}} level {{level}} could not be scheduled in {{villageName}} ({{x}}|{{y}})',
+      {
+        buildingName: t(`BUILDINGS.${report.buildingId}.NAME`),
+        level: report.level,
+        villageName: report.summary.villageName,
+        x: report.summary.villageCoordinates.x,
+        y: report.summary.villageCoordinates.y,
       },
     );
   }

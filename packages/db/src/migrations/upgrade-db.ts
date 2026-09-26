@@ -13,6 +13,7 @@ import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-lis
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
+import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
 import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
@@ -83,20 +84,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.50', (db) => {
-    db.exec({
-      sql: `
-        UPDATE events
-        SET
-          meta = JSON_REMOVE(meta, '$.merchantAmount')
-        WHERE
-          type = 'tradeRoute'
-          AND meta IS NOT NULL
-          AND JSON_TYPE(meta, '$.merchantAmount') IS NOT NULL;
-      `,
-    });
-  });
 
   migrate('0.4.51', (db) => {
     db.transaction((tx) => {
@@ -1048,7 +1035,8 @@ export const upgradeDb = (
             VALUES
               ('unitResearch'),
               ('unitImprovement'),
-              ('villageFounded');
+              ('villageFounded'),
+              ('scheduledConstructionCancellation');
           `,
         });
         tx.exec({ sql: 'DROP TABLE report_type_ids_old;' });
@@ -1070,7 +1058,8 @@ export const upgradeDb = (
             VALUES
               ('unitResearched'),
               ('unitImproved'),
-              ('villageFounded');
+              ('villageFounded'),
+              ('scheduledConstructionCancelled');
           `,
         });
         tx.exec({ sql: 'DROP TABLE report_outcome_ids_old;' });
@@ -1083,6 +1072,18 @@ export const upgradeDb = (
     db.exec({ sql: createUnitResearchReportsTable });
     db.exec({ sql: createUnitImprovementReportsTable });
     db.exec({ sql: createVillageFoundingReportsTable });
+    db.exec({ sql: createScheduledConstructionCancellationReportsTable });
+
+    for (const sql of [
+      'DROP TRIGGER IF EXISTS trg_unit_improvement_history_update;',
+      'DROP TRIGGER IF EXISTS trg_unit_improvement_history_insert;',
+      'DROP TRIGGER IF EXISTS trg_unit_research_history_insert;',
+      'DROP TABLE IF EXISTS unit_improvement_history;',
+      'DROP TABLE IF EXISTS unit_research_history;',
+      'DROP TABLE IF EXISTS village_founding_history;',
+    ]) {
+      db.exec({ sql });
+    }
 
     db.exec({
       sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',

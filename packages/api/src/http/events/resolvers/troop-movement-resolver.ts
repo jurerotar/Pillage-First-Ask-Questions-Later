@@ -27,7 +27,6 @@ import {
   insertNewVillageQuestsQuery,
   insertResourceSiteByTileIdQuery,
   insertVillageForPlayerQuery,
-  insertVillageFoundingHistoryQuery,
   selectBuildingIdsQuery,
   selectHeroAdventureContextByVillageIdQuery,
   selectNewVillageFoundationTileByTileIdAndPlayerIdQuery,
@@ -186,8 +185,6 @@ export const findNewVillageMovementResolver: Resolver<
   // tileId here represents a tile_id where the new village will be founded
   const {
     id: tileId,
-    x,
-    y,
     resourceFieldComposition,
     tribe,
   } = database.selectObject({
@@ -340,19 +337,6 @@ export const findNewVillageMovementResolver: Resolver<
     getVillageTileId(database, villageId),
     resolvesAt,
   );
-
-  // Founding village history
-  database.exec({
-    sql: insertVillageFoundingHistoryQuery,
-    bind: {
-      $village_id: newVillageId,
-      $tile_id: tileId,
-      $x: x,
-      $y: y,
-      // JS stores values in ms, other history table triggers store it in seconds
-      $timestamp: Math.trunc(resolvesAt / 1000),
-    },
-  });
 
   insertVillageFoundedReport(database, {
     villageId,

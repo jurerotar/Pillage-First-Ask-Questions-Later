@@ -21,6 +21,7 @@ import { postWorkerMessage } from '../worker/notification-port';
 import { removeBuildingPlaceholder } from './building-placeholder';
 import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
 import { createEvents } from './create-event';
+import { insertScheduledConstructionCancellationReport } from './report';
 
 const scheduledBuildingUpgradeRowSchema = z.strictObject({
   id: z.number(),
@@ -224,6 +225,14 @@ export const promoteNextScheduledBuildingUpgrade = (
           database,
           scheduledUpgrade,
         );
+        insertScheduledConstructionCancellationReport(database, {
+          villageId: scheduledUpgrade.villageId,
+          timestamp: startsAt ?? Date.now(),
+          buildingId: scheduledUpgrade.buildingId,
+          buildingFieldId: scheduledUpgrade.buildingFieldId,
+          level: scheduledUpgrade.level,
+          reason: cancellationReason,
+        });
         postScheduledConstructionCancelledNotification(
           scheduledUpgrade,
           cancellationReason,

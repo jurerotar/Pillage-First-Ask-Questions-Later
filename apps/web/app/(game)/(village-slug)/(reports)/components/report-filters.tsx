@@ -125,6 +125,18 @@ export const ReportFilters = ({
         <ToggleGroupItem
           data-tooltip-id="general-tooltip"
           data-tooltip-content={t(
+            'Toggle scheduled construction cancellation reports',
+          )}
+          value="scheduledConstructionCancellation"
+        >
+          <Icon
+            className="size-4 !text-current"
+            type="scheduledConstructionCancelled"
+          />
+        </ToggleGroupItem>
+        <ToggleGroupItem
+          data-tooltip-id="general-tooltip"
+          data-tooltip-content={t(
             'Toggle combat reports in which you lost no troops',
           )}
           value="noLoss"

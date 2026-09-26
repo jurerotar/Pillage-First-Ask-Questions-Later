@@ -37,10 +37,7 @@ import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attr
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
 import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
-import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-improvement-history-schema.sql?raw';
-import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
-import createVillageFoundingHistoryTable from '../schemas/history-tables/village-founding-history-schema.sql?raw';
 import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
 import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
@@ -73,6 +70,7 @@ import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
+import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
 import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
 import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
@@ -185,9 +183,6 @@ export const migrateAndSeed = (
     db.exec({
       sql: createScheduledBuildingConstructionCancellationHistoryTable,
     });
-    db.exec({ sql: createUnitImprovementHistoryTable });
-    db.exec({ sql: createUnitResearchHistoryTable });
-    db.exec({ sql: createVillageFoundingHistoryTable });
 
     // Developer settings
     db.exec({ sql: createDeveloperSettingsTable });
@@ -277,6 +272,7 @@ export const migrateAndSeed = (
     db.exec({ sql: createUnitResearchReportsTable });
     db.exec({ sql: createUnitImprovementReportsTable });
     db.exec({ sql: createVillageFoundingReportsTable });
+    db.exec({ sql: createScheduledConstructionCancellationReportsTable });
 
     db.exec({ sql: createReportsIndexes });
 

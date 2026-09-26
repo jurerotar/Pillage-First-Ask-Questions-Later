@@ -1,10 +1,12 @@
 import { z } from 'zod';
 import type { Building } from '@pillage-first/types/models/building';
+import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type {
   AdventureReport,
   BaseReport,
   ReportOutcome,
+  ScheduledConstructionCancellationReason,
 } from '@pillage-first/types/models/report';
 import type {
   ResourceBundle,
@@ -83,6 +85,16 @@ export type CreateNewVillageFoundedReport = Pick<
 > & {
   originTileId: number;
   targetTileId: number;
+};
+
+export type CreateNewScheduledConstructionCancellationReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  buildingId: Building['id'];
+  buildingFieldId: BuildingField['id'];
+  level: number;
+  reason: ScheduledConstructionCancellationReason;
 };
 
 type CreateNewScoutingReport = Pick<
@@ -467,6 +479,51 @@ export const insertVillageFoundedReport = (
       $report_id: reportId,
       $origin_tile_id: report.originTileId,
       $target_tile_id: report.targetTileId,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertScheduledConstructionCancellationReport = (
+  database: DbFacade,
+  report: CreateNewScheduledConstructionCancellationReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'scheduledConstructionCancellation',
+    outcome: 'scheduledConstructionCancelled',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO scheduled_construction_cancellation_reports (
+        report_id,
+        village_id,
+        building_id,
+        field_id,
+        level,
+        reason
+      )
+      SELECT
+        $report_id,
+        $village_id,
+        id,
+        $field_id,
+        $level,
+        $reason
+      FROM building_ids
+      WHERE building = $building_id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_id: report.villageId,
+      $building_id: report.buildingId,
+      $field_id: report.buildingFieldId,
+      $level: report.level,
+      $reason: report.reason,
     },
   });
 

@@ -45,9 +45,6 @@
     "./dtos/oasis": {
       "default": "./src/dtos/oasis.ts"
     },
-    "./dtos/history": {
-      "default": "./src/dtos/history.ts"
-    },
     "./dtos/statistics": {
       "default": "./src/dtos/statistics.ts"
     },

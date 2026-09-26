@@ -25,7 +25,6 @@ export const adventurePointsCacheKey = 'adventure-points';
 export const gatherersHutExpeditionsCacheKey = 'gatherers-hut-expeditions';
 export const bookmarksCacheKey = 'bookmarks';
 export const developerSettingsCacheKey = 'developer-settings';
-export const eventsHistoryCacheKey = 'events-history';
 export const tileTroopsCacheKey = 'tile-troops';
 export const currentVillageCacheKey = 'current-village';
 export const villageTroopsCacheKey = 'village-units';

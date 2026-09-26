@@ -547,6 +547,42 @@ describe('scheduled building upgrades', () => {
       fieldId: field.fieldId,
       buildingId: field.buildingId,
     });
+
+    expect(
+      database.selectObject({
+        sql: `
+          SELECT
+            rti.report_type AS reportType,
+            roi.report_outcome AS reportOutcome,
+            sccr.field_id AS fieldId,
+            bi.building AS buildingId,
+            sccr.level,
+            sccr.reason
+          FROM scheduled_construction_cancellation_reports sccr
+          JOIN reports r ON r.id = sccr.report_id
+          JOIN report_type_ids rti ON rti.id = r.type_id
+          JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+          JOIN building_ids bi ON bi.id = sccr.building_id
+          WHERE sccr.village_id = $village_id;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          reportType: z.literal('scheduledConstructionCancellation'),
+          reportOutcome: z.literal('scheduledConstructionCancelled'),
+          fieldId: z.number(),
+          buildingId: buildingIdSchema,
+          level: z.number(),
+          reason: z.literal('missing-resources'),
+        }),
+      }),
+    ).toEqual({
+      reportType: 'scheduledConstructionCancellation',
+      reportOutcome: 'scheduledConstructionCancelled',
+      fieldId: field.fieldId,
+      buildingId: field.buildingId,
+      level: field.level + 1,
+      reason: 'missing-resources',
+    });
   });
 
   test('removes an invalid head candidate and promotes the next candidate', async () => {

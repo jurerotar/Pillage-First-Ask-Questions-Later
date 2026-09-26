@@ -22,6 +22,7 @@ CREATE TABLE report_outcome_ids
         'gatheringExpedition',
         'unitResearched',
         'unitImproved',
-        'villageFounded'
+        'villageFounded',
+        'scheduledConstructionCancelled'
     ))
 ) STRICT;

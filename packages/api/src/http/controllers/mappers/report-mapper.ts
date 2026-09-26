@@ -31,6 +31,10 @@ type ScoutingReportRow = Extract<ReportRow, { type: 'scouting' }>;
 type UnitResearchReportRow = Extract<ReportRow, { type: 'unitResearch' }>;
 type UnitImprovementReportRow = Extract<ReportRow, { type: 'unitImprovement' }>;
 type VillageFoundedReportRow = Extract<ReportRow, { type: 'villageFounded' }>;
+type ScheduledConstructionCancellationReportRow = Extract<
+  ReportRow,
+  { type: 'scheduledConstructionCancellation' }
+>;
 
 const mapBattleReportRowToSummaryDto = (
   row: BattleReportRow,
@@ -134,6 +138,26 @@ export const mapReportListingRowToDto = (
       },
       unitId: summary.unitId,
       level: summary.level,
+      tags: JSON.parse(row.tags_json),
+    });
+  }
+
+  if (row.type === 'scheduledConstructionCancellation') {
+    return reportListingDtoSchema.parse({
+      id: row.id,
+      villageId: row.village_id,
+      timestamp: row.timestamp,
+      type: row.type,
+      outcome: row.outcome,
+      summary: {
+        villageId: summary.villageId,
+        villageName: summary.villageName,
+        villageCoordinates: summary.villageCoordinates,
+      },
+      buildingId: summary.buildingId,
+      buildingFieldId: summary.buildingFieldId,
+      level: summary.level,
+      reason: summary.reason,
       tags: JSON.parse(row.tags_json),
     });
   }
@@ -478,4 +502,21 @@ export const mapVillageFoundedReportRowToDto = (row: VillageFoundedReportRow) =>
     },
     originTileId: row.origin_tile_id,
     targetTileId: row.target_tile_id,
+  });
+
+export const mapScheduledConstructionCancellationReportRowToDto = (
+  row: ScheduledConstructionCancellationReportRow,
+) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'scheduledConstructionCancellation',
+    summary: {
+      villageId: row.village_id,
+      villageName: row.village_name,
+      villageCoordinates: { x: row.village_x, y: row.village_y },
+    },
+    buildingId: row.building_id,
+    buildingFieldId: row.field_id,
+    level: row.level,
+    reason: row.reason,
   });

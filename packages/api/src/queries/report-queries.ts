@@ -87,6 +87,15 @@ export const selectReportListingsQuery = `
         'targetName', founding_target_v.name,
         'targetCoordinates', json_object('x', founding_target_t.x, 'y', founding_target_t.y)
       )
+      WHEN 'scheduledConstructionCancellation' THEN json_object(
+        'villageId', scheduled_construction_v.id,
+        'villageName', scheduled_construction_v.name,
+        'villageCoordinates', json_object('x', scheduled_construction_t.x, 'y', scheduled_construction_t.y),
+        'buildingId', scheduled_construction_bi.building,
+        'buildingFieldId', sccr.field_id,
+        'level', sccr.level,
+        'reason', sccr.reason
+      )
     END AS summary_json,
     COALESCE((
       SELECT json_group_array(rti.tag)
@@ -154,6 +163,10 @@ export const selectReportListingsQuery = `
   LEFT JOIN villages founding_origin_v ON founding_origin_v.tile_id = founding_origin_t.id
   LEFT JOIN tiles founding_target_t ON founding_target_t.id = vfr.target_tile_id
   LEFT JOIN villages founding_target_v ON founding_target_v.tile_id = founding_target_t.id
+  LEFT JOIN scheduled_construction_cancellation_reports sccr ON sccr.report_id = r.id
+  LEFT JOIN building_ids scheduled_construction_bi ON scheduled_construction_bi.id = sccr.building_id
+  LEFT JOIN villages scheduled_construction_v ON scheduled_construction_v.id = sccr.village_id
+  LEFT JOIN tiles scheduled_construction_t ON scheduled_construction_t.id = scheduled_construction_v.tile_id
   WHERE
     ($scope != 'village' OR r.village_id = $village_id)
     AND (
@@ -184,6 +197,7 @@ export const selectReportListingsQuery = `
       OR ($include_unit_research = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'unitResearch'))
       OR ($include_unit_improvement = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'unitImprovement'))
       OR ($include_village_founded = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'villageFounded'))
+      OR ($include_scheduled_construction_cancellation = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'scheduledConstructionCancellation'))
     )
     AND (
       $exclude_no_loss = 0
@@ -488,6 +502,24 @@ export const selectVillageFoundedReportQuery = `
   JOIN villages origin_v ON origin_v.tile_id = origin_t.id
   JOIN tiles target_t ON target_t.id = vfr.target_tile_id
   JOIN villages target_v ON target_v.tile_id = target_t.id;
+`;
+
+export const selectScheduledConstructionCancellationReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    bi.building AS building_id,
+    sccr.field_id,
+    sccr.level,
+    sccr.reason,
+    v.name AS village_name,
+    t.x AS village_x,
+    t.y AS village_y
+  FROM report r
+  JOIN scheduled_construction_cancellation_reports sccr ON sccr.report_id = r.id
+  JOIN building_ids bi ON bi.id = sccr.building_id
+  JOIN villages v ON v.id = sccr.village_id
+  JOIN tiles t ON t.id = v.tile_id;
 `;
 
 export const deleteReportQuery = `

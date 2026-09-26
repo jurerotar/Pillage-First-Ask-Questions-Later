@@ -57,11 +57,6 @@ import {
   unequipHeroItem,
   useHeroItem,
 } from './controllers/hero-controllers';
-import {
-  getBuildingLevelChangeHistory,
-  getEventsHistory,
-  getUnitTrainingHistory,
-} from './controllers/history-controllers';
 import { getTileLoyalty } from './controllers/loyalty-controllers';
 import {
   addMapMarker,
@@ -286,11 +281,6 @@ export const apiRoutes = [
 
   // Loyalty
   createRoute(getTileLoyalty),
-
-  // History
-  createRoute(getBuildingLevelChangeHistory),
-  createRoute(getEventsHistory),
-  createRoute(getUnitTrainingHistory),
 
   // Troop Movements
   createRoute(getVillageTroopMovements),

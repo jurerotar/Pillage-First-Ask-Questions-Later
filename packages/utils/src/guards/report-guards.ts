@@ -60,3 +60,9 @@ export const isVillageFoundedReport = <T extends ReportLike>(
 ): report is Extract<T, { type: 'villageFounded' }> => {
   return report.type === 'villageFounded';
 };
+
+export const isScheduledConstructionCancellationReport = <T extends ReportLike>(
+  report: T,
+): report is Extract<T, { type: 'scheduledConstructionCancellation' }> => {
+  return report.type === 'scheduledConstructionCancellation';
+};

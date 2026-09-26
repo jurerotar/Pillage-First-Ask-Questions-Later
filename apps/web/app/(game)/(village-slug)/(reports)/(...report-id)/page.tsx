@@ -7,6 +7,7 @@ import {
   isGatheringExpeditionReport,
   isHuntingPartyReport,
   isMovementReport,
+  isScheduledConstructionCancellationReport,
   isScoutingReport,
   isTradeReport,
   isUnitImprovementReport,
@@ -37,6 +38,7 @@ import {
   ReportHeader,
   ReportNavigationButtons,
   ReportsBackButton,
+  ScheduledConstructionCancellationReportTable,
   ScoutingReportTables,
   TradeReportTable,
   UnitImprovementReportTable,
@@ -157,6 +159,9 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
         {isUnitResearchReport(report) && <UnitResearchReportTable />}
         {isUnitImprovementReport(report) && <UnitImprovementReportTable />}
         {isVillageFoundedReport(report) && <VillageFoundedReportTable />}
+        {isScheduledConstructionCancellationReport(report) && (
+          <ScheduledConstructionCancellationReportTable />
+        )}
       </Report>
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">

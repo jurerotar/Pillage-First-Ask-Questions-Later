@@ -40,6 +40,7 @@ BEGIN
   DELETE FROM unit_research_reports WHERE report_id = OLD.id;
   DELETE FROM unit_improvement_reports WHERE report_id = OLD.id;
   DELETE FROM village_founding_reports WHERE report_id = OLD.id;
+  DELETE FROM scheduled_construction_cancellation_reports WHERE report_id = OLD.id;
   DELETE FROM hero_adventure_reports WHERE report_id = OLD.id;
   DELETE FROM movement_reports WHERE report_id = OLD.id;
   DELETE FROM trade_reports WHERE report_id = OLD.id;
