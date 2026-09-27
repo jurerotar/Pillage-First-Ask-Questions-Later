@@ -39,6 +39,71 @@ const gatherersHutQuestResourceCounts = [
   20, 100, 500, 1000, 5000, 10_000, 50_000, 100_000,
 ] as const;
 
+const indexesMissedBySingleStatementExec = [
+  'CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report ON battle_report_buildings(report_id);',
+  'CREATE INDEX IF NOT EXISTS idx_battle_report_participants_battle ON battle_report_participants(battle_id);',
+  'CREATE INDEX IF NOT EXISTS idx_bookmarks_building_id ON bookmarks(building_id);',
+  'CREATE INDEX IF NOT EXISTS idx_bookmarks_village_id ON bookmarks(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_building_ids_building ON building_ids(building);',
+  'CREATE INDEX IF NOT EXISTS idx_building_level_change_history_building_id ON building_level_change_history(building_id);',
+  'CREATE INDEX IF NOT EXISTS idx_building_level_change_history_village_id ON building_level_change_history(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_effect_ids_effect ON effect_ids(effect);',
+  'CREATE INDEX IF NOT EXISTS idx_effects_resource_site_resources ON effects(effect_id, scope_id, tile_id, source_specifier, source_id, type_id, value);',
+  'CREATE INDEX IF NOT EXISTS idx_effects_tile_effect_scope_spec ON effects(effect_id, tile_id, scope_id, source_specifier);',
+  'CREATE INDEX IF NOT EXISTS idx_effects_tile_id ON effects(tile_id);',
+  'CREATE INDEX IF NOT EXISTS idx_events_resolves_at ON events (resolves_at);',
+  'CREATE INDEX IF NOT EXISTS idx_events_type ON events (type);',
+  'CREATE INDEX IF NOT EXISTS idx_events_village_id ON events(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_faction_ids_faction ON faction_ids(faction);',
+  'CREATE INDEX IF NOT EXISTS idx_faction_reputation_source_faction_id ON faction_reputation (source_faction_id);',
+  'CREATE INDEX IF NOT EXISTS idx_faction_reputation_target_faction_id ON faction_reputation (target_faction_id);',
+  'CREATE INDEX IF NOT EXISTS idx_farm_list_tiles_farm_list_id ON farm_list_tiles(farm_list_id);',
+  'CREATE INDEX IF NOT EXISTS idx_farm_list_tiles_tile_id ON farm_list_tiles(tile_id);',
+  'CREATE INDEX IF NOT EXISTS idx_farm_lists_village_id ON farm_lists(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_hero_adventures_hero_id ON hero_adventures(hero_id);',
+  'CREATE INDEX IF NOT EXISTS idx_hero_equipped_items_hero_id ON hero_equipped_items(hero_id);',
+  'CREATE INDEX IF NOT EXISTS idx_hero_inventory_hero_id ON hero_inventory(hero_id);',
+  'CREATE INDEX IF NOT EXISTS idx_hero_selectable_attributes_hero_id ON hero_selectable_attributes(hero_id);',
+  'CREATE INDEX IF NOT EXISTS idx_heroes_player_id ON heroes(player_id);',
+  'CREATE INDEX IF NOT EXISTS idx_heroes_village_id ON heroes(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_loyalties_tile_id ON loyalties(tile_id);',
+  'CREATE INDEX IF NOT EXISTS idx_map_filters_player_id ON map_filters(player_id);',
+  'CREATE INDEX IF NOT EXISTS idx_map_markers_player_id ON map_markers (player_id);',
+  'CREATE INDEX IF NOT EXISTS idx_map_markers_tile_id ON map_markers (tile_id);',
+  'CREATE INDEX IF NOT EXISTS idx_oasis_resource_bonus ON oasis(resource_id, bonus);',
+  'CREATE INDEX IF NOT EXISTS idx_oasis_village_id ON oasis(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_players_faction_id ON players (faction_id);',
+  'CREATE INDEX IF NOT EXISTS idx_preferences_player_id ON preferences(player_id);',
+  'CREATE INDEX IF NOT EXISTS idx_quests_quest_id ON quests (quest_id);',
+  'CREATE INDEX IF NOT EXISTS idx_quests_village_id_notnull ON quests(village_id) WHERE village_id IS NOT NULL;',
+  'CREATE INDEX IF NOT EXISTS idx_report_type_ids_report_type ON report_type_ids(report_type);',
+  'CREATE INDEX IF NOT EXISTS idx_reports_village_timestamp ON reports(village_id, timestamp DESC);',
+  'CREATE INDEX IF NOT EXISTS idx_resource_ids_resource ON resource_ids(resource);',
+  'CREATE INDEX IF NOT EXISTS idx_scheduled_building_construction_cancellation_history_village_id ON scheduled_building_construction_cancellation_history(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_scheduled_building_upgrades_field_level ON scheduled_building_upgrades (village_id, building_field_id, level);',
+  'CREATE INDEX IF NOT EXISTS idx_scheduled_building_upgrades_village_order ON scheduled_building_upgrades (village_id, queue_position);',
+  'CREATE INDEX IF NOT EXISTS idx_tile_type_ids_type ON tile_type_ids(type);',
+  'CREATE INDEX IF NOT EXISTS idx_tiles_type_xy ON tiles(type_id, x, y);',
+  'CREATE INDEX IF NOT EXISTS idx_tiles_xy ON tiles(x, y);',
+  'CREATE INDEX IF NOT EXISTS idx_trapper_cages_village_id_unit_id ON trapper_cages (village_id, unit_id);',
+  'CREATE INDEX IF NOT EXISTS idx_tribe_ids_tribe ON tribe_ids(tribe);',
+  'CREATE INDEX IF NOT EXISTS idx_troops_source_tile_id ON troops (source_tile_id);',
+  'CREATE INDEX IF NOT EXISTS idx_troops_tile_id ON troops (tile_id);',
+  'CREATE INDEX IF NOT EXISTS idx_troops_tile_unit ON troops(tile_id, unit_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_improvement_history_player_id ON unit_improvement_history(player_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_improvement_history_unit_id ON unit_improvement_history(unit_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_improvements_unit_id ON unit_improvements(unit_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_research_history_unit_id ON unit_research_history(unit_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_research_history_village_id ON unit_research_history(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_research_unit_id ON unit_research(unit_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_training_history_building_id ON unit_training_history(building_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_training_history_unit_id ON unit_training_history(unit_id);',
+  'CREATE INDEX IF NOT EXISTS idx_unit_training_history_village_id ON unit_training_history(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_village_founding_history_tile_id ON village_founding_history(tile_id);',
+  'CREATE INDEX IF NOT EXISTS idx_village_founding_history_village_id ON village_founding_history(village_id);',
+  'CREATE INDEX IF NOT EXISTS idx_wounded_troops_unit_id ON wounded_troops(unit_id);',
+];
+
 const huntersLodgeAndGatherersHutGlobalQuestIds = [
   ...huntersLodgeQuestAnimalUnitIds.flatMap((unitId) =>
     huntersLodgeQuestCaptureCounts.map(
@@ -78,20 +143,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.50', (db) => {
-    db.exec({
-      sql: `
-        UPDATE events
-        SET
-          meta = JSON_REMOVE(meta, '$.merchantAmount')
-        WHERE
-          type = 'tradeRoute'
-          AND meta IS NOT NULL
-          AND JSON_TYPE(meta, '$.merchantAmount') IS NOT NULL;
-      `,
-    });
-  });
 
   migrate('0.4.51', (db) => {
     db.transaction((tx) => {
@@ -242,7 +293,7 @@ export const upgradeDb = (
           sql: 'ALTER TABLE building_ids_new RENAME TO building_ids;',
         });
       } else {
-        db.exec({ sql: createBuildingIdsTable });
+        db.execMulti({ sql: createBuildingIdsTable });
         buildingIdsSeeder(db);
       }
     }
@@ -332,9 +383,9 @@ export const upgradeDb = (
       setupHistoryTriggers(db);
     }
 
-    db.exec({ sql: createWoundedTroopsTable });
-    db.exec({ sql: createWoundedTroopsIndexes });
-    db.exec({ sql: createBattleReportWoundedTroopsTriggers });
+    db.execMulti({ sql: createWoundedTroopsTable });
+    db.execMulti({ sql: createWoundedTroopsIndexes });
+    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
   });
 
   migrate('0.4.53', (db) => {
@@ -349,8 +400,8 @@ export const upgradeDb = (
     db.exec({ sql: 'DROP TABLE IF EXISTS battle_report_units;' });
     db.exec({ sql: 'DROP TABLE IF EXISTS battle_report_buildings;' });
 
-    db.exec({ sql: createBattleReportUnitsTable });
-    db.exec({ sql: createBattleReportBuildingsTable });
+    db.execMulti({ sql: createBattleReportUnitsTable });
+    db.execMulti({ sql: createBattleReportBuildingsTable });
 
     db.exec({
       sql: `
@@ -359,8 +410,8 @@ export const upgradeDb = (
       `,
     });
 
-    db.exec({ sql: createReportDeleteTriggers });
-    db.exec({ sql: createBattleReportWoundedTroopsTriggers });
+    db.execMulti({ sql: createReportDeleteTriggers });
+    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
 
     setupGlobalWriteTriggers(db);
   });
@@ -907,7 +958,7 @@ export const upgradeDb = (
         tx.exec({
           sql: 'ALTER TABLE scouting_reports RENAME TO scouting_reports_old;',
         });
-        tx.exec({ sql: createScoutingReportsTable });
+        tx.execMulti({ sql: createScoutingReportsTable });
         tx.exec({ sql: 'DROP TABLE scouting_reports_old;' });
       });
     } finally {
@@ -930,9 +981,9 @@ export const upgradeDb = (
 
     worldItemsSeeder(db, server);
 
-    db.exec({ sql: createHeroAuctionBuyListingsTable });
-    db.exec({ sql: createHeroAuctionSellListingsTable });
-    db.exec({ sql: createHeroAuctionHistoryTable });
+    db.execMulti({ sql: createHeroAuctionBuyListingsTable });
+    db.execMulti({ sql: createHeroAuctionSellListingsTable });
+    db.execMulti({ sql: createHeroAuctionHistoryTable });
   });
 
   migrate('0.4.67', (db) => {
@@ -1017,6 +1068,17 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.70', (db) => {
+    db.transaction((tx) => {
+      for (const sql of indexesMissedBySingleStatementExec) {
+        tx.exec({ sql });
+      }
+
+      tx.exec({ sql: 'REINDEX;' });
+    });
+
+    db.exec({ sql: 'VACUUM;' });
+  });
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({

@@ -51,6 +51,7 @@ const clearBindingsAfterExecution = (
 
 export type DbFacade = {
   exec: (args: ExecQueryArgs) => void;
+  execMulti: (args: ExecQueryArgs) => void;
 
   /** returns SQLite EXPLAIN QUERY PLAN rows without executing the original query */
   explain: (args: ExecQueryArgs) => DbQueryPlanRow[];
@@ -213,6 +214,19 @@ export const createDbFacade = (
         operation: 'exec',
         execute: (statement) => statement.stepReset(),
       });
+    },
+
+    execMulti: ({ sql, bind }): void => {
+      const t0 = debug ? performance.now() : 0;
+
+      database.exec({ sql, bind });
+
+      if (debug) {
+        const t1 = performance.now();
+        console.log(
+          `DbFacade.execMulti — ${sql} took ${(t1 - t0).toFixed(3)} ms`,
+        );
+      }
     },
 
     explain: explainQueryPlan,

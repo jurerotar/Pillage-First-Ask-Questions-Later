@@ -15,7 +15,7 @@ const prepareReportsTestDatabase = async () => {
   database.exec({
     sql: 'DELETE FROM reports;',
   });
-  database.exec({
+  database.execMulti({
     sql: `
       INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
       VALUES
@@ -400,7 +400,7 @@ describe('report-controllers', () => {
         WHERE report_id = 1;
       `,
     });
-    database.exec({
+    database.execMulti({
       sql: `
         INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
         VALUES (${scoutingReportId}, (SELECT id FROM villages ORDER BY id LIMIT 1), 7000,
@@ -679,7 +679,7 @@ describe('report-controllers', () => {
     const database = await prepareReportsTestDatabase();
     const reportId = 7;
 
-    database.exec({
+    database.execMulti({
       sql: `
         INSERT INTO reports (id, village_id, timestamp, type_id, report_outcome_id)
         VALUES (${reportId}, (SELECT id FROM villages ORDER BY id LIMIT 1), 7000,

@@ -663,9 +663,8 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
       const buildingFieldId = 25;
 
-      database.exec({
-        sql: `
-          DELETE FROM effects
+      database.execMulti({
+        sql: `DELETE FROM effects
           WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
             AND source_specifier = $field_id;
           DELETE FROM building_fields

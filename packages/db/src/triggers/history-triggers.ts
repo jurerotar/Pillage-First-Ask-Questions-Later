@@ -1,7 +1,7 @@
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const setupHistoryTriggers = (db: DbFacade): void => {
-  db.exec({
+  db.execMulti({
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_building_level_change_history_update
       AFTER UPDATE OF level ON building_fields
@@ -15,7 +15,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
     `,
   });
 
-  db.exec({
+  db.execMulti({
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_building_level_change_history_delete
       AFTER DELETE ON building_fields
@@ -29,7 +29,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
     `,
   });
 
-  db.exec({
+  db.execMulti({
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_unit_training_history_delete
       AFTER DELETE ON events
@@ -51,7 +51,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
     `,
   });
 
-  db.exec({
+  db.execMulti({
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_unit_improvement_history_update
       AFTER UPDATE OF level ON unit_improvements
@@ -65,7 +65,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
     `,
   });
 
-  db.exec({
+  db.execMulti({
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_unit_improvement_history_insert
       AFTER INSERT ON unit_improvements
@@ -78,7 +78,7 @@ export const setupHistoryTriggers = (db: DbFacade): void => {
     `,
   });
 
-  db.exec({
+  db.execMulti({
     sql: `
       CREATE TRIGGER IF NOT EXISTS trg_unit_research_history_insert
       AFTER INSERT ON unit_research

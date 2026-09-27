@@ -1,3 +1,12 @@
+## Version 0.4.70
+
+#### Sep 2,8 2026
+
+* [Feature] When training units, you'll now be able to see how many units of the same type you already own.
+* [BugFix] Added missing database indexes, which weren't created due to a bug in database client.
+* [BugFix] Fixed an issue where units in village troop list weren't properly sorted.
+* [TechnicalImprovement] Removed Recharts from game world overview page, dropping total size by ~ 300 kb.
+
 ## Version 0.4.69
 
 #### Sep 20, 2026

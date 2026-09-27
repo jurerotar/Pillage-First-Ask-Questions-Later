@@ -18,7 +18,7 @@ describe(calculateTotalUnitWheatConsumption, () => {
         { unitId: 'LEGIONNAIRE', amount: 10 },
         { unitId: 'EQUITES_CAESARIS', amount: 3 },
       ]),
-    ).toBe(10 * 1 + 3 * 4);
+    ).toBe(10 + 3 * 4);
   });
 
   test('includes hero wheat consumption', () => {

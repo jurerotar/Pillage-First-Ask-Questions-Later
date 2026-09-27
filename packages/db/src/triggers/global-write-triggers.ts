@@ -27,7 +27,8 @@ export const setupGlobalWriteTriggers = (db: DbFacade): void => {
         AFTER ${event} ON ${table}
         ${triggerLogic}
       `;
-      db.exec({ sql });
+
+      db.execMulti({ sql });
     }
   }
 };
