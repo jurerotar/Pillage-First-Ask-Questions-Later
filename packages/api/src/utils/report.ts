@@ -7,6 +7,7 @@ import type {
   BaseReport,
   ReportOutcome,
   ScheduledConstructionCancellationReason,
+  ScheduledConstructionCancellationReasonDetail,
 } from '@pillage-first/types/models/report';
 import type {
   ResourceBundle,
@@ -95,6 +96,7 @@ export type CreateNewScheduledConstructionCancellationReport = Pick<
   buildingFieldId: BuildingField['id'];
   level: number;
   reason: ScheduledConstructionCancellationReason;
+  reasonDetail: ScheduledConstructionCancellationReasonDetail;
 };
 
 type CreateNewScoutingReport = Pick<
@@ -505,7 +507,8 @@ export const insertScheduledConstructionCancellationReport = (
         building_id,
         field_id,
         level,
-        reason
+        reason,
+        reason_detail_json
       )
       SELECT
         $report_id,
@@ -513,7 +516,8 @@ export const insertScheduledConstructionCancellationReport = (
         id,
         $field_id,
         $level,
-        $reason
+        $reason,
+        $reason_detail_json
       FROM building_ids
       WHERE building = $building_id;
     `,
@@ -524,6 +528,7 @@ export const insertScheduledConstructionCancellationReport = (
       $field_id: report.buildingFieldId,
       $level: report.level,
       $reason: report.reason,
+      $reason_detail_json: JSON.stringify(report.reasonDetail),
     },
   });
 

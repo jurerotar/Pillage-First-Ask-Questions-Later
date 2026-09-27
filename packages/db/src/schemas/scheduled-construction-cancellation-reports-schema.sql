@@ -6,6 +6,7 @@ CREATE TABLE scheduled_construction_cancellation_reports
   field_id INTEGER NOT NULL,
   level INTEGER NOT NULL,
   reason TEXT NOT NULL CHECK (reason IN ('missing-resources', 'missing-requirements')),
+  reason_detail_json TEXT NOT NULL,
 
   FOREIGN KEY (report_id) REFERENCES reports (id) ON DELETE CASCADE,
   FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE,

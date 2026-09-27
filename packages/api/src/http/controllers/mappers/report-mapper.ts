@@ -158,6 +158,7 @@ export const mapReportListingRowToDto = (
       buildingFieldId: summary.buildingFieldId,
       level: summary.level,
       reason: summary.reason,
+      reasonDetail: summary.reasonDetail,
       tags: JSON.parse(row.tags_json),
     });
   }
@@ -519,4 +520,5 @@ export const mapScheduledConstructionCancellationReportRowToDto = (
     buildingFieldId: row.field_id,
     level: row.level,
     reason: row.reason,
+    reasonDetail: JSON.parse(row.reason_detail_json),
   });

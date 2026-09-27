@@ -6,6 +6,10 @@ import type {
 import type { Building } from '@pillage-first/types/models/building';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
+import type {
+  ScheduledConstructionCancellationReasonDetail,
+  ScheduledConstructionCancellationReport,
+} from '@pillage-first/types/models/report';
 import type { Village } from '@pillage-first/types/models/village';
 import { BuildingConstructionQueueFullError } from '@pillage-first/utils/errors';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
@@ -19,9 +23,14 @@ import {
 } from '../queries/scheduled-building-upgrades-queries';
 import { postWorkerMessage } from '../worker/notification-port';
 import { removeBuildingPlaceholder } from './building-placeholder';
-import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
+import {
+  assertBuildingConstructionRequirementsAreMet,
+  assessBuildingConstructionRequirements,
+} from './building-requirements';
 import { createEvents } from './create-event';
+import { getEventCost } from './events';
 import { insertScheduledConstructionCancellationReport } from './report';
+import { calculateResourceSiteResourcesAt, getVillageTileId } from './village';
 
 const scheduledBuildingUpgradeRowSchema = z.strictObject({
   id: z.number(),
@@ -125,6 +134,7 @@ const getScheduledConstructionCancellationReason = (
 const postScheduledConstructionCancelledNotification = (
   scheduledUpgrade: ScheduledBuildingUpgradeRow,
   reason: ScheduledBuildingConstructionCancellationReason,
+  reasonDetail: ScheduledConstructionCancellationReasonDetail,
 ): void => {
   postWorkerMessage({
     eventKey: 'scheduled-building-construction:cancelled',
@@ -133,6 +143,7 @@ const postScheduledConstructionCancelledNotification = (
     buildingFieldId: scheduledUpgrade.buildingFieldId,
     level: scheduledUpgrade.level,
     reason,
+    reasonDetail,
   } satisfies ScheduledBuildingConstructionCancelledNotificationEvent);
 };
 
@@ -149,6 +160,136 @@ const insertScheduledConstructionCancellationHistory = (
       $level: scheduledUpgrade.level,
     },
   });
+};
+
+const getMissingResourcesCancellationDetail = (
+  database: DbFacade,
+  scheduledUpgrade: ScheduledBuildingUpgradeRow,
+  timestamp: number,
+): Extract<
+  ScheduledConstructionCancellationReasonDetail,
+  { type: 'missing-resources' }
+> => {
+  const [woodCost, clayCost, ironCost, wheatCost] = getEventCost(database, {
+    type: 'buildingLevelChange',
+    villageId: scheduledUpgrade.villageId,
+    buildingId: scheduledUpgrade.buildingId,
+    buildingFieldId: scheduledUpgrade.buildingFieldId,
+    previousLevel: scheduledUpgrade.level - 1,
+    level: scheduledUpgrade.level,
+    startsAt: timestamp,
+  } as unknown as Parameters<typeof getEventCost>[1]);
+
+  const { currentWood, currentClay, currentIron, currentWheat } =
+    calculateResourceSiteResourcesAt(
+      database,
+      getVillageTileId(database, scheduledUpgrade.villageId),
+      timestamp,
+    );
+
+  return {
+    type: 'missing-resources',
+    missingResources: [
+      Math.max(0, woodCost - currentWood),
+      Math.max(0, clayCost - currentClay),
+      Math.max(0, ironCost - currentIron),
+      Math.max(0, wheatCost - currentWheat),
+    ],
+  };
+};
+
+const getMissingRequirementsCancellationDetail = (
+  database: DbFacade,
+  scheduledUpgrade: ScheduledBuildingUpgradeRow,
+): Extract<
+  ScheduledConstructionCancellationReasonDetail,
+  { type: 'missing-requirements' }
+> => {
+  const currentLevels = database.selectObjects({
+    sql: `
+      SELECT bi.building AS buildingId, MAX(bf.level) AS level
+      FROM building_fields bf
+      JOIN building_ids bi ON bi.id = bf.building_id
+      WHERE bf.village_id = $village_id
+      GROUP BY bi.building;
+    `,
+    bind: { $village_id: scheduledUpgrade.villageId },
+    schema: z.strictObject({
+      buildingId: buildingIdSchema,
+      level: z.number(),
+    }),
+  });
+
+  const currentLevelByBuildingId = new Map(
+    currentLevels.map(({ buildingId, level }) => [buildingId, level]),
+  );
+
+  const { assessedRequirements } = assessBuildingConstructionRequirements(
+    database,
+    scheduledUpgrade.villageId,
+    scheduledUpgrade.buildingId,
+    {
+      buildingFieldId: scheduledUpgrade.buildingFieldId,
+      excludedScheduledBuildingUpgradeId: scheduledUpgrade.id,
+    },
+  );
+
+  const unmetRequirements: Extract<
+    ScheduledConstructionCancellationReasonDetail,
+    { type: 'missing-requirements' }
+  >['unmetRequirements'] = [];
+
+  for (const requirement of assessedRequirements) {
+    if (requirement.fulfilled) {
+      continue;
+    }
+
+    if (requirement.type === 'building') {
+      unmetRequirements.push({
+        type: 'building',
+        buildingId: requirement.buildingId,
+        requiredLevel: requirement.level,
+        currentLevel:
+          currentLevelByBuildingId.get(requirement.buildingId) ?? null,
+      });
+      continue;
+    }
+
+    if (requirement.type === 'tribe') {
+      unmetRequirements.push({
+        type: 'tribe',
+        tribe: requirement.tribe,
+      });
+      continue;
+    }
+
+    unmetRequirements.push({
+      type: 'amount',
+      amount: requirement.amount,
+    });
+  }
+
+  return {
+    type: 'missing-requirements',
+    unmetRequirements,
+  };
+};
+
+const getScheduledConstructionCancellationReasonDetail = (
+  database: DbFacade,
+  scheduledUpgrade: ScheduledBuildingUpgradeRow,
+  reason: ScheduledBuildingConstructionCancellationReason,
+  timestamp: number,
+): ScheduledConstructionCancellationReport['reasonDetail'] => {
+  if (reason === 'missing-resources') {
+    return getMissingResourcesCancellationDetail(
+      database,
+      scheduledUpgrade,
+      timestamp,
+    );
+  }
+
+  return getMissingRequirementsCancellationDetail(database, scheduledUpgrade);
 };
 
 export const promoteNextScheduledBuildingUpgrade = (
@@ -221,21 +362,31 @@ export const promoteNextScheduledBuildingUpgrade = (
       }
 
       if (cancellationReason) {
+        const timestamp = startsAt ?? Date.now();
+        const reasonDetail = getScheduledConstructionCancellationReasonDetail(
+          database,
+          scheduledUpgrade,
+          cancellationReason,
+          timestamp,
+        );
+
         insertScheduledConstructionCancellationHistory(
           database,
           scheduledUpgrade,
         );
         insertScheduledConstructionCancellationReport(database, {
           villageId: scheduledUpgrade.villageId,
-          timestamp: startsAt ?? Date.now(),
+          timestamp,
           buildingId: scheduledUpgrade.buildingId,
           buildingFieldId: scheduledUpgrade.buildingFieldId,
           level: scheduledUpgrade.level,
           reason: cancellationReason,
+          reasonDetail,
         });
         postScheduledConstructionCancelledNotification(
           scheduledUpgrade,
           cancellationReason,
+          reasonDetail,
         );
       }
     }

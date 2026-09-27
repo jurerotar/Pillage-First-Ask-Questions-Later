@@ -267,6 +267,35 @@ export const scheduledConstructionCancellationReasonSchema = z.enum([
   'missing-requirements',
 ]);
 
+const scheduledConstructionCancellationReasonDetailSchema =
+  z.discriminatedUnion('type', [
+    z.strictObject({
+      type: z.literal('missing-resources'),
+      missingResources: resourceBundleSchema,
+    }),
+    z.strictObject({
+      type: z.literal('missing-requirements'),
+      unmetRequirements: z.array(
+        z.discriminatedUnion('type', [
+          z.strictObject({
+            type: z.literal('building'),
+            buildingId: buildingIdSchema,
+            requiredLevel: z.int().positive(),
+            currentLevel: z.int().nonnegative().nullable(),
+          }),
+          z.strictObject({
+            type: z.literal('tribe'),
+            tribe: tribeSchema,
+          }),
+          z.strictObject({
+            type: z.literal('amount'),
+            amount: z.int().positive(),
+          }),
+        ]),
+      ),
+    }),
+  ]);
+
 export const scheduledConstructionCancellationReportSchema =
   baseReportSchema.extend({
     type: z.literal('scheduledConstructionCancellation'),
@@ -275,6 +304,7 @@ export const scheduledConstructionCancellationReportSchema =
     buildingFieldId: z.int(),
     level: z.int().positive(),
     reason: scheduledConstructionCancellationReasonSchema,
+    reasonDetail: scheduledConstructionCancellationReasonDetailSchema,
   });
 
 export const reportSchema = z
@@ -315,6 +345,9 @@ export type UnitImprovementReport = z.infer<typeof unitImprovementReportSchema>;
 export type VillageFoundedReport = z.infer<typeof villageFoundedReportSchema>;
 export type ScheduledConstructionCancellationReason = z.infer<
   typeof scheduledConstructionCancellationReasonSchema
+>;
+export type ScheduledConstructionCancellationReasonDetail = z.infer<
+  typeof scheduledConstructionCancellationReasonDetailSchema
 >;
 export type ScheduledConstructionCancellationReport = z.infer<
   typeof scheduledConstructionCancellationReportSchema

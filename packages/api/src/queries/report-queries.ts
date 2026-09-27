@@ -94,7 +94,8 @@ export const selectReportListingsQuery = `
         'buildingId', scheduled_construction_bi.building,
         'buildingFieldId', sccr.field_id,
         'level', sccr.level,
-        'reason', sccr.reason
+        'reason', sccr.reason,
+        'reasonDetail', json(sccr.reason_detail_json)
       )
     END AS summary_json,
     COALESCE((
@@ -512,6 +513,7 @@ export const selectScheduledConstructionCancellationReportQuery = `
     sccr.field_id,
     sccr.level,
     sccr.reason,
+    sccr.reason_detail_json,
     v.name AS village_name,
     t.x AS village_x,
     t.y AS village_y

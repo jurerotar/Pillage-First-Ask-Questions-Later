@@ -1301,6 +1301,72 @@ export const ScheduledConstructionCancellationReportTable = () => {
             </TableCell>
             <TableCell className="text-left">{reason}</TableCell>
           </TableRow>
+          {report.reasonDetail.type === 'missing-resources' && (
+            <TableRow>
+              <TableCell className="text-left font-medium">
+                {t('Missing resources')}
+              </TableCell>
+              <TableCell className="text-left">
+                <Resources resources={report.reasonDetail.missingResources} />
+              </TableCell>
+            </TableRow>
+          )}
+          {report.reasonDetail.type === 'missing-requirements' && (
+            <TableRow>
+              <TableCell className="text-left font-medium">
+                {t('Missing requirements')}
+              </TableCell>
+              <TableCell className="text-left">
+                <ul className="list-disc pl-4">
+                  {report.reasonDetail.unmetRequirements.map((requirement) => {
+                    if (requirement.type === 'building') {
+                      return (
+                        <li
+                          key={`${requirement.type}:${requirement.buildingId}`}
+                        >
+                          {t(
+                            '{{buildingName}} level {{requiredLevel}} required. Current level: {{currentLevel}}.',
+                            {
+                              buildingName: t(
+                                `BUILDINGS.${requirement.buildingId}.NAME`,
+                              ),
+                              requiredLevel: requirement.requiredLevel,
+                              currentLevel: requirement.currentLevel ?? 0,
+                            },
+                          )}
+                        </li>
+                      );
+                    }
+
+                    if (requirement.type === 'tribe') {
+                      return (
+                        <li key={`${requirement.type}:${requirement.tribe}`}>
+                          {t('Requires {{tribeName}} tribe.', {
+                            tribeName: t(
+                              `TRIBES.${requirement.tribe.toUpperCase()}`,
+                            ),
+                          })}
+                        </li>
+                      );
+                    }
+
+                    return (
+                      <li key={`${requirement.type}:${requirement.amount}`}>
+                        {t(
+                          'Another {{buildingName}} cannot be queued until an existing one reaches max level.',
+                          {
+                            buildingName: t(
+                              `BUILDINGS.${report.buildingId}.NAME`,
+                            ),
+                          },
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </OverflowContainer>

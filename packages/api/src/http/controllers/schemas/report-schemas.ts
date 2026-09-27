@@ -267,6 +267,7 @@ export const scheduledConstructionCancellationReportRowSchema =
     field_id: z.int(),
     level: z.int().positive(),
     reason: scheduledConstructionCancellationReasonSchema,
+    reason_detail_json: z.string(),
     village_name: z.string(),
     village_x: z.int(),
     village_y: z.int(),
