@@ -4,6 +4,7 @@ import {
   calculateTotalCarryCapacity,
   calculateTotalUnitWheatConsumption,
   distributeLoot,
+  sortTroopsByUnitOrder,
 } from '../troops';
 
 describe(calculateTotalUnitWheatConsumption, () => {
@@ -97,5 +98,21 @@ describe(distributeLoot, () => {
 
   test('skips empty resource buckets', () => {
     expect(distributeLoot([0, 100, 0, 50], 75)).toStrictEqual([0, 38, 0, 37]);
+  });
+});
+
+describe(sortTroopsByUnitOrder, () => {
+  test('sorts troops by the canonical units order and preserves row data', () => {
+    const troops = [
+      { unitId: 'PHALANX', amount: 2, sourceTileId: 2 },
+      { unitId: 'PRAETORIAN', amount: 4, sourceTileId: 1 },
+      { unitId: 'LEGIONNAIRE', amount: 3, sourceTileId: 1 },
+    ];
+
+    expect(sortTroopsByUnitOrder(troops)).toStrictEqual([
+      { unitId: 'LEGIONNAIRE', amount: 3, sourceTileId: 1 },
+      { unitId: 'PRAETORIAN', amount: 4, sourceTileId: 1 },
+      { unitId: 'PHALANX', amount: 2, sourceTileId: 2 },
+    ]);
   });
 });

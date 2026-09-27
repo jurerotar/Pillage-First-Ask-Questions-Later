@@ -109,7 +109,7 @@ const OasisAnimalFinderPage = ({ params }: Route.ComponentProps) => {
     queryKey: [oasisAnimalFinderCacheKey, x, y],
     queryFn: async () => {
       const values = form.getValues();
-      const { data } = await apiClient.post('/search/oases/by-animals', {
+      const { data } = await apiClient.query('/search/oases/by-animals', {
         body: {
           x,
           y,

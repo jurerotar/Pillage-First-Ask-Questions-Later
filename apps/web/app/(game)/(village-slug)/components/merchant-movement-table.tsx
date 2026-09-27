@@ -28,6 +28,24 @@ const getResourceList = (resources: ResourcesType) => {
   return [resources.wood, resources.clay, resources.iron, resources.wheat];
 };
 
+const getResourceTotals = (events: MerchantMovementEvent[]): ResourcesType => {
+  const totals = {
+    wood: 0,
+    clay: 0,
+    iron: 0,
+    wheat: 0,
+  };
+
+  for (const event of events) {
+    totals.wood += event.resources.wood;
+    totals.clay += event.resources.clay;
+    totals.iron += event.resources.iron;
+    totals.wheat += event.resources.wheat;
+  }
+
+  return totals;
+};
+
 const TileMapLink = ({
   tileId,
   mapSize,
@@ -67,6 +85,7 @@ const MerchantMovementTableSection = ({
 }) => {
   const { t } = useTranslation();
   const columnCount = 5 - Number(hideResources) - Number(hideMerchants);
+  const totalResources = getResourceTotals(events);
 
   return (
     <div className="space-y-2">
@@ -76,6 +95,19 @@ const MerchantMovementTableSection = ({
       >
         {title}
       </Text>
+      {!hideResources && (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <Text className="text-sm text-muted-foreground">
+            {t('Total resources')}:
+          </Text>
+          <span className="inline-flex flex-wrap gap-2">
+            <Resources
+              iconClassName="size-4"
+              resources={getResourceList(totalResources)}
+            />
+          </span>
+        </div>
+      )}
       <OverflowContainer>
         <Table>
           <TableHeader>

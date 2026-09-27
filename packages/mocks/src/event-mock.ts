@@ -119,6 +119,13 @@ export const createResourceTransferEventMock = (
       wheat: 10,
     },
     merchantAmount: 1,
+    repeatRemaining: 0,
+    repeatResources: {
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+    },
     ...overrides,
   });
 };

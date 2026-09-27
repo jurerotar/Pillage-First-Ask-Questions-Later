@@ -4,7 +4,14 @@ import { formatNumber } from '@pillage-first/utils/format';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { Dialog, DialogContent, DialogFooter } from 'app/components/ui/dialog';
-import { Form } from 'app/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from 'app/components/ui/form';
+import { Slider } from 'app/components/ui/slider';
 import { useSendResourcesForm } from '../hooks/use-send-resources-form';
 import type { VillageOption } from '../utils/villages';
 import { ResourceTransferConfirmationContent } from './confirmation-modal';
@@ -69,10 +76,41 @@ export const SendResourcesFormContent = ({
             totalCapacity={totalCapacity}
           />
 
-          <TargetVillageSelector
-            disabled={isTargetVillageSelectorDisabled}
-            targetVillages={targetVillages}
-          />
+          <div className="flex gap-4">
+            <TargetVillageSelector
+              disabled={isTargetVillageSelectorDisabled}
+              targetVillages={targetVillages}
+            />
+
+            <FormField
+              control={form.control}
+              name="repeatCount"
+              render={({ field }) => (
+                <FormItem className="flex max-w-48 w-full flex-col gap-2">
+                  <div className="flex items-center justify-between gap-4">
+                    <FormLabel>{t('Repeat')}</FormLabel>
+                    <Text className="text-sm font-medium">
+                      {formatNumber(field.value)}x
+                    </Text>
+                  </div>
+                  <FormControl>
+                    <div className="flex gap-2">
+                      <Slider
+                        min={1}
+                        max={5}
+                        step={1}
+                        marks={[1, 5]}
+                        value={[field.value]}
+                        onValueChange={([value]) => {
+                          field.onChange(value);
+                        }}
+                      />
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
 
           <DialogFooter>
             {onCancel ? (
@@ -117,6 +155,7 @@ export const SendResourcesConfirmationStep = ({
       onConfirm={confirmResourceTransfer}
       targetVillage={formState.targetVillage}
       resources={formState.selectedResources}
+      repeatCount={formState.repeatCount}
       duration={formState.duration}
       merchantAmount={formState.merchantAmount}
       isPending={formState.isPending}

@@ -330,6 +330,69 @@ describe('marketplace-controllers', () => {
     });
   });
 
+  test('transferResources should create a repeated transfer chain starter', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(database, 'Repeated Transfer');
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tileId, {
+      wood: 1_000,
+      clay: 1_000,
+      iron: 1_000,
+      wheat: 1_000,
+    });
+
+    transferResources(
+      database,
+      createControllerArgs<'/tiles/:tileId/transfer-resources', 'post'>({
+        path: { tileId: sourceVillage.tileId },
+        body: {
+          targetTileId: targetVillage.tileId,
+          repeatCount: 3,
+          resources: {
+            wood: 100,
+            clay: 50,
+            iron: 25,
+            wheat: 10,
+          },
+        },
+      }),
+    );
+
+    const event = database.selectObject({
+      sql: `
+        SELECT
+          JSON_EXTRACT(meta, '$.resources.wood') AS wood,
+          JSON_EXTRACT(meta, '$.repeatRemaining') AS repeat_remaining,
+          JSON_EXTRACT(meta, '$.repeatResources.wood') AS repeat_wood
+        FROM events
+        WHERE type = 'resourceTransfer';
+      `,
+      schema: z.strictObject({
+        wood: z.number(),
+        repeat_remaining: z.number(),
+        repeat_wood: z.number(),
+      }),
+    })!;
+
+    expect(event).toStrictEqual({
+      wood: 100,
+      repeat_remaining: 2,
+      repeat_wood: 100,
+    });
+    expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
+      wood: 700,
+      clay: 750,
+      iron: 775,
+      wheat: 790,
+    });
+  });
+
   test('transferResources should reject when not enough free merchants are available', async () => {
     const database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });

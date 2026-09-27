@@ -5,7 +5,7 @@ import { paths } from './http/api-routes';
 export { paths } from './http/api-routes';
 
 export const document = createDocument({
-  openapi: '3.1.0',
+  openapi: '3.2.0',
   info: {
     title: 'Pillage First! worker-based API',
     version: packageJson.version,

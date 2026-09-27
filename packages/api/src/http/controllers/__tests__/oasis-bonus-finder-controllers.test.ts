@@ -51,7 +51,7 @@ const createSearchBody = (
 const searchOasisBonuses = (database: TestDatabase, body: SearchBody) => {
   return getTilesWithBonuses(
     database,
-    createControllerArgs<'/search/oases/by-bonus', 'post'>({ body }),
+    createControllerArgs<'/search/oases/by-bonus', 'query'>({ body }),
   );
 };
 

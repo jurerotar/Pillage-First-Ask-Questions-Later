@@ -3,6 +3,7 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { createEvents } from '../../../utils/create-event';
 import {
+  getMarketplaceVillageByTileId,
   getMerchantAmount,
   getTotalResourceAmount,
   getVillageMerchantStats,
@@ -21,10 +22,49 @@ export const resourceTransferResolver: Resolver<
     targetTileId,
     resources,
     merchantAmount,
+    repeatRemaining,
+    repeatResources,
     resolvesAt,
   } = event;
 
   if (getTotalResourceAmount(resources) === 0) {
+    if (repeatRemaining > 0) {
+      const nextTargetVillage = getMarketplaceVillageByTileId(
+        database,
+        originTileId,
+      );
+
+      if (nextTargetVillage) {
+        try {
+          const { merchant } = getVillageMerchantStats(database, villageId);
+          const nextMerchantAmount = getMerchantAmount(
+            repeatResources,
+            merchant.merchantCapacity,
+          );
+
+          createEvents<'resourceTransfer'>(database, {
+            type: 'resourceTransfer',
+            villageId,
+            targetVillageId: nextTargetVillage.id,
+            originTileId: targetTileId,
+            targetTileId: originTileId,
+            resources: repeatResources,
+            merchantAmount: nextMerchantAmount,
+            startsAt: resolvesAt,
+            repeatRemaining: repeatRemaining - 1,
+            repeatResources,
+          });
+
+          return {
+            affectedVillageIds: [villageId, nextTargetVillage.id],
+            affectedTileIds: [originTileId, targetTileId],
+          };
+        } catch {
+          // Repeated merchant transfers stop when the next leg cannot start.
+        }
+      }
+    }
+
     return {
       affectedVillageIds: [villageId],
       affectedTileIds: [originTileId, targetTileId],
@@ -94,6 +134,8 @@ export const resourceTransferResolver: Resolver<
     },
     merchantAmount,
     startsAt: resolvesAt,
+    repeatRemaining,
+    repeatResources,
   });
 
   return {
@@ -131,6 +173,8 @@ export const tradeRouteResolver: Resolver<GameEvent<'tradeRoute'>> = (
       targetTileId,
       resources,
       merchantAmount,
+      repeatRemaining: 0,
+      repeatResources: resources,
       startsAt: resolvesAt,
     });
   } catch {

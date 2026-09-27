@@ -2,6 +2,7 @@ import { Suspense, useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GiRallyTheTroops } from 'react-icons/gi';
 import { Tooltip } from 'react-tooltip';
+import { sortTroopsByUnitOrder } from '@pillage-first/game-assets/utils/troops';
 import type { Troop } from '@pillage-first/types/models/troop';
 import { partition } from '@pillage-first/utils/array';
 import { formatNumber } from '@pillage-first/utils/format';
@@ -21,8 +22,8 @@ const TroopListContent = () => {
   const tooltipId = useId();
   const tooltipKey = isWiderThanLg ? 'wider-than-lg' : 'not-wider-than-lg';
 
-  const currentVillagePlayerTroops = villageTroops.filter(
-    ({ tileId }) => tileId === currentVillage.tileId,
+  const currentVillagePlayerTroops = sortTroopsByUnitOrder(
+    villageTroops.filter(({ tileId }) => tileId === currentVillage.tileId),
   );
 
   const [ownTroops, reinforcements] = partition<Troop>(
@@ -44,6 +45,7 @@ const TroopListContent = () => {
         id={tooltipId}
         className="z-20! rounded-xs! px-2! py-1! bg-background! text-foreground! border border-border transition-colors"
         classNameArrow="border-r border-b border-border transition-colors"
+        clickable
         place="top-start"
         {...(isWiderThanLg && {
           isOpen: true,

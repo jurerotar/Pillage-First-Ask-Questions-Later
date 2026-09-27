@@ -169,7 +169,11 @@ const insertEvent = (
         targetTileId: event.targetTileId,
         resources: event.resources,
         ...(event.type === 'resourceTransfer'
-          ? { merchantAmount: event.merchantAmount }
+          ? {
+              merchantAmount: event.merchantAmount,
+              repeatRemaining: event.repeatRemaining,
+              repeatResources: event.repeatResources,
+            }
           : { interval: event.interval }),
       }),
     },
@@ -396,6 +400,151 @@ describe('marketplace resolvers', () => {
         schema: z.number(),
       }),
     ).toBe(0);
+  });
+
+  test('returning repeated resourceTransfer should start the next transfer', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(database, 'Repeat Target');
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tile_id, {
+      wood: 500,
+      clay: 500,
+      iron: 500,
+      wheat: 500,
+    });
+
+    const eventId = insertEvent(
+      database,
+      createResourceTransferEventMock({
+        villageId: sourceVillage.id,
+        targetVillageId: sourceVillage.id,
+        originTileId: targetVillage.tileId,
+        targetTileId: sourceVillage.tile_id,
+        startsAt: NOW,
+        duration: 5_000,
+        merchantAmount: 1,
+        resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+        repeatRemaining: 2,
+        repeatResources: { wood: 100, clay: 50, iron: 25, wheat: 10 },
+      }),
+    );
+
+    resolveEvent(database, eventId);
+
+    const nextTransfer = database.selectObject({
+      sql: `
+        SELECT
+          starts_at,
+          village_id,
+          JSON_EXTRACT(meta, '$.targetVillageId') AS target_village_id,
+          JSON_EXTRACT(meta, '$.originTileId') AS origin_tile_id,
+          JSON_EXTRACT(meta, '$.targetTileId') AS target_tile_id,
+          JSON_EXTRACT(meta, '$.resources.wood') AS wood,
+          JSON_EXTRACT(meta, '$.resources.clay') AS clay,
+          JSON_EXTRACT(meta, '$.resources.iron') AS iron,
+          JSON_EXTRACT(meta, '$.resources.wheat') AS wheat,
+          JSON_EXTRACT(meta, '$.merchantAmount') AS merchant_amount,
+          JSON_EXTRACT(meta, '$.repeatRemaining') AS repeat_remaining,
+          JSON_EXTRACT(meta, '$.repeatResources.wood') AS repeat_wood
+        FROM events
+        WHERE type = 'resourceTransfer';
+      `,
+      schema: z.strictObject({
+        starts_at: z.number(),
+        village_id: z.number(),
+        target_village_id: z.number(),
+        origin_tile_id: z.number(),
+        target_tile_id: z.number(),
+        wood: z.number(),
+        clay: z.number(),
+        iron: z.number(),
+        wheat: z.number(),
+        merchant_amount: z.number(),
+        repeat_remaining: z.number(),
+        repeat_wood: z.number(),
+      }),
+    })!;
+
+    expect(nextTransfer).toMatchObject({
+      starts_at: NOW + 5_000,
+      village_id: sourceVillage.id,
+      target_village_id: targetVillage.id,
+      origin_tile_id: sourceVillage.tile_id,
+      target_tile_id: targetVillage.tileId,
+      wood: 100,
+      clay: 50,
+      iron: 25,
+      wheat: 10,
+      merchant_amount: 1,
+      repeat_remaining: 1,
+      repeat_wood: 100,
+    });
+
+    expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
+      wood: 400,
+      clay: 450,
+      iron: 475,
+      wheat: 490,
+    });
+  });
+
+  test('returning repeated resourceTransfer should stop when resources are missing', async () => {
+    const database = await prepareTestDatabase();
+    database.exec({ sql: 'DELETE FROM events;' });
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+
+    const sourceVillage = getPlayerVillage(database);
+    const targetVillage = createPlayerVillage(
+      database,
+      'Missing Repeat Target',
+    );
+
+    setMarketplaceLevel(database, sourceVillage.id, 1);
+    setVillageResources(database, sourceVillage.tile_id, {
+      wood: 0,
+      clay: 0,
+      iron: 0,
+      wheat: 0,
+    });
+
+    const eventId = insertEvent(
+      database,
+      createResourceTransferEventMock({
+        villageId: sourceVillage.id,
+        targetVillageId: sourceVillage.id,
+        originTileId: targetVillage.tileId,
+        targetTileId: sourceVillage.tile_id,
+        startsAt: NOW,
+        duration: 5_000,
+        merchantAmount: 1,
+        resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
+        repeatRemaining: 2,
+        repeatResources: { wood: 100, clay: 0, iron: 0, wheat: 0 },
+      }),
+    );
+
+    resolveEvent(database, eventId);
+
+    expect(
+      database.selectValue({
+        sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
+        schema: z.number(),
+      }),
+    ).toBe(0);
+
+    expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
+      wood: 0,
+      clay: 0,
+      iron: 0,
+      wheat: 0,
+    });
   });
 
   test('tradeRoute should create a transfer and schedule the next route trigger', async () => {

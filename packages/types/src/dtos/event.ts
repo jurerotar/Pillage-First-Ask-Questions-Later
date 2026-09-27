@@ -74,6 +74,8 @@ const merchantMovementEventSchema = {
 const resourceTransferEventSchema = {
   ...merchantMovementEventSchema,
   merchantAmount: z.number(),
+  repeatRemaining: z.number().int().min(0).max(4),
+  repeatResources: resourcesSchema,
 };
 
 const troopTrainingDurationEffectIdSchema = effectIdSchema.extract([

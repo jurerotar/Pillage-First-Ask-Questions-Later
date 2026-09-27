@@ -44,16 +44,19 @@ export const useSendResourcesForm = ({
 
   const form = useForm<MarketplaceSendResourcesFormValues>({
     defaultValues: {
+      repeatCount: 1,
       resources: emptyResources,
       targetVillageId: initialTargetVillage?.id,
     },
   });
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const repeatCount = form.watch('repeatCount');
   const selectedResources = form.watch('resources');
   const targetVillageId = form.watch('targetVillageId');
 
   useEffect(() => {
     form.reset({
+      repeatCount: 1,
       resources: emptyResources,
       targetVillageId: initialTargetVillage?.id,
     });
@@ -124,8 +127,10 @@ export const useSendResourcesForm = ({
     (resource) => selectedResources[resource] <= availableResources[resource],
   );
   const hasEnoughCapacity = totalSelectedResources <= totalCapacity;
+  const hasValidRepeatCount = repeatCount >= 1 && repeatCount <= 5;
   const canSubmit =
     !!targetVillage &&
+    hasValidRepeatCount &&
     totalSelectedResources > 0 &&
     merchantAmount > 0 &&
     merchantAmount <= availableMerchantAmount &&
@@ -141,11 +146,13 @@ export const useSendResourcesForm = ({
         body: {
           targetTileId: targetVillage!.tileId,
           resources: selectedResources,
+          repeatCount,
         },
       });
     },
     onSuccess: async (_, __, ___, context) => {
       form.reset({
+        repeatCount: 1,
         resources: emptyResources,
         targetVillageId: initialTargetVillage?.id,
       });
@@ -187,6 +194,7 @@ export const useSendResourcesForm = ({
     merchantAmount,
     onConfirm: transferResources,
     onFormSubmit,
+    repeatCount,
     selectedResources,
     targetVillage,
     targetVillages,

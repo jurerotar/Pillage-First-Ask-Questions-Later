@@ -7,7 +7,7 @@ import { oasisBonusSlotSchema } from './schemas/oasis-bonus-finder-schemas';
 
 export const getTilesWithBonuses = createController(
   '/search/oases/by-bonus',
-  'post',
+  'query',
   {
     summary: 'Find tiles with specific oasis bonuses',
     requestBody: z.strictObject({

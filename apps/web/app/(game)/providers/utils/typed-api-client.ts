@@ -2,7 +2,7 @@ import type { z } from 'zod';
 import type { ApiRouteController } from '@pillage-first/api/api-route-types';
 import type { Fetcher } from 'app/(game)/providers/utils/worker-fetch';
 
-type HttpMethod = 'get' | 'post' | 'patch' | 'delete';
+type HttpMethod = 'get' | 'post' | 'patch' | 'delete' | 'query';
 
 type RoutesByMethod = {
   [TMethod in HttpMethod]: {
@@ -136,6 +136,7 @@ export type ApiClient = {
   post: ApiClientMethod<'post'>;
   patch: ApiClientMethod<'patch'>;
   delete: ApiClientMethod<'delete'>;
+  query: ApiClientMethod<'query'>;
 };
 
 type RuntimeRequestOptions = {
@@ -204,5 +205,6 @@ export const createTypedApiClient = (fetcher: Fetcher): ApiClient => {
     post: request.bind(null, 'post') as ApiClientMethod<'post'>,
     patch: request.bind(null, 'patch') as ApiClientMethod<'patch'>,
     delete: request.bind(null, 'delete') as ApiClientMethod<'delete'>,
+    query: request.bind(null, 'query') as ApiClientMethod<'query'>,
   };
 };

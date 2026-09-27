@@ -25,6 +25,7 @@ import type {
 } from '@pillage-first/types/models/building';
 import type { TroopTrainingDurationEffectId } from '@pillage-first/types/models/effect';
 import type { Unit } from '@pillage-first/types/models/unit';
+import { formatNumber } from '@pillage-first/utils/format';
 import { assessUnitResearchReadiness } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/academy/utils/unit-research-requirements';
 import { useUnitResearch } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/hooks/use-unit-research';
 import { useUnitImprovementLevel } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/unit-production-buildings/components/hooks/use-unit-improvement-level';
@@ -41,6 +42,7 @@ import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
+import { useVillageUnitCount } from 'app/(game)/(village-slug)/hooks/use-village-unit-count';
 import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import {
@@ -52,6 +54,11 @@ import { unitIdToUnitIconMapper } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
 import { Input } from 'app/components/ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
 import { Slider } from 'app/components/ui/slider';
 import { formatTime } from 'app/utils/time';
 
@@ -192,6 +199,73 @@ export const UnitImprovementLevel = () => {
       {t('level {{unitLevel}}', { unitLevel })}
       {ongoingUpgradeCount > 0 && <span> (+ {ongoingUpgradeCount})</span>}
     </Text>
+  );
+};
+
+export const UnitOwnedTroops = () => {
+  const { unitId } = use(UnitCardContext);
+  const { t } = useTranslation();
+  const { villageUnitCount } = useVillageUnitCount(unitId);
+
+  const countItems = [
+    {
+      label: t('At home'),
+      amount: villageUnitCount.atHome,
+    },
+    {
+      label: t('In transit'),
+      amount: villageUnitCount.inTransit,
+    },
+    {
+      label: t('Stationed away'),
+      amount: villageUnitCount.stationedAway,
+    },
+  ] as const;
+
+  let totalCount = 0;
+
+  for (const { amount } of countItems) {
+    totalCount += amount;
+  }
+
+  return (
+    <section className="flex gap-2">
+      <span className="text-muted-foreground">
+        {t('Owned by this village')}:
+      </span>
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            aria-label={t('Show own troops breakdown')}
+            className="inline-flex gap-2 items-center w-fit px-0 py-0"
+          >
+            <span className="inline-flex gap-1 items-center underline">
+              {formatNumber(totalCount)}
+            </span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className="w-40 rounded-lg p-2 shadow-xl"
+          side="bottom"
+        >
+          <div className="flex flex-col gap-1">
+            {countItems.map(({ amount, label }) => (
+              <Text
+                className="flex items-center justify-between gap-4 text-sm"
+                key={label}
+              >
+                <span className="text-muted-foreground">{label}</span>
+                <div className="inline-flex gap-1 items-center">
+                  <span className="font-medium">{formatNumber(amount)}</span>
+                </div>
+              </Text>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </section>
   );
 };
 
