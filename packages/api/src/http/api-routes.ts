@@ -109,6 +109,10 @@ import {
   getReports,
   updateReports,
 } from './controllers/report-controllers';
+import {
+  getReportFilters,
+  updateReportFilters,
+} from './controllers/report-filter-controllers';
 import { getReputations } from './controllers/reputation-controllers';
 import {
   cancelScheduledBuildingUpgrade,
@@ -260,6 +264,8 @@ export const apiRoutes = [
   createRoute(updateBookmark),
 
   // Reports
+  createRoute(getReportFilters),
+  createRoute(updateReportFilters),
   createRoute(getReports),
   createRoute(getReport),
   createRoute(updateReports),

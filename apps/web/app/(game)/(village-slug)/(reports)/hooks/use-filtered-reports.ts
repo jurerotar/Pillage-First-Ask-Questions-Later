@@ -8,14 +8,12 @@ export const useFilteredReports = () => {
   const {
     filters: reportFilters,
     onFiltersChange: onReportFiltersChange,
+    invertReportFilters,
     page,
     handlePageChange,
   } = useReportFilters();
   const scope = reportTabs[tabIndex] ?? reportTabs[0];
-  const { reports, updateReports, deleteReports } = useReports(
-    scope,
-    reportFilters,
-  );
+  const { reports, updateReports, deleteReports } = useReports(scope);
 
   return {
     scope,
@@ -24,6 +22,7 @@ export const useFilteredReports = () => {
     deleteReports,
     reportFilters,
     onReportFiltersChange,
+    invertReportFilters,
     page,
     handlePageChange,
     navigateToTab,

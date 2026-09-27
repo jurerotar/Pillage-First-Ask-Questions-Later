@@ -1,13 +1,10 @@
 import { z } from 'zod';
-import {
-  reportListingDtoSchema,
-  reportListingFilterSchema,
-} from '@pillage-first/types/dtos/report';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
+import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportSchema,
   reportTagSchema,
-  reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -71,57 +68,18 @@ export const getReports = createController('/reports', {
         .optional()
         .default('global'),
       villageId: z.coerce.number().optional(),
-      filters: z
-        .array(reportListingFilterSchema)
-        .or(reportListingFilterSchema)
-        .optional(),
     }),
   },
   response: z.array(reportListingDtoSchema),
 })(({ database, query }) => {
   const scope = query.scope ?? 'global';
-  const reportFilters =
-    query.filters == null
-      ? []
-      : Array.isArray(query.filters)
-        ? query.filters
-        : [query.filters];
-
-  const reportTypes = reportFilters.filter(
-    (filter) => reportTypeSchema.safeParse(filter).success,
-  );
 
   const rows = database.selectObjects({
     sql: selectReportListingsQuery,
     bind: {
+      $player_id: PLAYER_ID,
       $village_id: query.villageId ?? null,
       $scope: scope,
-      $type_count: reportTypes.length,
-      $include_battle: reportTypes.includes('battle') ? 1 : 0,
-      $include_adventure: reportTypes.includes('adventure') ? 1 : 0,
-      $include_trade: reportTypes.includes('trade') ? 1 : 0,
-      $include_movement: reportTypes.includes('movement') ? 1 : 0,
-      $include_hunting_party: reportTypes.includes('huntingParty') ? 1 : 0,
-      $include_gathering_expedition: reportTypes.includes('gatheringExpedition')
-        ? 1
-        : 0,
-      $include_scouting: reportTypes.includes('scouting') ? 1 : 0,
-      $include_unit_research: reportTypes.includes('unitResearch') ? 1 : 0,
-      $include_unit_improvement: reportTypes.includes('unitImprovement')
-        ? 1
-        : 0,
-      $include_village_founded: reportTypes.includes('villageFounded') ? 1 : 0,
-      $include_scheduled_construction_cancellation: reportTypes.includes(
-        'scheduledConstructionCancellation',
-      )
-        ? 1
-        : 0,
-      $exclude_no_loss:
-        reportFilters.length === 0 || reportFilters.includes('noLoss') ? 0 : 1,
-      $exclude_own_trades:
-        reportFilters.length === 0 || reportFilters.includes('ownTrades')
-          ? 0
-          : 1,
     },
     schema: getReportListingsRowSchema,
   });

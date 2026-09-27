@@ -20,6 +20,8 @@ export const reportListingFilterSchema = z.enum([
   'ownTrades',
 ]);
 
+export const reportFiltersDtoSchema = z.array(reportListingFilterSchema);
+
 export const battleReportSummaryDtoSchema = battleReportSchema.omit({
   battle: true,
 });
@@ -56,3 +58,4 @@ export const reportListingDtoSchema = z.discriminatedUnion('type', [
 
 export type ReportListingDto = z.infer<typeof reportListingDtoSchema>;
 export type ReportListingFilter = z.infer<typeof reportListingFilterSchema>;
+export type ReportFiltersDto = z.infer<typeof reportFiltersDtoSchema>;

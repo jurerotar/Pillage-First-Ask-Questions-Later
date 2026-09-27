@@ -10,22 +10,34 @@ import type { ReportListingFilter } from '@pillage-first/types/dtos/report';
 import { SectionContent } from 'app/(game)/(village-slug)/components/building-layout';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
+import { Button } from 'app/components/ui/button';
 import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
 
 type ReportFiltersProps = {
   reportFilters: ReportListingFilter[];
   onChange: (reportFilters: ReportListingFilter[]) => void;
+  onInvert: () => void;
 };
 
 export const ReportFilters = ({
   reportFilters,
   onChange,
+  onInvert,
 }: ReportFiltersProps) => {
   const { t } = useTranslation();
 
   return (
     <SectionContent>
-      <Text className="font-semibold">{t('Filter reports')}</Text>
+      <div className="flex items-center gap-2">
+        <Text className="font-semibold">{t('Filter reports')}</Text>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onInvert}
+        >
+          {t('Invert filters')}
+        </Button>
+      </div>
       <ToggleGroup
         type="multiple"
         value={reportFilters}

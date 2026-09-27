@@ -2,10 +2,7 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import type {
-  ReportListingDto,
-  ReportListingFilter,
-} from '@pillage-first/types/dtos/report';
+import type { ReportListingDto } from '@pillage-first/types/dtos/report';
 import type { BaseReport, ReportTag } from '@pillage-first/types/models/report';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
@@ -17,22 +14,18 @@ import { invalidateQueries } from 'app/utils/react-query';
 
 export type ReportScope = 'global' | 'unread' | 'archived' | 'village';
 
-export const useReports = (
-  scope: ReportScope = 'global',
-  filters: ReportListingFilter[] = [],
-) => {
+export const useReports = (scope: ReportScope = 'global') => {
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
   const { t } = useTranslation();
 
   const { data: reports } = useSuspenseQuery({
-    queryKey: [reportListingsCacheKey, currentVillage.id, scope, filters],
+    queryKey: [reportListingsCacheKey, currentVillage.id, scope],
     queryFn: async () => {
       const { data } = await apiClient.get('/reports', {
         query: {
           scope,
           ...(scope === 'village' ? { villageId: currentVillage.id } : {}),
-          ...(filters.length > 0 ? { filters } : {}),
         },
       });
       return data;

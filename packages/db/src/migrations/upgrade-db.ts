@@ -13,6 +13,7 @@ import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-lis
 import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
+import createReportFiltersTable from '../schemas/report-filters-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?raw';
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
@@ -20,6 +21,7 @@ import createUnitResearchReportsTable from '../schemas/unit-research-reports-sch
 import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
+import { reportFiltersSeeder } from '../seeders/report-filters-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
@@ -1073,6 +1075,9 @@ export const upgradeDb = (
     db.exec({ sql: createUnitImprovementReportsTable });
     db.exec({ sql: createVillageFoundingReportsTable });
     db.exec({ sql: createScheduledConstructionCancellationReportsTable });
+    db.exec({ sql: createReportFiltersTable });
+
+    reportFiltersSeeder(db);
 
     for (const sql of [
       'DROP TRIGGER IF EXISTS trg_unit_improvement_history_update;',

@@ -66,6 +66,7 @@ import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
+import createReportFiltersTable from '../schemas/report-filters-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
@@ -109,6 +110,7 @@ import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
+import { reportFiltersSeeder } from '../seeders/report-filters-seeder';
 import { reportOutcomeIdsSeeder } from '../seeders/report-outcome-ids-seeder';
 import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
 import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
@@ -199,6 +201,10 @@ export const migrateAndSeed = (
     // Preferences
     db.exec({ sql: createPreferencesTable });
     preferencesSeeder(db);
+
+    // Report filters
+    db.exec({ sql: createReportFiltersTable });
+    reportFiltersSeeder(db);
 
     // Faction reputations
     db.exec({ sql: createFactionReputationTable });

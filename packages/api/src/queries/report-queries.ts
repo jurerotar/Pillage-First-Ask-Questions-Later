@@ -187,26 +187,33 @@ export const selectReportListingsQuery = `
       )
     )
     AND (
-      $type_count = 0
-      OR ($include_battle = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'battle'))
-      OR ($include_adventure = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'adventure'))
-      OR ($include_trade = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'trade'))
-      OR ($include_movement = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'movement'))
-      OR ($include_hunting_party = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'huntingParty'))
-      OR ($include_gathering_expedition = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'gatheringExpedition'))
-      OR ($include_scouting = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'scouting'))
-      OR ($include_unit_research = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'unitResearch'))
-      OR ($include_unit_improvement = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'unitImprovement'))
-      OR ($include_village_founded = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'villageFounded'))
-      OR ($include_scheduled_construction_cancellation = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'scheduledConstructionCancellation'))
+      EXISTS (
+        SELECT 1
+        FROM report_filters rf
+        WHERE rf.player_id = $player_id
+          AND rf.is_active = 1
+          AND rf.filter = rty.report_type
+      )
     )
     AND (
-      $exclude_no_loss = 0
+      EXISTS (
+        SELECT 1
+        FROM report_filters rf
+        WHERE rf.player_id = $player_id
+          AND rf.is_active = 1
+          AND rf.filter = 'noLoss'
+      )
       OR rty.report_type != 'battle'
       OR roi.report_outcome != 'attackerNoLoss'
     )
     AND (
-      $exclude_own_trades = 0
+      EXISTS (
+        SELECT 1
+        FROM report_filters rf
+        WHERE rf.player_id = $player_id
+          AND rf.is_active = 1
+          AND rf.filter = 'ownTrades'
+      )
       OR rty.report_type != 'trade'
       OR trade_origin_v.player_id != trade_target_v.player_id
     )
