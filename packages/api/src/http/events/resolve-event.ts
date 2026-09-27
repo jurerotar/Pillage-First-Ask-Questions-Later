@@ -15,6 +15,7 @@ import {
   buildingDestructionResolver,
   buildingLevelChangeResolver,
 } from './resolvers/building-resolvers';
+import { culturePointsCelebrationResolver } from './resolvers/culture-points-resolvers';
 import { gatherersHutGatheringTripResolver } from './resolvers/gatherers-hut-resolvers';
 import {
   heroHealthRegenerationResolver,
@@ -64,6 +65,7 @@ const gameEventResolvers = {
   heroRevival: heroRevivalResolver,
   heroHealthRegeneration: heroHealthRegenerationResolver,
   loyaltyIncrease: loyaltyIncreaseResolver,
+  culturePointsCelebration: culturePointsCelebrationResolver,
   unitResearch: unitResearchResolver,
   unitImprovement: unitImprovementResolver,
   animalCageProduction: animalCageProductionResolver,

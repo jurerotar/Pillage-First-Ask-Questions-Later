@@ -4,6 +4,7 @@ import type { GameEventType } from '@pillage-first/types/models/game-event';
 import {
   adventurePointsCacheKey,
   collectableQuestCountCacheKey,
+  culturePointsCacheKey,
   currentVillageCacheKey,
   effectsCacheKey,
   eventsCacheKey,
@@ -272,5 +273,12 @@ export const cachesToClearOnResolve: Handlers = {
         [eventsCacheKey, 'tradeRoute', villageId],
       ]),
     ];
+  },
+  culturePointsCelebration: ({ affectedVillageIds }) => {
+    return affectedVillageIds.flatMap((villageId) => [
+      [culturePointsCacheKey, villageId],
+      [eventsCacheKey, 'culturePointsCelebration', villageId],
+      [eventsHistoryCacheKey, villageId],
+    ]);
   },
 };

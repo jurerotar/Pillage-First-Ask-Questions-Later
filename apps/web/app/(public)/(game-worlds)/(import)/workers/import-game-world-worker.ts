@@ -67,8 +67,21 @@ globalThis.addEventListener(
         },
       });
 
+      const serverColumns = database
+        .selectObjects('SELECT name FROM pragma_table_info("servers");')
+        .map(({ name }) => name);
+
+      if (!serverColumns.includes('culture_points_requirement_speed')) {
+        database.exec({
+          sql: `
+            ALTER TABLE servers
+            ADD COLUMN culture_points_requirement_speed INTEGER CHECK (culture_points_requirement_speed IN (1, 2, 3, 4, 5)) NOT NULL DEFAULT 1;
+          `,
+        });
+      }
+
       const serverRow = database.selectObject(
-        'SELECT id, version, name, slug, created_at, seed, map_size, speed, player_name, player_tribe FROM servers;',
+        'SELECT id, version, name, slug, created_at, seed, map_size, speed, culture_points_requirement_speed, player_name, player_tribe FROM servers;',
       );
 
       const server = serverDbSchema.parse(serverRow);

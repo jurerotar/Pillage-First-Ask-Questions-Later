@@ -12,16 +12,16 @@ export const serverSeeder = (database: DbFacade, server: Server): void => {
     configuration,
     playerConfiguration,
   } = server;
-  const { speed, mapSize } = configuration;
+  const { speed, mapSize, culturePointsRequirementSpeed } = configuration;
   const { name: playerName, tribe } = playerConfiguration;
 
   database.exec({
     sql: `
       INSERT INTO
         servers
-      (id, version, name, slug, created_at, seed, speed, map_size, player_name, player_tribe)
+      (id, version, name, slug, created_at, seed, speed, culture_points_requirement_speed, map_size, player_name, player_tribe)
       VALUES
-        ($id, $version, $name, $slug, $created_at, $seed, $speed, $map_size, $player_name, $player_tribe);
+        ($id, $version, $name, $slug, $created_at, $seed, $speed, $culture_points_requirement_speed, $map_size, $player_name, $player_tribe);
     `,
     bind: {
       $id: id,
@@ -31,6 +31,7 @@ export const serverSeeder = (database: DbFacade, server: Server): void => {
       $created_at: createdAt,
       $seed: seed,
       $speed: speed,
+      $culture_points_requirement_speed: culturePointsRequirementSpeed,
       $map_size: mapSize,
       $player_name: playerName,
       $player_tribe: tribe,

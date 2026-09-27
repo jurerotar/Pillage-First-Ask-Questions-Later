@@ -19,5 +19,6 @@ export const serverMock: Server = {
   configuration: {
     mapSize: 100,
     speed: 1,
+    culturePointsRequirementSpeed: 1,
   },
 };

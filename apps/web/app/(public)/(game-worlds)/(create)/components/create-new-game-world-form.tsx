@@ -43,6 +43,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
+import { Slider } from 'app/components/ui/slider';
 import { pushGameWorldCreated } from 'app/instrumentation/product-events';
 import { reportError } from 'app/instrumentation/report-error';
 import { invalidateQueries } from 'app/utils/react-query';
@@ -60,6 +61,7 @@ const createServerFormSchema = z.strictObject({
       .enum(['100', '200'])
       // @ts-expect-error
       .overwrite((val) => Number.parseInt(val, 10)),
+    culturePointsRequirementSpeed: z.number().int().min(1).max(5),
   }),
   playerConfiguration: z.strictObject({
     name: z.string().min(1, { error: 'Player name is required' }),
@@ -211,6 +213,7 @@ export const CreateNewGameWorldForm = () => {
       configuration: {
         speed: '1',
         mapSize: '100',
+        culturePointsRequirementSpeed: 1,
       },
       playerConfiguration: {
         name: 'Player',
@@ -392,6 +395,39 @@ export const CreateNewGameWorldForm = () => {
                       )}
                     />
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="configuration.culturePointsRequirementSpeed"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <FormLabel>Culture point growth</FormLabel>
+                          <Text className="text-sm text-muted-foreground">
+                            {field.value}/5
+                          </Text>
+                        </div>
+                        <FormControl>
+                          <Slider
+                            disabled={isPending || isSuccess}
+                            min={1}
+                            max={5}
+                            step={1}
+                            marks={[1, 5]}
+                            value={[field.value]}
+                            onValueChange={([value]) => {
+                              field.onChange(value);
+                            }}
+                          />
+                        </FormControl>
+                        <Text className="text-sm text-muted-foreground">
+                          Higher values make each new village require culture
+                          points faster.
+                        </Text>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
 

@@ -57,6 +57,9 @@
     "./utils/buildings": {
       "default": "./src/utils/buildings.ts"
     },
+    "./utils/culture-points": {
+      "default": "./src/utils/culture-points.ts"
+    },
     "./utils/items": {
       "default": "./src/utils/items.ts"
     },

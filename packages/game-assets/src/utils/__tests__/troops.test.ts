@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import type { TroopLike } from '@pillage-first/types/models/troop';
 import {
   calculateLootableCarryCapacity,
   calculateTotalCarryCapacity,
@@ -103,7 +104,7 @@ describe(distributeLoot, () => {
 
 describe(sortTroopsByUnitOrder, () => {
   test('sorts troops by the canonical units order and preserves row data', () => {
-    const troops = [
+    const troops: (TroopLike & { sourceTileId: number })[] = [
       { unitId: 'PHALANX', amount: 2, sourceTileId: 2 },
       { unitId: 'PRAETORIAN', amount: 4, sourceTileId: 1 },
       { unitId: 'LEGIONNAIRE', amount: 3, sourceTileId: 1 },

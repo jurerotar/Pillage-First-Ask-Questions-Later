@@ -61,6 +61,61 @@ export const upgradeDb = (
     env.VERSION,
   );
 
+  const ensureCulturePointsColumns = (db: DbFacade): void => {
+    db.transaction((tx) => {
+      const serverColumns = tx.selectValues({
+        sql: 'SELECT name FROM pragma_table_info("servers");',
+        schema: z.string(),
+      });
+
+      if (!serverColumns.includes('culture_points_requirement_speed')) {
+        tx.exec({
+          sql: `
+            ALTER TABLE servers
+            ADD COLUMN culture_points_requirement_speed INTEGER CHECK (culture_points_requirement_speed IN (1, 2, 3, 4, 5)) NOT NULL DEFAULT 1;
+          `,
+        });
+      }
+
+      const playerColumns = tx.selectValues({
+        sql: 'SELECT name FROM pragma_table_info("players");',
+        schema: z.string(),
+      });
+
+      if (!playerColumns.includes('culture_points')) {
+        tx.exec({
+          sql: `
+            ALTER TABLE players
+            ADD COLUMN culture_points REAL NOT NULL DEFAULT 0;
+          `,
+        });
+      }
+
+      if (!playerColumns.includes('culture_points_updated_at')) {
+        tx.exec({
+          sql: `
+            ALTER TABLE players
+            ADD COLUMN culture_points_updated_at INTEGER NOT NULL DEFAULT 0;
+          `,
+        });
+
+        tx.exec({
+          sql: `
+            UPDATE players
+            SET culture_points_updated_at = (
+              SELECT created_at
+              FROM servers
+              LIMIT 1
+            )
+            WHERE culture_points_updated_at = 0;
+          `,
+        });
+      }
+    });
+  };
+
+  ensureCulturePointsColumns(database);
+
   if (currentDatabaseVersion === targetDatabaseVersion) {
     return;
   }
@@ -1016,6 +1071,8 @@ export const upgradeDb = (
       `,
     });
   });
+
+  ensureCulturePointsColumns(database);
 
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {

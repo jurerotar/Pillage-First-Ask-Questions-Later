@@ -15,6 +15,10 @@ import {
   isRelocationTroopMovementEvent,
   isReturnTroopMovementEvent,
 } from '@pillage-first/utils/guards/event';
+import {
+  getPlayerCulturePointsRequirementContext,
+  updatePlayerCulturePointsAt,
+} from './culture-points';
 
 const WOUNDED_TROOP_DECAY_RATE_PER_DAY = 0.1;
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
@@ -449,7 +453,7 @@ export const validateTroopMovement = (
   }
 
   if (isFindNewVillageTroopMovementEvent(troopMovementEvent)) {
-    const { troops } = troopMovementEvent;
+    const { troops, villageId } = troopMovementEvent;
 
     const isUnoccupied = database.selectValue({
       sql: `
@@ -501,6 +505,40 @@ export const validateTroopMovement = (
 
     if (settlersAmount !== 3) {
       errors.push('Exactly 3 settlers must be selected');
+    }
+
+    if (villageId !== undefined) {
+      const playerId = database.selectValue({
+        sql: `
+          SELECT player_id
+          FROM villages
+          WHERE
+            id = $village_id;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.number(),
+      })!;
+
+      updatePlayerCulturePointsAt(database, Date.now(), playerId);
+
+      const culturePoints = database.selectValue({
+        sql: `
+          SELECT culture_points
+          FROM players
+          WHERE id = $player_id;
+        `,
+        bind: { $player_id: playerId },
+        schema: z.number(),
+      })!;
+
+      const { nextVillageCulturePointsRequirement } =
+        getPlayerCulturePointsRequirementContext(database, playerId);
+
+      if (culturePoints < nextVillageCulturePointsRequirement) {
+        errors.push(
+          `Not enough culture points. ${nextVillageCulturePointsRequirement} culture points are required to found the next village.`,
+        );
+      }
     }
   }
 
