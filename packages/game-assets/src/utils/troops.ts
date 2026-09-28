@@ -1,6 +1,7 @@
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { Troop, TroopLike } from '@pillage-first/types/models/troop';
+import { units } from '../units';
 import { getUnitDefinition, getUnitsByTribeWithHero } from './units';
 
 export const calculateTotalUnitWheatConsumption = (troops: TroopLike[]) => {
@@ -110,4 +111,19 @@ export const sortTroops = (tribe: Tribe, troops: TroopLike[]): TroopLike[] => {
     unitId,
     amount: amountByUnitId.get(unitId) ?? 0,
   }));
+};
+
+const unitOrder = new Map<Troop['unitId'], number>(
+  units.map(({ id }, index) => [id, index] as const),
+);
+
+export const sortTroopsByUnitOrder = <T extends TroopLike>(
+  troops: T[],
+): T[] => {
+  return troops.toSorted((troopA, troopB) => {
+    const unitOrderA = unitOrder.get(troopA.unitId)!;
+    const unitOrderB = unitOrder.get(troopB.unitId)!;
+
+    return unitOrderA - unitOrderB;
+  });
 };

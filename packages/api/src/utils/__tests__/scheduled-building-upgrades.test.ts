@@ -87,9 +87,8 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    database.exec({
-      sql: `
-        UPDATE players
+    database.execMulti({
+      sql: `UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
         WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
       `,
@@ -298,7 +297,7 @@ describe('scheduled building upgrades', () => {
   test('promotes only the next queued upgrade for Romans', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
-    database.exec({
+    database.execMulti({
       sql: `
         UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
@@ -363,7 +362,7 @@ describe('scheduled building upgrades', () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
+    database.execMulti({
       sql: `
         UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
@@ -764,9 +763,8 @@ describe('scheduled building upgrades', () => {
       validLevel,
     );
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
+    database.execMulti({
+      sql: `DELETE FROM effects
         WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $placeholder_field_id;
         DELETE FROM building_fields
@@ -859,9 +857,8 @@ describe('scheduled building upgrades', () => {
     const villageId = 1;
     const buildingFieldId = 25;
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
+    database.execMulti({
+      sql: `DELETE FROM effects
         WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields

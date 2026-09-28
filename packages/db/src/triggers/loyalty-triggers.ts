@@ -1,7 +1,7 @@
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
 export const setupLoyaltyTriggers = (db: DbFacade): void => {
-  db.exec({
+  db.execMulti({
     sql: `
       CREATE TRIGGER IF NOT EXISTS loyalties_delete_capped_entries_after_update
       AFTER UPDATE OF loyalty
