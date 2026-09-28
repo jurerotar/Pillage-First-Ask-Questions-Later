@@ -94,6 +94,19 @@ const reportMissingServerDatabase = (
   );
 };
 
+const reportMissingServerDatabaseIfNeeded = async (
+  rootHandle: FileSystemDirectoryHandle,
+  server: Server,
+): Promise<void> => {
+  const serverStorageStatus = await getServerStorageStatus(rootHandle, server);
+
+  if (serverStorageStatus === 'present') {
+    return;
+  }
+
+  reportMissingServerDatabase(server, serverStorageStatus);
+};
+
 const exportServerDatabase = async (server: Server): Promise<ArrayBuffer> => {
   const url = new URL(ExportServerWorker, import.meta.url);
   url.searchParams.set('server-slug', server.slug);
@@ -132,16 +145,10 @@ const importGameWorldDatabase = async (
   return result.server;
 };
 
-const deleteServerData = async (server: Server): Promise<Server[] | null> => {
-  const rootHandle = await getRootHandle();
-  const serverStorageStatus = await getServerStorageStatus(rootHandle, server);
-  let missingServerDatabaseReported = false;
-
-  if (serverStorageStatus !== 'present') {
-    reportMissingServerDatabase(server, serverStorageStatus);
-    missingServerDatabaseReported = true;
-  }
-
+const deleteServerData = async (
+  rootHandle: FileSystemDirectoryHandle,
+  server: Server,
+): Promise<Server[] | null> => {
   try {
     await retryWhenFileSystemLocked(async () => {
       await rootHandle.removeEntry(server.slug, {
@@ -160,10 +167,6 @@ const deleteServerData = async (server: Server): Promise<Server[] | null> => {
 
     if (!isNotFoundError(error)) {
       throw error;
-    }
-
-    if (!missingServerDatabaseReported) {
-      reportMissingServerDatabase(server, 'missing-directory');
     }
   }
 
@@ -250,10 +253,37 @@ export const useGameWorldActions = () => {
     },
   });
 
+  const { mutateAsync: deleteGameWorldData } = useMutation<
+    Server[] | null,
+    Error,
+    { server: Server }
+  >({
+    mutationFn: async ({ server }) => {
+      const rootHandle = await getRootHandle();
+      return deleteServerData(rootHandle, server);
+    },
+    onSuccess: async (updatedServers, _vars, _onMutateResult, context) => {
+      if (!updatedServers) {
+        return;
+      }
+
+      context.client.setQueryData([availableServerCacheKey], updatedServers);
+      await invalidateQueries(context, [[availableServerCacheKey]]);
+    },
+    onError: (error) => {
+      toast.error('Failed to delete game world data', {
+        description: error.message,
+      });
+    },
+  });
+
   const { mutateAsync: deleteGameWorld, isPending: isDeleteGameWorldPending } =
     useMutation<Server[] | null, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
-        return deleteServerData(server);
+        const rootHandle = await getRootHandle();
+        await reportMissingServerDatabaseIfNeeded(rootHandle, server);
+
+        return deleteServerData(rootHandle, server);
       },
       onSuccess: async (
         updatedServers,
@@ -282,6 +312,7 @@ export const useGameWorldActions = () => {
     isExportGameWorldPending,
     duplicateGameWorld,
     isDuplicateGameWorldPending,
+    deleteGameWorldData,
     deleteGameWorld,
     isDeleteGameWorldPending,
   };

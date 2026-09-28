@@ -96,7 +96,7 @@ type MutateArgs = {
 export const CreateNewGameWorldForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { createGameWorld, deleteGameWorld } = useGameWorldActions();
+  const { createGameWorld, deleteGameWorldData } = useGameWorldActions();
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
   const {
     checkStorageQuota,
@@ -200,7 +200,9 @@ export const CreateNewGameWorldForm = () => {
       await invalidateQueries(context, [[availableServerCacheKey]]);
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
-    onError: (_, { server }) => deleteGameWorld({ server }),
+    onError: (_, { server }) => {
+      void deleteGameWorldData({ server });
+    },
   });
 
   const form = useForm<CreateServerFormValues>({
