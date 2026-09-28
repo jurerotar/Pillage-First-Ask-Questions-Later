@@ -152,127 +152,6 @@ export const upgradeDb = (
     );
   };
 
-  migrate('0.4.51', (db) => {
-    db.transaction((tx) => {
-      tx.exec({
-        sql: `
-          UPDATE effects
-          SET
-            value =
-              CASE bf.level
-                WHEN 0 THEN 0
-                WHEN 1 THEN 100
-                WHEN 2 THEN 130
-                WHEN 3 THEN 170
-                WHEN 4 THEN 220
-                WHEN 5 THEN 280
-                WHEN 6 THEN 360
-                WHEN 7 THEN 460
-                WHEN 8 THEN 600
-                WHEN 9 THEN 770
-                WHEN 10 THEN 1000
-                END
-                *
-              CASE
-                WHEN ti.tribe = 'gauls' THEN 2
-                ELSE 1
-                END
-          FROM
-            building_fields bf
-              JOIN building_ids bi ON bi.id = bf.building_id
-              JOIN villages v ON v.id = bf.village_id
-              JOIN players p ON p.id = v.player_id
-              JOIN tribe_ids ti ON ti.id = p.tribe_id
-          WHERE
-            effects.village_id = bf.village_id
-            AND effects.source_specifier = bf.field_id
-            AND bi.building = 'CRANNY'
-            AND effects.effect_id = (
-              SELECT id
-              FROM
-                effect_ids
-              WHERE
-                effect = 'crannyCapacity'
-              )
-            AND effects.type_id = (
-              SELECT id
-              FROM
-                effect_type_ids
-              WHERE
-                type = 'base'
-              )
-            AND effects.scope_id = (
-              SELECT id
-              FROM
-                effect_scope_ids
-              WHERE
-                scope = 'local'
-              )
-            AND effects.source_id = (
-              SELECT id
-              FROM
-                effect_source_ids
-              WHERE
-                source = 'building'
-              );
-        `,
-      });
-
-      tx.exec({
-        sql: `
-          UPDATE effects
-          SET
-            value = ROUND(
-              1 + bf.level *
-                  CASE
-                    WHEN ti.tribe = 'romans' THEN 0.2
-                    ELSE 0.1
-                    END,
-              4
-                    )
-          FROM
-            building_fields bf
-              JOIN building_ids bi ON bi.id = bf.building_id
-              JOIN villages v ON v.id = bf.village_id
-              JOIN players p ON p.id = v.player_id
-              JOIN tribe_ids ti ON ti.id = p.tribe_id
-          WHERE
-            effects.village_id = bf.village_id
-            AND effects.source_specifier = bf.field_id
-            AND bi.building = 'TRADE_OFFICE'
-            AND effects.effect_id = (
-              SELECT id
-              FROM
-                effect_ids
-              WHERE
-                effect = 'merchantCapacity'
-              )
-            AND effects.type_id = (
-              SELECT id
-              FROM
-                effect_type_ids
-              WHERE
-                type = 'bonus'
-              )
-            AND effects.scope_id = (
-              SELECT id
-              FROM
-                effect_scope_ids
-              WHERE
-                scope = 'local'
-              )
-            AND effects.source_id = (
-              SELECT id
-              FROM
-                effect_source_ids
-              WHERE
-                source = 'building'
-              );
-        `,
-      });
-    });
-  });
-
   migrate('0.4.52', (db) => {
     const tableExists = (tableName: string): boolean => {
       return db.selectValue({
@@ -425,21 +304,21 @@ export const upgradeDb = (
   });
 
   migrate('0.4.55', (db) => {
-    for (const sql of [
-      'DROP INDEX IF EXISTS idx_effects_effect_id;',
-      'DROP INDEX IF EXISTS idx_effects_village_id;',
-      'DROP INDEX IF EXISTS idx_effects_tile_id;',
-      'DROP INDEX IF EXISTS idx_effects_village_effect_scope_spec;',
-      'DROP INDEX IF EXISTS idx_effects_effect_village_scope_spec;',
-      'DROP INDEX IF EXISTS idx_effects_effect_tile_scope_spec;',
-      'DROP INDEX IF EXISTS idx_effects_tile_effect_scope_spec;',
-      'DROP INDEX IF EXISTS idx_effects_resource_village;',
-      'DROP INDEX IF EXISTS idx_effects_resource_tile;',
-      'DROP INDEX IF EXISTS idx_effects_wheat_effect_village_value;',
-      'DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;',
-    ]) {
-      db.exec({ sql });
-    }
+    db.execMulti({
+      sql: `
+        DROP INDEX IF EXISTS idx_effects_effect_id;
+        DROP INDEX IF EXISTS idx_effects_village_id;
+        DROP INDEX IF EXISTS idx_effects_tile_id;
+        DROP INDEX IF EXISTS idx_effects_village_effect_scope_spec;
+        DROP INDEX IF EXISTS idx_effects_effect_village_scope_spec;
+        DROP INDEX IF EXISTS idx_effects_effect_tile_scope_spec;
+        DROP INDEX IF EXISTS idx_effects_tile_effect_scope_spec;
+        DROP INDEX IF EXISTS idx_effects_resource_village;
+        DROP INDEX IF EXISTS idx_effects_resource_tile;
+        DROP INDEX IF EXISTS idx_effects_wheat_effect_village_value;
+        DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;
+      `,
+    });
 
     db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
 
@@ -494,16 +373,14 @@ export const upgradeDb = (
       db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
     }
 
-    for (const sql of [
-      'CREATE INDEX IF NOT EXISTS idx_effects_effect_id ON effects(effect_id);',
-      'CREATE INDEX IF NOT EXISTS idx_effects_tile_id ON effects(tile_id);',
-      `
+    db.execMulti({
+      sql: `
+        CREATE INDEX IF NOT EXISTS idx_effects_effect_id ON effects(effect_id);
+        CREATE INDEX IF NOT EXISTS idx_effects_tile_id ON effects(tile_id);
         CREATE INDEX IF NOT EXISTS idx_effects_tile_effect_scope_spec
           ON effects (effect_id, tile_id, scope_id, source_specifier);
       `,
-    ]) {
-      db.exec({ sql });
-    }
+    });
 
     db.exec({
       sql: `
@@ -692,34 +569,24 @@ export const upgradeDb = (
       `,
     });
 
-    for (const sql of [
-      'DROP INDEX IF EXISTS idx_building_fields_building_id;',
-      `
+    db.execMulti({
+      sql: `
+        DROP INDEX IF EXISTS idx_building_fields_building_id;
         CREATE INDEX IF NOT EXISTS idx_building_fields_building_id_level
           ON building_fields (building_id, level);
-      `,
-      `
         CREATE INDEX IF NOT EXISTS idx_reports_timestamp
           ON reports (timestamp DESC);
-      `,
-      `
         CREATE INDEX IF NOT EXISTS idx_reports_village_timestamp
           ON reports (village_id, timestamp DESC);
-      `,
-      `
         CREATE INDEX IF NOT EXISTS idx_battle_report_participants_battle
           ON battle_report_participants (battle_id);
-      `,
-      `
         CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
           ON battle_report_buildings (report_id);
+        DROP INDEX IF EXISTS idx_unit_ids_unit;
+        DROP INDEX IF EXISTS idx_resource_sites_tile_id;
+        DROP INDEX IF EXISTS idx_villages_tile_id;
       `,
-      'DROP INDEX IF EXISTS idx_unit_ids_unit;',
-      'DROP INDEX IF EXISTS idx_resource_sites_tile_id;',
-      'DROP INDEX IF EXISTS idx_villages_tile_id;',
-    ]) {
-      db.exec({ sql });
-    }
+    });
 
     setupGlobalWriteTriggers(db);
   });
@@ -1078,9 +945,7 @@ export const upgradeDb = (
 
   migrate('0.4.70', (db) => {
     db.transaction((tx) => {
-      for (const sql of indexesMissedBySingleStatementExec) {
-        tx.exec({ sql });
-      }
+      tx.execMulti({ sql: indexesMissedBySingleStatementExec.join('\n') });
 
       tx.exec({ sql: 'REINDEX;' });
     });
@@ -1152,25 +1017,25 @@ export const upgradeDb = (
     db.exec({ sql: createUnitImprovementReportsTable });
     db.exec({ sql: createVillageFoundingReportsTable });
     db.exec({ sql: createScheduledConstructionCancellationReportsTable });
-    db.exec({ sql: 'DROP TABLE IF EXISTS report_filters;' });
     db.exec({ sql: createFiltersTable });
 
     filtersSeeder(db);
 
-    for (const sql of [
-      'DROP TRIGGER IF EXISTS trg_unit_improvement_history_update;',
-      'DROP TRIGGER IF EXISTS trg_unit_improvement_history_insert;',
-      'DROP TRIGGER IF EXISTS trg_unit_research_history_insert;',
-      'DROP TABLE IF EXISTS unit_improvement_history;',
-      'DROP TABLE IF EXISTS unit_research_history;',
-      'DROP TABLE IF EXISTS village_founding_history;',
-    ]) {
-      db.exec({ sql });
-    }
+    db.execMulti({
+      sql: `
+        DROP TRIGGER IF EXISTS trg_unit_improvement_history_update;
+        DROP TRIGGER IF EXISTS trg_unit_improvement_history_insert;
+        DROP TRIGGER IF EXISTS trg_unit_research_history_insert;
+        DROP TABLE IF EXISTS unit_improvement_history;
+        DROP TABLE IF EXISTS unit_research_history;
+        DROP TABLE IF EXISTS village_founding_history;
+      `,
+    });
 
     db.exec({
       sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
     });
+
     db.exec({ sql: createReportDeleteTriggers });
 
     setupGlobalWriteTriggers(db);
