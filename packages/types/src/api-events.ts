@@ -1,6 +1,7 @@
 import type { Building } from './models/building';
 import type { BuildingField } from './models/building-field';
 import type { GameEvent, GameEventType } from './models/game-event';
+import type { ScheduledConstructionCancellationReasonDetail } from './models/report';
 import type { Tile } from './models/tile';
 import type { Village } from './models/village';
 
@@ -52,4 +53,5 @@ export type ScheduledBuildingConstructionCancelledNotificationEvent = {
   buildingFieldId: BuildingField['id'];
   level: number;
   reason: ScheduledBuildingConstructionCancellationReason;
+  reasonDetail: ScheduledConstructionCancellationReasonDetail;
 };

@@ -86,7 +86,6 @@ export default [
                 'oasis-animal-finder',
                 '(game)/(village-slug)/(oasis-animal-finder)/page.tsx',
               ),
-              route('events', '(game)/(village-slug)/(events)/page.tsx'),
               ...prefix('players', [
                 index('(game)/(village-slug)/(players)/page.tsx'),
                 route(

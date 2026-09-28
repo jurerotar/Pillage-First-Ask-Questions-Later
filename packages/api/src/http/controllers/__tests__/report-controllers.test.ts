@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import type {
+  ReportListingFilter,
+  ReportScope,
+} from '@pillage-first/types/dtos/report';
+import { reportFilterNameByScope } from '@pillage-first/types/dtos/report';
 import {
   deleteReports,
   getReport,
@@ -8,6 +13,35 @@ import {
   updateReports,
 } from '../report-controllers';
 import { createControllerArgs } from './utils/controller-args';
+
+const setActiveReportFilters = (
+  database: Awaited<ReturnType<typeof prepareTestDatabase>>,
+  filters: ReportListingFilter[],
+  scope: ReportScope = 'global',
+): void => {
+  const filterName = reportFilterNameByScope[scope];
+
+  database.transaction((tx) => {
+    tx.exec({
+      sql: `
+        DELETE FROM filters
+        WHERE name = $name;
+      `,
+      bind: { $name: filterName },
+    });
+    tx.exec({
+      sql: `
+        INSERT INTO filters (player_id, name, filter)
+        SELECT 1, $name, value
+        FROM JSON_EACH($filters);
+      `,
+      bind: {
+        $filters: JSON.stringify(filters),
+        $name: filterName,
+      },
+    });
+  });
+};
 
 const prepareReportsTestDatabase = async () => {
   const database = await prepareTestDatabase();
@@ -176,11 +210,11 @@ describe('report-controllers', () => {
       ]),
     );
 
+    setActiveReportFilters(database, ['huntingParty']);
+
     const huntingReports = getReports(
       database,
-      createControllerArgs<'/reports'>({
-        query: { filters: 'huntingParty' },
-      }),
+      createControllerArgs<'/reports'>({}),
     );
 
     expect(huntingReports).toHaveLength(1);
@@ -188,11 +222,11 @@ describe('report-controllers', () => {
       true,
     );
 
+    setActiveReportFilters(database, ['huntingParty', 'gatheringExpedition']);
+
     const expeditionReports = getReports(
       database,
-      createControllerArgs<'/reports'>({
-        query: { filters: ['huntingParty', 'gatheringExpedition'] },
-      }),
+      createControllerArgs<'/reports'>({}),
     );
 
     expect(expeditionReports).toHaveLength(2);
@@ -201,6 +235,33 @@ describe('report-controllers', () => {
         ({ type }) => type === 'huntingParty' || type === 'gatheringExpedition',
       ),
     ).toBe(true);
+  });
+
+  test('should use separate report filters for each report scope', async () => {
+    const database = await prepareReportsTestDatabase();
+
+    setActiveReportFilters(database, ['huntingParty'], 'global');
+    setActiveReportFilters(database, ['trade'], 'unread');
+
+    const globalReports = getReports(
+      database,
+      createControllerArgs<'/reports'>({
+        query: { scope: 'global' },
+      }),
+    );
+    const unreadReports = getReports(
+      database,
+      createControllerArgs<'/reports'>({
+        query: { scope: 'unread' },
+      }),
+    );
+
+    expect(globalReports).toHaveLength(1);
+    expect(globalReports.every(({ type }) => type === 'huntingParty')).toBe(
+      true,
+    );
+    expect(unreadReports).toHaveLength(1);
+    expect(unreadReports.every(({ type }) => type === 'trade')).toBe(true);
   });
 
   test('should include custom report types only while their filters are active', async () => {
@@ -219,9 +280,7 @@ describe('report-controllers', () => {
 
     const reportsWithDefenderVictory = getReports(
       database,
-      createControllerArgs<'/reports'>({
-        query: { filters: 'noLoss' },
-      }),
+      createControllerArgs<'/reports'>({}),
     );
 
     expect(reportsWithDefenderVictory).toHaveLength(6);
@@ -245,11 +304,7 @@ describe('report-controllers', () => {
 
     const reportsWithCustomFilters = getReports(
       database,
-      createControllerArgs<'/reports'>({
-        query: {
-          filters: ['noLoss', 'ownTrades'],
-        },
-      }),
+      createControllerArgs<'/reports'>({}),
     );
 
     expect(reportsWithCustomFilters).toHaveLength(6);
@@ -260,21 +315,19 @@ describe('report-controllers', () => {
       true,
     );
 
+    setActiveReportFilters(database, [
+      'battle',
+      'adventure',
+      'movement',
+      'trade',
+      'huntingParty',
+      'gatheringExpedition',
+      'scouting',
+    ]);
+
     const reportsWithoutCustomFilters = getReports(
       database,
-      createControllerArgs<'/reports'>({
-        query: {
-          filters: [
-            'battle',
-            'adventure',
-            'movement',
-            'trade',
-            'huntingParty',
-            'gatheringExpedition',
-            'scouting',
-          ],
-        },
-      }),
+      createControllerArgs<'/reports'>({}),
     );
 
     expect(reportsWithoutCustomFilters).toHaveLength(4);

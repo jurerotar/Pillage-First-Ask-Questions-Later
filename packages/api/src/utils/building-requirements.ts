@@ -15,7 +15,7 @@ const buildingLevelRowSchema = z.strictObject({
   level: z.number(),
 });
 
-export const assertBuildingConstructionRequirementsAreMet = (
+export const assessBuildingConstructionRequirements = (
   database: DbFacade,
   villageId: Village['id'],
   buildingId: Building['id'],
@@ -23,7 +23,7 @@ export const assertBuildingConstructionRequirementsAreMet = (
     buildingFieldId?: number;
     excludedScheduledBuildingUpgradeId?: number;
   } = {},
-): void => {
+): ReturnType<typeof assessBuildingRequirements> => {
   const tribe = database.selectValue({
     sql: selectTribeByVillageId,
     bind: { $village_id: villageId },
@@ -82,7 +82,7 @@ export const assertBuildingConstructionRequirementsAreMet = (
     schema: buildingIdSchema,
   });
 
-  const { canBuild } = assessBuildingRequirements({
+  return assessBuildingRequirements({
     building: getBuildingDefinition(buildingId),
     tribe,
     maxLevelByBuildingId: new Map(
@@ -90,6 +90,23 @@ export const assertBuildingConstructionRequirementsAreMet = (
     ),
     buildingIdsInQueue: new Set(queuedBuildingIds),
   });
+};
+
+export const assertBuildingConstructionRequirementsAreMet = (
+  database: DbFacade,
+  villageId: Village['id'],
+  buildingId: Building['id'],
+  options: {
+    buildingFieldId?: number;
+    excludedScheduledBuildingUpgradeId?: number;
+  } = {},
+): void => {
+  const { canBuild } = assessBuildingConstructionRequirements(
+    database,
+    villageId,
+    buildingId,
+    options,
+  );
 
   if (!canBuild) {
     throw new Error('Building requirements are not met');

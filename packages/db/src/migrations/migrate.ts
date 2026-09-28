@@ -23,6 +23,7 @@ import createEventsTable from '../schemas/events-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
+import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createGatherersHutExpeditionsTable from '../schemas/gatherers-hut-expeditions-schema.sql?raw';
 import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
 import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
@@ -37,10 +38,7 @@ import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attr
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
 import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
-import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-improvement-history-schema.sql?raw';
-import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
-import createVillageFoundingHistoryTable from '../schemas/history-tables/village-founding-history-schema.sql?raw';
 import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
 import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
@@ -73,6 +71,7 @@ import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
+import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
 import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
 import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
@@ -82,8 +81,11 @@ import createTilesTable from '../schemas/tiles-schema.sql?raw';
 import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
+import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
+import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
 import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
+import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
 import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
@@ -98,6 +100,7 @@ import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
+import { filtersSeeder } from '../seeders/filters-seeder';
 import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expeditions-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
@@ -182,9 +185,6 @@ export const migrateAndSeed = (
     db.execMulti({
       sql: createScheduledBuildingConstructionCancellationHistoryTable,
     });
-    db.execMulti({ sql: createUnitImprovementHistoryTable });
-    db.execMulti({ sql: createUnitResearchHistoryTable });
-    db.execMulti({ sql: createVillageFoundingHistoryTable });
 
     // Developer settings
     db.execMulti({ sql: createDeveloperSettingsTable });
@@ -201,6 +201,10 @@ export const migrateAndSeed = (
     // Preferences
     db.execMulti({ sql: createPreferencesTable });
     preferencesSeeder(db);
+
+    // Filters
+    db.execMulti({ sql: createFiltersTable });
+    filtersSeeder(db);
 
     // Faction reputations
     db.execMulti({ sql: createFactionReputationTable });
@@ -271,6 +275,10 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createScoutingReportAttackerUnitsTable });
     db.execMulti({ sql: createScoutingReportUnitsTable });
     db.execMulti({ sql: createScoutingReportStructuresTable });
+    db.execMulti({ sql: createUnitResearchReportsTable });
+    db.execMulti({ sql: createUnitImprovementReportsTable });
+    db.execMulti({ sql: createVillageFoundingReportsTable });
+    db.execMulti({ sql: createScheduledConstructionCancellationReportsTable });
 
     db.execMulti({ sql: createReportsIndexes });
 

@@ -30,7 +30,6 @@
 /game/:splat/:splat/reports                         /game/server-slug/village-slug/reports/index.html                          200
 /game/:splat/:splat/reports/:splat                  /game/server-slug/village-slug/reports/report-id/index.html                200
 /game/:splat/:splat/oasis-animal-finder             /game/server-slug/village-slug/oasis-animal-finder/index.html              200
-/game/:splat/:splat/events                          /game/server-slug/village-slug/events/index.html                           200
 /game/:splat/:splat/players                         /game/server-slug/village-slug/players/index.html                          200
 /game/:splat/:splat/players/:splat                  /game/server-slug/village-slug/players/player-slug/index.html              200
 /game/:splat/:splat/oasis-bonus-finder              /game/server-slug/village-slug/oasis-bonus-finder/index.html               200
