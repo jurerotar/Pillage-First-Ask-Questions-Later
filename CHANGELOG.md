@@ -1,6 +1,15 @@
+## Version 0.4.71
+
+#### Sep 28, 2026
+
+* [Feature] Replaced the Event log page with report-based records for unit research, unit improvements, village founding
+  and scheduled construction cancellations. These events now appear in Reports alongside other village activity.
+* [UIUXImprovement] Reworked report, auction, marketplace and troop movement filters into popover multi-select controls.
+  Report filters are now preserved between sessions, meaning you won't have to re-select them every time.
+
 ## Version 0.4.70
 
-#### Sep 2,8 2026
+#### Sep 28 2026
 
 * [Feature] When training units, you'll now be able to see how many units of the same type you already own.
 * [BugFix] Added missing database indexes, which weren't created due to a bug in database client.
