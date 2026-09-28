@@ -1,7 +1,16 @@
 import { createContext } from 'react';
+import type {
+  HeroItem,
+  HeroItemSlot,
+} from '@pillage-first/types/models/hero-item';
 import type { Tribe } from '@pillage-first/types/models/tribe';
 import type { TroopLike } from '@pillage-first/types/models/troop';
 import type { UnitId } from '@pillage-first/types/models/unit';
+
+export type CombatSimulatorHeroItemSlot = Extract<
+  HeroItemSlot,
+  'right-hand' | 'left-hand' | 'torso'
+>;
 
 export type CombatSimulatorHeroStats = {
   hp: number;
@@ -9,6 +18,7 @@ export type CombatSimulatorHeroStats = {
   attackBonus: number;
   defenceBonus: number;
   mounted: boolean;
+  itemIdsBySlot: Partial<Record<CombatSimulatorHeroItemSlot, HeroItem['id']>>;
 };
 
 export type CombatSimulatorTroop = TroopLike & {

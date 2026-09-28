@@ -12,6 +12,7 @@ import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   CombatSimulatorContext,
   type CombatSimulatorContextValue,
+  type CombatSimulatorHeroItemSlot,
   type CombatSimulatorHeroStats,
   type CombatSimulatorMode,
   type CombatSimulatorParticipant,
@@ -28,7 +29,14 @@ const DEFAULT_HERO_STATS = {
   attackBonus: 0,
   defenceBonus: 0,
   mounted: false,
+  itemIdsBySlot: {},
 } satisfies CombatSimulatorHeroStats;
+
+const heroItemSlots = new Set<CombatSimulatorHeroItemSlot>([
+  'right-hand',
+  'left-hand',
+  'torso',
+]);
 
 const createEmptyTroops = (tribe: Tribe): CombatSimulatorTroop[] => {
   return getUnitsByTribeWithHero(tribe).map(({ id }) => ({
@@ -59,12 +67,19 @@ const normalizeTroops = (
 const normalizeHeroStats = (
   heroStats: CombatSimulatorHeroStats,
 ): CombatSimulatorHeroStats => {
+  const itemIdsBySlot = Object.fromEntries(
+    Object.entries(heroStats.itemIdsBySlot).filter(([slot, itemId]) => {
+      return heroItemSlots.has(slot as CombatSimulatorHeroItemSlot) && itemId;
+    }),
+  ) as CombatSimulatorHeroStats['itemIdsBySlot'];
+
   return {
     ...heroStats,
     hp: clampInteger(heroStats.hp, 1, 100),
     strength: clampInteger(heroStats.strength, 0, 100),
     attackBonus: clampInteger(heroStats.attackBonus, 0, 100),
     defenceBonus: clampInteger(heroStats.defenceBonus, 0, 100),
+    itemIdsBySlot,
   };
 };
 
