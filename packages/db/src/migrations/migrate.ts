@@ -203,7 +203,7 @@ export const migrateAndSeed = (
     preferencesSeeder(db);
 
     // Filters
-    db.exec({ sql: createFiltersTable });
+    db.execMulti({ sql: createFiltersTable });
     filtersSeeder(db);
 
     // Faction reputations
@@ -275,10 +275,10 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createScoutingReportAttackerUnitsTable });
     db.execMulti({ sql: createScoutingReportUnitsTable });
     db.execMulti({ sql: createScoutingReportStructuresTable });
-    db.exec({ sql: createUnitResearchReportsTable });
-    db.exec({ sql: createUnitImprovementReportsTable });
-    db.exec({ sql: createVillageFoundingReportsTable });
-    db.exec({ sql: createScheduledConstructionCancellationReportsTable });
+    db.execMulti({ sql: createUnitResearchReportsTable });
+    db.execMulti({ sql: createUnitImprovementReportsTable });
+    db.execMulti({ sql: createVillageFoundingReportsTable });
+    db.execMulti({ sql: createScheduledConstructionCancellationReportsTable });
 
     db.execMulti({ sql: createReportsIndexes });
 

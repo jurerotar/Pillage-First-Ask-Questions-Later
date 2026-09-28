@@ -15,6 +15,6 @@ export const deleteFiltersQuery = `
 
 export const insertFiltersQuery = `
   INSERT INTO filters (player_id, name, filter)
-  SELECT $player_id, $name, value
+  SELECT DISTINCT $player_id, $name, value
   FROM JSON_EACH($filters);
 `;

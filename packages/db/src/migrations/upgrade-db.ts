@@ -965,7 +965,7 @@ export const upgradeDb = (
         tx.exec({
           sql: 'ALTER TABLE report_type_ids RENAME TO report_type_ids_old;',
         });
-        tx.exec({ sql: createReportTypeIdsTable });
+        tx.execMulti({ sql: createReportTypeIdsTable });
         tx.exec({
           sql: `
             INSERT INTO report_type_ids (id, report_type)
@@ -1013,11 +1013,11 @@ export const upgradeDb = (
       db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
     }
 
-    db.exec({ sql: createUnitResearchReportsTable });
-    db.exec({ sql: createUnitImprovementReportsTable });
-    db.exec({ sql: createVillageFoundingReportsTable });
-    db.exec({ sql: createScheduledConstructionCancellationReportsTable });
-    db.exec({ sql: createFiltersTable });
+    db.execMulti({ sql: createUnitResearchReportsTable });
+    db.execMulti({ sql: createUnitImprovementReportsTable });
+    db.execMulti({ sql: createVillageFoundingReportsTable });
+    db.execMulti({ sql: createScheduledConstructionCancellationReportsTable });
+    db.execMulti({ sql: createFiltersTable });
 
     filtersSeeder(db);
 
@@ -1036,7 +1036,7 @@ export const upgradeDb = (
       sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
     });
 
-    db.exec({ sql: createReportDeleteTriggers });
+    db.execMulti({ sql: createReportDeleteTriggers });
 
     setupGlobalWriteTriggers(db);
   });

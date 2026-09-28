@@ -77,4 +77,25 @@ describe('filter-controllers', () => {
       [...reportListingFilterSchema.options].sort(),
     );
   });
+
+  test('updateFilters should ignore duplicate filters', async () => {
+    const database = await prepareTestDatabase();
+
+    updateFilters(
+      database,
+      createControllerArgs<'/players/:playerId/filters/:name', 'patch'>({
+        path: { playerId: 1, name: reportFilterNameByScope.global },
+        body: { filters: ['battle', 'battle'] },
+      }),
+    );
+
+    const filters = getFilters(
+      database,
+      createControllerArgs<'/players/:playerId/filters/:name'>({
+        path: { playerId: 1, name: reportFilterNameByScope.global },
+      }),
+    );
+
+    expect(filters).toStrictEqual(['battle']);
+  });
 });

@@ -289,13 +289,17 @@ export const getReport = createController('/reports/:reportId', {
     return mapScheduledConstructionCancellationReportRowToDto(row);
   }
 
-  const row = database.selectObject({
-    sql: selectTradeReportQuery,
-    bind,
-    schema: tradeReportRowSchema,
-  })!;
+  if (reportInfo.type === 'trade') {
+    const row = database.selectObject({
+      sql: selectTradeReportQuery,
+      bind,
+      schema: tradeReportRowSchema,
+    })!;
 
-  return mapTradeReportRowToDto(row);
+    return mapTradeReportRowToDto(row);
+  }
+
+  throw new Error(`Unsupported report type: ${reportInfo.type}`);
 });
 
 export const updateReports = createController('/reports', 'patch', {
