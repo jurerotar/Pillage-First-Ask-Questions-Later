@@ -57,7 +57,7 @@ const ReportFilterCheckbox = ({
         htmlFor={id}
       >
         <span className="truncate">{label}</span>
-        <span className="text-muted-foreground">{children}</span>
+        <span className="text-muted-foreground grayscale">{children}</span>
       </Label>
     </div>
   );
@@ -179,6 +179,7 @@ export const ReportFilters = ({
                   >
                     <Icon
                       className="size-4 !text-current"
+                      shouldShowTooltip={false}
                       type="huntingParty"
                     />
                   </ReportFilterCheckbox>
@@ -190,6 +191,7 @@ export const ReportFilters = ({
                   >
                     <Icon
                       className="size-4 !text-current"
+                      shouldShowTooltip={false}
                       type="gatheringExpedition"
                     />
                   </ReportFilterCheckbox>
@@ -201,7 +203,8 @@ export const ReportFilters = ({
                   >
                     <Icon
                       className="size-4 !text-current"
-                      type="unitResearchDuration"
+                      shouldShowTooltip={false}
+                      type="unitResearched"
                     />
                   </ReportFilterCheckbox>
                   <ReportFilterCheckbox
@@ -212,7 +215,8 @@ export const ReportFilters = ({
                   >
                     <Icon
                       className="size-4 !text-current"
-                      type="unitImprovementDuration"
+                      shouldShowTooltip={false}
+                      type="unitImproved"
                     />
                   </ReportFilterCheckbox>
                   <ReportFilterCheckbox
@@ -223,7 +227,8 @@ export const ReportFilters = ({
                   >
                     <Icon
                       className="size-4 !text-current"
-                      type="findNewVillage"
+                      shouldShowTooltip={false}
+                      type="villageFounded"
                     />
                   </ReportFilterCheckbox>
                   <ReportFilterCheckbox
@@ -236,6 +241,7 @@ export const ReportFilters = ({
                   >
                     <Icon
                       className="size-4 !text-current"
+                      shouldShowTooltip={false}
                       type="scheduledConstructionCancelled"
                     />
                   </ReportFilterCheckbox>

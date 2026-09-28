@@ -67,6 +67,7 @@ import {
   TbBat,
   TbBorderCorners,
   TbBrandSpeedtest,
+  TbBuildingOff,
   TbFilter,
   TbLaurelWreath,
   TbShieldPlus,
@@ -406,7 +407,12 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   unitResearched: (props) => icons.unitResearchDuration(props),
   unitImproved: (props) => icons.unitImprovementDuration(props),
   villageFounded: (props) => icons.findNewVillage(props),
-  scheduledConstructionCancelled: (props) => <GrDocumentMissing {...props} />,
+  scheduledConstructionCancelled: (props) => (
+    <TbBuildingOff
+      {...props}
+      className={clsx('text-red-500', props.className)}
+    />
+  ),
 
   // Effects
 

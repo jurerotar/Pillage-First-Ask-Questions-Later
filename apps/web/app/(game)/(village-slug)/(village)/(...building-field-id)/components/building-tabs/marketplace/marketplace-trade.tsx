@@ -67,7 +67,7 @@ const ResourceFilterCheckbox = ({
         htmlFor={id}
       >
         <span className="truncate">{label}</span>
-        <span className="text-muted-foreground">{children}</span>
+        <span className="text-muted-foreground grayscale">{children}</span>
       </Label>
     </div>
   );
