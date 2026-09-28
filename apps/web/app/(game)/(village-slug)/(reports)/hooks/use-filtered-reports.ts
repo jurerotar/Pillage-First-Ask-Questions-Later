@@ -5,14 +5,13 @@ import { useReportFilters } from './use-report-filters';
 
 export const useFilteredReports = () => {
   const { tabIndex, navigateToTab } = useTabParam(reportTabs, 'reports-tab');
+  const scope = reportTabs[tabIndex] ?? reportTabs[0];
   const {
     filters: reportFilters,
     onFiltersChange: onReportFiltersChange,
-    invertReportFilters,
     page,
     handlePageChange,
-  } = useReportFilters();
-  const scope = reportTabs[tabIndex] ?? reportTabs[0];
+  } = useReportFilters(scope);
   const { reports, updateReports, deleteReports } = useReports(scope);
 
   return {
@@ -22,7 +21,6 @@ export const useFilteredReports = () => {
     deleteReports,
     reportFilters,
     onReportFiltersChange,
-    invertReportFilters,
     page,
     handlePageChange,
     navigateToTab,

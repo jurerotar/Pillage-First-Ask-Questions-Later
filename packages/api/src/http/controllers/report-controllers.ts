@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
-import { reportListingDtoSchema } from '@pillage-first/types/dtos/report';
+import {
+  reportFilterNameByScope,
+  reportListingDtoSchema,
+  reportScopeSchema,
+} from '@pillage-first/types/dtos/report';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportSchema,
@@ -63,10 +67,7 @@ export const getReports = createController('/reports', {
   summary: 'Get player reports',
   requestParams: {
     query: z.strictObject({
-      scope: z
-        .enum(['global', 'unread', 'archived', 'village'])
-        .optional()
-        .default('global'),
+      scope: reportScopeSchema.optional().default('global'),
       villageId: z.coerce.number().optional(),
     }),
   },
@@ -80,6 +81,7 @@ export const getReports = createController('/reports', {
       $player_id: PLAYER_ID,
       $village_id: query.villageId ?? null,
       $scope: scope,
+      $filter_name: reportFilterNameByScope[scope],
     },
     schema: getReportListingsRowSchema,
   });

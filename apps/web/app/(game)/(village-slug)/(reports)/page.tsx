@@ -24,7 +24,6 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
     deleteReports,
     reportFilters,
     onReportFiltersChange,
-    invertReportFilters,
     page,
     handlePageChange,
     navigateToTab,
@@ -52,7 +51,6 @@ const ReportsPage = ({ params }: Route.ComponentProps) => {
           <ReportFilters
             reportFilters={reportFilters}
             onChange={onReportFiltersChange}
-            onInvert={invertReportFilters}
           />
         </SectionContent>
         <SectionContent>

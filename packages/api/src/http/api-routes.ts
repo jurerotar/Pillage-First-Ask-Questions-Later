@@ -38,6 +38,7 @@ import {
   removeTileFromFarmList,
   updateFarmList,
 } from './controllers/farm-list-controllers';
+import { getFilters, updateFilters } from './controllers/filter-controllers';
 import {
   buyHeroAuctionListing,
   getHeroAuctionBuyListings,
@@ -109,10 +110,6 @@ import {
   getReports,
   updateReports,
 } from './controllers/report-controllers';
-import {
-  getReportFilters,
-  updateReportFilters,
-} from './controllers/report-filter-controllers';
 import { getReputations } from './controllers/reputation-controllers';
 import {
   cancelScheduledBuildingUpgrade,
@@ -263,9 +260,11 @@ export const apiRoutes = [
   createRoute(getBookmarks),
   createRoute(updateBookmark),
 
+  // Filters
+  createRoute(getFilters),
+  createRoute(updateFilters),
+
   // Reports
-  createRoute(getReportFilters),
-  createRoute(updateReportFilters),
   createRoute(getReports),
   createRoute(getReport),
   createRoute(updateReports),

@@ -1,36 +1,39 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { use } from 'react';
 import { useSearchParams } from 'react-router';
+import type {
+  ReportListingFilter,
+  ReportScope,
+} from '@pillage-first/types/dtos/report';
 import {
-  type ReportListingFilter,
-  reportListingFilterSchema,
+  reportFilterNameByScope,
+  reportFiltersDtoSchema,
 } from '@pillage-first/types/dtos/report';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import {
-  reportFiltersCacheKey,
+  filtersCacheKey,
   reportListingsCacheKey,
 } from 'app/(game)/constants/query-keys';
 import { ApiContext } from 'app/(game)/providers/api-context';
 import { invalidateQueries } from 'app/utils/react-query';
 
-export const useReportFilters = () => {
+export const useReportFilters = (scope: ReportScope) => {
   const { apiClient } = use(ApiContext);
   const { player } = useMe();
   const [searchParams, setSearchParams] = useSearchParams();
+  const filterName = reportFilterNameByScope[scope];
 
   const { data: filters } = useSuspenseQuery({
-    queryKey: [reportFiltersCacheKey],
+    queryKey: [filtersCacheKey, filterName],
     queryFn: async () => {
-      const { data } = await apiClient.get(
-        '/players/:playerId/report-filters',
-        {
-          path: {
-            playerId: player.id,
-          },
+      const { data } = await apiClient.get('/players/:playerId/filters/:name', {
+        path: {
+          playerId: player.id,
+          name: filterName,
         },
-      );
+      });
 
-      return data;
+      return reportFiltersDtoSchema.parse(data);
     },
   });
 
@@ -40,9 +43,10 @@ export const useReportFilters = () => {
     ReportListingFilter[]
   >({
     mutationFn: async (nextFilters) => {
-      await apiClient.patch('/players/:playerId/report-filters', {
+      await apiClient.patch('/players/:playerId/filters/:name', {
         path: {
           playerId: player.id,
+          name: filterName,
         },
         body: {
           filters: nextFilters,
@@ -51,7 +55,7 @@ export const useReportFilters = () => {
     },
     onSuccess: async (_data, _vars, _onMutateResult, context) => {
       await invalidateQueries(context, [
-        [reportFiltersCacheKey],
+        [filtersCacheKey, filterName],
         [reportListingsCacheKey],
       ]);
     },
@@ -70,15 +74,6 @@ export const useReportFilters = () => {
     updateReportFilters(nextFilters);
   };
 
-  const invertReportFilters = () => {
-    const activeFilters = new Set(filters);
-    onFiltersChange(
-      reportListingFilterSchema.options.filter(
-        (filter) => !activeFilters.has(filter),
-      ),
-    );
-  };
-
   const page = Number.parseInt(searchParams.get('page') ?? '1', 10);
 
   const handlePageChange = (newPage: number | ((prev: number) => number)) => {
@@ -93,7 +88,6 @@ export const useReportFilters = () => {
   return {
     filters,
     onFiltersChange,
-    invertReportFilters,
     page,
     handlePageChange,
   };

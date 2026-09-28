@@ -189,18 +189,18 @@ export const selectReportListingsQuery = `
     AND (
       EXISTS (
         SELECT 1
-        FROM report_filters rf
+        FROM filters rf
         WHERE rf.player_id = $player_id
-          AND rf.is_active = 1
+          AND rf.name = $filter_name
           AND rf.filter = rty.report_type
       )
     )
     AND (
       EXISTS (
         SELECT 1
-        FROM report_filters rf
+        FROM filters rf
         WHERE rf.player_id = $player_id
-          AND rf.is_active = 1
+          AND rf.name = $filter_name
           AND rf.filter = 'noLoss'
       )
       OR rty.report_type != 'battle'
@@ -209,9 +209,9 @@ export const selectReportListingsQuery = `
     AND (
       EXISTS (
         SELECT 1
-        FROM report_filters rf
+        FROM filters rf
         WHERE rf.player_id = $player_id
-          AND rf.is_active = 1
+          AND rf.name = $filter_name
           AND rf.filter = 'ownTrades'
       )
       OR rty.report_type != 'trade'

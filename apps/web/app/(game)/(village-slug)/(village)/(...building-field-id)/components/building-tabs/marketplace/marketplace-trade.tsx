@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GiMetalBar, GiStoneBlock, GiWoodPile } from 'react-icons/gi';
-import { LuWheat } from 'react-icons/lu';
+import { LuListFilter, LuWheat } from 'react-icons/lu';
 import type { Resource } from '@pillage-first/types/models/resource';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
 import {
@@ -11,6 +11,15 @@ import {
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
+import { Badge } from 'app/components/ui/badge';
+import { Button } from 'app/components/ui/button';
+import { Checkbox } from 'app/components/ui/checkbox';
+import { Label } from 'app/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from 'app/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -18,23 +27,118 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import { ToggleGroup, ToggleGroupItem } from 'app/components/ui/toggle-group';
+
+const resourceFilterOptions = [
+  {
+    value: 'wood',
+    label: 'wood',
+    icon: <GiWoodPile className="size-4" />,
+  },
+  {
+    value: 'clay',
+    label: 'clay',
+    icon: <GiStoneBlock className="size-4" />,
+  },
+  {
+    value: 'iron',
+    label: 'iron',
+    icon: <GiMetalBar className="size-4" />,
+  },
+  {
+    value: 'wheat',
+    label: 'wheat',
+    icon: <LuWheat className="size-4" />,
+  },
+] satisfies {
+  value: Resource;
+  label: string;
+  icon: React.ReactNode;
+}[];
+
+const resourceFilterValues = resourceFilterOptions.map(({ value }) => value);
+
+type ResourceFilterPopoverProps = {
+  ariaLabel: string;
+  filters: Resource[];
+  idPrefix: string;
+  label: string;
+  onChange: (resources: Resource[]) => void;
+};
+
+const ResourceFilterPopover = ({
+  ariaLabel,
+  filters,
+  idPrefix,
+  label,
+  onChange,
+}: ResourceFilterPopoverProps) => {
+  const { t } = useTranslation();
+  const activeFilters = new Set(filters);
+
+  const updateFilter = (filter: Resource, isChecked: boolean) => {
+    onChange(
+      resourceFilterValues.filter((value) =>
+        value === filter ? isChecked : activeFilters.has(value),
+      ),
+    );
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          aria-label={ariaLabel}
+          size="sm"
+          variant="outline"
+        >
+          <LuListFilter className="size-4" />
+          {label}
+          <Badge variant="secondary">{filters.length}</Badge>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="w-64 p-3"
+      >
+        <div className="grid gap-1">
+          {resourceFilterOptions.map(({ value, label, icon }) => {
+            const id = `${idPrefix}-${value}`;
+
+            return (
+              <div
+                className="flex items-center gap-2 rounded-sm px-1 py-1 text-sm hover:bg-accent"
+                key={value}
+              >
+                <Checkbox
+                  id={id}
+                  checked={activeFilters.has(value)}
+                  onCheckedChange={(checked) =>
+                    updateFilter(value, checked === true)
+                  }
+                />
+                <Label
+                  className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
+                  htmlFor={id}
+                >
+                  <span className="truncate">{t(label)}</span>
+                  <span className="text-muted-foreground">{icon}</span>
+                </Label>
+              </div>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 export const MarketplaceTrade = () => {
   const { t } = useTranslation();
 
-  const [resourceToBuy, setResourceToBuy] = useState<Resource | ''>('');
-  const [resourceToOffer, setResourceToOffer] = useState<Resource | ''>('');
+  const [resourcesToBuy, setResourcesToBuy] = useState<Resource[]>([]);
+  const [resourcesToOffer, setResourcesToOffer] = useState<Resource[]>([]);
   // TODO: Type this
   const [sortBy, setSortBy] = useState<string>('trade-ratio-ascending');
-
-  const onResourceToBuyChange = (resource: Resource) => {
-    setResourceToBuy(resource);
-  };
-
-  const onResourceToOfferChange = (resource: Resource) => {
-    setResourceToOffer(resource);
-  };
 
   return (
     <Section>
@@ -53,111 +157,23 @@ export const MarketplaceTrade = () => {
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="flex flex-col flex-1 gap-2">
             <Text className="font-medium">{t('Search for')}</Text>
-            <ToggleGroup
-              type="single"
-              value={resourceToBuy}
-              onValueChange={onResourceToBuyChange}
-              variant="outline"
-              size="sm"
-            >
-              <ToggleGroupItem
-                data-tooltip-id="general-tooltip"
-                data-tooltip-content={t(
-                  'Show only trades offering {{resource}}',
-                  { resource: t('wood') },
-                )}
-                value="wood"
-              >
-                <GiWoodPile className="size-4" />
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                data-tooltip-id="general-tooltip"
-                data-tooltip-content={t(
-                  'Show only trades offering {{resource}}',
-                  { resource: t('clay') },
-                )}
-                value="clay"
-              >
-                <GiStoneBlock className="size-4" />
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                data-tooltip-id="general-tooltip"
-                data-tooltip-content={t(
-                  'Show only trades offering {{resource}}',
-                  { resource: t('iron') },
-                )}
-                value="iron"
-              >
-                <GiMetalBar className="size-4" />
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                data-tooltip-id="general-tooltip"
-                data-tooltip-content={t(
-                  'Show only trades offering {{resource}}',
-                  { resource: t('wheat') },
-                )}
-                value="wheat"
-              >
-                <LuWheat className="size-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
+            <ResourceFilterPopover
+              ariaLabel={t('Search resource filters')}
+              filters={resourcesToBuy}
+              idPrefix="marketplace-search-resource-filter"
+              label={t('Resources')}
+              onChange={setResourcesToBuy}
+            />
           </div>
           <div className="flex flex-col flex-1 gap-2">
             <Text className="font-medium">{t('Offer')}</Text>
-            <ToggleGroup
-              type="single"
-              value={resourceToOffer}
-              onValueChange={onResourceToOfferChange}
-              variant="outline"
-              size="sm"
-            >
-              <ToggleGroupItem
-                data-tooltip-id="general-tooltip"
-                data-tooltip-content={t(
-                  'Show only trades buying {{resource}}',
-                  { resource: t('wood') },
-                )}
-                value="wood"
-              >
-                <GiWoodPile className="size-4" />
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                data-tooltip-id="general-tooltip"
-                data-tooltip-content={t(
-                  'Show only trades buying {{resource}}',
-                  { resource: t('clay') },
-                )}
-                value="clay"
-              >
-                <GiStoneBlock className="size-4" />
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                data-tooltip-id="general-tooltip"
-                data-tooltip-content={t(
-                  'Show only trades buying {{resource}}',
-                  { resource: t('iron') },
-                )}
-                value="iron"
-              >
-                <GiMetalBar className="size-4" />
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                data-tooltip-id="general-tooltip"
-                data-tooltip-content={t(
-                  'Show only trades buying {{resource}}',
-                  { resource: t('wheat') },
-                )}
-                value="wheat"
-              >
-                <LuWheat className="size-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
+            <ResourceFilterPopover
+              ariaLabel={t('Offered resource filters')}
+              filters={resourcesToOffer}
+              idPrefix="marketplace-offered-resource-filter"
+              label={t('Resources')}
+              onChange={setResourcesToOffer}
+            />
           </div>
           <div className="flex flex-col gap-2">
             <Text className="font-medium">{t('Sort by')}</Text>

@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import type { ReportListingFilter } from '@pillage-first/types/dtos/report';
+import type {
+  ReportListingFilter,
+  ReportScope,
+} from '@pillage-first/types/dtos/report';
+import { reportFilterNameByScope } from '@pillage-first/types/dtos/report';
 import {
   deleteReports,
   getReport,
@@ -13,16 +17,29 @@ import { createControllerArgs } from './utils/controller-args';
 const setActiveReportFilters = (
   database: Awaited<ReturnType<typeof prepareTestDatabase>>,
   filters: ReportListingFilter[],
+  scope: ReportScope = 'global',
 ): void => {
-  database.exec({
-    sql: `
-      UPDATE report_filters
-      SET is_active = CASE
-        WHEN filter IN (SELECT value FROM JSON_EACH($filters)) THEN 1
-        ELSE 0
-      END;
-    `,
-    bind: { $filters: JSON.stringify(filters) },
+  const filterName = reportFilterNameByScope[scope];
+
+  database.transaction((tx) => {
+    tx.exec({
+      sql: `
+        DELETE FROM filters
+        WHERE name = $name;
+      `,
+      bind: { $name: filterName },
+    });
+    tx.exec({
+      sql: `
+        INSERT INTO filters (player_id, name, filter)
+        SELECT 1, $name, value
+        FROM JSON_EACH($filters);
+      `,
+      bind: {
+        $filters: JSON.stringify(filters),
+        $name: filterName,
+      },
+    });
   });
 };
 
@@ -218,6 +235,33 @@ describe('report-controllers', () => {
         ({ type }) => type === 'huntingParty' || type === 'gatheringExpedition',
       ),
     ).toBe(true);
+  });
+
+  test('should use separate report filters for each report scope', async () => {
+    const database = await prepareReportsTestDatabase();
+
+    setActiveReportFilters(database, ['huntingParty'], 'global');
+    setActiveReportFilters(database, ['trade'], 'unread');
+
+    const globalReports = getReports(
+      database,
+      createControllerArgs<'/reports'>({
+        query: { scope: 'global' },
+      }),
+    );
+    const unreadReports = getReports(
+      database,
+      createControllerArgs<'/reports'>({
+        query: { scope: 'unread' },
+      }),
+    );
+
+    expect(globalReports).toHaveLength(1);
+    expect(globalReports.every(({ type }) => type === 'huntingParty')).toBe(
+      true,
+    );
+    expect(unreadReports).toHaveLength(1);
+    expect(unreadReports.every(({ type }) => type === 'trade')).toBe(true);
   });
 
   test('should include custom report types only while their filters are active', async () => {

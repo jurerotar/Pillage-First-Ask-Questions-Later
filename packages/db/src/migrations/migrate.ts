@@ -23,6 +23,7 @@ import createEventsTable from '../schemas/events-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
+import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createGatherersHutExpeditionsTable from '../schemas/gatherers-hut-expeditions-schema.sql?raw';
 import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
 import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
@@ -66,7 +67,6 @@ import createOasisBonusesTable from '../schemas/oasis-schema.sql?raw';
 import createPlayersTable from '../schemas/players-schema.sql?raw';
 import createPreferencesTable from '../schemas/preferences-schema.sql?raw';
 import createQuestsTable from '../schemas/quests-schema.sql?raw';
-import createReportFiltersTable from '../schemas/report-filters-schema.sql?raw';
 import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
@@ -100,6 +100,7 @@ import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
+import { filtersSeeder } from '../seeders/filters-seeder';
 import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expeditions-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
@@ -110,7 +111,6 @@ import { occupiedOasisSeeder } from '../seeders/occupied-oasis-seeder';
 import { playersSeeder } from '../seeders/players-seeder';
 import { preferencesSeeder } from '../seeders/preferences-seeder';
 import { questsSeeder } from '../seeders/quests-seeder';
-import { reportFiltersSeeder } from '../seeders/report-filters-seeder';
 import { reportOutcomeIdsSeeder } from '../seeders/report-outcome-ids-seeder';
 import { reportTagIdsSeeder } from '../seeders/report-tag-ids-seeder';
 import { reportTypeIdsSeeder } from '../seeders/report-type-ids-seeder';
@@ -202,9 +202,9 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createPreferencesTable });
     preferencesSeeder(db);
 
-    // Report filters
-    db.exec({ sql: createReportFiltersTable });
-    reportFiltersSeeder(db);
+    // Filters
+    db.exec({ sql: createFiltersTable });
+    filtersSeeder(db);
 
     // Faction reputations
     db.execMulti({ sql: createFactionReputationTable });
