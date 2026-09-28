@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import type { ReportScope } from '@pillage-first/types/dtos/report';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import type { ReportScope } from 'app/(game)/(village-slug)/hooks/use-reports';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
 

@@ -67,6 +67,7 @@ import {
   TbBat,
   TbBorderCorners,
   TbBrandSpeedtest,
+  TbBuildingOff,
   TbFilter,
   TbLaurelWreath,
   TbShieldPlus,
@@ -132,7 +133,11 @@ type ReportIconType =
   | 'heroAdventure'
   | 'troopMovement'
   | 'huntingParty'
-  | 'gatheringExpedition';
+  | 'gatheringExpedition'
+  | 'unitResearched'
+  | 'unitImproved'
+  | 'villageFounded'
+  | 'scheduledConstructionCancelled';
 
 type MapFiltersIconType =
   | 'mapFiltersToggle'
@@ -397,6 +402,15 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <GiBasket
       {...props}
       className={clsx('text-mauve-600', props.className)}
+    />
+  ),
+  unitResearched: (props) => icons.unitResearchDuration(props),
+  unitImproved: (props) => icons.unitImprovementDuration(props),
+  villageFounded: (props) => icons.findNewVillage(props),
+  scheduledConstructionCancelled: (props) => (
+    <TbBuildingOff
+      {...props}
+      className={clsx('text-red-500', props.className)}
     />
   ),
 

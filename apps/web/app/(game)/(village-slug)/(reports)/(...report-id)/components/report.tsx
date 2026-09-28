@@ -23,9 +23,13 @@ import type {
   GatheringExpeditionReport,
   HuntingPartyReport,
   Report as ReportType,
+  ScheduledConstructionCancellationReport,
   ScoutingReport,
   TradeReport,
   TroopMovementReport,
+  UnitImprovementReport,
+  UnitResearchReport,
+  VillageFoundedReport,
 } from '@pillage-first/types/models/report';
 import { formatNumber } from '@pillage-first/utils/format';
 import { ItemTooltip } from 'app/(game)/(village-slug)/(hero)/components/item-tooltip';
@@ -1075,5 +1079,296 @@ export const AdventureHeroTable = () => {
         troops={troops}
       />
     </UnitTable>
+  );
+};
+
+export const UnitResearchReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as UnitResearchReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Unit research')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">{t('Unit')}</TableCell>
+            <TableCell className="text-left">
+              {t(`UNITS.${report.unitId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const UnitImprovementReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as UnitImprovementReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Unit improvement')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">{t('Unit')}</TableCell>
+            <TableCell className="text-left">
+              {t(`UNITS.${report.unitId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Level')}
+            </TableCell>
+            <TableCell className="text-left">{report.level}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const VillageFoundedReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as VillageFoundedReport;
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Village founded')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Origin')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.originCoordinates.x}&y=${report.summary.originCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.originName} (
+                {report.summary.originCoordinates.x}|
+                {report.summary.originCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('New village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.targetCoordinates.x}&y=${report.summary.targetCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.targetName} (
+                {report.summary.targetCoordinates.x}|
+                {report.summary.targetCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </OverflowContainer>
+  );
+};
+
+export const ScheduledConstructionCancellationReportTable = () => {
+  const { t } = useTranslation();
+  const { report: _report } = use(ReportContext)!;
+  const report = _report as ScheduledConstructionCancellationReport;
+  const reason =
+    report.reason === 'missing-resources'
+      ? t('Not enough resources')
+      : t('Building requirements are not met');
+
+  return (
+    <OverflowContainer>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHeaderCell
+              colSpan={2}
+              className="text-left"
+            >
+              <Text>{t('Scheduled construction cancelled')}</Text>
+            </TableHeaderCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Building')}
+            </TableCell>
+            <TableCell className="text-left">
+              {t(`BUILDINGS.${report.buildingId}.NAME`)}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Level')}
+            </TableCell>
+            <TableCell className="text-left">{report.level}</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Field')}
+            </TableCell>
+            <TableCell className="text-left">
+              {report.buildingFieldId}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Village')}
+            </TableCell>
+            <TableCell className="text-left">
+              <Link
+                to={`../map?x=${report.summary.villageCoordinates.x}&y=${report.summary.villageCoordinates.y}`}
+                className="text-link"
+              >
+                {report.summary.villageName} (
+                {report.summary.villageCoordinates.x}|
+                {report.summary.villageCoordinates.y})
+              </Link>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="text-left font-medium">
+              {t('Reason')}
+            </TableCell>
+            <TableCell className="text-left">{reason}</TableCell>
+          </TableRow>
+          {report.reasonDetail.type === 'missing-resources' && (
+            <TableRow>
+              <TableCell className="text-left font-medium">
+                {t('Missing resources')}
+              </TableCell>
+              <TableCell className="text-left">
+                <Resources resources={report.reasonDetail.missingResources} />
+              </TableCell>
+            </TableRow>
+          )}
+          {report.reasonDetail.type === 'missing-requirements' && (
+            <TableRow>
+              <TableCell className="text-left font-medium">
+                {t('Missing requirements')}
+              </TableCell>
+              <TableCell className="text-left">
+                <ul className="list-disc pl-4">
+                  {report.reasonDetail.unmetRequirements.map((requirement) => {
+                    if (requirement.type === 'building') {
+                      return (
+                        <li
+                          key={`${requirement.type}:${requirement.buildingId}`}
+                        >
+                          {t(
+                            '{{buildingName}} level {{requiredLevel}} required. Current level: {{currentLevel}}.',
+                            {
+                              buildingName: t(
+                                `BUILDINGS.${requirement.buildingId}.NAME`,
+                              ),
+                              requiredLevel: requirement.requiredLevel,
+                              currentLevel: requirement.currentLevel ?? 0,
+                            },
+                          )}
+                        </li>
+                      );
+                    }
+
+                    if (requirement.type === 'tribe') {
+                      return (
+                        <li key={`${requirement.type}:${requirement.tribe}`}>
+                          {t('Requires {{tribeName}} tribe.', {
+                            tribeName: t(
+                              `TRIBES.${requirement.tribe.toUpperCase()}`,
+                            ),
+                          })}
+                        </li>
+                      );
+                    }
+
+                    return (
+                      <li key={`${requirement.type}:${requirement.amount}`}>
+                        {t(
+                          'Another {{buildingName}} cannot be queued until an existing one reaches max level.',
+                          {
+                            buildingName: t(
+                              `BUILDINGS.${report.buildingId}.NAME`,
+                            ),
+                          },
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </OverflowContainer>
   );
 };

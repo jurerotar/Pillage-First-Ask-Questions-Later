@@ -64,7 +64,7 @@ export const openWorkerDatabase = async (
 
     dbFacade = createDbFacade(database, false);
 
-    dbFacade.exec({
+    dbFacade.execMulti({
       sql: `
       PRAGMA foreign_keys = ON;        -- keep referential integrity
       PRAGMA locking_mode = EXCLUSIVE; -- single-writer optimization

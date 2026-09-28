@@ -38,6 +38,7 @@ import {
   removeTileFromFarmList,
   updateFarmList,
 } from './controllers/farm-list-controllers';
+import { getFilters, updateFilters } from './controllers/filter-controllers';
 import {
   buyHeroAuctionListing,
   getHeroAuctionBuyListings,
@@ -57,11 +58,6 @@ import {
   unequipHeroItem,
   useHeroItem,
 } from './controllers/hero-controllers';
-import {
-  getBuildingLevelChangeHistory,
-  getEventsHistory,
-  getUnitTrainingHistory,
-} from './controllers/history-controllers';
 import { getTileLoyalty } from './controllers/loyalty-controllers';
 import {
   addMapMarker,
@@ -264,6 +260,10 @@ export const apiRoutes = [
   createRoute(getBookmarks),
   createRoute(updateBookmark),
 
+  // Filters
+  createRoute(getFilters),
+  createRoute(updateFilters),
+
   // Reports
   createRoute(getReports),
   createRoute(getReport),
@@ -286,11 +286,6 @@ export const apiRoutes = [
 
   // Loyalty
   createRoute(getTileLoyalty),
-
-  // History
-  createRoute(getBuildingLevelChangeHistory),
-  createRoute(getEventsHistory),
-  createRoute(getUnitTrainingHistory),
 
   // Troop Movements
   createRoute(getVillageTroopMovements),
