@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GiMetalBar, GiStoneBlock, GiWoodPile } from 'react-icons/gi';
 import { LuListFilter, LuWheat } from 'react-icons/lu';
@@ -28,41 +28,49 @@ import {
   SelectValue,
 } from 'app/components/ui/select';
 
-const resourceFilterOptions = [
-  {
-    value: 'wood',
-    label: 'wood',
-    icon: <GiWoodPile className="size-4" />,
-  },
-  {
-    value: 'clay',
-    label: 'clay',
-    icon: <GiStoneBlock className="size-4" />,
-  },
-  {
-    value: 'iron',
-    label: 'iron',
-    icon: <GiMetalBar className="size-4" />,
-  },
-  {
-    value: 'wheat',
-    label: 'wheat',
-    icon: <LuWheat className="size-4" />,
-  },
-] satisfies {
-  value: Resource;
-  label: string;
-  icon: React.ReactNode;
-}[];
-
-const resourceFilterValues = resourceFilterOptions.map(({ value }) => value);
-
 type ResourceFilterPopoverProps = {
   ariaLabel: string;
   filters: Resource[];
   idPrefix: string;
   label: string;
   onChange: (resources: Resource[]) => void;
+};
+
+type ResourceFilterCheckboxProps = {
+  children: ReactNode;
+  idPrefix: string;
+  isChecked: boolean;
+  label: string;
+  onCheckedChange: (filter: Resource, isChecked: boolean) => void;
+  value: Resource;
+};
+
+const ResourceFilterCheckbox = ({
+  children,
+  idPrefix,
+  isChecked,
+  label,
+  onCheckedChange,
+  value,
+}: ResourceFilterCheckboxProps) => {
+  const id = `${idPrefix}-${value}`;
+
+  return (
+    <div className="flex items-center gap-2 rounded-sm px-1 py-1 text-sm hover:bg-accent">
+      <Checkbox
+        id={id}
+        checked={isChecked}
+        onCheckedChange={(checked) => onCheckedChange(value, checked === true)}
+      />
+      <Label
+        className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
+        htmlFor={id}
+      >
+        <span className="truncate">{label}</span>
+        <span className="text-muted-foreground">{children}</span>
+      </Label>
+    </div>
+  );
 };
 
 const ResourceFilterPopover = ({
@@ -77,9 +85,9 @@ const ResourceFilterPopover = ({
 
   const updateFilter = (filter: Resource, isChecked: boolean) => {
     onChange(
-      resourceFilterValues.filter((value) =>
-        value === filter ? isChecked : activeFilters.has(value),
-      ),
+      isChecked
+        ? Array.from(new Set([...filters, filter]))
+        : filters.filter((value) => value !== filter),
     );
   };
 
@@ -101,31 +109,42 @@ const ResourceFilterPopover = ({
         className="w-64 p-3"
       >
         <div className="grid gap-1">
-          {resourceFilterOptions.map(({ value, label, icon }) => {
-            const id = `${idPrefix}-${value}`;
-
-            return (
-              <div
-                className="flex items-center gap-2 rounded-sm px-1 py-1 text-sm hover:bg-accent"
-                key={value}
-              >
-                <Checkbox
-                  id={id}
-                  checked={activeFilters.has(value)}
-                  onCheckedChange={(checked) =>
-                    updateFilter(value, checked === true)
-                  }
-                />
-                <Label
-                  className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
-                  htmlFor={id}
-                >
-                  <span className="truncate">{t(label)}</span>
-                  <span className="text-muted-foreground">{icon}</span>
-                </Label>
-              </div>
-            );
-          })}
+          <ResourceFilterCheckbox
+            idPrefix={idPrefix}
+            isChecked={activeFilters.has('wood')}
+            label={t('wood')}
+            onCheckedChange={updateFilter}
+            value="wood"
+          >
+            <GiWoodPile className="size-4" />
+          </ResourceFilterCheckbox>
+          <ResourceFilterCheckbox
+            idPrefix={idPrefix}
+            isChecked={activeFilters.has('clay')}
+            label={t('clay')}
+            onCheckedChange={updateFilter}
+            value="clay"
+          >
+            <GiStoneBlock className="size-4" />
+          </ResourceFilterCheckbox>
+          <ResourceFilterCheckbox
+            idPrefix={idPrefix}
+            isChecked={activeFilters.has('iron')}
+            label={t('iron')}
+            onCheckedChange={updateFilter}
+            value="iron"
+          >
+            <GiMetalBar className="size-4" />
+          </ResourceFilterCheckbox>
+          <ResourceFilterCheckbox
+            idPrefix={idPrefix}
+            isChecked={activeFilters.has('wheat')}
+            label={t('wheat')}
+            onCheckedChange={updateFilter}
+            value="wheat"
+          >
+            <LuWheat className="size-4" />
+          </ResourceFilterCheckbox>
         </div>
       </PopoverContent>
     </Popover>

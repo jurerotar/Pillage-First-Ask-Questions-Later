@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   GiBoots,
@@ -25,64 +26,45 @@ import {
   PopoverTrigger,
 } from 'app/components/ui/popover';
 
-const auctionFilterOptions = [
-  {
-    value: 'head',
-    label: 'Head',
-    icon: <GiVikingHelmet className="size-4" />,
-  },
-  {
-    value: 'torso',
-    label: 'Torso',
-    icon: <GiChestArmor className="size-4" />,
-  },
-  {
-    value: 'legs',
-    label: 'Legs',
-    icon: <PiPantsBold className="size-4" />,
-  },
-  {
-    value: 'boots',
-    label: 'Boots',
-    icon: <GiBoots className="size-4" />,
-  },
-  {
-    value: 'right-hand',
-    label: 'Right Hand',
-    icon: <GiBroadsword className="size-4" />,
-  },
-  {
-    value: 'left-hand',
-    label: 'Left Hand',
-    icon: <GiShield className="size-4" />,
-  },
-  {
-    value: 'horse',
-    label: 'Horse',
-    icon: <GiHorseHead className="size-4" />,
-  },
-  {
-    value: 'consumable',
-    label: 'Consumable',
-    icon: <GiHealthPotion className="size-4" />,
-  },
-  {
-    value: 'non-equipable',
-    label: 'Artifact',
-    icon: <GiOpenTreasureChest className="size-4" />,
-  },
-] satisfies {
-  value: HeroItemSlot;
-  label: string;
-  icon: React.ReactNode;
-}[];
-
-const auctionFilterValues = auctionFilterOptions.map(({ value }) => value);
-
 type AuctionFiltersProps = Pick<
   ReturnType<typeof useAuctionFilters>,
   'auctionFilters' | 'onAuctionFiltersChange'
 >;
+
+type AuctionFilterCheckboxProps = {
+  children: ReactNode;
+  isChecked: boolean;
+  label: string;
+  onCheckedChange: (filter: HeroItemSlot, isChecked: boolean) => void;
+  value: HeroItemSlot;
+};
+
+const AuctionFilterCheckbox = ({
+  children,
+  isChecked,
+  label,
+  onCheckedChange,
+  value,
+}: AuctionFilterCheckboxProps) => {
+  const id = `auction-filter-${value}`;
+
+  return (
+    <div className="flex items-center gap-2 rounded-sm px-1 py-1 text-sm hover:bg-accent">
+      <Checkbox
+        id={id}
+        checked={isChecked}
+        onCheckedChange={(checked) => onCheckedChange(value, checked === true)}
+      />
+      <Label
+        className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
+        htmlFor={id}
+      >
+        <span className="truncate">{label}</span>
+        <span className="text-muted-foreground">{children}</span>
+      </Label>
+    </div>
+  );
+};
 
 export const AuctionFilters = ({
   auctionFilters,
@@ -93,9 +75,9 @@ export const AuctionFilters = ({
 
   const updateFilter = (filter: HeroItemSlot, isChecked: boolean) => {
     onAuctionFiltersChange(
-      auctionFilterValues.filter((value) =>
-        value === filter ? isChecked : activeFilters.has(value),
-      ),
+      isChecked
+        ? Array.from(new Set([...auctionFilters, filter]))
+        : auctionFilters.filter((value) => value !== filter),
     );
   };
 
@@ -119,31 +101,78 @@ export const AuctionFilters = ({
           className="w-72 p-3"
         >
           <div className="grid gap-1">
-            {auctionFilterOptions.map(({ value, label, icon }) => {
-              const id = `auction-filter-${value}`;
-
-              return (
-                <div
-                  className="flex items-center gap-2 rounded-sm px-1 py-1 text-sm hover:bg-accent"
-                  key={value}
-                >
-                  <Checkbox
-                    id={id}
-                    checked={activeFilters.has(value)}
-                    onCheckedChange={(checked) =>
-                      updateFilter(value, checked === true)
-                    }
-                  />
-                  <Label
-                    className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
-                    htmlFor={id}
-                  >
-                    <span className="truncate">{t(label)}</span>
-                    <span className="text-muted-foreground">{icon}</span>
-                  </Label>
-                </div>
-              );
-            })}
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('head')}
+              label={t('Head')}
+              onCheckedChange={updateFilter}
+              value="head"
+            >
+              <GiVikingHelmet className="size-4" />
+            </AuctionFilterCheckbox>
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('torso')}
+              label={t('Torso')}
+              onCheckedChange={updateFilter}
+              value="torso"
+            >
+              <GiChestArmor className="size-4" />
+            </AuctionFilterCheckbox>
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('legs')}
+              label={t('Legs')}
+              onCheckedChange={updateFilter}
+              value="legs"
+            >
+              <PiPantsBold className="size-4" />
+            </AuctionFilterCheckbox>
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('boots')}
+              label={t('Boots')}
+              onCheckedChange={updateFilter}
+              value="boots"
+            >
+              <GiBoots className="size-4" />
+            </AuctionFilterCheckbox>
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('right-hand')}
+              label={t('Right Hand')}
+              onCheckedChange={updateFilter}
+              value="right-hand"
+            >
+              <GiBroadsword className="size-4" />
+            </AuctionFilterCheckbox>
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('left-hand')}
+              label={t('Left Hand')}
+              onCheckedChange={updateFilter}
+              value="left-hand"
+            >
+              <GiShield className="size-4" />
+            </AuctionFilterCheckbox>
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('horse')}
+              label={t('Horse')}
+              onCheckedChange={updateFilter}
+              value="horse"
+            >
+              <GiHorseHead className="size-4" />
+            </AuctionFilterCheckbox>
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('consumable')}
+              label={t('Consumable')}
+              onCheckedChange={updateFilter}
+              value="consumable"
+            >
+              <GiHealthPotion className="size-4" />
+            </AuctionFilterCheckbox>
+            <AuctionFilterCheckbox
+              isChecked={activeFilters.has('non-equipable')}
+              label={t('Artifact')}
+              onCheckedChange={updateFilter}
+              value="non-equipable"
+            >
+              <GiOpenTreasureChest className="size-4" />
+            </AuctionFilterCheckbox>
           </div>
         </PopoverContent>
       </Popover>

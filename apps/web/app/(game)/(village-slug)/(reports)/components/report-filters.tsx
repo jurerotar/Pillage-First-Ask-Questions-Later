@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   LuArrowLeftRight,
@@ -28,135 +28,40 @@ type ReportFiltersProps = {
   onChange: (reportFilters: ReportListingFilter[]) => void;
 };
 
-const reportFilterGroups = [
-  {
-    label: 'Report types',
-    filters: [
-      {
-        value: 'scouting',
-        label: 'Scouting',
-        icon: (
-          <Icon
-            className="size-4 !text-current"
-            shouldShowTooltip={false}
-            type="scoutAttackerNoLoss"
-          />
-        ),
-      },
-      {
-        value: 'movement',
-        label: 'Movement',
-        icon: <PiSignpostBold className="size-4" />,
-      },
-      {
-        value: 'battle',
-        label: 'Battle',
-        icon: <LuSword className="size-4" />,
-      },
-      {
-        value: 'adventure',
-        label: 'Adventure',
-        icon: <PiPathBold className="size-4" />,
-      },
-      {
-        value: 'trade',
-        label: 'Trade',
-        icon: <LuScale className="size-4" />,
-      },
-    ],
-  },
-  {
-    label: 'Village activity',
-    filters: [
-      {
-        value: 'huntingParty',
-        label: 'Hunting party',
-        icon: (
-          <Icon
-            className="size-4 !text-current"
-            type="huntingParty"
-          />
-        ),
-      },
-      {
-        value: 'gatheringExpedition',
-        label: 'Gathering expedition',
-        icon: (
-          <Icon
-            className="size-4 !text-current"
-            type="gatheringExpedition"
-          />
-        ),
-      },
-      {
-        value: 'unitResearch',
-        label: 'Unit research',
-        icon: (
-          <Icon
-            className="size-4 !text-current"
-            type="unitResearchDuration"
-          />
-        ),
-      },
-      {
-        value: 'unitImprovement',
-        label: 'Unit improvement',
-        icon: (
-          <Icon
-            className="size-4 !text-current"
-            type="unitImprovementDuration"
-          />
-        ),
-      },
-      {
-        value: 'villageFounded',
-        label: 'Village founding',
-        icon: (
-          <Icon
-            className="size-4 !text-current"
-            type="findNewVillage"
-          />
-        ),
-      },
-      {
-        value: 'scheduledConstructionCancellation',
-        label: 'Construction cancellation',
-        icon: (
-          <Icon
-            className="size-4 !text-current"
-            type="scheduledConstructionCancelled"
-          />
-        ),
-      },
-    ],
-  },
-  {
-    label: 'Refinements',
-    filters: [
-      {
-        value: 'noLoss',
-        label: 'No troop losses',
-        icon: <LuShieldCheck className="size-4" />,
-      },
-      {
-        value: 'ownTrades',
-        label: 'Own village trades',
-        icon: <LuArrowLeftRight className="size-4" />,
-      },
-    ],
-  },
-] satisfies {
+type ReportFilterCheckboxProps = {
+  children: ReactNode;
+  isChecked: boolean;
   label: string;
-  filters: {
-    value: ReportListingFilter;
-    label: string;
-    icon: React.ReactNode;
-  }[];
-}[];
+  onCheckedChange: (filter: ReportListingFilter, isChecked: boolean) => void;
+  value: ReportListingFilter;
+};
 
-const reportFilterValues = reportFilterGroups.flatMap(({ filters }) =>
-  filters.map(({ value }) => value),
-);
+const ReportFilterCheckbox = ({
+  children,
+  isChecked,
+  label,
+  onCheckedChange,
+  value,
+}: ReportFilterCheckboxProps) => {
+  const id = `report-filter-${value}`;
+
+  return (
+    <div className="flex items-center gap-2 rounded-sm px-1 py-1 text-sm hover:bg-accent">
+      <Checkbox
+        id={id}
+        checked={isChecked}
+        onCheckedChange={(checked) => onCheckedChange(value, checked === true)}
+      />
+      <Label
+        className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
+        htmlFor={id}
+      >
+        <span className="truncate">{label}</span>
+        <span className="text-muted-foreground">{children}</span>
+      </Label>
+    </div>
+  );
+};
 
 export const ReportFilters = ({
   reportFilters,
@@ -171,9 +76,9 @@ export const ReportFilters = ({
   }, [reportFilters]);
 
   const updateFilter = (filter: ReportListingFilter, isChecked: boolean) => {
-    const nextFilters = reportFilterValues.filter((value) =>
-      value === filter ? isChecked : activeFilters.has(value),
-    );
+    const nextFilters = isChecked
+      ? Array.from(new Set([...selectedFilters, filter]))
+      : selectedFilters.filter((value) => value !== filter);
 
     setSelectedFilters(nextFilters);
     onChange(nextFilters);
@@ -202,49 +107,168 @@ export const ReportFilters = ({
             className="w-80 p-3"
           >
             <div className="flex flex-col gap-4">
-              {reportFilterGroups.map((group, groupIndex) => (
-                <div
-                  className="flex flex-col gap-2"
-                  key={group.label}
+              <div className="flex flex-col gap-2">
+                <Text
+                  as="h3"
+                  className="text-sm font-semibold"
                 >
-                  {groupIndex > 0 && <Separator orientation="horizontal" />}
-                  <Text
-                    as="h3"
-                    className="text-sm font-semibold"
+                  {t('Report types')}
+                </Text>
+                <div className="grid gap-1">
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('scouting')}
+                    label={t('Scouting')}
+                    onCheckedChange={updateFilter}
+                    value="scouting"
                   >
-                    {t(group.label)}
-                  </Text>
-                  <div className="grid gap-1">
-                    {group.filters.map(({ value, label, icon }) => {
-                      const id = `report-filter-${value}`;
-
-                      return (
-                        <div
-                          className="flex items-center gap-2 rounded-sm px-1 py-1 text-sm hover:bg-accent"
-                          key={value}
-                        >
-                          <Checkbox
-                            id={id}
-                            checked={activeFilters.has(value)}
-                            onCheckedChange={(checked) =>
-                              updateFilter(value, checked === true)
-                            }
-                          />
-                          <Label
-                            className="min-w-0 flex-1 cursor-pointer justify-between gap-3"
-                            htmlFor={id}
-                          >
-                            <span className="truncate">{t(label)}</span>
-                            <span className="text-muted-foreground">
-                              {icon}
-                            </span>
-                          </Label>
-                        </div>
-                      );
-                    })}
-                  </div>
+                    <Icon
+                      className="size-4 !text-current"
+                      shouldShowTooltip={false}
+                      type="scoutAttackerNoLoss"
+                    />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('movement')}
+                    label={t('Movement')}
+                    onCheckedChange={updateFilter}
+                    value="movement"
+                  >
+                    <PiSignpostBold className="size-4" />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('battle')}
+                    label={t('Battle')}
+                    onCheckedChange={updateFilter}
+                    value="battle"
+                  >
+                    <LuSword className="size-4" />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('adventure')}
+                    label={t('Adventure')}
+                    onCheckedChange={updateFilter}
+                    value="adventure"
+                  >
+                    <PiPathBold className="size-4" />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('trade')}
+                    label={t('Trade')}
+                    onCheckedChange={updateFilter}
+                    value="trade"
+                  >
+                    <LuScale className="size-4" />
+                  </ReportFilterCheckbox>
                 </div>
-              ))}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Separator orientation="horizontal" />
+                <Text
+                  as="h3"
+                  className="text-sm font-semibold"
+                >
+                  {t('Village activity')}
+                </Text>
+                <div className="grid gap-1">
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('huntingParty')}
+                    label={t('Hunting party')}
+                    onCheckedChange={updateFilter}
+                    value="huntingParty"
+                  >
+                    <Icon
+                      className="size-4 !text-current"
+                      type="huntingParty"
+                    />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('gatheringExpedition')}
+                    label={t('Gathering expedition')}
+                    onCheckedChange={updateFilter}
+                    value="gatheringExpedition"
+                  >
+                    <Icon
+                      className="size-4 !text-current"
+                      type="gatheringExpedition"
+                    />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('unitResearch')}
+                    label={t('Unit research')}
+                    onCheckedChange={updateFilter}
+                    value="unitResearch"
+                  >
+                    <Icon
+                      className="size-4 !text-current"
+                      type="unitResearchDuration"
+                    />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('unitImprovement')}
+                    label={t('Unit improvement')}
+                    onCheckedChange={updateFilter}
+                    value="unitImprovement"
+                  >
+                    <Icon
+                      className="size-4 !text-current"
+                      type="unitImprovementDuration"
+                    />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('villageFounded')}
+                    label={t('Village founding')}
+                    onCheckedChange={updateFilter}
+                    value="villageFounded"
+                  >
+                    <Icon
+                      className="size-4 !text-current"
+                      type="findNewVillage"
+                    />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has(
+                      'scheduledConstructionCancellation',
+                    )}
+                    label={t('Construction cancellation')}
+                    onCheckedChange={updateFilter}
+                    value="scheduledConstructionCancellation"
+                  >
+                    <Icon
+                      className="size-4 !text-current"
+                      type="scheduledConstructionCancelled"
+                    />
+                  </ReportFilterCheckbox>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Separator orientation="horizontal" />
+                <Text
+                  as="h3"
+                  className="text-sm font-semibold"
+                >
+                  {t('Refinements')}
+                </Text>
+                <div className="grid gap-1">
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('noLoss')}
+                    label={t('No troop losses')}
+                    onCheckedChange={updateFilter}
+                    value="noLoss"
+                  >
+                    <LuShieldCheck className="size-4" />
+                  </ReportFilterCheckbox>
+                  <ReportFilterCheckbox
+                    isChecked={activeFilters.has('ownTrades')}
+                    label={t('Own village trades')}
+                    onCheckedChange={updateFilter}
+                    value="ownTrades"
+                  >
+                    <LuArrowLeftRight className="size-4" />
+                  </ReportFilterCheckbox>
+                </div>
+              </div>
             </div>
           </PopoverContent>
         </Popover>
