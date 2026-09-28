@@ -200,9 +200,8 @@ describe('event-controllers', () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
-      sql: `
-        UPDATE players
+    database.execMulti({
+      sql: `UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
         WHERE id = (
           SELECT player_id FROM villages WHERE id = $village_id

@@ -235,13 +235,6 @@ export const insertNewVillageQuestsQuery = `
   FROM json_each($quests) AS quest;
 `;
 
-export const insertVillageFoundingHistoryQuery = `
-  INSERT INTO
-    village_founding_history (village_id, tile_id, x, y, timestamp)
-  VALUES
-    ($village_id, $tile_id, $x, $y, $timestamp);
-`;
-
 export const selectRelocationTargetVillageIdByTileIdQuery = `
   SELECT
     CASE

@@ -9,6 +9,7 @@ import {
   UnitCard,
   UnitCost,
   UnitOverview,
+  UnitOwnedTroops,
   UnitRecruitment,
   UnitRequirements,
 } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/unit-production-buildings/components/unit-card';
@@ -85,6 +86,7 @@ export const UnitTraining = () => {
           >
             <UnitCard unitId={id}>
               <UnitOverview showUnitLevel />
+              <UnitOwnedTroops />
               <UnitAttributes />
               <UnitCost />
               <UnitRequirements />

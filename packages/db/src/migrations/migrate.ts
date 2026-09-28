@@ -23,6 +23,7 @@ import createEventsTable from '../schemas/events-schema.sql?raw';
 import createFactionReputationTable from '../schemas/faction-reputation-schema.sql?raw';
 import createFarmListTilesTable from '../schemas/farm-list-tiles-schema.sql?raw';
 import createFarmListsTable from '../schemas/farm-lists-schema.sql?raw';
+import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createGatherersHutExpeditionsTable from '../schemas/gatherers-hut-expeditions-schema.sql?raw';
 import createGatheringExpeditionReportUnitsTable from '../schemas/gathering-expedition-report-units-schema.sql?raw';
 import createGatheringExpeditionReportsTable from '../schemas/gathering-expedition-reports-schema.sql?raw';
@@ -37,10 +38,7 @@ import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attr
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
 import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
-import createUnitImprovementHistoryTable from '../schemas/history-tables/unit-improvement-history-schema.sql?raw';
-import createUnitResearchHistoryTable from '../schemas/history-tables/unit-research-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
-import createVillageFoundingHistoryTable from '../schemas/history-tables/village-founding-history-schema.sql?raw';
 import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
 import createHuntingPartyReportsTable from '../schemas/hunting-party-reports-schema.sql?raw';
 import createBuildingDataTable from '../schemas/lookup-tables/building-data-schema.sql?raw';
@@ -73,6 +71,7 @@ import createReportTagsTable from '../schemas/report-tags-schema.sql?raw';
 import createReportsTable from '../schemas/reports-schema.sql?raw';
 import createResourceSitesTable from '../schemas/resource-sites-schema.sql?raw';
 import createScheduledBuildingUpgradesTable from '../schemas/scheduled-building-upgrades-schema.sql?raw';
+import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
 import createScoutingReportAttackerUnitsTable from '../schemas/scouting-report-attacker-units-schema.sql?raw';
 import createScoutingReportStructuresTable from '../schemas/scouting-report-structures-schema.sql?raw';
 import createScoutingReportUnitsTable from '../schemas/scouting-report-units-schema.sql?raw';
@@ -82,8 +81,11 @@ import createTilesTable from '../schemas/tiles-schema.sql?raw';
 import createTradeReportsTable from '../schemas/trade-reports-schema.sql?raw';
 import createTrapperCagesTable from '../schemas/trapper-cages-schema.sql?raw';
 import createTroopsTable from '../schemas/troops-schema.sql?raw';
+import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
 import createUnitImprovementTable from '../schemas/unit-improvements-schema.sql?raw';
+import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
 import createUnitResearchTable from '../schemas/unit-research-schema.sql?raw';
+import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
 import createVillagesTable from '../schemas/villages-schema.sql?raw';
 import createWorldItemsTable from '../schemas/world-items-schema.sql?raw';
 import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
@@ -98,6 +100,7 @@ import { effectsSeeder } from '../seeders/effects-seeder';
 import { eventsSeeder } from '../seeders/events-seeder';
 import { factionIdsSeeder } from '../seeders/faction-ids-seeder';
 import { factionReputationSeeder } from '../seeders/faction-reputation-seeder';
+import { filtersSeeder } from '../seeders/filters-seeder';
 import { gatherersHutExpeditionsSeeder } from '../seeders/gatherers-hut-expeditions-seeder';
 import { heroAdventuresSeeder } from '../seeders/hero-adventures-seeder';
 import { heroSeeder } from '../seeders/hero-seeder';
@@ -140,225 +143,230 @@ export const migrateAndSeed = (
 
   database.transaction((db) => {
     // Lookup tables
-    db.exec({ sql: createBuildingIdsTable });
+    db.execMulti({ sql: createBuildingIdsTable });
     buildingIdsSeeder(db);
 
-    db.exec({ sql: createFactionIdsTable });
+    db.execMulti({ sql: createFactionIdsTable });
     factionIdsSeeder(db);
 
-    db.exec({ sql: createTribeIdsTable });
+    db.execMulti({ sql: createTribeIdsTable });
     tribeIdsSeeder(db);
 
-    db.exec({ sql: createUnitIdsTable });
+    db.execMulti({ sql: createUnitIdsTable });
     unitIdsSeeder(db);
 
-    db.exec({ sql: createEffectIdsTable });
+    db.execMulti({ sql: createEffectIdsTable });
     effectIdsSeeder(db);
 
-    db.exec({ sql: createEffectTypeIdsTable });
-    db.exec({ sql: createEffectScopeIdsTable });
-    db.exec({ sql: createEffectSourceIdsTable });
+    db.execMulti({ sql: createEffectTypeIdsTable });
+    db.execMulti({ sql: createEffectScopeIdsTable });
+    db.execMulti({ sql: createEffectSourceIdsTable });
     effectAttributeIdsSeeder(db);
 
-    db.exec({ sql: createUnitDataTable });
+    db.execMulti({ sql: createUnitDataTable });
     unitDataSeeder(db);
 
-    db.exec({ sql: createBuildingDataTable });
+    db.execMulti({ sql: createBuildingDataTable });
     buildingDataSeeder(db);
-    db.exec({ sql: createBuildingDataIndexes });
+    db.execMulti({ sql: createBuildingDataIndexes });
 
-    db.exec({ sql: createResourceFieldCompositionIdsTable });
+    db.execMulti({ sql: createResourceFieldCompositionIdsTable });
     resourceFieldCompositionIdsSeeder(db);
 
-    db.exec({ sql: createResourceIdsTable });
+    db.execMulti({ sql: createResourceIdsTable });
     resourceIdsSeeder(db);
 
-    db.exec({ sql: createTileTypeIdsTable });
+    db.execMulti({ sql: createTileTypeIdsTable });
     tileTypeIdsSeeder(db);
 
     // Statistics
-    db.exec({ sql: createUnitTrainingHistoryTable });
-    db.exec({ sql: createBuildingLevelChangeHistoryTable });
-    db.exec({
+    db.execMulti({ sql: createUnitTrainingHistoryTable });
+    db.execMulti({ sql: createBuildingLevelChangeHistoryTable });
+    db.execMulti({
       sql: createScheduledBuildingConstructionCancellationHistoryTable,
     });
-    db.exec({ sql: createUnitImprovementHistoryTable });
-    db.exec({ sql: createUnitResearchHistoryTable });
-    db.exec({ sql: createVillageFoundingHistoryTable });
 
     // Developer settings
-    db.exec({ sql: createDeveloperSettingsTable });
+    db.execMulti({ sql: createDeveloperSettingsTable });
     developerSettingsSeeder(db);
 
     // Server
-    db.exec({ sql: createServersTable });
+    db.execMulti({ sql: createServersTable });
     serverSeeder(db, server);
 
     // Map filters
-    db.exec({ sql: createMapFiltersTable });
+    db.execMulti({ sql: createMapFiltersTable });
     mapFiltersSeeder(db);
 
     // Preferences
-    db.exec({ sql: createPreferencesTable });
+    db.execMulti({ sql: createPreferencesTable });
     preferencesSeeder(db);
 
+    // Filters
+    db.execMulti({ sql: createFiltersTable });
+    filtersSeeder(db);
+
     // Faction reputations
-    db.exec({ sql: createFactionReputationTable });
+    db.execMulti({ sql: createFactionReputationTable });
     factionReputationSeeder(db);
 
     // Tiles
-    db.exec({ sql: createTilesTable });
+    db.execMulti({ sql: createTilesTable });
     tilesSeeder(db, server);
-    db.exec({ sql: createTilesIndexes });
+    db.execMulti({ sql: createTilesIndexes });
 
     // Loyalties
-    db.exec({ sql: createLoyaltiesTable });
+    db.execMulti({ sql: createLoyaltiesTable });
 
     // Map markers
-    db.exec({ sql: createMapMarkersTable });
+    db.execMulti({ sql: createMapMarkersTable });
 
     onProgress?.();
 
     // Oasis bonuses
-    db.exec({ sql: createOasisBonusesTable });
+    db.execMulti({ sql: createOasisBonusesTable });
     oasisSeeder(db, server);
-    db.exec({ sql: createOasisBonusesIndexes });
+    db.execMulti({ sql: createOasisBonusesIndexes });
 
     onProgress?.();
 
     // Players
-    db.exec({ sql: createPlayersTable });
+    db.execMulti({ sql: createPlayersTable });
     playersSeeder(db, server);
-    db.exec({ sql: createPlayersIndexes });
+    db.execMulti({ sql: createPlayersIndexes });
 
     onProgress?.();
 
     // Villages
-    db.exec({ sql: createVillagesTable });
+    db.execMulti({ sql: createVillagesTable });
     villageSeeder(db, server);
 
     // Gatherers Hut expeditions
-    db.exec({ sql: createGatherersHutExpeditionsTable });
+    db.execMulti({ sql: createGatherersHutExpeditionsTable });
     gatherersHutExpeditionsSeeder(db);
 
     onProgress?.();
 
     // Reports
-    db.exec({ sql: createReportOutcomeIdsTable });
+    db.execMulti({ sql: createReportOutcomeIdsTable });
     reportOutcomeIdsSeeder(db);
 
-    db.exec({ sql: createReportTagIdsTable });
+    db.execMulti({ sql: createReportTagIdsTable });
     reportTagIdsSeeder(db);
 
-    db.exec({ sql: createReportTypeIdsTable });
+    db.execMulti({ sql: createReportTypeIdsTable });
     reportTypeIdsSeeder(db);
 
-    db.exec({ sql: createReportsTable });
-    db.exec({ sql: createHeroAdventureReportsTable });
-    db.exec({ sql: createMovementReportsTable });
-    db.exec({ sql: createMovementReportUnitsTable });
-    db.exec({ sql: createTradeReportsTable });
-    db.exec({ sql: createHuntingPartyReportsTable });
-    db.exec({ sql: createHuntingPartyReportUnitsTable });
-    db.exec({ sql: createGatheringExpeditionReportsTable });
-    db.exec({ sql: createGatheringExpeditionReportUnitsTable });
-    db.exec({ sql: createReportTagsTable });
-    db.exec({ sql: createBattleReportsTable });
-    db.exec({ sql: createBattleReportBuildingsTable });
-    db.exec({ sql: createBattleReportParticipantsTable });
-    db.exec({ sql: createBattleReportUnitsTable });
-    db.exec({ sql: createScoutingReportsTable });
-    db.exec({ sql: createScoutingReportAttackerUnitsTable });
-    db.exec({ sql: createScoutingReportUnitsTable });
-    db.exec({ sql: createScoutingReportStructuresTable });
+    db.execMulti({ sql: createReportsTable });
+    db.execMulti({ sql: createHeroAdventureReportsTable });
+    db.execMulti({ sql: createMovementReportsTable });
+    db.execMulti({ sql: createMovementReportUnitsTable });
+    db.execMulti({ sql: createTradeReportsTable });
+    db.execMulti({ sql: createHuntingPartyReportsTable });
+    db.execMulti({ sql: createHuntingPartyReportUnitsTable });
+    db.execMulti({ sql: createGatheringExpeditionReportsTable });
+    db.execMulti({ sql: createGatheringExpeditionReportUnitsTable });
+    db.execMulti({ sql: createReportTagsTable });
+    db.execMulti({ sql: createBattleReportsTable });
+    db.execMulti({ sql: createBattleReportBuildingsTable });
+    db.execMulti({ sql: createBattleReportParticipantsTable });
+    db.execMulti({ sql: createBattleReportUnitsTable });
+    db.execMulti({ sql: createScoutingReportsTable });
+    db.execMulti({ sql: createScoutingReportAttackerUnitsTable });
+    db.execMulti({ sql: createScoutingReportUnitsTable });
+    db.execMulti({ sql: createScoutingReportStructuresTable });
+    db.execMulti({ sql: createUnitResearchReportsTable });
+    db.execMulti({ sql: createUnitImprovementReportsTable });
+    db.execMulti({ sql: createVillageFoundingReportsTable });
+    db.execMulti({ sql: createScheduledConstructionCancellationReportsTable });
 
-    db.exec({ sql: createReportsIndexes });
+    db.execMulti({ sql: createReportsIndexes });
 
-    db.exec({ sql: createReportDeleteTriggers });
-    db.exec({ sql: createReportRetentionTriggers });
+    db.execMulti({ sql: createReportDeleteTriggers });
+    db.execMulti({ sql: createReportRetentionTriggers });
 
     // Heroes
-    db.exec({ sql: createHeroesTable });
-    db.exec({ sql: createHeroSelectableAttributesTable });
+    db.execMulti({ sql: createHeroesTable });
+    db.execMulti({ sql: createHeroSelectableAttributesTable });
     heroSeeder(db);
 
     // Bookmarks
-    db.exec({ sql: createBookmarksTable });
+    db.execMulti({ sql: createBookmarksTable });
     bookmarksSeeder(db);
 
     // Hero adventures
-    db.exec({ sql: createHeroAdventuresTable });
+    db.execMulti({ sql: createHeroAdventuresTable });
     heroAdventuresSeeder(db);
 
     // Hero equipped items
-    db.exec({ sql: createHeroEquippedItemsTable });
+    db.execMulti({ sql: createHeroEquippedItemsTable });
 
     // Hero inventories
-    db.exec({ sql: createHeroInventoriesTable });
+    db.execMulti({ sql: createHeroInventoriesTable });
 
     // Hero auctions
-    db.exec({ sql: createHeroAuctionBuyListingsTable });
-    db.exec({ sql: createHeroAuctionSellListingsTable });
-    db.exec({ sql: createHeroAuctionHistoryTable });
+    db.execMulti({ sql: createHeroAuctionBuyListingsTable });
+    db.execMulti({ sql: createHeroAuctionSellListingsTable });
+    db.execMulti({ sql: createHeroAuctionHistoryTable });
 
     // Farm lists
-    db.exec({ sql: createFarmListsTable });
-    db.exec({ sql: createFarmListTilesTable });
+    db.execMulti({ sql: createFarmListsTable });
+    db.execMulti({ sql: createFarmListTilesTable });
 
     // Building fields
-    db.exec({ sql: createBuildingFieldsTable });
+    db.execMulti({ sql: createBuildingFieldsTable });
     buildingFieldsSeeder(db, server);
     occupiedOasisSeeder(db, server);
-    db.exec({ sql: createBuildingFieldsIndexes });
+    db.execMulti({ sql: createBuildingFieldsIndexes });
 
     // Trapper cages
-    db.exec({ sql: createTrapperCagesTable });
-    db.exec({ sql: createTrapperCagesIndexes });
+    db.execMulti({ sql: createTrapperCagesTable });
+    db.execMulti({ sql: createTrapperCagesIndexes });
 
     // Troops
-    db.exec({ sql: createTroopsTable });
+    db.execMulti({ sql: createTroopsTable });
     troopSeeder(db, server);
-    db.exec({ sql: createTroopsIndexes });
+    db.execMulti({ sql: createTroopsIndexes });
 
     // Wounded troops
-    db.exec({ sql: createWoundedTroopsTable });
-    db.exec({ sql: createWoundedTroopsIndexes });
-    db.exec({ sql: createBattleReportWoundedTroopsTriggers });
+    db.execMulti({ sql: createWoundedTroopsTable });
+    db.execMulti({ sql: createWoundedTroopsIndexes });
+    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
 
     // Effects
-    db.exec({ sql: createEffectsTable });
+    db.execMulti({ sql: createEffectsTable });
     effectsSeeder(db, server);
-    db.exec({ sql: createEffectsIndexes });
+    db.execMulti({ sql: createEffectsIndexes });
 
     // Resource sites
-    db.exec({ sql: createResourceSitesTable });
+    db.execMulti({ sql: createResourceSitesTable });
     resourceSitesSeeder(db, server);
 
     // World items
-    db.exec({ sql: createWorldItemsTable });
+    db.execMulti({ sql: createWorldItemsTable });
     worldItemsSeeder(db, server);
-    db.exec({ sql: createWorldItemsIndexes });
+    db.execMulti({ sql: createWorldItemsIndexes });
 
     // Unit research
-    db.exec({ sql: createUnitResearchTable });
+    db.execMulti({ sql: createUnitResearchTable });
 
     // Unit improvement
-    db.exec({ sql: createUnitImprovementTable });
+    db.execMulti({ sql: createUnitImprovementTable });
     unitImprovementSeeder(db, server);
 
     // Quests
-    db.exec({ sql: createQuestsTable });
+    db.execMulti({ sql: createQuestsTable });
     questsSeeder(db);
 
     // Events
-    db.exec({ sql: createEventsTable });
+    db.execMulti({ sql: createEventsTable });
     eventsSeeder(db, server);
 
     // Scheduled building upgrades
-    db.exec({ sql: createScheduledBuildingUpgradesTable });
+    db.execMulti({ sql: createScheduledBuildingUpgradesTable });
 
     // Meta table and write triggers
-    db.exec({ sql: createMetaTable });
+    db.execMulti({ sql: createMetaTable });
     metaSeeder(db);
     setupGlobalWriteTriggers(db);
     setupHistoryTriggers(db);

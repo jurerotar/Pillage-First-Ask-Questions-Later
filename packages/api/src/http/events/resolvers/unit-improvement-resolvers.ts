@@ -1,13 +1,14 @@
 import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { insertUnitImprovementReport } from '../../../utils/report';
 import type { Resolver } from '../resolver';
 
 export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
   database,
   args,
 ) => {
-  const { unitId, level } = args;
+  const { villageId, unitId, level, resolvesAt } = args;
 
   database.exec({
     sql: `
@@ -31,6 +32,13 @@ export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
     sql: 'SELECT id FROM villages WHERE player_id = $player_id;',
     bind: { $player_id: PLAYER_ID },
     schema: z.number(),
+  });
+
+  insertUnitImprovementReport(database, {
+    villageId,
+    timestamp: resolvesAt,
+    unitId,
+    level,
   });
 
   return {

@@ -1,6 +1,6 @@
 import type { ControllerArgs } from '../../../controller';
 
-type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
+type Method = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'query';
 
 export const createControllerArgs = <
   TPath extends string,

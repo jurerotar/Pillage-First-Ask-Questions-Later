@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 
-export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch';
+export type Method = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'query';
 
 type JsonRequestBody = {
   content?: {

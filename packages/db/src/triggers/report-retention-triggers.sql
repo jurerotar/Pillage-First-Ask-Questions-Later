@@ -8,9 +8,13 @@ BEGIN
     WHERE NOT EXISTS (
       SELECT 1
       FROM report_tags rt
-      JOIN report_tag_ids rti ON rti.id = rt.report_tag_id
       WHERE rt.report_id = r.id
-        AND rti.tag = 'archived'
+        AND EXISTS (
+          SELECT 1
+          FROM report_tag_ids
+          WHERE id = rt.report_tag_id
+            AND tag = 'archived'
+        )
     )
     ORDER BY r.timestamp, r.id
     LIMIT MAX(
@@ -20,9 +24,13 @@ BEGIN
         WHERE NOT EXISTS (
           SELECT 1
           FROM report_tags rt
-          JOIN report_tag_ids rti ON rti.id = rt.report_tag_id
           WHERE rt.report_id = counted_report.id
-            AND rti.tag = 'archived'
+            AND EXISTS (
+              SELECT 1
+              FROM report_tag_ids
+              WHERE id = rt.report_tag_id
+                AND tag = 'archived'
+            )
         )
       ) - 999,
       0

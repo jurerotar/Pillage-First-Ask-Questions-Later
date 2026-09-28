@@ -124,6 +124,55 @@ export const selectStationedTroopsByTileQuery = `
     t.tile_id = $tile_id;
 `;
 
+export const selectVillageUnitCountQuery = `
+  WITH village AS (
+    SELECT tile_id
+    FROM villages
+    WHERE id = $village_id
+  )
+  SELECT
+    COALESCE(
+      (
+        SELECT SUM(t.amount)
+        FROM
+          troops t
+            JOIN unit_ids ui ON ui.id = t.unit_id
+            JOIN village v ON v.tile_id = t.source_tile_id
+        WHERE
+          ui.unit = $unit_id
+          AND t.tile_id = v.tile_id
+      ),
+      0
+    ) AS at_home,
+    COALESCE(
+      (
+        SELECT SUM(CAST(JSON_EXTRACT(troop.value, '$.amount') AS INTEGER))
+        FROM
+          events e
+            JOIN json_each(e.meta, '$.troops') AS troop
+            JOIN village v
+              ON CAST(JSON_EXTRACT(troop.value, '$.sourceTileId') AS INTEGER) = v.tile_id
+        WHERE
+          JSON_TYPE(e.meta, '$.troops') = 'array'
+          AND JSON_EXTRACT(troop.value, '$.unitId') = $unit_id
+      ),
+      0
+    ) AS in_transit,
+    COALESCE(
+      (
+        SELECT SUM(t.amount)
+        FROM
+          troops t
+            JOIN unit_ids ui ON ui.id = t.unit_id
+            JOIN village v ON v.tile_id = t.source_tile_id
+        WHERE
+          ui.unit = $unit_id
+          AND t.tile_id != v.tile_id
+      ),
+      0
+    ) AS stationed_away;
+`;
+
 export const selectWoundedTroopsByVillageQuery = `
   SELECT
     ui.unit AS unit_id,

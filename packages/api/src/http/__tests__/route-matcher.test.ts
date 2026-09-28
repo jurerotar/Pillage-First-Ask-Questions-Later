@@ -31,6 +31,19 @@ describe(matchRoute, () => {
     expect(result.controller.method).toBe('patch');
   });
 
+  test('matches QUERY routes with request bodies', () => {
+    const body = {
+      x: 0,
+      y: 0,
+      animalFilters: [{ animal: 'RAT', amount: 1 }],
+    };
+    const result = matchRoute('/search/oases/by-animals', 'QUERY', body);
+
+    expect(result.controller.path).toBe('/search/oases/by-animals');
+    expect(result.controller.method).toBe('query');
+    expect(result.body).toStrictEqual(body);
+  });
+
   test('parses request bodies using real schema', () => {
     const result = matchRoute(
       '/villages/123/bookmarks/MAIN_BUILDING',
@@ -125,11 +138,10 @@ describe(matchRoute, () => {
 
   test('preserves repeated query params as arrays', () => {
     const result = matchRoute(
-      '/reports?scope=village&villageId=2&filters=adventure&filters=movement&filters=trade',
+      '/tiles/123/stationed-troops?filters=adventure&filters=movement&filters=trade',
       'GET',
     );
 
-    expect(result.query.villageId).toBe(2);
     expect(result.query.filters).toStrictEqual([
       'adventure',
       'movement',

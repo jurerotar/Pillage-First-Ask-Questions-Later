@@ -14,6 +14,10 @@ export const reportTypeSchema = z.enum([
   'huntingParty',
   'gatheringExpedition',
   'scouting',
+  'unitResearch',
+  'unitImprovement',
+  'villageFounded',
+  'scheduledConstructionCancellation',
 ]);
 
 export const battleResultIdSchema = z.enum([
@@ -39,6 +43,10 @@ export const reportOutcomeSchema = z.enum([
   'troopMovement',
   'huntingParty',
   'gatheringExpedition',
+  'unitResearched',
+  'unitImproved',
+  'villageFounded',
+  'scheduledConstructionCancelled',
 ]);
 
 export const reportTagSchema = z.enum(['read', 'archived']);
@@ -223,6 +231,82 @@ export const scoutingReportSchema = baseReportSchema.extend({
     ),
 });
 
+const unitReportSummarySchema = z.strictObject({
+  villageId: z.int(),
+  villageName: z.string(),
+  villageCoordinates: coordinatesSchema,
+});
+
+export const unitResearchReportSchema = baseReportSchema.extend({
+  type: z.literal('unitResearch'),
+  summary: unitReportSummarySchema,
+  unitId: unitIdSchema,
+});
+
+export const unitImprovementReportSchema = baseReportSchema.extend({
+  type: z.literal('unitImprovement'),
+  summary: unitReportSummarySchema,
+  unitId: unitIdSchema,
+  level: z.int().positive(),
+});
+
+export const villageFoundedReportSchema = baseReportSchema.extend({
+  type: z.literal('villageFounded'),
+  summary: z.strictObject({
+    originName: z.string(),
+    originCoordinates: coordinatesSchema,
+    targetName: z.string(),
+    targetCoordinates: coordinatesSchema,
+  }),
+  originTileId: z.int(),
+  targetTileId: z.int(),
+});
+
+export const scheduledConstructionCancellationReasonSchema = z.enum([
+  'missing-resources',
+  'missing-requirements',
+]);
+
+const scheduledConstructionCancellationReasonDetailSchema =
+  z.discriminatedUnion('type', [
+    z.strictObject({
+      type: z.literal('missing-resources'),
+      missingResources: resourceBundleSchema,
+    }),
+    z.strictObject({
+      type: z.literal('missing-requirements'),
+      unmetRequirements: z.array(
+        z.discriminatedUnion('type', [
+          z.strictObject({
+            type: z.literal('building'),
+            buildingId: buildingIdSchema,
+            requiredLevel: z.int().positive(),
+            currentLevel: z.int().nonnegative().nullable(),
+          }),
+          z.strictObject({
+            type: z.literal('tribe'),
+            tribe: tribeSchema,
+          }),
+          z.strictObject({
+            type: z.literal('amount'),
+            amount: z.int().positive(),
+          }),
+        ]),
+      ),
+    }),
+  ]);
+
+export const scheduledConstructionCancellationReportSchema =
+  baseReportSchema.extend({
+    type: z.literal('scheduledConstructionCancellation'),
+    summary: unitReportSummarySchema,
+    buildingId: buildingIdSchema,
+    buildingFieldId: z.int(),
+    level: z.int().positive(),
+    reason: scheduledConstructionCancellationReasonSchema,
+    reasonDetail: scheduledConstructionCancellationReasonDetailSchema,
+  });
+
 export const reportSchema = z
   .discriminatedUnion('type', [
     battleReportSchema,
@@ -232,6 +316,10 @@ export const reportSchema = z
     huntingPartyReportSchema,
     gatheringExpeditionReportSchema,
     scoutingReportSchema,
+    unitResearchReportSchema,
+    unitImprovementReportSchema,
+    villageFoundedReportSchema,
+    scheduledConstructionCancellationReportSchema,
   ])
   .meta({ id: 'Report' });
 
@@ -252,3 +340,15 @@ export type GatheringExpeditionReport = z.infer<
   typeof gatheringExpeditionReportSchema
 >;
 export type ScoutingReport = z.infer<typeof scoutingReportSchema>;
+export type UnitResearchReport = z.infer<typeof unitResearchReportSchema>;
+export type UnitImprovementReport = z.infer<typeof unitImprovementReportSchema>;
+export type VillageFoundedReport = z.infer<typeof villageFoundedReportSchema>;
+export type ScheduledConstructionCancellationReason = z.infer<
+  typeof scheduledConstructionCancellationReasonSchema
+>;
+export type ScheduledConstructionCancellationReasonDetail = z.infer<
+  typeof scheduledConstructionCancellationReasonDetailSchema
+>;
+export type ScheduledConstructionCancellationReport = z.infer<
+  typeof scheduledConstructionCancellationReportSchema
+>;

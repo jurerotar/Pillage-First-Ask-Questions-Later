@@ -258,7 +258,7 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
     queryFn: async () => {
       const values = form.getValues();
 
-      const { data } = await apiClient.post('/search/oases/by-bonus', {
+      const { data } = await apiClient.query('/search/oases/by-bonus', {
         body: {
           x: values.origin.x,
           y: values.origin.y,

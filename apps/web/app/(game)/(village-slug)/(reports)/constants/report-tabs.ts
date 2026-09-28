@@ -1,4 +1,4 @@
-import type { ReportScope } from 'app/(game)/(village-slug)/hooks/use-reports';
+import type { ReportScope } from '@pillage-first/types/dtos/report';
 
 export const reportTabs = [
   'global',

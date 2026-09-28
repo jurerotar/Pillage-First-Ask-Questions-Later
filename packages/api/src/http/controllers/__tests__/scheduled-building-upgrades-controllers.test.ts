@@ -275,9 +275,8 @@ describe('scheduled building upgrade controllers', () => {
     const buildingFieldId = 25;
     insertActiveBuildingUpgrade(database, villageId, buildingFieldId);
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
+    database.execMulti({
+      sql: `DELETE FROM effects
         WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
@@ -358,9 +357,8 @@ describe('scheduled building upgrade controllers', () => {
     const villageId = 1;
     const buildingFieldId = 25;
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
+    database.execMulti({
+      sql: `DELETE FROM effects
         WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields

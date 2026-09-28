@@ -1,10 +1,13 @@
 import { z } from 'zod';
 import type { Building } from '@pillage-first/types/models/building';
+import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import type {
   AdventureReport,
   BaseReport,
   ReportOutcome,
+  ScheduledConstructionCancellationReason,
+  ScheduledConstructionCancellationReasonDetail,
 } from '@pillage-first/types/models/report';
 import type {
   ResourceBundle,
@@ -60,6 +63,40 @@ export type CreateNewHuntingPartyReport = Pick<
   villageTileId: number;
   unitId: UnitId;
   amount: number;
+};
+
+export type CreateNewUnitResearchReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  unitId: UnitId;
+};
+
+export type CreateNewUnitImprovementReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  unitId: UnitId;
+  level: number;
+};
+
+export type CreateNewVillageFoundedReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  originTileId: number;
+  targetTileId: number;
+};
+
+export type CreateNewScheduledConstructionCancellationReport = Pick<
+  CreateNewReport,
+  'villageId' | 'timestamp'
+> & {
+  buildingId: Building['id'];
+  buildingFieldId: BuildingField['id'];
+  level: number;
+  reason: ScheduledConstructionCancellationReason;
+  reasonDetail: ScheduledConstructionCancellationReasonDetail;
 };
 
 type CreateNewScoutingReport = Pick<
@@ -350,6 +387,148 @@ export const insertHuntingPartyReport = (
       $hunting_party_report_id: huntingPartyReportId,
       $unit_id: report.unitId,
       $amount: report.amount,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertUnitResearchReport = (
+  database: DbFacade,
+  report: CreateNewUnitResearchReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'unitResearch',
+    outcome: 'unitResearched',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO unit_research_reports (report_id, village_id, unit_id)
+      SELECT $report_id, $village_id, id
+      FROM unit_ids
+      WHERE unit = $unit_id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_id: report.villageId,
+      $unit_id: report.unitId,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertUnitImprovementReport = (
+  database: DbFacade,
+  report: CreateNewUnitImprovementReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'unitImprovement',
+    outcome: 'unitImproved',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO unit_improvement_reports (report_id, village_id, unit_id, level)
+      SELECT $report_id, $village_id, id, $level
+      FROM unit_ids
+      WHERE unit = $unit_id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_id: report.villageId,
+      $unit_id: report.unitId,
+      $level: report.level,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertVillageFoundedReport = (
+  database: DbFacade,
+  report: CreateNewVillageFoundedReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'villageFounded',
+    outcome: 'villageFounded',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO village_founding_reports (
+        report_id,
+        origin_tile_id,
+        target_tile_id
+      )
+      VALUES (
+        $report_id,
+        $origin_tile_id,
+        $target_tile_id
+      );
+    `,
+    bind: {
+      $report_id: reportId,
+      $origin_tile_id: report.originTileId,
+      $target_tile_id: report.targetTileId,
+    },
+  });
+
+  return reportId;
+};
+
+export const insertScheduledConstructionCancellationReport = (
+  database: DbFacade,
+  report: CreateNewScheduledConstructionCancellationReport,
+): number => {
+  const reportId = insertReport(database, {
+    villageId: report.villageId,
+    timestamp: report.timestamp,
+    type: 'scheduledConstructionCancellation',
+    outcome: 'scheduledConstructionCancelled',
+    tags: [],
+  });
+
+  database.exec({
+    sql: `
+      INSERT INTO scheduled_construction_cancellation_reports (
+        report_id,
+        village_id,
+        building_id,
+        field_id,
+        level,
+        reason,
+        reason_detail_json
+      )
+      SELECT
+        $report_id,
+        $village_id,
+        id,
+        $field_id,
+        $level,
+        $reason,
+        $reason_detail_json
+      FROM building_ids
+      WHERE building = $building_id;
+    `,
+    bind: {
+      $report_id: reportId,
+      $village_id: report.villageId,
+      $building_id: report.buildingId,
+      $field_id: report.buildingFieldId,
+      $level: report.level,
+      $reason: report.reason,
+      $reason_detail_json: JSON.stringify(report.reasonDetail),
     },
   });
 

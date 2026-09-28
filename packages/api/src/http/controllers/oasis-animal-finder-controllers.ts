@@ -8,7 +8,7 @@ import { getOasesWithAnimalsRowSchema } from './schemas/oasis-animal-finder-sche
 
 export const getOasesWithAnimals = createController(
   '/search/oases/by-animals',
-  'post',
+  'query',
   {
     summary: 'Find oasis tiles with specific nature troop amounts',
     requestBody: z.strictObject({

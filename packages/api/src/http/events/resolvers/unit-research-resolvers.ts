@@ -1,11 +1,12 @@
 import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { insertUnitResearchReport } from '../../../utils/report';
 import type { Resolver } from '../resolver';
 
 export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = (
   database,
   args,
 ) => {
-  const { villageId, unitId } = args;
+  const { villageId, unitId, resolvesAt } = args;
 
   database.exec({
     sql: `
@@ -24,6 +25,12 @@ export const unitResearchResolver: Resolver<GameEvent<'unitResearch'>> = (
       $village_id: villageId,
       $unit_id: unitId,
     },
+  });
+
+  insertUnitResearchReport(database, {
+    villageId,
+    timestamp: resolvesAt,
+    unitId,
   });
 
   return {

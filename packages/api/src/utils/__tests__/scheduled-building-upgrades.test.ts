@@ -87,9 +87,8 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    database.exec({
-      sql: `
-        UPDATE players
+    database.execMulti({
+      sql: `UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
         WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
       `,
@@ -298,7 +297,7 @@ describe('scheduled building upgrades', () => {
   test('promotes only the next queued upgrade for Romans', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
-    database.exec({
+    database.execMulti({
       sql: `
         UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
@@ -363,7 +362,7 @@ describe('scheduled building upgrades', () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
+    database.execMulti({
       sql: `
         UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
@@ -547,6 +546,42 @@ describe('scheduled building upgrades', () => {
       fieldId: field.fieldId,
       buildingId: field.buildingId,
     });
+
+    expect(
+      database.selectObject({
+        sql: `
+          SELECT
+            rti.report_type AS reportType,
+            roi.report_outcome AS reportOutcome,
+            sccr.field_id AS fieldId,
+            bi.building AS buildingId,
+            sccr.level,
+            sccr.reason
+          FROM scheduled_construction_cancellation_reports sccr
+          JOIN reports r ON r.id = sccr.report_id
+          JOIN report_type_ids rti ON rti.id = r.type_id
+          JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+          JOIN building_ids bi ON bi.id = sccr.building_id
+          WHERE sccr.village_id = $village_id;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          reportType: z.literal('scheduledConstructionCancellation'),
+          reportOutcome: z.literal('scheduledConstructionCancelled'),
+          fieldId: z.number(),
+          buildingId: buildingIdSchema,
+          level: z.number(),
+          reason: z.literal('missing-resources'),
+        }),
+      }),
+    ).toEqual({
+      reportType: 'scheduledConstructionCancellation',
+      reportOutcome: 'scheduledConstructionCancelled',
+      fieldId: field.fieldId,
+      buildingId: field.buildingId,
+      level: field.level + 1,
+      reason: 'missing-resources',
+    });
   });
 
   test('removes an invalid head candidate and promotes the next candidate', async () => {
@@ -728,9 +763,8 @@ describe('scheduled building upgrades', () => {
       validLevel,
     );
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
+    database.execMulti({
+      sql: `DELETE FROM effects
         WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $placeholder_field_id;
         DELETE FROM building_fields
@@ -823,9 +857,8 @@ describe('scheduled building upgrades', () => {
     const villageId = 1;
     const buildingFieldId = 25;
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
+    database.execMulti({
+      sql: `DELETE FROM effects
         WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
