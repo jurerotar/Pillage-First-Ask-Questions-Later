@@ -657,6 +657,7 @@ const OccupiedOccupiableTileModal = ({
   const { name: villageName, slug: villageSlug } = ownerVillage;
 
   const isOwnedByPlayer = playerId === PLAYER_ID;
+  const isNpcVillage = owner.faction !== 'player';
 
   return (
     <>
@@ -683,6 +684,11 @@ const OccupiedOccupiableTileModal = ({
         {/*    {t('Attack or raid')}*/}
         {/*  </Button>*/}
         {/*)}*/}
+        {!isOwnedByPlayer && isNpcVillage && (
+          <Text className="text-gray-500">
+            {t('Attacking and raiding is still in development')}
+          </Text>
+        )}
         {isOwnedByPlayer && (
           <Text variant="link">
             <Link to={`${getVillageBasePath(villageSlug!)}/resources`}>
