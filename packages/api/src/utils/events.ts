@@ -102,10 +102,9 @@ import {
 } from './adventures';
 import { assertBuildingConstructionRequirementsAreMet } from './building-requirements';
 import {
-  getFreeMerchantAmount,
   getMarketplaceVillage,
   getMerchantAmount,
-  getMerchantMovementDuration,
+  getMerchantMovementDurationByVillageId,
   getTotalResourceAmount,
   getVillageMerchantStats,
 } from './marketplace';
@@ -908,10 +907,8 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isResourceTransferEvent(event)) {
-    const { village, merchant } = getVillageMerchantStats(
-      database,
-      event.villageId,
-    );
+    const { village, merchant, marketplaceLevel, usedMerchantAmount } =
+      getVillageMerchantStats(database, event.villageId);
     const totalResourceAmount = getTotalResourceAmount(event.resources);
     const isReturnTransfer = totalResourceAmount === 0;
 
@@ -963,7 +960,7 @@ export const validateEventCreationPrerequisites = (
       throw new Error('Invalid merchant amount');
     }
 
-    if (merchantAmount > getFreeMerchantAmount(database, event.villageId)) {
+    if (merchantAmount > marketplaceLevel - usedMerchantAmount) {
       throw new Error('Not enough free merchants');
     }
 
@@ -1621,13 +1618,11 @@ export const getEventDuration = (
   }
 
   if (isResourceTransferEvent(event)) {
-    const { merchant } = getVillageMerchantStats(database, event.villageId);
-
-    return getMerchantMovementDuration(
+    return getMerchantMovementDurationByVillageId(
       database,
+      event.villageId,
       event.originTileId,
       event.targetTileId,
-      merchant.merchantSpeed,
     );
   }
 

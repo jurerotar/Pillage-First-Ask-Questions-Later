@@ -1,10 +1,15 @@
 import { z } from 'zod';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
+import {
+  deleteTradeRouteByTileIdQuery,
+  updateTradeRouteQuery,
+} from '../../queries/marketplace-queries';
 import { createEvents } from '../../utils/create-event';
 import { validateEventCreationPrerequisites } from '../../utils/events';
 import {
-  getMarketplaceVillageByTileId,
+  getMarketplaceVillageWithTargetByTileId,
   getMerchantAmount,
-  getVillageMerchantStatsByTileId,
+  getVillageMerchantStatsWithTargetByTileId,
 } from '../../utils/marketplace';
 import { createController } from '../controller';
 import { triggerKick } from '../events/scheduler/scheduler-signal';
@@ -14,6 +19,8 @@ import {
 } from './schemas/marketplace-schemas';
 
 const HOUR_IN_MILLISECONDS = 60 * 60 * 1000;
+
+type TradeRouteBody = z.infer<typeof createTradeRouteBodySchema>;
 
 const getNextTradeRouteStartsAt = (startHour: number) => {
   const now = Date.now();
@@ -26,6 +33,35 @@ const getNextTradeRouteStartsAt = (startHour: number) => {
   }
 
   return startsAt.getTime();
+};
+
+const getTradeRoute = (
+  database: DbFacade,
+  tileId: number,
+  { targetTileId, resources, startHour, intervalHours }: TradeRouteBody,
+) => {
+  const { village, targetVillage } = getMarketplaceVillageWithTargetByTileId(
+    database,
+    tileId,
+    targetTileId,
+  );
+
+  if (!targetVillage) {
+    throw new Error('Target village does not exist');
+  }
+
+  return {
+    startsAt: getNextTradeRouteStartsAt(startHour),
+    event: {
+      type: 'tradeRoute',
+      villageId: village.id,
+      targetVillageId: targetVillage.id,
+      originTileId: village.tileId,
+      targetTileId: targetVillage.tileId,
+      resources,
+      interval: intervalHours * HOUR_IN_MILLISECONDS,
+    } as const,
+  };
 };
 
 export const transferResources = createController(
@@ -47,9 +83,8 @@ export const transferResources = createController(
     body: { targetTileId, resources, repeatCount = 1 },
   }) => {
     database.transaction((db) => {
-      const { village, merchant } = getVillageMerchantStatsByTileId(db, tileId);
-
-      const targetVillage = getMarketplaceVillageByTileId(db, targetTileId);
+      const { village, merchant, targetVillage } =
+        getVillageMerchantStatsWithTargetByTileId(db, tileId, targetTileId);
 
       if (!targetVillage) {
         throw new Error('Target village does not exist');
@@ -87,33 +122,13 @@ export const createTradeRoute = createController(
     },
     requestBody: createTradeRouteBodySchema,
   },
-)(
-  ({
-    database,
-    path: { tileId },
-    body: { targetTileId, resources, startHour, intervalHours },
-  }) => {
-    database.transaction((db) => {
-      const { village } = getVillageMerchantStatsByTileId(db, tileId);
-      const targetVillage = getMarketplaceVillageByTileId(db, targetTileId);
+)(({ database, path: { tileId }, body }) => {
+  database.transaction((db) => {
+    const { startsAt, event } = getTradeRoute(db, tileId, body);
 
-      if (!targetVillage) {
-        throw new Error('Target village does not exist');
-      }
-
-      createEvents<'tradeRoute'>(db, {
-        type: 'tradeRoute',
-        villageId: village.id,
-        targetVillageId: targetVillage.id,
-        originTileId: village.tileId,
-        targetTileId: targetVillage.tileId,
-        resources,
-        interval: intervalHours * HOUR_IN_MILLISECONDS,
-        startsAt: getNextTradeRouteStartsAt(startHour),
-      });
-    });
-  },
-);
+    createEvents<'tradeRoute'>(db, { ...event, startsAt });
+  });
+});
 
 export const updateTradeRoute = createController(
   '/tiles/:tileId/trade-routes/:eventId',
@@ -128,68 +143,36 @@ export const updateTradeRoute = createController(
     },
     requestBody: createTradeRouteBodySchema,
   },
-)(
-  ({
-    database,
-    path: { tileId, eventId },
-    body: { targetTileId, resources, startHour, intervalHours },
-  }) => {
-    database.transaction((db) => {
-      const { village } = getVillageMerchantStatsByTileId(db, tileId);
-      const targetVillage = getMarketplaceVillageByTileId(db, targetTileId);
+)(({ database, path: { tileId, eventId }, body }) => {
+  database.transaction((db) => {
+    const { startsAt, event } = getTradeRoute(db, tileId, body);
 
-      if (!targetVillage) {
-        throw new Error('Target village does not exist');
-      }
+    validateEventCreationPrerequisites(db, event as never);
 
-      const startsAt = getNextTradeRouteStartsAt(startHour);
-      const interval = intervalHours * HOUR_IN_MILLISECONDS;
-      const nextTradeRoute = {
-        type: 'tradeRoute',
-        villageId: village.id,
-        targetVillageId: targetVillage.id,
-        originTileId: village.tileId,
-        targetTileId: targetVillage.tileId,
-        resources,
-        interval,
-      } as const;
-
-      validateEventCreationPrerequisites(db, nextTradeRoute as never);
-
-      const updatedRows = db.selectValue({
-        sql: `
-          UPDATE events
-          SET
-            starts_at = $starts_at,
-            meta = $meta
-          WHERE id = $event_id
-            AND village_id = $village_id
-            AND type = 'tradeRoute'
-          RETURNING changes();
-        `,
-        bind: {
-          $event_id: eventId,
-          $village_id: village.id,
-          $starts_at: startsAt,
-          $meta: JSON.stringify({
-            targetVillageId: targetVillage.id,
-            originTileId: village.tileId,
-            targetTileId: targetVillage.tileId,
-            resources,
-            interval,
-          }),
-        },
-        schema: z.number(),
-      });
-
-      if (updatedRows !== 1) {
-        throw new Error('Trade route does not exist');
-      }
+    const updatedRows = db.selectValue({
+      sql: updateTradeRouteQuery,
+      bind: {
+        $event_id: eventId,
+        $village_id: event.villageId,
+        $starts_at: startsAt,
+        $meta: JSON.stringify({
+          targetVillageId: event.targetVillageId,
+          originTileId: event.originTileId,
+          targetTileId: event.targetTileId,
+          resources: event.resources,
+          interval: event.interval,
+        }),
+      },
+      schema: z.number(),
     });
 
-    triggerKick();
-  },
-);
+    if (updatedRows !== 1) {
+      throw new Error('Trade route does not exist');
+    }
+  });
+
+  triggerKick();
+});
 
 export const deleteTradeRoute = createController(
   '/tiles/:tileId/trade-routes/:eventId',
@@ -204,23 +187,11 @@ export const deleteTradeRoute = createController(
     },
   },
 )(({ database, path: { tileId, eventId } }) => {
-  const village = getMarketplaceVillageByTileId(database, tileId);
-
-  if (!village) {
-    throw new Error('Village does not exist');
-  }
-
   database.exec({
-    sql: `
-      DELETE
-      FROM events
-      WHERE id = $event_id
-        AND village_id = $village_id
-        AND type = 'tradeRoute';
-    `,
+    sql: deleteTradeRouteByTileIdQuery,
     bind: {
       $event_id: eventId,
-      $village_id: village.id,
+      $tile_id: tileId,
     },
   });
 
