@@ -26,40 +26,74 @@ describe('hero-controllers', () => {
   test('getHero should return hero details', async () => {
     const database = await prepareTestDatabase();
 
-    getHero(
+    const hero = getHero(
       database,
       createControllerArgs<'/players/:playerId/hero'>({
         path: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(hero).toMatchObject({
+      id: expect.any(Number),
+      villageId: expect.any(Number),
+      isHeroHome: expect.any(Boolean),
+      stats: expect.objectContaining({
+        health: expect.any(Number),
+        experience: expect.any(Number),
+      }),
+    });
   });
 
   test('getHeroLoadout should return equipped items', async () => {
     const database = await prepareTestDatabase();
 
-    getHeroLoadout(
+    const loadout = getHeroLoadout(
       database,
       createControllerArgs<'/players/:playerId/hero/equipped-items'>({
         path: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    const equippedItemCount = database.selectValue({
+      sql: 'SELECT COUNT(*) FROM hero_equipped_items;',
+      schema: z.number(),
+    })!;
+
+    expect(loadout).toHaveLength(equippedItemCount);
+    expect(
+      loadout.every(
+        ({ itemId, slot, amount }) =>
+          Number.isInteger(itemId) && typeof slot === 'string' && amount > 0,
+      ),
+    ).toBe(true);
   });
 
   test('getHeroInventory should return inventory items', async () => {
     const database = await prepareTestDatabase();
 
-    getHeroInventory(
+    const inventory = getHeroInventory(
       database,
       createControllerArgs<'/players/:playerId/hero/inventory'>({
         path: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    const inventoryItemCount = database.selectValue({
+      sql: `
+        SELECT COUNT(*)
+        FROM hero_inventory
+        WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $player_id);
+      `,
+      bind: { $player_id: playerId },
+      schema: z.number(),
+    })!;
+
+    expect(inventory).toHaveLength(inventoryItemCount);
+    expect(
+      inventory.every(
+        ({ id, amount }) => Number.isInteger(id) && Number.isInteger(amount),
+      ),
+    ).toBe(true);
   });
 
   test('getHeroInventory should complete expired auction sales before returning inventory', async () => {
@@ -109,14 +143,18 @@ describe('hero-controllers', () => {
   test('getHeroAdventures should return adventures status', async () => {
     const database = await prepareTestDatabase();
 
-    getHeroAdventures(
+    const adventures = getHeroAdventures(
       database,
       createControllerArgs<'/players/:playerId/hero/adventures'>({
         path: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(adventures).toMatchObject({
+      available: expect.any(Number),
+      completed: expect.any(Number),
+      nextAvailableAt: expect.any(Number),
+    });
   });
 
   test('startHeroAdventure should not duplicate a hero stationed in its home village', async () => {

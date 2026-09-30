@@ -14,13 +14,21 @@ describe('unit-research-controllers', () => {
       schema: z.number(),
     })!;
 
-    getResearchedUnits(
+    database.exec({
+      sql: `
+        INSERT OR IGNORE INTO unit_research (village_id, unit_id)
+        VALUES ($village_id, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'));
+      `,
+      bind: { $village_id: villageId },
+    });
+
+    const researchedUnits = getResearchedUnits(
       database,
       createControllerArgs<'/villages/:villageId/researched-units'>({
         path: { villageId: villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(researchedUnits).toContainEqual({ unitId: 'LEGIONNAIRE' });
   });
 });
