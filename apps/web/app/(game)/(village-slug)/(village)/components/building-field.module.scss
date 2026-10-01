@@ -11,8 +11,8 @@ $building-positions: (
   7: (24% 77%),
   8: (54% 14%),
   9: (51% 26%),
-  10: (39% 69%),
-  11: (39% 86%),
+  10: (40% 69%),
+  11: (40% 86%),
   12: (72% 19%),
   13: (67% 32%),
   14: (71% 48%),
@@ -45,6 +45,10 @@ $building-positions: (
 );
 
 .building-field {
+  &--resource {
+    width: 11%;
+  }
+
   @each $id, $coords in $building-positions {
     &--#{$id} {
       top: list.nth($coords, 1);
