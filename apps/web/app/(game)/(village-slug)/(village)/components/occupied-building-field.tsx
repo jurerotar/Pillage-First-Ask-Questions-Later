@@ -18,7 +18,10 @@ import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/pr
 import { useLongPress } from 'app/hooks/use-long-press';
 
 const occupiedBuildingFieldClassName =
-  'relative size-10 lg:size-16 rounded-full non-selectable focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring border border-black/10 dark:border-border';
+  'relative non-selectable focus:outline-hidden focus:ring-2 focus:ring-black/80 dark:focus:ring-ring';
+
+const villageBuildingFieldClassName =
+  'size-10 lg:size-16 rounded-full border border-black/10 dark:border-border';
 
 const noop = () => {};
 
@@ -194,6 +197,7 @@ const OccupiedBuildingFieldContent = ({
             resourceFieldComposition: currentVillage.resourceFieldComposition,
           }),
         occupiedBuildingFieldClassName,
+        buildingFieldId > 18 && villageBuildingFieldClassName,
       )}
       {...props}
     >
@@ -206,7 +210,14 @@ const OccupiedBuildingFieldContent = ({
         />
       </div>
       {shouldShowBuildingNames && (
-        <span className="inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]">
+        <span
+          className={clsx(
+            'inline-flex flex-col lg:flex-row text-center text-3xs md:text-2xs px-0.5 md:px-1 z-10 bg-background border border-border rounded-xs whitespace-nowrap absolute left-1/2 -translate-x-1/2',
+            buildingFieldId <= 18
+              ? 'top-full mt-1'
+              : '-translate-y-1/2 top-[calc(50%+20px)] lg:top-[calc(50%+25px)]',
+          )}
+        >
           {hasEvent && (
             <Countdown
               endsAt={
