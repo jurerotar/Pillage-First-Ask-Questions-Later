@@ -1,7 +1,9 @@
+import { CopySectionLinkButton } from '../../components/copy-section-link-button';
+
 # Frequently asked questions
 
 <section id="project-roadmap" className="scroll-mt-4">
-  ## Is there a project roadmap available?
+  ## Is there a project roadmap available?<CopySectionLinkButton sectionId="project-roadmap" sectionType="question" />
 
   Due to the nature of this project (I get work on it only in my free time), I'm not willing to commit to any specific
   timeline for any features.
@@ -26,8 +28,8 @@
   ...)
 </section>
 
-<section id="game-design-differences-between-travian-and-pillage-first" className="scroll-mt-4">
-  ## Are there game design differences between Travian and Pillage First!?
+<section id="differences-between-travian-and-pillage-first" className="scroll-mt-4">
+  ## Are there differences between Travian and Pillage First!?<CopySectionLinkButton sectionId="differences-between-travian-and-pillage-first" sectionType="question" />
 
   There's a couple of differences with Travian, and a lot more are on the way.
 
@@ -51,7 +53,7 @@
 </section>
 
 <section id="multiplayer" className="scroll-mt-4">
-  ## Can this project be converted to multiplayer?
+  ## Can this project be converted to multiplayer?<CopySectionLinkButton sectionId="multiplayer" sectionType="question" />
 
   **Yes!** This project was actually rebuilt from the ground up to make it as compatible as possible with a potential
   backend integration.
@@ -67,7 +69,7 @@
 </section>
 
 <section id="how-game-continues-running-when-closed" className="scroll-mt-4">
-  ## How does the game continue running if the app is closed?
+  ## How does the game continue running if the app is closed?<CopySectionLinkButton sectionId="how-game-continues-running-when-closed" sectionType="question" />
 
   In a nutshell, whenever you open a game world, we simulate every event that would have taken place, had the app been
   open all this time. These events would happen at some time in the past, but since app can't run without the browser
@@ -80,7 +82,7 @@
 </section>
 
 <section id="why-not-stick-with-original" className="scroll-mt-4">
-  ## Why not stick with the original?
+  ## Why not stick with the original?<CopySectionLinkButton sectionId="why-not-stick-with-original" sectionType="question" />
 
   While I love Travian, I (and many more like me) just don't have the time to commit to it anymore. Pulling
   all-nighters, finding duals from across the world and making sure account is covered 24/7 was fun in middle school,
@@ -91,7 +93,7 @@
 </section>
 
 <section id="copyright-violations" className="scroll-mt-4">
-  ## Is this project in danger of being taken down due to copyright violations?
+  ## Is this project in danger of being taken down due to copyright violations?<CopySectionLinkButton sectionId="copyright-violations" sectionType="question" />
 
   We've made a lot of effort to differentiate this game from Travian. Even though Pillage First! is inspired by Travian,
   we've made (and plan for more) **fundamental gameplay, technological & design differences** between games.
@@ -106,7 +108,7 @@
 </section>
 
 <section id="game-continues-after-closing-app" className="scroll-mt-4">
-  ## Does the game continue even if I close the app?
+  ## Does the game continue even if I close the app?<CopySectionLinkButton sectionId="game-continues-after-closing-app" sectionType="question" />
 
   **Yes!** You're free to close the app at any time and the game will pick off right next time you open it again! Units
   will continue to be trained, buildings will continue to be constructed and troops will continue to raid exactly as
@@ -114,7 +116,7 @@
 </section>
 
 <section id="game-world-stability-between-releases" className="scroll-mt-4">
-  ## Are game worlds stable between new releases?
+  ## Are game worlds stable between new releases?<CopySectionLinkButton sectionId="game-world-stability-between-releases" sectionType="question" />
 
   **Sometimes, but most often not**. Despite this project being developed in my free-time only, we still have a
   relatively high update cadence. Typically, we push out 3-5 (mostly minor) updates per week. Most of these updates are
@@ -132,7 +134,7 @@
 </section>
 
 <section id="why-single-player" className="scroll-mt-4">
-  ## Why single-player?
+  ## Why single-player?<CopySectionLinkButton sectionId="why-single-player" sectionType="question" />
 
   There are a few key reasons I chose to focus on single-player:
 
@@ -159,7 +161,7 @@
 </section>
 
 <section id="in-game-wiki" className="scroll-mt-4">
-  ## Is there an in-game Wiki available?
+  ## Is there an in-game Wiki available?<CopySectionLinkButton sectionId="in-game-wiki" sectionType="question" />
 
   Not yet, but I can (officially?) confirm there's one in the making!
 
@@ -168,7 +170,7 @@
 </section>
 
 <section id="highest-supporter-game-world-speed" className="scroll-mt-4">
-  ## Is 10x the highest supporter game world speed?
+  ## Is 10x the highest supporter game world speed?<CopySectionLinkButton sectionId="highest-supporter-game-world-speed" sectionType="question" />
 
   Yes. This might get revised upwards in the future. The limiting factor here is players' own devices. Since the app
   runs 100% on your device, we can't really guarantee good performance. Higher speed game worlds require more device
@@ -179,21 +181,21 @@
 </section>
 
 <section id="mobile-application" className="scroll-mt-4">
-  ## Are there plans to build a mobile application as well?
+  ## Are there plans to build a mobile application as well?<CopySectionLinkButton sectionId="mobile-application" sectionType="question" />
 
   No. The app is already fully responsive and is play-tested in both desktop and mobile environments. It is also
   installable as a progressive web app (PWA) to simplify accessing the app from your devices' home screen.
 </section>
 
 <section id="pay-to-win-elements" className="scroll-mt-4">
-  ## Are there any pay-to-win elements or microtransactions in the game?
+  ## Are there any pay-to-win elements in the game?<CopySectionLinkButton sectionId="pay-to-win-elements" sectionType="question" />
 
   No. The game does not provide any way to spend money. There are no ads, donations, sponsors, paid features, or other
   forms of monetization, nor any plans to introduce any.
 </section>
 
 <section id="development-funding" className="scroll-mt-4">
-  ## How is development funded?
+  ## How is development funded?<CopySectionLinkButton sectionId="development-funding" sectionType="question" />
 
   It isn't. Pillage First! is a passion project developed in my and fellow contributors' free time. Hosting is (at the
   time of writing) generously provided by Netlify. CI/CD pipelines are generously provided by GitHub. Domain renewal
@@ -201,7 +203,7 @@
 </section>
 
 <section id="updating-game-worlds-to-latest-version" className="scroll-mt-4">
-  ## Updating game worlds to latest version of the app
+  ## Updating game worlds to latest version of the app<CopySectionLinkButton sectionId="updating-game-worlds-to-latest-version" sectionType="question" />
 
   New versions of the app often bring new features or reworks of the existing ones and introduce breaking changes as a
   result. This makes older game world incompatible with latest app version. Game worlds automatically update to the
