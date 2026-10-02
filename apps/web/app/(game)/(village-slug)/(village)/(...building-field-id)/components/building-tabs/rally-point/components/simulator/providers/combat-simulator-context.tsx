@@ -26,6 +26,7 @@ export type CombatSimulatorTroop = TroopLike & {
 };
 
 export type CombatSimulatorMode = 'attack' | 'raid';
+export type CombatSimulatorPlayerRole = 'attacker' | 'defender';
 
 export type CombatSimulatorAttackerVillage = {
   population: number;
@@ -58,6 +59,7 @@ export type CombatSimulatorDefender =
 
 export type CombatSimulatorState = {
   combatMode: CombatSimulatorMode;
+  playerRole: CombatSimulatorPlayerRole;
   attacker: CombatSimulatorAttacker;
   defender: CombatSimulatorDefender;
 };
@@ -78,6 +80,7 @@ export type CombatSimulatorRemovableParticipantReference = Extract<
 export type CombatSimulatorContextValue = {
   state: CombatSimulatorState;
   setCombatMode: (combatMode: CombatSimulatorMode) => void;
+  swapPlayerRole: () => void;
   setAttackerTribe: (tribe: Tribe) => void;
   setDefenderTribe: (tribe: Tribe) => void;
   setAttackerTroops: (troops: CombatSimulatorTroop[]) => void;

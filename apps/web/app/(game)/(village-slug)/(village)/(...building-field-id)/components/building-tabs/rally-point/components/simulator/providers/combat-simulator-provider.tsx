@@ -100,6 +100,19 @@ const setTroopSmithyImprovementLevel = (
   });
 };
 
+const getHeroAmount = (troops: CombatSimulatorTroop[]) => {
+  return troops.find((troop) => troop.unitId === 'HERO')?.amount ?? 0;
+};
+
+const setHeroAmount = (
+  troops: CombatSimulatorTroop[],
+  amount: number,
+): CombatSimulatorTroop[] => {
+  return troops.map((troop) =>
+    troop.unitId === 'HERO' ? { ...troop, amount } : troop,
+  );
+};
+
 const createParticipant = <TVillage,>(
   tribe: Tribe,
   village: TVillage,
@@ -117,6 +130,7 @@ const createInitialCombatSimulatorState = (
 ): CombatSimulatorState => {
   return {
     combatMode: 'raid',
+    playerRole: 'attacker',
     attacker: createParticipant(initialTribe, { population: 100 }),
     defender: {
       ...createParticipant(initialTribe, {
@@ -141,6 +155,46 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
       ...prevState,
       combatMode,
     }));
+  }, []);
+
+  const swapPlayerRole = useCallback(() => {
+    setState((prevState) => {
+      if (prevState.playerRole === 'attacker') {
+        const heroAmount = getHeroAmount(prevState.attacker.troops);
+
+        return {
+          ...prevState,
+          playerRole: 'defender',
+          attacker: {
+            ...prevState.attacker,
+            troops: setHeroAmount(prevState.attacker.troops, 0),
+            heroStats: { ...DEFAULT_HERO_STATS },
+          },
+          defender: {
+            ...prevState.defender,
+            troops: setHeroAmount(prevState.defender.troops, heroAmount),
+            heroStats: prevState.attacker.heroStats,
+          },
+        };
+      }
+
+      const heroAmount = getHeroAmount(prevState.defender.troops);
+
+      return {
+        ...prevState,
+        playerRole: 'attacker',
+        attacker: {
+          ...prevState.attacker,
+          troops: setHeroAmount(prevState.attacker.troops, heroAmount),
+          heroStats: prevState.defender.heroStats,
+        },
+        defender: {
+          ...prevState.defender,
+          troops: setHeroAmount(prevState.defender.troops, 0),
+          heroStats: { ...DEFAULT_HERO_STATS },
+        },
+      };
+    });
   }, []);
 
   const setAttackerTribe = useCallback((tribe: Tribe) => {
@@ -568,6 +622,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     () => ({
       state,
       setCombatMode,
+      swapPlayerRole,
       setAttackerTribe,
       setDefenderTribe,
       setAttackerTroops,
@@ -596,6 +651,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     [
       state,
       setCombatMode,
+      swapPlayerRole,
       setAttackerTribe,
       setDefenderTribe,
       setAttackerTroops,

@@ -9,7 +9,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { calculateTotalUnitWheatConsumption } from '@pillage-first/game-assets/utils/troops';
-import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units';
+import {
+  getUnitsByTribe,
+  getUnitsByTribeWithHero,
+} from '@pillage-first/game-assets/utils/units';
 import type { Coordinates } from '@pillage-first/types/models/coordinates';
 import type { ResourceBundle } from '@pillage-first/types/models/resource';
 import type { Tribe } from '@pillage-first/types/models/tribe';
@@ -23,6 +26,7 @@ import { Resources } from '../(village-slug)/components/resources';
 
 type UnitTableContextValue = {
   tribe: Tribe;
+  includeHero: boolean;
 };
 
 const UnitTableContext = createContext<UnitTableContextValue>(
@@ -32,14 +36,20 @@ const UnitTableContext = createContext<UnitTableContextValue>(
 type UnitTableProps = {
   tribe: Tribe;
   children: ReactNode;
+  includeHero?: boolean;
 };
 
-export const UnitTable = ({ tribe, children }: UnitTableProps) => {
+export const UnitTable = ({
+  tribe,
+  children,
+  includeHero = true,
+}: UnitTableProps) => {
   const value = useMemo(() => {
     return {
       tribe,
+      includeHero,
     };
-  }, [tribe]);
+  }, [tribe, includeHero]);
 
   return (
     <UnitTableContext.Provider value={value}>
@@ -114,8 +124,11 @@ export const UnitTablePlayer = ({
 };
 
 export const UnitTableUnitIcons = () => {
-  const { tribe } = use(UnitTableContext);
-  const tribeUnits = getUnitsByTribeWithHero(tribe);
+  const { tribe, includeHero } = use(UnitTableContext);
+
+  const tribeUnits = includeHero
+    ? getUnitsByTribeWithHero(tribe)
+    : getUnitsByTribe(tribe);
 
   return (
     <thead className="border-b dark:border-border">

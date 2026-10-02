@@ -1,6 +1,6 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuEraser } from 'react-icons/lu';
+import { LuArrowDownUp, LuEraser } from 'react-icons/lu';
 import { PLAYABLE_TRIBES, type Tribe } from '@pillage-first/types/models/tribe';
 import { UnitTable } from 'app/(game)/components/unit-table';
 import { Icon } from 'app/components/icon';
@@ -24,7 +24,13 @@ import {
   CombatSimulatorAttackerTroopControlsRows,
 } from './combat-simulator-troop-controls-rows';
 
-export const CombatSimulatorAttackerControlsRow = () => {
+type CombatSimulatorAttackerControlsRowProps = {
+  title: string;
+};
+
+export const CombatSimulatorAttackerControlsRow = ({
+  title,
+}: CombatSimulatorAttackerControlsRowProps) => {
   const { t } = useTranslation();
   const {
     state,
@@ -32,7 +38,9 @@ export const CombatSimulatorAttackerControlsRow = () => {
     setAttackerTribe,
     setAttackerVillagePopulation,
     setCombatMode,
+    swapPlayerRole,
   } = use(CombatSimulatorContext)!;
+  const canSetHero = state.playerRole === 'attacker';
 
   const populationLabel = t('Population');
 
@@ -46,7 +54,21 @@ export const CombatSimulatorAttackerControlsRow = () => {
               colSpan={12}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xl">{t('Attacker')}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{title}</span>
+                  {canSetHero && (
+                    <Button
+                      aria-label={t('Swap roles')}
+                      data-tooltip-content={t('Swap roles')}
+                      data-tooltip-id="general-tooltip"
+                      size="icon"
+                      variant="outline"
+                      onClick={swapPlayerRole}
+                    >
+                      <LuArrowDownUp />
+                    </Button>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   <RadioGroup
                     className="flex items-center gap-2 mr-2 text-sm font-normal"
@@ -160,10 +182,13 @@ export const CombatSimulatorAttackerControlsRow = () => {
           </tr>
         </thead>
       </CombatSimulatorParticipantControlsTable>
-      <UnitTable tribe={state.attacker.tribe}>
+      <UnitTable
+        includeHero={canSetHero}
+        tribe={state.attacker.tribe}
+      >
         <CombatSimulatorAttackerTroopControlsRows />
       </UnitTable>
-      <CombatSimulatorAttackerHeroStatsControlsRow />
+      {canSetHero && <CombatSimulatorAttackerHeroStatsControlsRow />}
     </div>
   );
 };

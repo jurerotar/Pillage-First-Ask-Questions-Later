@@ -1,6 +1,12 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCastle, LuEraser, LuHouse, LuShieldPlus } from 'react-icons/lu';
+import {
+  LuArrowDownUp,
+  LuCastle,
+  LuEraser,
+  LuHouse,
+  LuShieldPlus,
+} from 'react-icons/lu';
 import { TRIBES, type Tribe } from '@pillage-first/types/models/tribe';
 import { UnitTable } from 'app/(game)/components/unit-table';
 import { Icon } from 'app/components/icon';
@@ -21,7 +27,13 @@ import {
 } from './combat-simulator-troop-controls-rows';
 import { LevelInputPopover } from './level-input-popover';
 
-export const CombatSimulatorDefenderControlsRow = () => {
+type CombatSimulatorDefenderControlsRowProps = {
+  title: string;
+};
+
+export const CombatSimulatorDefenderControlsRow = ({
+  title,
+}: CombatSimulatorDefenderControlsRowProps) => {
   const { t } = useTranslation();
   const {
     state,
@@ -31,7 +43,9 @@ export const CombatSimulatorDefenderControlsRow = () => {
     setDefenderTribe,
     setDefenderVillagePopulation,
     setDefenderWallLevel,
+    swapPlayerRole,
   } = use(CombatSimulatorContext)!;
+  const canSetHero = state.playerRole === 'defender';
 
   const populationLabel = t('Population');
   const wallLevelLabel = t('Wall level');
@@ -47,7 +61,21 @@ export const CombatSimulatorDefenderControlsRow = () => {
               colSpan={12}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xl">{t('Defender')}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{title}</span>
+                  {canSetHero && (
+                    <Button
+                      aria-label={t('Swap roles')}
+                      data-tooltip-content={t('Swap roles')}
+                      data-tooltip-id="general-tooltip"
+                      size="icon"
+                      variant="outline"
+                      onClick={swapPlayerRole}
+                    >
+                      <LuArrowDownUp />
+                    </Button>
+                  )}
+                </div>
                 <div className="flex items-center gap-2">
                   <Button
                     aria-label={t('Add defender')}
@@ -172,10 +200,13 @@ export const CombatSimulatorDefenderControlsRow = () => {
           </tr>
         </thead>
       </CombatSimulatorParticipantControlsTable>
-      <UnitTable tribe={state.defender.tribe}>
+      <UnitTable
+        includeHero={canSetHero}
+        tribe={state.defender.tribe}
+      >
         <CombatSimulatorDefenderTroopControlsRows />
       </UnitTable>
-      <CombatSimulatorDefenderHeroStatsControlsRow />
+      {canSetHero && <CombatSimulatorDefenderHeroStatsControlsRow />}
     </div>
   );
 };

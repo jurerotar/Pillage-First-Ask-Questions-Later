@@ -13,6 +13,7 @@ import { LuHash } from 'react-icons/lu';
 import { items } from '@pillage-first/game-assets/items';
 import {
   getSmithyUpgradeableUnitsByTribe,
+  getUnitsByTribe,
   getUnitsByTribeWithHero,
 } from '@pillage-first/game-assets/utils/units';
 import type {
@@ -218,6 +219,7 @@ const CombatSimulatorTroopControlsRows = ({
   participant: CombatSimulatorTroopControlsParticipant;
 }) => {
   const { t } = useTranslation();
+  const { state } = use(CombatSimulatorContext)!;
   const participantData = useCombatSimulatorParticipantData(participant);
   const tribe = useParticipantTribe(participant);
 
@@ -225,7 +227,13 @@ const CombatSimulatorTroopControlsRows = ({
     return null;
   }
 
-  const tribeUnits = getUnitsByTribeWithHero(tribe);
+  const canSetHero =
+    participant.role !== 'reinforcement' &&
+    state.playerRole === participant.role;
+  const tribeUnits = canSetHero
+    ? getUnitsByTribeWithHero(tribe)
+    : getUnitsByTribe(tribe);
+
   const upgradableUnitIds = new Set(
     getSmithyUpgradeableUnitsByTribe(tribe).map(({ id }) => id),
   );
@@ -712,18 +720,6 @@ export const CombatSimulatorReinforcementTroopControlsRows = ({
 }) => {
   return (
     <CombatSimulatorTroopControlsRows
-      participant={{ role: 'reinforcement', reinforcementId }}
-    />
-  );
-};
-
-export const CombatSimulatorReinforcementHeroStatsControlsRow = ({
-  reinforcementId,
-}: {
-  reinforcementId: CombatSimulatorReinforcement['id'];
-}) => {
-  return (
-    <CombatSimulatorHeroStatsControlsRow
       participant={{ role: 'reinforcement', reinforcementId }}
     />
   );

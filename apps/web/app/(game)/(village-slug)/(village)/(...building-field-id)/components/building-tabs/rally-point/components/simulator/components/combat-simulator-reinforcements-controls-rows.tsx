@@ -13,10 +13,7 @@ import {
 } from 'app/components/ui/select';
 import { CombatSimulatorContext } from '../providers/combat-simulator-context';
 import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
-import {
-  CombatSimulatorReinforcementHeroStatsControlsRow,
-  CombatSimulatorReinforcementTroopControlsRows,
-} from './combat-simulator-troop-controls-rows';
+import { CombatSimulatorReinforcementTroopControlsRows } from './combat-simulator-troop-controls-rows';
 
 export const CombatSimulatorReinforcementsControlsRows = () => {
   const { t } = useTranslation();
@@ -92,14 +89,14 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
               </tr>
             </thead>
           </CombatSimulatorParticipantControlsTable>
-          <UnitTable tribe={reinforcement.tribe}>
+          <UnitTable
+            includeHero={false}
+            tribe={reinforcement.tribe}
+          >
             <CombatSimulatorReinforcementTroopControlsRows
               reinforcementId={reinforcement.id}
             />
           </UnitTable>
-          <CombatSimulatorReinforcementHeroStatsControlsRow
-            reinforcementId={reinforcement.id}
-          />
         </div>
       ))}
     </>
