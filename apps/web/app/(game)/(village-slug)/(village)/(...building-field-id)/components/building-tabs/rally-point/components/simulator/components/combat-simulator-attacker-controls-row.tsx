@@ -1,6 +1,6 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuArrowDownUp, LuEraser } from 'react-icons/lu';
+import { LuArrowDownUp, LuBeer, LuEraser } from 'react-icons/lu';
 import { PLAYABLE_TRIBES, type Tribe } from '@pillage-first/types/models/tribe';
 import { UnitTable } from 'app/(game)/components/unit-table';
 import { Icon } from 'app/components/icon';
@@ -23,6 +23,7 @@ import {
   CombatSimulatorAttackerHeroStatsControlsRow,
   CombatSimulatorAttackerTroopControlsRows,
 } from './combat-simulator-troop-controls-rows';
+import { LevelInputPopover } from './level-input-popover';
 
 type CombatSimulatorAttackerControlsRowProps = {
   title: string;
@@ -35,6 +36,7 @@ export const CombatSimulatorAttackerControlsRow = ({
   const {
     state,
     clearAttackerData,
+    setAttackerBreweryLevel,
     setAttackerTribe,
     setAttackerVillagePopulation,
     setCombatMode,
@@ -43,6 +45,7 @@ export const CombatSimulatorAttackerControlsRow = ({
   const canSetHero = state.playerRole === 'attacker';
 
   const populationLabel = t('Population');
+  const breweryLevelLabel = t('Brewery level');
 
   return (
     <div className="flex flex-col">
@@ -147,36 +150,56 @@ export const CombatSimulatorAttackerControlsRow = ({
                     ))}
                   </SelectContent>
                 </Select>
-                <label
-                  className="flex cursor-pointer items-center gap-1"
-                  data-tooltip-content={populationLabel}
-                  data-tooltip-id="general-tooltip"
-                  htmlFor="combat-simulator-attacker-population"
-                >
-                  <span className="inline-flex items-center justify-center">
-                    <span className="sr-only">{populationLabel}</span>
-                    <Icon
-                      className="size-4 md:size-5"
-                      type="population"
+                <div className="flex items-center gap-2">
+                  <label
+                    className="flex cursor-pointer items-center gap-1"
+                    data-tooltip-content={populationLabel}
+                    data-tooltip-id="general-tooltip"
+                    htmlFor="combat-simulator-attacker-population"
+                  >
+                    <span className="inline-flex items-center justify-center">
+                      <span className="sr-only">{populationLabel}</span>
+                      <Icon
+                        className="size-4 md:size-5"
+                        type="population"
+                      />
+                    </span>
+                    <Input
+                      aria-label={populationLabel}
+                      autoComplete="off"
+                      className="px-1 w-16 text-center"
+                      hideSpinner
+                      id="combat-simulator-attacker-population"
+                      min={0}
+                      size="numericDoubleDigit"
+                      type="number"
+                      value={state.attacker.village.population}
+                      onChange={(event) => {
+                        setAttackerVillagePopulation(
+                          event.currentTarget.valueAsNumber,
+                        );
+                      }}
                     />
-                  </span>
-                  <Input
-                    aria-label={populationLabel}
-                    autoComplete="off"
-                    className="px-1 w-16 text-center"
-                    hideSpinner
-                    id="combat-simulator-attacker-population"
-                    min={0}
-                    size="numericDoubleDigit"
-                    type="number"
-                    value={state.attacker.village.population}
-                    onChange={(event) => {
-                      setAttackerVillagePopulation(
-                        event.currentTarget.valueAsNumber,
-                      );
-                    }}
-                  />
-                </label>
+                  </label>
+                  {state.attacker.tribe === 'teutons' && (
+                    <span
+                      className="flex cursor-pointer items-center gap-1"
+                      data-tooltip-content={breweryLevelLabel}
+                      data-tooltip-id="general-tooltip"
+                    >
+                      <span className="inline-flex items-center justify-center">
+                        <span className="sr-only">{breweryLevelLabel}</span>
+                        <LuBeer className="size-4 md:size-5" />
+                      </span>
+                      <LevelInputPopover
+                        id="combat-simulator-attacker-brewery-level"
+                        label={breweryLevelLabel}
+                        value={state.attacker.village.breweryLevel}
+                        onValueChange={setAttackerBreweryLevel}
+                      />
+                    </span>
+                  )}
+                </div>
               </div>
             </th>
           </tr>

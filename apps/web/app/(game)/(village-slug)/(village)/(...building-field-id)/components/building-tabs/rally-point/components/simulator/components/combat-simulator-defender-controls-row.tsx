@@ -40,6 +40,7 @@ export const CombatSimulatorDefenderControlsRow = ({
     addDefenderReinforcement,
     clearDefenderData,
     setDefenderResidenceLevel,
+    setDefenderTrapCount,
     setDefenderTribe,
     setDefenderVillagePopulation,
     setDefenderWallLevel,
@@ -50,6 +51,7 @@ export const CombatSimulatorDefenderControlsRow = ({
   const populationLabel = t('Population');
   const wallLevelLabel = t('Wall level');
   const residenceLevelLabel = t('Residence level');
+  const trapCountLabel = t('Trap count');
 
   return (
     <div className="flex flex-col">
@@ -194,6 +196,28 @@ export const CombatSimulatorDefenderControlsRow = ({
                       onValueChange={setDefenderResidenceLevel}
                     />
                   </span>
+                  {state.defender.tribe === 'gauls' && (
+                    <span
+                      className="flex cursor-pointer items-center gap-1"
+                      data-tooltip-content={trapCountLabel}
+                      data-tooltip-id="general-tooltip"
+                    >
+                      <span className="inline-flex items-center justify-center">
+                        <span className="sr-only">{trapCountLabel}</span>
+                        <Icon
+                          className="size-4 md:size-5"
+                          type="trapperCapacity"
+                        />
+                      </span>
+                      <LevelInputPopover
+                        id="combat-simulator-defender-trap-count"
+                        label={trapCountLabel}
+                        max={400}
+                        value={state.defender.village.trapCount}
+                        onValueChange={setDefenderTrapCount}
+                      />
+                    </span>
+                  )}
                 </div>
               </div>
             </th>

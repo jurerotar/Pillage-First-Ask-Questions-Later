@@ -131,12 +131,16 @@ const createInitialCombatSimulatorState = (
   return {
     combatMode: 'raid',
     playerRole: 'attacker',
-    attacker: createParticipant(initialTribe, { population: 100 }),
+    attacker: createParticipant(initialTribe, {
+      population: 100,
+      breweryLevel: 0,
+    }),
     defender: {
       ...createParticipant(initialTribe, {
         population: 100,
         wallLevel: 0,
         residenceLevel: 0,
+        trapCount: 0,
       }),
       reinforcements: [],
     },
@@ -306,6 +310,19 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     }));
   }, []);
 
+  const setAttackerBreweryLevel = useCallback((breweryLevel: number) => {
+    setState((prevState) => ({
+      ...prevState,
+      attacker: {
+        ...prevState.attacker,
+        village: {
+          ...prevState.attacker.village,
+          breweryLevel: clampInteger(breweryLevel, 0, 20),
+        },
+      },
+    }));
+  }, []);
+
   const setDefenderVillagePopulation = useCallback((population: number) => {
     setState((prevState) => ({
       ...prevState,
@@ -345,11 +362,25 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     }));
   }, []);
 
+  const setDefenderTrapCount = useCallback((trapCount: number) => {
+    setState((prevState) => ({
+      ...prevState,
+      defender: {
+        ...prevState.defender,
+        village: {
+          ...prevState.defender.village,
+          trapCount: clampInteger(trapCount, 0, 400),
+        },
+      },
+    }));
+  }, []);
+
   const clearAttackerData = useCallback(() => {
     setState((prevState) => ({
       ...prevState,
       attacker: createParticipant(prevState.attacker.tribe, {
         population: 100,
+        breweryLevel: 0,
       }),
     }));
   }, []);
@@ -363,6 +394,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
           population: 100,
           wallLevel: 0,
           residenceLevel: 0,
+          trapCount: 0,
         }),
       },
     }));
@@ -376,6 +408,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
             ...prevState,
             attacker: createParticipant(prevState.attacker.tribe, {
               population: 100,
+              breweryLevel: 0,
             }),
           };
         }
@@ -389,6 +422,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
                 population: 100,
                 wallLevel: 0,
                 residenceLevel: 0,
+                trapCount: 0,
               }),
             },
           };
@@ -632,9 +666,11 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
       setAttackerHeroStats,
       setDefenderHeroStats,
       setAttackerVillagePopulation,
+      setAttackerBreweryLevel,
       setDefenderVillagePopulation,
       setDefenderWallLevel,
       setDefenderResidenceLevel,
+      setDefenderTrapCount,
       clearAttackerData,
       clearDefenderData,
       clearParticipantData,
@@ -661,9 +697,11 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
       setAttackerHeroStats,
       setDefenderHeroStats,
       setAttackerVillagePopulation,
+      setAttackerBreweryLevel,
       setDefenderVillagePopulation,
       setDefenderWallLevel,
       setDefenderResidenceLevel,
+      setDefenderTrapCount,
       clearAttackerData,
       clearDefenderData,
       clearParticipantData,

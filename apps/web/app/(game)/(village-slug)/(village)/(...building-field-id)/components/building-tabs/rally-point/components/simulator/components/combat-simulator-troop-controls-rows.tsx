@@ -314,50 +314,52 @@ const CombatSimulatorTroopControlsRows = ({
           })}
         </tr>
       </tbody>
-      <tbody className="border-b last:border-b-0 dark:border-border">
-        <tr>
-          <td className="border-r dark:border-border p-1 w-16">
-            <div
-              className="flex justify-center"
-              data-tooltip-content={smithyImprovementLevelLabel}
-              data-tooltip-id="general-tooltip"
-            >
-              <span className="sr-only">{smithyImprovementLevelLabel}</span>
-              <GiAnvil className="size-4 md:size-5" />
-            </div>
-          </td>
-          {tribeUnits.map((unit, index) => {
-            const troop = troopByUnitId.get(unit.id);
-            const isLastUnit = index === tribeUnits.length - 1;
-
-            return (
-              <td
-                key={unit.id}
-                className={`h-8 p-1 text-center ${isLastUnit ? '' : 'border-r dark:border-border'}`}
+      {tribe !== 'nature' && (
+        <tbody className="border-b last:border-b-0 dark:border-border">
+          <tr>
+            <td className="border-r dark:border-border p-1 w-16">
+              <div
+                className="flex justify-center"
+                data-tooltip-content={smithyImprovementLevelLabel}
+                data-tooltip-id="general-tooltip"
               >
-                {upgradableUnitIds.has(unit.id) && (
-                  <LevelInputPopover
-                    className="mx-auto px-1 max-w-12 text-center"
-                    id={`combat-simulator-${participantInputId}-${unit.id}-smithy-improvement-level`}
-                    inputSize="fit"
-                    label={smithyImprovementLevelLabel}
-                    title={t('{{unitName}} level', {
-                      unitName: t(`UNITS.${unit.id}.NAME`),
-                    })}
-                    value={troop?.smithyImprovementLevel ?? 0}
-                    onValueChange={(value) => {
-                      participantData.onSmithyImprovementLevelChange(
-                        unit.id,
-                        value,
-                      );
-                    }}
-                  />
-                )}
-              </td>
-            );
-          })}
-        </tr>
-      </tbody>
+                <span className="sr-only">{smithyImprovementLevelLabel}</span>
+                <GiAnvil className="size-4 md:size-5" />
+              </div>
+            </td>
+            {tribeUnits.map((unit, index) => {
+              const troop = troopByUnitId.get(unit.id);
+              const isLastUnit = index === tribeUnits.length - 1;
+
+              return (
+                <td
+                  key={unit.id}
+                  className={`h-8 p-1 text-center ${isLastUnit ? '' : 'border-r dark:border-border'}`}
+                >
+                  {upgradableUnitIds.has(unit.id) && (
+                    <LevelInputPopover
+                      className="mx-auto px-1 max-w-12 text-center"
+                      id={`combat-simulator-${participantInputId}-${unit.id}-smithy-improvement-level`}
+                      inputSize="fit"
+                      label={smithyImprovementLevelLabel}
+                      title={t('{{unitName}} level', {
+                        unitName: t(`UNITS.${unit.id}.NAME`),
+                      })}
+                      value={troop?.smithyImprovementLevel ?? 0}
+                      onValueChange={(value) => {
+                        participantData.onSmithyImprovementLevelChange(
+                          unit.id,
+                          value,
+                        );
+                      }}
+                    />
+                  )}
+                </td>
+              );
+            })}
+          </tr>
+        </tbody>
+      )}
     </>
   );
 };
