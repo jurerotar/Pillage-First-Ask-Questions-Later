@@ -14,13 +14,25 @@ describe('effect-controllers', () => {
       schema: z.number(),
     })!;
 
-    getTileEffects(
+    const effects = getTileEffects(
       database,
       createControllerArgs<'/tiles/:tileId/effects'>({
         path: { tileId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(effects).toContainEqual(
+      expect.objectContaining({
+        id: 'woodProduction',
+        scope: 'local',
+        source: 'building',
+        tileId,
+      }),
+    );
+    expect(
+      effects.every((effect) =>
+        effect.scope === 'local' ? effect.tileId === tileId : true,
+      ),
+    ).toBe(true);
   });
 });

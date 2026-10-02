@@ -2189,7 +2189,7 @@ describe('events utils', () => {
         villageId: getAnyVillageId(database),
       });
       const result = getEventDuration(database, event);
-      expect(result).toBeGreaterThanOrEqual(0);
+      expect(result).toBeGreaterThan(0);
     });
 
     test('unitResearch - should apply effects and return a positive duration', async () => {

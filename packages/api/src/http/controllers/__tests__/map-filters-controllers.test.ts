@@ -10,14 +10,20 @@ describe('map-filters-controllers', () => {
   test('getMapFilters should return map filters', async () => {
     const database = await prepareTestDatabase();
 
-    getMapFilters(
+    const filters = getMapFilters(
       database,
       createControllerArgs<'/players/:playerId/map-filters'>({
         path: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(filters).toStrictEqual({
+      shouldShowFactionReputation: expect.any(Boolean),
+      shouldShowOasisIcons: expect.any(Boolean),
+      shouldShowTileTooltips: expect.any(Boolean),
+      shouldShowTroopMovements: expect.any(Boolean),
+      shouldShowWheatFields: expect.any(Boolean),
+    });
   });
 
   test('updateMapFilter should update a map filter', async () => {
@@ -34,6 +40,13 @@ describe('map-filters-controllers', () => {
       }),
     );
 
-    expect(true).toBe(true);
+    expect(
+      getMapFilters(
+        database,
+        createControllerArgs<'/players/:playerId/map-filters'>({
+          path: { playerId },
+        }),
+      ).shouldShowOasisIcons,
+    ).toBe(true);
   });
 });

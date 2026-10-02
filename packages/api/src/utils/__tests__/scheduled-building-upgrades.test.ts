@@ -913,6 +913,76 @@ describe('scheduled building upgrades', () => {
     });
   });
 
+  test('starts a new building when its later levels are scheduled', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const buildingFieldId = 25;
+
+    database.execMulti({
+      sql: `DELETE FROM effects
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND source_specifier = $field_id;
+        DELETE FROM building_fields
+        WHERE village_id = $village_id
+          AND field_id = $field_id;
+        UPDATE developer_settings
+        SET is_free_building_construction_enabled = 1;
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+      },
+    });
+    createBuildingPlaceholder(database, villageId, buildingFieldId, 'GRANARY');
+    for (const level of [1, 2]) {
+      insertScheduledBuildingUpgrade(database, {
+        villageId,
+        buildingId: 'GRANARY',
+        buildingFieldId,
+        level,
+      });
+    }
+
+    promoteNextScheduledBuildingUpgrade(database, villageId);
+
+    const result = database.selectObject({
+      sql: `
+        SELECT
+          CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) AS fieldId,
+          JSON_EXTRACT(e.meta, '$.buildingId') AS buildingId,
+          CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) AS previousLevel,
+          CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) AS level,
+          (SELECT COUNT(*)
+           FROM scheduled_building_upgrades sbu
+           WHERE sbu.village_id = $village_id
+             AND sbu.building_field_id = $field_id
+             AND sbu.level = 2) AS scheduledLevelTwo
+        FROM events e
+        WHERE e.village_id = $village_id
+          AND e.type = 'buildingLevelChange';
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+      },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        buildingId: buildingIdSchema,
+        previousLevel: z.number(),
+        level: z.number(),
+        scheduledLevelTwo: z.number(),
+      }),
+    });
+
+    expect(result).toEqual({
+      fieldId: buildingFieldId,
+      buildingId: 'GRANARY',
+      previousLevel: 0,
+      level: 1,
+      scheduledLevelTwo: 1,
+    });
+  });
+
   test.each([0, -100])(
     'does not promote an upgrade when current free crop is %i',
     async (wheatProduction) => {

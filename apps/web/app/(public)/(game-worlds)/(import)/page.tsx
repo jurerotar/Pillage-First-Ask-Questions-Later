@@ -22,7 +22,10 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
-import { pushGameWorldImported } from 'app/instrumentation/product-events';
+import {
+  type GameWorldImportMethod,
+  pushGameWorldImported,
+} from 'app/instrumentation/product-events';
 import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
 
@@ -33,7 +36,7 @@ type ImportGameWorldSuccess = Extract<
 
 type ImportGameWorldArgs = {
   data: ArrayBuffer | Blob;
-  source: 'device' | 'file';
+  importMethod: GameWorldImportMethod;
 };
 
 const ImportGameWorld = () => {
@@ -66,8 +69,13 @@ const ImportGameWorld = () => {
 
       return result;
     },
-    onSuccess: async ({ server }, { source }, _onMutateResult, context) => {
-      pushGameWorldImported(server, { source });
+    onSuccess: async (
+      { server },
+      { importMethod },
+      _onMutateResult,
+      context,
+    ) => {
+      pushGameWorldImported(server, importMethod);
 
       await createGameWorld({ server });
       await invalidateQueries(context, [[availableServerCacheKey]]);
@@ -158,7 +166,10 @@ const ImportGameWorld = () => {
                   }
 
                   try {
-                    await importGameWorld({ data: file, source: 'file' });
+                    await importGameWorld({
+                      data: file,
+                      importMethod: 'manual_upload',
+                    });
                   } finally {
                     if (fileInputRef.current) {
                       fileInputRef.current.value = '';
@@ -218,7 +229,7 @@ const ImportGameWorld = () => {
         open={isImportModalOpen}
         onOpenChange={setIsImportModalOpen}
         onImport={async (buffer) => {
-          await importGameWorld({ data: buffer, source: 'device' });
+          await importGameWorld({ data: buffer, importMethod: 'webrtc' });
         }}
       />
     </PageContents>

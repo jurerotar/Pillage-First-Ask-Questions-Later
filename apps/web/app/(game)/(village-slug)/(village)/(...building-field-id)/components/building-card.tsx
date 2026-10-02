@@ -597,12 +597,12 @@ const BuildingCardActionsUpgrade = ({
   buildingLevel,
 }: BuildingCardActionsUpgradeProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId, buildingField } = use(BuildingFieldContext);
-  const { buildingId, level } = buildingField!;
+  const { buildingId } = use(BuildingCardContext);
+  const { actualLevel, buildingFieldId } = use(BuildingFieldContext);
 
   const { errorBag } = useBuildingConstructionErrorBag(
     buildingId,
-    level,
+    actualLevel,
     buildingFieldId,
   );
 

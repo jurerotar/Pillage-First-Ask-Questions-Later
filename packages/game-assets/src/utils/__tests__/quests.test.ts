@@ -58,6 +58,15 @@ describe('quest utils', () => {
       });
     });
 
+    test('kill count requirements preserve their distinct reward units', () => {
+      expect(getQuestRequirements('killCount-10')).toStrictEqual([
+        { type: 'kill-count', count: 10 },
+      ]);
+      expect(
+        getQuestRequirements('unitKillCount-LEGIONNAIRE-10'),
+      ).toStrictEqual([{ type: 'unit-kill-count', count: 10 }]);
+    });
+
     test('building requirement parsed correctly (oneOf)', () => {
       const reqs = getQuestRequirements('oneOf-WOODCUTTER-4');
       expect(reqs).toHaveLength(1);
@@ -134,6 +143,21 @@ describe('quest utils', () => {
         type: 'hero-exp',
         amount: 5,
       });
+    });
+
+    test('kill count rewards use the correct resource multipliers', () => {
+      expect(getQuestRewards('killCount-10')).toStrictEqual([
+        { type: 'resources', amount: 100 },
+      ]);
+      expect(getQuestRewards('unitKillCount-LEGIONNAIRE-10')).toStrictEqual([
+        { type: 'resources', amount: 1000 },
+      ]);
+    });
+
+    test('gathered resources always grant at least one experience', () => {
+      expect(getQuestRewards('gatheredResourceCount-1')).toStrictEqual([
+        { type: 'hero-exp', amount: 1 },
+      ]);
     });
 
     test('woodcutter oneOf level 1 (effectiveLevel=0) returns base/2', () => {

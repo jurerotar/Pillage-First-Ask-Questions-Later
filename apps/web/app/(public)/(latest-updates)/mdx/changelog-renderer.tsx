@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { CopySectionLinkButton } from 'app/(public)/components/copy-section-link-button';
 import { Alert } from 'app/components/ui/alert';
 import {
   type ChangelogEntry,
@@ -84,7 +85,13 @@ export const ChangelogRenderer = () => {
           {import.meta.env.DEV && (
             <CopyReleaseButton text={buildReleaseMarkdown(release)} />
           )}
-          <h2>Version {release.version}</h2>
+          <h2 className="group">
+            Version {release.version}
+            <CopySectionLinkButton
+              sectionId={makeSectionId(release.version)}
+              sectionType="release"
+            />
+          </h2>
           <h4>
             {release.date.toLocaleDateString('en-US', {
               month: 'long',

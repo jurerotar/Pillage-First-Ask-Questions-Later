@@ -10,14 +10,18 @@ describe('preferences-controllers', () => {
   test('getPreferences should return preferences', async () => {
     const database = await prepareTestDatabase();
 
-    getPreferences(
+    const preferences = getPreferences(
       database,
       createControllerArgs<'/players/:playerId/preferences'>({
         path: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(preferences).toMatchObject({
+      isAccessibilityModeEnabled: expect.any(Boolean),
+      isDeveloperToolsConsoleEnabled: expect.any(Boolean),
+      shouldShowBuildingNames: expect.any(Boolean),
+    });
   });
 
   test('updatePreference should update a preference', async () => {
@@ -37,6 +41,13 @@ describe('preferences-controllers', () => {
       }),
     );
 
-    expect(true).toBe(true);
+    expect(
+      getPreferences(
+        database,
+        createControllerArgs<'/players/:playerId/preferences'>({
+          path: { playerId },
+        }),
+      ).isAccessibilityModeEnabled,
+    ).toBe(true);
   });
 });

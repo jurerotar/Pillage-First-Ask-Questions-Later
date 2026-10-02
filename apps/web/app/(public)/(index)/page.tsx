@@ -276,8 +276,7 @@ const MotivationSection = () => {
 
 const questions = [
   {
-    question:
-      'Are there game design differences between Travian and Pillage First!?',
+    question: 'Are there differences between Travian and Pillage First!?',
     answer:
       'Yes, there are a few! The main ones include new buildings, the removal of the capital village mechanic, expanded artifact system, planned new hero items and more NPC interactions. Mechanics are always up for discussion, so make sure to join our Discord server and share with us your thoughts!',
   },

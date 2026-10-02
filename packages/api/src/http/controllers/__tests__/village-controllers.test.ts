@@ -21,14 +21,14 @@ describe('village-controllers', () => {
       schema: z.string(),
     })!;
 
-    getVillageBySlug(
+    const result = getVillageBySlug(
       database,
       createControllerArgs<'/villages/:villageSlug'>({
         path: { villageSlug: village },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(result).toMatchObject({ slug: village });
   });
 
   test('getOccupiableOasisInRange should return occupiable oasis in range', async () => {
@@ -39,14 +39,26 @@ describe('village-controllers', () => {
       schema: z.number(),
     })!;
 
-    getOccupiableOasisInRange(
+    const oases = getOccupiableOasisInRange(
       database,
       createControllerArgs<'/villages/:villageId/occupiable-oasis'>({
         path: { villageId: villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(oases).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          oasis: expect.objectContaining({
+            id: expect.any(Number),
+            coordinates: expect.objectContaining({
+              x: expect.any(Number),
+              y: expect.any(Number),
+            }),
+          }),
+        }),
+      ]),
+    );
   });
 
   test('getGatherersHutExpeditions should return completed expedition count', async () => {

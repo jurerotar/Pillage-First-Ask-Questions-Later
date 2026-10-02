@@ -56,14 +56,9 @@ export const assessBuildingConstructionRequirements = (
         SELECT JSON_EXTRACT(e.meta, '$.buildingId') AS buildingId
         FROM events e
         WHERE e.village_id = $village_id
-          AND (
-            e.type = 'buildingConstruction'
-            OR (
-              e.type = 'buildingLevelChange'
-              AND CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) >
-                  CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER)
-            )
-          )
+          AND e.type IN ('buildingConstruction', 'buildingLevelChange')
+          AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) = 0
+          AND CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) > 0
 
         UNION
 
@@ -71,6 +66,7 @@ export const assessBuildingConstructionRequirements = (
         FROM scheduled_building_upgrades sbu
         JOIN building_ids bi ON bi.id = sbu.building_id
         WHERE sbu.village_id = $village_id
+          AND sbu.level = 1
           AND sbu.id IS NOT $excluded_scheduled_building_upgrade_id
       );
     `,

@@ -500,11 +500,7 @@ describe('calculateComputedEffect – woodProduction', () => {
       // baseValue = 100. oasisBonus = 1.2.
       // oasisBonus = floor(100 * 0.2) = 20
       // total = 100 + 20 + 15 = 135
-      // If woodProductionBaseEffectMock value is not 100, this will fail.
-      // Received 134 means maybe baseValue was 99? 99 * 0.2 = 19.8 -> 19. 99 + 19 + 15 = 133. No.
-      // Maybe baseValue was 100 and oasisBonus was something that floored to 19?
-      // Wait, let's just use explicit values to be sure.
-      expect(result.total).toBeGreaterThanOrEqual(134);
+      expect(result.total).toBe(135);
     });
 
     test('waterworks is not special-cased during calculation', () => {
