@@ -28,15 +28,11 @@ export type CombatSimulatorTroop = TroopLike & {
 export type CombatSimulatorMode = 'attack' | 'raid';
 export type CombatSimulatorPlayerRole = 'attacker' | 'defender';
 
-export type CombatSimulatorVillage = {
-  population: number;
-};
-
-export type CombatSimulatorAttackerVillage = CombatSimulatorVillage & {
+export type CombatSimulatorAttackerVillage = {
   breweryLevel: number;
 };
 
-export type CombatSimulatorDefenderVillage = CombatSimulatorVillage & {
+export type CombatSimulatorDefenderVillage = {
   wallLevel: number;
   residenceLevel: number;
   trapCount: number;
@@ -53,7 +49,7 @@ export type CombatSimulatorAttacker =
   CombatSimulatorParticipant<CombatSimulatorAttackerVillage>;
 
 export type CombatSimulatorReinforcement =
-  CombatSimulatorParticipant<CombatSimulatorVillage> & {
+  CombatSimulatorParticipant<undefined> & {
     id: string;
   };
 
@@ -100,9 +96,7 @@ export type CombatSimulatorContextValue = {
   ) => void;
   setAttackerHeroStats: (heroStats: CombatSimulatorHeroStats) => void;
   setDefenderHeroStats: (heroStats: CombatSimulatorHeroStats) => void;
-  setAttackerVillagePopulation: (population: number) => void;
   setAttackerBreweryLevel: (breweryLevel: number) => void;
-  setDefenderVillagePopulation: (population: number) => void;
   setDefenderWallLevel: (wallLevel: number) => void;
   setDefenderResidenceLevel: (residenceLevel: number) => void;
   setDefenderTrapCount: (trapCount: number) => void;
@@ -134,10 +128,6 @@ export type CombatSimulatorContextValue = {
   setDefenderReinforcementHeroStats: (
     reinforcementId: CombatSimulatorReinforcement['id'],
     heroStats: CombatSimulatorHeroStats,
-  ) => void;
-  setDefenderReinforcementVillagePopulation: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-    population: number,
   ) => void;
   clearDefenderReinforcementData: (
     reinforcementId: CombatSimulatorReinforcement['id'],

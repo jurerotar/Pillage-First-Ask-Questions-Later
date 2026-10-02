@@ -17,6 +17,12 @@ const RallyPointSimulatorContent = () => {
   const { t } = useTranslation();
   const { state } = use(CombatSimulatorContext)!;
   const playerIsAttacker = state.playerRole === 'attacker';
+  const isOasis = state.defender.tribe === 'nature';
+  const defenderTitle = isOasis
+    ? t('Oasis')
+    : playerIsAttacker
+      ? t('Defender')
+      : t('You (Defender)');
 
   return (
     <Section>
@@ -36,10 +42,8 @@ const RallyPointSimulatorContent = () => {
           <CombatSimulatorAttackerControlsRow
             title={playerIsAttacker ? t('You (Attacker)') : t('Attacker')}
           />
-          <CombatSimulatorDefenderControlsRow
-            title={playerIsAttacker ? t('Defender') : t('You (Defender)')}
-          />
-          <CombatSimulatorReinforcementsControlsRows />
+          <CombatSimulatorDefenderControlsRow title={defenderTitle} />
+          {!isOasis && <CombatSimulatorReinforcementsControlsRows />}
         </div>
       </SectionContent>
     </Section>

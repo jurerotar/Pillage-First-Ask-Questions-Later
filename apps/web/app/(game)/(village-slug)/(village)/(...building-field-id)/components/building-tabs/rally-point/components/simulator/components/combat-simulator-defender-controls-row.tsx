@@ -11,7 +11,6 @@ import { TRIBES, type Tribe } from '@pillage-first/types/models/tribe';
 import { UnitTable } from 'app/(game)/components/unit-table';
 import { Icon } from 'app/components/icon';
 import { Button } from 'app/components/ui/button';
-import { Input } from 'app/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -42,13 +41,12 @@ export const CombatSimulatorDefenderControlsRow = ({
     setDefenderResidenceLevel,
     setDefenderTrapCount,
     setDefenderTribe,
-    setDefenderVillagePopulation,
     setDefenderWallLevel,
     swapPlayerRole,
   } = use(CombatSimulatorContext)!;
-  const canSetHero = state.playerRole === 'defender';
+  const isOasis = state.defender.tribe === 'nature';
+  const canSetHero = state.playerRole === 'defender' && !isOasis;
 
-  const populationLabel = t('Population');
   const wallLevelLabel = t('Wall level');
   const residenceLevelLabel = t('Residence level');
   const trapCountLabel = t('Trap count');
@@ -79,19 +77,21 @@ export const CombatSimulatorDefenderControlsRow = ({
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button
-                    aria-label={t('Add defender')}
-                    className="text-foreground"
-                    data-tooltip-content={t('Add defender')}
-                    data-tooltip-id="general-tooltip"
-                    size="icon"
-                    variant="outline"
-                    onClick={() => {
-                      addDefenderReinforcement();
-                    }}
-                  >
-                    <LuShieldPlus />
-                  </Button>
+                  {!isOasis && (
+                    <Button
+                      aria-label={t('Add defender')}
+                      className="text-foreground"
+                      data-tooltip-content={t('Add defender')}
+                      data-tooltip-id="general-tooltip"
+                      size="icon"
+                      variant="outline"
+                      onClick={() => {
+                        addDefenderReinforcement();
+                      }}
+                    >
+                      <LuShieldPlus />
+                    </Button>
+                  )}
                   <Button
                     aria-label={t('Clear')}
                     className="text-foreground"
@@ -123,7 +123,12 @@ export const CombatSimulatorDefenderControlsRow = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {TRIBES.map((tribeOption) => (
+                    {TRIBES.filter((tribeOption) => {
+                      return (
+                        tribeOption !== 'nature' ||
+                        state.playerRole === 'attacker'
+                      );
+                    }).map((tribeOption) => (
                       <SelectItem
                         key={tribeOption}
                         value={tribeOption}
@@ -134,68 +139,42 @@ export const CombatSimulatorDefenderControlsRow = ({
                   </SelectContent>
                 </Select>
                 <div className="flex items-center gap-2">
-                  <label
-                    className="flex cursor-pointer items-center gap-1"
-                    data-tooltip-content={populationLabel}
-                    data-tooltip-id="general-tooltip"
-                    htmlFor="combat-simulator-defender-population"
-                  >
-                    <span className="inline-flex items-center justify-center">
-                      <span className="sr-only">{populationLabel}</span>
-                      <Icon
-                        className="size-4 md:size-5"
-                        type="population"
-                      />
-                    </span>
-                    <Input
-                      aria-label={populationLabel}
-                      autoComplete="off"
-                      className="px-1 w-16 text-center"
-                      hideSpinner
-                      id="combat-simulator-defender-population"
-                      min={0}
-                      size="numericDoubleDigit"
-                      type="number"
-                      value={state.defender.village.population}
-                      onChange={(event) => {
-                        setDefenderVillagePopulation(
-                          event.currentTarget.valueAsNumber,
-                        );
-                      }}
-                    />
-                  </label>
-                  <span
-                    className="flex cursor-pointer items-center gap-1"
-                    data-tooltip-content={wallLevelLabel}
-                    data-tooltip-id="general-tooltip"
-                  >
-                    <span className="inline-flex items-center justify-center">
-                      <span className="sr-only">{wallLevelLabel}</span>
-                      <LuCastle className="size-4 md:size-5" />
-                    </span>
-                    <LevelInputPopover
-                      id="combat-simulator-defender-wall-level"
-                      label={wallLevelLabel}
-                      value={state.defender.village.wallLevel}
-                      onValueChange={setDefenderWallLevel}
-                    />
-                  </span>
-                  <span
-                    className="flex cursor-pointer items-center gap-1"
-                    data-tooltip-content={residenceLevelLabel}
-                    data-tooltip-id="general-tooltip"
-                  >
-                    <span className="inline-flex items-center justify-center">
-                      <span className="sr-only">{residenceLevelLabel}</span>
-                      <LuHouse className="size-4 md:size-5" />
-                    </span>
-                    <LevelInputPopover
-                      id="combat-simulator-defender-residence-level"
-                      label={residenceLevelLabel}
-                      value={state.defender.village.residenceLevel}
-                      onValueChange={setDefenderResidenceLevel}
-                    />
-                  </span>
+                  {!isOasis && (
+                    <>
+                      <span
+                        className="flex cursor-pointer items-center gap-1"
+                        data-tooltip-content={wallLevelLabel}
+                        data-tooltip-id="general-tooltip"
+                      >
+                        <span className="inline-flex items-center justify-center">
+                          <span className="sr-only">{wallLevelLabel}</span>
+                          <LuCastle className="size-4 md:size-5" />
+                        </span>
+                        <LevelInputPopover
+                          id="combat-simulator-defender-wall-level"
+                          label={wallLevelLabel}
+                          value={state.defender.village.wallLevel}
+                          onValueChange={setDefenderWallLevel}
+                        />
+                      </span>
+                      <span
+                        className="flex cursor-pointer items-center gap-1"
+                        data-tooltip-content={residenceLevelLabel}
+                        data-tooltip-id="general-tooltip"
+                      >
+                        <span className="inline-flex items-center justify-center">
+                          <span className="sr-only">{residenceLevelLabel}</span>
+                          <LuHouse className="size-4 md:size-5" />
+                        </span>
+                        <LevelInputPopover
+                          id="combat-simulator-defender-residence-level"
+                          label={residenceLevelLabel}
+                          value={state.defender.village.residenceLevel}
+                          onValueChange={setDefenderResidenceLevel}
+                        />
+                      </span>
+                    </>
+                  )}
                   {state.defender.tribe === 'gauls' && (
                     <span
                       className="flex cursor-pointer items-center gap-1"
