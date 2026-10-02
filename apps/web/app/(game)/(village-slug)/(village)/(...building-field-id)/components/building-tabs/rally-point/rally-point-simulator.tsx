@@ -43,7 +43,7 @@ const RallyPointSimulatorContent = () => {
             title={playerIsAttacker ? t('You (Attacker)') : t('Attacker')}
           />
           <CombatSimulatorDefenderControlsRow title={defenderTitle} />
-          {!isOasis && <CombatSimulatorReinforcementsControlsRows />}
+          <CombatSimulatorReinforcementsControlsRows />
         </div>
       </SectionContent>
     </Section>

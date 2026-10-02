@@ -77,21 +77,19 @@ export const CombatSimulatorDefenderControlsRow = ({
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {!isOasis && (
-                    <Button
-                      aria-label={t('Add defender')}
-                      className="text-foreground"
-                      data-tooltip-content={t('Add defender')}
-                      data-tooltip-id="general-tooltip"
-                      size="icon"
-                      variant="outline"
-                      onClick={() => {
-                        addDefenderReinforcement();
-                      }}
-                    >
-                      <LuShieldPlus />
-                    </Button>
-                  )}
+                  <Button
+                    aria-label={t('Add defender')}
+                    className="text-foreground"
+                    data-tooltip-content={t('Add defender')}
+                    data-tooltip-id="general-tooltip"
+                    size="icon"
+                    variant="outline"
+                    onClick={() => {
+                      addDefenderReinforcement();
+                    }}
+                  >
+                    <LuShieldPlus />
+                  </Button>
                   <Button
                     aria-label={t('Clear')}
                     className="text-foreground"

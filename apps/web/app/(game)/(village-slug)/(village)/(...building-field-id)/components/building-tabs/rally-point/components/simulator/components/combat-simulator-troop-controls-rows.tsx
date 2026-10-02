@@ -48,20 +48,34 @@ type CombatSimulatorTroopControlsParticipant =
       reinforcementId: CombatSimulatorReinforcement['id'];
     };
 
+type CombatSimulatorHeroControlsParticipant = Exclude<
+  CombatSimulatorTroopControlsParticipant,
+  { role: 'reinforcement' }
+>;
+
 type CombatSimulatorParticipantData = {
   troops: CombatSimulatorTroop[];
-  heroStats: CombatSimulatorHeroStats;
   onTroopsChange: (troops: CombatSimulatorTroop[]) => void;
-  onHeroStatsChange: (heroStats: CombatSimulatorHeroStats) => void;
   onSmithyImprovementLevelChange: (
     unitId: UnitId,
     smithyImprovementLevel: number,
   ) => void;
 };
 
-const useCombatSimulatorParticipantData = (
+type CombatSimulatorHeroParticipantData = CombatSimulatorParticipantData & {
+  heroStats: CombatSimulatorHeroStats;
+  onHeroStatsChange: (heroStats: CombatSimulatorHeroStats) => void;
+};
+
+function useCombatSimulatorParticipantData(
+  participant: CombatSimulatorHeroControlsParticipant,
+): CombatSimulatorHeroParticipantData | null;
+function useCombatSimulatorParticipantData(
   participant: CombatSimulatorTroopControlsParticipant,
-): CombatSimulatorParticipantData | null => {
+): CombatSimulatorParticipantData | null;
+function useCombatSimulatorParticipantData(
+  participant: CombatSimulatorTroopControlsParticipant,
+): CombatSimulatorHeroParticipantData | CombatSimulatorParticipantData | null {
   const combatSimulator = use(CombatSimulatorContext)!;
   const { state } = combatSimulator;
 
@@ -97,15 +111,8 @@ const useCombatSimulatorParticipantData = (
 
   return {
     troops: reinforcement.troops,
-    heroStats: reinforcement.heroStats,
     onTroopsChange: (troops: CombatSimulatorTroop[]) => {
       combatSimulator.setDefenderReinforcementTroops(reinforcement.id, troops);
-    },
-    onHeroStatsChange: (heroStats: CombatSimulatorHeroStats) => {
-      combatSimulator.setDefenderReinforcementHeroStats(
-        reinforcement.id,
-        heroStats,
-      );
     },
     onSmithyImprovementLevelChange: (
       unitId: UnitId,
@@ -118,7 +125,7 @@ const useCombatSimulatorParticipantData = (
       );
     },
   };
-};
+}
 
 const useParticipantTribe = (
   participant: CombatSimulatorTroopControlsParticipant,
@@ -243,10 +250,7 @@ const CombatSimulatorTroopControlsRows = ({
   const amountLabel = t('Amount');
   const smithyImprovementLevelLabel = t('Smithy improvement level');
   const heroLabel = t('Include hero');
-  const participantInputId =
-    participant.role === 'reinforcement'
-      ? `reinforcement-${participant.reinforcementId}`
-      : participant.role;
+  const participantInputId = participant.role;
 
   return (
     <>
@@ -555,7 +559,7 @@ const CombatSimulatorHeroItemControls = ({
 const CombatSimulatorHeroStatsControlsRow = ({
   participant,
 }: {
-  participant: CombatSimulatorTroopControlsParticipant;
+  participant: CombatSimulatorHeroControlsParticipant;
 }) => {
   const { t } = useTranslation();
   const participantData = useCombatSimulatorParticipantData(participant)!;
@@ -571,10 +575,7 @@ const CombatSimulatorHeroStatsControlsRow = ({
   }
 
   const heroStatsLabel = t('Hero stats');
-  const participantInputId =
-    participant.role === 'reinforcement'
-      ? `reinforcement-${participant.reinforcementId}`
-      : participant.role;
+  const participantInputId = participant.role;
 
   const heroStatFields = [
     {

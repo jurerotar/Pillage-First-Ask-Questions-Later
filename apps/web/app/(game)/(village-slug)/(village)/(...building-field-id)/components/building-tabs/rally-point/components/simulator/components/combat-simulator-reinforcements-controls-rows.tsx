@@ -1,6 +1,6 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuEraser } from 'react-icons/lu';
+import { LuEraser, LuX } from 'react-icons/lu';
 import { TRIBES, type Tribe } from '@pillage-first/types/models/tribe';
 import { UnitTable } from 'app/(game)/components/unit-table';
 import { Button } from 'app/components/ui/button';
@@ -20,6 +20,7 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
   const {
     state,
     clearDefenderReinforcementData,
+    removeDefenderReinforcement,
     setDefenderReinforcementTribe,
   } = use(CombatSimulatorContext)!;
 
@@ -39,19 +40,34 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-xl">{t('Reinforcements')}</span>
-                    <Button
-                      aria-label={t('Clear')}
-                      className="text-foreground"
-                      data-tooltip-content={t('Clear')}
-                      data-tooltip-id="general-tooltip"
-                      size="icon"
-                      variant="outline"
-                      onClick={() => {
-                        clearDefenderReinforcementData(reinforcement.id);
-                      }}
-                    >
-                      <LuEraser />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        aria-label={t('Clear')}
+                        className="text-foreground"
+                        data-tooltip-content={t('Clear')}
+                        data-tooltip-id="general-tooltip"
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          clearDefenderReinforcementData(reinforcement.id);
+                        }}
+                      >
+                        <LuEraser />
+                      </Button>
+                      <Button
+                        aria-label={t('Remove reinforcement')}
+                        className="text-foreground"
+                        data-tooltip-content={t('Remove reinforcement')}
+                        data-tooltip-id="general-tooltip"
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          removeDefenderReinforcement(reinforcement.id);
+                        }}
+                      >
+                        <LuX />
+                      </Button>
+                    </div>
                   </div>
                 </th>
               </tr>
@@ -74,7 +90,9 @@ export const CombatSimulatorReinforcementsControlsRows = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {TRIBES.map((tribeOption) => (
+                        {TRIBES.filter((tribeOption) => {
+                          return tribeOption !== 'nature';
+                        }).map((tribeOption) => (
                           <SelectItem
                             key={tribeOption}
                             value={tribeOption}

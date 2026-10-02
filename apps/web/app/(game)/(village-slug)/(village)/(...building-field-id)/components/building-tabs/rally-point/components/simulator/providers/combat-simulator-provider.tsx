@@ -5,20 +5,22 @@ import {
   useRef,
   useState,
 } from 'react';
-import { getUnitsByTribeWithHero } from '@pillage-first/game-assets/utils/units';
-import type { Tribe } from '@pillage-first/types/models/tribe';
+import {
+  getUnitsByTribe,
+  getUnitsByTribeWithHero,
+} from '@pillage-first/game-assets/utils/units';
+import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   CombatSimulatorContext,
   type CombatSimulatorContextValue,
+  type CombatSimulatorDefender,
   type CombatSimulatorHeroItemSlot,
   type CombatSimulatorHeroStats,
   type CombatSimulatorMode,
   type CombatSimulatorParticipant,
-  type CombatSimulatorParticipantReference,
   type CombatSimulatorReinforcement,
-  type CombatSimulatorRemovableParticipantReference,
   type CombatSimulatorState,
   type CombatSimulatorTroop,
 } from './combat-simulator-context';
@@ -38,8 +40,15 @@ const heroItemSlots = new Set<CombatSimulatorHeroItemSlot>([
   'torso',
 ]);
 
-const createEmptyTroops = (tribe: Tribe): CombatSimulatorTroop[] => {
-  return getUnitsByTribeWithHero(tribe).map(({ id }) => ({
+const createEmptyTroops = (
+  tribe: Tribe,
+  includeHero = true,
+): CombatSimulatorTroop[] => {
+  const units = includeHero
+    ? getUnitsByTribeWithHero(tribe)
+    : getUnitsByTribe(tribe);
+
+  return units.map(({ id }) => ({
     unitId: id,
     amount: 0,
     smithyImprovementLevel: 0,
@@ -113,6 +122,10 @@ const setHeroAmount = (
   );
 };
 
+const removeHeroTroop = (troops: CombatSimulatorTroop[]) => {
+  return troops.filter((troop) => troop.unitId !== 'HERO');
+};
+
 const createParticipant = <TVillage,>(
   tribe: Tribe,
   village: TVillage,
@@ -125,23 +138,44 @@ const createParticipant = <TVillage,>(
   };
 };
 
+const createReinforcement = (
+  id: string,
+  tribe: Tribe,
+): CombatSimulatorReinforcement => {
+  return {
+    id,
+    tribe,
+    troops: createEmptyTroops(tribe, false),
+    village: undefined,
+  };
+};
+
+const createAttacker = (tribe: Tribe) => {
+  return createParticipant(tribe, { breweryLevel: 0 });
+};
+
+const createDefender = (
+  tribe: Tribe,
+  reinforcements: CombatSimulatorReinforcement[] = [],
+): CombatSimulatorDefender => {
+  return {
+    ...createParticipant(tribe, {
+      wallLevel: 0,
+      residenceLevel: 0,
+      trapCount: 0,
+    }),
+    reinforcements,
+  };
+};
+
 const createInitialCombatSimulatorState = (
   initialTribe: Tribe,
 ): CombatSimulatorState => {
   return {
     combatMode: 'raid',
     playerRole: 'attacker',
-    attacker: createParticipant(initialTribe, {
-      breweryLevel: 0,
-    }),
-    defender: {
-      ...createParticipant(initialTribe, {
-        wallLevel: 0,
-        residenceLevel: 0,
-        trapCount: 0,
-      }),
-      reinforcements: [],
-    },
+    attacker: createAttacker(initialTribe),
+    defender: createDefender(initialTribe),
   };
 };
 
@@ -206,7 +240,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
-  const setAttackerTribe = useCallback((tribe: Tribe) => {
+  const setAttackerTribe = useCallback((tribe: PlayableTribe) => {
     setState((prevState) => ({
       ...prevState,
       attacker: {
@@ -230,7 +264,6 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
           tribe,
           troops: createEmptyTroops(tribe),
           ...(tribe === 'nature' && {
-            reinforcements: [],
             village: {
               ...prevState.defender.village,
               wallLevel: 0,
@@ -372,90 +405,41 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
   const clearAttackerData = useCallback(() => {
     setState((prevState) => ({
       ...prevState,
-      attacker: createParticipant(prevState.attacker.tribe, {
-        breweryLevel: 0,
-      }),
+      attacker: createAttacker(prevState.attacker.tribe),
     }));
   }, []);
 
   const clearDefenderData = useCallback(() => {
     setState((prevState) => ({
       ...prevState,
-      defender: {
-        ...prevState.defender,
-        ...createParticipant(prevState.defender.tribe, {
-          wallLevel: 0,
-          residenceLevel: 0,
-          trapCount: 0,
-        }),
-      },
+      defender: createDefender(
+        prevState.defender.tribe,
+        prevState.defender.reinforcements,
+      ),
     }));
   }, []);
 
-  const clearParticipantData = useCallback(
-    (participant: CombatSimulatorParticipantReference) => {
+  const addDefenderReinforcement = useCallback(
+    (tribe: Tribe = initialTribe) => {
       setState((prevState) => {
-        if (participant.role === 'attacker') {
-          return {
-            ...prevState,
-            attacker: createParticipant(prevState.attacker.tribe, {
-              breweryLevel: 0,
-            }),
-          };
+        if (tribe === 'nature') {
+          return prevState;
         }
 
-        if (participant.role === 'defender') {
-          return {
-            ...prevState,
-            defender: {
-              ...prevState.defender,
-              ...createParticipant(prevState.defender.tribe, {
-                wallLevel: 0,
-                residenceLevel: 0,
-                trapCount: 0,
-              }),
-            },
-          };
-        }
+        const id = `reinforcement-${nextReinforcementId.current}`;
+        nextReinforcementId.current += 1;
 
         return {
           ...prevState,
           defender: {
             ...prevState.defender,
-            reinforcements: prevState.defender.reinforcements.map(
-              (reinforcement) =>
-                reinforcement.id === participant.reinforcementId
-                  ? {
-                      id: reinforcement.id,
-                      ...createParticipant(reinforcement.tribe, undefined),
-                    }
-                  : reinforcement,
-            ),
+            reinforcements: [
+              ...prevState.defender.reinforcements,
+              createReinforcement(id, tribe),
+            ],
           },
         };
       });
-    },
-    [],
-  );
-
-  const addDefenderReinforcement = useCallback(
-    (tribe: Tribe = initialTribe) => {
-      const id = `reinforcement-${nextReinforcementId.current}`;
-      nextReinforcementId.current += 1;
-
-      setState((prevState) => ({
-        ...prevState,
-        defender: {
-          ...prevState.defender,
-          reinforcements: [
-            ...prevState.defender.reinforcements,
-            {
-              id,
-              ...createParticipant(tribe, undefined),
-            },
-          ],
-        },
-      }));
     },
     [initialTribe],
   );
@@ -475,23 +459,12 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     [],
   );
 
-  const removeParticipant = useCallback(
-    (participant: CombatSimulatorRemovableParticipantReference) => {
-      setState((prevState) => ({
-        ...prevState,
-        defender: {
-          ...prevState.defender,
-          reinforcements: prevState.defender.reinforcements.filter(
-            ({ id }) => id !== participant.reinforcementId,
-          ),
-        },
-      }));
-    },
-    [],
-  );
-
   const setDefenderReinforcementTribe = useCallback(
     (reinforcementId: CombatSimulatorReinforcement['id'], tribe: Tribe) => {
+      if (tribe === 'nature') {
+        return;
+      }
+
       setState((prevState) => ({
         ...prevState,
         defender: {
@@ -505,7 +478,7 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
               return {
                 ...reinforcement,
                 tribe,
-                troops: createEmptyTroops(tribe),
+                troops: createEmptyTroops(tribe, false),
               };
             },
           ),
@@ -527,7 +500,10 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
           reinforcements: prevState.defender.reinforcements.map(
             (reinforcement) =>
               reinforcement.id === reinforcementId
-                ? { ...reinforcement, troops: normalizeTroops(troops) }
+                ? {
+                    ...reinforcement,
+                    troops: removeHeroTroop(normalizeTroops(troops)),
+                  }
                 : reinforcement,
           ),
         },
@@ -565,27 +541,6 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
     [],
   );
 
-  const setDefenderReinforcementHeroStats = useCallback(
-    (
-      reinforcementId: CombatSimulatorReinforcement['id'],
-      heroStats: CombatSimulatorHeroStats,
-    ) => {
-      setState((prevState) => ({
-        ...prevState,
-        defender: {
-          ...prevState.defender,
-          reinforcements: prevState.defender.reinforcements.map(
-            (reinforcement) =>
-              reinforcement.id === reinforcementId
-                ? { ...reinforcement, heroStats: normalizeHeroStats(heroStats) }
-                : reinforcement,
-          ),
-        },
-      }));
-    },
-    [],
-  );
-
   const clearDefenderReinforcementData = useCallback(
     (reinforcementId: CombatSimulatorReinforcement['id']) => {
       setState((prevState) => ({
@@ -596,8 +551,10 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
             (reinforcement) =>
               reinforcement.id === reinforcementId
                 ? {
-                    id: reinforcement.id,
-                    ...createParticipant(reinforcement.tribe, undefined),
+                    ...createReinforcement(
+                      reinforcement.id,
+                      reinforcement.tribe,
+                    ),
                   }
                 : reinforcement,
           ),
@@ -626,14 +583,11 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
       setDefenderTrapCount,
       clearAttackerData,
       clearDefenderData,
-      clearParticipantData,
       addDefenderReinforcement,
-      removeParticipant,
       removeDefenderReinforcement,
       setDefenderReinforcementTribe,
       setDefenderReinforcementTroops,
       setDefenderReinforcementSmithyImprovementLevel,
-      setDefenderReinforcementHeroStats,
       clearDefenderReinforcementData,
     }),
     [
@@ -654,14 +608,11 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
       setDefenderTrapCount,
       clearAttackerData,
       clearDefenderData,
-      clearParticipantData,
       addDefenderReinforcement,
-      removeParticipant,
       removeDefenderReinforcement,
       setDefenderReinforcementTribe,
       setDefenderReinforcementTroops,
       setDefenderReinforcementSmithyImprovementLevel,
-      setDefenderReinforcementHeroStats,
       clearDefenderReinforcementData,
     ],
   );

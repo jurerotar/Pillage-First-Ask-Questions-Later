@@ -1,7 +1,10 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuArrowDownUp, LuBeer, LuEraser } from 'react-icons/lu';
-import { PLAYABLE_TRIBES, type Tribe } from '@pillage-first/types/models/tribe';
+import {
+  PLAYABLE_TRIBES,
+  type PlayableTribe,
+} from '@pillage-first/types/models/tribe';
 import { UnitTable } from 'app/(game)/components/unit-table';
 import { Button } from 'app/components/ui/button';
 import { RadioGroup, RadioGroupItem } from 'app/components/ui/radio-group';
@@ -130,7 +133,7 @@ export const CombatSimulatorAttackerControlsRow = ({
                 <Select
                   value={state.attacker.tribe}
                   onValueChange={(value) => {
-                    setAttackerTribe(value as Tribe);
+                    setAttackerTribe(value as PlayableTribe);
                   }}
                 >
                   <SelectTrigger aria-label={t('Tribe')}>

@@ -3,7 +3,7 @@ import type {
   HeroItem,
   HeroItemSlot,
 } from '@pillage-first/types/models/hero-item';
-import type { Tribe } from '@pillage-first/types/models/tribe';
+import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import type { TroopLike } from '@pillage-first/types/models/troop';
 import type { UnitId } from '@pillage-first/types/models/unit';
 
@@ -48,10 +48,12 @@ export type CombatSimulatorParticipant<TVillage> = {
 export type CombatSimulatorAttacker =
   CombatSimulatorParticipant<CombatSimulatorAttackerVillage>;
 
-export type CombatSimulatorReinforcement =
-  CombatSimulatorParticipant<undefined> & {
-    id: string;
-  };
+export type CombatSimulatorReinforcement = Omit<
+  CombatSimulatorParticipant<undefined>,
+  'heroStats'
+> & {
+  id: string;
+};
 
 export type CombatSimulatorDefender =
   CombatSimulatorParticipant<CombatSimulatorDefenderVillage> & {
@@ -65,24 +67,11 @@ export type CombatSimulatorState = {
   defender: CombatSimulatorDefender;
 };
 
-export type CombatSimulatorParticipantReference =
-  | { role: 'attacker' }
-  | { role: 'defender' }
-  | {
-      role: 'reinforcement';
-      reinforcementId: CombatSimulatorReinforcement['id'];
-    };
-
-export type CombatSimulatorRemovableParticipantReference = Extract<
-  CombatSimulatorParticipantReference,
-  { role: 'reinforcement' }
->;
-
 export type CombatSimulatorContextValue = {
   state: CombatSimulatorState;
   setCombatMode: (combatMode: CombatSimulatorMode) => void;
   swapPlayerRole: () => void;
-  setAttackerTribe: (tribe: Tribe) => void;
+  setAttackerTribe: (tribe: PlayableTribe) => void;
   setDefenderTribe: (tribe: Tribe) => void;
   setAttackerTroops: (troops: CombatSimulatorTroop[]) => void;
   setDefenderTroops: (troops: CombatSimulatorTroop[]) => void;
@@ -102,13 +91,7 @@ export type CombatSimulatorContextValue = {
   setDefenderTrapCount: (trapCount: number) => void;
   clearAttackerData: () => void;
   clearDefenderData: () => void;
-  clearParticipantData: (
-    participant: CombatSimulatorParticipantReference,
-  ) => void;
   addDefenderReinforcement: (tribe?: Tribe) => void;
-  removeParticipant: (
-    participant: CombatSimulatorRemovableParticipantReference,
-  ) => void;
   removeDefenderReinforcement: (
     reinforcementId: CombatSimulatorReinforcement['id'],
   ) => void;
@@ -124,10 +107,6 @@ export type CombatSimulatorContextValue = {
     reinforcementId: CombatSimulatorReinforcement['id'],
     unitId: UnitId,
     smithyImprovementLevel: number,
-  ) => void;
-  setDefenderReinforcementHeroStats: (
-    reinforcementId: CombatSimulatorReinforcement['id'],
-    heroStats: CombatSimulatorHeroStats,
   ) => void;
   clearDefenderReinforcementData: (
     reinforcementId: CombatSimulatorReinforcement['id'],
