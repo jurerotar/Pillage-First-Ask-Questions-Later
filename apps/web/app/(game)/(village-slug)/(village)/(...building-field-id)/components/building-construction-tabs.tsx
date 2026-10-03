@@ -19,7 +19,6 @@ import {
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useTabParam } from 'app/(game)/(village-slug)/hooks/routes/use-tab-param';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
@@ -31,17 +30,19 @@ const tabs = ['infrastructure', 'military', 'resources'];
 
 type BuildingCategoryPanelProps = {
   buildingCategory: Building['category'];
-  nextInstanceNumberByBuildingId: ReadonlyMap<Building['id'], number>;
 };
 
 const BuildingConstructionList = ({
   buildingCategory,
-  nextInstanceNumberByBuildingId,
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
   const tribe = useTribe();
-  const { buildingFieldId, maxLevelByBuildingId, buildingIdsInQueue } =
-    use(BuildingFieldContext);
+  const {
+    buildingFieldId,
+    maxLevelByBuildingId,
+    buildingIdsInQueue,
+    nextInstanceNumberByBuildingId,
+  } = use(BuildingFieldContext);
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
 
   const shouldAllowUnmetRequirementsForScheduledConstruction =
@@ -153,25 +154,6 @@ const BuildingConstructionList = ({
 
 export const BuildingConstructionTabs = () => {
   const { t } = useTranslation();
-  const { currentVillage } = useCurrentVillage();
-
-  const nextInstanceNumberByBuildingId = useMemo(() => {
-    const instanceCountByBuildingId = new Map<Building['id'], number>();
-
-    for (const { buildingId } of currentVillage.buildingFields) {
-      instanceCountByBuildingId.set(
-        buildingId,
-        (instanceCountByBuildingId.get(buildingId) ?? 0) + 1,
-      );
-    }
-
-    return new Map(
-      [...instanceCountByBuildingId].map(([buildingId, instanceCount]) => [
-        buildingId,
-        instanceCount + 1,
-      ]),
-    );
-  }, [currentVillage.buildingFields]);
 
   const { tabIndex, navigateToTab } = useTabParam(
     tabs,
@@ -218,10 +200,7 @@ export const BuildingConstructionTabs = () => {
               <Text as="h2">{t('Infrastructure buildings')}</Text>
             </SectionContent>
             <SectionContent>
-              <BuildingConstructionList
-                buildingCategory="infrastructure"
-                nextInstanceNumberByBuildingId={nextInstanceNumberByBuildingId}
-              />
+              <BuildingConstructionList buildingCategory="infrastructure" />
             </SectionContent>
           </Section>
         </TabPanel>
@@ -238,10 +217,7 @@ export const BuildingConstructionTabs = () => {
               <Text as="h2">{t('Military buildings')}</Text>
             </SectionContent>
             <SectionContent>
-              <BuildingConstructionList
-                buildingCategory="military"
-                nextInstanceNumberByBuildingId={nextInstanceNumberByBuildingId}
-              />
+              <BuildingConstructionList buildingCategory="military" />
             </SectionContent>
           </Section>
         </TabPanel>
@@ -256,10 +232,7 @@ export const BuildingConstructionTabs = () => {
               <Text as="h2">{t('Resource buildings')}</Text>
             </SectionContent>
             <SectionContent>
-              <BuildingConstructionList
-                buildingCategory="resource-booster"
-                nextInstanceNumberByBuildingId={nextInstanceNumberByBuildingId}
-              />
+              <BuildingConstructionList buildingCategory="resource-booster" />
             </SectionContent>
           </Section>
         </TabPanel>

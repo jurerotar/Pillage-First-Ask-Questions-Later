@@ -22,7 +22,6 @@ import {
   type AssessedBuildingRequirement,
   assessBuildingRequirements,
 } from '@pillage-first/utils/game/building-requirements';
-import { useEffectServerValue } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/village-building-link';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
@@ -30,7 +29,6 @@ import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
@@ -173,9 +171,8 @@ export const BuildingOverview = () => {
 export const BuildingCost = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { virtualLevel } = use(BuildingFieldContext);
+  const { virtualLevel, buildingDuration } = use(BuildingFieldContext);
   const currentResources = use(CurrentVillageLiveResourcesContext);
-  const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
     getBuildingDataForLevel(buildingId, virtualLevel);
@@ -304,16 +301,16 @@ type BuildingBenefitProps = {
 };
 
 const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
-  const { hasEffect, serverEffectValue } = useEffectServerValue(
-    effect.effectId,
-  );
-
+  const { serverEffectValueByEffectId } = use(BuildingFieldContext);
+  const serverEffectValue = serverEffectValueByEffectId.get(effect.effectId);
   const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
 
   const isIncreasing = increasingPercentageBuildingEffects.has(effect.effectId);
 
   const effectModifier =
-    effect.type === 'base' && hasEffect ? serverEffectValue : 1;
+    effect.type === 'base' && serverEffectValue !== undefined
+      ? serverEffectValue
+      : 1;
 
   return (
     <span
