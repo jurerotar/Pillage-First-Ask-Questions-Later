@@ -33,6 +33,7 @@ import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
@@ -53,6 +54,7 @@ import { formatTime } from 'app/utils/time';
 type BuildingCardContextState = {
   buildingId: Building['id'];
   building: Building;
+  buildingInstanceNumber?: number;
   buildingConstructionReadinessAssessment?: ReturnType<
     typeof assessBuildingRequirements
   >;
@@ -65,6 +67,7 @@ const BuildingCardContext = createContext<BuildingCardContextState>(
 
 type BuildingCardProps = {
   buildingId: Building['id'];
+  buildingInstanceNumber?: number;
   buildingConstructionReadinessAssessment?: ReturnType<
     typeof assessBuildingRequirements
   >;
@@ -83,6 +86,7 @@ const unfinishedBuildings = new Set<Building['id']>([
 
 export const BuildingCard = ({
   buildingId,
+  buildingInstanceNumber,
   buildingConstructionReadinessAssessment,
   shouldAllowUnmetRequirementsForScheduledConstruction,
   children,
@@ -94,12 +98,14 @@ export const BuildingCard = ({
     () => ({
       buildingId,
       building,
+      buildingInstanceNumber,
       buildingConstructionReadinessAssessment,
       shouldAllowUnmetRequirementsForScheduledConstruction,
     }),
     [
       buildingId,
       building,
+      buildingInstanceNumber,
       buildingConstructionReadinessAssessment,
       shouldAllowUnmetRequirementsForScheduledConstruction,
     ],
@@ -119,7 +125,7 @@ export const BuildingCard = ({
 
 export const BuildingOverview = () => {
   const { t } = useTranslation();
-  const { buildingId } = use(BuildingCardContext);
+  const { buildingId, buildingInstanceNumber } = use(BuildingCardContext);
   const { actualLevel, virtualLevel, isUpgrading, isDowngrading } =
     use(BuildingFieldContext);
 
@@ -135,6 +141,9 @@ export const BuildingOverview = () => {
           as="h2"
           className="inline-flex"
         >
+          {buildingInstanceNumber !== undefined &&
+            buildingInstanceNumber > 1 &&
+            `${buildingInstanceNumber}. `}
           {t(`BUILDINGS.${building.id}.NAME`)}
         </Text>
       </div>
@@ -565,11 +574,13 @@ const BuildingCardActionsConstruction = ({
 }: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const { errorBag } = useBuildingConstructionErrorBag(
     buildingId,
     0,
     buildingFieldId,
   );
+  const isScheduling = getBuildingEventQueue(buildingFieldId).length > 0;
 
   return (
     <>
@@ -580,7 +591,7 @@ const BuildingCardActionsConstruction = ({
         onClick={onBuildingConstruction}
         disabled={errorBag.length > 0}
       >
-        {t('Construct')}
+        {t(isScheduling ? 'Schedule' : 'Construct')}
       </Button>
       <ErrorBag errorBag={errorBag} />
     </>
@@ -599,12 +610,14 @@ const BuildingCardActionsUpgrade = ({
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
   const { actualLevel, buildingFieldId } = use(BuildingFieldContext);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
 
   const { errorBag } = useBuildingConstructionErrorBag(
     buildingId,
     actualLevel,
     buildingFieldId,
   );
+  const isScheduling = getBuildingEventQueue(buildingFieldId).length > 0;
 
   return (
     <>
@@ -615,7 +628,9 @@ const BuildingCardActionsUpgrade = ({
         onClick={onBuildingUpgrade}
         disabled={errorBag.length > 0}
       >
-        {t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
+        {isScheduling
+          ? t('Schedule')
+          : t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
       </Button>
       <ErrorBag errorBag={errorBag} />
     </>
