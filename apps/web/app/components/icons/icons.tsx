@@ -2,6 +2,7 @@ import { clsx } from 'clsx';
 import { camelCase } from 'moderndash';
 import type { JSX } from 'react';
 import type { IconBaseProps } from 'react-icons';
+import '@pillage-first/graphics/icons.css';
 import {
   BsFillPeopleFill,
   BsMinecartLoaded,
@@ -108,7 +109,6 @@ import type {
   Unit,
 } from '@pillage-first/types/models/unit';
 import type { CamelCase } from '@pillage-first/utils/types';
-import styles from './icons.module.scss';
 
 type UncategorizedIconType =
   | 'missingIcon'
@@ -317,7 +317,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <PillageFirstScroll
       {...props}
       className={clsx(
-        styles['scout-report-icon'],
+        'pf-scroll--report',
         'text-green-500 dark:text-green-400',
         props.className,
       )}
@@ -327,7 +327,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <PillageFirstScroll
       {...props}
       className={clsx(
-        styles['scout-report-icon'],
+        'pf-scroll--report',
         'text-yellow-500 dark:text-yellow-400',
         props.className,
       )}
@@ -336,18 +336,14 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   scoutAttackerFullLoss: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(
-        styles['scout-report-icon'],
-        'text-red-500',
-        props.className,
-      )}
+      className={clsx('pf-scroll--report', 'text-red-500', props.className)}
     />
   ),
   scoutDefenderNoLoss: (props) => (
     <PillageFirstScroll
       {...props}
       className={clsx(
-        styles['scout-report-icon'],
+        'pf-scroll--report',
         'text-green-500 dark:text-green-400',
         props.className,
       )}
@@ -357,7 +353,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
     <PillageFirstScroll
       {...props}
       className={clsx(
-        styles['scout-report-icon'],
+        'pf-scroll--report',
         'text-yellow-500 dark:text-yellow-400',
         props.className,
       )}
@@ -366,11 +362,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   scoutDefenderFullLoss: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(
-        styles['scout-report-icon'],
-        'text-red-500',
-        props.className,
-      )}
+      className={clsx('pf-scroll--report', 'text-red-500', props.className)}
     />
   ),
   outgoingMerchantsArrived: (props) => (
@@ -513,19 +505,19 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   romanScout: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(styles['roman-scout-icon'], props.className)}
+      className={clsx('pf-scroll--roman', props.className)}
     />
   ),
   equitesImperatoris: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['equites-imperatoris'], props.className)}
+      className={clsx('pf-horse--equites-imperatoris', props.className)}
     />
   ),
   equitesCaesaris: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['equites-caesaris'], props.className)}
+      className={clsx('pf-horse--equites-caesaris', props.className)}
     />
   ),
   romanRam: (props) => <GiSiegeRam {...props} />,
@@ -539,7 +531,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   romanSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx(styles['roman-settler'], props.className)}
+      className={clsx('pf-settler--roman', props.className)}
     />
   ),
 
@@ -549,25 +541,25 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   gaulScout: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(styles['gaul-scout-icon'], props.className)}
+      className={clsx('pf-scroll--gaul', props.className)}
     />
   ),
   theutatesThunder: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['theutates-thunder'], props.className)}
+      className={clsx('pf-horse--theutates-thunder', props.className)}
     />
   ),
   druidrider: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles.druidrider, props.className)}
+      className={clsx('pf-horse--druidrider', props.className)}
     />
   ),
   haeduan: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles.haeduan, props.className)}
+      className={clsx('pf-horse--haeduan', props.className)}
     />
   ),
   gaulRam: (props) => <GiSiegeRam {...props} />,
@@ -581,7 +573,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   gaulSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx(styles['gaul-settler'], props.className)}
+      className={clsx('pf-settler--gaul', props.className)}
     />
   ),
 
@@ -592,19 +584,19 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   teutonicScout: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(styles['teutonic-scout-icon'], props.className)}
+      className={clsx('pf-scroll--teutonic', props.className)}
     />
   ),
   paladin: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles.paladin, props.className)}
+      className={clsx('pf-horse--paladin', props.className)}
     />
   ),
   teutonicKnight: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['teutonic-knight'], props.className)}
+      className={clsx('pf-horse--teutonic-knight', props.className)}
     />
   ),
   teutonicRam: (props) => <GiSiegeRam {...props} />,
@@ -618,7 +610,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   teutonicSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx(styles['teutonic-settler'], props.className)}
+      className={clsx('pf-settler--teutonic', props.className)}
     />
   ),
 
@@ -629,19 +621,19 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   egyptianScout: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(styles['egyptian-scout-icon'], props.className)}
+      className={clsx('pf-scroll--egyptian', props.className)}
     />
   ),
   anhurGuard: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['anhur-guard'], props.className)}
+      className={clsx('pf-horse--anhur-guard', props.className)}
     />
   ),
   reshephChariot: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['resheph-chariot'], props.className)}
+      className={clsx('pf-horse--resheph-chariot', props.className)}
     />
   ),
   egyptianRam: (props) => <GiSiegeRam {...props} />,
@@ -655,7 +647,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   egyptianSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx(styles['egyptian-settler'], props.className)}
+      className={clsx('pf-settler--egyptian', props.className)}
     />
   ),
 
@@ -665,25 +657,25 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   hunScout: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(styles['hun-scout-icon'], props.className)}
+      className={clsx('pf-scroll--hun', props.className)}
     />
   ),
   steppeRider: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['steppe-rider'], props.className)}
+      className={clsx('pf-horse--steppe-rider', props.className)}
     />
   ),
   marksman: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles.marksman, props.className)}
+      className={clsx('pf-horse--marksman', props.className)}
     />
   ),
   marauder: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles.marauder, props.className)}
+      className={clsx('pf-horse--marauder', props.className)}
     />
   ),
   hunRam: (props) => <GiSiegeRam {...props} />,
@@ -697,7 +689,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   hunSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx(styles['hun-settler'], props.className)}
+      className={clsx('pf-settler--hun', props.className)}
     />
   ),
 
@@ -708,19 +700,19 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   spartanScout: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(styles['spartan-scout-icon'], props.className)}
+      className={clsx('pf-scroll--spartan', props.className)}
     />
   ),
   elpidaRider: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['elpida-rider'], props.className)}
+      className={clsx('pf-horse--elpida-rider', props.className)}
     />
   ),
   corinthianCrusher: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['corinthian-crusher'], props.className)}
+      className={clsx('pf-horse--corinthian-crusher', props.className)}
     />
   ),
   spartanRam: (props) => <GiSiegeRam {...props} />,
@@ -734,7 +726,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   spartanSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx(styles['spartan-settler'], props.className)}
+      className={clsx('pf-settler--spartan', props.className)}
     />
   ),
 
@@ -745,19 +737,19 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   axerider: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles.axerider, props.className)}
+      className={clsx('pf-horse--axerider', props.className)}
     />
   ),
   natarianScout: (props) => (
     <PillageFirstScroll
       {...props}
-      className={clsx(styles['natarian-scout-icon'], props.className)}
+      className={clsx('pf-scroll--natarian', props.className)}
     />
   ),
   natarianKnight: (props) => (
     <PillageFirstHorse
       {...props}
-      className={clsx(styles['natarian-knight'], props.className)}
+      className={clsx('pf-horse--natarian-knight', props.className)}
     />
   ),
   natarianRam: (props) => <GiSiegeRam {...props} />,
@@ -771,7 +763,7 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
   natarianSettler: (props) => (
     <GiPointyHat
       {...props}
-      className={clsx(styles['natarian-settler'], props.className)}
+      className={clsx('pf-settler--natarian', props.className)}
     />
   ),
 
