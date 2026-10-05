@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getUnitDefinition } from '@pillage-first/game-assets/utils/units';
 import {
-  playerVillageDtoSchema,
+  playerVillageListingDtoSchema,
   playerVillageWithPopulationDtoSchema,
   sentReinforcementDtoSchema,
   villageTroopDtoSchema,
@@ -36,7 +36,7 @@ import {
 import { materializeWoundedTroopsAt } from '../../utils/troops';
 import { createController } from '../controller';
 import {
-  mapPlayerVillage,
+  mapPlayerVillageListing,
   mapPlayerVillageWithPopulation,
   mapSentReinforcements,
   mapVillageTroop,
@@ -82,7 +82,7 @@ export const getPlayerVillageListing = createController(
         playerId: z.coerce.number(),
       }),
     },
-    response: z.array(playerVillageDtoSchema),
+    response: z.array(playerVillageListingDtoSchema),
   },
 )(({ database, path: { playerId } }) => {
   const rows = database.selectObjects({
@@ -91,7 +91,7 @@ export const getPlayerVillageListing = createController(
     schema: getVillagesByPlayerSchema,
   });
 
-  return rows.map(mapPlayerVillage);
+  return rows.map(mapPlayerVillageListing);
 });
 
 export const getPlayerVillagesWithPopulation = createController(

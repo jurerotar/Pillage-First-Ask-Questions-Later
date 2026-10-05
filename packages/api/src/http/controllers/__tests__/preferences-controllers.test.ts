@@ -21,7 +21,35 @@ describe('preferences-controllers', () => {
       isAccessibilityModeEnabled: expect.any(Boolean),
       isDeveloperToolsConsoleEnabled: expect.any(Boolean),
       shouldShowBuildingNames: expect.any(Boolean),
+      villageSort: 'alphabetic',
     });
+  });
+
+  test('updatePreference should update village sorting preference', async () => {
+    const database = await prepareTestDatabase();
+
+    updatePreference(
+      database,
+      createControllerArgs<
+        '/players/:playerId/preferences/:preferenceName',
+        'patch'
+      >({
+        path: {
+          playerId,
+          preferenceName: 'villageSort',
+        },
+        body: { value: 'populationDesc' },
+      }),
+    );
+
+    expect(
+      getPreferences(
+        database,
+        createControllerArgs<'/players/:playerId/preferences'>({
+          path: { playerId },
+        }),
+      ).villageSort,
+    ).toBe('populationDesc');
   });
 
   test('updatePreference should update a preference', async () => {

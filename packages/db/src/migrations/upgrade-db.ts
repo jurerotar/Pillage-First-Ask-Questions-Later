@@ -1041,6 +1041,16 @@ export const upgradeDb = (
     setupGlobalWriteTriggers(db);
   });
 
+  migrate('0.4.72', (db) => {
+    db.exec({
+      sql: `
+        ALTER TABLE preferences
+        ADD COLUMN village_sort TEXT NOT NULL DEFAULT 'alphabetic'
+        CHECK (village_sort IN ('alphabetic', 'populationAsc', 'populationDesc'));
+      `,
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({

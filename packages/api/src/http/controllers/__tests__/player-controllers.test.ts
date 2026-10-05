@@ -113,6 +113,7 @@ describe('player-controllers', () => {
     expect(result[0]).toHaveProperty('coordinates');
     expect(result[0].coordinates).toHaveProperty('x');
     expect(result[0].coordinates).toHaveProperty('y');
+    expect(result[0]).toHaveProperty('population');
     expect(result[0]).toHaveProperty('resourceFieldComposition');
   });
 

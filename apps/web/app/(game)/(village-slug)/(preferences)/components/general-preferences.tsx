@@ -1,6 +1,9 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { UIColorScheme } from '@pillage-first/types/models/preferences';
+import type {
+  UIColorScheme,
+  VillageSort,
+} from '@pillage-first/types/models/preferences';
 import {
   Section,
   SectionContent,
@@ -124,6 +127,37 @@ export const GeneralPreferences = () => {
               }
               checked={preferences.shouldShowBuildingNames}
             />
+          </div>
+        </div>
+        <Separator orientation="horizontal" />
+        <div className="flex gap-2">
+          <Text className="flex flex-4 gap-1 flex-col transition-colors">
+            <span className="font-medium">{t('Sort villages by')}</span>
+            <span>{t('Choose the order used in the village select.')}</span>
+          </Text>
+          <div className="flex flex-1 justify-end items-center">
+            <Select
+              value={preferences.villageSort}
+              onValueChange={(value: VillageSort) => {
+                updatePreference({
+                  preferenceName: 'villageSort',
+                  value,
+                });
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="alphabetic">{t('Alphabetic')}</SelectItem>
+                <SelectItem value="populationAsc">
+                  {t('Population - ascending')}
+                </SelectItem>
+                <SelectItem value="populationDesc">
+                  {t('Population - descending')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </SectionContent>

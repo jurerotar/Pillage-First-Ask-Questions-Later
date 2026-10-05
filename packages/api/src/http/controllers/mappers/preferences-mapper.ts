@@ -22,6 +22,7 @@ export const mapPreferences = (row: z.infer<typeof getPreferencesSchema>) => {
     isDeveloperToolsConsoleEnabled: Boolean(
       row.is_developer_tools_console_enabled,
     ),
+    villageSort: row.village_sort,
     shouldShowNotificationsOnBuildingUpgradeCompletion: Boolean(
       row.should_show_notifications_on_building_upgrade_completion,
     ),
