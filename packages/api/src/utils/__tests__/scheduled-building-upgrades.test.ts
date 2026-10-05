@@ -984,7 +984,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test.each([0, -100])(
-    'does not promote an upgrade when current free crop is %i',
+    'promotes an upgrade regardless of current wheat production (%i)',
     async (wheatProduction) => {
       const database = await prepareTestDatabase();
       const villageId = 1;
@@ -1042,7 +1042,7 @@ describe('scheduled building upgrades', () => {
           scheduled: z.number(),
         }),
       });
-      expect(counts).toEqual({ active: 0, scheduled: 0 });
+      expect(counts).toEqual({ active: 1, scheduled: 0 });
     },
   );
 

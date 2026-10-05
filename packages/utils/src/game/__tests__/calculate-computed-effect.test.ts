@@ -315,7 +315,6 @@ describe('calculateComputedEffect – woodProduction', () => {
       );
 
       expect(result.total).toBe(4200);
-      expect(result.buildingWheatLimit).toBe(4200);
     });
 
     test('uses already boosted oasis bonus effects', () => {
@@ -352,7 +351,6 @@ describe('calculateComputedEffect – woodProduction', () => {
       );
 
       expect(result.total).toBe(6300);
-      expect(result.buildingWheatLimit).toBe(6300);
     });
 
     test('base + population (negative building base) – total=50, population=50, limit=0', () => {
@@ -367,7 +365,6 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(50);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(50);
     });
 
     test('base + population + bonus + booster – total=100, population=50, limit=50', () => {
@@ -388,7 +385,6 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(100);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(100);
     });
 
     test('base + population + bonus + booster + server – total=250, population=50, limit=200', () => {
@@ -410,7 +406,6 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(250);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(250);
     });
 
     test('base + troops consumption – total=75', () => {

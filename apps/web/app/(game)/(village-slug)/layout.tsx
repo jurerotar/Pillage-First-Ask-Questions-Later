@@ -158,7 +158,7 @@ const DesktopPopulation = () => {
     CurrentVillageComputedEffectsContext,
   );
 
-  const { population, buildingWheatLimit } = computedWheatProductionEffect;
+  const { population } = computedWheatProductionEffect;
 
   return (
     <div className="flex gap-2">
@@ -169,15 +169,6 @@ const DesktopPopulation = () => {
         />
         <span className="text-foreground text-sm">
           {formatNumber(population)}
-        </span>
-      </div>
-      <div className="flex gap-2 justify-center items-center rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1">
-        <Icon
-          type="freeCrop"
-          className="min-w-3"
-        />
-        <span className="text-foreground text-sm">
-          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
         </span>
       </div>
     </div>
@@ -213,7 +204,7 @@ const VillageOverviewMobileItem = () => {
     CurrentVillageComputedEffectsContext,
   );
 
-  const { population, buildingWheatLimit } = computedWheatProductionEffect;
+  const { population } = computedWheatProductionEffect;
 
   return (
     <Link
@@ -232,15 +223,6 @@ const VillageOverviewMobileItem = () => {
         />
         <span className="text-foreground text-2xs">
           {formatNumber(population)}
-        </span>
-      </span>
-      <span className="inline-flex items-center justify-between bg-background dark:bg-muted px-0.5 absolute bottom-0 left-8 h-4 w-9 rounded-full border border-[#f1f1f1] dark:border-border shadow-md">
-        <Icon
-          type="freeCrop"
-          className="size-2.5"
-        />
-        <span className="text-foreground text-2xs">
-          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
         </span>
       </span>
     </Link>

@@ -89,7 +89,6 @@ import {
   PillageFirstWheat,
   PillageFirstWheatClay,
   PillageFirstWheatIron,
-  PillageFirstWheatOff,
   PillageFirstWheatWheat,
   PillageFirstWheatWood,
   PillageFirstWood,
@@ -203,7 +202,6 @@ type UnitIconType =
   | NatureTroopIconType;
 
 type OtherIconType =
-  | 'freeCrop'
   | 'population'
   | 'culturePoints'
   | 'troopLosses'
@@ -408,7 +406,6 @@ export const icons: Record<IconType, (props: IconBaseProps) => JSX.Element> = {
 
   // Effects
 
-  freeCrop: (props) => <PillageFirstWheatOff {...props} />,
   populationCropConsumption: (props) => (
     <BsFillPeopleFill
       {...props}

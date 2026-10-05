@@ -915,7 +915,6 @@
   "Your village will lose all the benefits of {{buildingName}} levels {{currentLevel}} - {{targetLevel}}.": "Your village will lose all the benefits of {{buildingName}} levels {{currentLevel}} - {{targetLevel}}.",
   "Your village will lose all the benefits of {{buildingName}}.": "Your village will lose all the benefits of {{buildingName}}.",
   "Your warehouses are too small. You need {{amount}} more capacity.": "Your warehouses are too small. You need {{amount}} more capacity.",
-  "Your wheat production is too low. Increase it by {{amount}}.": "Your wheat production is too low. Increase it by {{amount}}.",
   "Zoom in": "Zoom in",
   "Zoom out": "Zoom out"
 }

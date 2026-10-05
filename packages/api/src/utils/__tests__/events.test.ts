@@ -728,7 +728,7 @@ describe('events utils', () => {
       ).not.toThrow();
     });
 
-    test('buildingLevelChange - wheat fields should not require free crop', async () => {
+    test('buildingLevelChange - does not require positive wheat production', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const buildingFieldId = database.selectValue({
@@ -781,7 +781,7 @@ describe('events utils', () => {
           database,
           createBuildingLevelChangeEventMock({ villageId }),
         ),
-      ).toThrow('Not enough free crop');
+      ).not.toThrow();
     });
 
     test('troopMovementAdventure - should throw if no adventure points are available', async () => {
