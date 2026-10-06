@@ -54,12 +54,12 @@ jobs:
 
       - name: Configure SSH
         env:
-          DEPLOY_PRIVATE_KEY_BASE64: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+          DEPLOY_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
           install -d -m 700 "$HOME/.ssh"
-          printf '%s' "$DEPLOY_PRIVATE_KEY_BASE64" | base64 --decode > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$DEPLOY_PRIVATE_KEY" | tr -d '\r' > "$HOME/.ssh/id_ed25519"
           chmod 600 "$HOME/.ssh/id_ed25519"
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
