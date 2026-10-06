@@ -23,7 +23,7 @@ defaults:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+    environment: Production
     steps:
       - name: Checkout selected revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -67,21 +67,23 @@ jobs:
       - name: Upload release artifact
         env:
           DEPLOY_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          DEPLOY_PORT: ${{ secrets.CPANEL_SSH_PORT }}
           DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
         run: |
           set -euo pipefail
           release_id="${GITHUB_SHA}"
-          ssh -o BatchMode=yes "$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH/incoming'"
-          scp -o BatchMode=yes "bug-reporter-${release_id}.tar.gz" "bug-reporter-${release_id}.tar.gz.sha256" "$DEPLOY_HOST:$DEPLOY_PATH/incoming/"
+          ssh -p "$DEPLOY_PORT" -o BatchMode=yes "$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH/incoming'"
+          scp -P "$DEPLOY_PORT" -o BatchMode=yes "bug-reporter-${release_id}.tar.gz" "bug-reporter-${release_id}.tar.gz.sha256" "$DEPLOY_HOST:$DEPLOY_PATH/incoming/"
 
       - name: Activate release atomically
         env:
           DEPLOY_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          DEPLOY_PORT: ${{ secrets.CPANEL_SSH_PORT }}
           DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
         run: |
           set -euo pipefail
           release_id="${GITHUB_SHA}"
-          ssh -o BatchMode=yes "$DEPLOY_HOST" bash -s -- "$DEPLOY_PATH" "$release_id" <<'REMOTE'
+          ssh -p "$DEPLOY_PORT" -o BatchMode=yes "$DEPLOY_HOST" bash -s -- "$DEPLOY_PATH" "$release_id" <<'REMOTE'
           set -euo pipefail
           deploy_path="$1"
           release_id="$2"

@@ -36,7 +36,7 @@ The defaults are 250 MiB per file and report, with 8 MiB chunks. Set `MAX_FILE_B
 
 ## cPanel deployment
 
-Use a Node.js 24.10 application whose application root is the stable `current` symlink, for example `/home/ACCOUNT/bug-reporter/current`; do not point it at a release directory. Set its startup file to `src/server.ts` and use cPanel's environment-variable UI to configure the values from `.env.example`. Node runs this erasable TypeScript directly, so no compiled release output is needed.
+Use a Node.js 24.10 application whose application root is the stable `current` symlink, for example `/home/ACCOUNT/bug-reporter/current`; do not point it at a release directory. Set its startup file to `apps/bug-reporter/src/server.ts` and use cPanel's environment-variable UI to configure the values from `.env.example`. Node runs this erasable TypeScript directly, so no compiled release output is needed.
 
 Set `APP_DATA_DIRECTORY` to a sibling outside `public_html`, such as `/home/ACCOUNT/bug-reporter-data`. It contains the SQLite metadata database, staging files, and completed uploads, and is deliberately excluded from every release. The Node app must have read/write access to it.
 
@@ -47,6 +47,7 @@ The manual GitHub workflow needs these repository secrets:
 | Secret | Value |
 | --- | --- |
 | `CPANEL_SSH_HOST` | SSH hostname, optionally `user@host` |
+| `CPANEL_SSH_PORT` | SSH port, for example `5050` on NEOSERV |
 | `CPANEL_SSH_PRIVATE_KEY` | Deploy key with access only to the application directory |
 | `CPANEL_SSH_KNOWN_HOSTS` | Pinned `known_hosts` line for the SSH host |
 | `CPANEL_DEPLOY_PATH` | Absolute application parent, for example `/home/ACCOUNT/bug-reporter` |
