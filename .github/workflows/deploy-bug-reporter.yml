@@ -80,7 +80,7 @@ jobs:
           DEPLOY_HOST: ${{ secrets.CPANEL_SSH_HOST }}
           DEPLOY_PORT: ${{ secrets.CPANEL_SSH_PORT }}
           DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
-          NPM_COMMAND: /home/pillagefirst/nodevenv/bug-reporter/24/bin/npm
+          NPM_COMMAND: /opt/alt/alt-nodejs24/root/usr/bin/npm
         run: |
           set -euo pipefail
           release_id="${GITHUB_SHA}"
