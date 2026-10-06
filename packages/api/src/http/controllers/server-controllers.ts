@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import {
   serverDbSchema,
   serverSchema,
@@ -13,4 +14,16 @@ export const getServer = createController('/server', {
     sql: selectServerQuery,
     schema: serverDbSchema,
   })!;
+});
+
+export const getSerializedServerDatabase = createController(
+  '/server/database',
+  {
+    summary: 'Serialize the active game world database',
+    response: z
+      .instanceof(Uint8Array)
+      .meta({ type: 'string', format: 'binary' }),
+  },
+)(({ database }) => {
+  return database.serialize();
 });
