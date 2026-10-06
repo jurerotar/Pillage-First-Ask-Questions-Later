@@ -80,6 +80,7 @@ export type DbFacade = {
     sql,
   }: Pick<ExecArgs, 'sql'>) => ReturnType<OpfsSAHPoolDatabase['prepare']>;
   transaction: (callback: (db: DbFacade) => void) => void;
+  serialize: () => Uint8Array;
   close: () => void;
 };
 
@@ -129,6 +130,9 @@ const canExplainQueryPlan = (sql: string): boolean => {
 export const createDbFacade = (
   database: OpfsSAHPoolDatabase,
   debug = false,
+  serialize = (): Uint8Array => {
+    throw new Error('Database serialization is not available in this context.');
+  },
 ): DbFacade => {
   const preparedStatementCache = createPreparedStatementCache();
 
@@ -347,6 +351,8 @@ export const createDbFacade = (
         );
       }
     },
+
+    serialize,
 
     close: (): void => {
       for (const [key, stmt] of preparedStatementCache) {

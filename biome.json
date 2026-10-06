@@ -86,6 +86,16 @@
   },
   "overrides": [
     {
+      "includes": ["apps/bug-reporter/src/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/vite.config.ts", "plugins/**/*.ts"],
       "linter": {
         "rules": {

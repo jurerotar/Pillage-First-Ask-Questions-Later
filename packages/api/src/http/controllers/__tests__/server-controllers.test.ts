@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { getServer } from '../server-controllers';
+import { getSerializedServerDatabase, getServer } from '../server-controllers';
 import { createControllerArgs } from './utils/controller-args';
 
 describe('server-controllers', () => {
@@ -44,6 +44,25 @@ describe('server-controllers', () => {
         name: storedServer.player_name,
         tribe: storedServer.player_tribe,
       },
+    });
+  });
+
+  test('getSerializedServerDatabase should snapshot the active database', async () => {
+    const database = await prepareTestDatabase();
+
+    const snapshot = getSerializedServerDatabase(
+      database,
+      createControllerArgs<'/server/database'>({}),
+    );
+
+    expect(snapshot).toBeInstanceOf(Uint8Array);
+    expect(new TextDecoder().decode(snapshot.subarray(0, 16))).toBe(
+      'SQLite format 3\u0000',
+    );
+    expect(
+      getServer(database, createControllerArgs<'/server'>({})),
+    ).toMatchObject({
+      id: expect.any(String),
     });
   });
 });

@@ -62,7 +62,9 @@ export const openWorkerDatabase = async (
 
     database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-    dbFacade = createDbFacade(database, false);
+    dbFacade = createDbFacade(database, false, () =>
+      sqlite3!.capi.sqlite3_js_db_export(database!.pointer!, 'main'),
+    );
 
     dbFacade.execMulti({
       sql: `
