@@ -84,10 +84,11 @@ jobs:
         run: |
           set -euo pipefail
           release_id="${GITHUB_SHA}"
-          ssh -p "$DEPLOY_PORT" -o BatchMode=yes "$DEPLOY_HOST" bash -s -- "$DEPLOY_PATH" "$release_id" <<'REMOTE'
+          ssh -p "$DEPLOY_PORT" -o BatchMode=yes "$DEPLOY_HOST" bash -s -- "$DEPLOY_PATH" "$release_id" "$NPM_COMMAND" <<'REMOTE'
           set -euo pipefail
           deploy_path="$1"
           release_id="$2"
+          npm_command="$3"
           artifact="$deploy_path/incoming/bug-reporter-$release_id.tar.gz"
           checksum="$deploy_path/incoming/bug-reporter-$release_id.tar.gz.sha256"
           releases_path="$deploy_path/releases"
@@ -101,7 +102,7 @@ jobs:
           tar --extract --gzip --file="$artifact" --directory="$release_path"
           (
             cd "$release_path"
-            "$NPM_COMMAND" ci --omit=dev --ignore-scripts --no-audit --no-fund --engine-strict=false --workspace=@pillage-first/bug-reporter
+            "$npm_command" ci --omit=dev --ignore-scripts --no-audit --no-fund --engine-strict=false --workspace=@pillage-first/bug-reporter
           )
           mkdir -p "$release_path/tmp"
           ln -s "releases/$release_id" "$deploy_path/current.next"
