@@ -111,8 +111,11 @@ jobs:
           touch "$deploy_path/tmp/restart.txt"
           rm -f "$artifact" "$checksum"
 
-          mapfile -t old_releases < <(find "$releases_path" -mindepth 1 -maxdepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' | sort -n | head -n -5 | cut -d' ' -f2-)
-          if ((${#old_releases[@]})); then
-            rm -rf -- "${old_releases[@]}"
-          fi
+          find "$releases_path" -mindepth 1 -maxdepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' \
+            | sort -n \
+            | head -n -5 \
+            | cut -d' ' -f2- \
+            | while IFS= read -r old_release; do
+                test -z "$old_release" || rm -rf -- "$old_release"
+              done
           REMOTE
