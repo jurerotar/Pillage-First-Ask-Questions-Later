@@ -11,6 +11,7 @@ import {
 } from 'app/(game)/(village-slug)/components/building-layout';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
+import { useDeveloperActions } from 'app/(game)/(village-slug)/hooks/use-developer-actions';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
@@ -89,8 +90,8 @@ export const DeveloperToolsConsole = ({
 }: DevToolsConsoleProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();
+  const { developerSettings } = useDeveloperSettings();
   const {
-    developerSettings,
     updateDeveloperSetting,
     updateVillageResources,
     spawnHeroItem,
@@ -98,7 +99,7 @@ export const DeveloperToolsConsole = ({
     incrementHeroAdventurePoints,
     killHero,
     adjustLoyalty,
-  } = useDeveloperSettings();
+  } = useDeveloperActions();
   const { hero, isHeroAlive, isHeroHome } = useHero();
   const { loyalty } = useLoyalty();
 
