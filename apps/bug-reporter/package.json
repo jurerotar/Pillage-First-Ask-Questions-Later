@@ -16,7 +16,7 @@
     "hono": "4.13.13"
   },
   "devDependencies": {
-    "@types/node": "26.5.0",
+    "@types/node": "26.6.4",
     "typescript": "7.0.2"
   }
 }
