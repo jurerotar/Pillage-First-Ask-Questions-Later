@@ -18,6 +18,10 @@
       "persistent": true,
       "cache": false
     },
+    "bug-reporter-ui": {
+      "persistent": true,
+      "cache": false
+    },
     "dev": {
       "persistent": true,
       "cache": false

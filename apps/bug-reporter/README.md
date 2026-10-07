@@ -37,6 +37,18 @@ Upload URLs expire after 15 minutes. Request new URLs with `POST /api/reports/:r
 
 Download a game world with `GET /api/admin/reports/:reportId/world`, using `Authorization: Bearer <ADMIN_API_TOKEN>`.
 
+### Report administration
+
+All admin endpoints require `Authorization: Bearer <ADMIN_API_TOKEN>`:
+
+- `GET /api/admin/reports` - List reports, newest first.
+- `GET /api/admin/reports/:reportId` - View report details and upload information.
+- `POST /api/admin/reports/:reportId/close` - Close a report. Closed reports and their files remain available.
+- `DELETE /api/admin/reports/:reportId` - Delete a report and its pending or completed world upload.
+
+The admin frontend is available in [@pillage-first/bug-reporter-ui](../bug-reporter-ui/README.md).
+Set `ADMIN_ALLOWED_ORIGIN` to its origin when hosting it separately from this API.
+
 ### Upload limits
 
 The default limit is 250 MiB per file and report, with 8 MiB chunks. Use `MAX_FILE_BYTES`, `MAX_REPORT_BYTES` and `MAX_CHUNK_BYTES` to change these limits.

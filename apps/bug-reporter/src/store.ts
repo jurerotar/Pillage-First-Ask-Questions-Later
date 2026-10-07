@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
 export type Report = {
+  closedAt: number | null;
   contact: string | null;
   createdAt: number;
   description: string;
@@ -28,6 +29,7 @@ export type Upload = {
 type CountRow = { total: number | null };
 type ChunkRow = { chunk_index: number; bytes: number };
 type ReportRow = {
+  closed_at: number | null;
   contact: string | null;
   created_at: number;
   description: string;
@@ -49,6 +51,7 @@ type UploadRow = {
 };
 
 const toReport = (row: ReportRow): Report => ({
+  closedAt: row.closed_at,
   contact: row.contact,
   createdAt: row.created_at,
   description: row.description,
@@ -121,6 +124,11 @@ export class Store {
       ) STRICT;
     `);
 
+    const columns = database.prepare('PRAGMA table_info(reports)').all();
+    if (!columns.some((column) => column.name === 'closed_at')) {
+      database.exec('ALTER TABLE reports ADD COLUMN closed_at INTEGER;');
+    }
+
     return new Store(database);
   }
 
@@ -128,9 +136,10 @@ export class Store {
     this.#database.close();
   }
 
-  createReport(input: Omit<Report, 'createdAt' | 'id'>): Report {
+  createReport(input: Omit<Report, 'closedAt' | 'createdAt' | 'id'>): Report {
     const report: Report = {
       ...input,
+      closedAt: null,
       createdAt: Date.now(),
       id: randomUUID(),
     };
@@ -157,6 +166,39 @@ export class Store {
       .prepare('SELECT * FROM reports WHERE id = ?')
       .get(id) as ReportRow | undefined;
     return row && toReport(row);
+  }
+
+  listReports(): Report[] {
+    return (
+      this.#database
+        .prepare('SELECT * FROM reports ORDER BY created_at DESC, id DESC')
+        .all() as ReportRow[]
+    ).map(toReport);
+  }
+
+  closeReport(id: string): void {
+    this.#database
+      .prepare(
+        'UPDATE reports SET closed_at = ? WHERE id = ? AND closed_at IS NULL',
+      )
+      .run(Date.now(), id);
+  }
+
+  deleteReport(id: string): void {
+    this.#database.exec('BEGIN IMMEDIATE;');
+    try {
+      this.#database
+        .prepare(
+          'DELETE FROM upload_chunks WHERE upload_id IN (SELECT id FROM uploads WHERE report_id = ?)',
+        )
+        .run(id);
+      this.#database.prepare('DELETE FROM uploads WHERE report_id = ?').run(id);
+      this.#database.prepare('DELETE FROM reports WHERE id = ?').run(id);
+      this.#database.exec('COMMIT;');
+    } catch (error) {
+      this.#database.exec('ROLLBACK;');
+      throw error;
+    }
   }
 
   createUpload(input: {
