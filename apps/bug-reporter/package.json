@@ -4,7 +4,7 @@
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "scripts": {
-    "bug-reporter-dev": "node --watch --env-file=.env.local src/server.ts",
+    "bug-reporter": "node --watch --env-file=.env src/server.ts",
     "start": "node src/server.ts",
     "type-check": "tsc --noEmit",
     "lint:check": "biome lint --no-errors-on-unmatched",
