@@ -37,32 +37,33 @@ jobs:
           node-version: 24.10.0
           package-manager-cache: false
 
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund --include=optional
+      - parallel:
+          - name: Install dependencies
+            run: npm ci --no-audit --no-fund --include=optional
 
-      - name: Create release artifact
-        run: |
-          set -euo pipefail
-          release_id="${GITHUB_SHA}"
-          package_directory=".deploy/bug-reporter"
-          mkdir -p "$package_directory/apps/bug-reporter"
-          cp package.json package-lock.json "$package_directory/"
-          cp apps/bug-reporter/package.json "$package_directory/apps/bug-reporter/"
-          cp -R apps/bug-reporter/src "$package_directory/apps/bug-reporter/"
-          tar --create --gzip --file="bug-reporter-${release_id}.tar.gz" -C "$package_directory" .
-          sha256sum "bug-reporter-${release_id}.tar.gz" > "bug-reporter-${release_id}.tar.gz.sha256"
+          - name: Create release artifact
+            run: |
+              set -euo pipefail
+              release_id="${GITHUB_SHA}"
+              package_directory=".deploy/bug-reporter"
+              mkdir -p "$package_directory/apps/bug-reporter"
+              cp package.json package-lock.json "$package_directory/"
+              cp apps/bug-reporter/package.json "$package_directory/apps/bug-reporter/"
+              cp -R apps/bug-reporter/src "$package_directory/apps/bug-reporter/"
+              tar --create --gzip --file="bug-reporter-${release_id}.tar.gz" -C "$package_directory" .
+              sha256sum "bug-reporter-${release_id}.tar.gz" > "bug-reporter-${release_id}.tar.gz.sha256"
 
-      - name: Configure SSH
-        env:
-          DEPLOY_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          install -d -m 700 "$HOME/.ssh"
-          printf '%s\n' "$DEPLOY_PRIVATE_KEY" | tr -d '\r' > "$HOME/.ssh/id_ed25519"
-          chmod 600 "$HOME/.ssh/id_ed25519"
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/known_hosts"
+          - name: Configure SSH
+            env:
+              DEPLOY_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+              DEPLOY_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
+            run: |
+              set -euo pipefail
+              install -d -m 700 "$HOME/.ssh"
+              printf '%s\n' "$DEPLOY_PRIVATE_KEY" | tr -d '\r' > "$HOME/.ssh/id_ed25519"
+              chmod 600 "$HOME/.ssh/id_ed25519"
+              printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+              chmod 600 "$HOME/.ssh/known_hosts"
 
       - name: Upload release artifact
         env:
