@@ -28,7 +28,9 @@ export const SignInForm = ({
         required
         disabled={signIn.isPending}
       />
-      <p className="muted">Your token is kept in memory for this session.</p>
+      <p className="muted">
+        Your token is remembered in this browser until you sign out.
+      </p>
       {signIn.error && <p role="alert">{signIn.error.message}</p>}
       <button
         type="submit"

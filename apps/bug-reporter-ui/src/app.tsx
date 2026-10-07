@@ -5,8 +5,12 @@ import { SignInForm } from './components/sign-in-form';
 import { ReportPage } from './reports/report-page';
 import { ReportsPage } from './reports/reports-page';
 
+const AUTH_TOKEN_STORAGE_KEY = 'bug-reporter-ui.auth-token';
+
 export const App = () => {
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState(
+    () => localStorage.getItem(AUTH_TOKEN_STORAGE_KEY) ?? '',
+  );
   const queryClient = useQueryClient();
   const isMutating = useIsMutating() > 0;
 
@@ -21,6 +25,7 @@ export const App = () => {
             type="button"
             disabled={isMutating}
             onClick={() => {
+              localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
               queryClient.clear();
               setToken('');
             }}
@@ -49,7 +54,12 @@ export const App = () => {
           />
         </Routes>
       ) : (
-        <SignInForm onSignIn={setToken} />
+        <SignInForm
+          onSignIn={(token) => {
+            localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
+            setToken(token);
+          }}
+        />
       )}
     </main>
   );
