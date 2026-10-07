@@ -8,6 +8,7 @@ import {
 } from '@pillage-first/game-assets/utils/culture-points';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { getVillagePlayerId } from './village';
 
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
@@ -15,21 +16,6 @@ const buildingCulturePointsRowSchema = z.strictObject({
   building_id: buildingIdSchema,
   level: z.number(),
 });
-
-export const getVillagePlayerId = (
-  database: DbFacade,
-  villageId: number,
-): number => {
-  return database.selectValue({
-    sql: `
-      SELECT player_id
-      FROM villages
-      WHERE id = $village_id;
-    `,
-    bind: { $village_id: villageId },
-    schema: z.number(),
-  })!;
-};
 
 export const calculateVillageCulturePointsProduction = (
   database: DbFacade,
@@ -94,19 +80,20 @@ export const updatePlayerCulturePointsAt = (
   database: DbFacade,
   timestamp: number,
   playerId = PLAYER_ID,
-): void => {
+): number | undefined => {
   const production = calculatePlayerCulturePointsProduction(database, playerId);
 
-  database.exec({
+  return database.selectValue({
     sql: `
-      UPDATE players
+      UPDATE culture_points
       SET
         culture_points = culture_points + (
           $production * MAX(0, $timestamp - culture_points_updated_at) / $day
         ),
         culture_points_updated_at = MAX(culture_points_updated_at, $timestamp)
       WHERE
-        id = $player_id;
+        player_id = $player_id
+      RETURNING culture_points;
     `,
     bind: {
       $production: production,
@@ -114,6 +101,7 @@ export const updatePlayerCulturePointsAt = (
       $day: DAY_IN_MILLISECONDS,
       $player_id: playerId,
     },
+    schema: z.number(),
   });
 };
 
@@ -127,9 +115,9 @@ export const addPlayerCulturePoints = (
 
   database.exec({
     sql: `
-      UPDATE players
+      UPDATE culture_points
       SET culture_points = culture_points + $culture_points
-      WHERE id = $player_id;
+      WHERE player_id = $player_id;
     `,
     bind: {
       $culture_points: culturePoints,

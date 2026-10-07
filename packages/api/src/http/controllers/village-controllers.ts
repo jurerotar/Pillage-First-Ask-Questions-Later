@@ -23,9 +23,9 @@ import {
   calculatePlayerCulturePointsProduction,
   calculateVillageCulturePointsProduction,
   getPlayerCulturePointsRequirementContext,
-  getVillagePlayerId,
   updatePlayerCulturePointsAt,
 } from '../../utils/culture-points';
+import { getVillagePlayerId } from '../../utils/village';
 import { createController } from '../controller';
 import {
   mapOccupiableOasisRowToDto,
@@ -125,17 +125,7 @@ export const getVillageCulturePoints = createController(
   const now = Date.now();
   const playerId = getVillagePlayerId(database, villageId);
 
-  updatePlayerCulturePointsAt(database, now, playerId);
-
-  const culturePoints = database.selectValue({
-    sql: `
-      SELECT culture_points
-      FROM players
-      WHERE id = $player_id;
-    `,
-    bind: { $player_id: playerId },
-    schema: z.number(),
-  })!;
+  const culturePoints = updatePlayerCulturePointsAt(database, now, playerId)!;
 
   return villageCulturePointsDtoSchema.parse({
     culturePoints,

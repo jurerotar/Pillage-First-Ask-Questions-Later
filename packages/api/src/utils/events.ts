@@ -108,7 +108,6 @@ import { assertBuildingConstructionRequirementsAreMet } from './building-require
 import {
   addPlayerCulturePoints,
   calculateCulturePointsCelebrationReward,
-  getVillagePlayerId,
   updatePlayerCulturePointsAt,
 } from './culture-points';
 import {
@@ -135,7 +134,11 @@ import {
   doesTroopTrainingDurationEffectMatchBuilding,
   isUnitInVillageTribe,
 } from './unit-event-validation';
-import { calculateResourceSiteResourcesAt, getVillageTileId } from './village';
+import {
+  calculateResourceSiteResourcesAt,
+  getVillagePlayerId,
+  getVillageTileId,
+} from './village';
 import { apiEffectSchema } from './zod/effect-schemas';
 import {
   baseEventRowSchema,

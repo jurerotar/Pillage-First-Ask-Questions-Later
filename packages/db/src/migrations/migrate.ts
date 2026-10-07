@@ -17,6 +17,7 @@ import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.
 import createBattleReportsTable from '../schemas/battle-reports-schema.sql?raw';
 import createBookmarksTable from '../schemas/bookmarks-schema.sql?raw';
 import createBuildingFieldsTable from '../schemas/building-fields-schema.sql?raw';
+import createCulturePointsTable from '../schemas/culture-points-schema.sql?raw';
 import createDeveloperSettingsTable from '../schemas/developer-settings-schema.sql?raw';
 import createEffectsTable from '../schemas/effects-schema.sql?raw';
 import createEventsTable from '../schemas/events-schema.sql?raw';
@@ -93,6 +94,7 @@ import { bookmarksSeeder } from '../seeders/bookmarks-seeder';
 import { buildingDataSeeder } from '../seeders/building-data-seeder';
 import { buildingFieldsSeeder } from '../seeders/building-fields-seeder';
 import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
+import { culturePointsSeeder } from '../seeders/culture-points-seeder';
 import { developerSettingsSeeder } from '../seeders/developer-settings-seeder';
 import { effectAttributeIdsSeeder } from '../seeders/effect-attribute-ids-seeder';
 import { effectIdsSeeder } from '../seeders/effect-ids-seeder';
@@ -234,6 +236,10 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createPlayersTable });
     playersSeeder(db, server);
     db.execMulti({ sql: createPlayersIndexes });
+
+    // Culture points
+    db.execMulti({ sql: createCulturePointsTable });
+    culturePointsSeeder(db, server);
 
     onProgress?.();
 

@@ -19,6 +19,7 @@ import {
   getPlayerCulturePointsRequirementContext,
   updatePlayerCulturePointsAt,
 } from './culture-points';
+import { getVillagePlayerId } from './village';
 
 const WOUNDED_TROOP_DECAY_RATE_PER_DAY = 0.1;
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
@@ -508,28 +509,13 @@ export const validateTroopMovement = (
     }
 
     if (villageId !== undefined) {
-      const playerId = database.selectValue({
-        sql: `
-          SELECT player_id
-          FROM villages
-          WHERE
-            id = $village_id;
-        `,
-        bind: { $village_id: villageId },
-        schema: z.number(),
-      })!;
+      const playerId = getVillagePlayerId(database, villageId);
 
-      updatePlayerCulturePointsAt(database, Date.now(), playerId);
-
-      const culturePoints = database.selectValue({
-        sql: `
-          SELECT culture_points
-          FROM players
-          WHERE id = $player_id;
-        `,
-        bind: { $player_id: playerId },
-        schema: z.number(),
-      })!;
+      const culturePoints = updatePlayerCulturePointsAt(
+        database,
+        Date.now(),
+        playerId,
+      )!;
 
       const { nextVillageCulturePointsRequirement } =
         getPlayerCulturePointsRequirementContext(database, playerId);

@@ -54,29 +54,13 @@ export const playersSeeder = (database: DbFacade, server: Server): void => {
   const players = [player, ...npcPlayers];
 
   const playersToInsert = players.map(({ id, name, tribe, factionId }) => {
-    return [
-      id,
-      name,
-      slugifyPlayerName(name),
-      tribeMap.get(tribe)!,
-      factionId,
-      0,
-      server.createdAt,
-    ];
+    return [id, name, slugifyPlayerName(name), tribeMap.get(tribe)!, factionId];
   });
 
   batchInsert(
     database,
     'players',
-    [
-      'id',
-      'name',
-      'slug',
-      'tribe_id',
-      'faction_id',
-      'culture_points',
-      'culture_points_updated_at',
-    ],
+    ['id', 'name', 'slug', 'tribe_id', 'faction_id'],
     playersToInsert,
   );
 };

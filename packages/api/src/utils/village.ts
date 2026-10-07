@@ -4,7 +4,10 @@ import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { calculateComputedEffect } from '@pillage-first/utils/game/calculate-computed-effect';
 import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
 import { selectResourceSiteResourcesRelevantEffectsByTileIdQuery } from '../queries/effect-queries';
-import { updateResourceSiteResourcesByTileIdToValuesQuery } from '../queries/village-queries';
+import {
+  selectPlayerIdByVillageIdQuery,
+  updateResourceSiteResourcesByTileIdToValuesQuery,
+} from '../queries/village-queries';
 import { apiEffectSchema } from './zod/effect-schemas';
 
 export const demolishBuilding = (
@@ -72,6 +75,16 @@ export const getVillageTileId = (
 ): number =>
   database.selectValue({
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
+    bind: { $village_id: villageId },
+    schema: z.number(),
+  })!;
+
+export const getVillagePlayerId = (
+  database: DbFacade,
+  villageId: number,
+): number =>
+  database.selectValue({
+    sql: selectPlayerIdByVillageIdQuery,
     bind: { $village_id: villageId },
     schema: z.number(),
   })!;
