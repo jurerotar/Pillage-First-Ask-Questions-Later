@@ -1,6 +1,7 @@
 import { use } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { env } from '@pillage-first/utils/env';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { ApiContext } from 'app/(game)/providers/api-context';
@@ -218,6 +219,7 @@ export const BugReportModal = ({ isOpen, onClose }: BugReportModalProps) => {
       await uploadWorld(database, description, server);
       form.reset();
       onClose();
+      toast.success(t('Bug report submitted. Thank you!'));
     } catch (submissionError) {
       form.setError('root', {
         message:
