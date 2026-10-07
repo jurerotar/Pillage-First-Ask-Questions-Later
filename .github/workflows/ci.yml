@@ -25,14 +25,15 @@ env:
   TURBO_CACHE_DIR: .turbo
 
 jobs:
-  type-check:
-    name: Type check
+  checks:
+    name: Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup environment (node + install)
         uses: ./.github/actions/node-setup
@@ -40,38 +41,41 @@ jobs:
       - name: Generate API route types
         run: npm run generate-api-route-types
 
-      - name: Run type check
-        run: npx turbo run type-check
+      - parallel:
+          - name: Run type check
+            run: npx turbo run type-check
 
-  lint:
-    name: Lint check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+          - name: Run lint check
+            run: npx turbo run lint:check
 
-      - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+          - name: Run format check
+            run: npx turbo run format:check
 
-      - name: Run lint check
-        run: npx turbo run lint:check
+          - name: Run @pillage-first/web localization check
+            run: npx --workspace="@pillage-first/web" i18next-cli extract --ci --dry-run
 
-  format:
-    name: Format check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
+          - name: Run tests
+            id: run-tests
+            run: |
+              if [ "${{ github.event_name }}" == "pull_request" ]; then
+                BASE_SHA="${{ github.event.pull_request.base.sha }}"
 
-      - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+                # Check if package.json or schemas changed
+                CHANGED_FILES=$(git diff --name-only $BASE_SHA HEAD)
+                FORCE_ALL=false
+                if echo "$CHANGED_FILES" | grep -q "package.json" || echo "$CHANGED_FILES" | grep -q "^packages/db/src/schemas/"; then
+                  FORCE_ALL=true
+                fi
 
-      - name: Run format check
-        run: npx turbo run format:check
+                if [ "$FORCE_ALL" = true ]; then
+                  echo "Important files changed, running all tests..."
+                  npx turbo run test
+                else
+                  npx turbo run test --filter="[$BASE_SHA...HEAD]" -- --changed="$BASE_SHA"
+                fi
+              else
+                npx turbo run test
+              fi
 
   zizmor:
     name: Zizmor GitHub Actions check
@@ -85,55 +89,4 @@ jobs:
           persist-credentials: false
 
       - name: Run zizmor
-        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
-
-  localize:
-    name: Localization check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
-
-      - name: Run @pillage-first/web localization check
-        run: npx --workspace="@pillage-first/web" i18next-cli extract --ci --dry-run
-
-  test:
-    name: Run tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
-
-      - name: Run tests
-        id: run-tests
-        run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            BASE_SHA="${{ github.event.pull_request.base.sha }}"
-
-            # Check if package.json or schemas changed
-            CHANGED_FILES=$(git diff --name-only $BASE_SHA HEAD)
-            FORCE_ALL=false
-            if echo "$CHANGED_FILES" | grep -q "package.json" || echo "$CHANGED_FILES" | grep -q "^packages/db/src/schemas/"; then
-              FORCE_ALL=true
-            fi
-
-            if [ "$FORCE_ALL" = true ]; then
-              echo "Important files changed, running all tests..."
-              npx turbo run test
-            else
-              npx turbo run test --filter="[$BASE_SHA...HEAD]" -- --changed="$BASE_SHA"
-            fi
-          else
-            npx turbo run test
-          fi
+        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4

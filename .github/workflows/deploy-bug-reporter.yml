@@ -37,32 +37,33 @@ jobs:
           node-version: 24.10.0
           package-manager-cache: false
 
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund --include=optional
+      - parallel:
+          - name: Install dependencies
+            run: npm ci --no-audit --no-fund --include=optional
 
-      - name: Create release artifact
-        run: |
-          set -euo pipefail
-          release_id="${GITHUB_SHA}"
-          package_directory=".deploy/bug-reporter"
-          mkdir -p "$package_directory/apps/bug-reporter"
-          cp package.json package-lock.json "$package_directory/"
-          cp apps/bug-reporter/package.json "$package_directory/apps/bug-reporter/"
-          cp -R apps/bug-reporter/src "$package_directory/apps/bug-reporter/"
-          tar --create --gzip --file="bug-reporter-${release_id}.tar.gz" -C "$package_directory" .
-          sha256sum "bug-reporter-${release_id}.tar.gz" > "bug-reporter-${release_id}.tar.gz.sha256"
+          - name: Create release artifact
+            run: |
+              set -euo pipefail
+              release_id="${GITHUB_SHA}"
+              package_directory=".deploy/bug-reporter"
+              mkdir -p "$package_directory/apps/bug-reporter"
+              cp package.json package-lock.json "$package_directory/"
+              cp apps/bug-reporter/package.json "$package_directory/apps/bug-reporter/"
+              cp -R apps/bug-reporter/src "$package_directory/apps/bug-reporter/"
+              tar --create --gzip --file="bug-reporter-${release_id}.tar.gz" -C "$package_directory" .
+              sha256sum "bug-reporter-${release_id}.tar.gz" > "bug-reporter-${release_id}.tar.gz.sha256"
 
-      - name: Configure SSH
-        env:
-          DEPLOY_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          install -d -m 700 "$HOME/.ssh"
-          printf '%s\n' "$DEPLOY_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
-          chmod 600 "$HOME/.ssh/id_ed25519"
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/known_hosts"
+          - name: Configure SSH
+            env:
+              DEPLOY_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+              DEPLOY_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
+            run: |
+              set -euo pipefail
+              install -d -m 700 "$HOME/.ssh"
+              printf '%s\n' "$DEPLOY_PRIVATE_KEY" | tr -d '\r' > "$HOME/.ssh/id_ed25519"
+              chmod 600 "$HOME/.ssh/id_ed25519"
+              printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+              chmod 600 "$HOME/.ssh/known_hosts"
 
       - name: Upload release artifact
         env:
@@ -80,13 +81,15 @@ jobs:
           DEPLOY_HOST: ${{ secrets.CPANEL_SSH_HOST }}
           DEPLOY_PORT: ${{ secrets.CPANEL_SSH_PORT }}
           DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
+          NPM_COMMAND: /opt/alt/alt-nodejs24/root/usr/bin/npm
         run: |
           set -euo pipefail
           release_id="${GITHUB_SHA}"
-          ssh -p "$DEPLOY_PORT" -o BatchMode=yes "$DEPLOY_HOST" bash -s -- "$DEPLOY_PATH" "$release_id" <<'REMOTE'
+          ssh -p "$DEPLOY_PORT" -o BatchMode=yes "$DEPLOY_HOST" bash -s -- "$DEPLOY_PATH" "$release_id" "$NPM_COMMAND" <<'REMOTE'
           set -euo pipefail
           deploy_path="$1"
           release_id="$2"
+          npm_command="$3"
           artifact="$deploy_path/incoming/bug-reporter-$release_id.tar.gz"
           checksum="$deploy_path/incoming/bug-reporter-$release_id.tar.gz.sha256"
           releases_path="$deploy_path/releases"
@@ -100,16 +103,20 @@ jobs:
           tar --extract --gzip --file="$artifact" --directory="$release_path"
           (
             cd "$release_path"
-            npm ci --omit=dev --ignore-scripts --no-audit --no-fund --engine-strict=false --workspace=@pillage-first/bug-reporter
+            "$npm_command" ci --omit=dev --ignore-scripts --no-audit --no-fund --engine-strict=false --workspace=@pillage-first/bug-reporter
           )
           mkdir -p "$release_path/tmp"
           ln -s "releases/$release_id" "$deploy_path/current.next"
           mv -Tf "$deploy_path/current.next" "$deploy_path/current"
-          touch "$deploy_path/current/tmp/restart.txt"
+          mkdir -p "$deploy_path/tmp"
+          touch "$deploy_path/tmp/restart.txt"
           rm -f "$artifact" "$checksum"
 
-          mapfile -t old_releases < <(find "$releases_path" -mindepth 1 -maxdepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' | sort -n | head -n -5 | cut -d' ' -f2-)
-          if ((${#old_releases[@]})); then
-            rm -rf -- "${old_releases[@]}"
-          fi
+          find "$releases_path" -mindepth 1 -maxdepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' \
+            | sort -n \
+            | head -n -5 \
+            | cut -d' ' -f2- \
+            | while IFS= read -r old_release; do
+                test -z "$old_release" || rm -rf -- "$old_release"
+              done
           REMOTE

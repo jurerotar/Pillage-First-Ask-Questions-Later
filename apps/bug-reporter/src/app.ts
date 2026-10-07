@@ -146,16 +146,59 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     await next();
   });
 
-  if (config.allowedOrigin) {
+  const allowedOrigins = [
+    config.allowedOrigin,
+    config.adminAllowedOrigin,
+  ].filter((origin): origin is string => Boolean(origin));
+  if (allowedOrigins.length > 0) {
     app.use(
       '/api/*',
       cors({
         allowHeaders: ['Authorization', 'Content-Range', 'Content-Type'],
-        allowMethods: ['GET', 'POST', 'PUT', 'OPTIONS'],
-        origin: config.allowedOrigin,
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        origin: allowedOrigins,
       }),
     );
   }
+
+  app.use('/api/admin/*', async (context, next) => {
+    const token = getBearerToken(context.req.raw);
+    if (!token || !isTokenValid(config.adminApiToken, token)) {
+      return context.json(error('Unauthorized.'), 401);
+    }
+    await next();
+    return undefined;
+  });
+
+  // Keep deletion and upload writes for the same report from overlapping.
+  const reportLocks = new Map<string, Promise<void>>();
+  app.use('/api/*', async (context, next) => {
+    const path = context.req.path;
+    const reportMatch = /^\/api\/(?:admin\/)?reports\/([^/]+)/.exec(path);
+    const uploadMatch = /^\/api\/uploads\/([^/]+)/.exec(path);
+    const reportId =
+      reportMatch?.[1] ??
+      (uploadMatch ? store.getUpload(uploadMatch[1])?.reportId : undefined);
+    if (!reportId || context.req.method === 'GET') {
+      await next();
+      return;
+    }
+    const previous = reportLocks.get(reportId) ?? Promise.resolve();
+    let release = () => {};
+    const current = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    reportLocks.set(reportId, current);
+    await previous;
+    try {
+      await next();
+    } finally {
+      release();
+      if (reportLocks.get(reportId) === current) {
+        reportLocks.delete(reportId);
+      }
+    }
+  });
 
   const isRateLimited = (request: Request, scope: string, maximum: number) =>
     !store.consumeRateLimit(
@@ -486,13 +529,71 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     return context.json({ status: 'complete' });
   });
 
-  app.get('/api/admin/reports/:reportId/world', (context) => {
-    const token = getBearerToken(context.req.raw);
+  const getAdminReport = (report: Report) => {
+    const upload = store.getUploadForReport(report.id);
+    return {
+      id: report.id,
+      title: report.title,
+      description: report.description,
+      contact: report.contact,
+      createdAt: report.createdAt,
+      closedAt: report.closedAt,
+      status: report.closedAt === null ? 'open' : 'closed',
+      uploadExpiresAt: report.uploadExpiresAt,
+      world: upload
+        ? {
+            id: upload.id,
+            filename: upload.originalName,
+            size: upload.expectedBytes,
+            status: upload.status,
+            createdAt: upload.createdAt,
+            completedAt: upload.completedAt,
+            mimeType: upload.detectedMime,
+            downloadUrl:
+              upload.status === 'complete'
+                ? `/api/admin/reports/${report.id}/world`
+                : null,
+          }
+        : null,
+    };
+  };
 
-    if (!token || !isTokenValid(config.adminApiToken, token)) {
-      return context.json(error('Unauthorized.'), 401);
+  app.get('/api/admin/reports', (context) =>
+    context.json({ reports: store.listReports().map(getAdminReport) }),
+  );
+
+  app.get('/api/admin/reports/:reportId', (context) => {
+    const report = store.getReport(context.req.param('reportId'));
+    return report
+      ? context.json(getAdminReport(report))
+      : context.json(error('Report not found.'), 404);
+  });
+
+  app.post('/api/admin/reports/:reportId/close', (context) => {
+    const report = store.getReport(context.req.param('reportId'));
+    if (!report) {
+      return context.json(error('Report not found.'), 404);
     }
+    store.closeReport(report.id);
+    return context.json(getAdminReport(store.getReport(report.id)!));
+  });
 
+  app.delete('/api/admin/reports/:reportId', async (context) => {
+    const report = store.getReport(context.req.param('reportId'));
+    if (!report) {
+      return context.json(error('Report not found.'), 404);
+    }
+    const upload = store.getUploadForReport(report.id);
+    if (upload) {
+      const paths = getUploadPaths(config, upload);
+      await rm(paths.staging, { force: true });
+      await rm(paths.completed, { force: true });
+    }
+    store.deleteReport(report.id);
+    return context.body(null, 204);
+  });
+
+  app.get('/api/admin/reports/:reportId/world', (context) => {
     const upload = store.getUploadForReport(context.req.param('reportId'));
 
     if (upload?.status !== 'complete') {

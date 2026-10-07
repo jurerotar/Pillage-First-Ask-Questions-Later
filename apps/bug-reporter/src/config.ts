@@ -3,6 +3,7 @@ import { isAbsolute, relative, resolve } from 'node:path';
 const minimumSecretLength = 32;
 
 export type AppConfig = {
+  adminAllowedOrigin?: string;
   adminApiToken: string;
   allowedOrigin?: string;
   appDirectory: string;
@@ -97,6 +98,7 @@ export const getConfig = (): AppConfig => {
   }
 
   return {
+    adminAllowedOrigin: process.env.ADMIN_ALLOWED_ORIGIN?.trim() || undefined,
     adminApiToken,
     allowedOrigin: process.env.ALLOWED_ORIGIN?.trim() || undefined,
     appDirectory,
