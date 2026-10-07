@@ -1,17 +1,14 @@
-import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
-import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
-import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
@@ -19,13 +16,10 @@ import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?r
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
 import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
 import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
-import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
-import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { filtersSeeder } from '../seeders/filters-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
 import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
-import { setupHistoryTriggers } from '../triggers/history-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
@@ -151,129 +145,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.52', (db) => {
-    const tableExists = (tableName: string): boolean => {
-      return db.selectValue({
-        sql: `
-          SELECT
-            EXISTS
-            (
-              SELECT 1
-              FROM
-                sqlite_master
-              WHERE
-                type = 'table'
-                AND name = $table_name
-              );
-        `,
-        bind: {
-          $table_name: tableName,
-        },
-        schema: z.coerce.boolean(),
-      })!;
-    };
-
-    if (!tableExists('building_ids')) {
-      if (tableExists('building_ids_new')) {
-        db.exec({
-          sql: 'ALTER TABLE building_ids_new RENAME TO building_ids;',
-        });
-      } else {
-        db.execMulti({ sql: createBuildingIdsTable });
-        buildingIdsSeeder(db);
-      }
-    }
-
-    db.exec({
-      sql: 'CREATE INDEX IF NOT EXISTS idx_building_ids_building ON building_ids(building);',
-    });
-
-    const hasAsclepeionBuildingId = db.selectValue({
-      sql: `
-        SELECT
-          EXISTS
-          (
-            SELECT 1
-            FROM
-              building_ids
-            WHERE
-              building = 'ASCLEPEION'
-            );
-      `,
-      schema: z.coerce.boolean(),
-    });
-
-    if (!hasAsclepeionBuildingId) {
-      db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
-
-      try {
-        db.transaction((tx) => {
-          tx.exec({
-            sql: 'DROP TRIGGER IF EXISTS trg_unit_training_history_delete;',
-          });
-          tx.exec({ sql: 'DROP TABLE IF EXISTS building_ids_new;' });
-
-          tx.exec({
-            sql: `
-              CREATE TABLE building_ids_new
-              (
-                id INTEGER PRIMARY KEY,
-                building TEXT NOT NULL UNIQUE CHECK (building IN
-                                                     ('BARRACKS', 'GREAT_BARRACKS', 'STABLE', 'GREAT_STABLE',
-                                                      'WORKSHOP', 'HOSPITAL', 'ASCLEPEION', 'CLAY_PIT', 'WHEAT_FIELD',
-                                                      'WOODCUTTER', 'IRON_MINE', 'BAKERY', 'BRICKYARD', 'GRAIN_MILL',
-                                                      'GRANARY', 'GREAT_GRANARY', 'IRON_FOUNDRY', 'SAWMILL',
-                                                      'WAREHOUSE', 'GREAT_WAREHOUSE', 'WATERWORKS', 'ACADEMY',
-                                                      'ROMAN_WALL', 'TEUTONIC_WALL', 'HEROS_MANSION', 'HUN_WALL',
-                                                      'GAUL_WALL', 'RALLY_POINT', 'EGYPTIAN_WALL', 'TRAPPER', 'BREWERY',
-                                                      'COMMAND_CENTER', 'CRANNY', 'HORSE_DRINKING_TROUGH',
-                                                      'MAIN_BUILDING', 'MARKETPLACE', 'RESIDENCE', 'TOURNAMENT_SQUARE',
-                                                      'TRADE_OFFICE', 'SMITHY', 'TOWN_HALL', 'EMBASSY', 'TREASURY',
-                                                      'GATHERERS_HUT', 'HUNTERS_LODGE', 'SPARTAN_WALL', 'NATAR_WALL',
-                                                      'NATURE_WALL'))
-              ) STRICT;
-            `,
-          });
-
-          tx.exec({
-            sql: `
-              INSERT OR IGNORE INTO
-                building_ids_new (id, building)
-              SELECT id, building
-              FROM
-                building_ids;
-            `,
-          });
-
-          tx.exec({
-            sql: `
-              INSERT OR IGNORE INTO
-                building_ids_new (building)
-              VALUES
-                ('ASCLEPEION');
-            `,
-          });
-
-          tx.exec({ sql: 'DROP TABLE building_ids;' });
-          tx.exec({
-            sql: 'ALTER TABLE building_ids_new RENAME TO building_ids;',
-          });
-          tx.exec({
-            sql: 'CREATE INDEX IF NOT EXISTS idx_building_ids_building ON building_ids(building);',
-          });
-        });
-      } finally {
-        db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
-      }
-
-      setupHistoryTriggers(db);
-    }
-
-    db.execMulti({ sql: createWoundedTroopsTable });
-    db.execMulti({ sql: createWoundedTroopsIndexes });
-    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
-  });
 
   migrate('0.4.53', (db) => {
     db.exec({
