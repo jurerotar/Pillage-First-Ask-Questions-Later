@@ -1,10 +1,12 @@
-import { use } from 'react';
+import { use, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Resources } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
-import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
+import {
+  CurrentVillageLiveResourcesSnapshotContext,
+  CurrentVillageLiveResourcesStoreContext,
+} from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { useIntl } from 'app/hooks/use-intl';
 import { formatFutureTimestamp } from 'app/utils/time';
 import {
@@ -68,10 +70,19 @@ export const getResourcesReadyInHours = ({
   return Math.max(...waitTimes);
 };
 
-export const useHasEnoughResources = (requiredResources: number[]) => {
+export const useHasEnoughResources = (requiredResources: number[]): boolean => {
+  const liveResourcesStore = use(CurrentVillageLiveResourcesStoreContext)!;
+
+  return useSyncExternalStore(liveResourcesStore.subscribe, () =>
+    getHasEnoughResources(requiredResources, liveResourcesStore.getSnapshot()),
+  );
+};
+
+export const useResourceAvailability = (requiredResources: number[]) => {
   const { t } = useTranslation();
-  const currentTimestamp = useCountdown();
-  const { wood, clay, iron, wheat } = use(CurrentVillageLiveResourcesContext);
+  const { wood, clay, iron, wheat } = use(
+    CurrentVillageLiveResourcesSnapshotContext,
+  );
   const {
     hourlyWoodProduction,
     hourlyClayProduction,
@@ -84,10 +95,16 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
 
   const { total: warehouseCapacity } = computedWarehouseCapacityEffect;
   const { total: granaryCapacity } = computedGranaryCapacityEffect;
+  const hasEnoughResources = getHasEnoughResources(requiredResources, {
+    wood,
+    clay,
+    iron,
+    wheat,
+  });
 
   const errorBag: string[] = [];
 
-  if (!getHasEnoughResources(requiredResources, { wood, clay, iron, wheat })) {
+  if (!hasEnoughResources) {
     const [nextLevelWood, nextLevelClay, nextLevelIron, nextLevelWheat] =
       requiredResources;
 
@@ -153,6 +170,7 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
       });
 
       if (readyInHours !== null && readyInHours > 0) {
+        const currentTimestamp = Date.now();
         const readyAtTimestamp =
           currentTimestamp + readyInHours * 60 * 60 * 1000;
         const { isToday, formattedDate } = formatFutureTimestamp(
@@ -176,7 +194,7 @@ export const useHasEnoughResources = (requiredResources: number[]) => {
   }
 
   return {
-    hasEnoughResources: errorBag.length === 0,
+    hasEnoughResources,
     errorBag,
   };
 };

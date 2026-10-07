@@ -5,7 +5,7 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import { useBuildingVirtualLevel } from 'app/(game)/(village-slug)/(village)/hooks/use-building-virtual-level';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
+import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { Icon } from 'app/components/icon';
 import { formatTime } from 'app/utils/time';
 
@@ -19,7 +19,7 @@ export const BuildingFieldTooltip = ({
   const { buildingId, id: buildingFieldId, level } = buildingField;
 
   const { t } = useTranslation();
-  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { total: buildingDuration } = useComputedEffect('buildingDuration');
   const { virtualLevel, isUpgrading, isDowngrading } =
     useBuildingVirtualLevel(buildingFieldId);

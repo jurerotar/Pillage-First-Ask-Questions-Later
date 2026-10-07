@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { usePlayerVillageListing } from 'app/(game)/(village-slug)/hooks/use-player-village-listing';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
+import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import {
   currentVillageCacheKey,
   eventsCacheKey,
@@ -36,7 +36,7 @@ export const useSendResourcesForm = ({
   const { t } = useTranslation();
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
-  const currentVillageState = use(CurrentVillageLiveResourcesContext);
+  const currentVillageState = use(CurrentVillageLiveResourcesSnapshotContext);
   const { playerVillages } = usePlayerVillageListing();
   const { mapSize, serverSpeed } = useServer();
   const { merchant, marketplaceLevel, availableMerchantAmount } =

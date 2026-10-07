@@ -1,10 +1,8 @@
-import { useSyncExternalStore } from 'react';
+import { use, useSyncExternalStore } from 'react';
 import type { ResourceProductionEffectId } from '@pillage-first/types/models/effect';
 import type { Resource } from '@pillage-first/types/models/resource';
-import { calculateCurrentAmount } from '@pillage-first/utils/game/calculate-current-resources';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
-import { getCurrentTime, subscribeToTimer } from 'app/(game)/utils/timer';
+import { CurrentVillageLiveResourcesStoreContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 
 const resourceToResourceEffectMap = new Map<
   Resource,
@@ -20,29 +18,14 @@ export const useCalculatedResource = (
   resource: Resource,
   storageCapacity: number,
 ) => {
-  const { currentVillage } = useCurrentVillage();
-
   const { total: hourlyProduction } = useComputedEffect(
     resourceToResourceEffectMap.get(resource)!,
   );
-
-  const lastKnownResourceAmount = currentVillage.resources[resource];
-  const lastUpdatedAt = currentVillage.lastUpdatedAt;
-
-  const getSnapshot = () => {
-    const { currentAmount } = calculateCurrentAmount({
-      lastKnownResourceAmount,
-      lastUpdatedAt,
-      storageCapacity,
-      hourlyProduction,
-      timestamp: getCurrentTime(),
-    });
-    return currentAmount;
-  };
+  const liveResourcesStore = use(CurrentVillageLiveResourcesStoreContext)!;
 
   const calculatedResourceAmount = useSyncExternalStore(
-    subscribeToTimer,
-    getSnapshot,
+    liveResourcesStore.subscribe,
+    () => liveResourcesStore.getSnapshot()[resource],
   );
 
   const hasNegativeProduction = hourlyProduction < 0;

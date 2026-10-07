@@ -35,7 +35,7 @@ import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...bu
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
 import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event';
@@ -43,7 +43,7 @@ import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-develo
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useVillageUnitCount } from 'app/(game)/(village-slug)/hooks/use-village-unit-count';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
+import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import {
   currentVillageCacheKey,
@@ -356,7 +356,7 @@ export const UnitAttributes = () => {
 export const UnitResearch = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
-  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { isUnitResearched } = useUnitResearch();
   const { developerSettings } = useDeveloperSettings();
   const { total: unitResearchDurationModifier } = useComputedEffect(
@@ -393,7 +393,7 @@ export const UnitResearch = () => {
   const { canResearch } = assessUnitResearchReadiness(unitId, currentVillage);
 
   const { errorBag: hasEnoughResourcesErrorBag } =
-    useHasEnoughResources(researchCost);
+    useResourceAvailability(researchCost);
   const { errorBag: hasEnoughWarehouseCapacityErrorBag } =
     useHasEnoughStorageCapacity('warehouseCapacity', researchCost);
   const { errorBag: hasEnoughGranaryCapacityErrorBag } =
@@ -493,7 +493,7 @@ export const UnitResearch = () => {
 export const UnitImprovement = () => {
   const { unitId } = use(UnitCardContext);
   const { t } = useTranslation();
-  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { developerSettings } = useDeveloperSettings();
   const { currentVillage } = useCurrentVillage();
   const { total: unitImprovementDurationModifier } = useComputedEffect(
@@ -536,7 +536,7 @@ export const UnitImprovement = () => {
   })();
 
   const { errorBag: hasEnoughResourcesErrorBag } =
-    useHasEnoughResources(upgradeCost);
+    useResourceAvailability(upgradeCost);
   const { errorBag: hasEnoughWarehouseCapacityErrorBag } =
     useHasEnoughStorageCapacity('warehouseCapacity', upgradeCost);
   const { errorBag: hasEnoughGranaryCapacityErrorBag } =
@@ -673,7 +673,7 @@ export const UnitRequirements = () => {
 export const UnitCost = () => {
   const { unitId, troopTrainingConfig } = use(UnitCardContext);
   const { t } = useTranslation();
-  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { baseRecruitmentDuration, baseRecruitmentCost } =
     getUnitDefinition(unitId);
   const durationEffect =
@@ -747,7 +747,7 @@ export const UnitRecruitment = () => {
   const { currentVillage } = useCurrentVillage();
   const { unitId, troopTrainingConfig } = use(UnitCardContext);
   const { developerSettings } = useDeveloperSettings();
-  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { baseRecruitmentCost, baseRecruitmentDuration, unitWheatConsumption } =
     getUnitDefinition(unitId);
   const durationEffect =
@@ -904,7 +904,7 @@ export const UnitHealing = ({ woundedAmount }: UnitHealingProps) => {
   const { currentVillage } = useCurrentVillage();
   const { unitId } = use(UnitCardContext);
   const { developerSettings } = useDeveloperSettings();
-  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { buildingField } = use(BuildingFieldContext);
   const { total: hospitalTrainingDurationModifier } = useComputedEffect(
     'hospitalTrainingDuration',

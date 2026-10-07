@@ -5,8 +5,8 @@ import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type { BorderIndicatorBorderVariant } from 'app/(game)/(village-slug)/components/border-indicator';
 import { useHasAvailableBuildingQueueSlot } from 'app/(game)/(village-slug)/hooks/current-village/use-has-available-building-queue-slot';
 import {
-  getHasEnoughResources,
   useHasEnoughResources,
+  useResourceAvailability,
 } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import {
   getHasEnoughGranaryCapacity,
@@ -16,7 +16,6 @@ import {
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { CurrentVillageComputedEffectsContext } from 'app/(game)/(village-slug)/providers/current-village-computed-effects-context';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 
 type UseBuildingRequirementsReturn = {
   canUpgrade: boolean;
@@ -111,7 +110,6 @@ export const useBuildingConstructionStatus = (
   buildingFieldId: BuildingField['id'],
 ): UseBuildingConstructionStatusReturn => {
   const { developerSettings } = useDeveloperSettings();
-  const { wood, clay, iron, wheat } = use(CurrentVillageLiveResourcesContext);
   const { computedWarehouseCapacityEffect, computedGranaryCapacityEffect } =
     use(CurrentVillageComputedEffectsContext);
   const {
@@ -128,12 +126,7 @@ export const useBuildingConstructionStatus = (
     isInstantBuildingConstructionEnabled,
   } = developerSettings;
 
-  const hasEnoughResources = getHasEnoughResources(nextLevelResourceCost, {
-    wood,
-    clay,
-    iron,
-    wheat,
-  });
+  const hasEnoughResources = useHasEnoughResources(nextLevelResourceCost);
   const hasEnoughWarehouseCapacity = getHasEnoughWarehouseCapacity(
     computedWarehouseCapacityEffect.total,
     nextLevelResourceCost,
@@ -172,7 +165,7 @@ export const useBuildingConstructionErrorBag = (
   const { nextLevelResourceCost } = getBuildingDataForLevel(buildingId, level);
 
   const { errorBag: hasEnoughResourcesErrorBag, hasEnoughResources } =
-    useHasEnoughResources(nextLevelResourceCost);
+    useResourceAvailability(nextLevelResourceCost);
   const {
     errorBag: hasEnoughWarehouseCapacityErrorBag,
     hasEnoughStorageCapacity: hasEnoughWarehouseCapacity,
