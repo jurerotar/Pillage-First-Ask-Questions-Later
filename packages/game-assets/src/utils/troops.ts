@@ -121,8 +121,8 @@ export const sortTroopsByUnitOrder = <T extends TroopLike>(
   troops: T[],
 ): T[] => {
   return troops.toSorted((troopA, troopB) => {
-    const unitOrderA = unitOrder.get(troopA.unitId) ?? Number.POSITIVE_INFINITY;
-    const unitOrderB = unitOrder.get(troopB.unitId) ?? Number.POSITIVE_INFINITY;
+    const unitOrderA = unitOrder.get(troopA.unitId)!;
+    const unitOrderB = unitOrder.get(troopB.unitId)!;
 
     return unitOrderA - unitOrderB;
   });

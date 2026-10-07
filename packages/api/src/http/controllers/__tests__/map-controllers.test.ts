@@ -133,14 +133,23 @@ describe('map-controllers', () => {
       schema: z.number(),
     })!;
 
-    getTileTroops(
+    const troops = getTileTroops(
       database,
       createControllerArgs<'/tiles/:tileId/troops'>({
         path: { tileId: tileWithAnimalsTileId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(troops.length).toBeGreaterThan(0);
+    expect(troops).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tileId: tileWithAnimalsTileId,
+          unitId: expect.any(String),
+          amount: expect.any(Number),
+        }),
+      ]),
+    );
   });
 
   test('getTileOasisBonuses should return bonuses for an oasis tile', async () => {
@@ -152,14 +161,22 @@ describe('map-controllers', () => {
       schema: z.number(),
     })!;
 
-    getTileOasisBonuses(
+    const bonuses = getTileOasisBonuses(
       database,
       createControllerArgs<'/tiles/:tileId/bonuses'>({
         path: { tileId: tileWithBonusesTileId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(bonuses.length).toBeGreaterThan(0);
+    expect(bonuses).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          resource: expect.any(String),
+          bonus: expect.any(Number),
+        }),
+      ]),
+    );
   });
 
   test('MapMarker controllers should add, get and remove markers', async () => {

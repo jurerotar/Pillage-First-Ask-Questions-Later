@@ -1,13 +1,14 @@
 import { z } from 'zod';
+import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  reportFilterNameByScope,
   reportListingDtoSchema,
-  reportListingFilterSchema,
+  reportScopeSchema,
 } from '@pillage-first/types/dtos/report';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import {
   reportSchema,
   reportTagSchema,
-  reportTypeSchema,
 } from '@pillage-first/types/models/report';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
@@ -23,8 +24,12 @@ import {
   selectMovementReportQuery,
   selectReportListingsQuery,
   selectReportTypeQuery,
+  selectScheduledConstructionCancellationReportQuery,
   selectScoutingReportQuery,
   selectTradeReportQuery,
+  selectUnitImprovementReportQuery,
+  selectUnitResearchReportQuery,
+  selectVillageFoundedReportQuery,
 } from '../../queries/report-queries';
 import { createController } from '../controller';
 import {
@@ -34,8 +39,12 @@ import {
   mapHuntingPartyReportRowToDto,
   mapMovementReportRowToDto,
   mapReportListingRowToDto,
+  mapScheduledConstructionCancellationReportRowToDto,
   mapScoutingReportRowToDto,
   mapTradeReportRowToDto,
+  mapUnitImprovementReportRowToDto,
+  mapUnitResearchReportRowToDto,
+  mapVillageFoundedReportRowToDto,
 } from './mappers/report-mapper';
 import {
   adventureReportRowSchema,
@@ -46,60 +55,33 @@ import {
   getReportTypeRowSchema,
   huntingPartyReportRowSchema,
   movementReportRowSchema,
+  scheduledConstructionCancellationReportRowSchema,
   scoutingReportRowSchema,
   tradeReportRowSchema,
+  unitImprovementReportRowSchema,
+  unitResearchReportRowSchema,
+  villageFoundedReportRowSchema,
 } from './schemas/report-schemas';
 
 export const getReports = createController('/reports', {
   summary: 'Get player reports',
   requestParams: {
     query: z.strictObject({
-      scope: z
-        .enum(['global', 'unread', 'archived', 'village'])
-        .optional()
-        .default('global'),
+      scope: reportScopeSchema.optional().default('global'),
       villageId: z.coerce.number().optional(),
-      filters: z
-        .array(reportListingFilterSchema)
-        .or(reportListingFilterSchema)
-        .optional(),
     }),
   },
   response: z.array(reportListingDtoSchema),
 })(({ database, query }) => {
   const scope = query.scope ?? 'global';
-  const reportFilters =
-    query.filters == null
-      ? []
-      : Array.isArray(query.filters)
-        ? query.filters
-        : [query.filters];
-
-  const reportTypes = reportFilters.filter(
-    (filter) => reportTypeSchema.safeParse(filter).success,
-  );
 
   const rows = database.selectObjects({
     sql: selectReportListingsQuery,
     bind: {
+      $player_id: PLAYER_ID,
       $village_id: query.villageId ?? null,
       $scope: scope,
-      $type_count: reportTypes.length,
-      $include_battle: reportTypes.includes('battle') ? 1 : 0,
-      $include_adventure: reportTypes.includes('adventure') ? 1 : 0,
-      $include_trade: reportTypes.includes('trade') ? 1 : 0,
-      $include_movement: reportTypes.includes('movement') ? 1 : 0,
-      $include_hunting_party: reportTypes.includes('huntingParty') ? 1 : 0,
-      $include_gathering_expedition: reportTypes.includes('gatheringExpedition')
-        ? 1
-        : 0,
-      $include_scouting: reportTypes.includes('scouting') ? 1 : 0,
-      $exclude_no_loss:
-        reportFilters.length === 0 || reportFilters.includes('noLoss') ? 0 : 1,
-      $exclude_own_trades:
-        reportFilters.length === 0 || reportFilters.includes('ownTrades')
-          ? 0
-          : 1,
+      $filter_name: reportFilterNameByScope[scope],
     },
     schema: getReportListingsRowSchema,
   });
@@ -267,13 +249,57 @@ export const getReport = createController('/reports/:reportId', {
     return mapScoutingReportRowToDto(row, attackerUnits, units, structures);
   }
 
-  const row = database.selectObject({
-    sql: selectTradeReportQuery,
-    bind,
-    schema: tradeReportRowSchema,
-  })!;
+  if (reportInfo.type === 'unitResearch') {
+    const row = database.selectObject({
+      sql: selectUnitResearchReportQuery,
+      bind,
+      schema: unitResearchReportRowSchema,
+    })!;
 
-  return mapTradeReportRowToDto(row);
+    return mapUnitResearchReportRowToDto(row);
+  }
+
+  if (reportInfo.type === 'unitImprovement') {
+    const row = database.selectObject({
+      sql: selectUnitImprovementReportQuery,
+      bind,
+      schema: unitImprovementReportRowSchema,
+    })!;
+
+    return mapUnitImprovementReportRowToDto(row);
+  }
+
+  if (reportInfo.type === 'villageFounded') {
+    const row = database.selectObject({
+      sql: selectVillageFoundedReportQuery,
+      bind,
+      schema: villageFoundedReportRowSchema,
+    })!;
+
+    return mapVillageFoundedReportRowToDto(row);
+  }
+
+  if (reportInfo.type === 'scheduledConstructionCancellation') {
+    const row = database.selectObject({
+      sql: selectScheduledConstructionCancellationReportQuery,
+      bind,
+      schema: scheduledConstructionCancellationReportRowSchema,
+    })!;
+
+    return mapScheduledConstructionCancellationReportRowToDto(row);
+  }
+
+  if (reportInfo.type === 'trade') {
+    const row = database.selectObject({
+      sql: selectTradeReportQuery,
+      bind,
+      schema: tradeReportRowSchema,
+    })!;
+
+    return mapTradeReportRowToDto(row);
+  }
+
+  throw new Error(`Unsupported report type: ${reportInfo.type}`);
 });
 
 export const updateReports = createController('/reports', 'patch', {

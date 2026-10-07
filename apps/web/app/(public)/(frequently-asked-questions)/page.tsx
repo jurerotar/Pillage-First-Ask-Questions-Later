@@ -18,7 +18,7 @@ const mdxComponents: ComponentProps<typeof MDXProvider>['components'] = {
   h2: (props) => (
     <Text
       {...props}
-      className="mb-4 !text-2xl"
+      className="group mb-4 !text-2xl"
       as="h2"
     />
   ),

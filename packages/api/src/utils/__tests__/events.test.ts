@@ -663,9 +663,8 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
       const buildingFieldId = 25;
 
-      database.exec({
-        sql: `
-          DELETE FROM effects
+      database.execMulti({
+        sql: `DELETE FROM effects
           WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
             AND source_specifier = $field_id;
           DELETE FROM building_fields
@@ -729,7 +728,7 @@ describe('events utils', () => {
       ).not.toThrow();
     });
 
-    test('buildingLevelChange - wheat fields should not require free crop', async () => {
+    test('buildingLevelChange - does not require positive wheat production', async () => {
       const database = await prepareTestDatabase();
       const villageId = getAnyVillageId(database);
       const buildingFieldId = database.selectValue({
@@ -782,7 +781,7 @@ describe('events utils', () => {
           database,
           createBuildingLevelChangeEventMock({ villageId }),
         ),
-      ).toThrow('Not enough free crop');
+      ).not.toThrow();
     });
 
     test('troopMovementAdventure - should throw if no adventure points are available', async () => {
@@ -2190,7 +2189,7 @@ describe('events utils', () => {
         villageId: getAnyVillageId(database),
       });
       const result = getEventDuration(database, event);
-      expect(result).toBeGreaterThanOrEqual(0);
+      expect(result).toBeGreaterThan(0);
     });
 
     test('unitResearch - should apply effects and return a positive duration', async () => {

@@ -11,6 +11,7 @@ export const getVillagesByPlayerSchema = z
     coordinates_y: z.number(),
     name: z.string(),
     slug: z.string().nullable(),
+    population: z.number(),
     resource_field_composition: resourceFieldCompositionSchema,
   })
   .meta({ id: 'GetVillagesByPlayerRow' });

@@ -1,3 +1,37 @@
+## Version 0.4.72
+
+#### Oct 7, 2026
+
+* [Feature] Added in-game bug reporting. Your current game world and browser details are attached automatically,
+  and you'll receive a confirmation once the report has been submitted.
+* [Feature] Added village sorting preferences. You can now sort the village select alphabetically or by population,
+  in ascending or descending order.
+* [Feature] Buildings no longer require free crop to construct or upgrade. Removed the free crop display from the
+  village header.
+* [UIUXImprovement] Added building instance numbers to the construction list, making it easier to tell which instance
+  of a building you're about to construct.
+* [BugFix] Fixed an issue where scheduling multiple upgrades of a new building could cancel its scheduled construction.
+* [BugFix] Fixed building cards throwing an error when viewing an empty building field.
+* [BugFix] Fixed custom icon styling.
+
+## Version 0.4.71
+
+#### Sep 28, 2026
+
+* [Feature] Replaced the Event log page with report-based records for unit research, unit improvements, village founding
+  and scheduled construction cancellations. These events now appear in Reports alongside other village activity.
+* [UIUXImprovement] Reworked report, auction, marketplace and troop movement filters into popover multi-select controls.
+  Report filters are now preserved between sessions, meaning you won't have to re-select them every time.
+
+## Version 0.4.70
+
+#### Sep 28 2026
+
+* [Feature] When training units, you'll now be able to see how many units of the same type you already own.
+* [BugFix] Added missing database indexes, which weren't created due to a bug in database client.
+* [BugFix] Fixed an issue where units in village troop list weren't properly sorted.
+* [TechnicalImprovement] Removed Recharts from game world overview page, dropping total size by ~ 300 kb.
+
 ## Version 0.4.69
 
 #### Sep 20, 2026

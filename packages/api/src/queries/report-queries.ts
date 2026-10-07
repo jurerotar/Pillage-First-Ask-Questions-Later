@@ -68,6 +68,35 @@ export const selectReportListingsQuery = `
         'targetName', scouting_target_v.name,
         'targetCoordinates', json_object('x', scouting_target_t.x, 'y', scouting_target_t.y)
       )
+      WHEN 'unitResearch' THEN json_object(
+        'villageId', unit_research_v.id,
+        'villageName', unit_research_v.name,
+        'villageCoordinates', json_object('x', unit_research_t.x, 'y', unit_research_t.y),
+        'unitId', unit_research_ui.unit
+      )
+      WHEN 'unitImprovement' THEN json_object(
+        'villageId', unit_improvement_v.id,
+        'villageName', unit_improvement_v.name,
+        'villageCoordinates', json_object('x', unit_improvement_t.x, 'y', unit_improvement_t.y),
+        'unitId', unit_improvement_ui.unit,
+        'level', uir.level
+      )
+      WHEN 'villageFounded' THEN json_object(
+        'originName', founding_origin_v.name,
+        'originCoordinates', json_object('x', founding_origin_t.x, 'y', founding_origin_t.y),
+        'targetName', founding_target_v.name,
+        'targetCoordinates', json_object('x', founding_target_t.x, 'y', founding_target_t.y)
+      )
+      WHEN 'scheduledConstructionCancellation' THEN json_object(
+        'villageId', scheduled_construction_v.id,
+        'villageName', scheduled_construction_v.name,
+        'villageCoordinates', json_object('x', scheduled_construction_t.x, 'y', scheduled_construction_t.y),
+        'buildingId', scheduled_construction_bi.building,
+        'buildingFieldId', sccr.field_id,
+        'level', sccr.level,
+        'reason', sccr.reason,
+        'reasonDetail', json(sccr.reason_detail_json)
+      )
     END AS summary_json,
     COALESCE((
       SELECT json_group_array(rti.tag)
@@ -122,6 +151,23 @@ export const selectReportListingsQuery = `
   LEFT JOIN tiles scouting_target_t ON scouting_target_t.id = sr.target_tile_id
   LEFT JOIN villages scouting_target_v ON scouting_target_v.tile_id = scouting_target_t.id
   LEFT JOIN players scouting_target_p ON scouting_target_p.id = scouting_target_v.player_id
+  LEFT JOIN unit_research_reports urr ON urr.report_id = r.id
+  LEFT JOIN unit_ids unit_research_ui ON unit_research_ui.id = urr.unit_id
+  LEFT JOIN villages unit_research_v ON unit_research_v.id = r.village_id
+  LEFT JOIN tiles unit_research_t ON unit_research_t.id = unit_research_v.tile_id
+  LEFT JOIN unit_improvement_reports uir ON uir.report_id = r.id
+  LEFT JOIN unit_ids unit_improvement_ui ON unit_improvement_ui.id = uir.unit_id
+  LEFT JOIN villages unit_improvement_v ON unit_improvement_v.id = r.village_id
+  LEFT JOIN tiles unit_improvement_t ON unit_improvement_t.id = unit_improvement_v.tile_id
+  LEFT JOIN village_founding_reports vfr ON vfr.report_id = r.id
+  LEFT JOIN tiles founding_origin_t ON founding_origin_t.id = vfr.origin_tile_id
+  LEFT JOIN villages founding_origin_v ON founding_origin_v.tile_id = founding_origin_t.id
+  LEFT JOIN tiles founding_target_t ON founding_target_t.id = vfr.target_tile_id
+  LEFT JOIN villages founding_target_v ON founding_target_v.tile_id = founding_target_t.id
+  LEFT JOIN scheduled_construction_cancellation_reports sccr ON sccr.report_id = r.id
+  LEFT JOIN building_ids scheduled_construction_bi ON scheduled_construction_bi.id = sccr.building_id
+  LEFT JOIN villages scheduled_construction_v ON scheduled_construction_v.id = sccr.village_id
+  LEFT JOIN tiles scheduled_construction_t ON scheduled_construction_t.id = scheduled_construction_v.tile_id
   WHERE
     ($scope != 'village' OR r.village_id = $village_id)
     AND (
@@ -141,22 +187,33 @@ export const selectReportListingsQuery = `
       )
     )
     AND (
-      $type_count = 0
-      OR ($include_battle = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'battle'))
-      OR ($include_adventure = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'adventure'))
-      OR ($include_trade = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'trade'))
-      OR ($include_movement = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'movement'))
-      OR ($include_hunting_party = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'huntingParty'))
-      OR ($include_gathering_expedition = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'gatheringExpedition'))
-      OR ($include_scouting = 1 AND r.type_id = (SELECT id FROM report_type_ids WHERE report_type = 'scouting'))
+      EXISTS (
+        SELECT 1
+        FROM filters rf
+        WHERE rf.player_id = $player_id
+          AND rf.name = $filter_name
+          AND rf.filter = rty.report_type
+      )
     )
     AND (
-      $exclude_no_loss = 0
+      EXISTS (
+        SELECT 1
+        FROM filters rf
+        WHERE rf.player_id = $player_id
+          AND rf.name = $filter_name
+          AND rf.filter = 'noLoss'
+      )
       OR rty.report_type != 'battle'
       OR roi.report_outcome != 'attackerNoLoss'
     )
     AND (
-      $exclude_own_trades = 0
+      EXISTS (
+        SELECT 1
+        FROM filters rf
+        WHERE rf.player_id = $player_id
+          AND rf.name = $filter_name
+          AND rf.filter = 'ownTrades'
+      )
       OR rty.report_type != 'trade'
       OR trade_origin_v.player_id != trade_target_v.player_id
     )
@@ -402,6 +459,76 @@ export const selectScoutingReportQuery = `
   JOIN villages target_v ON target_v.tile_id = target_t.id
   JOIN players target_p ON target_p.id = target_v.player_id
   JOIN tribe_ids target_tribe ON target_tribe.id = target_p.tribe_id;
+`;
+
+export const selectUnitResearchReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    ui.unit AS unit_id,
+    v.name AS village_name,
+    t.x AS village_x,
+    t.y AS village_y
+  FROM report r
+  JOIN unit_research_reports urr ON urr.report_id = r.id
+  JOIN unit_ids ui ON ui.id = urr.unit_id
+  JOIN villages v ON v.id = r.village_id
+  JOIN tiles t ON t.id = v.tile_id;
+`;
+
+export const selectUnitImprovementReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    ui.unit AS unit_id,
+    uir.level,
+    v.name AS village_name,
+    t.x AS village_x,
+    t.y AS village_y
+  FROM report r
+  JOIN unit_improvement_reports uir ON uir.report_id = r.id
+  JOIN unit_ids ui ON ui.id = uir.unit_id
+  JOIN villages v ON v.id = r.village_id
+  JOIN tiles t ON t.id = v.tile_id;
+`;
+
+export const selectVillageFoundedReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    vfr.origin_tile_id,
+    vfr.target_tile_id,
+    origin_v.name AS origin_name,
+    origin_t.x AS origin_x,
+    origin_t.y AS origin_y,
+    target_v.name AS target_name,
+    target_t.x AS target_x,
+    target_t.y AS target_y
+  FROM report r
+  JOIN village_founding_reports vfr ON vfr.report_id = r.id
+  JOIN tiles origin_t ON origin_t.id = vfr.origin_tile_id
+  JOIN villages origin_v ON origin_v.tile_id = origin_t.id
+  JOIN tiles target_t ON target_t.id = vfr.target_tile_id
+  JOIN villages target_v ON target_v.tile_id = target_t.id;
+`;
+
+export const selectScheduledConstructionCancellationReportQuery = `
+  ${reportCte}
+  SELECT
+    ${reportColumns},
+    bi.building AS building_id,
+    sccr.field_id,
+    sccr.level,
+    sccr.reason,
+    sccr.reason_detail_json,
+    v.name AS village_name,
+    t.x AS village_x,
+    t.y AS village_y
+  FROM report r
+  JOIN scheduled_construction_cancellation_reports sccr ON sccr.report_id = r.id
+  JOIN building_ids bi ON bi.id = sccr.building_id
+  JOIN villages v ON v.id = sccr.village_id
+  JOIN tiles t ON t.id = v.tile_id;
 `;
 
 export const deleteReportQuery = `

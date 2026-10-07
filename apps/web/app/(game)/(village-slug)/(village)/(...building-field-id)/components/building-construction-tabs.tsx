@@ -37,8 +37,12 @@ const BuildingConstructionList = ({
 }: BuildingCategoryPanelProps) => {
   const { t } = useTranslation();
   const tribe = useTribe();
-  const { buildingFieldId, maxLevelByBuildingId, buildingIdsInQueue } =
-    use(BuildingFieldContext);
+  const {
+    buildingFieldId,
+    maxLevelByBuildingId,
+    buildingIdsInQueue,
+    nextInstanceNumberByBuildingId,
+  } = use(BuildingFieldContext);
   const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
 
   const shouldAllowUnmetRequirementsForScheduledConstruction =
@@ -123,6 +127,9 @@ const BuildingConstructionList = ({
             >
               <BuildingCard
                 buildingId={building.id}
+                buildingInstanceNumber={nextInstanceNumberByBuildingId.get(
+                  building.id,
+                )}
                 buildingConstructionReadinessAssessment={assessments.get(
                   building.id,
                 )}

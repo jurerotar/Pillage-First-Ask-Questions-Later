@@ -8,7 +8,6 @@ import {
   currentVillageCacheKey,
   effectsCacheKey,
   eventsCacheKey,
-  eventsHistoryCacheKey,
   gatherersHutExpeditionsCacheKey,
   heroCacheKey,
   heroInventoryCacheKey,
@@ -61,7 +60,6 @@ export const cachesToClearOnResolve: Handlers = {
       ...affectedVillageIds.flatMap((villageId) => [
         [questsCacheKey, villageId],
         [collectableQuestCountCacheKey, villageId],
-        [eventsHistoryCacheKey, villageId],
         [eventsCacheKey, 'buildingLevelChange', villageId],
         [scheduledBuildingUpgradesCacheKey, villageId],
       ]),
@@ -72,7 +70,6 @@ export const cachesToClearOnResolve: Handlers = {
       [currentVillageCacheKey],
       [effectsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
-        [eventsHistoryCacheKey, villageId],
         [eventsCacheKey, 'buildingDestruction', villageId],
       ]),
     ];
@@ -83,7 +80,6 @@ export const cachesToClearOnResolve: Handlers = {
       ...getVillageUnitCountQueryKeys(affectedVillageIds),
       ...affectedTileIds.map((tileId) => [villageTroopsCacheKey, tileId]),
       ...affectedVillageIds.flatMap((villageId) => [
-        [eventsHistoryCacheKey, villageId],
         [eventsCacheKey, 'troopTraining', villageId],
       ]),
     ];
@@ -184,26 +180,18 @@ export const cachesToClearOnResolve: Handlers = {
     return [
       ...affectedVillageIds.flatMap((villageId) => [
         [unitResearchCacheKey, villageId],
-        [eventsHistoryCacheKey, villageId],
         [eventsCacheKey, 'unitResearch', villageId],
       ]),
     ];
   },
-  unitImprovement: ({ affectedVillageIds }) => {
-    return [
-      [unitImprovementCacheKey],
-      [eventsCacheKey, 'unitImprovement'],
-      ...affectedVillageIds.flatMap((villageId) => [
-        [eventsHistoryCacheKey, villageId],
-      ]),
-    ];
+  unitImprovement: () => {
+    return [[unitImprovementCacheKey], [eventsCacheKey, 'unitImprovement']];
   },
   animalCageProduction: ({ affectedVillageIds }) => {
     return [
       [heroInventoryCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
         [eventsCacheKey, 'animalCageProduction', villageId],
-        [eventsHistoryCacheKey, villageId],
       ]),
     ];
   },
@@ -212,7 +200,6 @@ export const cachesToClearOnResolve: Handlers = {
       ...affectedVillageIds.flatMap((villageId) => [
         [trapperCagesCacheKey, villageId],
         [eventsCacheKey, 'trapperCageProduction', villageId],
-        [eventsHistoryCacheKey, villageId],
       ]),
     ];
   },
@@ -259,7 +246,6 @@ export const cachesToClearOnResolve: Handlers = {
       [currentVillageCacheKey],
       [reportListingsCacheKey],
       ...affectedVillageIds.flatMap((villageId) => [
-        [eventsHistoryCacheKey, villageId],
         [eventsCacheKey, 'resourceTransfer', villageId],
       ]),
     ];

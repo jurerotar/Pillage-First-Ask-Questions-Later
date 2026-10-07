@@ -28,6 +28,13 @@ type GatheringExpeditionReportRow = Extract<
   { type: 'gatheringExpedition' }
 >;
 type ScoutingReportRow = Extract<ReportRow, { type: 'scouting' }>;
+type UnitResearchReportRow = Extract<ReportRow, { type: 'unitResearch' }>;
+type UnitImprovementReportRow = Extract<ReportRow, { type: 'unitImprovement' }>;
+type VillageFoundedReportRow = Extract<ReportRow, { type: 'villageFounded' }>;
+type ScheduledConstructionCancellationReportRow = Extract<
+  ReportRow,
+  { type: 'scheduledConstructionCancellation' }
+>;
 
 const mapBattleReportRowToSummaryDto = (
   row: BattleReportRow,
@@ -97,16 +104,75 @@ const mapBaseReportRowToDto = (row: ReportRow) => ({
 
 export const mapReportListingRowToDto = (
   row: ReportListingRow,
-): ReportListingDto =>
-  reportListingDtoSchema.parse({
+): ReportListingDto => {
+  const summary = JSON.parse(row.summary_json);
+
+  if (row.type === 'unitResearch') {
+    return reportListingDtoSchema.parse({
+      id: row.id,
+      villageId: row.village_id,
+      timestamp: row.timestamp,
+      type: row.type,
+      outcome: row.outcome,
+      summary: {
+        villageId: summary.villageId,
+        villageName: summary.villageName,
+        villageCoordinates: summary.villageCoordinates,
+      },
+      unitId: summary.unitId,
+      tags: JSON.parse(row.tags_json),
+    });
+  }
+
+  if (row.type === 'unitImprovement') {
+    return reportListingDtoSchema.parse({
+      id: row.id,
+      villageId: row.village_id,
+      timestamp: row.timestamp,
+      type: row.type,
+      outcome: row.outcome,
+      summary: {
+        villageId: summary.villageId,
+        villageName: summary.villageName,
+        villageCoordinates: summary.villageCoordinates,
+      },
+      unitId: summary.unitId,
+      level: summary.level,
+      tags: JSON.parse(row.tags_json),
+    });
+  }
+
+  if (row.type === 'scheduledConstructionCancellation') {
+    return reportListingDtoSchema.parse({
+      id: row.id,
+      villageId: row.village_id,
+      timestamp: row.timestamp,
+      type: row.type,
+      outcome: row.outcome,
+      summary: {
+        villageId: summary.villageId,
+        villageName: summary.villageName,
+        villageCoordinates: summary.villageCoordinates,
+      },
+      buildingId: summary.buildingId,
+      buildingFieldId: summary.buildingFieldId,
+      level: summary.level,
+      reason: summary.reason,
+      reasonDetail: summary.reasonDetail,
+      tags: JSON.parse(row.tags_json),
+    });
+  }
+
+  return reportListingDtoSchema.parse({
     id: row.id,
     villageId: row.village_id,
     timestamp: row.timestamp,
     type: row.type,
     outcome: row.outcome,
-    summary: JSON.parse(row.summary_json),
+    summary,
     tags: JSON.parse(row.tags_json),
   });
+};
 
 export const mapBattleReportRowToDto = (
   rows: BattleReportRow[],
@@ -397,3 +463,62 @@ export const mapScoutingReportRowToDto = (
     },
   });
 };
+
+export const mapUnitResearchReportRowToDto = (row: UnitResearchReportRow) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'unitResearch',
+    summary: {
+      villageId: row.village_id,
+      villageName: row.village_name,
+      villageCoordinates: { x: row.village_x, y: row.village_y },
+    },
+    unitId: row.unit_id,
+  });
+
+export const mapUnitImprovementReportRowToDto = (
+  row: UnitImprovementReportRow,
+) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'unitImprovement',
+    summary: {
+      villageId: row.village_id,
+      villageName: row.village_name,
+      villageCoordinates: { x: row.village_x, y: row.village_y },
+    },
+    unitId: row.unit_id,
+    level: row.level,
+  });
+
+export const mapVillageFoundedReportRowToDto = (row: VillageFoundedReportRow) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'villageFounded',
+    summary: {
+      originName: row.origin_name,
+      originCoordinates: { x: row.origin_x, y: row.origin_y },
+      targetName: row.target_name,
+      targetCoordinates: { x: row.target_x, y: row.target_y },
+    },
+    originTileId: row.origin_tile_id,
+    targetTileId: row.target_tile_id,
+  });
+
+export const mapScheduledConstructionCancellationReportRowToDto = (
+  row: ScheduledConstructionCancellationReportRow,
+) =>
+  reportSchema.parse({
+    ...mapBaseReportRowToDto(row),
+    type: 'scheduledConstructionCancellation',
+    summary: {
+      villageId: row.village_id,
+      villageName: row.village_name,
+      villageCoordinates: { x: row.village_x, y: row.village_y },
+    },
+    buildingId: row.building_id,
+    buildingFieldId: row.field_id,
+    level: row.level,
+    reason: row.reason,
+    reasonDetail: JSON.parse(row.reason_detail_json),
+  });

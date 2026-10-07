@@ -87,9 +87,8 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    database.exec({
-      sql: `
-        UPDATE players
+    database.execMulti({
+      sql: `UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'gauls')
         WHERE id = (SELECT player_id FROM villages WHERE id = $village_id);
       `,
@@ -298,7 +297,7 @@ describe('scheduled building upgrades', () => {
   test('promotes only the next queued upgrade for Romans', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
-    database.exec({
+    database.execMulti({
       sql: `
         UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
@@ -363,7 +362,7 @@ describe('scheduled building upgrades', () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
+    database.execMulti({
       sql: `
         UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
@@ -547,6 +546,42 @@ describe('scheduled building upgrades', () => {
       fieldId: field.fieldId,
       buildingId: field.buildingId,
     });
+
+    expect(
+      database.selectObject({
+        sql: `
+          SELECT
+            rti.report_type AS reportType,
+            roi.report_outcome AS reportOutcome,
+            sccr.field_id AS fieldId,
+            bi.building AS buildingId,
+            sccr.level,
+            sccr.reason
+          FROM scheduled_construction_cancellation_reports sccr
+          JOIN reports r ON r.id = sccr.report_id
+          JOIN report_type_ids rti ON rti.id = r.type_id
+          JOIN report_outcome_ids roi ON roi.id = r.report_outcome_id
+          JOIN building_ids bi ON bi.id = sccr.building_id
+          WHERE sccr.village_id = $village_id;
+        `,
+        bind: { $village_id: villageId },
+        schema: z.strictObject({
+          reportType: z.literal('scheduledConstructionCancellation'),
+          reportOutcome: z.literal('scheduledConstructionCancelled'),
+          fieldId: z.number(),
+          buildingId: buildingIdSchema,
+          level: z.number(),
+          reason: z.literal('missing-resources'),
+        }),
+      }),
+    ).toEqual({
+      reportType: 'scheduledConstructionCancellation',
+      reportOutcome: 'scheduledConstructionCancelled',
+      fieldId: field.fieldId,
+      buildingId: field.buildingId,
+      level: field.level + 1,
+      reason: 'missing-resources',
+    });
   });
 
   test('removes an invalid head candidate and promotes the next candidate', async () => {
@@ -728,9 +763,8 @@ describe('scheduled building upgrades', () => {
       validLevel,
     );
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
+    database.execMulti({
+      sql: `DELETE FROM effects
         WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $placeholder_field_id;
         DELETE FROM building_fields
@@ -823,9 +857,8 @@ describe('scheduled building upgrades', () => {
     const villageId = 1;
     const buildingFieldId = 25;
 
-    database.exec({
-      sql: `
-        DELETE FROM effects
+    database.execMulti({
+      sql: `DELETE FROM effects
         WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
           AND source_specifier = $field_id;
         DELETE FROM building_fields
@@ -880,8 +913,78 @@ describe('scheduled building upgrades', () => {
     });
   });
 
+  test('starts a new building when its later levels are scheduled', async () => {
+    const database = await prepareTestDatabase();
+    const villageId = 1;
+    const buildingFieldId = 25;
+
+    database.execMulti({
+      sql: `DELETE FROM effects
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND source_specifier = $field_id;
+        DELETE FROM building_fields
+        WHERE village_id = $village_id
+          AND field_id = $field_id;
+        UPDATE developer_settings
+        SET is_free_building_construction_enabled = 1;
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+      },
+    });
+    createBuildingPlaceholder(database, villageId, buildingFieldId, 'GRANARY');
+    for (const level of [1, 2]) {
+      insertScheduledBuildingUpgrade(database, {
+        villageId,
+        buildingId: 'GRANARY',
+        buildingFieldId,
+        level,
+      });
+    }
+
+    promoteNextScheduledBuildingUpgrade(database, villageId);
+
+    const result = database.selectObject({
+      sql: `
+        SELECT
+          CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) AS fieldId,
+          JSON_EXTRACT(e.meta, '$.buildingId') AS buildingId,
+          CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) AS previousLevel,
+          CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER) AS level,
+          (SELECT COUNT(*)
+           FROM scheduled_building_upgrades sbu
+           WHERE sbu.village_id = $village_id
+             AND sbu.building_field_id = $field_id
+             AND sbu.level = 2) AS scheduledLevelTwo
+        FROM events e
+        WHERE e.village_id = $village_id
+          AND e.type = 'buildingLevelChange';
+      `,
+      bind: {
+        $village_id: villageId,
+        $field_id: buildingFieldId,
+      },
+      schema: z.strictObject({
+        fieldId: z.number(),
+        buildingId: buildingIdSchema,
+        previousLevel: z.number(),
+        level: z.number(),
+        scheduledLevelTwo: z.number(),
+      }),
+    });
+
+    expect(result).toEqual({
+      fieldId: buildingFieldId,
+      buildingId: 'GRANARY',
+      previousLevel: 0,
+      level: 1,
+      scheduledLevelTwo: 1,
+    });
+  });
+
   test.each([0, -100])(
-    'does not promote an upgrade when current free crop is %i',
+    'promotes an upgrade regardless of current wheat production (%i)',
     async (wheatProduction) => {
       const database = await prepareTestDatabase();
       const villageId = 1;
@@ -939,7 +1042,7 @@ describe('scheduled building upgrades', () => {
           scheduled: z.number(),
         }),
       });
-      expect(counts).toEqual({ active: 0, scheduled: 0 });
+      expect(counts).toEqual({ active: 1, scheduled: 0 });
     },
   );
 

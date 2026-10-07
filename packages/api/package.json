@@ -41,7 +41,7 @@
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "3.53.4-build1",
+    "@sqlite.org/sqlite-wasm": "3.53.4-build2",
     "moderndash": "4.0.2",
     "path-to-regexp": "8.4.2",
     "ts-seedrandom": "1.6.0",
@@ -49,9 +49,9 @@
     "zod-openapi": "6.0.2"
   },
   "devDependencies": {
-    "knip": "6.36.0",
+    "knip": "6.40.0",
     "typescript": "7.0.2",
-    "vitest": "5.0.1"
+    "vitest": "5.0.3"
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@6/schema.json",

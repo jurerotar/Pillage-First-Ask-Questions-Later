@@ -7,8 +7,12 @@ import {
   isGatheringExpeditionReport,
   isHuntingPartyReport,
   isMovementReport,
+  isScheduledConstructionCancellationReport,
   isScoutingReport,
   isTradeReport,
+  isUnitImprovementReport,
+  isUnitResearchReport,
+  isVillageFoundedReport,
 } from '@pillage-first/utils/guards/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
 import { PageContents } from 'app/components/page-contents';
@@ -34,8 +38,12 @@ import {
   ReportHeader,
   ReportNavigationButtons,
   ReportsBackButton,
+  ScheduledConstructionCancellationReportTable,
   ScoutingReportTables,
   TradeReportTable,
+  UnitImprovementReportTable,
+  UnitResearchReportTable,
+  VillageFoundedReportTable,
 } from './components/report';
 import { useReport } from './hooks/use-report';
 
@@ -147,6 +155,12 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
         {isHuntingPartyReport(report) && <HuntingPartyReportTable />}
         {isGatheringExpeditionReport(report) && (
           <GatheringExpeditionReportTable />
+        )}
+        {isUnitResearchReport(report) && <UnitResearchReportTable />}
+        {isUnitImprovementReport(report) && <UnitImprovementReportTable />}
+        {isVillageFoundedReport(report) && <VillageFoundedReportTable />}
+        {isScheduledConstructionCancellationReport(report) && (
+          <ScheduledConstructionCancellationReportTable />
         )}
       </Report>
       <div className="flex items-center gap-2">

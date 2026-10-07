@@ -91,9 +91,9 @@ describe('player-controllers', () => {
   test('getMe should return current player details', async () => {
     const database = await prepareTestDatabase();
 
-    getMe(database, createControllerArgs<'/players/me'>({}));
+    const player = getMe(database, createControllerArgs<'/players/me'>({}));
 
-    expect(true).toBe(true);
+    expect(player).toMatchObject({ id: playerId });
   });
 
   test('getPlayerVillageListing should return village listing for a player', async () => {
@@ -113,6 +113,7 @@ describe('player-controllers', () => {
     expect(result[0]).toHaveProperty('coordinates');
     expect(result[0].coordinates).toHaveProperty('x');
     expect(result[0].coordinates).toHaveProperty('y');
+    expect(result[0]).toHaveProperty('population');
     expect(result[0]).toHaveProperty('resourceFieldComposition');
   });
 
@@ -279,14 +280,23 @@ describe('player-controllers', () => {
       schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
     })!;
 
-    getStationedTroopsByTile(
+    const troops = getStationedTroopsByTile(
       database,
       createControllerArgs<'/tiles/:tileId/stationed-troops'>({
         path: { tileId: village.tile_id },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(troops.length).toBeGreaterThan(0);
+    expect(troops).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tileId: village.tile_id,
+          unitId: expect.any(String),
+          amount: expect.any(Number),
+        }),
+      ]),
+    );
   });
 
   test('getVillageUnitCount should count stored and moving troops from the village', async () => {
@@ -611,7 +621,13 @@ describe('player-controllers', () => {
       }),
     );
 
-    expect(true).toBe(true);
+    expect(
+      database.selectValue({
+        sql: 'SELECT name FROM villages WHERE id = $village_id;',
+        bind: { $village_id: villageId },
+        schema: z.string(),
+      }),
+    ).toBe('New Village Name');
   });
 
   test('relocateReinforcements should properly relocate troops from source reinforcement to village troops', async () => {

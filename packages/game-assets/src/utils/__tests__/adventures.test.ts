@@ -81,6 +81,29 @@ describe(calculateAdventurePointIncreaseEventDuration, () => {
     ).toBe(25);
   });
 
+  test('does not count an interval until it has completed', () => {
+    const createdAt = 0;
+    const eightHours = 8 * 60 * 60 * 1000;
+
+    expect(
+      calculateAdventurePointsEarnedBetween(
+        createdAt,
+        1,
+        createdAt,
+        createdAt + eightHours - 1,
+      ),
+    ).toBe(0);
+
+    expect(
+      calculateAdventurePointsEarnedBetween(
+        createdAt,
+        1,
+        createdAt,
+        createdAt + eightHours,
+      ),
+    ).toBe(1);
+  });
+
   test('should calculate next point timestamp inside the mid-game bracket', () => {
     const createdAt = 0;
     const timestamp = createdAt + (7 * 24 + 5) * 60 * 60 * 1000;
@@ -88,5 +111,18 @@ describe(calculateAdventurePointIncreaseEventDuration, () => {
     expect(calculateNextAdventurePointIncreaseAt(createdAt, 1, timestamp)).toBe(
       createdAt + (7 * 24 + 16) * 60 * 60 * 1000,
     );
+  });
+
+  test('moves to the next interval when queried exactly at an increase', () => {
+    const createdAt = 0;
+    const eightHours = 8 * 60 * 60 * 1000;
+
+    expect(
+      calculateNextAdventurePointIncreaseAt(
+        createdAt,
+        1,
+        createdAt + eightHours,
+      ),
+    ).toBe(createdAt + 2 * eightHours);
   });
 });

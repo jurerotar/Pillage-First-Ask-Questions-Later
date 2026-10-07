@@ -15,6 +15,7 @@ CREATE TABLE preferences
   is_automatic_navigation_after_unit_upgrade_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_unit_upgrade_enabled IN (0,1)),
   is_automatic_navigation_after_send_units_enabled INTEGER NOT NULL CHECK (is_automatic_navigation_after_send_units_enabled IN (0,1)),
   is_developer_tools_console_enabled INTEGER NOT NULL CHECK (is_developer_tools_console_enabled IN (0,1)),
+  village_sort TEXT NOT NULL DEFAULT 'alphabetic' CHECK (village_sort IN ('alphabetic', 'populationAsc', 'populationDesc')),
 
   -- Notifications
   should_show_notifications_on_building_upgrade_completion INTEGER NOT NULL CHECK (should_show_notifications_on_building_upgrade_completion IN (0,1)),

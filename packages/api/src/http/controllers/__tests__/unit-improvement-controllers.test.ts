@@ -10,13 +10,22 @@ describe('unit-improvement-controllers', () => {
   test('getUnitImprovements should return unit improvements for a player', async () => {
     const database = await prepareTestDatabase();
 
-    getUnitImprovements(
+    database.exec({
+      sql: `
+        INSERT INTO unit_improvements (player_id, unit_id, level)
+        VALUES ($player_id, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 3)
+        ON CONFLICT(player_id, unit_id) DO UPDATE SET level = excluded.level;
+      `,
+      bind: { $player_id: playerId },
+    });
+
+    const improvements = getUnitImprovements(
       database,
       createControllerArgs<'/players/:playerId/unit-improvements'>({
         path: { playerId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(improvements).toContainEqual({ unitId: 'LEGIONNAIRE', level: 3 });
   });
 });

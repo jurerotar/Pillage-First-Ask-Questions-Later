@@ -22,7 +22,6 @@ import {
   type AssessedBuildingRequirement,
   assessBuildingRequirements,
 } from '@pillage-first/utils/game/building-requirements';
-import { useEffectServerValue } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/hooks/use-effect-server-value';
 import { VillageBuildingLink } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/village-building-link';
 import { BuildingFieldContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/providers/building-field-context';
 import { useBuildingActions } from 'app/(game)/(village-slug)/(village)/hooks/use-building-actions';
@@ -30,9 +29,9 @@ import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import { useBuildingConstructionErrorBag } from 'app/(game)/(village-slug)/hooks/use-building-construction-error-bag';
-import { useComputedEffect } from 'app/(game)/(village-slug)/hooks/use-computed-effect';
 import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
+import { CurrentVillageBuildingQueueContext } from 'app/(game)/(village-slug)/providers/current-village-building-queue-context';
 import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
@@ -53,6 +52,7 @@ import { formatTime } from 'app/utils/time';
 type BuildingCardContextState = {
   buildingId: Building['id'];
   building: Building;
+  buildingInstanceNumber?: number;
   buildingConstructionReadinessAssessment?: ReturnType<
     typeof assessBuildingRequirements
   >;
@@ -65,6 +65,7 @@ const BuildingCardContext = createContext<BuildingCardContextState>(
 
 type BuildingCardProps = {
   buildingId: Building['id'];
+  buildingInstanceNumber?: number;
   buildingConstructionReadinessAssessment?: ReturnType<
     typeof assessBuildingRequirements
   >;
@@ -83,6 +84,7 @@ const unfinishedBuildings = new Set<Building['id']>([
 
 export const BuildingCard = ({
   buildingId,
+  buildingInstanceNumber,
   buildingConstructionReadinessAssessment,
   shouldAllowUnmetRequirementsForScheduledConstruction,
   children,
@@ -94,12 +96,14 @@ export const BuildingCard = ({
     () => ({
       buildingId,
       building,
+      buildingInstanceNumber,
       buildingConstructionReadinessAssessment,
       shouldAllowUnmetRequirementsForScheduledConstruction,
     }),
     [
       buildingId,
       building,
+      buildingInstanceNumber,
       buildingConstructionReadinessAssessment,
       shouldAllowUnmetRequirementsForScheduledConstruction,
     ],
@@ -119,7 +123,7 @@ export const BuildingCard = ({
 
 export const BuildingOverview = () => {
   const { t } = useTranslation();
-  const { buildingId } = use(BuildingCardContext);
+  const { buildingId, buildingInstanceNumber } = use(BuildingCardContext);
   const { actualLevel, virtualLevel, isUpgrading, isDowngrading } =
     use(BuildingFieldContext);
 
@@ -135,6 +139,9 @@ export const BuildingOverview = () => {
           as="h2"
           className="inline-flex"
         >
+          {buildingInstanceNumber !== undefined &&
+            buildingInstanceNumber > 1 &&
+            `${buildingInstanceNumber}. `}
           {t(`BUILDINGS.${building.id}.NAME`)}
         </Text>
       </div>
@@ -164,9 +171,8 @@ export const BuildingOverview = () => {
 export const BuildingCost = () => {
   const { t } = useTranslation();
   const { buildingId } = use(BuildingCardContext);
-  const { virtualLevel } = use(BuildingFieldContext);
+  const { virtualLevel, buildingDuration } = use(BuildingFieldContext);
   const currentResources = use(CurrentVillageLiveResourcesContext);
-  const { total: buildingDuration } = useComputedEffect('buildingDuration');
 
   const { nextLevelBuildingDuration, nextLevelResourceCost, isMaxLevel } =
     getBuildingDataForLevel(buildingId, virtualLevel);
@@ -295,16 +301,16 @@ type BuildingBenefitProps = {
 };
 
 const BuildingBenefit = ({ effect, isMaxLevel }: BuildingBenefitProps) => {
-  const { hasEffect, serverEffectValue } = useEffectServerValue(
-    effect.effectId,
-  );
-
+  const { serverEffectValueByEffectId } = use(BuildingFieldContext);
+  const serverEffectValue = serverEffectValueByEffectId.get(effect.effectId);
   const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
 
   const isIncreasing = increasingPercentageBuildingEffects.has(effect.effectId);
 
   const effectModifier =
-    effect.type === 'base' && hasEffect ? serverEffectValue : 1;
+    effect.type === 'base' && serverEffectValue !== undefined
+      ? serverEffectValue
+      : 1;
 
   return (
     <span
@@ -565,11 +571,13 @@ const BuildingCardActionsConstruction = ({
 }: BuildingCardActionsSectionProps) => {
   const { t } = useTranslation();
   const { buildingFieldId } = use(BuildingFieldContext);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
   const { errorBag } = useBuildingConstructionErrorBag(
     buildingId,
     0,
     buildingFieldId,
   );
+  const isScheduling = getBuildingEventQueue(buildingFieldId).length > 0;
 
   return (
     <>
@@ -580,7 +588,7 @@ const BuildingCardActionsConstruction = ({
         onClick={onBuildingConstruction}
         disabled={errorBag.length > 0}
       >
-        {t('Construct')}
+        {t(isScheduling ? 'Schedule' : 'Construct')}
       </Button>
       <ErrorBag errorBag={errorBag} />
     </>
@@ -597,14 +605,16 @@ const BuildingCardActionsUpgrade = ({
   buildingLevel,
 }: BuildingCardActionsUpgradeProps) => {
   const { t } = useTranslation();
-  const { buildingFieldId, buildingField } = use(BuildingFieldContext);
-  const { buildingId, level } = buildingField!;
+  const { buildingId } = use(BuildingCardContext);
+  const { actualLevel, buildingFieldId } = use(BuildingFieldContext);
+  const { getBuildingEventQueue } = use(CurrentVillageBuildingQueueContext);
 
   const { errorBag } = useBuildingConstructionErrorBag(
     buildingId,
-    level,
+    actualLevel,
     buildingFieldId,
   );
+  const isScheduling = getBuildingEventQueue(buildingFieldId).length > 0;
 
   return (
     <>
@@ -615,7 +625,9 @@ const BuildingCardActionsUpgrade = ({
         onClick={onBuildingUpgrade}
         disabled={errorBag.length > 0}
       >
-        {t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
+        {isScheduling
+          ? t('Schedule')
+          : t('Upgrade to level {{level}}', { level: buildingLevel + 1 })}
       </Button>
       <ErrorBag errorBag={errorBag} />
     </>

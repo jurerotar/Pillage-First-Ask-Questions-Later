@@ -7,22 +7,18 @@ import {
   type ReactNode,
   Suspense,
   use,
+  useMemo,
   useRef,
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CiCircleList } from 'react-icons/ci';
 import { FaHome } from 'react-icons/fa';
-import { FaDiscord, FaGithub, FaSkull } from 'react-icons/fa6';
+import { FaBug, FaDiscord, FaGithub, FaSkull } from 'react-icons/fa6';
 import { GiWheat } from 'react-icons/gi';
 import { GoGraph } from 'react-icons/go';
 import { HiStar } from 'react-icons/hi2';
 import { LuBookMarked, LuScrollText } from 'react-icons/lu';
-import {
-  MdEventNote,
-  MdFace,
-  MdOutlineHolidayVillage,
-  MdSettings,
-} from 'react-icons/md';
+import { MdFace, MdOutlineHolidayVillage, MdSettings } from 'react-icons/md';
 import { PiListChecks, PiPathBold } from 'react-icons/pi';
 import { RiAuctionLine } from 'react-icons/ri';
 import { RxExit } from 'react-icons/rx';
@@ -42,6 +38,7 @@ import type { Resource } from '@pillage-first/types/models/resource';
 import { formatNumber } from '@pillage-first/utils/format';
 import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/+types/layout';
+import { BugReportModal } from 'app/(game)/(village-slug)/components/bug-report-modal';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
 import {
   DeveloperToolsButton,
@@ -163,7 +160,7 @@ const DesktopPopulation = () => {
     CurrentVillageComputedEffectsContext,
   );
 
-  const { population, buildingWheatLimit } = computedWheatProductionEffect;
+  const { population } = computedWheatProductionEffect;
 
   return (
     <div className="flex gap-2">
@@ -174,15 +171,6 @@ const DesktopPopulation = () => {
         />
         <span className="text-foreground text-sm">
           {formatNumber(population)}
-        </span>
-      </div>
-      <div className="flex gap-2 justify-center items-center rounded-sm border border-[#f1f1f1] dark:border-border p-1 my-1">
-        <Icon
-          type="freeCrop"
-          className="min-w-3"
-        />
-        <span className="text-foreground text-sm">
-          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
         </span>
       </div>
     </div>
@@ -212,36 +200,13 @@ const VillageOverviewDesktopItem = () => {
   );
 };
 
-const EventLogDesktopItem = () => {
-  const { t } = useTranslation();
-
-  return (
-    <NavLink
-      to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
-      aria-label={t('Event log')}
-      data-tooltip-content={t('Event log')}
-      data-tooltip-id="general-tooltip"
-      data-tooltip-delay-show={TOOLTIP_DELAY_SHOW}
-      tabIndex={0}
-      className={clsx(
-        'flex items-center justify-center shadow-md rounded-md p-1.5 border border-[#f1f1f1] dark:border-border relative',
-        'transition-[background-color,border-color,transform] active:scale-95 active:shadow-inner',
-      )}
-    >
-      <span className="lg:bg-background rounded-md flex items-center justify-center">
-        <MdEventNote className="text-xl" />
-      </span>
-    </NavLink>
-  );
-};
-
 const VillageOverviewMobileItem = () => {
   const { t } = useTranslation();
   const { computedWheatProductionEffect } = use(
     CurrentVillageComputedEffectsContext,
   );
 
-  const { population, buildingWheatLimit } = computedWheatProductionEffect;
+  const { population } = computedWheatProductionEffect;
 
   return (
     <Link
@@ -260,15 +225,6 @@ const VillageOverviewMobileItem = () => {
         />
         <span className="text-foreground text-2xs">
           {formatNumber(population)}
-        </span>
-      </span>
-      <span className="inline-flex items-center justify-between bg-background dark:bg-muted px-0.5 absolute bottom-0 left-8 h-4 w-9 rounded-full border border-[#f1f1f1] dark:border-border shadow-md">
-        <Icon
-          type="freeCrop"
-          className="size-2.5"
-        />
-        <span className="text-foreground text-2xs">
-          {buildingWheatLimit > 99 ? '+99' : buildingWheatLimit}
         </span>
       </span>
     </Link>
@@ -571,9 +527,33 @@ const VillageSelect = () => {
   const { t } = useTranslation();
   const { navigateToVillage } = useVillageSwitchNavigation();
   const { playerVillages } = usePlayerVillageListing();
+  const { preferences } = usePreferences();
   const { currentVillage } = useCurrentVillage();
   const { x: currentVillageX, y: currentVillageY } = currentVillage.coordinates;
   const currentVillageLabel = `${currentVillage.name} (${currentVillageX}|${currentVillageY})`;
+
+  const sortedPlayerVillages = useMemo(() => {
+    const byName = (
+      a: (typeof playerVillages)[number],
+      b: (typeof playerVillages)[number],
+    ) =>
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }) ||
+      a.id - b.id;
+    const byPopulation =
+      (direction: 1 | -1) =>
+      (
+        a: (typeof playerVillages)[number],
+        b: (typeof playerVillages)[number],
+      ) =>
+        direction * (a.population - b.population) || byName(a, b);
+    const comparator = {
+      alphabetic: byName,
+      populationAsc: byPopulation(1),
+      populationDesc: byPopulation(-1),
+    }[preferences.villageSort];
+
+    return [...playerVillages].sort(comparator);
+  }, [playerVillages, preferences.villageSort]);
 
   return (
     <Select
@@ -590,7 +570,7 @@ const VillageSelect = () => {
         <SelectValue>{currentVillageLabel}</SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {playerVillages.map(
+        {sortedPlayerVillages.map(
           ({ slug, name, id, coordinates, resourceFieldComposition }) => {
             const { x, y } = coordinates;
             const formattedId = `${x}|${y}`;
@@ -627,10 +607,14 @@ const VillageSelect = () => {
 };
 
 type TopNavigationProps = {
+  onBugReportOpen: () => void;
   onDeveloperToolsToggle: () => void;
 };
 
-const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
+const TopNavigation = ({
+  onBugReportOpen,
+  onDeveloperToolsToggle,
+}: TopNavigationProps) => {
   const { t } = useTranslation();
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { preferences } = usePreferences();
@@ -642,6 +626,20 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
           <div className="hidden lg:flex w-full bg-muted py-1 px-2">
             <nav className="hidden lg:flex justify-between container mx-auto">
               <ul className="flex gap-1">
+                <li>
+                  <DesktopTopRowItem
+                    aria-label={t('Report a bug')}
+                    data-tooltip-content={t('Report a bug')}
+                    onClick={onBugReportOpen}
+                  >
+                    <span className="inline-flex gap-2 items-center">
+                      <FaBug className="text-xl text-red-600" />
+                      <span className="text-sm font-semibold hidden xl:inline-flex text-red-600">
+                        {t('Report a bug')}
+                      </span>
+                    </span>
+                  </DesktopTopRowItem>
+                </li>
                 <li>
                   <Link
                     target="_blank"
@@ -726,7 +724,6 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
                 <VillageSelect />
               </Suspense>
               <VillageOverviewDesktopItem />
-              <EventLogDesktopItem />
             </div>
             <nav className="flex flex-4 justify-center w-fit lg:-translate-y-5 max-h-11 pt-1">
               <ul className="hidden lg:flex gap-3 justify-center items-center">
@@ -785,6 +782,7 @@ const TopNavigation = ({ onDeveloperToolsToggle }: TopNavigationProps) => {
 };
 
 type MobileBottomNavigationProps = {
+  onBugReportOpen: () => void;
   onDeveloperToolsToggle: () => void;
 };
 
@@ -810,15 +808,6 @@ const MobileMoreNavigation = () => {
         className="w-52 p-1"
       >
         <nav aria-label={t('More')}>
-          <PopoverClose asChild>
-            <Link
-              to="events?tab=village&page=1&types=training&types=construction&types=improvement&types=research&types=founding"
-              className={itemClassName}
-            >
-              <MdEventNote className="text-xl" />
-              <span>{t('Event log')}</span>
-            </Link>
-          </PopoverClose>
           <PopoverClose asChild>
             <Link
               to="statistics"
@@ -877,6 +866,7 @@ const MobileMoreNavigation = () => {
 };
 
 const MobileBottomNavigation = ({
+  onBugReportOpen,
   onDeveloperToolsToggle,
 }: MobileBottomNavigationProps) => {
   const { t } = useTranslation();
@@ -952,6 +942,18 @@ const MobileBottomNavigation = ({
             </li>
           )}
           <li>
+            <button
+              type="button"
+              aria-label={t('Report a bug')}
+              title={t('Report a bug')}
+              onClick={onBugReportOpen}
+            >
+              <NavigationSideItem>
+                <FaBug className="text-2xl text-red-600" />
+              </NavigationSideItem>
+            </button>
+          </li>
+          <li>
             <MobileMoreNavigation />
           </li>
         </ul>
@@ -987,7 +989,13 @@ const GameLayout = memo<Route.ComponentProps>(
   ({ params }) => {
     const { villageSlug } = params;
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-    const { isOpen, toggleModal } = useDialog();
+    const { isOpen: isDeveloperToolsOpen, toggleModal: toggleDeveloperTools } =
+      useDialog();
+    const {
+      isOpen: isBugReportOpen,
+      openModal: openBugReport,
+      closeModal: closeBugReport,
+    } = useDialog();
 
     return (
       <div className="[-webkit-touch-callout:none]">
@@ -1000,7 +1008,10 @@ const GameLayout = memo<Route.ComponentProps>(
                     id="general-tooltip"
                     className="text-xs!"
                   />
-                  <TopNavigation onDeveloperToolsToggle={toggleModal} />
+                  <TopNavigation
+                    onBugReportOpen={openBugReport}
+                    onDeveloperToolsToggle={toggleDeveloperTools}
+                  />
                   <TroopMovements />
                   <Suspense fallback={<PageFallback />}>
                     <Outlet />
@@ -1009,13 +1020,18 @@ const GameLayout = memo<Route.ComponentProps>(
                   <TroopList />
                   {!isWiderThanLg && (
                     <MobileBottomNavigation
-                      onDeveloperToolsToggle={toggleModal}
+                      onBugReportOpen={openBugReport}
+                      onDeveloperToolsToggle={toggleDeveloperTools}
                     />
                   )}
                   <PreferencesUpdater />
                   <DeveloperToolsConsole
-                    isOpen={isOpen}
-                    onOpenChange={toggleModal}
+                    isOpen={isDeveloperToolsOpen}
+                    onOpenChange={toggleDeveloperTools}
+                  />
+                  <BugReportModal
+                    isOpen={isBugReportOpen}
+                    onClose={closeBugReport}
                   />
                 </GameLayoutProvider>
               </CurrentVillageBuildingQueueContextProvider>

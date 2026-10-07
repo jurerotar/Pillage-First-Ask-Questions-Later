@@ -51,6 +51,7 @@ const clearBindingsAfterExecution = (
 
 export type DbFacade = {
   exec: (args: ExecQueryArgs) => void;
+  execMulti: (args: ExecQueryArgs) => void;
 
   /** returns SQLite EXPLAIN QUERY PLAN rows without executing the original query */
   explain: (args: ExecQueryArgs) => DbQueryPlanRow[];
@@ -79,6 +80,7 @@ export type DbFacade = {
     sql,
   }: Pick<ExecArgs, 'sql'>) => ReturnType<OpfsSAHPoolDatabase['prepare']>;
   transaction: (callback: (db: DbFacade) => void) => void;
+  serialize: () => Uint8Array;
   close: () => void;
 };
 
@@ -128,6 +130,9 @@ const canExplainQueryPlan = (sql: string): boolean => {
 export const createDbFacade = (
   database: OpfsSAHPoolDatabase,
   debug = false,
+  serialize = (): Uint8Array => {
+    throw new Error('Database serialization is not available in this context.');
+  },
 ): DbFacade => {
   const preparedStatementCache = createPreparedStatementCache();
 
@@ -213,6 +218,19 @@ export const createDbFacade = (
         operation: 'exec',
         execute: (statement) => statement.stepReset(),
       });
+    },
+
+    execMulti: ({ sql, bind }): void => {
+      const t0 = debug ? performance.now() : 0;
+
+      database.exec({ sql, bind });
+
+      if (debug) {
+        const t1 = performance.now();
+        console.log(
+          `DbFacade.execMulti — ${sql} took ${(t1 - t0).toFixed(3)} ms`,
+        );
+      }
     },
 
     explain: explainQueryPlan,
@@ -333,6 +351,8 @@ export const createDbFacade = (
         );
       }
     },
+
+    serialize,
 
     close: (): void => {
       for (const [key, stmt] of preparedStatementCache) {

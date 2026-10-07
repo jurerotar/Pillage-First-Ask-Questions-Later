@@ -5,7 +5,6 @@ import {
   calculateBuildingCostForLevel,
   calculateBuildingDestructionDuration,
   calculateBuildingDurationForLevel,
-  calculatePopulationDifference,
   getBuildingDefinition,
 } from '@pillage-first/game-assets/utils/buildings';
 import {
@@ -113,10 +112,9 @@ import {
   updatePlayerCulturePointsAt,
 } from './culture-points';
 import {
-  getFreeMerchantAmount,
   getMarketplaceVillage,
   getMerchantAmount,
-  getMerchantMovementDuration,
+  getMerchantMovementDurationByVillageId,
   getTotalResourceAmount,
   getVillageMerchantStats,
 } from './marketplace';
@@ -777,46 +775,6 @@ export const validateEventCreationPrerequisites = (
       throw new BuildingConstructionQueueFullError();
     }
 
-    const isFreeBuildingConstructionEnabled = database.selectValue({
-      sql: `
-        SELECT is_free_building_construction_enabled
-        FROM developer_settings;
-      `,
-      schema: z.coerce.boolean(),
-    })!;
-
-    if (!isFreeBuildingConstructionEnabled) {
-      const wheatProductionEffects = database.selectObjects({
-        sql: selectAllRelevantEffectsByIdQuery,
-        bind: {
-          $effect_id: 'wheatProduction',
-          $village_id: villageId,
-        },
-        schema: apiEffectSchema,
-      });
-      const tileId = database.selectValue({
-        sql: selectVillageTileIdQuery,
-        bind: {
-          $village_id: villageId,
-        },
-        schema: z.number(),
-      })!;
-      const { total: freeCrop } = calculateComputedEffect(
-        'wheatProduction',
-        wheatProductionEffects,
-        tileId,
-      );
-      const requiredFreeCrop = calculatePopulationDifference(
-        buildingId,
-        event.previousLevel,
-        level,
-      );
-
-      if (buildingId !== 'WHEAT_FIELD' && freeCrop < requiredFreeCrop) {
-        throw new Error('Not enough free crop');
-      }
-    }
-
     if (isBuildingConstructionEvent(event)) {
       const { villageId, buildingFieldId } = event;
 
@@ -919,10 +877,8 @@ export const validateEventCreationPrerequisites = (
   }
 
   if (isResourceTransferEvent(event)) {
-    const { village, merchant } = getVillageMerchantStats(
-      database,
-      event.villageId,
-    );
+    const { village, merchant, marketplaceLevel, usedMerchantAmount } =
+      getVillageMerchantStats(database, event.villageId);
     const totalResourceAmount = getTotalResourceAmount(event.resources);
     const isReturnTransfer = totalResourceAmount === 0;
 
@@ -974,7 +930,7 @@ export const validateEventCreationPrerequisites = (
       throw new Error('Invalid merchant amount');
     }
 
-    if (merchantAmount > getFreeMerchantAmount(database, event.villageId)) {
+    if (merchantAmount > marketplaceLevel - usedMerchantAmount) {
       throw new Error('Not enough free merchants');
     }
 
@@ -1682,13 +1638,11 @@ export const getEventDuration = (
   }
 
   if (isResourceTransferEvent(event)) {
-    const { merchant } = getVillageMerchantStats(database, event.villageId);
-
-    return getMerchantMovementDuration(
+    return getMerchantMovementDurationByVillageId(
       database,
+      event.villageId,
       event.originTileId,
       event.targetTileId,
-      merchant.merchantSpeed,
     );
   }
 

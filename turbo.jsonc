@@ -18,6 +18,10 @@
       "persistent": true,
       "cache": false
     },
+    "bug-reporter-ui": {
+      "persistent": true,
+      "cache": false
+    },
     "dev": {
       "persistent": true,
       "cache": false
@@ -34,7 +38,8 @@
         "FARO_API_KEY",
         "FARO_STACK_ID",
         "FARO_SOURCEMAP_API_URL",
-        "VITE_FARO_INGEST_ENDPOINT"
+        "VITE_FARO_INGEST_ENDPOINT",
+        "VITE_BUG_REPORTER_URL"
       ]
     },
     "preview": {
@@ -53,7 +58,8 @@
         "FARO_API_KEY",
         "FARO_STACK_ID",
         "FARO_SOURCEMAP_API_URL",
-        "VITE_FARO_INGEST_ENDPOINT"
+        "VITE_FARO_INGEST_ENDPOINT",
+        "VITE_BUG_REPORTER_URL"
       ]
     },
     "format:check": {},

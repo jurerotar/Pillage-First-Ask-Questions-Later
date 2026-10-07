@@ -168,11 +168,16 @@ describe('statistics-controllers', () => {
   test('getGameWorldOverview should return game world overview', async () => {
     const database = await prepareTestDatabase();
 
-    getGameWorldOverview(
+    const overview = getGameWorldOverview(
       database,
       createControllerArgs<'/statistics/overview'>({}),
     );
 
-    expect(true).toBe(true);
+    expect(overview).toMatchObject({
+      playerCount: expect.any(Number),
+      villageCount: expect.any(Number),
+      playersByTribe: expect.any(Object),
+      villagesByFaction: expect.any(Object),
+    });
   });
 });

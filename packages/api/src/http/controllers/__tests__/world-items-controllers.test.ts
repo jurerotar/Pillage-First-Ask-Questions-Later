@@ -14,13 +14,25 @@ describe('world-items-controllers', () => {
       schema: z.number(),
     })!;
 
-    getArtifactsAroundVillage(
+    const artifacts = getArtifactsAroundVillage(
       database,
       createControllerArgs<'/villages/:villageId/artifacts'>({
         path: { villageId: villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(artifacts.length).toBeGreaterThan(0);
+    expect(artifacts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          amount: 1,
+          distance: expect.any(Number),
+          coordinates: expect.objectContaining({
+            x: expect.any(Number),
+            y: expect.any(Number),
+          }),
+        }),
+      ]),
+    );
   });
 });

@@ -17,14 +17,20 @@ describe('quest-controllers', () => {
       schema: z.number(),
     })!;
 
-    getQuests(
+    const quests = getQuests(
       database,
       createControllerArgs<'/villages/:villageId/quests'>({
         path: { villageId: villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(quests.length).toBeGreaterThan(0);
+    expect(quests).toContainEqual({
+      id: 'adventureCount-1',
+      completedAt: null,
+      collectedAt: null,
+      scope: 'global',
+    });
   });
 
   test('getCollectableQuestCount should return collectable quest count', async () => {
@@ -106,11 +112,18 @@ describe('quest-controllers', () => {
       schema: z.number(),
     })!;
 
-    // Find a quest that is completed but not collected
-    const questId = database.selectValue({
-      sql: 'SELECT quest_id FROM quests WHERE completed_at IS NOT NULL AND collected_at IS NULL LIMIT 1',
-      schema: z.string(),
-    })!;
+    const questId = 'gatheredResourceCount-1';
+    database.exec({
+      sql: `
+        INSERT INTO quests (quest_id, completed_at, village_id)
+        VALUES ($quest_id, $completed_at, $village_id);
+      `,
+      bind: {
+        $quest_id: questId,
+        $completed_at: Date.now(),
+        $village_id: villageId,
+      },
+    });
 
     collectQuest(
       database,
@@ -122,6 +135,12 @@ describe('quest-controllers', () => {
       }),
     );
 
-    expect(true).toBe(true);
+    expect(
+      database.selectValue({
+        sql: 'SELECT collected_at FROM quests WHERE quest_id = $quest_id;',
+        bind: { $quest_id: questId },
+        schema: z.number().nullable(),
+      }),
+    ).not.toBeNull();
   });
 });

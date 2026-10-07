@@ -74,14 +74,25 @@ describe('event-controllers', () => {
       schema: z.number(),
     })!;
 
-    getVillageEvents(
+    const event = createBuildingLevelChangeEventMock({
+      id: 91_001,
+      villageId,
+    });
+    insertEvents(database, [event]);
+
+    const events = getVillageEvents(
       database,
       createControllerArgs<'/villages/:villageId/events'>({
         path: { villageId: villageId },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: 'buildingLevelChange',
+      villageId,
+      buildingFieldId: event.buildingFieldId,
+    });
   });
 
   test('getVillageEventsByType should return events for a village by type', async () => {
@@ -92,14 +103,25 @@ describe('event-controllers', () => {
       schema: z.number(),
     })!;
 
-    getVillageEventsByType(
+    const event = createBuildingLevelChangeEventMock({
+      id: 91_002,
+      villageId,
+    });
+    insertEvents(database, [event]);
+
+    const events = getVillageEventsByType(
       database,
       createControllerArgs<'/villages/:villageId/events/:eventType'>({
         path: { villageId: villageId, eventType: 'buildingLevelChange' },
       }),
     );
 
-    expect(true).toBe(true);
+    expect(events).toHaveLength(1);
+    expect(events[0]).toMatchObject({
+      type: 'buildingLevelChange',
+      villageId,
+      buildingFieldId: event.buildingFieldId,
+    });
   });
 
   test('cancelConstructionEvent should promote the next scheduled building upgrade', async () => {
@@ -200,9 +222,8 @@ describe('event-controllers', () => {
     const database = await prepareTestDatabase();
     const villageId = 1;
 
-    database.exec({
-      sql: `
-        UPDATE players
+    database.execMulti({
+      sql: `UPDATE players
         SET tribe_id = (SELECT id FROM tribe_ids WHERE tribe = 'romans')
         WHERE id = (
           SELECT player_id FROM villages WHERE id = $village_id

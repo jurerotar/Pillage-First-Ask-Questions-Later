@@ -1,6 +1,9 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
-import { preferencesSchema } from '@pillage-first/types/models/preferences';
+import {
+  preferencesSchema,
+  villageSortSchema,
+} from '@pillage-first/types/models/preferences';
 import {
   createUpdatePreferenceQuery,
   selectPreferencesQuery,
@@ -41,7 +44,7 @@ export const updatePreference = createController(
       }),
     },
     requestBody: z.strictObject({
-      value: z.boolean(),
+      value: z.union([z.boolean(), villageSortSchema]),
     }),
   },
 )(({ database, path: { preferenceName }, body: { value } }) => {
