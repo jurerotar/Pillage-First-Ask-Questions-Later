@@ -34,31 +34,25 @@ export const ReportsPage = ({ token }: { token: string }) => {
                 <th>Title</th>
                 <th>Status</th>
                 <th>Created</th>
-                <th>World</th>
-                <th>
-                  <span className="sr-only">Actions</span>
-                </th>
               </tr>
             </thead>
             <tbody>
               {reports.map((report) => (
                 <tr key={report.id}>
-                  <td>{report.title}</td>
+                  <td>
+                    <Link
+                      className="report-link"
+                      to={`/reports/${report.id}`}
+                    >
+                      {report.title}
+                    </Link>
+                  </td>
                   <td>
                     <span className={`status ${report.status}`}>
                       {report.status}
                     </span>
                   </td>
                   <td>{formatDate(report.createdAt)}</td>
-                  <td>{report.world?.status ?? 'No upload'}</td>
-                  <td>
-                    <Link
-                      to={`/reports/${report.id}`}
-                      aria-label={`Open ${report.title}`}
-                    >
-                      Open
-                    </Link>
-                  </td>
                 </tr>
               ))}
             </tbody>

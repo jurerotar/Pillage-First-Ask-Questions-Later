@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router';
 import { formatDate } from '../api';
+import { CopyableText } from '../components/copyable-text';
 import { useCloseReport } from './hooks/use-close-report';
 import { useDeleteReport } from './hooks/use-delete-report';
 import { useDownloadWorld } from './hooks/use-download-world';
@@ -22,6 +23,17 @@ export const ReportPage = ({ token }: { token: string }) => {
   }
 
   const report = reportQuery.data;
+  const diagnosticsMarker = [
+    ...report.description.matchAll(/\r?\n\r?\nAutomatic diagnostics:\r?\n/g),
+  ].at(-1);
+  const description = diagnosticsMarker
+    ? report.description.slice(0, diagnosticsMarker.index)
+    : report.description;
+  const diagnostics = diagnosticsMarker
+    ? report.description.slice(
+        diagnosticsMarker.index + diagnosticsMarker[0].length,
+      )
+    : null;
 
   return (
     <section>
@@ -46,15 +58,25 @@ export const ReportPage = ({ token }: { token: string }) => {
         <dd>{formatDate(report.closedAt)}</dd>
         <dt>Contact</dt>
         <dd>{report.contact ?? 'Not provided'}</dd>
-        <dt>Upload token expires</dt>
-        <dd>
-          {report.uploadExpiresAt === null
-            ? 'Never'
-            : formatDate(report.uploadExpiresAt)}
-        </dd>
       </dl>
       <h3>Description</h3>
-      <p className="description">{report.description}</p>
+      <CopyableText
+        key={`description-${report.id}`}
+        text={description}
+        label="bug description"
+      />
+      {diagnostics !== null && (
+        <details
+          key={`diagnostics-${report.id}`}
+          className="diagnostics"
+        >
+          <summary>Automatic diagnostics</summary>
+          <CopyableText
+            text={diagnostics}
+            label="automatic diagnostics"
+          />
+        </details>
+      )}
       <h3>Game world</h3>
       {report.world ? (
         <>

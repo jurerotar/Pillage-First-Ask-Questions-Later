@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
 import { type Report, request } from '../../api';
 import { reportCacheKey } from './use-report';
 import { reportsCacheKey } from './use-reports';
 
 export const useCloseReport = (token: string, reportId: string) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: async (): Promise<Report> => {
@@ -20,6 +22,7 @@ export const useCloseReport = (token: string, reportId: string) => {
         queryClient.invalidateQueries({ queryKey: reportCacheKey(reportId) }),
         queryClient.invalidateQueries({ queryKey: reportsCacheKey }),
       ]);
+      await navigate('/');
     },
   });
 };

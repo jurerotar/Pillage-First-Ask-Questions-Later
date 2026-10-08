@@ -1,7 +1,8 @@
 :root {
+  color-scheme: dark;
   font-family: system-ui, sans-serif;
-  color: #242424;
-  background: #f6f7f9;
+  color: #e6eaf0;
+  background: #111318;
   line-height: 1.5;
 }
 
@@ -46,12 +47,12 @@ h3 {
 section,
 .login {
   padding: 24px;
-  border: 1px solid #dfe2e8;
+  border: 1px solid #343c49;
   border-radius: 8px;
-  background: white;
+  background: #1b1f27;
 }
 a {
-  color: #2855a7;
+  color: #9ec1ff;
 }
 h1 a {
   color: inherit;
@@ -60,23 +61,24 @@ h1 a {
 button,
 input {
   font: inherit;
-  border: 1px solid #b8bfcc;
+  color: inherit;
+  background: #242a34;
+  border: 1px solid #485365;
   border-radius: 4px;
   padding: 8px 12px;
 }
 button {
-  background: white;
   cursor: pointer;
 }
 button:hover {
-  background: #f0f2f6;
+  background: #303947;
 }
 button:disabled {
   opacity: 0.55;
   cursor: default;
 }
 :focus-visible {
-  outline: 3px solid #2855a7;
+  outline: 3px solid #9ec1ff;
   outline-offset: 3px;
 }
 .login {
@@ -90,15 +92,15 @@ button:disabled {
   width: 100%;
 }
 .muted {
-  color: #626b78;
+  color: #a5afbf;
   font-size: 14px;
 }
 [role="alert"],
 .danger {
-  color: #a32323;
+  color: #ff9c9c;
 }
 .danger {
-  border-color: #d9aaaa;
+  border-color: #965353;
 }
 .table-container {
   overflow-x: auto;
@@ -111,14 +113,14 @@ table {
 th,
 td {
   padding: 12px;
-  border-bottom: 1px solid #e4e7ec;
+  border-bottom: 1px solid #343c49;
 }
 td:first-child {
   overflow-wrap: anywhere;
   min-width: 180px;
 }
 th {
-  color: #626b78;
+  color: #a5afbf;
   font-size: 14px;
   font-weight: 600;
 }
@@ -129,12 +131,12 @@ th {
   font-size: 14px;
 }
 .open {
-  background: #edf4ff;
-  color: #2855a7;
+  background: #233554;
+  color: #afceff;
 }
 .closed {
-  background: #eaf4ed;
-  color: #2b643c;
+  background: #213d2c;
+  color: #a7dfb9;
 }
 dl {
   display: grid;
@@ -143,21 +145,80 @@ dl {
   margin-top: 24px;
 }
 dt {
-  color: #626b78;
+  color: #a5afbf;
 }
 dd {
   margin: 0;
   overflow-wrap: anywhere;
 }
-.description {
+.code-block {
+  position: relative;
+  min-width: 0;
+  min-height: 60px;
+  padding: 16px 64px 16px 16px;
+  border: 1px solid #343c49;
+  border-radius: 6px;
+  background: #111318;
+}
+.copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  padding: 8px;
+}
+.diagnostics {
+  margin-top: 28px;
+}
+.diagnostics summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.diagnostics[open] summary {
+  margin-bottom: 16px;
+}
+.code-block pre {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 14px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+.code-block code {
+  font: inherit;
+}
+tbody tr {
+  position: relative;
+}
+tbody tr:hover,
+tbody tr:focus-within {
+  background: #242a34;
+}
+.report-link {
+  color: inherit;
+  text-decoration: none;
+}
+.report-link::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+.report-link:focus-visible {
+  outline: none;
+}
+.report-link:focus-visible::after {
+  outline: 3px solid #9ec1ff;
+  outline-offset: -3px;
 }
 .actions {
   justify-content: flex-start;
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid #e4e7ec;
+  border-top: 1px solid #343c49;
 }
 .sr-only {
   position: absolute;
