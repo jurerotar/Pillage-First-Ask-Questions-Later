@@ -2,6 +2,7 @@ import { clsx } from 'clsx';
 import {
   type ComponentProps,
   Fragment,
+  lazy,
   memo,
   type PropsWithChildren,
   type ReactNode,
@@ -40,10 +41,7 @@ import { parseResourcesFromRFC } from '@pillage-first/utils/map';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/+types/layout';
 import { BugReportModal } from 'app/(game)/(village-slug)/components/bug-report-modal';
 import { ConstructionQueue } from 'app/(game)/(village-slug)/components/construction-queue';
-import {
-  DeveloperToolsButton,
-  DeveloperToolsConsole,
-} from 'app/(game)/(village-slug)/components/developer-tools-console';
+import { DeveloperToolsButton } from 'app/(game)/(village-slug)/components/developer-tools-button';
 import { PreferencesUpdater } from 'app/(game)/(village-slug)/components/preferences-updater';
 import { ResourceCounter } from 'app/(game)/(village-slug)/components/resource-counter';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
@@ -85,6 +83,12 @@ import {
 import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
 import { useDialog } from 'app/hooks/use-dialog';
+
+const DeveloperToolsConsole = lazy(async () => ({
+  default: (
+    await import('app/(game)/(village-slug)/components/developer-tools-console')
+  ).DeveloperToolsConsole,
+}));
 
 const TOOLTIP_DELAY_SHOW = 500;
 
@@ -989,8 +993,11 @@ const GameLayout = memo<Route.ComponentProps>(
   ({ params }) => {
     const { villageSlug } = params;
     const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
-    const { isOpen: isDeveloperToolsOpen, toggleModal: toggleDeveloperTools } =
-      useDialog();
+    const {
+      isOpen: isDeveloperToolsOpen,
+      hasOpened: hasDeveloperToolsOpened,
+      toggleModal: toggleDeveloperTools,
+    } = useDialog();
     const {
       isOpen: isBugReportOpen,
       openModal: openBugReport,
@@ -1025,10 +1032,14 @@ const GameLayout = memo<Route.ComponentProps>(
                     />
                   )}
                   <PreferencesUpdater />
-                  <DeveloperToolsConsole
-                    isOpen={isDeveloperToolsOpen}
-                    onOpenChange={toggleDeveloperTools}
-                  />
+                  {hasDeveloperToolsOpened && (
+                    <Suspense fallback={null}>
+                      <DeveloperToolsConsole
+                        isOpen={isDeveloperToolsOpen}
+                        onOpenChange={toggleDeveloperTools}
+                      />
+                    </Suspense>
+                  )}
                   <BugReportModal
                     isOpen={isBugReportOpen}
                     onClose={closeBugReport}

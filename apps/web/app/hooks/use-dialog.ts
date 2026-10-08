@@ -2,6 +2,7 @@ import { startTransition, useCallback, useRef, useState } from 'react';
 
 export const useDialog = <TArgs = unknown>(isOpenInitially = false) => {
   const [isOpen, setIsOpen] = useState<boolean>(isOpenInitially);
+  const [hasOpened, setHasOpened] = useState<boolean>(isOpenInitially);
   const modalArgs = useRef<TArgs | null>(null);
 
   const closeModal = useCallback(() => {
@@ -17,16 +18,19 @@ export const useDialog = <TArgs = unknown>(isOpenInitially = false) => {
     }
 
     startTransition(() => {
+      setHasOpened(true);
       setIsOpen(true);
     });
   }, []);
 
   const toggleModal = useCallback(() => {
+    setHasOpened(true);
     setIsOpen((prevState) => !prevState);
   }, []);
 
   return {
     isOpen,
+    hasOpened,
     closeModal,
     openModal,
     toggleModal,

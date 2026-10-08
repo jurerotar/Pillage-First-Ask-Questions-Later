@@ -1,6 +1,5 @@
-import { type ComponentProps, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { VscTerminal } from 'react-icons/vsc';
 import { items } from '@pillage-first/game-assets/items';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import type { DeveloperSettings } from '@pillage-first/types/models/developer-settings';
@@ -14,7 +13,6 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useDeveloperActions } from 'app/(game)/(village-slug)/hooks/use-developer-actions';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
-import { usePreferences } from 'app/(game)/(village-slug)/hooks/use-preferences';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -37,26 +35,6 @@ import {
 import { Separator } from 'app/components/ui/separator';
 import { Switch } from 'app/components/ui/switch';
 import { useLoyalty } from '../hooks/use-loyalty';
-
-export const DeveloperToolsButton = ({
-  className,
-  ...props
-}: ComponentProps<'span'>) => {
-  const { preferences } = usePreferences();
-
-  if (!preferences.isDeveloperToolsConsoleEnabled) {
-    return null;
-  }
-
-  return (
-    <span
-      className={className}
-      {...props}
-    >
-      <VscTerminal className="text-inherit size-full" />
-    </span>
-  );
-};
 
 type DevToolsConsoleProps = {
   isOpen: boolean;
