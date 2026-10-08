@@ -93,7 +93,8 @@ const MapPageContents = () => {
   const isWiderThanLg = useMediaQuery('(min-width: 1024px)');
   const { areMobileDetailsVisible } = use(GameLayoutContext);
   const { mapFilters } = useMapFilters();
-  const { mapMarkers, createMapMarker, deleteMapMarker } = useMapMarkers();
+  const { mapMarkersByTileId, createMapMarker, deleteMapMarker } =
+    useMapMarkers();
   const { gridSize, tileSize, magnification } = use(MapContext);
   const { currentVillage } = useCurrentVillage();
   const location = useLocation();
@@ -144,7 +145,7 @@ const MapPageContents = () => {
       magnification,
       preferences,
       getReputation,
-      mapMarkers,
+      mapMarkersByTileId,
       createMapMarker,
       deleteMapMarker,
       onClick: (tileId: number) => {
@@ -166,7 +167,7 @@ const MapPageContents = () => {
     openModal,
     preferences,
     getReputation,
-    mapMarkers,
+    mapMarkersByTileId,
     createMapMarker,
     deleteMapMarker,
   ]);
@@ -399,7 +400,7 @@ const MapPageContents = () => {
       }
 
       const tile = map[tileId - 1];
-      const mapMarker = mapMarkers.find((marker) => marker.tileId === tileId);
+      const mapMarker = mapMarkersByTileId.get(tileId);
 
       return (
         <Suspense fallback={null}>
@@ -410,7 +411,7 @@ const MapPageContents = () => {
         </Suspense>
       );
     },
-    [map, mapMarkers],
+    [map, mapMarkersByTileId],
   );
 
   return (
@@ -423,7 +424,7 @@ const MapPageContents = () => {
           <TileDialog
             createMapMarker={createMapMarker}
             deleteMapMarker={deleteMapMarker}
-            mapMarkers={mapMarkers}
+            mapMarkersByTileId={mapMarkersByTileId}
             tile={modalArgs.current!}
             onAttackOrRaid={(tile) => {
               const isOasis = tile.type === 'oasis';
