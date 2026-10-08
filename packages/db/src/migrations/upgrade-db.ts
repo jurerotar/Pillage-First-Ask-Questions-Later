@@ -3,8 +3,6 @@ import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
-import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
-import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
@@ -19,7 +17,6 @@ import createUnitResearchReportsTable from '../schemas/unit-research-reports-sch
 import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
 import { filtersSeeder } from '../seeders/filters-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
-import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
@@ -146,34 +143,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.53', (db) => {
-    db.exec({
-      sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
-    });
-
-    db.exec({
-      sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
-    });
-
-    db.exec({ sql: 'DROP TABLE IF EXISTS battle_report_units;' });
-    db.exec({ sql: 'DROP TABLE IF EXISTS battle_report_buildings;' });
-
-    db.execMulti({ sql: createBattleReportUnitsTable });
-    db.execMulti({ sql: createBattleReportBuildingsTable });
-
-    db.exec({
-      sql: `
-        CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
-          ON battle_report_buildings (report_id);
-      `,
-    });
-
-    db.execMulti({ sql: createReportDeleteTriggers });
-    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
-
-    setupGlobalWriteTriggers(db);
-  });
 
   migrate('0.4.55', (db) => {
     db.execMulti({
