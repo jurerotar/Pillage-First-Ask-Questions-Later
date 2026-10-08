@@ -1,18 +1,31 @@
-import { describe, expect, test } from 'vitest';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
 import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
+  assessCaptureAnimalCountByIdQuestCompletion,
   assessCaptureAnimalKindCountQuestCompletion,
   assessGatheredResourceCountQuestCompletion,
 } from '../../../../utils/quests';
-import {
-  insertGatheringExpeditionReport,
-  insertHuntingPartyReport,
-} from '../../../../utils/report';
+import { insertGatheringExpeditionReport } from '../../../../utils/report';
 import { buildingLevelChangeResolver } from '../building-resolvers';
+import { huntersLodgeHuntResolver } from '../hunters-lodge-resolvers';
+
+afterEach(() => vi.restoreAllMocks());
+
+const resolveHunt = (database: DbFacade, timestamp: number) =>
+  huntersLodgeHuntResolver(database, {
+    id: timestamp,
+    type: 'huntersLodgeHunt',
+    villageId: 1,
+    startsAt: timestamp - 1,
+    duration: 1,
+    resolvesAt: timestamp,
+    huntingPartyLevel: 5,
+  });
 
 describe('quest completion on building level up', () => {
   test('should complete building quest when level increases to required level', async () => {
@@ -148,22 +161,14 @@ describe('quest completion on building level up', () => {
 
   test('should complete one-of-each animal quest when every catchable animal was captured', async () => {
     const database = await prepareTestDatabase();
-    const villageId = 1;
     const timestamp = 3000;
-    const villageTileId = database.selectValue({
-      sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
-      bind: { $village_id: villageId },
-      schema: z.number(),
-    })!;
+    const animals = getHunterLodgeCatchableAnimals(5);
+    const random = vi.spyOn(Math, 'random');
 
-    for (const unitId of getHunterLodgeCatchableAnimals(5)) {
-      insertHuntingPartyReport(database, {
-        villageId,
-        timestamp,
-        villageTileId,
-        unitId,
-        amount: 1,
-      });
+    for (const [index] of animals.entries()) {
+      random.mockReturnValue((index + 0.5) / animals.length);
+      resolveHunt(database, timestamp);
+      database.exec({ sql: 'DELETE FROM reports;' });
     }
 
     assessCaptureAnimalKindCountQuestCompletion(database, timestamp);
@@ -184,6 +189,60 @@ describe('quest completion on building level up', () => {
 
     expect(completedQuest).toBe(timestamp);
   });
+
+  test.each(['deletion', 'retention'] as const)(
+    'should count lifetime catches after report %s',
+    async (removal) => {
+      const database = await prepareTestDatabase();
+      database.exec({ sql: 'DELETE FROM reports;' });
+      const animals = getHunterLodgeCatchableAnimals(5);
+      vi.spyOn(Math, 'random').mockReturnValue(
+        (animals.indexOf('TIGER') + 0.5) / animals.length,
+      );
+
+      for (let catchCount = 0; catchCount < 49; catchCount += 1) {
+        resolveHunt(database, 1);
+      }
+      const completion = () =>
+        database.selectValue({
+          sql: "SELECT completed_at FROM quests WHERE village_id IS NULL AND quest_id = 'captureAnimalCountById-TIGER-50';",
+          schema: z.number().nullable(),
+        });
+      expect(completion()).toBeNull();
+
+      if (removal === 'deletion') {
+        database.exec({ sql: 'DELETE FROM reports;' });
+      } else {
+        database.exec({
+          sql: `
+            INSERT INTO reports (village_id, timestamp, type_id, report_outcome_id)
+            SELECT 1, 2, type_id, report_outcome_id FROM reports LIMIT 1;
+          `,
+        });
+        database.exec({
+          sql: `
+            WITH RECURSIVE filler(n) AS (
+              SELECT 1 UNION ALL SELECT n + 1 FROM filler WHERE n < 999
+            )
+            INSERT INTO reports (village_id, timestamp, type_id, report_outcome_id)
+            SELECT 1, 2, r.type_id, r.report_outcome_id
+            FROM filler CROSS JOIN (SELECT type_id, report_outcome_id FROM reports LIMIT 1) r;
+          `,
+        });
+      }
+
+      expect(
+        database.selectValue({
+          sql: 'SELECT COUNT(*) FROM hunting_party_report_units;',
+          schema: z.number(),
+        }),
+      ).toBe(0);
+      resolveHunt(database, 3);
+      expect(completion()).toBe(3);
+      assessCaptureAnimalCountByIdQuestCompletion(database, 'TIGER', 4);
+      expect(completion()).toBe(3);
+    },
+  );
 
   test('should complete gathered resource quest from total gathered loot', async () => {
     const database = await prepareTestDatabase();

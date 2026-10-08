@@ -9,6 +9,7 @@ import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
+import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
@@ -919,6 +920,46 @@ export const upgradeDb = (
         ADD COLUMN village_sort TEXT NOT NULL DEFAULT 'alphabetic'
         CHECK (village_sort IN ('alphabetic', 'populationAsc', 'populationDesc'));
       `,
+    });
+  });
+
+  migrate('0.4.73', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({ sql: createHuntingCaptureHistoryTable });
+
+      // Deleted reports cannot be recovered. Preserve the catches still recorded
+      // in reports before enabling lifetime tracking for future hunts.
+      tx.exec({
+        sql: `
+          INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+          SELECT v.player_id, hpru.unit_id, SUM(hpru.amount)
+          FROM hunting_party_report_units hpru
+          JOIN hunting_party_reports hpr ON hpr.id = hpru.hunting_party_report_id
+          JOIN reports r ON r.id = hpr.report_id
+          JOIN villages v ON v.id = r.village_id
+          GROUP BY v.player_id, hpru.unit_id
+          HAVING SUM(hpru.amount) > 0;
+        `,
+      });
+
+      // Completed quests provide a proven lower bound even if their reports
+      // have already been deleted.
+      tx.exec({
+        sql: `
+          INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+          SELECT $player_id, ui.id,
+            MAX(CAST(substr(q.quest_id, length('captureAnimalCountById-' || ui.unit || '-') + 1) AS INTEGER))
+          FROM quests q
+          JOIN unit_ids ui ON substr(q.quest_id, 1, length('captureAnimalCountById-' || ui.unit || '-'))
+            = 'captureAnimalCountById-' || ui.unit || '-'
+          WHERE q.village_id IS NULL AND q.completed_at IS NOT NULL
+          GROUP BY ui.id
+          HAVING MAX(CAST(substr(q.quest_id, length('captureAnimalCountById-' || ui.unit || '-') + 1) AS INTEGER)) > 0
+          ON CONFLICT (player_id, unit_id) DO UPDATE SET
+            amount = MAX(hunting_capture_history.amount, EXCLUDED.amount);
+        `,
+        bind: { $player_id: PLAYER_ID },
+      });
     });
   });
 

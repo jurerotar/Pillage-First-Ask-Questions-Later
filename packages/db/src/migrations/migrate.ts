@@ -37,6 +37,7 @@ import createHeroInventoriesTable from '../schemas/hero-inventories-schema.sql?r
 import createHeroSelectableAttributesTable from '../schemas/hero-selectable-attributes-schema.sql?raw';
 import createHeroesTable from '../schemas/heroes-schema.sql?raw';
 import createBuildingLevelChangeHistoryTable from '../schemas/history-tables/building-level-change-history-schema.sql?raw';
+import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
 import createScheduledBuildingConstructionCancellationHistoryTable from '../schemas/history-tables/scheduled-building-construction-cancellation-history-schema.sql?raw';
 import createUnitTrainingHistoryTable from '../schemas/history-tables/unit-training-history-schema.sql?raw';
 import createHuntingPartyReportUnitsTable from '../schemas/hunting-party-report-units-schema.sql?raw';
@@ -234,6 +235,7 @@ export const migrateAndSeed = (
     db.execMulti({ sql: createPlayersTable });
     playersSeeder(db, server);
     db.execMulti({ sql: createPlayersIndexes });
+    db.execMulti({ sql: createHuntingCaptureHistoryTable });
 
     onProgress?.();
 

@@ -145,14 +145,11 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
         AND quest_id LIKE 'captureAnimalCountById-' || $unit_id || '-%'
         AND substr(quest_id, length('captureAnimalCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
         AND (
-          SELECT COALESCE(SUM(hpru.amount), 0)
-          FROM hunting_party_report_units hpru
-          JOIN unit_ids ui ON ui.id = hpru.unit_id
-          JOIN hunting_party_reports hpr ON hpr.id = hpru.hunting_party_report_id
-          JOIN reports r ON r.id = hpr.report_id
-          JOIN villages v ON v.id = r.village_id
+          SELECT COALESCE(SUM(hch.amount), 0)
+          FROM hunting_capture_history hch
+          JOIN unit_ids ui ON ui.id = hch.unit_id
           WHERE
-            v.player_id = $player_id
+            hch.player_id = $player_id
             AND ui.unit = $unit_id
         ) >= CAST (
         substr(
@@ -185,19 +182,16 @@ export const assessCaptureAnimalKindCountQuestCompletion = (
           SELECT COUNT(*)
           FROM (
             SELECT ui.unit
-            FROM hunting_party_report_units hpru
-            JOIN unit_ids ui ON ui.id = hpru.unit_id
-            JOIN hunting_party_reports hpr ON hpr.id = hpru.hunting_party_report_id
-            JOIN reports r ON r.id = hpr.report_id
-            JOIN villages v ON v.id = r.village_id
+            FROM hunting_capture_history hch
+            JOIN unit_ids ui ON ui.id = hch.unit_id
             WHERE
-              v.player_id = $player_id
+              hch.player_id = $player_id
               AND ui.unit IN (
                 SELECT value
                 FROM json_each($unit_ids)
               )
             GROUP BY ui.unit
-            HAVING SUM(hpru.amount) > 0
+            HAVING SUM(hch.amount) > 0
           )
         ) >= CAST (
         substr(

@@ -1,3 +1,14 @@
+## Version 0.4.73
+
+#### Oct 8, 2026
+
+* [BugFix] Fixed global hunting quests losing progress when hunting reports are deleted.
+* [Performance] Improved village resource monitoring by sharing resource calculations and reducing unnecessary
+  updates to resource availability checks.
+* [Performance] Improved map marker lookup performance when displaying map tiles and tile details.
+* [Performance] Developer tools now load only when opened, avoiding unnecessary initialization during normal gameplay.
+* [Performance] Reduced unnecessary responsive layout subscription updates.
+
 ## Version 0.4.72
 
 #### Oct 7, 2026
