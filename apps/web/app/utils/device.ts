@@ -60,22 +60,6 @@ export const getCookie = async (name: CookieName): Promise<string | null> => {
   return cookie?.split('=')[1] || null;
 };
 
-export const getDeviceId = (): string => {
-  if (typeof window === 'undefined') {
-    return 'server';
-  }
-
-  const KEY = 'pillage-first:device-id';
-  let deviceId = window.localStorage.getItem(KEY);
-
-  if (!deviceId) {
-    deviceId = window.crypto.randomUUID();
-    window.localStorage.setItem(KEY, deviceId);
-  }
-
-  return deviceId;
-};
-
 export const wait = (duration: number): Promise<void> => {
   return new Promise((resolve) => {
     globalThis.setTimeout(resolve, duration);

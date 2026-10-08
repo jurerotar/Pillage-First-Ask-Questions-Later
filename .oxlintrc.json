@@ -151,8 +151,7 @@
           "app/components/icon.tsx",
           "app/components/page-contents.tsx",
           "app/components/text.tsx",
-          "app/components/tooltip.tsx",
-          "app/components/webrtc-advertiser.tsx"
+          "app/components/tooltip.tsx"
         ]
       }
     ]

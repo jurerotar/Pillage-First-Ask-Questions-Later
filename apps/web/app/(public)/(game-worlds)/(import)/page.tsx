@@ -1,8 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router';
-import { ImportModal } from 'app/(public)/(game-worlds)/(import)/components/import-modal';
 import type {
   ImportGameWorldWorkerPayload,
   ImportGameWorldWorkerResponse,
@@ -22,10 +21,7 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
-import {
-  type GameWorldImportMethod,
-  pushGameWorldImported,
-} from 'app/instrumentation/product-events';
+import { pushGameWorldImported } from 'app/instrumentation/product-events';
 import { invalidateQueries } from 'app/utils/react-query';
 import { workerFactory } from 'app/utils/workers';
 
@@ -34,28 +30,22 @@ type ImportGameWorldSuccess = Extract<
   { resolved: true }
 >;
 
-type ImportGameWorldArgs = {
-  data: ArrayBuffer | Blob;
-  importMethod: GameWorldImportMethod;
-};
-
 const ImportGameWorld = () => {
   const { t } = useTranslation('public');
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { createGameWorld } = useGameWorldActions();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const {
     mutateAsync: importGameWorld,
     isPending: isImporting,
     error,
-  } = useMutation<ImportGameWorldSuccess, Error, ImportGameWorldArgs>({
-    mutationFn: async ({ data }) => {
-      const buffer = data instanceof Blob ? await data.arrayBuffer() : data;
+  } = useMutation<ImportGameWorldSuccess, Error, File>({
+    mutationFn: async (file) => {
+      const buffer = await file.arrayBuffer();
       const payload: ImportGameWorldWorkerPayload = {
-        databaseBuffer: buffer as ArrayBuffer,
+        databaseBuffer: buffer,
       };
 
       const result = await workerFactory<
@@ -69,13 +59,8 @@ const ImportGameWorld = () => {
 
       return result;
     },
-    onSuccess: async (
-      { server },
-      { importMethod },
-      _onMutateResult,
-      context,
-    ) => {
-      pushGameWorldImported(server, importMethod);
+    onSuccess: async ({ server }, _file, _onMutateResult, context) => {
+      pushGameWorldImported(server);
 
       await createGameWorld({ server });
       await invalidateQueries(context, [[availableServerCacheKey]]);
@@ -166,10 +151,7 @@ const ImportGameWorld = () => {
                   }
 
                   try {
-                    await importGameWorld({
-                      data: file,
-                      importMethod: 'manual_upload',
-                    });
+                    await importGameWorld(file);
                   } finally {
                     if (fileInputRef.current) {
                       fileInputRef.current.value = '';
@@ -180,33 +162,6 @@ const ImportGameWorld = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Text
-              as="h2"
-              className="text-xl font-semibold"
-            >
-              {t('Import from local devices')}
-            </Text>
-            <Text>
-              {t(
-                'Click the button below to see available game worlds from your other devices.',
-              )}
-            </Text>
-            <Alert variant="warning">
-              {t(
-                "This feature is experimental. In case you can't see your game worlds, refresh the app on both devices.",
-              )}
-            </Alert>
-            <div className="flex flex-col gap-3">
-              <Button
-                size="fit"
-                onClick={() => setIsImportModalOpen(true)}
-                disabled={isImporting}
-              >
-                {t('Scan for devices')}
-              </Button>
-            </div>
-          </div>
           <div className="flex flex-col gap-2">
             <Text>
               {t(
@@ -225,13 +180,6 @@ const ImportGameWorld = () => {
           </div>
         </main>
       </div>
-      <ImportModal
-        open={isImportModalOpen}
-        onOpenChange={setIsImportModalOpen}
-        onImport={async (buffer) => {
-          await importGameWorld({ data: buffer, importMethod: 'webrtc' });
-        }}
-      />
     </PageContents>
   );
 };
