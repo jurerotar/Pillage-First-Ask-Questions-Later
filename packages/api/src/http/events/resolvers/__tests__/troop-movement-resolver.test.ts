@@ -19,8 +19,12 @@ import {
 import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
+import {
+  insertEffectQuery,
+  selectWheatProductionEffectIdQuery,
+} from '../../../../queries/effect-queries';
 import { removeTroops } from '../../../../utils/troops';
+import { calculateResourceSiteResourcesAt } from '../../../../utils/village';
 import {
   baseEventRowSchema,
   mapEventRowToTypedEvent,
@@ -942,6 +946,101 @@ describe(reinforcementMovementResolver, () => {
 });
 
 describe(findNewVillageMovementResolver, () => {
+  test('charges settler upkeep until founding and preserves other troop upkeep', async () => {
+    const database = await prepareTestDatabase();
+    const sourceTileId = getVillageTileId(database, 1);
+    const targetTileId = database.selectValue({
+      sql: `
+        SELECT t.id FROM tiles t
+        WHERE t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
+          AND NOT EXISTS (SELECT 1 FROM villages WHERE tile_id = t.id)
+        LIMIT 1;
+      `,
+      schema: z.number(),
+    })!;
+    const startsAt = 1_000_000;
+    const hour = 3_600_000;
+    const resolvesAt = startsAt + hour;
+    const wheatEffectId = database.selectValue({
+      sql: selectWheatProductionEffectIdQuery,
+      schema: z.number(),
+    })!;
+
+    database.exec({
+      sql: `
+        DELETE FROM effects WHERE effect_id IN (
+          SELECT id FROM effect_ids
+          WHERE effect IN ('wheatProduction', 'unitWheatConsumption')
+        );
+      `,
+    });
+    for (const [source, value] of [
+      ['building', 100],
+      ['troops', 10],
+    ] as const) {
+      database.exec({
+        sql: insertEffectQuery,
+        bind: {
+          $effect_id: wheatEffectId,
+          $value: value,
+          $type: 'base',
+          $scope: 'local',
+          $source: source,
+          $tile_id: sourceTileId,
+          $source_specifier: 0,
+        },
+      });
+    }
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wood = 0, clay = 0, iron = 0, wheat = 100, updated_at = $starts_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: { $tile_id: sourceTileId, $starts_at: startsAt },
+    });
+
+    findNewVillageMovementResolver(
+      database,
+      createTroopMovementFindNewVillageEventMock({
+        villageId: 1,
+        originTileId: sourceTileId,
+        targetTileId,
+        startsAt,
+        duration: hour,
+        resolvesAt,
+        troops: [
+          {
+            unitId: 'GAUL_SETTLER',
+            amount: 3,
+            tileId: sourceTileId,
+            sourceTileId,
+          },
+        ],
+      }),
+    );
+
+    // The elapsed hour consumes 10 wheat; subsequent hours consume only the remaining 7.
+    expect(
+      calculateResourceSiteResourcesAt(database, sourceTileId, resolvesAt)
+        .currentWheat,
+    ).toBe(190);
+    expect(
+      calculateResourceSiteResourcesAt(
+        database,
+        sourceTileId,
+        resolvesAt + hour,
+      ).currentWheat,
+    ).toBe(283);
+    expect(getTroopWheatProductionEffectValue(database, 1)).toBe(7);
+    const newVillageId = database.selectValue({
+      sql: 'SELECT id FROM villages WHERE tile_id = $tile_id;',
+      bind: { $tile_id: targetTileId },
+      schema: z.number(),
+    })!;
+    expect(getTroopWheatProductionEffectValue(database, newVillageId)).toBe(0);
+  });
+
   test('should create a new village with building fields, resource site, and quests', async () => {
     const database = await prepareTestDatabase();
 

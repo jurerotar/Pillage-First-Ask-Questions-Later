@@ -4,9 +4,73 @@ import { prepareTestDatabase } from '@pillage-first/db';
 import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
+import {
+  calculateResourceSiteResourcesAt,
+  getVillageTileId,
+} from '../../../../utils/village';
 import { troopTrainingEventResolver } from '../troop-resolvers';
 
 describe(troopTrainingEventResolver, () => {
+  test('should apply new troop upkeep only after training completes', async () => {
+    const database = await prepareTestDatabase();
+    const tileId = getVillageTileId(database, 1);
+    const startsAt = 1_000_000;
+    const resolvesAt = startsAt + 3_600_000;
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE effect_id IN (
+          SELECT id FROM effect_ids
+          WHERE effect IN ('wheatProduction', 'unitWheatConsumption')
+        );
+      `,
+    });
+    database.exec({
+      sql: `
+        INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id)
+        SELECT ei.id, input.value, et.id, es.id, eso.id, $tile_id
+        FROM (
+          SELECT 'building' AS source, 100 AS value
+          UNION ALL SELECT 'troops', 0
+        ) input
+        JOIN effect_source_ids eso ON eso.source = input.source
+        JOIN effect_ids ei ON ei.effect = 'wheatProduction'
+        JOIN effect_type_ids et ON et.type = 'base'
+        JOIN effect_scope_ids es ON es.scope = 'local';
+      `,
+      bind: { $tile_id: tileId },
+    });
+    database.exec({
+      sql: `
+        UPDATE resource_sites
+        SET wheat = 100, updated_at = $starts_at
+        WHERE tile_id = $tile_id;
+      `,
+      bind: { $tile_id: tileId, $starts_at: startsAt },
+    });
+
+    troopTrainingEventResolver(
+      database,
+      createTroopTrainingEventMock({
+        villageId: 1,
+        unitId: 'LEGIONNAIRE',
+        startsAt,
+        duration: 3_600_000,
+        resolvesAt,
+      }),
+    );
+
+    expect(
+      calculateResourceSiteResourcesAt(database, tileId, resolvesAt)
+        .currentWheat,
+    ).toBe(200);
+    expect(
+      calculateResourceSiteResourcesAt(database, tileId, resolvesAt + 3_600_000)
+        .currentWheat,
+    ).toBe(299);
+  });
+
   test('should increase troop count and update wheat consumption', async () => {
     const database = await prepareTestDatabase();
     const villageId = 1;

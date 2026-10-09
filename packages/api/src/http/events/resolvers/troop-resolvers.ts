@@ -14,6 +14,8 @@ export const troopTrainingEventResolver: Resolver<
   const amount = 1;
   const tileId = getVillageTileId(database, villageId);
 
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+
   database.exec({
     sql: `
       INSERT
@@ -48,8 +50,6 @@ export const troopTrainingEventResolver: Resolver<
       $tile_id: tileId,
     },
   });
-
-  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 
   return {
     affectedVillageIds: [villageId],
