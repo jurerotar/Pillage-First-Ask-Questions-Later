@@ -55,7 +55,7 @@ export const prepareTestDatabase = async (
     ),
   );
 
-  return createDbFacade(oo1Db, false, () =>
+  return createDbFacade(oo1Db, () =>
     sqlite3.capi.sqlite3_js_db_export(oo1Db.pointer!, 'main'),
   );
 };

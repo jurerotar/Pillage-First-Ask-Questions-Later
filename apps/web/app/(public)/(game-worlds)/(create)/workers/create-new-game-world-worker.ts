@@ -62,7 +62,7 @@ globalThis.addEventListener(
 
       database = new opfsSahPool.OpfsSAHPoolDb(`/${server.slug}.sqlite3`);
 
-      dbFacade = createDbFacade(database, false);
+      dbFacade = createDbFacade(database);
 
       dbFacade.exec({
         sql: `
