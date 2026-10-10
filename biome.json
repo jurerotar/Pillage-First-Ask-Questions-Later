@@ -104,6 +104,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["packages/engine-wasm/scripts/**/*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
     }
   ],
   "javascript": {

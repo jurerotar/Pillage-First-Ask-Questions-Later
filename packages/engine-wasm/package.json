@@ -1,0 +1,32 @@
+{
+  "name": "@pillage-first/engine-wasm",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/worker.ts",
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "bundle": "node scripts/bundle.ts",
+    "build": "node scripts/build.ts",
+    "type-check": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:scripts": "vitest run --project scripts",
+    "test:engine": "vitest run --project engine"
+  },
+  "dependencies": {
+    "@pillage-first/api": "*",
+    "@pillage-first/db": "*",
+    "@pillage-first/utils": "*",
+    "@sqlite.org/sqlite-wasm": "3.53.4-build2",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@babel/core": "8.0.7",
+    "@babel/plugin-transform-block-scoping": "8.0.7",
+    "@types/node": "25.9.1",
+    "esbuild": "0.28.2",
+    "vitest": "5.0.3"
+  }
+}

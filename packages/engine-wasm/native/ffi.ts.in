@@ -1,0 +1,181 @@
+// Compiled by Static Hermes, not esbuild. C types and extern_c are Hermes builtins.
+// The build inserts the native declarations; all conversions remain in Wasm.
+var engineNative = (function () {
+  // @native-declarations
+  const _malloc = $SHBuiltin.extern_c(
+    { include: 'stdlib.h' },
+    function malloc(size: c_size_t): c_ptr {
+      throw 0;
+    },
+  );
+  const _free = $SHBuiltin.extern_c(
+    { include: 'stdlib.h' },
+    function free(value: c_ptr): void {},
+  );
+  const _read = $SHBuiltin.extern_c(
+    { declared: true },
+    function _sh_ptr_read_uchar(ptr: c_ptr, offset: c_int): c_uchar {
+      throw 0;
+    },
+  );
+  const _write = $SHBuiltin.extern_c(
+    { declared: true },
+    function _sh_ptr_write_char(
+      ptr: c_ptr,
+      offset: c_int,
+      value: c_char,
+    ): void {},
+  );
+  function allocText(value: string): c_ptr {
+    'use unsafe';
+    const encoded = encodeURIComponent(value);
+    const bytes: number[] = [];
+    for (let i = 0; i < encoded.length; i++) {
+      if (encoded[i] === '%') {
+        bytes.push(parseInt(encoded.slice(i + 1, i + 3), 16));
+        i += 2;
+      } else bytes.push(encoded.charCodeAt(i));
+    }
+    const ptr = _malloc(bytes.length + 1);
+    for (let i = 0; i < bytes.length; i++) _write(ptr, i, bytes[i]);
+    _write(ptr, bytes.length, 0);
+    return ptr;
+  }
+  function readText(ptr: c_ptr): string {
+    'use unsafe';
+    if (!ptr) return '';
+    let encoded = '';
+    for (let i = 0; ; i++) {
+      const b = _read(ptr, i);
+      if (!b) break;
+      encoded += '%' + ('0' + b.toString(16)).slice(-2);
+    }
+    return decodeURIComponent(encoded);
+  }
+  return {
+    open: function (path: string): number {
+      'use unsafe';
+      const p = allocText(path);
+      try {
+        return _s_open(p);
+      } finally {
+        _free(p);
+      }
+    },
+    error: function (): string {
+      'use unsafe';
+      return readText(_s_error());
+    },
+    prepare: function (sql: string): number {
+      'use unsafe';
+      const p = allocText(sql);
+      try {
+        return _s_prepare(p);
+      } finally {
+        _free(p);
+      }
+    },
+    exec: function (sql: string): number {
+      'use unsafe';
+      const p = allocText(sql);
+      try {
+        return _s_exec(p);
+      } finally {
+        _free(p);
+      }
+    },
+    transaction: function (operation: number): number {
+      'use unsafe';
+      return _s_transaction(operation);
+    },
+    reset: function (id: number, clear: number): number {
+      'use unsafe';
+      return _s_reset(id, clear);
+    },
+    step: function (id: number): number {
+      'use unsafe';
+      return _s_step(id);
+    },
+    finalize: function (id: number): number {
+      'use unsafe';
+      return _s_finalize(id);
+    },
+    parameter: function (id: number, name: string): number {
+      'use unsafe';
+      const p = allocText(name);
+      try {
+        return _s_parameter(id, p);
+      } finally {
+        _free(p);
+      }
+    },
+    bindNull: function (id: number, index: number): number {
+      'use unsafe';
+      return _s_bind_null(id, index);
+    },
+    bindNumber: function (id: number, index: number, value: number): number {
+      'use unsafe';
+      return _s_bind_number(id, index, value);
+    },
+    bindText: function (id: number, index: number, value: string): number {
+      'use unsafe';
+      const p = allocText(value);
+      try {
+        return _s_bind_text(id, index, p);
+      } finally {
+        _free(p);
+      }
+    },
+    bindBlob: function (id: number, index: number, value: any): number {
+      'use unsafe';
+      const p = _malloc(value.length);
+      try {
+        for (let i = 0; i < value.length; i++) _write(p, i, value[i]);
+        return _s_bind_blob(id, index, p, value.length);
+      } finally {
+        _free(p);
+      }
+    },
+    columns: function (id: number): number {
+      'use unsafe';
+      return _s_columns(id);
+    },
+    columnName: function (id: number, col: number): string {
+      'use unsafe';
+      return readText(_s_column_name(id, col));
+    },
+    columnType: function (id: number, col: number): number {
+      'use unsafe';
+      return _s_column_type(id, col);
+    },
+    columnNumber: function (id: number, col: number): number {
+      'use unsafe';
+      return _s_column_number(id, col);
+    },
+    columnText: function (id: number, col: number): string {
+      'use unsafe';
+      return readText(_s_column_text(id, col));
+    },
+    columnBlob: function (id: number, col: number): any {
+      'use unsafe';
+      const p = _s_column_blob(id, col);
+      const n = _s_column_bytes(id, col);
+      const value = new Uint8Array(n);
+      for (let i = 0; i < n; i++) value[i] = _read(p, i);
+      return value;
+    },
+    request: function (): string {
+      'use unsafe';
+      return readText(_s_request());
+    },
+    respond: function (value: string): void {
+      'use unsafe';
+      const p = allocText(value);
+      try {
+        _s_response(p);
+      } finally {
+        _free(p);
+      }
+    },
+  };
+})();
