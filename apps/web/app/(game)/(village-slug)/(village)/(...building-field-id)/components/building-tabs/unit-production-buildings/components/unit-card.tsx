@@ -64,6 +64,11 @@ import { formatTime } from 'app/utils/time';
 
 const defaultTroopTrainingDurationEffect = 'barracksTrainingDuration';
 
+const greatTroopTrainingBuildingIds = new Set<TroopTrainingBuildingId>([
+  'GREAT_BARRACKS',
+  'GREAT_STABLE',
+]);
+
 type TroopTrainingBuildingConfig = {
   buildingId: TroopTrainingBuildingId;
   durationEffect: TroopTrainingDurationEffectId;
@@ -680,13 +685,23 @@ export const UnitCost = () => {
     troopTrainingConfig?.durationEffect ?? defaultTroopTrainingDurationEffect;
   const { total: trainingDurationModifier } = useComputedEffect(durationEffect);
 
+  const costModifier =
+    troopTrainingConfig !== null &&
+    greatTroopTrainingBuildingIds.has(troopTrainingConfig.buildingId)
+      ? 3
+      : 1;
+
+  const recruitmentCost = baseRecruitmentCost.map(
+    (cost) => cost * costModifier,
+  );
+
   return (
     <section className="flex flex-col gap-2">
       <Text as="h3">{t('Cost and training duration')}</Text>
       <div className="flex gap-2 items-start justify-start flex-wrap">
         <Resources
           availableResources={currentResources}
-          resources={baseRecruitmentCost}
+          resources={recruitmentCost}
         />
         <div className="flex gap-1 items-center">
           <Icon

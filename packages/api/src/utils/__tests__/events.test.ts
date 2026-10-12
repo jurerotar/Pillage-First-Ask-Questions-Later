@@ -2004,22 +2004,32 @@ describe('events utils', () => {
       );
     });
 
-    test('troopTraining - should return tripled cost for Great Barracks vs Barracks', async () => {
-      const database = await prepareTestDatabase();
-      setDevFlag(database, 'is_free_unit_training_enabled', 0);
-      const baseEvent = createTroopTrainingEventMock({
-        amount: 10,
-      });
-      const greatEvent = {
-        ...baseEvent,
-        buildingId: 'GREAT_BARRACKS',
-      } as GameEvent<'troopTraining'>;
+    test.each([
+      ['BARRACKS', 'GREAT_BARRACKS'],
+      ['STABLE', 'GREAT_STABLE'],
+    ] as const)(
+      'troopTraining - should return tripled cost for %s vs %s',
+      async (buildingId, greatBuildingId) => {
+        const database = await prepareTestDatabase();
 
-      const baseCost = getEventCost(database, baseEvent);
-      const greatCost = getEventCost(database, greatEvent);
+        setDevFlag(database, 'is_free_unit_training_enabled', 0);
 
-      expect(greatCost).toStrictEqual(baseCost.map((v) => v * 3));
-    });
+        const baseEvent = createTroopTrainingEventMock({
+          buildingId,
+          amount: 10,
+        });
+
+        const greatEvent = {
+          ...baseEvent,
+          buildingId: greatBuildingId,
+        } as GameEvent<'troopTraining'>;
+
+        const baseCost = getEventCost(database, baseEvent);
+        const greatCost = getEventCost(database, greatEvent);
+
+        expect(greatCost).toStrictEqual(baseCost.map((v) => v * 3));
+      },
+    );
 
     test('huntersLodgeHunt - should return wheat cost based on party level', async () => {
       const database = await prepareTestDatabase();
