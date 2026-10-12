@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 // Launch a disposable fixture server for the browser test, then close it even
 // when browser assertions fail. No personal browser tabs or servers are used.
-export async function startBrowserServer(): Promise<() => void> {
+export const startBrowserServer = async (): Promise<() => void> => {
   const server = spawn(
     process.execPath,
     [fileURLToPath(new URL('./server.ts', import.meta.url))],
@@ -18,10 +18,14 @@ export async function startBrowserServer(): Promise<() => void> {
         () => reject(new Error(`Browser server startup timed out: ${output}`)),
         60_000,
       );
-      server.on('error', reject);
-      server.on('exit', (code) =>
-        reject(new Error(`Browser server exited ${code}: ${output}`)),
-      );
+      server.on('error', (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      });
+      server.on('exit', (code) => {
+        clearTimeout(timeout);
+        reject(new Error(`Browser server exited ${code}: ${output}`));
+      });
       server.stderr.on('data', (chunk) => {
         output += chunk;
       });
@@ -40,4 +44,4 @@ export async function startBrowserServer(): Promise<() => void> {
     server.kill();
     throw error;
   }
-}
+};

@@ -1,33 +1,23 @@
-import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { build } from 'esbuild';
-import { test } from 'vitest';
+import { expect, test } from 'vitest';
 import { createEngine } from '../../build/client.mjs';
+import { bundleForHermes } from '../../scripts/bundle';
 
-test('bridge integration', async () => {
-  const root = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    '../../../..',
-  );
-  await build({
-    entryPoints: [
-      path.join(
-        root,
-        'packages/engine-wasm/src/__tests__/fixtures/bridge-probe.ts',
-      ),
-    ],
-    outfile: path.join(
+test('SQLite adapter and Hermes captures work in compiled Wasm', async () => {
+  const root = fileURLToPath(new URL('../../../../', import.meta.url));
+  const bundle = await bundleForHermes(
+    path.join(
       root,
-      'packages/engine-wasm/build/modular/bridge-probe.js',
+      'packages/engine-wasm/src/__tests__/fixtures/bridge-probe.ts',
     ),
-    bundle: true,
-    format: 'iife',
-    platform: 'neutral',
-    target: 'es2020',
-  });
+  );
+  await writeFile(
+    path.join(root, 'packages/engine-wasm/build/modular/bridge-probe.js'),
+    bundle,
+  );
   await new Promise<void>((resolve, reject) => {
     const child = spawn(
       'docker',
@@ -53,42 +43,12 @@ test('bridge integration', async () => {
   const fixture = new Uint8Array(
     await readFile(new URL('../../build/fixture.sqlite3', import.meta.url)),
   );
-  const results = [];
-  {
-    const engine = await createEngine(fixture, async () => {
-      const module = await factory();
-      return module;
-    });
-    try {
-      const response = engine.dispatch({
-        type: 'request',
-        url: '/server',
-        method: 'GET',
-      });
-      assert.ok(
-        response.data &&
-          typeof response.data === 'object' &&
-          'checks' in response.data,
-      );
-      assert.equal(response.data.checks, 20235);
-      results.push({ checks: response.data.checks });
-    } finally {
-      engine.close();
-    }
+  const engine = await createEngine(fixture, factory);
+  try {
+    expect(
+      engine.dispatch({ type: 'request', url: '/server', method: 'GET' }).data,
+    ).toEqual({ checks: 20244 });
+  } finally {
+    engine.close();
   }
-
-  await writeFile(
-    new URL('../../build/fusion-verification.json', import.meta.url),
-    JSON.stringify(
-      {
-        measuredAt: new Date().toISOString(),
-        results,
-        scope:
-          'Real adapter and native bridge compiled to Wasm; repeated/cleared bindings, scalar/target rows, Unicode, blob fallback, surrogate rejection, transaction rollback/recovery and 20000 allocated rows per mode.',
-      },
-      null,
-      2,
-    ),
-  );
-  process.stdout.write(`${JSON.stringify(results)} bridge checks passed\n`);
 });

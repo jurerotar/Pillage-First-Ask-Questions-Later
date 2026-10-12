@@ -10,9 +10,12 @@
   "scripts": {
     "bundle": "node scripts/bundle.ts",
     "build": "node scripts/build.ts",
+    "lint": "biome check .",
+    "format": "biome format --write .",
     "type-check": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:scripts": "vitest run --project scripts",
+    "test:unit": "vitest run --project unit",
     "test:engine": "vitest run --project engine"
   },
   "dependencies": {
@@ -27,6 +30,7 @@
     "@babel/plugin-transform-block-scoping": "8.0.7",
     "@types/node": "25.9.1",
     "esbuild": "0.28.2",
+    "rolldown": "1.1.5",
     "vitest": "5.0.3"
   }
 }

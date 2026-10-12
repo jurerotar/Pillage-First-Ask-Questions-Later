@@ -9,6 +9,9 @@ const root = path.resolve(
   '../..',
 );
 const output = path.join(root, 'build');
+const { version } = JSON.parse(
+  await readFile(new URL('../../../../package.json', import.meta.url), 'utf8'),
+) as { version: string };
 const sqlPlugin: import('esbuild').Plugin = {
   name: 'sql-raw',
   setup(builder) {
@@ -43,7 +46,7 @@ await build({
   ],
   define: {
     'import.meta.env': JSON.stringify({
-      VERSION: '0.4.73',
+      VERSION: version,
       DEV: false,
       PROD: true,
       MODE: 'wasm',
@@ -106,24 +109,10 @@ try {
   report.reopened=true; await engine.close(); report.status='passed';
 } catch(error) { report.status='failed'; report.error=String(error); report.stack=error.stack; }
 document.querySelector('#result').textContent=JSON.stringify(report,null,2);
-await fetch('/browser-result',{method:'POST',body:JSON.stringify(report)});
 </script>`,
 );
-if (process.argv.includes('--build-only')) {
-  process.exit(0);
-}
 const server = createServer(async (request, response) => {
   try {
-    if (request.url === '/browser-result' && request.method === 'POST') {
-      let body = '';
-      for await (const chunk of request) {
-        body += chunk;
-      }
-      await writeFile(path.join(output, 'browser-verification.json'), body);
-      process.stdout.write(`${body}\n`);
-      response.end('saved');
-      return;
-    }
     const requested = new URL(request.url ?? '/', 'http://localhost').pathname;
     const filename = path.resolve(
       output,

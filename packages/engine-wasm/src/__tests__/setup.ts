@@ -3,8 +3,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build, type Plugin } from 'esbuild';
 
-export default async function setup(): Promise<void> {
+const setup = async (): Promise<void> => {
   const root = fileURLToPath(new URL('../../', import.meta.url));
+  const { version } = JSON.parse(
+    await readFile(
+      new URL('../../../../package.json', import.meta.url),
+      'utf8',
+    ),
+  ) as { version: string };
   await mkdir(path.join(root, 'build'), { recursive: true });
   const sql: Plugin = {
     name: 'fixture-sql',
@@ -30,7 +36,7 @@ export default async function setup(): Promise<void> {
     plugins: [sql],
     define: {
       'import.meta.env': JSON.stringify({
-        VERSION: '0.4.73',
+        VERSION: version,
         DEV: false,
         PROD: true,
         MODE: 'test',
@@ -49,4 +55,6 @@ export default async function setup(): Promise<void> {
   } finally {
     fixture.close();
   }
-}
+};
+
+export default setup;

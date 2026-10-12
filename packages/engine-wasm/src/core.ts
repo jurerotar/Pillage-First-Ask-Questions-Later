@@ -7,7 +7,15 @@ export type EngineRequest =
   | { type: 'request'; url: string; method: string; body?: unknown }
   | { type: 'advance'; now: number; limit?: number };
 
-export function execute(database: DbFacade, request: EngineRequest): unknown {
+export type AdvanceResult = {
+  processed: number;
+  nextDeadline: number | null;
+};
+
+export const execute = (
+  database: DbFacade,
+  request: EngineRequest,
+): unknown => {
   if (request.type === 'request') {
     const route = matchRoute(request.url, request.method, request.body);
     return route.controller(database, {
@@ -31,4 +39,4 @@ export function execute(database: DbFacade, request: EngineRequest): unknown {
       schema: z.number().nullable(),
     }),
   };
-}
+};

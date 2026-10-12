@@ -16,6 +16,34 @@ const assert = (condition: unknown, message: string) => {
 (globalThis as unknown as { enginePump: () => void }).enginePump = () => {
   try {
     let checks = 0;
+    const captured: (() => number)[] = [];
+    for (let i = 0; i < 3; i++) {
+      captured.push(() => i);
+    }
+    assert(
+      captured.map((fn) => fn()).join(',') === '0,1,2',
+      'Hermes loop capture differs',
+    );
+    checks++;
+    // Retain post-ES2020 syntax through bundling and execute it in real Wasm.
+    class ModernSyntax {
+      #value = 0;
+      static initialized = false;
+
+      static {
+        ModernSyntax.initialized = true;
+      }
+
+      read() {
+        this.#value ||= 42;
+        return this.#value;
+      }
+    }
+    assert(
+      ModernSyntax.initialized && new ModernSyntax().read() === 42,
+      'Hermes modern syntax differs',
+    );
+    checks++;
     const readBindings = (bind: Record<`$${string}`, number>) =>
       db.selectObject({
         sql: 'SELECT $a AS a, $b AS b, $c AS c',
@@ -68,8 +96,13 @@ const assert = (condition: unknown, message: string) => {
       -12.25,
       '',
       'PHALANX',
+      '%+/ "quoted"\r\n\t',
       'Živjo 🐉 — café',
       'a'.repeat(1024),
+      '\0',
+      'before\0after',
+      '\u017d\0\ud83d\udc09',
+      `${'ascii'.repeat(100)}\ud83d\udc09%\0tail`,
       undefined,
     ]) {
       const row = db.selectObject({
@@ -81,6 +114,14 @@ const assert = (condition: unknown, message: string) => {
       checks++;
     }
     const statement = db.prepare({ sql: 'SELECT $a AS a, $b AS b' });
+    assert(
+      db.selectValue({
+        sql: "SELECT 'before' || char(0) || 'after'",
+        schema: z.string(),
+      }) === 'before\0after',
+      'SQLite-generated NUL text differs',
+    );
+    checks++;
     for (let i = 0; i < 100; i++) {
       statement.bind({ $a: i, $b: `x${i}` });
       assert(statement.step(), 'Missing prepared row');
@@ -119,6 +160,16 @@ const assert = (condition: unknown, message: string) => {
       'Blob fallback differs',
     );
     checks++;
+    const emptyBlob = db.selectValue({
+      sql: 'SELECT $blob',
+      bind: { $blob: new Uint8Array() },
+      schema: z.instanceof(Uint8Array),
+    });
+    assert(
+      emptyBlob instanceof Uint8Array && emptyBlob.length === 0,
+      'Empty blob became NULL',
+    );
+    checks++;
     const unicode = db.selectObject({
       sql: 'SELECT $value AS "Ž🐉"',
       bind: { $value: 'こんにちは 🐉' },
@@ -126,20 +177,36 @@ const assert = (condition: unknown, message: string) => {
     });
     assert(unicode?.['Ž🐉'] === 'こんにちは 🐉', 'Unicode column differs');
     checks++;
-    let invalid = false;
-    try {
-      db.exec({ sql: 'SELECT $value', bind: { $value: '\ud800' } });
-    } catch {
-      invalid = true;
+    for (const value of [
+      '\ud800',
+      '\udc00',
+      'x\ud800',
+      '\ud800x',
+      '\udc00\ud800',
+    ]) {
+      let invalid = false;
+      try {
+        db.exec({ sql: 'SELECT $value', bind: { $value: value } });
+      } catch (error) {
+        invalid = error instanceof URIError;
+      }
+      assert(invalid, 'Malformed surrogate stopped throwing URIError');
+      assert(
+        db.selectValue({
+          sql: 'SELECT $value',
+          bind: { $value: 'recovered' },
+          schema: z.string(),
+        }) === 'recovered',
+        'Failed bind damaged reuse',
+      );
     }
-    assert(invalid, 'Lone surrogate stopped throwing');
     assert(
-      db.selectValue({
-        sql: 'SELECT $value',
-        bind: { $value: 'recovered' },
-        schema: z.string(),
-      }) === 'recovered',
-      'Failed bind damaged reuse',
+      engineNative.bindText(Number.NaN, 1, 'invalid') === 21 &&
+        engineNative.bindText(1, Number.POSITIVE_INFINITY, 'invalid') === 21 &&
+        engineNative.bindText(1.5, 1, 'invalid') === 21 &&
+        engineNative.bindText(1, 0, 'invalid') === 21 &&
+        engineNative.bindText(2_147_483_647, 1, 'invalid') === 21,
+      'Invalid host binding arguments were not rejected',
     );
     checks += 2;
     db.execMulti({

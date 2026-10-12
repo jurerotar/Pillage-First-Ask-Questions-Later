@@ -1,7 +1,10 @@
 import type { EngineRequest } from './core';
 
 export type WasmModule = {
-  FS: { writeFile(path: string, bytes: Uint8Array): void };
+  FS: {
+    writeFile(path: string, bytes: Uint8Array): void;
+    unlink(path: string): void;
+  };
   HEAPU8: Uint8Array;
   ccall(
     name: string,
@@ -31,15 +34,21 @@ export type EngineResponse = {
   nextDeadline: number | null;
 };
 
-export async function createEngine(
+export const createEngine = async (
   bytes: Uint8Array,
   factory: () => Promise<WasmModule>,
-) {
+) => {
   const module = await factory();
-  module.FS.writeFile('/world.sqlite3', bytes);
-  if (!module.ccall('engine_initialize', 'number', [], [])) {
+  try {
+    module.FS.writeFile('/world.sqlite3', bytes);
+    if (!module.ccall('engine_initialize', 'number', [], [])) {
+      throw new Error('Compiled game engine initialization failed');
+    }
+    // SQLite owns its deserialized image; release the temporary MEMFS copy.
+    module.FS.unlink('/world.sqlite3');
+  } catch (error) {
     module.ccall('engine_close', null, [], []);
-    throw new Error('Compiled game engine initialization failed');
+    throw error;
   }
   let closed = false;
   return {
@@ -82,7 +91,11 @@ export async function createEngine(
         [],
         [],
       ) as number;
-      if (!pointer || !length) {
+      if (
+        pointer <= 0 ||
+        length <= 0 ||
+        pointer + length > module.HEAPU8.length
+      ) {
         throw new Error('Could not serialize game engine database');
       }
       return module.HEAPU8.slice(pointer, pointer + length);
@@ -95,4 +108,4 @@ export async function createEngine(
       closed = true;
     },
   };
-}
+};

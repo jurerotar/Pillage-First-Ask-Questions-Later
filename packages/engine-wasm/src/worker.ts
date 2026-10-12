@@ -24,8 +24,9 @@ let activeSave: Promise<void> | null = null;
 let closing = false;
 let wakeup: ReturnType<typeof setTimeout> | null = null;
 let saveInterval: ReturnType<typeof setInterval> | null = null;
+let nextDeadline: number | null = null;
 
-function persist(): Promise<void> {
+const persist = (): Promise<void> => {
   if (activeSave) {
     return activeSave;
   }
@@ -50,13 +51,16 @@ function persist(): Promise<void> {
     activeSave = null;
   });
   return activeSave;
-}
-function notify(message: unknown, force = false) {
+};
+
+const notify = (message: unknown, force = false) => {
   if (force || postNotifications) {
     notificationPort?.postMessage(message);
   }
-}
-function schedule(result: EngineResponse) {
+};
+
+const schedule = (result: EngineResponse) => {
+  nextDeadline = result.nextDeadline;
   for (const notification of result.notifications) {
     notify(notification);
   }
@@ -91,8 +95,17 @@ function schedule(result: EngineResponse) {
       Math.min(2_147_483_647, Math.max(0, result.nextDeadline - Date.now())),
     );
   }
-}
-function release() {
+};
+
+const startAutosave = () => {
+  saveInterval = setInterval(() => {
+    void persist().catch((error) =>
+      notify({ eventKey: 'event:error', error: serializeError(error) }, true),
+    );
+  }, 5000);
+};
+
+const release = () => {
   if (wakeup !== null) {
     clearTimeout(wakeup);
   }
@@ -100,11 +113,13 @@ function release() {
     clearInterval(saveInterval);
   }
   wakeup = saveInterval = null;
+  nextDeadline = null;
   engine?.close();
   engine = null;
+  dirty = false;
   pool?.pauseVfs();
   pool = null;
-}
+};
 
 globalThis.addEventListener('message', async (event: MessageEvent) => {
   const { type } = event.data;
@@ -184,14 +199,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
           notifications: false,
         }),
       );
-      saveInterval = setInterval(() => {
-        void persist().catch((error) =>
-          notify(
-            { eventKey: 'event:error', error: serializeError(error) },
-            true,
-          ),
-        );
-      }, 5000);
+      startAutosave();
       notify({ eventKey: 'event:database-initialization-success' }, true);
     } catch (error) {
       release();
@@ -215,6 +223,16 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
   }
   if (type === 'WORKER_MESSAGE') {
     const port = event.ports[0];
+    if (!port) {
+      notify(
+        {
+          eventKey: 'event:error',
+          error: serializeError(new Error('Missing response port')),
+        },
+        true,
+      );
+      return;
+    }
     try {
       if (!engine || closing) {
         throw new Error('Game engine is not available');
@@ -264,6 +282,10 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
     } catch (error) {
       closing = false;
       // Keep the live engine available if saving fails; a retry must retain its state.
+      if (engine) {
+        schedule({ data: null, notifications: [], nextDeadline });
+        startAutosave();
+      }
       notify({ eventKey: 'event:error', error: serializeError(error) }, true);
     }
   }

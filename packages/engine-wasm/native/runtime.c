@@ -6,6 +6,7 @@
 extern SHUnit *sh_export_pillage_engine(void);
 extern SHUnit *sh_export_pillage_sqlite(void);
 extern SHUnit *sh_export_pillage_pump(void);
+extern void engine_install_text_bindings(SHRuntime *runtime);
 extern const char *engine_input;
 extern char *engine_output;
 static SHRuntime *runtime;
@@ -14,6 +15,7 @@ EMSCRIPTEN_KEEPALIVE int engine_initialize(void) {
   if (runtime)
     return 0;
   runtime = _sh_init(0, NULL);
+  engine_install_text_bindings(runtime);
   if (!_sh_initialize_units(runtime, 2, sh_export_pillage_sqlite,
                             sh_export_pillage_engine))
     return 0;

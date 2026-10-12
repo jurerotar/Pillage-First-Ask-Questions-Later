@@ -12,6 +12,26 @@ export default defineConfig({
     hookTimeout: 60_000,
     projects: [
       {
+        resolve: {
+          alias: [
+            {
+              find: /^(?:\.\.\/)+build\/engine\.mjs$/,
+              replacement: fileURLToPath(
+                new URL(
+                  './src/__tests__/fixtures/engine-factory.ts',
+                  import.meta.url,
+                ),
+              ),
+            },
+          ],
+        },
+        test: {
+          name: 'unit',
+          root,
+          include: ['src/__tests__/*.unit.test.ts'],
+        },
+      },
+      {
         test: {
           name: 'scripts',
           root,
@@ -23,6 +43,7 @@ export default defineConfig({
           name: 'engine',
           root,
           include: ['src/__tests__/*.test.ts'],
+          exclude: ['src/__tests__/*.unit.test.ts'],
           globalSetup: ['./src/__tests__/setup.ts'],
           testTimeout: 180_000,
           hookTimeout: 60_000,

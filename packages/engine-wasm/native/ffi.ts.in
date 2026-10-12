@@ -26,8 +26,27 @@ var engineNative = (function () {
       value: c_char,
     ): void {},
   );
-  function allocText(value: string): c_ptr {
-    'use unsafe';
+  // Hermes's own UTF-8 conversion returns a rooted JS value directly. This
+  // avoids a JS call and percent-encoding allocation for every output byte.
+  const _string = $SHBuiltin.extern_c(
+    { declared: true, hv: true },
+    function _sh_asciiz_to_string(
+      runtime: c_ptr,
+      ptr: c_ptr,
+      length: c_ptrdiff_t,
+    ): string {
+      throw 0;
+    },
+  );
+  function encodeText(value: string): number[] {
+    // SQL and identifiers are usually ASCII. Avoid URI encoding in that case.
+    const ascii: number[] = [];
+    for (let i = 0; i < value.length; i++) {
+      const byte = value.charCodeAt(i);
+      if (byte > 127) break;
+      ascii.push(byte);
+    }
+    if (ascii.length === value.length) return ascii;
     const encoded = encodeURIComponent(value);
     const bytes: number[] = [];
     for (let i = 0; i < encoded.length; i++) {
@@ -36,21 +55,26 @@ var engineNative = (function () {
         i += 2;
       } else bytes.push(encoded.charCodeAt(i));
     }
+    return bytes;
+  }
+  function allocBytes(bytes: number[]): c_ptr {
+    'use unsafe';
     const ptr = _malloc(bytes.length + 1);
+    if (!ptr) throw new Error('Could not allocate native text buffer');
     for (let i = 0; i < bytes.length; i++) _write(ptr, i, bytes[i]);
     _write(ptr, bytes.length, 0);
     return ptr;
   }
-  function readText(ptr: c_ptr): string {
+  function allocText(value: string): c_ptr {
+    'use unsafe';
+    return allocBytes(encodeText(value));
+  }
+  // SQL text uses explicit byte lengths so embedded NULs survive both ways.
+  // Names, errors and request envelopes remain NUL-terminated C strings.
+  function readText(ptr: c_ptr, length: number = -1): string {
     'use unsafe';
     if (!ptr) return '';
-    let encoded = '';
-    for (let i = 0; ; i++) {
-      const b = _read(ptr, i);
-      if (!b) break;
-      encoded += '%' + ('0' + b.toString(16)).slice(-2);
-    }
-    return decodeURIComponent(encoded);
+    return _string($SHBuiltin.c_native_runtime(), ptr, length);
   }
   return {
     open: function (path: string): number {
@@ -117,18 +141,13 @@ var engineNative = (function () {
       'use unsafe';
       return _s_bind_number(id, index, value);
     },
-    bindText: function (id: number, index: number, value: string): number {
-      'use unsafe';
-      const p = allocText(value);
-      try {
-        return _s_bind_text(id, index, p);
-      } finally {
-        _free(p);
-      }
-    },
+    // Installed before this unit starts. Native JSI borrows the string directly
+    // and SQLite owns its copy; there is no JS byte array or per-byte write loop.
+    bindText: globalThis.engineBindText,
     bindBlob: function (id: number, index: number, value: any): number {
       'use unsafe';
-      const p = _malloc(value.length);
+      const p = _malloc(Math.max(1, value.length));
+      if (!p) throw new Error('Could not allocate native blob buffer');
       try {
         for (let i = 0; i < value.length; i++) _write(p, i, value[i]);
         return _s_bind_blob(id, index, p, value.length);
@@ -154,7 +173,7 @@ var engineNative = (function () {
     },
     columnText: function (id: number, col: number): string {
       'use unsafe';
-      return readText(_s_column_text(id, col));
+      return readText(_s_column_text(id, col), _s_column_bytes(id, col));
     },
     columnBlob: function (id: number, col: number): any {
       'use unsafe';

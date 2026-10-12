@@ -1,7 +1,6 @@
 import './runtime-globals';
-import 'zod/compile';
 import { z } from 'zod';
-import { type EngineRequest, execute } from './core';
+import { type AdvanceResult, type EngineRequest, execute } from './core';
 import { drainNotifications, setCaptureNotifications } from './notifications';
 import { openDatabase } from './sqlite';
 
@@ -15,10 +14,14 @@ const database = openDatabase('/world.sqlite3');
     };
     setCaptureNotifications(request.notifications !== false);
     const data = execute(database, request);
-    const nextDeadline = database.selectValue({
-      sql: 'SELECT MIN(resolves_at) FROM events',
-      schema: z.number().nullable(),
-    });
+    // Scheduler batches already queried their next deadline in execute().
+    const nextDeadline =
+      request.type === 'advance'
+        ? (data as AdvanceResult).nextDeadline
+        : database.selectValue({
+            sql: 'SELECT MIN(resolves_at) FROM events',
+            schema: z.number().nullable(),
+          });
     engineNative.respond(
       JSON.stringify({
         data,

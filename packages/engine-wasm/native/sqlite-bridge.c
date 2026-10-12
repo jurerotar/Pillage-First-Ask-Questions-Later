@@ -1,6 +1,5 @@
 #include "sqlite-bridge.h"
 #include "sqlite3.h"
-#include <emscripten/emscripten.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,6 +14,7 @@ static int transaction_statements[3];
 const char *engine_input = "{}";
 char *engine_output;
 unsigned char *engine_snapshot_buffer;
+static int snapshot_owned;
 int engine_snapshot_length;
 
 int s_open(const char *path) {
@@ -44,6 +44,12 @@ int s_open(const char *path) {
     sqlite3_free(bytes);
     return SQLITE_IOERR;
   }
+  // deserialize accepts arbitrary bytes until the first page is accessed.
+  // Reject invalid headers before reporting successful engine initialization.
+  if (length < 100 || memcmp(bytes, "SQLite format 3\0", 16) != 0) {
+    sqlite3_free(bytes);
+    return SQLITE_NOTADB;
+  }
   // All gameplay database I/O now stays in native SQLite memory. MEMFS is used
   // once to receive the worker's file, rather than for every SQL operation.
   code = sqlite3_deserialize(db, "main", bytes, length, length,
@@ -64,8 +70,10 @@ void s_close(void) {
   if (db)
     sqlite3_close(db);
   db = NULL;
-  sqlite3_free(engine_snapshot_buffer);
+  if (snapshot_owned)
+    sqlite3_free(engine_snapshot_buffer);
   engine_snapshot_buffer = NULL;
+  snapshot_owned = 0;
   engine_snapshot_length = 0;
 }
 const char *s_error(void) {
@@ -133,12 +141,18 @@ int s_bind_null(int id, int index) {
 int s_bind_number(int id, int index, double value) {
   return sqlite3_bind_double(statements[id], index, value);
 }
-int s_bind_text(int id, int index, const char *value) {
-  return sqlite3_bind_text(statements[id], index, value, -1, SQLITE_TRANSIENT);
-}
-int s_bind_text_length(int id, int index, const char *value, int length) {
+int s_bind_text(int id, int index, const char *value, int length) {
+  if (id <= 0 || id >= next_statement || !statements[id] || length < 0)
+    return SQLITE_MISUSE;
   return sqlite3_bind_text(statements[id], index, value, length,
                            SQLITE_TRANSIENT);
+}
+int s_bind_text16(int id, int index, const void *value, int byte_length) {
+  if (id <= 0 || id >= next_statement || !statements[id] || byte_length < 0 ||
+      byte_length % 2)
+    return SQLITE_MISUSE;
+  return sqlite3_bind_text16(statements[id], index, value, byte_length,
+                             SQLITE_TRANSIENT);
 }
 int s_bind_blob(int id, int index, const void *value, int length) {
   return sqlite3_bind_blob(statements[id], index, value, length,
@@ -171,10 +185,19 @@ void s_response(const char *value) {
   engine_output = strdup(value);
 }
 const void *engine_snapshot(void) {
-  sqlite3_free(engine_snapshot_buffer);
+  if (snapshot_owned)
+    sqlite3_free(engine_snapshot_buffer);
+  snapshot_owned = 0;
   sqlite3_int64 length = 0;
-  engine_snapshot_buffer = sqlite3_serialize(db, "main", &length, 0);
-  engine_snapshot_length = (int)length;
+  // Deserialized databases already have contiguous storage. The client copies
+  // it synchronously before another write; SQLite retains ownership.
+  engine_snapshot_buffer = sqlite3_serialize(db, "main", &length,
+                                              SQLITE_SERIALIZE_NOCOPY);
+  if (!engine_snapshot_buffer) {
+    engine_snapshot_buffer = sqlite3_serialize(db, "main", &length, 0);
+    snapshot_owned = engine_snapshot_buffer != NULL;
+  }
+  engine_snapshot_length = engine_snapshot_buffer ? (int)length : 0;
   return engine_snapshot_buffer;
 }
 int engine_snapshot_size(void) { return engine_snapshot_length; }

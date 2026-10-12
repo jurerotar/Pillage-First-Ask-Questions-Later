@@ -12,14 +12,18 @@ setNotificationPort({
     pending.push(message);
   },
 } as MessagePort);
+
 export const setCaptureNotifications = (value: boolean) =>
   setShouldPostNotifications(value);
+
 export const drainNotifications = () => {
   const messages = pending;
   pending = [];
   return messages;
 };
+
 export const notificationCheckpoint = () => pending.length;
+
 export const rollbackNotifications = (checkpoint: number) => {
   pending.length = checkpoint;
 };

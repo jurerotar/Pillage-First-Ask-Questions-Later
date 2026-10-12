@@ -2,16 +2,14 @@ import type { OpfsSAHPoolDatabase } from '@sqlite.org/sqlite-wasm';
 import { createDbFacade } from '@pillage-first/utils/facades/database';
 import { notificationCheckpoint, rollbackNotifications } from './notifications';
 
-function check(code: number): void {
+const check = (code: number): void => {
   if (code !== 0) {
     throw new Error(`SQLite ${code}: ${engineNative.error()}`);
   }
-}
+};
 
-export function openDatabase(path: string) {
+export const openDatabase = (path: string) => {
   check(engineNative.open(path));
-  const transactionOperation = (operation: number) =>
-    engineNative.transaction(operation);
   const raw = {
     prepare(sql: string) {
       let id = engineNative.prepare(sql);
@@ -131,32 +129,17 @@ export function openDatabase(path: string) {
     },
     transaction(callback: () => void) {
       const checkpoint = notificationCheckpoint();
-      check(transactionOperation(0));
+      check(engineNative.transaction(0));
       try {
         callback();
-        check(transactionOperation(1));
+        check(engineNative.transaction(1));
       } catch (error) {
-        transactionOperation(2);
+        engineNative.transaction(2);
         rollbackNotifications(checkpoint);
         throw error;
-      }
-    },
-    selectObjects(sql: string, bind?: Record<string, unknown>) {
-      const statement = raw.prepare(sql);
-      try {
-        if (bind) {
-          statement.bind(bind);
-        }
-        const rows: unknown[] = [];
-        while (statement.step()) {
-          rows.push(statement.get({}));
-        }
-        return rows;
-      } finally {
-        statement.finalize();
       }
     },
   };
   check(engineNative.exec('PRAGMA foreign_keys=ON;'));
   return createDbFacade(raw as unknown as OpfsSAHPoolDatabase);
-}
+};

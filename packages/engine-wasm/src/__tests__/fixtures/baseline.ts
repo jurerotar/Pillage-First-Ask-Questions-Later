@@ -7,7 +7,7 @@ import { serverMock } from '../../../../mocks/src/server-mock';
 
 export { execute } from '../../core';
 
-export async function open(bytes?: Uint8Array) {
+export const open = async (bytes?: Uint8Array) => {
   const sqlite = await sqlite3InitModule();
   const raw = new sqlite.oo1.DB(':memory:', 'c');
   if (bytes) {
@@ -23,7 +23,7 @@ export async function open(bytes?: Uint8Array) {
       ),
     );
   }
-  const database = createDbFacade(raw, false, () =>
+  const database = createDbFacade(raw, () =>
     sqlite.capi.sqlite3_js_db_export(raw.pointer!, 'main'),
   );
   database.execMulti({
@@ -70,12 +70,12 @@ export async function open(bytes?: Uint8Array) {
       raw.close();
     },
   };
-}
+};
 
 // Snapshot inspection is test-only and is never compiled into the API module.
-export function inspect(
+export const inspect = (
   database: import('@pillage-first/utils/facades/database').DbFacade,
-) {
+) => {
   const rowSchema = z.record(z.string(), z.unknown());
   return {
     troops: database.selectObjects({
@@ -99,4 +99,4 @@ export function inspect(
       schema: z.number(),
     }),
   };
-}
+};

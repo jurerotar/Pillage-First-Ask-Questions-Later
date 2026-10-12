@@ -12,28 +12,15 @@ test('controllers integration', async () => {
   const baseline = await open(original);
   baseline.raw.exec("UPDATE servers SET name='Živjo 🐉 — café';");
   const bytes = baseline.database.serialize();
-  const load = () =>
-    createEngine(bytes, async () => {
-      const module = await factory();
-      return module;
-    });
-  const loadVerified = async () => {
-    const engine = await load();
-    const dispatch = engine.dispatch;
-    engine.dispatch = (request: Parameters<typeof engine.dispatch>[0]) =>
-      dispatch({
-        ...request,
-      });
-    return engine;
-  };
-  let engine = await loadVerified();
-  for (const [url, _iterations, method = 'GET', body] of [
-    ['/developer-settings', 1000],
-    ['/server', 1000],
-    ['/villages/1/events', 100],
+  let engine = await createEngine(bytes, factory);
+  for (const [url, method = 'GET', body] of [
+    ['/developer-settings'],
+    ['/server'],
+    ['/server?x=%FF&x=%E0%A4%A&flag=%GG&emoji=%F0%9F%90%89'],
+    ['/server?x=\ud800&x=\udc00'],
+    ['/villages/1/events'],
     [
       '/developer-settings/isFreeHuntingPartiesEnabled',
-      1000,
       'PATCH',
       { value: true },
     ],
@@ -79,11 +66,7 @@ test('controllers integration', async () => {
   );
   const snapshot = engine.snapshot();
   engine.close();
-  engine = await createEngine(snapshot, async () => {
-    const module = await factory();
-
-    return module;
-  });
+  engine = await createEngine(snapshot, factory);
   assert.deepEqual(
     engine.dispatch({
       type: 'request' as const,

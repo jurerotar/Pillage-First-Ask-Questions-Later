@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 
 // Only native function declarations are generated. Application source and
 // Hermes-generated C are compiled without package-specific rewrites.
-export function ffiPrelude() {
+export const ffiPrelude = () => {
   const signatures = {
     s_open: ['c_int', 'path:c_ptr'],
     s_error: ['c_ptr'],
@@ -15,7 +15,6 @@ export function ffiPrelude() {
     s_parameter: ['c_int', 'id:c_int', 'name:c_ptr'],
     s_bind_null: ['c_int', 'id:c_int', 'index:c_int'],
     s_bind_number: ['c_int', 'id:c_int', 'index:c_int', 'value:c_double'],
-    s_bind_text: ['c_int', 'id:c_int', 'index:c_int', 'value:c_ptr'],
     s_bind_blob: [
       'c_int',
       'id:c_int',
@@ -49,4 +48,4 @@ export function ffiPrelude() {
     throw new Error('Expected one FFI declaration marker');
   }
   return source.replace(marker, declarations);
-}
+};
