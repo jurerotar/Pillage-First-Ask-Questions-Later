@@ -16,6 +16,7 @@ em++ "${common[@]}" -std=c++17 -fwasm-exceptions -I"$hermes/external/llvh/includ
 exports='["_engine_initialize","_engine_dispatch","_engine_close","_engine_snapshot","_engine_snapshot_size"]'
 settings=(-sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=4MB -sINITIAL_MEMORY=32MB -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=node -sEXPORTED_FUNCTIONS="$exports" '-sEXPORTED_RUNTIME_METHODS=["FS","ccall","HEAPU8"]' --no-entry)
 for variant in baseline previous current; do
+  if [ "$variant" != current ] && [ "${BRIDGE_BENCHMARK_HISTORY:-0}" != 1 ]; then continue; fi
   if [ ! -f "native-$variant.js" ]; then continue; fi
   "$compiler" -typed -O -Xenable-tdz -emit-c -exported-unit=pillage_sqlite "native-$variant.js" -o "native-$variant.c"
   emcc "${common[@]}" -c "native-$variant.c" -o "native-$variant.o"

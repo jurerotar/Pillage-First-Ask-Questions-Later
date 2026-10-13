@@ -8,6 +8,10 @@
     "./client": "./src/client.ts"
   },
   "scripts": {
+    "benchmark": "node benchmarks/engine.ts",
+    "benchmark:bridge": "node benchmarks/bridge.ts",
+    "benchmark:browser": "node benchmarks/browser.ts",
+    "test:benchmarks": "vitest run --project benchmarks",
     "bundle": "node scripts/bundle.ts",
     "build": "node scripts/build.ts",
     "lint": "biome check .",

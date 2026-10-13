@@ -4,5 +4,10 @@
     "lib": ["ESNext", "WebWorker", "DOM"],
     "types": ["node"]
   },
-  "include": ["src/**/*", "scripts/**/*.ts", "vitest.config.ts"]
+  "include": [
+    "src/**/*",
+    "scripts/**/*.ts",
+    "benchmarks/**/*.ts",
+    "vitest.config.ts"
+  ]
 }

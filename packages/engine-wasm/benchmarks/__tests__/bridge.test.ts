@@ -7,10 +7,20 @@ import { fileURLToPath } from 'node:url';
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import { build } from 'esbuild';
 import { expect, test } from 'vitest';
-import { createEngine, type WasmModule } from '../../src/client';
+import { lowerForHermes } from '../../scripts/bundle';
+import { ffiPrelude } from '../../scripts/ffi';
+import {
+  createEngine,
+  type EngineResponse,
+  type WasmModule,
+} from '../../src/client';
 import type { EngineRequest } from '../../src/core';
-import { lowerForHermes } from '../bundle';
-import { ffiPrelude } from '../ffi';
+import {
+  type BenchmarkReport,
+  compareReports,
+  hostMetadata,
+  summarize,
+} from '../report';
 
 const packageRoot = fileURLToPath(new URL('../../', import.meta.url));
 const repositoryRoot = path.resolve(packageRoot, '../..');
@@ -19,22 +29,37 @@ const median = (values: number[]) =>
   [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
 const hash = (value: string | Uint8Array) =>
   createHash('sha256').update(value).digest('hex');
-const optionalBaseline = async () =>
-  readFile(path.join(output, 'ffi-baseline.ts.in'), 'utf8').catch(
-    (error: NodeJS.ErrnoException) => {
-      if (error.code !== 'ENOENT') {
-        throw error;
-      }
-      return null;
-    },
+const workloadHash = async () =>
+  hash(
+    (
+      await Promise.all(
+        [
+          'benchmarks/fixtures/bridge.ts',
+          'benchmarks/fixtures/bridge.c',
+          'benchmarks/__tests__/bridge.test.ts',
+          'benchmarks/compile-bridge.sh',
+        ].map((file) => readFile(path.join(packageRoot, file))),
+      )
+    )
+      .map((bytes) => hash(bytes))
+      .join('\n'),
   );
+const optionalBaseline = async () =>
+  process.env.BRIDGE_BENCHMARK_HISTORY === '1'
+    ? readFile(path.join(output, 'ffi-baseline.ts.in'), 'utf8').catch(
+        (error: NodeJS.ErrnoException) => {
+          if (error.code !== 'ENOENT') {
+            throw error;
+          }
+          return null;
+        },
+      )
+    : null;
 
 const compile = async () => {
   await mkdir(output, { recursive: true });
   const bundle = await build({
-    entryPoints: [
-      path.join(packageRoot, 'src/__tests__/fixtures/bridge-performance.ts'),
-    ],
+    entryPoints: [path.join(packageRoot, 'benchmarks/fixtures/bridge.ts')],
     write: false,
     bundle: true,
     format: 'iife',
@@ -80,16 +105,19 @@ const compile = async () => {
     );
   }
   const bridge = await readFile(path.join(output, 'sqlite-bridge.c'), 'utf8');
-  const previous = await readFile(
-    path.join(output, 'native-previous.js'),
-    'utf8',
-  ).catch((error: NodeJS.ErrnoException) => {
-    if (error.code !== 'ENOENT') {
-      throw error;
-    }
-    return null;
-  });
+  const previous =
+    process.env.BRIDGE_BENCHMARK_HISTORY === '1'
+      ? await readFile(path.join(output, 'native-previous.js'), 'utf8').catch(
+          (error: NodeJS.ErrnoException) => {
+            if (error.code !== 'ENOENT') {
+              throw error;
+            }
+            return null;
+          },
+        )
+      : null;
   const sourceMetadata = {
+    workloadSha256: await workloadHash(),
     emscripten: '6.0.12',
     optimization: '-O2',
     baselineSource: baseline
@@ -104,7 +132,7 @@ const compile = async () => {
     nativeBridgeSha256: hash(bridge),
   };
   await copyFile(
-    path.join(packageRoot, 'src/__tests__/fixtures/bridge-performance.c'),
+    path.join(packageRoot, 'benchmarks/fixtures/bridge.c'),
     path.join(output, 'c-engine.c'),
   );
   await copyFile(
@@ -121,13 +149,15 @@ const compile = async () => {
       [
         'run',
         '--rm',
+        '-e',
+        `BRIDGE_BENCHMARK_HISTORY=${process.env.BRIDGE_BENCHMARK_HISTORY ?? '0'}`,
         '--mount',
         'type=volume,source=pillage-wasm-toolchain,target=/toolchain',
         '--mount',
         `type=bind,source=${repositoryRoot},target=/workspace`,
         'emscripten/emsdk:6.0.12',
         'bash',
-        '/workspace/packages/engine-wasm/scripts/__tests__/compile-bridge-performance.sh',
+        '/workspace/packages/engine-wasm/benchmarks/compile-bridge.sh',
       ],
       { stdio: 'inherit' },
     );
@@ -192,6 +222,10 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
     const provenance = JSON.parse(
       await readFile(path.join(output, 'compile-metadata.json'), 'utf8'),
     );
+    expect(
+      provenance.workloadSha256,
+      'Cached probes are stale; rebuild without BRIDGE_BENCHMARK_SKIP_BUILD',
+    ).toBe(await workloadHash());
     for (const [variant, expectedHash] of Object.entries(
       provenance.artifactHashes as Record<string, string>,
     )) {
@@ -232,6 +266,13 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
         }
       }
       for (const kind of [
+        'envelope-0',
+        'envelope-1024',
+        'envelope-65536',
+        'prepare',
+        'sql-aggregate',
+        'sql-join',
+        'sql-sort',
         'numeric',
         'rows-numeric',
         'ascii',
@@ -241,21 +282,31 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
       ]) {
         const samples = variants.map(() => [] as number[]);
         const checksums = variants.map(() => [] as unknown[]);
+        const envelope = kind.startsWith('envelope-');
+        const rounds = kind === 'prepare' ? 1000 : 5;
+        const repeats = kind === 'envelope-65536' ? 10 : envelope ? 1000 : 1;
+        process.stdout.write(`Measuring bridge workload: ${kind}\n`);
         for (let sample = -3; sample < 15; sample++) {
           for (let offset = 0; offset < variants.length; offset++) {
             const index = (offset + sample + 3) % variants.length;
             const request = {
-              kind,
-              rounds: 5,
+              kind: envelope ? 'envelope' : kind,
+              rounds,
+              ...(envelope
+                ? { payload: 'x'.repeat(Number(kind.split('-')[1])) }
+                : {}),
               facade: variants[index].endsWith('facade'),
             } as unknown as EngineRequest;
             const start = performance.now();
-            const response = engines[index].dispatch(request);
+            let response: EngineResponse | undefined;
+            for (let repeat = 0; repeat < repeats; repeat++) {
+              response = engines[index].dispatch(request);
+            }
             const elapsed = performance.now() - start;
             if (sample >= 0) {
               samples[index].push(elapsed);
             }
-            checksums[index].push(response.data);
+            checksums[index].push(response!.data);
           }
         }
         for (const checksum of checksums) {
@@ -341,6 +392,63 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
         path.join(output, 'results.json'),
         `${JSON.stringify(results, null, 2)}\n`,
       );
+      const report: BenchmarkReport = {
+        schemaVersion: 1,
+        suite: 'bridge',
+        metadata: {
+          ...provenance,
+          host: hostMetadata(),
+          measuredAt: new Date().toISOString(),
+          fixtureSha256: hash(fixture),
+          samples: 15,
+          warmups: 3,
+          notes: [
+            'Synthetic Node bridge probes built at -O2; production engine uses a mixed optimization profile.',
+            'C includes native bridge/SQLite work; Hermes adds FFI and JS, facade variants add schemas/object creation.',
+            'SQL workloads return one scalar to minimize row materialization; timings still include dispatch.',
+            'Envelope payload is request-only; C scans it and Hermes parses JSON.',
+            'Numeric/text units are update/read pairs; row units are rows; SQL units are query executions.',
+          ],
+        },
+        results: Object.fromEntries(
+          Object.entries(results).flatMap(([kind, values]) =>
+            Object.entries(values).map(([variant, value]) => {
+              const operations =
+                kind === 'envelope-65536'
+                  ? 10
+                  : kind.startsWith('snapshot')
+                    ? 10
+                    : kind.startsWith('envelope') || kind === 'prepare'
+                      ? 1000
+                      : kind.startsWith('sql-')
+                        ? 5
+                        : 5000;
+              return [
+                `${kind}/${variant}`,
+                summarize(value.samplesMs, operations),
+              ];
+            }),
+          ),
+        ),
+      };
+      const reportPath =
+        process.env.BRIDGE_BENCHMARK_OUTPUT ??
+        path.join(
+          packageRoot,
+          'benchmarks/reports',
+          `bridge-${new Date().toISOString().replaceAll(':', '-')}.json`,
+        );
+      await mkdir(path.dirname(reportPath), { recursive: true });
+      await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`);
+      process.stdout.write(`Report: ${reportPath}\n`);
+      if (process.env.BRIDGE_BENCHMARK_COMPARE) {
+        const before = JSON.parse(
+          await readFile(process.env.BRIDGE_BENCHMARK_COMPARE, 'utf8'),
+        ) as BenchmarkReport;
+        process.stdout.write(
+          `${JSON.stringify(compareReports(before, report), null, 2)}\n`,
+        );
+      }
       await writeFile(
         path.join(output, 'metadata.json'),
         JSON.stringify(

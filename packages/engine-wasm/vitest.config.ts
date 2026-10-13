@@ -12,6 +12,13 @@ export default defineConfig({
     hookTimeout: 60_000,
     projects: [
       {
+        test: {
+          name: 'benchmarks',
+          root,
+          include: ['benchmarks/__tests__/*.test.ts'],
+        },
+      },
+      {
         resolve: {
           alias: [
             {

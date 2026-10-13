@@ -28,12 +28,39 @@ EMSCRIPTEN_KEEPALIVE int engine_initialize(void) {
 }
 
 EMSCRIPTEN_KEEPALIVE const char *engine_dispatch(const char *input) {
+  if (strstr(input, "\"kind\":\"envelope\"")) {
+    return "{\"data\":{\"checksum\":0},\"notifications\":[],\"nextDeadline\":null}";
+  }
   if (strstr(input, "\"kind\":\"grow\"")) {
     check(s_exec("CREATE TABLE bridge_padding(value BLOB); WITH RECURSIVE n(i) AS (VALUES(1) UNION ALL SELECT i+1 FROM n WHERE i<128) INSERT INTO bridge_padding SELECT zeroblob(65536) FROM n;"), 0);
     return "{\"data\":{\"checksum\":0},\"notifications\":[],\"nextDeadline\":null}";
   }
   const char *round_position = strstr(input, "\"rounds\":");
   int rounds = round_position ? atoi(round_position + 9) : 1;
+  if (strstr(input, "\"kind\":\"sql-") || strstr(input, "\"kind\":\"prepare\"")) {
+    int prepare = strstr(input, "\"kind\":\"prepare\"") != NULL;
+    const char *sql = strstr(input, "sql-aggregate")
+      ? "SELECT sum(a.id*b.id) FROM bridge_review a CROSS JOIN bridge_review b WHERE b.id<=10"
+      : strstr(input, "sql-join")
+        ? "SELECT sum(a.id) FROM bridge_review a JOIN bridge_review b ON a.id=b.id"
+        : strstr(input, "sql-sort")
+          ? "SELECT sum(id) FROM (SELECT id FROM bridge_review ORDER BY id%97 DESC,id LIMIT 100)"
+          : "SELECT 1";
+    double checksum = 0;
+    int prepared = prepare ? 0 : s_prepare(sql);
+    for (int round = 0; round < rounds; round++) {
+      int statement = prepared ? prepared : s_prepare(sql);
+      if (!statement) abort();
+      check(s_step(statement), 100);
+      checksum += s_column_number(statement, 0);
+      check(s_step(statement), 101);
+      check(s_reset(statement, 1), 0);
+      if (!prepared) check(s_finalize(statement), 0);
+    }
+    if (prepared) check(s_finalize(prepared), 0);
+    snprintf(output, sizeof(output), "{\"data\":{\"checksum\":%.0f},\"notifications\":[],\"nextDeadline\":null}", checksum);
+    return output;
+  }
   int rows = strstr(input, "\"kind\":\"rows") != NULL;
   const char ascii[] = "bridge text 100% \"quoted\"";
   const char unicode[] = "Živjo 🐉 — café\0tail";

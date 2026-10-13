@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { openDatabase } from '../../sqlite';
+import { openDatabase } from '../../src/sqlite';
 
 z.config({ jitless: true });
 const database = openDatabase('/world.sqlite3');
@@ -27,6 +27,41 @@ const check = (code: number, expected = 0) => {
 };
 
 const run = (kind: string, rounds: number, facade: boolean) => {
+  if (kind === 'envelope') {
+    return 0;
+  }
+  if (kind === 'prepare' || kind.startsWith('sql-')) {
+    const sql =
+      kind === 'sql-aggregate'
+        ? 'SELECT sum(a.id*b.id) FROM bridge_review a CROSS JOIN bridge_review b WHERE b.id<=10'
+        : kind === 'sql-join'
+          ? 'SELECT sum(a.id) FROM bridge_review a JOIN bridge_review b ON a.id=b.id'
+          : kind === 'sql-sort'
+            ? 'SELECT sum(id) FROM (SELECT id FROM bridge_review ORDER BY id%97 DESC,id LIMIT 100)'
+            : 'SELECT 1';
+    let checksum = 0;
+    const prepared = kind === 'prepare' ? 0 : engineNative.prepare(sql);
+    try {
+      for (let round = 0; round < rounds; round++) {
+        const statement = prepared || engineNative.prepare(sql);
+        try {
+          check(engineNative.step(statement), 100);
+          checksum += engineNative.columnNumber(statement, 0);
+          check(engineNative.step(statement), 101);
+          check(engineNative.reset(statement, 1));
+        } finally {
+          if (!prepared) {
+            check(engineNative.finalize(statement));
+          }
+        }
+      }
+    } finally {
+      if (prepared) {
+        check(engineNative.finalize(prepared));
+      }
+    }
+    return checksum;
+  }
   if (kind === 'validate') {
     const statement = engineNative.prepare('SELECT $value');
     let checks = 0;

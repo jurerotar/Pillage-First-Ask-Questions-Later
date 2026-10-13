@@ -117,6 +117,8 @@ fallbacks. See [SQLite's serialization lifetime](https://sqlite.org/c3ref/serial
 | `native/runtime.c`, `native/serial-executor.cpp` | Hermes lifecycle and platform integration |
 | `native/text-bindings.cpp` | Borrowed string spans for native SQLite text binding |
 | `scripts/build.ts`, `bundle.ts`, `bootstrap.sh`, `compile.sh` | Build pipeline |
+| `benchmarks/` | Engine, bridge and browser benchmark runners and fixtures |
+| `benchmarks/reports/` | Local JSON measurement reports |
 | `src/__tests__/`, `scripts/__tests__/` | TypeScript Vitest tests and test fixtures |
 
 ## Verification
@@ -124,6 +126,7 @@ fallbacks. See [SQLite's serialization lifetime](https://sqlite.org/c3ref/serial
 ```powershell
 npm.cmd run test:scripts --workspace packages/engine-wasm
 npm.cmd run test:unit --workspace packages/engine-wasm
+npm.cmd run test:benchmarks --workspace packages/engine-wasm
 npm.cmd run type-check --workspace packages/engine-wasm
 npm.cmd run lint --workspace packages/engine-wasm
 npm.cmd run format --workspace packages/engine-wasm
@@ -159,6 +162,80 @@ not establish performance parity across all gameplay workloads.
 
 ## Measuring bridge changes
 
+### Reproducible benchmark suites
+
+Before every engine refactor, build the current engine and generate fresh baseline
+reports with all three suites below. Complete the baseline runs before editing
+engine behavior. After the refactor, rebuild and rerun the same suites, comparing
+against the saved baselines with the same environment and sample counts.
+Documentation-only changes do not require benchmark runs. This workflow is also
+recorded in [benchmarks/README.md](./benchmarks/README.md).
+
+Run the suites sequentially on an otherwise idle machine after building the
+engine. Keep the same Node/Chromium versions, power mode, sample counts and
+fixture/workload hashes when comparing changes. Do not run benchmarks alongside
+builds or tests: they share generated fixture artifacts. Performance measurements
+are opt-in and do not impose timing assertions on normal tests.
+
+```powershell
+# Run from the repository root. Default: 3 warmups, 15 measured samples.
+npm.cmd run benchmark --workspace packages/engine-wasm
+npm.cmd run benchmark:bridge --workspace packages/engine-wasm
+npm.cmd run benchmark:browser --workspace packages/engine-wasm
+
+# Save a baseline, rebuild after a change, then compare.
+node packages/engine-wasm/benchmarks/engine.ts --output packages/engine-wasm/benchmarks/reports/baseline.json
+node packages/engine-wasm/benchmarks/engine.ts --compare packages/engine-wasm/benchmarks/reports/baseline.json
+
+# Quick harness verification; insufficient samples for an optimization claim.
+node packages/engine-wasm/benchmarks/engine.ts --samples 3 --warmups 1
+```
+
+The engine suite freezes fixture seeding time, uses the seeded game world with
+1000 training events, and checks controller responses and scheduler state against
+the original API. Each scheduler sample starts with an independent fixture copy;
+initialization, reference execution and state inspection are outside its timer.
+It measures warm module creation/init/close, small controller responses, the
+1000-event response, detached snapshots, and scheduler batches of 1/100/1000 with
+and without notifications. It also records raw/gzip/Brotli module sizes. Startup
+does not measure a cold process or first module import/compilation.
+
+The bridge suite measures empty request dispatch with 0/1/64 KiB request payloads,
+prepare/step/reset/finalize, aggregate/join/sort SQL returning one scalar,
+numeric/ASCII/Unicode update/read pairs, row materialization through direct FFI
+and the shared facade, and 8 MiB snapshots. C and Hermes use the same SQLite
+object, SQL and database state; checksum and image checks are outside timing.
+C timings include the native bridge and dispatch, rather than an internal SQLite
+CPU timer. The probes use `-O2`; production uses the mixed optimization profile
+described above. Facade selection affects the row/write workloads only.
+
+The browser suite launches disposable headless Chromium and measures actual
+worker request/response messages, database-image transfers, OPFS open, and dirty
+save/close. Reopening validates persisted settings. Its fixture keeps the 1000
+training events but moves them to 2100 to prevent automatic background scheduling.
+It requires Playwright Chromium and available localhost port 4179. All OPFS data
+belongs to the disposable browser profile.
+
+Reports are timestamped JSON files in ignored `benchmarks/reports/`. They retain
+every sample, median, nearest-rank p90, range, operation counts and microseconds
+per operation, fixture/workload hashes, machine/runtime details and measured
+artifact hashes. Engine reports also identify the Git revision and dirty state.
+Comparisons report median percentage changes (negative is faster) and reject
+different suites, fixtures, workloads or operation counts. They do not establish
+statistical significance; repeat full runs before accepting small differences.
+Artifact hashes identify what ran; rebuild to establish source freshness.
+
+Bridge output/comparison paths use `BRIDGE_BENCHMARK_OUTPUT` and
+`BRIDGE_BENCHMARK_COMPARE`. Browser equivalents are `BROWSER_BENCHMARK_OUTPUT`
+and `BROWSER_BENCHMARK_COMPARE`; `BROWSER_BENCHMARK_SAMPLES` and
+`BROWSER_BENCHMARK_WARMUPS` adjust its run length. These paths resolve from the
+process working directory (npm workspace commands run in the package directory).
+Clear environment overrides after use. `BRIDGE_BENCHMARK_SKIP_BUILD=1` reuses
+compiled probes only if their workload fingerprint and Wasm hashes match the
+stored provenance. The default rebuilds probes and requires Docker.
+Set `BRIDGE_BENCHMARK_HISTORY=1` to additionally measure locally preserved
+historical FFI variants; the default compares C with the current bridge/facade.
+
 The optional Vitest benchmark compiles C and Hermes fixtures to real Wasm using
 the same SQLite object and prepared statements. It checks checksums and complete
 database images before reporting rotating paired timings. Numeric, ASCII and
@@ -168,13 +245,14 @@ speedup claims.
 
 ```powershell
 $env:BRIDGE_BENCHMARK = '1'
-npx.cmd vitest run --config packages/engine-wasm/vitest.config.ts --project scripts packages/engine-wasm/scripts/__tests__/bridge-performance.test.ts
+npx.cmd vitest run --config packages/engine-wasm/vitest.config.ts --project benchmarks packages/engine-wasm/benchmarks/__tests__/bridge.test.ts
 Remove-Item Env:BRIDGE_BENCHMARK
 ```
 
 Build the engine first to prepare the SQLite object. The benchmark creates its
-own database fixture. Artifacts and measurements stay in ignored
-`build/bridge-review`. Historical bridge comparisons run only when their original
+own database fixture. Compiled probes and compatibility output stay in ignored
+`build/bridge-review`; structured reports go to `benchmarks/reports`.
+Historical bridge comparisons run only when enabled and their original
 artifacts are available; source and Wasm hashes identify the measured versions.
 
 In this review, the module fell from approximately 20.3 MB to 9.4 MB raw
