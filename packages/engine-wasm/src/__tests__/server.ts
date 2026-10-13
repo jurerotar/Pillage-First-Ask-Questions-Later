@@ -26,7 +26,7 @@ const sqlPlugin: import('esbuild').Plugin = {
   },
 };
 await build({
-  entryPoints: [path.join(root, 'src/worker.ts')],
+  entryPoints: [path.join(root, 'src/__tests__/fixtures/browser-worker.ts')],
   outfile: path.join(output, 'worker.mjs'),
   bundle: true,
   format: 'esm',

@@ -9,8 +9,8 @@ import {
 import { createDbFacade } from '@pillage-first/utils/facades/database';
 import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 import { isSupportedDatabaseUserVersion } from '@pillage-first/utils/version';
-import createGameEngine from '../build/engine.mjs';
-import { createEngine, type EngineResponse, type WasmModule } from './client';
+import createGameEngine from '../../../build/engine.mjs';
+import { createEngine, type EngineResponse } from '../../client';
 
 let engine: Awaited<ReturnType<typeof createEngine>> | null = null;
 let pool: SAHPoolUtil | null = null;
@@ -185,10 +185,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         facade.close();
         raw.close();
       }
-      engine = await createEngine(
-        bytes,
-        () => createGameEngine() as Promise<WasmModule>,
-      );
+      engine = await createEngine(bytes, createGameEngine);
       dirty = true;
       revision++;
       schedule(

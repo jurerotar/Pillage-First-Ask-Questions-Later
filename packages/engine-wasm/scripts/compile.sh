@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
-cd /workspace/packages/engine-wasm/build/modular
+package_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$package_root/build/modular"
 if [ "${1:-}" = '--native-only' ]; then
   if [ ! -f engine-source.sha256 ] || ! sha256sum --check --status engine-source.sha256; then
     echo 'Engine bundle changed; run a full build before --native-only.' >&2
     exit 1
   fi
 fi
-source /workspace/packages/engine-wasm/scripts/cache.sh
-if [ ! -f sqlite3.c ] || [ ! -f sqlite3.h ] || ! grep -q '^#define SQLITE_VERSION *"3.53.4"' sqlite3.h; then
-  curl -fL https://sqlite.org/2026/sqlite-amalgamation-3530400.zip -o sqlite.zip
+source "$package_root/build/toolchain.env"
+source "$package_root/scripts/cache.sh"
+if [ ! -f sqlite3.c ] || [ ! -f sqlite3.h ] || ! grep -q "^#define SQLITE_VERSION *\"${sqlite_version//./\.}\"" sqlite3.h; then
+  curl -fL "$sqlite_url" -o sqlite.zip
+  printf '%s  sqlite.zip\n' "$sqlite_sha256" | sha256sum --check --status
   unzip -jo sqlite.zip '*/sqlite3.c' '*/sqlite3.h'
 fi
 hermes=/toolchain/hermes-clean
-runtime=/toolchain/wasm-6.0.12
+runtime="/toolchain/wasm-$emscripten_version"
 compiler=/toolchain/host-clean/bin/shermes
 common=(-O2 -sSUPPORT_LONGJMP=wasm -DNDEBUG -fno-strict-aliasing -fno-strict-overflow -I"$runtime/lib/config" -I"$hermes/include" -I../../native -I.)
 # Size-optimize generated API code; keep the hot VM, FFI and SQLite at O2.

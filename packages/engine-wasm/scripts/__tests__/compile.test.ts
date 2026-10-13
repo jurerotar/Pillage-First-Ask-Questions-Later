@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   chmod,
   mkdir,
@@ -11,6 +12,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from 'vitest';
+import { toolchainEnvironment } from '../toolchain';
 
 const bash =
   process.platform === 'win32' ? 'C:/Program Files/Git/bin/bash.exe' : 'bash';
@@ -20,7 +22,7 @@ test('production stage wiring reuses objects, invalidates inputs and rejects uns
   const workspace = (
     await mkdtemp(path.join(tmpdir(), 'pillage-compile-pipeline-'))
   ).replaceAll('\\', '/');
-  const packageRoot = `${workspace}/packages/engine-wasm`;
+  const packageRoot = `${workspace}/standalone-engine`;
   const output = `${packageRoot}/build/modular`;
   if (
     path.dirname(path.resolve(workspace)) !== path.resolve(tmpdir()) ||
@@ -40,7 +42,7 @@ test('production stage wiring reuses objects, invalidates inputs and rejects uns
 
   const compile = (nativeOnly = false, fail = '', debug = false) => {
     const result = spawnSync(bash, ['-euo', 'pipefail'], {
-      input: `export PATH='${bin}':"$PATH"\nbash '${workspace}/compile.sh' ${nativeOnly ? '--native-only' : ''} ${debug ? '--debug' : ''}`,
+      input: `export PATH='${bin}':"$PATH"\nbash '${packageRoot}/scripts/compile.sh' ${nativeOnly ? '--native-only' : ''} ${debug ? '--debug' : ''}`,
       env: { ...process.env, FAKE_FAIL_STAGE: fail },
       encoding: 'utf8',
       timeout: 10_000,
@@ -54,10 +56,15 @@ test('production stage wiring reuses objects, invalidates inputs and rejects uns
     // this exercises real production stage keys without touching shared builds.
     const source = await readFile(path.join(scripts, 'compile.sh'), 'utf8');
     await file(
-      `${workspace}/compile.sh`,
-      source
-        .replaceAll('/workspace/packages/engine-wasm', packageRoot)
-        .replaceAll('/toolchain', `${workspace}/toolchain`),
+      `${packageRoot}/scripts/compile.sh`,
+      source.replaceAll('/toolchain/', `${workspace}/toolchain/`),
+    );
+    await file(
+      `${packageRoot}/build/toolchain.env`,
+      toolchainEnvironment().replace(
+        /sqlite_sha256='[a-f0-9]+'/,
+        `sqlite_sha256='${createHash('sha256').update('download').digest('hex')}'`,
+      ),
     );
     await file(
       `${packageRoot}/scripts/cache.sh`,

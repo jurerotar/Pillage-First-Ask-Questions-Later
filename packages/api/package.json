@@ -12,6 +12,7 @@
     "directory": "packages/api"
   },
   "exports": {
+    "./runtime": "./src/runtime.ts",
     ".": {
       "default": "./src/worker/api-worker.ts"
     },

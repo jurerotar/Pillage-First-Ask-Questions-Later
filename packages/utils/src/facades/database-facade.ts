@@ -1,4 +1,4 @@
-import type { OpfsSAHPoolDatabase, SqlValue } from '@sqlite.org/sqlite-wasm';
+import type { BindableValue, SqlValue } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import type {
   ExecArgs,
@@ -6,15 +6,29 @@ import type {
   SelectArgs,
 } from './database-query-types';
 
-type PreparedStatement = ReturnType<OpfsSAHPoolDatabase['prepare']>;
+export type QueryBindings = BindableValue[] | Record<string, BindableValue>;
+
+export interface PreparedStatement {
+  reset(clear?: boolean): PreparedStatement;
+  bind(values: QueryBindings): PreparedStatement;
+  step(): boolean;
+  stepReset(): PreparedStatement;
+  get(column: number): SqlValue;
+  get(target: Record<string, SqlValue>): Record<string, SqlValue>;
+  finalize(): void;
+}
+
+export interface SqlDatabase {
+  prepare(sql: string): PreparedStatement;
+  exec(args: { sql: string; bind?: QueryBindings }): void;
+  transaction(callback: () => void): void;
+}
 
 const parseArray = <T extends z.core.$ZodType>(
   schema: T,
   values: unknown[],
 ): z.core.output<T>[] => {
-  return z
-    .array(schema as unknown as z.ZodType)
-    .parse(values) as z.core.output<T>[];
+  return z.array(schema).parse(values);
 };
 
 const createPreparedStatementCache = (): Map<string, PreparedStatement> => {
@@ -27,14 +41,14 @@ const clearBindingsAfterExecution = (
   const reset = statement.reset.bind(statement);
   const stepReset = statement.stepReset.bind(statement);
 
-  statement.reset = (() => reset(true)) as PreparedStatement['reset'];
-  statement.stepReset = (() => {
+  statement.reset = () => reset(true);
+  statement.stepReset = () => {
     try {
       return stepReset();
     } finally {
       reset(true);
     }
-  }) as PreparedStatement['stepReset'];
+  };
 
   return statement;
 };
@@ -63,9 +77,7 @@ export type DbFacade = {
     args: SelectArgs<T>,
   ) => z.core.output<T>[];
 
-  prepare: ({
-    sql,
-  }: Pick<ExecArgs, 'sql'>) => ReturnType<OpfsSAHPoolDatabase['prepare']>;
+  prepare: ({ sql }: Pick<ExecArgs, 'sql'>) => PreparedStatement;
   transaction: (callback: (db: DbFacade) => void) => void;
   serialize: () => Uint8Array;
   close: () => void;
@@ -78,7 +90,7 @@ type RunStatementArgs<Result> = {
 };
 
 export const createDbFacade = (
-  database: OpfsSAHPoolDatabase,
+  database: SqlDatabase,
   serialize = (): Uint8Array => {
     throw new Error('Database serialization is not available in this context.');
   },
@@ -212,7 +224,7 @@ export const createDbFacade = (
         sql,
         bind,
         execute: (statement) => {
-          const rows: ReturnType<OpfsSAHPoolDatabase['selectObjects']> = [];
+          const rows: Record<string, SqlValue>[] = [];
           while (statement.step()) {
             rows.push(statement.get({}));
           }

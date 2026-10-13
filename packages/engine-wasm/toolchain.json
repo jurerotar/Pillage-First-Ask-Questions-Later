@@ -1,0 +1,12 @@
+{
+  "emscripten": "6.0.12",
+  "hermes": {
+    "repository": "https://github.com/facebook/hermes.git",
+    "commit": "f93e7648a419729f1bdb04638218c563efc3f47d"
+  },
+  "sqlite": {
+    "version": "3.53.4",
+    "year": 2026,
+    "sha256": "1e71ddf93849c6a6ecf58b827c0692073d2dd7ee40196158068f7b29f422e87d"
+  }
+}

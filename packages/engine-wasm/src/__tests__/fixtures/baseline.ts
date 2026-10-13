@@ -1,7 +1,9 @@
 import 'zod/compile';
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
+import { env } from '@pillage-first/utils/env';
 import { createDbFacade } from '@pillage-first/utils/facades/database';
+import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 import { migrateAndSeed } from '../../../../db/src/migrations/migrate';
 import { serverMock } from '../../../../mocks/src/server-mock';
 
@@ -35,7 +37,7 @@ export const open = async (bytes?: Uint8Array) => {
       id: 'wasm-benchmark',
       slug: 'wasm-benchmark',
       createdAt: 1700000000000,
-      version: '0.4.73',
+      version: env.VERSION,
     });
     database.transaction((tx) => {
       tx.exec({ sql: 'DELETE FROM events' });
@@ -58,7 +60,9 @@ export const open = async (bytes?: Uint8Array) => {
         });
       }
     });
-    database.execMulti({ sql: 'PRAGMA user_version=4073;' });
+    database.execMulti({
+      sql: `PRAGMA user_version=${encodeAppVersionToDatabaseUserVersion(env.VERSION)};`,
+    });
   }
   database.execMulti({ sql: 'PRAGMA foreign_keys=ON;' });
   return {

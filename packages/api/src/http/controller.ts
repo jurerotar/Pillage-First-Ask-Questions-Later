@@ -118,9 +118,9 @@ export type ControllerArgs<
     : Record<string, unknown>;
   url: string;
   body: TBody extends undefined
-    ? RequestBodySchemaFor<TOperation> extends infer B extends z.core.$ZodType
-      ? z.core.output<B>
-      : Record<string, unknown>
+    ? [RequestBodySchemaFor<TOperation>] extends [never]
+      ? unknown
+      : z.core.output<RequestBodySchemaFor<TOperation>>
     : TBody;
 };
 

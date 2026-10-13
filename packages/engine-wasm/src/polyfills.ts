@@ -6,6 +6,7 @@ if (typeof console === 'undefined') {
     console: { error: () => {} },
   });
 }
+
 if (typeof URLSearchParams === 'undefined') {
   // Form decoding preserves malformed escapes and replaces invalid UTF-8,
   // unlike decodeURIComponent(), which throws. Hermes has no TextDecoder.

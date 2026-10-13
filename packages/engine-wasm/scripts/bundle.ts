@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { transformSync } from '@babel/core';
@@ -8,15 +8,6 @@ import { build as treeShake } from 'rolldown';
 import { ffiPrelude } from './ffi.ts';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const { version } = JSON.parse(
-  await readFile(new URL('../../../package.json', import.meta.url), 'utf8'),
-) as { version: string };
-const environment = JSON.stringify({
-  VERSION: version,
-  DEV: false,
-  PROD: true,
-  MODE: 'wasm',
-});
 
 // The pinned Hermes compiler needs lexical captures lowered to function scopes.
 // Keep probe builds on the same compiler pass as the production engine.
@@ -27,7 +18,7 @@ export const lowerForHermes = (source: string): string => {
     compact: false,
     plugins: [blockScoping],
   });
-  if (!lowered?.code) {
+  if (lowered === null || !lowered.code) {
     throw new Error('Babel did not produce the engine bundle');
   }
   return lowered.code;
@@ -43,11 +34,11 @@ export const bundleForHermes = async (
     input: entryPoint,
     write: false,
     platform: 'neutral',
+    resolve: { mainFields: ['module', 'main'] },
     transform: { target: 'esnext', define },
     output: {
       format: 'cjs',
       preserveModules: true,
-      preserveModulesRoot: path.join(root, '../..'),
       entryFileNames: '[name].cjs',
       chunkFileNames: '[name].cjs',
     },
@@ -103,9 +94,7 @@ export const bundleForHermes = async (
 export const bundle = async (): Promise<void> => {
   const output = path.join(root, 'build/modular');
   await mkdir(output, { recursive: true });
-  const engine = await bundleForHermes(path.join(root, 'src/compiled.ts'), {
-    'import.meta.env': environment,
-  });
+  const engine = await bundleForHermes(path.join(root, 'src/compiled.ts'));
   await writeFile(path.join(output, 'engine.js'), engine);
   await writeFile(
     path.join(output, 'native.js'),

@@ -1,5 +1,10 @@
-import type { OpfsSAHPoolDatabase } from '@sqlite.org/sqlite-wasm';
-import { createDbFacade } from '@pillage-first/utils/facades/database';
+import type { SqlValue } from '@sqlite.org/sqlite-wasm';
+import {
+  createDbFacade,
+  type PreparedStatement,
+  type QueryBindings,
+  type SqlDatabase,
+} from '@pillage-first/utils/facades/database';
 import { notificationCheckpoint, rollbackNotifications } from './notifications';
 
 const check = (code: number): void => {
@@ -10,14 +15,14 @@ const check = (code: number): void => {
 
 export const openDatabase = (path: string) => {
   check(engineNative.open(path));
-  const raw = {
+  const raw: SqlDatabase = {
     prepare(sql: string) {
       let id = engineNative.prepare(sql);
       if (!id) {
         throw new Error(engineNative.error());
       }
       // Statement metadata belongs to the adapter; the shared facade is unchanged.
-      const parameterIndexes = Object.create(null) as Record<string, number>;
+      const parameterIndexes = new Map<string, number>();
       const columnNames: string[] = [];
       let clean = true;
       const bindValue = (index: number, value: unknown) => {
@@ -34,7 +39,7 @@ export const openDatabase = (path: string) => {
           throw new Error(`Unsupported SQL value for parameter ${index}`);
         }
       };
-      const value = (col: number) => {
+      const value = (col: number): SqlValue => {
         switch (engineNative.columnType(id, col)) {
           case 1:
           case 2:
@@ -47,7 +52,23 @@ export const openDatabase = (path: string) => {
             return null;
         }
       };
-      const statement = {
+      function readColumn(column: number): SqlValue;
+      function readColumn(
+        target: Record<string, SqlValue>,
+      ): Record<string, SqlValue>;
+      function readColumn(target: number | Record<string, SqlValue>) {
+        if (typeof target === 'number') {
+          return value(target);
+        }
+        const columnCount = engineNative.columns(id);
+        for (let col = 0; col < columnCount; col++) {
+          const name = columnNames[col] ?? engineNative.columnName(id, col);
+          columnNames[col] = name;
+          target[name] = value(col);
+        }
+        return target;
+      }
+      const statement: PreparedStatement = {
         reset(clear = false) {
           if (clear && clean) {
             return statement;
@@ -56,18 +77,23 @@ export const openDatabase = (path: string) => {
           clean = clear;
           return statement;
         },
-        bind(values: unknown[] | Record<string, unknown>) {
-          const array = Array.isArray(values);
+        bind(values: QueryBindings) {
+          if (Array.isArray(values)) {
+            for (const key of Object.keys(values)) {
+              const position = Number(key);
+              bindValue(position + 1, values[position]);
+            }
+            return statement;
+          }
           for (const key of Object.keys(values)) {
-            const value = (values as Record<string, unknown>)[key];
-            const index = array
-              ? Number(key) + 1
-              : (parameterIndexes[key] ??
-                (() => {
-                  const index = engineNative.parameter(id, key);
-                  parameterIndexes[key] = index;
-                  return index;
-                })());
+            const value = values[key];
+            const index =
+              parameterIndexes.get(key) ??
+              (() => {
+                const index = engineNative.parameter(id, key);
+                parameterIndexes.set(key, index);
+                return index;
+              })();
             if (!index) {
               throw new Error(`Unknown SQL parameter ${key}`);
             }
@@ -92,18 +118,7 @@ export const openDatabase = (path: string) => {
           statement.reset();
           return statement;
         },
-        get(target: number | Record<string, unknown>) {
-          if (typeof target === 'number') {
-            return value(target);
-          }
-          const columnCount = engineNative.columns(id);
-          for (let col = 0; col < columnCount; col++) {
-            const name = columnNames[col] ?? engineNative.columnName(id, col);
-            columnNames[col] = name;
-            target[name] = value(col);
-          }
-          return target;
-        },
+        get: readColumn,
         finalize() {
           const result = engineNative.finalize(id);
           // Finalize frees the handle even when it reports a prior step error.
@@ -115,7 +130,7 @@ export const openDatabase = (path: string) => {
       };
       return statement;
     },
-    exec({ sql, bind }: { sql: string; bind?: Record<string, unknown> }) {
+    exec({ sql, bind }) {
       if (bind) {
         const statement = raw.prepare(sql);
         try {
@@ -141,5 +156,5 @@ export const openDatabase = (path: string) => {
     },
   };
   check(engineNative.exec('PRAGMA foreign_keys=ON;'));
-  return createDbFacade(raw as unknown as OpfsSAHPoolDatabase);
+  return createDbFacade(raw);
 };

@@ -2,19 +2,19 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 // Use node directly so this entry point works with npm on Windows and Unix.
-const root = fileURLToPath(new URL('../../../', import.meta.url));
+const root = fileURLToPath(new URL('../', import.meta.url));
 const child = spawn(
   process.execPath,
   [
     fileURLToPath(
-      new URL('../../../node_modules/vitest/vitest.mjs', import.meta.url),
+      new URL('vitest.mjs', import.meta.resolve('vitest/package.json')),
     ),
     'run',
     '--config',
-    'packages/engine-wasm/vitest.config.ts',
+    fileURLToPath(new URL('../vitest.config.ts', import.meta.url)),
     '--project',
     'benchmarks',
-    'packages/engine-wasm/benchmarks/__tests__/bridge.test.ts',
+    fileURLToPath(new URL('./__tests__/bridge.test.ts', import.meta.url)),
   ],
   {
     cwd: root,

@@ -37,6 +37,8 @@ let fixture: Uint8Array;
 try {
   // Keep the 1000-event response, but prevent automatic scheduling during reads.
   seed.raw.exec('UPDATE events SET starts_at=4102444800000');
+  // Write triggers use SQLite's clock, independently of the frozen JS seed time.
+  seed.raw.exec('UPDATE meta SET last_write=1700000000');
   fixture = seed.database.serialize();
 } finally {
   seed.close();
@@ -221,6 +223,7 @@ try {
       userAgent: measured.userAgent,
       samples,
       warmups,
+      profile: process.env.BENCHMARK_PROFILE ?? 'full',
       fixtureSha256: hash(fixture),
       workloadSha256: hash(await readFile(fileURLToPath(import.meta.url))),
       artifactHashes,

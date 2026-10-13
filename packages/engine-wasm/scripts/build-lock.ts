@@ -12,7 +12,7 @@ export const withBuildLock = async (
   try {
     await mkdir(lock);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+    if (error instanceof Error && 'code' in error && error.code === 'EEXIST') {
       throw new Error(
         `Another engine build holds ${lock}. If it was interrupted, remove this empty directory before retrying.`,
       );

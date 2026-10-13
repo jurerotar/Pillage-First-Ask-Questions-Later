@@ -15,7 +15,7 @@ test.each([
 ])('portable query parsing matches the host for %s', async (query) => {
   vi.resetModules();
   vi.stubGlobal('URLSearchParams', undefined);
-  await import('../runtime-globals');
+  await import('../polyfills');
   expect([...new URLSearchParams(query)]).toEqual([
     ...new NativeSearchParams(query),
   ]);
@@ -25,7 +25,7 @@ test('existing host globals are preserved', async () => {
   vi.resetModules();
   const logger = { error: vi.fn() };
   vi.stubGlobal('console', logger);
-  await import('../runtime-globals');
+  await import('../polyfills');
   expect(console).toBe(logger);
   expect(URLSearchParams).toBe(NativeSearchParams);
 });
@@ -33,6 +33,6 @@ test('existing host globals are preserved', async () => {
 test('a missing logger gets the error method needed by resolvers', async () => {
   vi.resetModules();
   vi.stubGlobal('console', undefined);
-  await import('../runtime-globals');
+  await import('../polyfills');
   expect(() => console.error('resolver failure')).not.toThrow();
 });

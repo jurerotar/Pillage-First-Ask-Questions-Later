@@ -106,6 +106,9 @@ describe('client native boundary', () => {
     [0, 3],
     [2, 0],
     [5, 3],
+    [Number.NaN, 3],
+    [2, Number.POSITIVE_INFINITY],
+    [1.5, 3],
   ])('rejects invalid snapshot pointer/length %j', async (pointer, length) => {
     const engine = await load();
     ccall.mockReturnValueOnce(pointer).mockReturnValueOnce(length);

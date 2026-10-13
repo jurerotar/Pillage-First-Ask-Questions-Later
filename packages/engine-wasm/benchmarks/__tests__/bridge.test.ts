@@ -1,14 +1,22 @@
-import { spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import { build } from 'esbuild';
 import { expect, test } from 'vitest';
+import { z } from 'zod';
 import { lowerForHermes } from '../../scripts/bundle';
 import { ffiPrelude } from '../../scripts/ffi';
+import {
+  dockerImage,
+  dockerMounts,
+  packageRoot,
+  prepareToolchain,
+  toolchain,
+} from '../../scripts/toolchain';
 import {
   createEngine,
   type EngineResponse,
@@ -22,9 +30,14 @@ import {
   summarize,
 } from '../report';
 
-const packageRoot = fileURLToPath(new URL('../../', import.meta.url));
-const repositoryRoot = path.resolve(packageRoot, '../..');
 const output = path.join(packageRoot, 'build/bridge-review');
+const profile = process.env.BENCHMARK_PROFILE === 'quick' ? 'quick' : 'full';
+const sampleCount = profile === 'quick' ? 3 : 15;
+const warmups = profile === 'quick' ? 1 : 3;
+const compileMetadata = z.object({
+  inputSha256: z.string(),
+  artifactHashes: z.record(z.string(), z.string()),
+});
 const median = (values: number[]) =>
   [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
 const hash = (value: string | Uint8Array) =>
@@ -33,30 +46,16 @@ const workloadHash = async () =>
   hash(
     (
       await Promise.all(
-        [
-          'benchmarks/fixtures/bridge.ts',
-          'benchmarks/fixtures/bridge.c',
-          'benchmarks/__tests__/bridge.test.ts',
-          'benchmarks/compile-bridge.sh',
-        ].map((file) => readFile(path.join(packageRoot, file))),
+        ['benchmarks/fixtures/bridge.ts', 'benchmarks/fixtures/bridge.c'].map(
+          (file) => readFile(path.join(packageRoot, file)),
+        ),
       )
     )
       .map((bytes) => hash(bytes))
       .join('\n'),
   );
-const optionalBaseline = async () =>
-  process.env.BRIDGE_BENCHMARK_HISTORY === '1'
-    ? readFile(path.join(output, 'ffi-baseline.ts.in'), 'utf8').catch(
-        (error: NodeJS.ErrnoException) => {
-          if (error.code !== 'ENOENT') {
-            throw error;
-          }
-          return null;
-        },
-      )
-    : null;
-
 const compile = async () => {
+  await prepareToolchain();
   await mkdir(output, { recursive: true });
   const bundle = await build({
     entryPoints: [path.join(packageRoot, 'benchmarks/fixtures/bridge.ts')],
@@ -64,7 +63,7 @@ const compile = async () => {
     bundle: true,
     format: 'iife',
     platform: 'neutral',
-    target: 'es2020',
+    target: 'esnext',
   });
   await writeFile(
     path.join(output, 'engine.js'),
@@ -75,19 +74,7 @@ const compile = async () => {
     path.join(packageRoot, 'native/ffi.ts.in'),
     'utf8',
   );
-  const marker = '// @native-declarations';
   const native = ffiPrelude();
-  const declarations = native.slice(
-    current.indexOf(marker),
-    native.length - (current.length - current.indexOf(marker) - marker.length),
-  );
-  const baseline = await optionalBaseline();
-  if (baseline) {
-    await writeFile(
-      path.join(output, 'native-baseline.js'),
-      `${baseline.replace(marker, `${declarations}\nconst _s_bind_text=$SHBuiltin.extern_c({include:"sqlite-bridge.h"},function s_bind_text(id:c_int,index:c_int,value:c_ptr,length:c_int):c_int{throw 0;});`)}\nglobalThis.engineNative=engineNative;`,
-    );
-  }
   await writeFile(
     path.join(output, 'native-current.js'),
     `${native}\nglobalThis.engineNative=engineNative;`,
@@ -105,30 +92,12 @@ const compile = async () => {
     );
   }
   const bridge = await readFile(path.join(output, 'sqlite-bridge.c'), 'utf8');
-  const previous =
-    process.env.BRIDGE_BENCHMARK_HISTORY === '1'
-      ? await readFile(path.join(output, 'native-previous.js'), 'utf8').catch(
-          (error: NodeJS.ErrnoException) => {
-            if (error.code !== 'ENOENT') {
-              throw error;
-            }
-            return null;
-          },
-        )
-      : null;
   const sourceMetadata = {
     workloadSha256: await workloadHash(),
-    emscripten: '6.0.12',
+    emscripten: toolchain.emscripten,
+    hermesCommit: toolchain.hermes.commit,
     optimization: '-O2',
-    baselineSource: baseline
-      ? 'build/bridge-review/ffi-baseline.ts.in (locally preserved, untracked)'
-      : null,
-    baselineSha256: baseline ? hash(baseline) : null,
     currentSha256: hash(current),
-    previousSource: previous
-      ? 'build/bridge-review/native-previous.js (locally preserved generated FFI before host binding)'
-      : null,
-    previousSha256: previous ? hash(previous) : null,
     nativeBridgeSha256: hash(bridge),
   };
   await copyFile(
@@ -143,21 +112,79 @@ const compile = async () => {
     path.join(packageRoot, 'build/modular/sqlite3.h'),
     path.join(output, 'sqlite3.h'),
   );
+  const inputs = [
+    'engine.js',
+    'pump.js',
+    'native-current.js',
+    'runtime.c',
+    'serial-executor.cpp',
+    'sqlite-bridge.c',
+    'sqlite-bridge.h',
+    'text-bindings.cpp',
+    'c-engine.c',
+    'sqlite3.o',
+    'sqlite3.h',
+  ];
+  const { stdout: compilerIdentity } = await promisify(execFile)('docker', [
+    'run',
+    '--rm',
+    ...dockerMounts,
+    dockerImage,
+    'bash',
+    '/package/benchmarks/compile-bridge.sh',
+    '--identity',
+  ]);
+  const inputSha256 = hash(
+    JSON.stringify({
+      toolchain,
+      compilerIdentity,
+      sources: await Promise.all(
+        inputs.map(async (file) =>
+          hash(await readFile(path.join(output, file))),
+        ),
+      ),
+      script: hash(
+        await readFile(path.join(packageRoot, 'benchmarks/compile-bridge.sh')),
+      ),
+    }),
+  );
+  try {
+    const cached = compileMetadata.parse(
+      JSON.parse(
+        await readFile(path.join(output, 'compile-metadata.json'), 'utf8'),
+      ),
+    );
+    const artifacts = ['c.wasm', 'c.mjs', 'current.wasm', 'current.mjs'];
+    if (
+      cached.inputSha256 === inputSha256 &&
+      (
+        await Promise.all(
+          artifacts.map(
+            async (file) =>
+              hash(await readFile(path.join(output, file))) ===
+              cached.artifactHashes[file],
+          ),
+        )
+      ).every(Boolean)
+    ) {
+      process.stdout.write(
+        'Cached bridge probes (inputs and artifacts verified)\n',
+      );
+      return;
+    }
+  } catch {
+    // Missing, damaged or older cache entries require compilation.
+  }
   await new Promise<void>((resolve, reject) => {
     const child = spawn(
       'docker',
       [
         'run',
         '--rm',
-        '-e',
-        `BRIDGE_BENCHMARK_HISTORY=${process.env.BRIDGE_BENCHMARK_HISTORY ?? '0'}`,
-        '--mount',
-        'type=volume,source=pillage-wasm-toolchain,target=/toolchain',
-        '--mount',
-        `type=bind,source=${repositoryRoot},target=/workspace`,
-        'emscripten/emsdk:6.0.12',
+        ...dockerMounts,
+        dockerImage,
         'bash',
-        '/workspace/packages/engine-wasm/benchmarks/compile-bridge.sh',
+        '/package/benchmarks/compile-bridge.sh',
       ],
       { stdio: 'inherit' },
     );
@@ -168,17 +195,12 @@ const compile = async () => {
         : reject(new Error(`Review compilation exited ${code}`)),
     );
   });
-  const compiledVariants = [
-    'c',
-    'current',
-    ...(baseline ? ['baseline'] : []),
-    ...(previous ? ['previous'] : []),
-  ];
+  const compiledArtifacts = ['c.wasm', 'c.mjs', 'current.wasm', 'current.mjs'];
   const artifactHashes = Object.fromEntries(
     await Promise.all(
-      compiledVariants.map(async (variant) => [
-        variant,
-        hash(await readFile(path.join(output, `${variant}.wasm`))),
+      compiledArtifacts.map(async (file) => [
+        file,
+        hash(await readFile(path.join(output, file))),
       ]),
     ),
   );
@@ -187,6 +209,7 @@ const compile = async () => {
     JSON.stringify(
       {
         ...sourceMetadata,
+        inputSha256,
         compiledAt: new Date().toISOString(),
         artifactHashes,
         sqliteObjectSha256: hash(
@@ -203,13 +226,11 @@ const compile = async () => {
 };
 
 // Opt in to avoid slowing normal tests. Objects and reports stay separate from
-// production builds; preserve an old ffi-baseline.ts.in to compare FFI changes.
+// production builds; compare saved reports when changing the bridge.
 test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
   'paired C and Hermes bridge performance with identical prepared SQL/state',
   async () => {
-    if (process.env.BRIDGE_BENCHMARK_SKIP_BUILD !== '1') {
-      await compile();
-    }
+    await compile();
     const sqlite = await sqlite3InitModule();
     const raw = new sqlite.oo1.DB(':memory:');
     let fixture: Uint8Array;
@@ -219,25 +240,23 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
     } finally {
       raw.close();
     }
-    const provenance = JSON.parse(
-      await readFile(path.join(output, 'compile-metadata.json'), 'utf8'),
-    );
+    const provenance = compileMetadata
+      .passthrough()
+      .parse(
+        JSON.parse(
+          await readFile(path.join(output, 'compile-metadata.json'), 'utf8'),
+        ),
+      );
     expect(
       provenance.workloadSha256,
-      'Cached probes are stale; rebuild without BRIDGE_BENCHMARK_SKIP_BUILD',
+      'Probe workload fingerprint differs from the compiled artifacts',
     ).toBe(await workloadHash());
-    for (const [variant, expectedHash] of Object.entries(
-      provenance.artifactHashes as Record<string, string>,
+    for (const [file, expectedHash] of Object.entries(
+      provenance.artifactHashes,
     )) {
-      expect(hash(await readFile(path.join(output, `${variant}.wasm`)))).toBe(
-        expectedHash,
-      );
+      expect(hash(await readFile(path.join(output, file)))).toBe(expectedHash);
     }
-    const artifacts = [
-      ...(provenance.baselineSha256 ? ['baseline'] : []),
-      ...(provenance.previousSha256 ? ['previous'] : []),
-      'current',
-    ];
+    const artifacts = ['current'];
     const variants = [
       'c',
       ...artifacts.map((artifact) => `${artifact}-ffi`),
@@ -280,15 +299,15 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
         'unicode',
         'rows-unicode',
       ]) {
-        const samples = variants.map(() => [] as number[]);
-        const checksums = variants.map(() => [] as unknown[]);
+        const samples: number[][] = variants.map(() => []);
+        const checksums: unknown[][] = variants.map(() => []);
         const envelope = kind.startsWith('envelope-');
         const rounds = kind === 'prepare' ? 1000 : 5;
         const repeats = kind === 'envelope-65536' ? 10 : envelope ? 1000 : 1;
         process.stdout.write(`Measuring bridge workload: ${kind}\n`);
-        for (let sample = -3; sample < 15; sample++) {
+        for (let sample = -warmups; sample < sampleCount; sample++) {
           for (let offset = 0; offset < variants.length; offset++) {
-            const index = (offset + sample + 3) % variants.length;
+            const index = (offset + sample + warmups) % variants.length;
             const request = {
               kind: envelope ? 'envelope' : kind,
               rounds,
@@ -360,10 +379,10 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
             Buffer.from(snapshotEngines[1].snapshot()),
           ),
         ).toBe(true);
-        const samples = [[], []] as number[][];
-        for (let sample = -3; sample < 15; sample++) {
+        const samples: number[][] = [[], []];
+        for (let sample = -warmups; sample < sampleCount; sample++) {
           for (let offset = 0; offset < 2; offset++) {
-            const index = (offset + sample + 3) % 2;
+            const index = (offset + sample + warmups) % 2;
             const start = performance.now();
             for (let repeat = 0; repeat < 10; repeat++) {
               snapshotEngines[index].snapshot();
@@ -378,7 +397,7 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
             variant,
             {
               medianMs: median(samples[index]),
-              p90Ms: [...samples[index]].sort((a, b) => a - b)[13],
+              p90Ms: summarize(samples[index], 10).p90Ms,
               samplesMs: samples[index],
             },
           ]),
@@ -400,8 +419,9 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
           host: hostMetadata(),
           measuredAt: new Date().toISOString(),
           fixtureSha256: hash(fixture),
-          samples: 15,
-          warmups: 3,
+          profile,
+          samples: sampleCount,
+          warmups,
           notes: [
             'Synthetic Node bridge probes built at -O2; production engine uses a mixed optimization profile.',
             'C includes native bridge/SQLite work; Hermes adds FFI and JS, facade variants add schemas/object creation.',
@@ -456,8 +476,9 @@ test.skipIf(process.env.BRIDGE_BENCHMARK !== '1')(
             ...provenance,
             measuredAt: new Date().toISOString(),
             fixtureSha256: hash(fixture),
-            samples: 15,
-            warmups: 3,
+            profile,
+            samples: sampleCount,
+            warmups,
             rounds: 5,
             rowsPerRound: 1000,
             operationCounts: {

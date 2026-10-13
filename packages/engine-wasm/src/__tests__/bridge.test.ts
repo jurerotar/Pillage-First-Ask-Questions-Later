@@ -1,21 +1,23 @@
 import { spawn } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { expect, test } from 'vitest';
 import { createEngine } from '../../build/client.mjs';
 import { bundleForHermes } from '../../scripts/bundle';
+import {
+  dockerImage,
+  dockerMounts,
+  packageRoot,
+  prepareToolchain,
+} from '../../scripts/toolchain';
 
 test('SQLite adapter and Hermes captures work in compiled Wasm', async () => {
-  const root = fileURLToPath(new URL('../../../../', import.meta.url));
+  await prepareToolchain();
   const bundle = await bundleForHermes(
-    path.join(
-      root,
-      'packages/engine-wasm/src/__tests__/fixtures/bridge-probe.ts',
-    ),
+    path.join(packageRoot, 'src/__tests__/fixtures/bridge-probe.ts'),
   );
   await writeFile(
-    path.join(root, 'packages/engine-wasm/build/modular/bridge-probe.js'),
+    path.join(packageRoot, 'build/modular/bridge-probe.js'),
     bundle,
   );
   await new Promise<void>((resolve, reject) => {
@@ -24,15 +26,12 @@ test('SQLite adapter and Hermes captures work in compiled Wasm', async () => {
       [
         'run',
         '--rm',
-        '--mount',
-        'type=volume,source=pillage-wasm-toolchain,target=/toolchain',
-        '--mount',
-        `type=bind,source=${root},target=/workspace`,
-        'emscripten/emsdk:6.0.12',
+        ...dockerMounts,
+        dockerImage,
         'bash',
-        '/workspace/packages/engine-wasm/scripts/__tests__/compile-bridge-probe.sh',
+        '/package/scripts/__tests__/compile-bridge-probe.sh',
       ],
-      { cwd: root, stdio: 'inherit' },
+      { cwd: packageRoot, stdio: 'inherit' },
     );
     child.on('error', reject);
     child.on('exit', (code) =>

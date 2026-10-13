@@ -1,7 +1,7 @@
 import {
   setNotificationPort,
   setShouldPostNotifications,
-} from '../../api/src/worker/notification-port';
+} from '@pillage-first/api/runtime';
 
 // Connect the API's existing notification port to the Wasm response envelope.
 // Transaction rollback discards notifications emitted by failed events.
@@ -11,7 +11,7 @@ setNotificationPort({
   postMessage(message: unknown) {
     pending.push(message);
   },
-} as MessagePort);
+});
 
 export const setCaptureNotifications = (value: boolean) =>
   setShouldPostNotifications(value);

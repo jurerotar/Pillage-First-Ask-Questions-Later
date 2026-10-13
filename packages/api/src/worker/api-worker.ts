@@ -103,7 +103,7 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
         const result = controller(database, {
           path,
           query,
-          body: parsedBody as never,
+          body: parsedBody,
           url: rawUrl,
         });
 

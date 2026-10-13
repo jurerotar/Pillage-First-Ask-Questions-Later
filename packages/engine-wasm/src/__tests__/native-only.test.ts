@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { expect, test } from 'vitest';
+import { dockerImage } from '../../scripts/toolchain';
 
 test.each(['missing', 'stale'])(
   'native-only refuses a %s engine hash before compilation',
@@ -19,8 +20,9 @@ test.each(['missing', 'stale'])(
       throw new Error('Unexpected test workspace');
     }
     try {
-      const output = path.join(workspace, 'packages/engine-wasm/build/modular');
+      const output = path.join(workspace, 'build/modular');
       await mkdir(output, { recursive: true });
+      await mkdir(path.join(workspace, 'scripts'));
       await writeFile(path.join(output, 'engine.js'), 'changed engine');
       if (hash === 'stale') {
         await writeFile(
@@ -29,7 +31,7 @@ test.each(['missing', 'stale'])(
         );
       }
       await writeFile(
-        path.join(workspace, 'compile.sh'),
+        path.join(workspace, 'scripts/compile.sh'),
         await readFile(new URL('../../scripts/compile.sh', import.meta.url)),
       );
       const result = spawnSync(
@@ -40,9 +42,9 @@ test.each(['missing', 'stale'])(
           '--network=none',
           '--mount',
           `type=bind,source=${workspace},target=/workspace`,
-          'emscripten/emsdk:6.0.12',
+          dockerImage,
           'bash',
-          '/workspace/compile.sh',
+          '/workspace/scripts/compile.sh',
           '--native-only',
         ],
         { encoding: 'utf8', timeout: 30_000 },

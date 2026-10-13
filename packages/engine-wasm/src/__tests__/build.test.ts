@@ -14,7 +14,7 @@ test('build integration', async () => {
     'engine_snapshot',
     'engine_snapshot_size',
   ]) {
-    assert.equal(typeof module[`_${name}`], 'function');
+    assert.equal(typeof Reflect.get(module, `_${name}`), 'function');
   }
   const bytes = new Uint8Array(
     await readFile(new URL('../../build/fixture.sqlite3', import.meta.url)),

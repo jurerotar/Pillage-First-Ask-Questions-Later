@@ -68,6 +68,11 @@ export const compareReports = (
       'Cannot compare different benchmark suites or report schemas',
     );
   }
+  if (
+    (before.metadata.profile ?? 'full') !== (after.metadata.profile ?? 'full')
+  ) {
+    throw new Error('Cannot compare different benchmark profiles');
+  }
   for (const key of ['fixtureSha256', 'workloadSha256']) {
     if (before.metadata[key] !== after.metadata[key]) {
       throw new Error(`Cannot compare changed ${key}; create a new baseline`);

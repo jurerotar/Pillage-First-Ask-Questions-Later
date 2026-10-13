@@ -1,7 +1,9 @@
-let notificationPort: MessagePort | null = null;
+export type NotificationPort = Pick<MessagePort, 'start' | 'postMessage'>;
+
+let notificationPort: NotificationPort | null = null;
 let shouldPostNotifications = false;
 
-export const setNotificationPort = (port: MessagePort): void => {
+export const setNotificationPort = (port: NotificationPort): void => {
   notificationPort = port;
   notificationPort.start();
 };

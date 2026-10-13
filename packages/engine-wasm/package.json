@@ -4,11 +4,23 @@
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "exports": {
-    ".": "./src/worker.ts",
-    "./client": "./src/client.ts"
+    ".": {
+      "types": "./src/client.ts",
+      "default": "./build/client.mjs"
+    },
+    "./client": {
+      "types": "./src/client.ts",
+      "default": "./build/client.mjs"
+    },
+    "./engine": {
+      "types": "./src/engine.d.ts",
+      "default": "./build/engine.mjs"
+    }
   },
   "scripts": {
     "benchmark": "node benchmarks/engine.ts",
+    "benchmark:all": "node benchmarks/run.ts",
+    "benchmark:quick": "node benchmarks/run.ts --quick",
     "benchmark:bridge": "node benchmarks/bridge.ts",
     "benchmark:browser": "node benchmarks/browser.ts",
     "test:benchmarks": "vitest run --project benchmarks",
@@ -24,14 +36,14 @@
   },
   "dependencies": {
     "@pillage-first/api": "*",
-    "@pillage-first/db": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "3.53.4-build2",
     "zod": "4.6.5"
   },
   "devDependencies": {
     "@babel/core": "8.0.7",
     "@babel/plugin-transform-block-scoping": "8.0.7",
+    "@pillage-first/db": "*",
+    "@sqlite.org/sqlite-wasm": "3.53.4-build2",
     "@types/node": "25.9.1",
     "esbuild": "0.28.2",
     "rolldown": "1.1.5",

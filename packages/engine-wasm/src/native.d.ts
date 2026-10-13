@@ -25,4 +25,5 @@ export interface EngineNative {
 
 declare global {
   const engineNative: EngineNative;
+  var enginePump: () => void;
 }

@@ -107,7 +107,7 @@ beforeEach(async () => {
   mocks.createEngine.mockResolvedValue(mocks.engine);
   mocks.engine.dispatch.mockReturnValue(result);
   mocks.engine.snapshot.mockReturnValue(image);
-  await import('../worker');
+  await import('./fixtures/browser-worker');
 });
 
 afterEach(() => {

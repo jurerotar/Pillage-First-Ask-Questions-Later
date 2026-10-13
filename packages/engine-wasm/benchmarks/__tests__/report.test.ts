@@ -44,4 +44,10 @@ test('comparisons allow artifact changes but reject fixture/workload or operatio
   expect(() =>
     compareReports(before, { ...after, results: { query: summarize([1], 2) } }),
   ).toThrow();
+  expect(() =>
+    compareReports(before, {
+      ...after,
+      metadata: { ...after.metadata, profile: 'quick' },
+    }),
+  ).toThrow('different benchmark profiles');
 });

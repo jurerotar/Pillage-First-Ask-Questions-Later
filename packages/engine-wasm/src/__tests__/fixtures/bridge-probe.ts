@@ -1,4 +1,4 @@
-import '../../runtime-globals';
+import '../../polyfills';
 import { z } from 'zod';
 import { openDatabase } from '../../sqlite';
 
@@ -13,7 +13,7 @@ const assert = (condition: unknown, message: string) => {
 
 // An independent test entry point, compiled with the real adapter and FFI.
 // It does not expose a SQL execution endpoint in the prototype worker.
-(globalThis as unknown as { enginePump: () => void }).enginePump = () => {
+globalThis.enginePump = () => {
   try {
     let checks = 0;
     const captured: (() => number)[] = [];

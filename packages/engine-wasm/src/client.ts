@@ -1,4 +1,11 @@
-import type { EngineRequest } from './core';
+import {
+  databasePath,
+  type EngineRequest,
+  type EngineResponse,
+  parseResponse,
+} from './protocol';
+
+export type { EngineRequest, EngineResponse } from './protocol';
 
 export type WasmModule = {
   FS: {
@@ -26,37 +33,30 @@ export type WasmModule = {
     values: unknown[],
   ): unknown;
 };
-export type EngineResponse = {
-  data?: unknown;
-  error?: string;
-  stack?: string;
-  notifications: unknown[];
-  nextDeadline: number | null;
+export type WasmModuleOptions = {
+  locateFile?: (file: string, prefix: string) => string;
+  wasmBinary?: Uint8Array;
+  print?: (message: string) => void;
+  printErr?: (message: string) => void;
 };
+export type WasmFactory = (options?: WasmModuleOptions) => Promise<WasmModule>;
 
-export const createEngine = async (
-  bytes: Uint8Array,
-  factory: () => Promise<WasmModule>,
-) => {
+export const createEngine = async (bytes: Uint8Array, factory: WasmFactory) => {
   const module = await factory();
   try {
-    module.FS.writeFile('/world.sqlite3', bytes);
+    module.FS.writeFile(databasePath, bytes);
     if (!module.ccall('engine_initialize', 'number', [], [])) {
       throw new Error('Compiled game engine initialization failed');
     }
     // SQLite owns its deserialized image; release the temporary MEMFS copy.
-    module.FS.unlink('/world.sqlite3');
+    module.FS.unlink(databasePath);
   } catch (error) {
     module.ccall('engine_close', null, [], []);
     throw error;
   }
   let closed = false;
   return {
-    dispatch(
-      request: EngineRequest & {
-        notifications?: boolean;
-      },
-    ): EngineResponse {
+    dispatch(request: EngineRequest): EngineResponse {
       if (closed) {
         throw new Error('Game engine is closed');
       }
@@ -69,29 +69,17 @@ export const createEngine = async (
       if (!output) {
         throw new Error('Compiled game engine trapped while dispatching');
       }
-      const result = JSON.parse(output as string) as EngineResponse;
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      return result;
+      return parseResponse(output);
     },
     snapshot(): Uint8Array {
       if (closed) {
         throw new Error('Game engine is closed');
       }
-      const pointer = module.ccall(
-        'engine_snapshot',
-        'number',
-        [],
-        [],
-      ) as number;
-      const length = module.ccall(
-        'engine_snapshot_size',
-        'number',
-        [],
-        [],
-      ) as number;
+      const pointer = module.ccall('engine_snapshot', 'number', [], []);
+      const length = module.ccall('engine_snapshot_size', 'number', [], []);
       if (
+        !Number.isSafeInteger(pointer) ||
+        !Number.isSafeInteger(length) ||
         pointer <= 0 ||
         length <= 0 ||
         pointer + length > module.HEAPU8.length

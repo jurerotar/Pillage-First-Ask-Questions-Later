@@ -1,12 +1,21 @@
-// Generated bundles expose the same API as these TypeScript sources.
-declare module '*.mjs' {
-  const createModule: (
-    options?: Record<string, unknown>,
-  ) => Promise<import('./client').WasmModule & Record<string, unknown>>;
+// Each generated artifact exposes only its actual exports.
+declare module '*engine.mjs' {
+  const createModule: import('./client').WasmFactory;
   export default createModule;
+}
+
+declare module '*bridge-probe.mjs' {
+  const createModule: import('./client').WasmFactory;
+  export default createModule;
+}
+
+declare module '*client.mjs' {
+  export const createEngine: typeof import('./client').createEngine;
+}
+
+declare module '*baseline.mjs' {
   export const open: typeof import('./__tests__/fixtures/baseline').open;
   export const execute: typeof import('./core').execute;
-  export const createEngine: typeof import('./client').createEngine;
   export const inspect: typeof import('./__tests__/fixtures/baseline').inspect;
 }
 

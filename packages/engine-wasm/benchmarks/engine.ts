@@ -5,9 +5,10 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import { brotliCompressSync, gzipSync } from 'node:zlib';
 import setup from '../src/__tests__/setup.ts';
-import type { EngineRequest } from '../src/core.ts';
+import type { ControllerRequest } from '../src/protocol.ts';
 import {
   type BenchmarkReport,
   compareReports,
@@ -16,21 +17,19 @@ import {
 } from './report.ts';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const args = process.argv.slice(2);
-const options: Record<string, string> = {};
-for (let i = 0; i < args.length; i += 2) {
-  if (
-    !['--samples', '--warmups', '--output', '--compare'].includes(args[i]) ||
-    !args[i + 1]
-  ) {
-    throw new Error(
-      'Usage: benchmarks/engine.ts [--samples 15] [--warmups 3] [--output report.json] [--compare baseline.json]',
-    );
-  }
-  options[args[i]] = args[i + 1];
-}
-const samples = Number(options['--samples'] ?? 15);
-const warmups = Number(options['--warmups'] ?? 3);
+const { values: options } = parseArgs({
+  options: {
+    quick: { type: 'boolean', default: false },
+    samples: { type: 'string' },
+    warmups: { type: 'string' },
+    output: { type: 'string' },
+    compare: { type: 'string' },
+  },
+  allowPositionals: false,
+});
+const profile = options.quick ? 'quick' : 'full';
+const samples = Number(options.samples ?? (options.quick ? 3 : 15));
+const warmups = Number(options.warmups ?? (options.quick ? 1 : 3));
 if (
   !Number.isInteger(samples) ||
   samples < 3 ||
@@ -63,6 +62,7 @@ const measure = async (
   operations: number,
   run: () => unknown | Promise<unknown>,
 ) => {
+  process.stdout.write(`Measuring ${name}\n`);
   const times: number[] = [];
   for (let i = -warmups; i < samples; i++) {
     const start = performance.now();
@@ -79,7 +79,7 @@ await measure('startup/warm-module', 1, async () => {
 });
 const engine = await createEngine(fixture, factory);
 const baseline = await open(fixture);
-const requests: EngineRequest[] = [
+const requests: ControllerRequest[] = [
   { type: 'request', url: '/server', method: 'GET' },
   { type: 'request', url: '/developer-settings', method: 'GET' },
   { type: 'request', url: '/villages/1/events', method: 'GET' },
@@ -90,11 +90,13 @@ try {
       engine.dispatch(request).data,
       execute(baseline.database, request),
     );
+    const operations =
+      options.quick && request.url === '/villages/1/events' ? 5 : 100;
     await measure(
       `controller${request.type === 'request' ? request.url : ''}`,
-      100,
+      operations,
       () => {
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < operations; i++) {
           engine.dispatch(request);
         }
       },
@@ -124,8 +126,11 @@ const normalize = (value: ReturnType<typeof inspect>) => ({
     ({ timestamp: _timestamp, ...row }) => row,
   ),
 });
-for (const limit of [1, 100, 1000]) {
+for (const limit of [1, 100]) {
   for (const notifications of [false, true]) {
+    process.stdout.write(
+      `Measuring scheduler/${limit}/notifications-${notifications}\n`,
+    );
     const times: number[] = [];
     const request = {
       type: 'advance' as const,
@@ -133,34 +138,45 @@ for (const limit of [1, 100, 1000]) {
       limit,
       notifications,
     };
-    for (let i = -warmups; i < samples; i++) {
-      let fresh: Engine | undefined;
-      const reference = await open(fixture);
-      try {
-        fresh = await createEngine(fixture, factory);
-        const expected = execute(reference.database, request);
-        const start = performance.now();
-        const response = fresh.dispatch(request);
-        const elapsed = performance.now() - start;
-        assert.deepEqual(response.data, expected);
-        assert.equal((response.data as { processed: number }).processed, limit);
-        assert.equal(response.notifications.length, notifications ? limit : 0);
-        const saved = await open(fresh.snapshot());
+    const reference = await open(fixture);
+    try {
+      const expected = execute(reference.database, request);
+      const expectedState = normalize(inspect(reference.database));
+      for (let i = -warmups; i < samples; i++) {
+        const fresh: Engine = await createEngine(fixture, factory);
         try {
-          assert.deepEqual(
-            normalize(inspect(saved.database)),
-            normalize(inspect(reference.database)),
+          const start = performance.now();
+          const response = fresh.dispatch(request);
+          const elapsed = performance.now() - start;
+          assert.deepEqual(response.data, expected);
+          assert.equal(
+            (response.data as { processed: number }).processed,
+            limit,
           );
+          assert.equal(
+            response.notifications.length,
+            notifications ? limit : 0,
+          );
+          if (!options.quick || i === -warmups) {
+            const saved = await open(fresh.snapshot());
+            try {
+              assert.deepEqual(
+                normalize(inspect(saved.database)),
+                expectedState,
+              );
+            } finally {
+              saved.close();
+            }
+          }
+          if (i >= 0) {
+            times.push(elapsed);
+          }
         } finally {
-          saved.close();
+          fresh.close();
         }
-        if (i >= 0) {
-          times.push(elapsed);
-        }
-      } finally {
-        fresh?.close();
-        reference.close();
       }
+    } finally {
+      reference.close();
     }
     results[`scheduler/${limit}/notifications-${notifications}`] = summarize(
       times,
@@ -184,6 +200,7 @@ const report: BenchmarkReport = {
   suite: 'engine',
   metadata: {
     measuredAt: new Date().toISOString(),
+    profile,
     host: hostMetadata(),
     samples,
     warmups,
@@ -199,22 +216,27 @@ const report: BenchmarkReport = {
       cwd: root,
       encoding: 'utf8',
     }).trim(),
-    moduleBytes: {
-      raw: wasm.length,
-      gzip: gzipSync(wasm).length,
-      brotli: brotliCompressSync(wasm).length,
-    },
+    moduleBytes: options.quick
+      ? { raw: wasm.length }
+      : {
+          raw: wasm.length,
+          gzip: gzipSync(wasm).length,
+          brotli: brotliCompressSync(wasm).length,
+        },
     notes: [
       'Node in-process measurements; excludes worker messaging and OPFS.',
       'Startup includes factory/init/close after warmup; excludes cold process/import/compilation.',
       'Controller and snapshot samples reuse an engine; scheduler samples use fresh fixture copies.',
+      options.quick
+        ? 'Quick profile: full scheduler state checked once per case; every sample checks response and notifications. Compression sizes omitted.'
+        : 'Full profile: scheduler state checked after every sample; module compression sizes included.',
       'Build the engine before benchmarking; hashes identify measured artifacts, not source freshness.',
     ],
   },
   results,
 };
 const output = path.resolve(
-  options['--output'] ??
+  options.output ??
     path.join(
       root,
       'benchmarks/reports',
@@ -235,9 +257,9 @@ process.stdout.write(
     2,
   )}\nReport: ${output}\n`,
 );
-if (options['--compare']) {
+if (options.compare) {
   const before = JSON.parse(
-    await readFile(path.resolve(options['--compare']), 'utf8'),
+    await readFile(path.resolve(options.compare), 'utf8'),
   ) as BenchmarkReport;
   process.stdout.write(
     `${JSON.stringify(compareReports(before, report), null, 2)}\n`,

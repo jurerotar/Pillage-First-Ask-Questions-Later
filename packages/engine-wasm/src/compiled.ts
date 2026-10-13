@@ -1,27 +1,31 @@
-import './runtime-globals';
+import './polyfills';
 import { z } from 'zod';
-import { type AdvanceResult, type EngineRequest, execute } from './core';
+import { advance, execute } from './core';
 import { drainNotifications, setCaptureNotifications } from './notifications';
+import { databasePath, parseRequest } from './protocol';
 import { openDatabase } from './sqlite';
 
 // Hermes has no runtime JavaScript compiler; use Zod's interpreted parsers.
 z.config({ jitless: true });
-const database = openDatabase('/world.sqlite3');
-(globalThis as unknown as { enginePump: () => void }).enginePump = () => {
+const database = openDatabase(databasePath);
+globalThis.enginePump = () => {
   try {
-    const request = JSON.parse(engineNative.request()) as EngineRequest & {
-      notifications?: boolean;
-    };
+    const request = parseRequest(engineNative.request());
     setCaptureNotifications(request.notifications !== false);
-    const data = execute(database, request);
-    // Scheduler batches already queried their next deadline in execute().
-    const nextDeadline =
-      request.type === 'advance'
-        ? (data as AdvanceResult).nextDeadline
-        : database.selectValue({
-            sql: 'SELECT MIN(resolves_at) FROM events',
-            schema: z.number().nullable(),
-          });
+    let data: unknown;
+    let nextDeadline: number | null;
+    if (request.type === 'advance') {
+      const result = advance(database, request);
+      data = result;
+      nextDeadline = result.nextDeadline;
+    } else {
+      data = execute(database, request);
+      nextDeadline =
+        database.selectValue({
+          sql: 'SELECT MIN(resolves_at) FROM events',
+          schema: z.number().nullable(),
+        }) ?? null;
+    }
     engineNative.respond(
       JSON.stringify({
         data,
@@ -32,7 +36,10 @@ const database = openDatabase('/world.sqlite3');
   } catch (error) {
     drainNotifications();
     engineNative.respond(
-      JSON.stringify({ error: String(error), stack: (error as Error).stack }),
+      JSON.stringify({
+        error: String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      }),
     );
   }
 };
