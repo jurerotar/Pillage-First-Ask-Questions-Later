@@ -1,100 +1,81 @@
-export const selectAllRelevantEffectsQuery = `
-  SELECT
-    ei.effect AS id,
-    e.value,
-    et.type,
-    es.scope,
-    eso.source,
-    e.tile_id AS tileId,
-    e.source_specifier AS sourceSpecifier
-  FROM
-    effects AS e
-      LEFT JOIN effect_ids AS ei
-                ON ei.id = e.effect_id
-      JOIN effect_type_ids AS et ON et.id = e.type_id
-      JOIN effect_scope_ids AS es ON es.id = e.scope_id
-      JOIN effect_source_ids AS eso ON eso.id = e.source_id
-  WHERE
-    e.scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
-    OR e.tile_id = $tile_id;
-`;
-
-export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
+const createRelevantEffectsQuery = (
+  tileIdExpression: string,
+  effectIdsQuery: string,
+): string => `
   WITH relevant_effects AS (
-    SELECT * FROM effects WHERE tile_id = $tile_id
+    SELECT * FROM effects INDEXED BY idx_effects_tile_id
+    WHERE tile_id = ${tileIdExpression}
+      AND effect_id IN (${effectIdsQuery})
     UNION ALL
     SELECT * FROM effects
-    WHERE scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
+    WHERE effect_id IN (${effectIdsQuery})
+      AND scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
+      AND tile_id IS NOT ${tileIdExpression}
+  )
+  SELECT ei.effect AS id, e.value, et.type, es.scope, eso.source,
+    e.tile_id AS tileId, e.source_specifier AS sourceSpecifier
+  FROM relevant_effects e
+    CROSS JOIN effect_ids ei ON ei.id = e.effect_id
+    JOIN effect_type_ids et ON et.id = e.type_id
+    JOIN effect_scope_ids es ON es.id = e.scope_id
+    JOIN effect_source_ids eso ON eso.id = e.source_id;
+`;
+
+export const selectAllRelevantEffectsQuery = createRelevantEffectsQuery(
+  '$tile_id',
+  'SELECT id FROM effect_ids',
+);
+
+// Returns one JSON array; decode and validate it with the effect schema.
+export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
+  WITH relevant_effects AS (
+    SELECT * FROM effects INDEXED BY idx_effects_tile_id
+    WHERE tile_id = $tile_id
+      AND effect_id IN (
+        SELECT id FROM effect_ids WHERE effect IN (
+          'warehouseCapacity', 'granaryCapacity', 'woodProduction',
+          'clayProduction', 'ironProduction', 'wheatProduction', 'unitWheatConsumption'
+        )
+      )
+    UNION ALL
+    SELECT * FROM effects
+    WHERE effect_id IN (
+        SELECT id FROM effect_ids WHERE effect IN (
+          'warehouseCapacity', 'granaryCapacity', 'woodProduction',
+          'clayProduction', 'ironProduction', 'wheatProduction', 'unitWheatConsumption'
+        )
+      )
+      AND scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
       AND tile_id IS NOT $tile_id
   )
-  SELECT
-    ei.effect AS id,
-    e.value,
-    et.type,
-    es.scope,
-    eso.source,
-    e.tile_id AS tileId,
-    e.source_specifier AS sourceSpecifier
+  -- One value avoids a WASM step and seven column reads for every effect row.
+  SELECT json_group_array(json_object(
+    'id', ei.effect,
+    'value', e.value,
+    'type', et.type,
+    'scope', es.scope,
+    'source', eso.source,
+    'tileId', e.tile_id,
+    'sourceSpecifier', e.source_specifier
+  ))
   FROM
     relevant_effects AS e
-      LEFT JOIN effect_ids AS ei
+      CROSS JOIN effect_ids AS ei
                 ON ei.id = e.effect_id
       JOIN effect_type_ids AS et ON et.id = e.type_id
       JOIN effect_scope_ids AS es ON es.id = e.scope_id
-      JOIN effect_source_ids AS eso ON eso.id = e.source_id
-  WHERE
-    ei.effect IN (
-      'warehouseCapacity',
-      'granaryCapacity',
-      'woodProduction',
-      'clayProduction',
-      'ironProduction',
-      'wheatProduction',
-      'unitWheatConsumption'
-    );
+      JOIN effect_source_ids AS eso ON eso.id = e.source_id;
 `;
 
-export const selectAllRelevantEffectsByIdQuery = `
-  SELECT
-    ei.effect AS id,
-    e.value,
-    et.type,
-    es.scope,
-    eso.source,
-    e.tile_id AS tileId,
-    e.source_specifier AS sourceSpecifier
-  FROM
-    effects AS e
-      LEFT JOIN effect_ids AS ei
-                ON ei.id = e.effect_id
-      JOIN effect_type_ids AS et ON et.id = e.type_id
-      JOIN effect_scope_ids AS es ON es.id = e.scope_id
-      JOIN effect_source_ids AS eso ON eso.id = e.source_id
-  WHERE
-    (ei.effect = $effect_id)
-    AND (e.scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server')) OR e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id));
-`;
+export const selectAllRelevantEffectsByIdQuery = createRelevantEffectsQuery(
+  '(SELECT tile_id FROM villages WHERE id = $village_id)',
+  'SELECT id FROM effect_ids WHERE effect = $effect_id',
+);
 
-export const selectUnitSpeedRelevantEffectsQuery = `
-  SELECT
-    ei.effect AS id,
-    e.value,
-    et.type,
-    es.scope,
-    eso.source,
-    e.tile_id AS tileId,
-    e.source_specifier AS sourceSpecifier
-  FROM
-    effects AS e
-      LEFT JOIN effect_ids AS ei
-                ON ei.id = e.effect_id
-      JOIN effect_type_ids AS et ON et.id = e.type_id
-      JOIN effect_scope_ids AS es ON es.id = e.scope_id
-      JOIN effect_source_ids AS eso ON eso.id = e.source_id
-  WHERE
-    (ei.effect IN ('unitSpeed', 'unitSpeedAfter20Fields'))
-    AND (e.scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server')) OR e.tile_id = (SELECT tile_id FROM villages WHERE id = $village_id));
-`;
+export const selectUnitSpeedRelevantEffectsQuery = createRelevantEffectsQuery(
+  '(SELECT tile_id FROM villages WHERE id = $village_id)',
+  "SELECT id FROM effect_ids WHERE effect IN ('unitSpeed', 'unitSpeedAfter20Fields')",
+);
 
 export const selectWheatProductionEffectIdQuery = `
   SELECT id FROM effect_ids WHERE effect = 'wheatProduction';
@@ -168,15 +149,13 @@ export const deleteHeroEffectsQuery = `
     effects
   WHERE
     source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')
-    AND EXISTS (
-      SELECT
-        1
+    AND tile_id IN (
+      SELECT villages.tile_id
       FROM
         heroes
         JOIN villages ON villages.id = heroes.village_id
       WHERE
-        villages.tile_id = effects.tile_id
-        AND heroes.player_id = $player_id
+        heroes.player_id = $player_id
       );
 `;
 
@@ -255,7 +234,7 @@ export const updateHeroVillageEffectsByVillageIdQuery = `
 `;
 
 export const updateWheatProductionByTroopsAndTileIdEffectQuery = `
-  UPDATE effects
+  UPDATE effects INDEXED BY idx_effects_tile_id
   SET
     value = value + $increase_amount
   WHERE

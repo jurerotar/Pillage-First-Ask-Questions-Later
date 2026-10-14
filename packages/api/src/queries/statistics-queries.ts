@@ -15,6 +15,7 @@ export const selectPlayerRankingsQuery = `
           JOIN faction_ids fi ON fi.id = p.faction_id
           LEFT JOIN villages v ON v.player_id = p.id
           LEFT JOIN effects e ON e.tile_id = v.tile_id
+          AND e.effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
           AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
           AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
@@ -94,6 +95,7 @@ export const selectVillageRankingsQuery = `
           LEFT JOIN tiles t ON t.id = v.tile_id
           LEFT JOIN players p ON p.id = v.player_id
           LEFT JOIN effects e ON e.tile_id = v.tile_id
+            AND e.effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
             AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
             AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
             AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')

@@ -50,7 +50,7 @@ const selectVillageMerchantStatsQuery = `
         SELECT MAX(bf.level)
         FROM
           building_fields bf
-            JOIN building_ids bi ON bi.id = bf.building_id
+            CROSS JOIN building_ids bi ON bi.id = bf.building_id
         WHERE
           bf.village_id = v.id
           AND bi.building = 'MARKETPLACE'
@@ -82,21 +82,24 @@ const selectVillageMerchantStatsQuery = `
           )
         )
         FROM
-          effects e
+          (
+            SELECT * FROM effects INDEXED BY idx_effects_tile_id
+            WHERE tile_id = v.tile_id
+              AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'merchantCapacity')
+            UNION ALL
+            SELECT * FROM effects
+            WHERE effect_id = (SELECT id FROM effect_ids WHERE effect = 'merchantCapacity')
+              AND scope_id IN (
+              SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server')
+            )
+              AND tile_id IS NOT v.tile_id
+          ) e
             JOIN effect_ids ei ON ei.id = e.effect_id
             JOIN effect_type_ids et ON et.id = e.type_id
             JOIN effect_scope_ids es ON es.id = e.scope_id
             JOIN effect_source_ids eso ON eso.id = e.source_id
         WHERE
           ei.effect = 'merchantCapacity'
-          AND (
-            e.scope_id IN (
-              SELECT id
-              FROM effect_scope_ids
-              WHERE scope IN ('global', 'server')
-            )
-            OR e.tile_id = v.tile_id
-          )
       ),
       '[]'
     ) AS effectsJson

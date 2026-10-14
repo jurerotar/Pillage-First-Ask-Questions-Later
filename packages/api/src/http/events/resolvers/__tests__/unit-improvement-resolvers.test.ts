@@ -10,6 +10,45 @@ import { type Unit, unitIdSchema } from '@pillage-first/types/models/unit';
 import { unitImprovementResolver } from '../unit-improvement-resolvers';
 
 describe(unitImprovementResolver, () => {
+  test('only improves the unit for the village owner', async () => {
+    const database = await prepareTestDatabase();
+    try {
+      const owner = database.selectValue({
+        sql: 'SELECT player_id FROM villages WHERE id = 1;',
+        schema: z.number(),
+      })!;
+      const other = database.selectValue({
+        sql: 'SELECT id FROM players WHERE id != $owner LIMIT 1;',
+        bind: { $owner: owner },
+        schema: z.number(),
+      })!;
+      for (const playerId of [owner, other]) {
+        database.exec({
+          sql: "INSERT OR REPLACE INTO unit_improvements (player_id, unit_id, level) VALUES ($player, (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE'), 0);",
+          bind: { $player: playerId },
+        });
+      }
+      unitImprovementResolver(
+        database,
+        createUnitImprovementEventMock({
+          villageId: 1,
+          unitId: 'LEGIONNAIRE',
+          level: 2,
+        }),
+      );
+      for (const playerId of [owner, other]) {
+        expect(
+          database.selectValue({
+            sql: "SELECT level FROM unit_improvements WHERE player_id = $player AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');",
+            bind: { $player: playerId },
+            schema: z.number(),
+          }),
+        ).toBe(playerId === owner ? 2 : 0);
+      }
+    } finally {
+      database.close();
+    }
+  });
   test('should increase unit improvement level', async () => {
     const database = await prepareTestDatabase();
     const unitId: Unit['id'] = 'LEGIONNAIRE';

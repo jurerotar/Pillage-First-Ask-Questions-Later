@@ -36,7 +36,6 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
-import { effectSchema } from '@pillage-first/types/models/effect';
 import type {
   GameEvent,
   TroopMovementEvent,
@@ -1553,7 +1552,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: effectSchema,
+      schema: apiEffectSchema,
     });
 
     const mapSize = database.selectValue({
