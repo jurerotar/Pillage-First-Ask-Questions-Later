@@ -66,6 +66,12 @@ type CalculateResourceSiteResourcesAtReturn = {
   previousUpdatedAt: number;
 };
 
+const villageTileIdSchema = z.number();
+
+const resourceSiteStateSchema = resourcesSchema.extend({
+  last_updated_at: z.number(),
+});
+
 export const getVillageTileId = (
   database: DbFacade,
   villageId: number,
@@ -73,7 +79,7 @@ export const getVillageTileId = (
   database.selectValue({
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
     bind: { $village_id: villageId },
-    schema: z.number(),
+    schema: villageTileIdSchema,
   })!;
 
 export const calculateResourceSiteResourcesAt = (
@@ -134,9 +140,7 @@ export const calculateResourceSiteResourcesAt = (
         rs.tile_id = $tile_id;
     `,
     bind: { $tile_id: tileId },
-    schema: resourcesSchema.extend({
-      last_updated_at: z.number(),
-    }),
+    schema: resourceSiteStateSchema,
   })!;
 
   const {

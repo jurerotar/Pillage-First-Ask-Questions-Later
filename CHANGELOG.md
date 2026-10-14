@@ -1,3 +1,11 @@
+## Version 0.4.74
+
+#### Oct 14, 2026
+
+* [BugFix] Fixed an incorrectly displayed unit training cost in Great Barracks and Great Stable.
+* [BugFix] Fixed an issue where internal game state updates would run in incorrect order, which resulted in players having their resource amount calculated incorrectly.
+* [Performance] Improved execution time of most-used query by ~60 %, greatly speeding up game world initialization.
+
 ## Version 0.4.73
 
 #### Oct 8, 2026

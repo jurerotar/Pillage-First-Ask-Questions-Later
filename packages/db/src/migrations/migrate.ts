@@ -9,6 +9,7 @@ import createReportsIndexes from '../indexes/reports-indexes.sql?raw';
 import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
+import createVillagesIndexes from '../indexes/villages-indexes.sql?raw';
 import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
 import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
@@ -242,6 +243,7 @@ export const migrateAndSeed = (
     // Villages
     db.execMulti({ sql: createVillagesTable });
     villageSeeder(db, server);
+    db.execMulti({ sql: createVillagesIndexes });
 
     // Gatherers Hut expeditions
     db.execMulti({ sql: createGatherersHutExpeditionsTable });

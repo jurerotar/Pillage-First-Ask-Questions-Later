@@ -17,7 +17,7 @@ describe('village-controllers', () => {
     const database = await prepareTestDatabase();
 
     const village = database.selectValue({
-      sql: 'SELECT slug FROM villages LIMIT 1',
+      sql: 'SELECT slug FROM villages WHERE slug IS NOT NULL ORDER BY id LIMIT 1',
       schema: z.string(),
     })!;
 

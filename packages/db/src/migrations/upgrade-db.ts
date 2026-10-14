@@ -932,6 +932,17 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.74', (db) => {
+    db.execMulti({
+      sql: `
+        DROP INDEX IF EXISTS idx_villages_player_id;
+        DROP INDEX IF EXISTS idx_villages_slug;
+        CREATE INDEX idx_villages_player_id ON villages (player_id);
+        CREATE INDEX idx_villages_slug ON villages (slug) WHERE slug IS NOT NULL;
+      `,
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({

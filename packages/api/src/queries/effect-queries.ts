@@ -20,6 +20,13 @@ export const selectAllRelevantEffectsQuery = `
 `;
 
 export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
+  WITH relevant_effects AS (
+    SELECT * FROM effects WHERE tile_id = $tile_id
+    UNION ALL
+    SELECT * FROM effects
+    WHERE scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
+      AND tile_id IS NOT $tile_id
+  )
   SELECT
     ei.effect AS id,
     e.value,
@@ -29,7 +36,7 @@ export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
     e.tile_id AS tileId,
     e.source_specifier AS sourceSpecifier
   FROM
-    effects AS e
+    relevant_effects AS e
       LEFT JOIN effect_ids AS ei
                 ON ei.id = e.effect_id
       JOIN effect_type_ids AS et ON et.id = e.type_id
@@ -44,10 +51,6 @@ export const selectResourceSiteResourcesRelevantEffectsByTileIdQuery = `
       'ironProduction',
       'wheatProduction',
       'unitWheatConsumption'
-    )
-    AND (
-      e.scope_id IN (SELECT id FROM effect_scope_ids WHERE scope IN ('global', 'server'))
-      OR e.tile_id = $tile_id
     );
 `;
 
