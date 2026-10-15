@@ -40,6 +40,7 @@ import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { playableTribeSchema } from '@pillage-first/types/models/tribe';
 import type { Unit } from '@pillage-first/types/models/unit';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import { selectResourceSiteResourcesRelevantEffectsByTileIdQuery } from '../../queries/effect-queries';
 import { createEvents } from '../create-event';
 import {
   getEventCost,
@@ -50,6 +51,7 @@ import {
   runEventCreationSideEffects,
   validateEventCreationPrerequisites,
 } from '../events';
+import { calculateResourceSiteResourcesAt } from '../village';
 
 const getAnyVillageId = (database: DbFacade): number => {
   return database.selectValue({
@@ -2529,6 +2531,151 @@ describe('events utils', () => {
   });
 
   describe(createEvents, () => {
+    test.each(['wood', 'clay', 'iron', 'wheat'] as const)(
+      'rejects insufficient %s before changing resources or inserting an event',
+      async (resource) => {
+        const database = await prepareTestDatabase();
+        const { id: villageId, tileId } = getAnyVillageWithTile(database);
+        const now = Date.now();
+        const event = createBuildingLevelChangeEventMock({
+          villageId,
+          buildingId: 'WHEAT_FIELD',
+          buildingFieldId: 1,
+          previousLevel: 1,
+          level: 2,
+          startsAt: now,
+        });
+        setDevFlag(database, 'is_free_building_construction_enabled', 0);
+        const [wood, clay, iron, wheat] = getEventCost(database, event);
+        const resources = { wood, clay, iron, wheat };
+        expect(resources[resource]).toBeGreaterThan(0);
+        resources[resource] -= 1;
+        database.exec({
+          sql: `UPDATE resource_sites SET wood = $wood, clay = $clay,
+            iron = $iron, wheat = $wheat, updated_at = $now
+            WHERE tile_id = $tile_id;`,
+          bind: {
+            $wood: resources.wood,
+            $clay: resources.clay,
+            $iron: resources.iron,
+            $wheat: resources.wheat,
+            $now: now,
+            $tile_id: tileId,
+          },
+        });
+        const eventCount = database.selectValue({
+          sql: 'SELECT COUNT(*) FROM events;',
+          schema: z.number(),
+        });
+
+        expect(() =>
+          createEvents<'buildingLevelChange'>(database, {
+            type: event.type,
+            villageId,
+            buildingId: event.buildingId,
+            buildingFieldId: event.buildingFieldId,
+            previousLevel: event.previousLevel,
+            level: event.level,
+            startsAt: now,
+            duration: 1000,
+          }),
+        ).toThrow('Not enough resources');
+        expect(
+          database.selectObject({
+            sql: 'SELECT wood, clay, iron, wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
+            bind: { $tile_id: tileId },
+            schema: resourcesSchema.extend({ updated_at: z.number() }),
+          }),
+        ).toEqual({ ...resources, updated_at: now });
+        expect(
+          database.selectValue({
+            sql: 'SELECT COUNT(*) FROM events;',
+            schema: z.number(),
+          }),
+        ).toBe(eventCount);
+        database.close();
+      },
+    );
+
+    test.each([
+      {
+        name: 'rejects spending future production',
+        offset: 3_600_000,
+        reject: true,
+      },
+      {
+        name: 'allows spending production accrued since a past start time',
+        offset: -3_600_000,
+        reject: false,
+      },
+    ])('huntersLodgeHunt - $name', async ({ offset, reject }) => {
+      const database = await prepareTestDatabase();
+      const { id: villageId, tileId } = getAnyVillageWithTile(database);
+      const now = 10_000_000;
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+      try {
+        setHuntersLodgeLevel(database, villageId, 3);
+        const updatedAt = Math.min(now, now + offset);
+        database.exec({
+          sql: `UPDATE resource_sites SET wood = 700, clay = 700,
+            iron = 700, wheat = 0, updated_at = $updated_at
+            WHERE tile_id = $tile_id;`,
+          bind: { $tile_id: tileId, $updated_at: updatedAt },
+        });
+        database.exec({
+          sql: `UPDATE effects SET value = 3600
+            WHERE tile_id = $tile_id AND source_specifier = 0
+              AND effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
+              AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'building');`,
+          bind: { $tile_id: tileId },
+        });
+        const args = {
+          type: 'huntersLodgeHunt' as const,
+          villageId,
+          huntingPartyLevel: 2,
+          startsAt: now + offset,
+        };
+        const expected = calculateResourceSiteResourcesAt(
+          database,
+          tileId,
+          now,
+        );
+        if (reject) {
+          expect(() => createEvents(database, args)).toThrow(
+            'Not enough resources',
+          );
+        } else {
+          expect(expected.currentWheat).toBeGreaterThanOrEqual(200);
+          createEvents(database, args);
+        }
+        expect(
+          database.selectObject({
+            sql: 'SELECT wheat, updated_at FROM resource_sites WHERE tile_id = $tile_id;',
+            bind: { $tile_id: tileId },
+            schema: z.strictObject({
+              wheat: z.number(),
+              updated_at: z.number(),
+            }),
+          }),
+        ).toEqual(
+          reject
+            ? { wheat: 0, updated_at: updatedAt }
+            : { wheat: expected.currentWheat - 200, updated_at: now },
+        );
+        expect(
+          database.selectValue({
+            sql: "SELECT COUNT(*) FROM events WHERE village_id = $village_id AND type = 'huntersLodgeHunt';",
+            bind: { $village_id: villageId },
+            schema: z.number(),
+          }),
+        ).toBe(reject ? 0 : 1);
+      } finally {
+        vi.useRealTimers();
+        database.close();
+      }
+    });
+
     test('should reject incomplete event payloads before persistence', async () => {
       const database = await prepareTestDatabase();
 
@@ -2661,11 +2808,20 @@ describe('events utils', () => {
         },
       });
 
+      const selectValue = vi.spyOn(database, 'selectValue');
       createEvents<'huntersLodgeHunt'>(database, {
         type: 'huntersLodgeHunt',
         villageId,
         huntingPartyLevel: 2,
       });
+      expect(
+        selectValue.mock.calls.filter(
+          ([args]) =>
+            args.sql ===
+            selectResourceSiteResourcesRelevantEffectsByTileIdQuery,
+        ),
+      ).toHaveLength(1);
+      selectValue.mockRestore();
 
       const event = database.selectObject({
         sql: `

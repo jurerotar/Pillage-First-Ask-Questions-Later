@@ -123,7 +123,6 @@ import {
   doesTroopTrainingDurationEffectMatchBuilding,
   isUnitInVillageTribe,
 } from './unit-event-validation';
-import { calculateResourceSiteResourcesAt, getVillageTileId } from './village';
 import { apiEffectSchema } from './zod/effect-schemas';
 import {
   baseEventRowSchema,
@@ -980,29 +979,6 @@ export const validateEventCreationPrerequisites = (
       throw new Error(errors[0]);
     }
   }
-};
-
-// WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
-export const validateEventCreationResources = (
-  database: DbFacade,
-  event: GameEvent,
-  eventCost: number[],
-): boolean => {
-  const { villageId, startsAt } = event;
-  const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
-  const { currentWood, currentClay, currentIron, currentWheat } =
-    calculateResourceSiteResourcesAt(
-      database,
-      getVillageTileId(database, villageId!),
-      startsAt,
-    );
-
-  return !(
-    woodCost > currentWood ||
-    clayCost > currentClay ||
-    ironCost > currentIron ||
-    wheatCost > currentWheat
-  );
 };
 
 export const runEventCreationSideEffects = (
