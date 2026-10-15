@@ -81,10 +81,7 @@ import {
   selectAllRelevantEffectsByIdQuery,
   selectUnitSpeedRelevantEffectsQuery,
 } from '../queries/effect-queries';
-import {
-  selectAllVillageEventsByTypeQuery,
-  selectVillageEventExistsByTypeQuery,
-} from '../queries/event-queries';
+import { selectVillageEventExistsByTypeQuery } from '../queries/event-queries';
 import { selectHeroSpeedQuery } from '../queries/hero-queries';
 import { selectServerMapSizeQuery } from '../queries/server-queries';
 import { selectIsUnitResearchedQuery } from '../queries/unit-research-queries';
@@ -124,10 +121,6 @@ import {
   isUnitInVillageTribe,
 } from './unit-event-validation';
 import { apiEffectSchema } from './zod/effect-schemas';
-import {
-  baseEventRowSchema,
-  mapEventRowToTypedEvent,
-} from './zod/event-schemas';
 
 const nonMetaEventProperties = new Set([
   'id',
@@ -139,33 +132,14 @@ const nonMetaEventProperties = new Set([
 ]);
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
-  const amountOfColumnsToInsert = 5;
+  if (events.length === 0) {
+    return;
+  }
 
-  const sqlTemplate = `
-    INSERT INTO
-      events (type, starts_at, duration, village_id, meta)
-    VALUES
-      (?, ?, ?, ?, ?)
-  `;
+  const rows: SqlValue[][] = new Array(events.length);
 
-  const amountOfEvents = events.length;
-
-  const sql = `${sqlTemplate}${',(?, ?, ?, ?, ?)'.repeat(amountOfEvents - 1)};`;
-
-  const params: SqlValue[] = Array.from({
-    length: events.length * amountOfColumnsToInsert,
-  });
-
-  // We intentionally skip object destructuring assignment in favor of this manual approach,
-  // due to this approach being ~ 1.5x faster, which adds when potentially creating thousands of events.
   for (let i = 0; i < events.length; i += 1) {
     const event = events[i];
-    const base = i * amountOfColumnsToInsert;
-
-    params[base] = event.type;
-    params[base + 1] = event.startsAt;
-    params[base + 2] = event.duration;
-    params[base + 3] = event.villageId ?? null;
 
     let metaObj: Record<string, SqlValue> | undefined;
     for (const property in event) {
@@ -179,11 +153,30 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
       metaObj[property] = event[property as keyof GameEvent];
     }
 
-    params[base + 4] = metaObj ? JSON.stringify(metaObj) : null;
+    rows[i] = [
+      event.type,
+      event.startsAt,
+      event.duration,
+      event.villageId ?? null,
+      metaObj ? JSON.stringify(metaObj) : null,
+    ];
   }
 
-  const stmt = database.prepare({ sql });
-  stmt.bind(params).stepReset();
+  // One JSON parameter avoids SQLite's bind-variable limit and lets every
+  // batch size reuse the same cached statement. The insert remains atomic.
+  database.exec({
+    sql: `
+      INSERT INTO events (type, starts_at, duration, village_id, meta)
+      SELECT
+        value ->> '$[0]',
+        value ->> '$[1]',
+        value ->> '$[2]',
+        value ->> '$[3]',
+        value ->> '$[4]'
+      FROM json_each($events);
+    `,
+    bind: { $events: JSON.stringify(rows) },
+  });
 };
 
 // WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
@@ -1652,28 +1645,21 @@ export const getEventStartTime = (
   if (isTroopTrainingEvent(event)) {
     const { villageId, buildingId } = event;
 
-    const eventRows = database.selectObjects({
-      sql: selectAllVillageEventsByTypeQuery,
+    return database.selectValue({
+      sql: `
+        SELECT COALESCE(MAX(resolves_at), $now)
+        FROM events
+        WHERE type = 'troopTraining'
+          AND (village_id = $village_id OR village_id IS NULL)
+          AND json_extract(meta, '$.buildingId') = $building_id;
+      `,
       bind: {
         $village_id: villageId,
-        $type: 'troopTraining',
+        $building_id: buildingId,
+        $now: Date.now(),
       },
-      schema: baseEventRowSchema,
-    });
-    const events = eventRows.map(
-      mapEventRowToTypedEvent,
-    ) as GameEvent<'troopTraining'>[];
-
-    const relevantTrainingEvents = events.filter((event) => {
-      return event.buildingId === buildingId;
-    });
-
-    if (relevantTrainingEvents.length > 0) {
-      const lastEvent = relevantTrainingEvents.at(-1)!;
-      return lastEvent.startsAt + lastEvent.duration;
-    }
-
-    return Date.now();
+      schema: z.number(),
+    })!;
   }
 
   if (isAnimalCageProductionEvent(event)) {
