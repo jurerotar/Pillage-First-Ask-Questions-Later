@@ -12,6 +12,10 @@
 /design-system/icons              /design-system/icons/index.html                 200
 /not-found                        /not-found/index.html                           404!
 
+# === Bug report admin routes ===
+/bugs                             /bugs/index.html                                200
+/bugs/*                           /__spa-fallback.html                                200
+
 # === Pre-rendered game pages (dynamic slugs with splats) ===
 /game/:splat/not-allowed                            /game/server-slug/not-allowed/index.html                                   200
 /game/:splat/not-found                              /game/server-slug/not-found/index.html                                     200

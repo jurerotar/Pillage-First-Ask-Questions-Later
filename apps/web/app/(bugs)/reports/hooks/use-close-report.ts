@@ -22,7 +22,7 @@ export const useCloseReport = (token: string, reportId: string) => {
         queryClient.invalidateQueries({ queryKey: reportCacheKey(reportId) }),
         queryClient.invalidateQueries({ queryKey: reportsCacheKey }),
       ]);
-      await navigate('/');
+      await navigate('/bugs');
     },
   });
 };

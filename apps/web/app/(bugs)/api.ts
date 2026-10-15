@@ -1,3 +1,5 @@
+import { env } from '@pillage-first/utils/env';
+
 export type Report = {
   id: string;
   title: string;
@@ -19,7 +21,7 @@ export type Report = {
   } | null;
 };
 
-const apiUrl = import.meta.env.VITE_API_URL?.trim().replace(/\/$/, '');
+const apiUrl = env.VITE_BUG_REPORTER_API_URL?.trim().replace(/\/$/, '');
 
 export const request = async (
   token: string,
@@ -27,7 +29,9 @@ export const request = async (
   options: RequestInit = {},
 ): Promise<Response> => {
   if (!apiUrl) {
-    throw new Error('VITE_API_URL must be set in .env.');
+    throw new Error(
+      'VITE_BUG_REPORTER_API_URL must be set in the web app environment.',
+    );
   }
   const headers = new Headers(options.headers);
   headers.set('Authorization', `Bearer ${token}`);

@@ -3,8 +3,7 @@ import { isAbsolute, relative, resolve } from 'node:path';
 const minimumSecretLength = 32;
 
 export type AppConfig = {
-  adminAllowedOrigin?: string;
-  adminApiToken: string;
+  apiToken: string;
   allowedOrigin?: string;
   appDirectory: string;
   dataDirectory: string;
@@ -68,14 +67,14 @@ export const getConfig = (): AppConfig => {
   }
 
   const uploadUrlSecret = getRequiredEnvironmentVariable('UPLOAD_URL_SECRET');
-  const adminApiToken = getRequiredEnvironmentVariable('ADMIN_API_TOKEN');
+  const apiToken = getRequiredEnvironmentVariable('API_TOKEN');
 
   if (uploadUrlSecret.length < minimumSecretLength) {
     throw new Error('UPLOAD_URL_SECRET must be at least 32 characters long.');
   }
 
-  if (adminApiToken.length < minimumSecretLength) {
-    throw new Error('ADMIN_API_TOKEN must be at least 32 characters long.');
+  if (apiToken.length < minimumSecretLength) {
+    throw new Error('API_TOKEN must be at least 32 characters long.');
   }
 
   const maxFileBytes = getPositiveInteger('MAX_FILE_BYTES', 250 * 1024 * 1024);
@@ -98,8 +97,7 @@ export const getConfig = (): AppConfig => {
   }
 
   return {
-    adminAllowedOrigin: process.env.ADMIN_ALLOWED_ORIGIN?.trim() || undefined,
-    adminApiToken,
+    apiToken,
     allowedOrigin: process.env.ALLOWED_ORIGIN?.trim() || undefined,
     appDirectory,
     dataDirectory,

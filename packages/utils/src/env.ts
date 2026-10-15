@@ -5,7 +5,7 @@ declare global {
     readonly VERSION: string;
     readonly GRAPHICS_VERSION: string;
     readonly VITE_FARO_INGEST_ENDPOINT: string;
-    readonly VITE_BUG_REPORTER_URL: string;
+    readonly VITE_BUG_REPORTER_API_URL: string;
     // Injected by Netlify, not available during dev
     readonly URL: string;
     readonly DEPLOY_URL: string;
@@ -32,7 +32,7 @@ export const env = {
   VERSION: import.meta.env.VERSION,
   GRAPHICS_VERSION: import.meta.env.GRAPHICS_VERSION,
   VITE_FARO_INGEST_ENDPOINT: import.meta.env.VITE_FARO_INGEST_ENDPOINT,
-  VITE_BUG_REPORTER_URL: import.meta.env.VITE_BUG_REPORTER_URL,
+  VITE_BUG_REPORTER_API_URL: import.meta.env.VITE_BUG_REPORTER_API_URL,
   URL: import.meta.env.URL,
   DEPLOY_URL: import.meta.env.DEPLOY_URL,
   DEPLOY_PRIME_URL: import.meta.env.DEPLOY_PRIME_URL,

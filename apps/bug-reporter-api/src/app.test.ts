@@ -16,7 +16,7 @@ const sqliteFile = Buffer.concat([
 const createTestApp = async () => {
   const dataDirectory = await mkdtemp(join(tmpdir(), 'pillage-bug-reporter-'));
   const config: AppConfig = {
-    adminApiToken: 'a'.repeat(32),
+    apiToken: 'a'.repeat(32),
     appDirectory: join(tmpdir(), 'app'),
     dataDirectory,
     maxChunkBytes: 1024,
@@ -396,21 +396,20 @@ test('existing metadata databases gain closed status without losing reports', as
   }
 });
 
-test('admin origin can preflight deletion without changing the game origin', async () => {
+test('the web app origin can preflight both admin and public requests', async () => {
   const { store, config, cleanup } = await createTestApp();
   const app = createApp({
     store,
     config: {
       ...config,
       allowedOrigin: 'https://game.example.test',
-      adminAllowedOrigin: 'https://admin.example.test',
     },
   });
   try {
     const response = await app.request('/api/admin/reports/test', {
       method: 'OPTIONS',
       headers: {
-        origin: 'https://admin.example.test',
+        origin: 'https://game.example.test',
         'access-control-request-method': 'DELETE',
         'access-control-request-headers': 'authorization',
       },
@@ -418,7 +417,7 @@ test('admin origin can preflight deletion without changing the game origin', asy
     assert.equal(response.status, 204);
     assert.equal(
       response.headers.get('access-control-allow-origin'),
-      'https://admin.example.test',
+      'https://game.example.test',
     );
     assert.ok(
       response.headers.get('access-control-allow-methods')?.includes('DELETE'),
@@ -434,6 +433,14 @@ test('admin origin can preflight deletion without changing the game origin', asy
       game.headers.get('access-control-allow-origin'),
       'https://game.example.test',
     );
+    const untrusted = await app.request('/api/admin/reports/test', {
+      method: 'OPTIONS',
+      headers: {
+        origin: 'https://untrusted.example.test',
+        'access-control-request-method': 'DELETE',
+      },
+    });
+    assert.equal(untrusted.headers.get('access-control-allow-origin'), null);
   } finally {
     await cleanup();
   }

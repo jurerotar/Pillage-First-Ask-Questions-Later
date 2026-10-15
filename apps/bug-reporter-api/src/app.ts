@@ -146,24 +146,20 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     await next();
   });
 
-  const allowedOrigins = [
-    config.allowedOrigin,
-    config.adminAllowedOrigin,
-  ].filter((origin): origin is string => Boolean(origin));
-  if (allowedOrigins.length > 0) {
+  if (config.allowedOrigin) {
     app.use(
       '/api/*',
       cors({
         allowHeaders: ['Authorization', 'Content-Range', 'Content-Type'],
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        origin: allowedOrigins,
+        origin: config.allowedOrigin,
       }),
     );
   }
 
   app.use('/api/admin/*', async (context, next) => {
     const token = getBearerToken(context.req.raw);
-    if (!token || !isTokenValid(config.adminApiToken, token)) {
+    if (!token || !isTokenValid(config.apiToken, token)) {
       return context.json(error('Unauthorized.'), 401);
     }
     await next();
