@@ -1,28 +1,28 @@
-﻿# @pillage-first/bug-reporter
+﻿# @pillage-first/bug-reporter-api
 
 This app contains the bug report API for Pillage First! Each report can include one exported SQLite game world.
 
 ## Local setup
 
-Copy `.env.example` to `.env` inside `apps/bug-reporter` and configure these values:
+Copy `.env.example` to `.env` inside `apps/bug-reporter-api` and configure these values:
 
-- `UPLOAD_URL_SECRET`, `ADMIN_API_TOKEN` - Random secrets, each at least 32 characters long.
+- `UPLOAD_URL_SECRET`, `API_TOKEN` - Random secrets, each at least 32 characters long.
 - `APP_DATA_DIRECTORY` - Absolute path to a writable directory outside this repository. This directory contains the database and uploaded files.
 
 Run these commands from the repository root:
 
 ```sh
 npm install
-npm run bug-reporter --workspace=@pillage-first/bug-reporter
+npm run bug-reporter-api --workspace=@pillage-first/bug-reporter-api
 ```
 
-Set `VITE_BUG_REPORTER_URL` in the web app to the URL of this service.
+Set `VITE_BUG_REPORTER_API_URL` in the web app to the URL of this service.
 
 ### Checks
 
 ```sh
-npm run type-check --workspace=@pillage-first/bug-reporter
-npm run test --workspace=@pillage-first/bug-reporter
+npm run type-check --workspace=@pillage-first/bug-reporter-api
+npm run test --workspace=@pillage-first/bug-reporter-api
 ```
 
 ## API
@@ -35,19 +35,18 @@ npm run test --workspace=@pillage-first/bug-reporter
 Upload URLs expire after 15 minutes. Request new URLs with `POST /api/reports/:reportId/world/upload-url`, using the same write token.
 `UPLOAD_LINK_TTL_MINUTES` controls how long the write token remains valid. Set it to `0` to disable expiry.
 
-Download a game world with `GET /api/admin/reports/:reportId/world`, using `Authorization: Bearer <ADMIN_API_TOKEN>`.
+Download a game world with `GET /api/admin/reports/:reportId/world`, using `Authorization: Bearer <API_TOKEN>`.
 
 ### Report administration
 
-All admin endpoints require `Authorization: Bearer <ADMIN_API_TOKEN>`:
+All admin endpoints require `Authorization: Bearer <API_TOKEN>`:
 
 - `GET /api/admin/reports` - List reports, newest first.
 - `GET /api/admin/reports/:reportId` - View report details and upload information.
 - `POST /api/admin/reports/:reportId/close` - Close a report. Closed reports and their files remain available.
 - `DELETE /api/admin/reports/:reportId` - Delete a report and its pending or completed world upload.
 
-The admin frontend is available in [@pillage-first/bug-reporter-ui](../bug-reporter-ui/README.md).
-Set `ADMIN_ALLOWED_ORIGIN` to its origin when hosting it separately from this API.
+The admin frontend is available at `/bugs` in the [main web app](../web/README.md#bug-report-administration). Set `ALLOWED_ORIGIN` to the web app origin for both report submissions and administration.
 
 ### Upload limits
 
@@ -60,7 +59,7 @@ The app checks uploaded files for the SQLite 3 header and rate-limits requests b
 Create a Node.js 24.10 application with these settings:
 
 - Application root - `/home/ACCOUNT/bug-reporter/current`, pointing to the current release.
-- Startup file - `apps/bug-reporter/src/server.ts`.
+- Startup file - `apps/bug-reporter-api/src/server.ts`.
 - Environment variables - Values from `.env.example`, configured through cPanel.
 - `APP_DATA_DIRECTORY` - A writable directory outside the releases and `public_html`, for example `/home/ACCOUNT/bug-reporter-data`.
 - `PUBLIC_BASE_URL` - Public URL of this service.
@@ -76,7 +75,7 @@ Add these GitHub Actions secrets:
 | `CPANEL_SSH_KNOWN_HOSTS` | SSH host's `known_hosts` entry |
 | `CPANEL_DEPLOY_PATH` | Application parent directory, for example `/home/ACCOUNT/bug-reporter` |
 
-Run **Deploy bug reporter** from GitHub Actions. It installs production dependencies, updates `current` and restarts the app.
+Run **Deploy bug reporter API** from GitHub Actions. It installs production dependencies, updates `current` and restarts the app.
 Uploaded files stay in `APP_DATA_DIRECTORY`. Five previous releases are kept for rollback.
 
 ### Rollback

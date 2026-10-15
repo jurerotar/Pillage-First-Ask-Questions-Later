@@ -86,7 +86,7 @@
   },
   "overrides": [
     {
-      "includes": ["apps/bug-reporter/src/**/*.ts"],
+      "includes": ["apps/bug-reporter-api/src/**/*.ts"],
       "linter": {
         "rules": {
           "style": {

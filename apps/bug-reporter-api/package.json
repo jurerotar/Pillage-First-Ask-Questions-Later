@@ -1,10 +1,10 @@
 {
-  "name": "@pillage-first/bug-reporter",
+  "name": "@pillage-first/bug-reporter-api",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "scripts": {
-    "bug-reporter": "node --watch --env-file=.env src/server.ts",
+    "bug-reporter-api": "node --watch --env-file=.env src/server.ts",
     "start": "node src/server.ts",
     "type-check": "tsc --noEmit",
     "lint:check": "biome lint --no-errors-on-unmatched",

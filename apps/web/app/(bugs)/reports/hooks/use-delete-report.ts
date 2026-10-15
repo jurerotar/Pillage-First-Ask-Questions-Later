@@ -20,7 +20,7 @@ export const useDeleteReport = (token: string, reportId: string) => {
       queryClient.setQueryData<Report[]>(reportsCacheKey, (reports) =>
         reports?.filter((item) => item.id !== reportId),
       );
-      await navigate('/');
+      await navigate('/bugs');
       queryClient.removeQueries({ queryKey: reportCacheKey(reportId) });
       await queryClient.invalidateQueries({ queryKey: reportsCacheKey });
     },

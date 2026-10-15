@@ -29,6 +29,11 @@ export default [
       id: 'public-not-found-page',
     }),
   ]),
+  // Bugs
+  route('bugs', '(bugs)/layout.tsx', [
+    index('(bugs)/page.tsx'),
+    route('reports/:reportId', '(bugs)/reports/page.tsx'),
+  ]),
   // Game routes
   ...prefix('game', [
     ...prefix(':serverSlug', [
