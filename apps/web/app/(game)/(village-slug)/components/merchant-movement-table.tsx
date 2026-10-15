@@ -37,10 +37,15 @@ const getResourceTotals = (events: MerchantMovementEvent[]): ResourcesType => {
   };
 
   for (const event of events) {
-    totals.wood += event.resources.wood;
-    totals.clay += event.resources.clay;
-    totals.iron += event.resources.iron;
-    totals.wheat += event.resources.wheat;
+    totals.wood +=
+      event.resources.wood + event.repeatResources.wood * event.repeatRemaining;
+    totals.clay +=
+      event.resources.clay + event.repeatResources.clay * event.repeatRemaining;
+    totals.iron +=
+      event.resources.iron + event.repeatResources.iron * event.repeatRemaining;
+    totals.wheat +=
+      event.resources.wheat +
+      event.repeatResources.wheat * event.repeatRemaining;
   }
 
   return totals;
