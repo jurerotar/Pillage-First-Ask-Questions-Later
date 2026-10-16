@@ -10,8 +10,6 @@ import createTilesIndexes from '../indexes/tiles-indexes.sql?raw';
 import createTrapperCagesIndexes from '../indexes/trapper-cages-indexes.sql?raw';
 import createTroopsIndexes from '../indexes/troops-indexes.sql?raw';
 import createVillagesIndexes from '../indexes/villages-indexes.sql?raw';
-import createWorldItemsIndexes from '../indexes/world-items-indexes.sql?raw';
-import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
 import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
 import createBattleReportParticipantsTable from '../schemas/battle-report-participants-schema.sql?raw';
 import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
@@ -334,7 +332,6 @@ export const migrateAndSeed = (
 
     // Wounded troops
     db.execMulti({ sql: createWoundedTroopsTable });
-    db.execMulti({ sql: createWoundedTroopsIndexes });
     db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
 
     // Effects
@@ -349,7 +346,6 @@ export const migrateAndSeed = (
     // World items
     db.execMulti({ sql: createWorldItemsTable });
     worldItemsSeeder(db, server);
-    db.execMulti({ sql: createWorldItemsIndexes });
 
     // Unit research
     db.execMulti({ sql: createUnitResearchTable });
