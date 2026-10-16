@@ -2,6 +2,7 @@ import { expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { createTrapperCageProductionEventMock } from '@pillage-first/mocks/event';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { insertEvents } from '../../../utils/events';
 import * as notifications from '../../../worker/notification-port';
 import { resolveEvent } from '../resolve-event';
@@ -11,8 +12,7 @@ vi.mock('../resolvers/trapper-resolvers', () => ({
   trapperCageProductionResolver: vi.fn(),
 }));
 
-const setup = async () => {
-  const database = await prepareTestDatabase();
+const setup = (database: DbFacade) => {
   database.exec({ sql: 'DELETE FROM events;' });
   const event = createTrapperCageProductionEventMock({
     id: 0,
@@ -27,56 +27,47 @@ const setup = async () => {
     schema: z.number(),
   })!;
   const resolver = vi.mocked(trapperCageProductionResolver);
+
   resolver
     .mockReset()
     .mockReturnValue({ affectedVillageIds: [1], affectedTileIds: [] });
+
   const notify = vi.fn();
-  const post = vi
-    .spyOn(notifications, 'postWorkerMessage')
-    .mockImplementation(() => {});
-  return {
-    database,
-    event,
-    resolver,
-    notify,
-    post,
-    [Symbol.dispose]: () => {
-      post.mockRestore();
-      database.close();
-    },
-  };
+
+  return { event, resolver, notify };
 };
 
 test('does not call a resolver for a missing event', async () => {
-  using context = await setup();
-  resolveEvent(context.database, -1, context.notify);
+  using database = await prepareTestDatabase();
+  const { notify, resolver } = setup(database);
+  resolveEvent(database, -1, notify);
 
-  expect(context.resolver).not.toHaveBeenCalled();
+  expect(resolver).not.toHaveBeenCalled();
 });
 
 test('does not notify for a missing event', async () => {
-  using context = await setup();
-  resolveEvent(context.database, -1, context.notify);
+  using database = await prepareTestDatabase();
+  const { notify } = setup(database);
+  resolveEvent(database, -1, notify);
 
-  expect(context.notify).not.toHaveBeenCalled();
+  expect(notify).not.toHaveBeenCalled();
 });
 
 test('passes the typed event to its resolver', async () => {
-  using context = await setup();
-  resolveEvent(context.database, context.event.id, context.notify);
+  using database = await prepareTestDatabase();
+  const { event, notify, resolver } = setup(database);
+  resolveEvent(database, event.id, notify);
 
-  expect(context.resolver).toHaveBeenCalledExactlyOnceWith(
-    context.database,
-    context.event,
-  );
+  expect(resolver).toHaveBeenCalledExactlyOnceWith(database, event);
 });
 
 test('removes a resolved event from the queue', async () => {
-  using context = await setup();
-  resolveEvent(context.database, context.event.id, context.notify);
+  using database = await prepareTestDatabase();
+  const { event, notify } = setup(database);
+  resolveEvent(database, event.id, notify);
 
   expect(
-    context.database.selectValue({
+    database.selectValue({
       sql: 'SELECT COUNT(*) FROM events;',
       schema: z.number(),
     }),
@@ -84,23 +75,25 @@ test('removes a resolved event from the queue', async () => {
 });
 
 test('does not resolve the same event twice', async () => {
-  using context = await setup();
-  resolveEvent(context.database, context.event.id, context.notify);
-  resolveEvent(context.database, context.event.id, context.notify);
+  using database = await prepareTestDatabase();
+  const { event, notify, resolver } = setup(database);
+  resolveEvent(database, event.id, notify);
+  resolveEvent(database, event.id, notify);
 
-  expect(context.resolver).toHaveBeenCalledOnce();
+  expect(resolver).toHaveBeenCalledOnce();
 });
 
 test('publishes the resolver affected villages and tiles on success', async () => {
-  using context = await setup();
-  context.resolver.mockReturnValue({
+  using database = await prepareTestDatabase();
+  const { resolver, event, notify } = setup(database);
+  resolver.mockReturnValue({
     affectedVillageIds: [1, 2],
     affectedTileIds: [3],
   });
-  resolveEvent(context.database, context.event.id, context.notify);
+  resolveEvent(database, event.id, notify);
 
-  expect(context.notify).toHaveBeenCalledExactlyOnceWith({
-    ...context.event,
+  expect(notify).toHaveBeenCalledExactlyOnceWith({
+    ...event,
     eventKey: 'event:success',
     affectedVillageIds: [1, 2],
     affectedTileIds: [3],
@@ -108,11 +101,15 @@ test('publishes the resolver affected villages and tiles on success', async () =
 });
 
 test('uses the worker notification port when no notifier is supplied', async () => {
-  using context = await setup();
-  resolveEvent(context.database, context.event.id);
+  using database = await prepareTestDatabase();
+  const { event } = setup(database);
+  using post = vi
+    .spyOn(notifications, 'postWorkerMessage')
+    .mockImplementation(() => {});
+  resolveEvent(database, event.id);
 
-  expect(context.post).toHaveBeenCalledExactlyOnceWith({
-    ...context.event,
+  expect(post).toHaveBeenCalledExactlyOnceWith({
+    ...event,
     eventKey: 'event:success',
     affectedVillageIds: [1],
     affectedTileIds: [],
@@ -120,23 +117,26 @@ test('uses the worker notification port when no notifier is supplied', async () 
 });
 
 test('uses the supplied notifier instead of the worker port', async () => {
-  using context = await setup();
-  resolveEvent(context.database, context.event.id, context.notify);
+  using database = await prepareTestDatabase();
+  const { event, notify } = setup(database);
+  using post = vi
+    .spyOn(notifications, 'postWorkerMessage')
+    .mockImplementation(() => {});
+  resolveEvent(database, event.id, notify);
 
-  expect(context.post).not.toHaveBeenCalled();
+  expect(post).not.toHaveBeenCalled();
 });
 
 test('publishes an error notification when the resolver fails', async () => {
-  using context = await setup();
-  context.resolver.mockImplementation(() => {
+  using database = await prepareTestDatabase();
+  const { resolver, event, notify } = setup(database);
+  resolver.mockImplementation(() => {
     throw new Error('Resolver failed');
   });
 
-  expect(() =>
-    resolveEvent(context.database, context.event.id, context.notify),
-  ).toThrow();
-  expect(context.notify).toHaveBeenCalledExactlyOnceWith({
-    ...context.event,
+  expect(() => resolveEvent(database, event.id, notify)).toThrow();
+  expect(notify).toHaveBeenCalledExactlyOnceWith({
+    ...event,
     eventKey: 'event:error',
     affectedVillageIds: [],
     affectedTileIds: [],
@@ -144,13 +144,12 @@ test('publishes an error notification when the resolver fails', async () => {
 });
 
 test('rethrows the original resolver error', async () => {
-  using context = await setup();
+  using database = await prepareTestDatabase();
+  const { resolver, event, notify } = setup(database);
   const error = new Error('Resolver failed');
-  context.resolver.mockImplementation(() => {
+  resolver.mockImplementation(() => {
     throw error;
   });
 
-  expect(() =>
-    resolveEvent(context.database, context.event.id, context.notify),
-  ).toThrow(error);
+  expect(() => resolveEvent(database, event.id, notify)).toThrow(error);
 });

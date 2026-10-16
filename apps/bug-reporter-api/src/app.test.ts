@@ -14,6 +14,7 @@ const sqliteFile = Buffer.concat([
 
 const createTestApp = async () => {
   const dataDirectory = await mkdtemp(join(tmpdir(), 'pillage-bug-reporter-'));
+
   const config: AppConfig = {
     apiToken: 'a'.repeat(32),
     appDirectory: join(tmpdir(), 'app'),
@@ -25,6 +26,7 @@ const createTestApp = async () => {
     uploadLinkTtlMinutes: 60,
     uploadUrlSecret: 's'.repeat(32),
   };
+
   const store = await Store.create(dataDirectory);
 
   return {
@@ -99,6 +101,7 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
       '{chunkIndex}',
       '0',
     );
+
     const chunkResponse = await app.request(chunkUrl, {
       body: sqliteFile,
       headers: {
@@ -136,9 +139,11 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
     expect(Buffer.from(await download.arrayBuffer())).toStrictEqual(sqliteFile);
 
     const headers = { authorization: `Bearer ${'a'.repeat(32)}` };
+
     const details = await app.request(`/api/admin/reports/${report.reportId}`, {
       headers,
     });
+
     const data = (await details.json()) as {
       world: { downloadUrl: string; filename: string; status: string };
     };
@@ -181,10 +186,12 @@ test('rejects world files without a server-recognized SQLite signature', async (
       headers: { 'content-type': 'application/json' },
       method: 'POST',
     });
+
     const report = (await createResponse.json()) as {
       reportId: string;
       writeToken: string;
     };
+
     const reserveResponse = await app.request(
       `/api/reports/${report.reportId}/world`,
       {
@@ -196,11 +203,14 @@ test('rejects world files without a server-recognized SQLite signature', async (
         method: 'POST',
       },
     );
+
     const reservation = (await reserveResponse.json()) as {
       chunkUrlTemplate: string;
       completeUrl: string;
     };
+
     const contents = Buffer.alloc(32);
+
     const uploadResponse = await app.request(
       reservation.chunkUrlTemplate.replace('{chunkIndex}', '0'),
       {
@@ -227,6 +237,7 @@ test('rejects world files without a server-recognized SQLite signature', async (
 
 test('admin routes require the admin token and omit upload credentials', async () => {
   const { app, cleanup } = await createTestApp();
+
   try {
     const created = await app.request('/api/reports', {
       method: 'POST',
@@ -237,10 +248,12 @@ test('admin routes require the admin token and omit upload credentials', async (
         contact: 'hello@example.test',
       }),
     });
+
     const { reportId, writeToken } = (await created.json()) as {
       reportId: string;
       writeToken: string;
     };
+
     for (const [path, method] of [
       ['/api/admin/reports', 'GET'],
       [`/api/admin/reports/${reportId}`, 'GET'],
@@ -258,8 +271,10 @@ test('admin routes require the admin token and omit upload credentials', async (
         ).status,
       ).toBe(401);
     }
+
     const headers = { authorization: `Bearer ${'a'.repeat(32)}` };
     const list = await app.request('/api/admin/reports', { headers });
+
     const { reports } = (await list.json()) as {
       reports: Record<string, unknown>[];
     };
@@ -286,6 +301,7 @@ test('admin routes require the admin token and omit upload credentials', async (
 
 test('closing is idempotent and remains persisted when the database is reopened', async () => {
   const { app, store, dataDirectory, cleanup } = await createTestApp();
+
   try {
     const report = store.createReport({
       title: 'Report',
@@ -294,14 +310,17 @@ test('closing is idempotent and remains persisted when the database is reopened'
       uploadExpiresAt: null,
       writeTokenHash: 'hash',
     });
+
     const options = {
       method: 'POST',
       headers: { authorization: `Bearer ${'a'.repeat(32)}` },
     };
+
     const response = await app.request(
       `/api/admin/reports/${report.id}/close`,
       options,
     );
+
     const closed = (await response.json()) as {
       status: string;
       closedAt: number;
@@ -321,6 +340,7 @@ test('closing is idempotent and remains persisted when the database is reopened'
     );
 
     const reopened = await Store.create(dataDirectory);
+
     try {
       expect(reopened.getReport(report.id)?.closedAt).toBe(closed.closedAt);
     } finally {
@@ -333,16 +353,19 @@ test('closing is idempotent and remains persisted when the database is reopened'
 
 test('deleting a pending upload removes files, chunks, and signed upload access', async () => {
   const { app, store, dataDirectory, cleanup } = await createTestApp();
+
   try {
     const response = await app.request('/api/reports', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ title: 'Pending report', description: 'Details' }),
     });
+
     const { reportId, writeToken } = (await response.json()) as {
       reportId: string;
       writeToken: string;
     };
+
     const reservation = await app.request(`/api/reports/${reportId}/world`, {
       method: 'POST',
       headers: {
@@ -354,11 +377,14 @@ test('deleting a pending upload removes files, chunks, and signed upload access'
         size: sqliteFile.length,
       }),
     });
+
     const { chunkUrlTemplate, uploadId } = (await reservation.json()) as {
       chunkUrlTemplate: string;
       uploadId: string;
     };
+
     const chunkUrl = chunkUrlTemplate.replace('{chunkIndex}', '0');
+
     const chunkOptions = {
       method: 'PUT',
       body: sqliteFile,
@@ -392,6 +418,7 @@ test('deleting a pending upload removes files, chunks, and signed upload access'
 test('existing metadata databases gain closed status without losing reports', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'pillage-bug-migration-'));
   const database = new DatabaseSync(join(directory, 'metadata.sqlite'));
+
   database.exec(`
     CREATE TABLE reports (
       id TEXT PRIMARY KEY, title TEXT NOT NULL, description TEXT NOT NULL, contact TEXT,
@@ -399,9 +426,12 @@ test('existing metadata databases gain closed status without losing reports', as
     ) STRICT;
     INSERT INTO reports VALUES ('existing', 'Old report', 'Details', NULL, 'hash', NULL, 1);
   `);
+
   database.close();
+
   try {
     const store = await Store.create(directory);
+
     try {
       expect(store.getReport('existing')?.title).toBe('Old report');
       expect(store.getReport('existing')?.closedAt).toBe(null);
@@ -419,6 +449,7 @@ test('existing metadata databases gain closed status without losing reports', as
 
 test('the web app origin can preflight both admin and public requests', async () => {
   const { store, config, cleanup } = await createTestApp();
+
   const app = createApp({
     store,
     config: {
@@ -426,6 +457,7 @@ test('the web app origin can preflight both admin and public requests', async ()
       allowedOrigin: 'https://game.example.test',
     },
   });
+
   try {
     const response = await app.request('/api/admin/reports/test', {
       method: 'OPTIONS',
