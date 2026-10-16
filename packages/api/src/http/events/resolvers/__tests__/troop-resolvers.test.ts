@@ -12,7 +12,7 @@ import { troopTrainingEventResolver } from '../troop-resolvers';
 
 describe(troopTrainingEventResolver, () => {
   test('should apply new troop upkeep only after training completes', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const tileId = getVillageTileId(database, 1);
     const startsAt = 1_000_000;
     const resolvesAt = startsAt + 3_600_000;
@@ -72,7 +72,7 @@ describe(troopTrainingEventResolver, () => {
   });
 
   test('should increase troop count and update wheat consumption', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const unitId: Unit['id'] = 'LEGIONNAIRE';
 
@@ -176,6 +176,7 @@ describe(troopTrainingEventResolver, () => {
       bind: { $batch_id: batchId, $unit_id: unitId },
       schema: z.number(),
     })!;
+
     expect(history1).toBe(1);
 
     // Add and resolve another event in the same batch
@@ -208,6 +209,7 @@ describe(troopTrainingEventResolver, () => {
       bind: { $batch_id: batchId, $unit_id: unitId },
       schema: z.number(),
     })!;
+
     expect(history2).toBe(2);
   });
 });

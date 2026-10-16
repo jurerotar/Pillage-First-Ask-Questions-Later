@@ -8,7 +8,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('oasis-animal-finder-controllers', () => {
   test('getOasesWithAnimals should return oases with requested animals', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const lowThreshold = getOasesWithAnimals(
       database,

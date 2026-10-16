@@ -50,18 +50,21 @@ const setup = async () => {
 test('does not call a resolver for a missing event', async () => {
   using context = await setup();
   resolveEvent(context.database, -1, context.notify);
+
   expect(context.resolver).not.toHaveBeenCalled();
 });
 
 test('does not notify for a missing event', async () => {
   using context = await setup();
   resolveEvent(context.database, -1, context.notify);
+
   expect(context.notify).not.toHaveBeenCalled();
 });
 
 test('passes the typed event to its resolver', async () => {
   using context = await setup();
   resolveEvent(context.database, context.event.id, context.notify);
+
   expect(context.resolver).toHaveBeenCalledExactlyOnceWith(
     context.database,
     context.event,
@@ -71,6 +74,7 @@ test('passes the typed event to its resolver', async () => {
 test('removes a resolved event from the queue', async () => {
   using context = await setup();
   resolveEvent(context.database, context.event.id, context.notify);
+
   expect(
     context.database.selectValue({
       sql: 'SELECT COUNT(*) FROM events;',
@@ -83,6 +87,7 @@ test('does not resolve the same event twice', async () => {
   using context = await setup();
   resolveEvent(context.database, context.event.id, context.notify);
   resolveEvent(context.database, context.event.id, context.notify);
+
   expect(context.resolver).toHaveBeenCalledOnce();
 });
 
@@ -93,6 +98,7 @@ test('publishes the resolver affected villages and tiles on success', async () =
     affectedTileIds: [3],
   });
   resolveEvent(context.database, context.event.id, context.notify);
+
   expect(context.notify).toHaveBeenCalledExactlyOnceWith({
     ...context.event,
     eventKey: 'event:success',
@@ -104,6 +110,7 @@ test('publishes the resolver affected villages and tiles on success', async () =
 test('uses the worker notification port when no notifier is supplied', async () => {
   using context = await setup();
   resolveEvent(context.database, context.event.id);
+
   expect(context.post).toHaveBeenCalledExactlyOnceWith({
     ...context.event,
     eventKey: 'event:success',
@@ -115,6 +122,7 @@ test('uses the worker notification port when no notifier is supplied', async () 
 test('uses the supplied notifier instead of the worker port', async () => {
   using context = await setup();
   resolveEvent(context.database, context.event.id, context.notify);
+
   expect(context.post).not.toHaveBeenCalled();
 });
 
@@ -123,6 +131,7 @@ test('publishes an error notification when the resolver fails', async () => {
   context.resolver.mockImplementation(() => {
     throw new Error('Resolver failed');
   });
+
   expect(() =>
     resolveEvent(context.database, context.event.id, context.notify),
   ).toThrow();
@@ -140,6 +149,7 @@ test('rethrows the original resolver error', async () => {
   context.resolver.mockImplementation(() => {
     throw error;
   });
+
   expect(() =>
     resolveEvent(context.database, context.event.id, context.notify),
   ).toThrow(error);

@@ -38,7 +38,7 @@ const setGatherersHutLevel = (
 
 describe('gatherers hut resolvers', () => {
   test('gatherersHutGatheringTrip should return troops and add gathered resources', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const now = 1_000_000;
 
@@ -218,6 +218,7 @@ describe('gatherers hut resolvers', () => {
         amount: z.int(),
       }),
     })!;
+
     expect(report).toStrictEqual({
       village_id: villageId,
       report_type: 'gatheringExpedition',

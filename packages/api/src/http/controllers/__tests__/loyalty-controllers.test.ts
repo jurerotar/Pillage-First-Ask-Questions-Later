@@ -9,7 +9,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('loyalty-controllers', () => {
   test('should return 100 if tile is not in loyalties table', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const tileId = 1;
 
     // Ensure it's not in the table
@@ -27,7 +27,7 @@ describe('loyalty-controllers', () => {
   });
 
   test('should return current loyalty if tile is in loyalties table', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const tileId = 2;
     const loyaltyValue = 75;
 
@@ -45,7 +45,7 @@ describe('loyalty-controllers', () => {
   });
 
   test('loyaltyIncreaseResolver should increment loyalty based on residence level and delete if >= 100', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId1 = 1;
     const villageId2 = 2;
 
@@ -107,6 +107,7 @@ describe('loyalty-controllers', () => {
     });
 
     expect(loyalty1).toHaveLength(0); // Should be deleted as it hit 101 (99 + 2)
+
     expect(loyalty2).toStrictEqual([56]); // Should be 50 + (1 + 5) = 56
   });
 });

@@ -6,7 +6,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('effect-controllers', () => {
   test('getTileEffects should return effects for a tile', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Find a village to test with
     const tileId = database.selectValue({

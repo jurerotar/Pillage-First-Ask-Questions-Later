@@ -19,6 +19,7 @@ describe(getReputationLevel, () => {
     for (let i = 0; i < entries.length - 1; i += 1) {
       const [, threshold] = entries[i];
       const [nextLevel] = entries[i + 1];
+
       expect(getReputationLevel(threshold - 1)).toBe(nextLevel);
     }
   });

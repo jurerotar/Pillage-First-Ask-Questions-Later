@@ -23,7 +23,7 @@ import {
 
 describe('building resolvers', () => {
   test('removing a scheduled new-building placeholder removes its field and effects', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
     const buildingId: Building['id'] = 'CRANNY';
@@ -82,7 +82,7 @@ describe('building resolvers', () => {
 
   describe(buildingConstructionResolver, () => {
     test('should construct a building', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const buildingFieldId = 20;
       const buildingId: Building['id'] = 'MAIN_BUILDING';
@@ -142,7 +142,7 @@ describe('building resolvers', () => {
 
   describe(buildingLevelChangeResolver, () => {
     test('promotes the next scheduled upgrade after a completed level increase', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const fields = database.selectObjects({
         sql: `
@@ -203,7 +203,7 @@ describe('building resolvers', () => {
     });
 
     test('should change building level and update population', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const buildingFieldId = 1;
       const buildingId: Building['id'] = 'WOODCUTTER';
@@ -299,7 +299,7 @@ describe('building resolvers', () => {
     });
 
     test('should update non-base building effects (e.g., barracksTrainingDuration)', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const buildingFieldId = 19;
       const buildingId: Building['id'] = 'BARRACKS';
@@ -339,6 +339,7 @@ describe('building resolvers', () => {
         bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.number(),
       });
+
       expect(effectValue0).toBe(1);
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
@@ -376,11 +377,12 @@ describe('building resolvers', () => {
         bind: { $village_id: villageId, $field_id: buildingFieldId },
         schema: z.number(),
       });
+
       expect(effectValue2).toBeCloseTo(0.9091, 4);
     });
 
     test('should downgrade building level', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const buildingFieldId = 1;
       const buildingId: Building['id'] = 'WOODCUTTER';
@@ -464,7 +466,7 @@ describe('building resolvers', () => {
 
   describe(buildingDestructionResolver, () => {
     test('should demolish a building', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const buildingFieldId = 19;
       const buildingId: Building['id'] = 'BARRACKS';
@@ -565,7 +567,7 @@ describe('building resolvers', () => {
     });
 
     test('should reset a non-destroyable building to level 0', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const buildingFieldId = 1; // Woodcutter (specialFieldIds includes 1)
       const buildingId: Building['id'] = 'WOODCUTTER';

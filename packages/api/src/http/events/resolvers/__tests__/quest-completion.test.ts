@@ -34,7 +34,7 @@ const resolveHunt = (database: DbFacade, timestamp: number) =>
 
 describe('quest completion on building level up', () => {
   test('should complete building quest when level increases to required level', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 1;
     const buildingId: Building['id'] = 'WOODCUTTER';
@@ -59,6 +59,7 @@ describe('quest completion on building level up', () => {
       bind: { $quest_id: questId, $village_id: villageId },
       schema: z.number().nullable(),
     })!;
+
     expect(initialQuest).toBe(null);
 
     // 3. Trigger level change to level 1
@@ -81,12 +82,13 @@ describe('quest completion on building level up', () => {
       bind: { $quest_id: questId, $village_id: villageId },
       schema: z.number().nullable(),
     })!;
+
     expect(finalQuest).not.toBe(null);
     expect(finalQuest).toBe(1500);
   });
 
   test('should complete "every" building quest when all buildings reach required level', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingId: Building['id'] = 'WOODCUTTER';
     const requiredLevel = 1;
@@ -138,6 +140,7 @@ describe('quest completion on building level up', () => {
       bind: { $quest_id: questId, $village_id: villageId },
       schema: z.number().nullable(),
     })!;
+
     expect(initialQuest).toBe(null);
 
     // 4. Trigger level change for field 2 to level 1
@@ -160,12 +163,13 @@ describe('quest completion on building level up', () => {
       bind: { $quest_id: questId, $village_id: villageId },
       schema: z.number().nullable(),
     })!;
+
     expect(finalQuest).not.toBe(null);
     expect(finalQuest).toBe(2500);
   });
 
   test('should complete one-of-each animal quest when every catchable animal was captured', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const timestamp = 3000;
     const animals = getHunterLodgeCatchableAnimals(5);
     const random = vi.spyOn(Math, 'random');
@@ -198,7 +202,7 @@ describe('quest completion on building level up', () => {
   test.each(['deletion', 'retention'] as const)(
     'should count lifetime catches after report %s',
     async (removal) => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       database.exec({ sql: 'DELETE FROM reports;' });
       const animals = getHunterLodgeCatchableAnimals(5);
       vi.spyOn(Math, 'random').mockReturnValue(
@@ -213,6 +217,7 @@ describe('quest completion on building level up', () => {
           sql: "SELECT completed_at FROM quests WHERE village_id IS NULL AND quest_id = 'captureAnimalCountById-TIGER-50';",
           schema: z.number().nullable(),
         });
+
       expect(completion()).toBeNull();
 
       if (removal === 'deletion') {
@@ -242,15 +247,19 @@ describe('quest completion on building level up', () => {
           schema: z.number(),
         }),
       ).toBe(0);
+
       resolveHunt(database, 3);
+
       expect(completion()).toBe(3);
+
       assessCaptureAnimalCountByIdQuestCompletion(database, 'TIGER', 4);
+
       expect(completion()).toBe(3);
     },
   );
 
   test('should complete gathered resource quest from total gathered loot', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const timestamp = 4000;
     const village = database.selectObject({

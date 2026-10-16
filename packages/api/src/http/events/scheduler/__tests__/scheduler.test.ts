@@ -66,6 +66,7 @@ describe('scheduler', () => {
   test('does not open a batch when no events are due', () => {
     using context = setupSchedulerTest();
     scheduleNextEvent(context.source);
+
     expect(context.source.resolveEvents).not.toHaveBeenCalled();
   });
 
@@ -150,6 +151,7 @@ describe('scheduler', () => {
   test('a kick rescans asynchronously', () => {
     using context = setupSchedulerTest();
     kickSchedulerNow(context.source);
+
     expect(context.source.getPastEventIds).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(0);
@@ -236,6 +238,7 @@ describe('scheduler', () => {
         return;
       }
       scheduleNextEvent(source);
+
       expect(source.getPastEventIds).toHaveBeenCalledOnce();
     });
 
@@ -261,7 +264,9 @@ describe('scheduler', () => {
     context.source.resolveEvents.mockImplementationOnce(() => {
       throw new Error('Database error');
     });
+
     expect(() => scheduleNextEvent(context.source)).toThrow();
+
     context.source.getPastEventIds.mockClear();
 
     scheduleNextEvent(context.source);

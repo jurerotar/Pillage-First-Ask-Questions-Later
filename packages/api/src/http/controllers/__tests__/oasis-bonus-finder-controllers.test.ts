@@ -57,12 +57,13 @@ const searchOasisBonuses = (database: TestDatabase, body: SearchBody) => {
 
 const expectUniqueNearbyOases = (nearbyOases: Array<{ tileId: number }>) => {
   const oasisTileIds = nearbyOases.map(({ tileId }) => tileId);
+
   expect(new Set(oasisTileIds).size).toBe(oasisTileIds.length);
 };
 
 describe('oasis-bonus-finder-controllers', () => {
   test('getTilesWithBonuses should return nearby oasis for selected bonus searches', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const selectedBonus = { resource: 'wheat', bonus: 50 } as const;
 
     const result = searchOasisBonuses(
@@ -87,7 +88,7 @@ describe('oasis-bonus-finder-controllers', () => {
   });
 
   test('getTilesWithBonuses should not use occupied oasis to satisfy requested bonus slots', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     database.exec({
       sql: `
@@ -111,7 +112,7 @@ describe('oasis-bonus-finder-controllers', () => {
   });
 
   test('getTilesWithBonuses should use occupied oasis when requested', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     database.exec({
       sql: `
@@ -139,7 +140,7 @@ describe('oasis-bonus-finder-controllers', () => {
   });
 
   test('getTilesWithBonuses should not return occupied village tiles as settlement candidates', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const occupiedTile = database.selectObject({
       sql: `
         SELECT v.tile_id
@@ -184,7 +185,7 @@ describe('oasis-bonus-finder-controllers', () => {
   });
 
   test('getTilesWithBonuses should return occupied village tiles when requested', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const occupiedTile = database.selectObject({
       sql: `
         SELECT v.tile_id
@@ -232,7 +233,7 @@ describe('oasis-bonus-finder-controllers', () => {
   });
 
   test('getTilesWithBonuses should return nearby oasis when no bonus is selected', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const result = searchOasisBonuses(
       database,
@@ -249,7 +250,6 @@ describe('oasis-bonus-finder-controllers', () => {
 
     expect(result.length).toBeGreaterThan(0);
     expect(rowsWithOases.length).toBeGreaterThan(0);
-
     expect(
       rowsWithOases.some(({ nearbyOases }) => {
         return nearbyOases.some(({ isOccupied }) => isOccupied);
@@ -267,7 +267,7 @@ describe('oasis-bonus-finder-controllers', () => {
   });
 
   test('getTilesWithBonuses should find multi-slot bonus matches and dedupe nearby oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const selectedBonuses = [
       { resource: 'wheat', bonus: 50 },
       { resource: 'wood', bonus: 25 },

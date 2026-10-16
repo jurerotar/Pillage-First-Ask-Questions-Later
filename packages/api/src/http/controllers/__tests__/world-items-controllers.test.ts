@@ -6,7 +6,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('world-items-controllers', () => {
   test('getArtifactsAroundVillage should return artifacts around a village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Find a village to test with
     const villageId = database.selectValue({

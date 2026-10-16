@@ -168,7 +168,7 @@
   },
   "dependencies": {
     "@sqlite.org/sqlite-wasm": "3.53.4-build2",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "typescript": "7.0.2"

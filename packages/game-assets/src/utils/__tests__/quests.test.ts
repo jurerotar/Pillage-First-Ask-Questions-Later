@@ -5,6 +5,7 @@ describe('quest utils', () => {
   describe(getQuestRequirements, () => {
     test('queuedTroopCount requirement parsed correctly', () => {
       const reqs = getQuestRequirements('queuedTroopCount-5');
+
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
         type: 'queued-troop-count',
@@ -14,6 +15,7 @@ describe('quest utils', () => {
 
     test('queuedTroopCountById requirement parsed correctly', () => {
       const reqs = getQuestRequirements('queuedTroopCountById-LEGIONNAIRE-5');
+
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
         type: 'queued-troop-count-by-id',
@@ -23,6 +25,7 @@ describe('quest utils', () => {
 
     test('adventureCount requirement parsed correctly', () => {
       const reqs = getQuestRequirements('adventureCount-3');
+
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
         type: 'adventure-count',
@@ -32,6 +35,7 @@ describe('quest utils', () => {
 
     test('captureAnimalCountById requirement parsed correctly', () => {
       const reqs = getQuestRequirements('captureAnimalCountById-RAT-5');
+
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
         type: 'capture-animal-count-by-id',
@@ -42,6 +46,7 @@ describe('quest utils', () => {
 
     test('captureAnimalKindCount requirement parsed correctly', () => {
       const reqs = getQuestRequirements('captureAnimalKindCount-10');
+
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
         type: 'capture-animal-kind-count',
@@ -51,6 +56,7 @@ describe('quest utils', () => {
 
     test('gatheredResourceCount requirement parsed correctly', () => {
       const reqs = getQuestRequirements('gatheredResourceCount-100');
+
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
         type: 'gathered-resource-count',
@@ -69,6 +75,7 @@ describe('quest utils', () => {
 
     test('building requirement parsed correctly (oneOf)', () => {
       const reqs = getQuestRequirements('oneOf-WOODCUTTER-4');
+
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
         type: 'building',
@@ -80,6 +87,7 @@ describe('quest utils', () => {
 
     test('building requirement parsed correctly (every)', () => {
       const reqs = getQuestRequirements('every-CLAY_PIT-2');
+
       expect(reqs).toHaveLength(1);
       expect(reqs[0]).toStrictEqual({
         type: 'building',
@@ -93,6 +101,7 @@ describe('quest utils', () => {
   describe(getQuestRewards, () => {
     test('queuedTroopCount rewards produce resources = count * 10', () => {
       const rewards = getQuestRewards('queuedTroopCount-5');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'resources',
@@ -102,6 +111,7 @@ describe('quest utils', () => {
 
     test('queuedTroopCountById rewards produce resources = count * 100', () => {
       const rewards = getQuestRewards('queuedTroopCountById-LEGIONNAIRE-5');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'resources',
@@ -111,6 +121,7 @@ describe('quest utils', () => {
 
     test('adventureCount rewards produce hero-exp = count * 10', () => {
       const rewards = getQuestRewards('adventureCount-4');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'hero-exp',
@@ -120,6 +131,7 @@ describe('quest utils', () => {
 
     test('captureAnimalCountById rewards produce hero-exp = count * 10', () => {
       const rewards = getQuestRewards('captureAnimalCountById-RAT-5');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'hero-exp',
@@ -129,6 +141,7 @@ describe('quest utils', () => {
 
     test('captureAnimalKindCount rewards produce hero-exp = count * 10', () => {
       const rewards = getQuestRewards('captureAnimalKindCount-10');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'hero-exp',
@@ -138,6 +151,7 @@ describe('quest utils', () => {
 
     test('gatheredResourceCount rewards produce scaled hero-exp', () => {
       const rewards = getQuestRewards('gatheredResourceCount-500');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'hero-exp',
@@ -166,6 +180,7 @@ describe('quest utils', () => {
       const effectiveLevel = level - 1;
       const expected = Math.round(base * effectiveLevel) + base / 2;
       const rewards = getQuestRewards('oneOf-WOODCUTTER-1');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'resources',
@@ -179,6 +194,7 @@ describe('quest utils', () => {
       const effectiveLevel = level - 1; // 2
       const expected = Math.round(base * effectiveLevel) + base / 2;
       const rewards = getQuestRewards('oneOf-WOODCUTTER-3');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'resources',
@@ -192,6 +208,7 @@ describe('quest utils', () => {
       const effectiveLevel = level - 1;
       const expected = Math.round(base * effectiveLevel ** 1.3) + base / 2;
       const rewards = getQuestRewards('every-CLAY_PIT-5');
+
       expect(rewards).toHaveLength(1);
       expect(rewards[0]).toStrictEqual({
         type: 'resources',

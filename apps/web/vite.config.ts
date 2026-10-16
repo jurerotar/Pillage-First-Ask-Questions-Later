@@ -149,7 +149,6 @@ const vitestConfig = defineVitestConfig({
     root: './',
     watch: false,
     setupFiles: './app/tests/vitest-setup.ts',
-    reporters: ['default'],
     fsModuleCache: true,
     coverage: {
       include: ['app/**/*.{ts,tsx}'],

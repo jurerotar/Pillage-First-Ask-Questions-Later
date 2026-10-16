@@ -5,7 +5,7 @@ import { createTrapperCageProductionEventMock } from '@pillage-first/mocks/event
 import { trapperCageProductionResolver } from '../trapper-resolvers';
 
 test('trapper cage production creates the requested free cages', async () => {
-  const database = await prepareTestDatabase();
+  using database = await prepareTestDatabase();
 
   trapperCageProductionResolver(
     database,

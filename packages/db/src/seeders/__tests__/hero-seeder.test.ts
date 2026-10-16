@@ -4,24 +4,28 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('heroSeeder', () => {
-  test('only the player has a hero', () => {
+  test('only the player has a hero', async () => {
+    using database = await prepareTestDatabase();
+
     const c = database.selectValue({
       sql: 'SELECT COUNT(*) FROM heroes;',
       schema: z.number(),
     });
+
     expect(c).toBe(1);
 
     const playerId = database.selectValue({
       sql: 'SELECT player_id FROM heroes;',
       schema: z.number(),
     });
+
     expect(playerId).toBe(PLAYER_ID);
   });
 
-  test('attack_power is 100 for Romans and 80 for others', () => {
+  test('attack_power is 100 for Romans and 80 for others', async () => {
+    using database = await prepareTestDatabase();
+
     const rows = database.selectObjects({
       sql: `
         SELECT ti.tribe, h.base_attack_power
@@ -45,7 +49,9 @@ describe('heroSeeder', () => {
     }
   });
 
-  test('hero stats are correctly seeded', () => {
+  test('hero stats are correctly seeded', async () => {
+    using database = await prepareTestDatabase();
+
     const rows = database.selectObjects({
       sql: `
         SELECT
@@ -78,7 +84,9 @@ describe('heroSeeder', () => {
     }
   });
 
-  test('selectable attributes are correctly seeded in the new table', () => {
+  test('selectable attributes are correctly seeded in the new table', async () => {
+    using database = await prepareTestDatabase();
+
     const rows = database.selectObjects({
       sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes',
       schema: z.strictObject({
@@ -97,17 +105,21 @@ describe('heroSeeder', () => {
     }
   });
 
-  test('hero has a village_id', () => {
+  test('hero has a village_id', async () => {
+    using database = await prepareTestDatabase();
+
     const villageId = database.selectValue({
       sql: 'SELECT village_id FROM heroes;',
       schema: z.number(),
     });
+
     expect(villageId).toBeDefined();
 
     const villageExists = database.selectValue({
       sql: 'SELECT COUNT(*) FROM villages WHERE id = (SELECT village_id FROM heroes);',
       schema: z.number(),
     });
+
     expect(villageExists).toBe(1);
   });
 });

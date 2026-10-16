@@ -14,7 +14,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('village-controllers', () => {
   test('getVillageBySlug should return village details by slug', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectValue({
       sql: 'SELECT slug FROM villages WHERE slug IS NOT NULL ORDER BY id LIMIT 1',
@@ -32,7 +32,7 @@ describe('village-controllers', () => {
   });
 
   test('getOccupiableOasisInRange should return occupiable oasis in range', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -62,7 +62,7 @@ describe('village-controllers', () => {
   });
 
   test('getGatherersHutExpeditions should return completed expedition count', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -80,7 +80,7 @@ describe('village-controllers', () => {
   });
 
   test('getTrapperCageStats should return village cage totals', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -116,7 +116,7 @@ describe('village-controllers', () => {
 
   describe(rearrangeBuildingFields, () => {
     test('should swap two occupied building fields and update events', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -188,11 +188,12 @@ describe('village-controllers', () => {
         bind: { $v: villageId },
         schema: z.string(),
       });
+
       expect(JSON.parse(event!).buildingFieldId).toBe(fieldId2);
     });
 
     test('should move building effects when rearranging occupied building fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -282,7 +283,7 @@ describe('village-controllers', () => {
     });
 
     test('should update active events and scheduled upgrades when rearranging fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -362,12 +363,14 @@ describe('village-controllers', () => {
       });
 
       expect(events).toHaveLength(buildingEventTypes.length);
+
       for (const event of events) {
         expect(JSON.parse(event.meta)).toMatchObject({
           buildingFieldId: 25,
           buildingId: 'MAIN_BUILDING',
         });
       }
+
       expect(
         database.selectValue({
           sql: `
@@ -382,7 +385,7 @@ describe('village-controllers', () => {
     });
 
     test('should not update events for other event types, other villages, null targets, or unmatched buildings', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageIds = database.selectValues({
         sql: 'SELECT id FROM villages ORDER BY id LIMIT 2',
@@ -498,7 +501,7 @@ describe('village-controllers', () => {
     });
 
     test('should move building to empty field', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -548,7 +551,7 @@ describe('village-controllers', () => {
     });
 
     test('should not modify non-swappable fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -593,7 +596,7 @@ describe('village-controllers', () => {
     });
 
     test('should keep unaffected swappable fields when updates include null', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -660,7 +663,7 @@ describe('village-controllers', () => {
     });
 
     test('should ignore updates outside range 19-38 for both fields and events', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -745,7 +748,7 @@ describe('village-controllers', () => {
     });
 
     test('should preserve level when moving building between swappable boundary fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -797,7 +800,7 @@ describe('village-controllers', () => {
     });
 
     test('should preserve levels when rearranging multiple buildings of the same type', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -906,7 +909,7 @@ describe('village-controllers', () => {
     });
 
     test('should preserve effects when rearranging multiple buildings of the same type', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -1016,7 +1019,7 @@ describe('village-controllers', () => {
     });
 
     test('should reject source field that does not match the target building', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',
@@ -1058,7 +1061,7 @@ describe('village-controllers', () => {
     });
 
     test('should reject duplicate source fields', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const villageId = database.selectValue({
         sql: 'SELECT id FROM villages LIMIT 1',

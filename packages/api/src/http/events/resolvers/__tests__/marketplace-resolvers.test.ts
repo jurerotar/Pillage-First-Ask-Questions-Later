@@ -186,7 +186,7 @@ describe('marketplace resolvers', () => {
   });
 
   test('resourceTransfer should add resources to target and create a zero-resource return transfer', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -273,7 +273,6 @@ describe('marketplace resolvers', () => {
       iron: 25,
       wheat: 10,
     });
-
     expect(
       database.selectValue({
         sql: `
@@ -358,7 +357,7 @@ describe('marketplace resolvers', () => {
   });
 
   test('zero-resource resourceTransfer should resolve without changing resources', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
 
     const sourceVillage = getPlayerVillage(database);
@@ -393,7 +392,6 @@ describe('marketplace resolvers', () => {
       iron: 500,
       wheat: 500,
     });
-
     expect(
       database.selectValue({
         sql: "SELECT COUNT(*) FROM events WHERE type = 'resourceTransfer';",
@@ -403,7 +401,7 @@ describe('marketplace resolvers', () => {
   });
 
   test('returning repeated resourceTransfer should start the next transfer', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -485,7 +483,6 @@ describe('marketplace resolvers', () => {
       repeat_remaining: 1,
       repeat_wood: 100,
     });
-
     expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
       wood: 400,
       clay: 450,
@@ -495,7 +492,7 @@ describe('marketplace resolvers', () => {
   });
 
   test('returning repeated resourceTransfer should stop when resources are missing', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -538,7 +535,6 @@ describe('marketplace resolvers', () => {
         schema: z.number(),
       }),
     ).toBe(0);
-
     expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
       wood: 0,
       clay: 0,
@@ -548,7 +544,7 @@ describe('marketplace resolvers', () => {
   });
 
   test('tradeRoute should create a transfer and schedule the next route trigger', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -618,7 +614,6 @@ describe('marketplace resolvers', () => {
       { type: 'resourceTransfer', count: 1 },
       { type: 'tradeRoute', count: 1 },
     ]);
-
     expect(nextTradeRoute).toStrictEqual({
       starts_at: NOW + interval,
       duration: 0,
@@ -626,7 +621,6 @@ describe('marketplace resolvers', () => {
       interval,
       merchant_amount_type: null,
     });
-
     expect(getVillageResources(database, sourceVillage.tile_id)).toStrictEqual({
       wood: 400,
       clay: 450,
@@ -671,7 +665,7 @@ describe('marketplace resolvers', () => {
   });
 
   test('tradeRoute should schedule the next route when the transfer cannot start', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);

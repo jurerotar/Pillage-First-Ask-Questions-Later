@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('heroAdventuresSeeder', () => {
-  test('hero has 3 available adventures and 0 completed', () => {
+  test('hero has 3 available adventures and 0 completed', async () => {
+    using database = await prepareTestDatabase();
+
     const row = database.selectObject({
       sql: `
         SELECT

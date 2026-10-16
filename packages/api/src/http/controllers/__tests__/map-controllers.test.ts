@@ -17,7 +17,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('map-controllers', () => {
   test('getTiles should return correct population (only counting building base effects)', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // 1. Create a test village
     const village = database.selectObject({
@@ -113,7 +113,7 @@ describe('map-controllers', () => {
   });
 
   test('getTileTroops should return troops for a tile with animals', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Find a tile with nature troops (animals).
     // Nature troops have IDs from WILD_BOAR to CROCODILE etc.
@@ -153,7 +153,7 @@ describe('map-controllers', () => {
   });
 
   test('getTileOasisBonuses should return bonuses for an oasis tile', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Find a tile with bonuses
     const tileWithBonusesTileId = database.selectValue({
@@ -180,7 +180,7 @@ describe('map-controllers', () => {
   });
 
   test('MapMarker controllers should add, get and remove markers', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const playerId = 1;
     const tileId = 123;
@@ -253,7 +253,7 @@ describe('map-controllers', () => {
   });
 
   test('getMapMarkers should add a generic description when marker description is missing', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const playerId = 1;
 

@@ -314,7 +314,14 @@ export const validateEventCreationPrerequisites = (
 
     const unit = getUnitDefinition(unitId);
     const isHealing = isHealingTroopTrainingBuilding(buildingId);
-    if (!isUnitInVillageTribe(database, villageId, unit)) {
+
+    const tribe = database.selectValue({
+      sql: selectTribeByVillageId,
+      bind: { $village_id: villageId },
+      schema: tribeSchema,
+    })!;
+
+    if (unit.tribe !== 'all' && unit.tribe !== tribe) {
       throw new Error('Unit does not belong to village tribe');
     }
 
@@ -355,14 +362,6 @@ export const validateEventCreationPrerequisites = (
     }
 
     if (isHealing) {
-      const tribe = database.selectValue({
-        sql: selectTribeByVillageId,
-        bind: {
-          $village_id: villageId,
-        },
-        schema: tribeSchema,
-      })!;
-
       if (isAsclepeion(buildingId) && tribe !== 'spartans') {
         throw new Error('Asclepeion can only be used by Spartans');
       }
@@ -538,20 +537,19 @@ export const validateEventCreationPrerequisites = (
       throw new Error('Gathering trip must include troops');
     }
 
-    const villageTileId = database.selectValue({
-      sql: selectVillageTileIdQuery,
-      bind: {
-        $village_id: villageId,
-      },
-      schema: z.number(),
-    })!;
-
-    const playerTribe = database.selectValue({
-      sql: selectTribeByVillageId,
-      bind: {
-        $village_id: villageId,
-      },
-      schema: playableTribeSchema,
+    const { villageTileId, playerTribe } = database.selectObject({
+      sql: `
+        SELECT v.tile_id AS villageTileId, ti.tribe AS playerTribe
+        FROM villages v
+        JOIN players p ON p.id = v.player_id
+        JOIN tribe_ids ti ON ti.id = p.tribe_id
+        WHERE v.id = $village_id;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        villageTileId: z.number(),
+        playerTribe: playableTribeSchema,
+      }),
     })!;
 
     let troopAmount = 0;
@@ -596,9 +594,10 @@ export const validateEventCreationPrerequisites = (
 
     if (troopAmountsByUnitId.size === 1) {
       const [unitId, amount] = troopAmountsByUnitId.entries().next().value!;
-      const availableTroops = database.selectValue({
-        sql: `
-          SELECT COALESCE(SUM(t.amount), 0)
+      const availableTroops =
+        database.selectValue({
+          sql: `
+          SELECT t.amount
           FROM
             troops t
             JOIN unit_ids ui ON ui.id = t.unit_id
@@ -607,12 +606,12 @@ export const validateEventCreationPrerequisites = (
             AND t.tile_id = $tile_id
             AND t.source_tile_id = $tile_id;
         `,
-        bind: {
-          $unit_id: unitId,
-          $tile_id: villageTileId,
-        },
-        schema: z.number(),
-      })!;
+          bind: {
+            $unit_id: unitId,
+            $tile_id: villageTileId,
+          },
+          schema: z.number(),
+        }) ?? 0;
 
       if (amount > availableTroops) {
         throw new Error('Not enough idle troops available');
@@ -625,12 +624,11 @@ export const validateEventCreationPrerequisites = (
         WITH requested_troops AS (
           SELECT
             unit_ids.id AS unit_id,
-            SUM(json_extract(troop.value, '$.amount')) AS amount
+            json_extract(troop.value, '$.amount') AS amount
           FROM
             json_each($troops) AS troop
             JOIN unit_ids
               ON unit_ids.unit = json_extract(troop.value, '$.unitId')
-          GROUP BY unit_ids.id
         )
         SELECT EXISTS (
           SELECT 1
@@ -640,8 +638,7 @@ export const validateEventCreationPrerequisites = (
               ON troops.unit_id = requested_troops.unit_id
               AND troops.tile_id = $tile_id
               AND troops.source_tile_id = $tile_id
-          GROUP BY requested_troops.unit_id, requested_troops.amount
-          HAVING COALESCE(SUM(troops.amount), 0) < requested_troops.amount
+          WHERE COALESCE(troops.amount, 0) < requested_troops.amount
         );
       `,
       bind: {
@@ -710,48 +707,42 @@ export const validateEventCreationPrerequisites = (
       return;
     }
 
-    const buildingEventsCount = database.selectValue({
+    const hasOngoingBuildingEvent = database.selectValue({
       sql: `
-        SELECT
-          COUNT(*) AS buildingEventsCount
-        FROM
-          (
-            SELECT *,
-              CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) AS building_field_id
-            FROM
-              events
-            WHERE
-              village_id = $village_id
-            ) e
-            JOIN villages v ON v.id = e.village_id
-            JOIN players p ON p.id = v.player_id
-            JOIN tribe_ids ti ON p.tribe_id = ti.id
-        WHERE
-          e.type IN ('buildingConstruction', 'buildingLevelChange')
-          AND NOT (
-            e.type IN ('buildingLevelChange', 'buildingDestruction')
-                  AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
-                      CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
-                )
-              AND (
-                -- If player is not Romans, include all building events
-                ti.tribe <> 'romans'
-              -- If Romans, only include events from the same "half" (<=18 or >18)
+        SELECT EXISTS (
+          SELECT 1
+          FROM events e
+          JOIN villages v ON v.id = e.village_id
+          JOIN players p ON p.id = v.player_id
+          JOIN tribe_ids ti ON ti.id = p.tribe_id
+          WHERE e.village_id = $village_id
+            AND e.type IN ('buildingConstruction', 'buildingLevelChange')
+            AND NOT (
+              e.type = 'buildingLevelChange'
+              AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
+                  CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
+            )
+            AND (
+              ti.tribe <> 'romans'
               OR (
-              (e.building_field_id <= 18 AND CAST($building_field_id AS INTEGER) <= 18)
-                OR
-              (e.building_field_id > 18 AND CAST($building_field_id AS INTEGER) > 18)
+                CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) <= 18
+                AND CAST($building_field_id AS INTEGER) <= 18
               )
-            );
+              OR (
+                CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) > 18
+                AND CAST($building_field_id AS INTEGER) > 18
+              )
+            )
+        );
       `,
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
       },
-      schema: z.number(),
+      schema: z.coerce.boolean(),
     })!;
 
-    if (buildingEventsCount >= 1) {
+    if (hasOngoingBuildingEvent) {
       throw new BuildingConstructionQueueFullError();
     }
 

@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { reputationLevels } from '@pillage-first/game-assets/reputation';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('factionReputationSeeder', () => {
-  test('seeds player reputation toward every NPC faction tier', () => {
+  test('seeds player reputation toward every NPC faction tier', async () => {
+    using database = await prepareTestDatabase();
+
     const rows = database.selectObjects({
       sql: `
         SELECT
@@ -71,7 +71,9 @@ describe('factionReputationSeeder', () => {
     ]);
   });
 
-  test('does not seed self-relations or NPC-sourced relations', () => {
+  test('does not seed self-relations or NPC-sourced relations', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidRelationCount = database.selectValue({
       sql: `
         SELECT COUNT(*)

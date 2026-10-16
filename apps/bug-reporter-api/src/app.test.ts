@@ -1,9 +1,8 @@
-import assert from 'node:assert/strict';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import test from 'node:test';
+import { expect, test } from 'vitest';
 import { createApp } from './app.ts';
 import type { AppConfig } from './config.ts';
 import { Store } from './store.ts';
@@ -52,7 +51,9 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
       headers: { 'content-type': 'application/json' },
       method: 'POST',
     });
-    assert.equal(createResponse.status, 201);
+
+    expect(createResponse.status).toBe(201);
+
     const report = (await createResponse.json()) as {
       reportId: string;
       writeToken: string;
@@ -72,7 +73,9 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
         method: 'POST',
       },
     );
-    assert.equal(reserveResponse.status, 201);
+
+    expect(reserveResponse.status).toBe(201);
+
     const reservation = (await reserveResponse.json()) as {
       chunkUrlTemplate: string;
       completeUrl: string;
@@ -85,7 +88,9 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
         method: 'POST',
       },
     );
-    assert.equal(renewResponse.status, 200);
+
+    expect(renewResponse.status).toBe(200);
+
     const refreshedReservation = (await renewResponse.json()) as {
       chunkUrlTemplate: string;
     };
@@ -102,17 +107,20 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
       },
       method: 'PUT',
     });
-    assert.equal(chunkResponse.status, 204);
+
+    expect(chunkResponse.status).toBe(204);
 
     const completeResponse = await app.request(reservation.completeUrl, {
       method: 'POST',
     });
-    assert.equal(completeResponse.status, 200);
+
+    expect(completeResponse.status).toBe(200);
 
     const deniedDownload = await app.request(
       `/api/admin/reports/${report.reportId}/world`,
     );
-    assert.equal(deniedDownload.status, 401);
+
+    expect(deniedDownload.status).toBe(401);
 
     const download = await app.request(
       `/api/admin/reports/${report.reportId}/world`,
@@ -120,12 +128,12 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
         headers: { authorization: `Bearer ${'a'.repeat(32)}` },
       },
     );
-    assert.equal(download.status, 200);
-    assert.equal(
-      download.headers.get('content-type'),
+
+    expect(download.status).toBe(200);
+    expect(download.headers.get('content-type')).toBe(
       'application/vnd.sqlite3',
     );
-    assert.deepEqual(Buffer.from(await download.arrayBuffer()), sqliteFile);
+    expect(Buffer.from(await download.arrayBuffer())).toStrictEqual(sqliteFile);
 
     const headers = { authorization: `Bearer ${'a'.repeat(32)}` };
     const details = await app.request(`/api/admin/reports/${report.reportId}`, {
@@ -134,27 +142,28 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
     const data = (await details.json()) as {
       world: { downloadUrl: string; filename: string; status: string };
     };
-    assert.equal(data.world.filename, '../../world.sqlite3');
-    assert.equal(data.world.status, 'complete');
-    assert.equal(
-      data.world.downloadUrl,
+
+    expect(data.world.filename).toBe('../../world.sqlite3');
+    expect(data.world.status).toBe('complete');
+    expect(data.world.downloadUrl).toBe(
       `/api/admin/reports/${report.reportId}/world`,
     );
+
     const deleted = await app.request(`/api/admin/reports/${report.reportId}`, {
       headers,
       method: 'DELETE',
     });
-    assert.equal(deleted.status, 204);
-    assert.deepEqual(await readdir(join(dataDirectory, 'uploads')), []);
-    assert.deepEqual(await readdir(join(dataDirectory, 'staging')), []);
-    assert.equal(
+
+    expect(deleted.status).toBe(204);
+    expect(await readdir(join(dataDirectory, 'uploads'))).toStrictEqual([]);
+    expect(await readdir(join(dataDirectory, 'staging'))).toStrictEqual([]);
+    expect(
       (
         await app.request(`/api/admin/reports/${report.reportId}/world`, {
           headers,
         })
       ).status,
-      404,
-    );
+    ).toBe(404);
   } finally {
     await cleanup();
   }
@@ -203,11 +212,14 @@ test('rejects world files without a server-recognized SQLite signature', async (
         method: 'PUT',
       },
     );
-    assert.equal(uploadResponse.status, 204);
+
+    expect(uploadResponse.status).toBe(204);
+
     const completeResponse = await app.request(reservation.completeUrl, {
       method: 'POST',
     });
-    assert.equal(completeResponse.status, 415);
+
+    expect(completeResponse.status).toBe(415);
   } finally {
     await cleanup();
   }
@@ -236,35 +248,36 @@ test('admin routes require the admin token and omit upload credentials', async (
       [`/api/admin/reports/${reportId}`, 'DELETE'],
       [`/api/admin/reports/${reportId}/world`, 'GET'],
     ]) {
-      assert.equal((await app.request(path, { method })).status, 401);
-      assert.equal(
+      expect((await app.request(path, { method })).status).toBe(401);
+      expect(
         (
           await app.request(path, {
             method,
             headers: { authorization: `Bearer ${writeToken}` },
           })
         ).status,
-        401,
-      );
+      ).toBe(401);
     }
     const headers = { authorization: `Bearer ${'a'.repeat(32)}` };
     const list = await app.request('/api/admin/reports', { headers });
     const { reports } = (await list.json()) as {
       reports: Record<string, unknown>[];
     };
-    assert.equal(reports.length, 1);
-    assert.equal(reports[0].id, reportId);
-    assert.equal(reports[0].contact, 'hello@example.test');
-    assert.equal(reports[0].status, 'open');
-    assert.equal(reports[0].world, null);
-    assert.equal('writeTokenHash' in reports[0], false);
-    assert.equal('writeToken' in reports[0], false);
+
+    expect(reports.length).toBe(1);
+    expect(reports[0].id).toBe(reportId);
+    expect(reports[0].contact).toBe('hello@example.test');
+    expect(reports[0].status).toBe('open');
+    expect(reports[0].world).toBe(null);
+    expect('writeTokenHash' in reports[0]).toBe(false);
+    expect('writeToken' in reports[0]).toBe(false);
+
     for (const [path, method] of [
       ['/api/admin/reports/missing', 'GET'],
       ['/api/admin/reports/missing/close', 'POST'],
       ['/api/admin/reports/missing', 'DELETE'],
     ]) {
-      assert.equal((await app.request(path, { headers, method })).status, 404);
+      expect((await app.request(path, { headers, method })).status).toBe(404);
     }
   } finally {
     await cleanup();
@@ -293,20 +306,23 @@ test('closing is idempotent and remains persisted when the database is reopened'
       status: string;
       closedAt: number;
     };
-    assert.equal(response.status, 200);
-    assert.equal(closed.status, 'closed');
-    assert.ok(closed.closedAt > 0);
+
+    expect(response.status).toBe(200);
+    expect(closed.status).toBe('closed');
+    expect(closed.closedAt > 0).toBeTruthy();
+
     const repeated = await app.request(
       `/api/admin/reports/${report.id}/close`,
       options,
     );
-    assert.equal(
-      ((await repeated.json()) as { closedAt: number }).closedAt,
+
+    expect(((await repeated.json()) as { closedAt: number }).closedAt).toBe(
       closed.closedAt,
     );
+
     const reopened = await Store.create(dataDirectory);
     try {
-      assert.equal(reopened.getReport(report.id)?.closedAt, closed.closedAt);
+      expect(reopened.getReport(report.id)?.closedAt).toBe(closed.closedAt);
     } finally {
       reopened.close();
     }
@@ -351,20 +367,23 @@ test('deleting a pending upload removes files, chunks, and signed upload access'
         'content-range': `bytes 0-${sqliteFile.length - 1}/${sqliteFile.length}`,
       },
     };
-    assert.equal((await app.request(chunkUrl, chunkOptions)).status, 204);
-    assert.equal((await readdir(join(dataDirectory, 'staging'))).length, 1);
-    assert.equal(store.getChunks(uploadId).length, 1);
+
+    expect((await app.request(chunkUrl, chunkOptions)).status).toBe(204);
+    expect((await readdir(join(dataDirectory, 'staging'))).length).toBe(1);
+    expect(store.getChunks(uploadId).length).toBe(1);
+
     const deleted = await app.request(`/api/admin/reports/${reportId}`, {
       method: 'DELETE',
       headers: { authorization: `Bearer ${'a'.repeat(32)}` },
     });
-    assert.equal(deleted.status, 204);
-    assert.equal(store.getReport(reportId), undefined);
-    assert.equal(store.getUpload(uploadId), undefined);
-    assert.deepEqual(store.getChunks(uploadId), []);
-    assert.deepEqual(await readdir(join(dataDirectory, 'staging')), []);
-    assert.deepEqual(await readdir(join(dataDirectory, 'uploads')), []);
-    assert.equal((await app.request(chunkUrl, chunkOptions)).status, 401);
+
+    expect(deleted.status).toBe(204);
+    expect(store.getReport(reportId)).toBe(undefined);
+    expect(store.getUpload(uploadId)).toBe(undefined);
+    expect(store.getChunks(uploadId)).toStrictEqual([]);
+    expect(await readdir(join(dataDirectory, 'staging'))).toStrictEqual([]);
+    expect(await readdir(join(dataDirectory, 'uploads'))).toStrictEqual([]);
+    expect((await app.request(chunkUrl, chunkOptions)).status).toBe(401);
   } finally {
     await cleanup();
   }
@@ -384,10 +403,12 @@ test('existing metadata databases gain closed status without losing reports', as
   try {
     const store = await Store.create(directory);
     try {
-      assert.equal(store.getReport('existing')?.title, 'Old report');
-      assert.equal(store.getReport('existing')?.closedAt, null);
+      expect(store.getReport('existing')?.title).toBe('Old report');
+      expect(store.getReport('existing')?.closedAt).toBe(null);
+
       store.closeReport('existing');
-      assert.ok(store.getReport('existing')?.closedAt);
+
+      expect(store.getReport('existing')?.closedAt).toBeTruthy();
     } finally {
       store.close();
     }
@@ -414,14 +435,15 @@ test('the web app origin can preflight both admin and public requests', async ()
         'access-control-request-headers': 'authorization',
       },
     });
-    assert.equal(response.status, 204);
-    assert.equal(
-      response.headers.get('access-control-allow-origin'),
+
+    expect(response.status).toBe(204);
+    expect(response.headers.get('access-control-allow-origin')).toBe(
       'https://game.example.test',
     );
-    assert.ok(
+    expect(
       response.headers.get('access-control-allow-methods')?.includes('DELETE'),
-    );
+    ).toBeTruthy();
+
     const game = await app.request('/api/reports', {
       method: 'OPTIONS',
       headers: {
@@ -429,10 +451,11 @@ test('the web app origin can preflight both admin and public requests', async ()
         'access-control-request-method': 'POST',
       },
     });
-    assert.equal(
-      game.headers.get('access-control-allow-origin'),
+
+    expect(game.headers.get('access-control-allow-origin')).toBe(
       'https://game.example.test',
     );
+
     const untrusted = await app.request('/api/admin/reports/test', {
       method: 'OPTIONS',
       headers: {
@@ -440,7 +463,8 @@ test('the web app origin can preflight both admin and public requests', async ()
         'access-control-request-method': 'DELETE',
       },
     });
-    assert.equal(untrusted.headers.get('access-control-allow-origin'), null);
+
+    expect(untrusted.headers.get('access-control-allow-origin')).toBe(null);
   } finally {
     await cleanup();
   }
