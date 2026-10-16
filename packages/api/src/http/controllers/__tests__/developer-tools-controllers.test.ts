@@ -3,10 +3,13 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  createAnimalCageProductionEventMock,
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
-  createGameEventMock,
+  createGatherersHutGatheringTripEventMock,
+  createHuntersLodgeHuntEventMock,
+  createTrapperCageProductionEventMock,
   createTroopMovementAdventureEventMock,
   createTroopTrainingEventMock,
   createUnitImprovementEventMock,
@@ -179,13 +182,13 @@ describe('developer-tools-controllers', () => {
           duration: 5000,
           villageId: 1,
         }),
-        createGameEventMock('animalCageProduction', {
+        createAnimalCageProductionEventMock({
           startsAt: now + 2000,
           duration: 6000,
           villageId: 1,
           cageAmount: 3,
         }),
-        createGameEventMock('trapperCageProduction', {
+        createTrapperCageProductionEventMock({
           startsAt: now + 3000,
           duration: 7000,
           villageId: 1,
@@ -298,13 +301,13 @@ describe('developer-tools-controllers', () => {
           duration: 5000,
           villageId: 1,
         }),
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           startsAt: now + 2000,
           duration: 6000,
           villageId: 1,
           huntingPartyLevel: 1,
         }),
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           startsAt: now + 3000,
           duration: 7000,
           villageId: 1,

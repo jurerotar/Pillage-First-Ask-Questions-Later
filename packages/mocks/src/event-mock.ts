@@ -206,6 +206,53 @@ export const createTroopTrainingEventMock = (
   });
 };
 
+export const createTrapperCageProductionEventMock = (
+  overrides: Partial<GameEvent<'trapperCageProduction'>> = {},
+): GameEvent<'trapperCageProduction'> => {
+  return createGameEventMock('trapperCageProduction', {
+    cageAmount: 1,
+    ...overrides,
+  });
+};
+
+export const createAnimalCageProductionEventMock = (
+  overrides: Partial<GameEvent<'animalCageProduction'>> = {},
+): GameEvent<'animalCageProduction'> => {
+  return createGameEventMock('animalCageProduction', {
+    cageAmount: 1,
+    ...overrides,
+  });
+};
+
+export const createHuntersLodgeHuntEventMock = (
+  overrides: Partial<GameEvent<'huntersLodgeHunt'>> = {},
+): GameEvent<'huntersLodgeHunt'> => {
+  return createGameEventMock('huntersLodgeHunt', {
+    huntingPartyLevel: 1,
+    ...overrides,
+  });
+};
+
+export const createGatherersHutGatheringTripEventMock = (
+  overrides: Partial<GameEvent<'gatherersHutGatheringTrip'>> = {},
+): GameEvent<'gatherersHutGatheringTrip'> => {
+  return createGameEventMock('gatherersHutGatheringTrip', {
+    troops: [],
+    ...overrides,
+  });
+};
+
+export const createTroopMovementReinforcementsEventMock = (
+  overrides: Partial<GameEvent<'troopMovementReinforcements'>> = {},
+): GameEvent<'troopMovementReinforcements'> => {
+  return createGameEventMock('troopMovementReinforcements', {
+    originTileId: 1,
+    targetTileId: 1,
+    troops: [{ unitId: 'LEGIONNAIRE', amount: 1, tileId: 1, sourceTileId: 1 }],
+    ...overrides,
+  });
+};
+
 export const createBuildingLevelChangeEventMock = (
   overrides: Partial<GameEvent<'buildingLevelChange'>> = {},
 ): GameEvent<'buildingLevelChange'> => {

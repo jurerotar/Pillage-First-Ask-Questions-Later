@@ -5,7 +5,7 @@ import {
   calculateGatherersHutPartySize,
   GATHERERS_HUT_RESOURCES_PER_UNIT,
 } from '@pillage-first/game-assets/utils/gatherers-hut';
-import { createGameEventMock } from '@pillage-first/mocks/event';
+import { createGatherersHutGatheringTripEventMock } from '@pillage-first/mocks/event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createEvents } from '../create-event';
 import {
@@ -121,7 +121,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -147,7 +147,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -172,7 +172,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -198,7 +198,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -223,7 +223,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -249,7 +249,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -288,7 +288,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -311,7 +311,7 @@ describe('gatherers hut events', () => {
     setIdleTroops(database, 'PHALANX', 10, villageTileId);
 
     runEventCreationSideEffects(database, [
-      createGameEventMock('gatherersHutGatheringTrip', {
+      createGatherersHutGatheringTripEventMock({
         villageId,
         troops: [
           {
@@ -353,7 +353,7 @@ describe('gatherers hut events', () => {
 
     const duration = getEventDuration(
       database,
-      createGameEventMock('gatherersHutGatheringTrip', {
+      createGatherersHutGatheringTripEventMock({
         villageId,
         startsAt: now,
         troops: [
@@ -378,7 +378,7 @@ describe('gatherers hut events', () => {
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    const event = createGameEventMock('gatherersHutGatheringTrip', {
+    const event = createGatherersHutGatheringTripEventMock({
       villageId,
       startsAt: 1_000_000,
       troops: [
@@ -391,7 +391,7 @@ describe('gatherers hut events', () => {
       ],
     });
 
-    const retriedEvent = createGameEventMock('gatherersHutGatheringTrip', {
+    const retriedEvent = createGatherersHutGatheringTripEventMock({
       villageId,
       startsAt: 2_000_000,
       troops: event.troops,
@@ -412,7 +412,7 @@ describe('gatherers hut events', () => {
     expect(
       getEventDuration(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {

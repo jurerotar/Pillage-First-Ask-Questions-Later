@@ -1,138 +1,146 @@
-import { describe, expect, test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
-import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
+import { createTrapperCageProductionEventMock } from '@pillage-first/mocks/event';
 import { insertEvents } from '../../../utils/events';
-import { createSchedulerDataSource } from '../scheduler/scheduler-data-source';
+import * as notifications from '../../../worker/notification-port';
+import { resolveEvent } from '../resolve-event';
+import { trapperCageProductionResolver } from '../resolvers/trapper-resolvers';
 
-describe('resolveEvent', () => {
-  test('trapperCageProduction creates free cage rows', async () => {
-    const database = await prepareTestDatabase();
+vi.mock('../resolvers/trapper-resolvers', () => ({
+  trapperCageProductionResolver: vi.fn(),
+}));
 
-    const villageId = database.selectValue({
-      sql: 'SELECT id FROM villages ORDER BY id LIMIT 1;',
-      schema: z.number(),
-    })!;
-
-    const event: GameEvent<'trapperCageProduction'> = {
-      id: 0,
-      type: 'trapperCageProduction',
-      startsAt: 1000,
-      duration: 1000,
-      resolvesAt: 2000,
-      villageId,
-      cageAmount: 4,
-    };
-
-    insertEvents(database, [event]);
-
-    const eventId = database.selectValue({
-      sql: "SELECT id FROM events WHERE type = 'trapperCageProduction';",
-      schema: z.number(),
-    })!;
-
-    createSchedulerDataSource(database).resolveEvent(eventId);
-
-    const stats = database.selectObject({
-      sql: `
-        SELECT
-          COUNT(*) AS total,
-          COUNT(*) FILTER (WHERE unit_id IS NULL) AS free
-        FROM trapper_cages
-        WHERE village_id = $village_id;
-      `,
-      bind: { $village_id: villageId },
-      schema: z.strictObject({
-        total: z.number(),
-        free: z.number(),
-      }),
-    })!;
-
-    expect(stats).toStrictEqual({
-      total: 4,
-      free: 4,
-    });
+const setup = async () => {
+  const database = await prepareTestDatabase();
+  database.exec({ sql: 'DELETE FROM events;' });
+  const event = createTrapperCageProductionEventMock({
+    id: 0,
+    startsAt: 1000,
+    duration: 1000,
+    villageId: 1,
+    cageAmount: 4,
   });
+  insertEvents(database, [event]);
+  event.id = database.selectValue({
+    sql: 'SELECT id FROM events;',
+    schema: z.number(),
+  })!;
+  const resolver = vi.mocked(trapperCageProductionResolver);
+  resolver
+    .mockReset()
+    .mockReturnValue({ affectedVillageIds: [1], affectedTileIds: [] });
+  const notify = vi.fn();
+  const post = vi
+    .spyOn(notifications, 'postWorkerMessage')
+    .mockImplementation(() => {});
+  return {
+    database,
+    event,
+    resolver,
+    notify,
+    post,
+    [Symbol.dispose]: () => {
+      post.mockRestore();
+      database.close();
+    },
+  };
+};
 
-  test('rolls back event deletion and resolver changes when a resolver fails', async () => {
-    const database = await prepareTestDatabase();
-    using consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
+test('does not call a resolver for a missing event', async () => {
+  using context = await setup();
+  resolveEvent(context.database, -1, context.notify);
+  expect(context.resolver).not.toHaveBeenCalled();
+});
 
-    const village = database.selectObject({
-      sql: `
-        SELECT id, tile_id AS tileId
-        FROM villages
-        ORDER BY id
-        LIMIT 1;
-      `,
-      schema: z.strictObject({
-        id: z.number(),
-        tileId: z.number(),
-      }),
-    })!;
+test('does not notify for a missing event', async () => {
+  using context = await setup();
+  resolveEvent(context.database, -1, context.notify);
+  expect(context.notify).not.toHaveBeenCalled();
+});
 
-    const legionnaireAmountBefore =
-      database.selectValue({
-        sql: `
-          SELECT amount
-          FROM troops
-          WHERE
-            tile_id = $tile_id
-            AND source_tile_id = $tile_id
-            AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
-        `,
-        bind: { $tile_id: village.tileId },
-        schema: z.number(),
-      }) ?? 0;
+test('passes the typed event to its resolver', async () => {
+  using context = await setup();
+  resolveEvent(context.database, context.event.id, context.notify);
+  expect(context.resolver).toHaveBeenCalledExactlyOnceWith(
+    context.database,
+    context.event,
+  );
+});
 
-    database.exec({
-      sql: 'DELETE FROM resource_sites WHERE tile_id = $tile_id;',
-      bind: { $tile_id: village.tileId },
-    });
-
-    insertEvents(database, [
-      createTroopTrainingEventMock({
-        startsAt: 1000,
-        duration: 1000,
-        villageId: village.id,
-        unitId: 'LEGIONNAIRE',
-      }),
-    ]);
-
-    const eventId = database.selectValue({
-      sql: "SELECT id FROM events WHERE type = 'troopTraining';",
+test('removes a resolved event from the queue', async () => {
+  using context = await setup();
+  resolveEvent(context.database, context.event.id, context.notify);
+  expect(
+    context.database.selectValue({
+      sql: 'SELECT COUNT(*) FROM events;',
       schema: z.number(),
-    })!;
+    }),
+  ).toBe(0);
+});
 
-    expect(() =>
-      createSchedulerDataSource(database).resolveEvent(eventId),
-    ).toThrow();
+test('does not resolve the same event twice', async () => {
+  using context = await setup();
+  resolveEvent(context.database, context.event.id, context.notify);
+  resolveEvent(context.database, context.event.id, context.notify);
+  expect(context.resolver).toHaveBeenCalledOnce();
+});
 
-    const eventCount = database.selectValue({
-      sql: 'SELECT COUNT(*) FROM events WHERE id = $event_id;',
-      bind: { $event_id: eventId },
-      schema: z.number(),
-    });
-
-    const legionnaireAmountAfter =
-      database.selectValue({
-        sql: `
-          SELECT amount
-          FROM troops
-          WHERE
-            tile_id = $tile_id
-            AND source_tile_id = $tile_id
-            AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'LEGIONNAIRE');
-        `,
-        bind: { $tile_id: village.tileId },
-        schema: z.number(),
-      }) ?? 0;
-
-    expect(consoleErrorSpy).toHaveBeenCalled();
-    expect(eventCount).toBe(1);
-    expect(legionnaireAmountAfter).toBe(legionnaireAmountBefore);
+test('publishes the resolver affected villages and tiles on success', async () => {
+  using context = await setup();
+  context.resolver.mockReturnValue({
+    affectedVillageIds: [1, 2],
+    affectedTileIds: [3],
   });
+  resolveEvent(context.database, context.event.id, context.notify);
+  expect(context.notify).toHaveBeenCalledExactlyOnceWith({
+    ...context.event,
+    eventKey: 'event:success',
+    affectedVillageIds: [1, 2],
+    affectedTileIds: [3],
+  });
+});
+
+test('uses the worker notification port when no notifier is supplied', async () => {
+  using context = await setup();
+  resolveEvent(context.database, context.event.id);
+  expect(context.post).toHaveBeenCalledExactlyOnceWith({
+    ...context.event,
+    eventKey: 'event:success',
+    affectedVillageIds: [1],
+    affectedTileIds: [],
+  });
+});
+
+test('uses the supplied notifier instead of the worker port', async () => {
+  using context = await setup();
+  resolveEvent(context.database, context.event.id, context.notify);
+  expect(context.post).not.toHaveBeenCalled();
+});
+
+test('publishes an error notification when the resolver fails', async () => {
+  using context = await setup();
+  context.resolver.mockImplementation(() => {
+    throw new Error('Resolver failed');
+  });
+  expect(() =>
+    resolveEvent(context.database, context.event.id, context.notify),
+  ).toThrow();
+  expect(context.notify).toHaveBeenCalledExactlyOnceWith({
+    ...context.event,
+    eventKey: 'event:error',
+    affectedVillageIds: [],
+    affectedTileIds: [],
+  });
+});
+
+test('rethrows the original resolver error', async () => {
+  using context = await setup();
+  const error = new Error('Resolver failed');
+  context.resolver.mockImplementation(() => {
+    throw error;
+  });
+  expect(() =>
+    resolveEvent(context.database, context.event.id, context.notify),
+  ).toThrow(error);
 });

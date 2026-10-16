@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
 import { selectTileLoyaltyQuery } from '../../../queries/loyalty-queries';
 import { loyaltyIncreaseResolver } from '../../events/resolvers/loyalty-resolvers';
 import { getTileLoyalty } from '../loyalty-controllers';
@@ -83,14 +84,16 @@ describe('loyalty-controllers', () => {
     });
 
     // Resolve (Global increase for all villages and oases)
-    loyaltyIncreaseResolver(database, {
-      id: 1,
-      villageId: null, // Global event
-      duration: 1000,
-      resolvesAt: Date.now(),
-      startsAt: Date.now() - 1000,
-      type: 'loyaltyIncrease',
-    });
+    loyaltyIncreaseResolver(
+      database,
+      createLoyaltyIncreaseEventMock({
+        id: 1,
+        villageId: null, // Global event
+        duration: 1000,
+        resolvesAt: Date.now(),
+        startsAt: Date.now() - 1000,
+      }),
+    );
 
     const loyalty1 = database.selectValues({
       sql: selectTileLoyaltyQuery,

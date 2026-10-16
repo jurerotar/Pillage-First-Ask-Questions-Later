@@ -2,7 +2,10 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
-import { createBuildingLevelChangeEventMock } from '@pillage-first/mocks/event';
+import {
+  createBuildingLevelChangeEventMock,
+  createHuntersLodgeHuntEventMock,
+} from '@pillage-first/mocks/event';
 import type { Building } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import {
@@ -17,15 +20,17 @@ import { huntersLodgeHuntResolver } from '../hunters-lodge-resolvers';
 afterEach(() => vi.restoreAllMocks());
 
 const resolveHunt = (database: DbFacade, timestamp: number) =>
-  huntersLodgeHuntResolver(database, {
-    id: timestamp,
-    type: 'huntersLodgeHunt',
-    villageId: 1,
-    startsAt: timestamp - 1,
-    duration: 1,
-    resolvesAt: timestamp,
-    huntingPartyLevel: 5,
-  });
+  huntersLodgeHuntResolver(
+    database,
+    createHuntersLodgeHuntEventMock({
+      id: timestamp,
+      villageId: 1,
+      startsAt: timestamp - 1,
+      duration: 1,
+      resolvesAt: timestamp,
+      huntingPartyLevel: 5,
+    }),
+  );
 
 describe('quest completion on building level up', () => {
   test('should complete building quest when level increases to required level', async () => {

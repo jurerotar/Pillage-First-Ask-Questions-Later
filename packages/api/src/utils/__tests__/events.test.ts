@@ -20,12 +20,15 @@ import {
   TRAPPER_CAGE_COST,
 } from '@pillage-first/game-assets/utils/trapper';
 import {
+  createAnimalCageProductionEventMock,
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
   createGameEventMock,
   createHeroHealthRegenerationEventMock,
   createHeroRevivalEventMock,
+  createHuntersLodgeHuntEventMock,
+  createTrapperCageProductionEventMock,
   createTroopMovementAdventureEventMock,
   createTroopMovementAttackEventMock,
   createTroopMovementFindNewVillageEventMock,
@@ -819,7 +822,7 @@ describe('events utils', () => {
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createGameEventMock('huntersLodgeHunt', {
+          createHuntersLodgeHuntEventMock({
             villageId,
             huntingPartyLevel: 3,
           }),
@@ -832,7 +835,7 @@ describe('events utils', () => {
       const villageId = getAnyVillageId(database);
       setHuntersLodgeLevel(database, villageId, 2);
       insertEvents(database, [
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           villageId,
           huntingPartyLevel: 1,
         }),
@@ -841,7 +844,7 @@ describe('events utils', () => {
       expect(() =>
         validateEventCreationPrerequisites(
           database,
-          createGameEventMock('huntersLodgeHunt', {
+          createHuntersLodgeHuntEventMock({
             villageId,
             huntingPartyLevel: 1,
           }),
@@ -1964,7 +1967,7 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_free_unit_training_enabled', 1);
 
-      const event = createGameEventMock('animalCageProduction', {
+      const event = createAnimalCageProductionEventMock({
         cageAmount: 2,
       });
 
@@ -1975,7 +1978,7 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_free_unit_training_enabled', 1);
 
-      const event = createGameEventMock('trapperCageProduction', {
+      const event = createTrapperCageProductionEventMock({
         cageAmount: 2,
       });
 
@@ -1985,7 +1988,7 @@ describe('events utils', () => {
     test('animalCageProduction - should return cost for the full cage batch', async () => {
       const database = await prepareTestDatabase();
 
-      const event = createGameEventMock('animalCageProduction', {
+      const event = createAnimalCageProductionEventMock({
         cageAmount: 2,
       });
 
@@ -1997,7 +2000,7 @@ describe('events utils', () => {
     test('trapperCageProduction - should return cost for the full cage batch', async () => {
       const database = await prepareTestDatabase();
 
-      const event = createGameEventMock('trapperCageProduction', {
+      const event = createTrapperCageProductionEventMock({
         cageAmount: 2,
       });
 
@@ -2038,7 +2041,7 @@ describe('events utils', () => {
 
       const cost = getEventCost(
         database,
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 3,
         }),
       );
@@ -2052,7 +2055,7 @@ describe('events utils', () => {
 
       const cost = getEventCost(
         database,
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 3,
         }),
       );
@@ -2176,7 +2179,7 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_instant_unit_training_enabled', 1);
 
-      const event = createGameEventMock('animalCageProduction', {
+      const event = createAnimalCageProductionEventMock({
         cageAmount: 3,
       });
 
@@ -2187,7 +2190,7 @@ describe('events utils', () => {
       const database = await prepareTestDatabase();
       setDevFlag(database, 'is_instant_unit_training_enabled', 1);
 
-      const event = createGameEventMock('trapperCageProduction', {
+      const event = createTrapperCageProductionEventMock({
         cageAmount: 3,
       });
 
@@ -2408,7 +2411,7 @@ describe('events utils', () => {
         bind: { $speed: 2 },
       });
 
-      const event = createGameEventMock('animalCageProduction', {
+      const event = createAnimalCageProductionEventMock({
         cageAmount: 3,
       });
 
@@ -2424,7 +2427,7 @@ describe('events utils', () => {
         bind: { $speed: 2 },
       });
 
-      const event = createGameEventMock('trapperCageProduction', {
+      const event = createTrapperCageProductionEventMock({
         cageAmount: 3,
       });
 
@@ -2442,7 +2445,7 @@ describe('events utils', () => {
 
       const result = getEventDuration(
         database,
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 4,
         }),
       );
@@ -2456,7 +2459,7 @@ describe('events utils', () => {
 
       const result = getEventDuration(
         database,
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           huntingPartyLevel: 4,
         }),
       );

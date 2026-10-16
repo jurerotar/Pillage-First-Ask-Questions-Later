@@ -7,6 +7,7 @@ import {
   createTroopMovementAttackEventMock,
   createTroopMovementFindNewVillageEventMock,
   createTroopMovementRaidEventMock,
+  createTroopMovementReinforcementsEventMock,
   createTroopMovementRelocationEventMock,
 } from '@pillage-first/mocks/event';
 import { effectSchema } from '@pillage-first/types/models/effect';
@@ -657,7 +658,7 @@ describe(reinforcementMovementResolver, () => {
 
     expect(sourceHeroEffectBeforeTileIds.length).toBeGreaterThan(0);
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 1,
       startsAt: 1000,
       duration: 500,
@@ -755,7 +756,7 @@ describe(reinforcementMovementResolver, () => {
       bind: { $village_id: sourceVillageId, $player_id: 1 },
     });
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 1,
       startsAt: 1000,
       duration: 500,
@@ -835,7 +836,7 @@ describe(reinforcementMovementResolver, () => {
       targetVillageId,
     );
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 2,
       startsAt: 1000,
       duration: 500,
@@ -900,7 +901,7 @@ describe(reinforcementMovementResolver, () => {
       owningVillageId,
     );
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 3,
       startsAt: 1000,
       duration: 500,

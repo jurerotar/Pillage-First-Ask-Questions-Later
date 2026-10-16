@@ -77,6 +77,7 @@ const gameEventResolvers = {
 export const resolveEvent = (
   database: DbFacade,
   eventId: GameEvent['id'],
+  notify: (event: EventApiNotificationEvent) => void = postWorkerMessage,
 ): void => {
   const eventRow = database.selectObject({
     sql: `
@@ -103,16 +104,14 @@ export const resolveEvent = (
       resolver as (db: DbFacade, ev: GameEvent) => ResolverResult
     )(database, event);
 
-    postWorkerMessage({
+    notify({
       eventKey: 'event:success',
       ...event,
       affectedVillageIds,
       affectedTileIds,
     } satisfies EventApiNotificationEvent);
   } catch (error) {
-    console.error(error);
-
-    postWorkerMessage({
+    notify({
       eventKey: 'event:error',
       ...event,
       affectedVillageIds: [],
