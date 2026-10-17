@@ -14,7 +14,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('statistics-controllers', () => {
   test('getPlayerRankings should return correct population (only counting building base effects)', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const playerId = database.selectValue({
       sql: 'SELECT id FROM players LIMIT 1',
@@ -97,7 +97,7 @@ describe('statistics-controllers', () => {
   });
 
   test('getVillageRankings should return correct population (only counting building base effects)', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -161,12 +161,13 @@ describe('statistics-controllers', () => {
     );
 
     const testVillage = result.find((v) => v.id === villageId);
+
     expect(testVillage).toBeDefined();
     expect(testVillage?.population).toBe(300);
   });
 
   test('getGameWorldOverview should return game world overview', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const overview = getGameWorldOverview(
       database,

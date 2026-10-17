@@ -9,5 +9,3 @@ CREATE TABLE hero_selectable_attributes
 
   FOREIGN KEY (hero_id) REFERENCES heroes (id) ON DELETE CASCADE
 ) STRICT;
-
-CREATE INDEX idx_hero_selectable_attributes_hero_id ON hero_selectable_attributes(hero_id);

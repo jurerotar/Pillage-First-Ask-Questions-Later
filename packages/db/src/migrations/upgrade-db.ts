@@ -932,10 +932,58 @@ export const upgradeDb = (
     });
   });
 
+  migrate('0.4.74', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({
+        sql: `
+          DROP INDEX IF EXISTS idx_villages_player_id;
+          DROP INDEX IF EXISTS idx_villages_slug;
+          DROP INDEX IF EXISTS idx_bookmarks_building_id;
+          DROP INDEX IF EXISTS idx_bookmarks_village_id;
+          DROP INDEX IF EXISTS idx_building_ids_building;
+          DROP INDEX IF EXISTS idx_building_level_change_history_building_id;
+          DROP INDEX IF EXISTS idx_effect_ids_effect;
+          DROP INDEX IF EXISTS idx_effects_effect_id;
+          DROP INDEX IF EXISTS idx_faction_ids_faction;
+          DROP INDEX IF EXISTS idx_faction_reputation_source_faction_id;
+          DROP INDEX IF EXISTS idx_faction_reputation_target_faction_id;
+          DROP INDEX IF EXISTS idx_farm_list_tiles_farm_list_id;
+          DROP INDEX IF EXISTS idx_hero_adventures_hero_id;
+          DROP INDEX IF EXISTS idx_hero_equipped_items_hero_id;
+          DROP INDEX IF EXISTS idx_hero_inventory_hero_id;
+          DROP INDEX IF EXISTS idx_hero_selectable_attributes_hero_id;
+          DROP INDEX IF EXISTS idx_loyalties_tile_id;
+          DROP INDEX IF EXISTS idx_map_filters_player_id;
+          DROP INDEX IF EXISTS idx_preferences_player_id;
+          DROP INDEX IF EXISTS idx_report_type_ids_report_type;
+          DROP INDEX IF EXISTS idx_resource_ids_resource;
+          DROP INDEX IF EXISTS idx_tile_type_ids_type;
+          DROP INDEX IF EXISTS idx_tiles_rfc_id;
+          DROP INDEX IF EXISTS idx_trapper_cages_village_id;
+          DROP INDEX IF EXISTS idx_tribe_ids_tribe;
+          DROP INDEX IF EXISTS idx_troops_tile_id;
+          DROP INDEX IF EXISTS idx_troops_unit_id;
+          DROP INDEX IF EXISTS idx_unit_improvements_unit_id;
+          DROP INDEX IF EXISTS idx_unit_research_unit_id;
+          DROP INDEX IF EXISTS idx_unit_training_history_building_id;
+          DROP INDEX IF EXISTS idx_world_items_tile_id;
+          DROP INDEX IF EXISTS idx_wounded_troops_unit_id;
+          DROP INDEX IF EXISTS idx_wounded_troops_village_id;
+          CREATE INDEX idx_villages_player_id ON villages (player_id);
+          CREATE INDEX idx_villages_slug ON villages (slug) WHERE slug IS NOT NULL;
+        `,
+      });
+    });
+  });
+
   // If all migrations passed, bump it to current version
   if (databaseVersion !== targetDatabaseVersion) {
     database.exec({
       sql: `PRAGMA user_version=${targetDatabaseVersion};`,
     });
   }
+
+  database.exec({
+    sql: 'VACUUM;',
+  });
 };

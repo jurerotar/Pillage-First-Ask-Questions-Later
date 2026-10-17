@@ -6,7 +6,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('unit-research-controllers', () => {
   test('getResearchedUnits should return researched units for a village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Find a village to test with
     const villageId = database.selectValue({

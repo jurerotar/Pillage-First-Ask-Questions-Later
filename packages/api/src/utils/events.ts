@@ -36,7 +36,6 @@ import {
   calculateUnitUpgradeDurationForLevel,
   getUnitDefinition,
 } from '@pillage-first/game-assets/utils/units';
-import { effectSchema } from '@pillage-first/types/models/effect';
 import type {
   GameEvent,
   TroopMovementEvent,
@@ -82,10 +81,7 @@ import {
   selectAllRelevantEffectsByIdQuery,
   selectUnitSpeedRelevantEffectsQuery,
 } from '../queries/effect-queries';
-import {
-  selectAllVillageEventsByTypeQuery,
-  selectVillageEventExistsByTypeQuery,
-} from '../queries/event-queries';
+import { selectVillageEventExistsByTypeQuery } from '../queries/event-queries';
 import { selectHeroSpeedQuery } from '../queries/hero-queries';
 import { selectServerMapSizeQuery } from '../queries/server-queries';
 import { selectIsUnitResearchedQuery } from '../queries/unit-research-queries';
@@ -124,12 +120,7 @@ import {
   doesTroopTrainingDurationEffectMatchBuilding,
   isUnitInVillageTribe,
 } from './unit-event-validation';
-import { calculateResourceSiteResourcesAt, getVillageTileId } from './village';
 import { apiEffectSchema } from './zod/effect-schemas';
-import {
-  baseEventRowSchema,
-  mapEventRowToTypedEvent,
-} from './zod/event-schemas';
 
 const nonMetaEventProperties = new Set([
   'id',
@@ -141,33 +132,14 @@ const nonMetaEventProperties = new Set([
 ]);
 
 export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
-  const amountOfColumnsToInsert = 5;
+  if (events.length === 0) {
+    return;
+  }
 
-  const sqlTemplate = `
-    INSERT INTO
-      events (type, starts_at, duration, village_id, meta)
-    VALUES
-      (?, ?, ?, ?, ?)
-  `;
+  const rows: SqlValue[][] = new Array(events.length);
 
-  const amountOfEvents = events.length;
-
-  const sql = `${sqlTemplate}${',(?, ?, ?, ?, ?)'.repeat(amountOfEvents - 1)};`;
-
-  const params: SqlValue[] = Array.from({
-    length: events.length * amountOfColumnsToInsert,
-  });
-
-  // We intentionally skip object destructuring assignment in favor of this manual approach,
-  // due to this approach being ~ 1.5x faster, which adds when potentially creating thousands of events.
   for (let i = 0; i < events.length; i += 1) {
     const event = events[i];
-    const base = i * amountOfColumnsToInsert;
-
-    params[base] = event.type;
-    params[base + 1] = event.startsAt;
-    params[base + 2] = event.duration;
-    params[base + 3] = event.villageId ?? null;
 
     let metaObj: Record<string, SqlValue> | undefined;
     for (const property in event) {
@@ -181,11 +153,30 @@ export const insertEvents = (database: DbFacade, events: GameEvent[]): void => {
       metaObj[property] = event[property as keyof GameEvent];
     }
 
-    params[base + 4] = metaObj ? JSON.stringify(metaObj) : null;
+    rows[i] = [
+      event.type,
+      event.startsAt,
+      event.duration,
+      event.villageId ?? null,
+      metaObj ? JSON.stringify(metaObj) : null,
+    ];
   }
 
-  const stmt = database.prepare({ sql });
-  stmt.bind(params).stepReset();
+  // One JSON parameter avoids SQLite's bind-variable limit and lets every
+  // batch size reuse the same cached statement. The insert remains atomic.
+  database.exec({
+    sql: `
+      INSERT INTO events (type, starts_at, duration, village_id, meta)
+      SELECT
+        value ->> '$[0]',
+        value ->> '$[1]',
+        value ->> '$[2]',
+        value ->> '$[3]',
+        value ->> '$[4]'
+      FROM json_each($events);
+    `,
+    bind: { $events: JSON.stringify(rows) },
+  });
 };
 
 // WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
@@ -323,7 +314,14 @@ export const validateEventCreationPrerequisites = (
 
     const unit = getUnitDefinition(unitId);
     const isHealing = isHealingTroopTrainingBuilding(buildingId);
-    if (!isUnitInVillageTribe(database, villageId, unit)) {
+
+    const tribe = database.selectValue({
+      sql: selectTribeByVillageId,
+      bind: { $village_id: villageId },
+      schema: tribeSchema,
+    })!;
+
+    if (unit.tribe !== 'all' && unit.tribe !== tribe) {
       throw new Error('Unit does not belong to village tribe');
     }
 
@@ -364,14 +362,6 @@ export const validateEventCreationPrerequisites = (
     }
 
     if (isHealing) {
-      const tribe = database.selectValue({
-        sql: selectTribeByVillageId,
-        bind: {
-          $village_id: villageId,
-        },
-        schema: tribeSchema,
-      })!;
-
       if (isAsclepeion(buildingId) && tribe !== 'spartans') {
         throw new Error('Asclepeion can only be used by Spartans');
       }
@@ -547,20 +537,19 @@ export const validateEventCreationPrerequisites = (
       throw new Error('Gathering trip must include troops');
     }
 
-    const villageTileId = database.selectValue({
-      sql: selectVillageTileIdQuery,
-      bind: {
-        $village_id: villageId,
-      },
-      schema: z.number(),
-    })!;
-
-    const playerTribe = database.selectValue({
-      sql: selectTribeByVillageId,
-      bind: {
-        $village_id: villageId,
-      },
-      schema: playableTribeSchema,
+    const { villageTileId, playerTribe } = database.selectObject({
+      sql: `
+        SELECT v.tile_id AS villageTileId, ti.tribe AS playerTribe
+        FROM villages v
+        JOIN players p ON p.id = v.player_id
+        JOIN tribe_ids ti ON ti.id = p.tribe_id
+        WHERE v.id = $village_id;
+      `,
+      bind: { $village_id: villageId },
+      schema: z.strictObject({
+        villageTileId: z.number(),
+        playerTribe: playableTribeSchema,
+      }),
     })!;
 
     let troopAmount = 0;
@@ -605,9 +594,10 @@ export const validateEventCreationPrerequisites = (
 
     if (troopAmountsByUnitId.size === 1) {
       const [unitId, amount] = troopAmountsByUnitId.entries().next().value!;
-      const availableTroops = database.selectValue({
-        sql: `
-          SELECT COALESCE(SUM(t.amount), 0)
+      const availableTroops =
+        database.selectValue({
+          sql: `
+          SELECT t.amount
           FROM
             troops t
             JOIN unit_ids ui ON ui.id = t.unit_id
@@ -616,12 +606,12 @@ export const validateEventCreationPrerequisites = (
             AND t.tile_id = $tile_id
             AND t.source_tile_id = $tile_id;
         `,
-        bind: {
-          $unit_id: unitId,
-          $tile_id: villageTileId,
-        },
-        schema: z.number(),
-      })!;
+          bind: {
+            $unit_id: unitId,
+            $tile_id: villageTileId,
+          },
+          schema: z.number(),
+        }) ?? 0;
 
       if (amount > availableTroops) {
         throw new Error('Not enough idle troops available');
@@ -634,12 +624,11 @@ export const validateEventCreationPrerequisites = (
         WITH requested_troops AS (
           SELECT
             unit_ids.id AS unit_id,
-            SUM(json_extract(troop.value, '$.amount')) AS amount
+            json_extract(troop.value, '$.amount') AS amount
           FROM
             json_each($troops) AS troop
             JOIN unit_ids
               ON unit_ids.unit = json_extract(troop.value, '$.unitId')
-          GROUP BY unit_ids.id
         )
         SELECT EXISTS (
           SELECT 1
@@ -649,8 +638,7 @@ export const validateEventCreationPrerequisites = (
               ON troops.unit_id = requested_troops.unit_id
               AND troops.tile_id = $tile_id
               AND troops.source_tile_id = $tile_id
-          GROUP BY requested_troops.unit_id, requested_troops.amount
-          HAVING COALESCE(SUM(troops.amount), 0) < requested_troops.amount
+          WHERE COALESCE(troops.amount, 0) < requested_troops.amount
         );
       `,
       bind: {
@@ -719,48 +707,42 @@ export const validateEventCreationPrerequisites = (
       return;
     }
 
-    const buildingEventsCount = database.selectValue({
+    const hasOngoingBuildingEvent = database.selectValue({
       sql: `
-        SELECT
-          COUNT(*) AS buildingEventsCount
-        FROM
-          (
-            SELECT *,
-              CAST(JSON_EXTRACT(meta, '$.buildingFieldId') AS INTEGER) AS building_field_id
-            FROM
-              events
-            WHERE
-              village_id = $village_id
-            ) e
-            JOIN villages v ON v.id = e.village_id
-            JOIN players p ON p.id = v.player_id
-            JOIN tribe_ids ti ON p.tribe_id = ti.id
-        WHERE
-          e.type IN ('buildingConstruction', 'buildingLevelChange')
-          AND NOT (
-            e.type IN ('buildingLevelChange', 'buildingDestruction')
-                  AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
-                      CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
-                )
-              AND (
-                -- If player is not Romans, include all building events
-                ti.tribe <> 'romans'
-              -- If Romans, only include events from the same "half" (<=18 or >18)
+        SELECT EXISTS (
+          SELECT 1
+          FROM events e
+          JOIN villages v ON v.id = e.village_id
+          JOIN players p ON p.id = v.player_id
+          JOIN tribe_ids ti ON ti.id = p.tribe_id
+          WHERE e.village_id = $village_id
+            AND e.type IN ('buildingConstruction', 'buildingLevelChange')
+            AND NOT (
+              e.type = 'buildingLevelChange'
+              AND CAST(JSON_EXTRACT(e.meta, '$.previousLevel') AS INTEGER) >
+                  CAST(JSON_EXTRACT(e.meta, '$.level') AS INTEGER)
+            )
+            AND (
+              ti.tribe <> 'romans'
               OR (
-              (e.building_field_id <= 18 AND CAST($building_field_id AS INTEGER) <= 18)
-                OR
-              (e.building_field_id > 18 AND CAST($building_field_id AS INTEGER) > 18)
+                CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) <= 18
+                AND CAST($building_field_id AS INTEGER) <= 18
               )
-            );
+              OR (
+                CAST(JSON_EXTRACT(e.meta, '$.buildingFieldId') AS INTEGER) > 18
+                AND CAST($building_field_id AS INTEGER) > 18
+              )
+            )
+        );
       `,
       bind: {
         $village_id: villageId,
         $building_field_id: buildingFieldId,
       },
-      schema: z.number(),
+      schema: z.coerce.boolean(),
     })!;
 
-    if (buildingEventsCount >= 1) {
+    if (hasOngoingBuildingEvent) {
       throw new BuildingConstructionQueueFullError();
     }
 
@@ -981,29 +963,6 @@ export const validateEventCreationPrerequisites = (
       throw new Error(errors[0]);
     }
   }
-};
-
-// WARNING: `event` does not include `startsAt` and `duration` at this point in the flow!
-export const validateEventCreationResources = (
-  database: DbFacade,
-  event: GameEvent,
-  eventCost: number[],
-): boolean => {
-  const { villageId, startsAt } = event;
-  const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
-  const { currentWood, currentClay, currentIron, currentWheat } =
-    calculateResourceSiteResourcesAt(
-      database,
-      getVillageTileId(database, villageId!),
-      startsAt,
-    );
-
-  return !(
-    woodCost > currentWood ||
-    clayCost > currentClay ||
-    ironCost > currentIron ||
-    wheatCost > currentWheat
-  );
 };
 
 export const runEventCreationSideEffects = (
@@ -1553,7 +1512,7 @@ export const getEventDuration = (
       bind: {
         $village_id: villageId,
       },
-      schema: effectSchema,
+      schema: apiEffectSchema,
     });
 
     const mapSize = database.selectValue({
@@ -1677,28 +1636,21 @@ export const getEventStartTime = (
   if (isTroopTrainingEvent(event)) {
     const { villageId, buildingId } = event;
 
-    const eventRows = database.selectObjects({
-      sql: selectAllVillageEventsByTypeQuery,
+    return database.selectValue({
+      sql: `
+        SELECT COALESCE(MAX(resolves_at), $now)
+        FROM events
+        WHERE type = 'troopTraining'
+          AND (village_id = $village_id OR village_id IS NULL)
+          AND json_extract(meta, '$.buildingId') = $building_id;
+      `,
       bind: {
         $village_id: villageId,
-        $type: 'troopTraining',
+        $building_id: buildingId,
+        $now: Date.now(),
       },
-      schema: baseEventRowSchema,
-    });
-    const events = eventRows.map(
-      mapEventRowToTypedEvent,
-    ) as GameEvent<'troopTraining'>[];
-
-    const relevantTrainingEvents = events.filter((event) => {
-      return event.buildingId === buildingId;
-    });
-
-    if (relevantTrainingEvents.length > 0) {
-      const lastEvent = relevantTrainingEvents.at(-1)!;
-      return lastEvent.startsAt + lastEvent.duration;
-    }
-
-    return Date.now();
+      schema: z.number(),
+    })!;
   }
 
   if (isAnimalCageProductionEvent(event)) {

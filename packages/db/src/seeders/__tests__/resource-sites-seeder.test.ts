@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { resourcesSchema } from '@pillage-first/types/models/resource';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('resourceSitesSeeder', () => {
-  test('resource_sites seeded for both villages and oases with bonuses', () => {
+  test('resource_sites seeded for both villages and oases with bonuses', async () => {
+    using database = await prepareTestDatabase();
+
     const villageTileCount = database.selectValue({
       sql: 'SELECT COUNT(DISTINCT tile_id) FROM villages;',
       schema: z.number(),
@@ -25,7 +25,9 @@ describe('resourceSitesSeeder', () => {
     expect(siteCount).toBe(villageTileCount + oasisTileCount);
   });
 
-  test('all villages have resource sites', () => {
+  test('all villages have resource sites', async () => {
+    using database = await prepareTestDatabase();
+
     const missing = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -37,10 +39,13 @@ describe('resourceSitesSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(missing).toBe(0);
   });
 
-  test('all oases with bonuses have resource sites', () => {
+  test('all oases with bonuses have resource sites', async () => {
+    using database = await prepareTestDatabase();
+
     const missing = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -52,10 +57,13 @@ describe('resourceSitesSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(missing).toBe(0);
   });
 
-  test('no resource sites for non-village and non-oasis tiles', () => {
+  test('no resource sites for non-village and non-oasis tiles', async () => {
+    using database = await prepareTestDatabase();
+
     const invalid = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -69,10 +77,13 @@ describe('resourceSitesSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(invalid).toBe(0);
   });
 
-  test('starting village (0,0) has 750 resources', () => {
+  test('starting village (0,0) has 750 resources', async () => {
+    using database = await prepareTestDatabase();
+
     const row = database.selectObject({
       sql: `
         SELECT wood, clay, iron, wheat

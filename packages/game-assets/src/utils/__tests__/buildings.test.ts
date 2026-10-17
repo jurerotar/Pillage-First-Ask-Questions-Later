@@ -16,6 +16,7 @@ describe('buildings utils', () => {
     test('roman wall effect values', () => {
       const building = getBuildingDefinition('ROMAN_WALL');
       const result = calculateBuildingEffectValues(building, 20, 'romans');
+
       expect(
         result.some(
           (e) =>
@@ -27,6 +28,7 @@ describe('buildings utils', () => {
     test('bakery wheat production bonus', () => {
       const building = getBuildingDefinition('BAKERY');
       const result = calculateBuildingEffectValues(building, 5, 'romans');
+
       expect(
         result.some(
           (e) =>
@@ -38,6 +40,7 @@ describe('buildings utils', () => {
     test('clay pit clay production', () => {
       const building = getBuildingDefinition('CLAY_PIT');
       const result = calculateBuildingEffectValues(building, 20, 'romans');
+
       expect(
         result.find((e) => e.effectId === 'clayProduction')!.currentLevelValue,
       ).toBe(3430);
@@ -46,6 +49,7 @@ describe('buildings utils', () => {
     test('roman wall values are increasing', () => {
       const building = getBuildingDefinition('ROMAN_WALL');
       const result = calculateBuildingEffectValues(building, 10, 'romans');
+
       expect(
         result.find((e) => e.effectId === 'infantryDefence')!
           .areEffectValuesRising,
@@ -55,6 +59,7 @@ describe('buildings utils', () => {
     test('bakery wheat production bonus values are increasing', () => {
       const building = getBuildingDefinition('BAKERY');
       const result = calculateBuildingEffectValues(building, 3, 'romans');
+
       expect(
         result.find(
           (e) =>
@@ -106,6 +111,7 @@ describe('buildings utils', () => {
     test('main building level 1', () => {
       const { isMaxLevel, nextLevelPopulation, nextLevelResourceCost } =
         getBuildingDataForLevel('MAIN_BUILDING', 1);
+
       expect(isMaxLevel).toBe(false);
       expect(nextLevelPopulation).toBe(3);
       expect(nextLevelResourceCost).toStrictEqual([90, 55, 80, 30]);
@@ -113,6 +119,7 @@ describe('buildings utils', () => {
 
     test('main building level 20', () => {
       const { isMaxLevel } = getBuildingDataForLevel('MAIN_BUILDING', 20);
+
       expect(isMaxLevel).toBe(true);
     });
   });
@@ -120,6 +127,7 @@ describe('buildings utils', () => {
   describe(calculateBuildingCostForLevel, () => {
     test('should calculate correct building cost', () => {
       const cost = calculateBuildingCostForLevel('MAIN_BUILDING', 1);
+
       expect(cost).toStrictEqual([70, 40, 60, 20]);
     });
   });
@@ -139,6 +147,7 @@ describe('buildings utils', () => {
         1,
         0.05,
       );
+
       expect(refundAt5).toStrictEqual([66, 38, 57, 19]);
     });
 
@@ -175,6 +184,7 @@ describe('buildings utils', () => {
         1,
         1,
       );
+
       expect(refundAt100).toStrictEqual([28, 16, 24, 8]);
     });
   });
@@ -182,6 +192,7 @@ describe('buildings utils', () => {
   describe(calculateBuildingDurationForLevel, () => {
     test('should calculate correct duration for level 1', () => {
       const duration = calculateBuildingDurationForLevel('MAIN_BUILDING', 1);
+
       expect(duration).toBe(2_000_000);
     });
   });
@@ -189,6 +200,7 @@ describe('buildings utils', () => {
   describe(calculateBuildingDestructionDuration, () => {
     test('should calculate demolition duration based on level and speed', () => {
       const duration = calculateBuildingDestructionDuration(6, 2);
+
       expect(duration).toBe(900_000);
     });
   });

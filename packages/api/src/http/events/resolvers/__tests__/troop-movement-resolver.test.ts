@@ -7,6 +7,7 @@ import {
   createTroopMovementAttackEventMock,
   createTroopMovementFindNewVillageEventMock,
   createTroopMovementRaidEventMock,
+  createTroopMovementReinforcementsEventMock,
   createTroopMovementRelocationEventMock,
 } from '@pillage-first/mocks/event';
 import { effectSchema } from '@pillage-first/types/models/effect';
@@ -118,7 +119,7 @@ const getVillageTileId = (database: DbFacade, villageId: number) =>
 
 describe(oasisOccupationMovementResolver, () => {
   test('should occupy oasis and send troops back', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const originTileId = getVillageTileId(database, villageId);
     const targetTileId = database.selectValue({
@@ -183,7 +184,7 @@ describe(oasisOccupationMovementResolver, () => {
 
 describe(adventureMovementResolver, () => {
   test('should handle hero surviving adventure', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = 1;
 
@@ -305,9 +306,9 @@ describe(adventureMovementResolver, () => {
     const returnEvent = mapEventRowToTypedEvent(
       returnEventRow,
     ) as GameEvent<'troopMovementReturn'>;
+
     expect(returnEvent).toBeDefined();
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
-
     expect(returnEvent.targetTileId).toBe(
       getVillageTileId(database, villageId),
     );
@@ -335,7 +336,7 @@ describe(adventureMovementResolver, () => {
   });
 
   test('should handle hero death during adventure', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = 1;
     const heroId = database.selectValue({
@@ -435,12 +436,14 @@ describe(adventureMovementResolver, () => {
           returnEventRow,
         ) as GameEvent<'troopMovementReturn'>)
       : undefined;
+
     expect(returnEvent).toBeUndefined();
 
     const regenerationEvent = database.selectValue({
       sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
       schema: z.string(),
     });
+
     expect(regenerationEvent).toBeUndefined();
 
     // Check if hero effects were removed
@@ -449,13 +452,14 @@ describe(adventureMovementResolver, () => {
       bind: { $hero_id: heroId },
       schema: z.number(),
     });
+
     expect(effectsCount).toBe(0);
   });
 });
 
 describe(relocationMovementResolver, () => {
   test('should update hero village_id and hero effects tile_id upon relocation', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const initialVillageId = 1;
     const targetVillageId = 2;
@@ -493,6 +497,7 @@ describe(relocationMovementResolver, () => {
       bind: { $player_id: 1 }, // Assuming PLAYER_ID is 1
       schema: z.number(),
     });
+
     expect(heroVillageId).toBe(targetVillageId);
 
     // Verify hero effects tile_id update
@@ -502,6 +507,7 @@ describe(relocationMovementResolver, () => {
     });
 
     expect(effectTileIds.length).toBeGreaterThan(0);
+
     for (const effect of effectTileIds) {
       expect(effect).toBe(targetTileId);
     }
@@ -511,6 +517,7 @@ describe(relocationMovementResolver, () => {
       sql: "SELECT tile_id FROM troops WHERE unit_id = (SELECT id FROM unit_ids WHERE unit = 'HERO');",
       schema: z.number(),
     })!;
+
     expect(heroTroopTileId).toBe(targetTileId);
 
     const movementReport = database.selectObject({
@@ -554,7 +561,7 @@ describe(relocationMovementResolver, () => {
   });
 
   test('should move troop wheatProduction effects from origin village to target village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const targetVillageId = 2;
@@ -618,7 +625,7 @@ describe(relocationMovementResolver, () => {
 
 describe(reinforcementMovementResolver, () => {
   test('should keep hero effects on origin village when hero is sent as reinforcement', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const targetVillageId = 2;
@@ -657,7 +664,7 @@ describe(reinforcementMovementResolver, () => {
 
     expect(sourceHeroEffectBeforeTileIds.length).toBeGreaterThan(0);
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 1,
       startsAt: 1000,
       duration: 500,
@@ -729,7 +736,7 @@ describe(reinforcementMovementResolver, () => {
   });
 
   test('should not update hero village_id when hero is sent as reinforcement', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const targetVillageId = 2;
@@ -755,7 +762,7 @@ describe(reinforcementMovementResolver, () => {
       bind: { $village_id: sourceVillageId, $player_id: 1 },
     });
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 1,
       startsAt: 1000,
       duration: 500,
@@ -801,7 +808,7 @@ describe(reinforcementMovementResolver, () => {
   });
 
   test('should move troop wheatProduction effects from origin village to target village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const targetVillageId = 2;
@@ -835,7 +842,7 @@ describe(reinforcementMovementResolver, () => {
       targetVillageId,
     );
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 2,
       startsAt: 1000,
       duration: 500,
@@ -863,7 +870,7 @@ describe(reinforcementMovementResolver, () => {
   });
 
   test('should keep troop wheatProduction effects on origin village when reinforcing an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillageId = 1;
     const owningVillageId = 2;
@@ -900,7 +907,7 @@ describe(reinforcementMovementResolver, () => {
       owningVillageId,
     );
 
-    const mockEvent = createGameEventMock('troopMovementReinforcements', {
+    const mockEvent = createTroopMovementReinforcementsEventMock({
       id: 3,
       startsAt: 1000,
       duration: 500,
@@ -947,7 +954,7 @@ describe(reinforcementMovementResolver, () => {
 
 describe(findNewVillageMovementResolver, () => {
   test('charges settler upkeep until founding and preserves other troop upkeep', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const sourceTileId = getVillageTileId(database, 1);
     const targetTileId = database.selectValue({
       sql: `
@@ -1033,16 +1040,18 @@ describe(findNewVillageMovementResolver, () => {
       ).currentWheat,
     ).toBe(283);
     expect(getTroopWheatProductionEffectValue(database, 1)).toBe(7);
+
     const newVillageId = database.selectValue({
       sql: 'SELECT id FROM villages WHERE tile_id = $tile_id;',
       bind: { $tile_id: targetTileId },
       schema: z.number(),
     })!;
+
     expect(getTroopWheatProductionEffectValue(database, newVillageId)).toBe(0);
   });
 
   test('should create a new village with building fields, resource site, and quests', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Pick a free tile that is not (0,0)
     const targetTile = database.selectObject({
@@ -1085,6 +1094,7 @@ describe(findNewVillageMovementResolver, () => {
         tile_id: z.number(),
       }),
     })!;
+
     expect(newVillage.name).toBe('New village');
     expect(newVillage.slug).toBe('v-2'); // 2nd village for player
 
@@ -1142,6 +1152,7 @@ describe(findNewVillageMovementResolver, () => {
 
     // Check Main Building level 1
     const mainBuilding = buildingFields.find((f) => f.field_id === 38);
+
     expect(mainBuilding?.level).toBe(1);
 
     // Verify resource site
@@ -1156,6 +1167,7 @@ describe(findNewVillageMovementResolver, () => {
         updated_at: z.number(),
       }),
     })!;
+
     expect(resourceSite.wood).toBe(750);
     expect(resourceSite.updated_at).toBe(resolvesAt);
 
@@ -1171,6 +1183,7 @@ describe(findNewVillageMovementResolver, () => {
 
     // Check if some key quests are present
     const questIds = quests.map((q) => q.quest_id);
+
     expect(questIds).toContain('oneOf-MAIN_BUILDING-1');
     expect(questIds).toContain('oneOf-WHEAT_FIELD-1');
 
@@ -1178,6 +1191,7 @@ describe(findNewVillageMovementResolver, () => {
     const mainBuildingQuest = quests.find(
       (q) => q.quest_id === 'oneOf-MAIN_BUILDING-1',
     );
+
     expect(mainBuildingQuest?.completed_at).toBe(resolvesAt);
 
     // Check building wheat consumption (population)
@@ -1210,6 +1224,7 @@ describe(findNewVillageMovementResolver, () => {
     const baseBuildingEffect = buildingWheatEffects.find(
       (e) => e.sourceSpecifier === 0,
     );
+
     expect(baseBuildingEffect).toBeDefined();
     expect(baseBuildingEffect!.value).toBe(-3);
 
@@ -1237,6 +1252,7 @@ describe(findNewVillageMovementResolver, () => {
       bind: { $villageId: newVillage.id },
       schema: effectSchema,
     });
+
     expect(troopWheatEffects).toHaveLength(1);
     expect(troopWheatEffects[0].sourceSpecifier).toBe(0);
     expect(troopWheatEffects[0].value).toBe(0);
@@ -1253,7 +1269,7 @@ describe(findNewVillageMovementResolver, () => {
 
 describe(attackMovementResolver, () => {
   test('should create a return event starting at the attack resolution time', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     const mockEvent = createTroopMovementAttackEventMock({
@@ -1279,14 +1295,13 @@ describe(attackMovementResolver, () => {
     ) as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
-
     expect(returnEvent.targetTileId).toBe(
       getVillageTileId(database, villageId),
     );
   });
 
   test('should loot target resources, create a battle report, and carry loot home on return', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const originTileId = getVillageTileId(database, villageId);
     const target = database.selectObject({
@@ -1480,7 +1495,7 @@ describe(attackMovementResolver, () => {
   });
 
   test('should subtract target village cranny capacity from total loot', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const originTileId = getVillageTileId(database, villageId);
     const target = database.selectObject({
@@ -1602,7 +1617,7 @@ describe(attackMovementResolver, () => {
 
 describe(raidMovementResolver, () => {
   test('should create a return event starting at the raid resolution time', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     const mockEvent = createTroopMovementRaidEventMock({
@@ -1628,7 +1643,6 @@ describe(raidMovementResolver, () => {
     ) as GameEvent<'troopMovementReturn'>;
 
     expect(returnEvent.startsAt).toBe(mockEvent.resolvesAt);
-
     expect(returnEvent.targetTileId).toBe(
       getVillageTileId(database, villageId),
     );
@@ -1648,7 +1662,7 @@ describe(raidMovementResolver, () => {
   });
 
   test('should loot an oasis resource site and carry loot home on return', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const originTileId = getVillageTileId(database, villageId);
     const targetOasisTileId = database.selectValue({
@@ -1836,7 +1850,7 @@ describe(raidMovementResolver, () => {
   });
 
   test('should calculate latest oasis resources from production and storage effects before looting', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const originTileId = getVillageTileId(database, villageId);
     const targetOasisTileId = database.selectValue({
@@ -1946,7 +1960,7 @@ describe(raidMovementResolver, () => {
   });
 
   test('should cap latest oasis resources at the 2000 storage limit before looting', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const originTileId = getVillageTileId(database, villageId);
     const targetOasisTileId = database.selectValue({

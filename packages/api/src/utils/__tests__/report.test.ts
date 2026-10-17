@@ -5,7 +5,7 @@ import { insertReport } from '../report';
 
 describe(insertReport, () => {
   test('keeps the newest 1,000 non-archived reports', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     database.exec({
       sql: 'DELETE FROM reports;',
@@ -72,7 +72,7 @@ describe(insertReport, () => {
   });
 
   test('battle report unit insert trigger should create wounded troops from Hospital losses', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
@@ -212,7 +212,7 @@ describe(insertReport, () => {
   });
 
   test('battle report unit insert trigger should not create wounded troops without Hospital or Asclepeion', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
@@ -324,7 +324,7 @@ describe(insertReport, () => {
   });
 
   test('battle report unit insert trigger should only create wounded troops for player participants', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
@@ -436,7 +436,7 @@ describe(insertReport, () => {
   });
 
   test('battle report unit insert trigger should not create wounded troops for reinforcements', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillage = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',
@@ -563,7 +563,7 @@ describe(insertReport, () => {
   });
 
   test('battle report unit insert trigger should use Asclepeion wounded rate', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages ORDER BY id LIMIT 1;',

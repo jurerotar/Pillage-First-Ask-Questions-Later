@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('mapFiltersSeeder', () => {
-  test('map_filters row exists for player', () => {
+  test('map_filters row exists for player', async () => {
+    using database = await prepareTestDatabase();
+
     const countRow = database.selectValue({
       sql: `
         SELECT COUNT(*) AS cnt

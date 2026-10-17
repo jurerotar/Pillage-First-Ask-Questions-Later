@@ -67,7 +67,7 @@ const getVillageTileId = (database: DbFacade, villageId: number) =>
 
 describe('event-controllers', () => {
   test('getVillageEvents should return events for a village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -96,7 +96,7 @@ describe('event-controllers', () => {
   });
 
   test('getVillageEventsByType should return events for a village by type', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -125,7 +125,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelConstructionEvent should promote the next scheduled building upgrade', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     database.exec({
@@ -219,7 +219,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelConstructionEvent should promote a scheduled upgrade from the freed Roman construction lane', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     database.execMulti({
@@ -359,7 +359,7 @@ describe('event-controllers', () => {
   });
 
   test('getVillageEventsByType should return outgoing and incoming resource transfer events', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
 
     const sourceVillage = database.selectObject({
@@ -439,6 +439,7 @@ describe('event-controllers', () => {
         villageId: sourceVillage.id,
         targetVillageId: targetVillage.id,
       }),
+
       expect.objectContaining({
         type: 'resourceTransfer',
         villageId: targetVillage.id,
@@ -448,7 +449,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelConstructionEvent should refund resources based on completion %', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const tileId = getVillageTileId(database, villageId);
     const now = 1_000_000;
@@ -515,7 +516,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelConstructionEvent should refund proportionally when cancelled at 50% completion', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const tileId = getVillageTileId(database, villageId);
     const startsAt = 1_000_000;
@@ -590,7 +591,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelConstructionEvent should refund 40% when cancelled at 99% completion', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const tileId = getVillageTileId(database, villageId);
     const startsAt = 1_000_000;
@@ -664,7 +665,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelUnitImprovementEvent should delete the event and refund the full upgrade cost', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const tileId = getVillageTileId(database, villageId);
     const startsAt = Date.now();
@@ -747,7 +748,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelDemolitionEvent should remove only demolition event in village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const otherVillageId = 2;
     const now = Date.now();
@@ -840,7 +841,7 @@ describe('event-controllers', () => {
   });
 
   test('cancelDemolitionEvent should remove downgrade buildingLevelChange event in village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const now = Date.now();
 

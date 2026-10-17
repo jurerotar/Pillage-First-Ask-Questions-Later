@@ -12,7 +12,7 @@ import {
 
 describe('hero-resolvers', () => {
   test('heroRevivalResolver should set hero health to 100', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     database.exec({ sql: 'UPDATE heroes SET health = 0;' });
 
@@ -44,7 +44,9 @@ describe('hero-resolvers', () => {
     });
 
     expect(effects).toHaveLength(4);
+
     const effectNames = effects.map((e) => e);
+
     expect(effectNames).toContain('woodProduction');
     expect(effectNames).toContain('clayProduction');
     expect(effectNames).toContain('ironProduction');
@@ -52,7 +54,7 @@ describe('hero-resolvers', () => {
   });
 
   test('heroHealthRegenerationResolver should increase health and schedule next event', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // 1. Setup: hero at 50 health, with health_regeneration = 10
     database.exec({
@@ -76,6 +78,7 @@ describe('hero-resolvers', () => {
       sql: 'SELECT health FROM heroes LIMIT 1;',
       schema: z.number(),
     });
+
     expect(health).toBe(51);
 
     // 5. Verify next event scheduled
@@ -83,12 +86,13 @@ describe('hero-resolvers', () => {
       sql: "SELECT type, starts_at AS startsAt FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
       schema: z.strictObject({ type: z.string(), startsAt: z.number() }),
     });
+
     expect(nextEvent).toBeDefined();
     expect(nextEvent?.type).toBe('heroHealthRegeneration');
   });
 
   test('heroHealthRegenerationResolver should NOT increase health and should NOT schedule next event if hero health is 100', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // 1. Setup: hero at 100 health, with health_regeneration = 10
     database.exec({
@@ -112,6 +116,7 @@ describe('hero-resolvers', () => {
       sql: 'SELECT health FROM heroes LIMIT 1;',
       schema: z.number(),
     });
+
     expect(health).toBe(100);
 
     // 5. Verify next event is not scheduled
@@ -119,11 +124,12 @@ describe('hero-resolvers', () => {
       sql: "SELECT type FROM events WHERE type = 'heroHealthRegeneration' LIMIT 1;",
       schema: z.string(),
     });
+
     expect(nextEvent).toBeUndefined();
   });
 
   test('heroHealthRegenerationResolver should NOT increase health if hero is dead (original check)', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     database.exec({
       sql: 'UPDATE heroes SET health = 0, health_regeneration = 10;',
@@ -142,6 +148,7 @@ describe('hero-resolvers', () => {
       sql: 'SELECT health FROM heroes LIMIT 1;',
       schema: z.number(),
     });
+
     expect(health).toBe(0);
   });
 });

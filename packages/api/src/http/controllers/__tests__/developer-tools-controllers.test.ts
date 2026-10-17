@@ -3,10 +3,13 @@ import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import {
+  createAnimalCageProductionEventMock,
   createBuildingConstructionEventMock,
   createBuildingDestructionEventMock,
   createBuildingLevelChangeEventMock,
-  createGameEventMock,
+  createGatherersHutGatheringTripEventMock,
+  createHuntersLodgeHuntEventMock,
+  createTrapperCageProductionEventMock,
   createTroopMovementAdventureEventMock,
   createTroopTrainingEventMock,
   createUnitImprovementEventMock,
@@ -38,7 +41,7 @@ describe('developer-tools-controllers', () => {
       vi.setSystemTime(1_000_000);
 
       try {
-        const database = await prepareTestDatabase();
+        using database = await prepareTestDatabase();
         const tileId = database.selectValue({
           sql: 'SELECT tile_id FROM villages WHERE id = 1',
           schema: z.number(),
@@ -82,7 +85,7 @@ describe('developer-tools-controllers', () => {
 
   describe(updateDeveloperSettings, () => {
     test('should update setting in database', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       updateDeveloperSettings(
         database,
@@ -106,7 +109,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish building events when isInstantBuildingConstructionEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -170,7 +173,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish unit production events when isInstantUnitTrainingEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -179,13 +182,13 @@ describe('developer-tools-controllers', () => {
           duration: 5000,
           villageId: 1,
         }),
-        createGameEventMock('animalCageProduction', {
+        createAnimalCageProductionEventMock({
           startsAt: now + 2000,
           duration: 6000,
           villageId: 1,
           cageAmount: 3,
         }),
-        createGameEventMock('trapperCageProduction', {
+        createTrapperCageProductionEventMock({
           startsAt: now + 3000,
           duration: 7000,
           villageId: 1,
@@ -227,7 +230,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish improvement events when isInstantUnitImprovementEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -258,7 +261,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish research events when isInstantUnitResearchEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -289,7 +292,7 @@ describe('developer-tools-controllers', () => {
     });
 
     test('should instantly finish travel and hunting party events when isInstantUnitTravelEnabled is set to true', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = Date.now();
 
       insertEvents(database, [
@@ -298,13 +301,13 @@ describe('developer-tools-controllers', () => {
           duration: 5000,
           villageId: 1,
         }),
-        createGameEventMock('huntersLodgeHunt', {
+        createHuntersLodgeHuntEventMock({
           startsAt: now + 2000,
           duration: 6000,
           villageId: 1,
           huntingPartyLevel: 1,
         }),
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           startsAt: now + 3000,
           duration: 7000,
           villageId: 1,
@@ -349,7 +352,7 @@ describe('developer-tools-controllers', () => {
       resetSchedulerForTesting();
 
       try {
-        const database = await prepareTestDatabase();
+        using database = await prepareTestDatabase();
 
         const homeVillage = database.selectObject({
           sql: `
@@ -459,7 +462,7 @@ describe('developer-tools-controllers', () => {
 
   describe(spawnHeroItem, () => {
     test('should add item to hero inventory', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -511,7 +514,7 @@ describe('developer-tools-controllers', () => {
 
   describe(incrementHeroAdventurePoints, () => {
     test('should increment hero adventure points', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const now = 9 * 60 * 60 * 1000;
 
       vi.useFakeTimers();
@@ -567,7 +570,7 @@ describe('developer-tools-controllers', () => {
 
   describe(levelUpHero, () => {
     test('should level up hero by increasing experience to next level', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const hero = database.selectObject({
         sql: 'SELECT id, experience FROM heroes WHERE player_id = $player_id',

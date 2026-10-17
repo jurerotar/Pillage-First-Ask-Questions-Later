@@ -7,7 +7,7 @@ import { loyaltyIncreaseResolver } from '../loyalty-resolvers';
 
 describe(loyaltyIncreaseResolver, () => {
   test('should increase loyalty for all villages and oases', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // Village 1: Level 3 Residence (50 -> 54)
     const v1 = 1;
@@ -93,7 +93,7 @@ describe(loyaltyIncreaseResolver, () => {
   });
 
   test('should increase loyalty by 1% (base) if no Residence exists', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
@@ -139,7 +139,7 @@ describe(loyaltyIncreaseResolver, () => {
   });
 
   test('should delete loyalty record if loyalty reaches 100%', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const tileId = database.selectValue({
       sql: 'SELECT tile_id FROM villages WHERE id = $village_id',
@@ -183,7 +183,7 @@ describe(loyaltyIncreaseResolver, () => {
   });
 
   test('should schedule next loyaltyIncrease event when loyalties still exist', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const resolvesAt = Date.now();
 
     const tileId = database.selectValue({
@@ -220,7 +220,7 @@ describe(loyaltyIncreaseResolver, () => {
   });
 
   test('should not schedule next loyaltyIncrease event when no loyalties remain', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const resolvesAt = Date.now();
 
     database.exec({ sql: 'DELETE FROM loyalties;' });

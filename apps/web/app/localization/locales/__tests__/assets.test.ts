@@ -38,7 +38,6 @@ describe('localization completeness check for assets.json', () => {
           Object.hasOwn(unitData, 'DESCRIPTION'),
           `Missing DESCRIPTION in UNITS.${unitKey}`,
         ).toBe(true);
-
         expect(unitData.NAME, `UNITS.${unitKey}.NAME is empty`).not.toBe('');
         expect(
           unitData.NAME_other,
@@ -67,7 +66,6 @@ describe('localization completeness check for assets.json', () => {
           Object.hasOwn(buildingData, 'DESCRIPTION'),
           `Missing DESCRIPTION in BUILDINGS.${buildingKey}`,
         ).toBe(true);
-
         expect(
           buildingData.NAME,
           `BUILDINGS.${buildingKey}.NAME is empty`,
@@ -91,7 +89,6 @@ describe('localization completeness check for assets.json', () => {
         getMissingKeys(itemDefinitionKeys, localizedItemKeys),
         'Missing ITEMS keys',
       ).toEqual([]);
-
       expect(
         getUnexpectedKeys(itemDefinitionKeys, localizedItemKeys),
         'Unexpected ITEMS keys',

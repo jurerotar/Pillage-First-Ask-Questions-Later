@@ -6,7 +6,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('server-controllers', () => {
   test('getServer should return server details', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const result = getServer(database, createControllerArgs<'/server'>({}));
     const storedServer = database.selectObject({
@@ -48,7 +48,7 @@ describe('server-controllers', () => {
   });
 
   test('getSerializedServerDatabase should snapshot the active database', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const snapshot = getSerializedServerDatabase(
       database,

@@ -5,7 +5,7 @@ import { prepareTestDatabase } from '../../';
 
 describe('gatherersHutExpeditionsSeeder', () => {
   test('creates expedition state for player villages only', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const expeditionStates = database.selectValue({
       sql: 'SELECT COUNT(*) FROM gatherers_hut_expeditions;',

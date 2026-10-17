@@ -1,3 +1,20 @@
+## Version 0.4.74
+
+#### Oct 14, 2026
+
+* [BugFix] Fixed an incorrectly displayed unit training cost in Great Barracks and Great Stable.
+* [BugFix] Fixed an issue where internal game state updates would run in incorrect order, which resulted in players
+  having their resource amount calculated incorrectly.
+* [BugFix] Fixed an issue where creating thousands of events at once could fail due to a database limit.
+* [BugFix] Fixed unit improvements being applied to other players' units.
+* [BugFix] Fixed Oasis Animal Finder including occupied oasis and counting reinforcing troops as capturable animals.
+* [Performance] Improved execution time of event resolvers (by over 90% in some cases), greatly speeding up game world
+  initialization.
+* [Performance] Improved query performance for effect lookups (~60%), map loading, marketplace offers, rankings and
+  oasis searches.
+* [Performance] Improved processing of queued game events by batching database writes, speeding up game world catch-up
+  after time away.
+
 ## Version 0.4.73
 
 #### Oct 8, 2026

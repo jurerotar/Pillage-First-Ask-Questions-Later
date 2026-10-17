@@ -9,10 +9,10 @@ import {
 } from '@pillage-first/utils/map';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('tilesSeeder', () => {
-  test('should create correct amount of tiles', () => {
+  test('should create correct amount of tiles', async () => {
+    using database = await prepareTestDatabase();
+
     const rowCount = database.selectValue({
       sql: 'SELECT COUNT(id) AS id FROM tiles;',
       schema: z.number(),
@@ -21,7 +21,9 @@ describe('tilesSeeder', () => {
     expect(rowCount).toBe(7825);
   });
 
-  test('every tile should be of type free or oasis', () => {
+  test('every tile should be of type free or oasis', async () => {
+    using database = await prepareTestDatabase();
+
     const types = database.selectValues({
       sql: `
         SELECT tt.type
@@ -37,7 +39,9 @@ describe('tilesSeeder', () => {
     );
   });
 
-  test('every free tile should have resource_field_composition as not null and oasis_graphics as null', () => {
+  test('every free tile should have resource_field_composition as not null and oasis_graphics as null', async () => {
+    using database = await prepareTestDatabase();
+
     database.selectObjects({
       sql: `
         SELECT
@@ -59,7 +63,9 @@ describe('tilesSeeder', () => {
     expect(true).toBe(true);
   });
 
-  test('every oasis tile should have oasis_graphics as not null and resource_field_composition as null', () => {
+  test('every oasis tile should have oasis_graphics as not null and resource_field_composition as null', async () => {
+    using database = await prepareTestDatabase();
+
     database.selectObjects({
       sql: `
         SELECT
@@ -81,7 +87,9 @@ describe('tilesSeeder', () => {
     expect(true).toBe(true);
   });
 
-  test('oasis groups tile counts are multiples of expected shape sizes', () => {
+  test('oasis groups tile counts are multiples of expected shape sizes', async () => {
+    using database = await prepareTestDatabase();
+
     const rows = database.selectObjects({
       sql: `
         SELECT id, oasis_graphics
@@ -115,11 +123,14 @@ describe('tilesSeeder', () => {
     )) {
       const group = Number(groupStr);
       const count = counts.get(group) ?? 0;
+
       expect(count % expectedTiles).toBe(0);
     }
   });
 
-  test('no duplicate coordinates (x,y)', () => {
+  test('no duplicate coordinates (x,y)', async () => {
+    using database = await prepareTestDatabase();
+
     const duplicates = database.selectObjects({
       sql: 'SELECT x, y, COUNT(*) AS c FROM tiles GROUP BY x, y HAVING c > 1;',
       schema: z.strictObject({
@@ -132,7 +143,9 @@ describe('tilesSeeder', () => {
     expect(duplicates).toHaveLength(0);
   });
 
-  test('center tile (0,0) exists, is free and has composition "4446"', () => {
+  test('center tile (0,0) exists, is free and has composition "4446"', async () => {
+    using database = await prepareTestDatabase();
+
     const center = database.selectObject({
       sql: `
         SELECT
@@ -160,7 +173,9 @@ describe('tilesSeeder', () => {
     expect(center.oasis_graphics).toBe(null);
   });
 
-  test('no tile has both resource_field_composition_id AND oasis_graphics non-null', () => {
+  test('no tile has both resource_field_composition_id AND oasis_graphics non-null', async () => {
+    using database = await prepareTestDatabase();
+
     const bothNonNull = database.selectValue({
       sql: 'SELECT COUNT(*) AS c FROM tiles WHERE resource_field_composition_id IS NOT NULL AND oasis_graphics IS NOT NULL;',
       schema: z.number(),
@@ -169,7 +184,9 @@ describe('tilesSeeder', () => {
     expect(bothNonNull).toBe(0);
   });
 
-  test('all non-null resource_field_composition values belong to allowed set', () => {
+  test('all non-null resource_field_composition values belong to allowed set', async () => {
+    using database = await prepareTestDatabase();
+
     const allowed = new Set([
       '00018',
       '11115',
@@ -200,10 +217,13 @@ describe('tilesSeeder', () => {
     });
 
     const invalid = distinctComps.filter((c) => !allowed.has(c));
+
     expect(invalid).toStrictEqual([]);
   });
 
-  test('all tile coordinates are within expected grid bounds', () => {
+  test('all tile coordinates are within expected grid bounds', async () => {
+    using database = await prepareTestDatabase();
+
     const { halfSize } = calculateGridLayout(serverMock.configuration.mapSize);
 
     const bounds = database.selectObject({
@@ -222,13 +242,16 @@ describe('tilesSeeder', () => {
     expect(bounds?.maxY).toBeLessThanOrEqual(halfSize);
   });
 
-  test('should have no tiles outside the defined grid', () => {
+  test('should have no tiles outside the defined grid', async () => {
+    using database = await prepareTestDatabase();
+
     const { halfSize } = calculateGridLayout(serverMock.configuration.mapSize);
     const outsideCount = database.selectValue({
       sql: 'SELECT COUNT(*) FROM tiles WHERE ABS(x) > $halfSize OR ABS(y) > $halfSize;',
       bind: { $halfSize: halfSize },
       schema: z.number(),
     });
+
     expect(outsideCount).toBe(0);
   });
 });

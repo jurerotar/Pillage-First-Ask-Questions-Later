@@ -243,7 +243,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should create a resource transfer and subtract source resources', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -331,7 +331,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should create a repeated transfer chain starter', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -394,7 +394,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should reject when not enough free merchants are available', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -433,7 +433,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should use trade office merchant capacity', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -485,7 +485,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should reject when the source village has no marketplace', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -515,7 +515,6 @@ describe('marketplace-controllers', () => {
         }),
       ),
     ).toThrow('Not enough free merchants');
-
     expect(getResourceTransferCount(database)).toBe(0);
     expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
       wood: 100,
@@ -526,7 +525,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should count merchants already on the way', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -575,7 +574,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should not count incoming merchants as occupied', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -642,7 +641,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should reject when source village does not have enough resources', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -670,7 +669,6 @@ describe('marketplace-controllers', () => {
         }),
       ),
     ).toThrow('Not enough resources');
-
     expect(getResourceTransferCount(database)).toBe(0);
     expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
       wood: 10,
@@ -681,7 +679,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should reject missing target villages before creating events', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -712,7 +710,6 @@ describe('marketplace-controllers', () => {
         }),
       ),
     ).toThrow('Target village does not exist');
-
     expect(getResourceTransferCount(database)).toBe(0);
     expect(getVillageResources(database, sourceVillage.tileId)).toStrictEqual({
       wood: 100,
@@ -723,7 +720,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('transferResources should reject target villages not owned by the player', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
 
@@ -756,7 +753,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('createTradeRoute should create a scheduled trade route without subtracting resources', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -845,7 +842,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('createTradeRoute should validate against trade office merchant capacity without storing merchant amount', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);
@@ -894,7 +891,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('deleteTradeRoute should remove the scheduled trade route event', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
 
     const sourceVillage = getPlayerVillage(database);
@@ -939,7 +936,7 @@ describe('marketplace-controllers', () => {
   });
 
   test('updateTradeRoute should replace the scheduled trade route event payload', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events;' });
     vi.useFakeTimers();
     vi.setSystemTime(NOW);

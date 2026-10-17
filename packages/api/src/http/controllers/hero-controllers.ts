@@ -483,7 +483,7 @@ export const equipHeroItem = createController(
 
       // Remove effects of replaced item
       database.exec({
-        sql: "DELETE FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND source_specifier = $itemId",
+        sql: "DELETE FROM effects WHERE source_specifier = $itemId AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')",
         bind: { $itemId: currentlyEquipped.item_id },
       });
 
@@ -636,7 +636,7 @@ export const unequipHeroItem = createController(
 
       // Remove effects
       database.exec({
-        sql: "DELETE FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND source_specifier = $itemId",
+        sql: "DELETE FROM effects WHERE source_specifier = $itemId AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')",
         bind: { $itemId: equipped.item_id },
       });
 

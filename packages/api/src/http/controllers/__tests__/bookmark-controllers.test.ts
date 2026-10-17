@@ -7,7 +7,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('bookmark-controllers', () => {
   test('getBookmarks should return bookmarks for all buildings', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     const result = getBookmarks(
@@ -25,7 +25,7 @@ describe('bookmark-controllers', () => {
   });
 
   test('updateBookmark should update the bookmark correctly', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingId: Building['id'] = 'WOODCUTTER';
     const newTabName = 'custom-tab';

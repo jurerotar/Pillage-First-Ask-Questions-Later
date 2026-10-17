@@ -8,7 +8,7 @@ import { addTroops, removeTroops } from '../troops';
 describe('troop-queries', () => {
   describe(addTroops, () => {
     test('should insert new troops', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const tileId = 1;
       const sourceTileId = 1;
@@ -37,7 +37,7 @@ describe('troop-queries', () => {
     });
 
     test('should update existing troops on conflict', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const tileId = 1;
       const sourceTileId = 1;
@@ -67,7 +67,7 @@ describe('troop-queries', () => {
     });
 
     test('should handle multiple unit types in a single call', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const tileId = 1;
       const sourceTileId = 1;
@@ -105,6 +105,7 @@ describe('troop-queries', () => {
           },
           schema: z.number(),
         });
+
         expect(result).toBe(expectedAmount);
       };
 
@@ -114,7 +115,7 @@ describe('troop-queries', () => {
     });
 
     test('should handle troops from different sources and targets', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const troopsToAdd: Troop[] = [
         { unitId: 'LEGIONNAIRE', amount: 10, tileId: 1, sourceTileId: 1 },
@@ -139,6 +140,7 @@ describe('troop-queries', () => {
           },
           schema: z.number(),
         });
+
         expect(result).toBe(expectedAmount);
       };
 
@@ -150,7 +152,7 @@ describe('troop-queries', () => {
 
   describe(removeTroops, () => {
     test('should subtract troops', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const tileId = 1;
       const sourceTileId = 1;
@@ -180,7 +182,7 @@ describe('troop-queries', () => {
     });
 
     test('should delete troops if amount reaches 0', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const tileId = 1;
       const sourceTileId = 1;
@@ -210,7 +212,7 @@ describe('troop-queries', () => {
     });
 
     test('should delete troops if amount reaches negative (though should not happen)', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const tileId = 1;
       const sourceTileId = 1;
@@ -240,7 +242,7 @@ describe('troop-queries', () => {
     });
 
     test('should handle multiple unit types in a single remove call', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const tileId = 1;
       const sourceTileId = 1;
@@ -297,7 +299,7 @@ describe('troop-queries', () => {
     });
 
     test('should be a no-op if removing troops that do not exist', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const tileId = 1;
       const sourceTileId = 1;

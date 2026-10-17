@@ -23,16 +23,16 @@
   },
   "dependencies": {
     "@pillage-first/api": "*",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "swagger-ui-react": "5.33.0"
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "swagger-ui-react": "5.33.3"
   },
   "devDependencies": {
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/swagger-ui-react": "5.18.0",
     "typescript": "7.0.2",
-    "vite": "8.3.3"
+    "vite": "8.3.4"
   },
   "scarfSettings": {
     "enabled": false

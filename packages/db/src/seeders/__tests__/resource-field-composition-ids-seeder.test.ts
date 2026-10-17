@@ -2,18 +2,21 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('resourceFieldCompositionIdsSeeder', () => {
-  test('resource_field_composition_ids seeded (>0)', () => {
+  test('resource_field_composition_ids seeded (>0)', async () => {
+    using database = await prepareTestDatabase();
+
     const c = database.selectValue({
       sql: 'SELECT COUNT(*) FROM resource_field_composition_ids;',
       schema: z.number(),
     });
+
     expect(c).toBeGreaterThan(0);
   });
 
-  test('contains well-known composition 4446', () => {
+  test('contains well-known composition 4446', async () => {
+    using database = await prepareTestDatabase();
+
     const c = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -24,6 +27,7 @@ describe('resourceFieldCompositionIdsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(c).toBeGreaterThan(0);
   });
 });

@@ -106,7 +106,7 @@ describe('troop-movement-controllers', () => {
     })!;
 
   test('validateTroopMovement should return validation errors', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const village = getPlayerVillage(database);
 
     const result = validateTroopMovement(
@@ -126,7 +126,7 @@ describe('troop-movement-controllers', () => {
   });
 
   test('getVillageTroopMovements should return outgoing and incoming movements', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -173,7 +173,7 @@ describe('troop-movement-controllers', () => {
   });
 
   test('getVillageTroopMovementStats should group movements by direction and purpose', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -221,7 +221,7 @@ describe('troop-movement-controllers', () => {
   });
 
   test('cancelTroopMovement should delete the movement and create a return movement', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events' });
 
     vi.setSystemTime(new Date(1_000_000));
@@ -281,7 +281,7 @@ describe('troop-movement-controllers', () => {
   });
 
   test('cancelTroopMovement should reject missing movement events', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     expect(() =>
       cancelTroopMovement(
@@ -294,7 +294,7 @@ describe('troop-movement-controllers', () => {
   });
 
   test('cancelTroopMovement should reject return movements', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events' });
 
     const currentVillage = getPlayerVillage(database);
@@ -320,7 +320,7 @@ describe('troop-movement-controllers', () => {
   });
 
   test('cancelTroopMovement should reject movements older than one minute', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     database.exec({ sql: 'DELETE FROM events' });
 
     vi.setSystemTime(new Date(1_000_000));

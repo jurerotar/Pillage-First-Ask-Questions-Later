@@ -38,6 +38,7 @@ describe(useTabParam, () => {
     const setSearchParams = vi.fn((updater) => {
       if (typeof updater === 'function') {
         const next = updater(initialParams);
+
         expect(next.get('tab')).toBe('home');
         expect(next.get('other')).toBe('value');
       }

@@ -8,7 +8,6 @@ const vitestConfig: ViteUserConfig = defineConfig({
   test: {
     root: './',
     watch: false,
-    reporters: ['default'],
     pool: 'threads',
     isolate: false,
     fsModuleCache: true,
