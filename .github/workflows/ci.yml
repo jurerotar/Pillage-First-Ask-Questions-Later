@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
 
       - name: Generate API route types
         run: npm run generate-api-route-types
@@ -55,7 +55,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
 
       - name: Generate API route types
         run: npm run generate-api-route-types
@@ -74,7 +74,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
 
       - name: Generate API route types
         run: npm run generate-api-route-types
@@ -93,7 +93,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
 
       - name: Generate API route types
         run: npm run generate-api-route-types
@@ -112,7 +112,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
 
       - name: Generate API route types
         run: npm run generate-api-route-types
