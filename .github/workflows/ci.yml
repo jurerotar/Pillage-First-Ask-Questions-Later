@@ -25,23 +25,9 @@ env:
   TURBO_CACHE_DIR: .turbo
 
 jobs:
-  checks:
-    name: ${{ matrix.name }}
+  type-check:
+    name: Type check
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Type check
-            task: type-check
-          - name: Lint
-            task: lint:check
-          - name: Format
-            task: format:check
-          - name: Localization
-            task: localization
-          - name: Tests
-            task: test
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -55,18 +41,83 @@ jobs:
       - name: Generate API route types
         run: npm run generate-api-route-types
 
-      - name: Run ${{ matrix.name }}
-        if: matrix.task != 'test' && matrix.task != 'localization'
-        env:
-          TURBO_TASK: ${{ matrix.task }}
-        run: npx turbo run "$TURBO_TASK"
+      - name: Run type check
+        run: npx turbo run type-check
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
+
+      - name: Generate API route types
+        run: npm run generate-api-route-types
+
+      - name: Run lint check
+        run: npx turbo run lint:check
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
+
+      - name: Generate API route types
+        run: npm run generate-api-route-types
+
+      - name: Run format check
+        run: npx turbo run format:check
+
+  localization:
+    name: Localization
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
+
+      - name: Generate API route types
+        run: npm run generate-api-route-types
 
       - name: Run @pillage-first/web localization check
-        if: matrix.task == 'localization'
         run: npx --workspace="@pillage-first/web" i18next-cli extract --ci --dry-run
 
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup environment (node + install)
+        uses: ./.github/actions/node-setup
+
+      - name: Generate API route types
+        run: npm run generate-api-route-types
+
       - name: Run tests
-        if: matrix.task == 'test'
         id: run-tests
         env:
           EVENT_NAME: ${{ github.event_name }}
