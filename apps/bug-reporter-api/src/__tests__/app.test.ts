@@ -3,9 +3,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { expect, test } from 'vitest';
-import { createApp } from './app.ts';
-import type { AppConfig } from './config.ts';
-import { Store } from './store.ts';
+import { createApp } from '../app.ts';
+import type { AppConfig } from '../config.ts';
+import { Store } from '../store.ts';
 
 const sqliteFile = Buffer.concat([
   Buffer.from('SQLite format 3\u0000', 'ascii'),
