@@ -26,8 +26,22 @@ env:
 
 jobs:
   checks:
-    name: Checks
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Type check
+            task: type-check
+          - name: Lint
+            task: lint:check
+          - name: Format
+            task: format:check
+          - name: Localization
+            task: localization
+          - name: Tests
+            task: test
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -41,41 +55,40 @@ jobs:
       - name: Generate API route types
         run: npm run generate-api-route-types
 
-      - parallel:
-          - name: Run type check
-            run: npx turbo run type-check
+      - name: Run ${{ matrix.name }}
+        if: matrix.task != 'test' && matrix.task != 'localization'
+        env:
+          TURBO_TASK: ${{ matrix.task }}
+        run: npx turbo run "$TURBO_TASK"
 
-          - name: Run lint check
-            run: npx turbo run lint:check
+      - name: Run @pillage-first/web localization check
+        if: matrix.task == 'localization'
+        run: npx --workspace="@pillage-first/web" i18next-cli extract --ci --dry-run
 
-          - name: Run format check
-            run: npx turbo run format:check
+      - name: Run tests
+        if: matrix.task == 'test'
+        id: run-tests
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT_NAME" == "pull_request" ]; then
+            # Check if package.json or schemas changed
+            CHANGED_FILES=$(git diff --name-only "$BASE_SHA" HEAD)
+            FORCE_ALL=false
+            if echo "$CHANGED_FILES" | grep -q "package.json" || echo "$CHANGED_FILES" | grep -q "^packages/db/src/schemas/"; then
+              FORCE_ALL=true
+            fi
 
-          - name: Run @pillage-first/web localization check
-            run: npx --workspace="@pillage-first/web" i18next-cli extract --ci --dry-run
-
-          - name: Run tests
-            id: run-tests
-            run: |
-              if [ "${{ github.event_name }}" == "pull_request" ]; then
-                BASE_SHA="${{ github.event.pull_request.base.sha }}"
-
-                # Check if package.json or schemas changed
-                CHANGED_FILES=$(git diff --name-only $BASE_SHA HEAD)
-                FORCE_ALL=false
-                if echo "$CHANGED_FILES" | grep -q "package.json" || echo "$CHANGED_FILES" | grep -q "^packages/db/src/schemas/"; then
-                  FORCE_ALL=true
-                fi
-
-                if [ "$FORCE_ALL" = true ]; then
-                  echo "Important files changed, running all tests..."
-                  npx turbo run test
-                else
-                  npx turbo run test --filter="[$BASE_SHA...HEAD]" -- --changed="$BASE_SHA"
-                fi
-              else
-                npx turbo run test
-              fi
+            if [ "$FORCE_ALL" = true ]; then
+              echo "Important files changed, running all tests..."
+              npx turbo run test
+            else
+              npx turbo run test --filter="[$BASE_SHA...HEAD]" -- --changed="$BASE_SHA"
+            fi
+          else
+            npx turbo run test
+          fi
 
   zizmor:
     name: Zizmor GitHub Actions check
