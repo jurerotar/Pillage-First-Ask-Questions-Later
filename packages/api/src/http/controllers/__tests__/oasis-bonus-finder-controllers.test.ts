@@ -62,6 +62,55 @@ const expectUniqueNearbyOases = (nearbyOases: Array<{ tileId: number }>) => {
 };
 
 describe('oasis-bonus-finder-controllers', () => {
+  test.each([
+    [-3, -3, true],
+    [3, 3, true],
+    [-4, 0, false],
+    [4, 0, false],
+    [0, -4, false],
+    [0, 4, false],
+  ] as const)(
+    'oasis at (%i, %i) is within range: %s',
+    async (x, y, expected) => {
+      using database = await prepareTestDatabase();
+
+      database.exec({ sql: 'DELETE FROM oasis;' });
+
+      database.exec({
+        sql: `UPDATE tiles SET
+        type_id = (SELECT id FROM tile_type_ids WHERE type = 'free'),
+        resource_field_composition_id = (SELECT id FROM resource_field_composition_ids WHERE resource_field_composition = '3339')
+        WHERE x = 0 AND y = 0;`,
+      });
+
+      database.exec({
+        sql: `INSERT INTO oasis (tile_id, resource_id, bonus)
+        SELECT id, (SELECT id FROM resource_ids WHERE resource = 'wheat'), 50
+        FROM tiles WHERE x = $x AND y = $y;`,
+        bind: { $x: x, $y: y },
+      });
+
+      const result = searchOasisBonuses(
+        database,
+        createSearchBody(
+          {
+            firstOasis: [{ resource: 'wheat', bonus: 50 }],
+            secondOasis: [],
+            thirdOasis: [],
+          },
+          '3339',
+          { showOccupiedTiles: true },
+        ),
+      );
+
+      expect(
+        result.some(
+          (tile) => tile.coordinates.x === 0 && tile.coordinates.y === 0,
+        ),
+      ).toBe(expected);
+    },
+  );
+
   test('getTilesWithBonuses should return nearby oasis for selected bonus searches', async () => {
     using database = await prepareTestDatabase();
     const selectedBonus = { resource: 'wheat', bonus: 50 } as const;

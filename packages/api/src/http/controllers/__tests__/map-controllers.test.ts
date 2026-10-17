@@ -16,6 +16,107 @@ import {
 import { createControllerArgs } from './utils/controller-args';
 
 describe('map-controllers', () => {
+  test('getTiles preserves escaped names and shares the owner population with occupied oases', async () => {
+    using database = await prepareTestDatabase();
+
+    const village = database.selectObject({
+      sql: 'SELECT id, tile_id, player_id FROM villages ORDER BY id LIMIT 1;',
+      schema: z.strictObject({
+        id: z.number(),
+        tile_id: z.number(),
+        player_id: z.number(),
+      }),
+    })!;
+
+    const oasisId = database.selectValue({
+      sql: 'SELECT tile_id FROM oasis LIMIT 1;',
+      schema: z.number(),
+    })!;
+
+    const name = 'Village "雪🧭"\n\\end';
+
+    database.exec({
+      sql: 'UPDATE villages SET name = $name, slug = NULL WHERE id = $id;',
+      bind: { $name: name, $id: village.id },
+    });
+
+    database.exec({
+      sql: 'UPDATE players SET name = $name WHERE id = $id;',
+      bind: { $name: name, $id: village.player_id },
+    });
+
+    database.exec({
+      sql: 'UPDATE oasis SET village_id = $village_id WHERE tile_id = $tile_id;',
+      bind: { $village_id: village.id, $tile_id: oasisId },
+    });
+
+    database.exec({
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id;',
+      bind: { $tile_id: village.tile_id },
+    });
+
+    database.exec({
+      sql: insertEffectQuery,
+      bind: {
+        $effect_id: 1,
+        $value: -250.5,
+        $type: 'base',
+        $scope: 'local',
+        $source: 'building',
+        $tile_id: village.tile_id,
+        $source_specifier: 0,
+      },
+    });
+
+    const tiles = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    for (const id of [village.tile_id, oasisId]) {
+      expect(tiles[id - 1]?.ownerVillage).toEqual({
+        id: village.id,
+        name,
+        slug: '',
+        population: 250.5,
+      });
+      expect(tiles[id - 1]?.owner?.name).toBe(name);
+    }
+
+    database.exec({
+      sql: 'DELETE FROM effects WHERE tile_id = $tile_id;',
+      bind: { $tile_id: village.tile_id },
+    });
+
+    const withoutPopulation = getTiles(
+      database,
+      createControllerArgs<'/tiles'>({}),
+    );
+
+    expect(
+      withoutPopulation[village.tile_id - 1]?.ownerVillage?.population,
+    ).toBe(0);
+    expect(withoutPopulation[oasisId - 1]?.ownerVillage?.population).toBe(0);
+
+    database.exec({
+      sql: 'UPDATE oasis SET village_id = NULL WHERE tile_id = $tile_id;',
+      bind: { $tile_id: oasisId },
+    });
+
+    const unowned = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    expect(unowned[oasisId - 1]?.owner).toBeNull();
+    expect(unowned[oasisId - 1]?.ownerVillage).toBeNull();
+  });
+
+  test('getTiles preserves an empty map as a grid of null positions', async () => {
+    using database = await prepareTestDatabase();
+
+    database.exec({ sql: 'DELETE FROM tiles;' });
+
+    const tiles = getTiles(database, createControllerArgs<'/tiles'>({}));
+
+    expect(tiles.length).toBeGreaterThan(0);
+    expect(tiles.every((tile) => tile === null)).toBe(true);
+  });
+
   test('getTiles should return correct population (only counting building base effects)', async () => {
     using database = await prepareTestDatabase();
 

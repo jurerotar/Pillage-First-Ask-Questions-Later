@@ -7,7 +7,7 @@ export const selectPlayerRankingsQuery = `
         p.slug,
         ti.tribe,
         fi.faction AS faction,
-        SUM(CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END) AS total_population,
+        COALESCE(SUM(-e.value), 0) AS total_population,
         COUNT(DISTINCT v.id) AS village_count
       FROM
         players p
@@ -20,13 +20,7 @@ export const selectPlayerRankingsQuery = `
           AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
           AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
           AND e.source_specifier = 0
-          LEFT JOIN effect_ids ei ON ei.id = e.effect_id
-      GROUP BY
-        p.id,
-        p.name,
-        p.slug,
-        ti.tribe,
-        fi.faction
+      GROUP BY p.id
       ),
 
     cursor_row AS (
@@ -89,7 +83,7 @@ export const selectVillageRankingsQuery = `
         v.player_id,
         p.name AS player_name,
         p.slug AS player_slug,
-        SUM(CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END) AS population
+        COALESCE(SUM(-e.value), 0) AS population
       FROM
         villages v
           LEFT JOIN tiles t ON t.id = v.tile_id
@@ -100,8 +94,7 @@ export const selectVillageRankingsQuery = `
             AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
             AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
             AND e.source_specifier = 0
-          LEFT JOIN effect_ids ei ON ei.id = e.effect_id
-      GROUP BY v.id, v.name, t.x, t.y, v.player_id, p.name, p.slug
+      GROUP BY v.id
     ),
 
     cursor_row AS (
@@ -171,12 +164,16 @@ export const selectVillageStatsByTribeAndFactionQuery = `
   SELECT
     ti.tribe AS tribe,
     fi.faction AS faction,
-    COUNT(v.id) AS village_count
-  FROM
-    villages v
+    counts.village_count
+  FROM (
+    SELECT
+      p.tribe_id,
+      p.faction_id,
+      COUNT(*) AS village_count
+    FROM villages v
       JOIN players p ON v.player_id = p.id
-      JOIN tribe_ids ti ON p.tribe_id = ti.id
-      JOIN faction_ids fi ON fi.id = p.faction_id
-  GROUP BY
-    ti.tribe, fi.faction;
+    GROUP BY p.tribe_id, p.faction_id
+  ) counts
+    JOIN tribe_ids ti ON ti.id = counts.tribe_id
+    JOIN faction_ids fi ON fi.id = counts.faction_id;
 `;

@@ -1,9 +1,9 @@
 ﻿import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import type { BindableValue } from '@sqlite.org/sqlite-wasm';
+import type { BindableValue, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
-import { migrateAndSeed, prepareTestDatabase } from '@pillage-first/db';
+import { migrateAndSeed } from '@pillage-first/db';
 import { serverMock } from '@pillage-first/mocks/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createDbFacade } from '@pillage-first/utils/facades/database';
@@ -120,8 +120,14 @@ type QueryPlanResult =
       error: string;
     };
 
-const createSeededDbBuffer = async (): Promise<Uint8Array> => {
-  const sqlite3 = await sqlite3InitModule();
+type SqliteDatabase = InstanceType<Sqlite3Static['oo1']['DB']>;
+
+type ExecutionResult = {
+  vmInstructions: number | null;
+  error?: string;
+};
+
+const createSeededDbBuffer = (sqlite3: Sqlite3Static): Uint8Array => {
   const oo1Db = new sqlite3.oo1.DB(':memory:', 'c');
   const database = createDbFacade(oo1Db);
 
@@ -149,6 +155,31 @@ const createSeededDbBuffer = async (): Promise<Uint8Array> => {
   } finally {
     database.close();
     oo1Db.close();
+  }
+};
+
+const createDatabaseCopy = (
+  sqlite3: Sqlite3Static,
+  buffer: Uint8Array,
+): SqliteDatabase => {
+  const database = new sqlite3.oo1.DB(':memory:');
+  try {
+    database.checkRc(
+      sqlite3.capi.sqlite3_deserialize(
+        database.pointer!,
+        'main',
+        sqlite3.wasm.allocFromTypedArray(buffer),
+        buffer.byteLength,
+        buffer.byteLength,
+        sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE |
+          sqlite3.capi.SQLITE_DESERIALIZE_RESIZEABLE,
+      ),
+    );
+    database.exec('PRAGMA foreign_keys = ON; PRAGMA cache_size = -20000;');
+    return database;
+  } catch (error) {
+    database.close();
+    throw error;
   }
 };
 
@@ -323,6 +354,44 @@ const explainQueryPlan = (
   }
 };
 
+const measureExecution = (
+  sqlite3: Sqlite3Static,
+  database: SqliteDatabase,
+  sql: string,
+  bind: ReturnType<typeof createBind>,
+): ExecutionResult => {
+  let statement: ReturnType<SqliteDatabase['prepare']> | undefined;
+  const instructions = (): number | null =>
+    statement
+      ? sqlite3.capi.sqlite3_stmt_status(
+          statement.pointer!,
+          sqlite3.capi.SQLITE_STMTSTATUS_VM_STEP,
+          0,
+        )
+      : null;
+
+  try {
+    statement = database.prepare(sql);
+    if (Object.keys(bind).length > 0) {
+      statement.bind(bind);
+    }
+    // Step through the C API so expected constraint failures are recorded in the
+    // report without the OO wrapper also printing their SQL to stderr.
+    let result: number;
+    do {
+      result = sqlite3.capi.sqlite3_step(statement.pointer!);
+    } while (result === sqlite3.capi.SQLITE_ROW);
+    if (result !== sqlite3.capi.SQLITE_DONE) {
+      throw new Error(sqlite3.capi.sqlite3_errmsg(database.pointer!));
+    }
+    return { vmInstructions: instructions() };
+  } catch (error) {
+    return { vmInstructions: instructions(), error: errorToString(error) };
+  } finally {
+    statement?.finalize();
+  }
+};
+
 const compactText = (value: string): string => {
   return value.replace(/\s+/gu, ' ').trim();
 };
@@ -331,67 +400,78 @@ const formatResult = ({
   index,
   statement,
   queryPlan,
+  execution,
 }: {
   index: number;
   statement: string;
   queryPlan: QueryPlanResult;
+  execution: ExecutionResult;
 }): string => {
   const sql = compactText(statement);
 
-  if (queryPlan.status === 'error') {
-    return `${index}\t${sql}\tERROR: ${compactText(queryPlan.error)}`;
-  }
+  const plan =
+    queryPlan.status === 'error'
+      ? `ERROR: ${compactText(queryPlan.error)}`
+      : queryPlan.rows
+          .map((row) => {
+            return compactText(row.detail);
+          })
+          .join(' | ');
 
-  const plan = queryPlan.rows
-    .map((row) => {
-      return compactText(row.detail);
-    })
-    .join(' | ');
-
-  return `${index}\t${sql}\t${plan}`;
+  const executionStatus = execution.error
+    ? `ERROR: ${compactText(execution.error)}`
+    : 'ok';
+  return `${index}\t${sql}\t${execution.vmInstructions ?? 'N/A'}\t${plan}\t${executionStatus}`;
 };
 
 export const main = async (): Promise<void> => {
   const statementsSql = await readFile(STATEMENTS_EXPORT_PATH, 'utf8');
   const statements = splitSqlStatements(statementsSql);
-  const seededDbBuffer = await createSeededDbBuffer();
-  const database = await prepareTestDatabase((key) => {
-    if (key !== 'seededDbBuffer') {
-      throw new Error(`Unsupported injected key: ${key}`);
-    }
-
-    return seededDbBuffer;
-  });
-
-  try {
-    let errors = 0;
-    const results = statements.map((statement, index) => {
-      const queryPlan = explainQueryPlan(database, statement);
+  const sqlite3 = await sqlite3InitModule();
+  const seededDbBuffer = createSeededDbBuffer(sqlite3);
+  let errors = 0;
+  let executionErrors = 0;
+  const results = statements.map((statement, index) => {
+    // Writes and schema changes must not alter the input for later measurements.
+    const rawDatabase = createDatabaseCopy(sqlite3, seededDbBuffer);
+    const database = createDbFacade(rawDatabase);
+    try {
+      const bind = createBind(statement);
+      const queryPlan = explainQueryPlan(database, statement, bind);
+      const execution = measureExecution(sqlite3, rawDatabase, statement, bind);
       if (queryPlan.status === 'error') {
         errors++;
+      }
+      if (execution.error) {
+        executionErrors++;
       }
       return formatResult({
         index: index + 1,
         statement,
         queryPlan,
+        execution,
       });
-    });
+    } finally {
+      database.close();
+      rawDatabase.close();
+    }
+  });
 
-    const output = [
-      `# SQLite EQP (${statements.length})`,
-      `# ${errors} errors; static extraction cannot resolve every template or runtime temporary table.`,
-      '# id<TAB>sql<TAB>plan',
-      ...results,
-      '',
-    ].join('\n');
+  const output = [
+    `# SQLite EQP (${statements.length})`,
+    `# SQLite ${sqlite3.version.libVersion}; each query executes on a fresh seeded in-memory copy with foreign keys enabled.`,
+    `# ${errors} errors; static extraction cannot resolve every template or runtime temporary table.`,
+    `# ${executionErrors} execution errors; VM counts on failed executions are partial, and N/A means preparation failed.`,
+    '# Counts use example bindings and include execution of every result row; they are not production workload measurements.',
+    '# id<TAB>sql<TAB>vm_instructions<TAB>plan<TAB>execution',
+    ...results,
+    '',
+  ].join('\n');
 
-    await mkdir(dirname(RESULTS_EXPORT_PATH), { recursive: true });
-    await writeFile(RESULTS_EXPORT_PATH, output, 'utf8');
+  await mkdir(dirname(RESULTS_EXPORT_PATH), { recursive: true });
+  await writeFile(RESULTS_EXPORT_PATH, output, 'utf8');
 
-    process.stdout.write(
-      `Wrote ${statements.length} SQL query plans (${errors} errors) to ${RESULTS_EXPORT_PATH}\n`,
-    );
-  } finally {
-    database.close();
-  }
+  process.stdout.write(
+    `Wrote ${statements.length} SQL query plans with VM instruction counts (${errors} plan errors, ${executionErrors} execution errors) to ${RESULTS_EXPORT_PATH}\n`,
+  );
 };
