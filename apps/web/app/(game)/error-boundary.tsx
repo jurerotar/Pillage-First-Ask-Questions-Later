@@ -6,7 +6,10 @@ import {
   ScrollRestoration,
   useRouteError,
 } from 'react-router';
-import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
+import {
+  OutdatedAppVersionError,
+  OutdatedDatabaseSchemaError,
+} from '@pillage-first/utils/errors';
 import { GameErrorContent } from 'app/(game)/components/game-error-content';
 import { HeadLinks } from 'app/components/head-links';
 
@@ -16,6 +19,8 @@ export const ErrorBoundary = () => {
   const isDatabaseInitializationError =
     error instanceof OutdatedDatabaseSchemaError;
 
+  const isOutdatedAppVersionError = error instanceof OutdatedAppVersionError;
+
   const isMultipleTabsError = error.name === 'NoModificationAllowedError';
 
   const isUnsupportedRuntimeFunctionError = error.message
@@ -23,6 +28,7 @@ export const ErrorBoundary = () => {
     .includes('is not a function');
 
   const isErrorWithCustomSteps =
+    isOutdatedAppVersionError ||
     isDatabaseInitializationError ||
     isMultipleTabsError ||
     isUnsupportedRuntimeFunctionError;
@@ -89,6 +95,12 @@ export const ErrorBoundary = () => {
               <>
                 {isErrorWithCustomSteps && (
                   <>
+                    {isOutdatedAppVersionError && (
+                      <li>
+                        Refresh this page to load the latest version of the app
+                        and reopen your game world.
+                      </li>
+                    )}
                     {isDatabaseInitializationError && (
                       <>
                         <li>
