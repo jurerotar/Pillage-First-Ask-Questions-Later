@@ -42,3 +42,7 @@
 
 /sw.js
   Cache-Control: no-cache
+
+/build.json
+  Cache-Control: no-store
+  Netlify-CDN-Cache-Control: no-store
