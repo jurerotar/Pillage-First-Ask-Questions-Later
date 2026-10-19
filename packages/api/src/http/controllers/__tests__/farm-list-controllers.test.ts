@@ -16,7 +16,7 @@ describe('farm-list-controllers', () => {
   const villageId = 1;
 
   test('should manage farm lists', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // 1. Create a farm list
     createFarmList(
@@ -37,6 +37,7 @@ describe('farm-list-controllers', () => {
 
     expect(farmLists).toHaveLength(1);
     expect(farmLists[0].name).toBe('My Farm List');
+
     const farmListId = farmLists[0].id;
 
     // 3. Add tiles to farm list
@@ -82,6 +83,7 @@ describe('farm-list-controllers', () => {
         path: { farmListId },
       }),
     );
+
     expect(farmList.tileIds).toHaveLength(2);
 
     // 6. Remove a tile
@@ -97,6 +99,7 @@ describe('farm-list-controllers', () => {
         path: { farmListId },
       }),
     );
+
     expect(farmList.tileIds).not.toContain(101);
     expect(farmList.tileIds).toHaveLength(1);
 
@@ -136,6 +139,7 @@ describe('farm-list-controllers', () => {
         path: { farmListId },
       }),
     );
+
     expect(farmList.name).toBe('New Farm List Name');
 
     // 9. Delete farm list
@@ -152,11 +156,12 @@ describe('farm-list-controllers', () => {
         path: { villageId },
       }),
     );
+
     expect(farmListsAfterDelete).toHaveLength(0);
   });
 
   test('should clone farm list to another village without changing source', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     createFarmList(
       database,
@@ -223,7 +228,6 @@ describe('farm-list-controllers', () => {
     expect(clonedFarmListId).not.toBe(sourceFarmListId);
     expect(clonedFarmList.name).toBe('Source List');
     expect(clonedFarmList.tileIds).toEqual(sourceFarmList.tileIds);
-
     expect(sourceFarmList.name).toBe('Source List');
     expect(sourceFarmList.tileIds).toEqual([301, 302]);
   });

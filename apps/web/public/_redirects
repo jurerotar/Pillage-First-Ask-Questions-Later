@@ -1,6 +1,3 @@
-# === Redirects ===
-/create-new-server                /game-worlds/create                             301
-
 # === Pre-rendered public pages ===
 /                                 /index.html                                     200
 /game-worlds                      /game-worlds/index.html                         200
@@ -11,6 +8,10 @@
 /latest-updates                   /latest-updates/index.html                      200
 /design-system/icons              /design-system/icons/index.html                 200
 /not-found                        /not-found/index.html                           404!
+
+# === Bug report routes ===
+/bugs                             /bugs/index.html                                200
+/bugs/*                           /__spa-fallback.html                                200
 
 # === Pre-rendered game pages (dynamic slugs with splats) ===
 /game/:splat/not-allowed                            /game/server-slug/not-allowed/index.html                                   200

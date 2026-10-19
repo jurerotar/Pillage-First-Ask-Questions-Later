@@ -68,7 +68,7 @@ const expectAtMostOneActiveConstructionPerLane = (
 
 describe('scheduled building upgrades', () => {
   test('starts only the first queued upgrade for a non-Roman village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -138,6 +138,7 @@ describe('scheduled building upgrades', () => {
       bind: { $village_id: villageId },
       schema: z.number(),
     });
+
     expect(firstActiveField).toBe(fields[0].fieldId);
 
     database.exec({
@@ -161,11 +162,12 @@ describe('scheduled building upgrades', () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ fieldId: z.number(), scheduled: z.number() }),
     });
+
     expect(promoted).toEqual({ fieldId: fields[1].fieldId, scheduled: 0 });
   });
 
   test('does not promote a scheduled upgrade while a new building is constructing', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -224,11 +226,12 @@ describe('scheduled building upgrades', () => {
       bind: { $village_id: villageId },
       schema: z.strictObject({ active: z.number(), scheduled: z.number() }),
     });
+
     expect(counts).toEqual({ active: 1, scheduled: 1 });
   });
 
   test('queue-full stops without deleting or trying later scheduled upgrades', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -295,7 +298,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test('promotes only the next queued upgrade for Romans', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     database.execMulti({
       sql: `
@@ -352,6 +355,7 @@ describe('scheduled building upgrades', () => {
         scheduled: z.number(),
       }),
     });
+
     expect(result).toEqual({
       fieldId: resourceField.fieldId,
       scheduled: 1,
@@ -359,7 +363,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test('lane-filtered promotion preserves the Roman active construction invariant', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     database.execMulti({
@@ -473,7 +477,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test('removes an unaffordable upgrade and all dependent levels', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -522,7 +526,6 @@ describe('scheduled building upgrades', () => {
         schema: z.number(),
       }),
     ).toBe(0);
-
     expect(
       database.selectObject({
         sql: `
@@ -546,7 +549,6 @@ describe('scheduled building upgrades', () => {
       fieldId: field.fieldId,
       buildingId: field.buildingId,
     });
-
     expect(
       database.selectObject({
         sql: `
@@ -585,7 +587,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test('removes an invalid head candidate and promotes the next candidate', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -675,7 +677,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test('removes invalid candidates until the scheduled queue is empty', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -737,7 +739,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test('removes a failed level-one placeholder and continues to the next candidate', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const placeholderFieldId = 25;
     const placeholderBuildingId: Building['id'] = 'TREASURY';
@@ -853,7 +855,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test('removes scheduled construction with missing requirements when it tries to start', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
 
@@ -914,7 +916,7 @@ describe('scheduled building upgrades', () => {
   });
 
   test('starts a new building when its later levels are scheduled', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
 
@@ -984,9 +986,9 @@ describe('scheduled building upgrades', () => {
   });
 
   test.each([0, -100])(
-    'does not promote an upgrade when current free crop is %i',
+    'promotes an upgrade regardless of current wheat production (%i)',
     async (wheatProduction) => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const field = database.selectObject({
         sql: `
@@ -1042,12 +1044,13 @@ describe('scheduled building upgrades', () => {
           scheduled: z.number(),
         }),
       });
-      expect(counts).toEqual({ active: 0, scheduled: 0 });
+
+      expect(counts).toEqual({ active: 1, scheduled: 0 });
     },
   );
 
   test('starts an offline-promoted upgrade at the predecessor completion time', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const predecessorResolvesAt = Date.now() - 60_000;
     const field = database.selectObject({

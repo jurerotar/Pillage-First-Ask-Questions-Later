@@ -87,7 +87,7 @@ type TileModalActionsProps = {
 };
 
 type TileModalMarkerProps = {
-  mapMarkers: MapMarker[];
+  mapMarkersByTileId: ReadonlyMap<MapMarker['tileId'], MapMarker>;
   createMapMarker: (args: {
     tileId: number;
     description: string;
@@ -107,12 +107,12 @@ type MapMarkerFormValues = {
 
 const TileModalMarkerAction = ({
   tile,
-  mapMarkers,
+  mapMarkersByTileId,
   createMapMarker,
   deleteMapMarker,
 }: TileModalProps & TileModalMarkerProps) => {
   const { t } = useTranslation();
-  const marker = mapMarkers.find((marker) => marker.tileId === tile.id);
+  const marker = mapMarkersByTileId.get(tile.id);
   const label = marker ? t('Edit map marker') : t('Create map marker');
   const [isOpen, setIsOpen] = useState(false);
   const form = useForm<MapMarkerFormValues>({
@@ -248,15 +248,15 @@ const getContrastingTextClassName = (hexColor: string) => {
 };
 
 type TileModalMarkerDescriptionProps = {
-  mapMarkers: MapMarker[];
+  mapMarkersByTileId: ReadonlyMap<MapMarker['tileId'], MapMarker>;
   tile: Tile;
 };
 
 const TileModalMarkerDescription = ({
-  mapMarkers,
+  mapMarkersByTileId,
   tile,
 }: TileModalMarkerDescriptionProps) => {
-  const marker = mapMarkers.find((marker) => marker.tileId === tile.id);
+  const marker = mapMarkersByTileId.get(tile.id);
 
   if (!marker?.description) {
     return null;
@@ -717,7 +717,7 @@ const OccupiedOccupiableTileModal = ({
 
 export const TileDialog = ({
   tile,
-  mapMarkers,
+  mapMarkersByTileId,
   createMapMarker,
   deleteMapMarker,
   onAttackOrRaid,
@@ -735,7 +735,7 @@ export const TileDialog = ({
         <TileModalMarkerAction
           createMapMarker={createMapMarker}
           deleteMapMarker={deleteMapMarker}
-          mapMarkers={mapMarkers}
+          mapMarkersByTileId={mapMarkersByTileId}
           tile={tile}
         />
         <OasisTileModal
@@ -744,7 +744,7 @@ export const TileDialog = ({
           onReinforceVillage={onReinforceVillage}
         />
         <TileModalMarkerDescription
-          mapMarkers={mapMarkers}
+          mapMarkersByTileId={mapMarkersByTileId}
           tile={tile}
         />
       </DialogContent>
@@ -757,7 +757,7 @@ export const TileDialog = ({
         <TileModalMarkerAction
           createMapMarker={createMapMarker}
           deleteMapMarker={deleteMapMarker}
-          mapMarkers={mapMarkers}
+          mapMarkersByTileId={mapMarkersByTileId}
           tile={tile}
         />
         <OccupiedOccupiableTileModal
@@ -767,7 +767,7 @@ export const TileDialog = ({
           onSendResources={onSendResources}
         />
         <TileModalMarkerDescription
-          mapMarkers={mapMarkers}
+          mapMarkersByTileId={mapMarkersByTileId}
           tile={tile}
         />
       </DialogContent>
@@ -780,7 +780,7 @@ export const TileDialog = ({
         <TileModalMarkerAction
           createMapMarker={createMapMarker}
           deleteMapMarker={deleteMapMarker}
-          mapMarkers={mapMarkers}
+          mapMarkersByTileId={mapMarkersByTileId}
           tile={tile}
         />
         <OccupiableTileModal
@@ -788,7 +788,7 @@ export const TileDialog = ({
           onFoundNewVillage={onFoundNewVillage}
         />
         <TileModalMarkerDescription
-          mapMarkers={mapMarkers}
+          mapMarkersByTileId={mapMarkersByTileId}
           tile={tile}
         />
       </DialogContent>

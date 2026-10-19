@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import type { GameEvent } from '@pillage-first/types/models/game-event';
 import { insertUnitImprovementReport } from '../../../utils/report';
 import type { Resolver } from '../resolver';
@@ -16,7 +15,8 @@ export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
       SET
         level = $level
       WHERE
-        unit_id = (
+        player_id = (SELECT player_id FROM villages WHERE id = $village_id)
+        AND unit_id = (
           SELECT id
           FROM unit_ids
           WHERE unit = $unit_id
@@ -25,12 +25,13 @@ export const unitImprovementResolver: Resolver<GameEvent<'unitImprovement'>> = (
     bind: {
       $unit_id: unitId,
       $level: level,
+      $village_id: villageId,
     },
   });
 
   const playerVillageIds = database.selectValues({
-    sql: 'SELECT id FROM villages WHERE player_id = $player_id;',
-    bind: { $player_id: PLAYER_ID },
+    sql: 'SELECT id FROM villages WHERE player_id = (SELECT player_id FROM villages WHERE id = $village_id);',
+    bind: { $village_id: villageId },
     schema: z.number(),
   });
 

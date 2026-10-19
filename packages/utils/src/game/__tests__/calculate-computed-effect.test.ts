@@ -33,6 +33,7 @@ describe('calculateComputedEffect – woodProduction', () => {
     test('base only – should return 100', () => {
       const effects = [woodProductionBaseEffectMock];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(100);
     });
 
@@ -42,6 +43,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         woodProductionBonusEffectMock,
       ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(125);
     });
 
@@ -52,6 +54,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         woodProductionBonusBoosterEffectMock,
       ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(150);
     });
 
@@ -63,6 +66,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         woodProductionServerEffectMock,
       ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(300);
     });
 
@@ -74,6 +78,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         woodProductionHeroBaseEffectMock,
       ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(160);
     });
 
@@ -86,6 +91,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         woodProductionHeroBonusEffectMock,
       ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(260);
     });
 
@@ -99,6 +105,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         woodProductionServerEffectMock,
       ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(520);
     });
 
@@ -108,6 +115,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         woodProductionServerEffectMock,
       ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(200);
     });
 
@@ -120,6 +128,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         woodProductionBonusBoosterEffectMock,
       ];
       const result = calculateComputedEffect('woodProduction', effects, tileId);
+
       expect(result.total).toBe(225);
     });
 
@@ -159,6 +168,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(100);
     });
 
@@ -172,6 +182,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(125);
     });
 
@@ -186,6 +197,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(150);
     });
 
@@ -201,6 +213,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(300);
     });
 
@@ -216,6 +229,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(160);
     });
 
@@ -232,6 +246,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(260);
     });
 
@@ -249,6 +264,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(520);
     });
 
@@ -262,6 +278,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(200);
     });
 
@@ -278,6 +295,7 @@ describe('calculateComputedEffect – woodProduction', () => {
         effects,
         tileId,
       );
+
       expect(result.total).toBe(225);
     });
 
@@ -315,7 +333,6 @@ describe('calculateComputedEffect – woodProduction', () => {
       );
 
       expect(result.total).toBe(4200);
-      expect(result.buildingWheatLimit).toBe(4200);
     });
 
     test('uses already boosted oasis bonus effects', () => {
@@ -352,7 +369,6 @@ describe('calculateComputedEffect – woodProduction', () => {
       );
 
       expect(result.total).toBe(6300);
-      expect(result.buildingWheatLimit).toBe(6300);
     });
 
     test('base + population (negative building base) – total=50, population=50, limit=0', () => {
@@ -367,7 +383,6 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(50);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(50);
     });
 
     test('base + population + bonus + booster – total=100, population=50, limit=50', () => {
@@ -388,7 +403,6 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(100);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(100);
     });
 
     test('base + population + bonus + booster + server – total=250, population=50, limit=200', () => {
@@ -410,7 +424,6 @@ describe('calculateComputedEffect – woodProduction', () => {
 
       expect(result.total).toBe(250);
       expect(result.population).toBe(50);
-      expect(result.buildingWheatLimit).toBe(250);
     });
 
     test('base + troops consumption – total=75', () => {

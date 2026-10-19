@@ -33,9 +33,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
 
       - name: Generate API route types
         run: npm run generate-api-route-types
@@ -44,85 +45,87 @@ jobs:
         run: npx turbo run type-check
 
   lint:
-    name: Lint check
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
+
+      - name: Generate API route types
+        run: npm run generate-api-route-types
 
       - name: Run lint check
         run: npx turbo run lint:check
 
   format:
-    name: Format check
+    name: Format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
+
+      - name: Generate API route types
+        run: npm run generate-api-route-types
 
       - name: Run format check
         run: npx turbo run format:check
 
-  zizmor:
-    name: Zizmor GitHub Actions check
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Run zizmor
-        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
-
-  localize:
-    name: Localization check
+  localization:
+    name: Localization
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
+
+      - name: Generate API route types
+        run: npm run generate-api-route-types
 
       - name: Run @pillage-first/web localization check
         run: npx --workspace="@pillage-first/web" i18next-cli extract --ci --dry-run
 
-  test:
-    name: Run tests
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Setup environment (node + install)
-        uses: ./.github/actions/node-setup
+        uses: $/.github/actions/node-setup
+
+      - name: Generate API route types
+        run: npm run generate-api-route-types
 
       - name: Run tests
         id: run-tests
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            BASE_SHA="${{ github.event.pull_request.base.sha }}"
-
+          if [ "$EVENT_NAME" == "pull_request" ]; then
             # Check if package.json or schemas changed
-            CHANGED_FILES=$(git diff --name-only $BASE_SHA HEAD)
+            CHANGED_FILES=$(git diff --name-only "$BASE_SHA" HEAD)
             FORCE_ALL=false
             if echo "$CHANGED_FILES" | grep -q "package.json" || echo "$CHANGED_FILES" | grep -q "^packages/db/src/schemas/"; then
               FORCE_ALL=true
@@ -137,3 +140,17 @@ jobs:
           else
             npx turbo run test
           fi
+
+  zizmor:
+    name: Zizmor GitHub Actions check
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@85b2b9fb8e3325e7a23d7d0a9d7ba5ae0f999e3e # v0.7.1

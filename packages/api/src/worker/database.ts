@@ -6,13 +6,19 @@ import type {
 import { z } from 'zod';
 import { upgradeDb } from '@pillage-first/db';
 import { env } from '@pillage-first/utils/env';
-import { OutdatedDatabaseSchemaError } from '@pillage-first/utils/errors';
+import {
+  OutdatedAppVersionError,
+  OutdatedDatabaseSchemaError,
+} from '@pillage-first/utils/errors';
 import {
   createDbFacade,
   type DbFacade,
 } from '@pillage-first/utils/facades/database';
 import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
-import { isSupportedDatabaseUserVersion } from '@pillage-first/utils/version';
+import {
+  encodeAppVersionToDatabaseUserVersion,
+  isSupportedDatabaseUserVersion,
+} from '@pillage-first/utils/version';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
@@ -62,7 +68,9 @@ export const openWorkerDatabase = async (
 
     database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
 
-    dbFacade = createDbFacade(database, false);
+    dbFacade = createDbFacade(database, () =>
+      sqlite3!.capi.sqlite3_js_db_export(database!.pointer!, 'main'),
+    );
 
     dbFacade.execMulti({
       sql: `
@@ -81,6 +89,10 @@ export const openWorkerDatabase = async (
       sql: 'PRAGMA user_version',
       schema: z.number(),
     })!;
+
+    if (version > encodeAppVersionToDatabaseUserVersion(env.VERSION)) {
+      throw new OutdatedAppVersionError();
+    }
 
     if (!isSupportedDatabaseUserVersion(version, env.VERSION)) {
       throw new OutdatedDatabaseSchemaError();

@@ -1,3 +1,47 @@
+## Version 0.4.74
+
+#### Oct 14, 2026
+
+* [BugFix] Fixed an incorrectly displayed unit training cost in Great Barracks and Great Stable.
+* [BugFix] Fixed an issue where internal game state updates would run in incorrect order, which resulted in players
+  having their resource amount calculated incorrectly.
+* [BugFix] Fixed an issue where creating thousands of events at once could fail due to a database limit.
+* [BugFix] Fixed unit improvements being applied to other players' units.
+* [BugFix] Fixed Oasis Animal Finder including occupied oasis and counting reinforcing troops as capturable animals.
+* [Performance] Improved execution time of event resolvers (by over 90% in some cases), greatly speeding up game world
+  initialization.
+* [Performance] Improved query performance for effect lookups (~60%), map loading, marketplace offers, rankings and
+  oasis searches.
+* [Performance] Improved processing of queued game events by batching database writes, speeding up game world catch-up
+  after time away.
+
+## Version 0.4.73
+
+#### Oct 8, 2026
+
+* [BugFix] Fixed global hunting quests losing progress when hunting reports are deleted.
+* [Performance] Improved village resource monitoring by sharing resource calculations and reducing unnecessary
+  updates to resource availability checks.
+* [Performance] Improved map marker lookup performance when displaying map tiles and tile details.
+* [Performance] Developer tools now load only when opened, avoiding unnecessary initialization during normal gameplay.
+* [Performance] Reduced unnecessary responsive layout subscription updates.
+
+## Version 0.4.72
+
+#### Oct 7, 2026
+
+* [Feature] Added in-game bug reporting. Your current game world and browser details are attached automatically,
+  and you'll receive a confirmation once the report has been submitted.
+* [Feature] Added village sorting preferences. You can now sort the village select alphabetically or by population,
+  in ascending or descending order.
+* [Feature] Buildings no longer require free crop to construct or upgrade. Removed the free crop display from the
+  village header.
+* [UIUXImprovement] Added building instance numbers to the construction list, making it easier to tell which instance
+  of a building you're about to construct.
+* [BugFix] Fixed an issue where scheduling multiple upgrades of a new building could cancel its scheduled construction.
+* [BugFix] Fixed building cards throwing an error when viewing an empty building field.
+* [BugFix] Fixed custom icon styling.
+
 ## Version 0.4.71
 
 #### Sep 28, 2026

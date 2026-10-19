@@ -34,21 +34,25 @@ describe('encodeGraphicsProperty and decodeGraphicsProperty', () => {
 describe(parseResourcesFromRFC, () => {
   test('parses standard resource field composition correctly', () => {
     const result = parseResourcesFromRFC('4446');
+
     expect(result).toStrictEqual([4, 4, 4, 6]);
   });
 
   test('parses composition with double-digit wheat correctly', () => {
     const result = parseResourcesFromRFC('11115');
+
     expect(result).toStrictEqual([1, 1, 1, 15]);
   });
 
   test('parses composition with single-digit wheat correctly', () => {
     const result = parseResourcesFromRFC('3339');
+
     expect(result).toStrictEqual([3, 3, 3, 9]);
   });
 
   test('parses balanced resource composition', () => {
     const result = parseResourcesFromRFC('3456');
+
     expect(result).toStrictEqual([3, 4, 5, 6]);
   });
 });
@@ -119,12 +123,14 @@ describe(tileIdToCoordinates, () => {
     // Top-right corner: row = 0, col = gridSize - 1
     const topRightTileId = gridSize;
     const topRight = tileIdToCoordinates(topRightTileId, mapSize);
+
     expect(topRight.x).toBe(halfSize);
     expect(topRight.y).toBe(halfSize);
 
     // Bottom-left corner: row = gridSize - 1, col = 0
     const bottomLeftTileId = (gridSize - 1) * gridSize + 1;
     const bottomLeft = tileIdToCoordinates(bottomLeftTileId, mapSize);
+
     expect(bottomLeft.x).toBe(-halfSize);
     expect(bottomLeft.y).toBe(-halfSize);
   });

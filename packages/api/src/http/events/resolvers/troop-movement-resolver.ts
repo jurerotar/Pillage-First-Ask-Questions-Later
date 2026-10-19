@@ -323,6 +323,12 @@ export const findNewVillageMovementResolver: Resolver<
     },
   });
 
+  updateResourceSiteResourcesAt(
+    database,
+    getVillageTileId(database, villageId),
+    resolvesAt,
+  );
+
   // Reduce troop consumption in the source village by 3 (since 3 settlers are consumed)
   database.exec({
     sql: updateWheatProductionByTroopsAndTileIdEffectQuery,
@@ -331,12 +337,6 @@ export const findNewVillageMovementResolver: Resolver<
       $tile_id: originTileId,
     },
   });
-
-  updateResourceSiteResourcesAt(
-    database,
-    getVillageTileId(database, villageId),
-    resolvesAt,
-  );
 
   insertVillageFoundedReport(database, {
     villageId,

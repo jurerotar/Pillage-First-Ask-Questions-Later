@@ -11,6 +11,7 @@ export type SchedulerDataSource = {
   getPastEventIds(now: number): GameEvent['id'][];
   getNextEvent(now: number): Pick<GameEvent, 'id' | 'resolvesAt'> | null;
   resolveEvent(id: GameEvent['id']): void;
+  resolveEvents(ids: Iterable<GameEvent['id']>): void;
 };
 
 let scheduledTimeout: ReturnType<typeof globalThis.setTimeout> | null = null;
@@ -83,23 +84,21 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
         break;
       }
 
-      for (const id of pastEventIds) {
-        // Respect cancel signal between each event processing.
-        if (shutdownController.signal.aborted) {
-          break;
-        }
+      function* pendingEventIds(): Generator<GameEvent['id']> {
+        for (const id of pastEventIds) {
+          if (shutdownController.signal.aborted) {
+            break;
+          }
 
-        // Clear any request before processing this id so new notifications can be detected.
-        // If createEvents marks a request during the transaction, it will be observed below.
-        // We don't need a local flag — use takeNeedsRescan() after processing.
-        dataSource.resolveEvent(id);
+          yield id;
 
-        // If any createEvents during resolveEvent called markNeedsRescan(), take it now
-        // and restart the outer loop (re-query) so new immediate events are handled.
-        if (takeNeedsRescan()) {
-          break;
+          if (takeNeedsRescan()) {
+            break;
+          }
         }
       }
+
+      dataSource.resolveEvents(pendingEventIds());
     }
 
     if (shutdownController.signal.aborted) {

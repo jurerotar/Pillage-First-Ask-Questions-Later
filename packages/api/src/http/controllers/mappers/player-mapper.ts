@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { oasisDtoSchema } from '@pillage-first/types/dtos/oasis';
 import {
   playerVillageDtoSchema,
+  playerVillageListingDtoSchema,
   playerVillageWithPopulationDtoSchema,
   sentReinforcementDtoSchema,
   villageTroopDtoSchema,
@@ -18,7 +19,16 @@ import type {
 } from '../schemas/player-schemas';
 
 export const mapPlayerVillage = (
-  row: z.infer<typeof getVillagesByPlayerSchema>,
+  row: Pick<
+    z.infer<typeof getVillagesByPlayerSchema>,
+    | 'id'
+    | 'tile_id'
+    | 'coordinates_x'
+    | 'coordinates_y'
+    | 'name'
+    | 'slug'
+    | 'resource_field_composition'
+  >,
 ): z.infer<typeof playerVillageDtoSchema> => {
   const dto = {
     id: row.id,
@@ -30,6 +40,15 @@ export const mapPlayerVillage = (
   };
 
   return playerVillageDtoSchema.parse(dto);
+};
+
+export const mapPlayerVillageListing = (
+  row: z.infer<typeof getVillagesByPlayerSchema>,
+): z.infer<typeof playerVillageListingDtoSchema> => {
+  return playerVillageListingDtoSchema.parse({
+    ...mapPlayerVillage(row),
+    population: row.population,
+  });
 };
 
 export const mapPlayerVillageWithPopulation = (

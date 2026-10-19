@@ -51,7 +51,7 @@ export const assessBuildingConstructionRequirements = (
 
   const queuedBuildingIds = database.selectValues({
     sql: `
-      SELECT DISTINCT buildingId
+      SELECT buildingId
       FROM (
         SELECT JSON_EXTRACT(e.meta, '$.buildingId') AS buildingId
         FROM events e

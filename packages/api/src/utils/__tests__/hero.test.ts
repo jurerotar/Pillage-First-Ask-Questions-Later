@@ -5,7 +5,7 @@ import { addHeroExperience, onHeroDeath } from '../hero';
 
 describe('hero utils resolvers', () => {
   test('onHeroDeath should remove heroHealthRegeneration events', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     // 1. Setup: hero alive, with one regeneration event
     database.exec({
@@ -24,11 +24,12 @@ describe('hero utils resolvers', () => {
       sql: "SELECT COUNT(*) FROM events WHERE type = 'heroHealthRegeneration';",
       schema: z.number(),
     });
+
     expect(eventCount).toBe(0);
   });
 
   test('addHeroExperience should apply experience modifier', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     database.exec({
       sql: 'UPDATE heroes SET experience_modifier = 15;',
@@ -40,6 +41,7 @@ describe('hero utils resolvers', () => {
       sql: 'SELECT experience FROM heroes LIMIT 1;',
       schema: z.number(),
     });
+
     expect(experience).toBe(12);
   });
 });

@@ -117,7 +117,10 @@ import {
   reorderScheduledBuildingUpgrades,
   scheduleBuildingUpgrade,
 } from './controllers/scheduled-building-upgrades-controllers';
-import { getServer } from './controllers/server-controllers';
+import {
+  getSerializedServerDatabase,
+  getServer,
+} from './controllers/server-controllers';
 import {
   getGameWorldOverview,
   getPlayerRankings,
@@ -146,6 +149,7 @@ import { createRoute, type Route } from './route';
 export const apiRoutes = [
   // Server
   createRoute(getServer),
+  createRoute(getSerializedServerDatabase),
 
   // Developer Tools
   createRoute(getDeveloperSettings),

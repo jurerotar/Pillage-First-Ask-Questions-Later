@@ -2,10 +2,10 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('developerSettingsSeeder', () => {
-  test('developer_settings row exists with default values (all 0)', () => {
+  test('developer_settings row exists with default values (all 0)', async () => {
+    using database = await prepareTestDatabase();
+
     const settings = database.selectObject({
       sql: `
         SELECT

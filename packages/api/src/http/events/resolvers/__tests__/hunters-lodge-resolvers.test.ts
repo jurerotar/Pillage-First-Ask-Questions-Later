@@ -12,7 +12,7 @@ import { resolveEvent } from '../../resolve-event';
 
 describe('hunters lodge resolvers', () => {
   test('huntersLodgeHunt should not schedule another hunt after resolving', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const now = 1_000_000;
     vi.useFakeTimers();
@@ -103,7 +103,7 @@ describe('hunters lodge resolvers', () => {
   });
 
   test('huntersLodgeHunt should add one eligible animal to the village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
 
     database.exec({

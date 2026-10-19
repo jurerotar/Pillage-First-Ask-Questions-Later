@@ -5,10 +5,10 @@ import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../';
 import { stackableHeroItemAmountRanges } from '../world-items-seeder';
 
-const database = await prepareTestDatabase();
-
 describe('worldItemsSeeder', () => {
-  test('world_items seeded only for NPC villages', () => {
+  test('world_items seeded only for NPC villages', async () => {
+    using database = await prepareTestDatabase();
+
     const invalid = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -21,22 +21,27 @@ describe('worldItemsSeeder', () => {
       bind: { $player_id: PLAYER_ID },
       schema: z.number(),
     });
+
     expect(invalid).toBe(0);
 
     const count = database.selectValue({
       sql: 'SELECT COUNT(*) FROM world_items;',
       schema: z.number(),
     });
+
     expect(count).toBeGreaterThan(0);
 
     const resourceItemCount = database.selectValue({
       sql: 'SELECT COUNT(*) FROM world_items WHERE item_id IN (1026, 1027, 1028, 1029);',
       schema: z.number(),
     });
+
     expect(resourceItemCount).toBe(0);
   });
 
-  test('world_items use amount ranges only for stackable items', () => {
+  test('world_items use amount ranges only for stackable items', async () => {
+    using database = await prepareTestDatabase();
+
     const worldItems = database.selectObjects({
       sql: 'SELECT item_id, amount FROM world_items;',
       schema: z.strictObject({
@@ -53,10 +58,12 @@ describe('worldItemsSeeder', () => {
 
       if (!amountRange) {
         expect(amount).toBe(1);
+
         continue;
       }
 
       const [min, max] = amountRange;
+
       expect(amount).toBeGreaterThanOrEqual(min);
       expect(amount).toBeLessThanOrEqual(max);
     }

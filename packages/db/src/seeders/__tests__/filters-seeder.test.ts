@@ -8,10 +8,10 @@ import {
 } from '@pillage-first/types/dtos/report';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('filtersSeeder', () => {
-  test('filters contains every active report filter for each report filter group', () => {
+  test('filters contains every active report filter for each report filter group', async () => {
+    using database = await prepareTestDatabase();
+
     const filtersByName = database.selectObjects({
       sql: `
         SELECT name, JSON_GROUP_ARRAY(filter) AS filters_json
@@ -45,7 +45,9 @@ describe('filtersSeeder', () => {
     );
   });
 
-  test('filters contains all report filter group and filter combinations', () => {
+  test('filters contains all report filter group and filter combinations', async () => {
+    using database = await prepareTestDatabase();
+
     const filterCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -62,7 +64,9 @@ describe('filtersSeeder', () => {
     );
   });
 
-  test('filters only contains modeled report filter group names', () => {
+  test('filters only contains modeled report filter group names', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidNameCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -82,7 +86,9 @@ describe('filtersSeeder', () => {
     expect(invalidNameCount).toBe(0);
   });
 
-  test('filters only contains modeled report filters', () => {
+  test('filters only contains modeled report filters', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidFilterCount = database.selectValue({
       sql: `
         SELECT COUNT(*)

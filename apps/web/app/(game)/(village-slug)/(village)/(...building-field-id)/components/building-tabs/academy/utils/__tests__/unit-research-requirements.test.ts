@@ -10,6 +10,7 @@ describe('unit-research-requirements', () => {
       'SWORDSMAN',
       villageMock,
     );
+
     expect(canResearch).toBe(false);
   });
 
@@ -19,6 +20,7 @@ describe('unit-research-requirements', () => {
       buildingFields: [{ buildingId: 'ACADEMY', id: 1, level: 3 }],
     };
     const { canResearch } = assessUnitResearchReadiness('SWORDSMAN', village);
+
     expect(canResearch).toBe(true);
   });
 });

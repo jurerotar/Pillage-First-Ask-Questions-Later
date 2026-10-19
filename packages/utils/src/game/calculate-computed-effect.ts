@@ -194,7 +194,6 @@ export type ComputedEffectReturn = {
 
 export type WheatProductionEffectReturn = ComputedEffectReturn & {
   population: number;
-  buildingWheatLimit: number;
 };
 
 export function calculateComputedEffect(
@@ -237,7 +236,6 @@ export function calculateComputedEffect(
         return {
           total: 0,
           population: 0,
-          buildingWheatLimit: 0,
         };
       }
       return {
@@ -287,7 +285,6 @@ export function calculateComputedEffect(
         return {
           total,
           population: 0,
-          buildingWheatLimit: 0,
         };
       }
 
@@ -382,9 +379,6 @@ export function calculateComputedEffect(
     return {
       total,
       population: -summedBuildingEffectBaseNegativeValue,
-      buildingWheatLimit:
-        summedBuildingEffectBasePositiveValue +
-        summedBuildingEffectBaseNegativeValue,
     };
   }
 

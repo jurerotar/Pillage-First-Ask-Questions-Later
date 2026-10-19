@@ -8,7 +8,7 @@ describe('preferences-controllers', () => {
   const playerId = PLAYER_ID;
 
   test('getPreferences should return preferences', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const preferences = getPreferences(
       database,
@@ -21,11 +21,39 @@ describe('preferences-controllers', () => {
       isAccessibilityModeEnabled: expect.any(Boolean),
       isDeveloperToolsConsoleEnabled: expect.any(Boolean),
       shouldShowBuildingNames: expect.any(Boolean),
+      villageSort: 'alphabetic',
     });
   });
 
+  test('updatePreference should update village sorting preference', async () => {
+    using database = await prepareTestDatabase();
+
+    updatePreference(
+      database,
+      createControllerArgs<
+        '/players/:playerId/preferences/:preferenceName',
+        'patch'
+      >({
+        path: {
+          playerId,
+          preferenceName: 'villageSort',
+        },
+        body: { value: 'populationDesc' },
+      }),
+    );
+
+    expect(
+      getPreferences(
+        database,
+        createControllerArgs<'/players/:playerId/preferences'>({
+          path: { playerId },
+        }),
+      ).villageSort,
+    ).toBe('populationDesc');
+  });
+
   test('updatePreference should update a preference', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     updatePreference(
       database,

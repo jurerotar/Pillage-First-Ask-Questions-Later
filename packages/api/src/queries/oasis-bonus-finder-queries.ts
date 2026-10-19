@@ -2,9 +2,6 @@ export const selectTilesByResourceFieldCompositionQuery = `
   WITH
     src_village(x, y) AS (
       VALUES ($tile_x, $tile_y)
-    ),
-    cropper_resource_field_compositions(resource_field_composition) AS (
-      VALUES ('3339'), ('11115'), ('00018')
     )
   SELECT
     t.id AS tile_id,
@@ -23,20 +20,18 @@ export const selectTilesByResourceFieldCompositionQuery = `
   LEFT JOIN villages v ON v.tile_id = t.id
   CROSS JOIN src_village sv
   WHERE
-    t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
+    -- Verify each composition match's type without walking the type/coordinate index.
+    EXISTS (
+      SELECT 1 FROM tile_type_ids tt
+      WHERE tt.id = t.type_id AND tt.type = 'free'
+    )
     AND ($show_occupied_tiles = 1 OR v.id IS NULL)
-    AND (
-      (
-        $rfc_param = 'any-cropper'
-        AND rfc.resource_field_composition IN (
-          SELECT resource_field_composition
-          FROM cropper_resource_field_compositions
-        )
-      )
-      OR (
-        $rfc_param <> 'any-cropper'
-        AND rfc.resource_field_composition = $rfc_param
-      )
+    AND t.resource_field_composition_id IN (
+      SELECT id
+      FROM resource_field_composition_ids
+      WHERE ($rfc_param = 'any-cropper'
+        AND resource_field_composition IN ('3339', '11115', '00018'))
+        OR resource_field_composition = $rfc_param
     )
   ORDER BY distance_squared ASC;
 `;
@@ -110,15 +105,12 @@ export const selectTilesByOasisBonusesQuery = `
       WHERE
         t.type_id = (SELECT id FROM tile_type_ids WHERE type = 'free')
         AND ($show_occupied_tiles = 1 OR v.id IS NULL)
-        AND (
-          (
-            $rfc_param = 'any-cropper'
-            AND rfc.resource_field_composition IN ('3339', '11115', '00018')
-          )
-          OR (
-            $rfc_param <> 'any-cropper'
-            AND rfc.resource_field_composition = $rfc_param
-          )
+        AND t.resource_field_composition_id IN (
+          SELECT id
+          FROM resource_field_composition_ids
+          WHERE ($rfc_param = 'any-cropper'
+            AND resource_field_composition IN ('3339', '11115', '00018'))
+            OR resource_field_composition = $rfc_param
         )
     ),
     slot_matches AS (
@@ -127,10 +119,12 @@ export const selectTilesByOasisBonusesQuery = `
         rsb.slot_index,
         o.tile_id AS oasis_tile
       FROM candidates c
-      JOIN tiles ot
-        ON ot.x BETWEEN c.x - 3 AND c.x + 3
+      -- Keep each candidate outermost, then seek seven X values and a Y range
+      -- through the existing coordinate index. Coordinates are integers.
+      CROSS JOIN tiles ot
+        ON ot.x IN (c.x - 3, c.x - 2, c.x - 1, c.x, c.x + 1, c.x + 2, c.x + 3)
         AND ot.y BETWEEN c.y - 3 AND c.y + 3
-      JOIN oasis o ON o.tile_id = ot.id
+      CROSS JOIN oasis o ON o.tile_id = ot.id
         AND ($only_unoccupied_oases = 0 OR o.village_id IS NULL)
       JOIN resource_ids ri ON ri.id = o.resource_id
       JOIN requested_slot_bonuses rsb

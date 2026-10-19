@@ -11,13 +11,13 @@ import { Countdown } from 'app/(game)/(village-slug)/components/countdown';
 import { ErrorBag } from 'app/(game)/(village-slug)/components/error-bag';
 import { Resources } from 'app/(game)/(village-slug)/components/resources';
 import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
-import { useHasEnoughResources } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
+import { useResourceAvailability } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-resources';
 import { useHasEnoughStorageCapacity } from 'app/(game)/(village-slug)/hooks/current-village/use-has-enough-storage-capacity';
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
+import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Icon } from 'app/components/icon';
 import { Text } from 'app/components/text';
@@ -31,7 +31,7 @@ export const HeroRevival = () => {
   const { reviveHero } = useReviveHero();
   const { server } = useServer();
   const { currentVillage } = useCurrentVillage();
-  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { eventsByType: heroRevivalEvents } = useEventsByType('heroRevival');
 
   const { isInstantHeroReviveEnabled, isFreeHeroReviveEnabled } =
@@ -50,7 +50,7 @@ export const HeroRevival = () => {
     : calculateHeroRevivalTime(level) / server.configuration.speed;
 
   const { errorBag: hasEnoughResourcesErrorBag } =
-    useHasEnoughResources(revivalCost);
+    useResourceAvailability(revivalCost);
   const { errorBag: hasEnoughWarehouseCapacityErrorBag } =
     useHasEnoughStorageCapacity('warehouseCapacity', revivalCost);
   const { errorBag: hasEnoughGranaryCapacityErrorBag } =

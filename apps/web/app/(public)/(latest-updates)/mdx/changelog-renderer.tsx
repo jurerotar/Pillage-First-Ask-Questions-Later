@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { CopySectionLinkButton } from 'app/(public)/components/copy-section-link-button';
 import { Alert } from 'app/components/ui/alert';
 import {
   type ChangelogEntry,
@@ -9,7 +10,6 @@ import {
 import changelogRaw from '../../../../../../CHANGELOG.md?raw';
 import { BugFixesBlock } from './components/bug-fixes-block';
 import { CopyReleaseButton } from './components/copy-release-button';
-import { CopyReleaseLinkButton } from './components/copy-release-link-button';
 import { FeaturesBlock } from './components/features-block';
 import { PerformanceBlock } from './components/performance-block';
 import { TechnicalImprovementBlock } from './components/technical-improvement-block';
@@ -85,14 +85,12 @@ export const ChangelogRenderer = () => {
           {import.meta.env.DEV && (
             <CopyReleaseButton text={buildReleaseMarkdown(release)} />
           )}
-          <h2 className="group flex items-center gap-1">
-            <a
-              href={`#${makeSectionId(release.version)}`}
-              className="rounded hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              Version {release.version}
-            </a>
-            <CopyReleaseLinkButton sectionId={makeSectionId(release.version)} />
+          <h2 className="group">
+            Version {release.version}
+            <CopySectionLinkButton
+              sectionId={makeSectionId(release.version)}
+              sectionType="release"
+            />
           </h2>
           <h4>
             {release.date.toLocaleDateString('en-US', {

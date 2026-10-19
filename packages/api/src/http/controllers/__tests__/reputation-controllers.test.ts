@@ -8,7 +8,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('reputation-controllers', () => {
   test('getReputations should return reputations for a player', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const reputations = getReputations(
       database,

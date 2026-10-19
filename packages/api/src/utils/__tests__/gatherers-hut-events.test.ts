@@ -5,7 +5,7 @@ import {
   calculateGatherersHutPartySize,
   GATHERERS_HUT_RESOURCES_PER_UNIT,
 } from '@pillage-first/game-assets/utils/gatherers-hut';
-import { createGameEventMock } from '@pillage-first/mocks/event';
+import { createGatherersHutGatheringTripEventMock } from '@pillage-first/mocks/event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createEvents } from '../create-event';
 import {
@@ -114,14 +114,14 @@ describe('gatherers hut events', () => {
   });
 
   test("gatherersHutGatheringTrip - should throw if Gatherer's Hut does not exist", async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -137,7 +137,7 @@ describe('gatherers hut events', () => {
   });
 
   test('gatherersHutGatheringTrip - should enforce party size by hut level', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
@@ -147,7 +147,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -163,7 +163,7 @@ describe('gatherers hut events', () => {
   });
 
   test('gatherersHutGatheringTrip - should require idle home troops', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
@@ -172,7 +172,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -188,7 +188,7 @@ describe('gatherers hut events', () => {
   });
 
   test("gatherersHutGatheringTrip - should require troops from player's tribe", async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
@@ -198,7 +198,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -214,7 +214,7 @@ describe('gatherers hut events', () => {
   });
 
   test('gatherersHutGatheringTrip - should reject hero', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
@@ -223,7 +223,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -239,7 +239,7 @@ describe('gatherers hut events', () => {
   });
 
   test('gatherersHutGatheringTrip - should require enough idle troops', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
@@ -249,7 +249,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -264,8 +264,55 @@ describe('gatherers hut events', () => {
     ).toThrow('Not enough idle troops available');
   });
 
+  test.each(['available', 'insufficient', 'missing'] as const)(
+    'gatherersHutGatheringTrip - aggregates duplicate units with %s home troops',
+    async (availability) => {
+      using database = await prepareTestDatabase();
+
+      const villageId = 1;
+      const tileId = getVillageTileId(database, villageId);
+      setGatherersHutLevel(database, villageId, 20);
+      setIdleTroops(
+        database,
+        'PHALANX',
+        availability === 'insufficient' ? 1 : 2,
+        tileId,
+      );
+      setIdleTroops(database, 'SWORDSMAN', 1, tileId);
+      if (availability === 'missing') {
+        database.exec({
+          sql: `DELETE FROM troops WHERE tile_id = $tile_id AND source_tile_id = $tile_id
+              AND unit_id = (SELECT id FROM unit_ids WHERE unit = 'SWORDSMAN')`,
+          bind: { $tile_id: tileId },
+        });
+      }
+      const validate = () =>
+        validateEventCreationPrerequisites(
+          database,
+          createGatherersHutGatheringTripEventMock({
+            villageId,
+            troops: [
+              { unitId: 'PHALANX', amount: 1, tileId, sourceTileId: tileId },
+              { unitId: 'PHALANX', amount: 1, tileId, sourceTileId: tileId },
+              {
+                unitId: 'SWORDSMAN',
+                amount: 1,
+                tileId,
+                sourceTileId: tileId,
+              },
+            ],
+          }),
+        );
+      if (availability === 'available') {
+        expect(validate).not.toThrow();
+      } else {
+        expect(validate).toThrow('Not enough idle troops available');
+      }
+    },
+  );
+
   test('gatherersHutGatheringTrip - should allow one trip at a time', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
@@ -288,7 +335,7 @@ describe('gatherers hut events', () => {
     expect(() =>
       validateEventCreationPrerequisites(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {
@@ -304,14 +351,14 @@ describe('gatherers hut events', () => {
   });
 
   test('gatherersHutGatheringTrip - should remove troops when created', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
     setIdleTroops(database, 'PHALANX', 10, villageTileId);
 
     runEventCreationSideEffects(database, [
-      createGameEventMock('gatherersHutGatheringTrip', {
+      createGatherersHutGatheringTripEventMock({
         villageId,
         troops: [
           {
@@ -343,7 +390,7 @@ describe('gatherers hut events', () => {
   });
 
   test('gatherersHutGatheringTrip - should use 48 to 72 minute duration range', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
     const now = 1_000_000;
@@ -353,7 +400,7 @@ describe('gatherers hut events', () => {
 
     const duration = getEventDuration(
       database,
-      createGameEventMock('gatherersHutGatheringTrip', {
+      createGatherersHutGatheringTripEventMock({
         villageId,
         startsAt: now,
         troops: [
@@ -374,11 +421,11 @@ describe('gatherers hut events', () => {
   });
 
   test('gatherersHutGatheringTrip - should lock duration to completed trip count', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
-    const event = createGameEventMock('gatherersHutGatheringTrip', {
+    const event = createGatherersHutGatheringTripEventMock({
       villageId,
       startsAt: 1_000_000,
       troops: [
@@ -391,7 +438,7 @@ describe('gatherers hut events', () => {
       ],
     });
 
-    const retriedEvent = createGameEventMock('gatherersHutGatheringTrip', {
+    const retriedEvent = createGatherersHutGatheringTripEventMock({
       villageId,
       startsAt: 2_000_000,
       troops: event.troops,
@@ -403,7 +450,7 @@ describe('gatherers hut events', () => {
   });
 
   test('gatherersHutGatheringTrip - should return zero duration if instant unit travel enabled', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const villageTileId = getVillageTileId(database, villageId);
 
@@ -412,7 +459,7 @@ describe('gatherers hut events', () => {
     expect(
       getEventDuration(
         database,
-        createGameEventMock('gatherersHutGatheringTrip', {
+        createGatherersHutGatheringTripEventMock({
           villageId,
           troops: [
             {

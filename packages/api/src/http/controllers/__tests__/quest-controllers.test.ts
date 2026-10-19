@@ -10,7 +10,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('quest-controllers', () => {
   test('getQuests should return quests for a village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -34,7 +34,7 @@ describe('quest-controllers', () => {
   });
 
   test('getCollectableQuestCount should return collectable quest count', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',
@@ -105,7 +105,7 @@ describe('quest-controllers', () => {
   });
 
   test('collectQuest should collect a quest', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages LIMIT 1',

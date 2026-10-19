@@ -10,6 +10,7 @@ import { defineConfig as defineVitestConfig } from 'vitest/config';
 import { reactRouter } from '@react-router/dev/vite';
 import repoPackageJson from '../../package.json' with { type: 'json' };
 import { apiRouteTypesPlugin } from '../../plugins/vite/vite-plugin-api-route-types.ts';
+import { buildMetadataPlugin } from '../../plugins/vite/vite-plugin-build-metadata.ts';
 import packageJson from './package.json' with { type: 'json' };
 
 const graphicsVersion =
@@ -48,6 +49,7 @@ const manifest: Partial<ManifestOptions> = {
 // https://vitejs.dev/config/
 const viteConfig = defineViteConfig({
   plugins: [
+    buildMetadataPlugin(repoPackageJson.version),
     !isInTestMode && apiRouteTypesPlugin(),
     reactIconsSprite(),
     // !isInTestMode &&
@@ -72,10 +74,13 @@ const viteConfig = defineViteConfig({
         registerType: 'autoUpdate',
         manifest,
         outDir: 'build/client',
+        workbox: {
+          globIgnores: ['**/build.json'],
+        },
         injectManifest: {
           swSrc: 'app/sw.ts',
           swDest: 'sw.js',
-          globIgnores: ['**/*.html'],
+          globIgnores: ['**/*.html', '**/build.json'],
         },
       }),
     isDeployingToMaster &&
@@ -149,7 +154,6 @@ const vitestConfig = defineVitestConfig({
     root: './',
     watch: false,
     setupFiles: './app/tests/vitest-setup.ts',
-    reporters: ['default'],
     fsModuleCache: true,
     coverage: {
       include: ['app/**/*.{ts,tsx}'],

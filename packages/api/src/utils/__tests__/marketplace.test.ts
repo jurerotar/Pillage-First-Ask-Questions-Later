@@ -13,7 +13,7 @@ import {
 
 describe('marketplace utils', () => {
   test('merchant movement duration should scale directly with game world speed', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const village = database.selectObject({
       sql: `
         SELECT
@@ -73,7 +73,7 @@ describe('marketplace utils', () => {
   });
 
   test('loads merchant stats in one database call', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const village = database.selectObject({
       sql: 'SELECT id, tile_id AS tileId FROM villages LIMIT 1;',
       schema: z.strictObject({

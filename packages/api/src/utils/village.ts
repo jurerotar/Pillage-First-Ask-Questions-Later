@@ -66,6 +66,17 @@ type CalculateResourceSiteResourcesAtReturn = {
   previousUpdatedAt: number;
 };
 
+const villageTileIdSchema = z.number();
+
+const resourceSiteStateSchema = resourcesSchema.extend({
+  last_updated_at: z.number(),
+});
+
+const resourceSiteEffectsSchema = z
+  .string()
+  .transform((value) => JSON.parse(value))
+  .pipe(z.array(apiEffectSchema));
+
 export const getVillageTileId = (
   database: DbFacade,
   villageId: number,
@@ -73,7 +84,7 @@ export const getVillageTileId = (
   database.selectValue({
     sql: 'SELECT tile_id FROM villages WHERE id = $village_id;',
     bind: { $village_id: villageId },
-    schema: z.number(),
+    schema: villageTileIdSchema,
   })!;
 
 export const calculateResourceSiteResourcesAt = (
@@ -81,13 +92,13 @@ export const calculateResourceSiteResourcesAt = (
   tileId: number,
   timestamp: number,
 ): CalculateResourceSiteResourcesAtReturn => {
-  const effects = database.selectObjects({
+  const effects = database.selectValue({
     sql: selectResourceSiteResourcesRelevantEffectsByTileIdQuery,
     bind: {
       $tile_id: tileId,
     },
-    schema: apiEffectSchema,
-  });
+    schema: resourceSiteEffectsSchema,
+  })!;
 
   const { total: warehouseCapacity } = calculateComputedEffect(
     'warehouseCapacity',
@@ -134,9 +145,7 @@ export const calculateResourceSiteResourcesAt = (
         rs.tile_id = $tile_id;
     `,
     bind: { $tile_id: tileId },
-    schema: resourcesSchema.extend({
-      last_updated_at: z.number(),
-    }),
+    schema: resourceSiteStateSchema,
   })!;
 
   const {

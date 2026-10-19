@@ -10,22 +10,26 @@ import { resourceSchema } from '@pillage-first/types/models/resource';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('effectsSeeder', () => {
-  test('effect_ids seeded (>0)', () => {
+  test('effect_ids seeded (>0)', async () => {
+    using database = await prepareTestDatabase();
+
     const c = database.selectValue({
       sql: 'SELECT COUNT(*) FROM effect_ids;',
       schema: z.number(),
     });
+
     expect(c).toBeGreaterThan(0);
   });
 
-  test('effects seeded (>0) and reference valid effect_ids', () => {
+  test('effects seeded (>0) and reference valid effect_ids', async () => {
+    using database = await prepareTestDatabase();
+
     const effectsCount = database.selectValue({
       sql: 'SELECT COUNT(*) FROM effects;',
       schema: z.number(),
     });
+
     expect(effectsCount).toBeGreaterThan(0);
 
     const invalid = database.selectValue({
@@ -39,10 +43,13 @@ describe('effectsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(invalid).toBe(0);
   });
 
-  test('has building-based wheatProduction matching population (source_specifier = 0)', () => {
+  test('has building-based wheatProduction matching population (source_specifier = 0)', async () => {
+    using database = await prepareTestDatabase();
+
     const wheatEffectId = database.selectValue({
       sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction';",
       schema: z.number(),
@@ -98,7 +105,9 @@ describe('effectsSeeder', () => {
     }
   });
 
-  test('has troops-based wheatProduction matching troop wheat consumption (source_specifier IS NULL)', () => {
+  test('has troops-based wheatProduction matching troop wheat consumption (source_specifier IS NULL)', async () => {
+    using database = await prepareTestDatabase();
+
     const wheatEffectId = database.selectValue({
       sql: "SELECT id FROM effect_ids WHERE effect = 'wheatProduction';",
       schema: z.number(),
@@ -155,7 +164,9 @@ describe('effectsSeeder', () => {
     }
   });
 
-  test('seeds oasis base resource effects without oasis bonus effects', () => {
+  test('seeds oasis base resource effects without oasis bonus effects', async () => {
+    using database = await prepareTestDatabase();
+
     const oasisTileCount = database.selectValue({
       sql: 'SELECT COUNT(DISTINCT tile_id) FROM oasis;',
       schema: z.number(),
@@ -165,16 +176,20 @@ describe('effectsSeeder', () => {
       sql: "SELECT COUNT(*) FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis') AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'base');",
       schema: z.number(),
     });
+
     expect(oasisBaseEffects).toBe(oasisTileCount * 6);
 
     const oasisEffects = database.selectValue({
       sql: "SELECT COUNT(*) FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'oasis') AND type_id = (SELECT id FROM effect_type_ids WHERE type = 'bonus');",
       schema: z.number(),
     });
+
     expect(oasisEffects).toBe(0);
   });
 
-  test('oasis base production effects match oasis type', () => {
+  test('oasis base production effects match oasis type', async () => {
+    using database = await prepareTestDatabase();
+
     const oasisBonuses = database.selectObjects({
       sql: `
         SELECT o.tile_id, ri.resource, o.bonus
@@ -244,7 +259,9 @@ describe('effectsSeeder', () => {
     }
   });
 
-  test('oasis storage effects match oasis resource limits', () => {
+  test('oasis storage effects match oasis resource limits', async () => {
+    using database = await prepareTestDatabase();
+
     const oasisLimits = database.selectObjects({
       sql: `
         SELECT
@@ -300,11 +317,14 @@ describe('effectsSeeder', () => {
     }
   });
 
-  test('all effects have a non-zero value', () => {
+  test('all effects have a non-zero value', async () => {
+    using database = await prepareTestDatabase();
+
     const zeroEffects = database.selectValue({
       sql: 'SELECT COUNT(*) FROM effects WHERE value = 0 AND source_id != 1;',
       schema: z.number(),
     });
+
     expect(zeroEffects).toBe(0);
   });
 });

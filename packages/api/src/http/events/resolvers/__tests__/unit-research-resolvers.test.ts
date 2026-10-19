@@ -12,7 +12,7 @@ import { unitResearchResolver } from '../unit-research-resolvers';
 
 describe(unitResearchResolver, () => {
   test('should insert unit research record', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const unitId: Unit['id'] = 'LEGIONNAIRE';
 

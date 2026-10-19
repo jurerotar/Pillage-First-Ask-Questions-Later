@@ -14,6 +14,10 @@ export const playerVillageDtoSchema = z.strictObject({
   resourceFieldComposition: resourceFieldCompositionSchema,
 });
 
+export const playerVillageListingDtoSchema = playerVillageDtoSchema.extend({
+  population: z.number(),
+});
+
 export const playerVillageWithPopulationDtoSchema =
   playerVillageDtoSchema.extend({
     population: z.number(),

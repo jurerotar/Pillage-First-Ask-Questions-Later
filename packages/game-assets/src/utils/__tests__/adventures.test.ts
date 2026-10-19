@@ -93,7 +93,6 @@ describe(calculateAdventurePointIncreaseEventDuration, () => {
         createdAt + eightHours - 1,
       ),
     ).toBe(0);
-
     expect(
       calculateAdventurePointsEarnedBetween(
         createdAt,

@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('oasisSeeder', () => {
-  test('oasis rows only exist for tiles with type = "oasis"', () => {
+  test('oasis rows only exist for tiles with type = "oasis"', async () => {
+    using database = await prepareTestDatabase();
+
     const countForNonOasis = database.selectValue({
       sql: `
         SELECT COUNT(*) AS c
@@ -18,10 +18,13 @@ describe('oasisSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(countForNonOasis).toBe(0);
   });
 
-  test('oasis bonus values are only 25 or 50 and resource strings are lowercase', () => {
+  test('oasis bonus values are only 25 or 50 and resource strings are lowercase', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidRows = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -38,7 +41,9 @@ describe('oasisSeeder', () => {
     expect(invalidRows).toBe(0);
   });
 
-  test('there is at least one oasis that has BOTH its resource bonus and a separate wheat bonus (composite)', () => {
+  test('there is at least one oasis that has BOTH its resource bonus and a separate wheat bonus (composite)', async () => {
+    using database = await prepareTestDatabase();
+
     const count = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -57,7 +62,9 @@ describe('oasisSeeder', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('there is at least one oasis that has a resource bonus WITHOUT any wheat bonus (resource-only)', () => {
+  test('there is at least one oasis that has a resource bonus WITHOUT any wheat bonus (resource-only)', async () => {
+    using database = await prepareTestDatabase();
+
     const count = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -76,7 +83,9 @@ describe('oasisSeeder', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('there is at least one oasis that has a 50% bonus', () => {
+  test('there is at least one oasis that has a 50% bonus', async () => {
+    using database = await prepareTestDatabase();
+
     const count = database.selectValue({
       sql: 'SELECT COUNT(*) FROM oasis WHERE bonus = 50;',
       schema: z.number(),
@@ -85,7 +94,9 @@ describe('oasisSeeder', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('at least 4 tiles with RFC 00018 (18c) have >= 3 distinct 50% wheat oases (150% total)', () => {
+  test('at least 4 tiles with RFC 00018 (18c) have >= 3 distinct 50% wheat oases (150% total)', async () => {
+    using database = await prepareTestDatabase();
+
     const count = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -113,7 +124,9 @@ describe('oasisSeeder', () => {
     expect(count).toBeGreaterThanOrEqual(4);
   });
 
-  test('at least 12 tiles with RFC 11115 (15c) have >= 3 distinct 50% wheat oases (150% total)', () => {
+  test('at least 12 tiles with RFC 11115 (15c) have >= 3 distinct 50% wheat oases (150% total)', async () => {
+    using database = await prepareTestDatabase();
+
     const count = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -141,7 +154,9 @@ describe('oasisSeeder', () => {
     expect(count).toBeGreaterThanOrEqual(12);
   });
 
-  test('at least 20 tiles with RFC 3339 have >= 3 distinct 50% wheat oases', () => {
+  test('at least 20 tiles with RFC 3339 have >= 3 distinct 50% wheat oases', async () => {
+    using database = await prepareTestDatabase();
+
     const count = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -169,7 +184,9 @@ describe('oasisSeeder', () => {
     expect(count).toBeGreaterThanOrEqual(20);
   });
 
-  test('some oases are occupied by villages', () => {
+  test('some oases are occupied by villages', async () => {
+    using database = await prepareTestDatabase();
+
     const occupiedCount = database.selectValue({
       sql: 'SELECT COUNT(*) FROM oasis WHERE village_id IS NOT NULL;',
       schema: z.number(),
@@ -178,7 +195,9 @@ describe('oasisSeeder', () => {
     expect(occupiedCount).toBeGreaterThan(0);
   });
 
-  test('occupied oasis count does not exceed hero mansion slots', () => {
+  test('occupied oasis count does not exceed hero mansion slots', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidVillageCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -210,7 +229,9 @@ describe('oasisSeeder', () => {
     expect(invalidVillageCount).toBe(0);
   });
 
-  test('villages without level 10 hero mansion do not occupy oasis', () => {
+  test('villages without level 10 hero mansion do not occupy oasis', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidVillageCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -238,7 +259,9 @@ describe('oasisSeeder', () => {
     expect(invalidVillageCount).toBe(0);
   });
 
-  test('npc villages can occupy multiple oasis when hero mansion level allows it', () => {
+  test('npc villages can occupy multiple oasis when hero mansion level allows it', async () => {
+    using database = await prepareTestDatabase();
+
     const multiOasisVillageCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -269,7 +292,9 @@ describe('oasisSeeder', () => {
     expect(multiOasisVillageCount).toBeGreaterThan(0);
   });
 
-  test('every oasis has at least one bonus record', () => {
+  test('every oasis has at least one bonus record', async () => {
+    using database = await prepareTestDatabase();
+
     const oasesWithoutBonus = database.selectValue({
       sql: `
         SELECT COUNT(DISTINCT t.id)
@@ -278,6 +303,7 @@ describe('oasisSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(oasesWithoutBonus).toBe(0);
   });
 });
