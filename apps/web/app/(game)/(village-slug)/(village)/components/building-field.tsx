@@ -19,6 +19,9 @@ export const BuildingField = memo(
       <div
         className={clsx(
           positioningStyles,
+          buildingField !== null &&
+            buildingFieldId <= 18 &&
+            buildingFieldStyles['building-field--resource'],
           'absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center',
         )}
       >

@@ -1,16 +1,63 @@
+@use "sass:map";
+@use "sass:list";
+
+$resource-field-image-dimensions: (
+  'wood': (
+    1: (299 276),
+    3: (447 300),
+    5: (313 257),
+    10: (347 213),
+    14: (249 239),
+    17: (225 213),
+  ),
+  'clay': (
+    1: (348 213),
+    5: (378 206),
+    6: (268 168),
+    10: (320 232),
+    16: (400 311),
+    18: (351 347),
+  ),
+  'iron': (
+    1: (335 282),
+    4: (538 274),
+    5: (412 214),
+    7: (262 295),
+    10: (450 277),
+    11: (404 259),
+  ),
+  'wheat': (
+    1: (382 312),
+    2: (294 200),
+    3: (470 209),
+    4: (663 262),
+    5: (292 199),
+    6: (313 183),
+    7: (311 349),
+    8: (420 309),
+    9: (297 318),
+    10: (359 209),
+    11: (283 341),
+    12: (338 246),
+    13: (271 161),
+    14: (256 331),
+    15: (456 267),
+    16: (446 346),
+    17: (237 366),
+    18: (376 337),
+  ),
+);
+
 @mixin resourceBuildingBackground($resourceBase, $buildingFieldId, $resource) {
   &-#{$buildingFieldId} {
-    $bg: #426002;
-    @if $resource == 'clay' {
-      $bg: #C29760;
+    $dimensions: map.get(map.get($resource-field-image-dimensions, $resource), $buildingFieldId);
+    $imageName: '#{$resource}-#{$buildingFieldId}';
+    @if $resource == 'wheat' and $buildingFieldId == 18 {
+      $imageName: 'wheat_18';
     }
-    @if $resource == 'iron' {
-      $bg: #7B90A1;
-    }
-    @if $resource == 'wheat' {
-      $bg: #FFF600;
-    }
-    background-color: $bg;
+
+    aspect-ratio: #{list.nth($dimensions, 1)} / #{list.nth($dimensions, 2)};
+    background-image: url('#{$resourceBase}/#{$imageName}.png?v=#{$graphics-version}');
   }
 }
 
@@ -19,9 +66,10 @@
     $resourceBase: '#{$imagesPath}/buildings/resources';
 
     .building-resource {
+      width: 100%;
       background-repeat: no-repeat;
       background-position: center;
-      background-size: contain;
+      background-size: 100% 100%;
 
       // Base mapping for building numbers to resource types
       @each $id, $type in (
