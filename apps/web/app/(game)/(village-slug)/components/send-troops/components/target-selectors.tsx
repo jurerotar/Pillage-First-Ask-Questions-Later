@@ -146,10 +146,9 @@ export const CoordinateSelector = ({
           </label>
           <Input
             id="target-x"
-            type="number"
+            type="text"
+            inputMode="numeric"
             disabled={disabled}
-            min={minCoordinate}
-            max={maxCoordinate}
             step={1}
             value={xValue}
             onChange={(e) => {
@@ -168,10 +167,9 @@ export const CoordinateSelector = ({
           </label>
           <Input
             id="target-y"
-            type="number"
+            type="text"
+            inputMode="numeric"
             disabled={disabled}
-            min={minCoordinate}
-            max={maxCoordinate}
             step={1}
             value={yValue}
             onChange={(e) => {
