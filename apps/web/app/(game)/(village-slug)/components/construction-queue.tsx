@@ -61,22 +61,20 @@ const getTotalBuildingUpgradeCost = (
 };
 
 type ConstructionQueueCostProps = {
-  label: string;
   resources: number[];
+  label?: string;
 };
 
 const ConstructionQueueCost = ({
   label,
   resources,
 }: ConstructionQueueCostProps) => (
-  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-    <span>{label}:</span>
-    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-foreground">
-      <Resources
-        iconClassName="size-4"
-        resources={resources}
-      />
-    </span>
+  <span className="flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground [&>span]:whitespace-nowrap">
+    {label && <span className="text-muted-foreground">{label}:</span>}
+    <Resources
+      iconClassName="size-4"
+      resources={resources}
+    />
   </span>
 );
 
@@ -157,10 +155,7 @@ const ConstructionQueueBuilding = ({
           </span>
         )}
         {scheduledEventCost && (
-          <ConstructionQueueCost
-            label={t('Cost')}
-            resources={scheduledEventCost}
-          />
+          <ConstructionQueueCost resources={scheduledEventCost} />
         )}
       </div>
 
@@ -395,7 +390,7 @@ const ConstructionQueueContent = () => {
   const visibleSlots = isWiderThanLg ? slots : slots.slice(0, 1);
 
   const totalCost = orderedScheduledEvents.length > 0 && (
-    <div className="rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 ml-1 shadow-xs transition-[background-color,border-color,color]">
+    <div className="min-w-0 self-stretch rounded-tr rounded-br border-r border-t border-b border-border bg-background px-2 py-1 ml-1 shadow-xs transition-[background-color,border-color,color]">
       <ConstructionQueueCost
         label={t('Scheduled cost')}
         resources={totalScheduledConstructionCost}
@@ -428,7 +423,7 @@ const ConstructionQueueContent = () => {
 
   return (
     <aside
-      className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-safe z-10 flex max-w-[calc(100vw-var(--twsa-safe-area-inset-left)-var(--twsa-safe-area-inset-right)-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color,left] lg:bottom-14"
+      className="fixed bottom-[calc(max(var(--twsa-safe-area-inset-bottom),2rem)+4.5rem)] left-safe z-30 flex max-w-[calc(100vw-var(--twsa-safe-area-inset-left)-var(--twsa-safe-area-inset-right)-1rem)] flex-col items-start gap-1 [contain:paint] transition-[bottom,color,left] lg:bottom-14 lg:z-10"
       ref={containerRef}
     >
       {isWiderThanLg && totalCost}
