@@ -42,7 +42,7 @@ const createTestApp = async () => {
 };
 
 test('creates, chunk-uploads, and authorizes download of a SQLite world', async () => {
-  const { app, dataDirectory, cleanup } = await createTestApp();
+  const { app, dataDirectory, store, cleanup } = await createTestApp();
 
   try {
     const createResponse = await app.request('/api/reports', {
@@ -83,6 +83,46 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
       completeUrl: string;
     };
 
+    // A lost reservation response must not reserve more storage on retry.
+    const repeatedReservation = await app.request(
+      `/api/reports/${report.reportId}/world`,
+      {
+        body: JSON.stringify({
+          filename: '../../world.sqlite3',
+          size: sqliteFile.length,
+        }),
+        headers: {
+          authorization: `Bearer ${report.writeToken}`,
+          'content-type': 'application/json',
+        },
+        method: 'POST',
+      },
+    );
+    expect(repeatedReservation.status).toBe(200);
+    const repeatedReservationBody = (await repeatedReservation.json()) as {
+      chunkUrlTemplate: string;
+    };
+    expect(repeatedReservationBody.chunkUrlTemplate.split('?')[0]).toBe(
+      reservation.chunkUrlTemplate.split('?')[0],
+    );
+    expect(store.getReservedBytes(report.reportId)).toBe(sqliteFile.length);
+
+    const differentReservation = await app.request(
+      `/api/reports/${report.reportId}/world`,
+      {
+        body: JSON.stringify({
+          filename: 'different.sqlite3',
+          size: sqliteFile.length,
+        }),
+        headers: {
+          authorization: `Bearer ${report.writeToken}`,
+          'content-type': 'application/json',
+        },
+        method: 'POST',
+      },
+    );
+    expect(differentReservation.status).toBe(409);
+
     const renewResponse = await app.request(
       `/api/reports/${report.reportId}/world/upload-url`,
       {
@@ -118,6 +158,24 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
     });
 
     expect(completeResponse.status).toBe(200);
+
+    // A lost completion response can be retried even after refreshing its URL.
+    const completedReservationResponse = await app.request(
+      `/api/reports/${report.reportId}/world/upload-url`,
+      {
+        headers: { authorization: `Bearer ${report.writeToken}` },
+        method: 'POST',
+      },
+    );
+    expect(completedReservationResponse.status).toBe(200);
+    const completedReservation =
+      (await completedReservationResponse.json()) as { completeUrl: string };
+    const repeatedCompletion = await app.request(
+      completedReservation.completeUrl,
+      { method: 'POST' },
+    );
+    expect(repeatedCompletion.status).toBe(200);
+    expect(await repeatedCompletion.json()).toEqual({ status: 'complete' });
 
     const deniedDownload = await app.request(
       `/api/admin/reports/${report.reportId}/world`,

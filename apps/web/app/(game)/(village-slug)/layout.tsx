@@ -2,7 +2,6 @@ import { clsx } from 'clsx';
 import {
   type ComponentProps,
   Fragment,
-  lazy,
   memo,
   type PropsWithChildren,
   type ReactNode,
@@ -83,8 +82,9 @@ import {
 import { Separator } from 'app/components/ui/separator';
 import { Spinner } from 'app/components/ui/spinner';
 import { useDialog } from 'app/hooks/use-dialog';
+import { lazyWithRetry } from 'app/utils/imports';
 
-const DeveloperToolsConsole = lazy(async () => ({
+const DeveloperToolsConsole = lazyWithRetry(async () => ({
   default: (
     await import('app/(game)/(village-slug)/components/developer-tools-console')
   ).DeveloperToolsConsole,

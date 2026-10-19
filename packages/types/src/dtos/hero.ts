@@ -2,6 +2,11 @@ import { z } from 'zod';
 import { heroResourceToProduceSchema } from '../models/hero';
 import { heroLoadoutSlotSchema } from '../models/hero-loadout';
 
+export const heroProductionUpdateDtoSchema = z.strictObject({
+  tileId: z.number(),
+  villageSlug: z.string(),
+});
+
 export const heroDtoSchema = z.strictObject({
   id: z.number(),
   stats: z.strictObject({

@@ -456,7 +456,7 @@ describe('hero-controllers', () => {
     test('should update hero attributes and base stats', async () => {
       using database = await prepareTestDatabase();
 
-      changeHeroAttributes(
+      const result = changeHeroAttributes(
         database,
         createControllerArgs<'/players/:playerId/hero/attributes', 'patch'>({
           path: { playerId },
@@ -468,6 +468,19 @@ describe('hero-controllers', () => {
           },
         }),
       );
+
+      const village = database.selectObject({
+        sql: `
+          SELECT v.tile_id AS tileId, v.slug AS villageSlug
+          FROM heroes h
+          JOIN villages v ON v.id = h.village_id
+          WHERE h.player_id = $player_id
+        `,
+        bind: { $player_id: playerId },
+        schema: z.strictObject({ tileId: z.number(), villageSlug: z.string() }),
+      })!;
+
+      expect(result).toEqual(village);
 
       const heroSelectable = database.selectObject({
         sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $player_id)',
@@ -1167,7 +1180,7 @@ describe('hero-controllers', () => {
     test('should update resource to produce', async () => {
       using database = await prepareTestDatabase();
 
-      changeHeroResourceToProduce(
+      const result = changeHeroResourceToProduce(
         database,
         createControllerArgs<
           '/players/:playerId/hero/resource-to-produce',
@@ -1177,6 +1190,19 @@ describe('hero-controllers', () => {
           body: { resource: 'wood' },
         }),
       );
+
+      const village = database.selectObject({
+        sql: `
+          SELECT v.tile_id AS tileId, v.slug AS villageSlug
+          FROM heroes h
+          JOIN villages v ON v.id = h.village_id
+          WHERE h.player_id = $player_id
+        `,
+        bind: { $player_id: playerId },
+        schema: z.strictObject({ tileId: z.number(), villageSlug: z.string() }),
+      })!;
+
+      expect(result).toEqual(village);
 
       const hero = database.selectValue({
         sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',

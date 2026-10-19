@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router';
+import { useAppUpdate } from 'app/hooks/use-app-update';
 import { initFaro } from 'app/instrumentation/faro';
 import { StateProvider } from 'app/providers/state-provider';
 import './localization/i18n';
@@ -12,10 +13,16 @@ export const clientMiddleware: Route.ClientMiddlewareFunction[] = [
   clientSessionMiddleware,
 ];
 
+const AppContent = () => {
+  useAppUpdate();
+
+  return <Outlet />;
+};
+
 const App = () => {
   return (
     <StateProvider>
-      <Outlet />
+      <AppContent />
     </StateProvider>
   );
 };

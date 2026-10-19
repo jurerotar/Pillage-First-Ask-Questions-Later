@@ -4,7 +4,6 @@ import type {
   Hero,
   HeroResourceToProduce,
 } from '@pillage-first/types/models/hero';
-import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-village/use-current-village';
 import {
   currentVillageCacheKey,
   effectsCacheKey,
@@ -16,7 +15,6 @@ import { useMe } from './use-me';
 
 export const useHero = () => {
   const { apiClient } = use(ApiContext);
-  const { currentVillage } = useCurrentVillage();
   const { player } = useMe();
 
   const { data: hero } = useSuspenseQuery({
@@ -36,46 +34,58 @@ export const useHero = () => {
   const { isHeroHome } = hero;
   const isHeroAlive = health > 0;
 
-  const { mutate: updateHeroAttributes } = useMutation<
-    void,
-    Error,
-    Hero['selectableAttributes']
-  >({
-    mutationFn: async (attributes) => {
-      await apiClient.patch('/players/:playerId/hero/attributes', {
-        path: {
-          playerId: player.id,
+  const { mutate: updateHeroAttributes } = useMutation({
+    mutationFn: async (attributes: Hero['selectableAttributes']) => {
+      const { data } = await apiClient.patch(
+        '/players/:playerId/hero/attributes',
+        {
+          path: {
+            playerId: player.id,
+          },
+          body: attributes,
         },
-        body: attributes,
-      });
+      );
+
+      return data;
     },
-    onSuccess: async (_, _args, _onMutateResult, context) => {
+    onSuccess: async (
+      { tileId, villageSlug },
+      _args,
+      _onMutateResult,
+      context,
+    ) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [effectsCacheKey, currentVillage.tileId],
-        [currentVillageCacheKey, currentVillage.slug],
+        [effectsCacheKey, tileId],
+        [currentVillageCacheKey, villageSlug],
       ]);
     },
   });
 
-  const { mutate: updateHeroResourceToProduce } = useMutation<
-    void,
-    Error,
-    HeroResourceToProduce
-  >({
-    mutationFn: async (resource) => {
-      await apiClient.patch('/players/:playerId/hero/resource-to-produce', {
-        path: {
-          playerId: player.id,
+  const { mutate: updateHeroResourceToProduce } = useMutation({
+    mutationFn: async (resource: HeroResourceToProduce) => {
+      const { data } = await apiClient.patch(
+        '/players/:playerId/hero/resource-to-produce',
+        {
+          path: {
+            playerId: player.id,
+          },
+          body: { resource },
         },
-        body: { resource },
-      });
+      );
+
+      return data;
     },
-    onSuccess: async (_, _args, _onMutateResult, context) => {
+    onSuccess: async (
+      { tileId, villageSlug },
+      _args,
+      _onMutateResult,
+      context,
+    ) => {
       await invalidateQueries(context, [
         [heroCacheKey],
-        [effectsCacheKey, currentVillage.tileId],
-        [currentVillageCacheKey, currentVillage.slug],
+        [effectsCacheKey, tileId],
+        [currentVillageCacheKey, villageSlug],
       ]);
     },
   });

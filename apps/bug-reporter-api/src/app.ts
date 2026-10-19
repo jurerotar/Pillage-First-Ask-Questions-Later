@@ -331,6 +331,24 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
       );
     }
 
+    const existingUpload = store.getUploadForReport(report.id);
+    if (existingUpload) {
+      if (
+        existingUpload.expectedBytes !== size ||
+        existingUpload.originalName !== originalName
+      ) {
+        return context.json(
+          error('A different world file already exists for this report.'),
+          409,
+        );
+      }
+      return context.json({
+        chunkSize: config.maxChunkBytes,
+        uploadId: existingUpload.id,
+        ...getSignedUrls(config, report, existingUpload),
+      });
+    }
+
     if (store.getReservedBytes(report.id) + size > config.maxReportBytes) {
       return context.json(
         error('The report exceeds its total upload limit.'),
@@ -379,8 +397,8 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
 
     const upload = store.getUploadForReport(report.id);
 
-    if (upload?.status !== 'pending') {
-      return context.json(error('A pending world upload was not found.'), 404);
+    if (!upload) {
+      return context.json(error('A world upload was not found.'), 404);
     }
 
     return context.json({
@@ -478,7 +496,11 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
       context.req.param('uploadId'),
     );
 
-    if (upload?.status !== 'pending') {
+    if (upload?.status === 'complete') {
+      return context.json({ status: 'complete' });
+    }
+
+    if (!upload) {
       return context.json(error('Invalid upload URL.'), 401);
     }
 

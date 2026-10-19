@@ -1,6 +1,5 @@
 import { useWindowEvent } from '@mantine/hooks';
 import {
-  lazy,
   Suspense,
   type UIEvent,
   use,
@@ -52,9 +51,10 @@ import { Tooltip } from 'app/components/tooltip';
 import { Dialog } from 'app/components/ui/dialog';
 import { useDialog } from 'app/hooks/use-dialog';
 import { useWindowSize } from 'app/hooks/use-window-size';
+import { lazyWithRetry } from 'app/utils/imports';
 import { TileTooltip } from './components/tile-tooltip';
 
-const TileDialog = lazy(async () => ({
+const TileDialog = lazyWithRetry(async () => ({
   default: (
     await import('app/(game)/(village-slug)/(map)/components/tile-modal')
   ).TileDialog,
