@@ -8,7 +8,7 @@ describe('unit-improvement-controllers', () => {
   const playerId = PLAYER_ID;
 
   test('getUnitImprovements should return unit improvements for a player', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     database.exec({
       sql: `

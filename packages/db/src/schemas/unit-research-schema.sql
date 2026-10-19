@@ -8,6 +8,3 @@ CREATE TABLE unit_research
   FOREIGN KEY (village_id) REFERENCES villages (id) ON DELETE CASCADE,
   FOREIGN KEY (unit_id) REFERENCES unit_ids (id)
 ) STRICT, WITHOUT ROWID;
-
-CREATE INDEX idx_unit_research_unit_id ON unit_research(unit_id);
-

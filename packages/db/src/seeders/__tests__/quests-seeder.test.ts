@@ -6,18 +6,21 @@ import { tribeSchema } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('questsSeeder', () => {
-  test('quests seeded (>=0)', () => {
+  test('quests seeded (>=0)', async () => {
+    using database = await prepareTestDatabase();
+
     const c = database.selectValue({
       sql: 'SELECT COUNT(*) FROM quests;',
       schema: z.number(),
     });
+
     expect(c).toBeGreaterThanOrEqual(0);
   });
 
-  test('village building quests exist (WOODCUTTER oneOf)', () => {
+  test('village building quests exist (WOODCUTTER oneOf)', async () => {
+    using database = await prepareTestDatabase();
+
     const count = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -29,10 +32,13 @@ describe('questsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(count).toBeGreaterThan(0);
   });
 
-  test("hunter's lodge and gatherer's hut quests are only global", () => {
+  test("hunter's lodge and gatherer's hut quests are only global", async () => {
+    using database = await prepareTestDatabase();
+
     const villageQuestCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -51,7 +57,9 @@ describe('questsSeeder', () => {
     expect(villageQuestCount).toBe(0);
   });
 
-  test('global quests include queuedTroopCount, adventureCount, killCount, unitKillCount, hunting and gathering', () => {
+  test('global quests include queuedTroopCount, adventureCount, killCount, unitKillCount, hunting and gathering', async () => {
+    using database = await prepareTestDatabase();
+
     const queuedTroopCount = database.selectValue({
       sql: `
         SELECT COUNT(*)
@@ -63,6 +71,7 @@ describe('questsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(queuedTroopCount).toBeGreaterThan(0);
 
     const adventureCount = database.selectValue({
@@ -76,6 +85,7 @@ describe('questsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(adventureCount).toBeGreaterThan(0);
 
     const killCount = database.selectValue({
@@ -89,6 +99,7 @@ describe('questsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(killCount).toBeGreaterThan(0);
 
     const unitKillCount = database.selectValue({
@@ -102,6 +113,7 @@ describe('questsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(unitKillCount).toBeGreaterThan(0);
 
     const captureAnimalCountById = database.selectValue({
@@ -115,6 +127,7 @@ describe('questsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(captureAnimalCountById).toBeGreaterThan(0);
 
     const captureAnimalKindCount = database.selectValue({
@@ -128,6 +141,7 @@ describe('questsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(captureAnimalKindCount).toBeGreaterThan(0);
 
     const gatheredResourceCount = database.selectValue({
@@ -141,10 +155,13 @@ describe('questsSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(gatheredResourceCount).toBeGreaterThan(0);
   });
 
-  test('queuedTroopCountById quests exist and only for the player tribe units', () => {
+  test('queuedTroopCountById quests exist and only for the player tribe units', async () => {
+    using database = await prepareTestDatabase();
+
     const tribe = database.selectValue({
       sql: `
         SELECT ti.tribe
@@ -181,11 +198,14 @@ describe('questsSeeder', () => {
 
     for (const qid of queuedTroopCountByIdQuests) {
       const [_, unitId] = qid.split('-');
+
       expect(allowed.has(unitId as UnitId)).toBe(true);
     }
   });
 
-  test('tribal wall building quests exist for starting village', () => {
+  test('tribal wall building quests exist for starting village', async () => {
+    using database = await prepareTestDatabase();
+
     const tribe = database.selectValue({
       sql: `
         SELECT ti.tribe
@@ -225,11 +245,14 @@ describe('questsSeeder', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('every quest has a non-null quest_id', () => {
+  test('every quest has a non-null quest_id', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidQuests = database.selectValue({
       sql: 'SELECT COUNT(*) FROM quests WHERE quest_id IS NULL;',
       schema: z.number(),
     });
+
     expect(invalidQuests).toBe(0);
   });
 });

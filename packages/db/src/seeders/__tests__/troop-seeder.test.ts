@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { natureUnits } from '@pillage-first/game-assets/units';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('troopSeeder', () => {
-  test('unoccupied oasis tiles have troops', () => {
+  test('unoccupied oasis tiles have troops', async () => {
+    using database = await prepareTestDatabase();
+
     const withoutTroops = database.selectValue({
       sql: `
         WITH unoccupied_oases AS (
@@ -22,10 +22,13 @@ describe('troopSeeder', () => {
       `,
       schema: z.number(),
     });
+
     expect(withoutTroops).toBe(0);
   });
 
-  test('unoccupied oasis tiles only have nature troops', () => {
+  test('unoccupied oasis tiles only have nature troops', async () => {
+    using database = await prepareTestDatabase();
+
     const natureUnitIds = natureUnits.map(({ id }) => id);
     const placeholders = natureUnitIds.map(() => '?').join(',');
 
@@ -50,11 +53,14 @@ describe('troopSeeder', () => {
     expect(invalid).toBe(0);
   });
 
-  test('troop amounts are positive', () => {
+  test('troop amounts are positive', async () => {
+    using database = await prepareTestDatabase();
+
     const nonPositiveTroops = database.selectValue({
       sql: 'SELECT COUNT(*) FROM troops WHERE amount <= 0;',
       schema: z.number(),
     });
+
     expect(nonPositiveTroops).toBe(0);
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
+import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
 import { selectTileLoyaltyQuery } from '../../../queries/loyalty-queries';
 import { loyaltyIncreaseResolver } from '../../events/resolvers/loyalty-resolvers';
 import { getTileLoyalty } from '../loyalty-controllers';
@@ -8,7 +9,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('loyalty-controllers', () => {
   test('should return 100 if tile is not in loyalties table', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const tileId = 1;
 
     // Ensure it's not in the table
@@ -26,7 +27,7 @@ describe('loyalty-controllers', () => {
   });
 
   test('should return current loyalty if tile is in loyalties table', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const tileId = 2;
     const loyaltyValue = 75;
 
@@ -44,7 +45,7 @@ describe('loyalty-controllers', () => {
   });
 
   test('loyaltyIncreaseResolver should increment loyalty based on residence level and delete if >= 100', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId1 = 1;
     const villageId2 = 2;
 
@@ -83,14 +84,16 @@ describe('loyalty-controllers', () => {
     });
 
     // Resolve (Global increase for all villages and oases)
-    loyaltyIncreaseResolver(database, {
-      id: 1,
-      villageId: null, // Global event
-      duration: 1000,
-      resolvesAt: Date.now(),
-      startsAt: Date.now() - 1000,
-      type: 'loyaltyIncrease',
-    });
+    loyaltyIncreaseResolver(
+      database,
+      createLoyaltyIncreaseEventMock({
+        id: 1,
+        villageId: null, // Global event
+        duration: 1000,
+        resolvesAt: Date.now(),
+        startsAt: Date.now() - 1000,
+      }),
+    );
 
     const loyalty1 = database.selectValues({
       sql: selectTileLoyaltyQuery,
@@ -104,6 +107,7 @@ describe('loyalty-controllers', () => {
     });
 
     expect(loyalty1).toHaveLength(0); // Should be deleted as it hit 101 (99 + 2)
+
     expect(loyalty2).toStrictEqual([56]); // Should be 50 + (1 + 5) = 56
   });
 });

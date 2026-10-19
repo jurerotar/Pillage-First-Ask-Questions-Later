@@ -24,7 +24,7 @@ describe('hero-controllers', () => {
   const playerId = PLAYER_ID;
 
   test('getHero should return hero details', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const hero = getHero(
       database,
@@ -45,7 +45,7 @@ describe('hero-controllers', () => {
   });
 
   test('getHeroLoadout should return equipped items', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const loadout = getHeroLoadout(
       database,
@@ -69,7 +69,7 @@ describe('hero-controllers', () => {
   });
 
   test('getHeroInventory should return inventory items', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const inventory = getHeroInventory(
       database,
@@ -97,7 +97,7 @@ describe('hero-controllers', () => {
   });
 
   test('getHeroInventory should complete expired auction sales before returning inventory', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const heroId = database.selectValue({
       sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
       bind: { $player_id: playerId },
@@ -141,7 +141,7 @@ describe('hero-controllers', () => {
   });
 
   test('getHeroAdventures should return adventures status', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const adventures = getHeroAdventures(
       database,
@@ -158,7 +158,7 @@ describe('hero-controllers', () => {
   });
 
   test('startHeroAdventure should not duplicate a hero stationed in its home village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const homeVillage = database.selectObject({
       sql: `
@@ -246,6 +246,7 @@ describe('hero-controllers', () => {
         villageId: z.number(),
       }),
     })!;
+
     expect(adventureEvent.villageId).toBe(homeVillage.id);
 
     resolveEvent(database, adventureEvent.id);
@@ -285,7 +286,7 @@ describe('hero-controllers', () => {
   });
 
   test('getHero should report hero as not home while reinforcing another village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const homeVillage = database.selectObject({
       sql: `
@@ -369,7 +370,7 @@ describe('hero-controllers', () => {
   });
 
   test('startHeroAdventure should throw while hero is reinforcing another village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const homeVillage = database.selectObject({
       sql: `
@@ -453,7 +454,7 @@ describe('hero-controllers', () => {
 
   describe(changeHeroAttributes, () => {
     test('should update hero attributes and base stats', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       changeHeroAttributes(
         database,
@@ -521,7 +522,7 @@ describe('hero-controllers', () => {
 
   describe(equipHeroItem, () => {
     test('should equip an item and remove it from inventory', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -554,6 +555,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.strictObject({ item_id: z.number(), amount: z.number() }),
       });
+
       expect(equipped?.item_id).toBe(itemId);
       expect(equipped?.amount).toBe(1);
 
@@ -563,11 +565,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       });
+
       expect(inventory).toBeUndefined();
     });
 
     test('should move existing item to inventory when equipping a different one', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -607,6 +610,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.number(),
       });
+
       expect(equippedItemId).toBe(newItemId);
 
       // Verify old item moved to inventory
@@ -615,11 +619,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(oldItemId) },
         schema: z.number(),
       });
+
       expect(inventoryOld).toBe(1);
     });
 
     test('should add effects when equipping an item with effects', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -652,11 +657,12 @@ describe('hero-controllers', () => {
         bind: { $itemId: itemId },
         schema: z.number(),
       });
+
       expect(effectIds.length).toBeGreaterThan(0);
     });
 
     test('should apply helmet experience modifier to gained experience', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -687,6 +693,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId },
         schema: z.number(),
       });
+
       expect(experienceModifier).toBe(15);
 
       database.exec({
@@ -707,11 +714,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId },
         schema: z.number(),
       });
+
       expect(experience).toBe(12);
     });
 
     test('should update health regeneration when equipping and unequipping leg guards', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -741,6 +749,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId },
         schema: z.number(),
       });
+
       expect(equippedHealthRegeneration).toBe(40);
 
       unequipHeroItem(
@@ -758,11 +767,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId },
         schema: z.number(),
       });
+
       expect(unequippedHealthRegeneration).toBe(10);
     });
 
     test('should allow multiple items for consumables slot', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -796,6 +806,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.number(),
       });
+
       expect(equipped).toBe(5);
 
       // Equip another 3 of the SAME item
@@ -814,6 +825,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.number(),
       });
+
       expect(equipped).toBe(8);
 
       // Verify inventory
@@ -822,13 +834,14 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       });
+
       expect(inventory).toBe(2);
     });
   });
 
   describe(unequipHeroItem, () => {
     test('should unequip an item and move it to inventory', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -861,6 +874,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $slot: slot },
         schema: z.number(),
       });
+
       expect(equippedItemId).toBeUndefined();
 
       // Verify moved to inventory
@@ -869,11 +883,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       });
+
       expect(inventory).toBe(1);
     });
 
     test('should remove effects when unequipping an item', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -925,13 +940,14 @@ describe('hero-controllers', () => {
         bind: { $itemId: itemId },
         schema: z.number(),
       });
+
       expect(effectIds).toHaveLength(0);
     });
   });
 
   describe(useHeroItem, () => {
     test('should use healing potion and increase health', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -968,6 +984,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId },
         schema: z.number(),
       })!;
+
       expect(updatedHero).toBe(70);
 
       // Verify inventory
@@ -976,11 +993,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       })!;
+
       expect(inventory).toBe(10);
     });
 
     test('should not use more healing potions than needed to reach 100 health', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -1017,6 +1035,7 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId },
         schema: z.number(),
       })!;
+
       expect(updatedHero).toBe(100);
 
       // Verify inventory (only 10 should be used)
@@ -1025,11 +1044,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       })!;
+
       expect(inventory).toBe(20);
     });
 
     test('should use book of wisdom and reset attributes', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const heroId = database.selectValue({
         sql: 'SELECT id FROM heroes WHERE player_id = $player_id',
@@ -1079,6 +1099,7 @@ describe('hero-controllers', () => {
           defence_bonus: z.number(),
         }),
       })!;
+
       expect(updatedHero.attack_power).toBe(0);
       expect(updatedHero.resource_production).toBe(0);
       expect(updatedHero.attack_bonus).toBe(0);
@@ -1120,11 +1141,12 @@ describe('hero-controllers', () => {
         bind: { $hero_id: heroId, $itemId: String(itemId) },
         schema: z.number(),
       });
+
       expect(inventory).toBeUndefined();
     });
 
     test('should throw error if not enough items in inventory', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       const itemId = 1021; // HEALING_POTION
       const amount = 10;
@@ -1143,7 +1165,7 @@ describe('hero-controllers', () => {
 
   describe(changeHeroResourceToProduce, () => {
     test('should update resource to produce', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       changeHeroResourceToProduce(
         database,
@@ -1184,7 +1206,7 @@ describe('hero-controllers', () => {
     });
 
     test('should update resource production effects for Egyptians when resource to produce is changed', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       // Change tribe to Egyptians
       database.exec({
@@ -1228,7 +1250,7 @@ describe('hero-controllers', () => {
     });
 
     test('should update resource production effects to shared when resource to produce is changed to shared', async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
 
       // First set it to something else
       database.exec({

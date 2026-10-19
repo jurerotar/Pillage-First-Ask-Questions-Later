@@ -3,18 +3,21 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('metaSeeder', () => {
-  test('meta table exists', () => {
+  test('meta table exists', async () => {
+    using database = await prepareTestDatabase();
+
     const exists = database.selectValue({
       sql: "SELECT COUNT(*) FROM sqlite_schema WHERE type='table' AND name='meta';",
       schema: z.number(),
     });
+
     expect(exists).toBe(1);
   });
 
-  test('triggers exist for all tables', () => {
+  test('triggers exist for all tables', async () => {
+    using database = await prepareTestDatabase();
+
     const tables = database.selectValues({
       sql: "SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '%_ids' AND name NOT LIKE '%_history' AND name != 'meta';",
       schema: z.string(),
@@ -32,7 +35,9 @@ describe('metaSeeder', () => {
     }
   });
 
-  test('writing to a table updates meta.last_write', () => {
+  test('writing to a table updates meta.last_write', async () => {
+    using database = await prepareTestDatabase();
+
     database.exec({
       sql: 'UPDATE meta SET last_write = 0;',
     });

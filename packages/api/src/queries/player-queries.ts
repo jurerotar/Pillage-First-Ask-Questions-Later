@@ -21,6 +21,18 @@ export const selectPlayerVillageListingQuery = `
     t.y AS coordinates_y,
     v.name,
     v.slug,
+    COALESCE((
+      SELECT SUM(CASE WHEN ei.effect = 'wheatProduction' THEN e.value * -1 ELSE 0 END)
+      FROM effects e
+        JOIN effect_ids ei ON ei.id = e.effect_id
+      WHERE
+        e.tile_id = v.tile_id
+        AND e.effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
+        AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
+        AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
+        AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')
+        AND e.source_specifier = 0
+    ), 0) AS population,
     rfc.resource_field_composition AS resource_field_composition
   FROM
     villages v
@@ -95,6 +107,7 @@ export const selectPlayerVillagesWithPopulationQuery = `
       JOIN tiles t ON t.id = v.tile_id
       LEFT JOIN resource_field_composition_ids rfc ON t.resource_field_composition_id = rfc.id
       LEFT JOIN effects e ON e.tile_id = v.tile_id
+        AND e.effect_id = (SELECT id FROM effect_ids WHERE effect = 'wheatProduction')
         AND e.type_id = (SELECT id FROM effect_type_ids WHERE type = 'base')
         AND e.scope_id = (SELECT id FROM effect_scope_ids WHERE scope = 'local')
         AND e.source_id = (SELECT id FROM effect_source_ids WHERE source = 'building')

@@ -1,5 +1,5 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import type { MapMarker } from '@pillage-first/types/models/map-marker';
 import { useMe } from 'app/(game)/(village-slug)/hooks/use-me';
 import { mapMarkersCacheKey } from 'app/(game)/constants/query-keys';
@@ -22,6 +22,19 @@ export const useMapMarkers = () => {
       return data;
     },
   });
+
+  const mapMarkersByTileId = useMemo(() => {
+    const markersByTileId = new Map<MapMarker['tileId'], MapMarker>();
+
+    for (const marker of mapMarkers) {
+      // Preserve the first match, as the previous array lookups did.
+      if (!markersByTileId.has(marker.tileId)) {
+        markersByTileId.set(marker.tileId, marker);
+      }
+    }
+
+    return markersByTileId;
+  }, [mapMarkers]);
 
   const { mutate: createMapMarker } = useMutation<
     void,
@@ -61,6 +74,7 @@ export const useMapMarkers = () => {
 
   return {
     mapMarkers,
+    mapMarkersByTileId,
     createMapMarker,
     deleteMapMarker,
   };

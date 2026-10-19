@@ -17,7 +17,6 @@ import {
   insertEvents,
   runEventCreationSideEffects,
   validateEventCreationPrerequisites,
-  validateEventCreationResources,
 } from './events';
 import { getVillageTileId, subtractResourceSiteResourcesAt } from './village';
 
@@ -50,27 +49,29 @@ export const createEvents = <T extends GameEventType>(
   const eventCost = getEventCost(database, sampleEvent);
 
   if (eventCost.some((cost) => cost > 0)) {
-    const hasEnoughResources = validateEventCreationResources(
-      database,
-      sampleEvent,
-      eventCost,
-    );
-
-    if (!hasEnoughResources) {
-      throw new Error('Not enough resources');
-    }
-
     startsAt ??= getEventStartTime(database, sampleEvent);
     const eventResourceSubtractionTimestamp =
       getEventResourceSubtractionTimestamp(database, sampleEvent, startsAt);
 
     const { villageId } = sampleEvent;
+    const [woodCost, clayCost, ironCost, wheatCost] = eventCost;
 
     subtractResourceSiteResourcesAt(
       database,
       getVillageTileId(database, villageId!),
       eventResourceSubtractionTimestamp,
-      () => eventCost,
+      ({ currentWood, currentClay, currentIron, currentWheat }) => {
+        if (
+          woodCost > currentWood ||
+          clayCost > currentClay ||
+          ironCost > currentIron ||
+          wheatCost > currentWheat
+        ) {
+          throw new Error('Not enough resources');
+        }
+
+        return eventCost;
+      },
     );
   }
 

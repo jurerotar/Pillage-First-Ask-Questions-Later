@@ -15,6 +15,7 @@ const publicPagesToPrerender = [
   '/get-involved',
   '/latest-updates',
   '/not-found',
+  '/bugs',
 ];
 
 const reactRouterConfig: Config = {

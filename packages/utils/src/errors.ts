@@ -1,5 +1,17 @@
 import type { SerializedError } from '@pillage-first/types/api-events';
 
+export class OutdatedAppVersionError extends Error {
+  static readonly name = 'OutdatedAppVersionError';
+
+  constructor() {
+    super(
+      'This game world was opened with a newer version of the app. Please refresh this page to load the latest version and continue playing.',
+    );
+    this.name = OutdatedAppVersionError.name;
+    Object.setPrototypeOf(this, OutdatedAppVersionError.prototype);
+  }
+}
+
 export class OutdatedDatabaseSchemaError extends Error {
   static readonly name = 'OutdatedDatabaseSchemaError';
 

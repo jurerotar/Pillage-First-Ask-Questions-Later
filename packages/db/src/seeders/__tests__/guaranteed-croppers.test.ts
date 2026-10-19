@@ -1,10 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
+import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
-const getCropperCount = (rfc: string) => {
+const getCropperCount = (database: DbFacade, rfc: string) => {
   const goodCropperTileIds = database.selectValues({
     sql: `
       SELECT
@@ -35,15 +34,21 @@ const getCropperCount = (rfc: string) => {
 };
 
 describe('guaranteed croppers', () => {
-  test('seeds at least 4 00018 tiles with 150% wheat bonus', () => {
-    expect(getCropperCount('00018')).toBeGreaterThanOrEqual(4);
+  test('seeds at least 4 00018 tiles with 150% wheat bonus', async () => {
+    using database = await prepareTestDatabase();
+
+    expect(getCropperCount(database, '00018')).toBeGreaterThanOrEqual(4);
   });
 
-  test('seeds at least 12 11115 tiles with 150% wheat bonus', () => {
-    expect(getCropperCount('11115')).toBeGreaterThanOrEqual(12);
+  test('seeds at least 12 11115 tiles with 150% wheat bonus', async () => {
+    using database = await prepareTestDatabase();
+
+    expect(getCropperCount(database, '11115')).toBeGreaterThanOrEqual(12);
   });
 
-  test('seeds at least 20 3339 tiles with 150% wheat bonus', () => {
-    expect(getCropperCount('3339')).toBeGreaterThanOrEqual(20);
+  test('seeds at least 20 3339 tiles with 150% wheat bonus', async () => {
+    using database = await prepareTestDatabase();
+
+    expect(getCropperCount(database, '3339')).toBeGreaterThanOrEqual(20);
   });
 });

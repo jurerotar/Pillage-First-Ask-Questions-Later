@@ -25,7 +25,8 @@ import {
 import {
   getMapMarkersSchema,
   getTileOasisBonusesSchema,
-  getTilesSchema,
+  getTilesJsonSchema,
+  type getTilesSchema,
   getTileTroopsSchema,
 } from './schemas/map-schemas';
 
@@ -116,10 +117,10 @@ export const getTiles = createController('/tiles', {
   summary: 'Get all tiles',
   response: z.array(mapTileDtoSchema.nullable()),
 })(({ database }) => {
-  const parsedTiles = database.selectObjects({
+  const parsedTiles = database.selectValue({
     sql: selectMapTilesQuery,
-    schema: getTilesSchema,
-  });
+    schema: getTilesJsonSchema,
+  })!;
 
   const mapSize = database.selectValue({
     sql: selectServerMapSizeQuery,

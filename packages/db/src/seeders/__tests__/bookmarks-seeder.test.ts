@@ -3,10 +3,10 @@ import { z } from 'zod';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('bookmarksSeeder', () => {
-  test('creates a default bookmark for every player-village building', () => {
+  test('creates a default bookmark for every player-village building', async () => {
+    using database = await prepareTestDatabase();
+
     const row = database.selectObject({
       sql: `
         SELECT
@@ -46,7 +46,9 @@ describe('bookmarksSeeder', () => {
     expect(row.nonDefaultTabCount).toBe(0);
   });
 
-  test('each player village has one bookmark for every building id', () => {
+  test('each player village has one bookmark for every building id', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidVillageCount = database.selectValue({
       sql: `
         SELECT COUNT(*)

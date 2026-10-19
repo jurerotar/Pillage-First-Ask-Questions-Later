@@ -566,7 +566,7 @@ export const BattleStatisticsTable = () => {
     },
     {
       name: t('Supply lost'),
-      icons: ['freeCrop', 'freeCrop'],
+      icons: ['wheat', 'wheat'],
       values: [attacker.supplyLost, defender.supplyLost],
     },
     {

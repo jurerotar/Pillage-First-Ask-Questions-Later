@@ -107,7 +107,9 @@ const reportMissingServerDatabaseIfNeeded = async (
   reportMissingServerDatabase(server, serverStorageStatus);
 };
 
-const exportServerDatabase = async (server: Server): Promise<ArrayBuffer> => {
+export const exportGameWorldDatabase = async (
+  server: Server,
+): Promise<ArrayBuffer> => {
   const url = new URL(ExportServerWorker, import.meta.url);
   url.searchParams.set('server-slug', server.slug);
 
@@ -190,7 +192,7 @@ export const useGameWorldActions = () => {
   const { mutateAsync: exportGameWorld, isPending: isExportGameWorldPending } =
     useMutation<void, Error, { server: Server }>({
       mutationFn: async ({ server }) => {
-        const databaseBuffer = await exportServerDatabase(server);
+        const databaseBuffer = await exportGameWorldDatabase(server);
 
         const blob = new Blob([databaseBuffer], {
           type: 'application/x-sqlite3',
@@ -229,7 +231,7 @@ export const useGameWorldActions = () => {
     isPending: isDuplicateGameWorldPending,
   } = useMutation<Server, Error, { server: Server }>({
     mutationFn: async ({ server }) => {
-      const databaseBuffer = await exportServerDatabase(server);
+      const databaseBuffer = await exportGameWorldDatabase(server);
 
       return importGameWorldDatabase(databaseBuffer);
     },

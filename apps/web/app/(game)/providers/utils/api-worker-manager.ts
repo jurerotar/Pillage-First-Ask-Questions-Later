@@ -2,6 +2,7 @@ import ApiWorker from '@pillage-first/api?worker&url';
 import type { Server } from '@pillage-first/types/models/server';
 import {
   deserializeError,
+  OutdatedAppVersionError,
   OutdatedDatabaseSchemaError,
 } from '@pillage-first/utils/errors';
 import {
@@ -112,6 +113,11 @@ const createWorkerWithReadySignal = (
         worker.terminate();
 
         const deserializedError = deserializeError(error);
+
+        if (deserializedError.name === OutdatedAppVersionError.name) {
+          reject(new OutdatedAppVersionError());
+          return;
+        }
 
         if (deserializedError.name === OutdatedDatabaseSchemaError.name) {
           reject(new OutdatedDatabaseSchemaError());

@@ -30,6 +30,7 @@ describe('random utils', () => {
     expect(seededRandomArrayElement(prngFrom(0.999), array)).toBe('c');
 
     vi.spyOn(Math, 'random').mockReturnValue(0.999);
+
     expect(randomArrayElement(array)).toBe('c');
   });
 

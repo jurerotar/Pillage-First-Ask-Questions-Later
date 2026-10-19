@@ -2,10 +2,10 @@ import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('loyaltiesSeeder', () => {
-  test('loyalties table should be empty by default', () => {
+  test('loyalties table should be empty by default', async () => {
+    using database = await prepareTestDatabase();
+
     const rowCount = database.selectValue({
       sql: 'SELECT COUNT(*) FROM loyalties;',
       schema: z.number(),

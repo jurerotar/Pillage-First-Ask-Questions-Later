@@ -107,9 +107,19 @@ globalThis.addEventListener('message', async (event: MessageEvent) => {
           url: rawUrl,
         });
 
-        port.postMessage({
-          data: result,
-        });
+        const transfer =
+          result instanceof Uint8Array
+            ? [result.buffer]
+            : result instanceof ArrayBuffer
+              ? [result]
+              : [];
+
+        port.postMessage(
+          {
+            data: result,
+          },
+          transfer,
+        );
 
         break;
       } catch (error) {

@@ -35,7 +35,10 @@ export const buildingLevelChangeResolver: Resolver<
     resolvesAt,
   } = args;
 
-  // Update building level
+  const tileId = getVillageTileId(database, villageId);
+
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
+
   database.exec({
     sql: `
       UPDATE building_fields
@@ -133,12 +136,6 @@ export const buildingLevelChangeResolver: Resolver<
   }
 
   if (buildingId === 'WATERWORKS') {
-    updateResourceSiteResourcesAt(
-      database,
-      getVillageTileId(database, villageId),
-      resolvesAt,
-    );
-
     updateOasisEffectsForVillage(database, villageId);
   }
 
@@ -161,17 +158,9 @@ export const buildingLevelChangeResolver: Resolver<
     );
   }
 
-  if (buildingId !== 'WATERWORKS') {
-    updateResourceSiteResourcesAt(
-      database,
-      getVillageTileId(database, villageId),
-      resolvesAt,
-    );
-  }
-
   return {
     affectedVillageIds: [villageId],
-    affectedTileIds: [getVillageTileId(database, villageId)],
+    affectedTileIds: [tileId],
   };
 };
 
@@ -208,7 +197,11 @@ export const buildingConstructionResolver: Resolver<
 export const buildingDestructionResolver: Resolver<
   GameEvent<'buildingDestruction'>
 > = (database, args) => {
-  const { buildingFieldId, villageId, buildingId, previousLevel } = args;
+  const { buildingFieldId, villageId, buildingId, previousLevel, resolvesAt } =
+    args;
+  const tileId = getVillageTileId(database, villageId);
+
+  updateResourceSiteResourcesAt(database, tileId, resolvesAt);
 
   // Remove building field
   demolishBuilding(database, villageId, buildingFieldId);
@@ -335,19 +328,11 @@ export const buildingDestructionResolver: Resolver<
   });
 
   if (buildingId === 'WATERWORKS') {
-    // Use the old stored oasis bonuses up to the destruction timestamp, then
-    // remove the Waterworks contribution from future production.
-    updateResourceSiteResourcesAt(
-      database,
-      getVillageTileId(database, villageId),
-      args.resolvesAt,
-    );
-
     updateOasisEffectsForVillage(database, villageId);
   }
 
   return {
     affectedVillageIds: [villageId],
-    affectedTileIds: [getVillageTileId(database, villageId)],
+    affectedTileIds: [tileId],
   };
 };

@@ -9,7 +9,7 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('filter-controllers', () => {
   test('getFilters should return active filters by name', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const filters = getFilters(
       database,
@@ -24,7 +24,7 @@ describe('filter-controllers', () => {
   });
 
   test('updateFilters should replace active filters for the requested name', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     updateFilters(
       database,
@@ -49,7 +49,7 @@ describe('filter-controllers', () => {
   });
 
   test('updateFilters should only update the requested filter group', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     updateFilters(
       database,
@@ -79,7 +79,7 @@ describe('filter-controllers', () => {
   });
 
   test('updateFilters should ignore duplicate filters', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     updateFilters(
       database,

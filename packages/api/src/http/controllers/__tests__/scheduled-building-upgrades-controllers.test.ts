@@ -180,7 +180,7 @@ const expectScheduledLevelsToBeConsecutive = (
 
 describe('scheduled building upgrade controllers', () => {
   test('rejects scheduling when no relevant construction is active', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -215,7 +215,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('scheduling an upgrade only queues it', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const field = database.selectObject({
       sql: `
@@ -270,7 +270,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('allows scheduling new building construction when requirements are missing', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
     insertActiveBuildingUpgrade(database, villageId, buildingFieldId);
@@ -314,7 +314,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('does not check construction requirements when scheduling a level up', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
     insertActiveBuildingUpgrade(database, villageId, buildingFieldId);
@@ -353,7 +353,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('replaces an orphaned level-zero placeholder when scheduling a new building', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const buildingFieldId = 25;
 
@@ -425,6 +425,7 @@ describe('scheduled building upgrade controllers', () => {
         scheduled: z.number(),
       }),
     });
+
     expect(result).toEqual({
       buildingId: 'WAREHOUSE',
       level: 0,
@@ -433,7 +434,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('returns scheduled upgrades in insertion order', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     insertScheduledBuildingUpgrade(database, {
       villageId,
@@ -461,7 +462,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('reorders scheduled upgrades', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     for (const upgrade of [
       { buildingId: 'CLAY_PIT' as const, buildingFieldId: 2, level: 1 },
@@ -493,7 +494,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('rejects reordering higher levels before lower levels', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     for (const level of [1, 2]) {
       insertScheduledBuildingUpgrade(database, {
@@ -524,7 +525,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('maintains queue invariants after scheduling, reordering, and cancelling', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const fields = database.selectObjects({
       sql: `
@@ -639,7 +640,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('cancelling an upgrade preserves earlier levels and other fields', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const activeField = database.selectObject({
       sql: `
@@ -710,6 +711,7 @@ describe('scheduled building upgrade controllers', () => {
         level: z.number(),
       }),
     });
+
     expect(remaining).toEqual([
       { buildingFieldId: 2, level: 1 },
       { buildingFieldId: 1, level: 1 },
@@ -717,7 +719,7 @@ describe('scheduled building upgrade controllers', () => {
   });
 
   test('rejects a sixth active or scheduled construction', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const villageId = 1;
     const activeField = database.selectObject({
       sql: `
