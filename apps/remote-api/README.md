@@ -13,7 +13,7 @@ The API will not start without these environment variables:
 | `APP_DATA_DIRECTORY` | Writable absolute path outside the app directory, e.g. `/home/ACCOUNT/remote-api-data` |
 | `PUBLIC_BASE_URL` | `https://api.pillagefirst.com` in production |
 
-Set `ALLOWED_ORIGIN=https://pillagefirst.com` for browser access. Set `VITE_API_URL=https://api.pillagefirst.com` in the web deployment environment. Keep both secrets on the API server; never expose them through `VITE_` variables.
+Set `ALLOWED_ORIGIN` to a comma-separated list of allowed browser origins, e.g. `https://pillagefirst.com,http://localhost:5173`. Origins match exactly, including scheme and port; use no trailing slash. A single origin still works. Set `VITE_API_URL=https://api.pillagefirst.com` in the web deployment environment. Keep both secrets on the API server; never expose them through `VITE_` variables.
 
 Optional settings and defaults are in [.env.example](.env.example): 250 MiB per file/report, 8 MiB chunks, and 24-hour upload authorization. `UPLOAD_LINK_TTL_MINUTES=0` disables upload authorization expiry.
 
@@ -48,9 +48,9 @@ To roll back, point `current` to a previous directory under `releases` and touch
 ## API
 
 - Bug reports: `POST /api/reports` accepts `title`, `description`, and optional `contact`. Use its `writeToken` to reserve an attachment with `POST /api/reports/:reportId/world`.
-- Sharing: `POST /api/game-worlds` reserves a world upload and returns `worldId`, `writeToken`, and upload URLs.
+- Sharing: `POST /api/game-worlds` reserves a world upload and returns `worldId`, `writeToken`, and upload URLs. Shared worlds expire 24 hours after reservation, including unfinished uploads. Expired links stop working immediately; startup cleanup and a sweep every minute remove their files and metadata. Bug report attachments are retained.
 - Both upload reservations accept `filename` and `size`. PUT chunks to `chunkUrlTemplate` using `chunkSize` and `Content-Range: bytes start-end/total`, then POST to `completeUrl`. Signed URLs last 15 minutes; renew with `POST /api/reports/:reportId/world/upload-url` or `POST /api/game-worlds/:worldId/upload-url`, using the write token as a bearer token.
-- Share `/game-worlds/import?world-id=<worldId>`. After confirmation, POST to `/api/game-worlds/:worldId/download` with a random 32?128 character bearer token. This claims the download for 15 minutes; the same token can retry. After successful local import, DELETE `/api/game-worlds/:worldId` using that token. Uploaded copies remain until deletion.
+- Share `/game-worlds/import?world-id=<worldId>`. After confirmation, POST to `/api/game-worlds/:worldId/download` with a random 32?128 character bearer token. This claims the download for 15 minutes; the same token can retry. After successful local import, DELETE `/api/game-worlds/:worldId` using that token. Uploaded copies are deleted after import or 24 hours.
 - Admin UI: `/bugs`, sign in with `API_TOKEN`. Admin routes under `/api/admin/reports` require that token and support listing, details, closing, deletion, and world downloads.
 
 Files must have a SQLite 3 header. Requests are rate limited by IP; configure the proxy to overwrite `X-Forwarded-For` with the actual client address.

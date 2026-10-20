@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
 import type {
@@ -7,6 +7,7 @@ import type {
   ImportGameWorldWorkerResponse,
 } from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker';
 import ImportGameWorldWorker from 'app/(public)/(game-worlds)/(import)/workers/import-game-world-worker?worker&url';
+import { GameWorldTransferProgress } from 'app/(public)/(game-worlds)/components/transfer-progress';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { PageMetadata } from 'app/(public)/components/page-metadata';
 import { availableServerCacheKey } from 'app/(public)/constants/query-keys';
@@ -31,7 +32,11 @@ import {
 } from 'app/components/ui/dialog';
 import { pushGameWorldImported } from 'app/instrumentation/product-events';
 import { invalidateQueries } from 'app/utils/react-query';
-import { remoteRequest } from 'app/utils/remote-api';
+import {
+  downloadSharedWorld,
+  remoteRequest,
+  type TransferProgress,
+} from 'app/utils/remote-api';
 import { workerFactory } from 'app/utils/workers';
 
 type ImportGameWorldSuccess = Extract<
@@ -71,6 +76,10 @@ const ImportGameWorld = () => {
   const worldId = searchParams.get('world-id');
 
   const downloads = useRef(new Map<string, WorldDownload>());
+  const [progress, setProgress] = useState<TransferProgress | null>(null);
+  const [importStage, setImportStage] = useState<
+    'downloading' | 'importing' | 'finishing'
+  >('downloading');
 
   const {
     mutate: startImport,
@@ -85,6 +94,9 @@ const ImportGameWorld = () => {
         return importDatabase(await source.arrayBuffer());
       }
 
+      setProgress(null);
+      setImportStage('downloading');
+
       const download: WorldDownload = downloads.current.get(source) ?? {
         token: crypto.randomUUID(),
       };
@@ -92,18 +104,21 @@ const ImportGameWorld = () => {
       downloads.current.set(source, download);
 
       if (download.imported) {
+        setImportStage('finishing');
+
         return download.imported;
       }
 
-      const response = await remoteRequest(
-        `/api/game-worlds/${encodeURIComponent(source)}/download`,
-        {
-          method: 'POST',
-          headers: { authorization: `Bearer ${download.token}` },
-        },
+      const buffer = await downloadSharedWorld(
+        source,
+        download.token,
+        setProgress,
       );
 
-      download.imported = await importDatabase(await response.arrayBuffer());
+      setImportStage('importing');
+      setProgress(null);
+
+      download.imported = await importDatabase(buffer);
 
       return download.imported;
     },
@@ -120,6 +135,8 @@ const ImportGameWorld = () => {
 
       await invalidateQueries(context, [[availableServerCacheKey]]);
       if (typeof source === 'string' && download) {
+        setImportStage('finishing');
+
         try {
           await remoteRequest(
             `/api/game-worlds/${encodeURIComponent(source)}`,
@@ -229,6 +246,18 @@ const ImportGameWorld = () => {
               </DialogHeader>
               {remoteImportError && (
                 <Alert variant="error">{remoteImportError.message}</Alert>
+              )}
+              {isImporting && typeof importSource === 'string' && (
+                <GameWorldTransferProgress
+                  label={
+                    importStage === 'downloading'
+                      ? 'Downloading game world...'
+                      : importStage === 'importing'
+                        ? 'Importing game world...'
+                        : 'Finishing import...'
+                  }
+                  progress={progress}
+                />
               )}
               <DialogFooter>
                 <Button

@@ -343,6 +343,18 @@ export class Store implements Disposable {
     }
   }
 
+  listExpiredWorldIds(createdBefore: number): string[] {
+    const rows = this.#database
+      .prepare(`
+      SELECT game_worlds.id FROM game_worlds
+      LEFT JOIN uploads ON uploads.world_id = game_worlds.id
+      WHERE uploads.created_at <= ? OR uploads.id IS NULL
+    `)
+      .all(createdBefore) as { id: string }[];
+
+    return rows.map(({ id }) => id);
+  }
+
   getUpload(id: string): Upload | undefined {
     const row = this.#database
       .prepare('SELECT * FROM uploads WHERE id = ?')

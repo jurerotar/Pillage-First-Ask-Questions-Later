@@ -1,5 +1,6 @@
 import { afterEach, expect, test, vi } from 'vitest';
 import {
+  downloadSharedWorld,
   type PendingWorldShare,
   uploadSharedWorld,
 } from 'app/utils/remote-api';
@@ -40,13 +41,17 @@ test('renews expired signed URLs and resumes uploads after a failed chunk', asyn
     filename: 'world.sqlite3',
     nextChunkIndex: 0,
   };
+  const onProgress = vi.fn();
 
-  await expect(uploadSharedWorld(pending)).rejects.toThrow(
+  await expect(uploadSharedWorld(pending, onProgress)).rejects.toThrow(
     'Network unavailable',
   );
   expect(pending.nextChunkIndex).toBe(1);
 
-  await expect(uploadSharedWorld(pending)).resolves.toBe('world');
+  await expect(uploadSharedWorld(pending, onProgress)).resolves.toBe('world');
+  expect(onProgress.mock.calls.map(([progress]) => progress.loaded)).toEqual([
+    0, 2, 2, 4,
+  ]);
   expect(fetch.mock.calls.map((call) => String(call[0]))).toEqual([
     'https://api.example.test/api/game-worlds',
     'https://api.example.test/old/0',
@@ -56,4 +61,52 @@ test('renews expired signed URLs and resumes uploads after a failed chunk', asyn
     'https://api.example.test/new/1',
     'https://api.example.test/new/complete',
   ]);
+});
+
+test.each([true, false])(
+  'reports streamed download progress with a known total: %s',
+  async (hasTotal) => {
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array([1, 2]));
+        controller.enqueue(new Uint8Array([3, 4, 5]));
+        controller.close();
+      },
+    });
+    const fetch = vi.fn().mockResolvedValue(
+      new Response(stream, {
+        headers: hasTotal ? { 'content-length': '5' } : {},
+      }),
+    );
+    const onProgress = vi.fn();
+
+    vi.stubGlobal('fetch', fetch);
+
+    const buffer = await downloadSharedWorld(
+      'shared-world',
+      'download-token',
+      onProgress,
+    );
+
+    expect([...new Uint8Array(buffer)]).toEqual([1, 2, 3, 4, 5]);
+    expect(onProgress.mock.calls.map(([progress]) => progress)).toEqual([
+      { loaded: 0, total: hasTotal ? 5 : null },
+      { loaded: 2, total: hasTotal ? 5 : null },
+      { loaded: 5, total: hasTotal ? 5 : null },
+    ]);
+  },
+);
+
+test('propagates a failed download stream instead of importing partial bytes', async () => {
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      controller.error(new Error('Download interrupted'));
+    },
+  });
+
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(stream)));
+
+  await expect(
+    downloadSharedWorld('shared-world', 'download-token', vi.fn()),
+  ).rejects.toThrow('Download interrupted');
 });
