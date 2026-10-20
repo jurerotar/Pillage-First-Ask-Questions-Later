@@ -1,0 +1,675 @@
+import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { expect, test } from 'vitest';
+import { createApp } from '../app.ts';
+import type { AppConfig } from '../config.ts';
+import { Store } from '../store.ts';
+
+const sqliteFile = Buffer.concat([
+  Buffer.from('SQLite format 3\u0000', 'ascii'),
+  Buffer.alloc(512),
+]);
+
+const createTestApp = async () => {
+  const dataDirectory = await mkdtemp(join(tmpdir(), 'pillage-remote-api-'));
+
+  const config: AppConfig = {
+    apiToken: 'a'.repeat(32),
+    appDirectory: join(tmpdir(), 'app'),
+    dataDirectory,
+    maxChunkBytes: 1024,
+    maxFileBytes: 2048,
+    maxReportBytes: 2048,
+    publicBaseUrl: 'https://api.example.test',
+    uploadLinkTtlMinutes: 60,
+    uploadUrlSecret: 's'.repeat(32),
+  };
+
+  const store = await Store.create(dataDirectory);
+
+  return {
+    config,
+    dataDirectory,
+    store,
+    app: createApp({ config, store }),
+    [Symbol.asyncDispose]: async () => {
+      store.close();
+      await rm(dataDirectory, { force: true, recursive: true });
+    },
+  };
+};
+
+const uploadSharedWorld = async (
+  app: ReturnType<typeof createApp>,
+  contents = sqliteFile,
+) => {
+  const response = await app.request('/api/game-worlds', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ filename: 'world.sqlite3', size: contents.length }),
+  });
+
+  expect(response.status).toBe(201);
+
+  const reservation = (await response.json()) as {
+    worldId: string;
+    writeToken: string;
+    chunkUrlTemplate: string;
+    completeUrl: string;
+  };
+
+  const chunk = await app.request(
+    reservation.chunkUrlTemplate.replace('{chunkIndex}', '0'),
+    {
+      method: 'PUT',
+      body: contents,
+      headers: {
+        'content-length': String(contents.length),
+        'content-range': `bytes 0-${contents.length - 1}/${contents.length}`,
+      },
+    },
+  );
+
+  expect(chunk.status).toBe(204);
+
+  return reservation;
+};
+
+test('shares a world separately from reports, claims it on confirmation, and deletes it after import', async () => {
+  await using testApp = await createTestApp();
+
+  const { app, store, dataDirectory } = testApp;
+
+  const share = await uploadSharedWorld(app);
+  const path = `/api/game-worlds/${share.worldId}`;
+  const token = 'download-token-'.repeat(3);
+  const download = () => {
+    return app.request(`${path}/download`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}` },
+    });
+  };
+
+  expect((await download()).status).toBe(404);
+  expect(
+    (await app.request(share.completeUrl, { method: 'POST' })).status,
+  ).toBe(200);
+  expect(store.listReports()).toEqual([]);
+  expect((await app.request(`${path}/download`)).status).toBe(404);
+  expect(
+    (await app.request(`${path}/download`, { method: 'POST' })).status,
+  ).toBe(400);
+
+  const response = await download();
+
+  expect(response.status).toBe(200);
+  expect(Buffer.from(await response.arrayBuffer())).toEqual(sqliteFile);
+  expect(store.getWorld(share.worldId)).toBeDefined();
+
+  // A retry from the same device is safe; another device cannot import concurrently.
+  const repeated = await download();
+
+  expect(repeated.status).toBe(200);
+
+  await repeated.arrayBuffer();
+
+  expect(
+    (
+      await app.request(`${path}/download`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${'other-token'.repeat(4)}` },
+      })
+    ).status,
+  ).toBe(409);
+  expect(
+    (
+      await app.request(path, {
+        method: 'DELETE',
+        headers: { authorization: `Bearer ${share.writeToken}` },
+      })
+    ).status,
+  ).toBe(401);
+
+  const options = {
+    method: 'DELETE',
+    headers: { authorization: `Bearer ${token}` },
+  };
+
+  expect((await app.request(path, options)).status).toBe(204);
+  expect((await app.request(path, options)).status).toBe(204);
+  expect(store.getWorld(share.worldId)).toBeUndefined();
+  expect(await readdir(join(dataDirectory, 'uploads'))).toEqual([]);
+  expect(await readdir(join(dataDirectory, 'staging'))).toEqual([]);
+  expect((await download()).status).toBe(404);
+  expect(
+    (await app.request(share.completeUrl, { method: 'POST' })).status,
+  ).toBe(401);
+});
+
+test('validates shared upload requests, SQLite contents, and renewal capabilities', async () => {
+  await using testApp = await createTestApp();
+
+  const { app } = testApp;
+
+  for (const body of [
+    'invalid',
+    JSON.stringify({ filename: 'world.sqlite3', size: -1 }),
+  ]) {
+    expect(
+      (await app.request('/api/game-worlds', { method: 'POST', body })).status,
+    ).toBe(400);
+  }
+
+  expect(
+    (
+      await app.request('/api/game-worlds', {
+        method: 'POST',
+        body: JSON.stringify({ filename: 'world.sqlite3', size: 2049 }),
+      })
+    ).status,
+  ).toBe(413);
+
+  const share = await uploadSharedWorld(app, Buffer.alloc(100));
+  const path = `/api/game-worlds/${share.worldId}`;
+
+  expect(
+    (await app.request(`${path}/upload-url`, { method: 'POST' })).status,
+  ).toBe(401);
+  expect(
+    (
+      await app.request(`${path}/upload-url`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${share.writeToken}` },
+      })
+    ).status,
+  ).toBe(200);
+  expect(
+    (await app.request(share.completeUrl, { method: 'POST' })).status,
+  ).toBe(415);
+  expect(
+    (
+      await app.request(`${path}/download`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${'t'.repeat(32)}` },
+      })
+    ).status,
+  ).toBe(404);
+});
+
+test('creates, chunk-uploads, and authorizes download of a SQLite world', async () => {
+  await using testApp = await createTestApp();
+
+  const { app, dataDirectory, store } = testApp;
+
+  const createResponse = await app.request('/api/reports', {
+    body: JSON.stringify({
+      description: 'The game stalled after the last turn.',
+      title: 'Turn does not complete',
+    }),
+    headers: { 'content-type': 'application/json' },
+    method: 'POST',
+  });
+
+  expect(createResponse.status).toBe(201);
+
+  const report = (await createResponse.json()) as {
+    reportId: string;
+    writeToken: string;
+  };
+
+  const reserveResponse = await app.request(
+    `/api/reports/${report.reportId}/world`,
+    {
+      body: JSON.stringify({
+        filename: '../../world.sqlite3',
+        size: sqliteFile.length,
+      }),
+      headers: {
+        authorization: `Bearer ${report.writeToken}`,
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+    },
+  );
+
+  expect(reserveResponse.status).toBe(201);
+
+  const reservation = (await reserveResponse.json()) as {
+    chunkUrlTemplate: string;
+    completeUrl: string;
+  };
+
+  // A lost reservation response must not reserve more storage on retry.
+  const repeatedReservation = await app.request(
+    `/api/reports/${report.reportId}/world`,
+    {
+      body: JSON.stringify({
+        filename: '../../world.sqlite3',
+        size: sqliteFile.length,
+      }),
+      headers: {
+        authorization: `Bearer ${report.writeToken}`,
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+    },
+  );
+
+  expect(repeatedReservation.status).toBe(200);
+
+  const repeatedReservationBody = (await repeatedReservation.json()) as {
+    chunkUrlTemplate: string;
+  };
+
+  expect(repeatedReservationBody.chunkUrlTemplate.split('?')[0]).toBe(
+    reservation.chunkUrlTemplate.split('?')[0],
+  );
+  expect(store.getReservedBytes(report.reportId)).toBe(sqliteFile.length);
+
+  const differentReservation = await app.request(
+    `/api/reports/${report.reportId}/world`,
+    {
+      body: JSON.stringify({
+        filename: 'different.sqlite3',
+        size: sqliteFile.length,
+      }),
+      headers: {
+        authorization: `Bearer ${report.writeToken}`,
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+    },
+  );
+
+  expect(differentReservation.status).toBe(409);
+
+  const renewResponse = await app.request(
+    `/api/reports/${report.reportId}/world/upload-url`,
+    {
+      headers: { authorization: `Bearer ${report.writeToken}` },
+      method: 'POST',
+    },
+  );
+
+  expect(renewResponse.status).toBe(200);
+
+  const refreshedReservation = (await renewResponse.json()) as {
+    chunkUrlTemplate: string;
+  };
+
+  const chunkUrl = refreshedReservation.chunkUrlTemplate.replace(
+    '{chunkIndex}',
+    '0',
+  );
+
+  const chunkResponse = await app.request(chunkUrl, {
+    body: sqliteFile,
+    headers: {
+      'content-length': String(sqliteFile.length),
+      'content-range': `bytes 0-${sqliteFile.length - 1}/${sqliteFile.length}`,
+    },
+    method: 'PUT',
+  });
+
+  expect(chunkResponse.status).toBe(204);
+
+  const completeResponse = await app.request(reservation.completeUrl, {
+    method: 'POST',
+  });
+
+  expect(completeResponse.status).toBe(200);
+
+  // A lost completion response can be retried even after refreshing its URL.
+  const completedReservationResponse = await app.request(
+    `/api/reports/${report.reportId}/world/upload-url`,
+    {
+      headers: { authorization: `Bearer ${report.writeToken}` },
+      method: 'POST',
+    },
+  );
+
+  expect(completedReservationResponse.status).toBe(200);
+
+  const completedReservation = (await completedReservationResponse.json()) as {
+    completeUrl: string;
+  };
+  const repeatedCompletion = await app.request(
+    completedReservation.completeUrl,
+    { method: 'POST' },
+  );
+
+  expect(repeatedCompletion.status).toBe(200);
+  expect(await repeatedCompletion.json()).toEqual({ status: 'complete' });
+
+  const deniedDownload = await app.request(
+    `/api/admin/reports/${report.reportId}/world`,
+  );
+
+  expect(deniedDownload.status).toBe(401);
+
+  const download = await app.request(
+    `/api/admin/reports/${report.reportId}/world`,
+    {
+      headers: { authorization: `Bearer ${'a'.repeat(32)}` },
+    },
+  );
+
+  expect(download.status).toBe(200);
+  expect(download.headers.get('content-type')).toBe('application/vnd.sqlite3');
+  expect(Buffer.from(await download.arrayBuffer())).toStrictEqual(sqliteFile);
+
+  const headers = { authorization: `Bearer ${'a'.repeat(32)}` };
+
+  const details = await app.request(`/api/admin/reports/${report.reportId}`, {
+    headers,
+  });
+
+  const data = (await details.json()) as {
+    world: { downloadUrl: string; filename: string; status: string };
+  };
+
+  expect(data.world.filename).toBe('../../world.sqlite3');
+  expect(data.world.status).toBe('complete');
+  expect(data.world.downloadUrl).toBe(
+    `/api/admin/reports/${report.reportId}/world`,
+  );
+
+  const deleted = await app.request(`/api/admin/reports/${report.reportId}`, {
+    headers,
+    method: 'DELETE',
+  });
+
+  expect(deleted.status).toBe(204);
+  expect(await readdir(join(dataDirectory, 'uploads'))).toStrictEqual([]);
+  expect(await readdir(join(dataDirectory, 'staging'))).toStrictEqual([]);
+  expect(
+    (
+      await app.request(`/api/admin/reports/${report.reportId}/world`, {
+        headers,
+      })
+    ).status,
+  ).toBe(404);
+});
+
+test('rejects world files without a server-recognized SQLite signature', async () => {
+  await using testApp = await createTestApp();
+
+  const { app } = testApp;
+
+  const createResponse = await app.request('/api/reports', {
+    body: JSON.stringify({
+      description: 'A reproducible issue.',
+      title: 'Bad save',
+    }),
+    headers: { 'content-type': 'application/json' },
+    method: 'POST',
+  });
+
+  const report = (await createResponse.json()) as {
+    reportId: string;
+    writeToken: string;
+  };
+
+  const reserveResponse = await app.request(
+    `/api/reports/${report.reportId}/world`,
+    {
+      body: JSON.stringify({ filename: 'world.sqlite3', size: 32 }),
+      headers: {
+        authorization: `Bearer ${report.writeToken}`,
+        'content-type': 'application/json',
+      },
+      method: 'POST',
+    },
+  );
+
+  const reservation = (await reserveResponse.json()) as {
+    chunkUrlTemplate: string;
+    completeUrl: string;
+  };
+
+  const contents = Buffer.alloc(32);
+
+  const uploadResponse = await app.request(
+    reservation.chunkUrlTemplate.replace('{chunkIndex}', '0'),
+    {
+      body: contents,
+      headers: {
+        'content-length': '32',
+        'content-range': 'bytes 0-31/32',
+      },
+      method: 'PUT',
+    },
+  );
+
+  expect(uploadResponse.status).toBe(204);
+
+  const completeResponse = await app.request(reservation.completeUrl, {
+    method: 'POST',
+  });
+
+  expect(completeResponse.status).toBe(415);
+});
+
+test('admin routes require the admin token and omit upload credentials', async () => {
+  await using testApp = await createTestApp();
+
+  const { app } = testApp;
+
+  const created = await app.request('/api/reports', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      title: 'Report',
+      description: 'Details',
+      contact: 'hello@example.test',
+    }),
+  });
+
+  const { reportId, writeToken } = (await created.json()) as {
+    reportId: string;
+    writeToken: string;
+  };
+
+  for (const [path, method] of [
+    ['/api/admin/reports', 'GET'],
+    [`/api/admin/reports/${reportId}`, 'GET'],
+    [`/api/admin/reports/${reportId}/close`, 'POST'],
+    [`/api/admin/reports/${reportId}`, 'DELETE'],
+    [`/api/admin/reports/${reportId}/world`, 'GET'],
+  ]) {
+    expect((await app.request(path, { method })).status).toBe(401);
+    expect(
+      (
+        await app.request(path, {
+          method,
+          headers: { authorization: `Bearer ${writeToken}` },
+        })
+      ).status,
+    ).toBe(401);
+  }
+
+  const headers = { authorization: `Bearer ${'a'.repeat(32)}` };
+  const list = await app.request('/api/admin/reports', { headers });
+
+  const { reports } = (await list.json()) as {
+    reports: Record<string, unknown>[];
+  };
+
+  expect(reports.length).toBe(1);
+  expect(reports[0].id).toBe(reportId);
+  expect(reports[0].contact).toBe('hello@example.test');
+  expect(reports[0].status).toBe('open');
+  expect(reports[0].world).toBe(null);
+  expect('writeTokenHash' in reports[0]).toBe(false);
+  expect('writeToken' in reports[0]).toBe(false);
+
+  for (const [path, method] of [
+    ['/api/admin/reports/missing', 'GET'],
+    ['/api/admin/reports/missing/close', 'POST'],
+    ['/api/admin/reports/missing', 'DELETE'],
+  ]) {
+    expect((await app.request(path, { headers, method })).status).toBe(404);
+  }
+});
+
+test('closing is idempotent and remains persisted when the database is reopened', async () => {
+  await using testApp = await createTestApp();
+
+  const { app, store, dataDirectory } = testApp;
+
+  const report = store.createReport({
+    title: 'Report',
+    description: 'Details',
+    contact: null,
+    uploadExpiresAt: null,
+    writeTokenHash: 'hash',
+  });
+
+  const options = {
+    method: 'POST',
+    headers: { authorization: `Bearer ${'a'.repeat(32)}` },
+  };
+
+  const response = await app.request(
+    `/api/admin/reports/${report.id}/close`,
+    options,
+  );
+
+  const closed = (await response.json()) as {
+    status: string;
+    closedAt: number;
+  };
+
+  expect(response.status).toBe(200);
+  expect(closed.status).toBe('closed');
+  expect(closed.closedAt > 0).toBeTruthy();
+
+  const repeated = await app.request(
+    `/api/admin/reports/${report.id}/close`,
+    options,
+  );
+
+  expect(((await repeated.json()) as { closedAt: number }).closedAt).toBe(
+    closed.closedAt,
+  );
+
+  using reopened = await Store.create(dataDirectory);
+
+  expect(reopened.getReport(report.id)?.closedAt).toBe(closed.closedAt);
+});
+
+test('deleting a pending upload removes files, chunks, and signed upload access', async () => {
+  await using testApp = await createTestApp();
+
+  const { app, store, dataDirectory } = testApp;
+
+  const response = await app.request('/api/reports', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ title: 'Pending report', description: 'Details' }),
+  });
+
+  const { reportId, writeToken } = (await response.json()) as {
+    reportId: string;
+    writeToken: string;
+  };
+
+  const reservation = await app.request(`/api/reports/${reportId}/world`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${writeToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      filename: 'world.sqlite3',
+      size: sqliteFile.length,
+    }),
+  });
+
+  const { chunkUrlTemplate, uploadId } = (await reservation.json()) as {
+    chunkUrlTemplate: string;
+    uploadId: string;
+  };
+
+  const chunkUrl = chunkUrlTemplate.replace('{chunkIndex}', '0');
+
+  const chunkOptions = {
+    method: 'PUT',
+    body: sqliteFile,
+    headers: {
+      'content-length': String(sqliteFile.length),
+      'content-range': `bytes 0-${sqliteFile.length - 1}/${sqliteFile.length}`,
+    },
+  };
+
+  expect((await app.request(chunkUrl, chunkOptions)).status).toBe(204);
+  expect((await readdir(join(dataDirectory, 'staging'))).length).toBe(1);
+  expect(store.getChunks(uploadId).length).toBe(1);
+
+  const deleted = await app.request(`/api/admin/reports/${reportId}`, {
+    method: 'DELETE',
+    headers: { authorization: `Bearer ${'a'.repeat(32)}` },
+  });
+
+  expect(deleted.status).toBe(204);
+  expect(store.getReport(reportId)).toBe(undefined);
+  expect(store.getUpload(uploadId)).toBe(undefined);
+  expect(store.getChunks(uploadId)).toStrictEqual([]);
+  expect(await readdir(join(dataDirectory, 'staging'))).toStrictEqual([]);
+  expect(await readdir(join(dataDirectory, 'uploads'))).toStrictEqual([]);
+  expect((await app.request(chunkUrl, chunkOptions)).status).toBe(401);
+});
+
+test('the web app origin can preflight both admin and public requests', async () => {
+  await using testApp = await createTestApp();
+
+  const { store, config } = testApp;
+
+  const app = createApp({
+    store,
+    config: {
+      ...config,
+      allowedOrigin: 'https://game.example.test',
+    },
+  });
+
+  const response = await app.request('/api/admin/reports/test', {
+    method: 'OPTIONS',
+    headers: {
+      origin: 'https://game.example.test',
+      'access-control-request-method': 'DELETE',
+      'access-control-request-headers': 'authorization',
+    },
+  });
+
+  expect(response.status).toBe(204);
+  expect(response.headers.get('access-control-allow-origin')).toBe(
+    'https://game.example.test',
+  );
+  expect(
+    response.headers.get('access-control-allow-methods')?.includes('DELETE'),
+  ).toBeTruthy();
+
+  const game = await app.request('/api/reports', {
+    method: 'OPTIONS',
+    headers: {
+      origin: 'https://game.example.test',
+      'access-control-request-method': 'POST',
+    },
+  });
+
+  expect(game.headers.get('access-control-allow-origin')).toBe(
+    'https://game.example.test',
+  );
+
+  const untrusted = await app.request('/api/admin/reports/test', {
+    method: 'OPTIONS',
+    headers: {
+      origin: 'https://untrusted.example.test',
+      'access-control-request-method': 'DELETE',
+    },
+  });
+
+  expect(untrusted.headers.get('access-control-allow-origin')).toBe(null);
+});

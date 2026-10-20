@@ -49,6 +49,7 @@
     "i18next": "26.4.7",
     "isbot": "5.2.2",
     "moderndash": "4.0.2",
+    "qrcode.react": "4.2.0",
     "radix-ui": "1.8.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",

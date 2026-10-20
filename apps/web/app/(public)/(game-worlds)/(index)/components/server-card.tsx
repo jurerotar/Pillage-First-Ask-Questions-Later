@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   FaDownload,
   FaEllipsisVertical,
+  FaShareNodes,
   FaSpinner,
   FaTrash,
 } from 'react-icons/fa6';
@@ -13,6 +14,7 @@ import {
   encodeAppVersionToDatabaseUserVersion,
   isSupportedDatabaseUserVersion,
 } from '@pillage-first/utils/version';
+import { ShareGameWorldDialog } from 'app/(public)/(game-worlds)/(index)/components/share-game-world-dialog';
 import { useGameWorldActions } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { Text } from 'app/components/text';
 import { Alert } from 'app/components/ui/alert';
@@ -33,6 +35,7 @@ type ServerCardProps = {
 export const ServerCard = ({ server }: ServerCardProps) => {
   const intl = useIntl();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
   const {
     exportGameWorld,
     isExportGameWorldPending,
@@ -95,6 +98,18 @@ export const ServerCard = ({ server }: ServerCardProps) => {
               variant="ghost"
               onClick={() => {
                 setIsActionsOpen(false);
+                setIsShareOpen(true);
+              }}
+            >
+              <FaShareNodes className="text-gray-400 size-3.5" />
+              Share game world
+            </Button>
+            <Button
+              className="h-8 justify-start gap-2 px-2 text-xs"
+              disabled={isActionPending}
+              variant="ghost"
+              onClick={() => {
+                setIsActionsOpen(false);
                 void exportGameWorld({ server });
               }}
             >
@@ -146,6 +161,11 @@ export const ServerCard = ({ server }: ServerCardProps) => {
           </div>
         </PopoverContent>
       </Popover>
+      <ShareGameWorldDialog
+        server={server}
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+      />
       <Text as="h2">{server.name}</Text>
       <div className="flex gap-2 flex-wrap">
         <Badge variant="successive">{server.configuration.speed}x</Badge>
