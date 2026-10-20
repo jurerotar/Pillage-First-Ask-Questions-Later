@@ -21,6 +21,14 @@ import {
   BreadcrumbSeparator,
 } from 'app/components/ui/breadcrumb';
 import { Button } from 'app/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from 'app/components/ui/dialog';
 import { pushGameWorldImported } from 'app/instrumentation/product-events';
 import { invalidateQueries } from 'app/utils/react-query';
 import { remoteRequest } from 'app/utils/remote-api';
@@ -59,15 +67,18 @@ const ImportGameWorld = () => {
   const navigate = useNavigate();
   const { createGameWorld } = useGameWorldActions();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const worldId = searchParams.get('world-id');
 
   const downloads = useRef(new Map<string, WorldDownload>());
 
   const {
+    mutate: startImport,
     mutateAsync: importGameWorld,
     isPending: isImporting,
     error,
+    variables: importSource,
+    reset: resetImport,
   } = useMutation<ImportGameWorldSuccess, Error, File | string>({
     mutationFn: async (source) => {
       if (typeof source !== 'string') {
@@ -128,6 +139,27 @@ const ImportGameWorld = () => {
     },
   });
 
+  const remoteImportError = typeof importSource === 'string' ? error : null;
+  const localImportError = typeof importSource !== 'string' ? error : null;
+
+  const closeRemoteImport = () => {
+    if (isImporting) {
+      return;
+    }
+
+    resetImport();
+    setSearchParams(
+      (params) => {
+        const updated = new URLSearchParams(params);
+
+        updated.delete('world-id');
+
+        return updated;
+      },
+      { replace: true },
+    );
+  };
+
   const title = t('{{title}} | Pillage First!', {
     title: 'Import existing game world',
   });
@@ -167,34 +199,62 @@ const ImportGameWorld = () => {
             it here. If import is successful, you'll be automatically redirected
             to the game world.
           </Text>
-          {error && <Alert variant="error">{error.toString()}</Alert>}
-          {worldId !== null && (
-            <div className="flex flex-col gap-2">
-              <Text
-                as="h2"
-                className="text-xl font-semibold"
-              >
-                Import shared game world
-              </Text>
-              <Text>
-                Download this world onto this device and continue playing. After
-                a successful import, the uploaded copy will be deleted and this
-                link will no longer work.
-              </Text>
-              <Button
-                disabled={isImporting || !worldId}
-                onClick={() => {
-                  void importGameWorld(worldId).catch(() => {});
-                }}
-              >
-                {isImporting
-                  ? 'Importing...'
-                  : downloads.current.get(worldId)?.registered
-                    ? 'Finish sharing'
-                    : 'Download and import game world'}
-              </Button>
-            </div>
+          {localImportError && (
+            <Alert variant="error">{localImportError.message}</Alert>
           )}
+          <Dialog
+            open={worldId !== null}
+            onOpenChange={(open) => !open && closeRemoteImport()}
+          >
+            <DialogContent
+              closeDisabled={isImporting}
+              onInteractOutside={(event) => {
+                if (isImporting) {
+                  event.preventDefault();
+                }
+              }}
+              onEscapeKeyDown={(event) => {
+                if (isImporting) {
+                  event.preventDefault();
+                }
+              }}
+            >
+              <DialogHeader>
+                <DialogTitle>Import shared game world</DialogTitle>
+                <DialogDescription>
+                  Download this world onto this device and continue playing.
+                  After a successful import, the uploaded copy will be deleted
+                  and this link will no longer work.
+                </DialogDescription>
+              </DialogHeader>
+              {remoteImportError && (
+                <Alert variant="error">{remoteImportError.message}</Alert>
+              )}
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  disabled={isImporting}
+                  onClick={closeRemoteImport}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  disabled={isImporting || !worldId}
+                  onClick={() => {
+                    if (worldId) {
+                      startImport(worldId);
+                    }
+                  }}
+                >
+                  {isImporting
+                    ? 'Importing...'
+                    : worldId && downloads.current.get(worldId)?.registered
+                      ? 'Finish sharing'
+                      : 'Download and import game world'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
           <div className="flex flex-col gap-2">
             <Text
               as="h2"

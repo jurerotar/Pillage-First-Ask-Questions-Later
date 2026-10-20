@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 import { useRef } from 'react';
+import { LuCopy } from 'react-icons/lu';
 import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
 import { exportGameWorldDatabase } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
@@ -54,6 +55,7 @@ export const ShareGameWorldDialog = ({
     },
     onSuccess: () => {
       pending.current = null;
+      toast.success('Game world uploaded. Ready to share!');
     },
   });
 
@@ -78,10 +80,19 @@ export const ShareGameWorldDialog = ({
         <DialogHeader>
           <DialogTitle>Share game world</DialogTitle>
           <DialogDescription>
-            Upload {server.name} to continue on another device. Close any open
-            instance of this world before uploading. Anyone with the link can
-            import it once. The uploaded copy is deleted after a successful
-            import.
+            {shareUrl ? (
+              <>
+                {server.name} is ready to share. Open the link or scan the QR
+                code on another device to import it. Anyone with the link can
+                import it once. The uploaded copy is deleted after a successful
+                import.
+              </>
+            ) : (
+              <>
+                Upload {server.name} to continue on another device. Close any
+                open instance of this world before uploading.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
         {error && (
@@ -101,34 +112,38 @@ export const ShareGameWorldDialog = ({
               title="Scan to import this game world"
               className="max-w-full h-auto"
             />
-            <div className="w-full grid gap-2">
+            <div className="grid w-full min-w-0 gap-2">
               <Label htmlFor={`share-url-${server.id}`}>Download link</Label>
-              <Input
-                id={`share-url-${server.id}`}
-                readOnly
-                value={shareUrl}
-                onFocus={(event) => event.target.select()}
-              />
-              <Button
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(shareUrl);
-                    toast.success('Link copied');
-                  } catch {
-                    toast.error(
-                      'Unable to copy. Select and copy the link above.',
-                    );
-                  }
-                }}
-              >
-                Copy link
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => share()}
-              >
-                Upload a new copy
-              </Button>
+              <div className="relative min-w-0">
+                <Input
+                  id={`share-url-${server.id}`}
+                  className="pr-10"
+                  readOnly
+                  value={shareUrl}
+                  onFocus={(event) => event.target.select()}
+                />
+                <div className="absolute inset-y-0 right-1 flex items-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7!"
+                    aria-label="Copy link"
+                    title="Copy link"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(shareUrl);
+                        toast.success('Link copied');
+                      } catch {
+                        toast.error(
+                          'Unable to copy. Select and copy the link above.',
+                        );
+                      }
+                    }}
+                  >
+                    <LuCopy aria-hidden="true" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
