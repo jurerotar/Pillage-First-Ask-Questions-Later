@@ -289,7 +289,8 @@ const scheduledConstructionCancellationReasonDetailSchema =
           }),
           z.strictObject({
             type: z.literal('amount'),
-            amount: z.int().positive(),
+            // null represents an unlimited allowance (Infinity is not JSON-safe).
+            amount: z.int().positive().nullable(),
           }),
         ]),
       ),
