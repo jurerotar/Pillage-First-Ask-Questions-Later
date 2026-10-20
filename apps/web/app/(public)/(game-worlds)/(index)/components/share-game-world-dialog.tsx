@@ -20,6 +20,7 @@ import {
   type PendingWorldShare,
   type TransferProgress,
   uploadSharedWorld,
+  type WorldUploadStage,
 } from 'app/utils/remote-api';
 
 export const ShareGameWorldDialog = ({
@@ -33,6 +34,9 @@ export const ShareGameWorldDialog = ({
 }) => {
   const pending = useRef<PendingWorldShare | null>(null);
   const [progress, setProgress] = useState<TransferProgress | null>(null);
+  const [uploadStage, setUploadStage] = useState<
+    'preparing' | WorldUploadStage
+  >('preparing');
 
   const {
     mutate: share,
@@ -42,6 +46,7 @@ export const ShareGameWorldDialog = ({
   } = useMutation<string, Error>({
     mutationFn: async () => {
       setProgress(null);
+      setUploadStage('preparing');
 
       pending.current ??= {
         world: new Blob([await exportGameWorldDatabase(server)], {
@@ -51,7 +56,11 @@ export const ShareGameWorldDialog = ({
         nextChunkIndex: 0,
       };
 
-      const worldId = await uploadSharedWorld(pending.current, setProgress);
+      const worldId = await uploadSharedWorld(
+        pending.current,
+        setProgress,
+        setUploadStage,
+      );
       const url = new URL('/game-worlds/import', window.location.origin);
 
       url.searchParams.set('world-id', worldId);
@@ -147,11 +156,13 @@ export const ShareGameWorldDialog = ({
         {isUploading && (
           <GameWorldTransferProgress
             label={
-              !progress
+              uploadStage === 'preparing'
                 ? 'Preparing game world...'
-                : progress.loaded === progress.total
-                  ? 'Finalizing upload...'
-                  : 'Uploading game world...'
+                : uploadStage === 'reserving'
+                  ? 'Connecting to upload server...'
+                  : uploadStage === 'finalizing'
+                    ? 'Finalizing upload...'
+                    : 'Uploading game world...'
             }
             progress={progress}
           />

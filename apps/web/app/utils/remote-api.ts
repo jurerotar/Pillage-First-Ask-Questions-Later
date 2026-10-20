@@ -151,10 +151,45 @@ export type PendingWorldShare = {
   reservation?: SharedWorldUploadReservation;
 };
 
+export type WorldUploadStage = 'reserving' | 'uploading' | 'finalizing';
+
+const uploadWorldChunk = (
+  url: string,
+  chunk: Blob,
+  contentRange: string,
+  onProgress: (loaded: number) => void,
+): Promise<Response> => {
+  return new Promise((resolve, reject) => {
+    const request = new XMLHttpRequest();
+
+    request.upload.onprogress = (event) => {
+      onProgress(Math.min(event.loaded, chunk.size));
+    };
+    request.onload = () => {
+      resolve(
+        new Response(request.responseText || null, {
+          status: request.status,
+          statusText: request.statusText,
+        }),
+      );
+    };
+    request.onerror = () =>
+      reject(new Error('Upload interrupted. Check your connection and retry.'));
+    request.onabort = () => reject(new Error('Upload cancelled.'));
+
+    request.open('PUT', url);
+    request.setRequestHeader('Content-Range', contentRange);
+    request.send(chunk);
+  });
+};
+
 export const uploadSharedWorld = async (
   pending: PendingWorldShare,
   onProgress?: (progress: TransferProgress) => void,
+  onStage?: (stage: WorldUploadStage) => void,
 ): Promise<string> => {
+  onStage?.('reserving');
+
   pending.reservation ??= await requestJson<SharedWorldUploadReservation>(
     '/api/game-worlds',
     {
@@ -169,14 +204,22 @@ export const uploadSharedWorld = async (
 
   let reservation = pending.reservation;
   const { worldId, writeToken } = reservation;
+  let reportedBytes = Math.min(
+    pending.nextChunkIndex * reservation.chunkSize,
+    pending.world.size,
+  );
 
-  onProgress?.({
-    loaded: Math.min(
-      pending.nextChunkIndex * reservation.chunkSize,
-      pending.world.size,
-    ),
-    total: pending.world.size,
-  });
+  onProgress?.({ loaded: reportedBytes, total: pending.world.size });
+  onStage?.('uploading');
+
+  const reportProgress = (loaded: number) => {
+    if (loaded <= reportedBytes) {
+      return;
+    }
+
+    reportedBytes = loaded;
+    onProgress?.({ loaded, total: pending.world.size });
+  };
 
   const send = async (request: () => Promise<Response>): Promise<Response> => {
     const response = await request();
@@ -205,21 +248,19 @@ export const uploadSharedWorld = async (
     const end = Math.min(start + reservation.chunkSize, pending.world.size);
 
     await send(() =>
-      fetch(
+      uploadWorldChunk(
         reservation.chunkUrlTemplate.replace('{chunkIndex}', String(index)),
-        {
-          method: 'PUT',
-          body: pending.world.slice(start, end),
-          headers: {
-            'content-range': `bytes ${start}-${end - 1}/${pending.world.size}`,
-          },
-        },
+        pending.world.slice(start, end),
+        `bytes ${start}-${end - 1}/${pending.world.size}`,
+        (loaded) => reportProgress(start + loaded),
       ),
     );
 
     pending.nextChunkIndex += 1;
-    onProgress?.({ loaded: end, total: pending.world.size });
+    reportProgress(end);
   }
+
+  onStage?.('finalizing');
 
   await send(() => fetch(reservation.completeUrl, { method: 'POST' }));
 
