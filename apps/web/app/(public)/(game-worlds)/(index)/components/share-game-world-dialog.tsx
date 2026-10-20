@@ -1,5 +1,6 @@
+import { useMutation } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
 import { exportGameWorldDatabase } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
@@ -27,20 +28,15 @@ export const ShareGameWorldDialog = ({
   isOpen: boolean;
   onClose: () => void;
 }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string>();
-  const [shareUrl, setShareUrl] = useState<string>();
   const pending = useRef<PendingWorldShare | null>(null);
-  const inProgress = useRef(false);
 
-  const share = async () => {
-    if (inProgress.current) {
-      return;
-    }
-    inProgress.current = true;
-    setIsUploading(true);
-    setError(undefined);
-    try {
+  const {
+    mutate: share,
+    data: shareUrl,
+    error,
+    isPending: isUploading,
+  } = useMutation<string, Error>({
+    mutationFn: async () => {
       pending.current ??= {
         world: new Blob([await exportGameWorldDatabase(server)], {
           type: 'application/vnd.sqlite3',
@@ -48,37 +44,33 @@ export const ShareGameWorldDialog = ({
         filename: `${server.slug}.sqlite3`,
         nextChunkIndex: 0,
       };
+
       const worldId = await uploadSharedWorld(pending.current);
       const url = new URL('/game-worlds/import', window.location.origin);
+
       url.searchParams.set('world-id', worldId);
-      setShareUrl(url.toString());
+
+      return url.toString();
+    },
+    onSuccess: () => {
       pending.current = null;
-    } catch (uploadError) {
-      setError(
-        uploadError instanceof Error
-          ? uploadError.message
-          : 'Unable to share game world.',
-      );
-    } finally {
-      inProgress.current = false;
-      setIsUploading(false);
-    }
-  };
+    },
+  });
 
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => !open && !inProgress.current && onClose()}
+      onOpenChange={(open) => !open && !isUploading && onClose()}
     >
       <DialogContent
         closeDisabled={isUploading}
         onInteractOutside={(event) => {
-          if (inProgress.current) {
+          if (isUploading) {
             event.preventDefault();
           }
         }}
         onEscapeKeyDown={(event) => {
-          if (inProgress.current) {
+          if (isUploading) {
             event.preventDefault();
           }
         }}
@@ -97,7 +89,7 @@ export const ShareGameWorldDialog = ({
             role="alert"
             className="text-sm text-destructive"
           >
-            {error}
+            {error.message}
           </p>
         )}
         {shareUrl ? (
@@ -133,10 +125,7 @@ export const ShareGameWorldDialog = ({
               </Button>
               <Button
                 variant="outline"
-                onClick={() => {
-                  setShareUrl(undefined);
-                  void share();
-                }}
+                onClick={() => share()}
               >
                 Upload a new copy
               </Button>
@@ -145,7 +134,7 @@ export const ShareGameWorldDialog = ({
         ) : (
           <Button
             disabled={isUploading}
-            onClick={() => void share()}
+            onClick={() => share()}
           >
             {isUploading
               ? 'Uploading game world...'
