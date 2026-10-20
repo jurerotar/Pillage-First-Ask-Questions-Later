@@ -1,6 +1,7 @@
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import { expect, test, vi } from 'vitest';
 import { createApp } from '../app.ts';
 import type { AppConfig } from '../config.ts';
@@ -15,7 +16,7 @@ const sqliteFile = Buffer.concat([
   Buffer.alloc(512),
 ]);
 
-const createTestApp = async () => {
+const createTestApp = async (overrides: Partial<AppConfig> = {}) => {
   const dataDirectory = await mkdtemp(join(tmpdir(), 'pillage-remote-api-'));
 
   const config: AppConfig = {
@@ -28,6 +29,7 @@ const createTestApp = async () => {
     publicBaseUrl: 'https://api.example.test',
     uploadLinkTtlMinutes: 60,
     uploadUrlSecret: 's'.repeat(32),
+    ...overrides,
   };
 
   const store = await Store.create(dataDirectory);
@@ -43,6 +45,63 @@ const createTestApp = async () => {
     },
   };
 };
+
+test('previews an uploaded world without claiming it, then invalidates the preview after import', async () => {
+  await using testApp = await createTestApp({
+    maxChunkBytes: 65_536,
+    maxFileBytes: 65_536,
+    maxReportBytes: 65_536,
+  });
+
+  const { app, dataDirectory, store } = testApp;
+  const path = join(dataDirectory, 'preview-test.sqlite3');
+
+  {
+    using database = new DatabaseSync(path);
+
+    database.exec(`
+      CREATE TABLE servers (name TEXT, version TEXT, speed INTEGER, map_size INTEGER, player_name TEXT, player_tribe TEXT);
+      INSERT INTO servers VALUES ('UnicornBorough', '0.4.74', 3, 200, 'Explorer', 'gauls');
+    `);
+  }
+
+  const contents = await readFile(path);
+  const share = await uploadSharedWorld(app, contents);
+  const previewPath = `/api/game-worlds/${share.worldId}`;
+
+  expect((await app.request(previewPath)).status).toBe(404);
+
+  await app.request(share.completeUrl, { method: 'POST' });
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const response = await app.request(previewPath);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      name: 'UnicornBorough',
+      version: '0.4.74',
+      speed: 3,
+      mapSize: 200,
+      playerName: 'Explorer',
+      tribe: 'gauls',
+      size: contents.length,
+    });
+  }
+
+  const headers = { authorization: `Bearer ${'token'.repeat(8)}` };
+  const download = await app.request(`${previewPath}/download`, {
+    method: 'POST',
+    headers,
+  });
+
+  expect(download.status).toBe(200);
+  expect(Buffer.from(await download.arrayBuffer())).toEqual(contents);
+  expect(store.getWorld(share.worldId)).toBeDefined();
+
+  await app.request(previewPath, { method: 'DELETE', headers });
+
+  expect((await app.request(previewPath)).status).toBe(404);
+});
 
 const uploadSharedWorld = async (
   app: ReturnType<typeof createApp>,
@@ -108,6 +167,7 @@ test('shares a world separately from reports, claims it on confirmation, and del
   const response = await download();
 
   expect(response.status).toBe(200);
+  expect(response.headers.get('x-world-size')).toBe(String(sqliteFile.length));
   expect(response.headers.get('content-length')).toBe(
     String(sqliteFile.length),
   );
@@ -206,6 +266,9 @@ test('expires shared worlds after 24 hours and cleans up completed and pending u
 
     expect(download.status).toBe(404);
     expect(renewal.status).toBe(401);
+    expect(
+      (await app.request(`/api/game-worlds/${completed.worldId}`)).status,
+    ).toBe(404);
 
     await cleanupExpiredWorlds(config, store);
     await cleanupExpiredWorlds(config, store);

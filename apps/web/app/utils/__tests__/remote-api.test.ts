@@ -9,7 +9,10 @@ vi.mock('@pillage-first/utils/env', () => ({
   env: { VITE_API_URL: 'https://api.example.test' },
 }));
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
 
 test('renews expired signed URLs and resumes uploads after a failed chunk', async () => {
   const reservation = {
@@ -66,6 +69,8 @@ test('renews expired signed URLs and resumes uploads after a failed chunk', asyn
 test.each([true, false])(
   'reports streamed download progress with a known total: %s',
   async (hasTotal) => {
+    vi.spyOn(performance, 'now').mockReturnValue(0);
+
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
         controller.enqueue(new Uint8Array([1, 2]));
@@ -91,11 +96,77 @@ test.each([true, false])(
     expect([...new Uint8Array(buffer)]).toEqual([1, 2, 3, 4, 5]);
     expect(onProgress.mock.calls.map(([progress]) => progress)).toEqual([
       { loaded: 0, total: hasTotal ? 5 : null },
-      { loaded: 2, total: hasTotal ? 5 : null },
       { loaded: 5, total: hasTotal ? 5 : null },
     ]);
   },
 );
+
+test('throttles download updates while keeping progress monotonic and reporting completion', async () => {
+  let now = 0;
+  let remaining = 10;
+
+  vi.spyOn(performance, 'now').mockImplementation(() => {
+    now += 40;
+
+    return now;
+  });
+
+  const stream = new ReadableStream<Uint8Array>({
+    pull(controller) {
+      if (remaining === 0) {
+        controller.close();
+
+        return;
+      }
+
+      controller.enqueue(new Uint8Array([remaining]));
+      remaining -= 1;
+    },
+  });
+  const onProgress = vi.fn();
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue(
+      new Response(stream, {
+        headers: { 'content-length': '10' },
+      }),
+    ),
+  );
+
+  await downloadSharedWorld('shared-world', 'download-token', onProgress);
+
+  const loaded = onProgress.mock.calls.map(([progress]) => progress.loaded);
+
+  expect(loaded[0]).toBe(0);
+  expect(loaded.at(-1)).toBe(10);
+  expect(loaded.length).toBeGreaterThan(2);
+  expect(loaded.length).toBeLessThan(11);
+  expect(
+    loaded.every((value, index) => index === 0 || value > loaded[index - 1]),
+  ).toBe(true);
+});
+
+test('uses the original file size for progress when the response is compressed', async () => {
+  const onProgress = vi.fn();
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue(
+      new Response(new Uint8Array(100), {
+        headers: {
+          'x-world-size': '100',
+          'content-length': '20',
+          'content-encoding': 'gzip',
+        },
+      }),
+    ),
+  );
+
+  await downloadSharedWorld('shared-world', 'download-token', onProgress);
+
+  expect(onProgress).toHaveBeenLastCalledWith({ loaded: 100, total: 100 });
+});
 
 test('propagates a failed download stream instead of importing partial bytes', async () => {
   const stream = new ReadableStream<Uint8Array>({

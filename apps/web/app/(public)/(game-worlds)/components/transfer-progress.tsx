@@ -5,9 +5,11 @@ import type { TransferProgress } from 'app/utils/remote-api';
 export const GameWorldTransferProgress = ({
   label,
   progress,
+  showProgressText = true,
 }: {
   label: string;
   progress: TransferProgress | null;
+  showProgressText?: boolean;
 }) => {
   const percentage = progress?.total
     ? Math.min(100, Math.floor((progress.loaded / progress.total) * 100))
@@ -17,12 +19,13 @@ export const GameWorldTransferProgress = ({
     <div className="grid gap-2">
       <p
         role="status"
-        className="text-sm text-muted-foreground"
+        className="text-sm text-muted-foreground tabular-nums"
       >
         {clsx(
           label,
-          percentage !== null && `${percentage}%`,
-          progress &&
+          showProgressText && percentage !== null && `${percentage}%`,
+          showProgressText &&
+            progress &&
             percentage === null &&
             `(${(progress.loaded / 1024 / 1024).toFixed(1)} MiB received)`,
         )}

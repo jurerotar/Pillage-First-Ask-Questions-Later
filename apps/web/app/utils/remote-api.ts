@@ -49,6 +49,29 @@ export type TransferProgress = {
   total: number | null;
 };
 
+export type SharedWorldPreview = {
+  name: string;
+  version: string;
+  speed: number;
+  mapSize: number;
+  playerName: string;
+  tribe: string;
+  size: number;
+};
+
+export const getSharedWorldPreview = async (
+  worldId: string,
+  signal?: AbortSignal,
+): Promise<SharedWorldPreview> => {
+  return requestJson<SharedWorldPreview>(
+    `/api/game-worlds/${encodeURIComponent(worldId)}`,
+    {
+      method: 'GET',
+      signal,
+    },
+  );
+};
+
 export const downloadSharedWorld = async (
   worldId: string,
   token: string,
@@ -58,7 +81,10 @@ export const downloadSharedWorld = async (
     `/api/game-worlds/${encodeURIComponent(worldId)}/download`,
     { method: 'POST', headers: { authorization: `Bearer ${token}` } },
   );
-  const size = Number(response.headers.get('content-length'));
+  const size = Number(
+    response.headers.get('x-world-size') ??
+      response.headers.get('content-length'),
+  );
   const total = Number.isSafeInteger(size) && size > 0 ? size : null;
 
   onProgress({ loaded: 0, total });
@@ -74,6 +100,20 @@ export const downloadSharedWorld = async (
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let loaded = 0;
+  let reportedBytes = 0;
+  let reportedAt = performance.now();
+
+  const reportProgress = (force = false) => {
+    const now = performance.now();
+
+    if (loaded === reportedBytes || (!force && now - reportedAt < 100)) {
+      return;
+    }
+
+    reportedBytes = loaded;
+    reportedAt = now;
+    onProgress({ loaded, total });
+  };
 
   try {
     while (true) {
@@ -85,7 +125,7 @@ export const downloadSharedWorld = async (
 
       chunks.push(value);
       loaded += value.byteLength;
-      onProgress({ loaded, total });
+      reportProgress();
     }
   } finally {
     reader.releaseLock();
@@ -98,6 +138,8 @@ export const downloadSharedWorld = async (
     buffer.set(chunk, offset);
     offset += chunk.byteLength;
   }
+
+  reportProgress(true);
 
   return buffer.buffer;
 };

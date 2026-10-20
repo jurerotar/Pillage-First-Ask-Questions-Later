@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
@@ -34,6 +34,7 @@ import { pushGameWorldImported } from 'app/instrumentation/product-events';
 import { invalidateQueries } from 'app/utils/react-query';
 import {
   downloadSharedWorld,
+  getSharedWorldPreview,
   remoteRequest,
   type TransferProgress,
 } from 'app/utils/remote-api';
@@ -94,9 +95,6 @@ const ImportGameWorld = () => {
         return importDatabase(await source.arrayBuffer());
       }
 
-      setProgress(null);
-      setImportStage('downloading');
-
       const download: WorldDownload = downloads.current.get(source) ?? {
         token: crypto.randomUUID(),
       };
@@ -109,6 +107,9 @@ const ImportGameWorld = () => {
         return download.imported;
       }
 
+      setProgress(null);
+      setImportStage('downloading');
+
       const buffer = await downloadSharedWorld(
         source,
         download.token,
@@ -116,7 +117,7 @@ const ImportGameWorld = () => {
       );
 
       setImportStage('importing');
-      setProgress(null);
+      setProgress({ loaded: buffer.byteLength, total: buffer.byteLength });
 
       download.imported = await importDatabase(buffer);
 
@@ -154,6 +155,14 @@ const ImportGameWorld = () => {
 
       await navigate(`/game/${server.slug}/v-1/resources`);
     },
+  });
+
+  const worldPreview = useQuery({
+    queryKey: ['shared-world-preview', worldId],
+    queryFn: ({ signal }) => getSharedWorldPreview(worldId!, signal),
+    enabled: !!worldId,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   const remoteImportError = typeof importSource === 'string' ? error : null;
@@ -244,8 +253,67 @@ const ImportGameWorld = () => {
                   and this link will no longer work.
                 </DialogDescription>
               </DialogHeader>
-              {remoteImportError && (
-                <Alert variant="error">{remoteImportError.message}</Alert>
+              {worldPreview.isPending && (
+                <p
+                  role="status"
+                  className="text-sm text-muted-foreground"
+                >
+                  Loading game world details...
+                </p>
+              )}
+              {worldPreview.data && (
+                <div className="grid gap-3 rounded-md border p-3">
+                  <p className="font-medium break-words">
+                    {worldPreview.data.name}
+                  </p>
+                  <dl className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <dt className="text-muted-foreground">Player</dt>
+                      <dd className="break-words">
+                        {worldPreview.data.playerName}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Tribe</dt>
+                      <dd className="capitalize">{worldPreview.data.tribe}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Speed</dt>
+                      <dd>{worldPreview.data.speed}x</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Map size</dt>
+                      <dd>
+                        {worldPreview.data.mapSize} ×{' '}
+                        {worldPreview.data.mapSize}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Version</dt>
+                      <dd>{worldPreview.data.version}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Download size</dt>
+                      <dd>
+                        {(worldPreview.data.size / 1024 / 1024).toFixed(1)} MiB
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              )}
+              {(remoteImportError || worldPreview.error) && (
+                <Alert variant="error">
+                  {remoteImportError?.message ?? worldPreview.error?.message}
+                </Alert>
+              )}
+              {worldPreview.isError && !isImporting && (
+                <Button
+                  variant="outline"
+                  disabled={worldPreview.isFetching}
+                  onClick={() => void worldPreview.refetch()}
+                >
+                  Retry loading details
+                </Button>
               )}
               {isImporting && typeof importSource === 'string' && (
                 <GameWorldTransferProgress
@@ -257,6 +325,7 @@ const ImportGameWorld = () => {
                         : 'Finishing import...'
                   }
                   progress={progress}
+                  showProgressText={importStage === 'downloading'}
                 />
               )}
               <DialogFooter>
@@ -268,7 +337,12 @@ const ImportGameWorld = () => {
                   Cancel
                 </Button>
                 <Button
-                  disabled={isImporting || !worldId}
+                  disabled={
+                    isImporting ||
+                    !worldId ||
+                    (!downloads.current.get(worldId)?.registered &&
+                      (worldPreview.isPending || worldPreview.isError))
+                  }
                   onClick={() => {
                     if (worldId) {
                       startImport(worldId);
