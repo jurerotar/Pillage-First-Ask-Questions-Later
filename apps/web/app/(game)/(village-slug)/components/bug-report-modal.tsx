@@ -52,11 +52,11 @@ type PendingUpload = {
 };
 
 const getBugReporterUrl = (pathname: string): URL => {
-  if (!env.VITE_BUG_REPORTER_API_URL) {
+  if (!env.VITE_API_URL) {
     throw new Error('Bug reporting is not configured.');
   }
 
-  return new URL(pathname, env.VITE_BUG_REPORTER_API_URL);
+  return new URL(pathname, env.VITE_API_URL);
 };
 
 const getErrorMessage = async (response: Response): Promise<string> => {

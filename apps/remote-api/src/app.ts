@@ -89,7 +89,11 @@ const signedValue = (uploadId: string, expiresAt: number): string =>
 
 const chunkIndexPlaceholder = 'chunk-index-placeholder';
 
-const getSignedUrls = (config: AppConfig, report: Report, upload: Upload) => {
+const getSignedUrls = (
+  config: AppConfig,
+  report: { uploadExpiresAt: number | null },
+  upload: Upload,
+) => {
   const now = Date.now();
   const reportExpiration = report.uploadExpiresAt ?? Number.MAX_SAFE_INTEGER;
   const expiresAt = Math.min(now + signedUrlLifetimeMs, reportExpiration);
@@ -172,9 +176,13 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     const path = context.req.path;
     const reportMatch = /^\/api\/(?:admin\/)?reports\/([^/]+)/.exec(path);
     const uploadMatch = /^\/api\/uploads\/([^/]+)/.exec(path);
+    const worldMatch = /^\/api\/game-worlds\/([^/]+)/.exec(path);
+    const upload = uploadMatch ? store.getUpload(uploadMatch[1]) : undefined;
     const reportId =
       reportMatch?.[1] ??
-      (uploadMatch ? store.getUpload(uploadMatch[1])?.reportId : undefined);
+      worldMatch?.[1] ??
+      upload?.reportId ??
+      upload?.worldId;
     if (!reportId || context.req.method === 'GET') {
       await next();
       return;
@@ -248,6 +256,128 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
   };
 
   app.get('/health', (context) => context.json({ status: 'ok' }));
+
+  app.post('/api/game-worlds', async (context) => {
+    if (isRateLimited(context.req.raw, 'world-share', 5)) {
+      return context.json(
+        error('Too many world uploads from this address.'),
+        429,
+      );
+    }
+    const body: unknown = await context.req.json().catch(() => null);
+    if (!isRecord(body)) {
+      return context.json(error('Request body must be an object.'), 400);
+    }
+    const filename = getString(body, 'filename', 255);
+    const size = getPositiveSafeInteger(body, 'size');
+    if (!filename || !size) {
+      return context.json(error('filename and size are required.'), 400);
+    }
+    if (size > config.maxFileBytes) {
+      return context.json(
+        error('The world file exceeds the per-file limit.'),
+        413,
+      );
+    }
+    const writeToken = createRandomToken();
+    const world = store.createWorld(
+      config.uploadLinkTtlMinutes === 0
+        ? null
+        : Date.now() + config.uploadLinkTtlMinutes * 60_000,
+      hashToken(writeToken),
+    );
+    const upload = store.createUpload({
+      expectedBytes: size,
+      originalName: filename,
+      worldId: world.id,
+    })!;
+    try {
+      await (await open(getUploadPaths(config, upload).staging, 'wx')).close();
+    } catch {
+      store.deleteWorld(world.id);
+      return context.json(error('Unable to reserve upload storage.'), 500);
+    }
+    return context.json(
+      {
+        worldId: world.id,
+        writeToken,
+        chunkSize: config.maxChunkBytes,
+        ...getSignedUrls(config, world, upload),
+      },
+      201,
+    );
+  });
+
+  app.post('/api/game-worlds/:worldId/upload-url', (context) => {
+    const world = store.getWorld(context.req.param('worldId'));
+    const token = getBearerToken(context.req.raw);
+    const upload = world && store.getUploadForWorld(world.id);
+    if (
+      !world ||
+      !token ||
+      !upload ||
+      !isTokenValid(world.writeTokenHash, hashToken(token)) ||
+      (world.uploadExpiresAt !== null && world.uploadExpiresAt <= Date.now())
+    ) {
+      return context.json(
+        error('Invalid or expired world upload capability.'),
+        401,
+      );
+    }
+    return context.json({
+      chunkSize: config.maxChunkBytes,
+      ...getSignedUrls(config, world, upload),
+    });
+  });
+
+  // Confirmation uses POST; link previews and crawlers cannot claim a world.
+  app.post('/api/game-worlds/:worldId/download', (context) => {
+    const worldId = context.req.param('worldId');
+    const upload = store.getUploadForWorld(worldId);
+    if (upload?.status !== 'complete') {
+      return context.json(
+        error('This game world is unavailable or has already been imported.'),
+        404,
+      );
+    }
+    const token = getBearerToken(context.req.raw);
+    if (!token || token.length < 32 || token.length > 128) {
+      return context.json(error('A download token is required.'), 400);
+    }
+    if (!store.claimWorld(worldId, hashToken(token))) {
+      return context.json(
+        error(
+          'This game world is being imported on another device. Try again in 15 minutes.',
+        ),
+        409,
+      );
+    }
+    context.header('Content-Type', 'application/vnd.sqlite3');
+    return context.body(
+      Readable.toWeb(
+        createReadStream(getUploadPaths(config, upload).completed),
+      ) as ReadableStream,
+    );
+  });
+
+  app.delete('/api/game-worlds/:worldId', async (context) => {
+    const worldId = context.req.param('worldId');
+    if (!store.getWorld(worldId)) {
+      return context.body(null, 204);
+    }
+    const token = getBearerToken(context.req.raw);
+    if (!token || !store.ownsWorldClaim(worldId, hashToken(token))) {
+      return context.json(error('Invalid download capability.'), 401);
+    }
+    const upload = store.getUploadForWorld(worldId);
+    if (upload) {
+      const paths = getUploadPaths(config, upload);
+      await rm(paths.completed, { force: true });
+      await rm(paths.staging, { force: true });
+    }
+    store.deleteWorld(worldId);
+    return context.body(null, 204);
+  });
 
   app.post('/api/reports', async (context) => {
     if (isRateLimited(context.req.raw, 'report', 5)) {

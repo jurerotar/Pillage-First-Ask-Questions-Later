@@ -42,7 +42,9 @@ We're following [React Router 7 conventions](https://reactrouter.com/dev/guides/
 The admin frontend is available at `/bugs`, with report details at `/bugs/reports/:reportId`.
 Run `npm run dev --workspace=@pillage-first/web` and open `http://localhost:5173/bugs`.
 
-Set `VITE_BUG_REPORTER_API_URL` in the web app environment to the bug reporter service URL (`https://bugs.pillagefirst.com` for production).
+Set `VITE_API_URL` in the web app environment to the game API service URL (`https://api.pillagefirst.com` for production).
+
+The same service handles game world sharing. In a world's actions menu, choose **Share game world**, upload it, then copy the import link or scan its QR code on another device. The `/game-worlds/import?world-id=...` page requires confirmation before downloading. After the world has been imported and registered locally, its remote copy is deleted. If deletion fails, **Finish sharing** retries cleanup without importing a second local copy.
 This is the same setting used for submitting in-game bug reports. Sign in using the service's `API_TOKEN`.
 The token is remembered in local storage on the web app origin until sign-out. A token saved on the former standalone frontend origin is not transferred; sign in again.
 
