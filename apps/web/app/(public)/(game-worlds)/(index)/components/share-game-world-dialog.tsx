@@ -87,19 +87,55 @@ export const ShareGameWorldDialog = ({
           <DialogDescription>
             {shareUrl ? (
               <>
-                {server.name} is ready to share. Open the link or scan the QR
-                code on another device to import it. Anyone with the link can
-                import it once. The uploaded copy is deleted after import or 24
-                hours.
+                Game world is ready to share. Open the link or scan the QR code
+                on another device to import it. Anyone with the link can import
+                it once. The uploaded copy is deleted after import or 24 hours.
               </>
             ) : (
               <>
-                Upload {server.name} to continue on another device. Close any
-                open instance of this world before uploading.
+                Upload game world to continue on another device. Close any open
+                instance of this world before uploading.
               </>
             )}
           </DialogDescription>
         </DialogHeader>
+        {!shareUrl && (
+          <section
+            aria-label="Game world details"
+            className="grid gap-3 rounded-md border p-3"
+          >
+            <p className="font-medium break-words">{server.name}</p>
+            <dl className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <dt className="text-muted-foreground">Player</dt>
+                <dd className="break-words">
+                  {server.playerConfiguration.name}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Tribe</dt>
+                <dd className="capitalize">
+                  {server.playerConfiguration.tribe}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Speed</dt>
+                <dd>{server.configuration.speed}x</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Map size</dt>
+                <dd>
+                  {server.configuration.mapSize} ×{' '}
+                  {server.configuration.mapSize}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Version</dt>
+                <dd>{server.version}</dd>
+              </div>
+            </dl>
+          </section>
+        )}
         {error && (
           <p
             role="alert"
