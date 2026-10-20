@@ -16,24 +16,30 @@ export const GameWorldTransferProgress = ({
     : null;
 
   return (
-    <div className="grid gap-2">
+    <div className="grid min-w-0 gap-2">
       <p
         role="status"
-        className="text-sm text-muted-foreground tabular-nums"
+        className="flex h-5 min-w-0 items-center gap-2 text-sm text-muted-foreground"
       >
-        {clsx(
-          label,
-          showProgressText && percentage !== null && `${percentage}%`,
-          showProgressText &&
-            progress &&
-            percentage === null &&
-            `(${(progress.loaded / 1024 / 1024).toFixed(1)} MiB received)`,
-        )}
+        <span
+          className="min-w-0 flex-1 truncate"
+          title={label}
+        >
+          {label}
+        </span>
+        <span className="w-24 shrink-0 text-right tabular-nums">
+          {clsx(
+            showProgressText && percentage !== null && `${percentage}%`,
+            showProgressText &&
+              progress &&
+              percentage === null &&
+              `${(progress.loaded / 1024 / 1024).toFixed(1)} MiB`,
+          )}
+        </span>
       </p>
       <Progress
         value={percentage}
         aria-label={label}
-        className={percentage === null ? 'animate-pulse' : undefined}
       />
     </div>
   );
