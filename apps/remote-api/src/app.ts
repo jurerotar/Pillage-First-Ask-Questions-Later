@@ -282,7 +282,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
   app.get('/health', (context) => context.json({ status: 'ok' }));
 
   app.post('/api/game-worlds', async (context) => {
-    if (isRateLimited(context.req.raw, 'world-share', 5)) {
+    if (isRateLimited(context.req.raw, 'world-share', 10)) {
       return context.json(
         error('Too many world uploads from this address.'),
         429,
