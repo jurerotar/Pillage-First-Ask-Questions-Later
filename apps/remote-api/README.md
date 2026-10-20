@@ -1,104 +1,56 @@
-﻿# @pillage-first/remote-api
+# @pillage-first/remote-api
 
-This app contains the game API for Pillage First!, supporting bug reports and one-time game world sharing between devices. Each report can include one exported SQLite game world. The service uses the `@pillage-first/remote-api` workspace and `deploy-remote-api.yml` deployment workflow.
+API for bug reports and one-time game world sharing.
 
-## Local setup
+## Configuration
 
-Copy `.env.example` to `.env` inside `apps/remote-api` and configure these values:
+The API will not start without these environment variables:
 
-- `UPLOAD_URL_SECRET`, `API_TOKEN` - Random secrets, each at least 32 characters long.
-- `APP_DATA_DIRECTORY` - Absolute path to a writable directory outside this repository. This directory contains the database and uploaded files.
+| Variable | Value |
+| --- | --- |
+| `API_TOKEN` | Required admin sign-in token; random, at least 32 characters |
+| `UPLOAD_URL_SECRET` | Required signing secret; random, at least 32 characters |
+| `APP_DATA_DIRECTORY` | Writable absolute path outside the app directory, e.g. `/home/ACCOUNT/remote-api-data` |
+| `PUBLIC_BASE_URL` | `https://api.pillagefirst.com` in production |
 
-Run these commands from the repository root:
+Set `ALLOWED_ORIGIN` to a comma-separated list of allowed browser origins, e.g. `https://pillagefirst.com,http://localhost:5173`. Origins match exactly, including scheme and port; use no trailing slash. A single origin still works. Set `VITE_API_URL=https://api.pillagefirst.com` in the web deployment environment. Keep both secrets on the API server; never expose them through `VITE_` variables.
+
+Optional settings and defaults are in [.env.example](.env.example): 250 MiB per file/report, 8 MiB chunks, and 24-hour upload authorization. `UPLOAD_LINK_TTL_MINUTES=0` disables upload authorization expiry.
+
+## Local development
+
+Copy `.env.example` to `.env`, replace the secrets, and use local URLs and a local data directory. From the repository root:
 
 ```sh
 npm install
 npm run remote-api --workspace=@pillage-first/remote-api
-```
-
-Set `VITE_API_URL` in the web app to the URL of this service.
-
-### Checks
-
-```sh
 npm run type-check --workspace=@pillage-first/remote-api
-npm run test --workspace=@pillage-first/remote-api
+npm run test --workspace=@pillage-first/remote-api -- --run
 ```
-
-## API
-
-1. Create a report with `POST /api/reports`, passing `title`, `description` and optional `contact`. The response contains `reportId` and `writeToken`. Keep the token in memory.
-2. Create its upload with `POST /api/reports/:reportId/world`, passing `filename` and `size`. Use `Authorization: Bearer <writeToken>`.
-3. Upload chunks with `PUT` to the returned `chunkUrlTemplate`, replacing `{chunkIndex}` with the chunk index. Use the returned `chunkSize` and send `Content-Length` and `Content-Range: bytes start-end/total`.
-4. Finish the upload with `POST` to the returned `completeUrl`.
-
-Upload URLs expire after 15 minutes. Request new URLs with `POST /api/reports/:reportId/world/upload-url`, using the same write token.
-`UPLOAD_LINK_TTL_MINUTES` controls how long the write token remains valid. Set it to `0` to disable expiry.
-
-Download a game world with `GET /api/admin/reports/:reportId/world`, using `Authorization: Bearer <API_TOKEN>`.
-
-### Report administration
-
-All admin endpoints require `Authorization: Bearer <API_TOKEN>`:
-
-- `GET /api/admin/reports` - List reports, newest first.
-- `GET /api/admin/reports/:reportId` - View report details and upload information.
-- `POST /api/admin/reports/:reportId/close` - Close a report. Closed reports and their files remain available.
-- `DELETE /api/admin/reports/:reportId` - Delete a report and its pending or completed world upload.
-
-The admin frontend is available at `/bugs` in the [main web app](../web/README.md#bug-report-administration). Set `ALLOWED_ORIGIN` to the web app origin for both report submissions and administration.
-
-### Game world sharing
-
-1. Reserve an upload with `POST /api/game-worlds`, passing `filename` and `size`. The response contains `worldId`, `writeToken`, `chunkSize`, `chunkUrlTemplate`, and `completeUrl`.
-2. Upload and finalize chunks using the same protocol as report attachments. Renew signed URLs with `POST /api/game-worlds/:worldId/upload-url` using the write token.
-3. Share the web app URL `/game-worlds/import?world-id=<worldId>`. The world ID grants access to this copy; share it only with the intended recipient.
-4. After explicit confirmation, the recipient generates a random download token (32–128 characters) and sends `POST /api/game-worlds/:worldId/download` with `Authorization: Bearer <downloadToken>`. The response is the SQLite file. GET requests do not download or claim worlds.
-5. Import and register the world locally, then send `DELETE /api/game-worlds/:worldId` with the same download token. This deletes the file, chunks, and metadata, invalidating the link. Deletion is idempotent.
-
-Downloading claims the world for 15 minutes, preventing concurrent downloads with different tokens. The same token can retry interrupted downloads. If a device abandons an import, another device can claim it after the lease expires. Failed imports keep the remote copy available for retry. Completed uploads remain available until deletion; `UPLOAD_LINK_TTL_MINUTES` limits upload authorization only. Shared worlds do not appear in the bug report administration UI.
-
-Deploy the API before the web app. Use a new application directory and an empty data directory; existing bug reporter files do not need to be migrated.
-
-### Upload limits
-
-The default limit is 250 MiB per file and report, with 8 MiB chunks. Use `MAX_FILE_BYTES`, `MAX_REPORT_BYTES` and `MAX_CHUNK_BYTES` to change these limits.
-
-The app checks uploaded files for the SQLite 3 header and rate-limits requests by IP address. Configure Apache to overwrite `X-Forwarded-For` with the actual client address before proxying requests.
 
 ## cPanel deployment
 
-Create a Node.js 24.10 application for `api.pillagefirst.com` with these settings:
-
-- Application root - `/home/ACCOUNT/remote-api/current`, pointing to the current release.
-- Startup file - `apps/remote-api/src/server.ts`.
-- Environment variables - Values from `.env.example`, configured through cPanel.
-- `APP_DATA_DIRECTORY` - A writable directory outside the releases and `public_html`, for example `/home/ACCOUNT/remote-api-data`.
-- `PUBLIC_BASE_URL` - `https://api.pillagefirst.com`.
-- `ALLOWED_ORIGIN` - Public game URL, for example `https://pillagefirst.com`.
-
-Add these GitHub Actions secrets:
-
-| Secret | Value |
+| Setting | Value |
 | --- | --- |
-| `CPANEL_SSH_HOST` | SSH host, including `user@` if needed |
-| `CPANEL_SSH_PORT` | SSH port |
-| `CPANEL_SSH_PRIVATE_KEY` | Deploy key with access to the application directory |
-| `CPANEL_SSH_KNOWN_HOSTS` | SSH host's `known_hosts` entry |
-| `CPANEL_DEPLOY_PATH` | Application parent directory, for example `/home/ACCOUNT/remote-api` |
+| Node.js | 24.18 or newer, Production mode |
+| Application root | `remote-api`, relative to `/home/ACCOUNT` |
+| Application URL | `api.pillagefirst.com`, no path suffix |
+| Startup file | `current/apps/remote-api/src/server.ts` |
 
-Set the web deployment environment variable `VITE_API_URL=https://api.pillagefirst.com` and update `CPANEL_DEPLOY_PATH` to the new application directory.
+Configure the environment variables above in cPanel, including **`API_TOKEN` and `UPLOAD_URL_SECRET`**. Local `.env` files are not deployed. Keep the application root stable; do not set it to the `current` symlink.
 
-Run **Deploy remote API** from GitHub Actions. It installs production dependencies, updates `current` and restarts the app.
-Uploaded files stay in `APP_DATA_DIRECTORY`. Five previous releases are kept for rollback.
+GitHub Actions requires `CPANEL_SSH_HOST`, `CPANEL_SSH_PORT`, `CPANEL_SSH_PRIVATE_KEY`, `CPANEL_SSH_KNOWN_HOSTS`, and `CPANEL_DEPLOY_PATH=/home/ACCOUNT/remote-api`.
 
-### Rollback
+Run **Deploy remote API** before deploying the web app. It installs dependencies, switches `current`, and restarts the app. Verify `GET /health` returns `{"status":"ok"}`. Existing bug reporter data does not need to be migrated.
 
-Point `current` to a previous release and restart the app:
+To roll back, point `current` to a previous directory under `releases` and touch `remote-api/tmp/restart.txt`. Uploaded files remain in `APP_DATA_DIRECTORY`.
 
-```sh
-cd /home/ACCOUNT/remote-api
-ln -sfn releases/PREVIOUS_COMMIT current.next
-mv -Tf current.next current
-touch current/tmp/restart.txt
-```
+## API
+
+- Bug reports: `POST /api/reports` accepts `title`, `description`, and optional `contact`. Use its `writeToken` to reserve an attachment with `POST /api/reports/:reportId/world`.
+- Sharing: `POST /api/game-worlds` reserves a world upload and returns `worldId`, `writeToken`, and upload URLs. `GET /api/game-worlds/:worldId` previews a completed world's details without claiming it. Shared worlds expire 24 hours after reservation, including unfinished uploads. Expired links stop working immediately; startup cleanup and a sweep every minute remove their files and metadata. Bug report attachments are retained.
+- Both upload reservations accept `filename` and `size`. PUT chunks to `chunkUrlTemplate` using `chunkSize` and `Content-Range: bytes start-end/total`, then POST to `completeUrl`. Signed URLs last 15 minutes; renew with `POST /api/reports/:reportId/world/upload-url` or `POST /api/game-worlds/:worldId/upload-url`, using the write token as a bearer token.
+- Share `/game-worlds/import?world-id=<worldId>`. After confirmation, POST to `/api/game-worlds/:worldId/download` with a random 32?128 character bearer token. This claims the download for 15 minutes; the same token can retry. After successful local import, DELETE `/api/game-worlds/:worldId` using that token. Uploaded copies are deleted after import or 24 hours.
+- Admin UI: `/bugs`, sign in with `API_TOKEN`. Admin routes under `/api/admin/reports` require that token and support listing, details, closing, deletion, and world downloads.
+
+Files must have a SQLite 3 header. Requests are rate limited by IP; configure the proxy to overwrite `X-Forwarded-For` with the actual client address.

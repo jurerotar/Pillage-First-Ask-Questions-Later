@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { LuCopy } from 'react-icons/lu';
 import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
+import { GameWorldTransferProgress } from 'app/(public)/(game-worlds)/components/transfer-progress';
 import { exportGameWorldDatabase } from 'app/(public)/(game-worlds)/hooks/use-game-world-actions';
 import { Button } from 'app/components/ui/button';
 import {
@@ -16,7 +18,9 @@ import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
 import {
   type PendingWorldShare,
+  type TransferProgress,
   uploadSharedWorld,
+  type WorldUploadStage,
 } from 'app/utils/remote-api';
 
 export const ShareGameWorldDialog = ({
@@ -29,6 +33,10 @@ export const ShareGameWorldDialog = ({
   onClose: () => void;
 }) => {
   const pending = useRef<PendingWorldShare | null>(null);
+  const [progress, setProgress] = useState<TransferProgress | null>(null);
+  const [uploadStage, setUploadStage] = useState<
+    'preparing' | WorldUploadStage
+  >('preparing');
 
   const {
     mutate: share,
@@ -37,6 +45,9 @@ export const ShareGameWorldDialog = ({
     isPending: isUploading,
   } = useMutation<string, Error>({
     mutationFn: async () => {
+      setProgress(null);
+      setUploadStage('preparing');
+
       pending.current ??= {
         world: new Blob([await exportGameWorldDatabase(server)], {
           type: 'application/vnd.sqlite3',
@@ -45,7 +56,11 @@ export const ShareGameWorldDialog = ({
         nextChunkIndex: 0,
       };
 
-      const worldId = await uploadSharedWorld(pending.current);
+      const worldId = await uploadSharedWorld(
+        pending.current,
+        setProgress,
+        setUploadStage,
+      );
       const url = new URL('/game-worlds/import', window.location.origin);
 
       url.searchParams.set('world-id', worldId);
@@ -54,6 +69,7 @@ export const ShareGameWorldDialog = ({
     },
     onSuccess: () => {
       pending.current = null;
+      toast.success('Game world uploaded. Ready to share!');
     },
   });
 
@@ -78,10 +94,18 @@ export const ShareGameWorldDialog = ({
         <DialogHeader>
           <DialogTitle>Share game world</DialogTitle>
           <DialogDescription>
-            Upload game world to continue on another device. Close any open
-            instance of this world before uploading. Anyone with the link can
-            import it once. The uploaded copy is deleted after a successful
-            import.
+            {shareUrl ? (
+              <>
+                Game world is ready to share. Open the link or scan the QR code
+                on another device to import it. Anyone with the link can import
+                it once. The uploaded copy is deleted after import or 24 hours.
+              </>
+            ) : (
+              <>
+                Upload game world to continue on another device. Close any open
+                instance of this world before uploading.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
         {!shareUrl && (
@@ -129,6 +153,20 @@ export const ShareGameWorldDialog = ({
             {error.message}
           </p>
         )}
+        {isUploading && (
+          <GameWorldTransferProgress
+            label={
+              uploadStage === 'preparing'
+                ? 'Preparing game world...'
+                : uploadStage === 'reserving'
+                  ? 'Connecting to upload server...'
+                  : uploadStage === 'finalizing'
+                    ? 'Finalizing upload...'
+                    : 'Uploading game world...'
+            }
+            progress={progress}
+          />
+        )}
         {shareUrl ? (
           <div className="flex flex-col items-center gap-4">
             <QRCodeSVG
@@ -138,34 +176,38 @@ export const ShareGameWorldDialog = ({
               title="Scan to import this game world"
               className="max-w-full h-auto"
             />
-            <div className="w-full grid gap-2">
+            <div className="grid w-full min-w-0 gap-2">
               <Label htmlFor={`share-url-${server.id}`}>Download link</Label>
-              <Input
-                id={`share-url-${server.id}`}
-                readOnly
-                value={shareUrl}
-                onFocus={(event) => event.target.select()}
-              />
-              <Button
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(shareUrl);
-                    toast.success('Link copied');
-                  } catch {
-                    toast.error(
-                      'Unable to copy. Select and copy the link above.',
-                    );
-                  }
-                }}
-              >
-                Copy link
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => share()}
-              >
-                Upload a new copy
-              </Button>
+              <div className="relative min-w-0">
+                <Input
+                  id={`share-url-${server.id}`}
+                  className="pr-10"
+                  readOnly
+                  value={shareUrl}
+                  onFocus={(event) => event.target.select()}
+                />
+                <div className="absolute inset-y-0 right-1 flex items-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7!"
+                    aria-label="Copy link"
+                    title="Copy link"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(shareUrl);
+                        toast.success('Link copied');
+                      } catch {
+                        toast.error(
+                          'Unable to copy. Select and copy the link above.',
+                        );
+                      }
+                    }}
+                  >
+                    <LuCopy aria-hidden="true" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         ) : (

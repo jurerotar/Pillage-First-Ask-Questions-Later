@@ -14,6 +14,11 @@ import {
   isTokenValid,
 } from './crypto.ts';
 import type { Report, Store, Upload } from './store.ts';
+import { readWorldPreview } from './world-preview.ts';
+import {
+  isWorldUploadExpired,
+  sharedWorldLifetimeMs,
+} from './world-retention.ts';
 
 const oneHour = 60 * 60 * 1000;
 const signedUrlLifetimeMs = 15 * 60 * 1000;
@@ -93,7 +98,13 @@ const getSignedUrls = (
 ) => {
   const now = Date.now();
   const reportExpiration = report.uploadExpiresAt ?? Number.MAX_SAFE_INTEGER;
-  const expiresAt = Math.min(now + signedUrlLifetimeMs, reportExpiration);
+  const expiresAt = Math.min(
+    now + signedUrlLifetimeMs,
+    reportExpiration,
+    upload.worldId
+      ? upload.createdAt + sharedWorldLifetimeMs
+      : Number.MAX_SAFE_INTEGER,
+  );
   const signature = createSignature(
     config.uploadUrlSecret,
     signedValue(upload.id, expiresAt),
@@ -151,13 +162,14 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     await next();
   });
 
-  if (config.allowedOrigin) {
+  if (config.allowedOrigins?.length) {
     app.use(
       '/api/*',
       cors({
         allowHeaders: ['Authorization', 'Content-Range', 'Content-Type'],
         allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        origin: config.allowedOrigin,
+        exposeHeaders: ['X-World-Size'],
+        origin: config.allowedOrigins,
       }),
     );
   }
@@ -251,6 +263,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
 
     if (
       !upload ||
+      isWorldUploadExpired(upload) ||
       !Number.isSafeInteger(expires) ||
       expires < Date.now() ||
       !signature ||
@@ -334,6 +347,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
       !world ||
       !token ||
       !upload ||
+      isWorldUploadExpired(upload) ||
       !isTokenValid(world.writeTokenHash, hashToken(token)) ||
       (world.uploadExpiresAt !== null && world.uploadExpiresAt <= Date.now())
     ) {
@@ -349,12 +363,37 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     });
   });
 
+  app.get('/api/game-worlds/:worldId', (context) => {
+    const upload = store.getUploadForWorld(context.req.param('worldId'));
+
+    if (upload?.status !== 'complete' || isWorldUploadExpired(upload)) {
+      return context.json(
+        error('This game world is unavailable or has already been imported.'),
+        404,
+      );
+    }
+
+    try {
+      const world = readWorldPreview(getUploadPaths(config, upload).completed);
+
+      return context.json({
+        ...world,
+        size: upload.expectedBytes,
+      });
+    } catch {
+      return context.json(
+        error('Unable to read this game world’s details.'),
+        422,
+      );
+    }
+  });
+
   // Confirmation uses POST; link previews and crawlers cannot claim a world.
   app.post('/api/game-worlds/:worldId/download', (context) => {
     const worldId = context.req.param('worldId');
     const upload = store.getUploadForWorld(worldId);
 
-    if (upload?.status !== 'complete') {
+    if (upload?.status !== 'complete' || isWorldUploadExpired(upload)) {
       return context.json(
         error('This game world is unavailable or has already been imported.'),
         404,
@@ -377,6 +416,8 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     }
 
     context.header('Content-Type', 'application/vnd.sqlite3');
+    context.header('Content-Length', String(upload.expectedBytes));
+    context.header('X-World-Size', String(upload.expectedBytes));
 
     return context.body(
       Readable.toWeb(
