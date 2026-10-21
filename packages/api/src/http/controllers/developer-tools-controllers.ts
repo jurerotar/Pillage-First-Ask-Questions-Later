@@ -1,14 +1,22 @@
 import { snakeCase } from 'moderndash';
 import { z } from 'zod';
+import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
 import { calculateHeroLevel } from '@pillage-first/game-assets/utils/hero';
 import { developerSettingsSchema } from '@pillage-first/types/models/developer-settings';
 import type { GameEventType } from '@pillage-first/types/models/game-event';
 import { resourceSchema } from '@pillage-first/types/models/resource';
+import { culturePointsRequirementSpeedSchema } from '@pillage-first/types/models/server';
 import { materializeHeroAdventurePointsAt } from '../../utils/adventures';
+import {
+  addPlayerCulturePoints,
+  getPlayerCulturePointsRequirementContext,
+  updatePlayerCulturePointsAt,
+} from '../../utils/culture-points';
 import { onHeroDeath } from '../../utils/hero';
 import { adjustLoyalty, createLoyaltyIncreaseEvent } from '../../utils/loyalty';
 import {
   addResourceSiteResourcesAt,
+  getVillagePlayerId,
   getVillageTileId,
   subtractResourceSiteResourcesAt,
 } from '../../utils/village';
@@ -352,4 +360,53 @@ export const adjustVillageLoyalty = createController(
 )(({ database, path: { tileId }, body: { amount } }) => {
   adjustLoyalty(database, tileId, amount);
   createLoyaltyIncreaseEvent(database);
+});
+
+export const increaseCulturePoints = createController(
+  '/developer-settings/:villageId/culture-points',
+  'patch',
+  {
+    summary: 'Increase player culture points',
+    requestParams: {
+      path: z.strictObject({ villageId: z.coerce.number() }),
+    },
+    requestBody: z.strictObject({ mode: z.enum(['add', 'next-level']) }),
+  },
+)(({ database, path: { villageId }, body: { mode } }) => {
+  database.transaction(() => {
+    const playerId = getVillagePlayerId(database, villageId);
+    const now = Date.now();
+
+    if (mode === 'add') {
+      addPlayerCulturePoints(database, 1_000, now, playerId);
+      return;
+    }
+
+    const points = updatePlayerCulturePointsAt(database, now, playerId)!;
+    const { villageCount } = getPlayerCulturePointsRequirementContext(
+      database,
+      playerId,
+    );
+
+    const speed = database.selectValue({
+      sql: 'SELECT culture_points_requirement_speed FROM servers LIMIT 1;',
+      schema: culturePointsRequirementSpeedSchema,
+    })!;
+
+    let targetVillageCount = villageCount + 1;
+    let target = calculateCulturePointsRequirementForVillageCount(
+      targetVillageCount,
+      speed,
+    );
+
+    while (target <= points) {
+      targetVillageCount++;
+      target = calculateCulturePointsRequirementForVillageCount(
+        targetVillageCount,
+        speed,
+      );
+    }
+
+    addPlayerCulturePoints(database, target - points, now, playerId);
+  });
 });

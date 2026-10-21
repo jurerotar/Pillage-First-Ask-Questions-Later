@@ -6,6 +6,7 @@ import {
 import {
   adjustVillageLoyalty,
   getDeveloperSettings,
+  increaseCulturePoints,
   incrementHeroAdventurePoints,
   killHero,
   levelUpHero,
@@ -157,6 +158,7 @@ export const apiRoutes = [
   createRoute(incrementHeroAdventurePoints),
   createRoute(killHero),
   createRoute(adjustVillageLoyalty),
+  createRoute(increaseCulturePoints),
 
   // Auctions
   createRoute(getHeroAuctionBuyListings),

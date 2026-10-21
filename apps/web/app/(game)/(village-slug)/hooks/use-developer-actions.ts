@@ -7,6 +7,7 @@ import { useCurrentVillage } from 'app/(game)/(village-slug)/hooks/current-villa
 import { useHero } from 'app/(game)/(village-slug)/hooks/use-hero';
 import { VillageSlugContext } from 'app/(game)/(village-slug)/providers/village-slug-context';
 import {
+  culturePointsCacheKey,
   currentVillageCacheKey,
   developerSettingsCacheKey,
   effectsCacheKey,
@@ -168,7 +169,24 @@ export const useDeveloperActions = () => {
     },
   );
 
+  const {
+    mutate: increaseCulturePoints,
+    isPending: isIncreasingCulturePoints,
+  } = useMutation<void, Error, 'add' | 'next-level'>({
+    mutationFn: async (mode) => {
+      await apiClient.patch('/developer-settings/:villageId/culture-points', {
+        path: { villageId: currentVillage.id },
+        body: { mode },
+      });
+    },
+    onSuccess: async (_, _args, _onMutateResult, context) => {
+      await invalidateQueries(context, [[culturePointsCacheKey]]);
+    },
+  });
+
   return {
+    increaseCulturePoints,
+    isIncreasingCulturePoints,
     updateDeveloperSetting,
     updateVillageResources,
     spawnHeroItem,

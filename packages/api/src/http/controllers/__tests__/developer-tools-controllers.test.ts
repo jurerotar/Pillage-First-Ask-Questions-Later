@@ -24,6 +24,7 @@ import {
 import { createSchedulerDataSource } from '../../events/scheduler/scheduler-data-source';
 import {
   adjustVillageLoyalty,
+  increaseCulturePoints,
   incrementHeroAdventurePoints,
   levelUpHero,
   spawnHeroItem,
@@ -34,6 +35,48 @@ import { createControllerArgs } from './utils/controller-args';
 
 describe('developer-tools-controllers', () => {
   const playerId = PLAYER_ID;
+
+  describe(increaseCulturePoints, () => {
+    test.each([
+      { mode: 'add' as const, initial: 3_500, expected: 4_500 },
+      { mode: 'next-level' as const, initial: 0, expected: 2_000 },
+      { mode: 'next-level' as const, initial: 2_000, expected: 3_000 },
+      { mode: 'next-level' as const, initial: 3_500, expected: 4_000 },
+    ])(
+      '$mode from $initial reaches $expected',
+      async ({ mode, initial, expected }) => {
+        using database = await prepareTestDatabase();
+        const now = database.selectValue({
+          sql: 'SELECT created_at FROM servers;',
+          schema: z.number(),
+        })!;
+        using _clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+        database.exec({
+          sql: 'UPDATE servers SET culture_points_requirement_speed = 1;',
+        });
+        database.exec({
+          sql: 'UPDATE culture_points SET culture_points = $points WHERE player_id = $player_id;',
+          bind: { $points: initial, $player_id: playerId },
+        });
+
+        increaseCulturePoints(
+          database,
+          createControllerArgs<
+            '/developer-settings/:villageId/culture-points',
+            'patch'
+          >({ path: { villageId: 1 }, body: { mode } }),
+        );
+
+        expect(
+          database.selectValue({
+            sql: 'SELECT culture_points FROM culture_points WHERE player_id = $player_id;',
+            bind: { $player_id: playerId },
+            schema: z.number(),
+          }),
+        ).toBe(expected);
+      },
+    );
+  });
 
   describe(adjustVillageLoyalty, () => {
     test('should create the first loyaltyIncrease event when loyalty is adjusted', async () => {
