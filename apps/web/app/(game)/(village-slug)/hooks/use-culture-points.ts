@@ -8,7 +8,7 @@ export const useCulturePoints = () => {
   const { apiClient } = use(ApiContext);
   const { currentVillage } = useCurrentVillage();
 
-  const { data: culturePoints } = useSuspenseQuery({
+  const { data: culturePoints, dataUpdatedAt } = useSuspenseQuery({
     queryKey: [culturePointsCacheKey, currentVillage.id],
     queryFn: async () => {
       const { data } = await apiClient.get(
@@ -22,10 +22,10 @@ export const useCulturePoints = () => {
 
       return data;
     },
-    staleTime: 20_000,
   });
 
   return {
     culturePoints,
+    culturePointsUpdatedAt: dataUpdatedAt,
   };
 };
