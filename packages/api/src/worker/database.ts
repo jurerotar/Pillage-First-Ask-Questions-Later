@@ -4,7 +4,6 @@ import type {
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
-import { upgradeDb } from '@pillage-first/db';
 import { env } from '@pillage-first/utils/env';
 import {
   OutdatedAppVersionError,
@@ -19,6 +18,7 @@ import {
   encodeAppVersionToDatabaseUserVersion,
   isSupportedDatabaseUserVersion,
 } from '@pillage-first/utils/version';
+import { upgradeDb } from '../db';
 
 let sqlite3: Sqlite3Static | null = null;
 let opfsSahPool: SAHPoolUtil | null = null;
