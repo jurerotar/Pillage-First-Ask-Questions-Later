@@ -1,26 +1,62 @@
 import { useTranslation } from 'react-i18next';
+import { calculateCulturePointsRequirementForVillageCount } from '@pillage-first/game-assets/utils/culture-points';
 import { formatNumber } from '@pillage-first/utils/format';
 import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/bookmark';
 import {
-  OverflowContainer,
   Section,
   SectionContent,
 } from 'app/(game)/(village-slug)/components/building-layout';
+import { useCountdown } from 'app/(game)/(village-slug)/hooks/use-countdown';
 import { useCulturePoints } from 'app/(game)/(village-slug)/hooks/use-culture-points';
+import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { Text } from 'app/components/text';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHeaderCell,
-  TableRow,
-} from 'app/components/ui/table';
+import { Progress } from 'app/components/ui/progress';
+
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 export const ResidenceExpansion = () => {
   const { t } = useTranslation();
-  const { culturePoints } = useCulturePoints();
+  const { culturePoints, culturePointsUpdatedAt } = useCulturePoints();
+  const { server } = useServer();
+  const now = useCountdown();
+  const { playerCulturePointsProduction: dailyProduction } = culturePoints;
+
+  const availableCulturePoints =
+    culturePoints.culturePoints +
+    (Math.max(0, now - culturePointsUpdatedAt) * dailyProduction) /
+      DAY_IN_MILLISECONDS;
+  let availableVillageCount = 1;
+
+  while (
+    calculateCulturePointsRequirementForVillageCount(
+      availableVillageCount + 1,
+      server.configuration.culturePointsRequirementSpeed,
+    ) <= availableCulturePoints
+  ) {
+    availableVillageCount += 1;
+  }
+
+  const previousRequirement = calculateCulturePointsRequirementForVillageCount(
+    availableVillageCount,
+    server.configuration.culturePointsRequirementSpeed,
+  );
+  const nextRequirement = calculateCulturePointsRequirementForVillageCount(
+    availableVillageCount + 1,
+    server.configuration.culturePointsRequirementSpeed,
+  );
+  const progress =
+    nextRequirement > previousRequirement
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            ((availableCulturePoints - previousRequirement) /
+              (nextRequirement - previousRequirement)) *
+              100,
+          ),
+        )
+      : 100;
 
   return (
     <Section>
@@ -36,52 +72,91 @@ export const ResidenceExpansion = () => {
         <Text as="h2">{t('Expansion')}</Text>
       </SectionContent>
       <SectionContent>
-        <OverflowContainer>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHeaderCell>{t('Culture points')}</TableHeaderCell>
-                <TableHeaderCell>{t('Amount')}</TableHeaderCell>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell>{t('Available culture points')}</TableCell>
-                <TableCell>
-                  {formatNumber(Math.floor(culturePoints.culturePoints))}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>{t('Current village production')}</TableCell>
-                <TableCell>
-                  {t('{{amount}} per day', {
-                    amount: formatNumber(
-                      culturePoints.currentVillageCulturePointsProduction,
-                    ),
-                  })}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>{t('Global kingdom production')}</TableCell>
-                <TableCell>
-                  {t('{{amount}} per day', {
-                    amount: formatNumber(
-                      culturePoints.playerCulturePointsProduction,
-                    ),
-                  })}
-                </TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>{t('Required for next village')}</TableCell>
-                <TableCell>
-                  {formatNumber(
-                    culturePoints.nextVillageCulturePointsRequirement,
-                  )}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </OverflowContainer>
+        <Text as="h3">{t('Culture points')}</Text>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center gap-2">
+            <Text className="text-xs font-medium text-muted-foreground uppercase">
+              {t('Progress to next village')}
+            </Text>
+            <Text className="text-right font-medium text-sm tabular-nums">
+              {Math.floor(progress)}%
+            </Text>
+          </div>
+          <div className="flex items-center gap-2">
+            <Text
+              as="span"
+              className="shrink-0 text-sm font-medium tabular-nums"
+            >
+              {formatNumber(previousRequirement)}
+            </Text>
+            <Progress
+              value={progress}
+              aria-label={t('Culture points progress')}
+              className="border border-[#0d648e] [&>div]:bg-[linear-gradient(#b1e4ff,#24b4fd_60%,#1271a2)] h-2.5"
+            />
+            <Text
+              as="span"
+              className="shrink-0 text-sm font-medium tabular-nums"
+            >
+              {formatNumber(nextRequirement)}
+            </Text>
+          </div>
+        </div>
+        <dl className="grid grid-cols-2 gap-2">
+          <div className="flex flex-col">
+            <dt className="text-xs font-medium text-muted-foreground uppercase">
+              {t('Villages')}
+            </dt>
+            <dd className="font-medium tabular-nums">
+              {formatNumber(culturePoints.villageCount)} /{' '}
+              {formatNumber(availableVillageCount)}
+            </dd>
+          </div>
+          <div className="flex flex-col">
+            <dt className="text-xs font-medium text-muted-foreground uppercase">
+              {t('Current culture points')}
+            </dt>
+            <dd className="font-medium tabular-nums">
+              {formatNumber(Math.floor(availableCulturePoints))}
+            </dd>
+          </div>
+          <div className="flex flex-col">
+            <dt className="text-xs font-medium text-muted-foreground uppercase">
+              {t('Remaining to unlock')}
+            </dt>
+            <dd className="font-medium tabular-nums">
+              {formatNumber(
+                Math.max(
+                  0,
+                  Math.ceil(nextRequirement - availableCulturePoints),
+                ),
+              )}
+            </dd>
+          </div>
+          <div className="flex flex-col">
+            <dt className="text-xs font-medium text-muted-foreground uppercase">
+              {t('Village production')}
+            </dt>
+            <dd className="font-medium tabular-nums">
+              {t('{{amount}} per day', {
+                amount: formatNumber(
+                  culturePoints.currentVillageCulturePointsProduction,
+                ),
+              })}
+            </dd>
+          </div>
+          <div className="flex flex-col">
+            <dt className="text-xs font-medium text-muted-foreground uppercase">
+              {t('Global production')}
+            </dt>
+            <dd className="font-medium tabular-nums">
+              {t('{{amount}} per day', {
+                amount: formatNumber(dailyProduction),
+              })}
+            </dd>
+          </div>
+        </dl>
       </SectionContent>
     </Section>
   );

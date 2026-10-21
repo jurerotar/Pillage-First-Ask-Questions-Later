@@ -66,8 +66,11 @@ export const calculateCulturePointsRequirementForVillageCount = (
   const exponent =
     (villageCount - 2) * calculateCulturePointsRequirementSpeedFactor(speed);
 
-  return Math.round(
-    CULTURE_POINTS_REQUIREMENT_BASE *
-      CULTURE_POINTS_REQUIREMENT_GROWTH ** exponent,
+  return (
+    Math.ceil(
+      (CULTURE_POINTS_REQUIREMENT_BASE *
+        CULTURE_POINTS_REQUIREMENT_GROWTH ** exponent) /
+        1_000,
+    ) * 1_000
   );
 };
