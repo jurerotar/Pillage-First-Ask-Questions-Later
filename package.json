@@ -67,12 +67,7 @@
     "@swc/core": true,
     "sharp": true,
     "@parcel/watcher": false,
-    "@scarf/scarf": false,
-    "core-js-pure": false,
     "esbuild": false,
-    "lefthook": false,
-    "tree-sitter": false,
-    "@tree-sitter-grammars/tree-sitter-yaml": false,
-    "tree-sitter-json": false
+    "lefthook": false
   }
 }

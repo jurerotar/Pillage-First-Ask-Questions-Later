@@ -10,14 +10,6 @@
   "cacheMaxAge": "7d",
   "cacheMaxSize": "10GB",
   "tasks": {
-    "swagger": {
-      "persistent": true,
-      "cache": false
-    },
-    "erd": {
-      "persistent": true,
-      "cache": false
-    },
     "dev": {
       "persistent": true,
       "cache": false
