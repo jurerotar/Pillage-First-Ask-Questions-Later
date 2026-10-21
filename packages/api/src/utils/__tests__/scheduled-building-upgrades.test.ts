@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/db';
 import { calculateBuildingCostForLevel } from '@pillage-first/game-assets/utils/buildings';
@@ -11,6 +11,7 @@ import {
   buildingIdSchema,
 } from '@pillage-first/types/models/building';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
+import * as notificationPort from '../../worker/notification-port';
 import { createBuildingPlaceholder } from '../building-placeholder';
 import { insertEvents } from '../events';
 import {
@@ -67,6 +68,71 @@ const expectAtMostOneActiveConstructionPerLane = (
 };
 
 describe('scheduled building upgrades', () => {
+  test('uses a JSON-safe unlimited amount in cancellation reports and notifications', async () => {
+    using database = await prepareTestDatabase();
+    using postWorkerMessage = vi.spyOn(notificationPort, 'postWorkerMessage');
+    const villageId = 1;
+    const buildingFieldId = 38;
+
+    database.exec({
+      sql: `
+        DELETE FROM effects
+        WHERE tile_id = (SELECT tile_id FROM villages WHERE id = $village_id)
+          AND source_specifier IN (36, 37, $field_id);
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+    });
+    database.exec({
+      sql: `
+        DELETE FROM building_fields
+        WHERE village_id = $village_id AND field_id IN (36, 37, $field_id);
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+    });
+    createBuildingPlaceholder(database, villageId, 36, 'MAIN_BUILDING');
+    createBuildingPlaceholder(database, villageId, 37, 'GRANARY');
+    database.exec({
+      sql: `
+        UPDATE building_fields
+        SET level = 1
+        WHERE village_id = $village_id
+          AND field_id IN (36, 37);
+      `,
+      bind: { $village_id: villageId },
+    });
+    createBuildingPlaceholder(database, villageId, buildingFieldId, 'GRANARY');
+    insertScheduledBuildingUpgrade(database, {
+      villageId,
+      buildingId: 'GRANARY',
+      buildingFieldId,
+      level: 1,
+    });
+
+    promoteNextScheduledBuildingUpgrade(database, villageId);
+
+    const reasonDetail = {
+      type: 'missing-requirements',
+      unmetRequirements: [{ type: 'amount', amount: null }],
+    };
+    const persistedDetail = database.selectValue({
+      sql: `
+        SELECT reason_detail_json
+        FROM scheduled_construction_cancellation_reports
+        WHERE village_id = $village_id AND field_id = $field_id;
+      `,
+      bind: { $village_id: villageId, $field_id: buildingFieldId },
+      schema: z.string(),
+    });
+
+    expect(JSON.parse(persistedDetail!)).toEqual(reasonDetail);
+    expect(postWorkerMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        eventKey: 'scheduled-building-construction:cancelled',
+        reasonDetail,
+      }),
+    );
+  });
+
   test('starts only the first queued upgrade for a non-Roman village', async () => {
     using database = await prepareTestDatabase();
     const villageId = 1;

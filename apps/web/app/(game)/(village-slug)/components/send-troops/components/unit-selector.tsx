@@ -160,6 +160,8 @@ export const UnitSelector = ({
                             <FormControl>
                               <Input
                                 {...field}
+                                value={field.value === 0 ? '' : field.value}
+                                placeholder="0"
                                 id={`unit-${unit.unitId}`}
                                 type="number"
                                 min={0}

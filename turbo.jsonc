@@ -10,14 +10,6 @@
   "cacheMaxAge": "7d",
   "cacheMaxSize": "10GB",
   "tasks": {
-    "swagger": {
-      "persistent": true,
-      "cache": false
-    },
-    "erd": {
-      "persistent": true,
-      "cache": false
-    },
     "dev": {
       "persistent": true,
       "cache": false
@@ -35,7 +27,7 @@
         "FARO_STACK_ID",
         "FARO_SOURCEMAP_API_URL",
         "VITE_FARO_INGEST_ENDPOINT",
-        "VITE_BUG_REPORTER_API_URL"
+        "VITE_API_URL"
       ]
     },
     "preview": {
@@ -55,7 +47,7 @@
         "FARO_STACK_ID",
         "FARO_SOURCEMAP_API_URL",
         "VITE_FARO_INGEST_ENDPOINT",
-        "VITE_BUG_REPORTER_API_URL"
+        "VITE_API_URL"
       ]
     },
     "format:check": {},

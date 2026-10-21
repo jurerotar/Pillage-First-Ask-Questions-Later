@@ -265,7 +265,10 @@ const getMissingRequirementsCancellationDetail = (
 
     unmetRequirements.push({
       type: 'amount',
-      amount: requirement.amount,
+      amount:
+        requirement.amount === Number.POSITIVE_INFINITY
+          ? null
+          : requirement.amount,
     });
   }
 

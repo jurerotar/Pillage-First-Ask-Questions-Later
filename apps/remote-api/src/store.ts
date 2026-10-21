@@ -21,7 +21,8 @@ export type Upload = {
   expectedBytes: number;
   id: string;
   originalName: string;
-  reportId: string;
+  reportId: string | null;
+  worldId: string | null;
   status: 'pending' | 'complete';
   storageName: string;
 };
@@ -45,7 +46,8 @@ type UploadRow = {
   expected_bytes: number;
   id: string;
   original_name: string;
-  report_id: string;
+  report_id: string | null;
+  world_id: string | null;
   status: 'pending' | 'complete';
   storage_name: string;
 };
@@ -69,11 +71,12 @@ const toUpload = (row: UploadRow): Upload => ({
   id: row.id,
   originalName: row.original_name,
   reportId: row.report_id,
+  worldId: row.world_id,
   status: row.status,
   storageName: row.storage_name,
 });
 
-export class Store {
+export class Store implements Disposable {
   #database: DatabaseSync;
 
   private constructor(database: DatabaseSync) {
@@ -96,13 +99,22 @@ export class Store {
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         contact TEXT,
+        closed_at INTEGER,
         write_token_hash TEXT NOT NULL,
         upload_expires_at INTEGER,
         created_at INTEGER NOT NULL
       ) STRICT;
+      CREATE TABLE IF NOT EXISTS game_worlds (
+        id TEXT PRIMARY KEY,
+        upload_expires_at INTEGER,
+        write_token_hash TEXT NOT NULL,
+        download_token_hash TEXT,
+        claimed_until INTEGER
+      ) STRICT;
       CREATE TABLE IF NOT EXISTS uploads (
         id TEXT PRIMARY KEY,
-        report_id TEXT NOT NULL UNIQUE REFERENCES reports(id),
+        report_id TEXT UNIQUE REFERENCES reports(id),
+        world_id TEXT UNIQUE REFERENCES game_worlds(id),
         original_name TEXT NOT NULL,
         expected_bytes INTEGER NOT NULL CHECK(expected_bytes > 0),
         storage_name TEXT NOT NULL UNIQUE,
@@ -124,16 +136,15 @@ export class Store {
       ) STRICT;
     `);
 
-    const columns = database.prepare('PRAGMA table_info(reports)').all();
-    if (!columns.some((column) => column.name === 'closed_at')) {
-      database.exec('ALTER TABLE reports ADD COLUMN closed_at INTEGER;');
-    }
-
     return new Store(database);
   }
 
   close(): void {
     this.#database.close();
+  }
+
+  [Symbol.dispose](): void {
+    this.close();
   }
 
   createReport(input: Omit<Report, 'closedAt' | 'createdAt' | 'id'>): Report {
@@ -204,7 +215,8 @@ export class Store {
   createUpload(input: {
     expectedBytes: number;
     originalName: string;
-    reportId: string;
+    reportId?: string;
+    worldId?: string;
   }): Upload | undefined {
     const upload: Upload = {
       completedAt: null,
@@ -213,7 +225,8 @@ export class Store {
       expectedBytes: input.expectedBytes,
       id: randomUUID(),
       originalName: input.originalName,
-      reportId: input.reportId,
+      reportId: input.reportId ?? null,
+      worldId: input.worldId ?? null,
       status: 'pending',
       storageName: `${randomUUID()}.sqlite3`,
     };
@@ -222,12 +235,13 @@ export class Store {
       this.#database
         .prepare(
           `INSERT INTO uploads (
-            id, report_id, original_name, expected_bytes, storage_name, status, created_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            id, report_id, world_id, original_name, expected_bytes, storage_name, status, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .run(
           upload.id,
           upload.reportId,
+          upload.worldId,
           upload.originalName,
           upload.expectedBytes,
           upload.storageName,
@@ -245,6 +259,100 @@ export class Store {
     }
 
     return upload;
+  }
+
+  createWorld(
+    uploadExpiresAt: number | null,
+    writeTokenHash: string,
+  ): { id: string; uploadExpiresAt: number | null } {
+    const world = { id: randomUUID(), uploadExpiresAt };
+    this.#database
+      .prepare(
+        'INSERT INTO game_worlds (id, upload_expires_at, write_token_hash) VALUES (?, ?, ?)',
+      )
+      .run(world.id, uploadExpiresAt, writeTokenHash);
+    return world;
+  }
+
+  getWorld(
+    id: string,
+  ):
+    | { id: string; uploadExpiresAt: number | null; writeTokenHash: string }
+    | undefined {
+    const row = this.#database
+      .prepare(
+        'SELECT id, upload_expires_at, write_token_hash FROM game_worlds WHERE id = ?',
+      )
+      .get(id) as
+      | {
+          id: string;
+          upload_expires_at: number | null;
+          write_token_hash: string;
+        }
+      | undefined;
+    return (
+      row && {
+        id: row.id,
+        uploadExpiresAt: row.upload_expires_at,
+        writeTokenHash: row.write_token_hash,
+      }
+    );
+  }
+
+  getUploadForWorld(worldId: string): Upload | undefined {
+    const row = this.#database
+      .prepare('SELECT * FROM uploads WHERE world_id = ?')
+      .get(worldId) as UploadRow | undefined;
+    return row && toUpload(row);
+  }
+
+  claimWorld(id: string, tokenHash: string): boolean {
+    return (
+      this.#database
+        .prepare(`UPDATE game_worlds SET download_token_hash = ?, claimed_until = ?
+      WHERE id = ? AND (download_token_hash IS NULL OR download_token_hash = ? OR claimed_until <= ?)`)
+        .run(tokenHash, Date.now() + 15 * 60 * 1000, id, tokenHash, Date.now())
+        .changes === 1
+    );
+  }
+
+  ownsWorldClaim(id: string, tokenHash: string): boolean {
+    return Boolean(
+      this.#database
+        .prepare(
+          'SELECT 1 FROM game_worlds WHERE id = ? AND download_token_hash = ?',
+        )
+        .get(id, tokenHash),
+    );
+  }
+
+  deleteWorld(id: string): void {
+    this.#database.exec('BEGIN IMMEDIATE;');
+    try {
+      this.#database
+        .prepare(
+          'DELETE FROM upload_chunks WHERE upload_id IN (SELECT id FROM uploads WHERE world_id = ?)',
+        )
+        .run(id);
+      this.#database.prepare('DELETE FROM uploads WHERE world_id = ?').run(id);
+      this.#database.prepare('DELETE FROM game_worlds WHERE id = ?').run(id);
+      this.#database.exec('COMMIT;');
+    } catch (error) {
+      this.#database.exec('ROLLBACK;');
+      throw error;
+    }
+  }
+
+  listExpiredWorldIds(createdBefore: number): string[] {
+    const rows = this.#database
+      .prepare(`
+      SELECT game_worlds.id FROM game_worlds
+      LEFT JOIN uploads ON uploads.world_id = game_worlds.id
+      WHERE uploads.created_at <= ? OR uploads.id IS NULL
+    `)
+      .all(createdBefore) as { id: string }[];
+
+    return rows.map(({ id }) => id);
   }
 
   getUpload(id: string): Upload | undefined {

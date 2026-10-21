@@ -1,3 +1,19 @@
+## Version 0.4.75
+
+#### Oct 20, 2026
+
+* [Feature] Added cross-device game world sharing. Upload a game world and open its link or scan its QR code on another
+  device to import it. Shared copies can be imported once and are deleted after import or 24 hours.
+* [Feature] Added an optional contact field to bug reports, allowing you to leave a Discord username or email address
+  for follow-up questions.
+* [Feature] Added a notification when a new app version is available, with an option to refresh and update.
+* [BugFix] Fixed troop movements overlapping the construction queue on mobile.
+* [BugFix] Fixed village resource displays not updating correctly after changing hero attributes or resource production.
+* [BugFix] Fixed crashes when browser translation extensions modify select controls and building cards.
+* [BugFix] Fixed scheduled construction cancellation reports crashing when building allowances are unlimited.
+* [BugFix] Fixed cached app instances incorrectly reporting game worlds as outdated when opened with a newer app
+  version. The app now prompts you to refresh and load the latest version.
+
 ## Version 0.4.74
 
 #### Oct 14, 2026

@@ -4,7 +4,7 @@ const minimumSecretLength = 32;
 
 export type AppConfig = {
   apiToken: string;
-  allowedOrigin?: string;
+  allowedOrigins?: string[];
   appDirectory: string;
   dataDirectory: string;
   maxChunkBytes: number;
@@ -98,7 +98,9 @@ export const getConfig = (): AppConfig => {
 
   return {
     apiToken,
-    allowedOrigin: process.env.ALLOWED_ORIGIN?.trim() || undefined,
+    allowedOrigins: process.env.ALLOWED_ORIGIN?.split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
     appDirectory,
     dataDirectory,
     maxChunkBytes,
