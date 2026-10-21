@@ -78,18 +78,21 @@ describe('calculateHeroLevel (level starts at 0)', () => {
 describe(calculateHeroRevivalCost, () => {
   test('should calculate revival cost for romans at level 0', () => {
     const result = calculateHeroRevivalCost('romans', 0);
+
     expect(result).toStrictEqual([130, 115, 180, 75]);
   });
 
   test('should scale correctly for romans at level 1', () => {
     const result = calculateHeroRevivalCost('romans', 1);
     const expected = [270, 240, 375, 155];
+
     expect(result).toStrictEqual(expected);
   });
 
   test('should calculate correct cost for teutons at level 5', () => {
     const result = calculateHeroRevivalCost('teutons', 5);
     const expected = [1305, 940, 835, 545];
+
     expect(result).toStrictEqual(expected);
   });
 });

@@ -1,0 +1,125 @@
+name: Deploy remote API
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to deploy
+        required: true
+        default: master
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-remote-api
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Checkout selected revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.ref }}
+
+      - name: Set release ID
+        run: |
+          set -euo pipefail
+          printf 'RELEASE_ID=%s-%s-%s\n' "$(git rev-parse HEAD)" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+
+      - parallel:
+          - name: Create release artifact
+            run: |
+              set -euo pipefail
+              release_id="$RELEASE_ID"
+              package_directory=".deploy/remote-api"
+              mkdir -p "$package_directory/apps/remote-api"
+              cp package.json package-lock.json "$package_directory/"
+              cp apps/remote-api/package.json "$package_directory/apps/remote-api/"
+              cp -R apps/remote-api/src "$package_directory/apps/remote-api/"
+              tar --create --gzip --file="remote-api-${release_id}.tar.gz" -C "$package_directory" .
+              sha256sum "remote-api-${release_id}.tar.gz" > "remote-api-${release_id}.tar.gz.sha256"
+
+          - name: Configure SSH
+            env:
+              DEPLOY_PRIVATE_KEY: ${{ secrets.CPANEL_SSH_PRIVATE_KEY }}
+              DEPLOY_KNOWN_HOSTS: ${{ secrets.CPANEL_SSH_KNOWN_HOSTS }}
+            run: |
+              set -euo pipefail
+              install -d -m 700 "$HOME/.ssh"
+              printf '%s\n' "$DEPLOY_PRIVATE_KEY" | tr -d '\r' > "$HOME/.ssh/id_ed25519"
+              chmod 600 "$HOME/.ssh/id_ed25519"
+              printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+              chmod 600 "$HOME/.ssh/known_hosts"
+
+      - name: Upload release artifact
+        env:
+          DEPLOY_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          DEPLOY_PORT: ${{ secrets.CPANEL_SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          release_id="$RELEASE_ID"
+          ssh -p "$DEPLOY_PORT" -o BatchMode=yes "$DEPLOY_HOST" "mkdir -p '$DEPLOY_PATH/incoming'"
+          scp -P "$DEPLOY_PORT" -o BatchMode=yes "remote-api-${release_id}.tar.gz" "remote-api-${release_id}.tar.gz.sha256" "$DEPLOY_HOST:$DEPLOY_PATH/incoming/"
+
+      - name: Activate release atomically
+        env:
+          DEPLOY_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          DEPLOY_PORT: ${{ secrets.CPANEL_SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.CPANEL_DEPLOY_PATH }}
+          NPM_COMMAND: /opt/alt/alt-nodejs24/root/usr/bin/npm
+        run: |
+          set -euo pipefail
+          release_id="$RELEASE_ID"
+          ssh -p "$DEPLOY_PORT" -o BatchMode=yes "$DEPLOY_HOST" bash -s -- "$DEPLOY_PATH" "$release_id" "$NPM_COMMAND" <<'REMOTE'
+          set -euo pipefail
+          trap 'printf "Deployment failed at remote line %s (exit %s).\n" "$LINENO" "$?" >&2' ERR
+          deploy_path="$1"
+          release_id="$2"
+          npm_command="$3"
+          artifact="$deploy_path/incoming/remote-api-$release_id.tar.gz"
+          checksum="$deploy_path/incoming/remote-api-$release_id.tar.gz.sha256"
+          releases_path="$deploy_path/releases"
+          release_path="$releases_path/$release_id"
+
+          if [[ ! -d "$deploy_path" ]]; then
+            printf 'Deployment directory does not exist. Check CPANEL_DEPLOY_PATH.\n' >&2
+            exit 1
+          fi
+          mkdir -p "$releases_path"
+          if [[ -e "$release_path" || -L "$release_path" ]]; then
+            printf 'Release directory already exists: %s\n' "$release_id" >&2
+            exit 1
+          fi
+          (cd "$deploy_path/incoming" && sha256sum --check "$(basename "$checksum")")
+          mkdir "$release_path"
+          tar --extract --gzip --file="$artifact" --directory="$release_path"
+          (
+            cd "$release_path"
+            "$npm_command" ci --omit=dev --ignore-scripts --no-audit --no-fund --engine-strict=false --workspace=@pillage-first/remote-api --include-workspace-root=false
+          )
+          mkdir -p "$release_path/tmp"
+          ln -sfnT "releases/$release_id" "$deploy_path/current.next"
+          mv -Tf "$deploy_path/current.next" "$deploy_path/current"
+          mkdir -p "$deploy_path/tmp"
+          touch "$deploy_path/tmp/restart.txt"
+          rm -f "$artifact" "$checksum"
+
+          find "$releases_path" -mindepth 1 -maxdepth 1 -type d ! -name "$release_id" -printf '%T@ %p\n' \
+            | sort -n \
+            | head -n -5 \
+            | cut -d' ' -f2- \
+            | while IFS= read -r old_release; do
+                test -z "$old_release" || rm -rf -- "$old_release"
+              done
+          REMOTE

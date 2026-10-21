@@ -33,6 +33,11 @@ export const getTilesSchema = z
   })
   .meta({ id: 'GetTilesRow' });
 
+export const getTilesJsonSchema = z
+  .string()
+  .transform((value): unknown => JSON.parse(value))
+  .pipe(z.array(getTilesSchema));
+
 export const getTileTroopsSchema = z
   .strictObject({
     unit_id: unitIdSchema,

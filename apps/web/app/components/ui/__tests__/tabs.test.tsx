@@ -7,7 +7,7 @@ import {
   render,
   waitFor,
 } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { Tab, TabList, TabPanel, Tabs } from 'app/components/ui/tabs';
 
 const tabWidths = new Map([
@@ -17,21 +17,44 @@ const tabWidths = new Map([
   ['auctions', 90],
 ]);
 
-let containerWidth = 500;
-let moreButtonWidth = 72;
-let originalOffsetWidth: PropertyDescriptor | undefined;
-let resizeCallbacks: ResizeObserverCallback[] = [];
+const renderTabs = (initialContainerWidth = 500) => {
+  let containerWidth = initialContainerWidth;
+  const resizeCallbacks = new Set<ResizeObserverCallback>();
 
-const triggerResize = () => {
-  act(() => {
-    for (const callback of resizeCallbacks) {
-      callback([], {} as ResizeObserver);
-    }
-  });
-};
+  const resizeObserver = vi
+    .spyOn(globalThis, 'ResizeObserver')
+    .mockImplementation(
+      class implements ResizeObserver {
+        private readonly callback: ResizeObserverCallback;
 
-const renderTabs = () => {
-  return render(
+        constructor(callback: ResizeObserverCallback) {
+          this.callback = callback;
+          resizeCallbacks.add(callback);
+        }
+
+        disconnect = () => {
+          resizeCallbacks.delete(this.callback);
+        };
+        observe = vi.fn();
+        unobserve = vi.fn();
+      },
+    );
+
+  const offsetWidth = vi
+    .spyOn(HTMLElement.prototype, 'offsetWidth', 'get')
+    .mockImplementation(function (this: HTMLElement) {
+      if (this.getAttribute('data-slot') === 'tab-list') {
+        return containerWidth;
+      }
+
+      if (this.getAttribute('data-slot') === 'tab-more-measure') {
+        return 72;
+      }
+
+      return tabWidths.get(this.getAttribute('data-value') ?? '') ?? 0;
+    });
+
+  const result = render(
     <Tabs defaultValue="overview">
       <TabList aria-label="Hero tabs">
         <Tab value="overview">Overview</Tab>
@@ -45,72 +68,31 @@ const renderTabs = () => {
       <TabPanel value="auctions">Auctions panel</TabPanel>
     </Tabs>,
   );
+
+  return {
+    ...result,
+    resize: (width: number) => {
+      containerWidth = width;
+      act(() => {
+        for (const callback of resizeCallbacks) {
+          callback([], {} as ResizeObserver);
+        }
+      });
+    },
+    [Symbol.dispose]: () => {
+      try {
+        cleanup();
+      } finally {
+        resizeObserver.mockRestore();
+        offsetWidth.mockRestore();
+      }
+    },
+  };
 };
 
 describe(Tabs, () => {
-  beforeEach(() => {
-    resizeCallbacks = [];
-    containerWidth = 500;
-    moreButtonWidth = 72;
-    originalOffsetWidth = Object.getOwnPropertyDescriptor(
-      HTMLElement.prototype,
-      'offsetWidth',
-    );
-
-    vi.stubGlobal(
-      'ResizeObserver',
-      class ResizeObserverMock {
-        constructor(callback: ResizeObserverCallback) {
-          resizeCallbacks.push(callback);
-        }
-
-        disconnect = vi.fn();
-        observe = vi.fn();
-        unobserve = vi.fn();
-      },
-    );
-
-    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
-      configurable: true,
-      get() {
-        const element = this as HTMLElement;
-
-        if (element.getAttribute('data-slot') === 'tab-list') {
-          return containerWidth;
-        }
-
-        if (element.getAttribute('data-slot') === 'tab-more-measure') {
-          return moreButtonWidth;
-        }
-
-        const tabValue = element.getAttribute('data-value');
-        if (tabValue !== null) {
-          return tabWidths.get(tabValue) ?? 0;
-        }
-
-        return 0;
-      },
-    });
-  });
-
-  afterEach(() => {
-    cleanup();
-    vi.unstubAllGlobals();
-
-    if (originalOffsetWidth) {
-      Object.defineProperty(
-        HTMLElement.prototype,
-        'offsetWidth',
-        originalOffsetWidth,
-      );
-      return;
-    }
-
-    Reflect.deleteProperty(HTMLElement.prototype, 'offsetWidth');
-  });
-
   test('renders all tabs without a more menu when they fit', async () => {
-    const result = renderTabs();
+    using result = renderTabs();
 
     await waitFor(() => {
       expect(result.queryByRole('tab', { name: 'Overview' })).not.toBeNull();
@@ -122,8 +104,7 @@ describe(Tabs, () => {
   });
 
   test('moves overflowing tabs into the more menu', async () => {
-    containerWidth = 220;
-    const result = renderTabs();
+    using result = renderTabs(220);
 
     await waitFor(() => {
       expect(result.queryByRole('tab', { name: 'Overview' })).not.toBeNull();
@@ -139,8 +120,7 @@ describe(Tabs, () => {
   });
 
   test('selects an overflowing tab from the more menu', async () => {
-    containerWidth = 220;
-    const result = renderTabs();
+    using result = renderTabs(220);
 
     await waitFor(() => {
       expect(result.queryByRole('button', { name: 'More' })).not.toBeNull();
@@ -156,15 +136,13 @@ describe(Tabs, () => {
   });
 
   test('restores visible tabs when the list becomes wide enough', async () => {
-    containerWidth = 220;
-    const result = renderTabs();
+    using result = renderTabs(220);
 
     await waitFor(() => {
       expect(result.queryByRole('button', { name: 'More' })).not.toBeNull();
     });
 
-    containerWidth = 500;
-    triggerResize();
+    result.resize(500);
 
     await waitFor(() => {
       expect(result.queryByRole('tab', { name: 'Inventory' })).not.toBeNull();

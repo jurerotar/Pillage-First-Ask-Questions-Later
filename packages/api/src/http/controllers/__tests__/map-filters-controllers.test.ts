@@ -8,7 +8,7 @@ describe('map-filters-controllers', () => {
   const playerId = PLAYER_ID;
 
   test('getMapFilters should return map filters', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const filters = getMapFilters(
       database,
@@ -27,7 +27,7 @@ describe('map-filters-controllers', () => {
   });
 
   test('updateMapFilter should update a map filter', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     updateMapFilter(
       database,

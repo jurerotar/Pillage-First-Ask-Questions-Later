@@ -35,7 +35,7 @@ const getVitestInject = async (): Promise<TestDatabaseInject> => {
 
 export const prepareTestDatabase = async (
   contextInject?: TestDatabaseInject,
-): Promise<DbFacade> => {
+): Promise<DbFacade & Disposable> => {
   const sqlite3 = await getSqlite3();
   const inject = contextInject ?? (await getVitestInject());
 
@@ -55,7 +55,21 @@ export const prepareTestDatabase = async (
     ),
   );
 
-  return createDbFacade(oo1Db, false, () =>
+  const facade = createDbFacade(oo1Db, () =>
     sqlite3.capi.sqlite3_js_db_export(oo1Db.pointer!, 'main'),
   );
+  let closed = false;
+  const close = (): void => {
+    if (closed) {
+      return;
+    }
+    closed = true;
+    try {
+      facade.close();
+    } finally {
+      oo1Db.close();
+    }
+  };
+
+  return { ...facade, close, [Symbol.dispose]: close };
 };

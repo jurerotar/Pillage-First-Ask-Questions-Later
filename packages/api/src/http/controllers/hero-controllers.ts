@@ -4,6 +4,7 @@ import {
   heroDtoSchema,
   heroInventoryEntryDtoSchema,
   heroLoadoutEntryDtoSchema,
+  heroProductionUpdateDtoSchema,
 } from '@pillage-first/types/dtos/hero';
 import { heroResourceToProduceSchema } from '@pillage-first/types/models/hero';
 import { heroAdventuresSchema } from '@pillage-first/types/models/hero-adventures';
@@ -266,6 +267,7 @@ export const changeHeroAttributes = createController(
       attackBonus: z.number().int().min(0).max(100),
       defenceBonus: z.number().int().min(0).max(100),
     }),
+    response: heroProductionUpdateDtoSchema,
   },
 )(
   ({
@@ -273,6 +275,17 @@ export const changeHeroAttributes = createController(
     path: { playerId },
     body: { attackPower, resourceProduction, attackBonus, defenceBonus },
   }) => {
+    const { villageId, tileId, villageSlug } = database.selectObject({
+      sql: `
+        SELECT v.id AS villageId, v.tile_id AS tileId, v.slug AS villageSlug
+        FROM heroes h
+        JOIN villages v ON v.id = h.village_id
+        WHERE h.player_id = $player_id
+      `,
+      bind: { $player_id: playerId },
+      schema: heroProductionUpdateDtoSchema.extend({ villageId: z.number() }),
+    })!;
+
     database.transaction(() => {
       const hero = database.selectObject({
         sql: `
@@ -311,17 +324,7 @@ export const changeHeroAttributes = createController(
       const strengthPerPoint = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
       const initialStrength = hero.tribe.toLowerCase() === 'romans' ? 100 : 80;
 
-      const villageId = database.selectValue({
-        sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
-        bind: { $player_id: playerId },
-        schema: z.number(),
-      })!;
-
-      updateResourceSiteResourcesAt(
-        database,
-        getVillageTileId(database, villageId),
-        Date.now(),
-      );
+      updateResourceSiteResourcesAt(database, tileId, Date.now());
 
       database.exec({
         sql: `
@@ -359,6 +362,8 @@ export const changeHeroAttributes = createController(
         resourceToProduce,
       });
     });
+
+    return { tileId, villageSlug };
   },
 );
 
@@ -375,8 +380,20 @@ export const changeHeroResourceToProduce = createController(
     requestBody: z.strictObject({
       resource: heroResourceToProduceSchema,
     }),
+    response: heroProductionUpdateDtoSchema,
   },
 )(({ database, path: { playerId }, body: { resource } }) => {
+  const { villageId, tileId, villageSlug } = database.selectObject({
+    sql: `
+      SELECT v.id AS villageId, v.tile_id AS tileId, v.slug AS villageSlug
+      FROM heroes h
+      JOIN villages v ON v.id = h.village_id
+      WHERE h.player_id = $player_id
+    `,
+    bind: { $player_id: playerId },
+    schema: heroProductionUpdateDtoSchema.extend({ villageId: z.number() }),
+  })!;
+
   database.transaction(() => {
     database.exec({
       sql: `
@@ -410,17 +427,7 @@ export const changeHeroResourceToProduce = createController(
       }),
     })!;
 
-    const villageId = database.selectValue({
-      sql: 'SELECT village_id FROM heroes WHERE player_id = $player_id',
-      bind: { $player_id: playerId },
-      schema: z.number(),
-    })!;
-
-    updateResourceSiteResourcesAt(
-      database,
-      getVillageTileId(database, villageId),
-      Date.now(),
-    );
+    updateResourceSiteResourcesAt(database, tileId, Date.now());
 
     updateHeroResourceProductionEffects({
       database,
@@ -430,6 +437,8 @@ export const changeHeroResourceToProduce = createController(
       resourceToProduce: resource,
     });
   });
+
+  return { tileId, villageSlug };
 });
 
 export const equipHeroItem = createController(
@@ -483,7 +492,7 @@ export const equipHeroItem = createController(
 
       // Remove effects of replaced item
       database.exec({
-        sql: "DELETE FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND source_specifier = $itemId",
+        sql: "DELETE FROM effects WHERE source_specifier = $itemId AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')",
         bind: { $itemId: currentlyEquipped.item_id },
       });
 
@@ -636,7 +645,7 @@ export const unequipHeroItem = createController(
 
       // Remove effects
       database.exec({
-        sql: "DELETE FROM effects WHERE source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero') AND source_specifier = $itemId",
+        sql: "DELETE FROM effects WHERE source_specifier = $itemId AND source_id = (SELECT id FROM effect_source_ids WHERE source = 'hero')",
         bind: { $itemId: equipped.item_id },
       });
 

@@ -3,7 +3,7 @@ import { matchRoute } from '../route-matcher';
 
 describe(matchRoute, () => {
   test('casts path params using real schema (/tiles/:tileId/stationed-troops)', () => {
-    // This route exists in http/api-routes.ts and has a schema in the OpenAPI contract.
+    // This route exists in http/api-routes.ts and has a request parameter schema.
     const result = matchRoute('/tiles/123/stationed-troops', 'GET');
 
     expect(typeof result.path.tileId).toBe('number');

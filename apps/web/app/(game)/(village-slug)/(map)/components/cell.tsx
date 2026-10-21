@@ -22,7 +22,7 @@ type CellBaseProps = {
   mapFilters: MapFilters;
   magnification: number;
   preferences: Preferences;
-  mapMarkers: MapMarker[];
+  mapMarkersByTileId: ReadonlyMap<MapMarker['tileId'], MapMarker>;
   createMapMarker: (args: {
     tileId: number;
     description: string;
@@ -40,10 +40,10 @@ type CellIconsProps = CellBaseProps & {
 };
 
 const CellIcons = (props: CellIconsProps) => {
-  const { tile, mapFilters, magnification, mapMarkers } = props;
+  const { tile, mapFilters, magnification, mapMarkersByTileId } = props;
   const { shouldShowOasisIcons, shouldShowWheatFields } = mapFilters;
 
-  const marker = mapMarkers.find((marker) => marker.tileId === tile.id);
+  const marker = mapMarkersByTileId.get(tile.id);
 
   const tileIconClasses = clsx(
     cellStyles['tile-icon'],

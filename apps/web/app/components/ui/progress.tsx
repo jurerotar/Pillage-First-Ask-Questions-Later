@@ -10,6 +10,7 @@ export const Progress = ({
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
+      value={value}
       className={clsx(
         'bg-primary/20 relative h-2 w-full overflow-hidden rounded-full',
         className,
@@ -18,7 +19,7 @@ export const Progress = ({
     >
       <ProgressPrimitive.Indicator
         data-slot="progress-indicator"
-        className="bg-primary h-full w-full flex-1 transition-transform"
+        className="bg-primary h-full w-full flex-1 transition-transform duration-100 ease-linear motion-reduce:transition-none"
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
     </ProgressPrimitive.Root>

@@ -10,7 +10,6 @@ This package contains worker-api, event scheduler and "backend" controllers. Ple
    - The controller return type is inferred from the success response schema.
    - Omit `response`/`responses` for no-content endpoints; they generate a `204` response.
 2. Register the controller in `src/http/api-routes.ts`.
-3. View the generated OpenAPI spec through the `swagger-ui` app in `apps/swagger-ui`.
 
 ### Example
 

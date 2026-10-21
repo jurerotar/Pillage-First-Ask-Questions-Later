@@ -16,10 +16,10 @@ import { tribeSchema } from '@pillage-first/types/models/tribe';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('lookupTablesSeeder', () => {
-  test('building_ids contains every modeled building exactly once', () => {
+  test('building_ids contains every modeled building exactly once', async () => {
+    using database = await prepareTestDatabase();
+
     const buildingIds = database.selectValues({
       sql: 'SELECT building FROM building_ids ORDER BY building;',
       schema: buildingIdSchema,
@@ -28,7 +28,9 @@ describe('lookupTablesSeeder', () => {
     expect(buildingIds).toStrictEqual([...buildingIdSchema.options].sort());
   });
 
-  test('faction_ids contains every modeled faction exactly once', () => {
+  test('faction_ids contains every modeled faction exactly once', async () => {
+    using database = await prepareTestDatabase();
+
     const factionIds = database.selectValues({
       sql: 'SELECT faction FROM faction_ids ORDER BY faction;',
       schema: factionSchema,
@@ -37,7 +39,9 @@ describe('lookupTablesSeeder', () => {
     expect(factionIds).toStrictEqual([...factionSchema.options].sort());
   });
 
-  test('tribe_ids contains every modeled tribe exactly once', () => {
+  test('tribe_ids contains every modeled tribe exactly once', async () => {
+    using database = await prepareTestDatabase();
+
     const tribeIds = database.selectValues({
       sql: 'SELECT tribe FROM tribe_ids ORDER BY tribe;',
       schema: tribeSchema,
@@ -46,7 +50,9 @@ describe('lookupTablesSeeder', () => {
     expect(tribeIds).toStrictEqual([...tribeSchema.options].sort());
   });
 
-  test('unit_ids contains every modeled unit exactly once', () => {
+  test('unit_ids contains every modeled unit exactly once', async () => {
+    using database = await prepareTestDatabase();
+
     const unitIds = database.selectValues({
       sql: 'SELECT unit FROM unit_ids ORDER BY unit;',
       schema: unitIdSchema,
@@ -55,7 +61,9 @@ describe('lookupTablesSeeder', () => {
     expect(unitIds).toStrictEqual(units.map(({ id }) => id).sort());
   });
 
-  test('effect_ids contains every modeled effect and keeps wheatProduction at id 1', () => {
+  test('effect_ids contains every modeled effect and keeps wheatProduction at id 1', async () => {
+    using database = await prepareTestDatabase();
+
     const effectIds = database.selectValues({
       sql: 'SELECT effect FROM effect_ids ORDER BY effect;',
       schema: effectIdSchema,
@@ -70,7 +78,9 @@ describe('lookupTablesSeeder', () => {
     expect(wheatProductionId).toBe(1);
   });
 
-  test('effect attribute lookup tables contain every modeled value with stable ids', () => {
+  test('effect attribute lookup tables contain every modeled value with stable ids', async () => {
+    using database = await prepareTestDatabase();
+
     const effectTypes = database.selectValues({
       sql: 'SELECT type FROM effect_type_ids ORDER BY type;',
       schema: effectTypeSchema,
@@ -100,7 +110,9 @@ describe('lookupTablesSeeder', () => {
     expect(buildingSourceId).toBe(1);
   });
 
-  test('tile_type_ids contains every modeled tile type with stable ids', () => {
+  test('tile_type_ids contains every modeled tile type with stable ids', async () => {
+    using database = await prepareTestDatabase();
+
     const tileTypes = database.selectValues({
       sql: 'SELECT type FROM tile_type_ids ORDER BY type;',
       schema: tileTypeSchema,
@@ -120,7 +132,9 @@ describe('lookupTablesSeeder', () => {
     expect(oasisTypeId).toBe(2);
   });
 
-  test('report_type_ids contains every modeled report type exactly once', () => {
+  test('report_type_ids contains every modeled report type exactly once', async () => {
+    using database = await prepareTestDatabase();
+
     const reportTypes = database.selectValues({
       sql: 'SELECT report_type FROM report_type_ids ORDER BY report_type;',
       schema: reportTypeSchema,
@@ -129,7 +143,9 @@ describe('lookupTablesSeeder', () => {
     expect(reportTypes).toStrictEqual([...reportTypeSchema.options].sort());
   });
 
-  test('resource_ids contains every modeled resource with stable ids', () => {
+  test('resource_ids contains every modeled resource with stable ids', async () => {
+    using database = await prepareTestDatabase();
+
     const resources = database.selectValues({
       sql: 'SELECT resource FROM resource_ids ORDER BY resource;',
       schema: resourceSchema,

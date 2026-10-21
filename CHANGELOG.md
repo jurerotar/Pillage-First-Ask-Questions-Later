@@ -1,3 +1,47 @@
+## Version 0.4.75
+
+#### Oct 20, 2026
+
+* [Feature] Added cross-device game world sharing. Upload a game world and open its link or scan its QR code on another
+  device to import it. Shared copies can be imported once and are deleted after import or 24 hours.
+* [Feature] Added an optional contact field to bug reports, allowing you to leave a Discord username or email address
+  for follow-up questions.
+* [Feature] Added a notification when a new app version is available, with an option to refresh and update.
+* [BugFix] Fixed troop movements overlapping the construction queue on mobile.
+* [BugFix] Fixed village resource displays not updating correctly after changing hero attributes or resource production.
+* [BugFix] Fixed crashes when browser translation extensions modify select controls and building cards.
+* [BugFix] Fixed scheduled construction cancellation reports crashing when building allowances are unlimited.
+* [BugFix] Fixed cached app instances incorrectly reporting game worlds as outdated when opened with a newer app
+  version. The app now prompts you to refresh and load the latest version.
+
+## Version 0.4.74
+
+#### Oct 14, 2026
+
+* [BugFix] Fixed an incorrectly displayed unit training cost in Great Barracks and Great Stable.
+* [BugFix] Fixed an issue where internal game state updates would run in incorrect order, which resulted in players
+  having their resource amount calculated incorrectly.
+* [BugFix] Fixed an issue where creating thousands of events at once could fail due to a database limit.
+* [BugFix] Fixed unit improvements being applied to other players' units.
+* [BugFix] Fixed Oasis Animal Finder including occupied oasis and counting reinforcing troops as capturable animals.
+* [Performance] Improved execution time of event resolvers (by over 90% in some cases), greatly speeding up game world
+  initialization.
+* [Performance] Improved query performance for effect lookups (~60%), map loading, marketplace offers, rankings and
+  oasis searches.
+* [Performance] Improved processing of queued game events by batching database writes, speeding up game world catch-up
+  after time away.
+
+## Version 0.4.73
+
+#### Oct 8, 2026
+
+* [BugFix] Fixed global hunting quests losing progress when hunting reports are deleted.
+* [Performance] Improved village resource monitoring by sharing resource calculations and reducing unnecessary
+  updates to resource availability checks.
+* [Performance] Improved map marker lookup performance when displaying map tiles and tile details.
+* [Performance] Developer tools now load only when opened, avoiding unnecessary initialization during normal gameplay.
+* [Performance] Reduced unnecessary responsive layout subscription updates.
+
 ## Version 0.4.72
 
 #### Oct 7, 2026

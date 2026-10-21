@@ -15,7 +15,7 @@ export const assessAdventureCountQuestCompletion = (
         completed_at = $completed_at
       WHERE
         completed_at IS NULL
-        AND quest_id LIKE 'adventureCount-%'
+        AND quest_id GLOB 'adventureCount-*'
         AND substr(quest_id, length('adventureCount-') + 1) GLOB '[0-9]*'
         AND (
           SELECT COALESCE (
@@ -142,17 +142,14 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
       WHERE
         completed_at IS NULL
         AND village_id IS NULL
-        AND quest_id LIKE 'captureAnimalCountById-' || $unit_id || '-%'
+        AND quest_id GLOB $quest_pattern
         AND substr(quest_id, length('captureAnimalCountById-' || $unit_id || '-') + 1) GLOB '[0-9]*'
         AND (
-          SELECT COALESCE(SUM(hpru.amount), 0)
-          FROM hunting_party_report_units hpru
-          JOIN unit_ids ui ON ui.id = hpru.unit_id
-          JOIN hunting_party_reports hpr ON hpr.id = hpru.hunting_party_report_id
-          JOIN reports r ON r.id = hpr.report_id
-          JOIN villages v ON v.id = r.village_id
+          SELECT COALESCE(SUM(hch.amount), 0)
+          FROM hunting_capture_history hch
+          JOIN unit_ids ui ON ui.id = hch.unit_id
           WHERE
-            v.player_id = $player_id
+            hch.player_id = $player_id
             AND ui.unit = $unit_id
         ) >= CAST (
         substr(
@@ -162,6 +159,7 @@ export const assessCaptureAnimalCountByIdQuestCompletion = (
     bind: {
       $completed_at: timestamp,
       $unit_id: unitId,
+      $quest_pattern: `captureAnimalCountById-${unitId}-*`,
       $player_id: PLAYER_ID,
     },
   });
@@ -179,25 +177,22 @@ export const assessCaptureAnimalKindCountQuestCompletion = (
       WHERE
         completed_at IS NULL
         AND village_id IS NULL
-        AND quest_id LIKE 'captureAnimalKindCount-%'
+        AND quest_id GLOB 'captureAnimalKindCount-*'
         AND substr(quest_id, length('captureAnimalKindCount-') + 1) GLOB '[0-9]*'
         AND (
           SELECT COUNT(*)
           FROM (
             SELECT ui.unit
-            FROM hunting_party_report_units hpru
-            JOIN unit_ids ui ON ui.id = hpru.unit_id
-            JOIN hunting_party_reports hpr ON hpr.id = hpru.hunting_party_report_id
-            JOIN reports r ON r.id = hpr.report_id
-            JOIN villages v ON v.id = r.village_id
+            FROM hunting_capture_history hch
+            JOIN unit_ids ui ON ui.id = hch.unit_id
             WHERE
-              v.player_id = $player_id
+              hch.player_id = $player_id
               AND ui.unit IN (
                 SELECT value
                 FROM json_each($unit_ids)
               )
             GROUP BY ui.unit
-            HAVING SUM(hpru.amount) > 0
+            HAVING SUM(hch.amount) > 0
           )
         ) >= CAST (
         substr(
@@ -225,7 +220,7 @@ export const assessGatheredResourceCountQuestCompletion = (
       WHERE
         completed_at IS NULL
         AND village_id IS NULL
-        AND quest_id LIKE 'gatheredResourceCount-%'
+        AND quest_id GLOB 'gatheredResourceCount-*'
         AND substr(quest_id, length('gatheredResourceCount-') + 1) GLOB '[0-9]*'
         AND (
           SELECT COALESCE(
@@ -279,7 +274,7 @@ export const assessBuildingQuestCompletion = (
           SELECT 1
           FROM
             building_fields bf
-          JOIN building_ids bi ON bi.id = bf.building_id
+          CROSS JOIN building_ids bi ON bi.id = bf.building_id
           WHERE
             bf.village_id = $village_id
             AND bi.building = $building_id
@@ -310,7 +305,7 @@ export const assessBuildingQuestCompletion = (
               SELECT COUNT(*)
               FROM
                 building_fields bf
-              JOIN building_ids bi ON bi.id = bf.building_id
+              CROSS JOIN building_ids bi ON bi.id = bf.building_id
               WHERE
                 bf.village_id = $village_id
                 AND bi.building = $building_id
@@ -319,7 +314,7 @@ export const assessBuildingQuestCompletion = (
               SELECT COUNT(*)
               FROM
                 building_fields bf
-              JOIN building_ids bi ON bi.id = bf.building_id
+              CROSS JOIN building_ids bi ON bi.id = bf.building_id
               WHERE
                 bf.village_id = $village_id
                 AND bi.building = $building_id
@@ -328,7 +323,7 @@ export const assessBuildingQuestCompletion = (
               SELECT COUNT(*)
               FROM
                 building_fields bf
-              JOIN building_ids bi ON bi.id = bf.building_id
+              CROSS JOIN building_ids bi ON bi.id = bf.building_id
               WHERE
                 bf.village_id = $village_id
                 AND bi.building = $building_id

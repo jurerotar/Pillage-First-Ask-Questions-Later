@@ -1,0 +1,24 @@
+{
+  "name": "@pillage-first/remote-api",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "remote-api": "node --watch --env-file=.env src/server.ts",
+    "start": "node src/server.ts",
+    "type-check": "tsc --noEmit",
+    "lint:check": "biome lint --no-errors-on-unmatched",
+    "format:check": "biome ci --linter-enabled=false",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.5",
+    "hono": "4.13.13",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "7.0.2",
+    "vitest": "5.0.5"
+  }
+}

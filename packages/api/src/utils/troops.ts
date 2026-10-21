@@ -33,6 +33,7 @@ type WoundedTroopUpdate = {
 export const addTroops = (database: DbFacade, troops: Troop[]) => {
   if (troops.length === 1) {
     const troop = troops[0]!;
+
     database.exec({
       sql: `
         INSERT INTO troops (unit_id, amount, tile_id, source_tile_id)
@@ -52,6 +53,7 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
         $source_tile_id: troop.sourceTileId,
       },
     });
+
     return;
   }
 
@@ -80,6 +82,10 @@ export const addTroops = (database: DbFacade, troops: Troop[]) => {
 };
 
 export const removeTroops = (database: DbFacade, troops: Troop[]) => {
+  if (troops.length === 0) {
+    return;
+  }
+
   if (troops.length === 1) {
     const troop = troops[0]!;
     const bind = {
@@ -88,6 +94,7 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
       $tile_id: troop.tileId,
       $source_tile_id: troop.sourceTileId,
     };
+
     database.exec({
       sql: `
         DELETE FROM troops
@@ -99,6 +106,7 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
       `,
       bind,
     });
+
     database.exec({
       sql: `
         UPDATE troops
@@ -129,14 +137,13 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
         GROUP BY unit_ids.id, tile_id, source_tile_id
       )
       DELETE FROM troops
-      WHERE EXISTS (
-        SELECT 1
-        FROM requested_troops
-        WHERE
-          requested_troops.unit_id = troops.unit_id
-          AND requested_troops.tile_id = troops.tile_id
-          AND requested_troops.source_tile_id = troops.source_tile_id
-          AND troops.amount <= requested_troops.amount
+      WHERE id IN (
+        SELECT t.id
+        FROM requested_troops requested
+          JOIN troops t ON t.unit_id = requested.unit_id
+            AND t.tile_id = requested.tile_id
+            AND t.source_tile_id = requested.source_tile_id
+        WHERE t.amount <= requested.amount
       );
     `,
     bind: { $troops: JSON.stringify(troops) },

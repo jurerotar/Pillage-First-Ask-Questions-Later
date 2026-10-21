@@ -22,7 +22,7 @@ describe('building effects', () => {
 
   for (const { id, effectId } of buildingsToTest) {
     test(`should update ${effectId} effect when ${id} is upgraded`, async () => {
-      const database = await prepareTestDatabase();
+      using database = await prepareTestDatabase();
       const villageId = 1;
       const buildingFieldId = 20;
 
@@ -51,6 +51,7 @@ describe('building effects', () => {
         },
         schema: z.number(),
       });
+
       expect(effectValue0).toBe(1);
 
       // Level up to level 2 (valuesPerLevel[2] = 0.9091)
@@ -78,6 +79,7 @@ describe('building effects', () => {
         },
         schema: z.number(),
       });
+
       expect(effectValue2).toBeCloseTo(0.9091, 4);
     });
   }

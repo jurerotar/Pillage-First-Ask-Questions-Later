@@ -10,9 +10,9 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
 ) => {
   const { resolvesAt } = args;
 
-  const affectedIds = database.selectValues({
+  const affectedVillages = database.selectObjects({
     sql: `
-      SELECT DISTINCT v.id AS villageId
+      SELECT v.id AS villageId, v.tile_id AS tileId
       FROM
         loyalties l
           JOIN villages v ON v.tile_id = l.tile_id
@@ -20,20 +20,10 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
         v.player_id = $player_id;
     `,
     bind: { $player_id: PLAYER_ID },
-    schema: z.number(),
-  });
-
-  const affectedTileIds = database.selectValues({
-    sql: `
-      SELECT DISTINCT l.tile_id
-      FROM
-        loyalties l
-          JOIN villages v ON v.tile_id = l.tile_id
-      WHERE
-        v.player_id = $player_id;
-    `,
-    bind: { $player_id: PLAYER_ID },
-    schema: z.number(),
+    schema: z.strictObject({
+      villageId: z.number(),
+      tileId: z.number(),
+    }),
   });
 
   database.exec({
@@ -47,7 +37,7 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
                 bf.level
               FROM
                 building_fields bf
-                  JOIN building_ids bi ON bi.id = bf.building_id
+                  CROSS JOIN building_ids bi ON bi.id = bf.building_id
               WHERE
                 bf.village_id = v.id
                 AND bi.building = 'RESIDENCE'
@@ -75,7 +65,7 @@ export const loyaltyIncreaseResolver: Resolver<GameEvent<'loyaltyIncrease'>> = (
   }
 
   return {
-    affectedVillageIds: affectedIds,
-    affectedTileIds,
+    affectedVillageIds: affectedVillages.map(({ villageId }) => villageId),
+    affectedTileIds: affectedVillages.map(({ tileId }) => tileId),
   };
 };

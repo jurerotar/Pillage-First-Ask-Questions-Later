@@ -15,6 +15,7 @@ describe('math utils', () => {
     test('should calculate distance between two points', () => {
       const p1 = { x: 0, y: 0 };
       const p2 = { x: 3, y: 4 };
+
       expect(calculateDistanceBetweenPoints(p1, p2)).toBe(5);
     });
 

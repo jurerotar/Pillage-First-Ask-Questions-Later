@@ -5,15 +5,12 @@ import { serverDbSchema } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
-import createWoundedTroopsIndexes from '../indexes/wounded-troops-indexes.sql?raw';
-import createBattleReportBuildingsTable from '../schemas/battle-report-buildings-schema.sql?raw';
-import createBattleReportUnitsTable from '../schemas/battle-report-units-schema.sql?raw';
 import createCulturePointsTable from '../schemas/culture-points-schema.sql?raw';
 import createFiltersTable from '../schemas/filters-schema.sql?raw';
 import createHeroAuctionBuyListingsTable from '../schemas/hero-auction-buy-listings-schema.sql?raw';
 import createHeroAuctionHistoryTable from '../schemas/hero-auction-history-schema.sql?raw';
 import createHeroAuctionSellListingsTable from '../schemas/hero-auction-sell-listings-schema.sql?raw';
-import createBuildingIdsTable from '../schemas/lookup-tables/building-ids-schema.sql?raw';
+import createHuntingCaptureHistoryTable from '../schemas/history-tables/hunting-capture-history-schema.sql?raw';
 import createReportOutcomeIdsTable from '../schemas/lookup-tables/report-outcome-ids-schema.sql?raw';
 import createReportTypeIdsTable from '../schemas/lookup-tables/report-type-ids-schema.sql?raw';
 import createScheduledConstructionCancellationReportsTable from '../schemas/scheduled-construction-cancellation-reports-schema.sql?raw';
@@ -21,13 +18,9 @@ import createScoutingReportsTable from '../schemas/scouting-reports-schema.sql?r
 import createUnitImprovementReportsTable from '../schemas/unit-improvement-reports-schema.sql?raw';
 import createUnitResearchReportsTable from '../schemas/unit-research-reports-schema.sql?raw';
 import createVillageFoundingReportsTable from '../schemas/village-founding-reports-schema.sql?raw';
-import createWoundedTroopsTable from '../schemas/wounded-troops-schema.sql?raw';
-import { buildingIdsSeeder } from '../seeders/building-ids-seeder';
 import { filtersSeeder } from '../seeders/filters-seeder';
 import { worldItemsSeeder } from '../seeders/world-items-seeder';
-import createBattleReportWoundedTroopsTriggers from '../triggers/battle-report-wounded-troops-triggers.sql?raw';
 import { setupGlobalWriteTriggers } from '../triggers/global-write-triggers';
-import { setupHistoryTriggers } from '../triggers/history-triggers';
 import createReportDeleteTriggers from '../triggers/report-delete-triggers.sql?raw';
 import { migrateTo } from './migrate-db';
 
@@ -153,445 +146,6 @@ export const upgradeDb = (
       databaseVersion,
     );
   };
-
-  migrate('0.4.52', (db) => {
-    const tableExists = (tableName: string): boolean => {
-      return db.selectValue({
-        sql: `
-          SELECT
-            EXISTS
-            (
-              SELECT 1
-              FROM
-                sqlite_master
-              WHERE
-                type = 'table'
-                AND name = $table_name
-              );
-        `,
-        bind: {
-          $table_name: tableName,
-        },
-        schema: z.coerce.boolean(),
-      })!;
-    };
-
-    if (!tableExists('building_ids')) {
-      if (tableExists('building_ids_new')) {
-        db.exec({
-          sql: 'ALTER TABLE building_ids_new RENAME TO building_ids;',
-        });
-      } else {
-        db.execMulti({ sql: createBuildingIdsTable });
-        buildingIdsSeeder(db);
-      }
-    }
-
-    db.exec({
-      sql: 'CREATE INDEX IF NOT EXISTS idx_building_ids_building ON building_ids(building);',
-    });
-
-    const hasAsclepeionBuildingId = db.selectValue({
-      sql: `
-        SELECT
-          EXISTS
-          (
-            SELECT 1
-            FROM
-              building_ids
-            WHERE
-              building = 'ASCLEPEION'
-            );
-      `,
-      schema: z.coerce.boolean(),
-    });
-
-    if (!hasAsclepeionBuildingId) {
-      db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
-
-      try {
-        db.transaction((tx) => {
-          tx.exec({
-            sql: 'DROP TRIGGER IF EXISTS trg_unit_training_history_delete;',
-          });
-          tx.exec({ sql: 'DROP TABLE IF EXISTS building_ids_new;' });
-
-          tx.exec({
-            sql: `
-              CREATE TABLE building_ids_new
-              (
-                id INTEGER PRIMARY KEY,
-                building TEXT NOT NULL UNIQUE CHECK (building IN
-                                                     ('BARRACKS', 'GREAT_BARRACKS', 'STABLE', 'GREAT_STABLE',
-                                                      'WORKSHOP', 'HOSPITAL', 'ASCLEPEION', 'CLAY_PIT', 'WHEAT_FIELD',
-                                                      'WOODCUTTER', 'IRON_MINE', 'BAKERY', 'BRICKYARD', 'GRAIN_MILL',
-                                                      'GRANARY', 'GREAT_GRANARY', 'IRON_FOUNDRY', 'SAWMILL',
-                                                      'WAREHOUSE', 'GREAT_WAREHOUSE', 'WATERWORKS', 'ACADEMY',
-                                                      'ROMAN_WALL', 'TEUTONIC_WALL', 'HEROS_MANSION', 'HUN_WALL',
-                                                      'GAUL_WALL', 'RALLY_POINT', 'EGYPTIAN_WALL', 'TRAPPER', 'BREWERY',
-                                                      'COMMAND_CENTER', 'CRANNY', 'HORSE_DRINKING_TROUGH',
-                                                      'MAIN_BUILDING', 'MARKETPLACE', 'RESIDENCE', 'TOURNAMENT_SQUARE',
-                                                      'TRADE_OFFICE', 'SMITHY', 'TOWN_HALL', 'EMBASSY', 'TREASURY',
-                                                      'GATHERERS_HUT', 'HUNTERS_LODGE', 'SPARTAN_WALL', 'NATAR_WALL',
-                                                      'NATURE_WALL'))
-              ) STRICT;
-            `,
-          });
-
-          tx.exec({
-            sql: `
-              INSERT OR IGNORE INTO
-                building_ids_new (id, building)
-              SELECT id, building
-              FROM
-                building_ids;
-            `,
-          });
-
-          tx.exec({
-            sql: `
-              INSERT OR IGNORE INTO
-                building_ids_new (building)
-              VALUES
-                ('ASCLEPEION');
-            `,
-          });
-
-          tx.exec({ sql: 'DROP TABLE building_ids;' });
-          tx.exec({
-            sql: 'ALTER TABLE building_ids_new RENAME TO building_ids;',
-          });
-          tx.exec({
-            sql: 'CREATE INDEX IF NOT EXISTS idx_building_ids_building ON building_ids(building);',
-          });
-        });
-      } finally {
-        db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
-      }
-
-      setupHistoryTriggers(db);
-    }
-
-    db.execMulti({ sql: createWoundedTroopsTable });
-    db.execMulti({ sql: createWoundedTroopsIndexes });
-    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
-  });
-
-  migrate('0.4.53', (db) => {
-    db.exec({
-      sql: 'DROP TRIGGER IF EXISTS reports_delete_details_before_delete;',
-    });
-
-    db.exec({
-      sql: 'DROP TRIGGER IF EXISTS battle_report_units_create_wounded_troops_after_insert;',
-    });
-
-    db.exec({ sql: 'DROP TABLE IF EXISTS battle_report_units;' });
-    db.exec({ sql: 'DROP TABLE IF EXISTS battle_report_buildings;' });
-
-    db.execMulti({ sql: createBattleReportUnitsTable });
-    db.execMulti({ sql: createBattleReportBuildingsTable });
-
-    db.exec({
-      sql: `
-        CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
-          ON battle_report_buildings (report_id);
-      `,
-    });
-
-    db.execMulti({ sql: createReportDeleteTriggers });
-    db.execMulti({ sql: createBattleReportWoundedTroopsTriggers });
-
-    setupGlobalWriteTriggers(db);
-  });
-
-  migrate('0.4.55', (db) => {
-    db.execMulti({
-      sql: `
-        DROP INDEX IF EXISTS idx_effects_effect_id;
-        DROP INDEX IF EXISTS idx_effects_village_id;
-        DROP INDEX IF EXISTS idx_effects_tile_id;
-        DROP INDEX IF EXISTS idx_effects_village_effect_scope_spec;
-        DROP INDEX IF EXISTS idx_effects_effect_village_scope_spec;
-        DROP INDEX IF EXISTS idx_effects_effect_tile_scope_spec;
-        DROP INDEX IF EXISTS idx_effects_tile_effect_scope_spec;
-        DROP INDEX IF EXISTS idx_effects_resource_village;
-        DROP INDEX IF EXISTS idx_effects_resource_tile;
-        DROP INDEX IF EXISTS idx_effects_wheat_effect_village_value;
-        DROP INDEX IF EXISTS idx_effects_wheat_effect_tile_value;
-      `,
-    });
-
-    db.exec({ sql: 'PRAGMA foreign_keys = OFF;' });
-
-    try {
-      db.transaction((tx) => {
-        tx.exec({ sql: 'ALTER TABLE effects RENAME TO effects_old;' });
-
-        tx.exec({
-          sql: `
-            CREATE TABLE effects
-            (
-              id INTEGER PRIMARY KEY,
-              effect_id INTEGER NOT NULL,
-              value REAL NOT NULL,
-              type_id INTEGER NOT NULL,
-              scope_id INTEGER NOT NULL,
-              source_id INTEGER NOT NULL,
-              tile_id INTEGER,
-              source_specifier INTEGER,
-
-              FOREIGN KEY (effect_id) REFERENCES effect_ids (id),
-              FOREIGN KEY (type_id) REFERENCES effect_type_ids (id),
-              FOREIGN KEY (scope_id) REFERENCES effect_scope_ids (id),
-              FOREIGN KEY (source_id) REFERENCES effect_source_ids (id),
-              FOREIGN KEY (tile_id) REFERENCES tiles (id) ON DELETE CASCADE ON UPDATE CASCADE
-            );
-          `,
-        });
-
-        tx.exec({
-          sql: `
-            INSERT INTO
-              effects (id, effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
-            SELECT
-              e.id,
-              e.effect_id,
-              e.value,
-              e.type_id,
-              e.scope_id,
-              e.source_id,
-              v.tile_id,
-              e.source_specifier
-            FROM
-              effects_old e
-                LEFT JOIN villages v ON v.id = e.village_id;
-          `,
-        });
-
-        tx.exec({ sql: 'DROP TABLE effects_old;' });
-      });
-    } finally {
-      db.exec({ sql: 'PRAGMA foreign_keys = ON;' });
-    }
-
-    db.execMulti({
-      sql: `
-        CREATE INDEX IF NOT EXISTS idx_effects_effect_id ON effects(effect_id);
-        CREATE INDEX IF NOT EXISTS idx_effects_tile_id ON effects(tile_id);
-        CREATE INDEX IF NOT EXISTS idx_effects_tile_effect_scope_spec
-          ON effects (effect_id, tile_id, scope_id, source_specifier);
-      `,
-    });
-
-    db.exec({
-      sql: `
-        UPDATE effects
-        SET
-          tile_id = source_specifier
-        WHERE
-          source_id = (
-            SELECT id
-            FROM effect_source_ids
-            WHERE source = 'oasis'
-            )
-          AND scope_id = (
-            SELECT id
-            FROM effect_scope_ids
-            WHERE scope = 'local'
-            )
-          AND tile_id IS NULL
-          AND source_specifier IN (
-            SELECT id
-            FROM tiles
-            );
-      `,
-    });
-
-    db.exec({
-      sql: `
-        DELETE
-        FROM
-          effects
-        WHERE
-          source_id = (
-            SELECT id
-            FROM effect_source_ids
-            WHERE source = 'oasis'
-            )
-          AND scope_id = (
-            SELECT id
-            FROM effect_scope_ids
-            WHERE scope = 'local'
-            )
-          AND tile_id IS NULL;
-      `,
-    });
-
-    db.exec({
-      sql: `
-        WITH
-          effect_context(type_id, scope_id, source_id) AS (
-            SELECT
-              (
-                SELECT id
-                FROM effect_type_ids
-                WHERE type = 'base'
-                ),
-              (
-                SELECT id
-                FROM effect_scope_ids
-                WHERE scope = 'local'
-                ),
-              (
-                SELECT id
-                FROM effect_source_ids
-                WHERE source = 'oasis'
-                )
-            ),
-
-          effect_lookup(effect, effect_id) AS (
-            SELECT effect, id
-            FROM
-              effect_ids
-            WHERE
-              effect IN (
-                         'warehouseCapacity',
-                         'granaryCapacity',
-                         'woodProduction',
-                         'clayProduction',
-                         'ironProduction',
-                         'wheatProduction'
-                )
-            ),
-
-          resource_effects(resource_id, effect_id) AS (
-            SELECT
-              ri.id,
-              el.effect_id
-            FROM
-              resource_ids ri
-                JOIN effect_lookup el ON el.effect = ri.resource || 'Production'
-            WHERE
-              ri.resource IN ('wood', 'clay', 'iron', 'wheat')
-            ),
-
-          storage_effects(effect_id) AS (
-            SELECT effect_id
-            FROM
-              effect_lookup
-            WHERE
-              effect IN ('warehouseCapacity', 'granaryCapacity')
-            ),
-
-          oasis_capacity AS (
-            SELECT
-              tile_id,
-              CASE
-                WHEN MAX(bonus) = 50 OR COUNT(*) = 2 THEN 2000
-                ELSE 1000
-                END AS value
-            FROM
-              oasis
-            GROUP BY tile_id
-            ),
-
-          oasis_production AS (
-            SELECT
-              tiles.tile_id,
-              re.effect_id,
-              CASE
-                WHEN MAX(o.bonus) = 50 THEN 80
-                WHEN MAX(o.bonus) = 25 THEN 40
-                ELSE 10
-                END AS value
-            FROM
-              (
-                SELECT DISTINCT tile_id
-                FROM
-                  oasis
-                ) tiles
-                CROSS JOIN resource_effects re
-                LEFT JOIN oasis o ON o.tile_id = tiles.tile_id
-                AND o.resource_id = re.resource_id
-            GROUP BY
-              tiles.tile_id,
-              re.effect_id
-            ),
-
-          oasis_effects_to_insert(effect_id, value, tile_id) AS (
-            SELECT
-              op.effect_id,
-              op.value,
-              op.tile_id
-            FROM
-              oasis_production op
-            WHERE
-              op.value > 0
-
-            UNION ALL
-
-            SELECT
-              se.effect_id,
-              oc.value,
-              oc.tile_id
-            FROM
-              oasis_capacity oc
-                CROSS JOIN storage_effects se
-            )
-
-        INSERT
-        INTO
-          effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
-        SELECT
-          oeti.effect_id,
-          oeti.value,
-          ec.type_id,
-          ec.scope_id,
-          ec.source_id,
-          oeti.tile_id,
-          oeti.tile_id
-        FROM
-          oasis_effects_to_insert oeti
-            CROSS JOIN effect_context ec
-        WHERE
-          NOT EXISTS
-          (
-            SELECT 1
-            FROM
-              effects e
-            WHERE
-              e.effect_id = oeti.effect_id
-              AND e.type_id = ec.type_id
-              AND e.scope_id = ec.scope_id
-              AND e.source_id = ec.source_id
-              AND e.tile_id = oeti.tile_id
-              AND e.source_specifier = oeti.tile_id
-            );
-      `,
-    });
-
-    db.execMulti({
-      sql: `
-        DROP INDEX IF EXISTS idx_building_fields_building_id;
-        CREATE INDEX IF NOT EXISTS idx_building_fields_building_id_level
-          ON building_fields (building_id, level);
-        CREATE INDEX IF NOT EXISTS idx_reports_timestamp
-          ON reports (timestamp DESC);
-        CREATE INDEX IF NOT EXISTS idx_reports_village_timestamp
-          ON reports (village_id, timestamp DESC);
-        CREATE INDEX IF NOT EXISTS idx_battle_report_participants_battle
-          ON battle_report_participants (battle_id);
-        CREATE INDEX IF NOT EXISTS idx_battle_report_buildings_report
-          ON battle_report_buildings (report_id);
-        DROP INDEX IF EXISTS idx_unit_ids_unit;
-        DROP INDEX IF EXISTS idx_resource_sites_tile_id;
-        DROP INDEX IF EXISTS idx_villages_tile_id;
-      `,
-    });
-
-    setupGlobalWriteTriggers(db);
-  });
 
   migrate('0.4.57', (db) => {
     db.exec({
@@ -1055,6 +609,90 @@ export const upgradeDb = (
 
   migrate('0.4.73', (db) => {
     db.transaction((tx) => {
+      tx.execMulti({ sql: createHuntingCaptureHistoryTable });
+
+      // Deleted reports cannot be recovered. Preserve the catches still recorded
+      // in reports before enabling lifetime tracking for future hunts.
+      tx.exec({
+        sql: `
+          INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+          SELECT v.player_id, hpru.unit_id, SUM(hpru.amount)
+          FROM hunting_party_report_units hpru
+          JOIN hunting_party_reports hpr ON hpr.id = hpru.hunting_party_report_id
+          JOIN reports r ON r.id = hpr.report_id
+          JOIN villages v ON v.id = r.village_id
+          GROUP BY v.player_id, hpru.unit_id
+          HAVING SUM(hpru.amount) > 0;
+        `,
+      });
+
+      // Completed quests provide a proven lower bound even if their reports
+      // have already been deleted.
+      tx.exec({
+        sql: `
+          INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+          SELECT $player_id, ui.id,
+            MAX(CAST(substr(q.quest_id, length('captureAnimalCountById-' || ui.unit || '-') + 1) AS INTEGER))
+          FROM quests q
+          JOIN unit_ids ui ON substr(q.quest_id, 1, length('captureAnimalCountById-' || ui.unit || '-'))
+            = 'captureAnimalCountById-' || ui.unit || '-'
+          WHERE q.village_id IS NULL AND q.completed_at IS NOT NULL
+          GROUP BY ui.id
+          HAVING MAX(CAST(substr(q.quest_id, length('captureAnimalCountById-' || ui.unit || '-') + 1) AS INTEGER)) > 0
+          ON CONFLICT (player_id, unit_id) DO UPDATE SET
+            amount = MAX(hunting_capture_history.amount, EXCLUDED.amount);
+        `,
+        bind: { $player_id: PLAYER_ID },
+      });
+    });
+  });
+
+  migrate('0.4.74', (db) => {
+    db.transaction((tx) => {
+      tx.execMulti({
+        sql: `
+          DROP INDEX IF EXISTS idx_villages_player_id;
+          DROP INDEX IF EXISTS idx_villages_slug;
+          DROP INDEX IF EXISTS idx_bookmarks_building_id;
+          DROP INDEX IF EXISTS idx_bookmarks_village_id;
+          DROP INDEX IF EXISTS idx_building_ids_building;
+          DROP INDEX IF EXISTS idx_building_level_change_history_building_id;
+          DROP INDEX IF EXISTS idx_effect_ids_effect;
+          DROP INDEX IF EXISTS idx_effects_effect_id;
+          DROP INDEX IF EXISTS idx_faction_ids_faction;
+          DROP INDEX IF EXISTS idx_faction_reputation_source_faction_id;
+          DROP INDEX IF EXISTS idx_faction_reputation_target_faction_id;
+          DROP INDEX IF EXISTS idx_farm_list_tiles_farm_list_id;
+          DROP INDEX IF EXISTS idx_hero_adventures_hero_id;
+          DROP INDEX IF EXISTS idx_hero_equipped_items_hero_id;
+          DROP INDEX IF EXISTS idx_hero_inventory_hero_id;
+          DROP INDEX IF EXISTS idx_hero_selectable_attributes_hero_id;
+          DROP INDEX IF EXISTS idx_loyalties_tile_id;
+          DROP INDEX IF EXISTS idx_map_filters_player_id;
+          DROP INDEX IF EXISTS idx_preferences_player_id;
+          DROP INDEX IF EXISTS idx_report_type_ids_report_type;
+          DROP INDEX IF EXISTS idx_resource_ids_resource;
+          DROP INDEX IF EXISTS idx_tile_type_ids_type;
+          DROP INDEX IF EXISTS idx_tiles_rfc_id;
+          DROP INDEX IF EXISTS idx_trapper_cages_village_id;
+          DROP INDEX IF EXISTS idx_tribe_ids_tribe;
+          DROP INDEX IF EXISTS idx_troops_tile_id;
+          DROP INDEX IF EXISTS idx_troops_unit_id;
+          DROP INDEX IF EXISTS idx_unit_improvements_unit_id;
+          DROP INDEX IF EXISTS idx_unit_research_unit_id;
+          DROP INDEX IF EXISTS idx_unit_training_history_building_id;
+          DROP INDEX IF EXISTS idx_world_items_tile_id;
+          DROP INDEX IF EXISTS idx_wounded_troops_unit_id;
+          DROP INDEX IF EXISTS idx_wounded_troops_village_id;
+          CREATE INDEX idx_villages_player_id ON villages (player_id);
+          CREATE INDEX idx_villages_slug ON villages (slug) WHERE slug IS NOT NULL;
+        `,
+      });
+    });
+  });
+
+  migrate('0.4.76', (db) => {
+    db.transaction((tx) => {
       tx.exec({
         sql: `
           ALTER TABLE servers
@@ -1110,4 +748,8 @@ export const upgradeDb = (
       sql: `PRAGMA user_version=${targetDatabaseVersion};`,
     });
   }
+
+  database.exec({
+    sql: 'VACUUM;',
+  });
 };

@@ -143,7 +143,7 @@ describe('oasis-controllers', () => {
   };
 
   test('occupyOasis should occupy an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
@@ -172,7 +172,7 @@ describe('oasis-controllers', () => {
   });
 
   test('occupyOasis should move oasis effects from previous owner', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const [previousOwner, nextOwner] = database.selectObjects({
       sql: 'SELECT id, player_id, tile_id FROM villages ORDER BY id LIMIT 2',
@@ -237,7 +237,7 @@ describe('oasis-controllers', () => {
   });
 
   test('occupyOasis should apply current Waterworks multiplier to oasis effects', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
@@ -272,7 +272,7 @@ describe('oasis-controllers', () => {
   });
 
   test('Waterworks level changes should update occupied oasis effects', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
@@ -318,7 +318,7 @@ describe('oasis-controllers', () => {
   });
 
   test('abandonOasis should abandon an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',
@@ -355,7 +355,7 @@ describe('oasis-controllers', () => {
   });
 
   test('abandonOasis should return oasis reinforcements to each source village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const owningVillage = database.selectObject({
       sql: 'SELECT id, player_id, tile_id FROM villages LIMIT 1',

@@ -1,4 +1,6 @@
-import { use } from 'react';
+import { faro } from '@grafana/faro-web-sdk';
+import { useMutation } from '@tanstack/react-query';
+import { use, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -14,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'app/components/ui/dialog';
+import { Input } from 'app/components/ui/input';
 import { Label } from 'app/components/ui/label';
 import { Spinner } from 'app/components/ui/spinner';
 
@@ -35,14 +38,26 @@ type UploadReservation = {
 
 type BugReportFormValues = {
   description: string;
+  contact: string;
+};
+
+type PendingUpload = {
+  world: Blob;
+  filename: string;
+  description: string;
+  contact: string;
+  title: string;
+  report?: ReportResponse;
+  reservation?: UploadReservation;
+  nextChunkIndex: number;
 };
 
 const getBugReporterUrl = (pathname: string): URL => {
-  if (!env.VITE_BUG_REPORTER_URL) {
+  if (!env.VITE_API_URL) {
     throw new Error('Bug reporting is not configured.');
   }
 
-  return new URL(pathname, env.VITE_BUG_REPORTER_URL);
+  return new URL(pathname, env.VITE_API_URL);
 };
 
 const getErrorMessage = async (response: Response): Promise<string> => {
@@ -72,6 +87,7 @@ const createDiagnostics = (server: ReturnType<typeof useServer>['server']) => {
     appVersion: env.VERSION,
     browserLanguage: navigator.language,
     browserLanguages: navigator.languages,
+    faroSessionId: faro.api?.getSession()?.id ?? null,
     gameWorld: {
       id: server.id,
       mapSize: server.configuration.mapSize,
@@ -94,35 +110,21 @@ const createDiagnostics = (server: ReturnType<typeof useServer>['server']) => {
   };
 };
 
-const uploadWorld = async (
-  database: Uint8Array,
-  description: string,
-  server: ReturnType<typeof useServer>['server'],
-): Promise<void> => {
-  const reportDescription = [
-    description.trim(),
-    '',
-    'Automatic diagnostics:',
-    JSON.stringify(createDiagnostics(server), null, 2),
-  ]
-    .join('\n')
-    .slice(0, 10_000);
-
-  const report = await fetchJson<ReportResponse>(
+const uploadWorld = async (upload: PendingUpload): Promise<void> => {
+  upload.report ??= await fetchJson<ReportResponse>(
     getBugReporterUrl('/api/reports'),
     {
       body: JSON.stringify({
-        description: reportDescription,
-        title: `Bug report: ${server.name}`.slice(0, 200),
+        contact: upload.contact || undefined,
+        description: upload.description,
+        title: upload.title,
       }),
       headers: { 'content-type': 'application/json' },
       method: 'POST',
     },
   );
 
-  const world = new Blob([Uint8Array.from(database)], {
-    type: 'application/x-sqlite3',
-  });
+  const { report, world } = upload;
 
   const getUploadReservation = () =>
     fetchJson<UploadReservation>(
@@ -133,11 +135,11 @@ const uploadWorld = async (
       },
     );
 
-  let reservation = await fetchJson<UploadReservation>(
+  upload.reservation ??= await fetchJson<UploadReservation>(
     getBugReporterUrl(`/api/reports/${report.reportId}/world`),
     {
       body: JSON.stringify({
-        filename: `${server.slug}.sqlite3`,
+        filename: upload.filename,
         size: world.size,
       }),
       headers: {
@@ -148,11 +150,11 @@ const uploadWorld = async (
     },
   );
 
-  for (
-    let chunkIndex = 0, start = 0;
-    start < world.size;
-    chunkIndex += 1, start += reservation.chunkSize
-  ) {
+  let reservation = upload.reservation;
+
+  while (upload.nextChunkIndex * reservation.chunkSize < world.size) {
+    const chunkIndex = upload.nextChunkIndex;
+    const start = chunkIndex * reservation.chunkSize;
     const end = Math.min(start + reservation.chunkSize, world.size);
     const chunk = world.slice(start, end);
     const uploadChunk = async (): Promise<Response> => {
@@ -173,12 +175,14 @@ const uploadWorld = async (
 
     if (response.status === 401) {
       reservation = await getUploadReservation();
+      upload.reservation = reservation;
       response = await uploadChunk();
     }
 
     if (!response.ok) {
       throw new Error(await getErrorMessage(response));
     }
+    upload.nextChunkIndex += 1;
   }
 
   const completeUpload = () => {
@@ -191,6 +195,7 @@ const uploadWorld = async (
 
   if (completeResponse.status === 401) {
     reservation = await getUploadReservation();
+    upload.reservation = reservation;
     completeResponse = await completeUpload();
   }
 
@@ -204,39 +209,76 @@ export const BugReportModal = ({ isOpen, onClose }: BugReportModalProps) => {
   const { server } = useServer();
   const { apiClient } = use(ApiContext);
   const form = useForm<BugReportFormValues>({
-    defaultValues: { description: '' },
+    defaultValues: { description: '', contact: '' },
   });
-  const isSubmitting = form.formState.isSubmitting;
-  const formError =
-    form.formState.errors.description?.message ??
-    form.formState.errors.root?.message;
+  const pendingUpload = useRef<PendingUpload | null>(null);
 
-  const submit = async ({ description }: BugReportFormValues) => {
-    form.clearErrors('root');
+  const {
+    mutate: submit,
+    isPending: isSubmitting,
+    error,
+  } = useMutation<void, Error, BugReportFormValues>({
+    mutationFn: async ({ description, contact }) => {
+      if (!pendingUpload.current) {
+        const diagnostics = createDiagnostics(server);
+        const { data: database } = await apiClient.get('/server/database');
 
-    try {
-      const { data: database } = await apiClient.get('/server/database');
-      await uploadWorld(database, description, server);
+        pendingUpload.current = {
+          world: new Blob([Uint8Array.from(database)], {
+            type: 'application/x-sqlite3',
+          }),
+          filename: `${server.slug}.sqlite3`,
+          description: [
+            description.trim(),
+            '',
+            'Automatic diagnostics:',
+            JSON.stringify(diagnostics, null, 2),
+          ]
+            .join('\n')
+            .slice(0, 10_000),
+          contact: contact.trim(),
+          title: `Bug report: ${server.name}`.slice(0, 200),
+          nextChunkIndex: 0,
+        };
+      }
+
+      await uploadWorld(pendingUpload.current);
+    },
+    onSuccess: () => {
+      pendingUpload.current = null;
       form.reset();
       onClose();
       toast.success(t('Bug report submitted. Thank you!'));
-    } catch (submissionError) {
-      form.setError('root', {
-        message:
-          submissionError instanceof Error
-            ? submissionError.message
-            : t('Unable to submit the bug report.'),
-      });
-    }
-  };
+    },
+    onError: () => {
+      if (!pendingUpload.current?.report) {
+        pendingUpload.current = null;
+      }
+    },
+  });
+
+  const formError =
+    form.formState.errors.description?.message ?? error?.message;
 
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={(open) => !open && !isSubmitting && onClose()}
     >
-      <DialogContent>
-        <form onSubmit={form.handleSubmit(submit)}>
+      <DialogContent
+        closeDisabled={isSubmitting}
+        onEscapeKeyDown={(event) => {
+          if (isSubmitting) {
+            event.preventDefault();
+          }
+        }}
+        onInteractOutside={(event) => {
+          if (isSubmitting) {
+            event.preventDefault();
+          }
+        }}
+      >
+        <form onSubmit={form.handleSubmit((values) => submit(values))}>
           <DialogHeader>
             <DialogTitle>{t('Report a bug')}</DialogTitle>
             <DialogDescription>
@@ -252,6 +294,7 @@ export const BugReportModal = ({ isOpen, onClose }: BugReportModalProps) => {
             <textarea
               id="bug-report-description"
               disabled={isSubmitting}
+              readOnly={!!pendingUpload.current?.report}
               maxLength={8_000}
               rows={7}
               className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 min-h-32 w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
@@ -265,8 +308,36 @@ export const BugReportModal = ({ isOpen, onClose }: BugReportModalProps) => {
                   t('Describe what happened before submitting the report.'),
               })}
             />
+            <Label
+              htmlFor="bug-report-contact"
+              className="mt-2"
+            >
+              {t('Contact (optional)')}
+            </Label>
+            <Input
+              id="bug-report-contact"
+              type="text"
+              disabled={isSubmitting}
+              readOnly={!!pendingUpload.current?.report}
+              maxLength={320}
+              placeholder={t('Discord username or email address')}
+              aria-describedby="bug-report-contact-help"
+              {...form.register('contact')}
+            />
+            {!!pendingUpload.current?.report && !isSubmitting && (
+              <p className="text-sm text-muted-foreground">
+                {t(
+                  'Your report has been saved. Submit again to resume the world upload.',
+                )}
+              </p>
+            )}
             {formError && (
-              <p className="text-sm text-destructive">{formError}</p>
+              <p
+                role="alert"
+                className="text-sm text-destructive"
+              >
+                {formError}
+              </p>
             )}
           </div>
           <DialogFooter className="mt-4">

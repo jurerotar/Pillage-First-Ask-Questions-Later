@@ -190,7 +190,7 @@ const prepareReportsTestDatabase = async () => {
 
 describe('report-controllers', () => {
   test('should list reports and filter by one or multiple report types', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
 
     const allReports = getReports(
       database,
@@ -198,7 +198,6 @@ describe('report-controllers', () => {
     );
 
     expect(allReports).toHaveLength(6);
-
     expect(new Set(allReports.map(({ type }) => type))).toStrictEqual(
       new Set([
         'battle',
@@ -238,7 +237,7 @@ describe('report-controllers', () => {
   });
 
   test('should use separate report filters for each report scope', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
 
     setActiveReportFilters(database, ['huntingParty'], 'global');
     setActiveReportFilters(database, ['trade'], 'unread');
@@ -265,7 +264,7 @@ describe('report-controllers', () => {
   });
 
   test('should include custom report types only while their filters are active', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
 
     database.exec({
       sql: `
@@ -340,7 +339,7 @@ describe('report-controllers', () => {
   });
 
   test('should apply unread, archived, and village scopes', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages ORDER BY id LIMIT 1;',
       schema: z.int(),
@@ -384,7 +383,7 @@ describe('report-controllers', () => {
   });
 
   test('should return complete detail DTOs for every report type', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
 
     const reportIds = database.selectObjects({
       sql: `SELECT rti.report_type AS type, MIN(r.id) AS id FROM reports r
@@ -415,7 +414,6 @@ describe('report-controllers', () => {
         'gatheringExpedition',
       ]),
     );
-
     expect(
       existingReports.find(({ type }) => type === 'battle'),
     ).toHaveProperty('battle.attacker.troops.units');
@@ -443,7 +441,7 @@ describe('report-controllers', () => {
   });
 
   test('should include item details in battle and scouting report DTOs', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
     const scoutingReportId = 7;
 
     database.exec({
@@ -530,7 +528,7 @@ describe('report-controllers', () => {
   });
 
   test('should return null for missing reports', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
 
     expect(
       getReport(
@@ -543,7 +541,7 @@ describe('report-controllers', () => {
   });
 
   test('should mark reports as read when their details are viewed', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
 
     const report = getReport(
       database,
@@ -570,7 +568,7 @@ describe('report-controllers', () => {
   });
 
   test('should update tags for multiple reports to their requested state', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
 
     const reports = getReports(database, createControllerArgs<'/reports'>({}));
 
@@ -625,7 +623,7 @@ describe('report-controllers', () => {
   });
 
   test('should delete hunting party and gathering expedition details', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
 
     const reportIds = database.selectValues({
       sql: `
@@ -671,7 +669,7 @@ describe('report-controllers', () => {
   });
 
   test('should delete selected reports of every type and all dependent rows', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
     const reportIds = database.selectValues({
       sql: `
         SELECT MIN(r.id) FROM reports r
@@ -729,7 +727,7 @@ describe('report-controllers', () => {
   });
 
   test('should delete all scouting report data', async () => {
-    const database = await prepareReportsTestDatabase();
+    using database = await prepareReportsTestDatabase();
     const reportId = 7;
 
     database.execMulti({

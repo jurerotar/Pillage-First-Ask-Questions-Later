@@ -3,8 +3,6 @@ import type { Server } from '@pillage-first/types/models/server';
 
 type ProductEventAttributes = Record<string, string | number | boolean | null>;
 
-export type GameWorldImportMethod = 'manual_upload' | 'webrtc';
-
 const toEventAttributes = (
   attributes: ProductEventAttributes,
 ): Record<string, string> => {
@@ -70,13 +68,10 @@ export const pushGameWorldExported = (server: Server): void => {
   pushProductEvent('game_world_exported', getGameWorldEventAttributes(server));
 };
 
-export const pushGameWorldImported = (
-  server: Server,
-  importMethod: GameWorldImportMethod,
-): void => {
+export const pushGameWorldImported = (server: Server): void => {
   pushProductEvent('game_world_imported', {
     ...getGameWorldEventAttributes(server),
-    import_method: importMethod,
+    import_method: 'manual_upload',
   });
 };
 

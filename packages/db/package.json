@@ -31,14 +31,14 @@
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
-    "@sqlite.org/sqlite-wasm": "3.53.4-build2",
+    "@sqlite.org/sqlite-wasm": "3.54.1-build1",
     "ts-seedrandom": "1.6.0"
   },
   "devDependencies": {
-    "knip": "6.40.0",
+    "knip": "6.42.1",
     "typescript": "7.0.2",
-    "vitest": "5.0.3",
-    "zod": "4.6.5"
+    "vitest": "5.0.5",
+    "zod": "4.6.7"
   },
   "knip": {
     "$schema": "https://unpkg.com/knip@6/schema.json",

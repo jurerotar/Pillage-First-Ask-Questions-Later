@@ -26,7 +26,7 @@ describe('hero-auction-controllers', () => {
   };
 
   test('getHeroAuctionBuyListings should generate active listings on demand', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const listings = getHeroAuctionBuyListings(
       database,
@@ -44,7 +44,7 @@ describe('hero-auction-controllers', () => {
   });
 
   test('buyHeroAuctionListing should exchange silver for item and replace listing', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const heroId = getHeroId(database);
 
     database.exec({
@@ -133,7 +133,7 @@ describe('hero-auction-controllers', () => {
   });
 
   test('sellHeroAuctionItem should sell immediately for silver', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const heroId = getHeroId(database);
     const itemId = 1022;
 
@@ -217,7 +217,7 @@ describe('hero-auction-controllers', () => {
   });
 
   test('sellHeroAuctionItem should complete auction sales after 24 hours on demand', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
     const heroId = getHeroId(database);
     const itemId = 1022;
 

@@ -89,7 +89,7 @@ describe('player-controllers', () => {
   };
 
   test('getMe should return current player details', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const player = getMe(database, createControllerArgs<'/players/me'>({}));
 
@@ -97,7 +97,7 @@ describe('player-controllers', () => {
   });
 
   test('getPlayerVillageListing should return village listing for a player', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const result = getPlayerVillageListing(
       database,
@@ -118,7 +118,7 @@ describe('player-controllers', () => {
   });
 
   test('getPlayerVillagesWithPopulation should return correct population (only counting building base effects)', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, tile_id, player_id FROM villages WHERE player_id = $player_id LIMIT 1',
@@ -187,7 +187,7 @@ describe('player-controllers', () => {
   });
 
   test('getPlayerVillagesWithPopulation should include all occupied oasis for each village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: `
@@ -272,7 +272,7 @@ describe('player-controllers', () => {
   });
 
   test('getStationedTroopsByTile should return stationed troops by tile', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
@@ -300,7 +300,7 @@ describe('player-controllers', () => {
   });
 
   test('getVillageUnitCount should count stored and moving troops from the village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const village = database.selectObject({
       sql: 'SELECT id, tile_id FROM villages WHERE player_id = $player_id LIMIT 1',
@@ -468,7 +468,7 @@ describe('player-controllers', () => {
   });
 
   test('getWoundedTroopsByVillage should materialize wounded troop decay before returning rows', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     try {
       const villageId = database.selectValue({
@@ -533,7 +533,7 @@ describe('player-controllers', () => {
   });
 
   test('getSentReinforcementsByTile should group current tile reinforcements by stationed village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillage = database.selectObject({
       sql: `
@@ -605,7 +605,7 @@ describe('player-controllers', () => {
   });
 
   test('renameVillage should rename a village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const villageId = database.selectValue({
       sql: 'SELECT id FROM villages WHERE player_id = $player_id LIMIT 1',
@@ -631,7 +631,7 @@ describe('player-controllers', () => {
   });
 
   test('relocateReinforcements should properly relocate troops from source reinforcement to village troops', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -756,7 +756,7 @@ describe('player-controllers', () => {
   });
 
   test('relocateReinforcements should delete the reinforcement row when moving the full remaining amount', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -865,7 +865,7 @@ describe('player-controllers', () => {
   });
 
   test('relocateReinforcements should reject reinforcements from an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -972,7 +972,7 @@ describe('player-controllers', () => {
   });
 
   test('returnReinforcements should create return event and remove troops from reinforcements', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -1126,7 +1126,7 @@ describe('player-controllers', () => {
   });
 
   test('returnReinforcements should delete the reinforcement row when returning the full remaining amount', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -1250,7 +1250,7 @@ describe('player-controllers', () => {
   });
 
   test('returnReinforcements should reject more troops than are stationed', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -1323,7 +1323,7 @@ describe('player-controllers', () => {
   });
 
   test('returnReinforcements should remove animal reinforcements without creating a return event', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -1418,7 +1418,7 @@ describe('player-controllers', () => {
   });
 
   test('returnReinforcements should only create return events for non-animal troops in mixed selections', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -1564,7 +1564,7 @@ describe('player-controllers', () => {
   });
 
   test('returnSentReinforcements should create a return event back to the current village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillage = database.selectObject({
       sql: `
@@ -1719,7 +1719,7 @@ describe('player-controllers', () => {
   });
 
   test('returnSentReinforcements should not move wheat consumption when returning from an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillage = database.selectObject({
       sql: `
@@ -1813,7 +1813,7 @@ describe('player-controllers', () => {
   });
 
   test('relocateSentReinforcements should create a reinforcement movement to the new target village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillage = database.selectObject({
       sql: `
@@ -1944,7 +1944,7 @@ describe('player-controllers', () => {
   });
 
   test('relocateSentReinforcements should reject relocation to an oasis', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillage = database.selectObject({
       sql: `
@@ -2014,7 +2014,7 @@ describe('player-controllers', () => {
   });
 
   test('relocateReinforcements should relocate hero and update hero effects village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const targetVillage = database.selectObject({
       sql: `
@@ -2167,7 +2167,7 @@ describe('player-controllers', () => {
   });
 
   test('relocateSentReinforcements should relocate hero to the stationed village', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const sourceVillage = database.selectObject({
       sql: `
@@ -2274,7 +2274,7 @@ describe('player-controllers', () => {
   });
 
   test('getPlayerBySlug should return player details by slug', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const player = database.selectValue({
       sql: 'SELECT slug FROM players WHERE id = $player_id',
@@ -2296,7 +2296,7 @@ describe('player-controllers', () => {
   });
 
   test('getPlayerBySlug should return null if player does not exist', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const result = getPlayerBySlug(
       database,

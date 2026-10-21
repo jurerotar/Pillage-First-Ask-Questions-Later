@@ -5,10 +5,10 @@ import { serverMock } from '@pillage-first/mocks/server';
 import { calculateGridLayout } from '@pillage-first/utils/map';
 import { prepareTestDatabase } from '../../';
 
-const database = await prepareTestDatabase();
-
 describe('playersSeeder', () => {
-  test('slugs are unique and contain only lowercase alphanumeric and dashes', () => {
+  test('slugs are unique and contain only lowercase alphanumeric and dashes', async () => {
+    using database = await prepareTestDatabase();
+
     const slugs = database.selectValues({
       sql: 'SELECT slug FROM players;',
       schema: z.string(),
@@ -28,15 +28,20 @@ describe('playersSeeder', () => {
     }
   });
 
-  test('only one player has faction_id = 1 and that player has id = 1', () => {
+  test('only one player has faction_id = 1 and that player has id = 1', async () => {
+    using database = await prepareTestDatabase();
+
     const count = database.selectValue({
       sql: 'SELECT COUNT(*) AS c FROM players WHERE faction_id = 1;',
       schema: z.number(),
     });
+
     expect(count).toBe(1);
   });
 
-  test('player count equals expected formula (player + generated NPCs)', () => {
+  test('player count equals expected formula (player + generated NPCs)', async () => {
+    using database = await prepareTestDatabase();
+
     const { totalTiles } = calculateGridLayout(
       serverMock.configuration.mapSize,
     );
@@ -52,7 +57,9 @@ describe('playersSeeder', () => {
     expect(actualCount).toBe(expectedTotalPlayers);
   });
 
-  test('all NPC reputation tiers (by faction) are represented by at least one player', () => {
+  test('all NPC reputation tiers (by faction) are represented by at least one player', async () => {
+    using database = await prepareTestDatabase();
+
     const playerFactionId = database.selectValue({
       sql: 'SELECT faction_id FROM players WHERE id = $player_id;',
       bind: { $player_id: PLAYER_ID },
@@ -77,15 +84,19 @@ describe('playersSeeder', () => {
         bind: { $fid: tfid, $player_id: PLAYER_ID },
         schema: z.number(),
       });
+
       expect(cnt).toBeGreaterThan(0);
     }
   });
 
-  test('every player has a valid tribe_id', () => {
+  test('every player has a valid tribe_id', async () => {
+    using database = await prepareTestDatabase();
+
     const invalidTribeCount = database.selectValue({
       sql: 'SELECT COUNT(*) FROM players WHERE tribe_id IS NULL OR tribe_id NOT IN (SELECT id FROM tribe_ids);',
       schema: z.number(),
     });
+
     expect(invalidTribeCount).toBe(0);
   });
 });

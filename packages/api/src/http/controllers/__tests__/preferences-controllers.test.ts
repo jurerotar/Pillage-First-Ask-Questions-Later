@@ -8,7 +8,7 @@ describe('preferences-controllers', () => {
   const playerId = PLAYER_ID;
 
   test('getPreferences should return preferences', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     const preferences = getPreferences(
       database,
@@ -26,7 +26,7 @@ describe('preferences-controllers', () => {
   });
 
   test('updatePreference should update village sorting preference', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     updatePreference(
       database,
@@ -53,7 +53,7 @@ describe('preferences-controllers', () => {
   });
 
   test('updatePreference should update a preference', async () => {
-    const database = await prepareTestDatabase();
+    using database = await prepareTestDatabase();
 
     updatePreference(
       database,

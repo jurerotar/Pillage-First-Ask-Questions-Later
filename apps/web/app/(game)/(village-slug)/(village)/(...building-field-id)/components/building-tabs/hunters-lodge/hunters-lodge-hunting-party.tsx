@@ -20,7 +20,7 @@ import { useCreateEvent } from 'app/(game)/(village-slug)/hooks/use-create-event
 import { useDeveloperSettings } from 'app/(game)/(village-slug)/hooks/use-developer-settings';
 import { useEventsByType } from 'app/(game)/(village-slug)/hooks/use-events-by-type';
 import { useServer } from 'app/(game)/(village-slug)/hooks/use-server';
-import { CurrentVillageLiveResourcesContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
+import { CurrentVillageLiveResourcesSnapshotContext } from 'app/(game)/(village-slug)/providers/current-village-live-resources-context';
 import { InformationPopover } from 'app/(game)/components/information-popover';
 import { currentVillageCacheKey } from 'app/(game)/constants/query-keys';
 import { Icon } from 'app/components/icon';
@@ -102,7 +102,7 @@ const HuntingPartyTierTable = ({
 }: HuntingPartyTierTableProps) => {
   const { t } = useTranslation();
   const { serverSpeed } = useServer();
-  const currentResources = use(CurrentVillageLiveResourcesContext);
+  const currentResources = use(CurrentVillageLiveResourcesSnapshotContext);
   const { developerSettings } = useDeveloperSettings();
   const { isFreeHuntingPartiesEnabled, isInstantUnitTravelEnabled } =
     developerSettings;

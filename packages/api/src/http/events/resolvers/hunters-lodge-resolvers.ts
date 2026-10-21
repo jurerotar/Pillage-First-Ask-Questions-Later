@@ -71,6 +71,21 @@ export const huntersLodgeHuntResolver: Resolver<
     amount: 1,
   });
 
+  database.exec({
+    sql: `
+      INSERT INTO hunting_capture_history (player_id, unit_id, amount)
+      SELECT v.player_id, ui.id, 1
+      FROM villages v CROSS JOIN unit_ids ui
+      WHERE v.id = $village_id AND ui.unit = $unit_id
+      ON CONFLICT (player_id, unit_id) DO UPDATE SET
+        amount = hunting_capture_history.amount + EXCLUDED.amount;
+    `,
+    bind: {
+      $village_id: villageId,
+      $unit_id: unitId,
+    },
+  });
+
   assessCaptureAnimalCountByIdQuestCompletion(database, unitId, resolvesAt);
   assessCaptureAnimalKindCountQuestCompletion(database, resolvesAt);
 

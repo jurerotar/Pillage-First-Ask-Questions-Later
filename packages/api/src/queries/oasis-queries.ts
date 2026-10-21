@@ -34,11 +34,11 @@ export const insertOasisEffectsForVillageQuery = `
       -- adjusted value on the oasis effect so computed-effect math stays generic.
       1 + 0.05 * COALESCE(MAX(bf.level), 0)
     FROM
-      villages v
-        LEFT JOIN building_fields bf ON bf.village_id = v.id
-          AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'WATERWORKS')
+      building_fields bf
+        CROSS JOIN building_ids bi ON bi.id = bf.building_id
     WHERE
-      v.tile_id = $village_tile_id
+      bf.village_id = (SELECT id FROM villages WHERE tile_id = $village_tile_id)
+      AND bi.building = 'WATERWORKS'
   )
 
   INSERT INTO effects (effect_id, value, type_id, scope_id, source_id, tile_id, source_specifier)
@@ -67,9 +67,10 @@ export const updateOasisEffectsForVillageQuery = `
       1 + 0.05 * COALESCE(MAX(bf.level), 0)
     FROM
       building_fields bf
+        CROSS JOIN building_ids bi ON bi.id = bf.building_id
     WHERE
       bf.village_id = $village_id
-      AND bf.building_id = (SELECT id FROM building_ids WHERE building = 'WATERWORKS')
+      AND bi.building = 'WATERWORKS'
   )
 
   UPDATE effects

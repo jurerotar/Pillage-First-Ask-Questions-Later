@@ -13,4 +13,3 @@ CREATE TABLE building_level_change_history
 ) STRICT;
 
 CREATE INDEX idx_building_level_change_history_village_id ON building_level_change_history(village_id);
-CREATE INDEX idx_building_level_change_history_building_id ON building_level_change_history(building_id);
