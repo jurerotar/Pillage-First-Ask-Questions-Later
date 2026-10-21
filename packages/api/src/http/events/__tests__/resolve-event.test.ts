@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createTrapperCageProductionEventMock } from '@pillage-first/mocks/event';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { insertEvents } from '../../../utils/events';

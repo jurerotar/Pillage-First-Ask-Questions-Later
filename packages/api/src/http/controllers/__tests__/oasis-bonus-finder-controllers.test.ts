@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import type { Resource } from '@pillage-first/types/models/resource';
 import type { ResourceFieldComposition } from '@pillage-first/types/models/resource-field-composition';
 import { getTilesWithBonuses } from '../oasis-bonus-finder-controllers';
