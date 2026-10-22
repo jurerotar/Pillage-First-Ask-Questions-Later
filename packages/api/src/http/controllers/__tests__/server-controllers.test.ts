@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { getSerializedServerDatabase, getServer } from '../server-controllers';
 import { createControllerArgs } from './utils/controller-args';
 

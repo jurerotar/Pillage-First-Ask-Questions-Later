@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { PLAYER_ID } from '@pillage-first/game-assets/player';
 import { getMapFilters, updateMapFilter } from '../map-filters-controllers';
 import { createControllerArgs } from './utils/controller-args';

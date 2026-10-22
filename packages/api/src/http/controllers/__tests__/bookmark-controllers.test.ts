@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { buildings } from '@pillage-first/game-assets/buildings';
 import type { Building } from '@pillage-first/types/models/building';
 import { getBookmarks, updateBookmark } from '../bookmark-controllers';

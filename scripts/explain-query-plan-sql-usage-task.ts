@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import type { BindableValue, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
-import { migrateAndSeed } from '@pillage-first/db';
+import { migrateAndSeed } from '@pillage-first/api/db';
 import { serverMock } from '@pillage-first/mocks/server';
 import type { DbFacade } from '@pillage-first/utils/facades/database';
 import { createDbFacade } from '@pillage-first/utils/facades/database';

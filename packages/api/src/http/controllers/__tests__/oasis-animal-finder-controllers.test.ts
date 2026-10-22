@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { resourceSchema } from '@pillage-first/types/models/resource';
 import { oasisBonusTypeSchema } from '@pillage-first/types/models/tile';
 import { getOasesWithAnimals } from '../oasis-animal-finder-controllers';

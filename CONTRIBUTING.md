@@ -40,9 +40,7 @@ apps & packages:
 
 - **packages**
 -
-  - [api](/packages/api/README.md) (worker-based backend)
--
-  - [db](/packages/db/README.md) (database schemas, migrations & seeders)
+  - [api](/packages/api/README.md) (worker-based backend, database schemas, migrations & seeders)
 -
   - [game-assets](/packages/game-assets/README.md) (game object definitions (buildings, units, ...))
 -

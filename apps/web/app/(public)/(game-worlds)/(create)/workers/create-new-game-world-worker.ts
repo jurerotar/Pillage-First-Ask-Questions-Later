@@ -3,7 +3,7 @@ import type {
   SAHPoolUtil,
   Sqlite3Static,
 } from '@sqlite.org/sqlite-wasm';
-import { migrateAndSeed } from '@pillage-first/db';
+import { migrateAndSeed } from '@pillage-first/api/db';
 import type { Server } from '@pillage-first/types/models/server';
 import { env } from '@pillage-first/utils/env';
 import {
