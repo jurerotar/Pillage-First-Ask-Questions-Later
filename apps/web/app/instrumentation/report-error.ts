@@ -1,4 +1,5 @@
 import { faro } from '@grafana/faro-web-sdk';
+import type { ErrorWithContext } from '@pillage-first/utils/errors';
 
 type ReportErrorContext = Record<
   string,
@@ -28,6 +29,12 @@ const toError = (error: unknown, fallbackMessage: string): Error => {
 
     if ('cause' in error && error.cause) {
       result.cause = error.cause;
+    }
+
+    if ('context' in error && error.context) {
+      (result as ErrorWithContext).context = toFaroContext(
+        error.context as ReportErrorContext,
+      );
     }
 
     return result;
@@ -62,9 +69,12 @@ export const reportError = (
     console.error(fallbackMessage, error, context);
   }
 
-  faro.api.pushError(toError(error, fallbackMessage), {
+  const reportedError: ErrorWithContext = toError(error, fallbackMessage);
+
+  faro.api.pushError(reportedError, {
     context: {
       message: fallbackMessage,
+      ...reportedError.context,
       ...toFaroContext(context),
     },
   });

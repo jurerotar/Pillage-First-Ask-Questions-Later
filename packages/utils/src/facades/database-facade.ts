@@ -1,10 +1,18 @@
-import type { OpfsSAHPoolDatabase, SqlValue } from '@sqlite.org/sqlite-wasm';
+import type {
+  OpfsSAHPoolDatabase,
+  Sqlite3Static,
+  SqlValue,
+} from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import type {
   ExecArgs,
   ExecQueryArgs,
   SelectArgs,
 } from './database-query-types';
+
+export type OpfsSahPoolOptions = Parameters<
+  Sqlite3Static['installOpfsSAHPoolVfs']
+>[0];
 
 type PreparedStatement = ReturnType<OpfsSAHPoolDatabase['prepare']>;
 

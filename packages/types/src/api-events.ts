@@ -22,6 +22,7 @@ export type SerializedError = {
   message: string;
   stack?: string;
   cause?: SerializedError | string;
+  context?: Record<string, string>;
 };
 
 export type DatabaseInitializationErrorEvent = {

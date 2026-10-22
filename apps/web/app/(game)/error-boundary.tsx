@@ -7,8 +7,10 @@ import {
   useRouteError,
 } from 'react-router';
 import {
+  MissingGameWorldDatabaseError,
   OutdatedAppVersionError,
   OutdatedDatabaseSchemaError,
+  serializeError,
 } from '@pillage-first/utils/errors';
 import { GameErrorContent } from 'app/(game)/components/game-error-content';
 import { HeadLinks } from 'app/components/head-links';
@@ -20,6 +22,7 @@ export const ErrorBoundary = () => {
     error instanceof OutdatedDatabaseSchemaError;
 
   const isOutdatedAppVersionError = error instanceof OutdatedAppVersionError;
+  const isMissingDatabaseError = error instanceof MissingGameWorldDatabaseError;
 
   const isMultipleTabsError = error.name === 'NoModificationAllowedError';
 
@@ -28,23 +31,15 @@ export const ErrorBoundary = () => {
     .includes('is not a function');
 
   const isErrorWithCustomSteps =
+    isMissingDatabaseError ||
     isOutdatedAppVersionError ||
     isDatabaseInitializationError ||
     isMultipleTabsError ||
     isUnsupportedRuntimeFunctionError;
 
-  const { message, name, cause, stack } = error;
+  const { message, name } = error;
 
-  const details = JSON.stringify(
-    {
-      name,
-      message,
-      stack,
-      cause,
-    },
-    null,
-    2,
-  );
+  const details = JSON.stringify(serializeError(error), null, 2);
 
   const copyDetails = async () => {
     await navigator.clipboard.writeText(details);
@@ -63,6 +58,12 @@ export const ErrorBoundary = () => {
             message={message}
             description={
               <>
+                {isMissingDatabaseError && (
+                  <p className="text-foreground">
+                    The saved world listing is still available, but its database
+                    is missing from browser storage.
+                  </p>
+                )}
                 {isDatabaseInitializationError && (
                   <p className="text-foreground">
                     We've recently released a new version of the app that
@@ -95,6 +96,25 @@ export const ErrorBoundary = () => {
               <>
                 {isErrorWithCustomSteps && (
                   <>
+                    {isMissingDatabaseError && (
+                      <>
+                        <li>
+                          Close other tabs running this game, then refresh this
+                          page.
+                        </li>
+                        <li>
+                          If the world is still missing, import a previously
+                          exported backup from the{' '}
+                          <Link
+                            className="underline"
+                            to="/game-worlds/import"
+                          >
+                            import game world
+                          </Link>{' '}
+                          page.
+                        </li>
+                      </>
+                    )}
                     {isOutdatedAppVersionError && (
                       <li>
                         Refresh this page to load the latest version of the app

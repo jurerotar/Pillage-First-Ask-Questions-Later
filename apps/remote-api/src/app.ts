@@ -14,6 +14,7 @@ import {
   isTokenValid,
 } from './crypto.ts';
 import type { Report, Store, Upload } from './store.ts';
+import { removeUploadFiles } from './upload-files.ts';
 import { readWorldPreview } from './world-preview.ts';
 import {
   isWorldUploadExpired,
@@ -442,10 +443,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     const upload = store.getUploadForWorld(worldId);
 
     if (upload) {
-      const paths = getUploadPaths(config, upload);
-
-      await rm(paths.completed, { force: true });
-      await rm(paths.staging, { force: true });
+      await removeUploadFiles(config, upload);
     }
 
     store.deleteWorld(worldId);
@@ -828,10 +826,7 @@ export const createApp = ({ config, store }: CreateAppOptions): Hono => {
     const upload = store.getUploadForReport(report.id);
 
     if (upload) {
-      const paths = getUploadPaths(config, upload);
-
-      await rm(paths.staging, { force: true });
-      await rm(paths.completed, { force: true });
+      await removeUploadFiles(config, upload);
     }
 
     store.deleteReport(report.id);

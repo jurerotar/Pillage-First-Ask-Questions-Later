@@ -9,8 +9,8 @@ import { env } from '@pillage-first/utils/env';
 import {
   createDbFacade,
   type DbFacade,
+  type OpfsSahPoolOptions,
 } from '@pillage-first/utils/facades/database';
-import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 
 export type CreateNewGameWorldWorkerPayload = {
@@ -24,7 +24,6 @@ export type CreateNewGameWorldWorkerResponse =
     }
   | {
       type: 'result';
-      migrationDuration: number;
     }
   | {
       type: 'error';
@@ -49,16 +48,12 @@ globalThis.addEventListener(
 
       sqlite3 ??= await sqlite3InitModule();
 
-      const opfsSahPoolOptions = {
+      const opfsSahPoolOptions: OpfsSahPoolOptions = {
         directory: `/pillage-first-ask-questions-later/${server.slug}`,
-        forceReinitIfPreviouslyFailed: true,
+        preserveOnInitFailure: true,
       };
 
-      const initializedSqlite3 = sqlite3;
-
-      opfsSahPool = await retryWhenFileSystemLocked(() =>
-        initializedSqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions),
-      );
+      opfsSahPool = await sqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions);
 
       database = new opfsSahPool.OpfsSAHPoolDb(`/${server.slug}.sqlite3`);
 
@@ -76,7 +71,7 @@ globalThis.addEventListener(
       `,
       });
 
-      const migrationDuration = migrateAndSeed(dbFacade, server, () => {
+      migrateAndSeed(dbFacade, server, () => {
         port.postMessage({
           type: 'progress',
         } satisfies CreateNewGameWorldWorkerResponse);
@@ -84,7 +79,6 @@ globalThis.addEventListener(
 
       port.postMessage({
         type: 'result',
-        migrationDuration,
       } satisfies CreateNewGameWorldWorkerResponse);
     } catch (error) {
       const normalizedError =

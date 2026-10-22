@@ -1,4 +1,3 @@
-import { faro } from '@grafana/faro-web-sdk';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { clsx } from 'clsx';
@@ -129,9 +128,9 @@ export const CreateNewGameWorldForm = () => {
     error,
     isPending,
     isSuccess,
-  } = useMutation<number, Error, MutateArgs>({
+  } = useMutation<void, Error, MutateArgs>({
     mutationFn: async ({ server }) => {
-      return new Promise<number>((resolve, reject) => {
+      return new Promise<void>((resolve, reject) => {
         const worker = new Worker(CreateNewGameWorldWorker, { type: 'module' });
         const channel = new MessageChannel();
 
@@ -156,7 +155,7 @@ export const CreateNewGameWorldForm = () => {
             setCurrentStepIndex(steps.length);
             worker.terminate();
             channel.port1.close();
-            resolve(data.migrationDuration);
+            resolve();
           } else if (data.type === 'error') {
             const error = new Error(data.message);
             if (data.stack) {
@@ -183,22 +182,8 @@ export const CreateNewGameWorldForm = () => {
     onMutate: () => {
       setCurrentStepIndex(0);
     },
-    onSuccess: async (
-      migrationDuration,
-      { server },
-      _onMutateResult,
-      context,
-    ) => {
-      faro.api?.pushMeasurement({
-        type: 'performance',
-        values: {
-          migration_and_seed_duration: migrationDuration,
-        },
-      });
-
-      pushGameWorldCreated(server, {
-        migration_duration_ms: migrationDuration,
-      });
+    onSuccess: async (_, { server }, _onMutateResult, context) => {
+      pushGameWorldCreated(server);
 
       await createGameWorld({ server });
       await invalidateQueries(context, [[availableServerCacheKey]]);
