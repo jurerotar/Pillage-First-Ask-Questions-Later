@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import {
   calculateGatherersHutPartySize,
   GATHERERS_HUT_RESOURCES_PER_UNIT,

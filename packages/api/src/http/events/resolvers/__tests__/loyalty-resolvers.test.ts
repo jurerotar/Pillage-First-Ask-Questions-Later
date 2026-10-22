@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createLoyaltyIncreaseEventMock } from '@pillage-first/mocks/event';
 import { selectTileLoyaltyQuery } from '../../../../queries/loyalty-queries';
 import { loyaltyIncreaseResolver } from '../loyalty-resolvers';

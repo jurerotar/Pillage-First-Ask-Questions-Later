@@ -17,6 +17,12 @@
     },
     "./api-route-types": {
       "default": "./src/http/api-route-types.generated.d.ts"
+    },
+    "./db": {
+      "default": "./src/db/index.ts"
+    },
+    "./testing": {
+      "default": "./src/db/testing/index.ts"
     }
   },
   "scripts": {
@@ -31,7 +37,6 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@pillage-first/db": "*",
     "@pillage-first/game-assets": "*",
     "@pillage-first/types": "*",
     "@pillage-first/utils": "*",
