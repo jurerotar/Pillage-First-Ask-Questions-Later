@@ -6,14 +6,17 @@ import type {
 import { z } from 'zod';
 import { env } from '@pillage-first/utils/env';
 import {
+  type ErrorWithContext,
+  MissingGameWorldDatabaseError,
   OutdatedAppVersionError,
   OutdatedDatabaseSchemaError,
+  serializeError,
 } from '@pillage-first/utils/errors';
 import {
   createDbFacade,
   type DbFacade,
+  type OpfsSahPoolOptions,
 } from '@pillage-first/utils/facades/database';
-import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 import {
   encodeAppVersionToDatabaseUserVersion,
   isSupportedDatabaseUserVersion,
@@ -41,32 +44,35 @@ const releaseWorkerDatabase = (dbFacade?: DbFacade): void => {
 export const openWorkerDatabase = async (
   serverSlug: string,
 ): Promise<DbFacade> => {
-  if (sqlite3 === null) {
-    const { default: sqlite3InitModule } = await import(
-      '@sqlite.org/sqlite-wasm'
-    );
-
-    sqlite3 = await sqlite3InitModule();
-  }
-
-  const opfsSahPoolOptions = {
-    directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-    forceReinitIfPreviouslyFailed: true,
-  };
-
-  opfsSahPool = await retryWhenFileSystemLocked(() =>
-    sqlite3!.installOpfsSAHPoolVfs(opfsSahPoolOptions),
-  );
-
   let dbFacade: DbFacade | undefined;
+  let fileNames: string[] | null = null;
+  let databaseVersion: number | null = null;
 
   try {
-    // Database doesn't exist, common when opening game worlds created before the engine rewrite or when opening a deleted game world
-    if (opfsSahPool.getFileCount() === 0) {
-      throw new OutdatedDatabaseSchemaError();
+    if (sqlite3 === null) {
+      const { default: sqlite3InitModule } = await import(
+        '@sqlite.org/sqlite-wasm'
+      );
+
+      sqlite3 = await sqlite3InitModule();
     }
 
-    database = new opfsSahPool.OpfsSAHPoolDb(`/${serverSlug}.sqlite3`);
+    const opfsSahPoolOptions: OpfsSahPoolOptions = {
+      directory: `/pillage-first-ask-questions-later/${serverSlug}`,
+      preserveOnInitFailure: true,
+    };
+
+    opfsSahPool = await sqlite3!.installOpfsSAHPoolVfs(opfsSahPoolOptions);
+
+    const databasePath = `/${serverSlug}.sqlite3`;
+
+    fileNames = opfsSahPool.getFileNames();
+
+    if (!fileNames.includes(databasePath)) {
+      throw new MissingGameWorldDatabaseError();
+    }
+
+    database = new opfsSahPool.OpfsSAHPoolDb(databasePath);
 
     dbFacade = createDbFacade(database, () =>
       sqlite3!.capi.sqlite3_js_db_export(database!.pointer!, 'main'),
@@ -90,6 +96,8 @@ export const openWorkerDatabase = async (
       schema: z.number(),
     })!;
 
+    databaseVersion = version;
+
     if (version > encodeAppVersionToDatabaseUserVersion(env.VERSION)) {
       throw new OutdatedAppVersionError();
     }
@@ -102,8 +110,27 @@ export const openWorkerDatabase = async (
 
     return dbFacade;
   } catch (error) {
-    releaseWorkerDatabase(dbFacade);
-    throw error;
+    const failure: ErrorWithContext =
+      error instanceof Error ? error : new Error(String(error));
+
+    failure.context = {
+      ...failure.context,
+      database_server_slug: serverSlug,
+      database_app_version: env.VERSION,
+      database_file_names: JSON.stringify(fileNames),
+      database_user_version:
+        databaseVersion === null ? 'unknown' : String(databaseVersion),
+    };
+
+    try {
+      releaseWorkerDatabase(dbFacade);
+    } catch (cleanupError) {
+      failure.context.database_cleanup_error = JSON.stringify(
+        serializeError(cleanupError),
+      );
+    }
+
+    throw failure;
   }
 };
 

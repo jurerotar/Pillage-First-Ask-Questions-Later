@@ -23,16 +23,23 @@ import {
 
 const createReactRootErrorHandler =
   (errorPhase: string) =>
-  (error: unknown, { componentStack }: { componentStack?: string }) =>
-    reportError(
-      error instanceof Error ? (error.cause ?? error) : error,
-      'React root render error',
-      {
-        componentStack: componentStack?.trim(),
-        errorPhase,
-        path: location.pathname,
-      },
-    );
+  (error: unknown, { componentStack }: { componentStack?: string }) => {
+    let reportedError = error;
+
+    if (
+      errorPhase === 'recoverable' &&
+      error instanceof Error &&
+      error.cause instanceof Error
+    ) {
+      reportedError = error.cause;
+    }
+
+    reportError(reportedError, 'React root render error', {
+      componentStack: componentStack?.trim(),
+      errorPhase,
+      path: location.pathname,
+    });
+  };
 
 const createCookies = async () => {
   const [locale, skinVariant, colorScheme, timeOfDay] = await Promise.all([

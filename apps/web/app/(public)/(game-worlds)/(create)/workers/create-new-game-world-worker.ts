@@ -9,8 +9,8 @@ import { env } from '@pillage-first/utils/env';
 import {
   createDbFacade,
   type DbFacade,
+  type OpfsSahPoolOptions,
 } from '@pillage-first/utils/facades/database';
-import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
 import { encodeAppVersionToDatabaseUserVersion } from '@pillage-first/utils/version';
 
 export type CreateNewGameWorldWorkerPayload = {
@@ -49,16 +49,12 @@ globalThis.addEventListener(
 
       sqlite3 ??= await sqlite3InitModule();
 
-      const opfsSahPoolOptions = {
+      const opfsSahPoolOptions: OpfsSahPoolOptions = {
         directory: `/pillage-first-ask-questions-later/${server.slug}`,
-        forceReinitIfPreviouslyFailed: true,
+        preserveOnInitFailure: true,
       };
 
-      const initializedSqlite3 = sqlite3;
-
-      opfsSahPool = await retryWhenFileSystemLocked(() =>
-        initializedSqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions),
-      );
+      opfsSahPool = await sqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions);
 
       database = new opfsSahPool.OpfsSAHPoolDb(`/${server.slug}.sqlite3`);
 

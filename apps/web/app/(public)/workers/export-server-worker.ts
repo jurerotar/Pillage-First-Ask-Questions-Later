@@ -1,5 +1,5 @@
 import type { SAHPoolUtil, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
-import { retryWhenFileSystemLocked } from '@pillage-first/utils/opfs-lock-retry';
+import type { OpfsSahPoolOptions } from '@pillage-first/utils/facades/database';
 import { toTransferableArrayBuffer } from 'app/(public)/workers/utils/array-buffer';
 
 const { default: sqlite3InitModule } = await import('@sqlite.org/sqlite-wasm');
@@ -23,16 +23,12 @@ let opfsSahPool: SAHPoolUtil | null = null;
 try {
   sqlite3 ??= await sqlite3InitModule();
 
-  const opfsSahPoolOptions = {
+  const opfsSahPoolOptions: OpfsSahPoolOptions = {
     directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-    forceReinitIfPreviouslyFailed: true,
+    preserveOnInitFailure: true,
   };
 
-  const initializedSqlite3 = sqlite3;
-
-  opfsSahPool = await retryWhenFileSystemLocked(() =>
-    initializedSqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions),
-  );
+  opfsSahPool = await sqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions);
 
   const exportedDb = await opfsSahPool.exportFile(`/${serverSlug}.sqlite3`);
 
