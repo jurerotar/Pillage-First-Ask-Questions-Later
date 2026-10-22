@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -60,6 +60,7 @@ test('previews an uploaded world without claiming it, then invalidates the previ
     using database = new DatabaseSync(path);
 
     database.exec(`
+      PRAGMA journal_mode = WAL;
       CREATE TABLE servers (name TEXT, version TEXT, speed INTEGER, map_size INTEGER, player_name TEXT, player_tribe TEXT);
       INSERT INTO servers VALUES ('UnicornBorough', '0.4.74', 3, 200, 'Explorer', 'gauls');
     `);
@@ -88,6 +89,10 @@ test('previews an uploaded world without claiming it, then invalidates the previ
     });
   }
 
+  expect(await readdir(join(dataDirectory, 'uploads'))).toContain(
+    `${store.getUploadForWorld(share.worldId)!.storageName}-shm`,
+  );
+
   const headers = { authorization: `Bearer ${'token'.repeat(8)}` };
   const download = await app.request(`${previewPath}/download`, {
     method: 'POST',
@@ -101,6 +106,7 @@ test('previews an uploaded world without claiming it, then invalidates the previ
   await app.request(previewPath, { method: 'DELETE', headers });
 
   expect((await app.request(previewPath)).status).toBe(404);
+  expect(await readdir(join(dataDirectory, 'uploads'))).toEqual([]);
 });
 
 const uploadSharedWorld = async (
@@ -226,6 +232,14 @@ test('expires shared worlds after 24 hours and cleans up completed and pending u
     const pending = await uploadSharedWorld(app);
 
     await app.request(completed.completeUrl, { method: 'POST' });
+
+    const completedPath = join(
+      dataDirectory,
+      'uploads',
+      store.getUploadForWorld(completed.worldId)!.storageName,
+    );
+    await writeFile(`${completedPath}-wal`, '');
+    await writeFile(`${completedPath}-shm`, Buffer.alloc(32_768));
 
     const report = store.createReport({
       title: 'Keep this report',
@@ -745,6 +759,14 @@ test('deleting a pending upload removes files, chunks, and signed upload access'
   expect((await app.request(chunkUrl, chunkOptions)).status).toBe(204);
   expect((await readdir(join(dataDirectory, 'staging'))).length).toBe(1);
   expect(store.getChunks(uploadId).length).toBe(1);
+
+  const uploadPath = join(
+    dataDirectory,
+    'uploads',
+    store.getUpload(uploadId)!.storageName,
+  );
+  await writeFile(`${uploadPath}-wal`, '');
+  await writeFile(`${uploadPath}-shm`, Buffer.alloc(32_768));
 
   const deleted = await app.request(`/api/admin/reports/${reportId}`, {
     method: 'DELETE',

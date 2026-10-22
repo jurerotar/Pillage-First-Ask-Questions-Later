@@ -1,7 +1,6 @@
-import { rm } from 'node:fs/promises';
-import { join } from 'node:path';
 import type { AppConfig } from './config.ts';
 import type { Store, Upload } from './store.ts';
+import { removeUploadFiles } from './upload-files.ts';
 
 export const sharedWorldLifetimeMs = 24 * 60 * 60 * 1000;
 
@@ -22,12 +21,7 @@ export const cleanupExpiredWorlds = async (
       const upload = store.getUploadForWorld(worldId);
 
       if (upload) {
-        await rm(join(config.dataDirectory, 'uploads', upload.storageName), {
-          force: true,
-        });
-        await rm(join(config.dataDirectory, 'staging', `${upload.id}.part`), {
-          force: true,
-        });
+        await removeUploadFiles(config, upload);
       }
 
       store.deleteWorld(worldId);
