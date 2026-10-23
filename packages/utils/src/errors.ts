@@ -1,5 +1,19 @@
 import type { SerializedError } from '@pillage-first/types/api-events';
 
+export type ErrorWithContext = Error & Pick<SerializedError, 'context'>;
+
+export class MissingGameWorldDatabaseError extends Error {
+  static readonly name = 'MissingGameWorldDatabaseError';
+
+  constructor() {
+    super(
+      'The database for this game world could not be found on this device.',
+    );
+    this.name = MissingGameWorldDatabaseError.name;
+    Object.setPrototypeOf(this, MissingGameWorldDatabaseError.prototype);
+  }
+}
+
 export class OutdatedAppVersionError extends Error {
   static readonly name = 'OutdatedAppVersionError';
 
@@ -42,6 +56,9 @@ export const serializeError = (error: unknown): SerializedError => {
   return {
     name: error.name,
     message: error.message,
+    ...((error as ErrorWithContext).context && {
+      context: (error as ErrorWithContext).context,
+    }),
     ...(error.stack && { stack: error.stack }),
     ...(error.cause !== undefined && {
       cause:
@@ -52,11 +69,21 @@ export const serializeError = (error: unknown): SerializedError => {
   };
 };
 
-export const deserializeError = ({ cause, ...error }: SerializedError): Error =>
-  Object.assign(
-    new Error(error.message, {
-      cause:
-        typeof cause === 'object' && cause ? deserializeError(cause) : cause,
-    }),
-    error,
-  );
+export const deserializeError = ({
+  cause,
+  ...error
+}: SerializedError): Error => {
+  const constructors = [
+    MissingGameWorldDatabaseError,
+    OutdatedAppVersionError,
+    OutdatedDatabaseSchemaError,
+  ];
+  const ErrorConstructor = constructors.find(({ name }) => name === error.name);
+  const result = ErrorConstructor
+    ? new ErrorConstructor()
+    : new Error(error.message);
+
+  return Object.assign(result, error, {
+    cause: typeof cause === 'object' && cause ? deserializeError(cause) : cause,
+  });
+};

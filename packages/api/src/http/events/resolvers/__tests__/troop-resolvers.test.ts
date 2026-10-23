@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { createTroopTrainingEventMock } from '@pillage-first/mocks/event';
 import type { Unit } from '@pillage-first/types/models/unit';
 import { selectWheatProductionEffectIdQuery } from '../../../../queries/effect-queries';
