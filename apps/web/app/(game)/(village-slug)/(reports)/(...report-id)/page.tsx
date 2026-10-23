@@ -15,6 +15,22 @@ import {
   isVillageFoundedReport,
 } from '@pillage-first/utils/guards/report';
 import type { Route } from '@react-router/types/app/(game)/(village-slug)/(reports)/(...report-id)/+types/page';
+import {
+  AdventureHeroTable,
+  AdventureReportTable,
+  BattleReportTables,
+  GatheringExpeditionReportTable,
+  HuntingPartyReportTable,
+  MovementReportTable,
+  Report,
+  ReportHeader,
+  ScheduledConstructionCancellationReportTable,
+  ScoutingReportTables,
+  TradeReportTable,
+  UnitImprovementReportTable,
+  UnitResearchReportTable,
+  VillageFoundedReportTable,
+} from 'app/(game)/(village-slug)/components/report';
 import { PageContents } from 'app/components/page-contents';
 import { Text } from 'app/components/text';
 import { Button } from 'app/components/ui/button';
@@ -27,24 +43,9 @@ import { ReportsListActions } from '../components/reports-list-actions';
 import { useAdjacentReports } from '../hooks/use-adjacent-reports';
 import { useFilteredReports } from '../hooks/use-filtered-reports';
 import {
-  AdventureHeroTable,
-  AdventureReportTable,
-  BattleParticipantTable,
-  BattleStatisticsTable,
-  GatheringExpeditionReportTable,
-  HuntingPartyReportTable,
-  MovementReportTable,
-  Report,
-  ReportHeader,
   ReportNavigationButtons,
   ReportsBackButton,
-  ScheduledConstructionCancellationReportTable,
-  ScoutingReportTables,
-  TradeReportTable,
-  UnitImprovementReportTable,
-  UnitResearchReportTable,
-  VillageFoundedReportTable,
-} from './components/report';
+} from './components/report-navigation';
 import { useReport } from './hooks/use-report';
 
 const ReportPage = ({ params }: Route.ComponentProps) => {
@@ -122,27 +123,7 @@ const ReportPage = ({ params }: Route.ComponentProps) => {
             </Popover>
           }
         />
-        {isBattleReport(report) && (
-          <>
-            <BattleParticipantTable
-              participant={report.battle.attacker}
-              participantRole="attacker"
-            />
-            <BattleParticipantTable
-              participant={report.battle.defender}
-              participantRole="defender"
-            />
-            {report.battle.outcome.canAttackerSeeFullReport &&
-              report.battle.defender.reinforcements.map((participant) => (
-                <BattleParticipantTable
-                  key={participant.player.id}
-                  participant={participant}
-                  participantRole="reinforcement"
-                />
-              ))}
-            <BattleStatisticsTable />
-          </>
-        )}
+        {isBattleReport(report) && <BattleReportTables />}
         {isAdventureReport(report) && (
           <>
             <AdventureHeroTable />

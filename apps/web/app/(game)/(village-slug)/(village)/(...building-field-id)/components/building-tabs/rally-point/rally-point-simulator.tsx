@@ -4,6 +4,7 @@ import { Bookmark } from 'app/(game)/(village-slug)/(village)/(...building-field
 import { CombatSimulatorAttackerControlsRow } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-attacker-controls-row';
 import { CombatSimulatorDefenderControlsRow } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-defender-controls-row';
 import { CombatSimulatorReinforcementsControlsRows } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-reinforcements-controls-rows';
+import { CombatSimulatorReport } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/components/combat-simulator-report';
 import { CombatSimulatorContext } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/providers/combat-simulator-context';
 import { CombatSimulatorProvider } from 'app/(game)/(village-slug)/(village)/(...building-field-id)/components/building-tabs/rally-point/components/simulator/providers/combat-simulator-provider';
 import {
@@ -44,6 +45,7 @@ const RallyPointSimulatorContent = () => {
           />
           <CombatSimulatorDefenderControlsRow title={defenderTitle} />
           <CombatSimulatorReinforcementsControlsRows />
+          <CombatSimulatorReport />
         </div>
       </SectionContent>
     </Section>

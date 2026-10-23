@@ -6,16 +6,10 @@ import {
   useMemo,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  LuArrowLeft,
-  LuChevronLeft,
-  LuChevronRight,
-  LuChevronsLeft,
-  LuChevronsRight,
-} from 'react-icons/lu';
-import { Link, useLocation } from 'react-router';
+import { Link } from 'react-router';
 import { getItemDefinition } from '@pillage-first/game-assets/utils/items';
 import { sortTroops } from '@pillage-first/game-assets/utils/troops';
+import type { CombatSimulatorReportDto } from '@pillage-first/types/dtos/combat-simulator';
 import type { BattleParticipant } from '@pillage-first/types/models/battle';
 import type {
   AdventureReport,
@@ -52,7 +46,6 @@ import {
 import { Icon } from 'app/components/icon';
 import type { IconType } from 'app/components/icons/icons';
 import { Text } from 'app/components/text';
-import { buttonVariants } from 'app/components/ui/cvas/button-cva';
 import {
   Table,
   TableBody,
@@ -63,7 +56,7 @@ import {
 } from 'app/components/ui/table';
 
 type ReportContextState = {
-  report: ReportType;
+  report: ReportType | CombatSimulatorReportDto;
 };
 
 const ReportContext = createContext<ReportContextState>(
@@ -71,124 +64,7 @@ const ReportContext = createContext<ReportContextState>(
 );
 
 type ReportProps = {
-  report: ReportType;
-};
-
-export const ReportsBackButton = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
-  const label = t('Back');
-
-  return (
-    <Link
-      to={{
-        pathname: '../reports',
-        search: location.search,
-      }}
-      className={buttonVariants({ variant: 'outline', size: 'icon' })}
-      aria-label={label}
-      title={label}
-      data-tooltip-id="general-tooltip"
-      data-tooltip-content={label}
-    >
-      <LuArrowLeft />
-    </Link>
-  );
-};
-
-type ReportNavigationButtonProps = {
-  children: ReactNode;
-  label: string;
-  reportId: number | null;
-};
-
-export const ReportNavigationButton = ({
-  children,
-  label,
-  reportId,
-}: ReportNavigationButtonProps) => {
-  const location = useLocation();
-  const isDisabled = reportId === null;
-
-  const className = buttonVariants({ variant: 'outline', size: 'icon' });
-
-  if (isDisabled) {
-    return (
-      <button
-        type="button"
-        disabled
-        className={className}
-        aria-label={label}
-        title={label}
-        data-tooltip-id="general-tooltip"
-        data-tooltip-content={label}
-      >
-        {children}
-      </button>
-    );
-  }
-
-  return (
-    <Link
-      to={{ pathname: `../reports/${reportId}`, search: location.search }}
-      className={className}
-      aria-label={label}
-      title={label}
-      data-tooltip-id="general-tooltip"
-      data-tooltip-content={label}
-    >
-      {children}
-    </Link>
-  );
-};
-
-type ReportNavigationButtonsProps = {
-  previousReportId: number | null;
-  nextReportId: number | null;
-  previousUnreadReportId: number | null;
-  nextUnreadReportId: number | null;
-};
-
-export const ReportNavigationButtons = ({
-  previousReportId,
-  nextReportId,
-  previousUnreadReportId,
-  nextUnreadReportId,
-}: ReportNavigationButtonsProps) => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex flex-1 items-center justify-between gap-2">
-      <div className="flex items-center gap-1">
-        <ReportNavigationButton
-          label={t('Previous unread')}
-          reportId={previousUnreadReportId}
-        >
-          <LuChevronsLeft />
-        </ReportNavigationButton>
-        <ReportNavigationButton
-          label={t('Previous')}
-          reportId={previousReportId}
-        >
-          <LuChevronLeft />
-        </ReportNavigationButton>
-      </div>
-      <div className="flex items-center gap-1">
-        <ReportNavigationButton
-          label={t('Next')}
-          reportId={nextReportId}
-        >
-          <LuChevronRight />
-        </ReportNavigationButton>
-        <ReportNavigationButton
-          label={t('Next unread')}
-          reportId={nextUnreadReportId}
-        >
-          <LuChevronsRight />
-        </ReportNavigationButton>
-      </div>
-    </div>
-  );
+  report: ReportType | CombatSimulatorReportDto;
 };
 
 export const Report = ({
@@ -217,6 +93,10 @@ export const ReportHeader = ({ actions }: ReportHeaderProps) => {
   const { t } = useTranslation();
   const { report } = use(ReportContext);
 
+  if ('combatMode' in report) {
+    return <Text as="h2">{t('Combat report')}</Text>;
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <Text as="h1">{getReportSubject(report, t)}</Text>
@@ -234,7 +114,11 @@ export const ReportHeader = ({ actions }: ReportHeaderProps) => {
 };
 
 type BattleParticipantTableProps = {
-  participant: BattleParticipant;
+  participant: {
+    troops: Pick<BattleParticipant['troops'], 'tribe' | 'units'>;
+    player?: BattleParticipant['player'];
+    village?: BattleParticipant['village'];
+  };
   // It cannot be named "role" because it overlaps with native HTML attribute
   participantRole: 'attacker' | 'defender' | 'reinforcement';
 };
@@ -283,7 +167,7 @@ export const BattleParticipantTable = ({
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext)!;
 
-  const report = _report as BattleReport;
+  const report = _report as BattleReport | CombatSimulatorReportDto;
   const { canAttackerSeeFullReport, loot, totalCarryCapacity } =
     report.battle.outcome;
   const { troops, player, village } = participant;
@@ -359,13 +243,17 @@ export const BattleParticipantTable = ({
     totalImprisoned += amountImprisoned;
   }
 
-  const isReportParticipant = participant.village.id === report.villageId;
+  const isSimulatorReport = 'playerRole' in report;
+  const isReportParticipant = isSimulatorReport
+    ? participantRole === report.playerRole
+    : participant.village?.id === report.villageId;
 
   const canSeeTroopDetails =
+    isSimulatorReport ||
     isReportParticipant ||
     participantRole === 'attacker' ||
     canAttackerSeeFullReport;
-  const canSeeHospitalizedTroops = isReportParticipant;
+  const canSeeHospitalizedTroops = isSimulatorReport || isReportParticipant;
   const canSeeImprisonedTroops = canSeeTroopDetails && totalImprisoned > 0;
 
   return (
@@ -373,12 +261,14 @@ export const BattleParticipantTable = ({
       <UnitTableTitle>
         {participantRole === 'attacker' ? t('Attacker') : t('Defender')}
       </UnitTableTitle>
-      <UnitTablePlayer
-        playerName={player.name}
-        playerSlug={player.slug}
-        tileName={village.name}
-        coordinates={village.coordinates}
-      />
+      {player && village && (
+        <UnitTablePlayer
+          playerName={player.name}
+          playerSlug={player.slug}
+          tileName={village.name}
+          coordinates={village.coordinates}
+        />
+      )}
       <UnitTableUnitIcons />
 
       {!canSeeTroopDetails ? (
@@ -489,10 +379,12 @@ export const BattleParticipantTable = ({
               </div>
             </UnitTableContentRow>
           )}
-          <UnitTableLoot
-            loot={loot}
-            totalCarryCapacity={totalCarryCapacity}
-          />
+          {!isSimulatorReport && (
+            <UnitTableLoot
+              loot={loot}
+              totalCarryCapacity={totalCarryCapacity}
+            />
+          )}
           {report.battle.outcome.itemId !== null &&
             report.battle.outcome.itemAmount !== null && (
               <ReportItemFooterRow>
@@ -505,6 +397,49 @@ export const BattleParticipantTable = ({
         </>
       )}
     </UnitTable>
+  );
+};
+
+export const BattleReportTables = () => {
+  const { report: _report } = use(ReportContext);
+  const report = _report as BattleReport | CombatSimulatorReportDto;
+  const participants =
+    'playerRole' in report
+      ? {
+          attacker: { troops: report.battle.attacker },
+          defender: { troops: report.battle.defender },
+          reinforcements: report.battle.defender.reinforcements.map(
+            ({ id, ...troops }) => ({ key: id, participant: { troops } }),
+          ),
+        }
+      : {
+          attacker: report.battle.attacker,
+          defender: report.battle.defender,
+          reinforcements: report.battle.defender.reinforcements.map(
+            (participant) => ({ key: participant.troops.id, participant }),
+          ),
+        };
+
+  return (
+    <>
+      <BattleParticipantTable
+        participant={participants.attacker}
+        participantRole="attacker"
+      />
+      <BattleParticipantTable
+        participant={participants.defender}
+        participantRole="defender"
+      />
+      {report.battle.outcome.canAttackerSeeFullReport &&
+        participants.reinforcements.map(({ key, participant }) => (
+          <BattleParticipantTable
+            key={key}
+            participant={participant}
+            participantRole="reinforcement"
+          />
+        ))}
+      <BattleStatisticsTable />
+    </>
   );
 };
 
@@ -548,7 +483,7 @@ export const BattleStatisticsTable = () => {
   const { t } = useTranslation();
   const { report: _report } = use(ReportContext)!;
 
-  const report = _report as BattleReport;
+  const report = _report as BattleReport | CombatSimulatorReportDto;
   const { statistics, outcome } = report.battle;
   const { attacker, defender } = statistics;
   const showDefendingUnits = outcome.canAttackerSeeFullReport;
