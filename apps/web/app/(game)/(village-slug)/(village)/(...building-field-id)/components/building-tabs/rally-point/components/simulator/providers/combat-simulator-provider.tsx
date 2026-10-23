@@ -247,6 +247,11 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
         ...prevState.attacker,
         tribe,
         troops: createEmptyTroops(tribe),
+        village: {
+          ...prevState.attacker.village,
+          breweryLevel:
+            tribe === 'teutons' ? prevState.attacker.village.breweryLevel : 0,
+        },
       },
     }));
   }, []);
@@ -263,14 +268,16 @@ export const CombatSimulatorProvider = ({ children }: PropsWithChildren) => {
           ...prevState.defender,
           tribe,
           troops: createEmptyTroops(tribe),
-          ...(tribe === 'nature' && {
-            village: {
-              ...prevState.defender.village,
-              wallLevel: 0,
-              residenceLevel: 0,
-              trapCount: 0,
-            },
-          }),
+          village: {
+            wallLevel:
+              tribe === 'nature' ? 0 : prevState.defender.village.wallLevel,
+            residenceLevel:
+              tribe === 'nature'
+                ? 0
+                : prevState.defender.village.residenceLevel,
+            trapCount:
+              tribe === 'gauls' ? prevState.defender.village.trapCount : 0,
+          },
         },
       };
     });

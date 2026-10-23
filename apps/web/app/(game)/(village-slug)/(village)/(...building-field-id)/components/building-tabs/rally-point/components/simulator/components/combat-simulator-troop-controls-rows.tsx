@@ -7,6 +7,7 @@ import {
   GiBreastplate,
   GiBroadsword,
   GiFist,
+  GiHorseHead,
   GiShield,
 } from 'react-icons/gi';
 import { LuHash } from 'react-icons/lu';
@@ -208,18 +209,6 @@ const getHeroItemBonus = (
   return total;
 };
 
-const getSelectedHeroEquipmentItems = (
-  itemIdsBySlot: CombatSimulatorHeroStats['itemIdsBySlot'],
-) => {
-  return Object.values(itemIdsBySlot).flatMap((itemId) => {
-    if (itemId === undefined) {
-      return [];
-    }
-
-    return heroEquipmentItemById.get(itemId) ?? [];
-  });
-};
-
 const CombatSimulatorTroopControlsRows = ({
   participant,
 }: {
@@ -250,7 +239,10 @@ const CombatSimulatorTroopControlsRows = ({
   const amountLabel = t('Amount');
   const smithyImprovementLevelLabel = t('Smithy improvement level');
   const heroLabel = t('Include hero');
-  const participantInputId = participant.role;
+  const participantInputId =
+    participant.role === 'reinforcement'
+      ? participant.reinforcementId
+      : participant.role;
 
   return (
     <>
@@ -402,8 +394,8 @@ const CombatSimulatorHeroItemSelector = ({
           aria-label={buttonLabel}
           aria-pressed={selectedItem !== undefined}
           className={clsx(
-            'relative text-muted-foreground',
-            selectedItem !== undefined && 'text-foreground ring-1 ring-primary',
+            'relative',
+            selectedItem === undefined && 'text-muted-foreground',
           )}
           data-tooltip-content={
             selectedItem === undefined
@@ -412,7 +404,7 @@ const CombatSimulatorHeroItemSelector = ({
           }
           data-tooltip-id="general-tooltip"
           size="icon"
-          variant="outline"
+          variant={selectedItem === undefined ? 'outline' : 'default'}
         >
           {icon}
         </Button>
@@ -490,14 +482,6 @@ const CombatSimulatorHeroItemControls = ({
   onHeroStatsChange: (heroStats: CombatSimulatorHeroStats) => void;
 }) => {
   const { t } = useTranslation();
-  const selectedItems = getSelectedHeroEquipmentItems(heroStats.itemIdsBySlot);
-  let power = 0;
-  let damageReduction = 0;
-
-  for (const item of selectedItems) {
-    power += getHeroItemBonus(item, 'power');
-    damageReduction += getHeroItemBonus(item, 'damageReduction');
-  }
 
   const handleItemChange = (
     slot: CombatSimulatorHeroItemSlot,
@@ -534,24 +518,6 @@ const CombatSimulatorHeroItemControls = ({
           />
         ))}
       </div>
-      {(power > 0 || damageReduction > 0) && (
-        <div
-          className="flex items-center gap-2 text-muted-foreground text-xs"
-          data-tooltip-content={t('Selected hero item bonuses')}
-          data-tooltip-id="general-tooltip"
-        >
-          {power > 0 && (
-            <span className="inline-flex items-center gap-1">
-              <GiFist className="size-3.5" />+{power}
-            </span>
-          )}
-          {damageReduction > 0 && (
-            <span className="inline-flex items-center gap-1">
-              <GiShield className="size-3.5" />-{damageReduction}
-            </span>
-          )}
-        </div>
-      )}
     </div>
   );
 };
@@ -634,7 +600,7 @@ const CombatSimulatorHeroStatsControlsRow = ({
     <table className="w-full border-collapse border border-t-0 overflow-hidden dark:border-border text-left">
       <tbody>
         <tr>
-          <td className="border-r dark:border-border p-1 w-16">
+          <td className="border-r dark:border-border p-1 w-6">
             <div
               className="flex justify-center"
               data-tooltip-content={heroStatsLabel}
@@ -648,7 +614,7 @@ const CombatSimulatorHeroStatsControlsRow = ({
             </div>
           </td>
           <td className="p-1">
-            <div className="flex flex-wrap items-center justify-end gap-8">
+            <div className="flex flex-wrap items-center justify-between gap-8">
               <div className="flex flex-wrap items-center justify-end gap-2">
                 {heroStatFields.map(({ key, label, min, max, icon }) => (
                   <label
@@ -679,6 +645,28 @@ const CombatSimulatorHeroStatsControlsRow = ({
                     />
                   </label>
                 ))}
+                <label
+                  className="flex items-center gap-2 text-muted-foreground"
+                  data-tooltip-content={t('Mounted')}
+                  data-tooltip-id="general-tooltip"
+                  htmlFor={`combat-simulator-${participantInputId}-hero-mounted`}
+                >
+                  <span className="sr-only">{t('Mounted')}</span>
+                  <GiHorseHead
+                    aria-hidden="true"
+                    className="size-4 md:size-5"
+                  />
+                  <Checkbox
+                    checked={participantData.heroStats.mounted}
+                    id={`combat-simulator-${participantInputId}-hero-mounted`}
+                    onCheckedChange={(checked) => {
+                      participantData.onHeroStatsChange({
+                        ...participantData.heroStats,
+                        mounted: checked === true,
+                      });
+                    }}
+                  />
+                </label>
               </div>
               <CombatSimulatorHeroItemControls
                 heroStats={participantData.heroStats}
