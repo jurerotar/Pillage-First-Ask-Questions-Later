@@ -1,6 +1,7 @@
 import { use } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuArrowDownUp, LuBeer, LuEraser } from 'react-icons/lu';
+import type { CombatSimulatorMode } from '@pillage-first/types/models/combat-simulator';
 import {
   PLAYABLE_TRIBES,
   type PlayableTribe,
@@ -15,10 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from 'app/components/ui/select';
-import {
-  CombatSimulatorContext,
-  type CombatSimulatorMode,
-} from '../providers/combat-simulator-context';
+import { CombatSimulatorContext } from '../providers/combat-simulator-context';
 import { CombatSimulatorParticipantControlsTable } from './combat-simulator-participant-controls-table';
 import {
   CombatSimulatorAttackerHeroStatsControlsRow,

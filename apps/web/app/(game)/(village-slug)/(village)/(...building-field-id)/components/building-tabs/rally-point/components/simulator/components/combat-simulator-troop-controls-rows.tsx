@@ -18,6 +18,12 @@ import {
   getUnitsByTribeWithHero,
 } from '@pillage-first/game-assets/utils/units';
 import type {
+  CombatSimulatorHeroItemSlot,
+  CombatSimulatorHeroStats,
+  CombatSimulatorReinforcement,
+  CombatSimulatorTroop,
+} from '@pillage-first/types/models/combat-simulator';
+import type {
   HeroEquipmentItem,
   HeroItem,
 } from '@pillage-first/types/models/hero-item';
@@ -32,13 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from 'app/components/ui/popover';
-import {
-  CombatSimulatorContext,
-  type CombatSimulatorHeroItemSlot,
-  type CombatSimulatorHeroStats,
-  type CombatSimulatorReinforcement,
-  type CombatSimulatorTroop,
-} from '../providers/combat-simulator-context';
+import { CombatSimulatorContext } from '../providers/combat-simulator-context';
 import { LevelInputPopover } from './level-input-popover';
 
 type CombatSimulatorTroopControlsParticipant =

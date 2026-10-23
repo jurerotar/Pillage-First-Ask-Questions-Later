@@ -9,20 +9,22 @@ import {
   getUnitsByTribe,
   getUnitsByTribeWithHero,
 } from '@pillage-first/game-assets/utils/units';
+import type {
+  CombatSimulatorDefender,
+  CombatSimulatorHeroItemSlot,
+  CombatSimulatorHeroStats,
+  CombatSimulatorMode,
+  CombatSimulatorParticipant,
+  CombatSimulatorReinforcement,
+  CombatSimulatorState,
+  CombatSimulatorTroop,
+} from '@pillage-first/types/models/combat-simulator';
 import type { PlayableTribe, Tribe } from '@pillage-first/types/models/tribe';
 import type { UnitId } from '@pillage-first/types/models/unit';
 import { useTribe } from 'app/(game)/(village-slug)/hooks/use-tribe';
 import {
   CombatSimulatorContext,
   type CombatSimulatorContextValue,
-  type CombatSimulatorDefender,
-  type CombatSimulatorHeroItemSlot,
-  type CombatSimulatorHeroStats,
-  type CombatSimulatorMode,
-  type CombatSimulatorParticipant,
-  type CombatSimulatorReinforcement,
-  type CombatSimulatorState,
-  type CombatSimulatorTroop,
 } from './combat-simulator-context';
 
 const DEFAULT_HERO_STATS = {

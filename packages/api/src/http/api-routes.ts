@@ -3,6 +3,7 @@ import {
   getBookmarks,
   updateBookmark,
 } from './controllers/bookmark-controllers';
+import { simulateCombat } from './controllers/combat-simulator-controllers';
 import {
   adjustVillageLoyalty,
   getDeveloperSettings,
@@ -272,6 +273,9 @@ export const apiRoutes = [
 
   // Bonus Finder
   createRoute(getTilesWithBonuses),
+
+  // Combat Simulator
+  createRoute(simulateCombat),
 
   // Animal Finder
   createRoute(getOasesWithAnimals),
