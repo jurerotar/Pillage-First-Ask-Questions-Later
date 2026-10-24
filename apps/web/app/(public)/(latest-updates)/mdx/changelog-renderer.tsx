@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
-import { CopySectionLinkButton } from 'app/(public)/components/copy-section-link-button';
-import { Alert } from 'app/components/ui/alert';
 import {
   type ChangelogEntry,
   groupOrder,
   makeSectionId,
   parseChangelog as parseChangelogFromMarkdown,
-} from 'app/utils/changelog';
+} from '@pillage-first/utils/changelog';
+import { CopySectionLinkButton } from 'app/(public)/components/copy-section-link-button';
+import { Alert } from 'app/components/ui/alert';
 import changelogRaw from '../../../../../../CHANGELOG.md?raw';
 import { BugFixesBlock } from './components/bug-fixes-block';
 import { CopyReleaseButton } from './components/copy-release-button';
@@ -118,9 +118,7 @@ export const ChangelogRenderer = () => {
               );
             }
 
-            const Block =
-              tagToBlock[tag as keyof typeof tagToBlock] ??
-              TechnicalImprovementBlock;
+            const Block = tagToBlock[tag] ?? TechnicalImprovementBlock;
 
             return (
               <Block key={tag}>
@@ -182,7 +180,7 @@ const buildReleaseMarkdown = (release: ChangelogEntry): string => {
   const known = new Set<string>(groupOrder as readonly string[]);
   const unknownTags = Object.keys(release.groups)
     .filter((k) => !known.has(k) && (release.groups[k]?.length ?? 0) > 0)
-    .sort();
+    .toSorted();
 
   for (const tag of unknownTags) {
     const items = release.groups[tag] ?? [];

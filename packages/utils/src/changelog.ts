@@ -30,7 +30,7 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
     lastItemTag = null;
   };
 
-  for (let i = 0; i < lines.length; i++) {
+  for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
 
     // Version header: "## Version X"
@@ -83,8 +83,7 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
     ) {
       const continuationText = continuationMatch[1].trim();
       const items = currentGroups[lastItemTag];
-      items[items.length - 1] =
-        `${items[items.length - 1]} ${continuationText}`;
+      items[items.length - 1] = `${items.at(-1)} ${continuationText}`;
     }
   }
 
@@ -237,7 +236,7 @@ export const buildItemsFromChangelog = (
     // Known groups in desired order first
     for (const tag of groupOrder) {
       const groupItems = entry.groups[tag] ?? [];
-      if (!groupItems.length) {
+      if (groupItems.length === 0) {
         continue;
       }
 
@@ -263,7 +262,7 @@ export const buildItemsFromChangelog = (
       );
     }
 
-    if (!sections.length) {
+    if (sections.length === 0) {
       continue;
     }
 

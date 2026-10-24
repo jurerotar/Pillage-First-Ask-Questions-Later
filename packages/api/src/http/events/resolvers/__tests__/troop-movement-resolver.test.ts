@@ -483,7 +483,7 @@ describe(relocationMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -607,7 +607,7 @@ describe(relocationMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -676,7 +676,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -774,7 +774,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -854,7 +854,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -919,7 +919,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });

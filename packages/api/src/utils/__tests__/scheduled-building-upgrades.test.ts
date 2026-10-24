@@ -170,10 +170,10 @@ describe('scheduled building upgrades', () => {
       `,
       bind: {
         $village_id: villageId,
-        $building_1: fields[0].buildingId as Building['id'],
+        $building_1: fields[0].buildingId,
         $field_1: fields[0].fieldId,
         $level_1: fields[0].level + 1,
-        $building_2: fields[1].buildingId as Building['id'],
+        $building_2: fields[1].buildingId,
         $field_2: fields[1].fieldId,
         $level_2: fields[1].level + 1,
       },
@@ -271,7 +271,7 @@ describe('scheduled building upgrades', () => {
         );
       `,
       bind: {
-        $building_id: field.buildingId as Building['id'],
+        $building_id: field.buildingId,
         $village_id: villageId,
         $field_id: field.fieldId,
         $level: field.level + 1,
@@ -396,7 +396,7 @@ describe('scheduled building upgrades', () => {
     for (const field of [resourceField, villageField]) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
-        buildingId: field.buildingId as Building['id'],
+        buildingId: field.buildingId,
         buildingFieldId: field.fieldId,
         level: field.level + 1,
       });

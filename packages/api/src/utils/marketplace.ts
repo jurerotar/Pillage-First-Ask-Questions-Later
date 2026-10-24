@@ -163,7 +163,7 @@ export const getMerchantMovementDurationByVillageId = (
       speed: speedSchema,
     }),
   })!;
-  const merchantSpeed = merchantsMap.get(tribe)!.merchantSpeed;
+  const { merchantSpeed } = merchantsMap.get(tribe)!;
 
   const distance = calculateDistanceBetweenTiles(
     originTileId,

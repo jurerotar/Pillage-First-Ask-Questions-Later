@@ -48,9 +48,8 @@ export const BuildingStatsUpgradeDuration = () => {
 
   const mainBuildingDefinition = getBuildingDefinition('MAIN_BUILDING');
   const buildingDurationModifier =
-    mainBuildingDefinition.effects(tribe)[0]!.valuesPerLevel[
-      mainBuildingLevel
-    ] * buildingDurationServerEffect.value;
+    mainBuildingDefinition.effects(tribe)[0].valuesPerLevel[mainBuildingLevel] *
+    buildingDurationServerEffect.value;
 
   return (
     <Section>

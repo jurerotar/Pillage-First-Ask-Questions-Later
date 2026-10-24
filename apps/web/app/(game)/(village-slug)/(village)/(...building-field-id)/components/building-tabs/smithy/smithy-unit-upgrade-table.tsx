@@ -48,7 +48,7 @@ export const SmithyUnitUpgradeTable = () => {
 
   const upgradableUnits = getSmithyUpgradeableUnitsByTribe(tribe);
   const [selectedUnitId, setSelectedUnitId] = useState<Unit['id']>(
-    upgradableUnits[0]!.id,
+    upgradableUnits[0].id,
   );
   const selectedUnit = getUnitDefinition(selectedUnitId);
   const upgradeStats = [
@@ -80,8 +80,8 @@ export const SmithyUnitUpgradeTable = () => {
       <SectionContent>
         <Select
           value={selectedUnitId}
-          onValueChange={(value) => {
-            setSelectedUnitId(value as Unit['id']);
+          onValueChange={(value: Unit['id']) => {
+            setSelectedUnitId(value);
           }}
         >
           <SelectTrigger className="w-fit">

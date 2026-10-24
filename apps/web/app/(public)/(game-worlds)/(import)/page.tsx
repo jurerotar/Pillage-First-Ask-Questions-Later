@@ -159,7 +159,8 @@ const ImportGameWorld = () => {
 
   const worldPreview = useQuery({
     queryKey: ['shared-world-preview', worldId],
-    queryFn: ({ signal }) => getSharedWorldPreview(worldId!, signal),
+    queryFn: async ({ signal }) =>
+      await getSharedWorldPreview(worldId!, signal),
     enabled: !!worldId,
     retry: false,
     refetchOnWindowFocus: false,

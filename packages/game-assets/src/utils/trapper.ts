@@ -7,5 +7,5 @@ export const TRAPPER_CAPACITY_PER_LEVEL = [
 ];
 
 export const calculateTrapperCapacity = (level: number): number => {
-  return TRAPPER_CAPACITY_PER_LEVEL[Math.max(0, Math.min(20, level))]!;
+  return TRAPPER_CAPACITY_PER_LEVEL[Math.max(0, Math.min(20, level))];
 };

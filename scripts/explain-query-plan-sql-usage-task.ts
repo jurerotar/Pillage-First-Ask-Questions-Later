@@ -29,7 +29,7 @@ const extractBindableParameters = (sql: string): string[] => {
         return match;
       }),
     ),
-  ).sort();
+  ).toSorted();
 };
 
 const jsonArrayParameters = new Set([
@@ -149,7 +149,7 @@ const createSeededDbBuffer = (sqlite3: Sqlite3Static): Uint8Array => {
 
     migrateAndSeed(database, serverMock);
 
-    const cachedDb = sqlite3.capi.sqlite3_js_db_export(oo1Db.pointer!, 'main');
+    const cachedDb = sqlite3.capi.sqlite3_js_db_export(oo1Db.poer, 'main');
 
     return cachedDb;
   } finally {
@@ -166,7 +166,7 @@ const createDatabaseCopy = (
   try {
     database.checkRc(
       sqlite3.capi.sqlite3_deserialize(
-        database.pointer!,
+        database.poer,
         'main',
         sqlite3.wasm.allocFromTypedArray(buffer),
         buffer.byteLength,
@@ -364,7 +364,7 @@ const measureExecution = (
   const instructions = (): number | null =>
     statement
       ? sqlite3.capi.sqlite3_stmt_status(
-          statement.pointer!,
+          statement.poer,
           sqlite3.capi.SQLITE_STMTSTATUS_VM_STEP,
           0,
         )
@@ -379,10 +379,10 @@ const measureExecution = (
     // report without the OO wrapper also printing their SQL to stderr.
     let result: number;
     do {
-      result = sqlite3.capi.sqlite3_step(statement.pointer!);
+      result = sqlite3.capi.sqlite3_step(statement.poer);
     } while (result === sqlite3.capi.SQLITE_ROW);
     if (result !== sqlite3.capi.SQLITE_DONE) {
-      throw new Error(sqlite3.capi.sqlite3_errmsg(database.pointer!));
+      throw new Error(sqlite3.capi.sqlite3_errmsg(database.poer));
     }
     return { vmInstructions: instructions() };
   } catch (error) {

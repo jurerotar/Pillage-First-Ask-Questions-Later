@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import {
   calculateDistanceBetweenPoints,
   randomInt,
@@ -7,10 +7,6 @@ import {
 } from '../math';
 
 describe('math utils', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   describe(calculateDistanceBetweenPoints, () => {
     test('should calculate distance between two points', () => {
       const p1 = { x: 0, y: 0 };
@@ -51,7 +47,7 @@ describe('math utils', () => {
 
   describe(randomInt, () => {
     test('should return an inclusive integer in the requested range', () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0.99);
+      using _random = vi.spyOn(Math, 'random').mockReturnValue(0.99);
 
       expect(randomInt(2, 20)).toBe(20);
     });

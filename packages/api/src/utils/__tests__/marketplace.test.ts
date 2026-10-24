@@ -38,7 +38,7 @@ describe('marketplace utils', () => {
     })!;
     const originTileId = coordinatesToTileId({ x: 0, y: 0 }, village.mapSize);
     const targetTileId = coordinatesToTileId({ x: 10, y: 0 }, village.mapSize);
-    const merchantSpeed = merchantsMap.get(village.tribe)!.merchantSpeed;
+    const { merchantSpeed } = merchantsMap.get(village.tribe)!;
     const selectObject = vi.spyOn(database, 'selectObject');
 
     database.exec({

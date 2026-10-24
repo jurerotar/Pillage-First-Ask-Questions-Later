@@ -17,7 +17,7 @@ describe('troop-queries', () => {
           unitId: 'LEGIONNAIRE',
           amount: 10,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ];
 
@@ -44,14 +44,10 @@ describe('troop-queries', () => {
       const unitId: Unit['id'] = 'LEGIONNAIRE';
 
       // First add
-      addTroops(database, [
-        { unitId, amount: 10, tileId, sourceTileId: sourceTileId },
-      ]);
+      addTroops(database, [{ unitId, amount: 10, tileId, sourceTileId }]);
 
       // Second add
-      addTroops(database, [
-        { unitId, amount: 5, tileId, sourceTileId: sourceTileId },
-      ]);
+      addTroops(database, [{ unitId, amount: 5, tileId, sourceTileId }]);
 
       const result = database.selectValue({
         sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
@@ -77,19 +73,19 @@ describe('troop-queries', () => {
           unitId: 'LEGIONNAIRE',
           amount: 10,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
         {
           unitId: 'PRAETORIAN',
           amount: 20,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
         {
           unitId: 'IMPERIAN',
           amount: 30,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ];
 
@@ -159,14 +155,10 @@ describe('troop-queries', () => {
       const unitId: Unit['id'] = 'LEGIONNAIRE';
 
       // Setup
-      addTroops(database, [
-        { unitId, amount: 10, tileId, sourceTileId: sourceTileId },
-      ]);
+      addTroops(database, [{ unitId, amount: 10, tileId, sourceTileId }]);
 
       // Remove
-      removeTroops(database, [
-        { unitId, amount: 4, tileId, sourceTileId: sourceTileId },
-      ]);
+      removeTroops(database, [{ unitId, amount: 4, tileId, sourceTileId }]);
 
       const result = database.selectValue({
         sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
@@ -189,14 +181,10 @@ describe('troop-queries', () => {
       const unitId: Unit['id'] = 'LEGIONNAIRE';
 
       // Setup
-      addTroops(database, [
-        { unitId, amount: 10, tileId, sourceTileId: sourceTileId },
-      ]);
+      addTroops(database, [{ unitId, amount: 10, tileId, sourceTileId }]);
 
       // Remove exact amount
-      removeTroops(database, [
-        { unitId, amount: 10, tileId, sourceTileId: sourceTileId },
-      ]);
+      removeTroops(database, [{ unitId, amount: 10, tileId, sourceTileId }]);
 
       const result = database.selectValue({
         sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
@@ -219,14 +207,10 @@ describe('troop-queries', () => {
       const unitId: Unit['id'] = 'LEGIONNAIRE';
 
       // Setup
-      addTroops(database, [
-        { unitId, amount: 10, tileId, sourceTileId: sourceTileId },
-      ]);
+      addTroops(database, [{ unitId, amount: 10, tileId, sourceTileId }]);
 
       // Remove more than available
-      removeTroops(database, [
-        { unitId, amount: 15, tileId, sourceTileId: sourceTileId },
-      ]);
+      removeTroops(database, [{ unitId, amount: 15, tileId, sourceTileId }]);
 
       const result = database.selectValue({
         sql: 'SELECT amount FROM troops WHERE tile_id = $tile_id AND source_tile_id = $source_tile_id AND unit_id = (SELECT id FROM unit_ids WHERE unit = $unit_id)',
@@ -253,13 +237,13 @@ describe('troop-queries', () => {
           unitId: 'LEGIONNAIRE',
           amount: 10,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
         {
           unitId: 'PRAETORIAN',
           amount: 20,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ]);
 
@@ -284,13 +268,13 @@ describe('troop-queries', () => {
           unitId: 'LEGIONNAIRE',
           amount: 5,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
         {
           unitId: 'PRAETORIAN',
           amount: 20,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ]);
 
@@ -310,7 +294,7 @@ describe('troop-queries', () => {
           unitId: 'LEGIONNAIRE',
           amount: 10,
           tileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ]);
 

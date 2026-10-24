@@ -61,7 +61,7 @@ const getBuildingFieldSlots = (
           : null,
       ];
     }),
-  ) as BuildingFieldSlots;
+  );
 };
 
 const isLockedBuildingField = (buildingFieldId: BuildingField['id']) => {

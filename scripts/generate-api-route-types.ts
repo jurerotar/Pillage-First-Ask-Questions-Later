@@ -83,7 +83,7 @@ export const isApiRouteTypesInputFile = (filePath: string): boolean => {
 export const listApiRouteTypesInputFiles = (): string[] => {
   return [apiRoutesSourcePath, ...readDirectoryRecursive(apiControllersRoot)]
     .filter(isApiRouteTypesInputFile)
-    .sort();
+    .toSorted();
 };
 
 const createTemporaryTsConfig = (temporaryRoot: string): string => {
@@ -186,9 +186,9 @@ const collectInlineTypeImportNames = (
             'gu',
           ),
         ),
-      ).map(({ groups }) => groups!.importName!),
+      ).map(({ groups }) => groups!.importName),
     ),
-  ].sort();
+  ].toSorted();
 };
 
 const createNamedTypeImport = ({
@@ -212,7 +212,7 @@ const splitTopLevelTypeList = (text: string): string[] => {
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
   for (let index = 0; index < text.length; index++) {
-    const character = text[index]!;
+    const character = text[index];
     const previousCharacter = text[index - 1];
 
     if (stringDelimiter) {
@@ -298,7 +298,7 @@ const splitTopLevelIntersection = (text: string): string[] => {
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
   for (let index = 0; index < text.length; index++) {
-    const character = text[index]!;
+    const character = text[index];
     const previousCharacter = text[index - 1];
 
     if (stringDelimiter) {
@@ -390,7 +390,7 @@ const extractFirstSchemaType = (text: string): string | undefined => {
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
   for (let index = schemaStartIndex; index < text.length; index++) {
-    const character = text[index]!;
+    const character = text[index];
     const previousCharacter = text[index - 1];
 
     if (stringDelimiter) {
@@ -474,7 +474,7 @@ const findTopLevelProperty = (
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
   for (let index = 0; index < text.length; index++) {
-    const character = text[index]!;
+    const character = text[index];
     const previousCharacter = text[index - 1];
 
     if (stringDelimiter) {
@@ -505,7 +505,7 @@ const findTopLevelProperty = (
         propertyEndIndex < text.length;
         propertyEndIndex++
       ) {
-        const propertyCharacter = text[propertyEndIndex]!;
+        const propertyCharacter = text[propertyEndIndex];
         const propertyPreviousCharacter = text[propertyEndIndex - 1];
 
         if (stringDelimiter) {
@@ -644,7 +644,7 @@ const simplifyControllerOperationOmit = (text: string): string => {
     let objectBodyEndIndex: number | undefined;
 
     for (let index = objectBodyStartIndex; index < text.length; index++) {
-      const character = text[index]!;
+      const character = text[index];
       const previousCharacter = text[index - 1];
 
       if (stringDelimiter) {
@@ -712,7 +712,7 @@ const extractApiRouteTupleItems = (declarationText: string): string[] => {
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
   for (let index = tupleStartIndex; index < declarationText.length; index++) {
-    const character = declarationText[index]!;
+    const character = declarationText[index];
     const previousCharacter = declarationText[index - 1];
 
     if (stringDelimiter) {

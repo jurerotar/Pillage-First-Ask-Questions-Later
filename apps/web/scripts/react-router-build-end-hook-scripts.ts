@@ -5,13 +5,13 @@ import { dirname, join, resolve } from 'node:path';
 import { load } from 'cheerio';
 import { REACT_ICONS_SPRITE_URL_PLACEHOLDER } from 'react-icons-sprite';
 import { matchRoutes, type RouteObject } from 'react-router';
-import type { Config } from '@react-router/dev/config';
 import {
   buildItemsFromChangelog,
   parseChangelog,
   toAtomXml,
   toRssXml,
-} from '../app/utils/changelog';
+} from '@pillage-first/utils/changelog';
+import type { Config } from '@react-router/dev/config';
 import { getGameRoutePaths } from '../app/utils/react-router';
 
 type BrowserManifestRoute = {

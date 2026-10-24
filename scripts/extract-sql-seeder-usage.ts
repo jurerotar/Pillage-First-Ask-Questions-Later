@@ -217,7 +217,7 @@ const normalizeStatement = (statement: string): string => {
     .filter((s) => s.length > 0)
     .map(normalizeStatement)
     .filter((s) => s !== ';')
-    .sort();
+    .toSorted();
 
   const output = [
     '-- Extracted Seeder SQL statements',

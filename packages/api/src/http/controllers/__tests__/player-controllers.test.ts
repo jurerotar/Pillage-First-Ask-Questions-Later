@@ -598,7 +598,7 @@ describe('player-controllers', () => {
     expect(result).toHaveLength(1);
     expect(result[0].village.tileId).toBe(targetTileId);
     expect(result[0].troops).toHaveLength(2);
-    expect(result[0].troops.map(({ unitId }) => unitId).sort()).toEqual([
+    expect(result[0].troops.map(({ unitId }) => unitId).toSorted()).toEqual([
       'LEGIONNAIRE',
       'PRAETORIAN',
     ]);

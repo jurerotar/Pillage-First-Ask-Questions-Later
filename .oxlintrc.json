@@ -1,5 +1,9 @@
 {
   "$schema": "node_modules/oxlint/configuration_schema.json",
+  "options": {
+    "typeAware": true,
+    "reportUnusedDisableDirectives": "allow"
+  },
   "plugins": [
     "eslint",
     "typescript",
@@ -33,6 +37,7 @@
     ],
     "eslint/max-lines-per-function": "off",
     "eslint/max-lines": "off",
+    "eslint/one-var": "off",
     "eslint/complexity": "off",
     "eslint/max-depth": "off",
     "eslint/no-magic-numbers": "off",
@@ -85,6 +90,7 @@
     "unicorn/require-post-message-target-origin": "off",
     "unicorn/prefer-string-slice": "off",
     "unicorn/max-nested-calls": "off",
+    "unicorn/no-unreadable-array-destructuring": "off",
     "import/default": "off",
     "import/no-relative-parent-imports": "off",
     "import/prefer-default-export": "off",
@@ -118,6 +124,7 @@
     "vitest/prefer-to-be-truthy": "off",
     "vitest/prefer-to-be-falsy": "off",
     "vitest/max-expects": "off",
+    "vitest/require-to-throw-message": "off",
     "vitest/prefer-expect-assertions": "off",
     "vitest/consistent-test-it": ["error", { "fn": "test" }],
     "jest/valid-expect": "off",
@@ -127,6 +134,7 @@
     "jest/prefer-to-be": "off",
     "jest/require-to-throw-message": "off",
     "jest/prefer-expect-assertions": "off",
+    "jest/prefer-ending-with-an-expect": "off",
     "jest/prefer-called-with": "off",
     "jest/prefer-lowercase-title": "warn",
     "jest/no-conditional-in-test": "off",
