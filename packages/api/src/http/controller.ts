@@ -54,7 +54,7 @@ type NormalizeControllerOperation<
           requestBody: infer TRequestBody extends JsonRequestBody;
         }
       ? { requestBody: TRequestBody }
-      : Record<never, never>) &
+      : unknown) &
   (TOperation extends { response: z.core.$ZodType }
     ? {
         responses: {
