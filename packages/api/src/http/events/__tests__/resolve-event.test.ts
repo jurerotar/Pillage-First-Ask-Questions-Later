@@ -80,7 +80,7 @@ test('does not resolve the same event twice', async () => {
   resolveEvent(database, event.id, notify);
   resolveEvent(database, event.id, notify);
 
-  expect(resolver).toHaveBeenCalledOnce();
+  expect(resolver).toHaveBeenCalledTimes(1);
 });
 
 test('publishes the resolver affected villages and tiles on success', async () => {

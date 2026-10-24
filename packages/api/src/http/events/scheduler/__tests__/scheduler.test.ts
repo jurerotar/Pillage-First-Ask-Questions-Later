@@ -48,7 +48,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(source);
 
-    expect(source.resolveEvents).toHaveBeenCalledOnce();
+    expect(source.resolveEvents).toHaveBeenCalledTimes(1);
     expect(processed.mock.calls).toStrictEqual([[2], [1]]);
     expect(source.resolveEvent).not.toHaveBeenCalled();
   });
@@ -105,7 +105,7 @@ describe('scheduler', () => {
     triggerKick();
     vi.advanceTimersByTime(0);
 
-    expect(context.source.getPastEventIds).toHaveBeenCalledOnce();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
   test('does not resolve a future event before its deadline', () => {
@@ -156,7 +156,7 @@ describe('scheduler', () => {
 
     vi.advanceTimersByTime(0);
 
-    expect(context.source.getPastEventIds).toHaveBeenCalledOnce();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
   test('a kick clears the previous event timer', () => {
@@ -181,7 +181,7 @@ describe('scheduler', () => {
 
     vi.advanceTimersByTime(0);
 
-    expect(context.source.getPastEventIds).toHaveBeenCalledOnce();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
   test('cancellation clears the event timer', () => {
@@ -239,7 +239,7 @@ describe('scheduler', () => {
       }
       scheduleNextEvent(source);
 
-      expect(source.getPastEventIds).toHaveBeenCalledOnce();
+      expect(source.getPastEventIds).toHaveBeenCalledTimes(1);
     });
 
     scheduleNextEvent(source);
@@ -271,7 +271,7 @@ describe('scheduler', () => {
 
     scheduleNextEvent(context.source);
 
-    expect(context.source.getPastEventIds).toHaveBeenCalledOnce();
+    expect(context.source.getPastEventIds).toHaveBeenCalledTimes(1);
   });
 
   test('logs a timer-fired resolution error', () => {

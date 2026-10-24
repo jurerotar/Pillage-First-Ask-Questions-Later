@@ -280,7 +280,7 @@ describe('map-controllers', () => {
     );
   });
 
-  test('MapMarker controllers should add, get and remove markers', async () => {
+  test('map marker controllers should add, get and remove markers', async () => {
     using database = await prepareTestDatabase();
 
     const playerId = 1;

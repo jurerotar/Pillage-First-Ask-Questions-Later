@@ -271,7 +271,7 @@ describe('oasis-controllers', () => {
     }
   });
 
-  test('Waterworks level changes should update occupied oasis effects', async () => {
+  test('waterworks level changes should update occupied oasis effects', async () => {
     using database = await prepareTestDatabase();
 
     const village = database.selectObject({

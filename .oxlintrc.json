@@ -124,6 +124,8 @@
     ],
     "vitest/valid-expect": ["error", { "maxArgs": 2 }],
     "vitest/prefer-called-once": "off",
+    "vitest/prefer-called-exactly-once-with": "off",
+    "vitest/prefer-called-times": "error",
     "vitest/valid-title": "off",
     "vitest/no-importing-vitest-globals": "off",
     "vitest/require-test-timeout": "off",
