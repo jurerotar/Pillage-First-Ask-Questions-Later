@@ -152,31 +152,36 @@ const uploadWorld = async (upload: PendingUpload): Promise<void> => {
 
   let { reservation } = upload;
 
+  const uploadChunk = async (
+    chunkIndex: number,
+    chunk: Blob,
+    start: number,
+    end: number,
+  ): Promise<Response> => {
+    const uploadUrl = reservation.chunkUrlTemplate.replace(
+      '{chunkIndex}',
+      String(chunkIndex),
+    );
+    return fetch(uploadUrl, {
+      body: chunk,
+      headers: {
+        'content-range': `bytes ${start}-${end - 1}/${world.size}`,
+      },
+      method: 'PUT',
+    });
+  };
+
   while (upload.nextChunkIndex * reservation.chunkSize < world.size) {
     const chunkIndex = upload.nextChunkIndex;
     const start = chunkIndex * reservation.chunkSize;
     const end = Math.min(start + reservation.chunkSize, world.size);
     const chunk = world.slice(start, end);
-    const uploadChunk = async (): Promise<Response> => {
-      const uploadUrl = reservation.chunkUrlTemplate.replace(
-        '{chunkIndex}',
-        String(chunkIndex),
-      );
-      return fetch(uploadUrl, {
-        body: chunk,
-        headers: {
-          'content-range': `bytes ${start}-${end - 1}/${world.size}`,
-        },
-        method: 'PUT',
-      });
-    };
-
-    let response = await uploadChunk();
+    let response = await uploadChunk(chunkIndex, chunk, start, end);
 
     if (response.status === 401) {
       reservation = await getUploadReservation();
       upload.reservation = reservation;
-      response = await uploadChunk();
+      response = await uploadChunk(chunkIndex, chunk, start, end);
     }
 
     if (!response.ok) {

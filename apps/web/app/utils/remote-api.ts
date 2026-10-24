@@ -248,19 +248,20 @@ export const uploadSharedWorld = async (
     return checkResponse(await request());
   };
 
+  const uploadChunk = (index: number, start: number, end: number) =>
+    uploadWorldChunk(
+      reservation.chunkUrlTemplate.replace('{chunkIndex}', String(index)),
+      pending.world.slice(start, end),
+      `bytes ${start}-${end - 1}/${pending.world.size}`,
+      (loaded) => reportProgress(start + loaded),
+    );
+
   while (pending.nextChunkIndex * reservation.chunkSize < pending.world.size) {
     const index = pending.nextChunkIndex;
     const start = index * reservation.chunkSize;
     const end = Math.min(start + reservation.chunkSize, pending.world.size);
 
-    await send(() =>
-      uploadWorldChunk(
-        reservation.chunkUrlTemplate.replace('{chunkIndex}', String(index)),
-        pending.world.slice(start, end),
-        `bytes ${start}-${end - 1}/${pending.world.size}`,
-        (loaded) => reportProgress(start + loaded),
-      ),
-    );
+    await send(() => uploadChunk(index, start, end));
 
     pending.nextChunkIndex += 1;
     reportProgress(end);

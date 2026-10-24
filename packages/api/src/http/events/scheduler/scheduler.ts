@@ -52,6 +52,22 @@ export const cancelScheduling = (): void => {
   clearKickCallback();
 };
 
+function* pendingEventIds(
+  pastEventIds: GameEvent['id'][],
+): Generator<GameEvent['id']> {
+  for (const id of pastEventIds) {
+    if (shutdownController.signal.aborted) {
+      break;
+    }
+
+    yield id;
+
+    if (takeNeedsRescan()) {
+      break;
+    }
+  }
+}
+
 export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
   // If we've been canceled, bail out immediately.
   if (shutdownController.signal.aborted) {
@@ -84,21 +100,7 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
         break;
       }
 
-      function* pendingEventIds(): Generator<GameEvent['id']> {
-        for (const id of pastEventIds) {
-          if (shutdownController.signal.aborted) {
-            break;
-          }
-
-          yield id;
-
-          if (takeNeedsRescan()) {
-            break;
-          }
-        }
-      }
-
-      dataSource.resolveEvents(pendingEventIds());
+      dataSource.resolveEvents(pendingEventIds(pastEventIds));
     }
 
     if (shutdownController.signal.aborted) {
