@@ -318,9 +318,8 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                         <FormControl>
                           <Input
                             className="max-w-20"
-                            type="number"
-                            min={-halfSize}
-                            max={halfSize}
+                            type="text"
+                            inputMode="numeric"
                             {...form.register('origin.x', {
                               valueAsNumber: true,
                             })}
@@ -360,9 +359,8 @@ const OasisBonusFinderPage = ({ params }: Route.ComponentProps) => {
                               );
                             }}
                             className="max-w-20"
-                            type="number"
-                            min={-halfSize}
-                            max={halfSize}
+                            type="text"
+                            inputMode="numeric"
                           />
                         </FormControl>
                       </FormItem>
