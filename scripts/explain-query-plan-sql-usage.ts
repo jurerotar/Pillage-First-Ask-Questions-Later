@@ -16,9 +16,9 @@ const server = await createServer({
   root: repoRoot,
   resolve: {
     alias: {
-      // Use the database package's SQLite build for both plans and VM counters.
+      // Use the API package's SQLite build for both plans and VM counters.
       '@sqlite.org/sqlite-wasm': createRequire(
-        resolve(repoRoot, 'packages/db/package.json'),
+        resolve(repoRoot, 'packages/api/package.json'),
       ).resolve('@sqlite.org/sqlite-wasm'),
     },
   },

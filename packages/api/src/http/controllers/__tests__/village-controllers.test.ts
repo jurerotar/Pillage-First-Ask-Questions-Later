@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { buildingIdSchema } from '@pillage-first/types/models/building';
 import { effectIdSchema } from '@pillage-first/types/models/effect';
 import { getTrapperCageStats } from '../trapper-controllers';

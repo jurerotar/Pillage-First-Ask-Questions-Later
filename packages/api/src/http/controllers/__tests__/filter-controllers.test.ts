@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { prepareTestDatabase } from '@pillage-first/db';
+import { prepareTestDatabase } from '@pillage-first/api/testing';
 import {
   reportFilterNameByScope,
   reportListingFilterSchema,

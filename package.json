@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
   "name": "pillage-first",
-  "version": "0.4.74",
+  "version": "0.4.75",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -25,11 +25,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@commitlint/cli": "21.2.3",
-    "@commitlint/config-conventional": "21.2.3",
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
     "@playwright/test": "1.64.1",
     "lefthook": "2.2.2",
-    "oxlint": "1.88.0",
+    "oxlint": "1.89.0",
     "oxlint-tsgolint": "7.0.2004",
     "playwright": "1.64.1",
     "sharp": "0.35.5",
@@ -67,12 +67,7 @@
     "@swc/core": true,
     "sharp": true,
     "@parcel/watcher": false,
-    "@scarf/scarf": false,
-    "core-js-pure": false,
     "esbuild": false,
-    "lefthook": false,
-    "tree-sitter": false,
-    "@tree-sitter-grammars/tree-sitter-yaml": false,
-    "tree-sitter-json": false
+    "lefthook": false
   }
 }

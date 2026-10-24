@@ -151,7 +151,7 @@ const emitApiRoutesDeclaration = (): string => {
 
 const extractApiRoutesDeclaration = (declarationText: string): string => {
   const startMarker = 'export declare const apiRoutes:';
-  const endMarker = '\nexport declare const paths:';
+  const endMarker = '\ntype CompiledRoute =';
   const startIndex = declarationText.indexOf(startMarker);
   const endIndex = declarationText.indexOf(endMarker, startIndex);
 

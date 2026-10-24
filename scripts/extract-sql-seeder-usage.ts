@@ -160,7 +160,7 @@ const normalizeStatement = (statement: string): string => {
   const globalDefinitions = new Map<string, string>();
   const sourceFiles: SourceFile[] = [];
 
-  for await (const entry of glob('packages/db/src/seeders/**/*.ts')) {
+  for await (const entry of glob('packages/api/src/db/seeders/**/*.ts')) {
     const content = await readFile(entry, 'utf8');
     const definitions = extractStringDefinitions(content);
 

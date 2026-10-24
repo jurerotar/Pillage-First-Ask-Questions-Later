@@ -97,7 +97,8 @@ export const ResourceSelector = ({
                     type="number"
                     min={0}
                     max={maxAmount}
-                    value={field.value}
+                    value={field.value === 0 ? '' : field.value}
+                    placeholder="0"
                     className="bg-emerald-50/50 dark:bg-emerald-950/20"
                     onChange={(event) => {
                       field.onChange(

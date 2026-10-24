@@ -37,17 +37,13 @@ We're following [React Router 7 conventions](https://reactrouter.com/dev/guides/
 * `loader` - https://remix.run/docs/en/main/route/loader
 * `meta` - https://remix.run/docs/en/main/route/meta
 
-## Bug report administration
+## Remote API
 
-The admin frontend is available at `/bugs`, with report details at `/bugs/reports/:reportId`.
-Run `npm run dev --workspace=@pillage-first/web` and open `http://localhost:5173/bugs`.
+The web app connects directly to [`@pillage-first/remote-api`](../remote-api/README.md) for bug reports and game world sharing.
 
-Set `VITE_BUG_REPORTER_API_URL` in the web app environment to the bug reporter service URL (`https://bugs.pillagefirst.com` for production).
-This is the same setting used for submitting in-game bug reports. Sign in using the service's `API_TOKEN`.
-The token is remembered in local storage on the web app origin until sign-out. A token saved on the former standalone frontend origin is not transferred; sign in again.
+- Set `VITE_API_URL=https://api.pillagefirst.com` in the web environment.
+- Set `ALLOWED_ORIGIN` on the API to the allowed web origins, e.g. `https://pillagefirst.com,http://localhost:5173`.
+- Open `/bugs` to manage reports; sign in with the API server's `API_TOKEN`. Never expose this token through a `VITE_` variable.
+- Use **Share game world** to generate an import link and QR code. Shared worlds are deleted after successful import or 24 hours.
 
-Set `ALLOWED_ORIGIN` on the service to the main web app origin (`http://localhost:5173` for local development).
-The browser calls the service directly. Never put `API_TOKEN` in a `VITE_` environment variable.
-
-Build with `npm run build --workspace=@pillage-first/web`. The existing Netlify redirects serve both `/bugs` and its detail URLs.
-The former `@pillage-first/bug-reporter-ui` workspace is deprecated and no longer builds separately.
+For local development, run `npm run dev --workspace=@pillage-first/web`. See the remote API README for server setup and deployment.

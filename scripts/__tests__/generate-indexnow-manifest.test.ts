@@ -26,6 +26,8 @@ describe('getPublicPathsForFiles', () => {
   });
 
   test('ignores changes that do not affect indexable public pages', () => {
-    expect(getPublicPathsForFiles(['packages/db/src/database.ts'])).toEqual([]);
+    expect(getPublicPathsForFiles(['packages/api/src/db/database.ts'])).toEqual(
+      [],
+    );
   });
 });

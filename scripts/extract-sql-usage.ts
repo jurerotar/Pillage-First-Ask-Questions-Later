@@ -156,7 +156,9 @@ const normalizeStatement = (statement: string): string => {
   const globalDefinitions = new Map<string, string>();
   const sourceFiles: SourceFile[] = [];
 
-  for await (const entry of glob('packages/api/src/**/*.ts')) {
+  for await (const entry of glob('packages/api/src/**/*.ts', {
+    exclude: ['packages/api/src/db/**'],
+  })) {
     if (
       entry.endsWith('api-worker.ts') ||
       entry.includes('__tests__') ||

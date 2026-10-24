@@ -215,7 +215,7 @@ const OccupiedBuildingFieldContent = ({
               }
             />
           )}
-          {!hasEvent && t(`BUILDINGS.${buildingId}.NAME`)}
+          {!hasEvent && <span>{t(`BUILDINGS.${buildingId}.NAME`)}</span>}
         </span>
       )}
     </Link>

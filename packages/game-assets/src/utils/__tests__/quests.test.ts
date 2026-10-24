@@ -1,4 +1,12 @@
 import { describe, expect, test } from 'vitest';
+import type { Quest } from '@pillage-first/types/models/quest';
+import { resourceFieldCompositionSchema } from '@pillage-first/types/models/resource-field-composition';
+import { PLAYABLE_TRIBES } from '@pillage-first/types/models/tribe';
+import {
+  createQueuedTroopCountByIdQuests,
+  globalQuests,
+  newVillageQuestsFactory,
+} from '../../quests';
 import { getQuestRequirements, getQuestRewards } from '../quests';
 
 describe('quest utils', () => {
@@ -99,6 +107,53 @@ describe('quest utils', () => {
   });
 
   describe(getQuestRewards, () => {
+    test.each<Quest['id']>([
+      'queuedTroopCount-1000000',
+      'queuedTroopCountById-LEGIONNAIRE-100000',
+      'killCount-1000000',
+      'unitKillCount-LEGIONNAIRE-100000',
+    ])('largest milestone %s grants 10,000 resources', (questId) => {
+      expect(getQuestRewards(questId)).toStrictEqual([
+        { type: 'resources', amount: 10_000 },
+      ]);
+    });
+
+    test('large milestones keep increasing with diminishing returns', () => {
+      const amounts = [100, 1000, 10_000, 100_000, 1_000_000].map(
+        (count) => getQuestRewards(`queuedTroopCount-${count}`)[0].amount,
+      );
+
+      expect(amounts).toStrictEqual([1000, 3250, 5500, 7750, 10_000]);
+      expect(getQuestRewards('queuedTroopCount-10000000')).toStrictEqual([
+        { type: 'resources', amount: 10_000 },
+      ]);
+      expect(getQuestRewards('every-CLAY_PIT-100')).toStrictEqual([
+        { type: 'resources', amount: 10_000 },
+      ]);
+    });
+
+    test('all generated resource rewards are positive integers capped at 10,000', () => {
+      const quests = [
+        ...globalQuests,
+        ...PLAYABLE_TRIBES.flatMap((tribe) => [
+          ...createQueuedTroopCountByIdQuests(tribe),
+          ...resourceFieldCompositionSchema.options.flatMap((composition) =>
+            newVillageQuestsFactory(1, tribe, composition),
+          ),
+        ]),
+      ];
+
+      for (const { id } of quests) {
+        for (const reward of getQuestRewards(id)) {
+          if (reward.type === 'resources') {
+            expect(reward.amount, id).toBeGreaterThan(0);
+            expect(reward.amount, id).toBeLessThanOrEqual(10_000);
+            expect(Number.isInteger(reward.amount), id).toBe(true);
+          }
+        }
+      }
+    });
+
     test('queuedTroopCount rewards produce resources = count * 10', () => {
       const rewards = getQuestRewards('queuedTroopCount-5');
 

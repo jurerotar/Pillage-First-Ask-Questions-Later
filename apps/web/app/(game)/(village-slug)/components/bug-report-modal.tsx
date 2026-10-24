@@ -1,4 +1,5 @@
 import { faro } from '@grafana/faro-web-sdk';
+import { useMutation } from '@tanstack/react-query';
 import { use, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -52,11 +53,11 @@ type PendingUpload = {
 };
 
 const getBugReporterUrl = (pathname: string): URL => {
-  if (!env.VITE_BUG_REPORTER_API_URL) {
+  if (!env.VITE_API_URL) {
     throw new Error('Bug reporting is not configured.');
   }
 
-  return new URL(pathname, env.VITE_BUG_REPORTER_API_URL);
+  return new URL(pathname, env.VITE_API_URL);
 };
 
 const getErrorMessage = async (response: Response): Promise<string> => {
@@ -211,24 +212,17 @@ export const BugReportModal = ({ isOpen, onClose }: BugReportModalProps) => {
     defaultValues: { description: '', contact: '' },
   });
   const pendingUpload = useRef<PendingUpload | null>(null);
-  const submissionInProgress = useRef(false);
-  const isSubmitting = form.formState.isSubmitting;
-  const formError =
-    form.formState.errors.description?.message ??
-    form.formState.errors.root?.message;
 
-  const submit = async ({ description, contact }: BugReportFormValues) => {
-    if (submissionInProgress.current) {
-      return;
-    }
-
-    submissionInProgress.current = true;
-    form.clearErrors('root');
-
-    try {
+  const {
+    mutate: submit,
+    isPending: isSubmitting,
+    error,
+  } = useMutation<void, Error, BugReportFormValues>({
+    mutationFn: async ({ description, contact }) => {
       if (!pendingUpload.current) {
         const diagnostics = createDiagnostics(server);
         const { data: database } = await apiClient.get('/server/database');
+
         pendingUpload.current = {
           world: new Blob([Uint8Array.from(database)], {
             type: 'application/x-sqlite3',
@@ -247,47 +241,44 @@ export const BugReportModal = ({ isOpen, onClose }: BugReportModalProps) => {
           nextChunkIndex: 0,
         };
       }
+
       await uploadWorld(pendingUpload.current);
+    },
+    onSuccess: () => {
       pendingUpload.current = null;
       form.reset();
       onClose();
       toast.success(t('Bug report submitted. Thank you!'));
-    } catch (submissionError) {
+    },
+    onError: () => {
       if (!pendingUpload.current?.report) {
         pendingUpload.current = null;
       }
-      form.setError('root', {
-        message:
-          submissionError instanceof Error
-            ? submissionError.message
-            : t('Unable to submit the bug report.'),
-      });
-    } finally {
-      submissionInProgress.current = false;
-    }
-  };
+    },
+  });
+
+  const formError =
+    form.formState.errors.description?.message ?? error?.message;
 
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) =>
-        !open && !submissionInProgress.current && onClose()
-      }
+      onOpenChange={(open) => !open && !isSubmitting && onClose()}
     >
       <DialogContent
         closeDisabled={isSubmitting}
         onEscapeKeyDown={(event) => {
-          if (submissionInProgress.current) {
+          if (isSubmitting) {
             event.preventDefault();
           }
         }}
         onInteractOutside={(event) => {
-          if (submissionInProgress.current) {
+          if (isSubmitting) {
             event.preventDefault();
           }
         }}
       >
-        <form onSubmit={form.handleSubmit(submit)}>
+        <form onSubmit={form.handleSubmit((values) => submit(values))}>
           <DialogHeader>
             <DialogTitle>{t('Report a bug')}</DialogTitle>
             <DialogDescription>

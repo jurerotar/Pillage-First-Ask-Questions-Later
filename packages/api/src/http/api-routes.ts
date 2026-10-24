@@ -1,8 +1,4 @@
 import { match } from 'path-to-regexp';
-import type {
-  ZodOpenApiOperationObject,
-  ZodOpenApiPathsObject,
-} from 'zod-openapi';
 import {
   getBookmarks,
   updateBookmark,
@@ -300,16 +296,6 @@ export const apiRoutes = [
   // Trapper
   createRoute(getTrapperCageStats),
 ] as const;
-
-const openApiPaths: ZodOpenApiPathsObject = {};
-
-for (const route of apiRoutes) {
-  openApiPaths[route.path] ??= {};
-  openApiPaths[route.path][route.controller.method] = route.controller
-    .operation as ZodOpenApiOperationObject;
-}
-
-export const paths: ZodOpenApiPathsObject = openApiPaths;
 
 type CompiledRoute = Route & { matcher: ReturnType<typeof match> };
 

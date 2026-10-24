@@ -89,7 +89,7 @@ const UpgradeButton = ({
         {shouldShowUpgradeButton && (
           <MdUpgrade className="size-3/4 rounded-full text-muted-foreground" />
         )}
-        {!shouldShowUpgradeButton && level}
+        {!shouldShowUpgradeButton && <span>{level}</span>}
       </BorderIndicator>
     </button>
   );

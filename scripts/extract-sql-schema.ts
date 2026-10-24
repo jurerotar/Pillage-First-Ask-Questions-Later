@@ -3,7 +3,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { pathToFileURL } from 'node:url';
 
-const EXPORT_PATH = join('apps', 'erd', 'sql-schema');
+const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
 // SQLite file
 const DB_EXPORT_PATH = join(EXPORT_PATH, 'db.sqlite3');
 // Text export(s)
@@ -31,7 +31,7 @@ await (async (): Promise<void> => {
 
   db.exec('BEGIN;');
 
-  for await (const fullPath of glob('packages/db/src/schemas/**/*.sql')) {
+  for await (const fullPath of glob('packages/api/src/db/schemas/**/*.sql')) {
     const sql = await readFile(fullPath, 'utf8');
     try {
       db.exec(sql);
@@ -42,7 +42,7 @@ await (async (): Promise<void> => {
     }
   }
 
-  for await (const fullPath of glob('packages/db/src/indexes/**/*.sql')) {
+  for await (const fullPath of glob('packages/api/src/db/indexes/**/*.sql')) {
     const sql = await readFile(fullPath, 'utf8');
     try {
       db.exec(sql);

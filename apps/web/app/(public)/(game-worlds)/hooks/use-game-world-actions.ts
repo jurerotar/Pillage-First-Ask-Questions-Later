@@ -1,10 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Server } from '@pillage-first/types/models/server';
-import {
-  isFileSystemLockError,
-  retryWhenFileSystemLocked,
-} from '@pillage-first/utils/opfs-lock-retry';
+import { isFileSystemLockError } from '@pillage-first/utils/opfs-lock-retry';
 import type {
   ImportGameWorldWorkerPayload,
   ImportGameWorldWorkerResponse,
@@ -113,17 +110,11 @@ export const exportGameWorldDatabase = async (
   const url = new URL(ExportServerWorker, import.meta.url);
   url.searchParams.set('server-slug', server.slug);
 
-  const result = await retryWhenFileSystemLocked(async () => {
-    const workerResult = await workerFactory<void, ExportServerWorkerReturn>(
-      url,
-    );
+  const result = await workerFactory<void, ExportServerWorkerReturn>(url);
 
-    if (!workerResult.resolved) {
-      throw new Error(workerResult.error);
-    }
-
-    return workerResult;
-  });
+  if (!result.resolved) {
+    throw new Error(result.error);
+  }
 
   return result.databaseBuffer;
 };
@@ -152,11 +143,7 @@ const deleteServerData = async (
   server: Server,
 ): Promise<Server[] | null> => {
   try {
-    await retryWhenFileSystemLocked(async () => {
-      await rootHandle.removeEntry(server.slug, {
-        recursive: true,
-      });
-    });
+    await rootHandle.removeEntry(server.slug, { recursive: true });
   } catch (error) {
     if (isFileSystemLockError(error)) {
       toast.error("Server couldn't be deleted", {

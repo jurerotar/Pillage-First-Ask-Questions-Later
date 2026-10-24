@@ -25,7 +25,8 @@ newer.
 3. Run `npm install` at the root of the repository
 4. Run `npm run inject-graphics` at the root of the repository
 5. (Optional) Run `npm run extract-sql-schema`, which generates `schema.sql` and `db.sqlite3` files inside
-   `apps/erd/sql-schema` with all table definitions and indexes. Useful for giving context to AI when building queries.
+   `node_modules/@pillage-first/dev` with all table definitions and indexes. Useful for giving context to AI when building
+   queries.
 
 ## 2. Repository
 
@@ -35,14 +36,11 @@ apps & packages:
 - **apps**
 -
   - [web](/apps/web/README.md) (frontend client)
-  - [swagger-ui](/apps/swagger-ui/README.md) (open api client)
-  - [erd](/apps/erd/README.md) (ERD)
+  - [remote-api](/apps/remote-api/README.md) (API for bug reports and one-time game world sharing)
 
 - **packages**
 -
-  - [api](/packages/api/README.md) (worker-based backend)
--
-  - [db](/packages/db/README.md) (database schemas, migrations & seeders)
+  - [api](/packages/api/README.md) (worker-based backend, database schemas, migrations & seeders)
 -
   - [game-assets](/packages/game-assets/README.md) (game object definitions (buildings, units, ...))
 -
@@ -61,14 +59,12 @@ easier to find and modify related code.
 - `npm run inject-graphics` - app graphics are stored in `@pillage-first/graphics` npm package. This command takes the
   graphic contents of `@pillage-first/graphics` and injects it to `apps/web/public`. This is required for graphics to be
   displayed correctly.
-- `npm run extract-sql-schema` - generates `schema.sql` and `db.sqlite3` inside `apps/erd/sql-schema` with all table
-  definitions and indexes. Useful for giving context to AI when building queries.
+- `npm run extract-sql-schema` - generates `schema.sql` and `db.sqlite3` inside `node_modules/@pillage-first/dev` with all
+  table definitions and indexes. Useful for giving context to AI when building queries.
 - `npm run extract-sql-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
   statement the app currently uses. Useful for debugging performance & checking indexing.
 - `npm run extract-sql-seeder-usage` - generates a `.sql` file inside `node_modules/@pillage-first/dev` with every SQL
   statement the app currently uses to seed the game world. Useful for debugging seeding performance.
-- `turbo run swagger` - opens Swagger UI documentation on `http://localhost:5174`.
-- `turbo run erd` - opens SQLite ERD on `http://localhost:5175`.
 
 ## 3. Technology Stack
 

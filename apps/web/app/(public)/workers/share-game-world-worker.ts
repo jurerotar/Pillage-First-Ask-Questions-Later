@@ -1,8 +1,6 @@
 import type { SAHPoolUtil, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
-import {
-  isFileSystemLockError,
-  retryWhenFileSystemLocked,
-} from '@pillage-first/utils/opfs-lock-retry';
+import type { OpfsSahPoolOptions } from '@pillage-first/utils/facades/database';
+import { isFileSystemLockError } from '@pillage-first/utils/opfs-lock-retry';
 import { toTransferableArrayBuffer } from 'app/(public)/workers/utils/array-buffer';
 
 type ShareGameWorldWorkerResponse =
@@ -22,16 +20,12 @@ try {
 
   sqlite3 ??= await sqlite3InitModule();
 
-  const opfsSahPoolOptions = {
+  const opfsSahPoolOptions: OpfsSahPoolOptions = {
     directory: `/pillage-first-ask-questions-later/${serverSlug}`,
-    forceReinitIfPreviouslyFailed: true,
+    preserveOnInitFailure: true,
   };
 
-  const initializedSqlite3 = sqlite3;
-
-  opfsSahPool = await retryWhenFileSystemLocked(() =>
-    initializedSqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions),
-  );
+  opfsSahPool = await sqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions);
 
   const fileName = `/${serverSlug}.sqlite3`;
   if (!opfsSahPool.getFileNames().includes(fileName)) {

@@ -6,6 +6,16 @@ import type {
 } from '@pillage-first/types/models/quest';
 import type { NatureUnitId } from '@pillage-first/types/models/unit';
 
+const MAX_RESOURCE_REWARD = 10_000;
+
+const scaleMilestoneResourceReward = (amount: number): number => {
+  // Keep early rewards intact, then add 2,250 per tenfold increase.
+  const scaledAmount =
+    amount <= 1000 ? amount : 1000 + 2250 * Math.log10(amount / 1000);
+
+  return Math.min(MAX_RESOURCE_REWARD, Math.round(scaledAmount));
+};
+
 const buildingIdToResourceRewardMap = new Map<Building['id'], number>([
   ['WOODCUTTER', 100],
   ['CLAY_PIT', 150],
@@ -48,7 +58,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     return [
       {
         type: 'resources',
-        amount: count * 100,
+        amount: scaleMilestoneResourceReward(count * 100),
       },
     ];
   }
@@ -60,7 +70,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     return [
       {
         type: 'resources',
-        amount: count * 10,
+        amount: scaleMilestoneResourceReward(count * 10),
       },
     ];
   }
@@ -84,7 +94,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     return [
       {
         type: 'resources',
-        amount: count * 10,
+        amount: scaleMilestoneResourceReward(count * 10),
       },
     ];
   }
@@ -96,7 +106,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
     return [
       {
         type: 'resources',
-        amount: count * 100,
+        amount: scaleMilestoneResourceReward(count * 100),
       },
     ];
   }
@@ -163,7 +173,7 @@ export const getQuestRewards = (questId: Quest['id']): QuestReward[] => {
   return [
     {
       type: 'resources',
-      amount,
+      amount: Math.min(MAX_RESOURCE_REWARD, amount),
     },
   ];
 };
