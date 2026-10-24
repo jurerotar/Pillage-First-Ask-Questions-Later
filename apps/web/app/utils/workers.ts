@@ -1,6 +1,6 @@
-export const workerFactory = async <TPayload = void, TReturn = void>(
+export const workerFactory = async <TReturn = void>(
   workerUrl: string | URL,
-  payload?: TPayload,
+  payload?: unknown,
   transfer: Transferable[] = [],
 ): Promise<TReturn> => {
   return new Promise<TReturn>((resolve, reject) => {

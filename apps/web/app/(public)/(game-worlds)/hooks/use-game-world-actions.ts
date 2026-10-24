@@ -110,7 +110,7 @@ export const exportGameWorldDatabase = async (
   const url = new URL(ExportServerWorker, import.meta.url);
   url.searchParams.set('server-slug', server.slug);
 
-  const result = await workerFactory<void, ExportServerWorkerReturn>(url);
+  const result = await workerFactory<ExportServerWorkerReturn>(url);
 
   if (!result.resolved) {
     throw new Error(result.error);
@@ -126,10 +126,11 @@ const importGameWorldDatabase = async (
     databaseBuffer,
   };
 
-  const result = await workerFactory<
-    ImportGameWorldWorkerPayload,
-    ImportGameWorldWorkerResponse
-  >(ImportGameWorldWorker, payload, [payload.databaseBuffer]);
+  const result = await workerFactory<ImportGameWorldWorkerResponse>(
+    ImportGameWorldWorker,
+    payload,
+    [payload.databaseBuffer],
+  );
 
   if (!result.resolved) {
     throw new Error(result.error || 'Failed to import game world.');

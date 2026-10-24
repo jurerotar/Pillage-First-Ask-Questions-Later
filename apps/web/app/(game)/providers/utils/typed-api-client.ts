@@ -190,7 +190,7 @@ export const createTypedApiClient = (fetcher: Fetcher): ApiClient => {
   ): Promise<{ data: unknown }> => {
     const url = buildPath(pathTemplate, options);
 
-    const { data } = await fetcher<unknown, unknown>(url, {
+    const { data } = await fetcher(url, {
       method: method.toUpperCase(),
       body: options?.body,
     });

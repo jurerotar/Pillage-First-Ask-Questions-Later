@@ -1,4 +1,4 @@
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import { type ReactNode, useState } from 'react';
 
 const ErrorMessage = ({ message }: { message: ReactNode }) => {

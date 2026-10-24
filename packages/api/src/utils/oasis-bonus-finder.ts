@@ -72,7 +72,7 @@ export const getNearbyOases = (
   }
 
   return nearbyOases
-    .sort((a, b) => a.oasis_tile_id - b.oasis_tile_id)
+    .toSorted((a, b) => a.oasis_tile_id - b.oasis_tile_id)
     .map(mapNearbyOasisRowToDto);
 };
 

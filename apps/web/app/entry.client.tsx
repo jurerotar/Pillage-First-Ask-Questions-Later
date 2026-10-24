@@ -51,23 +51,30 @@ const createCookies = async () => {
   const setters: Promise<void>[] = [];
 
   if (locale === null) {
-    setters.push(setCookie<AvailableLocale>(LOCALE_COOKIE_NAME, 'en-US'));
+    setters.push(
+      setCookie(LOCALE_COOKIE_NAME, 'en-US' satisfies AvailableLocale),
+    );
   }
 
   if (skinVariant === null) {
     setters.push(
-      setCookie<SkinVariant>(GRAPHICS_SKIN_VARIANT_COOKIE_NAME, 'default'),
+      setCookie(
+        GRAPHICS_SKIN_VARIANT_COOKIE_NAME,
+        'default' satisfies SkinVariant,
+      ),
     );
   }
 
   if (colorScheme === null) {
     setters.push(
-      setCookie<UIColorScheme>(UI_COLOR_SCHEME_COOKIE_NAME, 'light'),
+      setCookie(UI_COLOR_SCHEME_COOKIE_NAME, 'light' satisfies UIColorScheme),
     );
   }
 
   if (timeOfDay === null) {
-    setters.push(setCookie<TimeOfDay>(GRAPHICS_TIME_OF_DAY_COOKIE_NAME, 'day'));
+    setters.push(
+      setCookie(GRAPHICS_TIME_OF_DAY_COOKIE_NAME, 'day' satisfies TimeOfDay),
+    );
   }
 
   if (setters.length > 0) {

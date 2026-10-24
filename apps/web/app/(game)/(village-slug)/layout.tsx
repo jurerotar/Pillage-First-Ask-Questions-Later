@@ -556,7 +556,7 @@ const VillageSelect = () => {
       populationDesc: byPopulation(-1),
     }[preferences.villageSort];
 
-    return [...playerVillages].sort(comparator);
+    return playerVillages.toSorted(comparator);
   }, [playerVillages, preferences.villageSort]);
 
   return (

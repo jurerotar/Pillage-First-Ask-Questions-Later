@@ -55,10 +55,11 @@ const importDatabase = async (
   databaseBuffer: ArrayBuffer,
 ): Promise<ImportGameWorldSuccess> => {
   const payload: ImportGameWorldWorkerPayload = { databaseBuffer };
-  const result = await workerFactory<
-    ImportGameWorldWorkerPayload,
-    ImportGameWorldWorkerResponse
-  >(ImportGameWorldWorker, payload, [databaseBuffer]);
+  const result = await workerFactory<ImportGameWorldWorkerResponse>(
+    ImportGameWorldWorker,
+    payload,
+    [databaseBuffer],
+  );
 
   if (!result.resolved) {
     throw new Error(result.error || 'Failed to import game world.');

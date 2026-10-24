@@ -22,7 +22,7 @@ const getValidDropTargetIds = (
   upgrades: ScheduledBuildingUpgrade[],
   draggedId: number | null,
 ) =>
-  [...getValidScheduledConstructionDropTargetIds(upgrades, draggedId)].sort(
+  [...getValidScheduledConstructionDropTargetIds(upgrades, draggedId)].toSorted(
     (a, b) => a - b,
   );
 
