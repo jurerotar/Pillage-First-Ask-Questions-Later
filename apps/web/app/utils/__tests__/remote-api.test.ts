@@ -19,17 +19,13 @@ const mockChunkUploads = (
   const requests: { url: string; headers: Map<string, string>; body: Blob }[] =
     [];
 
-  class MockXMLHttpRequest {
+  class MockXMLHttpRequest extends EventTarget {
     public status = 0;
     public statusText = '';
     public responseText = '';
     public url = '';
     public headers = new Map<string, string>();
-    public upload = {
-      onprogress: null as ((event: { loaded: number }) => void) | null,
-    };
-    public onload: (() => void) | null = null;
-    public onerror: (() => void) | null = null;
+    public upload = new EventTarget();
 
     public open(_method: string, url: string) {
       this.url = url;
@@ -50,17 +46,19 @@ const mockChunkUploads = (
 
       queueMicrotask(() => {
         for (const loaded of response.progress ?? [Math.ceil(body.size / 2)]) {
-          this.upload.onprogress?.({ loaded });
+          this.upload.dispatchEvent(
+            Object.assign(new Event('progress'), { loaded }),
+          );
         }
 
         if (response.error) {
-          this.onerror?.();
+          this.dispatchEvent(new Event('error'));
 
           return;
         }
 
         this.status = response.status;
-        this.onload?.();
+        this.dispatchEvent(new Event('load'));
       });
     }
   }

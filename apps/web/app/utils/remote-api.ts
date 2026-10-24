@@ -162,20 +162,26 @@ const uploadWorldChunk = (
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
 
-    request.upload.onprogress = (event) => {
+    request.upload.addEventListener('progress', (event) => {
       onProgress(Math.min(event.loaded, chunk.size));
-    };
-    request.onload = () => {
+    });
+
+    request.addEventListener('load', () => {
       resolve(
         new Response(request.responseText || null, {
           status: request.status,
           statusText: request.statusText,
         }),
       );
-    };
-    request.onerror = () =>
-      reject(new Error('Upload interrupted. Check your connection and retry.'));
-    request.onabort = () => reject(new Error('Upload cancelled.'));
+    });
+
+    request.addEventListener('error', () =>
+      reject(new Error('Upload interrupted. Check your connection and retry.')),
+    );
+
+    request.addEventListener('abort', () =>
+      reject(new Error('Upload cancelled.')),
+    );
 
     request.open('PUT', url);
     request.setRequestHeader('Content-Range', contentRange);
