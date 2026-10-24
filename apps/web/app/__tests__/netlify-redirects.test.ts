@@ -13,7 +13,7 @@ const getRedirectTargets = (): Set<string> => {
       .split('\n')
       .map((line) => line.trim())
       .filter((line) => line && !line.startsWith('#'))
-      .map((line) => line.split(/\s+/)[1])
+      .map((line) => line.split(/\s+/u)[1])
       .filter((target): target is string => Boolean(target)),
   );
 };
@@ -26,6 +26,6 @@ describe('netlify redirects', () => {
       return !redirectTargets.has(`${gamePath}/index.html`);
     });
 
-    expect(missingGamePaths).toEqual([]);
+    expect(missingGamePaths).toStrictEqual([]);
   });
 });

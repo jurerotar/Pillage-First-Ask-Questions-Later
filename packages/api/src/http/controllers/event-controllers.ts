@@ -5,8 +5,10 @@ import {
   baseEventDtoSchema,
   createEventDtoSchema,
 } from '@pillage-first/types/dtos/event';
-import type { GameEvent } from '@pillage-first/types/models/game-event';
-import { gameEventTypeSchema } from '@pillage-first/types/models/game-event';
+import {
+  type GameEvent,
+  gameEventTypeSchema,
+} from '@pillage-first/types/models/game-event';
 import { unitIdSchema } from '@pillage-first/types/models/unit';
 import {
   deleteNextDemolitionEventQuery,

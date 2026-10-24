@@ -30,7 +30,7 @@ const getSqlite3 = async (): Promise<Sqlite3Static> => {
 const getVitestInject = async (): Promise<TestDatabaseInject> => {
   const { inject } = await import('vitest');
 
-  return inject as TestDatabaseInject;
+  return inject;
 };
 
 export const prepareTestDatabase = async (

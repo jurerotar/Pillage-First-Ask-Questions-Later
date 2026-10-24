@@ -556,7 +556,7 @@ const VillageSelect = () => {
       populationDesc: byPopulation(-1),
     }[preferences.villageSort];
 
-    return [...playerVillages].sort(comparator);
+    return playerVillages.toSorted(comparator);
   }, [playerVillages, preferences.villageSort]);
 
   return (
@@ -1006,7 +1006,7 @@ const GameLayout = memo<Route.ComponentProps>(
 
     return (
       <div className="[-webkit-touch-callout:none]">
-        <VillageSlugProvider villageSlug={villageSlug!}>
+        <VillageSlugProvider villageSlug={villageSlug}>
           <CurrentVillageComputedEffectsProvider>
             <CurrentVillageLiveResourcesProvider>
               <CurrentVillageBuildingQueueContextProvider>

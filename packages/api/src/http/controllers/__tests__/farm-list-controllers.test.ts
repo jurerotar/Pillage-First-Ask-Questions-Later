@@ -227,8 +227,8 @@ describe('farm-list-controllers', () => {
 
     expect(clonedFarmListId).not.toBe(sourceFarmListId);
     expect(clonedFarmList.name).toBe('Source List');
-    expect(clonedFarmList.tileIds).toEqual(sourceFarmList.tileIds);
+    expect(clonedFarmList.tileIds).toStrictEqual(sourceFarmList.tileIds);
     expect(sourceFarmList.name).toBe('Source List');
-    expect(sourceFarmList.tileIds).toEqual([301, 302]);
+    expect(sourceFarmList.tileIds).toStrictEqual([301, 302]);
   });
 });

@@ -54,7 +54,7 @@ export const heroRevivalResolver: Resolver<GameEvent<'heroRevival'>> = (
     {
       unitId: 'HERO',
       amount: 1,
-      tileId: tileId,
+      tileId,
       sourceTileId: tileId,
     },
   ]);

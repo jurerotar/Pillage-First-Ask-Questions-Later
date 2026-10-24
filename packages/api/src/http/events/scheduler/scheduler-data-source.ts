@@ -44,7 +44,7 @@ export const createSchedulerDataSource = (
       const iterator = ids[Symbol.iterator]();
       let next = iterator.next();
 
-      while (!next.done) {
+      const resolveBatch = () => {
         const notifications: EventApiNotificationEvent[] = [];
         let failure: { error: unknown } | undefined;
 
@@ -96,6 +96,10 @@ export const createSchedulerDataSource = (
         if (failure) {
           throw failure.error;
         }
+      };
+
+      while (!next.done) {
+        resolveBatch();
       }
     },
   };

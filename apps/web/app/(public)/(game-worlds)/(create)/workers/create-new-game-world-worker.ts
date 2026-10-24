@@ -24,7 +24,6 @@ export type CreateNewGameWorldWorkerResponse =
     }
   | {
       type: 'result';
-      migrationDuration: number;
     }
   | {
       type: 'error';
@@ -72,7 +71,7 @@ globalThis.addEventListener(
       `,
       });
 
-      const migrationDuration = migrateAndSeed(dbFacade, server, () => {
+      migrateAndSeed(dbFacade, server, () => {
         port.postMessage({
           type: 'progress',
         } satisfies CreateNewGameWorldWorkerResponse);
@@ -80,7 +79,6 @@ globalThis.addEventListener(
 
       port.postMessage({
         type: 'result',
-        migrationDuration,
       } satisfies CreateNewGameWorldWorkerResponse);
     } catch (error) {
       const normalizedError =

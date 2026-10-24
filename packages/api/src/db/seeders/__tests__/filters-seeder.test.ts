@@ -39,9 +39,9 @@ describe('filtersSeeder', () => {
       reportScopeSchema.options
         .map((scope) => ({
           name: reportFilterNameByScope[scope],
-          filters_json: [...reportListingFilterSchema.options].sort(),
+          filters_json: [...reportListingFilterSchema.options].toSorted(),
         }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+        .toSorted((a, b) => a.name.localeCompare(b.name)),
     );
   });
 

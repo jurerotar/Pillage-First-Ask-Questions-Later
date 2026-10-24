@@ -2,13 +2,13 @@ import { parseAppVersion } from '@pillage-first/utils/version';
 
 const parseDateLine = (line: string): Date | null => {
   // Example: "#### May 10, 2026"
-  const trimmed = line.replace(/^#+\s*/, '').trim();
+  const trimmed = line.replace(/^#+\s*/u, '').trim();
   const d = new Date(trimmed);
   return Number.isNaN(Number(d)) ? null : d;
 };
 
 export const parseChangelog = (markdown: string): ChangelogEntry[] => {
-  const lines = markdown.split(/\r?\n/);
+  const lines = markdown.split(/\r?\n/u);
   const entries: ChangelogEntry[] = [];
 
   let currentVersion: string | null = null;
@@ -30,11 +30,9 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
     lastItemTag = null;
   };
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
+  for (const line of lines) {
     // Version header: "## Version X"
-    const versionMatch = line.match(/^##\s+Version\s+(.+)$/i);
+    const versionMatch = line.match(/^##\s+Version\s+(.+)$/iu);
     if (versionMatch) {
       pushCurrent();
       currentVersion = versionMatch[1].trim();
@@ -62,7 +60,7 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
     }
 
     // Bullet with tag: * [Tag] text
-    const itemMatch = line.match(/^\*\s+\[([^\]]+)]\s+(.*)$/);
+    const itemMatch = line.match(/^\*\s+\[([^\]]+)\]\s+(.*)$/u);
     if (itemMatch) {
       const tag = itemMatch[1].trim();
       const text = itemMatch[2].trim();
@@ -75,7 +73,7 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
     }
 
     // Continuation of previous bullet: at least two leading spaces
-    const continuationMatch = line.match(/^\s{2,}(\S.*)$/);
+    const continuationMatch = line.match(/^\s{2,}(\S.*)$/u);
     if (
       continuationMatch &&
       lastItemTag &&
@@ -83,8 +81,7 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
     ) {
       const continuationText = continuationMatch[1].trim();
       const items = currentGroups[lastItemTag];
-      items[items.length - 1] =
-        `${items[items.length - 1]} ${continuationText}`;
+      items[items.length - 1] = `${items.at(-1)} ${continuationText}`;
     }
   }
 
@@ -96,11 +93,11 @@ export const parseChangelog = (markdown: string): ChangelogEntry[] => {
 
 const escapeXml = (s: string): string => {
   return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;');
 };
 
 export const toRssXml = (options: {
@@ -124,10 +121,9 @@ export const toRssXml = (options: {
     '<channel>\n' +
     `<title>${escapeXml(title)}</title>\n` +
     `<link>${escapeXml(link)}</link>\n` +
-    `<description><![CDATA[${description}]]></description>\n` +
-    (language ? `<language>${escapeXml(language)}</language>\n` : '') +
-    `<lastBuildDate>${lastBuildDate.toUTCString()}</lastBuildDate>\n` +
-    items
+    `<description><![CDATA[${description}]]></description>\n${
+      language ? `<language>${escapeXml(language)}</language>\n` : ''
+    }<lastBuildDate>${lastBuildDate.toUTCString()}</lastBuildDate>\n${items
       .map(
         (it) =>
           '<item>\n' +
@@ -138,8 +134,7 @@ export const toRssXml = (options: {
           `<pubDate>${it.pubDate.toUTCString()}</pubDate>\n` +
           '</item>',
       )
-      .join('\n') +
-    '\n</channel>\n</rss>\n'
+      .join('\n')}\n</channel>\n</rss>\n`
   );
 };
 
@@ -165,8 +160,7 @@ export const toAtomXml = (options: {
     `<title>${escapeXml(title)}</title>\n` +
     `<updated>${updated.toISOString()}</updated>\n` +
     `<link href="${escapeXml(link)}" rel="alternate"/>\n` +
-    `<link href="${escapeXml(feedLink)}" rel="self" type="application/atom+xml"/>\n` +
-    entries
+    `<link href="${escapeXml(feedLink)}" rel="self" type="application/atom+xml"/>\n${entries
       .map(
         (e) =>
           '<entry>\n' +
@@ -177,8 +171,7 @@ export const toAtomXml = (options: {
           `<summary type="html"><![CDATA[${e.summary}]]></summary>\n` +
           '</entry>',
       )
-      .join('\n') +
-    '\n</feed>\n'
+      .join('\n')}\n</feed>\n`
   );
 };
 
@@ -209,6 +202,23 @@ const groupTitle: Record<(typeof groupOrder)[number], string> = {
   UIUXImprovement: 'UI/UX improvements',
 };
 
+// Common utility to generate stable section IDs for versions
+export const makeSectionId = (version: string): string => {
+  const semverMatch = version.match(/(\d+\.\d+\.\d+)/u);
+
+  if (semverMatch) {
+    const [major, minor, patch] = parseAppVersion(semverMatch[1]);
+    return `version-${major}-${minor}-${patch}`;
+  }
+
+  return `version-${version}`
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9.]+/gu, '-')
+    .replaceAll(/\.+/gu, '-')
+    .replaceAll(/-+/gu, '-')
+    .replaceAll(/^-|-$/gu, '');
+};
+
 export const buildItemsFromChangelog = (
   entries: ChangelogEntry[],
   baseUrl: string,
@@ -237,7 +247,7 @@ export const buildItemsFromChangelog = (
     // Known groups in desired order first
     for (const tag of groupOrder) {
       const groupItems = entry.groups[tag] ?? [];
-      if (!groupItems.length) {
+      if (groupItems.length === 0) {
         continue;
       }
 
@@ -263,7 +273,7 @@ export const buildItemsFromChangelog = (
       );
     }
 
-    if (!sections.length) {
+    if (sections.length === 0) {
       continue;
     }
 
@@ -279,19 +289,4 @@ export const buildItemsFromChangelog = (
   }
 
   return items;
-};
-
-// Common utility to generate stable section IDs for versions
-export const makeSectionId = (version: string): string => {
-  const semverMatch = version.match(/(\d+\.\d+\.\d+)/);
-  if (semverMatch) {
-    const [major, minor, patch] = parseAppVersion(semverMatch[1]);
-    return `version-${major}-${minor}-${patch}`;
-  }
-  return `version-${version}`
-    .toLowerCase()
-    .replace(/[^a-z0-9.]+/g, '-')
-    .replace(/\.+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
 };

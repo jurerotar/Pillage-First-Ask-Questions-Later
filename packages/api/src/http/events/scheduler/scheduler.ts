@@ -8,10 +8,10 @@ import {
 } from './scheduler-signal';
 
 export type SchedulerDataSource = {
-  getPastEventIds(now: number): GameEvent['id'][];
-  getNextEvent(now: number): Pick<GameEvent, 'id' | 'resolvesAt'> | null;
-  resolveEvent(id: GameEvent['id']): void;
-  resolveEvents(ids: Iterable<GameEvent['id']>): void;
+  getPastEventIds: (now: number) => GameEvent['id'][];
+  getNextEvent: (now: number) => Pick<GameEvent, 'id' | 'resolvesAt'> | null;
+  resolveEvent: (id: GameEvent['id']) => void;
+  resolveEvents: (ids: Iterable<GameEvent['id']>) => void;
 };
 
 let scheduledTimeout: ReturnType<typeof globalThis.setTimeout> | null = null;
@@ -52,6 +52,22 @@ export const cancelScheduling = (): void => {
   clearKickCallback();
 };
 
+function* pendingEventIds(
+  pastEventIds: GameEvent['id'][],
+): Generator<GameEvent['id']> {
+  for (const id of pastEventIds) {
+    if (shutdownController.signal.aborted) {
+      break;
+    }
+
+    yield id;
+
+    if (takeNeedsRescan()) {
+      break;
+    }
+  }
+}
+
 export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
   // If we've been canceled, bail out immediately.
   if (shutdownController.signal.aborted) {
@@ -84,21 +100,7 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
         break;
       }
 
-      function* pendingEventIds(): Generator<GameEvent['id']> {
-        for (const id of pastEventIds) {
-          if (shutdownController.signal.aborted) {
-            break;
-          }
-
-          yield id;
-
-          if (takeNeedsRescan()) {
-            break;
-          }
-        }
-      }
-
-      dataSource.resolveEvents(pendingEventIds());
+      dataSource.resolveEvents(pendingEventIds(pastEventIds));
     }
 
     if (shutdownController.signal.aborted) {
@@ -139,10 +141,6 @@ export const scheduleNextEvent = (dataSource: SchedulerDataSource): void => {
   }
 };
 
-export const initScheduler = (dataSource: SchedulerDataSource): void => {
-  registerKickCallback(() => kickSchedulerNow(dataSource));
-};
-
 export const kickSchedulerNow = (dataSource: SchedulerDataSource): void => {
   // Always mark so scheduleNextEvent loop knows something changed.
   markNeedsRescan();
@@ -171,4 +169,8 @@ export const kickSchedulerNow = (dataSource: SchedulerDataSource): void => {
     // scheduleNextEvent has internal guards for schedulingInProgress
     scheduleNextEvent(dataSource);
   }, 0);
+};
+
+export const initScheduler = (dataSource: SchedulerDataSource): void => {
+  registerKickCallback(() => kickSchedulerNow(dataSource));
 };

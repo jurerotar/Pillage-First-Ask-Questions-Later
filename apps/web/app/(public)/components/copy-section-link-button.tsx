@@ -18,7 +18,7 @@ export const CopySectionLinkButton = ({
 
     await navigator.clipboard.writeText(url.toString());
     setIsCopied(true);
-    window.setTimeout(() => setIsCopied(false), 2_000);
+    window.setTimeout(() => setIsCopied(false), 2000);
   };
 
   const label = isCopied ? 'Link copied' : `Copy link to this ${sectionType}`;

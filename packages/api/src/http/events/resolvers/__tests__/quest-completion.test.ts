@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import { getHunterLodgeCatchableAnimals } from '@pillage-first/game-assets/utils/hunters-lodge';
@@ -16,8 +16,6 @@ import {
 import { insertGatheringExpeditionReport } from '../../../../utils/report';
 import { buildingLevelChangeResolver } from '../building-resolvers';
 import { huntersLodgeHuntResolver } from '../hunters-lodge-resolvers';
-
-afterEach(() => vi.restoreAllMocks());
 
 const resolveHunt = (database: DbFacade, timestamp: number) =>
   huntersLodgeHuntResolver(
@@ -172,7 +170,7 @@ describe('quest completion on building level up', () => {
     using database = await prepareTestDatabase();
     const timestamp = 3000;
     const animals = getHunterLodgeCatchableAnimals(5);
-    const random = vi.spyOn(Math, 'random');
+    using random = vi.spyOn(Math, 'random');
 
     for (const [index] of animals.entries()) {
       random.mockReturnValue((index + 0.5) / animals.length);
@@ -205,9 +203,9 @@ describe('quest completion on building level up', () => {
       using database = await prepareTestDatabase();
       database.exec({ sql: 'DELETE FROM reports;' });
       const animals = getHunterLodgeCatchableAnimals(5);
-      vi.spyOn(Math, 'random').mockReturnValue(
-        (animals.indexOf('TIGER') + 0.5) / animals.length,
-      );
+      using _random = vi
+        .spyOn(Math, 'random')
+        .mockReturnValue((animals.indexOf('TIGER') + 0.5) / animals.length);
 
       for (let catchCount = 0; catchCount < 49; catchCount += 1) {
         resolveHunt(database, 1);

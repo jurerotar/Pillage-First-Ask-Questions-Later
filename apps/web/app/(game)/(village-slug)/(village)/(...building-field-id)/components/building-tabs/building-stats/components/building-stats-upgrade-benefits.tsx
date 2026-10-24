@@ -40,6 +40,30 @@ const increasingPercentageBuildingEffects = new Set<Effect['id']>([
   'defence',
 ]);
 
+type BenefitCellProps = {
+  effect: ReturnType<typeof calculateBuildingEffectValues>[number];
+};
+
+const BenefitCell = ({ effect }: BenefitCellProps) => {
+  const { hasEffect, serverEffectValue } = useEffectServerValue(
+    effect.effectId,
+  );
+
+  const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
+  const isIncreasing = increasingPercentageBuildingEffects.has(effect.effectId);
+  const effectModifier =
+    effect.type === 'base' && hasEffect ? serverEffectValue : 1;
+
+  return (
+    <TableCell>
+      {formattingFn(
+        Math.abs(effect.currentLevelValue * effectModifier),
+        isIncreasing,
+      )}
+    </TableCell>
+  );
+};
+
 export const BuildingStatsUpgradeBenefits = () => {
   const { t } = useTranslation();
   const { buildingField } = use(BuildingFieldContext);
@@ -221,29 +245,5 @@ export const BuildingStatsUpgradeBenefits = () => {
         </OverflowContainer>
       </SectionContent>
     </Section>
-  );
-};
-
-type BenefitCellProps = {
-  effect: ReturnType<typeof calculateBuildingEffectValues>[number];
-};
-
-const BenefitCell = ({ effect }: BenefitCellProps) => {
-  const { hasEffect, serverEffectValue } = useEffectServerValue(
-    effect.effectId,
-  );
-
-  const formattingFn = effect.type === 'base' ? formatNumber : formatPercentage;
-  const isIncreasing = increasingPercentageBuildingEffects.has(effect.effectId);
-  const effectModifier =
-    effect.type === 'base' && hasEffect ? serverEffectValue : 1;
-
-  return (
-    <TableCell>
-      {formattingFn(
-        Math.abs(effect.currentLevelValue * effectModifier),
-        isIncreasing,
-      )}
-    </TableCell>
   );
 };

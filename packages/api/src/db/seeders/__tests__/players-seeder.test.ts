@@ -22,9 +22,9 @@ describe('playersSeeder', () => {
     expect(distinctCount).toBe(slugs.length);
 
     for (const s of slugs) {
-      expect(/^[a-z0-9-]+$/.test(s)).toBe(true);
-      expect(s).not.toMatch(/^-/);
-      expect(s).not.toMatch(/-$/);
+      expect(/^[a-z0-9-]+$/u.test(s)).toBe(true);
+      expect(s).not.toMatch(/^-/u);
+      expect(s).not.toMatch(/-$/u);
     }
   });
 

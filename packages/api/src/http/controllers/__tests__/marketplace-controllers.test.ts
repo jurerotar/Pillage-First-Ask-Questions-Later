@@ -253,10 +253,10 @@ describe('marketplace-controllers', () => {
 
     setMarketplaceLevel(database, sourceVillage.id, 1);
     setVillageResources(database, sourceVillage.tileId, {
-      wood: 1_000,
-      clay: 1_000,
-      iron: 1_000,
-      wheat: 1_000,
+      wood: 1000,
+      clay: 1000,
+      iron: 1000,
+      wheat: 1000,
     });
 
     transferResources(
@@ -341,10 +341,10 @@ describe('marketplace-controllers', () => {
 
     setMarketplaceLevel(database, sourceVillage.id, 1);
     setVillageResources(database, sourceVillage.tileId, {
-      wood: 1_000,
-      clay: 1_000,
-      iron: 1_000,
-      wheat: 1_000,
+      wood: 1000,
+      clay: 1000,
+      iron: 1000,
+      wheat: 1000,
     });
 
     transferResources(
@@ -401,9 +401,7 @@ describe('marketplace-controllers', () => {
 
     const sourceVillage = getPlayerVillage(database);
     const targetVillage = createPlayerVillage(database, 'Merchant Target');
-    const merchantCapacity = merchantsMap.get(
-      sourceVillage.tribe,
-    )!.merchantCapacity;
+    const { merchantCapacity } = merchantsMap.get(sourceVillage.tribe)!;
 
     setMarketplaceLevel(database, sourceVillage.id, 1);
     setVillageResources(database, sourceVillage.tileId, {

@@ -78,7 +78,7 @@ describe(distributeLoot, () => {
   });
 
   test('does not loot more than available resources', () => {
-    expect(distributeLoot([10, 20, 30, 40], 1_000)).toStrictEqual([
+    expect(distributeLoot([10, 20, 30, 40], 1000)).toStrictEqual([
       10, 20, 30, 40,
     ]);
   });

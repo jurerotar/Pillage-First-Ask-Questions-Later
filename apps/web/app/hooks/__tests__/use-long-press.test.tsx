@@ -59,7 +59,7 @@ describe(useLongPress, () => {
     });
     act(() => vi.advanceTimersByTime(1000));
 
-    expect(onLongPress).toHaveBeenCalledOnce();
+    expect(onLongPress).toHaveBeenCalledTimes(1);
   });
 
   test('cancels long press when touch moves beyond the cancel distance', () => {
@@ -101,7 +101,7 @@ describe(useLongPress, () => {
     });
     act(() => vi.advanceTimersByTime(1000));
 
-    expect(onLongPress).toHaveBeenCalledOnce();
+    expect(onLongPress).toHaveBeenCalledTimes(1);
   });
 
   test('does not call callback more than once during a held press', () => {
@@ -125,6 +125,6 @@ describe(useLongPress, () => {
     });
     act(() => vi.advanceTimersByTime(3000));
 
-    expect(onLongPress).toHaveBeenCalledOnce();
+    expect(onLongPress).toHaveBeenCalledTimes(1);
   });
 });

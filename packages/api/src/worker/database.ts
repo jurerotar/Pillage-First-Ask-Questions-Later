@@ -62,7 +62,7 @@ export const openWorkerDatabase = async (
       preserveOnInitFailure: true,
     };
 
-    opfsSahPool = await sqlite3!.installOpfsSAHPoolVfs(opfsSahPoolOptions);
+    opfsSahPool = await sqlite3.installOpfsSAHPoolVfs(opfsSahPoolOptions);
 
     const databasePath = `/${serverSlug}.sqlite3`;
 

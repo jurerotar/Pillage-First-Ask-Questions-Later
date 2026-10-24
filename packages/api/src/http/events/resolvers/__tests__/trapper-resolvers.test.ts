@@ -23,5 +23,5 @@ test('trapper cage production creates the requested free cages', async () => {
       sql: 'SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE unit_id IS NULL) AS free FROM trapper_cages WHERE village_id = 1;',
       schema: z.strictObject({ total: z.number(), free: z.number() }),
     }),
-  ).toEqual({ total: 4, free: 4 });
+  ).toStrictEqual({ total: 4, free: 4 });
 });

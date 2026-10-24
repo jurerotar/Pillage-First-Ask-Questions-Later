@@ -271,11 +271,11 @@ export const HuntersLodgeHuntingParty = () => {
               onSelectPartyLevel={setSelectedPartyLevel}
             />
             <Button
-              disabled={selectedPartyLevel == null}
+              disabled={selectedPartyLevel === null}
               size="fit"
               className="self-end"
               onClick={() => {
-                if (selectedPartyLevel == null) {
+                if (selectedPartyLevel === null) {
                   return;
                 }
 

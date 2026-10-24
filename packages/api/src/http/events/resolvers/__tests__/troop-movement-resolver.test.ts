@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { z } from 'zod';
 import { prepareTestDatabase } from '@pillage-first/api/testing';
 import {
@@ -43,17 +43,15 @@ import {
   returnMovementResolver,
 } from '../troop-movement-resolver';
 
-const mockRandom = (rolls: number[]): void => {
-  const remainingRolls = [...rolls];
+const mockRandom = (rolls: number[]) => {
+  const random = vi.spyOn(Math, 'random').mockReturnValue(0);
 
-  vi.spyOn(Math, 'random').mockImplementation(() => {
-    return remainingRolls.shift() ?? 0;
-  });
+  for (const roll of rolls) {
+    random.mockReturnValueOnce(roll);
+  }
+
+  return random;
 };
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
 
 const getTroopWheatProductionEffectValue = (
   database: DbFacade,
@@ -134,8 +132,8 @@ describe(oasisOccupationMovementResolver, () => {
         villageId,
         originTileId,
         targetTileId,
-        startsAt: resolvesAt - 1_000,
-        duration: 1_000,
+        startsAt: resolvesAt - 1000,
+        duration: 1000,
         resolvesAt,
         troops: [
           {
@@ -222,7 +220,7 @@ describe(adventureMovementResolver, () => {
       troops: [{ unitId: 'HERO', amount: 1, tileId: 1, sourceTileId: 1 }],
     });
 
-    mockRandom([0.1, 0.7, 0.75]);
+    using _random = mockRandom([0.1, 0.7, 0.75]);
 
     adventureMovementResolver(database, mockEvent);
 
@@ -278,7 +276,7 @@ describe(adventureMovementResolver, () => {
       }),
     })!;
 
-    expect(report).toEqual({
+    expect(report).toStrictEqual({
       village_id: villageId,
       timestamp: mockEvent.resolvesAt,
       report_type: 'adventure',
@@ -410,7 +408,7 @@ describe(adventureMovementResolver, () => {
       }),
     });
 
-    expect(report).toEqual({
+    expect(report).toStrictEqual({
       adventure_id: 6,
       item_id: null,
       item_amount: null,
@@ -483,7 +481,7 @@ describe(relocationMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -607,7 +605,7 @@ describe(relocationMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -676,7 +674,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -774,7 +772,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'HERO',
           amount: 1,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -854,7 +852,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -919,7 +917,7 @@ describe(reinforcementMovementResolver, () => {
           unitId: 'LEGIONNAIRE',
           amount: troopWheatConsumption,
           tileId: sourceTileId,
-          sourceTileId: sourceTileId,
+          sourceTileId,
         },
       ],
     });
@@ -1310,7 +1308,7 @@ describe(attackMovementResolver, () => {
       schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
     })!;
 
-    const resolvesAt = 5_500;
+    const resolvesAt = 5500;
 
     database.exec({
       sql: `
@@ -1336,7 +1334,7 @@ describe(attackMovementResolver, () => {
 
     const mockEvent = createTroopMovementAttackEventMock({
       id: 4,
-      startsAt: 5_000,
+      startsAt: 5000,
       duration: 500,
       villageId,
       originTileId,
@@ -1504,7 +1502,7 @@ describe(attackMovementResolver, () => {
       schema: z.strictObject({ id: z.number(), tile_id: z.number() }),
     })!;
 
-    const resolvesAt = 5_500;
+    const resolvesAt = 5500;
 
     database.exec({
       sql: `
@@ -1546,7 +1544,7 @@ describe(attackMovementResolver, () => {
 
     const mockEvent = createTroopMovementAttackEventMock({
       id: 6,
-      startsAt: 5_000,
+      startsAt: 5000,
       duration: 500,
       villageId,
       originTileId,
@@ -1676,7 +1674,7 @@ describe(raidMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const resolvesAt = 7_500;
+    const resolvesAt = 7500;
 
     database.exec({
       sql: `
@@ -1692,7 +1690,7 @@ describe(raidMovementResolver, () => {
 
     const mockEvent = createTroopMovementRaidEventMock({
       id: 5,
-      startsAt: 7_000,
+      startsAt: 7000,
       duration: 500,
       villageId,
       originTileId,
@@ -1864,7 +1862,7 @@ describe(raidMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const resolvesAt = 7_500;
+    const resolvesAt = 7500;
 
     database.exec({
       sql: `
@@ -1918,7 +1916,7 @@ describe(raidMovementResolver, () => {
 
     const mockEvent = createTroopMovementRaidEventMock({
       id: 7,
-      startsAt: 7_000,
+      startsAt: 7000,
       duration: 500,
       villageId,
       originTileId,
@@ -1974,7 +1972,7 @@ describe(raidMovementResolver, () => {
       schema: z.number(),
     })!;
 
-    const resolvesAt = 7_500;
+    const resolvesAt = 7500;
 
     database.exec({
       sql: `
@@ -2041,7 +2039,7 @@ describe(raidMovementResolver, () => {
 
     const mockEvent = createTroopMovementRaidEventMock({
       id: 8,
-      startsAt: 7_000,
+      startsAt: 7000,
       duration: 500,
       villageId,
       originTileId,

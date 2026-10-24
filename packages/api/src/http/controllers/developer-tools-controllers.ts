@@ -192,7 +192,7 @@ export const spawnHeroItem = createController(
       amount: z.number(),
     }),
   },
-)(({ database, body: { itemId, amount = 1 }, path: { heroId } }) => {
+)(({ database, body: { itemId, amount }, path: { heroId } }) => {
   database.exec({
     sql: `
       INSERT INTO

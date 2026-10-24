@@ -32,7 +32,7 @@ type WoundedTroopUpdate = {
 
 export const addTroops = (database: DbFacade, troops: Troop[]) => {
   if (troops.length === 1) {
-    const troop = troops[0]!;
+    const [troop] = troops;
 
     database.exec({
       sql: `
@@ -87,7 +87,7 @@ export const removeTroops = (database: DbFacade, troops: Troop[]) => {
   }
 
   if (troops.length === 1) {
-    const troop = troops[0]!;
+    const [troop] = troops;
     const bind = {
       $unit_id: troop.unitId,
       $amount: troop.amount,
@@ -298,7 +298,7 @@ export const removeWoundedTroops = (
   }
 
   if (woundedTroops.length === 1) {
-    const woundedTroop = woundedTroops[0]!;
+    const [woundedTroop] = woundedTroops;
     const bind = {
       $village_id: woundedTroop.villageId,
       $unit_id: woundedTroop.unitId,

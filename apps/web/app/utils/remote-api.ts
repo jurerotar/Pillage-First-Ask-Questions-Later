@@ -162,20 +162,26 @@ const uploadWorldChunk = (
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
 
-    request.upload.onprogress = (event) => {
+    request.upload.addEventListener('progress', (event) => {
       onProgress(Math.min(event.loaded, chunk.size));
-    };
-    request.onload = () => {
+    });
+
+    request.addEventListener('load', () => {
       resolve(
         new Response(request.responseText || null, {
           status: request.status,
           statusText: request.statusText,
         }),
       );
-    };
-    request.onerror = () =>
-      reject(new Error('Upload interrupted. Check your connection and retry.'));
-    request.onabort = () => reject(new Error('Upload cancelled.'));
+    });
+
+    request.addEventListener('error', () =>
+      reject(new Error('Upload interrupted. Check your connection and retry.')),
+    );
+
+    request.addEventListener('abort', () =>
+      reject(new Error('Upload cancelled.')),
+    );
 
     request.open('PUT', url);
     request.setRequestHeader('Content-Range', contentRange);
@@ -202,7 +208,7 @@ export const uploadSharedWorld = async (
     },
   );
 
-  let reservation = pending.reservation;
+  let { reservation } = pending;
   const { worldId, writeToken } = reservation;
   let reportedBytes = Math.min(
     pending.nextChunkIndex * reservation.chunkSize,
@@ -242,19 +248,20 @@ export const uploadSharedWorld = async (
     return checkResponse(await request());
   };
 
+  const uploadChunk = (index: number, start: number, end: number) =>
+    uploadWorldChunk(
+      reservation.chunkUrlTemplate.replace('{chunkIndex}', String(index)),
+      pending.world.slice(start, end),
+      `bytes ${start}-${end - 1}/${pending.world.size}`,
+      (loaded) => reportProgress(start + loaded),
+    );
+
   while (pending.nextChunkIndex * reservation.chunkSize < pending.world.size) {
     const index = pending.nextChunkIndex;
     const start = index * reservation.chunkSize;
     const end = Math.min(start + reservation.chunkSize, pending.world.size);
 
-    await send(() =>
-      uploadWorldChunk(
-        reservation.chunkUrlTemplate.replace('{chunkIndex}', String(index)),
-        pending.world.slice(start, end),
-        `bytes ${start}-${end - 1}/${pending.world.size}`,
-        (loaded) => reportProgress(start + loaded),
-      ),
-    );
+    await send(() => uploadChunk(index, start, end));
 
     pending.nextChunkIndex += 1;
     reportProgress(end);

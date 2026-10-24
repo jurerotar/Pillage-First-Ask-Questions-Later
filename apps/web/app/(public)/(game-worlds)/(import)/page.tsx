@@ -55,10 +55,11 @@ const importDatabase = async (
   databaseBuffer: ArrayBuffer,
 ): Promise<ImportGameWorldSuccess> => {
   const payload: ImportGameWorldWorkerPayload = { databaseBuffer };
-  const result = await workerFactory<
-    ImportGameWorldWorkerPayload,
-    ImportGameWorldWorkerResponse
-  >(ImportGameWorldWorker, payload, [databaseBuffer]);
+  const result = await workerFactory<ImportGameWorldWorkerResponse>(
+    ImportGameWorldWorker,
+    payload,
+    [databaseBuffer],
+  );
 
   if (!result.resolved) {
     throw new Error(result.error || 'Failed to import game world.');
@@ -146,9 +147,10 @@ const ImportGameWorld = () => {
               headers: { authorization: `Bearer ${download.token}` },
             },
           );
-        } catch {
+        } catch (error) {
           throw new Error(
             'Your game world was imported, but its uploaded copy could not be deleted. Retry to finish sharing.',
+            { cause: error },
           );
         }
       }
@@ -159,7 +161,8 @@ const ImportGameWorld = () => {
 
   const worldPreview = useQuery({
     queryKey: ['shared-world-preview', worldId],
-    queryFn: ({ signal }) => getSharedWorldPreview(worldId!, signal),
+    queryFn: async ({ signal }) =>
+      await getSharedWorldPreview(worldId!, signal),
     enabled: !!worldId,
     retry: false,
     refetchOnWindowFocus: false,
@@ -263,13 +266,13 @@ const ImportGameWorld = () => {
               )}
               {worldPreview.data && (
                 <div className="grid gap-3 rounded-md border p-3">
-                  <p className="font-medium break-words">
+                  <p className="font-medium wrap-break-word">
                     {worldPreview.data.name}
                   </p>
                   <dl className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <dt className="text-muted-foreground">Player</dt>
-                      <dd className="break-words">
+                      <dd className="wrap-break-word">
                         {worldPreview.data.playerName}
                       </dd>
                     </div>

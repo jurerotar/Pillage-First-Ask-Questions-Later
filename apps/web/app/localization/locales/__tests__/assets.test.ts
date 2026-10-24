@@ -82,17 +82,17 @@ describe('localization completeness check for assets.json', () => {
     });
 
     test('items should match game asset item definitions', () => {
-      const itemDefinitionKeys = items.map((item) => item.name).sort();
-      const localizedItemKeys = Object.keys(data.ITEMS).sort();
+      const itemDefinitionKeys = items.map((item) => item.name).toSorted();
+      const localizedItemKeys = Object.keys(data.ITEMS).toSorted();
 
       expect(
         getMissingKeys(itemDefinitionKeys, localizedItemKeys),
         'Missing ITEMS keys',
-      ).toEqual([]);
+      ).toStrictEqual([]);
       expect(
         getUnexpectedKeys(itemDefinitionKeys, localizedItemKeys),
         'Unexpected ITEMS keys',
-      ).toEqual([]);
+      ).toStrictEqual([]);
     });
 
     test('items should have NAME, NAME_other and DESCRIPTION set', () => {

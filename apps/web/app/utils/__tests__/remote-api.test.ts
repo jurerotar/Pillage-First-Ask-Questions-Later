@@ -11,7 +11,6 @@ vi.mock('@pillage-first/utils/env', () => ({
 
 afterEach(() => {
   vi.unstubAllGlobals();
-  vi.restoreAllMocks();
 });
 
 const mockChunkUploads = (
@@ -20,27 +19,23 @@ const mockChunkUploads = (
   const requests: { url: string; headers: Map<string, string>; body: Blob }[] =
     [];
 
-  class MockXMLHttpRequest {
-    status = 0;
-    statusText = '';
-    responseText = '';
-    url = '';
-    headers = new Map<string, string>();
-    upload = {
-      onprogress: null as ((event: { loaded: number }) => void) | null,
-    };
-    onload: (() => void) | null = null;
-    onerror: (() => void) | null = null;
+  class MockXMLHttpRequest extends EventTarget {
+    public status = 0;
+    public statusText = '';
+    public responseText = '';
+    public url = '';
+    public headers = new Map<string, string>();
+    public upload = new EventTarget();
 
-    open(_method: string, url: string) {
+    public open(_method: string, url: string) {
       this.url = url;
     }
 
-    setRequestHeader(name: string, value: string) {
+    public setRequestHeader(name: string, value: string) {
       this.headers.set(name, value);
     }
 
-    send(body: Blob) {
+    public send(body: Blob) {
       const response = responses.shift();
 
       if (!response) {
@@ -51,17 +46,19 @@ const mockChunkUploads = (
 
       queueMicrotask(() => {
         for (const loaded of response.progress ?? [Math.ceil(body.size / 2)]) {
-          this.upload.onprogress?.({ loaded });
+          this.upload.dispatchEvent(
+            Object.assign(new Event('progress'), { loaded }),
+          );
         }
 
         if (response.error) {
-          this.onerror?.();
+          this.dispatchEvent(new Event('error'));
 
           return;
         }
 
         this.status = response.status;
-        this.onload?.();
+        this.dispatchEvent(new Event('load'));
       });
     }
   }
@@ -111,15 +108,15 @@ test('renews expired signed URLs and resumes uploads after a failed chunk', asyn
   expect(pending.nextChunkIndex).toBe(1);
 
   await expect(uploadSharedWorld(pending, onProgress)).resolves.toBe('world');
-  expect(onProgress.mock.calls.map(([progress]) => progress.loaded)).toEqual([
-    0, 1, 2, 3, 2, 3, 4,
-  ]);
-  expect(fetch.mock.calls.map((call) => String(call[0]))).toEqual([
+  expect(
+    onProgress.mock.calls.map(([progress]) => progress.loaded),
+  ).toStrictEqual([0, 1, 2, 3, 2, 3, 4]);
+  expect(fetch.mock.calls.map((call) => String(call[0]))).toStrictEqual([
     'https://api.example.test/api/game-worlds',
     'https://api.example.test/api/game-worlds/world/upload-url',
     'https://api.example.test/new/complete',
   ]);
-  expect(uploads.map(({ url }) => url)).toEqual([
+  expect(uploads.map(({ url }) => url)).toStrictEqual([
     'https://api.example.test/old/0',
     'https://api.example.test/new/0',
     'https://api.example.test/new/1',
@@ -162,7 +159,7 @@ test('reports progress within a single chunk before the server acknowledges it',
     stages,
   );
 
-  expect(events).toEqual([
+  expect(events).toStrictEqual([
     { loaded: 0, confirmedChunks: 0 },
     { loaded: 2, confirmedChunks: 0 },
     { loaded: 4, confirmedChunks: 0 },
@@ -170,7 +167,7 @@ test('reports progress within a single chunk before the server acknowledges it',
     { loaded: 8, confirmedChunks: 0 },
   ]);
   expect(pending.nextChunkIndex).toBe(1);
-  expect(stages.mock.calls.map(([stage]) => stage)).toEqual([
+  expect(stages.mock.calls.map(([stage]) => stage)).toStrictEqual([
     'reserving',
     'uploading',
     'finalizing',
@@ -180,7 +177,7 @@ test('reports progress within a single chunk before the server acknowledges it',
 test.each([true, false])(
   'reports streamed download progress with a known total: %s',
   async (hasTotal) => {
-    vi.spyOn(performance, 'now').mockReturnValue(0);
+    using _now = vi.spyOn(performance, 'now').mockReturnValue(0);
 
     const stream = new ReadableStream<Uint8Array>({
       start(controller) {
@@ -189,6 +186,7 @@ test.each([true, false])(
         controller.close();
       },
     });
+
     const fetch = vi.fn().mockResolvedValue(
       new Response(stream, {
         headers: hasTotal ? { 'content-length': '5' } : {},
@@ -204,8 +202,8 @@ test.each([true, false])(
       onProgress,
     );
 
-    expect([...new Uint8Array(buffer)]).toEqual([1, 2, 3, 4, 5]);
-    expect(onProgress.mock.calls.map(([progress]) => progress)).toEqual([
+    expect([...new Uint8Array(buffer)]).toStrictEqual([1, 2, 3, 4, 5]);
+    expect(onProgress.mock.calls.map(([progress]) => progress)).toStrictEqual([
       { loaded: 0, total: hasTotal ? 5 : null },
       { loaded: 5, total: hasTotal ? 5 : null },
     ]);
@@ -216,7 +214,7 @@ test('throttles download updates while keeping progress monotonic and reporting 
   let now = 0;
   let remaining = 10;
 
-  vi.spyOn(performance, 'now').mockImplementation(() => {
+  using _now = vi.spyOn(performance, 'now').mockImplementation(() => {
     now += 40;
 
     return now;

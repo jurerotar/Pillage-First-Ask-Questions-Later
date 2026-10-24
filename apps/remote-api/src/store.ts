@@ -83,7 +83,7 @@ export class Store implements Disposable {
     this.#database = database;
   }
 
-  static async create(dataDirectory: string): Promise<Store> {
+  public static async create(dataDirectory: string): Promise<Store> {
     await Promise.all(
       ['uploads', 'staging'].map((directory) =>
         mkdir(join(dataDirectory, directory), { recursive: true }),
@@ -139,15 +139,17 @@ export class Store implements Disposable {
     return new Store(database);
   }
 
-  close(): void {
+  public close(): void {
     this.#database.close();
   }
 
-  [Symbol.dispose](): void {
+  public [Symbol.dispose](): void {
     this.close();
   }
 
-  createReport(input: Omit<Report, 'closedAt' | 'createdAt' | 'id'>): Report {
+  public createReport(
+    input: Omit<Report, 'closedAt' | 'createdAt' | 'id'>,
+  ): Report {
     const report: Report = {
       ...input,
       closedAt: null,
@@ -172,14 +174,14 @@ export class Store implements Disposable {
     return report;
   }
 
-  getReport(id: string): Report | undefined {
+  public getReport(id: string): Report | undefined {
     const row = this.#database
       .prepare('SELECT * FROM reports WHERE id = ?')
       .get(id) as ReportRow | undefined;
     return row && toReport(row);
   }
 
-  listReports(): Report[] {
+  public listReports(): Report[] {
     return (
       this.#database
         .prepare('SELECT * FROM reports ORDER BY created_at DESC, id DESC')
@@ -187,7 +189,7 @@ export class Store implements Disposable {
     ).map(toReport);
   }
 
-  closeReport(id: string): void {
+  public closeReport(id: string): void {
     this.#database
       .prepare(
         'UPDATE reports SET closed_at = ? WHERE id = ? AND closed_at IS NULL',
@@ -195,7 +197,7 @@ export class Store implements Disposable {
       .run(Date.now(), id);
   }
 
-  deleteReport(id: string): void {
+  public deleteReport(id: string): void {
     this.#database.exec('BEGIN IMMEDIATE;');
     try {
       this.#database
@@ -212,7 +214,7 @@ export class Store implements Disposable {
     }
   }
 
-  createUpload(input: {
+  public createUpload(input: {
     expectedBytes: number;
     originalName: string;
     reportId?: string;
@@ -261,7 +263,7 @@ export class Store implements Disposable {
     return upload;
   }
 
-  createWorld(
+  public createWorld(
     uploadExpiresAt: number | null,
     writeTokenHash: string,
   ): { id: string; uploadExpiresAt: number | null } {
@@ -274,7 +276,7 @@ export class Store implements Disposable {
     return world;
   }
 
-  getWorld(
+  public getWorld(
     id: string,
   ):
     | { id: string; uploadExpiresAt: number | null; writeTokenHash: string }
@@ -299,14 +301,14 @@ export class Store implements Disposable {
     );
   }
 
-  getUploadForWorld(worldId: string): Upload | undefined {
+  public getUploadForWorld(worldId: string): Upload | undefined {
     const row = this.#database
       .prepare('SELECT * FROM uploads WHERE world_id = ?')
       .get(worldId) as UploadRow | undefined;
     return row && toUpload(row);
   }
 
-  claimWorld(id: string, tokenHash: string): boolean {
+  public claimWorld(id: string, tokenHash: string): boolean {
     return (
       this.#database
         .prepare(`UPDATE game_worlds SET download_token_hash = ?, claimed_until = ?
@@ -316,7 +318,7 @@ export class Store implements Disposable {
     );
   }
 
-  ownsWorldClaim(id: string, tokenHash: string): boolean {
+  public ownsWorldClaim(id: string, tokenHash: string): boolean {
     return Boolean(
       this.#database
         .prepare(
@@ -326,7 +328,7 @@ export class Store implements Disposable {
     );
   }
 
-  deleteWorld(id: string): void {
+  public deleteWorld(id: string): void {
     this.#database.exec('BEGIN IMMEDIATE;');
     try {
       this.#database
@@ -343,7 +345,7 @@ export class Store implements Disposable {
     }
   }
 
-  listExpiredWorldIds(createdBefore: number): string[] {
+  public listExpiredWorldIds(createdBefore: number): string[] {
     const rows = this.#database
       .prepare(`
       SELECT game_worlds.id FROM game_worlds
@@ -355,21 +357,21 @@ export class Store implements Disposable {
     return rows.map(({ id }) => id);
   }
 
-  getUpload(id: string): Upload | undefined {
+  public getUpload(id: string): Upload | undefined {
     const row = this.#database
       .prepare('SELECT * FROM uploads WHERE id = ?')
       .get(id) as UploadRow | undefined;
     return row && toUpload(row);
   }
 
-  getUploadForReport(reportId: string): Upload | undefined {
+  public getUploadForReport(reportId: string): Upload | undefined {
     const row = this.#database
       .prepare('SELECT * FROM uploads WHERE report_id = ?')
       .get(reportId) as UploadRow | undefined;
     return row && toUpload(row);
   }
 
-  getReservedBytes(reportId: string): number {
+  public getReservedBytes(reportId: string): number {
     const row = this.#database
       .prepare(
         'SELECT SUM(expected_bytes) AS total FROM uploads WHERE report_id = ?',
@@ -378,7 +380,7 @@ export class Store implements Disposable {
     return row.total ?? 0;
   }
 
-  hasChunk(uploadId: string, chunkIndex: number): boolean {
+  public hasChunk(uploadId: string, chunkIndex: number): boolean {
     return Boolean(
       this.#database
         .prepare(
@@ -388,7 +390,7 @@ export class Store implements Disposable {
     );
   }
 
-  addChunk(uploadId: string, chunkIndex: number, bytes: number): void {
+  public addChunk(uploadId: string, chunkIndex: number, bytes: number): void {
     this.#database
       .prepare(
         'INSERT INTO upload_chunks (upload_id, chunk_index, bytes) VALUES (?, ?, ?)',
@@ -396,7 +398,7 @@ export class Store implements Disposable {
       .run(uploadId, chunkIndex, bytes);
   }
 
-  getChunks(uploadId: string): ChunkRow[] {
+  public getChunks(uploadId: string): ChunkRow[] {
     return this.#database
       .prepare(
         'SELECT chunk_index, bytes FROM upload_chunks WHERE upload_id = ? ORDER BY chunk_index',
@@ -404,7 +406,7 @@ export class Store implements Disposable {
       .all(uploadId) as ChunkRow[];
   }
 
-  completeUpload(uploadId: string, detectedMime: string): void {
+  public completeUpload(uploadId: string, detectedMime: string): void {
     this.#database
       .prepare(
         `UPDATE uploads
@@ -414,7 +416,11 @@ export class Store implements Disposable {
       .run(detectedMime, Date.now(), uploadId);
   }
 
-  consumeRateLimit(key: string, maximum: number, windowMs: number): boolean {
+  public consumeRateLimit(
+    key: string,
+    maximum: number,
+    windowMs: number,
+  ): boolean {
     const now = Date.now();
     const current = this.#database
       .prepare('SELECT window_started_at, count FROM rate_limits WHERE key = ?')
