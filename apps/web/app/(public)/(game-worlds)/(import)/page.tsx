@@ -146,9 +146,10 @@ const ImportGameWorld = () => {
               headers: { authorization: `Bearer ${download.token}` },
             },
           );
-        } catch {
+        } catch (error) {
           throw new Error(
             'Your game world was imported, but its uploaded copy could not be deleted. Retry to finish sharing.',
+            { cause: error },
           );
         }
       }
@@ -264,13 +265,13 @@ const ImportGameWorld = () => {
               )}
               {worldPreview.data && (
                 <div className="grid gap-3 rounded-md border p-3">
-                  <p className="font-medium break-words">
+                  <p className="font-medium wrap-break-word">
                     {worldPreview.data.name}
                   </p>
                   <dl className="grid grid-cols-2 gap-3 text-sm">
                     <div>
                       <dt className="text-muted-foreground">Player</dt>
-                      <dd className="break-words">
+                      <dd className="wrap-break-word">
                         {worldPreview.data.playerName}
                       </dd>
                     </div>

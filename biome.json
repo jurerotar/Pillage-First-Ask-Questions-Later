@@ -42,7 +42,14 @@
   },
   "linter": {
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
+      "nursery": {
+        "noDuplicateMapKeys": "error",
+        "noInvalidFileInputAccept": "error",
+        "noMisplacedListElements": "error",
+        "noReactObjectTypeAsDefaultProp": "error",
+        "noTailwindLegacyUtilities": "warn"
+      },
       "suspicious": {
         "noDocumentCookie": "off",
         "noUnknownAtRules": "off",
@@ -58,6 +65,7 @@
         "noUnusedImports": "error"
       },
       "style": {
+        "useErrorCause": "error",
         "noNonNullAssertion": "off",
         "useBlockStatements": "error",
         "noParameterAssign": "error",

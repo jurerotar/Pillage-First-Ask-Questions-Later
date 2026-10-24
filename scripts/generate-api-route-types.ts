@@ -141,6 +141,7 @@ const emitApiRoutesDeclaration = (): string => {
       ['Failed to emit API route declarations.', stdout?.trim(), stderr?.trim()]
         .filter(Boolean)
         .join('\n'),
+      { cause: error },
     );
   } finally {
     if (temporaryRoot.startsWith(tmpdir())) {
