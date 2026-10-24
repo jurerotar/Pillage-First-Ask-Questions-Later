@@ -5,7 +5,6 @@ This package contains worker-api, event scheduler, "backend" controllers, and th
 ## Database code
 
 Database code lives in `src/db`. The API worker opens and closes the database through `src/worker/database.ts` and applies upgrades from `src/db/migrations/upgrade-db.ts`.
-
 - `@pillage-first/api/db` exports `migrateAndSeed` and `upgradeDb` for database creation, upgrades, and SQL tooling.
 - `@pillage-first/api/testing` exports `prepareTestDatabase` for tests. The Vitest global setup in `src/db/testing/global-setup.ts` provides the seeded database buffer.
 
@@ -24,21 +23,18 @@ These entry points can be imported independently of the API worker entry point.
 
 ```typescript
 // src/http/controllers/my-controller.ts
-export const getMyData = createController(
-  '/my-path/:id',
-  {
-    summary: 'Get my data',
-    requestParams: {
-      path: z.strictObject({
-        id: z.coerce.number(),
-      }),
-    },
-    requestBody: z.strictObject({
-      enabled: z.boolean(),
+export const getMyData = createController('/my-path/:id', {
+  summary: 'Get my data',
+  requestParams: {
+    path: z.strictObject({
+      id: z.coerce.number(),
     }),
-    response: myDataSchema,
   },
-)(({ database, body, path }) => {
+  requestBody: z.strictObject({
+    enabled: z.boolean(),
+  }),
+  response: myDataSchema,
+})(({ database, body, path }) => {
   const { id } = path; // id is typed from the colocated path schema
   const { enabled } = body; // body is typed from requestBody
   // ...

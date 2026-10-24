@@ -64,7 +64,7 @@ const viteConfig = defineViteConfig({
       mdx({
         providerImportSource: '@mdx-js/react',
         development: false,
-        include: /\.mdx$/,
+        include: /\.mdx$/u,
       }),
     !isInTestMode && devtoolsJson(),
     !isInTestMode && reactRouter(),
@@ -107,7 +107,7 @@ const viteConfig = defineViteConfig({
     sourcemap: true,
     rolldownOptions: {
       // There's a ton of nasty warnings about unreferenced files if this option is omitted :(
-      external: [/^\/graphic-packs/],
+      external: [/^\/graphic-packs/u],
     },
   },
   optimizeDeps: {

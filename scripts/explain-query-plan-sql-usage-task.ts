@@ -1,12 +1,16 @@
 ﻿import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
-import type { BindableValue, Sqlite3Static } from '@sqlite.org/sqlite-wasm';
-import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
+import sqlite3InitModule, {
+  type BindableValue,
+  type Sqlite3Static,
+} from '@sqlite.org/sqlite-wasm';
 import { z } from 'zod';
 import { migrateAndSeed } from '@pillage-first/api/db';
 import { serverMock } from '@pillage-first/mocks/server';
-import type { DbFacade } from '@pillage-first/utils/facades/database';
-import { createDbFacade } from '@pillage-first/utils/facades/database';
+import {
+  createDbFacade,
+  type DbFacade,
+} from '@pillage-first/utils/facades/database';
 
 const EXPORT_PATH = join('node_modules', '@pillage-first', 'dev');
 const STATEMENTS_EXPORT_PATH = join(EXPORT_PATH, 'statements.sql');
@@ -29,7 +33,7 @@ const extractBindableParameters = (sql: string): string[] => {
         return match;
       }),
     ),
-  ).sort();
+  ).toSorted();
 };
 
 const jsonArrayParameters = new Set([
@@ -163,6 +167,7 @@ const createDatabaseCopy = (
   buffer: Uint8Array,
 ): SqliteDatabase => {
   const database = new sqlite3.oo1.DB(':memory:');
+
   try {
     database.checkRc(
       sqlite3.capi.sqlite3_deserialize(
@@ -218,7 +223,7 @@ const stripSqlComments = (sql: string): string => {
   let isLineComment = false;
   let isBlockComment = false;
 
-  for (let index = 0; index < sql.length; index++) {
+  for (let index = 0; index < sql.length; index += 1) {
     const character = sql[index];
     const nextCharacter = sql[index + 1];
 
@@ -232,7 +237,7 @@ const stripSqlComments = (sql: string): string => {
 
     if (isBlockComment) {
       if (character === '*' && nextCharacter === '/') {
-        index++;
+        index += 1;
         isBlockComment = false;
       } else if (character === '\n') {
         result += '\n';
@@ -246,7 +251,7 @@ const stripSqlComments = (sql: string): string => {
       if (character === quotedString) {
         if (nextCharacter === quotedString) {
           result += nextCharacter;
-          index++;
+          index += 1;
         } else {
           quotedString = null;
         }
@@ -262,13 +267,13 @@ const stripSqlComments = (sql: string): string => {
     }
 
     if (character === '-' && nextCharacter === '-') {
-      index++;
+      index += 1;
       isLineComment = true;
       continue;
     }
 
     if (character === '/' && nextCharacter === '*') {
-      index++;
+      index += 1;
       isBlockComment = true;
       continue;
     }
@@ -285,7 +290,7 @@ const splitSqlStatements = (sql: string): string[] => {
   let statement = '';
   let quotedString: '"' | "'" | null = null;
 
-  for (let index = 0; index < cleanedSql.length; index++) {
+  for (let index = 0; index < cleanedSql.length; index += 1) {
     const character = cleanedSql[index];
     const nextCharacter = cleanedSql[index + 1];
 
@@ -295,7 +300,7 @@ const splitSqlStatements = (sql: string): string[] => {
       if (character === quotedString) {
         if (nextCharacter === quotedString) {
           statement += nextCharacter;
-          index++;
+          index += 1;
         } else {
           quotedString = null;
         }
@@ -393,7 +398,7 @@ const measureExecution = (
 };
 
 const compactText = (value: string): string => {
-  return value.replace(/\s+/gu, ' ').trim();
+  return value.replaceAll(/\s+/gu, ' ').trim();
 };
 
 const formatResult = ({
@@ -440,10 +445,10 @@ export const main = async (): Promise<void> => {
       const queryPlan = explainQueryPlan(database, statement, bind);
       const execution = measureExecution(sqlite3, rawDatabase, statement, bind);
       if (queryPlan.status === 'error') {
-        errors++;
+        errors += 1;
       }
       if (execution.error) {
-        executionErrors++;
+        executionErrors += 1;
       }
       return formatResult({
         index: index + 1,

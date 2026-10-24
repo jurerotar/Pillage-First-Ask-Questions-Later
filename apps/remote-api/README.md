@@ -6,12 +6,12 @@ API for bug reports and one-time game world sharing.
 
 The API will not start without these environment variables:
 
-| Variable | Value |
-| --- | --- |
-| `API_TOKEN` | Required admin sign-in token; random, at least 32 characters |
-| `UPLOAD_URL_SECRET` | Required signing secret; random, at least 32 characters |
+| Variable             | Value                                                                                  |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| `API_TOKEN`          | Required admin sign-in token; random, at least 32 characters                           |
+| `UPLOAD_URL_SECRET`  | Required signing secret; random, at least 32 characters                                |
 | `APP_DATA_DIRECTORY` | Writable absolute path outside the app directory, e.g. `/home/ACCOUNT/remote-api-data` |
-| `PUBLIC_BASE_URL` | `https://api.pillagefirst.com` in production |
+| `PUBLIC_BASE_URL`    | `https://api.pillagefirst.com` in production                                           |
 
 Set `ALLOWED_ORIGIN` to a comma-separated list of allowed browser origins, e.g. `https://pillagefirst.com,http://localhost:5173`. Origins match exactly, including scheme and port; use no trailing slash. A single origin still works. Set `VITE_API_URL=https://api.pillagefirst.com` in the web deployment environment. Keep both secrets on the API server; never expose them through `VITE_` variables.
 
@@ -30,12 +30,12 @@ npm run test --workspace=@pillage-first/remote-api -- --run
 
 ## cPanel deployment
 
-| Setting | Value |
-| --- | --- |
-| Node.js | 24.18 or newer, Production mode |
+| Setting          | Value                                     |
+| ---------------- | ----------------------------------------- |
+| Node.js          | 24.18 or newer, Production mode           |
 | Application root | `remote-api`, relative to `/home/ACCOUNT` |
-| Application URL | `api.pillagefirst.com`, no path suffix |
-| Startup file | `current/apps/remote-api/src/server.ts` |
+| Application URL  | `api.pillagefirst.com`, no path suffix    |
+| Startup file     | `current/apps/remote-api/src/server.ts`   |
 
 Configure the environment variables above in cPanel, including **`API_TOKEN` and `UPLOAD_URL_SECRET`**. Local `.env` files are not deployed. Keep the application root stable; do not set it to the `current` symlink.
 

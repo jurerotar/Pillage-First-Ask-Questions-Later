@@ -187,14 +187,14 @@ describe('oasis-controllers', () => {
     occupyOasis(
       database,
       createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
-        path: { tileId: previousOwner!.tile_id, oasisTileId },
+        path: { tileId: previousOwner.tile_id, oasisTileId },
       }),
     );
 
     occupyOasis(
       database,
       createControllerArgs<'/tiles/:tileId/oasis/:oasisTileId', 'post'>({
-        path: { tileId: nextOwner!.tile_id, oasisTileId },
+        path: { tileId: nextOwner.tile_id, oasisTileId },
       }),
     );
 
@@ -209,7 +209,7 @@ describe('oasis-controllers', () => {
           AND source_specifier = $oasis_tile_id;
       `,
       bind: {
-        $tile_id: previousOwner!.tile_id,
+        $tile_id: previousOwner.tile_id,
         $oasis_tile_id: oasisTileId,
       },
       schema: z.number(),
@@ -226,7 +226,7 @@ describe('oasis-controllers', () => {
           AND source_specifier = $oasis_tile_id;
       `,
       bind: {
-        $tile_id: nextOwner!.tile_id,
+        $tile_id: nextOwner.tile_id,
         $oasis_tile_id: oasisTileId,
       },
       schema: z.number(),
@@ -271,7 +271,7 @@ describe('oasis-controllers', () => {
     }
   });
 
-  test('Waterworks level changes should update occupied oasis effects', async () => {
+  test('waterworks level changes should update occupied oasis effects', async () => {
     using database = await prepareTestDatabase();
 
     const village = database.selectObject({
@@ -469,7 +469,7 @@ describe('oasis-controllers', () => {
 
     expect(remainingReinforcements).toBe(0);
     expect(occupyingVillageId).toBeNull();
-    expect(returnEvents).toEqual([
+    expect(returnEvents).toStrictEqual([
       {
         first_amount: 5,
         first_unit_id: 'LEGIONNAIRE',

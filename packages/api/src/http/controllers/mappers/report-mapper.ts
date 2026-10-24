@@ -5,8 +5,8 @@ import type {
   BattleDamagedBuilding,
   BattleType,
 } from '@pillage-first/types/models/battle';
-import type { BattleReportSummary } from '@pillage-first/types/models/report';
 import {
+  type BattleReportSummary,
   type movementReportUnitSchema,
   reportSchema,
 } from '@pillage-first/types/models/report';
@@ -178,7 +178,7 @@ export const mapBattleReportRowToDto = (
   rows: BattleReportRow[],
   damagedBuildings: BattleDamagedBuilding[],
 ) => {
-  const row = rows[0]!;
+  const [row] = rows;
 
   const participants = new Map<number, BattleType['attacker']>();
   const reinforcements: BattleType['defender']['reinforcements'] = [];
@@ -235,8 +235,8 @@ export const mapBattleReportRowToDto = (
 
     if (
       participantRow.participant_unit_id &&
-      participantRow.participant_amount_before != null &&
-      participantRow.participant_amount_after != null
+      participantRow.participant_amount_before !== null &&
+      participantRow.participant_amount_after !== null
     ) {
       participant.troops.units.push({
         unitId: participantRow.participant_unit_id,
@@ -412,7 +412,7 @@ export const mapScoutingReportRowToDto = (
     ...new Set(reinforcementRows.map(({ tileId }) => tileId)),
   ].map((tileId) => {
     const rows = reinforcementRows.filter((unit) => unit.tileId === tileId);
-    const first = rows[0]!;
+    const [first] = rows;
     return {
       tribe: first.tribe,
       player: { name: first.playerName, slug: first.playerSlug },
@@ -454,7 +454,7 @@ export const mapScoutingReportRowToDto = (
         reinforcements: hideIntelligence ? [] : reinforcements,
       },
       resources:
-        hideIntelligence || row.wood == null
+        hideIntelligence || row.wood === null
           ? null
           : [row.wood, row.clay, row.iron, row.wheat],
       itemId: hideIntelligence ? null : row.item_id,

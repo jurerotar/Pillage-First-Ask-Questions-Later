@@ -62,8 +62,8 @@ export const distributeLoot = (
   while (remainingCapacity > 0) {
     let availableResourceCount = 0;
 
-    for (let index = 0; index < available.length; index += 1) {
-      if (available[index] > 0) {
+    for (const amount of available) {
+      if (amount > 0) {
         availableResourceCount += 1;
       }
     }

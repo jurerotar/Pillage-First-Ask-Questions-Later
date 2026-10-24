@@ -29,9 +29,11 @@ type PlayerVillageSelectorProps = {
   excludedVillageIds?: number[];
 };
 
+const emptyVillageIds: number[] = [];
+
 export const PlayerVillageSelector = ({
   disabled = false,
-  excludedVillageIds = [],
+  excludedVillageIds = emptyVillageIds,
 }: PlayerVillageSelectorProps) => {
   const { t } = useTranslation();
   const { currentVillage } = useCurrentVillage();

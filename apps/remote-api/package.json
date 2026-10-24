@@ -8,7 +8,11 @@
     "start": "node src/server.ts",
     "type-check": "tsc --noEmit",
     "lint:check": "biome lint --no-errors-on-unmatched",
+    "lint": "biome lint --fix --no-errors-on-unmatched",
+    "lint:check/oxlint": "oxlint .",
+    "lint/oxlint": "oxlint --fix .",
     "format:check": "biome ci --linter-enabled=false",
+    "format": "biome check --write --no-errors-on-unmatched",
     "test": "vitest"
   },
   "dependencies": {

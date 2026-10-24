@@ -4,10 +4,10 @@ import { isControllerMessageErrorNotificationMessageEvent } from 'app/(game)/pro
 export type Fetcher = ReturnType<typeof createWorkerFetcher>;
 
 export const createWorkerFetcher = (worker: Worker) => {
-  return async <TData = void, TArgs = unknown>(
+  return async (
     url: string,
-    init?: Omit<RequestInit, 'body'> & { body?: TArgs },
-  ): Promise<{ data: TData }> => {
+    init?: Omit<RequestInit, 'body'> & { body?: unknown },
+  ): Promise<{ data: unknown }> => {
     const { port1, port2 } = new MessageChannel();
 
     return new Promise((resolve, reject) => {

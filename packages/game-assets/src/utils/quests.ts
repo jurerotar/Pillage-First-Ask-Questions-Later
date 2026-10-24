@@ -252,7 +252,7 @@ export const getQuestRequirements = (
     return [
       {
         type: 'capture-animal-count-by-id',
-        unitId: unitId!,
+        unitId,
         count,
       },
     ];

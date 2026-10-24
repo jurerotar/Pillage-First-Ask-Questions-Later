@@ -480,7 +480,7 @@ describe('hero-controllers', () => {
         schema: z.strictObject({ tileId: z.number(), villageSlug: z.string() }),
       })!;
 
-      expect(result).toEqual(village);
+      expect(result).toStrictEqual(village);
 
       const heroSelectable = database.selectObject({
         sql: 'SELECT attack_power, resource_production, attack_bonus, defence_bonus FROM hero_selectable_attributes WHERE hero_id = (SELECT id FROM heroes WHERE player_id = $player_id)',
@@ -683,7 +683,7 @@ describe('hero-controllers', () => {
         schema: z.number(),
       })!;
 
-      const helmetItemId = 104013; // RARE_HELMET
+      const helmetItemId = 104_013; // RARE_HELMET
       const scrollItemId = 1030; // EXPERIENCE_SCROLL
 
       database.exec({
@@ -740,7 +740,7 @@ describe('hero-controllers', () => {
         schema: z.number(),
       })!;
 
-      const itemId = 104033; // RARE_LEG_GUARDS
+      const itemId = 104_033; // RARE_LEG_GUARDS
 
       database.exec({
         sql: 'INSERT INTO hero_inventory (hero_id, item_id, amount) VALUES ($hero_id, $itemId, 1)',
@@ -1202,7 +1202,7 @@ describe('hero-controllers', () => {
         schema: z.strictObject({ tileId: z.number(), villageSlug: z.string() }),
       })!;
 
-      expect(result).toEqual(village);
+      expect(result).toStrictEqual(village);
 
       const hero = database.selectValue({
         sql: 'SELECT resource_to_produce FROM heroes WHERE player_id = $player_id',

@@ -64,7 +64,7 @@ const expectAtMostOneActiveConstructionPerLane = (
     }),
   });
 
-  expect(violations).toEqual([]);
+  expect(violations).toStrictEqual([]);
 };
 
 describe('scheduled building upgrades', () => {
@@ -124,7 +124,7 @@ describe('scheduled building upgrades', () => {
       schema: z.string(),
     });
 
-    expect(JSON.parse(persistedDetail!)).toEqual(reasonDetail);
+    expect(JSON.parse(persistedDetail!)).toStrictEqual(reasonDetail);
     expect(postWorkerMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         eventKey: 'scheduled-building-construction:cancelled',
@@ -170,10 +170,10 @@ describe('scheduled building upgrades', () => {
       `,
       bind: {
         $village_id: villageId,
-        $building_1: fields[0].buildingId as Building['id'],
+        $building_1: fields[0].buildingId,
         $field_1: fields[0].fieldId,
         $level_1: fields[0].level + 1,
-        $building_2: fields[1].buildingId as Building['id'],
+        $building_2: fields[1].buildingId,
         $field_2: fields[1].fieldId,
         $level_2: fields[1].level + 1,
       },
@@ -193,7 +193,7 @@ describe('scheduled building upgrades', () => {
       schema: z.strictObject({ active: z.number(), scheduled: z.number() }),
     });
 
-    expect(counts).toEqual({ active: 1, scheduled: 1 });
+    expect(counts).toStrictEqual({ active: 1, scheduled: 1 });
 
     const firstActiveField = database.selectValue({
       sql: `
@@ -229,7 +229,10 @@ describe('scheduled building upgrades', () => {
       schema: z.strictObject({ fieldId: z.number(), scheduled: z.number() }),
     });
 
-    expect(promoted).toEqual({ fieldId: fields[1].fieldId, scheduled: 0 });
+    expect(promoted).toStrictEqual({
+      fieldId: fields[1].fieldId,
+      scheduled: 0,
+    });
   });
 
   test('does not promote a scheduled upgrade while a new building is constructing', async () => {
@@ -271,7 +274,7 @@ describe('scheduled building upgrades', () => {
         );
       `,
       bind: {
-        $building_id: field.buildingId as Building['id'],
+        $building_id: field.buildingId,
         $village_id: villageId,
         $field_id: field.fieldId,
         $level: field.level + 1,
@@ -293,7 +296,7 @@ describe('scheduled building upgrades', () => {
       schema: z.strictObject({ active: z.number(), scheduled: z.number() }),
     });
 
-    expect(counts).toEqual({ active: 1, scheduled: 1 });
+    expect(counts).toStrictEqual({ active: 1, scheduled: 1 });
   });
 
   test('queue-full stops without deleting or trying later scheduled upgrades', async () => {
@@ -356,7 +359,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       promoted: 0,
       scheduled: 2,
       scheduledFieldIds: fields.map(({ fieldId }) => fieldId).join(','),
@@ -396,7 +399,7 @@ describe('scheduled building upgrades', () => {
     for (const field of [resourceField, villageField]) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
-        buildingId: field.buildingId as Building['id'],
+        buildingId: field.buildingId,
         buildingFieldId: field.fieldId,
         level: field.level + 1,
       });
@@ -422,7 +425,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       fieldId: resourceField.fieldId,
       scheduled: 1,
     });
@@ -536,7 +539,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       promotedResource: 1,
       queuedVillage: 1,
     });
@@ -610,7 +613,7 @@ describe('scheduled building upgrades', () => {
           buildingId: buildingIdSchema,
         }),
       }),
-    ).toEqual({
+    ).toStrictEqual({
       level: field.level + 1,
       fieldId: field.fieldId,
       buildingId: field.buildingId,
@@ -642,7 +645,7 @@ describe('scheduled building upgrades', () => {
           reason: z.literal('missing-resources'),
         }),
       }),
-    ).toEqual({
+    ).toStrictEqual({
       reportType: 'scheduledConstructionCancellation',
       reportOutcome: 'scheduledConstructionCancelled',
       fieldId: field.fieldId,
@@ -736,7 +739,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(promoted).toEqual({
+    expect(promoted).toStrictEqual({
       fieldId: validField.fieldId,
       scheduled: 0,
     });
@@ -798,7 +801,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(counts).toEqual({
+    expect(counts).toStrictEqual({
       promoted: 0,
       scheduled: 0,
     });
@@ -913,7 +916,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       placeholderFields: 0,
       placeholderEffects: 0,
       promotedFieldId: validField.fieldId,
@@ -974,7 +977,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       active: 0,
       scheduled: 0,
       placeholderFields: 0,
@@ -1042,7 +1045,7 @@ describe('scheduled building upgrades', () => {
       }),
     });
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       fieldId: buildingFieldId,
       buildingId: 'GRANARY',
       previousLevel: 0,
@@ -1111,7 +1114,7 @@ describe('scheduled building upgrades', () => {
         }),
       });
 
-      expect(counts).toEqual({ active: 1, scheduled: 0 });
+      expect(counts).toStrictEqual({ active: 1, scheduled: 0 });
     },
   );
 

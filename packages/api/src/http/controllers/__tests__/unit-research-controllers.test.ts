@@ -25,7 +25,7 @@ describe('unit-research-controllers', () => {
     const researchedUnits = getResearchedUnits(
       database,
       createControllerArgs<'/villages/:villageId/researched-units'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 

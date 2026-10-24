@@ -137,7 +137,7 @@ describe('troop-movement-controllers', () => {
       villageId: currentVillage.id,
       originTileId: currentVillage.tile_id,
       targetTileId: targetVillage.tile_id,
-      startsAt: 1_000,
+      startsAt: 1000,
       duration: 500,
     });
 
@@ -146,7 +146,7 @@ describe('troop-movement-controllers', () => {
       villageId: targetVillage.id,
       originTileId: targetVillage.tile_id,
       targetTileId: currentVillage.tile_id,
-      startsAt: 2_000,
+      startsAt: 2000,
       duration: 500,
     });
 
@@ -158,7 +158,7 @@ describe('troop-movement-controllers', () => {
     );
 
     expect(result).toHaveLength(2);
-    expect(result.map(({ type }) => type)).toEqual([
+    expect(result.map(({ type }) => type)).toStrictEqual([
       'troopMovementAttack',
       'troopMovementReinforcements',
     ]);
@@ -184,7 +184,7 @@ describe('troop-movement-controllers', () => {
       villageId: currentVillage.id,
       originTileId: currentVillage.tile_id,
       targetTileId: targetVillage.tile_id,
-      startsAt: 1_000,
+      startsAt: 1000,
       duration: 500,
     });
 
@@ -193,7 +193,7 @@ describe('troop-movement-controllers', () => {
       villageId: targetVillage.id,
       originTileId: targetVillage.tile_id,
       targetTileId: currentVillage.tile_id,
-      startsAt: 2_000,
+      startsAt: 2000,
       duration: 700,
     });
 
@@ -204,17 +204,17 @@ describe('troop-movement-controllers', () => {
       }),
     );
 
-    expect(result).toEqual(
+    expect(result).toStrictEqual(
       expect.arrayContaining([
         {
           type: 'offensiveMovementOutgoing',
           count: 1,
-          earliestResolvesAt: 1_500,
+          earliestResolvesAt: 1500,
         },
         {
           type: 'deploymentIncoming',
           count: 1,
-          earliestResolvesAt: 2_700,
+          earliestResolvesAt: 2700,
         },
       ]),
     );
@@ -304,7 +304,7 @@ describe('troop-movement-controllers', () => {
       villageId: currentVillage.id,
       originTileId: targetVillage.tile_id,
       targetTileId: currentVillage.tile_id,
-      startsAt: 1_000,
+      startsAt: 1000,
       duration: 500,
       originalMovementType: 'troopMovementAttack',
     });

@@ -1,32 +1,37 @@
-export const workerFactory = async <TPayload = void, TReturn = void>(
+export const workerFactory = async <TReturn = void>(
   workerUrl: string | URL,
-  payload?: TPayload,
+  payload?: unknown,
   transfer: Transferable[] = [],
 ): Promise<TReturn> => {
   return new Promise<TReturn>((resolve, reject) => {
     const worker: Worker = new Worker(workerUrl, { type: 'module' });
+    const controller = new AbortController();
+
+    const cleanup = () => {
+      controller.abort();
+      worker.terminate();
+    };
+
+    worker.addEventListener(
+      'message',
+      (event: MessageEvent<TReturn>) => {
+        cleanup();
+        resolve(event.data);
+      },
+      { signal: controller.signal },
+    );
+
+    worker.addEventListener(
+      'error',
+      (error: ErrorEvent) => {
+        cleanup();
+        reject(error);
+      },
+      { signal: controller.signal },
+    );
 
     if (payload !== undefined) {
       worker.postMessage(payload, transfer);
     }
-
-    const handleMessage = (event: MessageEvent<TReturn>) => {
-      worker.removeEventListener('message', handleMessage);
-      worker.removeEventListener('error', handleError);
-      worker.terminate();
-
-      resolve(event.data);
-    };
-
-    const handleError = (error: ErrorEvent) => {
-      worker.removeEventListener('message', handleMessage);
-      worker.removeEventListener('error', handleError);
-      worker.terminate();
-
-      reject(error);
-    };
-
-    worker.addEventListener('message', handleMessage);
-    worker.addEventListener('error', handleError);
   });
 };

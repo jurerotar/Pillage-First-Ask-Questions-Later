@@ -19,7 +19,7 @@ describe('filter-controllers', () => {
     );
 
     expect(filters).toStrictEqual(
-      [...reportListingFilterSchema.options].sort(),
+      [...reportListingFilterSchema.options].toSorted(),
     );
   });
 
@@ -74,7 +74,7 @@ describe('filter-controllers', () => {
 
     expect(unreadFilters).toStrictEqual(['battle']);
     expect(globalFilters).toStrictEqual(
-      [...reportListingFilterSchema.options].sort(),
+      [...reportListingFilterSchema.options].toSorted(),
     );
   });
 

@@ -157,7 +157,7 @@ describe('oasis-bonus-finder-controllers', () => {
       }),
     );
 
-    expect(result).toEqual([]);
+    expect(result).toStrictEqual([]);
   });
 
   test('getTilesWithBonuses should use occupied oasis when requested', async () => {

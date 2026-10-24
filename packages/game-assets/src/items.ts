@@ -463,7 +463,7 @@ const getBodyArmorHeroBonus = (
 };
 
 const getEquipmentItemId = (index: number): HeroEquipmentItem['id'] =>
-  104001 + index;
+  104_001 + index;
 
 const getBootsEquipmentName = (
   rarity: EquipmentRarity,

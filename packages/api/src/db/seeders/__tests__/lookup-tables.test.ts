@@ -25,7 +25,7 @@ describe('lookupTablesSeeder', () => {
       schema: buildingIdSchema,
     });
 
-    expect(buildingIds).toStrictEqual([...buildingIdSchema.options].sort());
+    expect(buildingIds).toStrictEqual([...buildingIdSchema.options].toSorted());
   });
 
   test('faction_ids contains every modeled faction exactly once', async () => {
@@ -36,7 +36,7 @@ describe('lookupTablesSeeder', () => {
       schema: factionSchema,
     });
 
-    expect(factionIds).toStrictEqual([...factionSchema.options].sort());
+    expect(factionIds).toStrictEqual([...factionSchema.options].toSorted());
   });
 
   test('tribe_ids contains every modeled tribe exactly once', async () => {
@@ -47,7 +47,7 @@ describe('lookupTablesSeeder', () => {
       schema: tribeSchema,
     });
 
-    expect(tribeIds).toStrictEqual([...tribeSchema.options].sort());
+    expect(tribeIds).toStrictEqual([...tribeSchema.options].toSorted());
   });
 
   test('unit_ids contains every modeled unit exactly once', async () => {
@@ -58,7 +58,7 @@ describe('lookupTablesSeeder', () => {
       schema: unitIdSchema,
     });
 
-    expect(unitIds).toStrictEqual(units.map(({ id }) => id).sort());
+    expect(unitIds).toStrictEqual(units.map(({ id }) => id).toSorted());
   });
 
   test('effect_ids contains every modeled effect and keeps wheatProduction at id 1', async () => {
@@ -74,7 +74,7 @@ describe('lookupTablesSeeder', () => {
       schema: z.number(),
     });
 
-    expect(effectIds).toStrictEqual([...effectIdSchema.options].sort());
+    expect(effectIds).toStrictEqual([...effectIdSchema.options].toSorted());
     expect(wheatProductionId).toBe(1);
   });
 
@@ -103,9 +103,13 @@ describe('lookupTablesSeeder', () => {
       schema: z.number(),
     });
 
-    expect(effectTypes).toStrictEqual([...effectTypeSchema.options].sort());
-    expect(effectScopes).toStrictEqual([...effectScopeSchema.options].sort());
-    expect(effectSources).toStrictEqual([...effectSourceSchema.options].sort());
+    expect(effectTypes).toStrictEqual([...effectTypeSchema.options].toSorted());
+    expect(effectScopes).toStrictEqual(
+      [...effectScopeSchema.options].toSorted(),
+    );
+    expect(effectSources).toStrictEqual(
+      [...effectSourceSchema.options].toSorted(),
+    );
     expect(localScopeId).toBe(2);
     expect(buildingSourceId).toBe(1);
   });
@@ -127,7 +131,7 @@ describe('lookupTablesSeeder', () => {
       schema: z.number(),
     });
 
-    expect(tileTypes).toStrictEqual([...tileTypeSchema.options].sort());
+    expect(tileTypes).toStrictEqual([...tileTypeSchema.options].toSorted());
     expect(freeTypeId).toBe(1);
     expect(oasisTypeId).toBe(2);
   });
@@ -140,7 +144,7 @@ describe('lookupTablesSeeder', () => {
       schema: reportTypeSchema,
     });
 
-    expect(reportTypes).toStrictEqual([...reportTypeSchema.options].sort());
+    expect(reportTypes).toStrictEqual([...reportTypeSchema.options].toSorted());
   });
 
   test('resource_ids contains every modeled resource with stable ids', async () => {
@@ -160,7 +164,7 @@ describe('lookupTablesSeeder', () => {
       schema: z.number(),
     });
 
-    expect(resources).toStrictEqual([...resourceSchema.options].sort());
+    expect(resources).toStrictEqual([...resourceSchema.options].toSorted());
     expect(woodId).toBe(1);
     expect(wheatId).toBe(4);
   });

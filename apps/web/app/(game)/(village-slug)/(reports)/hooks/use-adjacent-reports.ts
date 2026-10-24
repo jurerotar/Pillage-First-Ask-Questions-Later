@@ -9,7 +9,7 @@ export const useAdjacentReports = (
   );
 
   const findPreviousUnreadReportId = (endIndex: number) => {
-    for (let index = endIndex - 1; index >= 0; index--) {
+    for (let index = endIndex - 1; index >= 0; index -= 1) {
       const report = reports[index];
 
       if (!report.tags.includes('read')) {
@@ -21,7 +21,7 @@ export const useAdjacentReports = (
   };
 
   const findNextUnreadReportId = (startIndex: number) => {
-    for (let index = startIndex; index < reports.length; index++) {
+    for (let index = startIndex; index < reports.length; index += 1) {
       const report = reports[index];
 
       if (!report.tags.includes('read')) {

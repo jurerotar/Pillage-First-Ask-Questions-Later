@@ -113,11 +113,11 @@ export const ShareGameWorldDialog = ({
             aria-label="Game world details"
             className="grid gap-3 rounded-md border p-3"
           >
-            <p className="font-medium break-words">{server.name}</p>
+            <p className="font-medium wrap-break-word">{server.name}</p>
             <dl className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <dt className="text-muted-foreground">Player</dt>
-                <dd className="break-words">
+                <dd className="wrap-break-word">
                   {server.playerConfiguration.name}
                 </dd>
               </div>

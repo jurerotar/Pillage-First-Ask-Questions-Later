@@ -285,7 +285,7 @@ export const buildingDestructionResolver: Resolver<
         `,
         bind: {
           $village_id: villageId,
-          $effect_id: effects[0]!.effectId,
+          $effect_id: effects[0].effectId,
           $source_specifier: buildingFieldId,
         },
       });

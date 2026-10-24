@@ -17,12 +17,12 @@ describe('world-items-controllers', () => {
     const artifacts = getArtifactsAroundVillage(
       database,
       createControllerArgs<'/villages/:villageId/artifacts'>({
-        path: { villageId: villageId },
+        path: { villageId },
       }),
     );
 
     expect(artifacts.length).toBeGreaterThan(0);
-    expect(artifacts).toEqual(
+    expect(artifacts).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           amount: 1,

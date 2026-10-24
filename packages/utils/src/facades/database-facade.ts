@@ -35,14 +35,14 @@ const clearBindingsAfterExecution = (
   const reset = statement.reset.bind(statement);
   const stepReset = statement.stepReset.bind(statement);
 
-  statement.reset = (() => reset(true)) as PreparedStatement['reset'];
-  statement.stepReset = (() => {
+  statement.reset = () => reset(true);
+  statement.stepReset = () => {
     try {
       return stepReset();
     } finally {
       reset(true);
     }
-  }) as PreparedStatement['stepReset'];
+  };
 
   return statement;
 };

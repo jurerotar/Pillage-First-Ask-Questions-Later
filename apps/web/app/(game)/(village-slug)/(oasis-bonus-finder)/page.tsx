@@ -85,6 +85,8 @@ const splitOasisBonus = (oasisBonus: OasisBonus) => {
     | [string, Resource];
 };
 
+const NO_OASIS_BONUS_KEY = 'no-oasis-bonus';
+
 const parseOasisBonus = (
   oasisBonus: OasisBonus | typeof NO_OASIS_BONUS_KEY,
 ): Array<{ bonus: 25 | 50; resource: Resource }> => {
@@ -135,8 +137,6 @@ const resourceFieldCompositions: ResourceFieldComposition[] = [
 ];
 
 const RFCFieldValues = ['any-cropper', ...resourceFieldCompositions] as const;
-
-const NO_OASIS_BONUS_KEY = 'no-oasis-bonus';
 
 const OasisBonusSelectContent = () => {
   const { t } = useTranslation();

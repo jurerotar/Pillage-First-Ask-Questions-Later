@@ -7,7 +7,7 @@ import type {
 } from '@pillage-first/types/models/effect';
 import { villageMock } from './village-mock';
 
-const tileId = villageMock.tileId;
+const { tileId } = villageMock;
 
 export const woodProductionBaseEffectMock: VillageBuildingEffect = {
   tileId,
