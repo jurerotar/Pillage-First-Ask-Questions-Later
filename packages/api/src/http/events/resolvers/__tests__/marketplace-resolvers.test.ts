@@ -194,7 +194,7 @@ describe('marketplace resolvers', () => {
     const sourceVillage = getPlayerVillage(database);
     const targetVillage = createPlayerVillage(database, 'Resolver Target');
 
-    const resolvesAt = NOW + 5_000;
+    const resolvesAt = NOW + 5000;
 
     setVillageResources(
       database,
@@ -211,7 +211,7 @@ describe('marketplace resolvers', () => {
         originTileId: sourceVillage.tile_id,
         targetTileId: targetVillage.tileId,
         startsAt: NOW,
-        duration: 5_000,
+        duration: 5000,
         merchantAmount: 1,
       }),
     );
@@ -378,7 +378,7 @@ describe('marketplace resolvers', () => {
         originTileId: targetVillage.tileId,
         targetTileId: sourceVillage.tile_id,
         startsAt: NOW,
-        duration: 5_000,
+        duration: 5000,
         merchantAmount: 1,
         resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
       }),
@@ -425,7 +425,7 @@ describe('marketplace resolvers', () => {
         originTileId: targetVillage.tileId,
         targetTileId: sourceVillage.tile_id,
         startsAt: NOW,
-        duration: 5_000,
+        duration: 5000,
         merchantAmount: 1,
         resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
         repeatRemaining: 2,
@@ -470,7 +470,7 @@ describe('marketplace resolvers', () => {
     })!;
 
     expect(nextTransfer).toMatchObject({
-      starts_at: NOW + 5_000,
+      starts_at: NOW + 5000,
       village_id: sourceVillage.id,
       target_village_id: targetVillage.id,
       origin_tile_id: sourceVillage.tile_id,
@@ -519,7 +519,7 @@ describe('marketplace resolvers', () => {
         originTileId: targetVillage.tileId,
         targetTileId: sourceVillage.tile_id,
         startsAt: NOW,
-        duration: 5_000,
+        duration: 5000,
         merchantAmount: 1,
         resources: { wood: 0, clay: 0, iron: 0, wheat: 0 },
         repeatRemaining: 2,

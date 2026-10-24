@@ -60,9 +60,9 @@ export const BorderIndicator = (
     >
       <span
         className={clsx(
-          !backgroundVariant
-            ? 'bg-background'
-            : backgroundVariantToClassNameMap[backgroundVariant],
+          backgroundVariant
+            ? backgroundVariantToClassNameMap[backgroundVariant]
+            : 'bg-background',
           'relative inline-flex size-5 items-center justify-center rounded-full text-xs outline outline-white/50 dark:outline-transparent',
         )}
       >

@@ -3,8 +3,10 @@ import type {
   ScheduledBuildingConstructionCancellationReason,
   ScheduledBuildingConstructionCancelledNotificationEvent,
 } from '@pillage-first/types/api-events';
-import type { Building } from '@pillage-first/types/models/building';
-import { buildingIdSchema } from '@pillage-first/types/models/building';
+import {
+  type Building,
+  buildingIdSchema,
+} from '@pillage-first/types/models/building';
 import type { BuildingField } from '@pillage-first/types/models/building-field';
 import type {
   ScheduledConstructionCancellationReasonDetail,

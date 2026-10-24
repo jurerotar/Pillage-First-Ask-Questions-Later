@@ -13,7 +13,7 @@ type BuildingRouteMatch = {
 };
 
 const getBuildingRouteMatch = (pathname: string): BuildingRouteMatch | null => {
-  const match = pathname.match(/\/(?:resources|village)\/(\d+)$/);
+  const match = pathname.match(/\/(?:resources|village)\/(\d+)$/u);
 
   if (!match) {
     return null;

@@ -169,7 +169,7 @@ export const useTroopForm = <T extends FieldValues & BaseTroopFormValues>(
     const { errors } = await validateTroopMovement({
       troops,
       targetTileId,
-      type: type,
+      type,
       originTileId: currentVillage.tileId,
     });
 

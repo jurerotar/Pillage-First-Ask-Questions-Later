@@ -138,41 +138,44 @@ export const CreateNewGameWorldForm = () => {
           [channel.port2],
         );
 
-        channel.port1.onmessage = (
-          event: MessageEvent<CreateNewGameWorldWorkerResponse>,
-        ) => {
-          const data = event.data;
+        channel.port1.addEventListener(
+          'message',
+          (event: MessageEvent<CreateNewGameWorldWorkerResponse>) => {
+            const { data } = event;
 
-          if (data.type === 'progress') {
-            setCurrentStepIndex((currentIndex) => {
-              return currentIndex + 1;
-            });
-          } else if (data.type === 'result') {
-            setCurrentStepIndex(steps.length);
-            worker.terminate();
-            channel.port1.close();
-            resolve();
-          } else if (data.type === 'error') {
-            const error = new Error(data.message);
-            if (data.stack) {
-              error.stack = data.stack;
+            if (data.type === 'progress') {
+              setCurrentStepIndex((currentIndex) => {
+                return currentIndex + 1;
+              });
+            } else if (data.type === 'result') {
+              setCurrentStepIndex(steps.length);
+              worker.terminate();
+              channel.port1.close();
+              resolve();
+            } else if (data.type === 'error') {
+              const error = new Error(data.message);
+              if (data.stack) {
+                error.stack = data.stack;
+              }
+
+              reportError(error, 'Game world seeding failed', {
+                source: 'CreateNewGameWorldForm',
+              });
+
+              worker.terminate();
+              channel.port1.close();
+              reject(error);
             }
+          },
+        );
 
-            reportError(error, 'Game world seeding failed', {
-              source: 'CreateNewGameWorldForm',
-            });
+        channel.port1.start();
 
-            worker.terminate();
-            channel.port1.close();
-            reject(error);
-          }
-        };
-
-        worker.onerror = (err) => {
+        worker.addEventListener('error', (err) => {
           worker.terminate();
           channel.port1.close();
           reject(err);
-        };
+        });
       });
     },
     onMutate: () => {

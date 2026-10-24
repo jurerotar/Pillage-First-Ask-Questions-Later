@@ -59,7 +59,7 @@ const toTroops = ({
 
 const assertTroopsAvailable = (database: DbFacade, troops: Troop[]) => {
   if (troops.length === 1) {
-    const troop = troops[0]!;
+    const [troop] = troops;
     const availableAmount = database.selectValue({
       sql: selectTroopAmountQuery,
       bind: {
@@ -160,9 +160,9 @@ export const returnStationedTroops = (
     sql: selectVillageIdByTileIdQuery,
     bind: { $tile_id: targetTileId },
     schema: z.number().nullable(),
-  });
+  })!;
 
-  if (eventVillageId == null) {
+  if (eventVillageId === null) {
     throw new Error('Target village not found');
   }
 

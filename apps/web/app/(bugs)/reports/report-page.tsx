@@ -32,7 +32,7 @@ export const ReportPage = ({ token }: { token: string }) => {
 
   const report = reportQuery.data;
   const diagnosticsMarker = [
-    ...report.description.matchAll(/\r?\n\r?\nAutomatic diagnostics:\r?\n/g),
+    ...report.description.matchAll(/\r?\n\r?\nAutomatic diagnostics:\r?\n/gu),
   ].at(-1);
   const description = diagnosticsMarker
     ? report.description.slice(0, diagnosticsMarker.index)

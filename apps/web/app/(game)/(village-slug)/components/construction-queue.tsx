@@ -366,8 +366,9 @@ const ConstructionQueueContent = () => {
   if (totalSlotsCount - orderedEvents.length < 0) {
     faro.api.pushError(
       new Error(
-        'Invalid array length at ConstructionQueue' +
-          JSON.stringify({ buildingUpgradeEvents }),
+        `Invalid array length at ConstructionQueue${JSON.stringify({
+          buildingUpgradeEvents,
+        })}`,
       ),
     );
   }

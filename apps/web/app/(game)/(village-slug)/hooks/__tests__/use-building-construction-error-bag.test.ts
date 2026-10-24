@@ -10,7 +10,7 @@ describe(getScheduledBuildingConstructionResourceChecks, () => {
         hasEnoughWarehouseCapacity: false,
         isScheduling: true,
       }),
-    ).toEqual({
+    ).toStrictEqual({
       hasEnoughGranaryCapacity: false,
       hasEnoughResources: true,
       hasEnoughWarehouseCapacity: false,
@@ -25,7 +25,7 @@ describe(getScheduledBuildingConstructionResourceChecks, () => {
         hasEnoughWarehouseCapacity: true,
         isScheduling: false,
       }),
-    ).toEqual({
+    ).toStrictEqual({
       hasEnoughGranaryCapacity: true,
       hasEnoughResources: false,
       hasEnoughWarehouseCapacity: true,

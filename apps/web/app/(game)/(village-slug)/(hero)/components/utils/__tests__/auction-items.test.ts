@@ -10,25 +10,25 @@ describe(getAuctionWearableOwnershipStatus, () => {
 
   test('identifies wearable items already owned in inventory', () => {
     expect(
-      getAuctionWearableOwnershipStatus(104001, [{ id: 104001 }], []),
+      getAuctionWearableOwnershipStatus(104_001, [{ id: 104_001 }], []),
     ).toBe('owned');
   });
 
   test('identifies wearable items already equipped', () => {
     expect(
-      getAuctionWearableOwnershipStatus(104001, [], [{ itemId: 104001 }]),
+      getAuctionWearableOwnershipStatus(104_001, [], [{ itemId: 104_001 }]),
     ).toBe('equipped');
   });
 
   test('identifies better wearable items already owned in inventory', () => {
     expect(
-      getAuctionWearableOwnershipStatus(104001, [{ id: 104003 }], []),
+      getAuctionWearableOwnershipStatus(104_001, [{ id: 104_003 }], []),
     ).toBe('better-owned');
   });
 
   test('identifies better wearable items already equipped', () => {
     expect(
-      getAuctionWearableOwnershipStatus(104001, [], [{ itemId: 104003 }]),
+      getAuctionWearableOwnershipStatus(104_001, [], [{ itemId: 104_003 }]),
     ).toBe('better-equipped');
   });
 });

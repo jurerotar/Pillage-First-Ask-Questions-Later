@@ -44,6 +44,14 @@ export const FormField = <
   );
 };
 
+type FormItemContextValue = {
+  id: string;
+};
+
+const FormItemContext = createContext<FormItemContextValue>(
+  {} as FormItemContextValue,
+);
+
 const useFormField = () => {
   const fieldContext = use(FormFieldContext);
   const itemContext = use(FormItemContext);
@@ -66,14 +74,6 @@ const useFormField = () => {
     ...fieldState,
   };
 };
-
-type FormItemContextValue = {
-  id: string;
-};
-
-const FormItemContext = createContext<FormItemContextValue>(
-  {} as FormItemContextValue,
-);
 
 export const FormItem = ({ className, ...props }: ComponentProps<'div'>) => {
   const { name } = use(FormFieldContext);
@@ -121,7 +121,7 @@ export const FormControl = (props: ComponentProps<typeof Slot.Root>) => {
       data-slot="form-control"
       id={formItemId}
       aria-describedby={
-        !error ? formDescriptionId : `${formDescriptionId} ${formMessageId}`
+        error ? `${formDescriptionId} ${formMessageId}` : formDescriptionId
       }
       aria-invalid={!!error}
       {...props}

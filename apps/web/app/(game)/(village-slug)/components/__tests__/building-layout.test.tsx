@@ -140,6 +140,6 @@ describe(OverflowContainer, () => {
     fireEvent.click(button);
 
     expect(overflowContainer.scrollLeft).toBe(0);
-    expect(handleClick).toHaveBeenCalledOnce();
+    expect(handleClick).toHaveBeenCalledTimes(1);
   });
 });

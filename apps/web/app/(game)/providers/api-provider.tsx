@@ -21,7 +21,7 @@ type ApiProviderProps = {
 
 export const ApiProviderFallback = () => {
   return (
-    <div className="flex h-dvh w-full items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,theme(colors.amber.50),theme(colors.background)_58%)] px-6 text-foreground dark:bg-[radial-gradient(circle_at_center,theme(colors.stone.900),theme(colors.background)_58%)]">
+    <div className="flex h-dvh w-full items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,var(--color-amber-50),var(--background)_58%)] px-6 text-foreground dark:bg-[radial-gradient(circle_at_center,var(--color-stone-900),var(--background)_58%)]">
       <div
         className="animate-api-provider-splash flex w-full max-w-md flex-col items-center gap-8 text-center"
         role="status"

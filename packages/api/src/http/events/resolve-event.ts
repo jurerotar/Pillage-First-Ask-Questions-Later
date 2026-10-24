@@ -100,7 +100,7 @@ export const resolveEvent = (
 
   try {
     const resolver = gameEventResolvers[event.type];
-    const { affectedVillageIds, affectedTileIds = [] } = (
+    const { affectedVillageIds, affectedTileIds } = (
       resolver as (db: DbFacade, ev: GameEvent) => ResolverResult
     )(database, event);
 

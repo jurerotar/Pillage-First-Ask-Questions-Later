@@ -150,33 +150,38 @@ const uploadWorld = async (upload: PendingUpload): Promise<void> => {
     },
   );
 
-  let reservation = upload.reservation;
+  let { reservation } = upload;
+
+  const uploadChunk = async (
+    chunkIndex: number,
+    chunk: Blob,
+    start: number,
+    end: number,
+  ): Promise<Response> => {
+    const uploadUrl = reservation.chunkUrlTemplate.replace(
+      '{chunkIndex}',
+      String(chunkIndex),
+    );
+    return fetch(uploadUrl, {
+      body: chunk,
+      headers: {
+        'content-range': `bytes ${start}-${end - 1}/${world.size}`,
+      },
+      method: 'PUT',
+    });
+  };
 
   while (upload.nextChunkIndex * reservation.chunkSize < world.size) {
     const chunkIndex = upload.nextChunkIndex;
     const start = chunkIndex * reservation.chunkSize;
     const end = Math.min(start + reservation.chunkSize, world.size);
     const chunk = world.slice(start, end);
-    const uploadChunk = async (): Promise<Response> => {
-      const uploadUrl = reservation.chunkUrlTemplate.replace(
-        '{chunkIndex}',
-        String(chunkIndex),
-      );
-      return fetch(uploadUrl, {
-        body: chunk,
-        headers: {
-          'content-range': `bytes ${start}-${end - 1}/${world.size}`,
-        },
-        method: 'PUT',
-      });
-    };
-
-    let response = await uploadChunk();
+    let response = await uploadChunk(chunkIndex, chunk, start, end);
 
     if (response.status === 401) {
       reservation = await getUploadReservation();
       upload.reservation = reservation;
-      response = await uploadChunk();
+      response = await uploadChunk(chunkIndex, chunk, start, end);
     }
 
     if (!response.ok) {
@@ -295,7 +300,7 @@ export const BugReportModal = ({ isOpen, onClose }: BugReportModalProps) => {
               id="bug-report-description"
               disabled={isSubmitting}
               readOnly={!!pendingUpload.current?.report}
-              maxLength={8_000}
+              maxLength={8000}
               rows={7}
               className="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 min-h-32 w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
               placeholder={t('Include the steps that led to the problem.')}

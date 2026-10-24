@@ -7,7 +7,7 @@ import {
   calculateHeroRevivalTime,
 } from '../hero';
 
-describe('calculateHeroAttributePoints', () => {
+describe(calculateHeroAttributePoints, () => {
   test.each([
     [0, 4],
     [98, 396],
@@ -19,7 +19,7 @@ describe('calculateHeroAttributePoints', () => {
   });
 });
 
-describe('calculateHeroLevel (level starts at 0)', () => {
+describe(calculateHeroLevel, () => {
   test('should return level 0 at 0 exp', () => {
     expect(calculateHeroLevel(0)).toStrictEqual({
       level: 0,

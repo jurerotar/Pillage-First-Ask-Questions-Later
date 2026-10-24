@@ -222,6 +222,18 @@ const MapPageContents = () => {
     };
   }, [mapGrid]);
 
+  const syncRulers = useCallback(
+    (scrollX: number, scrollY: number) => {
+      bottomMapRuler?.element?.scrollTo({
+        left: scrollX,
+      });
+      leftMapRuler?.element?.scrollTo({
+        top: scrollY,
+      });
+    },
+    [bottomMapRuler, leftMapRuler],
+  );
+
   useWindowEvent('mousemove', ({ clientX, clientY }) => {
     const node = mapGrid?.element;
 
@@ -272,6 +284,16 @@ const MapPageContents = () => {
       syncRulers(nextScroll.x, nextScroll.y);
     });
   });
+
+  const updateCurrentCenterTile = useCallback(
+    (scrollX: number, scrollY: number) => {
+      currentCenterTile.current.x =
+        (scrollX + width / 2) / tileSize - gridSize / 2;
+      currentCenterTile.current.y =
+        gridSize / 2 - (scrollY + mapHeight / 2) / tileSize;
+    },
+    [tileSize, gridSize, width, mapHeight],
+  );
 
   useWindowEvent('mouseup', () => {
     const node = mapGrid?.element;
@@ -324,28 +346,6 @@ const MapPageContents = () => {
       });
     },
     [bottomMapRuler, leftMapRuler, mapGrid],
-  );
-
-  const syncRulers = useCallback(
-    (scrollX: number, scrollY: number) => {
-      bottomMapRuler?.element?.scrollTo({
-        left: scrollX,
-      });
-      leftMapRuler?.element?.scrollTo({
-        top: scrollY,
-      });
-    },
-    [bottomMapRuler, leftMapRuler],
-  );
-
-  const updateCurrentCenterTile = useCallback(
-    (scrollX: number, scrollY: number) => {
-      currentCenterTile.current.x =
-        (scrollX + width / 2) / tileSize - gridSize / 2;
-      currentCenterTile.current.y =
-        gridSize / 2 - (scrollY + mapHeight / 2) / tileSize;
-    },
-    [tileSize, gridSize, width, mapHeight],
   );
 
   const onScroll = useCallback(

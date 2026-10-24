@@ -1,22 +1,20 @@
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { silverItem } from '@pillage-first/game-assets/items';
 import { defineLootTable, rollLootTable } from '../loot-table';
 
-const mockRandom = (rolls: number[]): void => {
-  const remainingRolls = [...rolls];
+const mockRandom = (rolls: number[]) => {
+  const random = vi.spyOn(Math, 'random').mockReturnValue(0);
 
-  vi.spyOn(Math, 'random').mockImplementation(() => {
-    return remainingRolls.shift() ?? 0;
-  });
+  for (const roll of rolls) {
+    random.mockReturnValueOnce(roll);
+  }
+
+  return random;
 };
-
-afterEach(() => {
-  vi.restoreAllMocks();
-});
 
 describe(rollLootTable, () => {
   test('returns the result selected by the percentage roll', () => {
-    mockRandom([0.3]);
+    using _random = mockRandom([0.3]);
 
     const result = rollLootTable(
       defineLootTable([
@@ -30,7 +28,7 @@ describe(rollLootTable, () => {
   });
 
   test('returns null when the roll lands outside the configured percentages', () => {
-    mockRandom([0.9]);
+    using _random = mockRandom([0.9]);
 
     const result = rollLootTable(
       defineLootTable([
@@ -43,7 +41,7 @@ describe(rollLootTable, () => {
   });
 
   test('supports nested loot tables', () => {
-    mockRandom([0.6, 0.1]);
+    using _random = mockRandom([0.6, 0.1]);
 
     const result = rollLootTable(
       defineLootTable([
@@ -62,7 +60,7 @@ describe(rollLootTable, () => {
   });
 
   test('resolves item amount ranges to a concrete amount', () => {
-    mockRandom([0.1, 0.5]);
+    using _random = mockRandom([0.1, 0.5]);
 
     const result = rollLootTable(
       defineLootTable([
@@ -83,7 +81,7 @@ describe(rollLootTable, () => {
   });
 
   test('resolves item amount ranges from nested loot tables', () => {
-    mockRandom([0.6, 0.1, 0.999]);
+    using _random = mockRandom([0.6, 0.1, 0.999]);
 
     const result = rollLootTable(
       defineLootTable([

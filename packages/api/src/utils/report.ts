@@ -314,10 +314,10 @@ export const insertGatheringExpeditionReport = (
       $report_id: reportId,
       $village_tile_id: report.villageTileId,
       $tribe_id: report.tribeId,
-      $loot_wood: report.loot[0]!,
-      $loot_clay: report.loot[1]!,
-      $loot_iron: report.loot[2]!,
-      $loot_wheat: report.loot[3]!,
+      $loot_wood: report.loot[0],
+      $loot_clay: report.loot[1],
+      $loot_iron: report.loot[2],
+      $loot_wheat: report.loot[3],
     },
     schema: z.int(),
   })!;
@@ -704,7 +704,7 @@ export const insertBattleReport = (
   })[] = [];
 
   for (let index = 0; index < participants.length; index += 1) {
-    const participant = participants[index]!;
+    const participant = participants[index];
     const battleParticipantId = firstBattleParticipantId + index;
 
     for (const unit of participant.units) {

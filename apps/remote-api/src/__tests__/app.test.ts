@@ -46,69 +46,6 @@ const createTestApp = async (overrides: Partial<AppConfig> = {}) => {
   };
 };
 
-test('previews an uploaded world without claiming it, then invalidates the preview after import', async () => {
-  await using testApp = await createTestApp({
-    maxChunkBytes: 65_536,
-    maxFileBytes: 65_536,
-    maxReportBytes: 65_536,
-  });
-
-  const { app, dataDirectory, store } = testApp;
-  const path = join(dataDirectory, 'preview-test.sqlite3');
-
-  {
-    using database = new DatabaseSync(path);
-
-    database.exec(`
-      PRAGMA journal_mode = WAL;
-      CREATE TABLE servers (name TEXT, version TEXT, speed INTEGER, map_size INTEGER, player_name TEXT, player_tribe TEXT);
-      INSERT INTO servers VALUES ('UnicornBorough', '0.4.74', 3, 200, 'Explorer', 'gauls');
-    `);
-  }
-
-  const contents = await readFile(path);
-  const share = await uploadSharedWorld(app, contents);
-  const previewPath = `/api/game-worlds/${share.worldId}`;
-
-  expect((await app.request(previewPath)).status).toBe(404);
-
-  await app.request(share.completeUrl, { method: 'POST' });
-
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    const response = await app.request(previewPath);
-
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
-      name: 'UnicornBorough',
-      version: '0.4.74',
-      speed: 3,
-      mapSize: 200,
-      playerName: 'Explorer',
-      tribe: 'gauls',
-      size: contents.length,
-    });
-  }
-
-  expect(await readdir(join(dataDirectory, 'uploads'))).toContain(
-    `${store.getUploadForWorld(share.worldId)!.storageName}-shm`,
-  );
-
-  const headers = { authorization: `Bearer ${'token'.repeat(8)}` };
-  const download = await app.request(`${previewPath}/download`, {
-    method: 'POST',
-    headers,
-  });
-
-  expect(download.status).toBe(200);
-  expect(Buffer.from(await download.arrayBuffer())).toEqual(contents);
-  expect(store.getWorld(share.worldId)).toBeDefined();
-
-  await app.request(previewPath, { method: 'DELETE', headers });
-
-  expect((await app.request(previewPath)).status).toBe(404);
-  expect(await readdir(join(dataDirectory, 'uploads'))).toEqual([]);
-});
-
 const uploadSharedWorld = async (
   app: ReturnType<typeof createApp>,
   contents = sqliteFile,
@@ -145,6 +82,69 @@ const uploadSharedWorld = async (
   return reservation;
 };
 
+test('previews an uploaded world without claiming it, then invalidates the preview after import', async () => {
+  await using testApp = await createTestApp({
+    maxChunkBytes: 65_536,
+    maxFileBytes: 65_536,
+    maxReportBytes: 65_536,
+  });
+
+  const { app, dataDirectory, store } = testApp;
+  const path = join(dataDirectory, 'preview-test.sqlite3');
+
+  {
+    using database = new DatabaseSync(path);
+
+    database.exec(`
+      PRAGMA journal_mode = WAL;
+      CREATE TABLE servers (name TEXT, version TEXT, speed INTEGER, map_size INTEGER, player_name TEXT, player_tribe TEXT);
+      INSERT INTO servers VALUES ('UnicornBorough', '0.4.74', 3, 200, 'Explorer', 'gauls');
+    `);
+  }
+
+  const contents = await readFile(path);
+  const share = await uploadSharedWorld(app, contents);
+  const previewPath = `/api/game-worlds/${share.worldId}`;
+
+  expect((await app.request(previewPath)).status).toBe(404);
+
+  await app.request(share.completeUrl, { method: 'POST' });
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const response = await app.request(previewPath);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toStrictEqual({
+      name: 'UnicornBorough',
+      version: '0.4.74',
+      speed: 3,
+      mapSize: 200,
+      playerName: 'Explorer',
+      tribe: 'gauls',
+      size: contents.length,
+    });
+  }
+
+  expect(await readdir(join(dataDirectory, 'uploads'))).toContain(
+    `${store.getUploadForWorld(share.worldId)!.storageName}-shm`,
+  );
+
+  const headers = { authorization: `Bearer ${'token'.repeat(8)}` };
+  const download = await app.request(`${previewPath}/download`, {
+    method: 'POST',
+    headers,
+  });
+
+  expect(download.status).toBe(200);
+  expect(Buffer.from(await download.arrayBuffer())).toStrictEqual(contents);
+  expect(store.getWorld(share.worldId)).toBeDefined();
+
+  await app.request(previewPath, { method: 'DELETE', headers });
+
+  expect((await app.request(previewPath)).status).toBe(404);
+  expect(await readdir(join(dataDirectory, 'uploads'))).toStrictEqual([]);
+});
+
 test('shares a world separately from reports, claims it on confirmation, and deletes it after import', async () => {
   await using testApp = await createTestApp();
 
@@ -164,7 +164,7 @@ test('shares a world separately from reports, claims it on confirmation, and del
   expect(
     (await app.request(share.completeUrl, { method: 'POST' })).status,
   ).toBe(200);
-  expect(store.listReports()).toEqual([]);
+  expect(store.listReports()).toStrictEqual([]);
   expect((await app.request(`${path}/download`)).status).toBe(404);
   expect(
     (await app.request(`${path}/download`, { method: 'POST' })).status,
@@ -177,7 +177,7 @@ test('shares a world separately from reports, claims it on confirmation, and del
   expect(response.headers.get('content-length')).toBe(
     String(sqliteFile.length),
   );
-  expect(Buffer.from(await response.arrayBuffer())).toEqual(sqliteFile);
+  expect(Buffer.from(await response.arrayBuffer())).toStrictEqual(sqliteFile);
   expect(store.getWorld(share.worldId)).toBeDefined();
 
   // A retry from the same device is safe; another device cannot import concurrently.
@@ -212,8 +212,8 @@ test('shares a world separately from reports, claims it on confirmation, and del
   expect((await app.request(path, options)).status).toBe(204);
   expect((await app.request(path, options)).status).toBe(204);
   expect(store.getWorld(share.worldId)).toBeUndefined();
-  expect(await readdir(join(dataDirectory, 'uploads'))).toEqual([]);
-  expect(await readdir(join(dataDirectory, 'staging'))).toEqual([]);
+  expect(await readdir(join(dataDirectory, 'uploads'))).toStrictEqual([]);
+  expect(await readdir(join(dataDirectory, 'staging'))).toStrictEqual([]);
   expect((await download()).status).toBe(404);
   expect(
     (await app.request(share.completeUrl, { method: 'POST' })).status,
@@ -293,8 +293,8 @@ test('expires shared worlds after 24 hours and cleans up completed and pending u
     expect(store.getUploadForWorld(pending.worldId)).toBeUndefined();
     expect(store.getReport(report.id)).toBeDefined();
     expect(store.getUpload(reportUpload!.id)).toBeDefined();
-    expect(await readdir(join(dataDirectory, 'uploads'))).toEqual([]);
-    expect(await readdir(join(dataDirectory, 'staging'))).toEqual([]);
+    expect(await readdir(join(dataDirectory, 'uploads'))).toStrictEqual([]);
+    expect(await readdir(join(dataDirectory, 'staging'))).toStrictEqual([]);
   } finally {
     clock.mockRestore();
   }
@@ -493,7 +493,7 @@ test('creates, chunk-uploads, and authorizes download of a SQLite world', async 
   );
 
   expect(repeatedCompletion.status).toBe(200);
-  expect(await repeatedCompletion.json()).toEqual({ status: 'complete' });
+  expect(await repeatedCompletion.json()).toStrictEqual({ status: 'complete' });
 
   const deniedDownload = await app.request(
     `/api/admin/reports/${report.reportId}/world`,
@@ -696,7 +696,7 @@ test('closing is idempotent and remains persisted when the database is reopened'
 
   expect(response.status).toBe(200);
   expect(closed.status).toBe('closed');
-  expect(closed.closedAt > 0).toBeTruthy();
+  expect(closed.closedAt > 0).toBe(true);
 
   const repeated = await app.request(
     `/api/admin/reports/${report.id}/close`,
@@ -810,7 +810,7 @@ test('the web app origin can preflight both admin and public requests', async ()
   );
   expect(
     response.headers.get('access-control-allow-methods')?.includes('DELETE'),
-  ).toBeTruthy();
+  ).toBe(true);
 
   const game = await app.request('/api/reports', {
     method: 'OPTIONS',

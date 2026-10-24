@@ -42,6 +42,13 @@ const getTscBinPath = () => {
   return resolve(repoRoot, 'node_modules/typescript/bin/tsc');
 };
 
+const readFileSystemDirectory = (directory: string) => {
+  return readdirSync(directory, { withFileTypes: true }).map((entry) => ({
+    isDirectory: entry.isDirectory(),
+    path: resolve(directory, entry.name),
+  }));
+};
+
 const readDirectoryRecursive = (directory: string): string[] => {
   if (!existsSync(directory)) {
     return [];
@@ -56,13 +63,6 @@ const readDirectoryRecursive = (directory: string): string[] => {
 
     return [entry.path];
   });
-};
-
-const readFileSystemDirectory = (directory: string) => {
-  return readdirSync(directory, { withFileTypes: true }).map((entry) => ({
-    isDirectory: entry.isDirectory(),
-    path: resolve(directory, entry.name),
-  }));
 };
 
 export const isApiRouteTypesInputFile = (filePath: string): boolean => {
@@ -83,7 +83,7 @@ export const isApiRouteTypesInputFile = (filePath: string): boolean => {
 export const listApiRouteTypesInputFiles = (): string[] => {
   return [apiRoutesSourcePath, ...readDirectoryRecursive(apiControllersRoot)]
     .filter(isApiRouteTypesInputFile)
-    .sort();
+    .toSorted();
 };
 
 const createTemporaryTsConfig = (temporaryRoot: string): string => {
@@ -141,6 +141,7 @@ const emitApiRoutesDeclaration = (): string => {
       ['Failed to emit API route declarations.', stdout?.trim(), stderr?.trim()]
         .filter(Boolean)
         .join('\n'),
+      { cause: error },
     );
   } finally {
     if (temporaryRoot.startsWith(tmpdir())) {
@@ -170,7 +171,7 @@ type StaticTypeImport = {
 };
 
 const escapeRegExp = (value: string): string => {
-  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 };
 
 const collectInlineTypeImportNames = (
@@ -186,9 +187,9 @@ const collectInlineTypeImportNames = (
             'gu',
           ),
         ),
-      ).map(({ groups }) => groups!.importName!),
+      ).map(({ groups }) => groups!.importName),
     ),
-  ].sort();
+  ].toSorted();
 };
 
 const createNamedTypeImport = ({
@@ -211,8 +212,8 @@ const splitTopLevelTypeList = (text: string): string[] => {
   let itemStartIndex = 0;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = 0; index < text.length; index++) {
-    const character = text[index]!;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
     const previousCharacter = text[index - 1];
 
     if (stringDelimiter) {
@@ -228,42 +229,42 @@ const splitTopLevelTypeList = (text: string): string[] => {
     }
 
     if (character === '<') {
-      angleDepth++;
+      angleDepth += 1;
       continue;
     }
 
     if (character === '>') {
-      angleDepth--;
+      angleDepth -= 1;
       continue;
     }
 
     if (character === '{') {
-      braceDepth++;
+      braceDepth += 1;
       continue;
     }
 
     if (character === '}') {
-      braceDepth--;
+      braceDepth -= 1;
       continue;
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
       continue;
     }
 
     if (character === '(') {
-      parenthesisDepth++;
+      parenthesisDepth += 1;
       continue;
     }
 
     if (character === ')') {
-      parenthesisDepth--;
+      parenthesisDepth -= 1;
       continue;
     }
 
@@ -297,8 +298,8 @@ const splitTopLevelIntersection = (text: string): string[] => {
   let itemStartIndex = 0;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = 0; index < text.length; index++) {
-    const character = text[index]!;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
     const previousCharacter = text[index - 1];
 
     if (stringDelimiter) {
@@ -314,42 +315,42 @@ const splitTopLevelIntersection = (text: string): string[] => {
     }
 
     if (character === '<') {
-      angleDepth++;
+      angleDepth += 1;
       continue;
     }
 
     if (character === '>') {
-      angleDepth--;
+      angleDepth -= 1;
       continue;
     }
 
     if (character === '{') {
-      braceDepth++;
+      braceDepth += 1;
       continue;
     }
 
     if (character === '}') {
-      braceDepth--;
+      braceDepth -= 1;
       continue;
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
       continue;
     }
 
     if (character === '(') {
-      parenthesisDepth++;
+      parenthesisDepth += 1;
       continue;
     }
 
     if (character === ')') {
-      parenthesisDepth--;
+      parenthesisDepth -= 1;
       continue;
     }
 
@@ -389,8 +390,8 @@ const extractFirstSchemaType = (text: string): string | undefined => {
   let parenthesisDepth = 0;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = schemaStartIndex; index < text.length; index++) {
-    const character = text[index]!;
+  for (let index = schemaStartIndex; index < text.length; index += 1) {
+    const character = text[index];
     const previousCharacter = text[index - 1];
 
     if (stringDelimiter) {
@@ -406,42 +407,42 @@ const extractFirstSchemaType = (text: string): string | undefined => {
     }
 
     if (character === '<') {
-      angleDepth++;
+      angleDepth += 1;
       continue;
     }
 
     if (character === '>') {
-      angleDepth--;
+      angleDepth -= 1;
       continue;
     }
 
     if (character === '{') {
-      braceDepth++;
+      braceDepth += 1;
       continue;
     }
 
     if (character === '}') {
-      braceDepth--;
+      braceDepth -= 1;
       continue;
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
       continue;
     }
 
     if (character === '(') {
-      parenthesisDepth++;
+      parenthesisDepth += 1;
       continue;
     }
 
     if (character === ')') {
-      parenthesisDepth--;
+      parenthesisDepth -= 1;
       continue;
     }
 
@@ -473,8 +474,8 @@ const findTopLevelProperty = (
   let parenthesisDepth = 0;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = 0; index < text.length; index++) {
-    const character = text[index]!;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
     const previousCharacter = text[index - 1];
 
     if (stringDelimiter) {
@@ -503,9 +504,9 @@ const findTopLevelProperty = (
       for (
         let propertyEndIndex = index;
         propertyEndIndex < text.length;
-        propertyEndIndex++
+        propertyEndIndex += 1
       ) {
-        const propertyCharacter = text[propertyEndIndex]!;
+        const propertyCharacter = text[propertyEndIndex];
         const propertyPreviousCharacter = text[propertyEndIndex - 1];
 
         if (stringDelimiter) {
@@ -528,42 +529,42 @@ const findTopLevelProperty = (
         }
 
         if (propertyCharacter === '<') {
-          angleDepth++;
+          angleDepth += 1;
           continue;
         }
 
         if (propertyCharacter === '>') {
-          angleDepth--;
+          angleDepth -= 1;
           continue;
         }
 
         if (propertyCharacter === '{') {
-          braceDepth++;
+          braceDepth += 1;
           continue;
         }
 
         if (propertyCharacter === '}') {
-          braceDepth--;
+          braceDepth -= 1;
           continue;
         }
 
         if (propertyCharacter === '[') {
-          bracketDepth++;
+          bracketDepth += 1;
           continue;
         }
 
         if (propertyCharacter === ']') {
-          bracketDepth--;
+          bracketDepth -= 1;
           continue;
         }
 
         if (propertyCharacter === '(') {
-          parenthesisDepth++;
+          parenthesisDepth += 1;
           continue;
         }
 
         if (propertyCharacter === ')') {
-          parenthesisDepth--;
+          parenthesisDepth -= 1;
           continue;
         }
 
@@ -580,42 +581,42 @@ const findTopLevelProperty = (
     }
 
     if (character === '<') {
-      angleDepth++;
+      angleDepth += 1;
       continue;
     }
 
     if (character === '>') {
-      angleDepth--;
+      angleDepth -= 1;
       continue;
     }
 
     if (character === '{') {
-      braceDepth++;
+      braceDepth += 1;
       continue;
     }
 
     if (character === '}') {
-      braceDepth--;
+      braceDepth -= 1;
       continue;
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
       continue;
     }
 
     if (character === '(') {
-      parenthesisDepth++;
+      parenthesisDepth += 1;
       continue;
     }
 
     if (character === ')') {
-      parenthesisDepth--;
+      parenthesisDepth -= 1;
     }
   }
 
@@ -643,8 +644,8 @@ const simplifyControllerOperationOmit = (text: string): string => {
     let stringDelimiter: '"' | "'" | '`' | undefined;
     let objectBodyEndIndex: number | undefined;
 
-    for (let index = objectBodyStartIndex; index < text.length; index++) {
-      const character = text[index]!;
+    for (let index = objectBodyStartIndex; index < text.length; index += 1) {
+      const character = text[index];
       const previousCharacter = text[index - 1];
 
       if (stringDelimiter) {
@@ -660,12 +661,12 @@ const simplifyControllerOperationOmit = (text: string): string => {
       }
 
       if (character === '{') {
-        braceDepth++;
+        braceDepth += 1;
         continue;
       }
 
       if (character === '}') {
-        braceDepth--;
+        braceDepth -= 1;
 
         if (braceDepth === 0) {
           objectBodyEndIndex = index;
@@ -711,8 +712,12 @@ const extractApiRouteTupleItems = (declarationText: string): string[] => {
   let bracketDepth = 1;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = tupleStartIndex; index < declarationText.length; index++) {
-    const character = declarationText[index]!;
+  for (
+    let index = tupleStartIndex;
+    index < declarationText.length;
+    index += 1
+  ) {
+    const character = declarationText[index];
     const previousCharacter = declarationText[index - 1];
 
     if (stringDelimiter) {
@@ -728,12 +733,12 @@ const extractApiRouteTupleItems = (declarationText: string): string[] => {
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
 
       if (bracketDepth === 0) {
         return splitTopLevelTypeList(
@@ -744,21 +749,6 @@ const extractApiRouteTupleItems = (declarationText: string): string[] => {
   }
 
   throw new Error('Unable to extract generated apiRoutes tuple items');
-};
-
-const createApiRouteControllerUnion = (declarationText: string): string => {
-  const routeItems = extractApiRouteTupleItems(declarationText);
-  const routeControllers = routeItems.map((routeItem) => {
-    const startMarker = 'ApiRoute<';
-
-    if (!routeItem.startsWith(startMarker) || !routeItem.endsWith('>')) {
-      throw new Error(`Unexpected generated route item: ${routeItem}`);
-    }
-
-    return simplifyApiRouteController(routeItem.slice(startMarker.length, -1));
-  });
-
-  return `export type ApiRouteController =\n${routeControllers.map((routeController) => `  | ${routeController}`).join('\n')};`;
 };
 
 const simplifyOperationType = (operationType: string): string => {
@@ -837,6 +827,21 @@ const simplifyApiRouteController = (routeController: string): string => {
   }
 
   return `ApiController<${path}, ${method}, ${simplifyOperationType(operation)}>`;
+};
+
+const createApiRouteControllerUnion = (declarationText: string): string => {
+  const routeItems = extractApiRouteTupleItems(declarationText);
+  const routeControllers = routeItems.map((routeItem) => {
+    const startMarker = 'ApiRoute<';
+
+    if (!routeItem.startsWith(startMarker) || !routeItem.endsWith('>')) {
+      throw new Error(`Unexpected generated route item: ${routeItem}`);
+    }
+
+    return simplifyApiRouteController(routeItem.slice(startMarker.length, -1));
+  });
+
+  return `export type ApiRouteController =\n${routeControllers.map((routeController) => `  | ${routeController}`).join('\n')};`;
 };
 
 const replaceInlineTypeImports = (
