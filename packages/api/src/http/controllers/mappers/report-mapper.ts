@@ -235,8 +235,8 @@ export const mapBattleReportRowToDto = (
 
     if (
       participantRow.participant_unit_id &&
-      participantRow.participant_amount_before != null &&
-      participantRow.participant_amount_after != null
+      participantRow.participant_amount_before !== null &&
+      participantRow.participant_amount_after !== null
     ) {
       participant.troops.units.push({
         unitId: participantRow.participant_unit_id,
@@ -454,7 +454,7 @@ export const mapScoutingReportRowToDto = (
         reinforcements: hideIntelligence ? [] : reinforcements,
       },
       resources:
-        hideIntelligence || row.wood == null
+        hideIntelligence || row.wood === null
           ? null
           : [row.wood, row.clay, row.iron, row.wheat],
       itemId: hideIntelligence ? null : row.item_id,

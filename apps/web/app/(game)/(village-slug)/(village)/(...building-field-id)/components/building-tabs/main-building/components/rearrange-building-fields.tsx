@@ -131,13 +131,13 @@ export const RearrangeBuildingFields = () => {
       sourceBuildingFieldId === targetBuildingFieldId ||
       isLockedBuildingField(sourceBuildingFieldId) ||
       isLockedBuildingField(targetBuildingFieldId) ||
-      buildingFieldSlots[sourceBuildingFieldId] == null
+      !buildingFieldSlots[sourceBuildingFieldId]
     ) {
       return;
     }
 
     setBuildingFieldSlots((slots) => {
-      if (slots[sourceBuildingFieldId] == null) {
+      if (!slots[sourceBuildingFieldId]) {
         return slots;
       }
 

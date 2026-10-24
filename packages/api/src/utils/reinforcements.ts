@@ -160,9 +160,9 @@ export const returnStationedTroops = (
     sql: selectVillageIdByTileIdQuery,
     bind: { $tile_id: targetTileId },
     schema: z.number().nullable(),
-  });
+  })!;
 
-  if (eventVillageId == null) {
+  if (eventVillageId === null) {
     throw new Error('Target village not found');
   }
 

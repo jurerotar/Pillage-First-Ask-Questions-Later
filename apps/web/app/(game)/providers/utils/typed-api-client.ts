@@ -159,14 +159,14 @@ const buildPath = (pathTemplate: string, options?: RuntimeRequestOptions) => {
   const searchParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(options.query)) {
-    if (value == null) {
+    if (value === null || value === undefined) {
       continue;
     }
 
     // Properly serialize arrays as repeated query params (e.g., ?types=a&types=b)
     if (Array.isArray(value)) {
       for (const v of value) {
-        if (v == null) {
+        if (v === null || v === undefined) {
           continue;
         }
         searchParams.append(key, String(v));

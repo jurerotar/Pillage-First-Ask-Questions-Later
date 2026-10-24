@@ -147,7 +147,7 @@ export const UnitCard = (props: PropsWithChildren<UnitCardProps>) => {
 
   const { buildingField } = use(BuildingFieldContext);
   const troopTrainingConfig =
-    buildingField == null
+    buildingField === null
       ? null
       : (troopTrainingBuildingConfigMap.get(buildingField.buildingId) ?? null);
 

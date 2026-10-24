@@ -414,9 +414,9 @@ export const validateEventCreationPrerequisites = (
         $building_id: 'HUNTERS_LODGE',
       },
       schema: z.number().nullable(),
-    });
+    })!;
 
-    if (huntersLodgeLevel == null) {
+    if (huntersLodgeLevel === null) {
       throw new Error("Hunter's Lodge does not exist");
     }
 
@@ -516,7 +516,7 @@ export const validateEventCreationPrerequisites = (
       schema: z.number().nullable(),
     })!;
 
-    if (gatherersHutLevel == null) {
+    if (gatherersHutLevel === null) {
       throw new Error("Gatherer's Hut does not exist");
     }
 
