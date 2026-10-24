@@ -87,6 +87,8 @@
       }
     ],
     "unicorn/no-null": "off",
+    "unicorn/new-for-builtins": "off",
+    "unicorn/no-lonely-if": "off",
     "unicorn/no-useless-undefined": "off",
     "unicorn/no-array-callback-reference": "off",
     "unicorn/prefer-number-coercion": "off",
@@ -131,6 +133,7 @@
     "vitest/require-test-timeout": "off",
     "vitest/require-top-level-describe": "off",
     "vitest/prefer-to-be-truthy": "off",
+    "vitest/prefer-strict-boolean-matchers": "error",
     "vitest/prefer-to-be": "off",
     "vitest/prefer-to-be-falsy": "off",
     "vitest/max-expects": "off",

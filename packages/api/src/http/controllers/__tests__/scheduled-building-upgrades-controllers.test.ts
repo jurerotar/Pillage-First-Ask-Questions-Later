@@ -745,7 +745,7 @@ describe('scheduled building upgrade controllers', () => {
         level: activeField.level + 1,
       }),
     ]);
-    for (let level = 1; level <= 4; level++) {
+    for (let level = 1; level <= 4; level += 1) {
       insertScheduledBuildingUpgrade(database, {
         villageId,
         buildingId: 'CLAY_PIT',

@@ -84,7 +84,7 @@ const stripSqlComments = (sql: string): string => {
   let isLineComment = false;
   let isBlockComment = false;
 
-  for (let index = 0; index < sql.length; index++) {
+  for (let index = 0; index < sql.length; index += 1) {
     const character = sql[index];
     const nextCharacter = sql[index + 1];
 
@@ -98,7 +98,7 @@ const stripSqlComments = (sql: string): string => {
 
     if (isBlockComment) {
       if (character === '*' && nextCharacter === '/') {
-        index++;
+        index += 1;
         isBlockComment = false;
       } else if (character === '\n') {
         result += '\n';
@@ -112,7 +112,7 @@ const stripSqlComments = (sql: string): string => {
       if (character === quotedString) {
         if (nextCharacter === quotedString) {
           result += nextCharacter;
-          index++;
+          index += 1;
         } else {
           quotedString = null;
         }
@@ -128,13 +128,13 @@ const stripSqlComments = (sql: string): string => {
     }
 
     if (character === '-' && nextCharacter === '-') {
-      index++;
+      index += 1;
       isLineComment = true;
       continue;
     }
 
     if (character === '/' && nextCharacter === '*') {
-      index++;
+      index += 1;
       isBlockComment = true;
       continue;
     }

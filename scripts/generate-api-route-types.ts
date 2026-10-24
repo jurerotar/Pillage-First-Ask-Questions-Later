@@ -212,7 +212,7 @@ const splitTopLevelTypeList = (text: string): string[] => {
   let itemStartIndex = 0;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = 0; index < text.length; index++) {
+  for (let index = 0; index < text.length; index += 1) {
     const character = text[index];
     const previousCharacter = text[index - 1];
 
@@ -229,42 +229,42 @@ const splitTopLevelTypeList = (text: string): string[] => {
     }
 
     if (character === '<') {
-      angleDepth++;
+      angleDepth += 1;
       continue;
     }
 
     if (character === '>') {
-      angleDepth--;
+      angleDepth -= 1;
       continue;
     }
 
     if (character === '{') {
-      braceDepth++;
+      braceDepth += 1;
       continue;
     }
 
     if (character === '}') {
-      braceDepth--;
+      braceDepth -= 1;
       continue;
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
       continue;
     }
 
     if (character === '(') {
-      parenthesisDepth++;
+      parenthesisDepth += 1;
       continue;
     }
 
     if (character === ')') {
-      parenthesisDepth--;
+      parenthesisDepth -= 1;
       continue;
     }
 
@@ -298,7 +298,7 @@ const splitTopLevelIntersection = (text: string): string[] => {
   let itemStartIndex = 0;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = 0; index < text.length; index++) {
+  for (let index = 0; index < text.length; index += 1) {
     const character = text[index];
     const previousCharacter = text[index - 1];
 
@@ -315,42 +315,42 @@ const splitTopLevelIntersection = (text: string): string[] => {
     }
 
     if (character === '<') {
-      angleDepth++;
+      angleDepth += 1;
       continue;
     }
 
     if (character === '>') {
-      angleDepth--;
+      angleDepth -= 1;
       continue;
     }
 
     if (character === '{') {
-      braceDepth++;
+      braceDepth += 1;
       continue;
     }
 
     if (character === '}') {
-      braceDepth--;
+      braceDepth -= 1;
       continue;
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
       continue;
     }
 
     if (character === '(') {
-      parenthesisDepth++;
+      parenthesisDepth += 1;
       continue;
     }
 
     if (character === ')') {
-      parenthesisDepth--;
+      parenthesisDepth -= 1;
       continue;
     }
 
@@ -390,7 +390,7 @@ const extractFirstSchemaType = (text: string): string | undefined => {
   let parenthesisDepth = 0;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = schemaStartIndex; index < text.length; index++) {
+  for (let index = schemaStartIndex; index < text.length; index += 1) {
     const character = text[index];
     const previousCharacter = text[index - 1];
 
@@ -407,42 +407,42 @@ const extractFirstSchemaType = (text: string): string | undefined => {
     }
 
     if (character === '<') {
-      angleDepth++;
+      angleDepth += 1;
       continue;
     }
 
     if (character === '>') {
-      angleDepth--;
+      angleDepth -= 1;
       continue;
     }
 
     if (character === '{') {
-      braceDepth++;
+      braceDepth += 1;
       continue;
     }
 
     if (character === '}') {
-      braceDepth--;
+      braceDepth -= 1;
       continue;
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
       continue;
     }
 
     if (character === '(') {
-      parenthesisDepth++;
+      parenthesisDepth += 1;
       continue;
     }
 
     if (character === ')') {
-      parenthesisDepth--;
+      parenthesisDepth -= 1;
       continue;
     }
 
@@ -474,7 +474,7 @@ const findTopLevelProperty = (
   let parenthesisDepth = 0;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = 0; index < text.length; index++) {
+  for (let index = 0; index < text.length; index += 1) {
     const character = text[index];
     const previousCharacter = text[index - 1];
 
@@ -504,7 +504,7 @@ const findTopLevelProperty = (
       for (
         let propertyEndIndex = index;
         propertyEndIndex < text.length;
-        propertyEndIndex++
+        propertyEndIndex += 1
       ) {
         const propertyCharacter = text[propertyEndIndex];
         const propertyPreviousCharacter = text[propertyEndIndex - 1];
@@ -529,42 +529,42 @@ const findTopLevelProperty = (
         }
 
         if (propertyCharacter === '<') {
-          angleDepth++;
+          angleDepth += 1;
           continue;
         }
 
         if (propertyCharacter === '>') {
-          angleDepth--;
+          angleDepth -= 1;
           continue;
         }
 
         if (propertyCharacter === '{') {
-          braceDepth++;
+          braceDepth += 1;
           continue;
         }
 
         if (propertyCharacter === '}') {
-          braceDepth--;
+          braceDepth -= 1;
           continue;
         }
 
         if (propertyCharacter === '[') {
-          bracketDepth++;
+          bracketDepth += 1;
           continue;
         }
 
         if (propertyCharacter === ']') {
-          bracketDepth--;
+          bracketDepth -= 1;
           continue;
         }
 
         if (propertyCharacter === '(') {
-          parenthesisDepth++;
+          parenthesisDepth += 1;
           continue;
         }
 
         if (propertyCharacter === ')') {
-          parenthesisDepth--;
+          parenthesisDepth -= 1;
           continue;
         }
 
@@ -581,42 +581,42 @@ const findTopLevelProperty = (
     }
 
     if (character === '<') {
-      angleDepth++;
+      angleDepth += 1;
       continue;
     }
 
     if (character === '>') {
-      angleDepth--;
+      angleDepth -= 1;
       continue;
     }
 
     if (character === '{') {
-      braceDepth++;
+      braceDepth += 1;
       continue;
     }
 
     if (character === '}') {
-      braceDepth--;
+      braceDepth -= 1;
       continue;
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
       continue;
     }
 
     if (character === '(') {
-      parenthesisDepth++;
+      parenthesisDepth += 1;
       continue;
     }
 
     if (character === ')') {
-      parenthesisDepth--;
+      parenthesisDepth -= 1;
     }
   }
 
@@ -644,7 +644,7 @@ const simplifyControllerOperationOmit = (text: string): string => {
     let stringDelimiter: '"' | "'" | '`' | undefined;
     let objectBodyEndIndex: number | undefined;
 
-    for (let index = objectBodyStartIndex; index < text.length; index++) {
+    for (let index = objectBodyStartIndex; index < text.length; index += 1) {
       const character = text[index];
       const previousCharacter = text[index - 1];
 
@@ -661,12 +661,12 @@ const simplifyControllerOperationOmit = (text: string): string => {
       }
 
       if (character === '{') {
-        braceDepth++;
+        braceDepth += 1;
         continue;
       }
 
       if (character === '}') {
-        braceDepth--;
+        braceDepth -= 1;
 
         if (braceDepth === 0) {
           objectBodyEndIndex = index;
@@ -712,7 +712,11 @@ const extractApiRouteTupleItems = (declarationText: string): string[] => {
   let bracketDepth = 1;
   let stringDelimiter: '"' | "'" | '`' | undefined;
 
-  for (let index = tupleStartIndex; index < declarationText.length; index++) {
+  for (
+    let index = tupleStartIndex;
+    index < declarationText.length;
+    index += 1
+  ) {
     const character = declarationText[index];
     const previousCharacter = declarationText[index - 1];
 
@@ -729,12 +733,12 @@ const extractApiRouteTupleItems = (declarationText: string): string[] => {
     }
 
     if (character === '[') {
-      bracketDepth++;
+      bracketDepth += 1;
       continue;
     }
 
     if (character === ']') {
-      bracketDepth--;
+      bracketDepth -= 1;
 
       if (bracketDepth === 0) {
         return splitTopLevelTypeList(

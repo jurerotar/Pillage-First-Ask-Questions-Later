@@ -696,7 +696,7 @@ test('closing is idempotent and remains persisted when the database is reopened'
 
   expect(response.status).toBe(200);
   expect(closed.status).toBe('closed');
-  expect(closed.closedAt > 0).toBeTruthy();
+  expect(closed.closedAt > 0).toBe(true);
 
   const repeated = await app.request(
     `/api/admin/reports/${report.id}/close`,
@@ -810,7 +810,7 @@ test('the web app origin can preflight both admin and public requests', async ()
   );
   expect(
     response.headers.get('access-control-allow-methods')?.includes('DELETE'),
-  ).toBeTruthy();
+  ).toBe(true);
 
   const game = await app.request('/api/reports', {
     method: 'OPTIONS',

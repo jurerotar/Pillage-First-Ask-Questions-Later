@@ -41,15 +41,15 @@ const renderInlineMarkdown = (text: string): ReactNode[] => {
     }
 
     if (match[1]) {
-      nodes.push(<br key={key++} />);
+      nodes.push(<br key={key} />);
     } else if (match[2]) {
-      nodes.push(<strong key={key++}>{match[2]}</strong>);
+      nodes.push(<strong key={key}>{match[2]}</strong>);
     } else if (match[3]) {
-      nodes.push(<code key={key++}>{match[3]}</code>);
+      nodes.push(<code key={key}>{match[3]}</code>);
     } else if (match[4] && match[5]) {
       nodes.push(
         <a
-          key={key++}
+          key={key}
           href={match[5]}
         >
           {match[4]}
@@ -57,6 +57,7 @@ const renderInlineMarkdown = (text: string): ReactNode[] => {
       );
     }
 
+    key += 1;
     lastIndex = match.index + match[0].length;
   }
 

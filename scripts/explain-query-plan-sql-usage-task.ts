@@ -223,7 +223,7 @@ const stripSqlComments = (sql: string): string => {
   let isLineComment = false;
   let isBlockComment = false;
 
-  for (let index = 0; index < sql.length; index++) {
+  for (let index = 0; index < sql.length; index += 1) {
     const character = sql[index];
     const nextCharacter = sql[index + 1];
 
@@ -237,7 +237,7 @@ const stripSqlComments = (sql: string): string => {
 
     if (isBlockComment) {
       if (character === '*' && nextCharacter === '/') {
-        index++;
+        index += 1;
         isBlockComment = false;
       } else if (character === '\n') {
         result += '\n';
@@ -251,7 +251,7 @@ const stripSqlComments = (sql: string): string => {
       if (character === quotedString) {
         if (nextCharacter === quotedString) {
           result += nextCharacter;
-          index++;
+          index += 1;
         } else {
           quotedString = null;
         }
@@ -267,13 +267,13 @@ const stripSqlComments = (sql: string): string => {
     }
 
     if (character === '-' && nextCharacter === '-') {
-      index++;
+      index += 1;
       isLineComment = true;
       continue;
     }
 
     if (character === '/' && nextCharacter === '*') {
-      index++;
+      index += 1;
       isBlockComment = true;
       continue;
     }
@@ -290,7 +290,7 @@ const splitSqlStatements = (sql: string): string[] => {
   let statement = '';
   let quotedString: '"' | "'" | null = null;
 
-  for (let index = 0; index < cleanedSql.length; index++) {
+  for (let index = 0; index < cleanedSql.length; index += 1) {
     const character = cleanedSql[index];
     const nextCharacter = cleanedSql[index + 1];
 
@@ -300,7 +300,7 @@ const splitSqlStatements = (sql: string): string[] => {
       if (character === quotedString) {
         if (nextCharacter === quotedString) {
           statement += nextCharacter;
-          index++;
+          index += 1;
         } else {
           quotedString = null;
         }
@@ -445,10 +445,10 @@ export const main = async (): Promise<void> => {
       const queryPlan = explainQueryPlan(database, statement, bind);
       const execution = measureExecution(sqlite3, rawDatabase, statement, bind);
       if (queryPlan.status === 'error') {
-        errors++;
+        errors += 1;
       }
       if (execution.error) {
-        executionErrors++;
+        executionErrors += 1;
       }
       return formatResult({
         index: index + 1,
